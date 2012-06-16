@@ -1,0 +1,16 @@
+#ifndef mmdl_SPLINECONSTS_H_
+#define mmdl_SPLINECONSTS_H_
+
+namespace mmdl {
+	
+	double chordal    =1.0;
+	double centripetal=0.5;
+	double uniform    =0.0;
+	
+	
+	class Hermite{};
+	class CatmullRom{};
+	
+}
+
+#endif

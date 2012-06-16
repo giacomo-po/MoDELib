@@ -1,0 +1,197 @@
+/* This file is part of mmdl, the Mechanics of Material Defects Library.
+ *
+ * Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.
+ *
+ * mmdl is distributed without any warranty under the 
+ * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
+ */
+
+
+#ifndef mmdl_SUBNETWORK_H_
+#define mmdl_SUBNETWORK_H_
+
+#ifndef VERBOSELEVEL
+#define VERBOSELEVEL 0
+#endif
+
+#include <iomanip>
+#include <assert.h>
+#include <map>
+#include <utility>
+
+#include <boost/ptr_container/ptr_map.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/utility.hpp>
+
+#include <mmdl/Network/Operations/includeNetworkOperations.h>
+
+
+#include <mmdl/Utilities/AddressBook.h>
+#include <mmdl/Utilities/TypeTraits.h>
+
+namespace mmdl {
+
+		/************************************************************/
+		/************************************************************/
+		template <typename Derived>
+		class SubNetwork : boost::noncopyable,
+		/*              */ private	std::map<size_t,typename TypeTraits<Derived>::NodeType* const>,
+		/*              */ private	std::map<std::pair<size_t,size_t>,typename TypeTraits<Derived>::LinkType* const>,
+		/*              */ public	AddressBook<Derived>{
+			
+			/*! \brief CRTP-based class template which 
+			 */
+			
+			#include <mmdl/Network/NetworkTypedefs.h>
+			
+		public:	
+			
+			/************************************************************/
+			/* Constructor with pointer to Node *************************/
+			SubNetwork(NodeType* const pN){
+#if VERBOSELEVEL == 0
+				std::cout<<"Creating SubNetwork "<<this->sID<<" for Node "<<pN->sID<<std::endl;
+#endif
+				add(pN);
+			}
+			
+			/************************************************************/
+			/* Constructor with pointer to Link *************************/
+			SubNetwork(LinkType* const pL){
+#if VERBOSELEVEL == 0
+				std::cout<<"Creating SubNetwork "<<this->sID<<" for Link "<<pL->sID<<std::endl;
+#endif
+				add(pL);
+			}
+			
+			/************************************************************/
+			// Destructor
+			~SubNetwork(){
+				assert(SubNetworkNodeContainerType::empty() && "Destroying non-empty SubNetwork! Subnetwork contains Vertices.");	// make sure that only empty subnetworks are deleted
+				assert(SubNetworkLinkContainerType::empty() && "Destroying non-empty SubNetwork! Subnetwork contains Edges.");		// make sure that only empty subnetworks are deleted
+#if VERBOSELEVEL == 0
+				std::cout<<"Deleting SubNetwork "<<this->sID;
+				std::cout<<" .There are now "<<this->Naddresses()-1<<" SubNetworks"<<std::endl;
+#endif
+			}
+			
+			/************************************************************/
+			// NODE OPERATIONS
+			/************************************************************/
+			// nodeOrder
+			size_t nodeOrder() const {
+				return SubNetworkNodeContainerType::size();
+			}
+			
+			/************************************************************/
+			// nodeBegin
+			typename SubNetworkNodeContainerType::iterator nodeBegin() {
+				return SubNetworkNodeContainerType::begin();
+			}
+			
+			/************************************************************/
+			// nodeBegin
+			typename SubNetworkNodeContainerType::const_iterator nodeBegin() const {
+				return SubNetworkNodeContainerType::begin();
+			}
+			
+			/************************************************************/
+			// nodeEnd
+			typename SubNetworkNodeContainerType::iterator nodeEnd() {
+				return SubNetworkNodeContainerType::end();
+			}
+			
+			/************************************************************/
+			// nodeEnd
+			typename SubNetworkNodeContainerType::const_iterator nodeEnd() const {
+				return SubNetworkNodeContainerType::end();
+			}
+			
+			/************************************************************/
+			// snID
+			size_t snID(const NodeType* const & pN) const {
+				return std::distance(SubNetworkNodeContainerType::begin(), SubNetworkNodeContainerType::find(pN->sID) );
+			}
+			
+			/************************************************************/
+			void add(NodeType* const pN){
+				assert(SubNetworkNodeContainerType::insert(std::make_pair(pN->sID,pN)).second);
+			}
+			
+			/************************************************************/
+			void remove(NodeType* const pN){
+				assert(SubNetworkNodeContainerType::erase(pN->sID)==1);
+			}
+			
+			/************************************************************/
+			// LINK OPERATIONS
+			/************************************************************/
+			// linkOrder
+			size_t linkOrder() const {
+				return SubNetworkLinkContainerType::size();
+			}
+			
+			/************************************************************/
+			// linkBegin
+			typename SubNetworkLinkContainerType::iterator linkBegin()  {
+				return SubNetworkLinkContainerType::begin();
+			}
+			
+			typename SubNetworkLinkContainerType::const_iterator linkBegin() const {
+				return SubNetworkLinkContainerType::begin();
+			}
+			
+			/************************************************************/
+			// linkEnd
+			typename SubNetworkLinkContainerType::iterator linkEnd() {
+				return SubNetworkLinkContainerType::end();
+			}
+			
+			typename SubNetworkLinkContainerType::const_iterator linkEnd() const {
+				return SubNetworkLinkContainerType::end();
+			}
+			
+			/************************************************************/
+			// snID (link)
+			size_t snID(const LinkType* const & pL) const {
+				return std::distance(SubNetworkLinkContainerType::begin(), SubNetworkLinkContainerType::find(pL->nodeIDPair  ) );
+			}
+			
+			/************************************************************/
+			void add(LinkType* const pL){
+				assert(SubNetworkLinkContainerType::insert(std::make_pair(pL->nodeIDPair ,pL)).second);
+			}
+			
+			/************************************************************/
+			void remove(LinkType* const pL){
+				assert(SubNetworkLinkContainerType::erase(pL->nodeIDPair )==1);
+			}
+			
+			/************************************************************/
+			// friend T& operator <<
+			template <class T, typename OtherDerived>
+			friend T& operator << (T& os, const SubNetwork<OtherDerived> & SN){
+				
+				os<<"////// SUBNETWORK "<<SN.sID<<" ["<<&SN<<"] ////// ";
+				os<<"nodeOrder =  "<<SN.nodeOrder();
+				os<<". linkOrder =  "<<SN.linkOrder()<<std::endl;
+				
+				os<<"Link Map:"<<std::endl;
+				for (typename SubNetworkLinkContainerType::const_iterator linkIter=SN.linkBegin(); linkIter!=SN.linkEnd(); ++linkIter){
+					os<<*linkIter->second<<std::endl;
+				}
+				
+				os<<"Node Map:"<<std::endl;
+				for (typename SubNetworkNodeContainerType::const_iterator nodeIter=SN.nodeBegin(); nodeIter!=SN.nodeEnd(); ++nodeIter){
+					os<<*nodeIter->second<<std::endl;
+				}
+				
+				return os;
+			}
+			
+		};
+		
+		/************************************************************/
+		/************************************************************/
+} // namespace mmdl
+#endif

@@ -1,0 +1,34 @@
+// This file is part of mmdl, the C++ materials defect mechanics library.
+//
+// Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.
+//
+// mmdl is distributed without any warranty under the 
+// GNU Lesser General Public License <http://www.gnu.org/licenses/>.
+
+
+typedef NetworkNode<Derived> NetworkNodeType;
+
+typedef typename NetworkNodeType::LinkType LinkType;
+
+typedef boost::tuple<Derived*,LinkType*,short int> NeighborType;
+typedef std::map<size_t,NeighborType> NeighborContainerType;
+typedef typename NeighborContainerType::iterator NeighborIteratorType;
+typedef typename NeighborContainerType::const_iterator constNeighborIteratorType;
+
+typedef Eigen::Matrix<double, dim, 1> VectorDim;
+
+private:
+
+	VectorDim P;
+
+public:
+EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+	const VectorDim & get_P() const{
+		return P;
+	}
+
+	///////////////////////////////
+	bool is_removable() const {
+		return true;
+	}

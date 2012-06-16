@@ -1,0 +1,32 @@
+# use glob syntax.
+syntax: glob
+ 
+# Folders
+docs/HTML
+ 
+# Misc Mac/Windows stuff
+ 
+.DS_Store
+Thumbs.db
+Desktop.ini
+ 
+# builds
+ 
+*.exe
+*.ex_
+ 
+# vb6
+ 
+*.SCC
+*.vbw
+*.pdb
+*.log
+*.Log
+ 
+# c-sharp
+#ProjectName/bin
+#ProjectName/obj
+*.user
+*.suo
+_ReSharper.*
+*.sln.cache

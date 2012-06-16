@@ -1,0 +1,20 @@
+#ifndef mmdl_GCD_H_
+#define mmdl_GCD_H_
+
+namespace mmdl {
+	
+	//////////////////////////////////////////////////////////////////////////
+	template< size_t A, size_t B >
+	struct GCD {
+		enum { value = GCD< B, A % B >::value };
+	};
+	
+	template< size_t A >
+	struct GCD<A,0> {
+		enum { value = A };
+	};
+	
+	//////////////////////////////////////////////////////////////////////////
+} // end namespace mmdl
+
+#endif

@@ -1,0 +1,19 @@
+namespace model {
+
+
+/*! \mainpage Welcome to MODEL
+ 
+ The Mechanics of Defect Evolution Library (MODEL) is a collection of 
+ 
+
+\b Table \b of \b contents
+  - \ref introduction
+  - \ref installation
+  - \ref tutorial
+
+ 
+ return to the library home page  http://code.google.com/p/MODEL/
+ 
+ */
+
+}

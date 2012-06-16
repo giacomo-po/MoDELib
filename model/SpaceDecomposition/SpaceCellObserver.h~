@@ -1,0 +1,87 @@
+/* This file is part of mmdl, the Mechanics of Material Defects Library.
+ *
+ * Copyright (C) 2011 by Giacomo Po       <giacomopo@gmail.com>,
+ *
+ * mmdl is distributed without any warranty under the 
+ * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef mmdl_SPACECELLOBSERVER_H_
+#define mmdl_SPACECELLOBSERVER_H_
+
+#include <map>
+#include <boost/shared_ptr.hpp>
+
+#include <Eigen/Dense>
+#include <mmdl/Utilities/CompareVectorsByComponent.h>
+
+namespace mmdl {
+	
+	template <short unsigned int dim>
+	Eigen::Matrix<int,dim,1> floorEigen(const Eigen::Matrix<double,dim,1>& P) {
+		return (Eigen::Matrix<int,dim,1>()<< (int)std::floor(P(0)), floorEigen<dim-1>(P.template segment<dim-1>(1))).finished();
+	}
+	
+	template <>
+	Eigen::Matrix<int,1,1> floorEigen<1>(const Eigen::Matrix<double,1,1>& P) {
+		return (Eigen::Matrix<int,1,1>()<< (int)std::floor(P(0)) ).finished();
+	}
+	
+	/********************************************************************************************/
+	/********************************************************************************************/	
+	template<typename SpaceCellType,short unsigned int dim,double & cellSize>
+	struct SpaceCellObserver{
+		
+		typedef Eigen::Matrix<double,dim,1> VectorDimD;
+		typedef Eigen::Matrix<int,dim,1>    VectorDimI;
+		typedef std::map<VectorDimI,SpaceCellType* const,CompareVectorsByComponent<int,dim> >  CellMapType;
+		typedef boost::shared_ptr<SpaceCellType> SharedPtrType;
+
+
+		/* begin() ***************************************************/
+		static typename CellMapType::const_iterator begin() {
+			return cellMap.begin();
+		}
+		
+		/* end() *****************************************************/		
+		static typename CellMapType::const_iterator end() {
+			return cellMap.end();
+		}
+		
+		/* getCellByID *****************************************************/		
+		static SharedPtrType getCellByID(const VectorDimI& cellID)  {
+			typename CellMapType::const_iterator iter(cellMap.find(cellID));
+			return (iter!=cellMap.end())? (*(iter->second->particleContainer.begin()))->pCell : SharedPtrType(new SpaceCellType(cellID));
+		}
+		
+		/* getCellByPosition **********************************************/		
+		static SharedPtrType getCellByPosition(const VectorDimD& P)  {
+//			typename CellMapType::const_iterator iter(cellMap.find(cellID));
+			return getCellByID(floorEigen<dim>(P/cellSize));
+		}
+		
+		
+	protected:
+		static  CellMapType cellMap;		
+	};
+	
+	/////////////////////////////
+	// Declare static data member
+	template <typename SpaceCellType,short unsigned int dim, double & cellSize>
+	std::map<Eigen::Matrix<int,dim,1>,SpaceCellType* const,CompareVectorsByComponent<int,dim> > SpaceCellObserver<SpaceCellType,dim,cellSize>::cellMap;
+	
+}	// close namespace
+#endif
+
+
+
+/* begin() ***************************************************/
+//		typename CellMapType::const_iterator begin() const {
+//			return cellMap.begin();
+//		}
+
+
+///* end() *****************************************************/		
+//typename CellMapType::const_iterator end() const {
+//	return cellMap.end();
+//}

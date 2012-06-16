@@ -1,0 +1,19 @@
+#ifndef mmdl_COMBINATIONWITHOUTREPETITION_H_
+#define mmdl_COMBINATIONWITHOUTREPETITION_H_
+
+
+#include <mmdl/CompileTimeMath/Factorial.h>
+#include <mmdl/CompileTimeMath/PermutationWithoutRepetition.h>
+
+namespace mmdl {
+	
+	
+	template <int N, int k>
+	struct CwoR{
+		enum{value=PwoR<N,k>::value / Factorial<k>::value};
+	};
+	
+	//////////////////////////////////////////////////////////////////////////
+} // end namespace ctmath
+
+#endif

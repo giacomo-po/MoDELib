@@ -1,0 +1,15 @@
+/* This file is part of mmdl, the Mechanics of Material Defects Library.
+ *
+ * Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.
+ * Copyright (C) 2011 by Benjamin Ramirez <ramirezbrf@gmail.com>.
+ *
+ * mmdl is distributed without any warranty under the 
+ * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
+*/
+
+#include <mmdl/Dislocations/Visualization/DDglut.h>
+
+/************************************/
+int main(int argc, char** argv) {
+	return mmdl::DDglut(argc,argv);
+}
