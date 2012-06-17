@@ -1,0 +1,15 @@
+namespace model {
+/*! \page meshes 
+
+==== Crating Meshes (MOVE DO DOXYGEN)====
+
+ * input mesh files can be easily generated from any STL geometry using [http://tetgen.berlios.de/ TetGen], a quality tetrahedral mesh generator and a 3d delaunay triangulator.
+
+
+ imports meshes with the following formats: ???
+
+ 
+
+ 
+*/
+}

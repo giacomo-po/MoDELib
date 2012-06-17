@@ -1,11 +1,23 @@
+# regular expressions syntax. (See http://en.wikipedia.org/wiki/Regular_expression)
+syntax: regexp
+
+# Output Files
+[ABCDEFGHIJKLMNOPQRSTUVWXYZ]_[0123456789]+\.txt
+[ABCDEFGHIJKLMNOPQRSTUVWXYZ]_[0123456789]+\.bin
+
 # use glob syntax.
 syntax: glob
  
 # Folders
-docs/HTML/*
- 
+docs/HTML
+
+# Output Files
+*.jpg
+*.tga
+*.mpg
+
 # Misc Mac/Windows stuff
- 
+ *~
 .DS_Store
 Thumbs.db
 Desktop.ini

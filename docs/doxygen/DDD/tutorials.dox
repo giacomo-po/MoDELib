@@ -8,6 +8,7 @@ namespace mmdl {
 
 \b Table \b of \b contents
  - \ref tutorial1 : in this tutorial ...
+ - \ref visualization : compiling and running DDviewer
  - \ref tutorial2 : applying a homogeneous  external stress
  - \ref tutorial3 : applying a heterogeneous  external stress
   - \ref tutorial3 : outputing custom data
@@ -16,6 +17,7 @@ namespace mmdl {
   /subsection Tutorials in finite domains
  
 \b Table \b of \b contents
+  - \ref meshes: generating meshes
   - \ref tutorial4 : confining dislocations in a finite volume
   - \ref tutorial5 : prescribing boundary conditions
   
