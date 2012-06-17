@@ -1,0 +1,55 @@
+#!/bin/bash
+#find E/ -name E_\*.txt ! -name E_0.txt -print;
+find V/ -name V_\*.txt ! -name V_0.txt -exec rm {} \;
+find E/ -name E_\*.txt ! -name E_0.txt -exec rm {} \;
+find G/ -name G_\*.txt -exec rm {} \;
+find C/ -name C_\*.txt -exec rm {} \;
+find N/ -name N_\*.txt -exec rm {} \;
+find T/ -name T_\*.txt -exec rm {} \;
+
+
+
+
+
+
+#total = ls -l E/ | wc -l
+#echo "$total"
+
+#totalFiles=ls -l E/;
+#totalFiles=`ls -l E/ | wc -l`
+
+#echo $totalFiles
+
+
+
+#fileList=`ls E/*.txt`
+#for i in $fileList; 
+#do
+#filename=$i
+#echo $filename
+#     NEWNAME=$(ls "$i" | sed -e 's/html/php/')
+#     cat beginfile > "$NEWNAME"
+#     cat "$i" | sed -e '1,25d' | tac | sed -e '1,21d'| tac >> "$NEWNAME"
+#     cat endfile >> "$NEWNAME"
+#done
+
+
+
+#for i in {1..$totalFiles} do
+#if [[ $i != 0 ]]
+#then 
+#	rm E/E_$i.txt
+#	rm V/V_$i.txt
+#fi
+#	rm C/C_$i.txt
+#	rm G/G_$i.txt
+#done
+
+
+#LIST="$(ls *.html)"
+#for i in "$LIST"; do
+#     NEWNAME=$(ls "$i" | sed -e 's/html/php/')
+#     cat beginfile > "$NEWNAME"
+#     cat "$i" | sed -e '1,25d' | tac | sed -e '1,21d'| tac >> "$NEWNAME"
+#     cat endfile >> "$NEWNAME"
+#done

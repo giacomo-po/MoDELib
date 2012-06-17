@@ -1,0 +1,61 @@
+function generateSTLcyl
+addpath('../Matlab');
+
+
+R=2000;
+H=6*R;
+
+np=20;
+
+theta=[0:np-1]/np*2*pi;
+x=R*cos(theta)+R;
+y=R*sin(theta)+R;
+
+%facetID=1;
+Facets={};
+
+for k=1:np
+    k1=rem(k,np)+1;
+    
+    v1=[x(k)  y(k) 0];
+    v2=[x(k1) y(k1) 0];
+    v3=[x(k)  y(k) H];
+    Facets=addFacet(Facets,v1,v2,v3);
+        
+    v1=[x(k)  y(k) 0];
+    v2=[0 0 0];
+    v3=[x(k1)  y(k1) 0];
+    Facets=addFacet(Facets,v1,v2,v3);
+    
+    v1=[x(k1)  y(k1) H];
+    v2=[x(k)  y(k) H];
+    v3=[x(k1)  y(k1) 0];
+    Facets=addFacet(Facets,v1,v2,v3);
+    
+    v1=[x(k1)  y(k1) H];
+    v2=[0 0 H];
+    v3=[x(k)  y(k) H];
+    Facets=addFacet(Facets,v1,v2,v3);
+    
+    
+end
+
+
+%plot(x,y)
+axis equal
+%Facets{1}.normal=[1 1 1];
+
+writeSTL(Facets,'cylinder_2k_12k')
+
+function Facets=addFacet(Facets,v1,v2,v3)
+%facetID=;
+facetID=length(Facets)+1;
+
+Facets{facetID}.v1=v1;
+Facets{facetID}.v2=v2;
+Facets{facetID}.v3=v3;
+n=cross(v1-v3,v2-v1);
+n=n/norm(n);
+Facets{facetID}.normal=n;
+figure(1)
+plot3(v1(1),v1(1),v1(1))
