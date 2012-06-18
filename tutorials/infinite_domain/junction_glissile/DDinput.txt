@@ -2,18 +2,15 @@
 startAtTimeStep = 0;
 
 initialStress = 0.0 0.0 0.0
-   	  	        0.0 0.0 0.0
-	      	    0.0 0.0 0.01;
+   	  	       0.0 0.0 0.0
+	      	    0.0 0.0 0.0;
 		   
 ######################################
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
 
-#C2G =                 1.0   0.0  0.0
-#                      0.0   1.0 0.0
-#     				  0.0   0.0  1.0;
-C2G =  0.7071067811865475 -0.7071067811865475  0.0
-       0.4082482904638631  0.4082482904638631 -0.8164965809277261
-       0.5773502691896258  0.5773502691896258  0.5773502691896258;
+C2G = 1.0   0.0  0.0
+      0.0   1.0  0.0
+      0.0   0.0  1.0;
 
 ######################################
 # Maximum nodal dispacement per time step (this controls time step size) 
@@ -21,7 +18,7 @@ dx=10;
 
 ######################################
 # Initialize number of simulation steps 
-Nsteps=500;
+Nsteps=300;
 timeWindow=5.1e03;
 outputFrequency=1;
 

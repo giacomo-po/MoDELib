@@ -19,7 +19,7 @@ plot3(P0(1),P0(2),P0(3),'sk')
 
 AB=B-A;
 
-theta=30; % deg
+theta=20; % deg
 
 
 Pd(:,1)=P0-angleAxis(N(:,delta),theta*pi/180)*AB/2;
