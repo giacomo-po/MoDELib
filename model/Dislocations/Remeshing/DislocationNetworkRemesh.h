@@ -92,14 +92,14 @@ namespace model {
 						if (cNorm<FLT_EPSILON){ // nodes are on to of each other
 							DN.contract(i,j,0.5*(P1+P2)); 
 						}
-						else{ // only case when this can happen is when source moves on a line and sink moves on a line and the two lines intersect at one point
+						else{ 
 							
 							const typename DislocationNetworkType::NodeType::VectorOfNormalsType CNsource=Lij.second->source->constraintNormals();
 							const typename DislocationNetworkType::NodeType::VectorOfNormalsType CNsink  =Lij.second->  sink->constraintNormals();
 							
-							if (CNsource.size()==2 && CNsink.size()==2){
+							if (CNsource.size()==2 && CNsink.size()==2){ // case where source moves on a line and sink moves on a line and the two lines intersect at one point
 								// check if the lines X=P1+d1*u1 and X=P2+d2*u2 intersect at one point
-								
+							
 								// Compute first direction
 								VectorDimD d1(CNsource[0].cross(CNsource[1]));
 								double d1norm(d1.norm());
@@ -116,7 +116,8 @@ namespace model {
 								const VectorDimD d3(d1.cross(d2));
 								const double d3Norm2(d3.squaredNorm());
 								if (d3Norm2<FLT_EPSILON){ // colinear or parallel
-									if (std::fabs((C/cNorm).dot(d1))<FLT_EPSILON){ // colinear
+//									if (std::fabs((C/cNorm).dot(d1))<FLT_EPSILON){ // colinear
+									if (d1.cross(C/cNorm).norm()<FLT_EPSILON){ // colinear
 										DN.contract(i,j,0.5*(P1+P2)); 
 									}
 								}
@@ -127,38 +128,29 @@ namespace model {
 										const double u1=C.cross(d2).dot(d3)/d3Norm2;
 										DN.contract(i,j,P1+d1*u1); 
 									}
+								}	
+							}
+							else if((CNsource.size()==2 && CNsink.size()>2)){ // source moves on a line and sink is fixed
+								VectorDimD d1(CNsource[0].cross(CNsource[1]));
+								double d1norm(d1.norm());
+								assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
+								d1/=d1norm;
+								if(d1.cross(C/cNorm).norm()<FLT_EPSILON){
+									DN.contractSecond(j,i);
 								}
-								
-
-								
+							}
+							else if((CNsource.size()>2 && CNsink.size()==2)){ // source is fixed and sink moves on a line
+								VectorDimD d2(CNsink[0].cross(CNsink[1]));
+								double d2norm(d2.norm());
+								assert(d2norm>FLT_EPSILON && "DIRECTION d2 HAS ZERO NORM");
+								d2/=d2norm;
+								if(d2.cross(C/cNorm).norm()<FLT_EPSILON){
+									DN.contractSecond(i,j);
+								}
 							}
 							
-							
-							
 						}
-						
-						
-						
-						
-						
-						
-						
-						//						//const std::vector<VectorDimD> CNsource=Lij.second->source->constraintNormals();
-						//						//const std::vector<VectorDimD> CNsink  =Lij.second->  sink->constraintNormals();
-						//						
-						//						const VectorDimD chord(Lij.second->chord());
-						//						
-						//						bool canContract(true);
-						//						for (unsigned int kk=0;kk<CNsource.size();++kk){
-						//							canContract*=(std::fabs(CNsource[kk].dot(chord))<FLT_EPSILON);
-						//						}
-						//						for (unsigned int kk=0;kk<CNsink.size();++kk){
-						//							canContract*=(std::fabs(CNsink[kk].dot(chord))<FLT_EPSILON);
-						//						}
-						//						if(canContract){
-						//							DN.contract(i,j,Lij.second->get_r(0.5)); 
-						//							
-						//						}
+
 					}
 					
 				}
@@ -285,62 +277,3 @@ namespace model {
 } // namespace model
 #endif
 
-
-
-
-//					if ( linkIter->second->source->is_removable() && linkIter->second->sink->is_removable() ){ // P0-P1->P2-P3
-//						VectorDimD P0(linkIter->second->source->openNeighborNode(0)->get_P());
-//						if(linkIter->second->source->openNeighborNode(0)->sID==linkIter->second->sink->sID){
-//							P0=linkIter->second->source->openNeighborNode(1)->get_P();
-//						}
-//						VectorDimD P2(linkIter->second->sink->openNeighborNode(0)->get_P());
-//						if(linkIter->second->sink->openNeighborNode(0)->sID==linkIter->second->source->sID){
-//							P2=linkIter->second->sink->openNeighborNode(1)->get_P();
-//						}
-//						VectorDimD c02(P2-P0);
-//						//VectorDimD c(linkIter->second->chord());
-//						//double cNorm(c.norm());
-//						if(std::fabs(chord.dot(c02))>cos_theta_min_crit*chord.norm()*chordLength){
-//							toBeContracted.insert(std::make_pair(chordLength,linkIter->second->nodeIDPair));
-//						}
-//					} //both source and sink are removable
-
-
-
-
-//					if (linkIter->second->source->is_simple()){ //check angle criterion at source
-//						VectorDimD c0(linkIter->second->source->openNeighborNode(0)->get_P()-linkIter->second->source->get_P());
-//						VectorDimD c1(linkIter->second->source->openNeighborNode(1)->get_P()-linkIter->second->source->get_P());
-//						double c0norm(c0.norm());
-//						double c1norm(c1.norm());
-//						if(c0.dot(c1)<cos_theta_min_crit*c0norm*c1norm){
-//							if (c0norm<=c1norm){
-//	//							std::cout<<"Im here1"<<std::endl;
-//								toBeContracted.insert(std::make_pair(c0norm,linkIter->second->source->openNeighborLink(0)->nodeIDPair));
-//	//							std::cout<<"Im here2"<<std::endl;
-//							}
-//							else {
-//	//							std::cout<<"Im here3"<<std::endl;
-//								toBeContracted.insert(std::make_pair(c1norm,linkIter->second->source->openNeighborLink(1)->nodeIDPair));
-//	//							std::cout<<"Im here4"<<std::endl;
-//							}
-//						}
-//					}
-//					if (linkIter->second->sink->is_simple()){ //check angle criterion at sink
-//						VectorDimD c0(linkIter->second->sink->openNeighborNode(0)->get_P()-linkIter->second->sink->get_P());
-//						VectorDimD c1(linkIter->second->sink->openNeighborNode(1)->get_P()-linkIter->second->sink->get_P());
-//						double c0norm(c0.norm());
-//						double c1norm(c1.norm());
-//						if(c0.dot(c1)<cos_theta_min_crit*c0norm*c1norm){
-//							if (c0norm<=c1norm){
-//	//							std::cout<<"Im here5"<<std::endl;
-//								toBeContracted.insert(std::make_pair(c0norm,linkIter->second->sink->openNeighborLink(0)->nodeIDPair));
-//	//							std::cout<<"Im here6"<<std::endl;
-//							}
-//							else {
-//	//							std::cout<<"Im here7"<<std::endl;
-//								toBeContracted.insert(std::make_pair(c1norm,linkIter->second->sink->openNeighborLink(1)->nodeIDPair));
-//	//							std::cout<<"Im here8"<<std::endl;
-//							}
-//						}
-//					}

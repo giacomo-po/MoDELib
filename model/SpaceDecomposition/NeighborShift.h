@@ -9,13 +9,8 @@
 #ifndef model_NEIGHBORSHIFT_H_
 #define model_NEIGHBORSHIFT_H_
 
-//#include <math.h>
-//#include <set>
-//#include <boost/utility.hpp>
-//#include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
 #include <model/Math/CompileTimeMath/Pow.h>
-//#include <model/SpaceDecomposition/SpaceCellObserver.h>
 
 namespace model {
 	

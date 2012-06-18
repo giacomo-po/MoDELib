@@ -11,7 +11,6 @@
 
 #include <math.h>
 #include <boost/utility.hpp>
-//#include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
 #include <model/SpaceDecomposition/SpaceCellObserver.h>
 #include <model/SpaceDecomposition/SpaceCell.h>
@@ -24,29 +23,18 @@ namespace model {
 	/********************************************************************************************/
 	template<typename Derived, short unsigned int dim, double & cellSize>
 	struct SpaceCellParticle : boost::noncopyable,
-	/*                     */ private SpaceCellObserver<SpaceCell<Derived,dim,cellSize>,dim,cellSize>,
-	/*                     */ public  CRTP<Derived>{ 
+	/*                      */ private SpaceCellObserver<SpaceCell<Derived,dim,cellSize>,dim,cellSize>,
+	/*                      */ public  CRTP<Derived>{ 
 
 		typedef SpaceCell<Derived,dim,cellSize> SpaceCellType;
 		typedef typename SpaceCellType::ParticleContainerType ParticleContainerType;
-
 		typedef SpaceCellObserver<SpaceCellType,dim,cellSize> SpaceCellObserverType;
 		typedef typename SpaceCellObserverType::CellMapType  CellMapType;	
 		typedef typename SpaceCellObserverType::VectorDimD  VectorDimD;	
 		typedef typename SpaceCellObserverType::VectorDimI  VectorDimI;	
 		typedef typename SpaceCellObserverType::SharedPtrType  SharedPtrType;	
 		
-//		typedef boost::shared_ptr<SpaceCellType> SharedPtrType;
-
-		
-//		/* find_cell() **********************************************/ 
-//		// THIS SHOULD BE A MEMBER FUNCTION OF SpaceCellObserver
-//		SharedPtrType find_cell() const {
-//			typename CellMapType::const_iterator iter(this->cellMap.find(cellID));
-//			return (iter!=this->cellMap.end())? (*(iter->second->particleContainer.begin()))->pCell : SharedPtrType(new SpaceCellType(cellID));
-//		}
-		
-		
+				
 	public:
 		
 		//! The cell ID

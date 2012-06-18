@@ -73,15 +73,3 @@ namespace model {
 }	// close namespace
 #endif
 
-
-
-/* begin() ***************************************************/
-//		typename CellMapType::const_iterator begin() const {
-//			return cellMap.begin();
-//		}
-
-
-///* end() *****************************************************/		
-//typename CellMapType::const_iterator end() const {
-//	return cellMap.end();
-//}
