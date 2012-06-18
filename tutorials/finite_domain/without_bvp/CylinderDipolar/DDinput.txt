@@ -1,0 +1,59 @@
+startAtTimeStep = 0;
+
+initialStress = 0.0 0.0 0.0
+		0.0 0.0 0.0
+		0.0 0.0 0.0;
+######################################
+# Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
+C2G =           1.0   0.0  0.0
+                0.0   1.0  0.0
+     		0.0   0.0  1.0;
+######################################
+# Maximum nodal displacement per time step (this controls time step size) 
+dx=10;
+######################################
+# Initialize number of simulation steps 
+Nsteps=10000;
+timeWindow=5.1e03;
+outputFrequency=1;
+######################################
+# Enable/disable node redistribution (network remeshing)
+# use_redistribution = 0 redistribution is disabled
+# use_redistribution = 1 redistribution is enabled
+use_redistribution=1;
+Lmax=600;
+Lmin=100;
+thetaDeg=45.0;
+
+######################################
+# Enable/disable the use of dislocation junction formation
+# use_junctions = 0 for no junctions
+# use_junctions = 1 annihilation only
+# use_junctions = 2 full junctions
+use_junctions=2;
+
+######################################
+# Enable/disable the use of a confining boundary.
+# boundary_type = 0 for no confining boundary. This automatically sets use_bvp=0 (see below)
+# boundary_type = 1 for shearable confining boundary. The file mesh.ele, mesh.face, mesh.neigh and mesh.node must be present in the working directory
+# boundary_type = 2 for unshearable confining boundary. The file mesh.ele, mesh.face, mesh.neigh and mesh.node must be present in the working directory
+boundary_type =1;
+
+######################################
+use_controller=0;
+stressIncrement = 	0.0 0.0 0.0
+		   	        0.0 0.0 0.0
+		      	    0.0 0.0 0.0;
+
+######################################
+# Enable/disable the image correction solving the elastic Boundary Value Problem. 
+# use_bvp = 0 for no BVP solution
+# use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
+use_bvp = 0;
+
+######################################
+# Enable/disable cross-slip
+use_crossSlip=0;
+crossSlipDeg=10.0;
+crossSlipLength=110.0;
+

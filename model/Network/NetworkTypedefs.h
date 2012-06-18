@@ -17,22 +17,17 @@ public:
 
 	/* Containers and iterators used in Network *****************************************************/
 	typedef typename boost::ptr_map<size_t,NodeType>				NetworkNodeContainerType;
-//	typedef std::pair<bool,NodeType* const>							isNetworkNodeType;
-//	typedef std::pair<bool,const NodeType* const>					isConstNetworkNodeType;
-//typedef std::pair<bool,LinkType* const>							isNetworkLinkType;
-//typedef std::pair<bool,const LinkType* const>					isConstNetworkLinkType;
-
 
 	typedef typename VertexFinder<NodeType>::isNetworkVertexType		isNetworkNodeType;
 	typedef typename VertexFinder<NodeType>::isConstNetworkVertexType	isConstNetworkNodeType;
-	typedef typename EdgeFinder<LinkType>::isNetworkEdgeType			isNetworkLinkType;
+	typedef typename EdgeFinder<LinkType>::isNetworkEdgeType			   isNetworkLinkType;
 	typedef typename EdgeFinder<LinkType>::isConstNetworkEdgeType		isConstNetworkLinkType;
 
 
 
 	typedef std::pair<NodeType* const,NodeType* const>			    NodePairType;
-	typedef std::pair<size_t,size_t>								LinkIDType;
-	typedef boost::ptr_map<LinkIDType,LinkType>						NetworkLinkContainerType;
+	typedef std::pair<size_t,size_t>								       LinkIDType;
+	typedef boost::ptr_map<LinkIDType,LinkType>						 NetworkLinkContainerType;
 
 	/* Containers and iterators used in SubNetwork **************************************************/
 	typedef std::map<size_t,SubNetworkType* const>					SubNetworkContainerType;

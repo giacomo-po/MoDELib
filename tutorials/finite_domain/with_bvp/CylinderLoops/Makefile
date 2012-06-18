@@ -1,36 +1,13 @@
-#mmdl_DIR = /home/giacomo/Documents/UCLA/Research/C++/Mmdl
-#mmdl_DIR = /Users/giacomo/Documents/UCLA/Research/C++/Mmdl
-#mmdl_DIR = /home/giacomo/Desktop/BackUp/Documents/UCLA/Research/C++/Mmdl
-mmdl_DIR = /home/giacomo/Dropbox/Mmdl
-#mmdl_DIR = /home/helios/a/mohamed3/Research/Indentation/Mmdl/
-
+model_DIR = /home/giacomo/Dropbox/Model
 IDIR  = -I/usr/local/include
-IDIR +=  -I./
-IDIR += -I$(mmdl_DIR)
-
-
-#IDIR += -I/Users/giacomo/Documents/UCLA/Research/C++/Mmdl/
-#IDIR += -I/home/giacomo/Documents/UCLA/Research/C++/Mmdl/
-#IDIR += -I/home/helios/a/mohamed3/Research/Libraries/include/
-#IDIR += -I/home/mamdouh/Work/Indentation/Mmdl/
-
+IDIR  = -I./
+IDIR += -I$(model_DIR)
 
 ##########################################################
 # COMPILER SETTINGS
 ##########################################################
-#CC	= g++-mp-4.6
-#CC	= g++-mp-4.5
-#CC	= g++-mp-4.4
-
-OS= $(shell uname -s)
-ifeq ($(OS),Darwin)
-	CC	= /usr/local/bin/g++
-endif
-
-ifeq ($(OS),Linux)
+#CC	= /usr/local/bin/g++
 CC	= g++
-endif
-
 #CC	= icc
 
 ifeq ($(CC),/usr/local/bin/g++)
@@ -38,17 +15,17 @@ ifeq ($(CC),/usr/local/bin/g++)
 	CFLAGS	 = -O3
 	CFLAGS += -ftree-vectorize
 
-	# enable common warnings
+	# enable warnings
 	#CFLAGS	+= -Wall
-	# ... and more warnings
-	#CFLAGS	+= -Wextra
-	# require strict ISO C and ISO C++
-	#CFLAGS	+= -pedantic
+	#CFLAGS	+= -Wextra 	# ... and more warnings
+	#CFLAGS	+= -pedantic # require strict ISO C and ISO C++
+
 	# enable openMP
 	CFLAGS	+= -fopenmp
+
 	#enable C++0x
-	#CFLAGS	+= -std=c++0x
-	CFLAGS	+= -std=gnu++0x
+	CFLAGS	+= -std=c++0x
+	#CFLAGS	+= -std=gnu++0x
 endif
 
 ifeq ($(CC),g++)
@@ -56,17 +33,20 @@ ifeq ($(CC),g++)
 	CFLAGS	 = -O3
 	CFLAGS += -ftree-vectorize
 
-	# enable common warnings
+	# enable warnings
 	#CFLAGS	+= -Wall
-	# ... and more warnings
-	#CFLAGS	+= -Wextra
-	# require strict ISO C and ISO C++
-	#CFLAGS	+= -pedantic
+	#CFLAGS	+= -Wextra 	# ... and more warnings
+	#CFLAGS	+= -pedantic # require strict ISO C and ISO C++
+
 	# enable openMP
 	CFLAGS	+= -fopenmp
+
 	#enable C++0x
-	#CFLAGS	+= -std=c++0x
-	CFLAGS	+= -std=gnu++0x
+	CFLAGS	+= -std=c++0x
+	#CFLAGS	+= -std=gnu++0x
+# enable profiling with gprof (run with: gprof DDcode)
+#CFLAGS	+=-c 
+#CFLAGS	+= -pg
 endif
 
 ifeq ($(CC),icc)
@@ -86,15 +66,11 @@ endif
 ##########################################################
 # OS SPECIFIC SETTINGS
 ##########################################################
-#OS= $(shell uname -s)
+OS= $(shell uname -s)
 
 LIBS  =  -L/usr/local/lib/
 LIBS +=	 -lgsl
 LIBS +=  -lgslcblas
-#LIBS +=	 -lsparse
-#LIBS +=  -lspblas
-#LIBS +=	 -lmv
-#LIBS +=  -ltet
 
 ifeq ($(OS),Darwin)
 	
@@ -131,14 +107,15 @@ $(PROGRAM):
 ##########################################################
 clean:
 		rm -f $(OBJS)
-##########################################################
-# MAKE EMPTY
-##########################################################
-empty:
-	sh emptyOutputs
 
 ##########################################################
 # MAKE VIEWER
 ##########################################################	
 viewer: 
-	g++ -O3 $(mmdl_DIR)/mmdl/Dislocations/Visualization/DDviewer.cpp -o DDviewer  $(IDIR)  $(VIEWERLIBS) 
+	$(CC) $(model_DIR)/model/Dislocations/Visualization/DDviewer.cpp -o DDviewer -O3 $(IDIR)  $(VIEWERLIBS) 
+
+##########################################################
+# MAKE EMPTY
+##########################################################
+empty:
+	sh emptyOutputs

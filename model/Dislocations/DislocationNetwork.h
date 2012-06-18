@@ -16,7 +16,8 @@
 // DONE Clean GramSchmidt, derive from std::vector with right allocator for Eigen
 // 1- DONEBecause Output is after redistribution, Cell Files are not correct because GaussPoints are destroyed when segments are destroyed
 // DONE: CROSS_SLIP: NO, THIS CAUSES THE SAME NORMAL TO BE USED
-
+// DONE: Strategy changed with new BVP. 17- add inifinite line stress fields for segments terminating on the surface
+// DONE: STRATEGY CHANGED WITH NEW BVP. -1 - code isBoundarySubnetwork. If true don't solve AND set velocity to 0.
 
 // BEING MODIFIED
 // 1- BIN WRITER/READER. DEFINE DISLOCATIONSEGMENT::OUTDATA as Eigen::Matrix<double,1,9>. Then in Network add the function friend void operator<< (SequentialBinFile<template Char,???>, ...)
@@ -27,7 +28,7 @@
 
 // TO DO
 // -2: updateQuadraturePoints should be called as part of the topologyChangeActions() and move()
-// -1 - code isBoundarySubnetwork and don't solve if true
+
 // 0 - Finish DepthFirst class. Don't allow to search/execute if N=0, so that N=1 means that node only, n=2 means first neighbor. Or change SpineNodeBase_CatmullRom::TopologyChangeActions
 // 1- Implement operator << in DislocationNode, GlidePlane, SpaceCell
 // 2- remove AddressBook, wherever possible, Done in Node chain
@@ -37,7 +38,6 @@
 // 25- Remove template parameter alpha and make template member function
 // 14- RENAME ORIGINAL MESH FOLDER /M
 // 16- READ/WRITE IN BINARY FORMAT
-// 17- add inifinite line stress fields for segments terminating on the surface
 // 18- Should define linear=1, quadratic=2, cubic=3 and use polyDegree instead of corder. Put corder in SplineEnums
 // 30- Make coreL static
 // 37- IS PLANAR SHOULD RETURN 0 IF IS A LINE!!!!! CHANGE ALSO IN SPLINESEGMENTBASE
@@ -102,7 +102,7 @@
 #include <model/Utilities/SequentialOutputFile.h>
 #include <model/Utilities/UniqueOutputFile.h>
 #include <model/Dislocations/DislocationSharedObjects.h>
-#include <model/Dislocations/DislocationQuadratureParticle.h>
+//#include <model/Dislocations/DislocationQuadratureParticle.h>
 #include <model/Dislocations/GlidePlanes/GlidePlaneObserver.h>
 #include <model/Dislocations/Remeshing/DislocationNetworkRemesh.h>
 #include <model/Dislocations/Junctions/DislocationJunctionFormation.h>
@@ -127,7 +127,8 @@ namespace model {
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
 	/*	   */ typename MaterialType>
-	class DislocationNetwork : public Network<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >{
+	class DislocationNetwork : public Network<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >,
+	/*                      */ public GlidePlaneObserver<dim,typename TypeTraits<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >::LinkType> {
 		
 public:
 
@@ -136,9 +137,7 @@ public:
 #include <model/Network/NetworkTypedefs.h>
 		typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
 		typedef Eigen::Matrix<double,dim,1>		VectorDimD;
-		typedef std::pair<bool,NodeType*> isNodeType;
-		typedef std::pair<bool,LinkType*> isLinkType;
-		typedef DislocationQuadratureParticle<dim,cellSize> DislocationQuadratureParticleType;
+		typedef typename LinkType::DislocationQuadratureParticleType DislocationQuadratureParticleType;
 		typedef SpaceCell<DislocationQuadratureParticleType,dim,cellSize> SpaceCellType;
 		typedef SpaceCellObserver<SpaceCellType,dim,cellSize> SpaceCellObserverType;
 		typedef typename SpaceCellObserverType::CellMapType CellMapType;
@@ -399,7 +398,7 @@ public:
 			std::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
 			move(0.0);	// initial configuration
 			output();	// initial configuration, this overwrites the input file
-			if (runID==0){
+			if (runID==0){ // not a restart
 				remesh();	// expand initial FR sources
 			}
 			updateQuadraturePoints();			
@@ -499,9 +498,7 @@ public:
 			SequentialOutputFile<'G',1>::set_increment(outputFrequency); // GlidePlanes_file;
 			SequentialOutputFile<'G',1>::set_count(runID); // GlidePlanes_file;
 			SequentialOutputFile<'G',1> glide_file;
-			GlidePlaneObserverType gpObsever; // MOVE THIS TO DATA MEMBER
-//			GlidePlaneObserver<dim,LinkType> gpObsever;
-			glide_file << gpObsever;
+			glide_file << *dynamic_cast<const GlidePlaneObserverType*>(this); 
 			std::cout<<", G/G_"<<glide_file.sID;
 			
 #ifdef customUserOutputs
@@ -793,7 +790,7 @@ public:
 		}
 		
 		/********************************************************/
-		MatrixDimD displacement_gradient(const VectorDimD & Rfield) const {
+		MatrixDimD elasticDistortion(const VectorDimD & Rfield) const {
 			MatrixDimD temp(MatrixDimD::Zero());
 			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
 				temp+= linkIter->second->displacement_gradient_source(Rfield); 
@@ -817,6 +814,11 @@ public:
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
+
+
+//			GlidePlaneObserverType gpObsever; // MOVE THIS TO DATA MEMBER
+//			GlidePlaneObserver<dim,LinkType> gpObsever;
+//			glide_file << gpObsever;
 
 
 

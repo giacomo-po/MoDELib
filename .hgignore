@@ -11,6 +11,11 @@ syntax: regexp
 # use glob syntax.
 syntax: glob
  
+# Executable
+DDcode
+DDviewer
+tetgen
+
 # Folders
 docs/HTML
 

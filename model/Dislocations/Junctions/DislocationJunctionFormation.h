@@ -24,7 +24,7 @@ namespace model {
 	class DislocationJunctionFormation{
 		
 		typedef typename DislocationNetworkType::LinkType LinkType;
-		typedef typename DislocationNetworkType::isNodeType isNodeType;
+		typedef typename DislocationNetworkType::isNetworkNodeType isNetworkNodeType;
 		
 		enum {dim=3};
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
@@ -37,6 +37,7 @@ namespace model {
 		
 		
 		
+		// a reference to the dislocation network
 		DislocationNetworkType& DN;
 		
 		//	std::touple<int,double> tp;
@@ -178,10 +179,10 @@ namespace model {
 				const size_t j(*(mapIter->second.rbegin()));
 				
 				
-				const isNodeType Ni(DN.node(i));
+				const isNetworkNodeType Ni(DN.node(i));
 				assert(Ni.first);
 				assert(Ni.second->is_simple());
-				const isNodeType Nj(DN.node(j));
+				const isNetworkNodeType Nj(DN.node(j));
 				assert(Nj.first);
 				assert(Nj.second->is_simple());
 				

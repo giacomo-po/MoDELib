@@ -119,7 +119,7 @@ namespace bvpfe{
 			unsigned int nNodes , d1, d2 , d3, in;
 			VectorDim tempP; 
 			
-			FILE *fp =fopen("mesh.node", "r");
+			FILE *fp =fopen("mesh/mesh.node", "r");
 			
 			assert(fscanf (fp, "%u%u%u%u", &nNodes , &d1, &d2, &d3)==4);
 			
@@ -150,8 +150,8 @@ namespace bvpfe{
 			
 			unsigned int nTets , d1, nn , ti , nt;
 			
-			FILE *fTet =fopen("mesh.ele", "r");
-			FILE *fneigh =fopen("mesh.neigh", "r");
+			FILE *fTet =fopen("mesh/mesh.ele", "r");
+			FILE *fneigh =fopen("mesh/mesh.neigh", "r");
 			
 			assert(fscanf (fTet, "%u%u%u", &nTets , &nn, &d1)==3);
 			if ((nn!=4)&&(d1!=0)) assert(0&&"Error in .ele file format");
@@ -198,7 +198,7 @@ namespace bvpfe{
 			int triNodes[3];			
 			unsigned int nTris , di , iFc, iTet , ti;
 			
-			FILE *fTri =fopen("mesh.face", "r");
+			FILE *fTri =fopen("mesh/mesh.face", "r");
 			
 			assert(fscanf (fTri, "%u%u", &nTris , &di)==2);
 			
