@@ -177,7 +177,7 @@ public:
 		
 		
 		/* readNodes ***************************************************************/
-		void readNodes(const unsigned int& fileID/*, std::map<size_t,size_t>& nodeIDrestartMap*/){
+		void readNodes(const unsigned int& fileID){
 			typedef VertexReader<'V',11,double> VertexReaderType;
 			VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
 			assert(vReader.isGood(fileID) && "UNABLE TO READ VERTEX FILE V/V_x (x is the requested file ID).");
@@ -191,10 +191,10 @@ public:
 		}
 		
 		/* readLinks ***************************************************************/
-		void readLinks(const unsigned int& fileID/*, const std::map<size_t,size_t>& nodeIDrestartMap*/){	
+		void readLinks(const unsigned int& fileID){	
 			typedef EdgeReader  <'E',11,double>	EdgeReaderType;
 			EdgeReaderType    eReader;	// sourceID,sinkID,Bx,By,Bz,Nx,Ny,Nz
-			assert(eReader.isGood<true>(fileID) && "Unable to read vertex file E/E_x where x is the requested fileID.");
+			assert(eReader.isGood<true>(fileID) && "Unable to read vertex file E/E_x (x is the requested fileID).");
 			eReader.read<true>(fileID);			
 			for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter){
 				VectorDimD B(eIter->second.template segment<dim>(0  ).transpose()); // Burgers vector
@@ -406,7 +406,7 @@ public:
 		}
 		
 		/* solve ****************************************************************/
-		void solve(){
+		void assembleAndSolve(){
 			//! 1- Loop over DislocationSegments and assemble stiffness matrix and force vector
 			std::cout<<"		Assembling..."<<std::flush;
 			typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
@@ -617,9 +617,13 @@ public:
 		
 		/***********************************************************/
 		void singleStep(const bool& updateUserBC=false){
-			std::cout<<blueBoldColor<<"runID="<<runID<<", time="<<totalTime<< ": nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
 			//! A simulation step consists of the following:
-			
+			std::cout<<blueBoldColor<<"runID="<<runID<<", time="<<totalTime<< ": nodeOrder="<<this->nodeOrder()
+         /*                                                           */<< ", linkOrder="<<this->linkOrder()
+         /*                                                           */<< ", subNetworks="<<this->Naddresses()
+			/*                                                           */<< defaultColor<<std::endl;
+
+			//! 1- Check that all nodes are balanced
 			checkBalance();
 			
 			//! 1 - Update quadrature points
@@ -627,24 +631,14 @@ public:
 			
 			//! 2- Calculate BVP correction 				
 			if (shared.use_bvp){
-				
 				double t0=clock();
 				std::cout<<"		Updating bvp stress ... ";
-				
 				if(!(runID%shared.use_bvp)){
 					shared.domain.update_BVP_Solution(updateUserBC,this);
-					//					shared.domain.setBoundaryConditions();		// temporary					
-					//#ifdef UpdateBoundaryConditionsFile
-					//					updateBVP_BCs(k);        	// update BCs for the BVP 
-					//#endif						
-					//					shared.domain.solveBVP(true,this);
 				}
-				
-				
 				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
 					nodeIter->second->updateBvpStress();
 				}
-				
 				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;			
 			}
 			
@@ -652,7 +646,7 @@ public:
 #ifdef DislocationNetworkMPI
 			MPIstep();
 #endif
-			solve();
+			assembleAndSolve();
 			
 			
 			//! 4- Compute time step dt (based on max nodal velocity) and increment totalTime
@@ -814,6 +808,13 @@ public:
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
+
+
+					//					shared.domain.setBoundaryConditions();		// temporary					
+					//#ifdef UpdateBoundaryConditionsFile
+					//					updateBVP_BCs(k);        	// update BCs for the BVP 
+					//#endif						
+					//					shared.domain.solveBVP(true,this);
 
 
 //			GlidePlaneObserverType gpObsever; // MOVE THIS TO DATA MEMBER

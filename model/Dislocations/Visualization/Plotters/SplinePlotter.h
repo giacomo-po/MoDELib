@@ -17,6 +17,8 @@
 #include <GL/glut.h>
 #endif
 
+#include <string.h>
+#include <sstream>
 #include <float.h>
 #include <vector>
 
@@ -41,12 +43,13 @@ namespace model {
 	template <int dim, int Np, int Nc, float & alpha>
 	class SingleSplinePlotter{
 		
-		
+	public:	
 		typedef float scalarType;
 		typedef Eigen::Matrix<scalarType,dim,Np> MatrixDimNp;
 		typedef Eigen::Matrix<scalarType,dim,Nc> MatrixDimNc;
 		typedef Eigen::Matrix<scalarType,dim,1>  VectorDim;
 		
+	private:
 		//using HermiteCubicSplineAxis<dim,Np,alpha>::tubeAxis;
 		//using HermiteCubicSplineAxis<dim,Np,alpha>::tubeTangents;
 		
@@ -88,7 +91,7 @@ namespace model {
 		/* Constructor ************************************************************/
 		SingleSplinePlotter(const Eigen::Matrix<scalarType,dim,6>& P0T0P1T1BN) :
 		/* init list */ planeNormal(P0T0P1T1BN.col(5).normalized()),
-		/* init list */	burgers(P0T0P1T1BN.col(4).normalized()),
+		/* init list */ burgers(P0T0P1T1BN.col(4).normalized()),
 		/* init list */ specularity(1.0),
 		/* init list */ emissivity(0.05),
 		/* init list */ shininess(25),
@@ -266,7 +269,8 @@ namespace model {
 		typedef SingleSplinePlotter<dim,Np,Nc,alpha> SingleSplinePlotterType;
 //		typedef std::vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
 		typedef boost::ptr_vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
-		
+		typedef typename SingleSplinePlotterType::VectorDim VectorDim;
+
 	public:
 		
 		bool showTubes;
@@ -326,6 +330,15 @@ namespace model {
 		
 		
 		/* plot ******************************************************/
+		void renderBitmapString(const VectorDim& P,	void *font, const std::string& string2render) const {
+  			glRasterPos3f(P(0), P(1), P(2));
+			glColor3f(1.0f, 1.0f, 1.0f);
+  			for (unsigned int k=0; k<string2render.length(); ++k) {
+    			glutBitmapCharacter(font, string2render[k]);
+  			}
+		}
+
+		/* plot ******************************************************/
 		void plot(const scalarType& radius) const {
 			
 			for (typename SingleSplinePlotterVectorType::const_iterator itEdge=SingleSplinePlotterVectorType::begin(); itEdge!=SingleSplinePlotterVectorType::end(); ++itEdge) {
@@ -334,6 +347,7 @@ namespace model {
 			
 			if(showVertices){
 				
+
 				// Find color range based on sID
 				std::set<int> SIDs; // use std::set to automatically sort sID's
 				for (typename VertexContainerType::const_iterator vIter=VertexContainerType::begin();vIter!=VertexContainerType::end();++vIter){
@@ -352,6 +366,9 @@ namespace model {
 					glTranslatef(  vIter->second(0),  vIter->second(1),  vIter->second(2) );
 					gluSphere( myQuad , radius*1.2 , 10 , 10 );
 					glTranslatef( -vIter->second(0), -vIter->second(1), -vIter->second(2) );
+					renderBitmapString(vIter->second.template cast<float>().template segment<dim>(0),
+               /*              */ GLUT_BITMAP_HELVETICA_18,
+					/*              */ static_cast<std::ostringstream*>( &(std::ostringstream() << vIter->first) )->str());
 				}
 				gluDeleteQuadric(myQuad); // free myQuad pointer
 			}

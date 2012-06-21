@@ -3,10 +3,10 @@ close all
 FS=16
 
 
-step=191;
+step=312;
 
-V=load(['../GiacomoCylinderDipolar/V/V_' num2str(step) '.txt']);
-E=load(['../GiacomoCylinderDipolar/E/E_' num2str(step) '.txt']);
+V=load(['~/Desktop/CylinderDipolar/V/V_' num2str(step) '.txt']);
+E=load(['~/Desktop/CylinderDipolar/E/E_' num2str(step) '.txt']);
 alpha=0.5;
 %for e=[1 2 5 7 9 11 13 15]
 figure(1)
@@ -25,10 +25,10 @@ H=[ V(source_row,[2:4]);
     V(sink_row,[2:4]);
    -V(sink_row,[5:7])*sinkTf];
 
-tubePlotter(H,alpha,'b-',1);
+tubePlotter(H,alpha,'b',1);
 
-%text(H(1,1),H(1,2),H(1,3),num2str(source),'Fontsize',FS)
-%text(H(3,1),H(3,2),H(3,3),num2str(sink),'Fontsize',FS)
+text(H(1,1),H(1,2),H(1,3),num2str(source),'Fontsize',FS)
+text(H(3,1),H(3,2),H(3,3),num2str(sink),'Fontsize',FS)
 
 boxSize=1000;
 plot3([0 boxSize],[0 0],[0 0],'k')
@@ -37,30 +37,31 @@ plot3([0 0],[0 0],[0 boxSize],'k')
 end
 
 
-return
+%return
 
 %%
-H2=[1.181e+04 0.000e+00 9.344e+03 -1.483e+02;
-1.037e+04 0.000e+00 8.237e+03 -2.124e+02;
-2.000e+04 0.000e+00 1.980e+04 -6.636e+02];
-tubePlotter(H2',0,'m',2);
-xlabel('x')
-ylabel('y')
+
 
 
 
 %return
 %% 
-%sourceV=[46  899 747 803 879 926 945 955];
-%sinkV =[841 790 762 644 495 47  511 945];
-sourceV=[2069];
-sinkV = [3990];
+sourceV=[248 248 178 247 239];
+sinkV =[170 247 248 231 247];
+
+figure(2)
+hold on
+% at step 312
+
+%sourceV=[15 15];
+%sinkV = [8 9];
 
 for n=1:length(sourceV)
 source=sourceV(n);
 sink=sinkV(n);
 source_row=find(V(:,1)==source)
 sink_row=find(V(:,1)==sink)
+e=find(ismember(E(:,[1 2]),[source sink],'rows'));
 sourceTf=E(e,9);
 sinkTf=E(e,10);
 H1=[ V(source_row,[2:4]);
@@ -68,7 +69,7 @@ H1=[ V(source_row,[2:4]);
     V(sink_row,[2:4]);
    -V(sink_row,[5:7])*sinkTf];
 
-tubePlotter(H1,alpha,'m',2);
+tubePlotter(H1,alpha,'b',1);
 text(H1(1,1),H1(1,2),H1(1,3),num2str(source),'Fontsize',FS)
 text(H1(3,1),H1(3,2),H1(3,3),num2str(sink),'Fontsize',FS)
 

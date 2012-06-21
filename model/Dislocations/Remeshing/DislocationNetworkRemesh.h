@@ -59,8 +59,10 @@ namespace model {
 				}
 			}
 			
-			
+				
+
 			// Call Network::contract 
+			unsigned int Ncontracted(0); 
 			for (std::set<std::pair<double,std::pair<size_t,size_t> > >::const_iterator smallIter=toBeContracted.begin(); smallIter!=toBeContracted.end(); ++smallIter) {
 				const size_t i(smallIter->second.first);
 				const size_t j(smallIter->second.second);
@@ -73,12 +75,15 @@ namespace model {
 					
 					if (SourceRemovable && SinkRemovable) {
 						DN.contract(i,j,Lij.second->get_r(0.5));
+						Ncontracted++;
 					}
 					else if (!SourceRemovable && SinkRemovable) {
-						DN.contractSecond(i,j);						
+						DN.contractSecond(i,j);
+						Ncontracted++;						
 					}
 					else if (SourceRemovable && !SinkRemovable) {
 						DN.contractSecond(j,i);
+						Ncontracted++;
 					}
 					else { 
 						
@@ -91,6 +96,7 @@ namespace model {
 						const double cNorm(C.norm());
 						if (cNorm<FLT_EPSILON){ // nodes are on to of each other
 							DN.contract(i,j,0.5*(P1+P2)); 
+							Ncontracted++;
 						}
 						else{ 
 							
@@ -119,14 +125,17 @@ namespace model {
 //									if (std::fabs((C/cNorm).dot(d1))<FLT_EPSILON){ // colinear
 									if (d1.cross(C/cNorm).norm()<FLT_EPSILON){ // colinear
 										DN.contract(i,j,0.5*(P1+P2)); 
+										Ncontracted++;
 									}
 								}
 								else{ // coplanar or no-intersection
 									bool isPlanarConfiguration(std::fabs((C/cNorm).dot(d3))<FLT_EPSILON);
 									if (isPlanarConfiguration){ // coplanar
-										//std::cout<<"NEW CONSTRACT NONREMOVABLE"<<std::endl;
 										const double u1=C.cross(d2).dot(d3)/d3Norm2;
-										DN.contract(i,j,P1+d1*u1); 
+										if(std::fabs(u1<Lmin)){
+											DN.contract(i,j,P1+d1*u1); 
+											Ncontracted++;
+										}
 									}
 								}	
 							}
@@ -137,6 +146,7 @@ namespace model {
 								d1/=d1norm;
 								if(d1.cross(C/cNorm).norm()<FLT_EPSILON){
 									DN.contractSecond(j,i);
+									Ncontracted++;
 								}
 							}
 							else if((CNsource.size()>2 && CNsink.size()==2)){ // source is fixed and sink moves on a line
@@ -146,6 +156,7 @@ namespace model {
 								d2/=d2norm;
 								if(d2.cross(C/cNorm).norm()<FLT_EPSILON){
 									DN.contractSecond(i,j);
+									Ncontracted++;
 								}
 							}
 							
@@ -155,7 +166,7 @@ namespace model {
 					
 				}
 			}
-			
+			std::cout<<" ("<<Ncontracted<<" contracted)"<<std::flush;
 			
 		}
 		
@@ -233,14 +244,17 @@ namespace model {
 			
 			
 			// Call Network::expand
+			unsigned int Nexpanded(0);
 			double expand_at(0.5);
 			for (std::set<std::pair<size_t,size_t> >::const_iterator expIter=toBeExpanded.begin(); expIter!=toBeExpanded.end(); ++expIter) {
 				const size_t i(expIter->first);
 				const size_t j(expIter->second);				
 				if(DN.link(i,j).first){
-					DN.expand(i,j,expand_at);				
+					DN.expand(i,j,expand_at);	
+					Nexpanded++;			
 				}
 			}
+			std::cout<<" ("<<Nexpanded<<" expanded)"<<std::flush;
 			
 		}
 		

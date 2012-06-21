@@ -16,10 +16,14 @@ SFC=[1    0  0  0;
 % UPOW*SFC
 
 R=UPOW*SFC*H;
+T=UPOWu*SFC*H;
 %size(R)
 plot3(R(:,1),R(:,2),R(:,3),marker,'Linewidth',lw)
 plot3(R(1,1),R(1,2),R(1,3),'.r')
 plot3(R(end,1),R(end,2),R(end,3),'.r')
+quiver3(R(end,1),R(end,2),R(end,3),T(end,1),T(end,2),T(end,3),'.m')
+quiver3(R(1,1),R(1,2),R(1,3),T(1,1),T(1,2),T(1,3),'.m')
+
 return
 
 T=UPOWu*SFC*H;
