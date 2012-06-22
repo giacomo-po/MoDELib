@@ -16,7 +16,7 @@
 #include <model/Network/SubNetwork.h>
 
 #include <model/Math/SchurComplementSolver.h>
-#include <model/Math/SchurComplementSparseSolver.h>
+//#include <model/Math/SchurComplementSparseSolver.h>
 
 //#include <model/Geometry/Splines/SplineNetworkTraits.h>
 //#include <model/Geometry/Splines/SplinesBase/SplineSubNetworkBase.h>

@@ -53,113 +53,49 @@
 #include <model/Dislocations/Junctions/DislocationSegmentIntersection.h>
 
 #include <model/Dislocations/CrossSlip/CrossSlipSegment.h>
-
+#include <model/Dislocations/DislocationSegmentInitializeBeforeBase.h>
 
 
 namespace model {
 	
-	
 	//	double cellSize= 300.0;
 	double cellSize= 1000.0;
-	
-	
-	template <short unsigned int dim, typename MaterialType>
-	struct DislocationSegmentInitializeBeforeBase{
-		
-		DislocationSharedObjects<dim,MaterialType> shared;
-		
-		
-		typedef Eigen::Matrix<double,dim,1> VectorDim;
-
-		/********************************************/
-		VectorDim find_planeNormal(const VectorDim& chord, const VectorDim& Burgers/*,const VectorDim& T1,const VectorDim& T2*/){
-			enum {Nslips=MaterialType::Nslips};
-			std::set<SlipSystem<dim,Nslips> > allowedSlipSystems;
-			shared.material.find_slipSystem(chord,Burgers,/*T1,T2,*/allowedSlipSystems);
-			return allowedSlipSystems.begin()->normal; // DON't LIKE THIS
-		}
-
-		/********************************************/
-		VectorDim get_sessileNormal(const VectorDim& chord, const VectorDim& Burgers){
-			assert(chord.norm()>FLT_EPSILON && "CHORD TOO SMALL");
-			assert(Burgers.norm()>FLT_EPSILON && "Burgers TOO SMALL");
-			VectorDim temp(chord.normalized().cross(Burgers));
-			double tempNorm(temp.norm());
-			if (tempNorm>FLT_EPSILON){
-				temp.normalize();
-			}
-			else{
-				temp.setZero();
-			}
-			return temp;
-		}
-		
-		
-		//! The glide plane normal
-		const VectorDim glidePlaneNormal;
-		const VectorDim sessilePlaneNormal;
-		
-		
-		
-		// Constructor with chord and Burgers
-		DislocationSegmentInitializeBeforeBase(const VectorDim& chord, const VectorDim& Burgers) : glidePlaneNormal(find_planeNormal(chord,Burgers).normalized()),
-		/*                                                                                      */ sessilePlaneNormal(get_sessileNormal(chord,Burgers)){}
-		
-		// Constructor with plane normal
-		DislocationSegmentInitializeBeforeBase(const VectorDim& normal_in, const VectorDim& chord, const VectorDim& Burgers) : glidePlaneNormal(normal_in.normalized()),
-		/*                                                                                                                  */ sessilePlaneNormal(get_sessileNormal(chord,Burgers)){}
-		
-		
-		
-	};
-	
-	
 	
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
 	/*	   */ typename MaterialType>
 	class DislocationSegment : public DislocationSegmentInitializeBeforeBase<dim,MaterialType>, // This must be the first base class in the inheritance structure
-	/*	                    */ public SplineSegmentBase<DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>,
+	/*	                      */ public SplineSegmentBase<DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>,
 	/*                                               */ dim, corder, alpha>,
-	/*	                    */ public GlidePlaneObserver<dim,DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >{
+	/*	                      */ public GlidePlaneObserver<dim,DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >{
 		
 
 public:		
 		typedef DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> Derived; 		// Define "Derived" so that NetworkTypedefs.h can be used
 #include <model/Network/NetworkTypedefs.h>		
 #include <model/Geometry/Splines/SplineEnums.h>
-		//		typedef SplineSegmentBase<Derived,dim,corder,alpha,qOrder,QuadratureRule> SegmentBaseType;
-		typedef SplineSegmentBase<Derived,dim,corder,alpha> SegmentBaseType;
-		
+
+		typedef SplineSegmentBase<Derived,dim,corder,alpha> SegmentBaseType;		
 		typedef std::map<size_t,LinkType* const> AddressMapType;
 		typedef typename AddressMapType::iterator AddressMapIteratorType;
 		typedef Eigen::Matrix<double,dim,qOrder>	MatrixDimQorder;
 		typedef Eigen::Matrix<double, 1, qOrder>	VectorQorder;
 		typedef QuadPow<Ncoeff-1,qOrder,QuadratureRule> QuadPowType;
+
+		typedef MaterialType TempMaterialType; // used in GlidePlane
 		
 		private:		
-		//		typedef Eigen::Matrix<double,dim,Ndof> MatrixDimNdof;
-		
-		
+
 		//! Positions corrersponding to the quadrature points
-		MatrixDimQorder rgauss;
-		
+		MatrixDimQorder rgauss;		
 		//! Parametric tangents at the quadrature points
-		MatrixDimQorder rugauss;
-		
+		MatrixDimQorder rugauss;		
 		//! Scalar jacobian corrersponding to the quadrature points
 		VectorQorder jgauss;
-		
 		//! Tangents corrersponding to the quadrature points
-		MatrixDimQorder rlgauss;
-		
-		//protected:
-		
+		MatrixDimQorder rlgauss;		
+		//! Matrix of shape functions at the quadrature points
 		Eigen::Matrix<double,qOrder,Ncoeff> SFgauss;
-		
-		
-		
-		//		using MaterialType::Nslips;
 		
 		
 		enum {Nslips=MaterialType::Nslips};
@@ -174,28 +110,13 @@ public:
 		
 		//! The static MaterialType material
 		static MaterialType material;
-		
-		
-		//! See G. Schoeck "Atomic dislocation core parameters", 2009
-		
-		
-		//VectorDim R;
-		//double Rsquared;
-		double C1, C2, C3, C4;			// THIS SHOULD BE A STATIC DATA MEMBER
-		
+		//! Matrix of PK-force at quadrature points
 		MatrixDimQorder pkGauss;
-		//VectorDim S;
-		
-		
-		
 		//! Segment Stiffness Matrix
 		MatrixNdof Kqq;
-		
-		
 		//! Segment Nodal Force Vector
-		//		typedef Eigen::Matrix<double,Ndof,1> VectorNdof;
 		VectorNdof Fq;
-		
+		//! The identity matrix		
 		static const Eigen::Matrix<double,dim,dim> I;
 		
 		//////////////////////////////////
@@ -210,12 +131,16 @@ public:
 			Quadrature<1,qOrder,QuadratureRule>::integrate(this,Kqq,&LinkType::stiffness_integrand);
 		}
 		
-		MatrixDimNdof SFgaussEx(const int& k) const { // GENERALIZE THIS
+		/* SFgaussEx  ********************************/
+		MatrixDimNdof SFgaussEx(const int& k) const {
+			/*! The MatrixDimNdof matrix of shape functions at the k-th quadrature point
+			 *  TO DO: EXPRESSION NEEDS TO BE GENERALIZED  
+			 */
 			return (MatrixDimNdof()<<I*SFgauss(k,0),I*SFgauss(k,1),I*SFgauss(k,2),I*SFgauss(k,3)).finished();
 		}
 		
 		
-		//	MatrixNcoeff stiffness_integrand(const int& k) const {
+
 		MatrixNdof stiffness_integrand(const int& k) const {
 			/*! The stiffness matrix integrand evaluated at the k-th quadrature point.
 			 *  @param[in] k the current quadrature point
@@ -228,8 +153,8 @@ public:
 			
 			//			MatrixDimNdof temp((I-rlgauss.col(k)*rlgauss.col(k).transpose())*SFgaussEx(k));
 			MatrixDimNdof temp(SFgaussEx(k));
-			
-			return temp.transpose()*shared.material.B*temp*jgauss(k);
+//			return temp.transpose()*shared.material.B*temp*jgauss(k);
+			return temp.transpose()*temp*jgauss(k); // inverse mobility law
 		}
 		
 		//////////////////////////////////
@@ -240,21 +165,12 @@ public:
 			 *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
 			 *	\f]
 			 */
-			
-			// Compute and store PK force at quadrature points
+			//! 1- Compute and store PK force at quadrature points
 			pkGauss.setZero();
-//			int k;
-//#ifdef _OPENMP
-//#pragma omp parallel for default(shared) private(k)
-//#endif
 			for (int k=0;k<qOrder;++k){
 				pkGauss.col(k)=pkForce(k);	
 			}
-			
-			//				pkGauss.col(k)=quadratureParticleVector[k].pkForce();
-			
-			
-			// Reset Fq and integrate
+			//! 2- Reset Fq and integrate
 			Fq.setZero();
 			Quadrature<1,qOrder,QuadratureRule>::integrate(this,Fq,&LinkType::force_integrand);
 		}
@@ -282,11 +198,18 @@ public:
 			//				temp.template segment<dim>(n*dim)= SFgauss.row(k)(n)*pkGauss.col(k);
 			//			}
 			
-			return temp.transpose()*pkGauss.col(k)*jgauss(k);
+//			return temp.transpose()*pkGauss.col(k)*jgauss(k);
+			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
 			
 		}
 		
-		
+		/******************************************************************/		
+		VectorDim radiativeVel(const VectorDim& pkF) const {
+			const VectorDim v0(shared.material.Binv*pkF);
+			const double v0N(v0.norm());
+			const double csf(0.7*shared.material.cs);
+			return (v0N>FLT_EPSILON)? csf*(1.0-std::exp(-v0N/csf))*v0/v0N : pkF;
+		}
 		
 		
 #ifdef UserStressFile
@@ -314,10 +237,11 @@ public:
 		//const VectorDim planeNormal;	
 		//		const MatrixDim G2L;
 		
-		typedef MaterialType TempMaterialType;
-		
+
 		typedef typename GlidePlaneObserver<dim,LinkType>::GlidePlaneType GlidePlaneType;
 		typedef typename GlidePlaneObserver<dim,LinkType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
+		
+		//! A shared pointer to the GlidePlane that geometrically contains this segment 		
 		const GlidePlaneSharedPtrType pGlidePlane;
 		
 		
@@ -334,61 +258,28 @@ public:
 		/* initialization list       */ Burgers(this->flow * shared.material.b),
 		/* initialization list       */ coreL(1.0*shared.material.b),
 		/* initialization list       */ coreLsquared(std::pow(coreL,2)),
-		//		/* initialization list       */ G2L(DislocationLocalReference<dim>::global2local(Burgers,this->glidePlaneNormal)), //NO, B and N may not be orthogonal
 		/* initialization list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))){			// change this		
 			
-			
-#if VERBOSELEVEL <= 3
-			std::cout<<"Creating DislocationSegment with Burgers "<<Burgers.transpose()<<" on "<<this->glidePlaneNormal.transpose()<<" plane."<<std::endl;
-#endif
-			
-			
-			assert(this->flow.squaredNorm()>0.0);
-			
-			C1=1.0-shared.material.nu;
-			C2=shared.material.mu/(4.0*M_PI*C1);
-			C3=1.0-2.0*shared.material.nu;
-			C4=1.0/(8.0*M_PI*C1);
-			
+			assert(this->flow.squaredNorm()>0.0);			
 			pGlidePlane->addToGLidePlane(this);	
 		}
 		
-		
-		
-		
-		
-		
-		/* Constructor with Nodes and Link (Expansion) ****************************/
-		//! Constructor with Nodes and FLow		
-		//		DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const LinkType* const & pL) : 
+		/* Constructor from EdgeExpansion) ****************************/
 		DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const ExpandingEdge<LinkType>& ee) : 
-		//      /* base class initialization */ DislocationSegmentInitializeBeforeBase<dim,MaterialType>::DislocationSegmentInitializeBeforeBase(ee.E.glidePlaneNormal,nodePair.second->get_P()-nodePair.first->get_P(),ee.E.flow),
 		/* base class initialization */ DislocationSegmentInitializeBeforeBase<dim,MaterialType>::DislocationSegmentInitializeBeforeBase(nodePair.second->get_P()-nodePair.first->get_P(),ee.E.flow),
 		/* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee), 
 		/* initialization list       */ Burgers(this->flow * shared.material.b),
 		/* initialization list       */ coreL(1.0*shared.material.b),
 		/* initialization list       */ coreLsquared(std::pow(coreL,2)),
-		//		/* initialization list       */ G2L(DislocationLocalReference<dim>::global2local(Burgers,this->glidePlaneNormal)), //NO, B and N may not be orthogonal
 		/* initialization list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))){			// change this		
-			
-			
-			
-#if VERBOSELEVEL <= 3
-			std::cout<<"Creating DislocationSegment from Expansion with Burgers "<<Burgers.transpose()<<" on "<<this->glidePlaneNormal.transpose()<<" plane."<<std::endl;
-#endif
-			
-			assert(this->flow.squaredNorm()>0.0);
-			
-			C1=1.0-shared.material.nu;
-			C2=shared.material.mu/(4.0*M_PI*C1);
-			C3=1.0-2.0*shared.material.nu;
-			C4=1.0/(8.0*M_PI*C1);
-			
+
+			assert(this->flow.squaredNorm()>0.0);			
 			pGlidePlane->addToGLidePlane(this);
 		}
 		
 		/* Destructor *************************************************/
 		~DislocationSegment(){
+			//! Removes this from *pGlidePlane
 			pGlidePlane->removeFromGlidePlane(this);
 		}
 		
@@ -409,70 +300,16 @@ public:
 			/*                                                                    */ rgauss.col(k),rugauss.col(k),Burgers));
 		}
 		
-		
-		
-		
 		/********************************************************/
 		MatrixDim stress_source(const VectorDim & Rfield) const {
 			/*! The stress tensor generated by this dislocatio segment at   
 			 * @param[in] Rfield the vector representing the filed point
 			 */
-			MatrixDim sigma_source = MatrixDim::Zero();
-			Quadrature<1,qOrder,QuadratureRule>::integrate(this,sigma_source,&LinkType::stress_integrand,Rfield);
-			
-			
-			/* IF THIS SEGMENT IS AN END SEGMENT ADD HERE THE STRESS DUE TO AN INFINITE STRAIGHT SEGMENT 
-			 GOING OUT OF THE BOUNDARY AND WITH LINE DIRECTION EQUAL TO THE END POINT LINE DIRECTION
-			 SEE CAI.
-			 */
-			
-			//			if ((this->sink->constraintType==boundaryNode)*0){
-			//				// in this case x2 is the point at infinity and x1=this->sink
-			//				// also Rfield-x2 is anti-parallel to x2-x1
-			//				// therefore T(Rfield-x2)-T(Rfield-x1) becomes:
-			//				sigma_source+= stress_straight_inf(this->get_ru(1.0)) - stress_straight(Rfield-this->get_r(1.0),this->get_ru(1.0));
-			//			}
-			//			
-			//			if ((this->source->constraintType==boundaryNode)*0){
-			//				// in this case x1 is the point at infinity and x2=this->source
-			//				// also Rfield-x1 is parallel to x2-x1
-			//				// therefore T(Rfield-x2)-T(Rfield-x1) becomes:
-			//				sigma_source+= stress_straight(Rfield-this->get_r(0.0),this->get_ru(0.0)) - stress_straight_inf(this->get_ru(0.0));
-			//			}
-			
-			return C2*(sigma_source+sigma_source.transpose());		// extract SYMMETRIC part of stress
+			MatrixDim temp(MatrixDim::Zero());
+			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::stress_integrand,Rfield);
+			return shared.material.C2*(temp+temp.transpose());		// extract SYMMETRIC part of stress
 		}
 		
-		/********************************************************/
-		MatrixDim stress_straight(const VectorDim & R, const VectorDim & t) const {
-			
-			const VectorDim T=t.normalized();
-			const double RdotT=R.dot(t);
-			const double RdotT2=std::pow(RdotT,2);
-			const double RaSquared = R.squaredNorm()+coreLsquared;
-			const double Ra = std::pow(RaSquared,0.5);
-			const double RaCubed = std::pow(Ra,3);
-			const double A1 = - RdotT*(3.0*RaSquared-RdotT2)/std::pow(RaSquared-RdotT2,2)/RaCubed;
-			const double A2 = 1.0/RaCubed-RdotT*A1;
-			const double A6 = - RdotT/(RaSquared-RdotT2)/Ra;
-			const double A3 = - RdotT/Ra+A6+RdotT2*A1;
-			const double A4 = A6 + coreLsquared*A1;
-			const double A5 = -C1*A6-coreLsquared*C1*A1*0.5;
-			const double A7 = shared.material.nu/Ra - RdotT*A6 - coreLsquared*C1*A2*0.5;
-			
-			return R.cross(Burgers).dot(t)*(0.5*A1*R*R.transpose() + A2*t*R.transpose() + 0.5*A3*t*t.transpose() + 0.5*A4*I)
-			/*  */ + A5*R.cross(Burgers)*t.transpose() + A6*t.cross(Burgers)*R.transpose()
-			/*  */ + A7*t.cross(Burgers)*t.transpose();		// extract SYMMETRIC part of stress
-		}
-		
-		/********************************************************/
-		MatrixDim stress_straight_inf(const VectorDim & t) const {
-			const VectorDim T=t.normalized();
-			
-			return MatrixDim::Zero();		// extract SYMMETRIC part of stress
-		}
-		
-				
 		/********************************************************/
 		MatrixDim stress_integrand(const int & k, const VectorDim& Rfield) const {
 			/*! Returns the asymmetric (and dimensionless) part of the stress integrand generated by the current quadrature point.
@@ -494,8 +331,8 @@ public:
 			 *	\f]
 			 */
 			VectorDim R=Rfield-rgauss.col(k);
-			double RaSquared = R.squaredNorm() + coreLsquared;
-			return   (C1*(1.0+1.5*coreLsquared/RaSquared)*rugauss.col(k)*(Burgers.cross(R)).transpose()
+			double RaSquared(R.squaredNorm() + coreLsquared);
+			return   (shared.material.C1*(1.0+1.5*coreLsquared/RaSquared)*rugauss.col(k)*(Burgers.cross(R)).transpose()
 					  + 	R*(rugauss.col(k).cross(Burgers)).transpose() 
 					  +  0.5* R.cross(Burgers).dot(rugauss.col(k)) * (I*(1.0+3.0*coreLsquared/RaSquared) + 3.0/RaSquared*R*R.transpose())
 					  )/std::pow(RaSquared,1.5);
@@ -536,8 +373,7 @@ public:
 			//			return (shared.use_bvp) ? ((quadratureParticleVector[k].stress(this->source->bvpStress,this->sink->bvpStress)+shared.loadController.externalStress())*Burgers).cross(rlgauss.col(k))
 			//			/*                   */ : ((quadratureParticleVector[k].stress()+shared.loadController.externalStress())*Burgers).cross(rlgauss.col(k));			
 			return (shared.use_bvp) ? ((quadratureParticleVector[k].stress(this->source->bvpStress,this->sink->bvpStress)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
-			/*                   */ : ((quadratureParticleVector[k].stress()+shared.externalStress)*Burgers).cross(rlgauss.col(k));			
-			
+			/*                   */ : ((quadratureParticleVector[k].stress()+shared.externalStress)*Burgers).cross(rlgauss.col(k));
 		}
 		
 		//////////////////////////////////
@@ -553,7 +389,6 @@ public:
 			 */
 			double temp=0.0;
 			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::energy_field);
-			
 			return temp;
 		}
 		
@@ -574,7 +409,7 @@ public:
 			 */
 			double temp(0.0);
 			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::energy_integrand,rf,ruf,bf);			
-			return -C2*temp;	
+			return -shared.material.C2*temp;	
 		}
 		
 		//////////////////////////////////
@@ -583,7 +418,7 @@ public:
 		double energy_integrand(const int & k,  VectorDim & rf, const VectorDim & ruf, const VectorDim & bf) const {
 			VectorDim DR= rf-rgauss.col(k);
 			double RaSquared = DR.squaredNorm() + coreLsquared;
-			return  (C1*(1.0+0.5*coreLsquared/RaSquared)*Burgers.dot(rugauss.col(k))*bf.dot(ruf)
+			return  (shared.material.C1*(1.0+0.5*coreLsquared/RaSquared)*Burgers.dot(rugauss.col(k))*bf.dot(ruf)
 					 +2.0*shared.material.nu*(1.0+0.5*coreLsquared/RaSquared)*(bf.dot(rugauss.col(k))*Burgers.dot(ruf))
 					 -(Burgers.dot(bf)*(1.0+coreLsquared/RaSquared)+ Burgers.dot(DR)*bf.dot(DR)*1.0/RaSquared )*ruf.dot(rugauss.col(k))
 					 )/std::pow(RaSquared,0.5);
@@ -596,9 +431,6 @@ public:
 			assemble_Fq();
 			assemble_Kqq();
 		}
-		
-		
-		
 		
 		//////////////////////////////////////////////////////////////
 		// get_Kqq
@@ -650,7 +482,7 @@ public:
 			 */
 			VectorDim u_source = VectorDim::Zero();
 			Quadrature<1,qOrder,QuadratureRule>::integrate(this,u_source,&LinkType::displacement_integrand,Rfield,S);
-			return C4*u_source;		
+			return shared.material.C4*u_source;		
 		}
 		
 		/********************************************************/
@@ -680,10 +512,10 @@ public:
 			 * [1] Asvestas, J. Line integrals and physical optics. Part I. The transformation of the solid-angle surface integral to a line integral. J. Opt. Soc. Am. A, 2(6), 891–895.
 			 */
 			
-			VectorDim R=Rfield-rgauss.col(k);	
+			VectorDim R(Rfield-rgauss.col(k));	
 			double Ra=std::pow(R.squaredNorm()+std::pow(coreL,2.0),0.5);			
-			return 1.0/Ra * (+ 2.0*C1/(Ra+R.dot(S))*Burgers*(S.cross(R)).dot(rugauss.col(k))
-			/*            */ + C3*rugauss.col(k).cross(Burgers) 
+			return 1.0/Ra * (+ 2.0*shared.material.C1/(Ra+R.dot(S))*Burgers*(S.cross(R)).dot(rugauss.col(k))
+			/*            */ + shared.material.C3*rugauss.col(k).cross(Burgers) 
 			/*            */ + 1.0/std::pow(Ra,2)*(rugauss.col(k).cross(Burgers)).dot(R)*R
 			/*            */ );
 		}
@@ -693,7 +525,6 @@ public:
 			/*! The lattice rotation tensor generated by this dislocatio segment at   
 			 * @param[in] Rfield the vector representing the filed point
 			 */
-			
 			MatrixDim dg(elasticDistortion(Rfield));
 			return 0.5*(dg.transpose()-dg); 
 		}
@@ -705,18 +536,16 @@ public:
 			 */
 			MatrixDim temp(MatrixDim::Zero());
 			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::elasticDistortion_integrand,Rfield);
-			return (C4 * temp); 
+			return (shared.material.C4 * temp); 
 		}
 		
 		
 		
 		/********************************************************/
 		MatrixDim elasticDistortion_integrand(const int & k, const VectorDim& Rfield) const {
-			
-			VectorDim R=Rfield-rgauss.col(k);
-			double RaSquared = R.squaredNorm() + coreLsquared;
-			
-			return  ( C1*( 2.0e00 + (3.0e00*coreLsquared/RaSquared) ) * (Burgers*(rugauss.col(k).cross(R)).transpose() + (Burgers.cross(rugauss.col(k)))*R.transpose())
+			const VectorDim R(Rfield-rgauss.col(k));
+			const double RaSquared ( R.squaredNorm() + coreLsquared);
+			return  ( shared.material.C1*( 2.0e00 + (3.0e00*coreLsquared/RaSquared) ) * (Burgers*(rugauss.col(k).cross(R)).transpose() + (Burgers.cross(rugauss.col(k)))*R.transpose())
 					 + (rugauss.col(k).cross(Burgers))*R.transpose() + R * (rugauss.col(k).cross(Burgers)).transpose()
 					 + R.cross(Burgers).dot(rugauss.col(k)) * (3.0/RaSquared*R*R.transpose() - I) ) / std::pow(RaSquared,1.5);
 		}
@@ -753,35 +582,23 @@ public:
 			if (shared.boundary_type){
 				VectorDim origin = this->source->get_P();
 				
-				//				const GlidePlane<dim,MaterialType>* const p_glide = &glideMap.at(origin.dot(this->glidePlaneNormal)*this->glidePlaneNormal);
-				
 				Eigen::Matrix<double,dim-1,Ncoeff> C1L=polynomialLocalCoeff();
 				const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),this->glidePlaneNormal));
 				
-				
 				for (int k=0; k<pGlidePlane->segmentMeshCollisionPairContainer.size();++k){
-					//					for (int k=0; k<p_glide->segmentMeshCollisionPairContainer.size();++k){
-					
 					Eigen::Matrix<double,dim-1,2> H2L;
 					H2L.col(0)=(G2L*(pGlidePlane->segmentMeshCollisionPairContainer[k].first -origin)).template segment<dim-1>(0);
 					H2L.col(1)=(G2L*(pGlidePlane->segmentMeshCollisionPairContainer[k].second-origin)).template segment<dim-1>(0);
-					//dislcoament
-					PlanarSplineImplicitization<pOrder> psi(Coeff2Hermite<pOrder>::template h2c<dim-1>(C1L));
+					PlanarSplineImplicitization<pOrder> psi(Coeff2Hermite<pOrder>::template h2c<dim-1>(shared.material.C1L));
 					std::set<std::pair<double,double> > intersectinParameters = psi.template intersectWith<1>(Coeff2Hermite<1>::template h2c<dim-1>(H2L),FLT_EPSILON);
-					
 					for (std::set<std::pair<double,double> >::const_iterator iter=intersectinParameters.begin();iter!=intersectinParameters.end();++iter){
 						temp.insert(std::make_pair(iter->first,this->get_r(iter->first)));
-						//						temp.insert(iter->first);
-						
 					}
 				}
 			}
 			
 			return temp;
 		}
-		
-		
-
 		
 		/*********************************************************************/		
 		CrossSlipSegment<LinkType> isCrossSlipSegment(const double& sinThetaCrossSlipCr,const double& crossSlipLength) const {
@@ -830,4 +647,34 @@ public:
 	//////////////////////////////////////////////////////////////s
 } // namespace model
 #endif
+
+
+
+
+
+	//	C1, C2, C3, C4;			// THIS SHOULD BE A STATIC DATA MEMBER
+//			shared.material.C1=1.0-shared.material.nu;
+//			shared.material.C2=shared.material.mu/(4.0*M_PI*shared.material.C1);
+//			shared.material.C3=1.0-2.0*shared.material.nu;
+//			shared.material.C4=1.0/(8.0*M_PI*shared.material.C1);
+
+
+			/* IF THIS SEGMENT IS AN END SEGMENT ADD HERE THE STRESS DUE TO AN INFINITE STRAIGHT SEGMENT 
+			 GOING OUT OF THE BOUNDARY AND WITH LINE DIRECTION EQUAL TO THE END POINT LINE DIRECTION
+			 SEE CAI.
+			 */
+			
+			//			if ((this->sink->constraintType==boundaryNode)*0){
+			//				// in this case x2 is the point at infinity and x1=this->sink
+			//				// also Rfield-x2 is anti-parallel to x2-x1
+			//				// therefore T(Rfield-x2)-T(Rfield-x1) becomes:
+			//				sigma_source+= stress_straight_inf(this->get_ru(1.0)) - stress_straight(Rfield-this->get_r(1.0),this->get_ru(1.0));
+			//			}
+			//			
+			//			if ((this->source->constraintType==boundaryNode)*0){
+			//				// in this case x1 is the point at infinity and x2=this->source
+			//				// also Rfield-x1 is parallel to x2-x1
+			//				// therefore T(Rfield-x2)-T(Rfield-x1) becomes:
+			//				sigma_source+= stress_straight(Rfield-this->get_r(0.0),this->get_ru(0.0)) - stress_straight_inf(this->get_ru(0.0));
+			//			}
 

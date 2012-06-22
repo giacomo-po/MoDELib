@@ -1,4 +1,4 @@
-model_DIR = /home/giacomo/Dropbox/Model
+model_DIR = /Users/giacomo/Dropbox/Model
 IDIR  = -I/usr/local/include
 IDIR  = -I./
 IDIR += -I$(model_DIR)
@@ -6,8 +6,8 @@ IDIR += -I$(model_DIR)
 ##########################################################
 # COMPILER SETTINGS
 ##########################################################
-#CC	= /usr/local/bin/g++
-CC	= g++
+CC	= /usr/local/bin/g++
+#CC	= g++
 #CC	= icc
 
 ifeq ($(CC),/usr/local/bin/g++)

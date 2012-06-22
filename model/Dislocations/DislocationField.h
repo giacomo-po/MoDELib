@@ -93,16 +93,45 @@ namespace model {
 		
 		/* energyKernel ********************************/
 		static double energyKernel(const VectorDim& Rfield, const VectorDim& Rsource, const VectorDim& Tsource, const VectorDim& Bsource, const double& aSquared){
-//			VectorDim DR= rf-rgauss.col(k);
 			const VectorDim R(Rfield-Rsource);
 			const double RaSquared(R.squaredNorm() + aSquared);
-//			double RaSquared = DR.squaredNorm() + aSquared;
 			return  (C1*(1.0+0.5*aSquared/RaSquared)*Bsource.dot(Tsource)*bf.dot(ruf)
 					 +2.0*shared.material.nu*(1.0+0.5*aSquared/RaSquared)*(bf.dot(Tsource)*Bsource.dot(ruf))
 					 -(Bsource.dot(bf)*(1.0+aSquared/RaSquared)+ Bsource.dot(DR)*bf.dot(DR)*1.0/RaSquared )*ruf.dot(Tsource)
 					 )/std::pow(RaSquared,0.5);
 		}
 		
+
+		/********************************************************/
+		MatrixDim stress_straight(const VectorDim & R, const VectorDim & t) const {
+			
+			const VectorDim T=t.normalized();
+			const double RdotT=R.dot(t);
+			const double RdotT2=std::pow(RdotT,2);
+			const double RaSquared = R.squaredNorm()+coreLsquared;
+			const double Ra = std::pow(RaSquared,0.5);
+			const double RaCubed = std::pow(Ra,3);
+			const double A1 = - RdotT*(3.0*RaSquared-RdotT2)/std::pow(RaSquared-RdotT2,2)/RaCubed;
+			const double A2 = 1.0/RaCubed-RdotT*A1;
+			const double A6 = - RdotT/(RaSquared-RdotT2)/Ra;
+			const double A3 = - RdotT/Ra+A6+RdotT2*A1;
+			const double A4 = A6 + coreLsquared*A1;
+			const double A5 = -C1*A6-coreLsquared*C1*A1*0.5;
+			const double A7 = shared.material.nu/Ra - RdotT*A6 - coreLsquared*C1*A2*0.5;
+			
+			return R.cross(Burgers).dot(t)*(0.5*A1*R*R.transpose() + A2*t*R.transpose() + 0.5*A3*t*t.transpose() + 0.5*A4*I)
+			/*  */ + A5*R.cross(Burgers)*t.transpose() + A6*t.cross(Burgers)*R.transpose()
+			/*  */ + A7*t.cross(Burgers)*t.transpose();		// extract SYMMETRIC part of stress
+		}
+		
+		/********************************************************/
+		MatrixDim stress_straight_inf(const VectorDim & t) const {
+			const VectorDim T=t.normalized();
+			
+			return MatrixDim::Zero();		// extract SYMMETRIC part of stress
+		}
+
+
 		
 		
 	};
