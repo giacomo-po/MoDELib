@@ -41,98 +41,90 @@ namespace model {
 		
 		/* Constructor **********************************************/
 		ParallelExecute(NetworkVertexMapType& networkVertexMapRef_in,
-		/*            */ NetworkEdgeMapType&     networkEdgeMapRef_in) : networkVertexMapRef(networkVertexMapRef_in),
+        /*            */ NetworkEdgeMapType&     networkEdgeMapRef_in) : networkVertexMapRef(networkVertexMapRef_in),
 		/*                                                            */ networkEdgeMapRef(networkEdgeMapRef_in){}
 		
-
+        
 		/* execute **********************************************/
 		void execute(void (EdgeType::*Lfptr)(void)){
 #ifdef _OPENMP
-			#pragma omp parallel 
-			#pragma omp single
-{
-std::cout<<"[executing with "<<omp_get_num_threads()<<" threads]"<<std::flush;
+#pragma omp parallel for
+            for (unsigned int k=0;k<networkEdgeMapRef.size();++k){
+                typename NetworkEdgeMapType::iterator linkIter(networkEdgeMapRef.begin()); //  the data within a parallel region is private to each thread
+                std::advance(linkIter,k);
+                (linkIter->second->*Lfptr)();
+            }
+#else
+            for (typename NetworkEdgeMapType::iterator linkIter=networkEdgeMapRef.begin();linkIter!=networkEdgeMapRef.end();++linkIter){
+                (linkIter->second->*Lfptr)();
+            }
 #endif
-			
-			for (typename NetworkEdgeMapType::iterator linkIter=networkEdgeMapRef.begin();linkIter!=networkEdgeMapRef.end();++linkIter){
-#ifdef _OPENMP
- 		    #pragma omp task firstprivate(linkIter)	
-#endif			
-			(linkIter->second->*Lfptr)();
-			}
-#ifdef _OPENMP
-		  	#pragma omp taskwait
-}
-#endif			
 		}
-
+        
 		/* execute **********************************************/
 		template <typename T>
 		void execute(void (EdgeType::*Lfptr)(const T&), const T & input){
 #ifdef _OPENMP
-			#pragma omp parallel 
-			#pragma omp single
-{
-std::cout<<"[executing with "<<omp_get_num_threads()<<" threads]"<<std::flush;
-#endif
-			
-			for (typename NetworkEdgeMapType::iterator linkIter=networkEdgeMapRef.begin();linkIter!=networkEdgeMapRef.end();++linkIter){
-#ifdef _OPENMP
- 		    #pragma omp task firstprivate(linkIter)	
-#endif			
-			(linkIter->second->*Lfptr)(input);
-			}
-#ifdef _OPENMP
-		  	#pragma omp taskwait
-}
-#endif			
+#pragma omp parallel for
+            for (unsigned int k=0;k<networkEdgeMapRef.size();++k){
+                typename NetworkEdgeMapType::iterator linkIter(networkEdgeMapRef.begin()); //  the data within a parallel region is private to each thread
+                std::advance(linkIter,k);
+                (linkIter->second->*Lfptr)(input);
+            }
+#else
+            for (typename NetworkEdgeMapType::iterator linkIter=networkEdgeMapRef.begin();linkIter!=networkEdgeMapRef.end();++linkIter){
+                (linkIter->second->*Lfptr)(input);
+            }
+#endif        	
 		}
-
-
-		/* vertexExecute **********************************************/
-		void execute(void (VertexType::*Vfptr)(void)){
-#ifdef _OPENMP
-			#pragma omp parallel 
-			#pragma omp single
-{
-std::cout<<"[executing with "<<omp_get_num_threads()<<" threads]"<<std::flush;
-#endif
-			
-			for (typename NetworkVertexMapType::iterator vertexIter=networkVertexMapRef.begin();vertexIter!=networkVertexMapRef.end();++vertexIter){
-#ifdef _OPENMP
- 		    #pragma omp task firstprivate(vertexIter)	
-#endif			
-			(vertexIter->second->*Vfptr)();
-			}
-#ifdef _OPENMP
-		  	#pragma omp taskwait
-}
-#endif			
-		}
-
-		/* execute **********************************************/
-		template <typename T>
-		void execute(void (VertexType::*Vfptr)(const T&), const T & input){
-#ifdef _OPENMP
-			#pragma omp parallel 
-			#pragma omp single
-{
-std::cout<<"[executing with "<<omp_get_num_threads()<<" threads]"<<std::flush;
-#endif
-			
-			for (typename NetworkVertexMapType::iterator vertexIter=networkVertexMapRef.begin();vertexIter!=networkVertexMapRef.end();++vertexIter){
-#ifdef _OPENMP
- 		    #pragma omp task firstprivate(vertexIter)	
-#endif			
-			(vertexIter->second->*Vfptr)(input);
-			}
-#ifdef _OPENMP
-		  	#pragma omp taskwait
-}
-#endif			
-		}
-
-
+        
+        
+//		/* vertexExecute **********************************************/
+//		void execute(void (VertexType::*Vfptr)(void)){
+//#ifdef _OPENMP
+//#pragma omp parallel 
+//            {
+//#pragma omp single
+//                {
+//                    std::cout<<"[executing with "<<omp_get_num_threads()<<" threads]"<<std::flush;
+//#endif
+//                    
+//                    for (typename NetworkVertexMapType::iterator vertexIter=networkVertexMapRef.begin();vertexIter!=networkVertexMapRef.end();++vertexIter){
+//#ifdef _OPENMP
+//#pragma omp task firstprivate(vertexIter)	
+//#endif			
+//                        (vertexIter->second->*Vfptr)();
+//                    }
+//#ifdef _OPENMP
+//#pragma omp taskwait
+//                }
+//            }
+//#endif			
+//		}
+//        
+//		/* execute **********************************************/
+//		template <typename T>
+//		void execute(void (VertexType::*Vfptr)(const T&), const T & input){
+//#ifdef _OPENMP
+//#pragma omp parallel 
+//#pragma omp single
+//            {
+//                std::cout<<"[executing with "<<omp_get_num_threads()<<" threads]"<<std::flush;
+//#endif
+//                
+//                for (typename NetworkVertexMapType::iterator vertexIter=networkVertexMapRef.begin();vertexIter!=networkVertexMapRef.end();++vertexIter){
+//#ifdef _OPENMP
+//#pragma omp task firstprivate(vertexIter)	
+//#endif			
+//                    (vertexIter->second->*Vfptr)(input);
+//                }
+//#ifdef _OPENMP
+//#pragma omp taskwait
+//            }
+//#endif			
+//		}
+        
+        
 		
 	};
 	

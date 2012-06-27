@@ -55,7 +55,7 @@ void writeTetrahedrons(char* VTKfile) {
   fprintf (fout, "CELLS %u %u\n",nn, nn*5 );
   
   for (unsigned int i= 0 ; i < tetContainer.size() ; i++){
-    fprintf (fout,"%u %u %u %u %u\n", 4 ,tetContainer[i].eleNodes[0]->sID,tetContainer[i].eleNodes[1]->sID,tetContainer[i].eleNodes[2]->sID,tetContainer[i].eleNodes[3]->sID);
+    fprintf (fout,"%u %lu %lu %lu %lu\n", 4 ,tetContainer[i].eleNodes[0]->sID,tetContainer[i].eleNodes[1]->sID,tetContainer[i].eleNodes[2]->sID,tetContainer[i].eleNodes[3]->sID);
   }
   
   fprintf (fout, "\n");

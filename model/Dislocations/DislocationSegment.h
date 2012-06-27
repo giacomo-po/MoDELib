@@ -427,9 +427,10 @@ public:
 		//////////////////////////////////////////////////////////////
 		//! assemble
 		void assemble(){
-			//std::cout<<"Thread "<<omp_get_thread_num()<< " assembling DislocationSegment "<<this->sID<<std::endl;
+			//std::cout<<"Thread "<<omp_get_thread_num()<< " assembling DislocationSegment "<<this->sID<<" ..."<<std::flush;
 			assemble_Fq();
 			assemble_Kqq();
+            //std::cout<<" done"<<std::endl;
 		}
 		
 		//////////////////////////////////////////////////////////////

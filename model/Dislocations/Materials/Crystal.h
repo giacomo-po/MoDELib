@@ -51,6 +51,7 @@ namespace model {
 	
 			allowedSlipSystems.clear();
 				
+            // Try to find a plane which has normal orthogonal to both the chord and the Burgers
 			for (typename std::set<SlipSystem<dim,Nslips> >::iterator iter=this->begin();iter!=this->end();++iter){
 				if(	  std::fabs( iter->normal.dot(normalizedChord))<tol && std::fabs( iter->normal.dot(Burgers.normalized()))<tol){
 					allowedSlipSystems.insert( *iter );
@@ -66,12 +67,13 @@ namespace model {
 							allowedSlipSystems.insert( *iter );
 						}
 					}
-					if (allowedSlipSystems.size()==0){
+//					if (allowedSlipSystems.size()==0){
+                    if (allowedSlipSystems.size()<2){
 						std::cout<<" chord is"<<chord.transpose()<<std::endl;
 						for (typename std::set<SlipSystem<dim,Nslips> >::iterator iter=this->begin();iter!=this->end();++iter){
 							std::cout<<"n="<<iter->normal.transpose()<<" |c*n|="<< std::fabs( iter->normal.dot(normalizedChord)) << " tol is "<<tol<<std::endl;
 						}
-						assert(allowedSlipSystems.size() && "WRONG NUMBER OF SLIP SYSTEMS");					
+						assert(allowedSlipSystems.size()>=2 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO CRYSTALLOGRAPHIC PLANES.");					
 					}
 				//	std::cout<<"CRYSTAL.h: FOUND SESSILE SEGMENT"<<std::endl;
 					break;

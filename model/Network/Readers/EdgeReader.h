@@ -105,7 +105,7 @@ namespace model {
 			BinaryFileReader<BinEdgeType> rE(filename);
 			std::cout<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<"]";
 			double t1(clock());
-			for (int k=0;k<rE.size();++k){
+			for (unsigned int k=0;k<rE.size();++k){
 				this->insert(std::make_pair(rE[k].first,rE[k].second));
 //				assert(this->insert(std::make_pair(rE[k].first,rE[k].second)).second && "COULD NOT INSERT EDGE AFTER BINARY READ.");
 			}
@@ -153,7 +153,6 @@ namespace model {
 				// clear the content of the map
 				this->clear();
 				
-				double t0(clock());
 				if (useTXT){
 					readTXT(getFilename<true >(frameN));
 				}

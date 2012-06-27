@@ -30,10 +30,6 @@ namespace model {
 		}
 
 		
-		
-
-		
-		
 		/* findEdgeConfiguration *********************************************/
 		template <typename DislocationNodeType>
 		static void findEdgeConfiguration(DislocationNodeType& dN, const double& nu){
@@ -59,11 +55,9 @@ namespace model {
 				}
 				
 
-
-
 				// 2- Get all the possible edge configurations				
 				Eigen::MatrixXi Ci(EdgeDynamicConfigs::getCi(BsV.size()));
-				assert(Ci.cols()==BsV.size() && "SOMETHING WENT WRONG");
+//				assert(Ci.cols()==BsV.size() && "SOMETHING WENT WRONG");
 
 				
 				// 3- Change the sign of Ci according to the direction of the first neighbor
@@ -110,8 +104,8 @@ namespace model {
 //					else{
 //					tTemp.setZero();					
 //					}
-					
-					// 5b- Compute the energy for the current configuration and current tangent
+//					
+//					// 5b- Compute the energy for the current configuration and current tangent
 //					double Ek(0.0);
 //					for(unsigned int a=0; a<BsV.size();++a){
 //						for(unsigned int b=0; b<BsV.size();++b){
@@ -119,51 +113,27 @@ namespace model {
 //						}
 //					}
 //					ELev.insert(std::make_pair(Ek,Ci.row(k)));
-					ELev.insert(std::make_pair(tTemp.squaredNorm(),Ci.row(k)));
+                    
+                    
+                    bool isTrivialConfig(true);
+                    for (int c=0;c<Ci.cols();++c){
+                        isTrivialConfig*=(Ci(k,c)==Ci(k,0));
+                    }
+                    
+					ELev.insert(std::make_pair(tTemp.squaredNorm()*(!isTrivialConfig),Ci.row(k))); // the norm of the tangent is the measure 
 				}
 				
-
-
-//			if(dN.sID==282){
-//       	std::cout<<"THIS IS NODE"<<dN.sID<<std::endl;
-//				for (int kkk=0;kkk<BsV.size();++kkk){
-//					std::cout<<"Bs="<<BsV[kkk].transpose()<<std::endl;
-//				}
-
-//				for (std::multimap<double,Eigen::VectorXi>::const_iterator eeeIter=ELev.begin();eeeIter!=ELev.end();++eeeIter){
-//					std::cout<<"Elevel for "<< eeeIter->second.transpose() << "is"<< eeeIter->first<<std::endl;
-//				}
-//			}
 				
 				// 5- reset edgeConfiguration
 				dN.edgeConfiguration.setZero(Ci.cols());
 				
 				if (dN.is_balanced()){
 					assert(ELev.size()>1 && "MORE THAN ONE ENERGY LEVELS MUST BE FOUND FOR A BALANCED NODE");	
-					
-			//		assert(std::fabs(ELev.begin()->first)<FLT_EPSILON && "FIRST ENERGY LEVEL MUST BE 0 FOR A BALANCED NODE.");
-					
-					std::multimap<double,Eigen::VectorXi>::const_iterator firstNonZero(ELev.lower_bound(FLT_EPSILON)); // the first element that compares >=FLT_EPSILON
-					assert(firstNonZero!=ELev.end() && "AT LEAST ONE POSITIVE ENERGY LEVEL MUST EXIST");
-	//				std::multimap<double,Eigen::VectorXi>::const_iterator nextNonZero(firstNonZero);
-	//				++nextNonZero;
-	//				if (nextNonZero==ELev.end()){	// MINIMUM ENERGY LEVEL IS LAST ONE SO IT IS UNIQUE
-	//					dN.edgeConfiguration=firstNonZero->second;
-	//				}
-	//				else{
-	//					if(std::fabs(nextNonZero->first-firstNonZero->first)>=FLT_EPSILON){ // MINIMUM ENERGY LEVEL IS UNIQUE
-	//						dN.edgeConfiguration=firstNonZero->second;
-	//					}
-	//				}
-					
+					//std::multimap<double,Eigen::VectorXi>::const_iterator firstNonZero(ELev.lower_bound(FLT_EPSILON)); // the first element that compares >=FLT_EPSILON
+					//assert(firstNonZero!=ELev.end() && "AT LEAST ONE POSITIVE ENERGY LEVEL MUST EXIST");					
 					dN.edgeConfiguration=ELev.rbegin()->second;
-					
-					
-					
 				}
-				
-				
-				
+												
 				
 				// 7- store tangent coefficients
 				unsigned int kk(0);

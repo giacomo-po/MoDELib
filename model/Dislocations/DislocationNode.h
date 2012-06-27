@@ -114,8 +114,8 @@ namespace model {
 		
 		int nodeMeshLocation; // 1=inside
 		VectorDim   boundaryNormal;
-
-
+        
+        
 		MatrixDim bvpStress;
 		
 		unsigned int triIndex;
@@ -124,11 +124,11 @@ namespace model {
 		/*************************************************************************************/
 		/* Constructor from dof **************************************************************/
 		DislocationNode(const VectorDofType & Qin) : NodeBaseType::SplineNodeBase(Qin),
-		/* init list                              */ nodeMeshLocation(insideMesh),
-		/* init list                              */ boundaryNormal(VectorDim::Zero()),
-		/* init list                              */ velocity(VectorDofType::Zero()), 
+        /* init list                              */ velocity(VectorDofType::Zero()), 
 		/* init list                              */ vOld(VectorDofType::Zero()), 
 		/* init list                              */ vOldOld(VectorDofType::Zero()), 
+		/* init list                              */ nodeMeshLocation(insideMesh),
+		/* init list                              */ boundaryNormal(VectorDim::Zero()),
 		/* init list                              */ bvpStress(MatrixDim::Zero()){
 			initMeshLocation();
 		}
@@ -138,11 +138,11 @@ namespace model {
 		//		DislocationNode(const LinkType* const pL, const double& u) : NodeBaseType::SplineNodeBase(pL,u),
 		//		DislocationNode(const EdgeExpansion<LinkType>& pL, const double& u) : NodeBaseType::SplineNodeBase(pL,u),
 		DislocationNode(const ExpandingEdge<LinkType>& pL, const double& u) : NodeBaseType::SplineNodeBase(pL,u),
-		/* init list                                              */ nodeMeshLocation(insideMesh),
-		/* init list                                              */ boundaryNormal(VectorDim::Zero()),
-		/* init list                                              */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        /* init list                                              */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list                                              */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list                                              */ vOldOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* init list                                              */ nodeMeshLocation(insideMesh),
+		/* init list                                              */ boundaryNormal(VectorDim::Zero()),
 		/* init list                                              */ bvpStress(MatrixDim::Zero()){    // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 			initMeshLocation();
 		}
@@ -152,11 +152,11 @@ namespace model {
 		//		DislocationNode(const LinkType* const pL, const VectorDofType& Qin) : NodeBaseType::SplineNodeBase(pL,Qin),
 		//		DislocationNode(const EdgeExpansion<LinkType>& pL, const VectorDofType& Qin) : NodeBaseType::SplineNodeBase(pL,Qin),
 		DislocationNode(const ExpandingEdge<LinkType>& pL, const VectorDofType& Qin) : NodeBaseType::SplineNodeBase(pL,Qin),
-		/* init list                                                       */ nodeMeshLocation(insideMesh),
-		/* init list                                                       */ boundaryNormal(VectorDim::Zero()),
-		/* init list                                                       */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        /* init list                                                       */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list                                                       */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list                                                       */ vOldOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* init list                                                       */ nodeMeshLocation(insideMesh),
+		/* init list                                                       */ boundaryNormal(VectorDim::Zero()),
 		/* init list                                                       */ bvpStress(MatrixDim::Zero()){    // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 			initMeshLocation();
 		}
@@ -165,13 +165,13 @@ namespace model {
 		//	 DislocationNode(const LinkType* const pL, const VectorDofType& Qin) : NodeBaseType::SplineNodeBase(pL,Qin),
 		//	 DislocationNode(const EdgeExpansion<LinkType>& pL, const VectorDofType& Qin) : NodeBaseType::SplineNodeBase(pL,Qin),
 		DislocationNode(const ExpandingEdge<LinkType>& pL, const VectorDofType& Qin, const VectorDofType& Vin) : NodeBaseType::SplineNodeBase(pL,Qin),
-		/* init list                                                       */ nodeMeshLocation(insideMesh),
-		/* init list                                                       */ boundaryNormal(VectorDim::Zero()),
-		/* init list                                                       */ velocity(Vin), 
+        /* init list                                                       */ velocity(Vin), 
 		/* init list                                                       */ vOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list                                                       */ vOldOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* init list                                                       */ nodeMeshLocation(insideMesh),
+		/* init list                                                       */ boundaryNormal(VectorDim::Zero()),
 		/* init list                                                       */ bvpStress(MatrixDim::Zero()){    // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		initMeshLocation();
+            initMeshLocation();
 		}
 		
 		/* topologyChangeActions **********************************************/
@@ -311,7 +311,7 @@ namespace model {
 		const VectorDofType& get_V() const {
 			return velocity;
 		}
-
+        
 		
 		
 		/***************************************/
@@ -334,26 +334,26 @@ namespace model {
 						dir=dX;
 					}
 					
-//					VectorOfNormalsType temp=constraintNormals();
-
-//					std::cout<<"DislocationNode "<<this->sID<<" v ="<<velocity.transpose()<< " dir="<<dir.transpose()<<std::endl;
-	//				for (int pk=0;pk<temp.size();++pk){
-		//			std::cout<<"	constraint: ="<<temp[pk].transpose()<<std::endl;
-
-//if(std::fabs(temp[pk].dot(dir))<FLT_EPSILON){
-
-//}
-//else{
-//std::cout<<dir.transpose()<<std::endl;
-//std::cout<<temp[pk].transpose()<<std::endl;
-//std::cout<<std::fabs(temp[pk].dot(dir))<<"compared to"<<FLT_EPSILON<<std::endl;
-//assert(0 && "DIR IS NOT ON SOME PLANE");
-//}
-
-	//				}
+                    //					VectorOfNormalsType temp=constraintNormals();
+                    
+                    //					std::cout<<"DislocationNode "<<this->sID<<" v ="<<velocity.transpose()<< " dir="<<dir.transpose()<<std::endl;
+                    //				for (int pk=0;pk<temp.size();++pk){
+                    //			std::cout<<"	constraint: ="<<temp[pk].transpose()<<std::endl;
+                    
+                    //if(std::fabs(temp[pk].dot(dir))<FLT_EPSILON){
+                    
+                    //}
+                    //else{
+                    //std::cout<<dir.transpose()<<std::endl;
+                    //std::cout<<temp[pk].transpose()<<std::endl;
+                    //std::cout<<std::fabs(temp[pk].dot(dir))<<"compared to"<<FLT_EPSILON<<std::endl;
+                    //assert(0 && "DIR IS NOT ON SOME PLANE");
+                    //}
+                    
+                    //				}
 					
 					model::SearchData<dim> SD(newP,dir,currentMeshID,nodeMeshLocation,triIndex,boundaryNormal);
-//					model::SearchData<dim> SD(newP,dir,currentMeshID,nodeMeshLocation,triIndex); // OLD
+                    //					model::SearchData<dim> SD(newP,dir,currentMeshID,nodeMeshLocation,triIndex); // OLD
 					
 					shared.domain.SearchMovingNode(SD);		// NEW BVP
 					//shared.domain.directedSearch(SD);		// OLD BVP
@@ -361,8 +361,8 @@ namespace model {
 					
 					currentMeshID=SD.newMeshID;
 					nodeMeshLocation=SD.nodeMeshLocation;
-
-
+                    
+                    
 					switch (SD.nodeMeshLocation) {
 						case onMeshBoundary:
 							boundaryNormal=SD.outwardFaceNormal;
@@ -411,19 +411,19 @@ namespace model {
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
 	/*	   */ typename MaterialType>
-//	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB1=23.0/12.0;
+    //	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB1=23.0/12.0;
 	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB1=1.0/2.0;
 	
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
 	/*	   */ typename MaterialType>
-//	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB2=-16.0/12.0;
+    //	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB2=-16.0/12.0;
 	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB2= 1.0/2.0;
 	
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
 	/*	   */ typename MaterialType>
-//	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB3=5.0/12.0;
+    //	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB3=5.0/12.0;
 	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB3= 0.0/3.0;
 	
 }

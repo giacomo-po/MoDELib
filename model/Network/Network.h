@@ -265,7 +265,7 @@ namespace model {
 		/*************************************************************/
 		// friend T& operator <<
 		template <class T>
-		friend T& operator << (T& os, const NetworkNodeContainerType& nnC){			
+		friend T& operator << (T& os, const NetworkNodeContainerType& nnC) {			
 			for (typename NetworkNodeContainerType::const_iterator nodeIter=nnC.begin();nodeIter!=nnC.end();++nodeIter){				
 				os << (*nodeIter->second) << "\n";
 			}
@@ -275,12 +275,14 @@ namespace model {
 		/*************************************************************/
 		// friend T& operator <<
 		template <class T>
-		friend T& operator << (T& os, const NetworkLinkContainerType& nlC){			
+		friend T& operator << (T& os, const NetworkLinkContainerType& nlC) {			
 			for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter){				
 				os << (*linkIter->second) << "\n";
 			}
 			return os;
 		}
+        
+
 		
 //		/*************************************************************/
 //		// friend T& operator <<

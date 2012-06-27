@@ -713,7 +713,7 @@ namespace bvpfe {
 		template < typename T>
 		void integrate_gp (const T* const pt, Eigen::Matrix<double,3,3> tractionMatrix , Eigen::Matrix<double,dim,3>& tractionInt ) const {
 		  
-		  typename std::map<unsigned int, std::vector<VectorDim>>::const_iterator itt;
+		  typename std::map<unsigned int, std::vector<VectorDim> >::const_iterator itt;
 		  //assert(localQuadPnts.size()==1 && " extra entities @ localQuadPnts ");
 		  for (itt=localQuadPnts.begin(); itt!=localQuadPnts.end(); itt++) {
 		    std::vector<VectorDim> abscissas = (*itt).second;
@@ -1096,7 +1096,7 @@ namespace bvpfe {
 		template < typename T>
 		void integrate_gp (const T* const pt , Eigen::Matrix<double,dim,1>& tractionInt ) const {
 		  
-		  typename std::map<unsigned int, std::vector<VectorDim>>::const_iterator itt;
+		  typename std::map<unsigned int, std::vector<VectorDim> >::const_iterator itt;
 
 		  for (itt=localQuadPnts.begin(); itt!=localQuadPnts.end(); itt++) {
 		    std::vector<VectorDim> abscissas = (*itt).second;

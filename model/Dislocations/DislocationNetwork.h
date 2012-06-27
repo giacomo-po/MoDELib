@@ -291,7 +291,107 @@ public:
 			}
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;						
 		}
+        
+        /***********************************************************/
+		void singleStep(const bool& updateUserBC=false){
+			//! A simulation step consists of the following:
+			std::cout<<blueBoldColor<<"runID="<<runID<<", time="<<totalTime<< ": nodeOrder="<<this->nodeOrder()
+            /*                                                           */<< ", linkOrder="<<this->linkOrder()
+            /*                                                           */<< ", subNetworks="<<this->Naddresses()
+			/*                                                           */<< defaultColor<<std::endl;
+            
+			//! 1- Check that all nodes are balanced
+			checkBalance();
+			
+			//! 1 - Update quadrature points
+			updateQuadraturePoints();
+            			
+			//! 2- Calculate BVP correction 				
+			if (shared.use_bvp){
+				double t0=clock();
+				std::cout<<"		Updating bvp stress ... ";
+				if(!(runID%shared.use_bvp)){
+					shared.domain.update_BVP_Solution(updateUserBC,this);
+				}
+				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
+					nodeIter->second->updateBvpStress();
+				}
+				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;			
+			}
+			
+			//! 3- Solve the equation of motion
+#ifdef DislocationNetworkMPI
+			MPIstep();
+#endif
+			assembleAndSolve();
+			
+			
+			//! 4- Compute time step dt (based on max nodal velocity) and increment totalTime
+			make_dt();	
+			totalTime+=dt;
+			
+			//! 5- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
+			move(dt);
+			DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
+			
+            
+			//! 6- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
+			loopInversion();
+			
+			//! 7- If soft boundaries are used, remove DislocationSegment(s) that exited the boundary
+			removeBoundarySegments();
+			
+			//! 8- Form Junctions
+			formJunctions();
+			
+			//! 9- Node redistribution
+			remesh();
+			removeBoundarySegments();
+            
+			//! 10- Cross Slip
+			crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
+			updateQuadraturePoints();
+            //			updateQuadraturePoints();
+			
+			
+			//! 11- Output the current configuration, the corresponding velocities and dt
+			if (!(runID%outputFrequency)){
+				
+#ifdef DislocationNetworkMPI
+				if(localProc==0){
+					output();
+				}
+#else
+				output();
+#endif
+			}
+            			
+			//! 12 - Increment runID counter
+			++runID;     // increment the runID counter first, since the original configuration has been outputed already
+		}
 		
+		
+		/* remeshByContraction **************************************/
+		void removeBoundarySegments(){
+			if (shared.boundary_type==softBoundary){
+				double t0=clock();
+				std::cout<<"		Removing Segments outside Mesh Boundaries... ";
+				for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+					if(linkIter->second->is_boundarySegment()){
+                        //	shared.domain.vbsc.push_back(*(linkIter->second));
+					}
+				}
+                
+                
+				typedef bool (LinkType::*link_member_function_pointer_type)(void) const; 
+				link_member_function_pointer_type boundarySegment_Lmfp;
+				boundarySegment_Lmfp=&LinkType::is_boundarySegment;
+				this->template disconnect_if<1>(boundarySegment_Lmfp);
+				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;			
+			}
+		}
+        
+        		
 		/**********************************************************************************/
 		/* PUBLIC SECTION *****************************************************************/
 	public:
@@ -418,21 +518,21 @@ public:
 			//! 2- Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve
 			std::cout<<"		Solving..."<<std::flush;
 			t0=clock();
+            
+            
+            
 #ifdef _OPENMP
-#pragma omp parallel
-#pragma omp single
-{
-#endif
-			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter){ 
-#ifdef _OPENMP
-#pragma omp task firstprivate(snIter)	
-#endif					
+#pragma omp parallel for
+            for (unsigned int k=0;k<this->Naddresses();++k){
+                typename SubNetworkContainerType::iterator snIter(this->ABbegin()); //  the data within a parallel region is private to each thread
+                std::advance(snIter,k);
+				snIter->second->solve();
+            }
+#else
+			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter){ 			
 				snIter->second->solve();
 			}
-#ifdef _OPENMP
-#pragma omp taskwait
-}
-#endif			
+#endif		
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;			
 		}
 		
@@ -442,11 +542,11 @@ public:
 			double t0=clock();
 			
 			//! 1- Outputs the Edge informations to file E_*.txt where * is the current simulation step
-			SequentialOutputFile<'E',1>::set_increment(outputFrequency); // Edges_file;
-			SequentialOutputFile<'E',1>::set_count(runID); // Edges_file;
-			SequentialOutputFile<'E',1> Edges_file;
-			Edges_file << *dynamic_cast<const NetworkLinkContainerType*>(this);
-			std::cout<<" E/E_"<<Edges_file.sID;
+			SequentialOutputFile<'E',1>::set_increment(outputFrequency); // edgeFile;
+			SequentialOutputFile<'E',1>::set_count(runID); // edgeFile;
+			SequentialOutputFile<'E',1> edgeFile;
+			edgeFile << *dynamic_cast<const NetworkLinkContainerType*>(this);
+			std::cout<<" E/E_"<<edgeFile.sID;
 			
 			typedef std::pair<std::pair<int,int>,Eigen::Matrix<double,1,9> > BinEdgeType;
 			SequentialBinFile<'E',BinEdgeType>::set_increment(outputFrequency);
@@ -463,24 +563,24 @@ public:
 			}
 			
 			//! 2- Outputs the Vertex informations to file V_*.txt where * is the current simulation step
-			SequentialOutputFile<'V',1>::set_increment(outputFrequency); // Vertices_file;
-			SequentialOutputFile<'V',1>::set_count(runID); // Vertices_file;
-			SequentialOutputFile<'V',1> Vertices_file;
+			SequentialOutputFile<'V',1>::set_increment(outputFrequency); // vertexFile;
+			SequentialOutputFile<'V',1>::set_count(runID); // vertexFile;
+			SequentialOutputFile<'V',1> vertexFile;
 			for (typename NetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){				
-				Vertices_file << nodeIter->second->sID<<"\t"
+				vertexFile << nodeIter->second->sID<<"\t"
 				/*         */ << std::setprecision(15)<<std::scientific<<nodeIter->second->get_P().transpose()<<"\t"
 				/*         */ << std::setprecision(15)<<std::scientific<<nodeIter->second->get_T().transpose()<<"\t"
 				/*         */ << nodeIter->second->pSN()->sID<<"\t";
 				if (shared.use_bvp){ //output in deformed configuration
-					Vertices_file << std::setprecision(15)<<std::scientific<<nodeIter->second->deformedPosition().transpose()<<"\t";
+					vertexFile << std::setprecision(15)<<std::scientific<<nodeIter->second->deformedPosition().transpose()<<"\t";
 				}
 				else{
-					Vertices_file<< VectorDimD::Zero().transpose();
+					vertexFile<< VectorDimD::Zero().transpose();
 				}
-				Vertices_file << std::endl;
+				vertexFile << std::endl;
 				
 			}
-			std::cout<<", V/V_"<<Vertices_file.sID;
+			std::cout<<", V/V_"<<vertexFile.sID;
 			
 			//! 3- Outputs the nearest neighbor Cell structures to file C_*.txt where * is the current simulation step
 			SequentialOutputFile<'C',1>::set_increment(outputFrequency); // Cell_file;
@@ -615,103 +715,7 @@ public:
 		}
 		
 		
-		/***********************************************************/
-		void singleStep(const bool& updateUserBC=false){
-			//! A simulation step consists of the following:
-			std::cout<<blueBoldColor<<"runID="<<runID<<", time="<<totalTime<< ": nodeOrder="<<this->nodeOrder()
-         /*                                                           */<< ", linkOrder="<<this->linkOrder()
-         /*                                                           */<< ", subNetworks="<<this->Naddresses()
-			/*                                                           */<< defaultColor<<std::endl;
 
-			//! 1- Check that all nodes are balanced
-			checkBalance();
-			
-			//! 1 - Update quadrature points
-			updateQuadraturePoints();
-			
-			//! 2- Calculate BVP correction 				
-			if (shared.use_bvp){
-				double t0=clock();
-				std::cout<<"		Updating bvp stress ... ";
-				if(!(runID%shared.use_bvp)){
-					shared.domain.update_BVP_Solution(updateUserBC,this);
-				}
-				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
-					nodeIter->second->updateBvpStress();
-				}
-				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;			
-			}
-			
-			//! 3- Solve the equation of motion
-#ifdef DislocationNetworkMPI
-			MPIstep();
-#endif
-			assembleAndSolve();
-			
-			
-			//! 4- Compute time step dt (based on max nodal velocity) and increment totalTime
-			make_dt();	
-			totalTime+=dt;
-			
-			//! 5- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
-			move(dt);
-			DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
-			
-			//! 6- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
-			loopInversion();
-			
-			//! 7- If soft boundaries are used, remove DislocationSegment(s) that exited the boundary
-			removeBoundarySegments();
-			
-			//! 8- Form Junctions
-			formJunctions();
-			
-			//! 9- Node redistribution
-			remesh();
-			removeBoundarySegments();
-
-			//! 10- Cross Slip
-			crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
-			updateQuadraturePoints();
-//			updateQuadraturePoints();
-			
-			
-			//! 11- Output the current configuration, the corresponding velocities and dt
-			if (!(runID%outputFrequency)){
-				
-#ifdef DislocationNetworkMPI
-				if(localProc==0){
-					output();
-				}
-#else
-				output();
-#endif
-			}
-			
-			//! 12 - Increment runID counter
-			++runID;     // increment the runID counter first, since the original configuration has been outputed already
-		}
-		
-		
-		/* remeshByContraction **************************************/
-		void removeBoundarySegments(){
-			if (shared.boundary_type==softBoundary){
-				double t0=clock();
-				std::cout<<"		Removing Segments outside Mesh Boundaries... ";
-				for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-					if(linkIter->second->is_boundarySegment()){
-					//	shared.domain.vbsc.push_back(*(linkIter->second));
-					}
-				}
-
-
-				typedef bool (LinkType::*link_member_function_pointer_type)(void) const; 
-				link_member_function_pointer_type boundarySegment_Lmfp;
-				boundarySegment_Lmfp=&LinkType::is_boundarySegment;
-				this->template disconnect_if<1>(boundarySegment_Lmfp);
-				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;			
-			}
-		}
 		
 		/********************************************************/
 		// energy

@@ -38,7 +38,8 @@ namespace model {
 			 * Otherwise returns the pair (false,NULL). 
 			 */
 			typename NetworkVertexMapType::iterator nodeIter(networkVertexMapRef.find(k)); 
-			return (nodeIter!=networkVertexMapRef.end())? std::make_pair(true,nodeIter->second) : std::make_pair(false,(VertexType* const) NULL);
+//			return (nodeIter!=networkVertexMapRef.end())? std::make_pair(true,nodeIter->second) : std::make_pair(false,(VertexType* const) NULL);
+			return (nodeIter!=networkVertexMapRef.end())? std::make_pair(true,nodeIter->second) : std::make_pair(false,(VertexType*) NULL);
 		}
 		
 		isConstNetworkVertexType node(const size_t & k) const {

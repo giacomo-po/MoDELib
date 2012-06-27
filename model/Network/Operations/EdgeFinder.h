@@ -38,7 +38,8 @@ namespace model {
 			 * Otherwise returns the pair (false,NULL). 
 			 */
 			typename NetworkEdgeMapType::iterator edgeIter(networkEdgeMapRef.find(std::make_pair(i,j))); 
-			return (edgeIter!=networkEdgeMapRef.end())? std::make_pair(true,edgeIter->second) : std::make_pair(false,(EdgeType* const) NULL);
+//			return (edgeIter!=networkEdgeMapRef.end())? std::make_pair(true,edgeIter->second) : std::make_pair(false,(EdgeType* const) NULL);
+			return (edgeIter!=networkEdgeMapRef.end())? std::make_pair(true,edgeIter->second) : std::make_pair(false,(EdgeType*) NULL);
 		}
 		
 		isConstNetworkEdgeType link(const size_t & i, const size_t & j) const {
