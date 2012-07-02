@@ -15,6 +15,9 @@
 #include <Eigen/Dense>
 #include <model/Network/Operations/EdgeFinder.h>
 
+#include <model/Dislocations/Junctions/DislocationSegmentIntersection.h>
+
+
 //#include <touple.h>
 
 
@@ -27,6 +30,7 @@ namespace model {
 		typedef typename DislocationNetworkType::isNetworkNodeType isNetworkNodeType;
 		
 		enum {dim=3};
+        enum {pOrder=3};
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
 		
 		typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
@@ -41,6 +45,18 @@ namespace model {
 		DislocationNetworkType& DN;
 		
 		//	std::touple<int,double> tp;
+        
+        
+        
+        bool areIncidentAndOnDifferentPlanes(const LinkType& L1, const LinkType& L2) const {
+            bool areIncident(L1.source->sID==L2.source->sID || L1.source->sID==L2.sink->sID || L1.sink->sID==L2.source->sID || L1.sink->sID==L2.sink->sID); 
+            bool areOnDifferentPlanes((L1.glidePlaneNormal-L2.glidePlaneNormal).squaredNorm()>FLT_EPSILON);
+            bool oneIsSessile(L1.sessilePlaneNormal.squaredNorm()>FLT_EPSILON || L2.sessilePlaneNormal.squaredNorm()>FLT_EPSILON);
+            return areIncident && areOnDifferentPlanes && oneIsSessile;
+       //           return areIncident && areOnDifferentPlanes;
+        }
+        
+        
 		
 	public:
 		
@@ -58,12 +74,16 @@ namespace model {
 			
 			//! 2- loop over all links and determine their intersections
 			for (typename NetworkLinkContainerType::const_iterator linkIterA=DN.linkBegin();linkIterA!=DN.linkEnd();linkIterA++){
+                
+               // DislocationSegmentIntersection<dim,pOrder> dsi(linkIterA->second->hermiteCoefficients(),linkIterA->second->glidePlaneNormal);
+                
 				for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.linkEnd();linkIterB++){
-					if (linkIterA->second->sID!=linkIterB->second->sID){							
-						//						std::cout<<"Intersecting link "<<linkIterA->second->nodeIDPair.first<<"->"<<linkIterA->second->nodeIDPair.second<<" and"<<
-						//						linkIterB->second->nodeIDPair.first<<"->"<<linkIterB->second->nodeIDPair.second<<std::endl;
-						std::set<std::pair<double,double> > temp ( linkIterA->second->intersectWith(linkIterB->second,tol));
-						for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter){					
+					if (linkIterA->second->sID!=linkIterB->second->sID && !areIncidentAndOnDifferentPlanes(*linkIterA->second,*linkIterB->second)){							
+						
+                        std::set<std::pair<double,double> > temp ( linkIterA->second->intersectWith(linkIterB->second,tol));                         
+                 //   std::set<std::pair<double,double> > temp ( dsi.intersectWith(linkIterB->second->hermiteCoefficients(),linkIterB->second->glidePlaneNormal,tol));
+						
+                        for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter){					
 							
 							//					const double avoidNodeIntersection1(0.05);
 							//					const double avoidNodeIntersection2(0.05);

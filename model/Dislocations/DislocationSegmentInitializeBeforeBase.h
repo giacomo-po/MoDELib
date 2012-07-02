@@ -28,25 +28,35 @@ namespace model {
 		
 		typedef Eigen::Matrix<double,dim,1> VectorDim;
 
+        			enum {Nslips=MaterialType::Nslips};
+        
 		/********************************************/
-		VectorDim find_planeNormal(const VectorDim& chord, const VectorDim& Burgers/*,const VectorDim& T1,const VectorDim& T2*/){
-			enum {Nslips=MaterialType::Nslips};
+		VectorDim find_planeNormal(const VectorDim& chord, const VectorDim& Burgers){
 			std::set<SlipSystem<dim,Nslips> > allowedSlipSystems;
-			shared.material.find_slipSystem(chord,Burgers,/*T1,T2,*/allowedSlipSystems);
+			shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
 			return allowedSlipSystems.begin()->normal; // DON't LIKE THIS
 		}
 
 		/********************************************/
 		VectorDim get_sessileNormal(const VectorDim& chord, const VectorDim& Burgers){
-			assert(chord.norm()>FLT_EPSILON && "CHORD TOO SMALL");
-			assert(Burgers.norm()>FLT_EPSILON && "Burgers TOO SMALL");
-			VectorDim temp(chord.normalized().cross(Burgers));
+//			assert(chord.norm()>FLT_EPSILON && "CHORD TOO SMALL");
+//			assert(Burgers.norm()>FLT_EPSILON && "Burgers TOO SMALL");
+            std::set<SlipSystem<dim,Nslips> > allowedSlipSystems;
+            shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
+            VectorDim temp(chord.normalized().cross(Burgers));
 			double tempNorm(temp.norm());
-			if (tempNorm>FLT_EPSILON){
-				temp.normalize();
+			if (tempNorm<FLT_EPSILON){ // a screw segment
+				//temp.normalize();
+                assert(allowedSlipSystems.size()>=2);
+                temp.setZero(); // allow glide on primary plane
 			}
-			else{
-				temp.setZero();
+			else{ // not a screw segment
+                if (allowedSlipSystems.size()>=2){ // a sessile segment
+                    temp=allowedSlipSystems.rbegin()->normal;
+                }
+                else{ // a glissile segment
+                    temp.setZero();
+                }
 			}
 			return temp;
 		}

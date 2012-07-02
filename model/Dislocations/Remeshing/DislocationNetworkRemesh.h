@@ -74,27 +74,19 @@ namespace model {
 					
 					
 					if (SourceRemovable && SinkRemovable) {
-                        std::cout<<"Case a"<<std::endl;
-
 						DN.contract(i,j,Lij.second->get_r(0.5));
 						Ncontracted++;
 					}
 					else if (!SourceRemovable && SinkRemovable) {
-                        std::cout<<"Case b"<<std::endl;
-
 						DN.contractSecond(i,j);
 						Ncontracted++;						
 					}
 					else if (SourceRemovable && !SinkRemovable) {
-                        std::cout<<"Case c"<<std::endl;
-
 						DN.contractSecond(j,i);
 						Ncontracted++;
 					}
 					else { 
 						
-                        std::cout<<"Case d"<<std::endl;
-
 						
 						// Store source and sink positions
 						const VectorDimD P1(Lij.second->source->get_P());
@@ -112,9 +104,7 @@ namespace model {
 							
 							if (CNsource.size()==2 && CNsink.size()==2){ // case where source moves on a line and sink moves on a line and the two lines intersect at one point
 								// check if the lines X=P1+d1*u1 and X=P2+d2*u2 intersect at one point
-							
-                                std::cout<<"Case 1"<<std::endl;
-                                
+							                                
 								// Compute first direction
 								VectorDimD d1(CNsource[0].cross(CNsource[1]));
 								double d1norm(d1.norm());
@@ -149,7 +139,6 @@ namespace model {
 								}	
 							}
 							else if((CNsource.size()==2 && CNsink.size()>2)){ // source moves on a line and sink is fixed
-                                            std::cout<<"Case 2"<<std::endl;
 								VectorDimD d1(CNsource[0].cross(CNsource[1]));
 								double d1norm(d1.norm());
 								assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
@@ -160,7 +149,6 @@ namespace model {
 								}
 							}
 							else if((CNsource.size()>2 && CNsink.size()==2)){ // source is fixed and sink moves on a line
-                                            std::cout<<"Case 3"<<std::endl;
 								VectorDimD d2(CNsink[0].cross(CNsink[1]));
 								double d2norm(d2.norm());
 								assert(d2norm>FLT_EPSILON && "DIRECTION d2 HAS ZERO NORM");

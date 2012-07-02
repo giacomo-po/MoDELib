@@ -618,7 +618,8 @@ public:
 
 		/* intersectWith ******************************************************/
 		std::set<std::pair<double,double> > intersectWith( const Derived* const p_other  , const double& tol=FLT_EPSILON) const {
-			return DislocationSegmentIntersection<dim,pOrder>(this->hermiteCoefficients(),this->glidePlaneNormal).intersectWith(p_other->hermiteCoefficients(),p_other->glidePlaneNormal,tol,p_other);
+//			return DislocationSegmentIntersection<dim,pOrder>(this->hermiteCoefficients(),this->glidePlaneNormal).intersectWith(p_other->hermiteCoefficients(),p_other->glidePlaneNormal,tol,p_other);
+			return DislocationSegmentIntersection<dim,pOrder>(this->hermiteCoefficients(),this->glidePlaneNormal).intersectWith(p_other->hermiteCoefficients(),p_other->glidePlaneNormal,tol);
 		}
 		
 		
