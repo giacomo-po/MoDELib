@@ -1,4 +1,4 @@
-/* This file is part of finite element solution of BVP attached with model "the Mechanics of Material Defects Library".
+/* This file is part of finite element solution of BVP attached with model "Mechanics of Defects Evolution  Library".
  *
  * Copyright (C) 2011 by Mamdouh Mohamed <mamdouh.s.mohamed@gmail.com>, 
  * Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.
@@ -12,6 +12,17 @@
 
 //#define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
 
+
+#ifdef _OPENMP
+#include <omp.h>
+#else
+#define omp_get_thread_num() 0
+#define omp_get_num_threads() 1
+#endif
+
+
+#include <iterator>
+
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
@@ -24,12 +35,14 @@
 #include "model/Quadrature/Quadrature.h"
 #include "model/Utilities/SequentialOutputFile.h"
 #include <model/Utilities/UniqueOutputFile.h>
+#include <model/Dislocations/GlidePlanes/GlidePlaneObserver.h>
 
 #include "model/BVP/Node.h"
 #include "model/BVP/Tetrahedron.h"
 #include "model/BVP/Triangle.h"
 #include "model/BVP/Face.h"
 #include "model/BVP/SearchData.h"
+#include <model/BVP/VirtualBoundarySlipContainer.h>
 
 
 #include <stdio.h>
@@ -42,7 +55,7 @@
 
 namespace bvpfe{
 	
-	
+//	template <typename MaterialType>
 	class Domain {
 		
 		enum {dim=3};
@@ -58,6 +71,8 @@ namespace bvpfe{
 		
 		typedef std::pair< unsigned int, std::pair<unsigned int, double> > inputBCsType;  
 		
+		typedef model::VirtualBoundarySlipContainer<dim> VirtualBoundarySlipContainerType;
+		
 		
 	public:
 		NodeContainerType nodeContainer;                  // container for the nodes' pointers
@@ -68,6 +83,8 @@ namespace bvpfe{
 		
 		
 		std::set<unsigned int> cutTrisSet;     // triangles IDs that has dislocation segments cutting them
+		
+		VirtualBoundarySlipContainerType vbsc;       // container that stores the virtual dislocation segments outside the domain
 		
 #include <model/BVP/outputVTK.h>		
 		
@@ -91,14 +108,14 @@ namespace bvpfe{
 		//==================================================================================
 		// function to read the mesh data from input files mesh.*
 		//==================================================================================
-		
-		void readMesh(){
+		template<typename SharedType>
+		void readMesh(const SharedType* sharedPtr){
 			
 			readNodes();
 			
 			Finf.resize(nodeContainer.size()*3, 0.0);
 			
-			readVolElements();
+			readVolElements(sharedPtr);
 			
 			readSurfElements();
 			
@@ -144,8 +161,8 @@ namespace bvpfe{
 		//==================================================================================
 		//----------------- function to read & distribute the volume elements data ------------
 		//==================================================================================
-		
-		void readVolElements()
+		template<typename SharedType>
+		void readVolElements(const SharedType* sharedPtr)
 		{
 			
 			unsigned int nTets , d1, nn , ti , nt;
@@ -164,7 +181,7 @@ namespace bvpfe{
 			
 			for (unsigned int i=0; i<nTets; i++) {
 				
-				std::auto_ptr<Tetrahedron> pTet (new Tetrahedron ); 
+				std::auto_ptr<Tetrahedron> pTet (new Tetrahedron (sharedPtr) ); 
 				
 				assert(fscanf (fneigh, "%u%d%d%d%d",  &ti, &neighbor[0], &neighbor[1], &neighbor[2], &neighbor[3])==5);
 				assert(fscanf (fTet, "%u%d%d%d%d",  &ti, &tetNodes[0], &tetNodes[1], &tetNodes[2], &tetNodes[3])==5);	
@@ -323,7 +340,7 @@ namespace bvpfe{
 			
 			inputBCsType u_BC;
 			
-			FILE *fp =fopen("BCs_0.txt", "r");
+			FILE *fp =fopen("mesh/BCs_0.txt", "r");
 			
 			while (!feof(fp)) {
 				if(fscanf(fp, "%u%u%u%u%f%f%f%f%f%f", &ni,&isBC(0), &isBC(1), &isBC(2),&u(0),&u(1),&u(2),&tr(0),&tr(1),&tr(2))==10){
@@ -364,30 +381,59 @@ namespace bvpfe{
 			
 			//FILE *finfd =fopen("infDis.txt", "w");
 			
+// 			double err = 0.0e00;
+// 			unsigned int nn = 0;
+// 			double errMax = 0.0e00;
+// 			unsigned int inn;
+// 			VectorDim u1, u2;
+			
 			double t0=clock();
 			std::cout<<"Calculate infinite medium displacement field......  ";
+
 			for (unsigned int dN=0; dN<nodeContainer.size();++dN){
 				if(nodeContainer[dN].isBoundaryNode) {
 				  if(nodeContainer[dN].triIDs.size() == 0) assert(0&&"Error: Boundary node without triangle element index array");
-					
-					VectorDim nodeNormal(VectorDim::Zero());
-					for (unsigned int k=0;k<nodeContainer[dN].triIDs.size();++k){
-						nodeNormal+=triContainer[nodeContainer[dN].triIDs[k]]->outNormal;
-					}
-					assert(nodeNormal.norm()>FLT_EPSILON);
-					nodeNormal.normalize();
-
-				nodeContainer[dN].uInf=pT->displacement(nodeContainer[dN].P+10.0*nodeNormal,nodeNormal);
-
-//				  nodeContainer[dN].uInf=pT->displacement(nodeContainer[dN].P,triContainer[nodeContainer[dN].triIDs[0]]->outNormal);
-					
+				  
+// 				  VectorDim d1 = pT->displacement        (nodeContainer[dN].P,triContainer[nodeContainer[dN].triIDs[0]]->outNormal);
+// 				  VectorDim d2 = pT->displacementStraight(nodeContainer[dN].P,triContainer[nodeContainer[dN].triIDs[0]]->outNormal);
+// 				  //VectorDim d2 = pT->displacement_straight(nodeContainer[dN].P);
+// 				  VectorDim error =  d1- d2;
+				
+				  //std::cout<< d1.transpose() << "  " << d2.transpose() << "  " << error.transpose() << std::endl;
+/*				  
+				  err+=	error.norm()/d1.norm();
+				  if (error.norm()/d1.norm()>errMax) {errMax = error.norm()/d1.norm();  u1 = d1;   u2=d2; inn = dN;}
+				  nn++;*/
+				  nodeContainer[dN].uInf=pT->displacement(nodeContainer[dN].P,triContainer[nodeContainer[dN].triIDs[0]]->outNormal) + nodeContainer[dN].uVir;  
+				 // nodeContainer[dN].uInf=pT->displacement_straight(nodeContainer[dN].P);
+				 //nodeContainer[dN].uInf= error;
 					//  fprintf (finfd, "%u %f %f %f \n",dN , nodeContainer[dN].uInf(0) , nodeContainer[dN].uInf(1), nodeContainer[dN].uInf(2) );
 				}
 				
 				
 				
 			}
+			
+			/*
+			for (unsigned int dN=0; dN<nodeContainer.size();++dN){
+				
+				  Eigen::Matrix<double,3,3> d1 = pT->stress(nodeContainer[dN].P);
+				  Eigen::Matrix<double,3,3> d2 = pT->stress_straight_CoorDpndt(nodeContainer[dN].P);
+				  //Eigen::Matrix<double,3,3> d2 = pT->stress_straight(nodeContainer[dN].P);
+				  Eigen::Matrix<double,3,3> error =  d1- d2;
+				  
+				  //std::cout<< d1.col(0).transpose() << "  " << d1.col(1).transpose() << "  " << d1.col(2).transpose() << std::endl;
+				  //std::cout<< d2.col(0).transpose() << "  " << d2.col(1).transpose() << "  " << d2.col(2).transpose() << std::endl;
+				  //std::cout<< std::endl;
+
+				  err+=	error.norm()/d1.norm();
+				  
+				  nn++;
+			}
+			*/
 			std::cout<<"DONE in"<<"["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
+			
+			//std::cout<< "displacement calculation error =  " <<std::setprecision(15) << err/nn << "     " << errMax << "  " << inn << "  " << u1.transpose() << "  " << u2.transpose() << std::endl;
 			
 			//fclose(finfd);
 			//------------------- update input boundary conditions -------------------------------
@@ -397,15 +443,17 @@ namespace bvpfe{
 			}
 			
 			//----------------------- update the user defined boundary conditions, if needed -------------------------
-			
+			if (update_usr_defined_BCs){
 #ifdef UpdateBoundaryConditionsFile
-			if (update_usr_defined_BCs)    usrBCsContainer = pT->update_usr_BCs();        	// store user defined boundary conditions
+			    usrBCsContainer = pT->update_usr_BCs();        	// store user defined boundary conditions
 			
 			// apply user defined boundary conditions
 			for (unsigned int i=0; i<usrBCsContainer.size(); i++){
 				nodeContainer[usrBCsContainer[i].first].setBC( usrBCsContainer[i].second.first , usrBCsContainer[i].second.second );
-			}
+            }
+			
 #endif	
+            }
 			
 		}
 		
@@ -421,7 +469,7 @@ namespace bvpfe{
 			setBoundaryConditions(update_usr_BCs , pT);
 			
 			//--------------------- Solve the BVP -----------------------------------------------------------
-			solveBVP(true,pT);
+			solveBVP<T>(true,pT);
 		}
 		
 		//===================================================================================
@@ -490,7 +538,7 @@ namespace bvpfe{
 		    if (dislocations_Stress){
 				t0=clock();
 				std::cout<<"Assembling infinite traction r.h.s. vector .......  ";
-				assembleInfiniteTraction (F,pT);   // assemble force vector from infinite medium surface traction
+				assembleInfiniteTraction <T> (F,pT);   // assemble force vector from infinite medium surface traction
 				std::cout<<"DONE in"<<"["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
 		    } 
 			
@@ -819,23 +867,40 @@ namespace bvpfe{
 		//===================================================================================
 		// function to assemble the force vector from infinite medium surface traction
 		//===================================================================================
-		template<typename T>
+		template<typename T >
 		void assembleInfiniteTraction (Eigen::VectorXd& Fm , const T* const pT) {
 			
 			for (unsigned int i=0 ; i< Finf.size() ; i++ )  Finf[i]= 0.0;
 			
-			Eigen::Matrix<double,dim,3> TriVec;       // 3 is the number of nodes per triangle
+	//		Eigen::Matrix<double,dim,3> TriVec;       // 3 is the number of nodes per triangle
 			
 			unsigned int nID;
 			Triangle* pTri;
 			std::vector<Triangle*>::iterator itt;
 			
+			
+			// Loop and compute infinite force and store in each triangle
+			
+			
+			
+		//				for (itt= triContainer.begin() ; itt != triContainer.end(); itt++ ) {
+		
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+            for (unsigned int kkk=0; kkk<triContainer.size(); kkk++ ) {
+					//	std::vector<Triangle*>::iterator itt(triContainer.begin());
+					//	std::advance(itt,kkk);
+					//	pTri = *itt; 		
+					//	pTri->TriVec = pTri->getTriInfiniteForce_gp<T,LinkType>(pT, gpObsever);
+						triContainer[kkk]->TriVec = triContainer[kkk]->getTriInfiniteForce_gp<T>(pT);
+			}
+			
+			
+			
 			for (itt= triContainer.begin() ; itt != triContainer.end(); itt++ ) {
 				
 				pTri = *itt; 
-				
-				//TriVec = pTri->getTriInfiniteForce<3,T>(pT);
-				TriVec = pTri->getTriInfiniteForce_gp<T>(pT);
 				
 				
 				//------------- assemble the infinite traction vector --------------
@@ -846,103 +911,15 @@ namespace bvpfe{
 					
 					for  (int in = 0 ; in < 3; in++ )   // loop over the 3 dofs
 					{
-						Finf[(nID*3)+in] = Finf[(nID*3)+in] + TriVec(in,ai);  // -ve sigen for the infinite field is considered in Triangle::dislocationStressKernel
+						Finf[(nID*3)+in] = Finf[(nID*3)+in] + pTri->TriVec(in,ai);  // -ve sigen for the infinite field is considered in Triangle::dislocationStressKernel
 						
 						qi = pTri->eleNodes[ai]->eqnNumber(in);
-						if (qi != -1) Fm(qi) = Fm(qi) + TriVec(in,ai);  // -ve sigen for the infinite field is considered in Triangle::dislocationStressKernel
+						if (qi != -1) Fm(qi) = Fm(qi) + pTri->TriVec(in,ai);  // -ve sigen for the infinite field is considered in Triangle::dislocationStressKernel
 					}
 				}
 				
 			}
 			
-			//--------------- Assemble the infinte medium traction vector for the remaining triangles, which have some dislocations cutting them ----
-			
-			//std::set<unsigned int> trisSet;
-			//trisSet = pT->fillTrianglesSet();
-			/*for (std::set<unsigned int>::iterator it =cutTrisSet.begin(); it != cutTrisSet.end(); it++ ) {
-			  std::cout<< *it << "  ";
-			}
-			std::cout<<std::endl;
-			*/
-			
-			//FILE *ft =fopen("triangles.txt", "w");
-			/*
-			for (std::set<unsigned int>::iterator it =cutTrisSet.begin(); it != cutTrisSet.end(); it++ ) {
-			  //std::cout<< "TriID:  " << *it << std::endl;
-			  pTri =  triContainer[*it];
-			  //for (unsigned int i=0; i<pTri->cuttingSegments.size(); i++) std::cout<< pT->link(pTri->cuttingSegments[i].first,pTri->cuttingSegments[i].second).second->chordLength()<< std::endl;
-			  
-			  for (unsigned int iSeg=0; iSeg < pTri->cuttingSegments.size(); iSeg++) {
-			    assert (pT->link(pTri->cuttingSegments[iSeg].first,pTri->cuttingSegments[iSeg].second).second->pGlidePlane->segmentMeshCollisionPairContainer.find(*it) !=
-			            pT->link(pTri->cuttingSegments[iSeg].first,pTri->cuttingSegments[iSeg].second).second->pGlidePlane->segmentMeshCollisionPairContainer.end()     && 
-			            "Error in assembleInfiniteTraction function: Target triangle is NOT in the segment's glide plane list ");
-				    
-			    // --- splite the triangle into subtriangles, given the intersection line between the segment's glide plane and the triangle
-			    std::vector<Eigen::Matrix<double,dim,dim> > trisPoints = pTri->spliteTriangle (pT->link(pTri->cuttingSegments[iSeg].first,pTri->cuttingSegments[iSeg].second).second->pGlidePlane->segmentMeshCollisionPairContainer.find(*it)->second);
-			    
-			    
-			    
-			    //----------- loop over all subtriangles and integrate (Sigma_inf*shape_function)
-			    for (unsigned int iST=0; iST<trisPoints.size(); iST++) {
-			      Eigen::Matrix<double,3,3> tp = trisPoints[iST];
-			      //fprintf (ft, "%22.15e %22.15e %22.15e %22.15e %22.15e %22.15e %22.15e %22.15e %22.15e \n",tp(0,0),tp(0,1),tp(0,2),tp(1,0),tp(1,1),tp(1,2),tp(2,0),tp(2,1),tp(2,2));
-			      TriVec = pTri->subTri_getTriInfiniteForce<3,T>(pT,trisPoints[iST],iSeg);
-			      
-			      //------------- assemble the infinite traction vector --------------
-			      int  qi;
-			      for (int ai = 0 ; ai < 3; ai++ )             // loop over the 3 surface element's nodes
-			      {
-				nID = pTri->eleNodes[ai]->sID;        // node global index
-				
-				for  (int in = 0 ; in < 3; in++ )   // loop over the 3 dofs
-				{
-				  Finf[(nID*3)+in] = Finf[(nID*3)+in] + TriVec(in,ai);  // -ve sigen for the infinite field is considered in Triangle::dislocationStressKernel
-				  
-				  qi = pTri->eleNodes[ai]->eqnNumber(in);
-				  if (qi != -1) Fm(qi) = Fm(qi) + TriVec(in,ai);  // -ve sigen for the infinite field is considered in Triangle::dislocationStressKernel
-				}
-			      }
-			    }
-			    
-			    
-			    
-			  } 
-			  
-			}
-			*/
-			//fclose(ft);
-			
-			/*
-			
-			for (std::set<unsigned int>::iterator it =cutTrisSet.begin(); it != cutTrisSet.end(); it++ ) {
-			  //std::cout<< "TriID:  " << *it << std::endl;
-			  pTri =  triContainer[*it];
-			  //for (unsigned int i=0; i<pTri->cuttingSegments.size(); i++) std::cout<< pT->link(pTri->cuttingSegments[i].first,pTri->cuttingSegments[i].second).second->chordLength()<< std::endl;
-			  
-			  for (unsigned int iSeg=0; iSeg < pTri->cuttingSegments.size(); iSeg++) {
-			    
-			      TriVec = pTri->getTriInfiniteForce_Seg<T>(pT,iSeg);
-			      
-			      //------------- assemble the infinite traction vector --------------
-			      int  qi;
-			      for (int ai = 0 ; ai < 3; ai++ )             // loop over the 3 surface element's nodes
-			      {
-				nID = pTri->eleNodes[ai]->sID;        // node global index
-				
-				for  (int in = 0 ; in < 3; in++ )   // loop over the 3 dofs
-				{
-				  Finf[(nID*3)+in] = Finf[(nID*3)+in] + TriVec(in,ai);  // -ve sigen for the infinite field is considered in Triangle::dislocationStressKernel
-				  
-				  qi = pTri->eleNodes[ai]->eqnNumber(in);
-				  if (qi != -1) Fm(qi) = Fm(qi) + TriVec(in,ai);  // -ve sigen for the infinite field is considered in Triangle::dislocationStressKernel
-				}
-			      }
-			    
-			    
-			  } 
-			  
-			}
-			*/
 			
 		}
 		
@@ -1026,7 +1003,7 @@ namespace bvpfe{
 		void SearchMovingNode (model::SearchData<dim> & data){
 			unsigned int nn ;
 			// --------------NOT boundary node (coming from inside or outside) -----------------------
-			if(data.nodeMeshLocation != 2) { 
+			if(data.nodeMeshLocation == 0 || data.nodeMeshLocation == 1) { 
 				
 				data.newMeshID = data.currentMeshID;	    // initialize
 				int dI, sI;
@@ -1074,7 +1051,7 @@ namespace bvpfe{
 							    break;
 							  }
 							  else{
-							    for (unsigned int ib=0; ib<4 ; ib++){
+							    for ( int ib=0; ib<4 ; ib++){
 							      if (ib==ii) continue;
 							      if(bary(ib)>=-1.0e-12 && bary(ib)<=1.0e-12 && pTet->neighbor[ib]==-1) {
 								data.found=true;
@@ -1115,7 +1092,7 @@ namespace bvpfe{
 			
 			// ----------------- boundary node ---------------------
 			
-			else {   
+			else if (data.nodeMeshLocation == 2) {   
 				
 				VectorDim org = data.P - data.Dir;      // old position of the node
 				unsigned int iTri;
@@ -1211,14 +1188,27 @@ namespace bvpfe{
 		}
 		
 		
+		//====================================================================================
+		// Function to initally find the dislocation node position in the FE mesh
+		//=====================================================================================
+		void findIncludingTet (model::SearchData<dim> & data, const unsigned int& tetID){
+		 
+		  //---- initialize ---------------
+		  data.newMeshID = tetID;
+		  
+		  bool found = false;
+		  
+		  while (!found){
+		    found = tetContainer[data.newMeshID].isInsideTet(data) || data.nodeMeshLocation != -1;
+		  }
+		  
+		}
+		
 		//===================================================================================
 		// function to detect the intersection line between a slip plane, and the mesh surface
 		//==================================================================================
-
-//		void get_planeMeshIntersection(const VectorDim& x0, const VectorDim& n, std::map< unsigned int, std::pair<VectorDim,VectorDim> >& collisionContainer, const unsigned int gpID){
-		void get_planeMeshIntersection(const VectorDim& x0, const VectorDim& n, 
-		/*                          */ std::map< unsigned int, std::pair<VectorDim,VectorDim>,std::less<unsigned int>, Eigen::aligned_allocator<std::pair<const unsigned int,std::pair<VectorDim,VectorDim> > > >& collisionContainer, 
-		/*                          */ const unsigned int gpID){
+		//void get_planeMeshIntersection(const VectorDim& x0, const VectorDim& n, std::map< unsigned int, std::pair<VectorDim,VectorDim> >& collisionContainer, const unsigned int gpID){
+		void get_planeMeshIntersection(const VectorDim& x0, const VectorDim& n,std::map< unsigned int, std::pair<VectorDim,VectorDim>,std::less<unsigned int>, Eigen::aligned_allocator<std::pair<const unsigned int,std::pair<VectorDim,VectorDim> > > >& collisionContainer){
 			
 			double tol = 1.0e-7;
 

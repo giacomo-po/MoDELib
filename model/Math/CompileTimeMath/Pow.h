@@ -21,11 +21,11 @@ namespace model {
 		enum { value = x * Pow<x,n-1>::value};
 		
 		
-		/////////////////////////////////////////////////////////
-		// cast operator: allows a Pow<n> instance to be used as a regular int
-		operator const int & () const {
-			return static_cast<const int>(value);
-		}
+//		/////////////////////////////////////////////////////////
+//		// cast operator: allows a Pow<n> instance to be used as a regular int
+//		operator const int & () const {
+//			return static_cast<const int>(value);
+//		}
 		
 	};
 	

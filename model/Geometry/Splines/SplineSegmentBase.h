@@ -176,7 +176,7 @@ namespace model {
 			/*! The matrix of shape function coefficients in Hermite form of this 
 			 *  spline segment.
 			 */
-			double g=chordParametricLength();
+			const double g(chordParametricLength());
 			/*                         P0      T0    P1   T1  */
 			return (MatrixNcoeff()<<  1.0,    0.0,  0.0, 0.0,             // u^0
 					/*            */  0.0,      g,  0.0, 0.0,             // u^1

@@ -11,6 +11,8 @@
 
 #include <boost/tuple/tuple.hpp>
 #include <Eigen/Dense>
+#include <Eigen/StdVector>
+
 #include <model/Dislocations/EdgeConfigs.h>
 
 namespace model {	
@@ -32,16 +34,18 @@ namespace model {
 		
 		/* findEdgeConfiguration *********************************************/
 		template <typename DislocationNodeType>
-		static void findEdgeConfiguration(DislocationNodeType& dN, const double& nu){
+		static void findEdgeConfiguration(DislocationNodeType& dN){
+//            static void findEdgeConfiguration(DislocationNodeType& dN, const double& nu){
 			
 			if (dN.is_isolated()){
 				dN.edgeConfiguration.setZero(0);
 			}
 			else{
 				// 1- Collect all the Burgers from the neighbors considering them as out-neighbors.
-				std::vector<typename DislocationNodeType::FlowType>  BsV; // the vector of Burgers as out-neighbors
+                typedef typename DislocationNodeType::FlowType FlowType;
+				std::vector<FlowType,Eigen::aligned_allocator<FlowType> >  BsV{}; // the vector of Burgers as out-neighbors
 				for (typename DislocationNodeType::constNeighborIteratorType neighborIter=dN.neighborhood().begin();neighborIter!=dN.neighborhood().end();++neighborIter){
-					int dir=boost::tuples::get<2>(neighborIter->second);
+					const int dir=boost::tuples::get<2>(neighborIter->second);
 					switch ( dir ) {
 						case   1:
 							BsV.push_back(+1.0*(boost::tuples::get<1>(neighborIter->second)->flow));
@@ -83,7 +87,7 @@ namespace model {
 				gT*=chi;			
 				
 				// 5- Compute and sort energy levels
-				std::multimap<double,Eigen::VectorXi> ELev;	// MAP DOES NOT ACCEPT EQUAL VALUES SO multimap IS USED TO STORE  DEGENERATE STATES
+				std::multimap<double,Eigen::VectorXi> ELev{};	// MAP DOES NOT ACCEPT EQUAL VALUES SO multimap IS USED TO STORE  DEGENERATE STATES
 				for (int k=0;k<Ci.rows();++k){
 					
 					// 5a- Compute the Catmull-Rom tangent using the current edge configuration

@@ -1,4 +1,4 @@
-/* This file is part of finite element solution of BVP attached with model "the Mechanics of Material Defects Library".
+/* This file is part of finite element solution of BVP attached with model "the Mechanics of Defects Evolution Library".
  *
  * Copyright (C) 2011 by Mamdouh Mohamed <mamdouh.s.mohamed@gmail.com>, 
  * Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.
@@ -31,7 +31,7 @@ namespace bvpfe{
 		//enum{Nnodes=model::Simplex<dim>::Nnodes};
 		enum{Nnodes=model::SimplexEnums<dim>::nVertices};
 		
-		static model::Copper material;
+		//static model::Copper material;
 		
 		//		unsigned int Nnodes;             // number of nodes per element
 		std::vector< Node<3>* > eleNodes;           // vector contains pointers to element's nodes
@@ -74,8 +74,8 @@ namespace bvpfe{
 		
 	};
 	
-	template<short unsigned int n>
-	model::Copper Element<n>::material;
+	//template<short unsigned int n>
+	//model::Copper Element<n>::material;
 	
 }  //  namespace bvpfe
 #endif

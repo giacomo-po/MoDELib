@@ -31,14 +31,11 @@ namespace bvpfe{
 						
 			bool isBoundaryNode;			
 
-			//VectorDim uInf;
 			std::vector<unsigned int> triIDs;   // IDs for surface triangle that share this node			
 			VectorDim Pc;	                 // current node position         	
 						
 			std::vector<Node*> neighbor;    // set of neighbor nodes
 
-			//Dof<dim> u;                          // dof of the node (displacement)
-			
 			VectorDim traction;                // value for the traction that is used to interpolate for the traction at any point of the surface triangle
 			
 			Node (VectorDim& P_in) : Point<dim>::Point(P_in){

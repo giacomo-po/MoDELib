@@ -18,7 +18,7 @@
 
 namespace model {
     
-    template <char prefix, bool autoDelete=false, bool useTXT=true>
+    template <char prefix, bool autoDelete=true, bool useTXT=true>
     class SequentialOutputFile : public StaticID<SequentialOutputFile<prefix,autoDelete,useTXT> >,
     /*                        */ public std::ofstream {
         
@@ -57,7 +57,7 @@ namespace model {
         
         /* deleteFile *********************************************************/
         void deleteFile() const {
-            remove(filename.c_str());	// ENABLE
+            remove(filename.c_str());
         }
         
         /* getFilename ********************************************************/
@@ -81,7 +81,7 @@ namespace model {
         /* Constructor ********************************************************/
         SequentialOutputFile() : filename(getFilename()) {
             
-            // eventually delete existing file with same name	
+            // possibly delete existing file with same name	
             if (autoDelete){
                 deleteFile();
             }
@@ -92,7 +92,7 @@ namespace model {
                     this->open(filename.c_str(), std::ios::out | std::ios::app ); // TXT
                     break;
                 default:
-                    this-> open(filename.c_str(), std::ios::out | std::ios::app | std::ios::binary); // BIN
+                    this->open(filename.c_str(), std::ios::out | std::ios::app | std::ios::binary); // BIN
             }
             
             

@@ -173,7 +173,8 @@ namespace model {
 		/*****************************************************************************************/
 		/* outFlow *******************************************************************************/
         FlowType outFlow() const {
-            FlowType Fout;
+//            FlowType Fout;
+            FlowType Fout(FlowType::Zero()); // generalize
 			Fout*=0.0;
 			for (typename NeighborContainerType::const_iterator     NeighborIter=OutNeighborhood.begin();NeighborIter!=OutNeighborhood.end();++NeighborIter){
 				Fout+=boost::tuples::get<1>(NeighborIter->second)->flow;
@@ -184,7 +185,8 @@ namespace model {
 		/*****************************************************************************************/
 		/* inFlow ********************************************************************************/
         FlowType inFlow() const {
-            FlowType Fin;
+//            FlowType Fin;
+            FlowType Fin(FlowType::Zero());
 			Fin*=0.0;
 			for (typename NeighborContainerType::const_iterator     NeighborIter=InNeighborhood.begin();NeighborIter!=InNeighborhood.end();++NeighborIter){
 				Fin+=boost::tuples::get<1>(NeighborIter->second)->flow;
@@ -431,7 +433,6 @@ namespace model {
 		//		}
 		
 		bool is_balanced() const {
-			
 			//			return FlowCompare<FlowType>(outFlow(),inFlow());
 			return (outFlow() - inFlow()).norm()<FLT_EPSILON;
 		}

@@ -14,7 +14,8 @@
 #include <utility> // for std::pair
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues> 
-#include <model/Math/GeneralizedEigenSolver.h>
+#include <Eigen/Jacobi>
+//#include <model/Math/GeneralizedEigenSolver.h>
 
 namespace model {
 	/**********************************************************************************************************************/
@@ -24,7 +25,7 @@ namespace model {
 	 *  det\f$\left(\mathbf{M}_xX+\mathbf{M}_yY+\mathbf{M}_c\right)=0\f$
 	 *  of a planar spline of arbitrary degree and computes intersections with other splines of also arbitrary degree.
 	 *
-	 *  Inspired by "Algorithms for Intersecting Parametric and Algebraic Curves", Manocha, 1994.
+	 *  Adapted from "Algorithms for Intersecting Parametric and Algebraic Curves", Manocha, 1994.
 	 */	
 	template<short unsigned int polyDegree>
 	class PlanarSplineImplicitization{
@@ -59,19 +60,18 @@ namespace model {
 			return temp;
 		}
 		
-		
-		static MatrixPolyDeg Z;
-		static MatrixPolyDeg I;
-		
+        
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
-		//std::set<std::pair<double,double> > intersectionParameters;
-		
+        
 		const Eigen::Matrix<double,2,polyCoeff> coeffs;
 		const MatrixPolyDeg Mx;
 		const MatrixPolyDeg My;
 		const MatrixPolyDeg Mc;
+        
+        static double compTol;
+        static double physTol;
+
 		
 		/*********************************************************************/
 		PlanarSplineImplicitization(const Eigen::Matrix<double,2,polyCoeff>& coeffs_in) : coeffs(coeffs_in), 
@@ -184,7 +184,7 @@ namespace model {
 			 *	\vdots&a_n&0&0\\
 			 *	a_n&0&0&0
 			 *	\end{array}\right]
-
+             
 			 *  \f]
 			 */
 			
@@ -210,8 +210,7 @@ namespace model {
 		
 		/*********************************************************************/
 		template<short unsigned int otherPolyDegree>
-		std::set<std::pair<double,double> > intersectWith(const Eigen::Matrix<double,2,otherPolyDegree+1>& otherCoeffs,
-		/*                                             */ const double& tol, const double& physTol= DBL_MAX) const {	
+		std::set<std::pair<double,double> > intersectWith(const Eigen::Matrix<double,2,otherPolyDegree+1>& otherCoeffs) const {	
 			/*! Computes the intersection points between the implicitized spline and another spline 
 			 *  defined by the coefficients otherCoeffs.
 			 *  @param[in]  otherCoeffs the matrix of coefficients of the other spline
@@ -268,95 +267,193 @@ namespace model {
 			 *	\mathbf{v}_0\\ \mathbf{v}_1\\ \vdots\\ \mathbf{v}_{N-1}\\ 
 			 *  \end{array}\right]
 			 *  \f] 
+             * So we obtained the generalized eigenvalue problem:
+             *  \f[
+			 *  \mathbf{A}\mathbf{x}=\lambda\mathbf{B}\mathbf{x}
+			 *  \f]
+             *  where:
+             *  \f[
+			 *  \mathbf{A}=\left[\begin{array}{cccc}
+			 *	-\mathbf{M}_0& \mathbf{0}& \ldots& \mathbf{0}\\ 
+			 *	\mathbf{0}& \mathbf{I}& \ldots& \mathbf{0}\\ 
+			 *	\mathbf{0}& \mathbf{0}& \ddots& \mathbf{0}\\ 
+			 *	\mathbf{0}& \mathbf{0}& \ldots& \mathbf{I} 
+			 *  \end{array}\right]
+			 *  \f]
+             * is a symmetric matrix (since it's a linear combination of symmetric matrices) and 
+             *  \f[
+			 *  \mathbf{B}=\left[\begin{array}{cccc}
+			 *	\mathbf{M}_1& \mathbf{M}_2& \ldots& \mathbf{M}_N\\ 
+			 *	\mathbf{I}& \mathbf{0}& \ldots& \mathbf{0}\\ 
+			 *	\mathbf{0}& \mathbf{I}& \ddots& \mathbf{0}\\ 
+			 *	\mathbf{0}& \mathbf{0}& \mathbf{I}& \mathbf{0} 
+			 *  \end{array}\right]
+			 *  \f]
+             *  Note that \f$det(\mathbf{B})=det(\mathbf{M}_N)\f$ and that
+             *  \f[
+			 *  \mathbf{B}^{-1}=\left[\begin{array}{cccc}
+			 *	\mathbf{0}& \mathbf{I}& \ldots& \mathbf{0}\\ 
+			 *	\mathbf{0}& \mathbf{0}& \mathbf{I}& \mathbf{0}\\ 
+			 *	\mathbf{0}& \mathbf{0}& \mathbf{0}& \mathbf{I}\\ 
+			 *	\mathbf{M}_N^{-1}& -\mathbf{M}_N^{-1}\mathbf{M}_1& \ldots& -\mathbf{M}_N^{-1}\mathbf{M}_{N-1} 
+			 *  \end{array}\right]
+			 *  \f]
+             *  Therefore if $\mathbf{M}_N$ one can also solve:
+             *  \f[
+			 *  \mathbf{C}\mathbf{x}=\lambda\mathbf{x}
+			 *  \f]
+             *  where:
+             *  \f[
+			 *  \mathbf{C}=\mathbf{B}^{-1}\mathbf{A}=\left[\begin{array}{cccc}
+			 *	\mathbf{0}& \mathbf{I}& \ldots& \mathbf{0}\\ 
+			 *	\mathbf{0}& \mathbf{0}& \mathbf{I}& \mathbf{0}\\ 
+			 *	\mathbf{0}& \mathbf{0}& \mathbf{0}& \mathbf{I}\\ 
+			 *	-\mathbf{M}_N^{-1}\mathbf{M}_0& -\mathbf{M}_N^{-1}\mathbf{M}_1& \ldots& -\mathbf{M}_N^{-1}\mathbf{M}_{N-1} 
+			 *  \end{array}\right]
+			 *  \f]
 			 */
-						
+            
 			//			assert((!SplineDegeneracy<dim,polyDegree>::isLine(coeffs,tol)) && "Spline1 is degenerate.");      // make sure that spline1 is not a line
 			//			assert((!SplineDegeneracy<dim,polyDegree>::isLine(otherCoeffs,tol)) && "Spline2 is degenerate."); // make sure that spline2 is not a line
 			
 			//! Algorithm is:
 			//! 1- Assemble the generalized eigenvalue problem At=sBt
 			enum {eigenSize=polyDegree*otherPolyDegree};
-			Eigen::Matrix< double, eigenSize,eigenSize> A(Eigen::Matrix< double, eigenSize,eigenSize>::Identity());
-			A.template block<polyDegree,polyDegree>(0,0)=-(otherCoeffs(0,0)*Mx+otherCoeffs(1,0)*My+Mc);
-						
-			Eigen::Matrix< double, eigenSize,eigenSize> B(Eigen::Matrix< double, eigenSize,eigenSize>::Zero());
-			if (otherPolyDegree>1){
-				B.template block<polyDegree*(otherPolyDegree-1),polyDegree*(otherPolyDegree-1)>(polyDegree,0).setIdentity();
-			}
-			for (int p=0; p<otherPolyDegree;++p){ 
-				B.template block<polyDegree,polyDegree>(0,p*polyDegree)=otherCoeffs(0,p+1)*Mx+otherCoeffs(1,p+1)*My;
-			}
-					
+            typedef Eigen::Matrix< double, eigenSize,eigenSize> EigenSizeMatrixType;
 			
+            
+            std::set<std::pair<double,double> > intersectionParameters;
+            
+            
+            //            EigenSizeMatrixType A(Eigen::Matrix<double, eigenSize,eigenSize>::Identity());
+            //			A.template block<polyDegree,polyDegree>(0,0)=-(otherCoeffs(0,0)*Mx+otherCoeffs(1,0)*My+Mc);
+            //            
+            //			EigenSizeMatrixType B(Eigen::Matrix<double, eigenSize,eigenSize>::Zero());
+            //			if (otherPolyDegree>1){
+            //				B.template block<polyDegree*(otherPolyDegree-1),polyDegree*(otherPolyDegree-1)>(polyDegree,0).setIdentity();
+            //			}
+            //			for (int p=0; p<otherPolyDegree;++p){ 
+            //				B.template block<polyDegree,polyDegree>(0,p*polyDegree)=otherCoeffs(0,p+1)*Mx+otherCoeffs(1,p+1)*My;
+            //			}
+            
+            
+            
 			
-			std::set<std::pair<double,double> > intersectionParameters;
-
+            
+            //! 2- Solve generalized eigenvalue problem At=sBt
+            //            model::GeneralizedEigenSolver<double,eigenSize> GES;
+            //            GES.solve(A,B);
+            //            
+            //            //! 3- Clear and fill intersectionParameters if each real eigenvalue s in [0,1] has eigenvator ratio t=v(1)/v(0) also in [0,1] 
+            //            for (int i=0; i<eigenSize; ++i) {
+            //                if (std::fabs(GES.D(i).imag())<tol) {					// consider only eigenvectors with 0 imaginary part
+            //                    const double t=GES.V(1,i).real()/GES.V(0,i).real();
+            //                    const double s=GES.D(i).real();
+            //                    if ((s>=0.0 && s<=1.0) && (t>=0.0 && t<=1.0)) { // t and s must be in [0,1]
+            //                        Eigen::Matrix<double,2,1> Pt(coeffs.col(0)); 
+            //                        for(int k=1;k<polyDegree+1;++k){
+            //                            Pt+=coeffs.col(k)*std::pow(t,k);
+            //                        }
+            //                        Eigen::Matrix<double,2,1> Ps(otherCoeffs.col(0));
+            //                        for(int k=1;k<otherPolyDegree+1;++k){
+            //                            Ps+=otherCoeffs.col(k)*std::pow(s,k);
+            //                        }
+            //                        if((Pt-Ps).norm()<physTol){
+            //                            intersectionParameters.insert(std::make_pair(t,s));
+            //                        }
+            //                    }
+            //                }
+            //            }
 			
-//			if (std::fabs(B.determinant())>100*FLT_EPSILON){
-//				Eigen::Matrix< double, eigenSize,eigenSize> C(B.inverse()*A);
-//				Eigen::EigenSolver<Eigen::Matrix< double, eigenSize,eigenSize> > ES(C);
-//				//! 3- Clear and fill intersectionParameters if each real eigenvalue s in [0,1] has eigenvator ratio t=v(1)/v(0) also in [0,1] 
-//				for (int i=0; i<eigenSize; ++i) {
-//					if (std::fabs(ES.eigenvalues()[i].imag())<tol) {					// consider only eigenvectors with 0 imaginary part
-//						double t=ES.eigenvectors().col(i)[1].real()/ES.eigenvectors().col(i)[0].real();
-//						double s=ES.eigenvalues()[i].real();
-//						if ((s>=0.0 && s<=1.0) && (t>=0.0 && t<=1.0)) { // t and s must be in [0,1]
-//							intersectionParameters.insert(std::make_pair(t,s));
-//						}
-//					}
-//				}
-//				
-//			}
-//			else{
-				//! 2- Solve generalized eigenvalue problem At=sBt
-				model::GeneralizedEigenSolver<double,eigenSize> GES;
-				GES.solve(A,B);
-				
-				//! 3- Clear and fill intersectionParameters if each real eigenvalue s in [0,1] has eigenvator ratio t=v(1)/v(0) also in [0,1] 
-				for (int i=0; i<eigenSize; ++i) {
-					if (std::fabs(GES.D(i).imag())<tol) {					// consider only eigenvectors with 0 imaginary part
-						double t=GES.V(1,i).real()/GES.V(0,i).real();
-						double s=GES.D(i).real();
-						if ((s>=0.0 && s<=1.0) && (t>=0.0 && t<=1.0)) { // t and s must be in [0,1]
-							Eigen::Matrix<double,2,1> Pt(coeffs.col(0));
-							for(int k=1;k<polyDegree+1;++k){
-								Pt+=coeffs.col(k)*std::pow(t,k);
-							}
-							Eigen::Matrix<double,2,1> Ps(otherCoeffs.col(0));
-							for(int k=1;k<otherPolyDegree+1;++k){
-								Ps+=otherCoeffs.col(k)*std::pow(s,k);
-							}
-							if((Pt-Ps).norm()<physTol){
-								intersectionParameters.insert(std::make_pair(t,s));
-							}
-						}
-					}
-				}
-//			}
-			
-
-			
+            
+            
+            
+            // Experimental part using Eigen
+            
+            const MatrixPolyDeg Mn(otherCoeffs(0,otherPolyDegree)*Mx+otherCoeffs(1,otherPolyDegree)*My);
+            const Eigen::JacobiSVD<MatrixPolyDeg> jsvd(Mn, Eigen::ComputeFullU | Eigen::ComputeFullV);
+            const double condNumber(jsvd.singularValues().maxCoeff()/jsvd.singularValues().minCoeff()); // singular values are positive
+            
+            
+            if (condNumber<1.0/FLT_EPSILON){
+                // Assemble the matrix C=inv(B)*A
+                EigenSizeMatrixType C(Eigen::Matrix<double, eigenSize,eigenSize>::Zero());
+                if (otherPolyDegree>1){
+                    C.template block<polyDegree*(otherPolyDegree-1),polyDegree*(otherPolyDegree-1)>(0,polyDegree).setIdentity();
+                }
+                C.template block<polyDegree,polyDegree>(polyDegree*(otherPolyDegree-1),0*polyDegree)= -jsvd.solve(otherCoeffs(0,0)*Mx+otherCoeffs(1,0)*My+Mc);
+                for (int p=1; p<otherPolyDegree;++p){ 
+                    C.template block<polyDegree,polyDegree>(polyDegree*(otherPolyDegree-1),p*polyDegree)= -jsvd.solve(otherCoeffs(0,p)*Mx+otherCoeffs(1,p)*My);
+                }
+                
+                // Compute the eigenvalues and eigenvectors of C
+                const Eigen::EigenSolver<EigenSizeMatrixType> es(C);
+                if (es.info() == Eigen::Success){
+                    for (int i=0; i<eigenSize; ++i) {
+                        if (std::fabs(es.eigenvalues()(i).imag())<compTol) { // consider only eigenvectors with 0 imaginary part
+                            const double t( es.eigenvectors()(1,i).real()/es.eigenvectors()(0,i).real() ); // the root for the spline defined by "coeffs"
+                            const double s( es.eigenvalues()(i).real() ); // the root for the spline defined by "otherCoeffs"
+                            if ((s>=0.0 && s<=1.0) && (t>=0.0 && t<=1.0)) { // t and s must be in [0,1]
+                                Eigen::Matrix<double,2,1> Pt(coeffs.col(0)); 
+                                for(int k=1;k<polyDegree+1;++k){
+                                    Pt+=coeffs.col(k)*std::pow(t,k);
+                                }
+                                Eigen::Matrix<double,2,1> Ps(otherCoeffs.col(0));
+                                for(int k=1;k<otherPolyDegree+1;++k){
+                                    Ps+=otherCoeffs.col(k)*std::pow(s,k);
+                                }
+                                if((Pt-Ps).norm()<physTol){
+                                    intersectionParameters.insert(std::make_pair(t,s));
+                                }
+                                //intersectionParameters.insert(std::make_pair(t,s));                                
+                            }
+                        }
+                    }
+                }
+                
+                
+            }
+            else{
+                //    std::cout<<"ILL_CONDITIONED INTERSECTION"<<std::endl;
+            }
+            
 			//! 4- Return the intersections
 			return intersectionParameters;
 		}
 		
 	};
-	
-	
-	/////////////////////////////
-	// Declare static data member
-	template <short unsigned int polyDegree>
-	Eigen::Matrix<double,polyDegree,polyDegree> PlanarSplineImplicitization<polyDegree>::Z=Eigen::Matrix<double,polyDegree,polyDegree>::Zero();
-	
-	template <short unsigned int polyDegree>
-	Eigen::Matrix<double,polyDegree,polyDegree> PlanarSplineImplicitization<polyDegree>::I=Eigen::Matrix<double,polyDegree,polyDegree>::Identity();
-	
-	
+    
+    
+    
+    // Declare static data members;
+    template<short unsigned int polyDegree>
+    double PlanarSplineImplicitization<polyDegree>::compTol=FLT_EPSILON;
+ 
+    // Declare static data members;
+    template<short unsigned int polyDegree>
+    double PlanarSplineImplicitization<polyDegree>::physTol=DBL_MAX;
+
+    
+    
+	/**************************************************************************/
+	/**************************************************************************/	
 }// namespace model
 #endif
 
 
+//std::set<std::pair<double,double> > intersectionParameters;
 
+
+//		static MatrixPolyDeg Z;
+//		static MatrixPolyDeg I;
+
+//	/////////////////////////////
+//	// Declare static data member
+//	template <short unsigned int polyDegree>
+//	Eigen::Matrix<double,polyDegree,polyDegree> PlanarSplineImplicitization<polyDegree>::Z=Eigen::Matrix<double,polyDegree,polyDegree>::Zero();
+//	
+//	template <short unsigned int polyDegree>
+//	Eigen::Matrix<double,polyDegree,polyDegree> PlanarSplineImplicitization<polyDegree>::I=Eigen::Matrix<double,polyDegree,polyDegree>::Identity();
 
 
 

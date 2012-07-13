@@ -20,28 +20,28 @@
 
 
 namespace model {
-
-
+    
+    
 	
 	template <typename DislocationNetworkType>
 	class DislocationCrossSlip {
 		
-	typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
-	typedef typename DislocationNetworkType::LinkType LinkType;
-	typedef CrossSlipSegment<LinkType> CrossSlipSegmentType;
-	typedef std::vector<CrossSlipSegmentType> CrossSlipContainerType;
-	typedef typename DislocationNetworkType::GlidePlaneObserverType GlidePlaneObserverType;	
-	typedef typename DislocationNetworkType::VectorDimD VectorDimD;
-	
-	
-	CrossSlipContainerType CSC;
-
-	GlidePlaneObserverType gpo;
-	
-	// A reference to the DislocationNetwork
-	DislocationNetworkType& dislocationNetwork; 
-
-public:
+        typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
+        typedef typename DislocationNetworkType::LinkType LinkType;
+        typedef CrossSlipSegment<LinkType> CrossSlipSegmentType;
+        typedef std::vector<CrossSlipSegmentType> CrossSlipContainerType;
+        typedef typename DislocationNetworkType::GlidePlaneObserverType GlidePlaneObserverType;	
+        typedef typename DislocationNetworkType::VectorDimD VectorDimD;
+        
+        
+        CrossSlipContainerType CSC;
+        
+        GlidePlaneObserverType gpo;
+        
+        // A reference to the DislocationNetwork
+        DislocationNetworkType& dislocationNetwork; 
+        
+    public:
 		
 		enum{dim=3};
 		
@@ -51,10 +51,10 @@ public:
 		
 		/* crossSlip *******************************************************/		
 		size_t crossSlip(const double& crossSlipDeg,const double& crossSlipLength) {
-
-		const double sinCrossSlipRad(std::sin(crossSlipDeg*M_PI/180.0));
-		const double planeTol(5.0);
-		const double conjugatePointDistance(0.01*crossSlipLength);
+            
+            const double sinCrossSlipRad(std::sin(crossSlipDeg*M_PI/180.0));
+            const double planeTol(5.0);
+            const double conjugatePointDistance(0.01*crossSlipLength);
 			
 			//! 1-Loop over DislocationSegment(s), check cross-slip criterion and store CrossSlipSegment(s)
 			for (typename NetworkLinkContainerType::const_iterator linkIter=dislocationNetwork.linkBegin();linkIter!=dislocationNetwork.linkEnd();++linkIter){
@@ -77,10 +77,10 @@ public:
 							const double den(1.0-std::pow(iterCS->normalPrimary.dot(iterCS->normalConjugate),2));
 							const double num(gpIter->second->height-hP);
 							const double u(num/den);
-								if(std::fabs(u)<planeTol){
-									midPoint += u*(iterCS->normalConjugate-(iterCS->normalConjugate.dot(iterCS->normalPrimary)*iterCS->normalPrimary));
-									break;
-								}
+                            if(std::fabs(u)<planeTol){
+                                midPoint += u*(iterCS->normalConjugate-(iterCS->normalConjugate.dot(iterCS->normalPrimary)*iterCS->normalPrimary));
+                                break;
+                            }
 						}
 					}
 				}
@@ -88,7 +88,7 @@ public:
 				// 2.2- Compute position of cross-slip points on the common line
 				typedef std::pair<VectorDimD,VectorDimD> CrossSlipPairType;
 				CrossSlipPairType crossPoints((iterCS->Burgers.dot(iterCS->chord)>=0.0) ? CrossSlipPairType(midPoint-iterCS->Burgers.normalized()*crossSlipLength*0.5,midPoint+iterCS->Burgers.normalized()*crossSlipLength*0.5)
-				/*                                                                   */ : CrossSlipPairType(midPoint+iterCS->Burgers.normalized()*crossSlipLength*0.5,midPoint-iterCS->Burgers.normalized()*crossSlipLength*0.5));
+                /*                                                                   */ : CrossSlipPairType(midPoint+iterCS->Burgers.normalized()*crossSlipLength*0.5,midPoint-iterCS->Burgers.normalized()*crossSlipLength*0.5));
 				
  				// 2.3- Compute position of the new point on the conjugate plane
 				VectorDimD dir(iterCS->Burgers.cross(iterCS->normalConjugate).normalized());
@@ -101,36 +101,40 @@ public:
 				bool crossSlipPointsInsideMesh(true);
 				if (dislocationNetwork.shared.boundary_type){
 					SearchData<dim> SD(conjugatePoint);
+                    //                    dislocationNetwork.shared.domain.findIncludingTet(SD);
+                    dislocationNetwork.shared.domain.findIncludingTet(SD,dislocationNetwork.node(iterCS->sourceID).second->meshID());
 					crossSlipPointsInsideMesh*=(SD.nodeMeshLocation==insideMesh);
 					if (crossSlipPointsInsideMesh){
 						SearchData<dim> SD1(crossPoints.first);
-						dislocationNetwork.shared.domain.findIncludingTet(SD1);
+						//dislocationNetwork.shared.domain.findIncludingTet(SD1);
+                        dislocationNetwork.shared.domain.findIncludingTet(SD1,dislocationNetwork.node(iterCS->sourceID).second->meshID());
 						crossSlipPointsInsideMesh*=(SD1.nodeMeshLocation==insideMesh);
 						if(crossSlipPointsInsideMesh){
 							SearchData<dim> SD2(crossPoints.second);
-							dislocationNetwork.shared.domain.findIncludingTet(SD2);
+                            //							dislocationNetwork.shared.domain.findIncludingTet(SD2);
+                            dislocationNetwork.shared.domain.findIncludingTet(SD2,dislocationNetwork.node(iterCS->sourceID).second->meshID());
 							crossSlipPointsInsideMesh*=(SD2.nodeMeshLocation==insideMesh);
 						}
 					}
 				}
-
+                
 				if (crossSlipPointsInsideMesh){
 					// 2.4- call expand
 					std::pair<bool,size_t> expand1(dislocationNetwork.expand(iterCS->sourceID,iterCS->sinkID,crossPoints.first)); // place first point on common line
-    			assert(expand1.first && "COULD NOT DO FIRST EXPANSION IN CROSS SLIP");
-				
+                    assert(expand1.first && "COULD NOT DO FIRST EXPANSION IN CROSS SLIP");
+                    
 					std::pair<bool,size_t> expand2(dislocationNetwork.expand(expand1.second,iterCS->sinkID,crossPoints.second));  // place second point on common line
 					assert(expand2.first && "COULD NOT DO SECOND EXPANSION IN CROSS SLIP");
-
+                    
 					std::pair<bool,size_t> expand3(dislocationNetwork.expand(expand1.second,expand2.second,conjugatePoint,crossSlipVelocity)); 
 					assert(expand3.first && "COULD NOT DO THIRD EXPANSION IN CROSS SLIP");
 				}
-
+                
 			}
-		
+            
 			return CSC.size();
 		}
-				
+        
 	};
 	
 	

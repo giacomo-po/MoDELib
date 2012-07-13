@@ -31,7 +31,7 @@
 #include <model/Network/Readers/VertexReader.h>
 #include <model/Network/Readers/EdgeReader.h>
 
-
+#include <model/Dislocations/Visualization/Plotters/BitmapPlotter.h>
 
 
 
@@ -71,6 +71,8 @@ namespace model {
 		scalarType transparency;
 		
 		VectorDim colorVector;
+        
+        const bool isSessile;
 		
 		//	unsigned int edgeTypes;	// 0 = full axis only, 1 = full tubes, 2 =  tubes with direction
 		
@@ -95,7 +97,8 @@ namespace model {
 		/* init list */ specularity(1.0),
 		/* init list */ emissivity(0.05),
 		/* init list */ shininess(25),
-		/* init list */ transparency(0.1){
+		/* init list */ transparency(0.1),
+        /* init list */ isSessile(std::fabs(planeNormal.dot(burgers))>FLT_EPSILON){
 			
 			
 			tubeCircles.reserve(Np); // set the capacity of the vector to speed-up push_back
@@ -157,7 +160,7 @@ namespace model {
 		
 		
 		/*********************************************************************/
-		void plot(const scalarType& radius, const bool& showTubes, const bool& showPlaneNormal) const {
+		void plot(const scalarType& radius, const bool& showTubes, const bool& showPlaneNormal, const int& colorScheme) const {
 			
 			
 			glDisable(GL_COLOR_MATERIAL);
@@ -165,7 +168,18 @@ namespace model {
 			
 			
 			//		GLfloat materialColor[] = {1.0f, 0.2f, 0.0f, 1.0};
-			GLfloat materialColor[] = {colorVector(0), colorVector(1), colorVector(2), 1.0};
+            GLfloat materialColor[]={colorVector(0), colorVector(1), colorVector(2), 1.0};
+            switch (colorScheme) {
+                case 1:
+                    materialColor[0]= isSessile? 1.0 : 0.1;
+                    materialColor[1]= isSessile? 0.5 : 0.4;
+                    materialColor[2]= isSessile? 0.0 : 0.9;
+                    break;
+                    
+                default:                    
+                    break;
+            }
+			//GLfloat materialColor[] = {colorVector(0), colorVector(1), colorVector(2), 1.0};
 			//The specular (shiny) component of the material
 			GLfloat materialSpecular[] = {specularity, specularity, specularity, 1.0f};
 			//The color emitted by the material
@@ -277,12 +291,16 @@ namespace model {
 		bool showVertices;
 		bool deformedConfig;
 		bool showPlaneNormal;
+        bool showVertexID;
+        int colorScheme;
 		
 		
 		SplinePlotter() : showTubes(false),
 		/* init list   */ showVertices(false),
 		/* init list   */ deformedConfig(false),
-		/* init list   */ showPlaneNormal(false){}
+		/* init list   */ showPlaneNormal(false),
+        /* init list   */ showVertexID(false),
+        /* init list   */ colorScheme(0){}
 		
 		/* isGood ***************************************************/
 		static bool isGood(const int& frameN){
@@ -342,7 +360,7 @@ namespace model {
 		void plot(const scalarType& radius) const {
 			
 			for (typename SingleSplinePlotterVectorType::const_iterator itEdge=SingleSplinePlotterVectorType::begin(); itEdge!=SingleSplinePlotterVectorType::end(); ++itEdge) {
-				itEdge->plot(radius,showTubes,showPlaneNormal);
+				itEdge->plot(radius,showTubes,showPlaneNormal,colorScheme);
 			}
 			
 			if(showVertices){
@@ -366,9 +384,16 @@ namespace model {
 					glTranslatef(  vIter->second(0),  vIter->second(1),  vIter->second(2) );
 					gluSphere( myQuad , radius*1.2 , 10 , 10 );
 					glTranslatef( -vIter->second(0), -vIter->second(1), -vIter->second(2) );
-					renderBitmapString(vIter->second.template cast<float>().template segment<dim>(0),
-               /*              */ GLUT_BITMAP_HELVETICA_18,
-					/*              */ static_cast<std::ostringstream*>( &(std::ostringstream() << vIter->first) )->str());
+//					renderBitmapString(vIter->second.template cast<float>().template segment<dim>(0),
+//               /*              */ GLUT_BITMAP_HELVETICA_18,
+//					/*              */ static_cast<std::ostringstream*>( &(std::ostringstream() << vIter->first) )->str());
+                    if (showVertexID){
+                    VectorDim PT(vIter->second.template cast<float>().template segment<dim>(0));
+                    BitmapPlotter::renderString(PT,
+                    /*                       */ static_cast<std::ostringstream*>( &(std::ostringstream() << vIter->first) )->str());
+                    }
+                    
+                    
 				}
 				gluDeleteQuadric(myQuad); // free myQuad pointer
 			}

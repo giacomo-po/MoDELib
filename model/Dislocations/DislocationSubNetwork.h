@@ -21,6 +21,9 @@
 //#include <model/Geometry/Splines/SplineNetworkTraits.h>
 //#include <model/Geometry/Splines/SplinesBase/SplineSubNetworkBase.h>
 
+#include <model/Utilities/SequentialOutputFile.h>
+
+
 namespace model {
 	
 	//////////////////////////////////////////////////////////////
@@ -116,7 +119,7 @@ namespace model {
 
 				Eigen::MatrixXd G2H(linkIter->second->get_G2H());
 				KQQ+=G2H.transpose() * linkIter->second->get_Kqq() * G2H;   
-				Fq+= G2H.transpose() * linkIter->second->get_Fq(); 
+				Fq +=G2H.transpose() * linkIter->second->get_Fq(); 
 			}
 			
 			
@@ -155,11 +158,12 @@ namespace model {
 			SchurComplementSolver LS(KQQ,KPQ,Fq,Fp);
 			
 			//! Store velocities in DislocationNodes
-			size_t k=0;
+            size_t k=0;
 			for (typename SubNetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-				nodeIter->second->set_V(LS.X.segment(NdofXnode*k,NdofXnode));
+				nodeIter->second->set_V(LS.X.segment(NdofXnode*k,NdofXnode));                
 				++k;
 			}
+            
 			
 		}
 		
@@ -267,36 +271,3 @@ namespace model {
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
-
-
-//		/********************************************************/
-//		VectorDim displacement(const VectorDim & Rfield) const {
-//			// compute the average source point
-//			VectorDim rs(VectorDim::Zero());
-////			double snLength(0.0);
-////			for (typename SubNetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-////				double linkLength(linkIter->second->template arcLength<qOrder,GaussLegendre>());
-////				snLength+=linkLength;
-////				rs+=linkIter->second->template rm<qOrder,GaussLegendre>()*linkLength;
-////			}
-////			rs/=snLength;
-//
-//			for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-//				//double linkLength(linkIter->second->template arcLength<qOrder,GaussLegendre>());
-////				snLength+=linkLength;
-//				rs+=nodeIter->second->get_P();
-//			}
-//			rs/=this->nodeOrder();
-//			
-//			
-//			// compute the vector S
-//			VectorDim S((Rfield-rs).normalized());
-//
-//			// sum the displacements from DislocationSegments using  S			
-//			VectorDim temp(VectorDim::Zero());
-//			for (typename SubNetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-//				temp+=linkIter->second->displacement(Rfield,S);
-//			}
-//			
-//			return temp;
-//		}

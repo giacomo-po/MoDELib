@@ -1,4 +1,4 @@
-/* This file is part of finite element solution of BVP attached with model "the Mechanics of Material Defects Library".
+/* This file is part of finite element solution of BVP attached with model "the Mechanics of Defects Evolution Library".
  *
  * Copyright (C) 2011 by Mamdouh Mohamed <mamdouh.s.mohamed@gmail.com>, 
  * Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.
@@ -17,11 +17,12 @@ namespace bvpfe{
 		
 		#include <model/BVP/commonTypeDefs.h>	
 		public:
-			VectorDim u;                           // the dof value
+			VectorDim u;                                       // the dof value
 			Eigen::Matrix<bool,dim,1> isBC;                    // =false if no BCs, =true if there is BCs
-			VectorDim bcValue;                         // BC value 
+			VectorDim bcValue;                                 // BC value 
 			Eigen::Matrix<int,dim,1> eqnNumber;                // the position of this dof in the global matrix. =-1 if there is BC
-			VectorDim uInf;                      // infinite medium displacement field at this node
+			VectorDim uInf;                                    // infinite medium displacement field at this node
+			VectorDim uVir;                                    // infinite medium displacement field induced by Virtual dislocation segments
 				
 
 		public :
@@ -29,6 +30,7 @@ namespace bvpfe{
 			Dof(){
 			  remove_BCs();                                                      // initialize BCs to be false
 			  uInf = VectorDim::Zero();
+			  uVir = VectorDim::Zero();
 			  //for(unsigned int i=0; i<dim;i++) {eqnNumber(i) = -1;}             // initialize the equation number to be -1             
 			}
 			

@@ -1,4 +1,4 @@
-/* This file is part of finite element solution of BVP attached with model "the Mechanics of Material Defects Library".
+/* This file is part of finite element solution of BVP attached with model "the Mechanics of Defects Evolution Library".
  *
  * Copyright (C) 2011 by Mamdouh Mohamed <mamdouh.s.mohamed@gmail.com>, 
  * Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.

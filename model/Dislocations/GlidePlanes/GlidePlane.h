@@ -16,6 +16,7 @@
 #include <model/Utilities/StaticID.h>
 #include <model/Dislocations/GlidePlanes/GlidePlaneObserver.h>
 #include <model/Dislocations/DislocationSharedObjects.h>
+#include<Eigen/StdVector>
 
 namespace model {
 	
@@ -35,7 +36,7 @@ public:
 		typedef Eigen::Matrix<double,dim+1,1> VectorDimPlusOneD;
 		typedef std::pair<VectorDimD,VectorDimD> segmentMeshCollisionPair;
 		//typedef std::vector<segmentMeshCollisionPair> segmentMeshCollisionPairContainerType;
-//		typedef std::map<unsigned int , segmentMeshCollisionPair> segmentMeshCollisionPairContainerType;
+		//typedef std::map<unsigned int , segmentMeshCollisionPair> segmentMeshCollisionPairContainerType;
 		typedef std::map<unsigned int, segmentMeshCollisionPair, std::less<unsigned int>,
 		/*            */ Eigen::aligned_allocator<std::pair<const unsigned int, segmentMeshCollisionPair> > > segmentMeshCollisionPairContainerType;
 
@@ -69,9 +70,10 @@ public:
 			std::cout<<"Creating GlidePlane "<<this->sID<<" with unit plane normal: "<<planeNormal.transpose()<<" and height "<<height<<std::endl;
 			assert(this->glidePlaneMap.insert(std::make_pair((VectorDimPlusOneD()<< planeNormal, height).finished(),this)).second && "CANNOT INSERT GLIDE PLANE  IN STATIC glidePlaneMap.");
 	if (shared.boundary_type){			
-				shared.domain.get_planeMeshIntersection(planeNormal*height,planeNormal,segmentMeshCollisionPairContainer,this->sID);
+				shared.domain.get_planeMeshIntersection(planeNormal*height,planeNormal,segmentMeshCollisionPairContainer);
 				//----------- intersect the mesh with parallel planes to this glide plane -------------
-				intersectMeshWithParallelPlanes (planeNormal,height);
+				//intersectMeshWithParallelPlanes (planeNormal,height);
+				intersectMeshWithParallelPlanes ();
 			}
 		}
 		
@@ -102,14 +104,6 @@ public:
 			return std::set<const SegmentType*>::end();
 		}
 		
-		/* stress ************************************************/
-		MatrixDimD stress(const VectorDimD& Rfield) const {
-			MatrixDimD temp(MatrixDimD::Zero());
-			for (typename std::set<const SegmentType*>::const_iterator sIter = this->begin(); sIter != this->end() ;++sIter){
-		    temp+=(*sIter)->stress_source(Rfield);
-		  	}
-			return temp;
-		}
 		
 		/* friend T& operator << **********************************************/
 		template <class T>
@@ -130,21 +124,39 @@ public:
 			return os;
 		}
 		
+		/* stress from all segments on this glide plane ************************************************/
+		MatrixDimD stress(const VectorDimD& Rfield) const {
+		  MatrixDimD temp(MatrixDimD::Zero());
+		  for (typename std::set<const SegmentType*>::const_iterator sIter = this->begin(); sIter != this->end() ;++sIter){
+		    temp+=(*sIter)->stress_source(Rfield);
+		  }
+		  return temp;
+		}
+		
 		//===========================================================================
 		// function to intersect the mesh with planes parallel to the current slip plane
 		//============================================================================
-		void intersectMeshWithParallelPlanes (const VectorDimD planeNormal,const double height) {
+		//void intersectMeshWithParallelPlanes (const VectorDimD planeNormal,const double height) {
+		void intersectMeshWithParallelPlanes () {
 		  
-		  unsigned int nPlanes = 10;            // number of parallel planes on each side of the glise plane
-		  double separation = 6.0e00;         // the separation distance between each plane
+		  unsigned int nPlanes = 3;            // number of parallel planes on each side of the glise plane
+		  double separation = 50.0e00;         // the separation distance between each plane
+		  
+		  bool isLast = false;
 		  
 		  //segmentMeshCollisionPairContainerType temp;
 		  
 		  for (unsigned int i=1; i<= nPlanes; i++ ) {
 		    
-		    addParallelPlane(planeNormal*(height+(i*separation)) , planeNormal , separation );
-		    addParallelPlane(planeNormal*(height-(i*separation)) , planeNormal , separation );
-	
+		    if (i==nPlanes) isLast = true;
+		    
+		    //addParallelPlane(planeNormal*(height+(i*separation)) , planeNormal , separation );
+		    //addParallelPlane(planeNormal*(height-(i*separation)) , planeNormal , separation );
+		    
+		    //addParallelPlane(height , planeNormal, separation, i ,  1 , isLast );
+		    //addParallelPlane(height , planeNormal, separation, i , -1 , isLast );
+		    addParallelPlane(separation, i  , isLast );
+		    addParallelPlane(separation, -i , isLast );
 		  }
 		  
 		}
@@ -153,27 +165,120 @@ public:
 		// function to intersect a plane parallel to this glide plane with the mesh surface
 		//=================================================================================
 		
-		void addParallelPlane(VectorDimD x0, VectorDimD planeNormal, double separation) {
-		  
-		  segmentMeshCollisionPairContainerType temp;
-		  		    
-		  shared.domain.get_planeMeshIntersection(x0,planeNormal,temp,this->sID);
+		//void addParallelPlane(VectorDimD x0, VectorDimD planeNormal, double separation) {
+		//  void addParallelPlane(const double height, const VectorDimD planeNormal, double separation, unsigned int iP, int sign, const bool isLast) {
+		void addParallelPlane(const double separation, const int iP, const bool isLast) {
+	
+		    VectorDimD x0 = (height+(iP*separation))*planeNormal; 
+   
+		    segmentMeshCollisionPairContainerType collContainer, temp ;
 		    
-		  planeMeshIntersectionType contourPointsVector = sortIntersectionLines(temp);
+		    shared.domain.get_planeMeshIntersection(x0,planeNormal,collContainer);
+		    
+		    temp = collContainer;
+	   
+		    if (temp.size()>0) {
+		      planeMeshIntersectionType contourPointsVector = sortIntersectionLines(temp);
+		      generateIntegrationPoints (contourPointsVector, separation);
+		      
+		      //------------ if this is the last generated parallel plane, add additional points so that triangles will not have just few points
+		      // ----------- on one just on side of it -----------------------------------------------------------------------------------------
+		      //if (isLast) completeTrianglesPopulation(collContainer,height,planeNormal,separation,iP,sign);
+		      if (isLast) completeTrianglesPopulation(collContainer,separation,iP);
+		    }
+		    
+		  }
 		  
-		  generateIntegrationPoints (contourPointsVector, separation);
+		//===================================================================================================
+		// function to add more points to triangles that has been cut with planes parallel to the glide plane
+		//===================================================================================================
+		
+		void completeTrianglesPopulation(const segmentMeshCollisionPairContainerType collContainer,const double separation,const int iP){
+		  
+		  bool allDone = false;
+		  int ii = std::abs(iP);
+		  int sign = iP/ii;
+		  
+		  //std::cout << iP << " " << ii << " " << sign << std::endl;
+		  
+		  VectorDimD x0;
+		  
+		  while (!allDone) {
+		    ii++;
+		    
+		    //std::cout << height << " " << sign << " " << ii << " " << separation << " " << sign*ii << " " << height+(sign*ii*separation) << std::endl;
+		    x0 = planeNormal*(height+(sign*ii*separation));
+		    
+		    segmentMeshCollisionPairContainerType temp ;
+		    shared.domain.get_planeMeshIntersection(x0,planeNormal,temp);
+		    
+		    //std::cout<< temp.size() << " ";
+		    
+		    if (temp.size()>0) {
+		      bool foundTriangles = false;
+		      for (typename segmentMeshCollisionPairContainerType::iterator itt=temp.begin(); itt!= temp.end(); itt++ ) {
+			if (collContainer.find(itt->first)!= collContainer.end()) {
+			  
+			  addPointToTriangle(itt->first, itt->second, separation);
+			  foundTriangles = true;
+			}
+		      }
+		      
+		      if (!foundTriangles) allDone = true;
+		      
+		    }
+		    
+		    else allDone = true;
+		    
+		    //std::cout<< allDone<< std::endl;
+		    
+		  }
+		}
+		
+		//============================================================================
+		// function to add more integration points to a specific triangle
+		//===========================================================================
+		
+		void addPointToTriangle (const unsigned int triID, const segmentMeshCollisionPair pointsPair, const double separation) {
+		  
+		  double l = (pointsPair.second - pointsPair.first).norm();
+		  int nPnts = int(l/ separation) + 1;
+		  
+		  VectorDimD dir = (pointsPair.second - pointsPair.first).normalized();
+		  
+		  double dx = 0.5e00*(l - ((nPnts-1)*separation));
+		  //std::cout<<l << " " << separation << " " << nPnts << " " << dx << " : ";
+		  //std::cout << pointsPair.first.transpose() << std::endl;
+		  //std::cout << pointsPair.second.transpose() << std::endl;
+		  
+		  for (int i=0; i<nPnts; i++) {
+		    
+		    //std::cout << dx << " ";
+		    //VectorDimD P = pointsPair.first + (dx+(i*separation))*dir;
+		    VectorDimD P = pointsPair.first + dx*dir;
+		    
+		    if(shared.domain.triContainer[triID]->localQuadPnts.find( (VectorDimPlusOneD()<<planeNormal.normalized(),height).finished() ) != 
+		      shared.domain.triContainer[triID]->localQuadPnts.end() ) {
+		      //std::cout << P.transpose()<<std::endl;
+		      shared.domain.triContainer[triID]->localQuadPnts.find( (VectorDimPlusOneD()<<planeNormal.normalized(),height).finished() )->second.push_back(P);
+		      }
+		      
+		      dx+=separation;
+		  }
+		  //std::cout << std::endl;
+		  
 		}
 		
 		//===========================================================================
 		// function to sort the plane-mesh intersection line to be in a sequence
 		//===========================================================================
 		
-		planeMeshIntersectionType sortIntersectionLines(segmentMeshCollisionPairContainerType temp_in) {
+		planeMeshIntersectionType sortIntersectionLines(segmentMeshCollisionPairContainerType & temp) {
 		  
-		  double tol = 1.0e-8;
+		  double tol = 1.0e-7;
 		  
-		  segmentMeshCollisionPairContainerType temp = temp_in;
-		  
+		  unsigned int input_size = temp.size();
+		  		  		  
 		  planeMeshIntersectionType linesVector;
 		  VectorDimD P;
 		  
@@ -220,40 +325,54 @@ public:
 		      }
 		    }
 		    
+		    double minDis = 1.0e08;
+		    
 		    if (!found) {
 		      
-		      typename segmentMeshCollisionPairContainerType::iterator itt;
-
+		      typename segmentMeshCollisionPairContainerType::iterator itt , itt_min;
+		      
 		      for (itt = temp.begin(); itt != temp.end() ;++itt){
-			
-			if ((P-(*itt).second.first).norm()<tol) {
-			  P = (*itt).second.second;
-			  linesVector.push_back(std::make_pair((*itt).first,std::make_pair((*itt).second.first , (*itt).second.second)));
-			  iTriNext = (*itt).first;
-			  found = true;
-			  break;
-			}
-			
-			else if ((P-(*itt).second.second).norm()<tol) {
-			  P = (*itt).second.first;
-			  linesVector.push_back(std::make_pair((*itt).first,std::make_pair((*itt).second.second , (*itt).second.first)));
-			  iTriNext = (*itt).first;
-			  found = true;
-			  break;
-			}
-			
+			if      ((P-(*itt).second.first).norm() < minDis)       { minDis = (P-(*itt).second.first).norm();    itt_min=itt;}
+			if      ((P-(*itt).second.second).norm()< minDis)       { minDis = (P-(*itt).second.second).norm();   itt_min=itt;} 			
+		      }
+		      
+		      
+		      if ((P-(*itt_min).second.first).norm() < (P-(*itt_min).second.second).norm()) {
+			P = (*itt_min).second.second;
+			linesVector.push_back(std::make_pair((*itt_min).first,std::make_pair((*itt_min).second.first , (*itt_min).second.second)));
+			iTriNext = (*itt_min).first;
+			found = true;
+		      }
+		      else {
+			P = (*itt_min).second.first;
+			linesVector.push_back(std::make_pair((*itt_min).first,std::make_pair((*itt_min).second.second , (*itt_min).second.first)));
+			iTriNext = (*itt_min).first;
+			found = true;
 		      }
 		      
 		      if (found) temp.erase(iTriNext);
-		    
+		      
+		      if (minDis > 1.0e-2) std::cout<< "Warning: distance between two consecutive lines is " << minDis << std::endl;
+		      
 		    }
 		  
-		    assert(found && "unable to find next segment on which the glide plane intersects the mesh boundary");
-		    
-		    remaining = temp.size();
+//  		  if (!found) {
+//  		    std::cout <<"==================== Glide plane-mesh intersection lines ========================" << std::endl;
+// 		    
+// 		    for (unsigned int i=0; i<linesVector.size(); i++) std::cout<< linesVector[i].second.first.transpose() << "    " << linesVector[i].second.second.transpose() << std::endl;
+// 		    std::cout << std::endl;
+//  		    for (typename segmentMeshCollisionPairContainerType::iterator itt = temp.begin(); itt != temp.end() ;++itt) 
+// 		           std::cout << (*itt).second.first.transpose() << "  " << (*itt).second.second.transpose()<< std::endl; ;
+//  		    
+//  		    std::cout<< "===================================================================================== " << std::endl;
+//  		  }
+		  		  
+		  assert(found && "unable to find next segment on which the glide plane intersects the mesh boundary");
+		  
+		  remaining = temp.size();
 		}
 		
-		assert (linesVector.size() == temp_in.size() && "missing line segments during the glide plane intersection lines sorting process " );
+		assert (linesVector.size() == input_size && "missing line segments during the glide plane intersection lines sorting process " );
 		planesMeshIntersectionContainer.push_back(linesVector);
 		
 		return linesVector;
@@ -286,14 +405,14 @@ public:
 		      P = contourPointsVector[i].second.first + dl*uv;
 		      //std::cout << P.transpose()<<std::endl;
 		      //-------- check if there is a container for this glide plane already exists or not -------------
-		      if(shared.domain.triContainer[contourPointsVector[i].first]->localQuadPnts.find(this->sID) != shared.domain.triContainer[contourPointsVector[i].first]->localQuadPnts.end()) {
-			shared.domain.triContainer[contourPointsVector[i].first]->localQuadPnts.find(this->sID)->second.push_back(P);
+		      if(shared.domain.triContainer[contourPointsVector[i].first]->localQuadPnts.find( (VectorDimPlusOneD()<<planeNormal.normalized(),height).finished() ) != 
+			 shared.domain.triContainer[contourPointsVector[i].first]->localQuadPnts.end() ) {
+			shared.domain.triContainer[contourPointsVector[i].first]->localQuadPnts.find( (VectorDimPlusOneD()<<planeNormal.normalized(),height).finished() )->second.push_back(P);
 		      }
 		      else {
-			//std::vector<VectorDimD> QuadPointsSet;
-			//QuadPointsSet.push_back(P);
-			std::vector<VectorDimD> QuadPointsSet (1,P);
-			shared.domain.triContainer[contourPointsVector[i].first]->localQuadPnts.insert( std::make_pair( this->sID , QuadPointsSet ) );
+			//std::vector<VectorDimD> QuadPointsSet (1,P);
+			std::vector< VectorDimD , Eigen::aligned_allocator<VectorDimD> > QuadPointsSet (1,P);
+			shared.domain.triContainer[contourPointsVector[i].first]->localQuadPnts.insert( std::make_pair( (VectorDimPlusOneD()<<planeNormal.normalized(),height).finished() , QuadPointsSet ) );
 		      }
 		      
 		      dl+= dx;
@@ -303,6 +422,9 @@ public:
 		  } 
 		  
 		}
+		
+		
+		
 		
 	};
 	

@@ -80,6 +80,7 @@
 #define omp_get_thread_num() 0
 #endif
 
+#define EIGEN_DONT_PARALLELIZE // disable Eigen Internal Parallelization
 #include <Eigen/Dense>
 
 
@@ -312,6 +313,7 @@ public:
 				std::cout<<"		Updating bvp stress ... ";
 				if(!(runID%shared.use_bvp)){
 					shared.domain.update_BVP_Solution(updateUserBC,this);
+                    //shared.domain.update_BVP_Solution(updateUserBC,this,*dynamic_cast<const GlidePlaneObserverType*>(this));
 				}
 				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
 					nodeIter->second->updateBvpStress();
@@ -341,6 +343,7 @@ public:
 			//! 7- If soft boundaries are used, remove DislocationSegment(s) that exited the boundary
 			removeBoundarySegments();
 			
+            
 			//! 8- Form Junctions
 			formJunctions();
 			
@@ -352,6 +355,7 @@ public:
 			crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
 			updateQuadraturePoints();
             //			updateQuadraturePoints();
+            
 			
 			
 			//! 11- Output the current configuration, the corresponding velocities and dt
@@ -378,7 +382,7 @@ public:
 				std::cout<<"		Removing Segments outside Mesh Boundaries... ";
 				for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
 					if(linkIter->second->is_boundarySegment()){
-                        //	shared.domain.vbsc.push_back(*(linkIter->second));
+                        shared.domain.vbsc.add(*(linkIter->second));
 					}
 				}
                 
@@ -448,7 +452,8 @@ public:
 			EDR.readScalarInFile(fullName.str(),"boundary_type",shared.boundary_type);
 			if (shared.boundary_type){
 				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
-				shared.domain.readMesh();
+//				shared.domain.readMesh();
+                shared.domain.readMesh(&shared);
 				if(shared.use_bvp){
 					shared.domain.readInputBCs();
 					//shared.domain.setBoundaryConditions();		// temporary
@@ -493,6 +498,13 @@ public:
 			// Read Vertex and Edge information
 			readNodes(runID);
 			readLinks(runID);
+            
+            
+            
+            if (shared.use_bvp && (shared.boundary_type==softBoundary)) { // MOVE THIS WITH REST OB BVP STUFF
+                shared.domain.vbsc.read(runID,&shared);
+            }
+            
 			
 			// Initializing initial configuration 
 			std::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
@@ -508,7 +520,7 @@ public:
 		/* solve ****************************************************************/
 		void assembleAndSolve(){
 			//! 1- Loop over DislocationSegments and assemble stiffness matrix and force vector
-			std::cout<<"		Assembling..."<<std::flush;
+			std::cout<<"		Assembling edge stiffness and force vectors..."<<std::flush;
 			typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
 			LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
 			double t0=clock();
@@ -600,6 +612,12 @@ public:
 			SequentialOutputFile<'G',1> glide_file;
 			glide_file << *dynamic_cast<const GlidePlaneObserverType*>(this); 
 			std::cout<<", G/G_"<<glide_file.sID;
+            
+            
+            if (shared.use_bvp && (shared.boundary_type==1)){ 
+                shared.domain.vbsc.outputVirtualDislocations(outputFrequency,runID);
+            }
+            
 			
 #ifdef customUserOutputs
 #include customUserOutputs
@@ -708,7 +726,14 @@ public:
 		void checkBalance() const {
 			for (typename NetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
 				if (nodeIter->second->neighborhood().size()>2){
-					assert(nodeIter->second->is_balanced() && "NODE IS NOT BALANCED");
+                    const bool nodeIsBalanced(nodeIter->second->is_balanced());
+                    if (!nodeIsBalanced && nodeIter->second->nodeMeshLocation==insideMesh) {
+                        std::cout<<"Node "<<nodeIter->second->sID<<" is not balanced:"<<std::endl;
+                        std::cout<<"    outflow="<<nodeIter->second->outFlow().transpose()<<std::endl;
+                        std::cout<<"     inflow="<<nodeIter->second->inFlow().transpose()<<std::endl;
+                        assert(0 && "NODE IS NOT BALANCED");
+                    }
+					
 				}
 				//->move(dt_in);
 			}
@@ -745,18 +770,24 @@ public:
 					temp+=(*particleIter)->stress_at(Rfield);
 				}
 			}
+            if (shared.use_bvp && (shared.boundary_type==1)){
+                temp+= shared.domain.vbsc.stress(Rfield);
+            }
 			return temp;
 		}
 
 		/********************************************************/
 		MatrixDimD stressFromGlidePlane(const Eigen::Matrix<double,dim+1,1>& key, const VectorDimD& Rfield) const {
-			GlidePlaneObserver<dim,LinkType> gpObsever;
+			//GlidePlaneObserver<dim,LinkType> gpObsever;
 			MatrixDimD temp(MatrixDimD::Zero());
 			typedef typename GlidePlaneObserver<dim,LinkType>::GlidePlaneType GlidePlaneType;
-			std::pair<bool, const GlidePlaneType* const> isGp(gpObsever.isGlidePlane(key));		
+			std::pair<bool, const GlidePlaneType* const> isGp(this->isGlidePlane(key));		
 			if (isGp.first){
 				temp=isGp.second->stress(Rfield);
 			}
+            if (shared.use_bvp && (shared.boundary_type==1)) {
+                temp+= shared.domain.vbsc.stressFromGlidePlane(key,Rfield);
+            }
 			return temp;
 		}
 		

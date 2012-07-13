@@ -1,4 +1,4 @@
-/* This file is part of finite element solution of BVP attached with model "the Mechanics of Material Defects Library".
+/* This file is part of finite element solution of BVP attached with model "the Mechanics Of Defects Evolution Library".
  *
  * Copyright (C) 2011 by Mamdouh Mohamed <mamdouh.s.mohamed@gmail.com>, 
  * Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.
@@ -11,9 +11,12 @@
 #define bvpfe_triangle_H_
 
 #include "model/Utilities/StaticID.h"
+#include <model/Dislocations/GlidePlanes/GlidePlaneObserver.h>
 #include "model/BVP/Element.h"
+#include <model/Utilities/CompareVectorsByComponent.h>
 #include <cmath>
 #include <vector>
+#include<Eigen/StdVector>
 //#include "model/BVP/Tetrahedron.h"
 
 //#include "model/Quadrature/Quadrature.h"
@@ -37,6 +40,8 @@ namespace bvpfe {
 		  enum{dim=3};
 		  
 #include <model/BVP/commonTypeDefs.h>
+		  
+		  Eigen::Matrix<double,dim,3> TriVec; 
 
 		//--- the value of the 3 shape functions at three Gauss points (1/3, 1/3)
 		static double N[3][3];          // definition of that as std::vector<double> made a problem
@@ -46,10 +51,23 @@ namespace bvpfe {
 		
 		std::vector<std::pair<unsigned int,unsigned int> > cuttingSegments;   // pair nodes for dislocation segments that cut the triangle
 		
-		std::map<unsigned int, std::vector<VectorDim> > localQuadPnts;     // stores the customly generated Quadrature points around each glide plane that intersects the triangle
+		typedef std::vector< VectorDim , Eigen::aligned_allocator<VectorDim> > vectorDimVectorType;		
+		
+		typedef std::map<Eigen::Matrix<double,dim+1,1>, vectorDimVectorType ,  
+		                 model::CompareVectorsByComponent<double,dim+1,float>,
+				 Eigen::aligned_allocator<std::pair<const Eigen::Matrix<double,dim+1,1>,vectorDimVectorType > > > localQuadraturePointsContainerType;
+		
+		
+		localQuadraturePointsContainerType localQuadPnts;     // stores the customly generated Quadrature points around each glide plane that intersects the triangle
 		                                                                   // , where the key is the glide plane sID
+		                                                                   
+		//std::map<Eigen::Matrix<double,dim+1,1>, std::vector<VectorDim> , model::CompareVectorsByComponent<double,dim+1,float> > localQuadPnts;
+		                                                                   
+		                                                                   
+		//std::map<Eigen::Matrix<double,dim+1,1>, std::vector<VectorDim> > localQuadPnts;     // stores the customly generated Quadrature points around each glide plane that intersects the triangle
+		                                                                                    // , where the key is vector that contains the glide plane normal and hight
 										   
-		std::map<unsigned int, double > localQuadPnts_w;                    // the associated weight with each quadrature points set. Weights are equal for all points, and they have to sum to 0.5
+		//std::map<unsigned int, double > localQuadPnts_w;                    // the associated weight with each quadrature points set. Weights are equal for all points, and they have to sum to 0.5
 		
 		Eigen::Matrix<unsigned int,2,1> projPlaneIndx;                        // the index for the projection plane for this triangle
 		
@@ -177,13 +195,11 @@ namespace bvpfe {
 		  Eigen::Matrix<double,dim,3> tractionInt=Eigen::Matrix<double,dim,3>::Zero();
 		  
 		  PointerWrapper<T> pts(pt);
-		  
-		  VectorDim triN = triNormal();
-		  
+		  		  
 		  Eigen::Matrix<double,3,3> tractionMatrix;
 		  for (unsigned int i = 0; i<3; i++){tractionMatrix.col(i) = this->eleNodes[i]->traction;}
 
-		  model::Quadrature<2,qOrder>::integrate(this,tractionInt,&Triangle::dislocationStressKernel<PointerWrapper<T> > , pts, triN, tractionMatrix);
+		  model::Quadrature<2,qOrder>::integrate(this,tractionInt,&Triangle::dislocationStressKernel<PointerWrapper<T> > , pts, tractionMatrix);
 		  
 		  return tractionInt;
 		}
@@ -193,7 +209,7 @@ namespace bvpfe {
 		// infinite medium stress integration kernel
 		//=============================================================================
 		template<typename T> 
-		Eigen::Matrix<double,dim,3> dislocationStressKernel(const Eigen::Matrix<double,2,1>& Rstd, const T& pts, const VectorDim& triN, const Eigen::Matrix<double,3,3>& tractionMatrix) const {
+		Eigen::Matrix<double,dim,3> dislocationStressKernel(const Eigen::Matrix<double,2,1>& Rstd, const T& pts, const Eigen::Matrix<double,3,3>& tractionMatrix) const {
 			double J ;
 			VectorDim R=mapStdPoint<2>(Rstd,J);
 			
@@ -204,13 +220,8 @@ namespace bvpfe {
 			
 			//Eigen::Matrix<double,dim,dim> triStress = pts.pt->stress(R,this->sID);
 			Eigen::Matrix<double,dim,dim> triStress = pts.pt->stress(R);
-			    
-			//if (this->sID==428||this->sID==471||this->sID==1895||this->sID==1899||this->sID==1898||this->sID==442||this->sID==805) {
-			/*if (this->sID==26||this->sID==457||this->sID==927||this->sID==456||this->sID==935 
-			    || this->sID==428||this->sID==471||this->sID==1895||this->sID==1899||this->sID==1898||this->sID==442||this->sID==805) {
-			  std::cout<< this->sID << " : "<< triStress.col(0).transpose() << " " <<triStress.col(1).transpose() << " " <<triStress.col(2).transpose() <<std::endl;  
-			}*/
-			return (externalTraction-(triStress*triN))*shapeFunc*J ;
+			
+			return (externalTraction-(triStress*outNormal))*shapeFunc*J ;
 			//return (externalTraction-(pts.pt->stress(R,this->sID)*triN))*shapeFunc*J ;
 		
 		}
@@ -691,7 +702,7 @@ namespace bvpfe {
 		// function to return the triangle force vector resulted from infinite medium surface traction of a single dislocation segment
 		//=============================================================================
 		template < typename T>
-		Eigen::Matrix<double,dim,3> getTriInfiniteForce_gp (const T* const pt) {
+		Eigen::Matrix<double,dim,3> getTriInfiniteForce_gp (const T* const pt) const {
 		  
 		  PointerWrapper<T> pts(pt);
 		  
@@ -699,56 +710,109 @@ namespace bvpfe {
 		  		  		  
 		  Eigen::Matrix<double,3,3> tractionMatrix;
 		  for (unsigned int i = 0; i<3; i++){tractionMatrix.col(i) = this->eleNodes[i]->traction;}
-
-		  if (localQuadPnts.size()!=0) integrate_gp<T> (pt ,tractionMatrix, tractionInt);
-		  else model::Quadrature<2,3>::integrate(this,tractionInt,&Triangle::dislocationStressKernel<PointerWrapper<T> > , pts, outNormal, tractionMatrix);
 		  
+		  model::GlidePlaneObserver<dim,typename T::LinkType> gpObsever;
+		  Eigen::Matrix<double,dim+1,1> gpKey;
+		  
+		  //std::cout << "Local points container size  " << localQuadPnts.size() << std::endl;
+		  
+		  //------------- loop over all glide planes, if localQuadPnts is found for it so integrate over them, 
+		  //------------- otherwise integrate normally over the standard gauss points  -----------
+		  for (typename model::GlidePlaneObserver<dim, typename T::LinkType>::const_iterator gpIter=gpObsever.begin(); gpIter!=gpObsever.end(); ++gpIter){
+		    
+		    gpKey << gpIter->second->planeNormal.normalized() , gpIter->second->height;
+		    
+		    if (localQuadPnts.find(gpKey) != localQuadPnts.end()) integrate_gp<T> (pt ,tractionMatrix, tractionInt, gpKey);
+		    
+		    else model::Quadrature<2,3>::integrate(this,tractionInt,&Triangle::dislocationStressKernel_gp<PointerWrapper<T> > , pts, tractionMatrix , gpKey);
+		    
+		  }
+
 		  return tractionInt;
 		}
 		
 		//=================================================================================================
-		// function to integrate the force coming from the infinite medium stress field of a given dislocation segment 
+		// function to integrate the force coming from the infinite medium stress field of dislocation segments included on glide plane "gpKey" 
 		// (over the customly definied Gauss points over the triangle)
 		//=================================================================================================
 		template < typename T>
-		void integrate_gp (const T* const pt, Eigen::Matrix<double,3,3> tractionMatrix , Eigen::Matrix<double,dim,3>& tractionInt ) const {
+		void integrate_gp (const T* const pt, Eigen::Matrix<double,3,3> tractionMatrix , Eigen::Matrix<double,dim,3>& tractionInt, const  Eigen::Matrix<double,dim+1,1> GlidePlaneKey ) const {
 		  
-		  typename std::map<unsigned int, std::vector<VectorDim> >::const_iterator itt;
-		  //assert(localQuadPnts.size()==1 && " extra entities @ localQuadPnts ");
-		  for (itt=localQuadPnts.begin(); itt!=localQuadPnts.end(); itt++) {
-		    std::vector<VectorDim> abscissas = (*itt).second;
-		    double weight = 0.5e00 / double (abscissas.size());
+		  //typename std::map<Eigen::Matrix<double,dim+1,1>, std::vector<VectorDim> , model::CompareVectorsByComponent<double,dim+1,float> >::const_iterator itt = localQuadPnts.find(GlidePlaneKey);
+		  typename localQuadraturePointsContainerType::const_iterator itt = localQuadPnts.find(GlidePlaneKey);
+		  
+		  
+		  //std::vector<VectorDim> abscissas = (*itt).second;
+		  
+		  vectorDimVectorType abscissas = (*itt).second;
+		  
+		  double weight = 0.5e00 / double (abscissas.size());
+		  
+		  double J = 2.0*area() ;
+		  Eigen::Matrix<unsigned int,2,1> ixy =  find2DProjectionPlane();
+		 
+		  //Eigen::Matrix<double,1,3>::Index iBary;
+		  //double baryMin;
+
+		  for (unsigned int i=0; i<abscissas.size(); i++) {
 		    
-		    for (unsigned int i=0; i<abscissas.size(); i++) {
-		      tractionInt += dislocationStressKernel_gp<T> (abscissas[i],pt,tractionMatrix);
-		    }
+		    Eigen::Matrix<double,1,3> shapeFunc = getBarycentric (abscissas[i] , ixy(0) , ixy(1));       // shape functions at field point R
 		    
-		    tractionInt = weight*tractionInt;
+		    //baryMin = shapeFunc.minCoeff(&iBary);
+		    //assert ((baryMin>=0 && baryMin<=1.0) && "Integration point is outside triangle " );
+		    
+		    //std::cout << shapeFunc << std::endl;
+		    
+		    //---------- interpolate externally applied traction between nodes ---------------
+		    VectorDim externalTraction = VectorDim::Zero();
+		    for (unsigned int j = 0; j<3; j++) {externalTraction+=shapeFunc(j)*tractionMatrix.col(j);}
+		    
+		    tractionInt += (externalTraction-(pt->stressFromGlidePlane(GlidePlaneKey,abscissas[i]) *outNormal))*shapeFunc*J;
+		    
 		  }
+		  
+		  tractionInt = weight*tractionInt;
+		  
 		}
+				
 		//============================================================================
-		// infinite medium stress integration kernel
+		// infinite medium stress integration kernel (used when integrating the stress field of dislocations belong to glide plane "GlidePlaneKey" over standard Gauss points)
 		//=============================================================================
 		template<typename T> 
-		Eigen::Matrix<double,dim,3> dislocationStressKernel_gp(const VectorDim& R, const T* const pt, const Eigen::Matrix<double,3,3>& tractionMatrix) const {
+		Eigen::Matrix<double,dim,3> dislocationStressKernel_gp(const Eigen::Matrix<double,2,1>& Rstd, const T& pts, const Eigen::Matrix<double,3,3>& tractionMatrix,
+								    const Eigen::Matrix<double,dim+1,1>& GlidePlaneKey) const {
+			double J ;
+			VectorDim R=mapStdPoint<2>(Rstd,J);
+			Eigen::Matrix<double,1,3> shapeFunc = Shapefunc(Rstd);
+			
+			//---------- interpolate externally applied traction between nodes ---------------
+			VectorDim externalTraction = VectorDim::Zero();
+			for (unsigned int i = 0; i<3; i++){externalTraction+=shapeFunc(i)*tractionMatrix.col(i);}
+						
+			return (externalTraction -( pts.pt->stressFromGlidePlane(GlidePlaneKey,R) * outNormal) )*shapeFunc*J ;
+		
+		}
+		/*
+		//============================================================================
+		// infinite medium stress integration kernel (used when integrating the stress field of dislocations belong to glide plane "GlidePlaneKey" over localQaudPnts)
+		//=============================================================================
+		template<typename T> 
+		Eigen::Matrix<double,dim,3> dislocationStressKernel_gp(const VectorDim& R, const T* const pt, const Eigen::Matrix<double,3,3>& tractionMatrix,
+								       const Eigen::Matrix<double,dim+1,1>& GlidePlaneKey) const {
 		  
 			double J = 2.0*area() ;
 			
-			//---------- interpolate externally applied traction between nodes ---------------
-			//Eigen::Matrix<double,1,3> shapeFunc = Shapefunc(Rstd);
 			Eigen::Matrix<unsigned int,2,1> ixy =  find2DProjectionPlane();
-			Eigen::Matrix<double,1,3> shapeFunc = getBarycentric (R , ixy(0) , ixy(1));       // shape functions w.r.t. the parent triangle
+			Eigen::Matrix<double,1,3> shapeFunc = getBarycentric (R , ixy(0) , ixy(1));       // shape functions at field point R
 			
+			//---------- interpolate externally applied traction between nodes ---------------
 			VectorDim externalTraction = VectorDim::Zero();
 			for (unsigned int i = 0; i<3; i++){externalTraction+=shapeFunc(i)*tractionMatrix.col(i);}
-			
-			Eigen::Matrix<double,dim,dim> triStress = pt->stress(R);
-			//Eigen::Matrix<double,dim,dim> triStress = pt->link(cuttingSegments[iSeg].first,cuttingSegments[iSeg].second).second->stress_source(R);
-			
-			return (externalTraction-(triStress*outNormal))*shapeFunc*J ;
-			//return (externalTraction-(pts.pt->stress(R,this->sID)*triN))*shapeFunc*J ;
-		
+						
+			return (externalTraction-(pt->stressFromGlidePlane(GlidePlaneKey,R) *outNormal))*shapeFunc*J ;		
 		}
+		*/
+		
 		
 		/*
 		//============================================================================
@@ -834,6 +898,7 @@ namespace bvpfe {
 		*/
 		
 		
+		/*
 		//==========================================================================================
 		// function to generate a custom set of quadrature points oriented with the glide plane - triangle intersection line
 		//==================================================================================================
@@ -886,7 +951,7 @@ namespace bvpfe {
 		  localQuadPnts_w.insert( std::make_pair( gpID , w ) );
 		  
 		}
-		
+		*/
 		//==================================================================================
 		// function to add one row to the custom made quadrature points for each triangle
 		//===================================================================================
@@ -1056,17 +1121,10 @@ namespace bvpfe {
 				
 			return temp.determinant()/2.0;
 		}
-		
-		
-		
-		
-		
-		
+
 		
 		/////////////////////////////////////////////////// DEBUGGING FUNCTIONS ////////////////////////////////////////////
-		
-		
-		
+
 		
 		
 		//============================================================================
@@ -1078,46 +1136,55 @@ namespace bvpfe {
 		  Eigen::Matrix<double,dim,1> tractionInt=Eigen::Matrix<double,dim,1>::Zero();
 		  
 		  PointerWrapper<T> pts(pt);
-		  VectorDim triN;
+		  VectorDim triN;     
+		  if (deformed) triN = triNormalDeformed();     else triN = outNormal;
 		  
-		  if (deformed) triN = triNormalDeformed();
-		  else triN = outNormal;
+		  model::GlidePlaneObserver<dim,typename T::LinkType> gpObsever;
+		  Eigen::Matrix<double,dim+1,1> gpKey;
 		  
-		  if (localQuadPnts.size()!=0) integrate_gp<T> (pt , tractionInt);
-		  else model::Quadrature<2,qOrder>::integrate(this,tractionInt,&Triangle::dislocationStressKernel<PointerWrapper<T> > , pts, triN);
-		  
+		  for (typename model::GlidePlaneObserver<dim, typename T::LinkType>::const_iterator gpIter=gpObsever.begin(); gpIter!=gpObsever.end(); ++gpIter){
+		    
+		    gpKey << gpIter->second->planeNormal.normalized() , gpIter->second->height;
+		    
+		    if (localQuadPnts.find(gpKey) != localQuadPnts.end()) integrate_gp<T> (pt, tractionInt, gpKey, triN );
+			    
+		    else model::Quadrature<2,qOrder>::integrate(this,tractionInt,&Triangle::dislocationStressKernel<PointerWrapper<T> > , pts , gpKey, triN );
+		    
+		  }
+
 		  return tractionInt;
 		}
-		
+
 		//=================================================================================================
 		// function to integrate the force coming from the infinite medium stress field of a given dislocation segment 
 		// (over the customly definied Gauss points over the triangle)
 		//=================================================================================================
 		template < typename T>
-		void integrate_gp (const T* const pt , Eigen::Matrix<double,dim,1>& tractionInt ) const {
-		  
-		  typename std::map<unsigned int, std::vector<VectorDim> >::const_iterator itt;
+		void integrate_gp (const T* const pt , Eigen::Matrix<double,dim,1>& tractionInt, const  Eigen::Matrix<double,dim+1,1> GlidePlaneKey, const VectorDim triN ) const {
 
-		  for (itt=localQuadPnts.begin(); itt!=localQuadPnts.end(); itt++) {
-		    std::vector<VectorDim> abscissas = (*itt).second;
-		    double weight = 0.5e00 / double (abscissas.size());
-		    
-		    for (unsigned int i=0; i<abscissas.size(); i++) {
-		      tractionInt += pt->stress(abscissas[i])*outNormal;
-		    }
-		    
-		    tractionInt = 2.0*area()*weight*tractionInt;
-		  }
+		  typename localQuadraturePointsContainerType::const_iterator itt = localQuadPnts.find(GlidePlaneKey);
+		  vectorDimVectorType abscissas = (*itt).second;
+		  
+		  double weight = 1.0e00 / double (abscissas.size());
+		  
+		  Eigen::Matrix<double,3,3> temp = Eigen::Matrix<double,3,3>::Zero();
+		  
+		  for (unsigned int i=0; i<abscissas.size(); i++) {
+		    temp+= pt->stressFromGlidePlane(GlidePlaneKey,abscissas[i]);
+		  }		  
+		  tractionInt = weight*(temp*triN);  
 		}
 
 		//============================================================================
 		// infinite medium surface traction integration kernel
 		//=============================================================================
 		template<typename T> 
-		Eigen::Matrix<double,dim,1> dislocationStressKernel(const Eigen::Matrix<double,2,1>& Rstd, const T& pts, const VectorDim& triN) const {
+		Eigen::Matrix<double,dim,1> dislocationStressKernel(const Eigen::Matrix<double,2,1>& Rstd, const T& pts,
+								    const Eigen::Matrix<double,dim+1,1>& GlidePlaneKey, const VectorDim& triN) const {
 			double J ;
 			VectorDim R=mapStdPoint<2>(Rstd,J);
-			return (pts.pt->stress(R)*triN)*J ;
+			return (pts.pt->stressFromGlidePlane(GlidePlaneKey,R)*triN*2.0);  // multiply by 2 because the sum of the integration weights = 0.5;
+			//return (pts.pt->stress(R)*triN)*J ;
 		}
 	
 		//============================================================================

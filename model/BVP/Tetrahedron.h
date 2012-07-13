@@ -1,4 +1,4 @@
-/* This file is part of finite element solution of BVP attached with model "the Mechanics of Material Defects Library".
+/* This file is part of finite element solution of BVP attached with model "the Mechanics of Defects Evolution Library".
  *
  * Copyright (C) 2011 by Mamdouh Mohamed <mamdouh.s.mohamed@gmail.com>, 
  * Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.
@@ -48,7 +48,19 @@ namespace bvpfe{
 		
 		typedef std::pair<bool,Tetrahedron*> isTetrahedronType;
 		
-		Tetrahedron()
+		template<typename SharedType>
+		Tetrahedron(const SharedType* sharedPtr)
+		{
+			//--------- set the basis functions (linear) derivative values  // do it only once
+			if  (this->sID == 0)
+			{
+				setBasisDerivative();
+				setElasticConstants(sharedPtr);
+			}
+		}
+		
+		///////////////////////////////////////////////////////////////////
+		/*Tetrahedron()
 		{
 			//--------- set the basis functions (linear) derivative values  // do it only once
 			if  (this->sID == 0)
@@ -56,8 +68,8 @@ namespace bvpfe{
 				setBasisDerivative();
 				setElasticConstants();
 			}
-		}		
-		
+		}
+		*/
 		//===================================================================
 		// function to calculate the basis functions derivatives. Linear basis 
 		// are used so their derivative is constant over the element
@@ -107,12 +119,14 @@ namespace bvpfe{
 		//===================================================================
 		// function to calculate the elastic constants
 		//===================================================================
-		
-		void setElasticConstants ()
+		template<typename SharedType>
+		void setElasticConstants (const SharedType* sharedPtr)
 		{
-			mu =this->material.mu;
-			nu =this->material.nu;
-			
+			//mu =this->material.mu;
+			//nu =this->material.nu;
+			mu =sharedPtr->material.mu;
+			nu =sharedPtr->material.nu;
+						
 			lambda = (2.0e+00*mu * nu)/(1.0e+00-(2.0e+00*nu)) ;
 			
 			c11 = lambda + (2.0e+00*mu);
@@ -484,14 +498,14 @@ namespace bvpfe{
 			double baryMin = Bary.minCoeff(&ii);	
 			bool isInsideT = (baryMin >= 0.0e00 && neighbor[ii]!=-1)||(baryMin> 0.0e00);    //completely inside, or on the edge but must be interior edge
 			//bool foundOnDomainBoundary = baryMin == 0.0e00 && neighbor[ii]==-1;
-			bool foundOnDomainBoundary = baryMin <= 1.0e-12 && baryMin >= -1.0e-12 && neighbor[ii]==-1;
+			bool foundOnDomainBoundary = (baryMin <= 1.0e-7) && (baryMin >= -1.0e-7) && (neighbor[ii]==-1);
 			//std::cout << baryMin << " " << neighbor[ii] << " " << isInsideT << " " << foundOnDomainBoundary << std::endl;
 			//bool isInsideT = baryMin>=0.0;
 
 			
 			bool isOutsideD = neighbor[ii]==-1;
 			
-			if(isInsideT){            // point is inside a tetrahedron
+			if(isInsideT && !foundOnDomainBoundary){            // point is inside a tetrahedron
 			  data.found=true;
 			  data.nodeMeshLocation = 1;     // NOT NEEDED
 			  data.outwardFaceNormal=VectorDim::Zero();     // no surface normal  (NEEDS RETHINKING FOR A MOVING SURFACE NODE)

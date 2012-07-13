@@ -31,8 +31,9 @@ namespace model {
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
 		typedef Eigen::Matrix<double,dim+1,1> VectorDimPlusOneD;
 		
-//		typedef std::map<VectorDimPlusOneD,GlidePlaneType* const,CompareVectorsByComponent<double,dim+1,float> >  GlidePlaneMapType;
-		typedef std::map<VectorDimPlusOneD,GlidePlaneType* const,CompareVectorsByComponent<double,dim+1,float>, Eigen::aligned_allocator<std::pair<const VectorDimPlusOneD,GlidePlaneType* const> > >  GlidePlaneMapType;
+		//typedef std::map<VectorDimPlusOneD,GlidePlaneType* const,CompareVectorsByComponent<double,dim+1,float> >  GlidePlaneMapType;
+		typedef std::map<VectorDimPlusOneD,GlidePlaneType* const,CompareVectorsByComponent<double,dim+1,float>,
+		                 Eigen::aligned_allocator<std::pair<const VectorDimPlusOneD,GlidePlaneType* const> > >  GlidePlaneMapType;
 
 		typedef typename GlidePlaneMapType::const_iterator const_iterator;
 		typedef boost::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
@@ -63,7 +64,13 @@ namespace model {
 		/* isGlidePlane() ********************************************/
 		std::pair<bool, const GlidePlaneType* const> isGlidePlane(const VectorDimD& planeNormal, const double& height) const {
 			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find((VectorDimPlusOneD()<<planeNormal.normalized(),height).finished()));
-			return (iter!=this->glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(const GlidePlaneType* const) NULL);
+			return (iter!=this->glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
+		}
+		
+		/* isGlidePlane() ********************************************/
+		std::pair<bool, const GlidePlaneType* const> isGlidePlane(const Eigen::Matrix<double,dim+1,1>& key) const {
+			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find(key));
+			return (iter!=this->glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
 		}
 		
 		/* friend T& operator << *************************************/

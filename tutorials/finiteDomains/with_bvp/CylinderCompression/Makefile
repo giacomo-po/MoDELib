@@ -1,83 +1,70 @@
-model_DIR = /home/giacomo/Dropbox/Model
+ model_DIR = /Users/giacomo/Dropbox/Model
+# model_DIR = /home/giacomo/Dropbox/Model
 IDIR  = -I/usr/local/include
-IDIR  = -I./
+IDIR += -I./
 IDIR += -I$(model_DIR)
 
 ##########################################################
 # COMPILER SETTINGS
 ##########################################################
 #CC	= /usr/local/bin/g++
-CC	= g++
+#CC	= g++
+CC	= /opt/local/bin/g++-mp-4.7
 #CC	= icc
+#CC = clang++
 
-ifeq ($(CC),/usr/local/bin/g++)
-	# optimization level
-	CFLAGS	 = -O3
-	CFLAGS += -ftree-vectorize
 
-	# enable warnings
-	#CFLAGS	+= -Wall
-	#CFLAGS	+= -Wextra 	# ... and more warnings
-	#CFLAGS	+= -pedantic # require strict ISO C and ISO C++
-
-	# enable openMP
-	CFLAGS	+= -fopenmp
-
-	#enable C++0x
-	CFLAGS	+= -std=c++0x
-	#CFLAGS	+= -std=gnu++0x
+ifeq ($(CC), /opt/local/bin/g++-mp-4.7)
+	
+    # optimization level = fast
+	CFLAGS  = -O2
+    # auto-vectorization         
+    #CFLAGS += -ftree-vectorize
+    # enable openMP   
+    CFLAGS += -fopenmp
+    # enable C++0x
+    CFLAGS += -std=c++0x
+    
+    # enable warnings
+	CFLAGS += -Wall
+    # and more warnings       
+    CFLAGS += -Wextra
+    
 endif
 
-ifeq ($(CC),g++)
-	# optimization level
-	CFLAGS	 = -O3
-	CFLAGS += -ftree-vectorize
 
-	# enable warnings
-	#CFLAGS	+= -Wall
-	#CFLAGS	+= -Wextra 	# ... and more warnings
-	#CFLAGS	+= -pedantic # require strict ISO C and ISO C++
-
-	# enable openMP
-	CFLAGS	+= -fopenmp
-
-	#enable C++0x
-	CFLAGS	+= -std=c++0x
-	#CFLAGS	+= -std=gnu++0x
-# enable profiling with gprof (run with: gprof DDcode)
-#CFLAGS	+=-c 
-#CFLAGS	+= -pg
-endif
 
 ifeq ($(CC),icc)
 	# optimization level
-	CFLAGS	 = -O3
+	CFLAGS	 = -O2
 	CFLAGS	+= -fast
-	# enable common warnings
-	CFLAGS	+= -Wall
+
 	# enable openMP
 	CFLAGS	+= -openmp
 	#enable C++0x
 	CFLAGS	+= -std=c++0x
+    
+    # enable common warnings
+	CFLAGS	+= -Wall
+    
 endif
-
-#CFLAGS += '-DCOMPLEX=std::complex<double>'
 
 ##########################################################
 # OS SPECIFIC SETTINGS
 ##########################################################
 OS= $(shell uname -s)
 
-LIBS  =  -L/usr/local/lib/
-LIBS +=	 -lgsl
-LIBS +=  -lgslcblas
+#LIBS  =  -L/usr/local/lib/
+#LIBS +=	 -lgsl
+#LIBS +=  -lgslcblas
 
 ifeq ($(OS),Darwin)
-	
+    #LIBS += -Wl,-no_pie
+    #LIBS +=	-Wl,-allow_heap_execute
 endif
 
 ifeq ($(OS),Linux)
-	LIBS +=  -lm
+#	LIBS +=  -lm
 endif
 
 ifeq ($(OS),Darwin)

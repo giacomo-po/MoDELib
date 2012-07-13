@@ -8,6 +8,8 @@ std::vector<Eigen::Matrix<double,3,3> > tetGrad_U;                   // displace
 std::vector<Eigen::Matrix<double,3,3> > tetStrain;                  // strain field inside tetrahedron
 std::vector<Eigen::Matrix<double,3,1> > tetRotation;                // lattice rotation field inside tetrahedron
 
+std::vector<Eigen::Matrix<double,3,1> > infiniteTraction, imageTraction;
+
 //==================================================================================
 // function to write the header part of the VTK file
 //==================================================================================
@@ -35,7 +37,7 @@ void writeNodes(char* VTKfile) {
   fprintf (fout, "POINTS %u float\n",nn);
   
   for (unsigned int i= 0 ; i < nodeContainer.size() ; i++){
-    fprintf (fout, "%f %f %f\n", nodeContainer[i].Pc(0) ,  nodeContainer[i].Pc(1)  , nodeContainer[i].Pc(2) );
+    fprintf (fout, "%f %f %f\n", nodeContainer[i].P(0) ,  nodeContainer[i].P(1)  , nodeContainer[i].P(2) );
   }
   
   fprintf (fout, "\n");
@@ -55,7 +57,7 @@ void writeTetrahedrons(char* VTKfile) {
   fprintf (fout, "CELLS %u %u\n",nn, nn*5 );
   
   for (unsigned int i= 0 ; i < tetContainer.size() ; i++){
-    fprintf (fout,"%u %lu %lu %lu %lu\n", 4 ,tetContainer[i].eleNodes[0]->sID,tetContainer[i].eleNodes[1]->sID,tetContainer[i].eleNodes[2]->sID,tetContainer[i].eleNodes[3]->sID);
+    fprintf (fout,"%u %zu %zu %zu %zu\n", 4 ,tetContainer[i].eleNodes[0]->sID,tetContainer[i].eleNodes[1]->sID,tetContainer[i].eleNodes[2]->sID,tetContainer[i].eleNodes[3]->sID);
   }
   
   fprintf (fout, "\n");
@@ -72,6 +74,40 @@ void writeTetrahedrons(char* VTKfile) {
   
   fclose(fout);
 }
+
+
+
+//==================================================================================
+// function to write the surface triangles connections part of the VTK file
+//==================================================================================
+void writeSurfaceTriangles(char* VTKfile) {
+    
+  FILE *fout =fopen(VTKfile, "a");
+  
+  unsigned int nn = triContainer.size();
+  
+  fprintf (fout, "CELLS %u %u\n",nn, nn*4 );
+  
+  for (unsigned int i= 0 ; i < triContainer.size() ; i++){
+    fprintf (fout,"%u %zu %zu %zu\n", 3 ,triContainer[i]->eleNodes[0]->sID,triContainer[i]->eleNodes[1]->sID,triContainer[i]->eleNodes[2]->sID);
+  }
+  
+  fprintf (fout, "\n");
+  
+  
+  
+  fprintf (fout, "CELL_TYPES %u \n",nn);
+  
+  for (unsigned int i= 0 ; i < triContainer.size() ; i++){
+    fprintf (fout,"%u\n", 5);
+  }
+  
+  fprintf (fout, "\n");
+  
+  fclose(fout);
+}
+
+
 
 //==================================================================================
 // function to write the strain field inside tetrahedrons for the VTK file
@@ -139,6 +175,124 @@ void calDisplacementGrad(const T* const pT){
     tetRotation.push_back(omega);
   }
   
+}
+
+
+
+//==================================================================================
+// function to calculate the infinite & image surface traction fields
+//==================================================================================
+template<typename T>
+void calSurfaceTractions(const T* const pT){
+  
+  Eigen::Matrix<double,3,1> infTraction, imgTraction;
+  unsigned int iTet;
+  
+  for (unsigned int i= 0 ; i < triContainer.size() ; i++){
+    infTraction = triContainer[i]->getTriInfiniteTraction<3>(pT);
+    
+    //std::cout << infTraction.transpose()<< "  :  ";
+    
+    iTet = triContainer[i]->neighTetIndx;
+    imgTraction = tetContainer[iTet].getStress() * triContainer[i]->outNormal;
+    
+    //std::cout << imgTraction.transpose()<< std::endl;
+    
+    infiniteTraction.push_back(infTraction);
+    imageTraction.push_back(imgTraction);
+  }
+  
+}
+
+//==================================================================================
+// function to write the infinite medium traction field 
+//==================================================================================
+void writeInfiniteSurfaceTraction(char* VTKfile) {
+    
+  FILE *fout =fopen(VTKfile, "a");
+  
+  fprintf (fout, "VECTORS Infinite_Traction float\n");
+  
+  Eigen::Matrix<double,3,1> infTraction;
+  
+  for (unsigned int i= 0 ; i < triContainer.size() ; i++){
+    infTraction = infiniteTraction[i];
+    
+    fprintf (fout,"%f %f %f \n", infTraction(0), infTraction(1), infTraction(2));
+  }
+  
+  fprintf (fout, "\n");
+  fclose(fout);
+}
+
+//==================================================================================
+// function to write the Image medium traction field 
+//==================================================================================
+void writeImageSurfaceTraction(char* VTKfile) {
+    
+  FILE *fout =fopen(VTKfile, "a");
+  
+  fprintf (fout, "VECTORS Image_Traction float\n");
+  
+  Eigen::Matrix<double,3,1> imgTraction;
+  
+  for (unsigned int i= 0 ; i < triContainer.size() ; i++){
+    imgTraction = imageTraction[i];
+    
+    fprintf (fout,"%f %f %f \n", imgTraction(0), imgTraction(1), imgTraction(2));
+  }
+  
+  fprintf (fout, "\n");
+  fclose(fout);
+}
+
+//==================================================================================
+// function to write the Image medium traction field 
+//==================================================================================
+void writeTotalSurfaceTraction(char* VTKfile) {
+    
+  FILE *fout =fopen(VTKfile, "a");
+  
+  fprintf (fout, "VECTORS Total_Traction float\n");
+  
+  Eigen::Matrix<double,3,1> totTraction;
+  
+  for (unsigned int i= 0 ; i < triContainer.size() ; i++){
+    totTraction = imageTraction[i] + infiniteTraction[i];
+    
+    fprintf (fout,"%f %f %f \n", totTraction(0), totTraction(1), totTraction(2));
+  }
+  
+  fprintf (fout, "\n");
+  fclose(fout);
+}
+
+//==================================================================================
+// function to write the Image medium traction field 
+//==================================================================================
+void writeSurfaceTractionError(char* VTKfile) {
+    
+  FILE *fout =fopen(VTKfile, "a");
+  
+  fprintf (fout, "SCALARS Error float %u  \n", 1);
+  fprintf (fout, "LOOKUP_TABLE default \n");
+  
+  double maxInf = 0.0e00;
+  
+  double error;
+  
+  for (unsigned int i= 0 ; i < triContainer.size() ; i++){
+    if(infiniteTraction[i].norm() > maxInf) maxInf = infiniteTraction[i].norm();
+  }
+  
+  for (unsigned int i= 0 ; i < triContainer.size() ; i++){
+    error = (imageTraction[i] + infiniteTraction[i]).norm() / infiniteTraction[i].norm();
+    
+    fprintf (fout,"%f \n",error);
+  }
+  
+  fprintf (fout, "\n");
+  fclose(fout);
 }
 
 //==================================================================================
@@ -388,29 +542,38 @@ void writeGNDNodes(Eigen::Vector3d box,unsigned int npnts , char* GNDfile) {
 template<typename T>
 void writeVTK_file (const T* const pT) {
   
-  //char VTKfile[] =  "data.vtk";
-  char VTK_GND_file[] =  "GND_double.vtk";
-  Eigen::Vector3d box(4000.0e00, 4000.0e00, 4000.0e00);
-  unsigned int npnts = 50;
+  char VTKfile[] =  "data.vtk";
+  //char VTK_GND_file[] =  "GND_double.vtk";
+  //Eigen::Vector3d box(4000.0e00, 4000.0e00, 4000.0e00);
+  //unsigned int npnts = 50;
   
-  //writeHeader(VTKfile);
-  //writeNodes(VTKfile);
+  writeHeader(VTKfile);
+  writeNodes(VTKfile);
   //writeTetrahedrons(VTKfile);
+  writeSurfaceTriangles(VTKfile);
   
-  //FILE *fout =fopen(VTKfile, "a"); 
+  FILE *fout =fopen(VTKfile, "a"); 
   //unsigned int nn = tetContainer.size();
-  //fprintf (fout, "CELL_DATA %u \n",nn);
-  //fclose(fout);
+  unsigned int nn = triContainer.size();
+  fprintf (fout, "CELL_DATA %u \n",nn);
+  fclose(fout);
+  
+  calSurfaceTractions(pT);
+  
+  writeInfiniteSurfaceTraction(VTKfile);
+  writeImageSurfaceTraction(VTKfile);
+  writeTotalSurfaceTraction(VTKfile);
+  writeSurfaceTractionError(VTKfile);
   
   //writeTetStressField(VTKfile,pT);
   
-  calDisplacementGrad(pT);
+  //calDisplacementGrad(pT);
   
   //writeTetStrainField(VTKfile);
   
   //writeTetRotationField(VTKfile);
   
-  writeGND(box,npnts,VTK_GND_file);
+  //writeGND(box,npnts,VTK_GND_file);
   
   
 }

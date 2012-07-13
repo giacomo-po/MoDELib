@@ -1,4 +1,4 @@
-/* This file is part of model, the Mechanics of Material Defects Library.
+/* This file is part of model, the Mechanics of Defects Evolution  Library.
  *
  * Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.
  *

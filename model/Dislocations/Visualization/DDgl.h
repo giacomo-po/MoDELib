@@ -38,6 +38,7 @@
 #include <model/Dislocations/Visualization/Plotters/CellPlotter.h>
 #include <model/Dislocations/Visualization/Plotters/PlanePlotter.h>
 #include <model/Dislocations/Visualization/Plotters/MeshPlotter.h>
+#include <model/Dislocations/Visualization/Plotters/BitmapPlotter.h>
 
 
 
@@ -77,6 +78,16 @@ namespace model {
 
 		DDreader ddr;
 		DDreader::const_iterator ddrIter;
+        
+        
+        
+        float xMin;
+        float xMax;
+        float yMin;
+        float yMax;
+        float zMin;
+        float zMax;
+        
 
 		int old_y;
 		int old_x;
@@ -204,40 +215,66 @@ namespace model {
 		void plotAxes(){
 			if (showAxes){				
 				glDisable(GL_DEPTH_TEST);
-				glEnable (GL_BLEND);
+				glDisable (GL_BLEND);
 				glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				
-				glEnable(GL_ALPHA_TEST);
-				glAlphaFunc(GL_GREATER, 0.0f);
+				glDisable(GL_ALPHA_TEST);
+	//			glAlphaFunc(GL_GREATER, 0.0f);
 				
 				glEnable(GL_COLOR_MATERIAL);
-				glColor4f(0.0f, 0.0f, 0.0f, 0.1);
+	//			glColor4f(0.0f, 0.0f, 0.0f, 0.1);
+                
+                glColor3f(0.0f, 0.0f, 0.0f);
+
 				
-				glColor4f(0.0f, 0.0f, 0.0f, 0.8);
+//				glColor4f(0.0f, 0.0f, 0.0f, 0.8);
 				glBegin(GL_LINES); 
-				glVertex3f(0.0f, 0.0f,0.0f); 
-				glVertex3f(boxSize, 0.0f,0.0f);
+				glVertex3f(xMin, 0.0f,0.0f); 
+				glVertex3f(xMax, 0.0f,0.0f);
 				
-				glVertex3f(0.0f, 0.0f,0.0f); 
-				glVertex3f(0.0f, boxSize,0.0f);
+				glVertex3f(0.0f, yMin,0.0f); 
+				glVertex3f(0.0f, yMax,0.0f);
 				
-				glVertex3f(0.0f, 0.0f,0.0f); 
-				glVertex3f(0.0f, 0.0f,boxSize);					
+				glVertex3f(0.0f, 0.0f,zMin); 
+				glVertex3f(0.0f, 0.0f,zMax);					
 				glEnd();
+                
+                
+                
+                
+                
+      //          VectorDimF P(VectorDimF::Zero());
+        //        BitmapPlotter::renderString(P,"hello");                
+ 
 				
 				glEnable(GL_DEPTH_TEST); //Makes 3D drawing work when something is in front of something else
+                
+                
+                BitmapPlotter::renderString((VectorDimF()<<0.0f, 0.0f,zMax).finished(),
+                                            /*                       */ static_cast<std::ostringstream*>( &(std::ostringstream() << zMax) )->str());
+
+                BitmapPlotter::renderString((VectorDimF()<<0.0f, yMax,0.0f).finished(),
+                                            /*                       */ static_cast<std::ostringstream*>( &(std::ostringstream() << yMax) )->str());
+
+                
+                BitmapPlotter::renderString((VectorDimF()<<xMax, 0.0f,0.0f).finished(),
+                                            /*                       */ static_cast<std::ostringstream*>( &(std::ostringstream() << xMax) )->str());
+
+ 
+
+                
 			}
 		}
 		
 		
 		////////////////////////////////////////////////
 		void autoCenter(){
-			float xMin=0.0f;
-			float xMax=0.0f;
-			float yMin=0.0f;
-			float yMax=0.0f;
-			float zMin=0.0f;
-			float zMax=0.0f;
+			xMin=0.0f;
+			xMax=0.0f;
+			yMin=0.0f;
+			yMax=0.0f;
+			zMin=0.0f;
+			zMax=0.0f;
 			splinePlotter.boundingBox(xMin,xMax,yMin,yMax,zMin,zMax);
 			xMean=0.5*(xMax+xMin);
 			yMean=0.5*(yMax+yMin);
@@ -377,6 +414,8 @@ namespace model {
 			
 			// Read first frame
 			readFrame();
+            
+            autoCenter();
 		}
 		
 		
@@ -509,6 +548,22 @@ namespace model {
 				case 'x': 
 					autoCenter();
 					break;
+                    
+				case 't': 
+					splinePlotter.showVertexID=!splinePlotter.showVertexID;
+					break;  
+                    
+                case '0': 
+					splinePlotter.colorScheme=0;
+					break; 
+
+                case '1': 
+					splinePlotter.colorScheme=1;
+					break; 
+
+                    
+                    
+                    
 			}
 		}
 		
@@ -602,6 +657,15 @@ namespace model {
 			
 			old_y=y;
 			old_x=x;
+            
+            
+            GLfloat lightColor0[] = {1.0f, 1.0f, 1.0f, 1.0f}; //Color (0.5, 0.5, 0.5)
+			GLfloat lightPos0[] =   {eyePoint(0), eyePoint(1), eyePoint(2), 1.0f}; //Positioned at (4, 0, 8)
+			glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor0);
+			glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);
+
+            
+            
 		}
 		
 		

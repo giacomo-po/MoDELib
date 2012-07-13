@@ -83,6 +83,9 @@ public:
 		typedef QuadPow<Ncoeff-1,qOrder,QuadratureRule> QuadPowType;
 
 		typedef MaterialType TempMaterialType; // used in GlidePlane
+        
+        DislocationSharedObjects<dim,MaterialType> shared;
+
 		
 		private:		
 
@@ -101,7 +104,6 @@ public:
 		enum {Nslips=MaterialType::Nslips};
 		
 		
-		DislocationSharedObjects<dim,MaterialType> shared;
 		
 		
 		
@@ -208,7 +210,7 @@ public:
 			const VectorDim v0(shared.material.Binv*pkF);
 			const double v0N(v0.norm());
 			const double csf(0.7*shared.material.cs);
-			return (v0N>FLT_EPSILON)? csf*(1.0-std::exp(-v0N/csf))*v0/v0N : pkF;
+			return (v0N>FLT_EPSILON)? csf*(1.0-std::exp(-v0N/csf))*v0/v0N : v0;
 		}
 		
 		
@@ -330,7 +332,7 @@ public:
 			 *		d\mathbf{\sigma}=\frac{\mu}{4\pi (1-\nu)}\left(d\mathbf{s}+d\mathbf{s}^T\right)
 			 *	\f]
 			 */
-			VectorDim R=Rfield-rgauss.col(k);
+			VectorDim R(Rfield-rgauss.col(k));
 			double RaSquared(R.squaredNorm() + coreLsquared);
 			return   (shared.material.C1*(1.0+1.5*coreLsquared/RaSquared)*rugauss.col(k)*(Burgers.cross(R)).transpose()
 					  + 	R*(rugauss.col(k).cross(Burgers)).transpose() 
@@ -343,7 +345,7 @@ public:
 		MatrixDim stress_field(const size_t & k) {
 			
 			//! 1- Create and set to zero a dim x dim matrix
-			MatrixDim sigma = MatrixDim::Zero();
+			MatrixDim sigma( MatrixDim::Zero() );
 			
 			//! 2- Loop over other segments summing the strees field at the k-th field point
 			for (AddressMapIteratorType aIter=this->ABbegin(); aIter!=this->ABend();++aIter){
@@ -616,11 +618,11 @@ public:
 			return pkGauss.col(qOrder/2)*this->chord().norm();
 		}
 
-		/* intersectWith ******************************************************/
-		std::set<std::pair<double,double> > intersectWith( const Derived* const p_other  , const double& tol=FLT_EPSILON) const {
-//			return DislocationSegmentIntersection<dim,pOrder>(this->hermiteCoefficients(),this->glidePlaneNormal).intersectWith(p_other->hermiteCoefficients(),p_other->glidePlaneNormal,tol,p_other);
-			return DislocationSegmentIntersection<dim,pOrder>(this->hermiteCoefficients(),this->glidePlaneNormal).intersectWith(p_other->hermiteCoefficients(),p_other->glidePlaneNormal,tol);
-		}
+//		/* intersectWith ******************************************************/
+//		std::set<std::pair<double,double> > intersectWith( const Derived* const p_other) const {
+////			return DislocationSegmentIntersection<dim,pOrder>(this->hermiteCoefficients(),this->glidePlaneNormal).intersectWith(p_other->hermiteCoefficients(),p_other->glidePlaneNormal,tol,p_other);
+//			return DislocationSegmentIntersection<dim,pOrder>(this->hermiteCoefficients(),this->glidePlaneNormal).intersectWith(p_other->hermiteCoefficients(),p_other->glidePlaneNormal);
+//		}
 		
 		
 		/* friend T& operator << **********************************************/

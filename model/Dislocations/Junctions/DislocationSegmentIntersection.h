@@ -36,6 +36,10 @@ namespace model {
 	class DislocationSegmentIntersection {
 		
 	public:
+        
+        static double compTol;
+
+        
 		DislocationSegmentIntersection(){
 			assert(0 && "DislocationSegmentIntersection: TEMPLATE SPECIALIZATION NOT IMPLEMENTED.");
 			
@@ -59,19 +63,10 @@ namespace model {
 		
 		
 		/************************************************************************************/
-		int planePlaneType(const VectorDim & normal1, const VectorDim & normal2, const VectorDim & pt1, const VectorDim & pt2,const double& tol) const {
-			
-			
-			//			std::cout<<"normal1="<<normal1.transpose()<<std::endl;
-			//			std::cout<<"normal2="<<normal2.transpose()<<std::endl;
-			//			std::cout<<"normal cross normal"<<(normal1.cross(normal2).norm())<<std::endl;
-			//			std::cout<<"tol"<<tol<<std::endl;
-			//			std::cout<<"normal cross normal tol"<<(normal1.cross(normal2).norm()<tol)<<std::endl;
-			//
-			//			std::cout<<"points dot normal"<<(std::fabs((pt1-pt2).dot(normal1))>tol)<<std::endl;
-			//			std::cout<<"points dist"<<(std::fabs((pt1-pt2).dot(normal1)))<<std::endl;
-			bool areParallelNormals(normal1.cross(normal2).norm()<100.0*tol);
-			bool areCoincidentPoints(std::fabs((pt1-pt2).dot(normal1))<tol);
+		int planePlaneType(const VectorDim & normal1, const VectorDim & normal2, const VectorDim & pt1, const VectorDim & pt2) const {
+
+			bool areParallelNormals(normal1.cross(normal2).norm()<FLT_EPSILON);
+			bool areCoincidentPoints(std::fabs((pt1-pt2).dot(normal1))<FLT_EPSILON);
 			
 			int i;
 			if(areParallelNormals && !areCoincidentPoints){
@@ -102,7 +97,7 @@ namespace model {
 		const VectorDim chord1;	  // end point of the spline	
 		//		const Eigen::Matrix<double,dim,dim> R1;
 		
-		
+		static double compTol;
 		
 		/* Constructor *****************************************************/
 		DislocationSegmentIntersection(const MatrixDimPolyCoeff& H1_in, 
@@ -121,8 +116,7 @@ namespace model {
 		
 		/* intersectWith ***************************************************/
 		//template <typename T>
-		std::set<std::pair<double,double> > intersectWith(const MatrixDimPolyCoeff& H2, const VectorDim& n2, const double& tol
-														  /*,const T* const pT*/){
+		std::set<std::pair<double,double> > intersectWith(const MatrixDimPolyCoeff& H2, const VectorDim& n2, const double& physTol) const {
 			
 			
 			std::set<std::pair<double,double> > intersectionParameters;
@@ -161,7 +155,6 @@ namespace model {
 			
 			if((0.5*(P0+P1)-0.5*(P2+P3)).norm()<0.75*(chord1.norm()+chord2.norm())){
 				
-				double physTol=15.0;
 				
 				
 				
@@ -169,13 +162,14 @@ namespace model {
 				
 				
 				
-				const int planesType=planePlaneType(n1,n2,P0,P2,tol);
+				
+				const int planesType=planePlaneType(n1,n2,P0,P2);
 				
 				
 				switch (planesType) {
 					case 1:{ // coplanar planes
 						
-                        //											std::cout<<"Coplanar case"<<std::endl;
+       //                 											std::cout<<"Coplanar case ";
 						const Eigen::Matrix<double,dim,dim> R1(DislocationLocalReference<dim>::global2local(chord1,n1));
 						
 						Eigen::Matrix<double,dim-1,polyCoeff> H1L;
@@ -191,14 +185,16 @@ namespace model {
 						H2L.col(3)=(R1*T3).segment<dim-1>(0);
 						
 						PlanarSplineImplicitization<polyDegree> sli(Coeff2Hermite<polyDegree>::h2c<dim-1>(H1L)); 
-						intersectionParameters=sli.intersectWith<polyDegree>(Coeff2Hermite<polyDegree>::h2c<dim-1>(H2L),tol,physTol);
+                        PlanarSplineImplicitization<polyDegree>::physTol=physTol;
+//						intersectionParameters=sli.intersectWith<polyDegree>(Coeff2Hermite<polyDegree>::h2c<dim-1>(H2L),physTol);
+						intersectionParameters=sli.intersectWith<polyDegree>(Coeff2Hermite<polyDegree>::h2c<dim-1>(H2L));
 						
 						break;
 					}
 						
 					case 2:{ // incident planes
 						
-                        //						std::cout<<"Incident case"<<std::endl;
+      //                  						std::cout<<"Incident case ";
                         
 						
 						std::set<std::pair<double,double> > lineIntersectionParameters1;
@@ -214,7 +210,7 @@ namespace model {
 						
 						//					std::cout<<"denom="<<denom<<std::endl;
 						
-						if(std::fabs(denom)>tol){ // planes are incident 
+						if(std::fabs(denom)>compTol){ // planes are incident 
 							double u=numer/denom;
 							
 							VectorDim linePoint = P0+(n2-n2.dot(n1)*n1)*u;
@@ -255,7 +251,9 @@ namespace model {
 							//						std::cout<<H2L<<std::endl;
 							
 							PlanarSplineImplicitization<polyDegree> sli1(Coeff2Hermite<polyDegree>::h2c<dim-1>(H1L)); 
-							lineIntersectionParameters1=sli1.intersectWith<1>(Coeff2Hermite<1>::h2c<dim-1>(H2L),tol,physTol);
+//							lineIntersectionParameters1=sli1.intersectWith<1>(Coeff2Hermite<1>::h2c<dim-1>(H2L),physTol);
+                            PlanarSplineImplicitization<polyDegree>::physTol=physTol;
+							lineIntersectionParameters1=sli1.intersectWith<1>(Coeff2Hermite<1>::h2c<dim-1>(H2L));
 							
                             //													std::cout<<"intersections of spline 1 and line are:"<<std::endl;
                             //													for (std::set<std::pair<double,double> >::const_iterator iter1=lineIntersectionParameters1.begin();iter1!=lineIntersectionParameters1.end();++iter1){
@@ -274,7 +272,9 @@ namespace model {
 							H2L.col(1)=(R2*(P5-P4)).segment<dim-1>(0);
 							
 							PlanarSplineImplicitization<polyDegree> sli2(Coeff2Hermite<polyDegree>::h2c<dim-1>(H3L)); 
-							lineIntersectionParameters2=sli2.intersectWith<1>(Coeff2Hermite<1>::h2c<dim-1>(H2L),tol,physTol);
+//							lineIntersectionParameters2=sli2.intersectWith<1>(Coeff2Hermite<1>::h2c<dim-1>(H2L),physTol);
+                            PlanarSplineImplicitization<polyDegree>::physTol=physTol;
+							lineIntersectionParameters2=sli2.intersectWith<1>(Coeff2Hermite<1>::h2c<dim-1>(H2L));
 							
                             //												std::cout<<"intersections of spline 2 and line are:"<<std::endl;
                             //													for (std::set<std::pair<double,double> >::const_iterator iter1=lineIntersectionParameters2.begin();iter1!=lineIntersectionParameters2.end();++iter1){
@@ -284,9 +284,8 @@ namespace model {
 							
 							// du = dl / j = dl/L for a line
 							
-							double tolU=physTol/(P5-P4).norm(); //! DislocationSegmentIntersection !!!! CHANGE THIS 5.0 LATER. NO ... FOR REAL						
+							double tolU=physTol/(P5-P4).norm(); 						
 							
-							//					std::cout<<"tolU="<<tolU<<std::endl;
 							
 							
 							for (std::set<std::pair<double,double> >::const_iterator iter1=lineIntersectionParameters1.begin();iter1!=lineIntersectionParameters1.end();){
@@ -339,6 +338,11 @@ namespace model {
 		
 	};			
 	
+    
+    
+    // Declare statica data members
+    //template <short unsigned int dim, short unsigned int polyDegree>
+	double DislocationSegmentIntersection<3,3>::compTol=FLT_EPSILON;
 	
 	
 	
