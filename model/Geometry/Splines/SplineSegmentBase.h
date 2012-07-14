@@ -22,6 +22,8 @@
 #include <model/Geometry/ParametricCurve.h>
 #include <model/Geometry/Splines/Intersection/SplineIntersection.h>
 #include <model/Geometry/Splines/Coeff2Hermite.h>
+#include <model/Network/Operations/EdgeFinder.h>
+
 
 
 namespace model {

@@ -293,6 +293,8 @@ namespace model {
 		bool showPlaneNormal;
         bool showVertexID;
         int colorScheme;
+        bool showSpecificVertex;
+        size_t specificVertexID;
 		
 		
 		SplinePlotter() : showTubes(false),
@@ -300,7 +302,9 @@ namespace model {
 		/* init list   */ deformedConfig(false),
 		/* init list   */ showPlaneNormal(false),
         /* init list   */ showVertexID(false),
-        /* init list   */ colorScheme(0){}
+        /* init list   */ colorScheme(0),
+        /* init list   */ showSpecificVertex(false),
+        /* init list   */ specificVertexID(0){}
 		
 		/* isGood ***************************************************/
 		static bool isGood(const int& frameN){
@@ -387,7 +391,7 @@ namespace model {
 //					renderBitmapString(vIter->second.template cast<float>().template segment<dim>(0),
 //               /*              */ GLUT_BITMAP_HELVETICA_18,
 //					/*              */ static_cast<std::ostringstream*>( &(std::ostringstream() << vIter->first) )->str());
-                    if (showVertexID){
+                    if (showVertexID || (showSpecificVertex && specificVertexID==vIter->first)){
                     VectorDim PT(vIter->second.template cast<float>().template segment<dim>(0));
                     BitmapPlotter::renderString(PT,
                     /*                       */ static_cast<std::ostringstream*>( &(std::ostringstream() << vIter->first) )->str());

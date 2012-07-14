@@ -247,7 +247,7 @@ namespace model {
 	  }
 	}
 	
-	std::cout<< "inside here  " <<temp.col(0).transpose() << " " << temp.col(1).transpose()<< " " << temp.col(2).transpose() << std::endl;
+	//std::cout<< "inside here  " <<temp.col(0).transpose() << " " << temp.col(1).transpose()<< " " << temp.col(2).transpose() << std::endl;
 	
 	return temp;
       }   

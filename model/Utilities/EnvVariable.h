@@ -33,11 +33,18 @@ namespace model {
 	 */
 
 	struct EnvVariable : public std::string {
-		EnvVariable(const std::string& varname){
-  			const char *tmpvar = std::getenv (varname.c_str());
-  			assert(tmpvar!=0 && *tmpvar!='\0' && "FAILED TO GET ENVIRONMENT VARIABLE.");
-  			std::string::operator=(tmpvar);	
-		}
+	
+	/******************************/
+	static std::string getVariable(const std::string& varname){
+  		const char *tmpvar = std::getenv (varname.c_str());
+  		assert(tmpvar!=0 && *tmpvar!='\0' && "FAILED TO GET ENVIRONMENT VARIABLE.");
+		return tmpvar;
+	}
+
+	
+	/******************************/
+	EnvVariable(const std::string& varname) : std::string(getVariable(varname)) {}
+
 	};
 
 	/************************************************************/	

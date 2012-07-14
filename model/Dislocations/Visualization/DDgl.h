@@ -528,7 +528,18 @@ namespace model {
 					}
 					break;
 					
+
 					
+                case 'k': 
+					splinePlotter.showSpecificVertex=!splinePlotter.showSpecificVertex;
+                    if(splinePlotter.showSpecificVertex){
+                        std::cout<<"Enter a Vertex ID: ";
+                        size_t temp;
+                        std::cin>>temp;
+                        splinePlotter.specificVertexID=temp;
+                    }
+					break;
+                    
 				case 'm': 
 					meshPlotter.showMesh=(meshPlotter.showMesh+1)%meshPlotter.showMeshStates;
 					break;
