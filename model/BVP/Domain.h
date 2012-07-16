@@ -443,17 +443,29 @@ namespace bvpfe{
 			}
 			
 			//----------------------- update the user defined boundary conditions, if needed -------------------------
-			if (update_usr_defined_BCs){
+            if (update_usr_defined_BCs){
 #ifdef UpdateBoundaryConditionsFile
-			    usrBCsContainer = pT->update_usr_BCs();        	// store user defined boundary conditions
-			
-			// apply user defined boundary conditions
-			for (unsigned int i=0; i<usrBCsContainer.size(); i++){
-				nodeContainer[usrBCsContainer[i].first].setBC( usrBCsContainer[i].second.first , usrBCsContainer[i].second.second );
+                usrBCsContainer = pT->update_usr_BCs();        // store user defined boundary conditions
+#endif
             }
-			
-#endif	
+            
+#ifdef UpdateBoundaryConditionsFile  
+            // apply user defined boundary conditions
+            for (unsigned int i=0; i<usrBCsContainer.size(); i++){
+                nodeContainer[usrBCsContainer[i].first].setBC( usrBCsContainer[i].second.first , usrBCsContainer[i].second.second );
             }
+#endif
+//			if (update_usr_defined_BCs){
+//#ifdef UpdateBoundaryConditionsFile
+//			    usrBCsContainer = pT->update_usr_BCs();        	// store user defined boundary conditions
+//			
+//			// apply user defined boundary conditions
+//			for (unsigned int i=0; i<usrBCsContainer.size(); i++){
+//				nodeContainer[usrBCsContainer[i].first].setBC( usrBCsContainer[i].second.first , usrBCsContainer[i].second.second );
+//            }
+//			
+//#endif	
+//            }
 			
 		}
 		

@@ -29,7 +29,23 @@ EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		return P;
 	}
 
-	///////////////////////////////
-	bool is_removable() const {
-		return true;
-	}
+//	///////////////////////////////
+//	bool is_removable() const {
+//		return true;
+//	}
+
+
+
+/* isCommonNeighborAt *************************************************/
+std::pair<bool,size_t> isNeighborAt(const VectorDim& P0) const {
+    std::pair<bool,size_t> temp(false,0);
+    for (typename Derived::NeighborContainerType::const_iterator nIiter=this->neighborhood().begin();nIiter!=this->neighborhood().end();++nIiter){ // loop over neighborhood of source
+        if (boost::tuples::get<0>(nIiter->second)->sID!=this->sID){ // neighbor is neither source nor sink
+            if((boost::tuples::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON){ // a neighbor of I exists at P0
+                //const size_t p0ID(D); // the sID of the neighbor at P0
+                temp=std::pair<bool,size_t>(true,boost::tuples::get<0>(nIiter->second)->sID);
+            }
+        }
+    }
+    return temp;
+}

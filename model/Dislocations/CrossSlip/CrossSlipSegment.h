@@ -52,7 +52,8 @@ namespace model {
 		/*init list   */ isCrossSlipSegment(chord.norm()>1.1*crossSlipLength
 		/*                               */ && chord.normalized().cross(Burgers.normalized()).norm()<=sinThetaCrossSlipCr
 		/*                               */ && !sourceOnMeshBoundary && !sinkOnMeshBoundary // not on the boundary
-		/*                               */ && crossSlipFactor*rssPrimary<rssConjugate) {
+		/*                               */ && crossSlipFactor*rssPrimary<rssConjugate
+        /*                               */ && ds.sessilePlaneNormal.norm()<FLT_EPSILON) {
 		
 		}
 		

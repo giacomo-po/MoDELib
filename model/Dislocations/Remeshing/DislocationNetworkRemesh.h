@@ -40,14 +40,31 @@ namespace model {
             unsigned int temp(0);
             const size_t i(Lij.second->source->sID);
             const size_t j(Lij.second->  sink->sID);
-            std::pair<bool,size_t> isCN(Lij.second->isCommonNeighborAt(P0));
-            if(isCN.first){  
-                std::cout<<"Contract with CommonNeighbor Check: neighbor exists."<<std::endl;
-                DN.contractSecond(isCN.second,i); 
+            //std::pair<bool,size_t> isCN(Lij.second->isCommonNeighborAt(P0));
+            const std::pair<bool,size_t> isCNi(Lij.second->source->isNeighborAt(P0));
+            const std::pair<bool,size_t> isCNj(Lij.second->  sink->isNeighborAt(P0));
+            if(isCNi.first && isCNj.first){  // both have a common neighbor
+                std::cout<<"Contract with CommonNeighbor Check: neighbors exist, case a."<<std::endl;
+                assert(isCNi.second==isCNj.second && "THERE ARE TWO DISTINCT NEIGHBORS AT THE SAME POSITION.");
+                DN.contractSecond(isCNi.second,i); 
                 temp++;
-                DN.contractSecond(isCN.second,j); 
+                DN.contractSecond(isCNj.second,j); 
                 temp++;
             }
+            if(isCNi.first && !isCNj.first){  
+                std::cout<<"Contract with CommonNeighbor Check: neighbors exist, case b."<<std::endl;
+                DN.contractSecond(isCNi.second,i); 
+                temp++;
+                DN.contractSecond(isCNi.second,j); 
+                temp++;
+            }            
+            if(!isCNi.first && isCNj.first){  
+                std::cout<<"Contract with CommonNeighbor Check: neighbors exist, case c."<<std::endl;
+                DN.contractSecond(isCNj.second,i); 
+                temp++;
+                DN.contractSecond(isCNj.second,j); 
+                temp++;
+            }             
             else{
                 std::cout<<"Contract with CommonNeighbor Check: neighbor does not exists."<<std::endl;
                 if(pointIsInsideMesh(P0,Lij.second->source->meshID())){
