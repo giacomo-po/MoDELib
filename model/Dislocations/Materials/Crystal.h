@@ -37,9 +37,7 @@ namespace model {
 		
 	public:
 		
-		
-		/////////////////////////////////////////////////////////////
-		// find_slipSystem
+        /* conjugatePlaneNormal ************************************************************************************/
 		void find_slipSystem(const VectorDim  & chord, const VectorDim & Burgers,
 							 std::set<SlipSystem<dim,Nslips> > & allowedSlipSystems, const double& tol = FLT_EPSILON){
 
@@ -89,6 +87,26 @@ namespace model {
 			
 		}
 		
+        
+        /* conjugatePlaneNormal ************************************************************************************/
+        VectorDim conjugatePlaneNormal(const VectorDim& B, const VectorDim& N, const double& tol=FLT_EPSILON) const {
+            
+			int count(0);
+			VectorDim temp(VectorDim::Zero());
+			for (typename std::set<SlipSystem<dim,Nslips> >::iterator iter=this->begin();iter!=this->end();++iter){
+				
+				for (int k=0;k<Nslips;++k){
+					if(	 B.normalized().cross(iter->slip.col(k)).norm()<tol 
+					   && N.normalized().cross(iter->normal).norm()>tol){
+						temp=iter->normal;
+						++count;
+					}
+				}
+			}
+			assert(count==1 && "FOUND MORE THAN ONE CONJUGATE PLANES"); // IN BCC THERE IS MORE THAN ONE PLANE!
+			return temp;
+		}
+        
 
 //		/////////////////////////////////////////////////////////////
 //		// find_slipSystem
@@ -275,23 +293,23 @@ namespace model {
 		
 
 		
-		VectorDim conjugatePlaneNormal(const VectorDim& B, const VectorDim& N, const double& tol=FLT_EPSILON) const {
-		
-			int count(0);
-			VectorDim temp;
-			for (typename std::set<SlipSystem<dim,Nslips> >::iterator iter=this->begin();iter!=this->end();++iter){
-				
-				for (int k=0;k<Nslips;++k){
-					if(	 B.normalized().cross(iter->slip.col(k)).norm()<tol 
-					   && N.normalized().cross(iter->normal).norm()>tol){
-						temp=iter->normal;
-						++count;
-					}
-				}
-			}
-			assert(count==1 && "FOUND WRONG NUMBER OF CONJUGATE PLANES");
-			return temp;
-		}
+//		VectorDim conjugatePlaneNormal(const VectorDim& B, const VectorDim& N, const double& tol=FLT_EPSILON) const {
+//		
+//			int count(0);
+//			VectorDim temp;
+//			for (typename std::set<SlipSystem<dim,Nslips> >::iterator iter=this->begin();iter!=this->end();++iter){
+//				
+//				for (int k=0;k<Nslips;++k){
+//					if(	 B.normalized().cross(iter->slip.col(k)).norm()<tol 
+//					   && N.normalized().cross(iter->normal).norm()>tol){
+//						temp=iter->normal;
+//						++count;
+//					}
+//				}
+//			}
+//			assert(count==1 && "FOUND WRONG NUMBER OF CONJUGATE PLANES");
+//			return temp;
+//		}
 		
 		
 //		VectorDim chooseCrossSlipNormal(const VectorDim& chord, const VectorDim& bOther, const VectorDim& nOther){

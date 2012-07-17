@@ -51,14 +51,14 @@ namespace model {
                 DN.contractSecond(isCNj.second,j); 
                 temp++;
             }
-            if(isCNi.first && !isCNj.first){  
+            else if(isCNi.first && !isCNj.first){  
                 std::cout<<"Contract with CommonNeighbor Check: neighbors exist, case b."<<std::endl;
                 DN.contractSecond(isCNi.second,i); 
                 temp++;
                 DN.contractSecond(isCNi.second,j); 
                 temp++;
             }            
-            if(!isCNi.first && isCNj.first){  
+            else if(!isCNi.first && isCNj.first){  
                 std::cout<<"Contract with CommonNeighbor Check: neighbors exist, case c."<<std::endl;
                 DN.contractSecond(isCNj.second,i); 
                 temp++;

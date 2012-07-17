@@ -11,6 +11,9 @@
 #ifndef model_CROSSSLIPSEGMENT_H
 #define model_CROSSSLIPSEGMENT_H
 
+#include <math.h>
+#include <float.h>
+
 namespace model {
 
 
@@ -28,6 +31,7 @@ namespace model {
 		/*const*/ bool sinkOnMeshBoundary;
 		/*const*/ VectorDim pkForce;
 		/*const*/ VectorDim normalPrimary;
+        /*const*/ bool isSessile;
 		/*const*/ VectorDim normalConjugate;
 		/*const*/ double rssPrimary;
 		/*const*/ double rssConjugate;
@@ -45,7 +49,8 @@ namespace model {
 		/*init list   */   sinkOnMeshBoundary(ds.sink  ->nodeMeshLocation == onMeshBoundary),
 		/*init list   */ pkForce(ds.integralPK()),
 		/*init list   */ normalPrimary(ds.glidePlaneNormal),
-		/*init list   */ normalConjugate(ds.conjugatePlaneNormal()),
+        /*init list   */ isSessile(std::fabs(Burgers.dot(normalPrimary))>FLT_EPSILON),
+		/*init list   */ normalConjugate(isSessile? VectorDim::Zero() : ds.conjugatePlaneNormal()),
 		/*init list   */ rssPrimary  ((pkForce-pkForce.dot( normalPrimary)* normalPrimary  ).norm()),
 		/*init list   */ rssConjugate((pkForce-pkForce.dot(normalConjugate)*normalConjugate).norm()),
 		/*init list   */ crossSlipFactor(1.5),
@@ -53,7 +58,7 @@ namespace model {
 		/*                               */ && chord.normalized().cross(Burgers.normalized()).norm()<=sinThetaCrossSlipCr
 		/*                               */ && !sourceOnMeshBoundary && !sinkOnMeshBoundary // not on the boundary
 		/*                               */ && crossSlipFactor*rssPrimary<rssConjugate
-        /*                               */ && ds.sessilePlaneNormal.norm()<FLT_EPSILON) {
+        /*                               */ && !isSessile) {
 		
 		}
 		
