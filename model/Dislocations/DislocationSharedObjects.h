@@ -45,8 +45,3 @@ namespace model {
 #endif
 
 
-//#include <model/Dislocations/ExternalStresses/LoadController.h>
-//		static model::LoadController<dim> loadController;
-
-//	template <short unsigned int dim,typename MaterialType>
-//	LoadController<dim> DislocationSharedObjects<dim,MaterialType>::loadController;

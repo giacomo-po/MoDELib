@@ -138,6 +138,8 @@ public:
 	//////////////////////////////////////////////////
 	// dofID
 	Eigen::Matrix<int,dim,1> node_dofID() const {	
+        /*! The IDs of DOFs of this node in the subnetwork
+         */
 		return ( (Eigen::Array<int,dim,1>() << 0, 1, 2).finished()+this->snID()*dim).matrix();
 	}
 	
@@ -150,7 +152,8 @@ public:
 	//////////////////////////////////////////////////
 	// dofID
 	Eigen::VectorXi dofID() const {	
-		
+        /*! The IDs of DOFs of this and the neighbor nodes in the subnetwork
+         */
 		Eigen::VectorXi VectorDofID;
 		VectorDofID.resize(Ndof);
 		
@@ -166,27 +169,10 @@ public:
 	//////////////////////////////////////////////////
 	// W2H
 	const Eigen::Matrix<double, dim*(corder+1), Eigen::Dynamic> & W2H() const {	
-		
-		//			make_CR2H();
 		return CR2H;
 	}
 	
-	//////////////////////////////////////////////////
-	// get_CRneighbors
-    //	NeighborContainerType get_CRneighbors() const {
-    //		return CRneighbors;
-    //	}
-	
-	
-	
-//    void print182(){
-//        if (this->sID==182){
-//            std::cout<<"Node "<<this->sID<<" is_balanced="<<this->is_balanced()<<", is_isolated="<<this->is_isolated()<<std::endl; 
-//            std::cout<<"\n"<<CR2H<<std::endl;
-//            //         std::cout<<this->prjM<<std::endl;
-//            //          std::cout<<"Node "<<this->sID<< " making T="<<this->T.transpose()<<std::endl;
-//        }
-//    }
+
     
 	
 	

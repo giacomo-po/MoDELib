@@ -42,7 +42,7 @@
 #include "model/BVP/Triangle.h"
 #include "model/BVP/Face.h"
 #include "model/BVP/SearchData.h"
-#include <model/BVP/VirtualBoundarySlipContainer.h>
+//#include <model/BVP/VirtualBoundarySlipContainer.h>
 
 
 #include <stdio.h>
@@ -71,7 +71,7 @@ namespace bvpfe{
 		
 		typedef std::pair< unsigned int, std::pair<unsigned int, double> > inputBCsType;  
 		
-		typedef model::VirtualBoundarySlipContainer<dim> VirtualBoundarySlipContainerType;
+	//	typedef model::VirtualBoundarySlipContainer<dim> VirtualBoundarySlipContainerType;
 		
 		
 	public:
@@ -84,7 +84,7 @@ namespace bvpfe{
 		
 		std::set<unsigned int> cutTrisSet;     // triangles IDs that has dislocation segments cutting them
 		
-		VirtualBoundarySlipContainerType vbsc;       // container that stores the virtual dislocation segments outside the domain
+	//	VirtualBoundarySlipContainerType vbsc;       // container that stores the virtual dislocation segments outside the domain
 		
 #include <model/BVP/outputVTK.h>		
 		

@@ -45,25 +45,45 @@ namespace model {
             const std::pair<bool,size_t> isCNj(Lij.second->  sink->isNeighborAt(P0));
             if(isCNi.first && isCNj.first){  // both have a common neighbor
                 std::cout<<"Contract with CommonNeighbor Check: neighbors exist, case a."<<std::endl;
+                std::cout<<"i="<<i<<std::endl;
+                std::cout<<"j="<<j<<std::endl;
+                std::cout<<"isCNi.second="<<isCNi.second<<std::endl;
+                std::cout<<"isCNj.second="<<isCNj.second<<std::endl;                
                 assert(isCNi.second==isCNj.second && "THERE ARE TWO DISTINCT NEIGHBORS AT THE SAME POSITION.");
                 DN.contractSecond(isCNi.second,i); 
                 temp++;
+                std::cout<<"passed first contract"<<std::endl;
                 DN.contractSecond(isCNj.second,j); 
                 temp++;
+                std::cout<<"passed second contract"<<std::endl;
             }
             else if(isCNi.first && !isCNj.first){  
                 std::cout<<"Contract with CommonNeighbor Check: neighbors exist, case b."<<std::endl;
+                std::cout<<"i="<<i<<std::endl;
+                std::cout<<"j="<<j<<std::endl;
+                std::cout<<"isCNi.second="<<isCNi.second<<std::endl;
                 DN.contractSecond(isCNi.second,i); 
                 temp++;
-                DN.contractSecond(isCNi.second,j); 
-                temp++;
+                std::cout<<"passed first contract"<<std::endl;
+                if(isCNi.second!=j){
+                    DN.contractSecond(isCNi.second,j); 
+                    temp++;
+                    std::cout<<"passed second contract"<<std::endl;
+                }
             }            
             else if(!isCNi.first && isCNj.first){  
                 std::cout<<"Contract with CommonNeighbor Check: neighbors exist, case c."<<std::endl;
-                DN.contractSecond(isCNj.second,i); 
-                temp++;
+                std::cout<<"i="<<i<<std::endl;
+                std::cout<<"j="<<j<<std::endl;
+                std::cout<<"isCNj.second="<<isCNj.second<<std::endl;
+                if(isCNj.second!=i){
+                    DN.contractSecond(isCNj.second,i); 
+                    temp++;
+                    std::cout<<"passed first contract"<<std::endl;
+                }
                 DN.contractSecond(isCNj.second,j); 
                 temp++;
+                std::cout<<"passed second contract"<<std::endl;
             }             
             else{
                 std::cout<<"Contract with CommonNeighbor Check: neighbor does not exists."<<std::endl;
@@ -139,8 +159,8 @@ namespace model {
                         assert(  sinkPNsize>0 && "  sink->planeNormals() CANNOT HAVE SIZE 0.");
                         if(sourcePNsize==1 && sinkPNsize==1){
                             std::cout<<"Contract case 1: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-//                            DN.contract(i,j,Lij.second->get_r(0.5));
-//                            Ncontracted++;
+                            //                            DN.contract(i,j,Lij.second->get_r(0.5));
+                            //                            Ncontracted++;
                             Ncontracted+=contractWithCommonNeighborCheck(Lij,Lij.second->get_r(0.5)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
                         }
                         else if(sourcePNsize==1 && sinkPNsize>1){ // contract source
@@ -160,8 +180,8 @@ namespace model {
                             const double cNorm(C.norm());
                             if (cNorm<FLT_EPSILON){ // nodes are on top of each other
                                 std::cout<<"Contract case 4: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-//                                DN.contract(i,j,0.5*(P1+P2)); 
-//                                Ncontracted++;
+                                //                                DN.contract(i,j,0.5*(P1+P2)); 
+                                //                                Ncontracted++;
                                 Ncontracted+=contractWithCommonNeighborCheck(Lij,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
                             }
                             else{  // cNorm>=FLT_EPSILON

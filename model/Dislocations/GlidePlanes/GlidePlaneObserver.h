@@ -53,24 +53,24 @@ namespace model {
 		}
 		
 		/* findExistingGlidePlane() **********************************/
-		GlidePlaneSharedPtrType findExistingGlidePlane(const VectorDimD& planeNormal, const double& height) const {
+		static GlidePlaneSharedPtrType findExistingGlidePlane(const VectorDimD& planeNormal, const double& height){
 		/*! A shared pointer to an existing GlidePlane defined by planeNormal and height. 
 		 *  If no GlidePlane exists, a shared pointer to a new GlidePlane is returned.
 		 */
 			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find((VectorDimPlusOneD()<<planeNormal.normalized(),height).finished()));
-			return (iter!=this->glidePlaneMap.end())? (*(iter->second->begin()))->pGlidePlane : GlidePlaneSharedPtrType(new GlidePlaneType(planeNormal,height));
+			return (iter!=glidePlaneMap.end())? (*(iter->second->begin()))->pGlidePlane : GlidePlaneSharedPtrType(new GlidePlaneType(planeNormal,height));
 		}
 
 		/* isGlidePlane() ********************************************/
-		std::pair<bool, const GlidePlaneType* const> isGlidePlane(const VectorDimD& planeNormal, const double& height) const {
+		static std::pair<bool, const GlidePlaneType* const> isGlidePlane(const VectorDimD& planeNormal, const double& height){
 			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find((VectorDimPlusOneD()<<planeNormal.normalized(),height).finished()));
-			return (iter!=this->glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
+			return (iter!=glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
 		}
 		
 		/* isGlidePlane() ********************************************/
-		std::pair<bool, const GlidePlaneType* const> isGlidePlane(const Eigen::Matrix<double,dim+1,1>& key) const {
+		static std::pair<bool, const GlidePlaneType* const> isGlidePlane(const Eigen::Matrix<double,dim+1,1>& key){
 			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find(key));
-			return (iter!=this->glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
+			return (iter!=glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
 		}
 		
 		/* friend T& operator << *************************************/

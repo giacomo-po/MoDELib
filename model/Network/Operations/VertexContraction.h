@@ -49,6 +49,7 @@ namespace model {
 			assert(Vi.first && "CONTRACTING NON EXISTING VERTEX i");
 			const isConstNetworkVertexType Vj(VertexFinder<VertexType>(networkVertexMapRef).node(j));
 			assert(Vj.first && "CONTRACTING NON EXISTING VERTEX j");
+            assert(i!=j && "IN CONTRACTING (i,j), i AND j MUST BE DISTINCT");
 			
 			for (typename NeighborContainerType::const_iterator nIter=Vj.second->outNeighborhood().begin(); nIter!=Vj.second->outNeighborhood().end();++nIter){
 				const size_t k(boost::tuples::get<0>(nIter->second)->sID);

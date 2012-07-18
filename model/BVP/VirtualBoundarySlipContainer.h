@@ -30,20 +30,23 @@
 
 namespace model {
   
-  template <short unsigned int dim>
-  class VirtualBoundarySlipContainer : public boost::ptr_vector<VirtualBoundarySlipSurface<dim> > {
+  template <typename DislocationSegmentType, short unsigned int dim>
+  class VirtualBoundarySlipContainer : public boost::ptr_vector<VirtualBoundarySlipSurface<DislocationSegmentType,dim> > {
     
-    typedef boost::ptr_vector<VirtualBoundarySlipSurface<dim> > BaseContainerType;
+	typedef VirtualBoundarySlipSurface<DislocationSegmentType,dim> VirtualBoundarySlipSurfaceType;
+
+
+    typedef boost::ptr_vector<VirtualBoundarySlipSurfaceType> BaseContainerType;
     
     typedef Eigen::Matrix<double,dim,dim> MatrixDim;			
     typedef Eigen::Matrix<double,dim,1>   VectorDim;
     
-//    typedef std::map<Eigen::Matrix<double,dim+1,1> , std::map<Eigen::Matrix<double,dim,1>, std::auto_ptr<VirtualBoundarySlipSurface<dim> > , model::CompareVectorsByComponent<double,dim,float> > ,
+//    typedef std::map<Eigen::Matrix<double,dim+1,1> , std::map<Eigen::Matrix<double,dim,1>, std::auto_ptr<VirtualBoundarySlipSurfaceType > , model::CompareVectorsByComponent<double,dim,float> > ,
 //					               model::CompareVectorsByComponent<double,dim+1,float> > radialSegmentsContainerType;
 						       
-    typedef std::map< Eigen::Matrix<double,dim+1,1> , std::vector<VirtualBoundarySlipSurface<dim>* > , 
+    typedef std::map< Eigen::Matrix<double,dim+1,1> , std::vector<VirtualBoundarySlipSurfaceType* > , 
                      model::CompareVectorsByComponent<double,dim+1,float>,
-		     Eigen::aligned_allocator<std::pair<const Eigen::Matrix<double,dim+1,1>,std::vector<VirtualBoundarySlipSurface<dim>* > > > > radialSegmentsContainerType;
+		     Eigen::aligned_allocator<std::pair<const Eigen::Matrix<double,dim+1,1>,std::vector<VirtualBoundarySlipSurfaceType* > > > > radialSegmentsContainerType;
 						       
     typedef typename radialSegmentsContainerType::iterator radialSegmentsContainerIterator;
     typedef typename radialSegmentsContainerType::const_iterator radialSegmentsContainerConstIterator;
@@ -56,10 +59,10 @@ namespace model {
       //=======================================================================
       // add a new entity to the container
       //======================================================================
-      template <typename DislocationSegmentType>
+//      template <typename DislocationSegmentType>
       void add (const DislocationSegmentType& ds) {
 			
-	std::auto_ptr<VirtualBoundarySlipSurface<dim> > pVBSS (new VirtualBoundarySlipSurface<dim> (ds) );
+	std::auto_ptr<VirtualBoundarySlipSurfaceType > pVBSS (new VirtualBoundarySlipSurfaceType (ds) );
 	this->push_back(pVBSS);
 	
 	//---------- check radial segments that are required for stress calculation
@@ -69,7 +72,7 @@ namespace model {
 		
 	if (gpIter == radialSegmentsContainer.end()) {     // no segments from the same glide plane were stored before, so just push_back
 	  	  
-	  std::vector<VirtualBoundarySlipSurface<dim>* > tempV;   tempV.push_back(&(*(this->rbegin())));
+	  std::vector<VirtualBoundarySlipSurfaceType* > tempV;   tempV.push_back(&(*(this->rbegin())));
 	  radialSegmentsContainer.insert(std::make_pair (gpKey , tempV ) );
 	  
 	  this->rbegin()->addRadialSegments ();
@@ -103,7 +106,7 @@ namespace model {
       void add (const double gp_H, const VectorDim gp_N, const VectorDim sourceP, const VectorDim sourceN, const VectorDim sinkP, const VectorDim sinkN,
 	        const VectorDim Burgers, const double coreL, const SharedType* sharedPtr) {
 			
-	std::auto_ptr<VirtualBoundarySlipSurface<dim> > pVBSS (new VirtualBoundarySlipSurface<dim> (gp_H,gp_N,sourceP,sourceN,sinkP,sinkN,Burgers,coreL,sharedPtr) );
+	std::auto_ptr<VirtualBoundarySlipSurfaceType > pVBSS (new VirtualBoundarySlipSurfaceType (gp_H,gp_N,sourceP,sourceN,sinkP,sinkN,Burgers,coreL,sharedPtr) );
 	this->push_back(pVBSS);
 	
 	//---------- check radial segments that are required for stress calculation
@@ -113,7 +116,7 @@ namespace model {
 		
 	if (gpIter == radialSegmentsContainer.end()) {     // no segments from the same glide plane were stored before, so just push_back
 	  	  
-	  std::vector<VirtualBoundarySlipSurface<dim>* > tempV;   tempV.push_back(&(*(this->rbegin())));
+	  std::vector<VirtualBoundarySlipSurfaceType* > tempV;   tempV.push_back(&(*(this->rbegin())));
 	  radialSegmentsContainer.insert(std::make_pair (gpKey , tempV ) );
 	  
 	  this->rbegin()->addRadialSegments();

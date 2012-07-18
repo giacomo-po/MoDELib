@@ -1,7 +1,7 @@
 /* This file is part of model, the Mechanics of Defects Evolution Library.
 *
 * Copyright (C) 2011 by Mamdouh Mohamed <mamdouh.s.mohamed@gmail.com>, 
-* Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.
+* Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
 *
 * model is distributed without any warranty under the 
 * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
@@ -13,6 +13,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <Eigen/Dense>
 #include <stdio.h>
+#include <model/Dislocations/GlidePlanes/GlidePlaneObserver.h>
 
 namespace model {
   
@@ -32,14 +33,18 @@ namespace model {
     
   };
   
-  
-  template <short unsigned int dim>
+//   template <>
+  template <typename DislocationSegmentType, short unsigned int dim>
   class VirtualBoundarySlipSurface {
     
     typedef Eigen::Matrix<double,dim,dim> MatrixDim;			
     typedef Eigen::Matrix<double,dim,1>   VectorDim;
     
-    
+
+
+	typedef typename DislocationSegmentType::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
+    	const GlidePlaneSharedPtrType pGlidePlane;
+
     public:
       
       const static double L;
@@ -62,22 +67,12 @@ namespace model {
       
       boost::ptr_vector< RadialVirtualSegment<dim> > radialSegmentsVector;
       
-      /* VirtualBoundarySlipSurface ********************************/
-      //	VirtualBoundarySlipSurface(const VectorDim& source_in, const VectorDim& sink_in,
-      //	/*                      */ const VectorDim& sourceN_in, const VectorDim& sinkN_in,
-      //	/*                      */ const VectorDim& B_in) : 
-      //   /*                                               */ sourceP(source_in),
-      //   /*                                               */   sinkP(  sink_in),
-      //   /*                                               */ sourceN(sourceN_in.normalized()),
-      //   /*                                               */   sinkN(  sinkN_in.normalized()),
-      //	/*                                               */   sourcePatL(sourceP+L*sourceN),
-      //	/*                                               */     sinkPatL(  sinkP+L*sinkN){
- //		std::cout<<"Creating VirtualBoundarySlipSurface "<<std::endl;
- //	}
+
  
  /* VirtualBoundarySlipSurface ********************************/
- template <typename DislocationSegmentType>
+// template <typename DislocationSegmentType>
  VirtualBoundarySlipSurface(const DislocationSegmentType& ds) : 
+ /*                                               */ pGlidePlane(ds.pGlidePlane),
  /*                                               */ sourceP(ds.source->get_P()),
  /*                                               */   sinkP(ds.sink->get_P()),
  /*                                               */ sourceN(getOutDirection(ds,*(ds.source))),
@@ -86,22 +81,12 @@ namespace model {
  /*                                               */     sinkPatL(  sinkP+L*sinkN),
  /*                                               */   Burgers(ds.Burgers),
  /*                                               */   coreL(ds.coreL),
- /*                                               */   //mu(ds.shared.material.mu),
- /*                                               */   //nu(ds.shared.material.nu),
- /*                                               */   //gp_P(ds.pGlidePlane->height*ds.pGlidePlane->planeNormal),
  /*                                               */   gp_H(ds.pGlidePlane->height),
  /*                                               */   gp_N(ds.pGlidePlane->planeNormal){
  
-   //std::cout<<"Creating VirtualBoundarySlipSurface "<<std::endl;
+
    setElasticConstants(ds);
-   /*
-   mu=ds.shared.material.mu;
-   nu=ds.shared.material.nu;
-   C1=1.0-nu;
-   C2=mu/(4.0*M_PI*C1);
-   C3=1.0-2.0*nu;
-   C4=1.0/(8.0*M_PI*C1);
-   */
+
    //----------calculate the displacement field induced by those segments on the boundary nodes ----
    for (unsigned int dN=0; dN<ds.shared.domain.nodeContainer.size();++dN){
      if(ds.shared.domain.nodeContainer[dN].isBoundaryNode) {
@@ -113,26 +98,20 @@ namespace model {
    
    
  }
- 
- //     FILE *fout =fopen("dis_nodes.txt", "a");
- //     fprintf (fout, "%22.15e %22.15e %22.15e \n", sourceP(0) , sourceP(1), sourceP(2));
- //     fprintf (fout, "%22.15e %22.15e %22.15e \n", sinkP(0) , sinkP(1), sinkP(2));
- //     fprintf (fout, "%22.15e %22.15e %22.15e \n", sourcePatL(0) , sourcePatL(1), sourcePatL(2));
- //     fprintf (fout, "%22.15e %22.15e %22.15e \n", sinkPatL(0) , sinkPatL(1), sinkPatL(2));
- //     std::cout<< sourceP.transpose() << std::endl;
-   //     std::cout<< sinkP.transpose() << std::endl;
-   //     std::cout<< sourcePatL.transpose() << std::endl;
-   //     std::cout<< sinkPatL.transpose() << std::endl;
-   
-   //    fclose(fout);
+
  }
  
+
+	
+
+
  //=========================================================================================
  // Constructor to be used in the restart case
  //========================================================================================
  template <typename SharedType>
  VirtualBoundarySlipSurface(const double gp_H_in, const VectorDim gp_N_in, const VectorDim sourceP_in, const VectorDim sourceN_in, const VectorDim sinkP_in,
 			    const VectorDim sinkN_in, const VectorDim Burgers_in, const double coreL_in ,const SharedType* sharedPtr) : 
+/*                                               */  pGlidePlane(GlidePlaneObserver<dim,DislocationSegmentType>::findExistingGlidePlane(gp_N_in,gp_H_in)),
  /*                                               */ sourceP(sourceP_in),
  /*                                               */   sinkP(sinkP_in),
  /*                                               */ sourceN(sourceN_in),
@@ -145,6 +124,8 @@ namespace model {
  /*                                               */ //  nu(sharedPtr->material.nu),
  /*                                               */   gp_H(gp_H_in),
  /*                                               */   gp_N(gp_N_in){
+
+
    
    //std::cout<<"Creating VirtualBoundarySlipSurface "<<std::endl;
    
@@ -174,7 +155,7 @@ namespace model {
  //=========================================================================
  // function to set the elastic constants
  //========================================================================
- template <typename DislocationSegmentType>
+// template <typename DislocationSegmentType>
  void setElasticConstants (const DislocationSegmentType& ds) {
    mu=ds.shared.material.mu;
    nu=ds.shared.material.nu;
@@ -220,7 +201,8 @@ namespace model {
  //==========================================================================
  // function to find the direction in which virtual dislocation segments will be displaced outside the domain
  //==========================================================================
- template <typename DislocationSegmentType , typename DislocationNodeType>
+// template <typename DislocationSegmentType , typename DislocationNodeType>
+ template <typename DislocationNodeType>
  VectorDim getOutDirection(const DislocationSegmentType& ds, const DislocationNodeType& dn){
    
    //----------- displace the node in the direction of boundary normal, then project this to the segments glide plane -----
@@ -603,26 +585,26 @@ namespace model {
   };
   
   // init static data
-  template <short unsigned int dim>
-  const double VirtualBoundarySlipSurface<dim>::L=10000000.0;
+  template <typename DislocationSegmentType, short unsigned int dim>
+  const double VirtualBoundarySlipSurface<DislocationSegmentType,dim>::L=10000000.0;
   
-  template <short unsigned int dim>
-  double VirtualBoundarySlipSurface<dim>::mu ;
+  template <typename DislocationSegmentType, short unsigned int dim>
+  double VirtualBoundarySlipSurface<DislocationSegmentType,dim>::mu ;
   
-  template <short unsigned int dim>
-  double VirtualBoundarySlipSurface<dim>::nu ;
+  template <typename DislocationSegmentType, short unsigned int dim>
+  double VirtualBoundarySlipSurface<DislocationSegmentType,dim>::nu ;
   
-  template <short unsigned int dim>
-  double VirtualBoundarySlipSurface<dim>::C1 ;
+  template <typename DislocationSegmentType, short unsigned int dim>
+  double VirtualBoundarySlipSurface<DislocationSegmentType,dim>::C1 ;
   
-  template <short unsigned int dim>
-  double VirtualBoundarySlipSurface<dim>::C2 ;
+  template <typename DislocationSegmentType, short unsigned int dim>
+  double VirtualBoundarySlipSurface<DislocationSegmentType,dim>::C2 ;
   
-  template <short unsigned int dim>
-  double VirtualBoundarySlipSurface<dim>::C3 ;
+  template <typename DislocationSegmentType, short unsigned int dim>
+  double VirtualBoundarySlipSurface<DislocationSegmentType,dim>::C3 ;
   
-  template <short unsigned int dim>
-  double VirtualBoundarySlipSurface<dim>::C4 ;
+  template <typename DislocationSegmentType, short unsigned int dim>
+  double VirtualBoundarySlipSurface<DislocationSegmentType,dim>::C4 ;
   
  // template <short unsigned int dim>
  // double VirtualBoundarySlipSurface<dim>::coreL ;

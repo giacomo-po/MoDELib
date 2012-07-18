@@ -111,6 +111,8 @@
 
 #include <model/Utilities/SequentialBinFile.h>
 
+#include <model/BVP/VirtualBoundarySlipContainer.h>
+
 
 
 
@@ -129,7 +131,7 @@ namespace model {
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
 	/*	   */ typename MaterialType>
 	class DislocationNetwork : public Network<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >,
-	/*                      */ public GlidePlaneObserver<dim,typename TypeTraits<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >::LinkType> {
+	/*                      */ public GlidePlaneObserver<dim,typename TypeTraits<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >::LinkType>{
 		
 public:
 
@@ -175,6 +177,8 @@ public:
 		
 		
 		EigenDataReader EDR;
+
+		 model::VirtualBoundarySlipContainer<LinkType,dim> vbsc;
 		
 		
 		/* readNodes ***************************************************************/
@@ -382,7 +386,7 @@ public:
 				std::cout<<"		Removing Segments outside Mesh Boundaries... ";
 				for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
 					if(linkIter->second->is_boundarySegment()){
-                        shared.domain.vbsc.add(*(linkIter->second));
+                       	vbsc.add(*(linkIter->second));
 					}
 				}
                 
@@ -502,7 +506,7 @@ public:
             
             
             if (shared.use_bvp && (shared.boundary_type==softBoundary)) { // MOVE THIS WITH REST OB BVP STUFF
-                shared.domain.vbsc.read(runID,&shared);
+                vbsc.read(runID,&shared);
             }
             
 			
@@ -615,7 +619,7 @@ public:
             
             
             if (shared.use_bvp && (shared.boundary_type==1)){ 
-                shared.domain.vbsc.outputVirtualDislocations(outputFrequency,runID);
+                vbsc.outputVirtualDislocations(outputFrequency,runID);
             }
             
 			
@@ -771,7 +775,7 @@ public:
 				}
 			}
             if (shared.use_bvp && (shared.boundary_type==1)){
-                temp+= shared.domain.vbsc.stress(Rfield);
+                temp+= vbsc.stress(Rfield);
             }
 			return temp;
 		}
@@ -786,7 +790,7 @@ public:
 				temp=isGp.second->stress(Rfield);
 			}
             if (shared.use_bvp && (shared.boundary_type==1)) {
-                temp+= shared.domain.vbsc.stressFromGlidePlane(key,Rfield);
+                temp+= vbsc.stressFromGlidePlane(key,Rfield);
             }
 			return temp;
 		}
