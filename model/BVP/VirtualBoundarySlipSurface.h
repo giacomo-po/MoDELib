@@ -47,10 +47,10 @@ namespace model {
         
         
         typedef typename GlidePlaneObserver<DislocationSegmentType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
-    	const GlidePlaneSharedPtrType pGlidePlane;
+    	
         
     public:
-        
+        const GlidePlaneSharedPtrType pGlidePlane;
         const static double L;
         const VectorDim sourceP;
         const VectorDim sinkP;
@@ -87,7 +87,7 @@ namespace model {
         /* init list                                     */ gp_H(ds.pGlidePlane->height),
         /* init list                                     */ gp_N(ds.pGlidePlane->planeNormal){
             
-            
+            pGlidePlane->addToGLidePlane(this);
             setElasticConstants(ds);
             
             //----------calculate the displacement field induced by those segments on the boundary nodes ----
@@ -99,6 +99,10 @@ namespace model {
             }
         }
         
+        /* Destructor ********************************************************/
+        ~VirtualBoundarySlipSurface(){
+            pGlidePlane->removeFromGlidePlane(this);
+	}
         
         //=========================================================================
         // function to set the elastic constants

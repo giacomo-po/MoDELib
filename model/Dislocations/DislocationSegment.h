@@ -460,12 +460,12 @@ public:
             std::set<size_t> segmentDOFs;
             
         	const Eigen::VectorXi sourceDOFs(this->source->dofID());
-            for(unsigned int k=0;k<sourceDOFs.rows();++k){
+            for(int k=0;k<sourceDOFs.rows();++k){
                 segmentDOFs.insert(sourceDOFs(k));
             }
             
             const Eigen::VectorXi   sinkDOFs(this->sink->dofID());
-            for(unsigned int k=0;k<sinkDOFs.rows();++k){
+            for(int k=0;k<sinkDOFs.rows();++k){
                 segmentDOFs.insert(sinkDOFs(k));
             }
             
@@ -481,7 +481,7 @@ public:
             Msi.block(dim,0,dim,Msi.cols())*=-this->sinkTfactor;
 
             
-            for (unsigned int k=0;k<Mso.cols();++k){
+            for (int k=0;k<Mso.cols();++k){
                 const std::set<size_t>::const_iterator f(segmentDOFs.find(sourceDOFs(k)));
                 assert(f!=segmentDOFs.end());
                 unsigned int curCol(std::distance(segmentDOFs.begin(),f));
@@ -489,7 +489,7 @@ public:
             }
             
             
-            for (unsigned int k=0;k<Msi.cols();++k){
+            for (int k=0;k<Msi.cols();++k){
                 const std::set<size_t>::const_iterator f(segmentDOFs.find(sinkDOFs(k)));
                 assert(f!=segmentDOFs.end());
                 unsigned int curCol(std::distance(segmentDOFs.begin(),f));

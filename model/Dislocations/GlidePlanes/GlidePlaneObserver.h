@@ -67,7 +67,8 @@ namespace model {
 		 *  If no GlidePlane exists, a shared pointer to a new GlidePlane is returned.
 		 */
 			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find((VectorDimPlusOneD()<<planeNormal.normalized(),height).finished()));
-			return (iter!=glidePlaneMap.end())? (*(iter->second->begin()))->pGlidePlane : GlidePlaneSharedPtrType(new GlidePlaneType(planeNormal,height));
+			//return (iter!=glidePlaneMap.end())? (*(iter->second->begin()))->pGlidePlane : GlidePlaneSharedPtrType(new GlidePlaneType(planeNormal,height));
+			return (iter!=glidePlaneMap.end())? iter->second->getSharedPointer() : GlidePlaneSharedPtrType(new GlidePlaneType(planeNormal,height));
 		}
 
 		/* isGlidePlane() ********************************************/
