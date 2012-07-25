@@ -70,7 +70,7 @@ namespace model {
 		static const double AB3; // Third  Adams–Bashforth three-step =   5/12
 		
 		
-		DislocationSharedObjects<dim,MaterialType> shared;
+		DislocationSharedObjects<LinkType> shared;
 		
 		int  currentMeshID;
 		
@@ -247,6 +247,8 @@ namespace model {
 			GramSchmidt<dim> GS;
 			//VectorOfNormalsType  GS;
 			//VectorOfNormalsType  PN;
+            
+
 			
 			if (nodeMeshLocation==insideMesh){
 				if (this->is_balanced()){
@@ -277,10 +279,10 @@ namespace model {
 				GS.orthoNormalize(PN);
 			}
 			else{
-				//!	assert(0 && "DISLOCATION NODE FOUND OUTSIDE MESH."); RE-ENABLE THIS
+					assert(0 && "DISLOCATION NODE FOUND OUTSIDE MESH."); //RE-ENABLE THIS
 				//PN=planenormals;				// THIS IS TEMPORARY
 				//				GramSchmidt<dim>( planenormals,  GS);     // THIS IS TEMPORARY
-				GS.orthoNormalize(planenormals);
+				//GS.orthoNormalize(planenormals);
 			}
 			
 			assert(GS.size()>=1);

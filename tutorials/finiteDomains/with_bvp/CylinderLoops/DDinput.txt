@@ -8,7 +8,7 @@ initialStress = 0.0 0.0 0.0
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
 C2G =                 1.0   0.0  0.0
                       0.0   1.0 0.0
-     				 0.0   0.0  1.0;
+     				 0.0   0.0  0.0;
 ######################################
 # Maximum nodal dispacement per time step (this controls time step size) 
 dx=10;
@@ -50,7 +50,7 @@ stressIncrement = 	0.0 0.0 0.0
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
-use_bvp = 0;
+use_bvp = 1;
 
 ######################################
 # Enable/disable cross-slip

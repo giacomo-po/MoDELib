@@ -17,7 +17,7 @@
 
 #include <Eigen/Core>
 #include <model/Dislocations/Materials/SlipSystem.h>
-
+#include <model/Dislocations/Materials/CrystalBase.h>
 
 namespace model {
 	
@@ -25,88 +25,187 @@ namespace model {
 	
 	
 	
+
+	
+	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 	// GENERAL CASE
-	template<short unsigned int dim, short unsigned int Nslips>
-	class CrystalBase : public std::set<model::SlipSystem<dim,Nslips> >{
+	template<short unsigned int dim, short unsigned int CrystalType>
+	class Crystal {
 		
-		typedef Eigen::Matrix<double,dim,1> VectorDim;
-		typedef Eigen::Matrix<double,dim,Nslips> MatrixDimNslips;
+	public:
+		Crystal(){
+			std::cout<<"Crystal Type not implemented"<<std::endl;
+			assert(0);
+		}
+		
+	};
+	
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	// FCC CRYSTAL
+	template<short unsigned int dim>
+	class Crystal<dim,FCC> : public CrystalBase<dim,3> {
 		
 		
 	public:
 		
-        /* conjugatePlaneNormal ************************************************************************************/
-		void find_slipSystem(const VectorDim  & chord, const VectorDim & Burgers,
-							 std::set<SlipSystem<dim,Nslips> > & allowedSlipSystems, const double& tol = FLT_EPSILON){
-
-			assert(chord.norm()>tol && "CHORD HAS ZERO NORM");
-			assert(Burgers.norm()>tol && "BURGERS HAS ZERO NORM");
+		
+		enum{Nslips=3};
+		typedef Eigen::Matrix<double,dim,1> VectorDim;
+		typedef Eigen::Matrix<double,dim,Nslips> MatrixDimNslips;
+		
+		
+		Eigen::Matrix<double,dim,dim> C2G;
+		
+		//! The number of slip directions per slip plane
+		
+		
+		//#include <model/Dislocations/Materials/Crystal_common.h>
+		
+		
+		
+		// THIS APPROACH IS WRONG BECAUSE IN HCP DIFFERENT PLANES CONTAIN
+		// A DIFFERENT NUMBER OF SLIP DIRECTIONS SO NSLIPS IS NOT WELL DEFINED
+		
+		void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in){
 			
 			
-			VectorDim normalizedChord(chord.normalized());
-	
-			allowedSlipSystems.clear();
-				
-            // Try to find a plane which has normal orthogonal to both the chord and the Burgers
-			for (typename std::set<SlipSystem<dim,Nslips> >::iterator iter=this->begin();iter!=this->end();++iter){
-				if(	  std::fabs( iter->normal.dot(normalizedChord))<tol && std::fabs( iter->normal.dot(Burgers.normalized()))<tol){
-					allowedSlipSystems.insert( *iter );
-				}
-			}
 			
-			unsigned int N(allowedSlipSystems.size());
-			switch (N) {
-				case 0: // CHECK FOR SESSILE
-					for (typename std::set<SlipSystem<dim,Nslips> >::iterator iter=this->begin();iter!=this->end();++iter){
-//						std::cout<<"c*n="<< std::fabs( iter->normal.dot(normalizedChord)) << " tol is "<<tol<<std::endl;
-						if(	std::fabs( iter->normal.dot(normalizedChord))<tol ){
-							allowedSlipSystems.insert( *iter );
-						}
-					}
-//					if (allowedSlipSystems.size()==0){
-                    if (allowedSlipSystems.size()<2){
-						std::cout<<" chord is"<<chord.transpose()<<std::endl;
-						for (typename std::set<SlipSystem<dim,Nslips> >::iterator iter=this->begin();iter!=this->end();++iter){
-							std::cout<<"n="<<iter->normal.transpose()<<" |c*n|="<< std::fabs( iter->normal.dot(normalizedChord)) << " tol is "<<tol<<std::endl;
-						}
-						assert(allowedSlipSystems.size()>=2 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO CRYSTALLOGRAPHIC PLANES.");					
-					}
-				//	std::cout<<"CRYSTAL.h: FOUND SESSILE SEGMENT"<<std::endl;
-					break;
-				case 1: // OK
-					break;
-				case 2: // CROSS-SLIP SEGMENT
-					break;
-				default:
-					assert(0 && "NUMBER OF SLIP SYSTEMS>2");
-					break;
-			}
-
+			
+			// make sure that C2G is orthogonal
+			assert((C2G_in*C2G_in.transpose()-Eigen::Matrix<double,dim,dim>::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && 
+				   "CRYSTAL TO GLOBAL ROTATION MATRIX IS NOT ORTHOGONAL.");
+			
+			
+			C2G=C2G_in;
+			
+			//! 0 clear existing slip planes
+			this->clear();
+			
+			// 1- Define the 4 slip normals and directions
+			VectorDim alpha (-1.0, 1.0,-1.0);
+			MatrixDimNslips alpha_BC_CD_DB;
+			/*                BC   CD   DB */
+			alpha_BC_CD_DB<< 1.0,-1.0, 0.0,	
+			/*            */ 0.0,-1.0, 1.0,	
+			/*            */-1.0, 0.0, 1.0;
+			
+			
+			VectorDim beta  (1.0,-1.0,-1.0);
+			//			/**/VectorDim CA( 0.0,-1.0, 1.0);	// beta CA
+			//			/**/VectorDim AD(-1.0, 0.0,-1.0);	// beta AD
+			//			/**/VectorDim DC( 1.0, 1.0, 0.0);	// beta DC
+			MatrixDimNslips beta_CA_AD_DC;
+			beta_CA_AD_DC<< 0.0,-1.0, 1.0,	
+			/*           */ -1.0, 0.0, 1.0,	
+			/*           */ 1.0,-1.0, 0.0;
+			
+			
+			VectorDim gamma (-1.0,-1.0, 1.0);
+			//			/**/VectorDim AB(-1.0, 1.0, 0.0);	// gamma AB
+			//			/**/VectorDim BD(0.0,-1.0,-1.0);	// gamma BD
+			//			/**/VectorDim DA(1.0, 0.0, 1.0);	// gamma DA
+			MatrixDimNslips gamma_AB_BD_DA;
+			gamma_AB_BD_DA<< -1.0, 0.0, 1.0,	
+			/*            */ 1.0,-1.0, 0.0,	
+			/*            */ 0.0,-1.0, 1.0;
+			
+			
+			VectorDim  delta(1.0, 1.0, 1.0);
+			//			/**/VectorDim AC( 0.0, 1.0,-1.0);	// delta AC
+			//			/**/VectorDim CB(-1.0, 0.0, 1.0);	// delta CB
+			//			/**/VectorDim BA( 1.0,-1.0, 0.0);	// delta BA
+			MatrixDimNslips delta_AC_CB_BA;
+			/*                 AC  CB   BA */
+			delta_AC_CB_BA<< 0.0,-1.0, 1.0,	
+			/*            */ 1.0, 0.0,-1.0,	
+			/*            */-1.0, 1.0, 0.0;	
+			
+			
+			this->insert( SlipSystem<dim,Nslips>(C2G*alpha, C2G*alpha_BC_CD_DB));
+			this->insert( SlipSystem<dim,Nslips>(C2G*beta,  C2G*beta_CA_AD_DC));
+			this->insert( SlipSystem<dim,Nslips>(C2G*gamma, C2G*gamma_AB_BD_DA));
+			this->insert( SlipSystem<dim,Nslips>(C2G*delta, C2G*delta_AC_CB_BA));
 			
 		}
 		
-        
-        /* conjugatePlaneNormal ************************************************************************************/
-        VectorDim conjugatePlaneNormal(const VectorDim& B, const VectorDim& N, const double& tol=FLT_EPSILON) const {
-            
-			int count(0);
-			VectorDim temp(VectorDim::Zero());
-			for (typename std::set<SlipSystem<dim,Nslips> >::iterator iter=this->begin();iter!=this->end();++iter){
-				
-				for (int k=0;k<Nslips;++k){
-					if(	 B.normalized().cross(iter->slip.col(k)).norm()<tol 
-					   && N.normalized().cross(iter->normal).norm()>tol){
-						temp=iter->normal;
-						++count;
-					}
-				}
-			}
-			assert(count==1 && "FOUND MORE THAN ONE CONJUGATE PLANES"); // IN BCC THERE IS MORE THAN ONE PLANE!
-			return temp;
+		
+		///////////////////////////////////////////////////////////////////////
+		Crystal(){
+			rotate(Eigen::Matrix<double,dim,dim>::Identity());
 		}
-        
+
+		
+		
+	};
+	
+	
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	// FCCP CRYSTAL
+	template<short unsigned int dim>
+	class Crystal<dim,FCCP> : public CrystalBase<dim,2> {
+		
+		
+		
+	public:
+		enum{Nslips=2};
+		typedef Eigen::Matrix<double,dim,1> VectorDim;
+		typedef Eigen::Matrix<double,dim,Nslips> MatrixDimNslips;
+		//#include <model/Dislocations/Materials/Crystal_common.h>
+		
+		
+		
+		
+		
+		Crystal(){
+			//this->clear();
+			
+			
+			// 1- Define the 2 slip normals and directions
+			VectorDim  delta(0.0, 0.0, 1.0);
+			MatrixDimNslips delta_Cd_dB;
+			/*                               Cd                     dB */
+			delta_Cd_dB<< std::pow(3.0,0.5)/2.0, std::pow(3.0,0.5)/2.0,
+			/*                      */		0.5,				  -0.5,
+			/*                      */		0.0,				   0.0;
+			
+			
+			VectorDim alpha  (0,-2.0*std::pow(2.0,0.5)/3.0, -1.0/3.0);
+			MatrixDimNslips alpha_Ca_aB;
+			/*                               Ca                      aB */
+			alpha_Ca_aB<< std::pow(3.0,0.5)/2.0,  std::pow(3.0,0.5)/2.0,
+			/*                      */ -1.0/6.0,	            1.0/6.0,
+			/*        */  std::pow(2.0,0.5)/3.0, -std::pow(2.0,0.5)/3.0;
+			
+			
+			this->insert( SlipSystem<dim,Nslips>(delta,delta_Cd_dB));
+			this->insert( SlipSystem<dim,Nslips>(alpha,alpha_Ca_aB));
+			
+		}
+		
+	};
+	
+	
+	
+	
+	
+	
+	//////////////////////////////////////////////////////////////
+} // namespace model 
+#endif
+
+
+
+
+
+
+
+
+
+
 
 //		/////////////////////////////////////////////////////////////
 //		// find_slipSystem
@@ -167,129 +266,13 @@ namespace model {
 //			}
 //			
 //		}
-		
-		
-		
-	};
-	
-	
-	///////////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////
-	// GENERAL CASE
-	template<short unsigned int dim, short unsigned int CrystalType>
-	class Crystal {
-		
-	public:
-		Crystal(){
-			std::cout<<"Crystal Type not implemented"<<std::endl;
-			assert(0);
-		}
-		
-	};
-	
-	///////////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////
-	// FCC CRYSTAL
-	template<short unsigned int dim>
-	class Crystal<dim,FCC> : public CrystalBase<dim,3> {
-		
-		
-	public:
-		
-		
-		enum{Nslips=3};
-		typedef Eigen::Matrix<double,dim,1> VectorDim;
-		typedef Eigen::Matrix<double,dim,Nslips> MatrixDimNslips;
-		
-		
-		Eigen::Matrix<double,dim,dim> C2G;
-		
-		//! The number of slip directions per slip plane
-		
-		
-		//#include <model/Dislocations/Materials/Crystal_common.h>
-		
-		
-		
-		// THIS APPROACH IS WRONG BECAUSE IN FCC DIFFERENT PLANES CONTAIN
-		// A DIFFERENT NUMBER OF SLIP DIRECTIONS SO NSLIPS IS NOT WELL DEFINED
-		
-		void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in){
-			
-			
-			
-			
-			// make sure that C2G is orthogonal
-			assert((C2G_in*C2G_in.transpose()-Eigen::Matrix<double,dim,dim>::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && 
-				   "CRYSTAL TO GLOBAL ROTATION MATRIX IS NOT ORTHOGONAL.");
-			
-			
-			C2G=C2G_in;
-			
-			//! 0 clear existing slip planes
-			this->clear();
-			
-			// 1- Define the 4 slip normals and directions
-			VectorDim alpha (-1.0, 1.0,-1.0);
-			MatrixDimNslips alpha_BC_CD_DB;
-			/*                BC   CD   DB */
-			alpha_BC_CD_DB<< 1.0,-1.0, 0.0,	
-			/*            */ 0.0,-1.0, 1.0,	
-			/*            */-1.0, 0.0, 1.0;
-			
-			
-			VectorDim beta  (1.0,-1.0,-1.0);
-			//			/**/VectorDim CA( 0.0,-1.0, 1.0);	// beta CA
-			//			/**/VectorDim AD(-1.0, 0.0,-1.0);	// beta AD
-			//			/**/VectorDim DC( 1.0, 1.0, 0.0);	// beta DC
-			MatrixDimNslips beta_CA_AD_DC;
-			beta_CA_AD_DC<< 0.0,-1.0, 1.0,	
-			/*           */ -1.0, 0.0, 1.0,	
-			/*           */ 1.0,-1.0, 0.0;
-			
-			
-			VectorDim gamma (-1.0,-1.0, 1.0);
-			//			/**/VectorDim AB(-1.0, 1.0, 0.0);	// gamma AB
-			//			/**/VectorDim BD(0.0,-1.0,-1.0);	// gamma BD
-			//			/**/VectorDim DA(1.0, 0.0, 1.0);	// gamma DA
-			MatrixDimNslips gamma_AB_BD_DA;
-			gamma_AB_BD_DA<< -1.0, 0.0, 1.0,	
-			/*            */ 1.0,-1.0, 0.0,	
-			/*            */ 0.0,-1.0, 1.0;
-			
-			
-			VectorDim  delta(1.0, 1.0, 1.0);
-			//			/**/VectorDim AC( 0.0, 1.0,-1.0);	// delta AC
-			//			/**/VectorDim CB(-1.0, 0.0, 1.0);	// delta CB
-			//			/**/VectorDim BA( 1.0,-1.0, 0.0);	// delta BA
-			MatrixDimNslips delta_AC_CB_BA;
-			/*                 AC  CB   BA */
-			delta_AC_CB_BA<< 0.0,-1.0, 1.0,	
-			/*            */ 1.0, 0.0,-1.0,	
-			/*            */-1.0, 1.0, 0.0;	
-			
-			
-//						Eigen::Matrix<double,dim,dim> RT;
-//						
-//			RT.col(2) = delta.normalized();
-//			RT.col(0) = delta_AC_CB_BA.col(0).normalized();
-//			RT.col(1) = RT.col(2).cross(RT.col(0));
-//						
-//			Eigen::Matrix<double,dim,dim> C2G=RT.transpose();
-			//			Eigen::Matrix<double,dim,dim> R=Eigen::Matrix<double,dim,dim>::Identity();
-			
-			this->insert( SlipSystem<dim,Nslips>(C2G*alpha, C2G*alpha_BC_CD_DB));
-			this->insert( SlipSystem<dim,Nslips>(C2G*beta,  C2G*beta_CA_AD_DC));
-			this->insert( SlipSystem<dim,Nslips>(C2G*gamma, C2G*gamma_AB_BD_DA));
-			this->insert( SlipSystem<dim,Nslips>(C2G*delta, C2G*delta_AC_CB_BA));
-			
-		}
-		
-		
-		///////////////////////////////////////////////////////////////////////
-		Crystal(){
-			rotate(Eigen::Matrix<double,dim,dim>::Identity());
-		}
+
+
+
+
+
+
+
 		
 
 		
@@ -319,63 +302,4 @@ namespace model {
 //				shared.material.conjugatePlaneNormal(Burgers,this->glidePlaneNormal)
 //				
 //				}
-		
-		
-	};
-	
-	
-	///////////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////
-	// FCCP CRYSTAL
-	template<short unsigned int dim>
-	class Crystal<dim,FCCP> : public CrystalBase<dim,2> {
-		
-		
-		
-	public:
-		enum{Nslips=2};
-		typedef Eigen::Matrix<double,dim,1> VectorDim;
-		typedef Eigen::Matrix<double,dim,Nslips> MatrixDimNslips;
-		//#include <model/Dislocations/Materials/Crystal_common.h>
-		
-		
-		
-		
-		
-		Crystal(){
-			//this->clear();
-			
-			
-			// 1- Define the 2 slip normals and directions
-			VectorDim  delta(0.0, 0.0, 1.0);
-			MatrixDimNslips delta_Cd_dB;
-			/*                               Cd                     dB */
-			delta_Cd_dB<< std::pow(3.0,0.5)/2.0, std::pow(3.0,0.5)/2.0,
-			/*                      */		0.5,				  -0.5,
-			/*                      */		0.0,				   0.0;
-			
-			
-			VectorDim alpha  (0,-2.0*std::pow(2.0,0.5)/3.0, -1.0/3.0);
-			MatrixDimNslips alpha_Ca_aB;
-			/*                               Ca                      aB */
-			alpha_Ca_aB<< std::pow(3.0,0.5)/2.0,  std::pow(3.0,0.5)/2.0,
-			/*                      */ -1.0/6.0,	            1.0/6.0,
-			/*        */  std::pow(2.0,0.5)/3.0, -std::pow(2.0,0.5)/3.0;
-			
-			
-			this->insert( SlipSystem<dim,Nslips>(delta,delta_Cd_dB));
-			this->insert( SlipSystem<dim,Nslips>(alpha,alpha_Ca_aB));
-			
-		}
-		
-	};
-	
-	
-	
-	
-	
-	
-	//////////////////////////////////////////////////////////////
-} // namespace model 
-#endif
 

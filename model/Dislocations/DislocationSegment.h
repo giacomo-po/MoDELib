@@ -27,6 +27,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <Eigen/Sparse>
 #include <set>
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -56,25 +57,35 @@
 #include <model/Dislocations/DislocationSegmentInitializeBeforeBase.h>
 
 
+#include <model/BVP/VirtualBoundarySlipContainer.h>
+
+
 namespace model {
 	
 	//	double cellSize= 300.0;
 	double cellSize= 1000.0;
 	
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
 	/*	   */ typename MaterialType>
-	class DislocationSegment : public DislocationSegmentInitializeBeforeBase<dim,MaterialType>, // This must be the first base class in the inheritance structure
-	/*	                      */ public SplineSegmentBase<DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>,
-	/*                                               */ dim, corder, alpha>,
-	/*	                      */ public GlidePlaneObserver<dim,DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >{
+//	class DislocationSegment : public DislocationSegmentInitializeBeforeBase<dim,MaterialType,TypeTraits<DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >::LinkType>, // This must be the first base class in the inheritance structure
+	class DislocationSegment : public DislocationSegmentInitializeBeforeBase<_dim>, // This must be the first base class in the inheritance structure
+	/*	                      */ public SplineSegmentBase<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>,
+	/*                                               */ _dim, corder, alpha>,
+	/*	                      */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >{
 		
 
 public:		
+        
+        enum{dim=_dim};
+        
+        
 		typedef DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> Derived; 		// Define "Derived" so that NetworkTypedefs.h can be used
 #include <model/Network/NetworkTypedefs.h>		
 #include <model/Geometry/Splines/SplineEnums.h>
-
+        
+        
+        typedef DislocationSegmentInitializeBeforeBase<dim> DislocationSegmentInitializeBeforeBaseType;
 		typedef SplineSegmentBase<Derived,dim,corder,alpha> SegmentBaseType;		
 		typedef std::map<size_t,LinkType* const> AddressMapType;
 		typedef typename AddressMapType::iterator AddressMapIteratorType;
@@ -82,9 +93,9 @@ public:
 		typedef Eigen::Matrix<double, 1, qOrder>	VectorQorder;
 		typedef QuadPow<Ncoeff-1,qOrder,QuadratureRule> QuadPowType;
 
-		typedef MaterialType TempMaterialType; // used in GlidePlane
+//		typedef MaterialType TempMaterialType; // used in GlidePlane
         
-        DislocationSharedObjects<dim,MaterialType> shared;
+       		 DislocationSharedObjects<Derived> shared;
 
 		
 		private:		
@@ -106,8 +117,6 @@ public:
 		
 		
 		
-		
-		
 	private:		
 		
 		//! The static MaterialType material
@@ -119,7 +128,7 @@ public:
 		//! Segment Nodal Force Vector
 		VectorNdof Fq;
 		//! The identity matrix		
-		static const Eigen::Matrix<double,dim,dim> I;
+		static const Eigen::Matrix<double,_dim,_dim> I;
 		
 		//////////////////////////////////
 		//! assemble_Kqq
@@ -240,8 +249,8 @@ public:
 		//		const MatrixDim G2L;
 		
 
-		typedef typename GlidePlaneObserver<dim,LinkType>::GlidePlaneType GlidePlaneType;
-		typedef typename GlidePlaneObserver<dim,LinkType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
+		typedef typename GlidePlaneObserver<LinkType>::GlidePlaneType GlidePlaneType;
+		typedef typename GlidePlaneObserver<LinkType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
 		
 		//! A shared pointer to the GlidePlane that geometrically contains this segment 		
 		const GlidePlaneSharedPtrType pGlidePlane;
@@ -255,7 +264,7 @@ public:
 		/* Constructor with Nodes and FLow ****************************/
 		//! Constructor with Nodes and FLow		
 		DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const VectorDim & Fin) : 
-		/* base class initialization */ DislocationSegmentInitializeBeforeBase<dim,MaterialType>::DislocationSegmentInitializeBeforeBase(nodePair.second->get_P()-nodePair.first->get_P(),Fin),
+		/* base class initialization */ DislocationSegmentInitializeBeforeBaseType::DislocationSegmentInitializeBeforeBase(nodePair.second->get_P()-nodePair.first->get_P(),Fin),
 		/* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,Fin) , 
 		/* initialization list       */ Burgers(this->flow * shared.material.b),
 		/* initialization list       */ coreL(1.0*shared.material.b),
@@ -268,7 +277,7 @@ public:
 		
 		/* Constructor from EdgeExpansion) ****************************/
 		DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const ExpandingEdge<LinkType>& ee) : 
-		/* base class initialization */ DislocationSegmentInitializeBeforeBase<dim,MaterialType>::DislocationSegmentInitializeBeforeBase(nodePair.second->get_P()-nodePair.first->get_P(),ee.E.flow),
+		/* base class initialization */ DislocationSegmentInitializeBeforeBaseType::DislocationSegmentInitializeBeforeBase(nodePair.second->get_P()-nodePair.first->get_P(),ee.E.flow),
 		/* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee), 
 		/* initialization list       */ Burgers(this->flow * shared.material.b),
 		/* initialization list       */ coreL(1.0*shared.material.b),
@@ -281,6 +290,14 @@ public:
 		
 		/* Destructor *************************************************/
 		~DislocationSegment(){
+			//! Add this to static VirtualBoundarySlipContainer
+			if (shared.boundary_type==softBoundary && shared.use_bvp){
+				if(is_boundarySegment()){
+                       			shared.vbsc.add(*this);
+				}
+			}
+
+
 			//! Removes this from *pGlidePlane
 			pGlidePlane->removeFromGlidePlane(this);
 		}
@@ -434,6 +451,75 @@ public:
 			assemble_Kqq();
             //std::cout<<" done"<<std::endl;
 		}
+        
+        
+        /* addToGlobalAssembly ************************************************/
+        void addToGlobalAssembly(std::vector<Eigen::Triplet<double> >& kqqT,  Eigen::VectorXd& FQ) const {
+        
+                        
+            std::set<size_t> segmentDOFs;
+            
+        	const Eigen::VectorXi sourceDOFs(this->source->dofID());
+            for(unsigned int k=0;k<sourceDOFs.rows();++k){
+                segmentDOFs.insert(sourceDOFs(k));
+            }
+            
+            const Eigen::VectorXi   sinkDOFs(this->sink->dofID());
+            for(unsigned int k=0;k<sinkDOFs.rows();++k){
+                segmentDOFs.insert(sinkDOFs(k));
+            }
+            
+            const size_t N(segmentDOFs.size());
+            
+            Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,N));
+            
+            
+            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2H());
+            Mso.block(dim,0,dim,Mso.cols())*=this->sourceTfactor;
+
+            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2H());
+            Msi.block(dim,0,dim,Msi.cols())*=-this->sinkTfactor;
+
+            
+            for (unsigned int k=0;k<Mso.cols();++k){
+                const std::set<size_t>::const_iterator f(segmentDOFs.find(sourceDOFs(k)));
+                assert(f!=segmentDOFs.end());
+                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
+                Mseg.template block<Ndof/2,1>(0,curCol)=Mso.col(k);                
+            }
+            
+            
+            for (unsigned int k=0;k<Msi.cols();++k){
+                const std::set<size_t>::const_iterator f(segmentDOFs.find(sinkDOFs(k)));
+                assert(f!=segmentDOFs.end());
+                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
+                Mseg.template block<Ndof/2,1>(Ndof/2,curCol)=Msi.col(k);
+            }
+            
+            
+            // Create the temporaty stiffness matrix and push into triplets
+            const Eigen::MatrixXd tempKqq(Mseg.transpose()*Kqq*Mseg);
+            for (unsigned int i=0;i<N;++i){
+                std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
+                std::advance(iterI,i);
+                for (unsigned int j=0;j<N;++j){ // temp is symmetric
+                    std::set<size_t>::const_iterator iterJ(segmentDOFs.begin());
+                    std::advance(iterJ,j);
+                    kqqT.push_back(Eigen::Triplet<double>(*iterI,*iterJ,tempKqq(i,j)));
+                }
+            }
+
+            // Create temporary force vector and add to global FQ
+            const Eigen::VectorXd tempFq(Mseg.transpose()*Fq);
+            for (unsigned int i=0;i<N;++i){
+                std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
+                std::advance(iterI,i);
+                FQ(*iterI)+=tempFq(i);
+            }
+            
+            
+        }
+        
 		
 		//////////////////////////////////////////////////////////////
 		// get_Kqq
@@ -447,18 +533,26 @@ public:
 			return Fq;
 		}
 		
+        
+		//////////////////////////////////////////////////////////////
+		//! plasticStrainRate
+		MatrixDim plasticDistortionRate() const {
+            //			VectorDim temp(VectorDim::Zero());
+            //			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::plasticStrainRateIntegrand);
+			
+			const VectorDim V((this->source->get_V().template segment<dim>(0)+this->sink->get_V().template segment<dim>(0))*0.5);	
+            return -Burgers*V.cross(this->chord()).transpose();
+		}        
+        
+        
 		//////////////////////////////////////////////////////////////
 		//! plasticStrainRate
 		MatrixDim plasticStrainRate() const {
-//			VectorDim temp(VectorDim::Zero());
-//			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::plasticStrainRate_integrand);
-			
-			VectorDim V=(this->source->get_V().template segment<dim>(0)+this->sink->get_V().template segment<dim>(0))*0.5;	
-			VectorDim temp(-V.cross(this->chord()));
-			return (temp*Burgers.transpose() + Burgers*temp.transpose())*0.5;
+            const VectorDim temp(plasticDistortionRate());
+			return (temp+temp.transpose())*0.5;
 		}
 		
-		VectorDim plasticStrainRate_integrand(const int& k) const {
+		VectorDim plasticDistortionRateIntegrand(const int& k) const {
 			//! !!! CHANGE THIS!!! VELOCITY SHUOLD BE CALCULATED WITH SHAPE FUNCTIONS!!
 //			VectorDim V=(this->source->velocity.template segment<dim>(0)+this->sink->velocity.template segment<dim>(0))*0.5;	
 			VectorDim V=(this->source->get_V().template segment<dim>(0)+this->sink->get_V().template segment<dim>(0))*0.5;	

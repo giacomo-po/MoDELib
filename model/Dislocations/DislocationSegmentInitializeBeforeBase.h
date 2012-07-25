@@ -15,25 +15,30 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry> // cross
 #include <model/Network/Operations/EdgeExpansion.h>
-#include <model/Dislocations/DislocationSharedObjects.h>
+//#include <model/Dislocations/DislocationSharedObjects.h>
+#include <model/Dislocations/Materials/CrystalBase.h>
+
 
 namespace model {
 	
 	
-	template <short unsigned int dim, typename MaterialType>
+//	template <short unsigned int dim, typename MaterialType, typename LinkType>
+	template <short unsigned int _dim>
 	struct DislocationSegmentInitializeBeforeBase{
 		
-		DislocationSharedObjects<dim,MaterialType> shared;
-		
+		//DislocationSharedObjects<dim,MaterialType,LinkType> shared;
+        enum {dim=_dim}; // make dim available outside class
+        enum {Nslips=3}; // CHANGE HERE
+
 		
 		typedef Eigen::Matrix<double,dim,1> VectorDim;
 
-        			enum {Nslips=MaterialType::Nslips};
         
 		/********************************************/
 		VectorDim find_planeNormal(const VectorDim& chord, const VectorDim& Burgers){
 			std::set<SlipSystem<dim,Nslips> > allowedSlipSystems;
-			shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
+			//shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
+            CrystalBase<dim,Nslips>::find_slipSystem(chord,Burgers,allowedSlipSystems);
 			return allowedSlipSystems.begin()->normal; // DON't LIKE THIS
 		}
 
@@ -42,7 +47,8 @@ namespace model {
 //			assert(chord.norm()>FLT_EPSILON && "CHORD TOO SMALL");
 //			assert(Burgers.norm()>FLT_EPSILON && "Burgers TOO SMALL");
             std::set<SlipSystem<dim,Nslips> > allowedSlipSystems;
-            shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
+            //shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
+            CrystalBase<dim,Nslips>::find_slipSystem(chord,Burgers,allowedSlipSystems);
             VectorDim temp(chord.normalized().cross(Burgers));
 			double tempNorm(temp.norm());
 			if (tempNorm<FLT_EPSILON){ // a screw segment
@@ -63,7 +69,7 @@ namespace model {
 		
 		
 		//! The glide plane normal
-		const VectorDim glidePlaneNormal;
+		const VectorDim   glidePlaneNormal;
 		const VectorDim sessilePlaneNormal;
 		
 		

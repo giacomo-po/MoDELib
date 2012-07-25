@@ -14,6 +14,7 @@
 #include <assert.h>
 #include <Eigen/Core>
 #include <model/Utilities/StaticID.h>
+#include <model/Dislocations/DislocationNetworkTraits.h>
 #include <model/Dislocations/GlidePlanes/GlidePlaneObserver.h>
 #include <model/Dislocations/DislocationSharedObjects.h>
 #include<Eigen/StdVector>
@@ -22,15 +23,17 @@ namespace model {
 	
 	/*************************************************************/
 	/*************************************************************/
-	template <short unsigned int dim, typename SegmentType>
-	class GlidePlane : public  StaticID<GlidePlane<dim,SegmentType> >,
+	template <typename SegmentType>
+	class GlidePlane : public  StaticID<GlidePlane<SegmentType> >,
 	/*              */ private std::set<const SegmentType*>,
-	/*              */ private GlidePlaneObserver<dim,SegmentType>{
+	/*              */ private GlidePlaneObserver<SegmentType>{
 		
 public:
 
-		typedef GlidePlane<dim,SegmentType> GlidePlaneType;
-		typedef typename SegmentType::TempMaterialType MaterialType;
+        enum{dim=TypeTraits<SegmentType>::dim};
+        
+		typedef GlidePlane<SegmentType> GlidePlaneType;
+		//typedef typename SegmentType::TempMaterialType MaterialType;
 		typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
 		typedef Eigen::Matrix<double,dim+1,1> VectorDimPlusOneD;
@@ -45,7 +48,7 @@ public:
 		typedef  std::vector<planeTraingleIntersection, Eigen::aligned_allocator<planeTraingleIntersection> > planeMeshIntersectionType;
 
 		private:
-		static DislocationSharedObjects<dim,MaterialType> shared;
+		static DislocationSharedObjects<SegmentType> shared;
 		
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -155,8 +158,8 @@ public:
 		    
 		    //addParallelPlane(height , planeNormal, separation, i ,  1 , isLast );
 		    //addParallelPlane(height , planeNormal, separation, i , -1 , isLast );
-		    addParallelPlane(separation, i  , isLast );
-		    addParallelPlane(separation, -i , isLast );
+		    addParallelPlane(separation,  i  , isLast );
+		    addParallelPlane(separation, -i ,  isLast );
 		  }
 		  
 		}

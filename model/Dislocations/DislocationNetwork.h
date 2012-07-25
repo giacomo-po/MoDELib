@@ -18,6 +18,9 @@
 // DONE: CROSS_SLIP: NO, THIS CAUSES THE SAME NORMAL TO BE USED
 // DONE: Strategy changed with new BVP. 17- add inifinite line stress fields for segments terminating on the surface
 // DONE: STRATEGY CHANGED WITH NEW BVP. -1 - code isBoundarySubnetwork. If true don't solve AND set velocity to 0.
+// DONE: 39 - CLEAN NEW CATMUll-ROM (ENERGY). REMOVE CRNEGHBORS AND USE NEIGHBORHOOD ITSELF
+// DONE: 12 PlanarSplineImplicitization::intersect with has problems with some ill-conditioned matrices and gives wrong results.
+
 
 // BEING MODIFIED
 // 1- BIN WRITER/READER. DEFINE DISLOCATIONSEGMENT::OUTDATA as Eigen::Matrix<double,1,9>. Then in Network add the function friend void operator<< (SequentialBinFile<template Char,???>, ...)
@@ -33,7 +36,6 @@
 // 1- Implement operator << in DislocationNode, GlidePlane, SpaceCell
 // 2- remove AddressBook, wherever possible, Done in Node chain
 // 40 - clean MultiExpand in Network Layer, remove get_r from there
-// 39 - CLEAN NEW CATMUll-ROM (ENERGY). REMOVE CRNEGHBORS AND USE NEIGHBORHOOD ITSELF
 // 35- Simplify Neighborhood structure, remove boost::tuple, (use std::touple? Available in c++11, starting with g++4.7)
 // 25- Remove template parameter alpha and make template member function
 // 14- RENAME ORIGINAL MESH FOLDER /M
@@ -58,7 +60,6 @@
 // 10- SplineNetworkBase_common :		assert(iter->second.size()==2);
 //     SplineIntersection: //			assert(T0.norm()>tol && "SplineIntersection<3,3,1,2>: T0 too small.");  // NOT RIGHT FOR DIPOLAR LOOPS
 //									assert(T1.norm()>tol && "SplineIntersection<3,3,1,2>: T1 too small.");	// NOT RIGHT FOR DIPOLAR LOOPS
-// 12 PlanarSplineImplicitization::intersect with has problems with some ill-conditioned matrices and gives wrong results.
 // 14- If T0=0 or T1=0, then rl(0)=0/0=NaN !!!!! This is not true since rl still tends to a finite vector. Remove class Parametric curve and implement special case of rl at 0 and 1 for vanishing nodal tangents
 
 
@@ -111,7 +112,7 @@
 
 #include <model/Utilities/SequentialBinFile.h>
 
-#include <model/BVP/VirtualBoundarySlipContainer.h>
+
 
 
 
@@ -131,7 +132,7 @@ namespace model {
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
 	/*	   */ typename MaterialType>
 	class DislocationNetwork : public Network<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >,
-	/*                      */ public GlidePlaneObserver<dim,typename TypeTraits<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >::LinkType>{
+	/*                      */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >::LinkType>{
 		
 public:
 
@@ -144,7 +145,7 @@ public:
 		typedef SpaceCell<DislocationQuadratureParticleType,dim,cellSize> SpaceCellType;
 		typedef SpaceCellObserver<SpaceCellType,dim,cellSize> SpaceCellObserverType;
 		typedef typename SpaceCellObserverType::CellMapType CellMapType;
-		typedef GlidePlaneObserver<dim,LinkType> GlidePlaneObserverType;
+		typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
 		enum {NdofXnode=NodeType::NdofXnode};
 		
 
@@ -178,7 +179,7 @@ public:
 		
 		EigenDataReader EDR;
 
-		 model::VirtualBoundarySlipContainer<LinkType,dim> vbsc;
+
 		
 		
 		/* readNodes ***************************************************************/
@@ -209,6 +210,8 @@ public:
 				assert(this->connect(sourceID,sinkID,B) && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
 			}
 		}
+
+
 		
 		/* formJunctions ************************************************************/
 		void formJunctions(){
@@ -247,14 +250,15 @@ public:
 				}
 			}
 			
-			double shearWaveFraction(0.1);
+			double shearWaveFraction(0.01);
 			//short unsigned int shearWaveExp=1;
 			if (vmax > shared.material.cs*shearWaveFraction){
 				dt=dx/vmax;
 			}
 			else{
 				//	dt=dx/std::pow(shared.material.cs*shearWaveFraction,shearWaveExp+1)*std::pow(vmax,shearWaveExp);
-				dt=dx/(shared.material.cs*shearWaveFraction)*std::pow(vmax/(shared.material.cs*shearWaveFraction),1);
+				//dt=dx/(shared.material.cs*shearWaveFraction)*std::pow(vmax/(shared.material.cs*shearWaveFraction),1);
+				dt=dx/(shared.material.cs*shearWaveFraction);
 			}
 			std::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
 			std::cout<<std::setprecision(3)<<std::scientific<<" dt="<<dt;
@@ -384,11 +388,11 @@ public:
 			if (shared.boundary_type==softBoundary){
 				double t0=clock();
 				std::cout<<"		Removing Segments outside Mesh Boundaries... ";
-				for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-					if(linkIter->second->is_boundarySegment()){
-                       	vbsc.add(*(linkIter->second));
-					}
-				}
+//				for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+//					if(linkIter->second->is_boundarySegment()){
+//                       	vbsc.add(*(linkIter->second));
+//					}
+//				}
                 
                 
 				typedef bool (LinkType::*link_member_function_pointer_type)(void) const; 
@@ -399,13 +403,26 @@ public:
 			}
 		}
         
+        
+        /***********************************************************/
+		void segmentMeshCollision(){
+			typedef std::map<double,VectorDimD> MultiIntersectionType; // keeps intersections sorted for increasing parameter
+			typedef std::map<LinkIDType,MultiIntersectionType> MultiIntersectionContainerType; // Container of MultiIntersectionType for different links
+			MultiIntersectionContainerType multiIntersectionContainer;
+			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+				multiIntersectionContainer[linkIter->second->nodeIDPair()]=linkIter->second->boundaryCollision();
+			}
+			for (typename MultiIntersectionContainerType::const_iterator iter=multiIntersectionContainer.begin();iter!=multiIntersectionContainer.end();++iter){
+				this->multiExpand(iter->first.first,iter->first.second,iter->second);
+			}
+		}
         		
 		/**********************************************************************************/
 		/* PUBLIC SECTION *****************************************************************/
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
-		DislocationSharedObjects<dim,MaterialType> shared;
+		DislocationSharedObjects<LinkType> shared;
 		
 		//! The number of simulation steps taken by the next call to runByStep()
 		int Nsteps;
@@ -506,7 +523,8 @@ public:
             
             
             if (shared.use_bvp && (shared.boundary_type==softBoundary)) { // MOVE THIS WITH REST OB BVP STUFF
-                vbsc.read(runID,&shared);
+//                shared.vbsc.read(runID,&shared);
+                shared.vbsc.initializeVirtualSegments(*this);
             }
             
 			
@@ -540,13 +558,15 @@ public:
 #ifdef _OPENMP
 #pragma omp parallel for
             for (unsigned int k=0;k<this->Naddresses();++k){
-                typename SubNetworkContainerType::iterator snIter(this->ABbegin()); //  the data within a parallel region is private to each thread
+                typename SubNetworkContainerType::iterator snIter(this->ABbegin()); //  data within a parallel region is private to each thread
                 std::advance(snIter,k);
-				snIter->second->solve();
+//				snIter->second->solve();
+                snIter->second->sparseSolve();
             }
 #else
 			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter){ 			
-				snIter->second->solve();
+//				snIter->second->solve();
+                snIter->second->sparseSolve();
 			}
 #endif		
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;			
@@ -619,7 +639,7 @@ public:
             
             
             if (shared.use_bvp && (shared.boundary_type==1)){ 
-                vbsc.outputVirtualDislocations(outputFrequency,runID);
+                shared.vbsc.outputVirtualDislocations(outputFrequency,runID);
             }
             
 			
@@ -660,18 +680,7 @@ public:
 		}
 		
 		
-		/***********************************************************/
-		void segmentMeshCollision(){
-			typedef std::map<double,VectorDimD> MultiIntersectionType; // keeps intersections sorted for increasing parameter
-			typedef std::map<LinkIDType,MultiIntersectionType> MultiIntersectionContainerType; // Container of MultiIntersectionType for different links
-			MultiIntersectionContainerType multiIntersectionContainer;
-			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-				multiIntersectionContainer[linkIter->second->nodeIDPair()]=linkIter->second->boundaryCollision();
-			}
-			for (typename MultiIntersectionContainerType::const_iterator iter=multiIntersectionContainer.begin();iter!=multiIntersectionContainer.end();++iter){
-				this->multiExpand(iter->first.first,iter->first.second,iter->second);
-			}
-		}
+
 		
 		
 		/***********************************************************/
@@ -702,31 +711,7 @@ public:
 		}
 		
 		
-		//		/***********************************************************/
-		//		void checkPlanarity(){
-		//			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-		//				std::cout<<"checking planarity for link "<<linkIter->second->nodeIDPair.first<<"->"<<linkIter->second->nodeIDPair.second<<std::endl;
-		//				Eigen::Matrix<double,dim,4> H2(linkIter->second->hermiteCoefficients()); 
-		//				Eigen::Matrix<double,dim,1> n2(linkIter->second->glidePlaneNormal);
-		//				const double absN2dotC2(std::fabs(n2.dot(H2.col(2)-H2.col(0))));
-		//				const double absN2dotT2source(std::fabs(n2.dot(H2.col(1))));
-		//				const double   absN2dotT2sink(std::fabs(n2.dot(H2.col(3))));
-		//				if (absN2dotC2>FLT_EPSILON || absN2dotT2source>FLT_EPSILON || absN2dotT2sink>FLT_EPSILON){
-		//					std::cout<<"n2="<<n2.transpose()<<std::endl;
-		//					std::cout<<"H2="<<H2<<std::endl;
-		//					std::cout<<"absN2dotC2="<<absN2dotC2<<"\n";
-		//					std::cout<<"absN2dotT2source="<<absN2dotT2source<<"\n";
-		//					std::cout<<"absN2dotT2sink="<<absN2dotT2sink<<"\n";
-		//					//							std::cout<<"n2"std::fabs(n2.dot(H2.col(3)))<<std::endl;				
-		//				}
-		//				
-		//				assert(      absN2dotC2<FLT_EPSILON);
-		//				assert(absN2dotT2source<FLT_EPSILON);
-		//				assert(  absN2dotT2sink<FLT_EPSILON);
-		//			}
-		//		}
-		
-		
+		/********************************************************/
 		void checkBalance() const {
 			for (typename NetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
 				if (nodeIter->second->neighborhood().size()>2){
@@ -737,14 +722,10 @@ public:
                         std::cout<<"     inflow="<<nodeIter->second->inFlow().transpose()<<std::endl;
                         assert(0 && "NODE IS NOT BALANCED");
                     }
-					
 				}
-				//->move(dt_in);
 			}
 		}
 		
-		
-
 		
 		/********************************************************/
 		// energy
@@ -775,7 +756,7 @@ public:
 				}
 			}
             if (shared.use_bvp && (shared.boundary_type==1)){
-                temp+= vbsc.stress(Rfield);
+                temp+= shared.vbsc.stress(Rfield);
             }
 			return temp;
 		}
@@ -784,13 +765,13 @@ public:
 		MatrixDimD stressFromGlidePlane(const Eigen::Matrix<double,dim+1,1>& key, const VectorDimD& Rfield) const {
 			//GlidePlaneObserver<dim,LinkType> gpObsever;
 			MatrixDimD temp(MatrixDimD::Zero());
-			typedef typename GlidePlaneObserver<dim,LinkType>::GlidePlaneType GlidePlaneType;
+			typedef typename GlidePlaneObserver<LinkType>::GlidePlaneType GlidePlaneType;
 			std::pair<bool, const GlidePlaneType* const> isGp(this->isGlidePlane(key));		
 			if (isGp.first){
 				temp=isGp.second->stress(Rfield);
 			}
             if (shared.use_bvp && (shared.boundary_type==1)) {
-                temp+= vbsc.stressFromGlidePlane(key,Rfield);
+                temp+= shared.vbsc.stressFromGlidePlane(key,Rfield);
             }
 			return temp;
 		}
@@ -804,13 +785,25 @@ public:
 			return temp;
 		}
 		
-		/********************************************************/
-		MatrixDimD plasticStrainRate() const {			
+
+        /********************************************************/
+		MatrixDimD plasticDistortionRate() const {			
 			MatrixDimD temp(MatrixDimD::Zero());
 			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-				temp+= linkIter->second->plasticStrainRate(); 
+				temp+= linkIter->second->plasticDistortionRate(); 
 			}
 			return temp;
+		}
+        
+        
+        /********************************************************/
+		MatrixDimD plasticStrainRate() const {			
+//			MatrixDimD temp(MatrixDimD::Zero());
+//			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+//				temp+= linkIter->second->plasticStrainRate(); 
+//			}
+            const MatrixDimD temp(plasticDistortionRate());
+			return (temp+temp.transpose())*0.5;
 		}
 		
 		/********************************************************/
@@ -840,25 +833,42 @@ public:
 			}
 			return temp;
 		}
+        
+        /********************************************************/
+        const unsigned int& runningID() const {
+            return runID;
+        }
+
 		
 	};
-	
+
+
 	//////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
 
 
-					//					shared.domain.setBoundaryConditions();		// temporary					
-					//#ifdef UpdateBoundaryConditionsFile
-					//					updateBVP_BCs(k);        	// update BCs for the BVP 
-					//#endif						
-					//					shared.domain.solveBVP(true,this);
-
-
-//			GlidePlaneObserverType gpObsever; // MOVE THIS TO DATA MEMBER
-//			GlidePlaneObserver<dim,LinkType> gpObsever;
-//			glide_file << gpObsever;
-
-
-
+//		/***********************************************************/
+//		void checkPlanarity(){
+//			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+//				std::cout<<"checking planarity for link "<<linkIter->second->nodeIDPair.first<<"->"<<linkIter->second->nodeIDPair.second<<std::endl;
+//				Eigen::Matrix<double,dim,4> H2(linkIter->second->hermiteCoefficients()); 
+//				Eigen::Matrix<double,dim,1> n2(linkIter->second->glidePlaneNormal);
+//				const double absN2dotC2(std::fabs(n2.dot(H2.col(2)-H2.col(0))));
+//				const double absN2dotT2source(std::fabs(n2.dot(H2.col(1))));
+//				const double   absN2dotT2sink(std::fabs(n2.dot(H2.col(3))));
+//				if (absN2dotC2>FLT_EPSILON || absN2dotT2source>FLT_EPSILON || absN2dotT2sink>FLT_EPSILON){
+//					std::cout<<"n2="<<n2.transpose()<<std::endl;
+//					std::cout<<"H2="<<H2<<std::endl;
+//					std::cout<<"absN2dotC2="<<absN2dotC2<<"\n";
+//					std::cout<<"absN2dotT2source="<<absN2dotT2source<<"\n";
+//					std::cout<<"absN2dotT2sink="<<absN2dotT2sink<<"\n";
+//					//							std::cout<<"n2"std::fabs(n2.dot(H2.col(3)))<<std::endl;				
+//				}
+//				
+//				assert(      absN2dotC2<FLT_EPSILON);
+//				assert(absN2dotT2source<FLT_EPSILON);
+//				assert(  absN2dotT2sink<FLT_EPSILON);
+//			}
+//		}

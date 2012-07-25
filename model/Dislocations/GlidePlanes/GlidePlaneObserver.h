@@ -13,27 +13,36 @@
 #include <map>
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
+#include <model/Dislocations/DislocationNetworkTraits.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
 
 namespace model {
 	
 	// Class Predeclaration
-	template <short unsigned int dim, typename SegmentType>
+	template <typename SegmentType>
 	class GlidePlane;
 		
 	/********************************************************************************************/
 	/********************************************************************************************/	
-	template<short unsigned int dim, typename SegmentType>
+	template<typename SegmentType>
 	struct GlidePlaneObserver{
+        
+ //       enum{dim=SegmentType::dim};
+
 		
-		typedef GlidePlaneObserver<dim,SegmentType> GlidePlaneObserverType;
-		typedef GlidePlane<dim,SegmentType> GlidePlaneType;
-		typedef Eigen::Matrix<double,dim,1> VectorDimD;
-		typedef Eigen::Matrix<double,dim+1,1> VectorDimPlusOneD;
+		typedef GlidePlaneObserver<SegmentType> GlidePlaneObserverType;
+		typedef GlidePlane<SegmentType> GlidePlaneType;
+//		typedef Eigen::Matrix<double,dim  ,1> VectorDimD;
+//		typedef Eigen::Matrix<double,dim+1,1> VectorDimPlusOneD;
+        typedef Eigen::Matrix<double,TypeTraits<SegmentType>::dim,1> VectorDimD;
+		typedef Eigen::Matrix<double,TypeTraits<SegmentType>::dim+1,1> VectorDimPlusOneD;
+
 		
-		//typedef std::map<VectorDimPlusOneD,GlidePlaneType* const,CompareVectorsByComponent<double,dim+1,float> >  GlidePlaneMapType;
-		typedef std::map<VectorDimPlusOneD,GlidePlaneType* const,CompareVectorsByComponent<double,dim+1,float>,
-		                 Eigen::aligned_allocator<std::pair<const VectorDimPlusOneD,GlidePlaneType* const> > >  GlidePlaneMapType;
+//		typedef std::map<VectorDimPlusOneD,GlidePlaneType* const,CompareVectorsByComponent<double,dim+1,float>,
+//		                 Eigen::aligned_allocator<std::pair<const VectorDimPlusOneD,GlidePlaneType* const> > >  GlidePlaneMapType;
+        
+        typedef std::map<VectorDimPlusOneD,GlidePlaneType* const,CompareVectorsByComponent<double,TypeTraits<SegmentType>::dim+1,float>,
+        /*            */ Eigen::aligned_allocator<std::pair<const VectorDimPlusOneD,GlidePlaneType* const> > > GlidePlaneMapType;
 
 		typedef typename GlidePlaneMapType::const_iterator const_iterator;
 		typedef boost::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
@@ -68,7 +77,8 @@ namespace model {
 		}
 		
 		/* isGlidePlane() ********************************************/
-		static std::pair<bool, const GlidePlaneType* const> isGlidePlane(const Eigen::Matrix<double,dim+1,1>& key){
+//		static std::pair<bool, const GlidePlaneType* const> isGlidePlane(const Eigen::Matrix<double,dim+1,1>& key){
+		static std::pair<bool, const GlidePlaneType* const> isGlidePlane(const VectorDimPlusOneD& key){
 			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find(key));
 			return (iter!=glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
 		}
@@ -89,11 +99,10 @@ namespace model {
 	
 	/**********************************************/
 	/* Declare static data member *****************/	
-	template<short unsigned int dim, typename SegmentType>
+	template<typename SegmentType>
 	//std::map<Eigen::Matrix<double,dim+1,1>,GlidePlane<dim,SegmentType>* const,CompareVectorsByComponent<double,dim+1,float> > GlidePlaneObserver<dim,SegmentType>::glidePlaneMap;
-	std::map<Eigen::Matrix<double,dim+1,1>,GlidePlane<dim,SegmentType>* const,CompareVectorsByComponent<double,dim+1,float>,Eigen::aligned_allocator<std::pair<const Eigen::Matrix<double,dim+1,1>,GlidePlane<dim,SegmentType> * const> > > GlidePlaneObserver<dim,SegmentType>::glidePlaneMap;
-
-
+	std::map<Eigen::Matrix<double,TypeTraits<SegmentType>::dim+1,1>,GlidePlane<SegmentType>* const,CompareVectorsByComponent<double,TypeTraits<SegmentType>::dim+1,float>,Eigen::aligned_allocator<std::pair<const Eigen::Matrix<double,TypeTraits<SegmentType>::dim+1,1>,GlidePlane<SegmentType>* const> > > GlidePlaneObserver<SegmentType>::glidePlaneMap;
+    
 	/********************************************************************************************/
 	/********************************************************************************************/	
 }	// close namespace

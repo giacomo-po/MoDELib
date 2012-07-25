@@ -150,11 +150,19 @@ namespace model {
 				const size_t j(smallIter->second.second);
 				const typename EdgeFinder<LinkType>::isNetworkEdgeType Lij(DN.link(i,j));
 				if (Lij.first ){
-                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType sourcePN(GramSchmidt<dim>(Lij.second->source->planeNormals())); // THIS CAN BE A REFERENCE
-                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType   sinkPN(GramSchmidt<dim>(Lij.second->  sink->planeNormals())); // THIS CAN BE A REFERENCE
+//                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType sourcePN(GramSchmidt<dim>(Lij.second->source->planeNormals())); // THIS CAN BE A REFERENCE
+//                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType   sinkPN(GramSchmidt<dim>(Lij.second->  sink->planeNormals())); // THIS CAN BE A REFERENCE
+                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType sourcePN(GramSchmidt<dim>(Lij.second->source->constraintNormals())); // THIS CAN BE A REFERENCE
+                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType   sinkPN(GramSchmidt<dim>(Lij.second->  sink->constraintNormals())); // THIS CAN BE A REFERENCE
+
+                    
+                    
+                    
                     const size_t sourcePNsize(sourcePN.size());
                     const size_t   sinkPNsize(  sinkPN.size());
                     if (Lij.second->source->nodeMeshLocation==insideMesh && Lij.second->sink->nodeMeshLocation==insideMesh){ // source and sink are inside mesh
+                        //const bool sourceIsBalanced(Lij.second->source->is_balanced());
+                        //const bool   sinkIsBalanced(Lij.second->  sink->is_balanced());
                         assert(sourcePNsize>0 && "source->planeNormals() CANNOT HAVE SIZE 0.");
                         assert(  sinkPNsize>0 && "  sink->planeNormals() CANNOT HAVE SIZE 0.");
                         if(sourcePNsize==1 && sinkPNsize==1){

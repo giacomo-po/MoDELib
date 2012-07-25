@@ -45,10 +45,12 @@ namespace model {
 	
 	/********************************************************************/	
 	/*	DislocationNetworkTraitsBase: a base class for Dislocation Network Traits */
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
-	/*	   */ typename MaterialType>
+	/*	   */ typename _MaterialType>
 	struct DislocationNetworkTraitsBase{
+        enum{dim=_dim};
+        typedef _MaterialType MaterialType;
 		typedef DislocationNetwork   <dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>	NetworkType;
 		typedef DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>	SubNetworkType;
 		typedef DislocationNode      <dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>	NodeType;
@@ -78,10 +80,30 @@ namespace model {
 	Eigen::Matrix<double,1,16> AvoidMacOsXBug1=Quadrature<1,16,GaussLegendre>::abscissas; // is this static initialization fiasco?
 	Eigen::Matrix<double,1,16> AvoidMacOsXBug2=Quadrature<1,16,GaussLegendre>::weights;   // is this static initialization fiasco?
 	/************************************************************************************/	
+	
+	/************************************************************************************/		
 	/************************************************************************************/	
+	/*	TypeTraits for: dim=3, corder=1, alpha=centripetal, InterpolationType=CatmullRom 
+	 qOrder=8, QuadratureRule=GaussLegendre
+	 */
+	template<>
+	struct TypeTraits<DislocationNetwork	<3,1,CatmullRom,centripetal,8,GaussLegendre,Copper> > : 
+	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,8,GaussLegendre,Copper>{};
 	
+	template<>
+	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,centripetal,8,GaussLegendre,Copper> > : 
+	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,8,GaussLegendre,Copper>{};
 	
-
+	template<>
+	struct TypeTraits<DislocationNode		<3,1,CatmullRom,centripetal,8,GaussLegendre,Copper> > : 
+	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,8,GaussLegendre,Copper>{};
+	
+	template<>
+	struct TypeTraits<DislocationSegment	<3,1,CatmullRom,centripetal,8,GaussLegendre,Copper> > : 
+	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,8,GaussLegendre,Copper>{};
+	Eigen::Matrix<double,1,8> AvoidMacOsXBug3=Quadrature<1,8,GaussLegendre>::abscissas; // is this static initialization fiasco?
+	Eigen::Matrix<double,1,8> AvoidMacOsXBug4=Quadrature<1,8,GaussLegendre>::weights;   // is this static initialization fiasco?
+	/************************************************************************************/	
 	
 	
 	

@@ -517,6 +517,7 @@ namespace model {
 					break;
 					
 				case 'l': 
+                    autoplay=false;
 					std::cout<<"Enter a step number ane press Enter: ";
 					int temp;
 					std::cin>>temp;
@@ -531,6 +532,7 @@ namespace model {
 
 					
                 case 'k': 
+                    autoplay=false;
 					splinePlotter.showSpecificVertex=!splinePlotter.showSpecificVertex;
                     if(splinePlotter.showSpecificVertex){
                         std::cout<<"Enter a Vertex ID: ";

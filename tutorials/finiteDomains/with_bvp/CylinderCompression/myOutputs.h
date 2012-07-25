@@ -40,23 +40,8 @@ SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Displacement_fil
 SequentialOutputFile<'D',1>::set_count(runID); // Displacement_file;
 SequentialOutputFile<'D',1> Dfile;
 for (typename bvpfe::Domain::NodeContainerType::const_iterator iter=shared.domain.nodeContainer.begin();iter!=shared.domain.nodeContainer.end();++iter){
-    if (iter->isBoundaryNode){
-		
-//		Eigen::Matrix<double,3,1> outN;
-//		outN<< iter->P(0)-2000.0, iter->P(1)-2000.0, 0.0;
-//		if (iter->P(2)==0.0){
-//			outN<<0.0,0.0,-1.0;
-//		}
-//		if (iter->P(2)==16000.0){
-//			outN<<0.0,0.0,1.0;
-//		}
-//		outN.normalize();
-
-		//	Dfile<< iter->sID <<" "<< displacement(iter->P,outN).transpose()<<"\n";
-		
-	Dfile<< iter->sID <<" "<< (iter->u + iter->uInf).transpose()<<"\n";
-	//Dfile<< iter->sID <<" "<< (iter->uInf).transpose()<<"\n";
-		
+    if (iter->isBoundaryNode){		
+	Dfile<< iter->sID <<" "<< (iter->u + iter->uInf).transpose()<<"\n";		
 	} 
 }
 

@@ -390,7 +390,7 @@ namespace model {
 			return std::distance(Neighborhood.begin(),Neighborhood.find(k));
 		}
 		
-		////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
 		// outOrder
 		size_t outOrder() const {
 			return OutNeighborhood.size();
@@ -401,7 +401,19 @@ namespace model {
 		size_t inOrder() const {
 			return InNeighborhood.size();
 		}
-		
+        
+        ////////////////////////////////////////////////////////
+		// order
+		size_t openOrder() const {
+			return outOrder()+inOrder();
+		}
+        
+        ////////////////////////////////////////////////////////
+		// order
+		size_t closedOrder() const {
+			return openOrder()+1;
+		}
+        
 		//////////////////////////////////////////////////////////////////////////////
 		// is_source() // THIS IS MEANINGLESS IF LINK DIRECTIONS CAN BE SWITCHED ARBITRARILY
 		bool is_source() const {

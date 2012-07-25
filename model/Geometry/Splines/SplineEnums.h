@@ -9,7 +9,13 @@
 
 /////////////////////////////////////////////////
 // Common Public Enumerators
+
+static_assert(dim>=1 && dim <=3,"DIMENSION MUST BE 1, 2 or 3."); // requires c++11
+static_assert(corder>=0 && corder <=2,"CONTINUITY ORDER MUST BE 0, 1 or 2."); // requires c++11
+
+
 public:
+//enum  {dim=_dim};
 enum  {Ncoeff= 2*(corder+1)};
 enum  {pOrder= 2*corder+1};
 enum  {Ndof  = dim*Ncoeff};

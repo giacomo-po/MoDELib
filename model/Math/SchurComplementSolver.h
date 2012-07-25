@@ -49,7 +49,15 @@ namespace model {
      *		\end{array}
      *		\right.
      *	\f]
-     */
+     *
+     * Numerically this is implemented as:
+     * \code
+     *	Eigen::LLT<Eigen::MatrixXd> llt(KQQ);
+     *	Eigen::PartialPivLU<Eigen::MatrixXd> pplu(KPQ*llt.solve(KPQ.transpose()));
+     *	Eigen::VectorXd Lp = pplu.solve(KPQ*llt.solve(Fq)-Fp);
+     *	Xq  = llt.solve(Fq-KPQ.transpose()*Lp);
+     * \endcode
+     */	
 	class SchurComplementSolver  {
 	
 	public:
@@ -65,21 +73,27 @@ namespace model {
 		//! The solution vector
 		const Eigen::VectorXd X;
 		
-		
+        /* constructor with Fp ************************************************/
 		SchurComplementSolver(const Eigen::MatrixXd& KQQ, const Eigen::MatrixXd& KPQ, 
 		/*          */ const Eigen::VectorXd& Fq,  const Eigen::VectorXd& Fp) : llt(KQQ), 
 		/*                                                                   */ pplu(KPQ*llt.solve(KPQ.transpose())), 
 		/*                                                                   */ L(pplu.solve(KPQ*llt.solve(Fq)-Fp)),
 		/*                                                                   */ X(llt.solve(Fq-KPQ.transpose()*L)){
-			/*! Numerically this is implemented as:
-			 * \code
-			 *	Eigen::LLT<Eigen::MatrixXd> llt(KQQ);
-			 *	Eigen::PartialPivLU<Eigen::MatrixXd> pplu(KPQ*llt.solve(KPQ.transpose()));
-			 *	Eigen::VectorXd Lp = pplu.solve(KPQ*llt.solve(Fq)-Fp);
-			 *	Xq  = llt.solve(Fq-KPQ.transpose()*Lp);
-			 * \endcode
-			 */		
-
+            checkSolution();
+		}
+        
+        /* constructor without Fp *********************************************/
+		SchurComplementSolver(const Eigen::MatrixXd& KQQ, const Eigen::MatrixXd& KPQ, 
+        /*          */ const Eigen::VectorXd& Fq) : llt(KQQ), 
+		/*                                       */ pplu(KPQ*llt.solve(KPQ.transpose())), 
+		/*                                       */ L(pplu.solve(KPQ*llt.solve(Fq))),
+		/*                                       */ X(llt.solve(Fq-KPQ.transpose()*L)){
+            checkSolution();
+		}
+        
+        
+        /* constructor ********************************************************/
+        void checkSolution() const {
             switch (llt.info()) {
                 case Eigen::Success:
                     break;
@@ -99,9 +113,8 @@ namespace model {
                 default:
                     assert(0 && "SchurComplementSolver failed.");
                     break;
-            }
-
-		}
+            }        
+        }
 		
 	};
 	

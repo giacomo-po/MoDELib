@@ -711,14 +711,14 @@ namespace bvpfe {
 		  Eigen::Matrix<double,3,3> tractionMatrix;
 		  for (unsigned int i = 0; i<3; i++){tractionMatrix.col(i) = this->eleNodes[i]->traction;}
 		  
-		  model::GlidePlaneObserver<dim,typename T::LinkType> gpObsever;
+		  model::GlidePlaneObserver<typename T::LinkType> gpObsever;
 		  Eigen::Matrix<double,dim+1,1> gpKey;
 		  
 		  //std::cout << "Local points container size  " << localQuadPnts.size() << std::endl;
 		  
 		  //------------- loop over all glide planes, if localQuadPnts is found for it so integrate over them, 
 		  //------------- otherwise integrate normally over the standard gauss points  -----------
-		  for (typename model::GlidePlaneObserver<dim, typename T::LinkType>::const_iterator gpIter=gpObsever.begin(); gpIter!=gpObsever.end(); ++gpIter){
+		  for (typename model::GlidePlaneObserver<typename T::LinkType>::const_iterator gpIter=gpObsever.begin(); gpIter!=gpObsever.end(); ++gpIter){
 		    
 		    gpKey << gpIter->second->planeNormal.normalized() , gpIter->second->height;
 		    
@@ -1139,10 +1139,10 @@ namespace bvpfe {
 		  VectorDim triN;     
 		  if (deformed) triN = triNormalDeformed();     else triN = outNormal;
 		  
-		  model::GlidePlaneObserver<dim,typename T::LinkType> gpObsever;
+		  model::GlidePlaneObserver<typename T::LinkType> gpObsever;
 		  Eigen::Matrix<double,dim+1,1> gpKey;
 		  
-		  for (typename model::GlidePlaneObserver<dim, typename T::LinkType>::const_iterator gpIter=gpObsever.begin(); gpIter!=gpObsever.end(); ++gpIter){
+		  for (typename model::GlidePlaneObserver<typename T::LinkType>::const_iterator gpIter=gpObsever.begin(); gpIter!=gpObsever.end(); ++gpIter){
 		    
 		    gpKey << gpIter->second->planeNormal.normalized() , gpIter->second->height;
 		    

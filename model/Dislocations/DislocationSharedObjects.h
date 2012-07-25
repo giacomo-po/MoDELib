@@ -10,36 +10,45 @@
 #define model_DISLCATIONSHAREDOBJECTS_H_
 
 #include <Eigen/Dense>
+#include <model/Dislocations/DislocationNetworkTraits.h>
+#include <model/BVP/VirtualBoundarySlipContainer.h>
 #include <model/BVP/Domain.h>
 
 namespace model {
 	
-	template <short unsigned int dim, typename MaterialType>
+//	template <short unsigned int dim, typename _MaterialType, typename LinkType>
+	template <typename LinkType>
 	struct DislocationSharedObjects {
+
 
 		static unsigned int boundary_type;
 		static unsigned int use_bvp;
 		static bvpfe::Domain domain;					// temporary
-		static MaterialType material;
-		static Eigen::Matrix<double,dim,dim> externalStress;
-		
+		static typename TypeTraits<LinkType>::MaterialType material;
+		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
+		static VirtualBoundarySlipContainer<LinkType> vbsc;
 	};
 	
 	// Instantiate Static data members
-	template <short unsigned int dim,typename MaterialType>
-	unsigned int DislocationSharedObjects<dim,MaterialType>::boundary_type=0;
+	template <typename LinkType>
+	unsigned int DislocationSharedObjects<LinkType>::boundary_type=0;
 	
-	template <short unsigned int dim,typename MaterialType>
-	unsigned int DislocationSharedObjects<dim,MaterialType>::use_bvp=0;
+	template <typename LinkType>
+	unsigned int DislocationSharedObjects<LinkType>::use_bvp=0;
 	
-	template <short unsigned int dim,typename MaterialType>
-	bvpfe::Domain DislocationSharedObjects<dim,MaterialType>::domain;
+	template <typename LinkType>
+	bvpfe::Domain DislocationSharedObjects<LinkType>::domain;
 		
-	template <short unsigned int dim,typename MaterialType>
-	MaterialType DislocationSharedObjects<dim,MaterialType>::material;
+	template <typename LinkType>
+	typename TypeTraits<LinkType>::MaterialType DislocationSharedObjects<LinkType>::material;
 
-	template <short unsigned int dim,typename MaterialType>
-	Eigen::Matrix<double,dim,dim> DislocationSharedObjects<dim,MaterialType>::externalStress=Eigen::Matrix<double,dim,dim>::Zero();
+	template <typename LinkType>
+	Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::externalStress=Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim>::Zero();
+
+	template <typename LinkType>
+	VirtualBoundarySlipContainer<LinkType> DislocationSharedObjects<LinkType>::vbsc;
+
+
 	
 } // namespace model
 #endif
