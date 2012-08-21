@@ -11,7 +11,7 @@
 #define bvpfe_element_H_
 
 #include <vector>
-#include "model/Dislocations/Materials/Copper.h"
+//#include "model/Dislocations/Materials/Copper.h"
 #include "model/BVP/Node.h"
 //#include <model/Geometry/Simplex.h>
 #include <model/Geometry/Mesh/SimplexEnums.h>

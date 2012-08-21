@@ -14,7 +14,7 @@
 #include <model/Utilities/TypeTraits.h>
 
 #include <model/Geometry/Splines/SplineConsts.h>
-#include <model/Dislocations/Materials/Copper.h>
+//#include <model/Dislocations/Materials/Copper.h>
 #include <model/Quadrature/Quadrature.h>
 //#include <model/Quadrature/GaussLegendre.h>
 

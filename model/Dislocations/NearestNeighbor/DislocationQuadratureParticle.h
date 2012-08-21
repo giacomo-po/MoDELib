@@ -12,6 +12,8 @@
 #include <Eigen/Dense>
 //#include <model/Quadrature/Quadrature.h>
 #include <model/SpaceDecomposition/SpaceCellParticle.h>
+#include <model/Dislocations/Materials/Material.h>
+
 
 
 namespace model {
@@ -52,8 +54,8 @@ namespace model {
 
 //		static const double a;
 		static  double a2;
-		static const double C1;
-		static const double C2;
+		//static const double C1;
+		//static const double C2;
 		static const MatrixDim I;
 //		NodeType* const source;		
 //		NodeType* const sink;
@@ -100,12 +102,12 @@ namespace model {
 			 */
 			VectorDimD R(Rfield-P);
 			double RaSquared (R.squaredNorm() + a2);
-			MatrixDim temp(   (C1*(1.0+1.5*a2/RaSquared)*T*(B.cross(R)).transpose()
+			MatrixDim temp(   (Material<Isotropic>::C1*(1.0+1.5*a2/RaSquared)*T*(B.cross(R)).transpose()
 					  + 	R*(T.cross(B)).transpose() 
 					  +   0.5* R.cross(B).dot(T) * (I*(1.0+3.0*a2/RaSquared) + 3.0/RaSquared*R*R.transpose())
 					  )/std::pow(RaSquared,1.5)*quadWeight);
 			
-			return C2*(temp+temp.transpose());
+			return Material<Isotropic>::C2*(temp+temp.transpose());
 		}
 		
 
@@ -163,11 +165,11 @@ namespace model {
 	template <short unsigned int dim, double & cellSize>
     double DislocationQuadratureParticle<dim,cellSize>::a2=1.0;  // square of core size a
 
-	template <short unsigned int dim, double & cellSize>
-	const double DislocationQuadratureParticle<dim,cellSize>::C1=1.0-0.33;  // 1-nu
-
-	template <short unsigned int dim, double & cellSize>
-	const double DislocationQuadratureParticle<dim,cellSize>::C2=1.0/(4.0*M_PI*(1.0-0.33));  // 1/(4*pi*(1-nu))
+//	template <short unsigned int dim, double & cellSize>
+//	const double DislocationQuadratureParticle<dim,cellSize>::C1=1.0-0.33;  // 1-nu
+//
+//	template <short unsigned int dim, double & cellSize>
+//	const double DislocationQuadratureParticle<dim,cellSize>::C2=1.0/(4.0*M_PI*(1.0-0.33));  // 1/(4*pi*(1-nu))
 	
 	template <short unsigned int dim, double & cellSize>
 	const Eigen::Matrix<double,dim,dim> DislocationQuadratureParticle<dim,cellSize>::I=Eigen::Matrix<double,dim,dim>::Identity();  // square of core size a
