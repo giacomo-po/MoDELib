@@ -30,13 +30,12 @@ namespace model {
 	//////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
-	/*	   */ typename MaterialType>
+	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     //	class DislocationSubNetwork : public SplineSubNetworkBase<DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>,
     //	/*	                                                   */ dim,corder,alpha,InterpolationType> {		
-	class DislocationSubNetwork : public SubNetwork<DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >{		
+	class DislocationSubNetwork : public SubNetwork<DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >{		
 		
-		typedef DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> Derived;
+		typedef DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> Derived;
 #include <model/Network/NetworkTypedefs.h>
 		
         //		typedef SplineSubNetworkBase<Derived,dim,corder,alpha,InterpolationType> SubNetworkBaseType;
@@ -101,16 +100,18 @@ namespace model {
             KQQ.setFromTriplets(kqqT.begin(),kqqT.end());
             
             
-            std::vector<typename NodeType::VectorOfNormalsType> NNV;
+            std::vector<typename NodeType::VectorOfNormalsType> NNV; // DON'T NEED THIS ANYMORE WITH TRIPLETS
 			
 			for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
 				NNV.push_back(nodeIter->second->constraintNormals());
 			}
 			
-			size_t count=0;
-			for (size_t k=0;k<NNV.size();++k){
-				count+=NNV[k].size();
-			}
+//			size_t count=0;
+//			for (size_t k=0;k<NNV.size();++k){
+//				count+=NNV[k].size();
+//			}
+            
+           // count+=this->linkOrder();
 			
 			//assert(count<KQQ.rows() && "SUBNETWORK IS FULLY CONSTRAINED");
 			
@@ -130,10 +131,37 @@ namespace model {
 				}
 			}
             
-            SparseMatrixType KPQ(count,Ndof);
+            
+            for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
+                if(nodeIter->second->constraintNormals().size()==1){
+                    Eigen::Matrix<int,dim,1> node_dofID(nodeIter->second->node_dofID());
+                    Eigen::Matrix<double,dim,1> T(nodeIter->second->get_T());
+
+                    for(size_t d=0;d<dim;++d){
+                        kpqT.push_back(Eigen::Triplet<double>(KPQ_row,node_dofID(d),T(d)));
+                    }
+                    ++KPQ_row;
+                }
+			}
+            
+            
+            // loop over each segment and add segment contributions to kqqT and Fq
+//            for (typename SubNetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+//                const Eigen::VectorXd ortCS(linkIter->second->ortC*linkIter->second->Mseg);
+//                for (unsigned int i=0;i<linkIter->second->segmentDOFs.size();++i){
+//                    std::set<size_t>::const_iterator iterI(linkIter->second->segmentDOFs.begin());
+//                    std::advance(iterI,i);
+//                    //FQ(*iterI)+=tempFq(i);
+//                    kpqT.push_back(Eigen::Triplet<double>(KPQ_row,*iterI,ortCS(i)));
+//                }
+//                ++KPQ_row;
+//			}
+            
+                        
+            
+            SparseMatrixType KPQ(KPQ_row,Ndof);
             KPQ.setFromTriplets(kpqT.begin(),kpqT.end());
             
-            //Eigen::MatrixXd KPQ = Eigen::MatrixXd::Zero(count,KQQ.cols());
 
             
             
@@ -159,7 +187,7 @@ namespace model {
             
             
             //#ifdef _OPENMP
-            //            std::cout<<"Thread "<<omp_get_thread_num()<<" solving SubNetwork "<<this->sID<<std::endl;
+            //            std::cout<<"Thread "<<omp_get_thread_num()<<" of "<<omp_get_num_threads()<<" solving SubNetwork "<<this->sID<<std::endl;
             //#endif	
             
 			

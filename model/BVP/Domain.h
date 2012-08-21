@@ -108,14 +108,17 @@ namespace bvpfe{
 		//==================================================================================
 		// function to read the mesh data from input files mesh.*
 		//==================================================================================
-		template<typename SharedType>
-		void readMesh(const SharedType* sharedPtr){
+//		template<typename SharedType>
+//		void readMesh(const SharedType* sharedPtr){
+            void readMesh(){
 			
 			readNodes();
 			
 			Finf.resize(nodeContainer.size()*3, 0.0);
 			
-			readVolElements(sharedPtr);
+//			readVolElements(sharedPtr);
+			readVolElements();
+
 			
 			readSurfElements();
 			
@@ -161,8 +164,9 @@ namespace bvpfe{
 		//==================================================================================
 		//----------------- function to read & distribute the volume elements data ------------
 		//==================================================================================
-		template<typename SharedType>
-		void readVolElements(const SharedType* sharedPtr)
+//		template<typename SharedType>
+//		void readVolElements(const SharedType* sharedPtr)
+		void readVolElements()
 		{
 			
 			unsigned int nTets , d1, nn , ti , nt;
@@ -181,7 +185,9 @@ namespace bvpfe{
 			
 			for (unsigned int i=0; i<nTets; i++) {
 				
-				std::auto_ptr<Tetrahedron> pTet (new Tetrahedron (sharedPtr) ); 
+//				std::auto_ptr<Tetrahedron> pTet (new Tetrahedron (sharedPtr) );
+				std::auto_ptr<Tetrahedron> pTet (new Tetrahedron () );
+
 				
 				assert(fscanf (fneigh, "%u%d%d%d%d",  &ti, &neighbor[0], &neighbor[1], &neighbor[2], &neighbor[3])==5);
 				assert(fscanf (fTet, "%u%d%d%d%d",  &ti, &tetNodes[0], &tetNodes[1], &tetNodes[2], &tetNodes[3])==5);	

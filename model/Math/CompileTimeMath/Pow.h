@@ -10,14 +10,15 @@
 #define model_POW_H_
 
 //#include <assert.h>
-#include <boost/static_assert.hpp> // to be repaced with static_assert in C++0x
+//#include <boost/static_assert.hpp> // to be repaced with static_assert in C++0x
 
 namespace model {
 	
 	//////////////////////////////////////////////////////////////////////////
 	template<const int x, const int n>
 	struct Pow {
-		BOOST_STATIC_ASSERT(n>0);
+//		BOOST_STATIC_ASSERT(n>0);
+        static_assert (n>0, "n MUST BE > 0.");
 		enum { value = x * Pow<x,n-1>::value};
 		
 		

@@ -10,33 +10,35 @@
 #ifndef model_COPPER_H_
 #define model_COPPER_H_
 
-#include <Eigen/Core>
+#include <model/Dislocations/Materials/MaterialSymmetry.h>
+#include <model/Dislocations/Materials/CrystalStructures.h>
 
-#include <model/Dislocations/Materials/Crystal.h>
-#include <model/Dislocations/Materials/IsotropicMaterial.h>
 
 namespace model {
-	
-	class Copper :	public model::Crystal<3,FCC>,
-	/*			*/	public model::IsotropicMaterial{
-		
-	public:	
-		/////////////////////////////////////////////////////////////
-		Copper() : IsotropicMaterial::IsotropicMaterial(0.34,48e9,0.2556e-9,1.0e-4,8940.0){	
-		//			Copper() : IsotropicMaterial::IsotropicMaterial(0.375,48e9,0.2556e-9,1.0e-4,8940.0){	
+    
+    template <typename SymmetryType>
+    struct Copper { };
+    
+    template <>
+    struct Copper<Isotropic> {
+        
+        typedef FCC CrystalStructure;
 
-			/*! Values for copper in SI units:
-			* nu = 0.34;
-			* mu = 48e9;
-			* a = 0.36e-9;
-			* b = a/sqrt(2)=0.2556e-9
-			* B = 1.0e-4;
-			* rho = 8940;
-			*/
-			
-		}
-		
-	};
+        static const std::string name;
+        static const double nu;
+        static const double mu;
+        static const double b;
+        static const double B;
+        static const double rho;
+        
+    };
+    
+    const std::string Copper<Isotropic>::name="Copper";
+    const double Copper<Isotropic>::nu =0.34;    // Poisson ratio [-]
+    const double Copper<Isotropic>::mu =48e9;    // Shear modulus [Pa]
+    const double Copper<Isotropic>::b  =0.2556e-9; // Burgers vector[m]
+    const double Copper<Isotropic>::B  =1.0e-4;  // Dislocation drag coefficient [Pa*sec]
+    const double Copper<Isotropic>::rho=8940.0;  // Mass density [kg/m^3]
 	
 	//////////////////////////////////////////////////////////////
 } // namespace model 

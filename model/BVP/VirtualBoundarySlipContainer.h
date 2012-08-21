@@ -133,8 +133,10 @@ namespace model {
                             std::cout << "Error: Sink node of Virtual dislocation no. " << ii << " was not recognized as boundary node. Check its coordinates" << std::endl;
                             assert(0);
                         }
+			if ((sinkP-sourceP).norm()>1.0e-5){
                         DN.connect(sourceID,sinkID,Burgers); // create a dislocation segment
                         DN.template disconnect<true>(sourceID,sinkID); // destroy the dislocation segment in order to create the boundary segment. true=remove isolated nodes
+			}
                     }
                 }
                 

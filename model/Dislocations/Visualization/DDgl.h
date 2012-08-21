@@ -121,6 +121,7 @@ namespace model {
 
 		bool keyStates [256];
 		
+        unsigned int stepIncrement;
 		
 		
 		typedef Eigen::Matrix<float,dim,1> VectorDimF;		
@@ -388,6 +389,8 @@ namespace model {
 			
 			old_y=0;
 			old_x=0;
+            
+            stepIncrement=1;
 			
 			scale = 1.0f;
 			
@@ -471,6 +474,9 @@ namespace model {
 					if (keyStates['q']){
 						meshPlotter.dispScale*=0.75f;;
 					}
+					if (keyStates['a']){
+						splinePlotter.PKfactor*=0.75f;;
+					}
 					break;
 					
 				case '=':
@@ -487,6 +493,9 @@ namespace model {
 					}
 					if (keyStates['q']){
 						meshPlotter.dispScale*=1.5f;;
+					}
+					if (keyStates['a']){
+						splinePlotter.PKfactor*=1.5f;;
 					}
 					break;
 					
@@ -516,7 +525,28 @@ namespace model {
 					planePlotter.showGlidePlanes=!planePlotter.showGlidePlanes;
 					break;
 					
-				case 'l': 
+					
+                case 'i':
+                    autoplay=false;
+                    if(splinePlotter.showSpecificVertex){
+                        std::cout<<"Enter a stepIncrement: ";
+                        std::cin>>stepIncrement;
+                    }
+					break;
+					
+                case 'k':
+                    autoplay=false;
+					splinePlotter.showSpecificVertex=!splinePlotter.showSpecificVertex;
+                    if(splinePlotter.showSpecificVertex){
+                        std::cout<<"Enter a Vertex ID: ";
+                        size_t temp;
+                        std::cin>>temp;
+                        splinePlotter.specificVertexID=temp;
+                    }
+					break;
+
+                    
+                case 'l':
                     autoplay=false;
 					std::cout<<"Enter a step number ane press Enter: ";
 					int temp;
@@ -528,19 +558,6 @@ namespace model {
 						readFrame();
 					}
 					break;
-					
-
-					
-                case 'k': 
-                    autoplay=false;
-					splinePlotter.showSpecificVertex=!splinePlotter.showSpecificVertex;
-                    if(splinePlotter.showSpecificVertex){
-                        std::cout<<"Enter a Vertex ID: ";
-                        size_t temp;
-                        std::cin>>temp;
-                        splinePlotter.specificVertexID=temp;
-                    }
-					break;
                     
 				case 'm': 
 					meshPlotter.showMesh=(meshPlotter.showMesh+1)%meshPlotter.showMeshStates;
@@ -548,6 +565,10 @@ namespace model {
 					
 				case 'n': 
 					splinePlotter.showPlaneNormal=!splinePlotter.showPlaneNormal;
+					break;
+
+				case 'p': 
+					splinePlotter.showPK=!splinePlotter.showPK;
 					break;
 					
 				case 's': 
@@ -698,8 +719,13 @@ namespace model {
 		
 		/* previousFrame **********************************************/
 		void previousFrame(){
+            DDreader::const_iterator nextIter(ddrIter);
+            for (int i=0;i<stepIncrement;++i){
+                --nextIter;
+            }
 			if (ddrIter!=ddr.begin()){
-				--ddrIter;
+				//--ddrIter;
+                ddrIter=nextIter;
 				frameN=ddrIter->first;
 				readFrame();
 			}
@@ -708,9 +734,12 @@ namespace model {
 		/* nextFrame *************************************************/
 		void nextFrame(){
 			DDreader::const_iterator nextIter(ddrIter);
-			++nextIter;
+            for (int i=0;i<stepIncrement;++i){
+                ++nextIter;            
+            }
 			if (nextIter!=ddr.end()){
-				++ddrIter;
+//				++ddrIter;
+                ddrIter=nextIter;
 				frameN=ddrIter->first;
 				readFrame();
 			}

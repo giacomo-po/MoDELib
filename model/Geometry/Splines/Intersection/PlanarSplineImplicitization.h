@@ -386,12 +386,21 @@ namespace model {
                     C.template block<polyDegree,polyDegree>(polyDegree*(otherPolyDegree-1),p*polyDegree)= -jsvd.solve(otherCoeffs(0,p)*Mx+otherCoeffs(1,p)*My);
                 }
                 
+ //               std::cout<<std::setprecision(15)<<std::scientific<<C<<std::endl;
+                
                 // Compute the eigenvalues and eigenvectors of C
                 const Eigen::EigenSolver<EigenSizeMatrixType> es(C);
+                
+ //               std::cout<<std::setprecision(15)<<std::scientific<<es.eigenvalues()<<std::endl;
+ //               std::cout<<std::setprecision(15)<<std::scientific<<es.eigenvectors()<<std::endl;
+
+                
+                
                 if (es.info() == Eigen::Success){
                     for (int i=0; i<eigenSize; ++i) {
                         if (std::fabs(es.eigenvalues()(i).imag())<compTol) { // consider only eigenvectors with 0 imaginary part
-                            const double t( es.eigenvectors()(1,i).real()/es.eigenvectors()(0,i).real() ); // the root for the spline defined by "coeffs"
+                            //const double t( es.eigenvectors()(1,i).real()/es.eigenvectors()(0,i).real() ); // the root for the spline defined by "coeffs"
+                            const double t( (es.eigenvectors().col(i)(1)/es.eigenvectors().col(i)(0)).real() ); // the root for the spline defined by "coeffs"
                             const double s( es.eigenvalues()(i).real() ); // the root for the spline defined by "otherCoeffs"
                             if ((s>=0.0 && s<=1.0) && (t>=0.0 && t<=1.0)) { // t and s must be in [0,1]
                                 Eigen::Matrix<double,2,1> Pt(coeffs.col(0)); 

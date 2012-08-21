@@ -106,11 +106,11 @@ namespace model {
 		MatrixDim stress_straight(const VectorDim & R, const VectorDim & t) const {
 			
 			const VectorDim T=t.normalized();
-			const double RdotT=R.dot(t);
-			const double RdotT2=std::pow(RdotT,2);
-			const double RaSquared = R.squaredNorm()+coreLsquared;
+			const double RdotT(R.dot(T));
+			const double RdotT2(std::pow(RdotT,2));
+			const double RaSquared(R.squaredNorm()+coreLsquared);
 			const double Ra = std::pow(RaSquared,0.5);
-			const double RaCubed = std::pow(Ra,3);
+			const double RaCubed(std::pow(Ra,3));
 			const double A1 = - RdotT*(3.0*RaSquared-RdotT2)/std::pow(RaSquared-RdotT2,2)/RaCubed;
 			const double A2 = 1.0/RaCubed-RdotT*A1;
 			const double A6 = - RdotT/(RaSquared-RdotT2)/Ra;

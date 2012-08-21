@@ -96,8 +96,8 @@ namespace model {
 				++k;
 			}
 			
-			std::cout<< "Quadrature rule of order "<<qOrder<<" (weights in last row):"<<std::endl;
-			std::cout<<std::setprecision(15)<<std::scientific<<abcsissasAndWeights_<<std::endl;
+			//std::cout<< "Quadrature rule of order "<<qOrder<<" (weights in last row):"<<std::endl;
+			//std::cout<<std::setprecision(15)<<std::scientific<<abcsissasAndWeights_<<std::endl;
 			
 			return abcsissasAndWeights_;
 		}

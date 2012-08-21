@@ -171,6 +171,89 @@ public:
 	const Eigen::Matrix<double, dim*(corder+1), Eigen::Dynamic> & W2H() const {	
 		return CR2H;
 	}
+    
+    
+    //////////////////////////////////////////////////
+	// W2H
+    Eigen::Matrix<double, dim*(corder+1), Eigen::Dynamic> W2Ht() const {
+        Eigen::Matrix<double, dim*(corder+1), Eigen::Dynamic> temp(CR2H);
+        
+        
+        const double alpha(0.5); //! CHANGE THIS IN CATMULLROM
+        
+        if ( !this->is_isolated() && this->is_balanced() ){
+            //	double CPL;
+            //	double CPLDPinv=0.0;
+            //	double CPLARinv=0.0;
+            double CPLT=0.0;
+            double sjT(0.0);
+            double sjOverGjT(0.0);
+            
+            MatrixDim cP02(MatrixDim::Zero());
+            VectorDim cP03a(VectorDim::Zero());
+            VectorDim cP03b(VectorDim::Zero());
+
+            
+            int sgnID(0);
+            for (constNeighborIteratorType neighborIter=this->neighborhood().begin();neighborIter!=this->neighborhood().end();++neighborIter){
+                switch ( boost::tuples::get<2>(neighborIter->second) ) {
+                    case  0:	// self
+                        break;
+                    default:	// neighbor
+                        const double CPL=boost::tuples::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
+                        CPLT+=CPL;
+                        sjT+=edgeConfiguration(sgnID);
+                        sjOverGjT+=edgeConfiguration(sgnID)/CPL;
+                        
+                        const VectorDim ci( (boost::tuples::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
+                        cP02+= alpha * edgeConfiguration(sgnID) * ci*ci.transpose() / CPL;
+                        cP03a+= edgeConfiguration(sgnID)*ci;
+                        cP03b+= ci*alpha/CPL;
+                        
+                        
+                        sgnID++;
+                        break;
+                }
+            }
+            
+            assert(sgnID==edgeConfiguration.size());
+            
+            MatrixDim cP03( - cP03a/CPLT/CPLT * cP03b.transpose());
+
+            
+            double CPLTinv=1.0/CPLT;
+            //Ndof=dim*this->neighborhood().size();
+            //		short int dir;
+            int k=0;
+            sgnID=0;
+            
+            for (constNeighborIteratorType neighborIter=this->neighborhood().begin();neighborIter!=this->neighborhood().end();++neighborIter){
+                int dir=boost::tuples::get<2>(neighborIter->second);
+                switch ( dir ) {
+                    case  0:	// self
+                        temp.template block<dim,dim>(0,k*dim).setIdentity();
+                        temp.template block<dim,dim>(dim,k*dim)=this->prjM*((sjT/CPLT -  sjOverGjT)*MatrixDim::Identity()
+                                                                            +cP02
+                                                                            +cP03)/(this->neighborhood().size()-2);
+                        break;
+                    default:	// departing or arriving
+                        const double CPL=boost::tuples::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
+                        const VectorDim ci( (boost::tuples::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
+
+                        temp.template block<dim,dim>(dim,k*dim)= this->prjM*(edgeConfiguration(sgnID)*( 1.0/CPL-CPLTinv)*MatrixDim::Identity()
+                                                                            -ci*ci.transpose()*edgeConfiguration(sgnID)*alpha/CPL
+                                                                            +cP03a/CPLT/CPLT*ci.transpose()*alpha)/(this->neighborhood().size()-2);
+                        sgnID++;
+                        break;
+                }
+                ++k;
+            }
+            
+                        assert(sgnID==edgeConfiguration.size());
+            
+		}
+		return temp;
+	}
 	
 
     

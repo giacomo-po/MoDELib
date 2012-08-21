@@ -18,7 +18,10 @@
 
 float centripetalf=model::centripetal;
 
+float chordalf=model::chordal;
+
 model::DDgl<3,centripetalf> DDv;
+//model::DDgl<3,chordalf> DDv;
 
 
 namespace model {

@@ -12,6 +12,9 @@
 #include <assert.h>
 #include <Eigen/Dense>
 #include <model/Quadrature/GaussLegendre.h>
+#include <model/Quadrature/UniformOpen.h>
+
+
 
 namespace model {	
 	
@@ -40,6 +43,7 @@ namespace model {
 	 *  and QuadratureRule and dimension.
 	 */
 	template<short unsigned int dim, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule = GaussLegendre>
+//	template<short unsigned int dim, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	struct Quadrature {
 		
 		typedef typename VectorDimTypeSelector<dim,qOrder>::VectorDim VectorDim;

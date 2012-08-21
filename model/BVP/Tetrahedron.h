@@ -17,6 +17,7 @@
 #include <utility>
 #include <memory>
 #include <model/BVP/SearchData.h>
+#include <model/Dislocations/Materials/Material.h>
 
 
 namespace bvpfe{
@@ -48,14 +49,16 @@ namespace bvpfe{
 		
 		typedef std::pair<bool,Tetrahedron*> isTetrahedronType;
 		
-		template<typename SharedType>
-		Tetrahedron(const SharedType* sharedPtr)
+        /* Constructor ******************************************************/
+//		template<typename SharedType>
+//		Tetrahedron(const SharedType* sharedPtr)
+        		Tetrahedron()
 		{
 			//--------- set the basis functions (linear) derivative values  // do it only once
 			if  (this->sID == 0)
 			{
 				setBasisDerivative();
-				setElasticConstants(sharedPtr);
+				setElasticConstants();
 			}
 		}
 		
@@ -119,13 +122,15 @@ namespace bvpfe{
 		//===================================================================
 		// function to calculate the elastic constants
 		//===================================================================
-		template<typename SharedType>
-		void setElasticConstants (const SharedType* sharedPtr)
+		//template<typename SharedType>
+		void setElasticConstants ()
 		{
 			//mu =this->material.mu;
 			//nu =this->material.nu;
-			mu =sharedPtr->material.mu;
-			nu =sharedPtr->material.nu;
+//			mu =sharedPtr->material.mu;
+//			nu =sharedPtr->material.nu;
+            mu =model::Material<model::Isotropic>::mu;
+			nu =model::Material<model::Isotropic>::nu;
 						
 			lambda = (2.0e+00*mu * nu)/(1.0e+00-(2.0e+00*nu)) ;
 			

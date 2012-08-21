@@ -274,6 +274,7 @@ namespace model {
 	class SplinePlotter : 
 	/* inherits from   */ public VertexReader<'V',11,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ public EdgeReader  <'E',11,double>,
+	/*                 */ public VertexReader<'P',7,double>,
 	//	/* inherits from   */ private std::vector<SingleSplinePlotter<dim,Np,Nc,alpha> >{ // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ private boost::ptr_vector<SingleSplinePlotter<dim,Np,Nc,alpha> >{ // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
 		
@@ -295,6 +296,8 @@ namespace model {
         int colorScheme;
         bool showSpecificVertex;
         size_t specificVertexID;
+bool showPK;
+double PKfactor;
 		
 		
 		SplinePlotter() : showTubes(false),
@@ -304,7 +307,9 @@ namespace model {
         /* init list   */ showVertexID(false),
         /* init list   */ colorScheme(0),
         /* init list   */ showSpecificVertex(false),
-        /* init list   */ specificVertexID(0){}
+        /* init list   */ specificVertexID(0),
+        /* init list   */ showPK(false),
+        /* init list   */ PKfactor(1000.0){}
 		
 		/* isGood ***************************************************/
 		static bool isGood(const int& frameN){
@@ -319,6 +324,8 @@ namespace model {
 			
 			VertexContainerType::read(frameN);
 			EdgeContainerType::read<true>(frameN);
+			VertexReader<'P',7,double>::read(frameN);
+
 			SingleSplinePlotterVectorType::clear(); // clear the current content of sspVector
 			SingleSplinePlotterVectorType::reserve(EdgeContainerType::size()); // reserve to speed-up push_back
 			for (EdgeContainerType::const_iterator itEdge=EdgeContainerType::begin(); itEdge !=EdgeContainerType::end(); ++itEdge) {
@@ -401,6 +408,19 @@ namespace model {
 				}
 				gluDeleteQuadric(myQuad); // free myQuad pointer
 			}
+
+		if (showPK){
+			for (typename VertexReader<'P',7,double>::const_iterator vIter=VertexReader<'P',7,double>::begin();vIter!=VertexReader<'P',7,double>::end();++vIter){
+			//std::cout<<"I'm here"<< 	PKfactor<<std::endl;		
+				glBegin(GL_LINES);
+				glVertex3f(vIter->second(0),vIter->second(1),vIter->second(2));
+				glVertex3f(vIter->second(0)+vIter->second(3)*PKfactor,vIter->second(1)+vIter->second(4)*PKfactor,vIter->second(2)+vIter->second(5)*PKfactor);
+				glEnd();
+			}
+
+		}
+
+
 		}
 		
 		/* boundingBox ******************************************************/

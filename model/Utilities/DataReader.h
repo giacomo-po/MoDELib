@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
  *
- * model is distributed without any warranty under the 
+ * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
@@ -54,11 +54,11 @@ namespace model {
 		const std::vector<std::vector<double> > & get_table(){return table;}
 		
 	};
-	//////////////////////////////////////////////////////////////////////////	
-	//////////////////////////////////////////////////////////////////////////	
+	//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
 	
 	
-	//////////////////////////////////////////////////////////////////////////	
+	//////////////////////////////////////////////////////////////////////////
 	bool DataReader::readInFile(const std::string & fileName_in, const std::string & varName_in, const size_t & occurrence){
 		
 		table.clear();		// VERY IMPORTANT
@@ -75,7 +75,7 @@ namespace model {
 		return readInFile(fileName_in, varName_in, 0);
 	}
 	
-	//////////////////////////////////////////////////////////////////////////	
+	//////////////////////////////////////////////////////////////////////////
 	bool DataReader::menage_occurences(const size_t & occurrence){
 		
 		bool success=0;
@@ -128,7 +128,7 @@ namespace model {
 	}
 	
 	
-	//////////////////////////////////////////////////////////////////////////	
+	//////////////////////////////////////////////////////////////////////////
 	bool DataReader::check_name_equal(){
 		return line.find(varName)==0 && line.find("=")!=std::string::npos;
 	}
@@ -158,17 +158,18 @@ namespace model {
 		}
 		
 		
-		for (unsigned int r=0; r<table.size(); ++r){
-			for (unsigned int c=0; c<table[r].size(); ++c){
-				std::cout<<table[r][c]<<" ";}
-			std::cout<<std::endl;}
+//		for (unsigned int r=0; r<table.size(); ++r){
+//			for (unsigned int c=0; c<table[r].size(); ++c){
+//				std::cout<<table[r][c]<<" ";}
+//			std::cout<<std::endl;
+//        }
 		
 	}
 	
 	//////////////////////////////////////////////////////////////////////////
 	void DataReader::line2row(){
 		
-		//! clean_line is line without ";"  	
+		//! clean_line is line without ";"
 		clean_line=line.substr(0,line.find(";"));
 		
 		row.clear();

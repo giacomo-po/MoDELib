@@ -95,6 +95,34 @@ namespace model {
             return temp;
         }
         
+        /* contractWithCommonNeighborCheck ***********************************************************/
+        unsigned int contractSecondWithCommonNeighborCheck(const int& i, const int& j){
+            unsigned int temp(0);
+
+            const typename DislocationNetworkType::isNetworkNodeType Ni(DN.node(i));
+            assert(Ni.first && "NODE i DOES NOT EXIST");
+
+            const typename DislocationNetworkType::isNetworkNodeType Nj(DN.node(j));
+            assert(Nj.first && "NODE j DOES NOT EXIST");
+            
+            std::set<size_t> isCNj(Nj.second->areNeighborsAt(Ni.second->get_P()));
+            assert(isCNj.erase(i)==1 && "node i must be found at Pi"); // remove i from the set
+                        
+            for (std::set<size_t>::const_iterator njIter=isCNj.begin(); njIter!=isCNj.end();++njIter){
+                const size_t k(*njIter);
+                if (DN.node(k).first){
+                    DN.contractSecond(i,k); // this could destroy j
+                    temp++;
+                }
+            }
+            if (DN.node(j).first){ // j still exists
+                DN.contractSecond(i,j); 
+                temp++;
+            }
+
+            return temp;
+        }
+        
         
         /************************************************************/
         bool pointIsInsideMesh(const VectorDimD& P0, const size_t& startingMeshID){
@@ -173,13 +201,15 @@ namespace model {
                         }
                         else if(sourcePNsize==1 && sinkPNsize>1){ // contract source
                             std::cout<<"Contract case 2: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-                            DN.contractSecond(j,i);
-                            Ncontracted++;
+                            //DN.contractSecond(j,i);
+                            //Ncontracted++;
+                            Ncontracted+=contractSecondWithCommonNeighborCheck(j,i);
                         }
                         else if(sourcePNsize>1 && sinkPNsize==1){ // contract sink
                             std::cout<<"Contract case 3: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-                            DN.contractSecond(i,j);
-                            Ncontracted++;
+//                            DN.contractSecond(i,j);
+//                            Ncontracted++;
+                            Ncontracted+=contractSecondWithCommonNeighborCheck(i,j);
                         }
                         else{
                             const VectorDimD P1(Lij.second->source->get_P());
@@ -234,8 +264,10 @@ namespace model {
                                     d1/=d1norm;
                                     if(d1.cross(C/cNorm).norm()<FLT_EPSILON){
                                         std::cout<<"Contract case 7: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-                                        DN.contractSecond(j,i);
-                                        Ncontracted++;
+                                        //DN.contractSecond(j,i);
+                                        //Ncontracted++;
+                                        Ncontracted+=contractSecondWithCommonNeighborCheck(j,i);
+
                                     }
                                 }
                                 else if(sourcePNsize>2 && sinkPNsize==2){ // source is fixed and sink moves on a line
@@ -245,8 +277,9 @@ namespace model {
                                     d2/=d2norm;
                                     if(d2.cross(C/cNorm).norm()<FLT_EPSILON){
                                         std::cout<<"Contract case 8: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-                                        DN.contractSecond(i,j);
-                                        Ncontracted++;
+//                                        DN.contractSecond(i,j);
+//                                        Ncontracted++;
+                                        Ncontracted+=contractSecondWithCommonNeighborCheck(i,j);
                                     }    
                                 }
                                 else{
@@ -262,8 +295,9 @@ namespace model {
                                 break;
                             case 1:
                                 std::cout<<"Contract case 9: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-                                DN.contractSecond(j,i);
-                                Ncontracted++;
+ //                               DN.contractSecond(j,i);
+ //                               Ncontracted++;
+                                Ncontracted+=contractSecondWithCommonNeighborCheck(j,i);
                                 break;
                                 
                             case 2: // source moves on a line
@@ -282,8 +316,9 @@ namespace model {
                                 break;
                             case 1:
                                 std::cout<<"Contract case 10: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-                                DN.contractSecond(i,j);
-                                Ncontracted++;
+//                                DN.contractSecond(i,j);
+//                                Ncontracted++;
+                                Ncontracted+=contractSecondWithCommonNeighborCheck(i,j);
                                 break;
                                 
                             case 2: // sink moves on a line
@@ -428,7 +463,8 @@ namespace model {
 				const size_t j(smallIter->second.second);
 				typename EdgeFinder<LinkType>::isNetworkEdgeType Lij=DN.link(i,j);				
 				if (Lij.first ){
-					DN.contractSecond(i,j);						
+//					DN.contractSecond(i,j);	
+                    contractSecondWithCommonNeighborCheck(i,j);
 				}
 			}
 		}

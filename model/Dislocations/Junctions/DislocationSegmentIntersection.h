@@ -285,8 +285,16 @@ namespace model {
 							// du = dl / j = dl/L for a line
 							
 							double tolU=physTol/(P5-P4).norm(); 						
-							
-							
+//							
+//                            std::cout<<"P4="<<P4.transpose()<<std::endl;
+//                            std::cout<<"P5="<<P5.transpose()<<std::endl;
+//                            for (std::set<std::pair<double,double> >::const_iterator iter1=lineIntersectionParameters1.begin();iter1!=lineIntersectionParameters1.end();++iter1){
+//                                std::cout<<"spline1 and line: "<<iter1->first<<" "<<iter1->second<<std::endl;
+//                            }
+//                            for (std::set<std::pair<double,double> >::const_iterator iter2=lineIntersectionParameters2.begin();iter2!=lineIntersectionParameters2.end();++iter2){
+//                                std::cout<<"spline2 and line: "<<iter2->first<<" "<<iter2->second<<std::endl;
+//                            }
+                            
 							
 							for (std::set<std::pair<double,double> >::const_iterator iter1=lineIntersectionParameters1.begin();iter1!=lineIntersectionParameters1.end();){
 								

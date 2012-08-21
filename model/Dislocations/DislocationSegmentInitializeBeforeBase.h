@@ -16,7 +16,8 @@
 #include <Eigen/Geometry> // cross
 #include <model/Network/Operations/EdgeExpansion.h>
 //#include <model/Dislocations/DislocationSharedObjects.h>
-#include <model/Dislocations/Materials/CrystalBase.h>
+//#include <model/Dislocations/Materials/CrystalBase.h>
+#include <model/Dislocations/Materials/CrystalOrientation.h>
 
 
 namespace model {
@@ -32,23 +33,34 @@ namespace model {
 
 		
 		typedef Eigen::Matrix<double,dim,1> VectorDim;
+        
+        typedef typename CrystalOrientation<dim>::PlaneNormalContainerType PlaneNormalContainerType;
 
         
 		/********************************************/
 		VectorDim find_planeNormal(const VectorDim& chord, const VectorDim& Burgers){
-			std::set<SlipSystem<dim,Nslips> > allowedSlipSystems;
+			//std::set<SlipSystem<dim,Nslips> > allowedSlipSystems;
+            PlaneNormalContainerType allowedSlipSystems;
 			//shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
-            CrystalBase<dim,Nslips>::find_slipSystem(chord,Burgers,allowedSlipSystems);
-			return allowedSlipSystems.begin()->normal; // DON't LIKE THIS
+//            CrystalBase<dim,Nslips>::find_slipSystem(chord,Burgers,allowedSlipSystems);
+            CrystalOrientation<dim>::find_slipSystem(chord,Burgers,allowedSlipSystems);
+
+//			return allowedSlipSystems.begin()->normal; // DON't LIKE THIS
+			return *allowedSlipSystems.begin(); // DON't LIKE THIS
+
 		}
 
 		/********************************************/
 		VectorDim get_sessileNormal(const VectorDim& chord, const VectorDim& Burgers){
 //			assert(chord.norm()>FLT_EPSILON && "CHORD TOO SMALL");
 //			assert(Burgers.norm()>FLT_EPSILON && "Burgers TOO SMALL");
-            std::set<SlipSystem<dim,Nslips> > allowedSlipSystems;
+//            std::set<SlipSystem<dim,Nslips> > allowedSlipSystems;
+            PlaneNormalContainerType allowedSlipSystems;
+
             //shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
-            CrystalBase<dim,Nslips>::find_slipSystem(chord,Burgers,allowedSlipSystems);
+//            CrystalBase<dim,Nslips>::find_slipSystem(chord,Burgers,allowedSlipSystems);
+            CrystalOrientation<dim>::find_slipSystem(chord,Burgers,allowedSlipSystems);
+
             VectorDim temp(chord.normalized().cross(Burgers));
 			double tempNorm(temp.norm());
 			if (tempNorm<FLT_EPSILON){ // a screw segment
@@ -58,7 +70,9 @@ namespace model {
 			}
 			else{ // not a screw segment
                 if (allowedSlipSystems.size()>=2){ // a sessile segment
-                    temp=allowedSlipSystems.rbegin()->normal;
+                    //temp=allowedSlipSystems.rbegin()->normal;
+                    temp=*allowedSlipSystems.rbegin();
+
                 }
                 else{ // a glissile segment
                     temp.setZero();

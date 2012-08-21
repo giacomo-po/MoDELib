@@ -36,7 +36,13 @@ namespace model {
 		typedef typename SpaceCellObserverType::VectorDimD  VectorDimD;	
 		typedef typename SpaceCellObserverType::VectorDimI  VectorDimI;	
 		typedef std::set<const ParticleType*> ParticleContainerType; // PTR COMPARE IS NOT NECESSARY
+        
 
+        typedef Eigen::Matrix<double,dim,dim>  MatrixDimD;	// remove this with Dislocation Stuff
+        MatrixDimD alpha;	// the dislocation density tensor !! remove this with Dislocation Stuff
+
+        typedef NeighborShift<dim,1> NeighborShiftType;
+        
 	public:
 		
 		//! The container of pointers to particles in this cell
@@ -46,14 +52,14 @@ namespace model {
 		//! The ID of this cell, defining the dim-dimensional spatial region cellID<= x/cellSize < (cellID+1).
 		const VectorDimI cellID;
 		//! The cellID(s) of the neighboring SpaceCell(s) (in column)
-		const Eigen::Matrix<int,dim, NeighborShift<dim>::Nneighbors> neighborCellIDs;
+		const Eigen::Matrix<int,dim, NeighborShiftType::Nneighbors> neighborCellIDs;
 			
 		/* Constructor *******************************************/
-		SpaceCell(const VectorDimI& cellID_in) : cellID(cellID_in),neighborCellIDs(NeighborShift<dim>::neighborIDs(cellID)){
+		SpaceCell(const VectorDimI& cellID_in) : cellID(cellID_in),neighborCellIDs(NeighborShiftType::neighborIDs(cellID)){
 			//! 1- Adds this to static SpaceCellObserver::cellMap
 			assert(this->cellMap.insert(std::make_pair(cellID,this)).second && "CANNOT INSERT SPACE CELL IN STATIC cellMap.");
 			//! 2- Loops over neighboring SpaceCell(s) and copies the content of their particleContainer into this neighborParticleContainer
-			for (int n=0;n<NeighborShift<dim>::Nneighbors;++n){
+			for (int n=0;n<NeighborShiftType::Nneighbors;++n){
 				typename CellMapType::const_iterator iter(this->cellMap.find(neighborCellIDs.col(n)));
 				if (iter!=this->cellMap.end()){ // neighbor cell exists
 					for (typename ParticleContainerType::iterator iterP=iter->second->particleContainer.begin(); iterP!=iter->second->particleContainer.end();++iterP){
@@ -75,7 +81,7 @@ namespace model {
 			//! 1- Adds pP to the particleContainer
 			assert(particleContainer.insert(pP).second && "CANNOT INSERT PARTICLE IN SPACECELL");
 			//! 2- Updates the first nieghboring cells calling addNeighborParticle(pP)
-			for (int n=0;n<NeighborShift<dim>::Nneighbors;++n){
+			for (int n=0;n<NeighborShiftType::Nneighbors;++n){
 				typename CellMapType::iterator iter(this->cellMap.find(neighborCellIDs.col(n)));
 				if (iter!=this->cellMap.end()){ // neighbor cell exists
 					iter->second->addNeighborParticle(pP);
@@ -94,7 +100,7 @@ namespace model {
 			//! 1- Removes pP to the particleContainer
 			assert(particleContainer.erase(pP)==1 && "CANNOT ERASE PARTICLE FROM particleContainer.");
 			//! 2- Updates the first nieghboring cells calling removeNeighborParticle(pP)
-			for (int n=0;n<NeighborShift<dim>::Nneighbors;++n){
+			for (int n=0;n<NeighborShiftType::Nneighbors;++n){
 				typename CellMapType::iterator iter(this->cellMap.find(neighborCellIDs.col(n)));
 				if (iter!=this->cellMap.end()){ // neighbor cell exists
 					iter->second->removeNeighborParticle(pP);
@@ -111,7 +117,7 @@ namespace model {
 		/* check ************************************************/
 		void check() const{
 			unsigned int temp(0);
-			for (int n=0;n<NeighborShift<dim>::Nneighbors;++n){
+			for (int n=0;n<NeighborShiftType::Nneighbors;++n){
 				typename CellMapType::iterator iter(this->cellMap.find(neighborCellIDs.col(n)));
 				if (iter!=this->cellMap.end()){ // neighbor cell exists
 					temp+=iter->second->particleContainer.size();
@@ -119,7 +125,8 @@ namespace model {
 			}
 			assert(temp==neighborParticleContainer.size());
 		}
-		
+        
+       		
 	};
 	
 	////////////////////////////////////////////////////////////////////////////////

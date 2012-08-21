@@ -12,6 +12,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <float.h>
 #include <Eigen/Dense>
 
 #include <model/Quadrature/Quadrature.h>
@@ -22,7 +23,7 @@ namespace model {
 	
 
 	
-	template<short unsigned int pOrder, short unsigned int qOrder, template<short unsigned int,short unsigned int> class QuadratureRule=GaussLegendre>
+	template<short unsigned int pOrder, short unsigned int qOrder, template<short unsigned int,short unsigned int> class QuadratureRule>
 	struct QuadPow {
 	
 	//	static const Eigen::Matrix<double,1,qOrder> A;
@@ -38,10 +39,11 @@ namespace model {
 //			std::cout<<Quadrature<1,qOrder,QuadratureRule>::abscissas<<std::endl;
 
 			//std::cout<<Quadrature<1,qOrder,QuadratureRule>::abscissas_(0)<<std::endl;
-			if ( Quadrature<1,qOrder>::abscissas.squaredNorm() ){}
+			if ( Quadrature<1,qOrder,QuadratureRule>::abscissas.squaredNorm() > FLT_EPSILON){}
 			else{
+                std::cout<<"norm of quadrature="<<Quadrature<1,qOrder,QuadratureRule>::abscissas.squaredNorm()<<std::endl;
 				std::cout<<"THIS IS A BUG WITH GCC IN MAC osX."<<std::endl;
-				std::cout<<"To fix it create make a call to the coresponding EXPLICIT Quadrature<1,qOrder>::abscissas before using QuadPow<pOrder,qOrder>. Eg, call Quadrature<1,8>::abscissa. "<<std::endl;
+				std::cout<<"To fix it create make a call to the coresponding EXPLICIT Quadrature<1,qOrder>::abscissas before using QuadPow<pOrder,qOrder>. Eg, call Quadrature<1,8,QuadratureRule>::abscissa. "<<std::endl;
 				assert(0);
 			}
 			

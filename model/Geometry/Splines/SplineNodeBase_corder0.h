@@ -36,13 +36,29 @@ EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 
 
-/* isCommonNeighborAt *************************************************/
+
+/* isNeighborAt ***************************************************************/
+std::set<size_t> areNeighborsAt(const VectorDim& P0) const {
+    std::set<size_t> temp;
+    for (typename Derived::NeighborContainerType::const_iterator nIiter=this->neighborhood().begin();nIiter!=this->neighborhood().end();++nIiter){ // loop over neighborhood 
+        if (boost::tuples::get<0>(nIiter->second)->sID!=this->sID){ // neighbor is not this
+            if((boost::tuples::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON){ // a neighbor of I exists at P0
+                const bool ableToInsert(temp.insert(boost::tuples::get<0>(nIiter->second)->sID).second);
+                assert(ableToInsert && "COULD NOT INSERT ID IN isNeighborAt");
+            }
+        }
+    }
+    return temp;
+}
+
+
+
+/* isNeighborAt ***************************************************************/
 std::pair<bool,size_t> isNeighborAt(const VectorDim& P0) const {
     std::pair<bool,size_t> temp(false,0);
-    for (typename Derived::NeighborContainerType::const_iterator nIiter=this->neighborhood().begin();nIiter!=this->neighborhood().end();++nIiter){ // loop over neighborhood of source
-        if (boost::tuples::get<0>(nIiter->second)->sID!=this->sID){ // neighbor is neither source nor sink
+    for (typename Derived::NeighborContainerType::const_iterator nIiter=this->neighborhood().begin();nIiter!=this->neighborhood().end();++nIiter){ // loop over neighborhood 
+        if (boost::tuples::get<0>(nIiter->second)->sID!=this->sID){ // neighbor is not this
             if((boost::tuples::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON){ // a neighbor of I exists at P0
-                //const size_t p0ID(D); // the sID of the neighbor at P0
                 temp=std::pair<bool,size_t>(true,boost::tuples::get<0>(nIiter->second)->sID);
             }
         }

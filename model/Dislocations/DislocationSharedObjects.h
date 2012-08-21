@@ -24,7 +24,7 @@ namespace model {
 		static unsigned int boundary_type;
 		static unsigned int use_bvp;
 		static bvpfe::Domain domain;					// temporary
-		static typename TypeTraits<LinkType>::MaterialType material;
+		//static typename TypeTraits<LinkType>::MaterialType material;
 		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
 		static VirtualBoundarySlipContainer<LinkType> vbsc;
 	};
@@ -39,8 +39,8 @@ namespace model {
 	template <typename LinkType>
 	bvpfe::Domain DislocationSharedObjects<LinkType>::domain;
 		
-	template <typename LinkType>
-	typename TypeTraits<LinkType>::MaterialType DislocationSharedObjects<LinkType>::material;
+	//template <typename LinkType>
+	//typename TypeTraits<LinkType>::MaterialType DislocationSharedObjects<LinkType>::material;
 
 	template <typename LinkType>
 	Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::externalStress=Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim>::Zero();

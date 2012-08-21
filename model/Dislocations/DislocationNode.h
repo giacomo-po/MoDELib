@@ -35,16 +35,15 @@
 namespace model {
 	
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
-	/*	   */ typename MaterialType>
-	class DislocationNode : public SplineNodeBase<DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>,
+	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+	class DislocationNode : public SplineNodeBase<DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>,
 	/*                                         */ dim,corder,InterpolationType>{
 		
 	public:
 		
 		
 		// define Derived to use NetworkTypedefs.h
-		typedef DislocationNode       <dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> Derived;
+		typedef DislocationNode       <dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> Derived;
 #include <model/Network/NetworkTypedefs.h>
 		
 		
@@ -327,7 +326,7 @@ namespace model {
 		
 		/***************************************/
 		void set_V(const VectorDofType& vNew){
-			bool useMultiStep(true);
+			bool useMultiStep(false);
 			if (useMultiStep){
 				velocity=AB1*vNew+AB2*vOld+AB3*vOldOld;
 				double vNewNorm=vNew.norm();
@@ -426,22 +425,19 @@ namespace model {
 	
 	// Declare static member
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
-	/*	   */ typename MaterialType>
+	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     //	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB1=23.0/12.0;
-	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB1=1.0/2.0;
+	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::AB1=1.0/2.0;
 	
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
-	/*	   */ typename MaterialType>
+	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     //	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB2=-16.0/12.0;
-	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB2= 1.0/2.0;
+	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::AB2= 1.0/2.0;
 	
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule, 
-	/*	   */ typename MaterialType>
+	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     //	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB3=5.0/12.0;
-	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB3= 0.0/3.0;
+	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::AB3= 0.0/3.0;
 	
 }
 #endif

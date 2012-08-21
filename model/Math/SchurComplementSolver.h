@@ -59,41 +59,10 @@ namespace model {
      * \endcode
      */	
 	class SchurComplementSolver  {
-	
-	public:
-		//! The LLT decomposition of KQQ
-		const Eigen::LLT<Eigen::MatrixXd> llt;
-		
-		//! the partial-pivot LU decomposition of KPQ*inv(KQQ)*KPQ^T
-		const Eigen::PartialPivLU<Eigen::MatrixXd> pplu;
-		
-		//! The vector of Lagrange multipliers
-		const Eigen::VectorXd L;
-		
-		//! The solution vector
-		const Eigen::VectorXd X;
-		
-        /* constructor with Fp ************************************************/
-		SchurComplementSolver(const Eigen::MatrixXd& KQQ, const Eigen::MatrixXd& KPQ, 
-		/*          */ const Eigen::VectorXd& Fq,  const Eigen::VectorXd& Fp) : llt(KQQ), 
-		/*                                                                   */ pplu(KPQ*llt.solve(KPQ.transpose())), 
-		/*                                                                   */ L(pplu.solve(KPQ*llt.solve(Fq)-Fp)),
-		/*                                                                   */ X(llt.solve(Fq-KPQ.transpose()*L)){
-            checkSolution();
-		}
-        
-        /* constructor without Fp *********************************************/
-		SchurComplementSolver(const Eigen::MatrixXd& KQQ, const Eigen::MatrixXd& KPQ, 
-        /*          */ const Eigen::VectorXd& Fq) : llt(KQQ), 
-		/*                                       */ pplu(KPQ*llt.solve(KPQ.transpose())), 
-		/*                                       */ L(pplu.solve(KPQ*llt.solve(Fq))),
-		/*                                       */ X(llt.solve(Fq-KPQ.transpose()*L)){
-            checkSolution();
-		}
         
         
         /* constructor ********************************************************/
-        void checkSolution() const {
+        void checkDecomposition() const {
             switch (llt.info()) {
                 case Eigen::Success:
                     break;
@@ -115,6 +84,68 @@ namespace model {
                     break;
             }        
         }
+	
+	public:
+		//! The LLT decomposition of KQQ
+		const Eigen::LLT<Eigen::MatrixXd> llt;
+		
+		//! the partial-pivot LU decomposition of KPQ*inv(KQQ)*KPQ^T
+		const Eigen::PartialPivLU<Eigen::MatrixXd> pplu;
+		
+		//! The vector of Lagrange multipliers
+        Eigen::VectorXd L;
+		
+		//! The solution vector
+        Eigen::VectorXd X;
+		
+        /* constructor with Fp ************************************************/
+		SchurComplementSolver(const Eigen::MatrixXd& KQQ, 
+        /*                 */ const Eigen::MatrixXd& KPQ, 
+		/*                 */ const Eigen::VectorXd& Fq,  
+        /*                 */ const Eigen::VectorXd& Fp) : 
+        /* init list                                    */ llt(KQQ), 
+		/* init list                                    */ pplu(KPQ*llt.solve(KPQ.transpose())){
+            checkDecomposition();
+            //solve(KPQ,Fq,Fp);
+            L=pplu.solve(KPQ*llt.solve(Fq)-Fp);
+            X=llt.solve(Fq-KPQ.transpose()*L);
+		}
+        
+        /* constructor without Fp *********************************************/
+		SchurComplementSolver(const Eigen::MatrixXd& KQQ, 
+        /*                 */ const Eigen::MatrixXd& KPQ, 
+        /*                 */ const Eigen::VectorXd&  Fq) : 
+        /* init list                                     */ llt(KQQ), 
+		/* init list                                     */ pplu(KPQ*llt.solve(KPQ.transpose())){
+            checkDecomposition();
+            //solve(KPQ,Fq);
+            L=pplu.solve(KPQ*llt.solve(Fq));
+            X=llt.solve(Fq-KPQ.transpose()*L);
+		}
+        
+//        /* constructor without Fp *********************************************/
+//		SchurComplementSolver(const Eigen::MatrixXd& KQQ, 
+//        /*                 */ const Eigen::MatrixXd& KPQ) : 
+//        /* init list                                     */ llt(KQQ), 
+//		/* init list                                     */ pplu(KPQ*llt.solve(KPQ.transpose())){
+//            checkDecomposition();
+//		}
+
+        
+//        /* constructor without Fp *********************************************/
+//		void solve(const Eigen::VectorXd& Fq) {
+//            L=pplu.solve(KPQ*llt.solve(Fq));
+//            X=llt.solve(Fq-KPQ.transpose()*L);
+//		}
+//            
+//        /* constructor without Fp *********************************************/
+//        void solve(const Eigen::VectorXd& KPQ, const Eigen::VectorXd& Fq, const Eigen::VectorXd& Fp) {
+//                L=pplu.solve(KPQ*llt.solve(Fq)-Fp);
+//                X=llt.solve(Fq-KPQ.transpose()*L);
+//        }
+
+        
+
 		
 	};
 	

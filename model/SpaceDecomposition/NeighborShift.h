@@ -14,92 +14,75 @@
 
 namespace model {
 	
-	
-	template <short unsigned int dim>
-	struct NeighborShift{
-		//enum {poolSize=3};
-		enum {Nneighbors= Pow<3,dim>::value};
-		static const Eigen::Matrix<int,dim, Pow<3,dim>::value> shifts;
-	};
-	
+    template <int dim, int neighborOrder>
+    struct NeighborShiftTraits{
+        enum{Nneighbors=Pow<2*neighborOrder+1,dim>::value};
+        typedef Eigen::Matrix<int,dim,Nneighbors> MatrixType; // WORK WITH TRANSPOSE
+    };
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    template <int dim, int neighborOrder>
+    struct NeighborShift{
+        static_assert(dim>=1, "dim MUST BE >=1.");
+        static_assert(neighborOrder>=0, "neighborOrder MUST BE >=1.");
+        
+        enum{Nneighbors=NeighborShiftTraits<dim,neighborOrder>::Nneighbors};
+        static const typename NeighborShiftTraits<dim,neighborOrder>::MatrixType shifts;
+        
+        /**************************************************************************/
+        static typename NeighborShiftTraits<dim,neighborOrder>::MatrixType getShifts(){
+            const typename NeighborShiftTraits<dim-1,neighborOrder>::MatrixType shiftsLower(NeighborShift<dim-1,neighborOrder>::getShifts());
+            const typename NeighborShiftTraits<1,neighborOrder>::MatrixType shifts1(NeighborShift<1,neighborOrder>::getShifts());
+            typename NeighborShiftTraits<dim,neighborOrder>::MatrixType temp;
+            for (int k=0;k<NeighborShift<1,neighborOrder>::Nneighbors;++k){
+                temp.template block<dim-1,NeighborShiftTraits<dim-1,neighborOrder>::Nneighbors>(0,k*NeighborShiftTraits<dim-1,neighborOrder>::Nneighbors)=shiftsLower;
+                temp.template block<1,NeighborShiftTraits<dim-1,neighborOrder>::Nneighbors>(dim-1,k*NeighborShiftTraits<dim-1,neighborOrder>::Nneighbors).setConstant(shifts1(k));
+            }
+            return temp;
+        }
+        
+        /**************************************************************************/
+        static typename NeighborShiftTraits<dim,neighborOrder>::MatrixType neighborIDs(const Eigen::Matrix<int,dim,1>& cellID){
+            typename NeighborShiftTraits<dim,neighborOrder>::MatrixType temp(NeighborShiftTraits<dim,neighborOrder>::MatrixType::Zero());
+            for (int n=0;n<Nneighbors;++n){
+                temp.col(n)=cellID+shifts.col(n);
+            }
+            return temp;
+        }
+        
+    };
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    template <int neighborOrder>
+    struct NeighborShift<1,neighborOrder>{
+        enum{dim=1};
+        enum{Nneighbors=NeighborShiftTraits<dim,neighborOrder>::Nneighbors};
+        static const typename NeighborShiftTraits<dim,neighborOrder>::MatrixType shifts;
+        
+        
+        /**************************************************************************/
+        static typename NeighborShiftTraits<dim,neighborOrder>::MatrixType getShifts(){
+            return Eigen::Matrix<int,NeighborShiftTraits<dim,neighborOrder>::Nneighbors,dim>::LinSpaced(-neighborOrder,neighborOrder);
+        }
+        
+        /**************************************************************************/
+        static typename NeighborShiftTraits<dim,neighborOrder>::MatrixType neighborIDs(const Eigen::Matrix<int,dim,1>& cellID){
+            typename NeighborShiftTraits<dim,neighborOrder>::MatrixType temp(NeighborShiftTraits<dim,neighborOrder>::MatrixType::Zero());
+            for (int n=0;n<Nneighbors;++n){
+                temp.col(n)=cellID+shifts.col(n);
+            }
+            return temp;
+        }
+        
+    };
+    
+    // static data members
+    template <int dim, int neighborOrder>
+    const typename NeighborShiftTraits<dim,neighborOrder>::MatrixType NeighborShift<dim,neighborOrder>::shifts=NeighborShift<dim,neighborOrder>::getShifts();
+    
 
-	
-	template <>
-	struct NeighborShift<3>{
-		enum {dim=3};
-		//enum {poolSize=3};
-		enum {Nneighbors=  Pow<3,dim>::value};
-		// First column changes every 3^2=9 values
-		// Second column changes every 3^1 values
-		// Third column changes every 3^0 values
-		
-		// In general the m-th column changes every N^(k-m) values m=0...k
-		
-		/*
-		 for (int i=0;i<Pow<N,K>::value;++i){
-		 
-		 for (j=0;j<K;++j){
-		 
-		 shifts(i,j)= pool();
-		 
-		 }
-		 }
-		 
-		 */
-		
-		
-		static Eigen::Matrix<int,dim, Nneighbors> neighborIDs(const Eigen::Matrix<int,dim,1>& cellID){
-			Eigen::Matrix<int,dim, Nneighbors> temp(Eigen::Matrix<int,dim, Nneighbors>::Zero());
-			for (int n=0;n<Nneighbors;++n){
-				temp.col(n)=cellID+shifts.col(n);
-			}
-			return temp;
-		}
-		
-		
-		static Eigen::Matrix<int,dim, Nneighbors> getShifts(){
-			return (Eigen::Matrix<int, Nneighbors,dim>()<< 0, 0, 0,
-					/*                                                  */ 0, 0, 1,
-					/*                                                  */ 0, 0,-1,
-					/*                                                  */ 0, 1, 0,
-					/*                                                  */ 0, 1, 1,
-					/*                                                  */ 0, 1,-1,
-					/*                                                  */ 0,-1, 0,
-					/*                                                  */ 0,-1, 1,
-					/*                                                  */ 0,-1,-1,
-					
-					/*                                                  */ 1, 0, 0,
-					/*                                                  */ 1, 0, 1,
-					/*                                                  */ 1, 0,-1,
-					/*                                                  */ 1, 1, 0,
-					/*                                                  */ 1, 1, 1,
-					/*                                                  */ 1, 1,-1,
-					/*                                                  */ 1,-1, 0,
-					/*                                                  */ 1,-1, 1,
-					/*                                                  */ 1,-1,-1,
-					
-					/*                                                  */-1, 0, 0,
-					/*                                                  */-1, 0, 1,
-					/*                                                  */-1, 0,-1,
-					/*                                                  */-1, 1, 0,
-					/*                                                  */-1, 1, 1,
-					/*                                                  */-1, 1,-1,
-					/*                                                  */-1,-1, 0,
-					/*                                                  */-1,-1, 1,
-					/*                                                  */-1,-1,-1).finished().transpose();
-		}
-		
-		
-		
-		//	enum {dim=3};
-		//enum {poolSize=3};
-		static const Eigen::Matrix<int,dim, Pow<3,dim>::value> shifts;
-		
-	};
-	
-
-	//	declare static data members	
-	const Eigen::Matrix<int,3, Pow<3,3>::value> NeighborShift<3>::shifts(NeighborShift<3>::getShifts());
 	
 	////////////////////////////////////////////////////////////////////////////////
 }	// close namespace model
