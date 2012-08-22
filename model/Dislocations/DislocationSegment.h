@@ -66,7 +66,6 @@
 namespace model {
 	
 	//	double cellSize= 300.0;
-	double cellSize= 1000.0;
 	
 	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>

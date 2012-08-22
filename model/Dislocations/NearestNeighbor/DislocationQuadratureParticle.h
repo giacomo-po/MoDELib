@@ -12,6 +12,8 @@
 #include <Eigen/Dense>
 #include <model/SpaceDecomposition/SpaceCellParticle.h>
 #include <model/Dislocations/Materials/Material.h>
+#include <model/Dislocations/NearestNeighbor/DislocationCell.h>
+
 
 namespace model {
 	
@@ -59,6 +61,8 @@ namespace model {
 		/* init list */ P(Pin),
 		/* init list */ T(Tin),
 		/* init list */ B(Bin){
+            
+            this->pCell->alpha += B * T.transpose() * quadWeight;
 		}
 		
 		/********************************************************/
@@ -106,9 +110,9 @@ namespace model {
                 }
             }
             if(useMultipoleStress){
-//                for (typename CellMapType::const_iterator farCellIter=this->farCellsBegin();farCellIter!=this->farCellsEnd();++farCellIter){
-//                    temp+= farCellIter->second->multipoleStress(P);
-//                }                
+                for (typename CellMapType::const_iterator farCellIter=this->farCellsBegin();farCellIter!=this->farCellsEnd();++farCellIter){
+                    temp+= farCellIter->second->multipoleStress(P);
+                }                
             }
             
 #ifdef UserStressFile

@@ -14,6 +14,7 @@
 #include <Eigen/Dense>
 #include <model/SpaceDecomposition/SpaceCellObserver.h>
 #include <model/SpaceDecomposition/SpaceCell.h>
+#include <model/Utilities/TypeTraits.h>
 
 namespace model {
 	
@@ -23,10 +24,11 @@ namespace model {
 	/********************************************************************************************/
 	template<typename Derived, short unsigned int dim, double & cellSize>
 	struct SpaceCellParticle : boost::noncopyable,
-	/*                      */ private SpaceCellObserver<SpaceCell<Derived,dim,cellSize>,dim,cellSize>,
+	/*                      */ private SpaceCellObserver<typename TypeTraits<Derived>::CellType,dim,cellSize>,
 	/*                      */ public  CRTP<Derived>{ 
 
-		typedef SpaceCell<Derived,dim,cellSize> SpaceCellType;
+		//typedef SpaceCell<Derived,dim,cellSize> SpaceCellType;
+        typedef typename TypeTraits<Derived>::CellType SpaceCellType;
 		typedef typename SpaceCellType::ParticleContainerType ParticleContainerType;
 		typedef SpaceCellObserver<SpaceCellType,dim,cellSize> SpaceCellObserverType;
 		typedef typename SpaceCellObserverType::CellMapType  CellMapType;	
