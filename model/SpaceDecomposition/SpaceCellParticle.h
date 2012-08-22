@@ -54,16 +54,36 @@ namespace model {
 			pCell->removeParticle(this->p_derived());
 		}
 		
-		/* neighborBegin() ******************************************/
-		typename ParticleContainerType::const_iterator neighborBegin() const {
-			return pCell->neighborParticleContainer.begin();
-		}
-
-		/* neighborEnd() ******************************************/
-		typename ParticleContainerType::const_iterator neighborEnd() const {
-			return pCell->neighborParticleContainer.end();
-		}
+//		/* neighborBegin() ******************************************/
+//		typename ParticleContainerType::const_iterator neighborBegin() const {
+//			return pCell->neighborParticleContainer.begin();
+//		}
+//
+//		/* neighborEnd() ******************************************/
+//		typename ParticleContainerType::const_iterator neighborEnd() const {
+//			return pCell->neighborParticleContainer.end();
+//		}
 		
+        /* nearCellsBegin ***************************************/
+        typename CellMapType::const_iterator nearCellsBegin() const {
+            return pCell->nearCellsBegin();
+        }
+        
+        /* nearCellsEnd ***************************************/
+        typename CellMapType::const_iterator nearCellsEnd() const {
+            return pCell->nearCellsEnd();
+        }
+        
+        /* farCellsBegin ***************************************/
+        typename CellMapType::const_iterator farCellsBegin() const {
+            return pCell->farCellsBegin();
+        }
+        
+        /* farCellsEnd ***************************************/
+        typename CellMapType::const_iterator farCellsEnd() const {
+            return pCell->farCellsEnd();
+        }
+        
 	};
 		
 	/********************************************************************************************/

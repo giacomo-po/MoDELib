@@ -486,17 +486,21 @@ namespace model {
 
 			// Material and crystal orientation
             unsigned int materialZ;
-            EDR.readScalarInFile(fullName.str(),"material",materialZ);
+            EDR.readScalarInFile(fullName.str(),"material",materialZ); // material by atomic number Z
             Material<Isotropic>::select(materialZ);
             MatrixDimD C2Gtemp;
-            EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp);
-//            shared.material.rotate(C2Gtemp);
+            EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
             Material<Isotropic>::rotateCrystal(C2Gtemp);
+
+            // QuadratureParticle
+            EDR.readScalarInFile(fullName.str(),"coreWidthSquared",DislocationQuadratureParticle<dim,cellSize>::a2); // core-width
+            assert((DislocationQuadratureParticle<dim,cellSize>::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
+            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
+
+            
             
             EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
 			
-            EDR.readScalarInFile(fullName.str(),"coreWidthSquared",DislocationQuadratureParticle<dim,cellSize>::a2);
-            assert((DislocationQuadratureParticle<dim,cellSize>::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
             
 			
 			
@@ -716,8 +720,10 @@ namespace model {
 			double t0=clock();
 			std::cout<<"		Updating Quadrature Points... "<<std::flush;
 			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-				linkIter->second->quadratureParticleVector.clear();
-				Quadrature<1,qOrder>::execute(linkIter->second,&LinkType::updateQuadGeometryKernel);
+				linkIter->second->quadratureParticleVector.clear(); // first clear all quadrature points for all segments
+			}
+            for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+				Quadrature<1,qOrder>::execute(linkIter->second,&LinkType::updateQuadGeometryKernel); // then update again
 			}
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
