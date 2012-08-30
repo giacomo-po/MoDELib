@@ -49,7 +49,12 @@ namespace model {
         
 		static  double a2;
 		static const MatrixDim I;
-        static bool useMultipoleStress;
+        //static bool useMultipoleStress;
+        
+        enum{FULL=0,CELL_PARTICLE=1,CELL_CELL=2};
+        
+        static int nearCellStressApproximation;
+        static int  farCellStressApproximation;
 		
 		/********************************************************/
 		DislocationQuadratureParticle(const double& qA,const double& qW,
@@ -103,17 +108,63 @@ namespace model {
 		MatrixDim stress() const {
 			/*! The total stress field on this DislocationQuadratureParticle
 			 */
+            //            MatrixDim temp(MatrixDim::Zero());
+            //            for (typename CellMapType::const_iterator nearCellIter=this->nearCellsBegin();nearCellIter!=this->nearCellsEnd();++nearCellIter){
+            //                for (typename ParticleContainerType::const_iterator partIter=nearCellIter->second->particleBegin();partIter!=nearCellIter->second->particleEnd();++partIter){
+            //                    temp+=(*partIter)->stress_at(P);
+            //                }
+            //            }
+            //            if(useMultipoleStress){
+            //                for (typename CellMapType::const_iterator farCellIter=this->farCellsBegin();farCellIter!=this->farCellsEnd();++farCellIter){
+            //                    temp+= farCellIter->second->multipoleStress(P);
+            //                }
+            //            }
+            
             MatrixDim temp(MatrixDim::Zero());
-            for (typename CellMapType::const_iterator nearCellIter=this->nearCellsBegin();nearCellIter!=this->nearCellsEnd();++nearCellIter){
-                for (typename ParticleContainerType::const_iterator partIter=nearCellIter->second->particleBegin();partIter!=nearCellIter->second->particleEnd();++partIter){
+            for (typename CellMapType::const_iterator neighCellIter=this->neighborCellsBegin();neighCellIter!=this->neighborCellsEnd();++neighCellIter){
+                for (typename ParticleContainerType::const_iterator partIter=neighCellIter->second->particleBegin();partIter!=neighCellIter->second->particleEnd();++partIter){
                     temp+=(*partIter)->stress_at(P);
                 }
             }
-            if(useMultipoleStress){
-                for (typename CellMapType::const_iterator farCellIter=this->farCellsBegin();farCellIter!=this->farCellsEnd();++farCellIter){
-                    temp+= farCellIter->second->multipoleStress(P);
-                }                
+            
+            
+            switch (nearCellStressApproximation) {
+                case FULL: // quadrature-quadrature
+                    // finish here
+                    assert(0 && "FINISH HERE");
+                    break;
+                case CELL_PARTICLE: // cell-quadrature
+                    for (typename CellMapType::const_iterator nearCellIter=this->nearCellsBegin();nearCellIter!=this->nearCellsEnd();++nearCellIter){
+                        temp+= nearCellIter->second->multipoleStress(P);
+                    }
+                    break;
+                case CELL_CELL: // cell-cell
+                        temp+= this->pCell->nearStress;
+                    break;
+                    
+                default: // no computation
+                    break;
             }
+            
+            
+            switch (farCellStressApproximation) {
+                case FULL: // quadrature-quadrature
+                    // finish here
+                    assert(0 && "FINISH HERE");
+                    break;
+                case CELL_PARTICLE: // cell-quadrature
+                    for (typename CellMapType::const_iterator farCellIter=this->farCellsBegin();farCellIter!=this->farCellsEnd();++farCellIter){
+                        temp+= farCellIter->second->multipoleStress(P);
+                    }
+                    break;
+                case CELL_CELL: // cell-cell
+                        temp+= this->pCell->farStress;
+                    break;
+                    
+                default: // no computation
+                    break;
+            }
+            
             
 #ifdef UserStressFile
             //			temp+=userStress(k);
@@ -132,16 +183,23 @@ namespace model {
 		}
 		
 	};
-
+    
     // Static data members
 	template <short unsigned int dim, double & cellSize>
     double DislocationQuadratureParticle<dim,cellSize>::a2=1.0;  // square of core size a
-    	
+    
 	template <short unsigned int dim, double & cellSize>
 	const Eigen::Matrix<double,dim,dim> DislocationQuadratureParticle<dim,cellSize>::I=Eigen::Matrix<double,dim,dim>::Identity();  // square of core size a
     
+//    template <short unsigned int dim, double & cellSize>
+//    bool DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress=false;  // square of core size a
+    
     template <short unsigned int dim, double & cellSize>
-    bool DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress=false;  // square of core size a
+    int DislocationQuadratureParticle<dim,cellSize>::nearCellStressApproximation=3;  // square of core size a
+    
+    template <short unsigned int dim, double & cellSize>
+    int DislocationQuadratureParticle<dim,cellSize>::farCellStressApproximation=3;  // square of core size a
+    
     
     /**************************************************************************/
     /**************************************************************************/

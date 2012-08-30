@@ -35,7 +35,6 @@
 //               <<"  "<<PSR(2,2)<<"  "<<dt<<std::endl;
 
 
-
 SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Displacement_file;
 SequentialOutputFile<'D',1>::set_count(runID); // Displacement_file;
 SequentialOutputFile<'D',1> Dfile;

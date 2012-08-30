@@ -84,6 +84,15 @@ namespace model {
 				case 12:
 					Ci=EdgeConfigs<12>::get_Ci();
 					break;
+                case 13:
+					Ci=EdgeConfigs<13>::get_Ci();
+					break;
+                case 14:
+					Ci=EdgeConfigs<14>::get_Ci();
+					break;
+                case 15:
+					Ci=EdgeConfigs<15>::get_Ci();
+					break;
 					
 					
 				default:

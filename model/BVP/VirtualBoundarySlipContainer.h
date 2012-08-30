@@ -197,7 +197,9 @@ namespace model {
              */
             MatrixDim temp(MatrixDim::Zero());
             for(typename BaseContainerType::const_iterator sIter=this->begin();sIter!=this->end();++sIter){
-                temp+=sIter->stress(Rfield);	
+                if(sIter->radialSegmentsVector.size()){
+                    temp+=sIter->stress(Rfield);
+                }
             }
             
             return temp;

@@ -52,6 +52,9 @@ namespace model {
 	std::string magentaColor    = "\033[0;35m";   // a magenta color
 	
 	
+#include <model/Dislocations/Visualization/rendereps_out.h>
+
+    
 	
 	/*************************************************************/
 	/* DDgl **************************************************/
@@ -72,6 +75,9 @@ namespace model {
 	template <float & alpha>
 	struct DDgl<3,alpha>{
 		
+        
+        #include <model/Dislocations/Visualization/rendereps.h>
+        
 		enum {dim=3};
 		int windowHeight;
 		int windowWidth;
@@ -139,13 +145,13 @@ namespace model {
 		
 		
 		/* screenShot ************************************************/
-		void screenShot() const {
+		void screenShot(const std::string& filename) const {
 			
 			
-			std::stringstream filenameStream;
-			filenameStream << "tga/image_" << frameN << ".tga";
-			
-			std::cout<<"Saving file"<<filenameStream.str()<<std::endl;
+//			std::stringstream filenameStream;
+//			filenameStream << "tga/image_" << frameN << ".tga";
+//			
+//			std::cout<<"Saving file"<<filenameStream.str()<<std::endl;
 			
 			//const char* filename=filenameStream.str().c_str();
 			int x=glutGet(GLUT_WINDOW_WIDTH);
@@ -167,7 +173,7 @@ namespace model {
 			unsigned char header[18]={0,0,2,0,0,0,0,0,0,0,0,0,(char)xa,(char)xb,(char)ya,(char)yb,24,0};
 			
 			// write header and data to file
-			std::fstream File(filenameStream.str().c_str(), std::ios::out | std::ios::binary);
+			std::fstream File(filename.c_str(), std::ios::out | std::ios::binary);
 			File.write (reinterpret_cast<const char*>(header), sizeof (char)*18);
 			File.write (reinterpret_cast<const char*>(data), sizeof (char)*imageSize);
 			
@@ -293,6 +299,32 @@ namespace model {
 			transVector<< 0.0,0.0,0.0;
 		}
 		
+        
+//void
+//render(void)
+//{
+//    
+//    gluLookAt(eyePoint(0),eyePoint(1),eyePoint(2), centerPoint(0), centerPoint(1), centerPoint(2), upVector(0), upVector(1), upVector(2)); //giacomo
+//
+//    glTranslatef(centerPoint(0),centerPoint(1),centerPoint(2));
+//    int object=1;
+//    //glPushMatrix();
+//    //glRotatef(angle, 0.0, 1.0, 0.0);
+//    switch (object) {
+//        case 0:
+//            glutSolidSphere(100.0, 10, 10);
+//            break;
+//        case 1:
+//            glutSolidTorus(0.5, 1.0, 15, 15);
+//            break;
+//        case 2:
+//            glutSolidTeapot(1.0);
+//            break;
+//    }
+//   // glPopMatrix();
+//}
+        
+        
 		/* drawScene *************************************************/
 		//template<short unsigned int dim, double & alpha>
 		void drawScene() {
@@ -333,7 +365,13 @@ namespace model {
 			planePlotter.plot();
 			
 			if (saveTga && savedframeN!=frameN) {
-				screenShot();
+                
+                std::stringstream filenameStream;
+                filenameStream << "tga/image_" << frameN << ".tga";
+                std::string filename=filenameStream.str();
+                std::cout<<"Saving file"<<filename<<std::endl;
+
+				screenShot(filename);
 				savedframeN=frameN;
 			}
 			
@@ -528,10 +566,10 @@ namespace model {
 					
                 case 'i':
                     autoplay=false;
-                    if(splinePlotter.showSpecificVertex){
+                    //if(splinePlotter.showSpecificVertex){
                         std::cout<<"Enter a stepIncrement: ";
                         std::cin>>stepIncrement;
-                    }
+                    //}
 					break;
 					
                 case 'k':
@@ -596,12 +634,18 @@ namespace model {
 					break; 
 
                     
+                case 'b':
+                    int size=1;
+                    int doSort=1;
+					outputEPS(size,  doSort, "pippo.eps");
+					break;
                     
                     
 			}
 		}
 		
 		
+        
 		
 		/* mouseMotion ***********************************************/
 		void mouseMotion(int x, int y){

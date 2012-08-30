@@ -67,8 +67,8 @@ namespace model {
 			
 			readDir("E");
 			readDir("V");
-			readDir("C");
-			readDir("G");
+			//readDir("C");
+			//readDir("G");
 		}
 		
 		/* list ************************************************/		

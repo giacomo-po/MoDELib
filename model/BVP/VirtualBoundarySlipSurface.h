@@ -16,6 +16,7 @@
 #include <model/Dislocations/DislocationNetworkTraits.h>
 #include <model/Dislocations/GlidePlanes/GlidePlaneObserver.h>
 #include <model/Dislocations/Materials/Material.h>
+#include <model/Dislocations/Materials/CrystalOrientation.h>
 
 
 namespace model {
@@ -49,7 +50,7 @@ namespace model {
         
         
         typedef typename GlidePlaneObserver<DislocationSegmentType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
-    	
+    	typedef typename CrystalOrientation<dim>::PlaneNormalContainerType PlaneNormalContainerType;
         
     public:
         const GlidePlaneSharedPtrType pGlidePlane;
@@ -173,16 +174,31 @@ namespace model {
             
             VectorDim temp = VectorDim::Zero();
             bool calculated = false;
-            
+	    
+	    //VectorDim conjugatePlaneNormal = ds.conjugatePlaneNormal(ds.chord());
+            //VectorDim conjugatePlaneNormal = ds.get_sessileNormal(ds.chord(),ds.Burgers);
+	    PlaneNormalContainerType allowedSlipSystems;
+	    CrystalOrientation<dim>::find_slipSystem(ds.chord(),ds.Burgers,allowedSlipSystems);
+	    
+	    VectorDim conjugatePlaneNormal;
+	    
             if((P_Prj - dn.get_P()).norm() > 1.0e-7) {
                 temp =  (P_Prj - dn.get_P()).normalized() ;
                 temp = dn.boundaryNormal.dot(temp) / std::abs(dn.boundaryNormal.dot(temp)) * temp;
                 calculated = true;
             }
             
-            else if (ds.conjugatePlaneNormal().norm() > 0.0) {
-                double h = dn.get_P().dot(ds.conjugatePlaneNormal());
-                P_Prj = P_BN + ( ( (h*ds.conjugatePlaneNormal())-P_BN ).dot(ds.conjugatePlaneNormal()) )*ds.conjugatePlaneNormal();
+            //else if (conjugatePlaneNormal.norm() > 0.0) {
+            else if (allowedSlipSystems.size() > 1) {
+	      
+	      for (unsigned int k=0;k<allowedSlipSystems.size();k++) {
+		if ((ds.pGlidePlane->planeNormal.cross(allowedSlipSystems[k])).norm() < FLT_EPSILON) continue;
+		conjugatePlaneNormal = allowedSlipSystems[k].normalized();
+	      }
+	      
+	      
+	      double h = dn.get_P().dot(conjugatePlaneNormal);
+                P_Prj = P_BN + ( ( (h*conjugatePlaneNormal)-P_BN ).dot(conjugatePlaneNormal) )*conjugatePlaneNormal;
                 
                 if((P_Prj - dn.get_P()).norm() > 1.0e-7) {
                     temp =  (P_Prj - dn.get_P()).normalized() ;
@@ -194,7 +210,7 @@ namespace model {
             if (!calculated) {
                 std::cout << dn.get_P().transpose() << std::endl;
                 std::cout << ds.pGlidePlane->planeNormal.transpose() << std::endl;
-                std::cout << ds.conjugatePlaneNormal().transpose() << std::endl;
+                std::cout << conjugatePlaneNormal.transpose() << std::endl;
                 assert(0&& "Radial projection direction for virtual dislocations could not be calculated");
             }
             

@@ -47,6 +47,10 @@ namespace model {
 		static typename CellMapType::const_iterator end() {
 			return cellMap.end();
 		}
+        
+        static size_t size() {
+            return cellMap.size();
+        }
 		
 		/* getCellByID *****************************************************/		
 		static SharedPtrType getCellByID(const VectorDimI& cellID)  {
@@ -56,7 +60,6 @@ namespace model {
 		
 		/* getCellByPosition **********************************************/		
 		static SharedPtrType getCellByPosition(const VectorDimD& P)  {
-//			typename CellMapType::const_iterator iter(cellMap.find(cellID));
 			return getCellByID(floorEigen<dim>(P/cellSize));
 		}
 		

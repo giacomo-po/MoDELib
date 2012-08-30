@@ -135,7 +135,7 @@ namespace model {
 	//////////////////////////////////////////////////////////////
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-//	/*	   */ typename MaterialType>
+    //	/*	   */ typename MaterialType>
 	class DislocationNetwork : public Network<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
 	/*                      */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>{
 		
@@ -147,7 +147,7 @@ namespace model {
 		typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
 		typedef Eigen::Matrix<double,dim,1>		VectorDimD;
 		typedef typename LinkType::DislocationQuadratureParticleType DislocationQuadratureParticleType;
-		typedef SpaceCell<DislocationQuadratureParticleType,dim,cellSize> SpaceCellType;
+		typedef DislocationCell<dim,cellSize> SpaceCellType;
 		typedef SpaceCellObserver<SpaceCellType,dim,cellSize> SpaceCellObserverType;
 		typedef typename SpaceCellObserverType::CellMapType CellMapType;
 		typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
@@ -386,7 +386,6 @@ namespace model {
 			//! 10- Cross Slip
 			crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
             //			updateQuadraturePoints();
-            //			updateQuadraturePoints();
             
 			
 			
@@ -401,6 +400,9 @@ namespace model {
             //				output();
             //#endif
             //			}
+            
+            
+            updateQuadraturePoints();
             
 			//! 12 - Increment runID counter
 			++runID;     // increment the runID counter first, since the original configuration has been outputed already
@@ -483,7 +485,7 @@ namespace model {
 			
             std::ostringstream fullName;
             fullName<<inputDirectoryName_in<<inputFileName;
-
+            
 			// Material and crystal orientation
             unsigned int materialZ;
             EDR.readScalarInFile(fullName.str(),"material",materialZ); // material by atomic number Z
@@ -491,12 +493,14 @@ namespace model {
             MatrixDimD C2Gtemp;
             EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
             Material<Isotropic>::rotateCrystal(C2Gtemp);
-
+            
             // QuadratureParticle
             EDR.readScalarInFile(fullName.str(),"coreWidthSquared",DislocationQuadratureParticle<dim,cellSize>::a2); // core-width
             assert((DislocationQuadratureParticle<dim,cellSize>::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
-            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
-
+            //            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
+            EDR.readScalarInFile(fullName.str(),"nearCellStressApproximation",DislocationQuadratureParticle<dim,cellSize>::nearCellStressApproximation); // useMultipoleStress
+            EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationQuadratureParticle<dim,cellSize>::farCellStressApproximation); // useMultipoleStress
+            assert((DislocationQuadratureParticle<dim,cellSize>::farCellStressApproximation >= DislocationQuadratureParticle<dim,cellSize>::nearCellStressApproximation) && "NEAR FIELD APPROXIMATION IS COARSER THAN FAR FIELD APPROXIMATION");
             
             
             EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
@@ -669,9 +673,9 @@ namespace model {
                 SequentialOutputFile<'C',1>::set_increment(outputFrequency); // Cell_file;
                 SequentialOutputFile<'C',1>::set_count(runID); // Cell_file;
                 SequentialOutputFile<'C',1> Cell_file;
-                SpaceCellObserverType SPC;
+                //              SpaceCellObserverType SPC;
                 int cID(0);
-                for (typename CellMapType::const_iterator cellIter=SPC.begin();cellIter!=SPC.end();++cellIter){
+                for (typename CellMapType::const_iterator cellIter=SpaceCellObserverType::begin();cellIter!=SpaceCellObserverType::end();++cellIter){
                     Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<cellSize<<std::endl;
                     ++cID;
                 }
@@ -725,6 +729,9 @@ namespace model {
             for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
 				Quadrature<1,qOrder>::execute(linkIter->second,&LinkType::updateQuadGeometryKernel); // then update again
 			}
+            for (typename CellMapType::const_iterator cellIter=SpaceCellObserverType::begin();cellIter!=SpaceCellObserverType::end();++cellIter){
+                cellIter->second->computeCenterStress();
+            }
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		

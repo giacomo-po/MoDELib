@@ -33,6 +33,9 @@ namespace model {
 	struct SpaceCell : boost::noncopyable,
 	/*              */ private SpaceCellObserver<Derived,dim,cellSize>,
     /*              */ public  CRTP<Derived>{
+        
+        
+ 
 		
         typedef typename TypeTraits<Derived>::ParticleType ParticleType;
         typedef Derived SpaceCellType;
@@ -40,14 +43,34 @@ namespace model {
 		typedef typename SpaceCellObserverType::CellMapType  CellMapType;
 		typedef typename SpaceCellObserverType::VectorDimD  VectorDimD;
 		typedef typename SpaceCellObserverType::VectorDimI  VectorDimI;
-		typedef std::set<const ParticleType*> ParticleContainerType; // PTR COMPARE IS NOT NECESSARY        
-        typedef NeighborShift<dim,1> NeighborShiftType;
+		typedef std::set<const ParticleType*> ParticleContainerType; // PTR COMPARE IS NOT NECESSARY
         
-        CellMapType nearCells;
-        CellMapType  farCells;
+        enum{neighborLayer=1}; // = (1+2*1)^dim  cells = 27  cells in 3d
+        enum{    nearLayer=2}; // = (1+2*3)^dim  cells = 343 cells in 3d
+        
+        typedef NeighborShift<dim,1> NeighborShiftType;
+        typedef NeighborShift<dim,1>     NearShiftType;
+
+        
+        CellMapType  neighborCells;
+        CellMapType      nearCells;
+        CellMapType       farCells;
+
         
         /* isNearCell *******************************************/
         bool isNearCell(const VectorDimI& otherCellID) const {
+            bool temp(false);
+            for (int k=0;k<nearCellIDs.cols();++k){
+                if(nearCellIDs.col(k)==otherCellID){ // cell is a neighbor
+                    temp=true;
+                    break;
+                }
+            }
+            return temp;
+        }
+        
+        /* isNeighborCell ***************************************/
+        bool isNeighborCell(const VectorDimI& otherCellID) const {
             bool temp(false);
             for (int k=0;k<neighborCellIDs.cols();++k){
                 if(neighborCellIDs.col(k)==otherCellID){ // cell is a neighbor
@@ -68,18 +91,35 @@ namespace model {
 				
         //! The ID of this cell, defining the dim-dimensional spatial region cellID<= x/cellSize < (cellID+1).
 		const VectorDimI cellID;
+        
+        
+        const VectorDimD center;
+        
 		//! The cellID(s) of the neighboring SpaceCell(s) (in column)
 		const Eigen::Matrix<int,dim, NeighborShiftType::Nneighbors> neighborCellIDs;
+		const Eigen::Matrix<int,dim,     NearShiftType::Nneighbors>     nearCellIDs;
+
         
 		/* Constructor *******************************************/
-		SpaceCell(const VectorDimI& cellID_in) : cellID(cellID_in),neighborCellIDs(NeighborShiftType::neighborIDs(cellID)){            
+		SpaceCell(const VectorDimI& cellID_in) :
+        /* init list */ cellID(cellID_in),
+        /* init list */ center((cellID.template cast<double>().array()+0.5).matrix()*cellSize),
+        /* init list */ neighborCellIDs(NeighborShiftType::neighborIDs(cellID)),
+        /* init list */     nearCellIDs(    NearShiftType::neighborIDs(cellID)){
+            
 			//! 1- Adds this to static SpaceCellObserver::cellMap
 			assert(this->cellMap.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT SPACE CELL IN STATIC cellMap.");
             //! Populate nearCells and farCells
             for (typename CellMapType::const_iterator cellIter=this->begin();cellIter!=this->end();++cellIter){
                 if (isNearCell(cellIter->second->cellID)){
-                    assert(                  nearCells.insert(std::make_pair(cellIter->first,cellIter->second)).second && "CANNOT INSERT CELL IN NEARCELLS");
-                    if(cellID!=cellIter->second->cellID){
+                    if (isNeighborCell(cellIter->second->cellID)){
+                        assert(                  neighborCells.insert(std::make_pair(cellIter->first,cellIter->second)).second && "CANNOT INSERT CELL IN NEIGHBORCELLS");
+                        if(cellID!=cellIter->second->cellID){
+                            assert(cellIter->second->neighborCells.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT THIS IN NEIGHBORCELLS");
+                        }
+                    }
+                    else{
+                        assert(                  nearCells.insert(std::make_pair(cellIter->first,cellIter->second)).second && "CANNOT INSERT CELL IN NEARCELLS");
                         assert(cellIter->second->nearCells.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT THIS IN NEARCELLS");
                     }
                 }
@@ -109,6 +149,16 @@ namespace model {
 			//! 1- Removes pP to the particleContainer
 			assert(particleContainer.erase(pP)==1 && "CANNOT ERASE PARTICLE FROM particleContainer.");
 		}
+
+        /* neighborCellBegin ***************************************/
+        typename CellMapType::const_iterator neighborCellsBegin() const {
+            return neighborCells.begin();
+        }
+        
+        /* neighborCellEnd ***************************************/
+        typename CellMapType::const_iterator neighborCellsEnd() const {
+            return neighborCells.end();
+        }
         
         /* nearCellBegin ***************************************/
         typename CellMapType::const_iterator nearCellsBegin() const {

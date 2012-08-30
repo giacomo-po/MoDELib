@@ -235,19 +235,7 @@ namespace model {
 				}
 				glEnd();
 				
-				//				if(false){
-				//					int k1(Np*0.5);
-				//					
-				//					MatrixDimNc circlek1=getCircle(k1);
-				//					int k2(k1+10);
-				//					
-				//					glBegin(GL_LINE_STRIP);
-				//					for (int c=0;c<Nc;++c){
-				//						glVertex3f(tubeAxis(0,k1)+radius*circlek1(0,c),tubeAxis(1,k1)+radius*circlek1(1,c),tubeAxis(2,k1)+radius*circlek1(2,c));
-				//						glVertex3f(tubeAxis(0,k2),tubeAxis(1,k2),tubeAxis(2,k2));
-				//					}
-				//					glEnd();
-				//				}
+
 				
 			}
 			

@@ -17,6 +17,7 @@
 
 #include <model/Math/SchurComplementSolver.h>
 #include <model/Math/SchurComplementSparseSolver.h>
+#include <model/Math/MINRES.h>
 
 //#include <model/Geometry/Splines/SplineNetworkTraits.h>
 //#include <model/Geometry/Splines/SplinesBase/SplineSubNetworkBase.h>
@@ -44,10 +45,80 @@ namespace model {
 		typedef Eigen::Matrix<double,dim,1>   VectorDim;
 		typedef Eigen::Matrix<double,dim,dim> MatrixDim;
 		
+        
+        typedef Eigen::SparseMatrix<double> SparseMatrixType;
+
+        
+        /**********************************************************************/
+        void storeNodeSolution(const Eigen::VectorXd& X){
+            size_t k=0;
+			for (typename SubNetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
+				nodeIter->second->set_V(X.segment(NdofXnode*k,NdofXnode));
+				++k;
+			}
+        }
+        
+        
+        /************************************************************/
+        template <bool symmetricConstraint>
+        void assembleConstraints(std::vector<Eigen::Triplet<double> >& vT, size_t& KPQ_row) const {
+        
+            // Collect contraints
+            std::vector<typename NodeType::VectorOfNormalsType> NNV; // DON'T NEED THIS ANYMORE WITH TRIPLETS
+			for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
+				NNV.push_back(nodeIter->second->constraintNormals());
+			}
+            
+            //            // Constrain sinple nodes to move normal to tangent
+            //            for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
+            //                if(nodeIter->second->constraintNormals().size()==1){
+            //                    Eigen::Matrix<int,dim,1> node_dofID(nodeIter->second->node_dofID());
+            //                    Eigen::Matrix<double,dim,1> T(nodeIter->second->get_T());
+            //
+            //                    for(size_t d=0;d<dim;++d){
+            //                        kpqT.push_back(Eigen::Triplet<double>(KPQ_row,node_dofID(d),T(d)));
+            //                    }
+            //                    ++KPQ_row;
+            //                }
+            //			}
+            
+            
+            // loop over each segment and add segment contributions to kqqT and Fq
+            //            for (typename SubNetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+            //                const Eigen::VectorXd ortCS(linkIter->second->ortC*linkIter->second->Mseg);
+            //                for (unsigned int i=0;i<linkIter->second->segmentDOFs.size();++i){
+            //                    std::set<size_t>::const_iterator iterI(linkIter->second->segmentDOFs.begin());
+            //                    std::advance(iterI,i);
+            //                    //FQ(*iterI)+=tempFq(i);
+            //                    kpqT.push_back(Eigen::Triplet<double>(KPQ_row,*iterI,ortCS(i)));
+            //                }
+            //                ++KPQ_row;
+            //			}
+            
+            
+            //size_t KPQ_row=0;
+            
+            for (size_t n=0 ;n<NNV.size();++n){
+                for (size_t c=0;c<NNV[n].size();++c){
+                    for(size_t d=0;d<dim;++d){
+                        vT.push_back(Eigen::Triplet<double>(KPQ_row,n*dim+d,NNV[n][c](d)));
+                        if (symmetricConstraint){
+                            vT.push_back(Eigen::Triplet<double>(n*dim+d,KPQ_row,NNV[n][c](d)));
+                        }
+                    }
+                    ++KPQ_row;
+                }
+            }
+        
+        }
+        
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
 		enum {NdofXnode=NodeType::NdofXnode};
+        
+        static bool useSchurComplementSolver;
+
 		
 		/************************************************************/
 		/* Constructor with pointer to Node *************************/
@@ -60,11 +131,15 @@ namespace model {
         //		DislocationSubNetwork(LinkType* const pL) : SubNetworkBaseType::SplineSubNetworkBase(pL){}
 		
 		
+        
+        
+        
+        
         /************************************************************/
         void sparseSolve(){
             
             // Make some initial checks
-            size_t nodeOrdr(this->nodeOrder());
+            const size_t nodeOrdr(this->nodeOrder());
 			if (nodeOrdr==0 || nodeOrdr==1){
                 std::cout<<"DislocationSubNetwork:" <<this->sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<this->linkOrder()<<std::endl;
                 assert(0 && "DislocationSubNetework has less than 2 Nodes.");
@@ -79,109 +154,66 @@ namespace model {
 			}
             
             
-            size_t reserveSize(0);
+            // Assembly of Stiffness Matrix and force vector
+            const size_t Ndof(this->nodeOrder()*NdofXnode); // the total number of dof in the subnetwork
+            size_t reserveSize(0); 
             for (typename SubNetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-                reserveSize+=nodeIter->second->closedOrder();                
+                reserveSize+=nodeIter->second->closedOrder();
             }
             std::vector<Eigen::Triplet<double> > kqqT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
             kqqT.reserve(reserveSize); // assume some fill percentage
-            
-            const size_t Ndof(this->nodeOrder()*NdofXnode); // the total number of dof in the subnetwork
             Eigen::VectorXd Fq(Eigen::VectorXd::Zero(Ndof));
-            
-            // loop over each segment and add segment contributions to kqqT and Fq
             for (typename SubNetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-                linkIter->second->addToGlobalAssembly(kqqT,Fq);
+                linkIter->second->addToGlobalAssembly(kqqT,Fq); // loop over each segment and add segment contributions to kqqT and Fq
 			}
             
-            // Create a sparse matrix from the triplets
-            typedef Eigen::SparseMatrix<double> SparseMatrixType;
-            SparseMatrixType KQQ(Ndof,Ndof);
-            KQQ.setFromTriplets(kqqT.begin(),kqqT.end());
-            
-            
-            std::vector<typename NodeType::VectorOfNormalsType> NNV; // DON'T NEED THIS ANYMORE WITH TRIPLETS
-			
-			for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-				NNV.push_back(nodeIter->second->constraintNormals());
-			}
-			
-//			size_t count=0;
-//			for (size_t k=0;k<NNV.size();++k){
-//				count+=NNV[k].size();
-//			}
-            
-           // count+=this->linkOrder();
-			
-			//assert(count<KQQ.rows() && "SUBNETWORK IS FULLY CONSTRAINED");
-			
-            //			Eigen::VectorXd Fp  = Eigen::VectorXd::Zero(count);
-			
-            std::vector<Eigen::Triplet<double> > kpqT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
-
-            
-			size_t KPQ_row=0;
-			
-			for (size_t n=0 ;n<NNV.size();++n){	
-				for (size_t c=0;c<NNV[n].size();++c){
-                    for(size_t d=0;d<dim;++d){
-                        kpqT.push_back(Eigen::Triplet<double>(KPQ_row,n*dim+d,NNV[n][c](d)));
-                    }
-					++KPQ_row;
-				}
-			}
-            
-            
-            for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-                if(nodeIter->second->constraintNormals().size()==1){
-                    Eigen::Matrix<int,dim,1> node_dofID(nodeIter->second->node_dofID());
-                    Eigen::Matrix<double,dim,1> T(nodeIter->second->get_T());
-
-                    for(size_t d=0;d<dim;++d){
-                        kpqT.push_back(Eigen::Triplet<double>(KPQ_row,node_dofID(d),T(d)));
-                    }
-                    ++KPQ_row;
+            if(useSchurComplementSolver){ // use SchurComplementSolver
+                // Assemble Kqq and Kpq separately
+                // Kqq
+                SparseMatrixType KQQ(Ndof,Ndof);
+                KQQ.setFromTriplets(kqqT.begin(),kqqT.end());
+                // Kpq
+                std::vector<Eigen::Triplet<double> > kpqT;
+                size_t KPQ_row=0;
+                assembleConstraints<false>(kpqT,KPQ_row);
+                SparseMatrixType KPQ(KPQ_row,Ndof);
+                KPQ.setFromTriplets(kpqT.begin(),kpqT.end());
+                
+                if (kqqT.size()<1){ // use direct solver (LLT decomposition) if the number of non-zeros in kqqT is less than a threshold
+                    SchurComplementSparseSolver<SparseMatrixType,true> scs(KQQ);
+                    scs.solve(KPQ,Fq);
+                    storeNodeSolution(scs.X());
                 }
-			}
+                else{ // use iterative solver (Conjugate Gradient)
+                    SchurComplementSparseSolver<SparseMatrixType,false> scs(KQQ);
+                    scs.solve(KPQ,Fq,FLT_EPSILON*0.001); // FLT_EPSILON is the tolerance
+                    storeNodeSolution(scs.X);
+                }
+                
+            }
+            else{ // use MINRES solver
+                // Assemble Kqq and Kpq together
+                size_t KPQ_row=Ndof; // start placing constraints at row Ndof
+                assembleConstraints<true>(kqqT,KPQ_row); // kqqT and KPQ_row are overwritten
+                SparseMatrixType KQQ(KPQ_row,KPQ_row);
+                KQQ.setFromTriplets(kqqT.begin(),kqqT.end()); // now KQQ is idefinite (NOT SPD) therefore conjugate-gradient cannot be used
+                Eigen::VectorXd F(Eigen::VectorXd::Zero(KPQ_row));
+                F.segment(0,Ndof)=Fq;
+                Eigen::VectorXd x0(Eigen::VectorXd::Zero(KPQ_row));
+                MINRES<double> mRS(KQQ,F,x0,DBL_EPSILON*100.0);                
+                storeNodeSolution(mRS.xMR.segment(0,Ndof));
+            }
             
-            
-            // loop over each segment and add segment contributions to kqqT and Fq
-//            for (typename SubNetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-//                const Eigen::VectorXd ortCS(linkIter->second->ortC*linkIter->second->Mseg);
-//                for (unsigned int i=0;i<linkIter->second->segmentDOFs.size();++i){
-//                    std::set<size_t>::const_iterator iterI(linkIter->second->segmentDOFs.begin());
-//                    std::advance(iterI,i);
-//                    //FQ(*iterI)+=tempFq(i);
-//                    kpqT.push_back(Eigen::Triplet<double>(KPQ_row,*iterI,ortCS(i)));
-//                }
-//                ++KPQ_row;
-//			}
-            
-                        
-            
-            SparseMatrixType KPQ(KPQ_row,Ndof);
-            KPQ.setFromTriplets(kpqT.begin(),kpqT.end());
             
 
             
-            
-            // Call the solver
-            SchurComplementSparseSolver<SparseMatrixType> scs(KQQ,KPQ,Fq);                   
-
-			//! Store velocities in DislocationNodes
-            size_t k=0;
-			for (typename SubNetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-				nodeIter->second->set_V(scs.X.segment(NdofXnode*k,NdofXnode));                
-				++k;
-			}
-
             
         }
         
         
         
+        
 		/************************************************************/
-		/* Constructor with pointer to Link *************************/
 		void solve() {
             
             
@@ -290,8 +322,6 @@ namespace model {
 			return temp;
 		}
 		
-		
-		
 		/************************************************************/
 		bool isLoop() const {
 			bool temp=true;
@@ -300,8 +330,7 @@ namespace model {
 			}
 			return temp;
 		}
-        
-		
+        		
 		/************************************************************/
 		bool isPlanar() const {
 			bool temp=true;
@@ -311,7 +340,6 @@ namespace model {
 			}
 			return temp;
 		}
-		
 		
 		/************************************************************/
         //		int findLinePoints(std::vector<VectorDim>& posVector) const {
@@ -371,14 +399,78 @@ namespace model {
 			return temp;
 		}
 		
-        
-		
 	};
 	
-	
+	// static data
+    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+	bool DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::useSchurComplementSolver=false;
+
 	
 	
 	//////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
+
+
+
+
+
+
+//            // Collect contraints
+//            std::vector<typename NodeType::VectorOfNormalsType> NNV; // DON'T NEED THIS ANYMORE WITH TRIPLETS
+//			for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
+//				NNV.push_back(nodeIter->second->constraintNormals());
+//			}
+
+
+//            // Constrain sinple nodes to move normal to tangent
+//            for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
+//                if(nodeIter->second->constraintNormals().size()==1){
+//                    Eigen::Matrix<int,dim,1> node_dofID(nodeIter->second->node_dofID());
+//                    Eigen::Matrix<double,dim,1> T(nodeIter->second->get_T());
+//
+//                    for(size_t d=0;d<dim;++d){
+//                        kpqT.push_back(Eigen::Triplet<double>(KPQ_row,node_dofID(d),T(d)));
+//                    }
+//                    ++KPQ_row;
+//                }
+//			}
+
+
+// loop over each segment and add segment contributions to kqqT and Fq
+//            for (typename SubNetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+//                const Eigen::VectorXd ortCS(linkIter->second->ortC*linkIter->second->Mseg);
+//                for (unsigned int i=0;i<linkIter->second->segmentDOFs.size();++i){
+//                    std::set<size_t>::const_iterator iterI(linkIter->second->segmentDOFs.begin());
+//                    std::advance(iterI,i);
+//                    //FQ(*iterI)+=tempFq(i);
+//                    kpqT.push_back(Eigen::Triplet<double>(KPQ_row,*iterI,ortCS(i)));
+//                }
+//                ++KPQ_row;
+//			}
+
+
+
+// Create a sparse matrix from the triplets
+//            SparseMatrixType KQQ(Ndof,Ndof);
+//            KQQ.setFromTriplets(kqqT.begin(),kqqT.end());
+
+
+
+//            std::vector<Eigen::Triplet<double> > kpqT;
+//
+//            size_t KPQ_row=0;
+//
+//            for (size_t n=0 ;n<NNV.size();++n){
+//                for (size_t c=0;c<NNV[n].size();++c){
+//                    for(size_t d=0;d<dim;++d){
+//                        kpqT.push_back(Eigen::Triplet<double>(KPQ_row,n*dim+d,NNV[n][c](d)));
+//                    }
+//                    ++KPQ_row;
+//                }
+//            }
+//
+//            SparseMatrixType KPQ(KPQ_row,Ndof);
+//            KPQ.setFromTriplets(kpqT.begin(),kpqT.end());

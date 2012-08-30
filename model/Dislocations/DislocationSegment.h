@@ -178,21 +178,21 @@ namespace model {
 			 */
 			return (MatrixDimNdof()<<I*SFgauss(k,0),I*SFgauss(k,1),I*SFgauss(k,2),I*SFgauss(k,3)).finished();
             
-            //            MatrixDimNdof temp;
-            //            temp<<I*SFgauss(k,0),I*SFgauss(k,1),I*SFgauss(k,2),I*SFgauss(k,3);
-            //
-            //            const double g(this->chordParametricLength());
-            //            const VectorDim c(this->chord());
-            //            const VectorDim zDim(VectorDim::Zero());
-            //
-            //
-            //            Eigen::Matrix<double,Ndof,1> tempQ;
-            //            tempQ<< zDim, this->sourceT(), zDim, this->sinkT();
-            //
-            //            Eigen::Matrix<double,Ndof,1> tempC;
-            //            tempC<< -c, zDim, c, zDim;
-            //
-            //            return temp + alpha/g*(temp*tempQ/g) * tempC.transpose();
+//            MatrixDimNdof temp;
+//            temp<<I*SFgauss(k,0),I*SFgauss(k,1),I*SFgauss(k,2),I*SFgauss(k,3);
+//
+//            const double g(this->chordParametricLength());
+//            const VectorDim c(this->chord());
+//            const VectorDim zDim(VectorDim::Zero());
+//
+//
+//            Eigen::Matrix<double,Ndof,1> tempQ;
+//            tempQ<< zDim, this->sourceT(), zDim, this->sinkT();
+//
+//            Eigen::Matrix<double,Ndof,1> tempC;
+//            tempC<< -c, zDim, c, zDim;
+//
+//            return temp + alpha*std::pow(c.norm(),alpha-2.0)*(temp*tempQ/g) * tempC.transpose();
 		}
 		
 		
@@ -410,7 +410,7 @@ namespace model {
             //						return (stress_field(k)*Burgers).cross(rlgauss.col(k));
 			//			return (shared.use_bvp) ? ((quadratureParticleVector[k].stress(this->source->bvpStress,this->sink->bvpStress)+shared.loadController.externalStress())*Burgers).cross(rlgauss.col(k))
 			//			/*                   */ : ((quadratureParticleVector[k].stress()+shared.loadController.externalStress())*Burgers).cross(rlgauss.col(k));
-			return (shared.use_bvp) ? ((quadratureParticleVector[k].stress(this->source->bvpStress,this->sink->bvpStress)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
+			return (shared.use_bvp) ? ((quadratureParticleVector[k].stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleVector[k].P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
 			/*                   */ : ((quadratureParticleVector[k].stress()+shared.externalStress)*Burgers).cross(rlgauss.col(k));
 		}
 		

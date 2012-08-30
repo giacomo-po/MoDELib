@@ -36,7 +36,9 @@ dx=5;
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
 coreWidthSquared=2.0;
 # Use of multipole-expanded stress field for non-nearest neighbor cells
-useMultipoleStress=0;
+#useMultipoleStress=0;
+nearCellStressApproximation=1;
+farCellStressApproximation=2;
 
 ######################################
 # Enable/disable node redistribution (network remeshing)

@@ -65,7 +65,17 @@ namespace model {
 //		typename ParticleContainerType::const_iterator neighborEnd() const {
 //			return pCell->neighborParticleContainer.end();
 //		}
-		
+
+        /* neighborCellsBegin ***************************************/
+        typename CellMapType::const_iterator neighborCellsBegin() const {
+            return pCell->neighborCellsBegin();
+        }
+        
+        /* neighborCellsEnd ***************************************/
+        typename CellMapType::const_iterator neighborCellsEnd() const {
+            return pCell->neighborCellsEnd();
+        }
+        
         /* nearCellsBegin ***************************************/
         typename CellMapType::const_iterator nearCellsBegin() const {
             return pCell->nearCellsBegin();

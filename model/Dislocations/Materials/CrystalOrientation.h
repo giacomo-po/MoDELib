@@ -132,18 +132,12 @@ namespace model {
             
 			int count(0);
 			VectorDim temp(VectorDim::Zero());
-//			for (typename SlipSystemContainerType::const_iterator iter=slipSystemContainer.begin();iter!=slipSystemContainer.end();++iter){
+            assert((std::fabs(B.normalized().dot(N.normalized()))<FLT_EPSILON) && "CANNOT DETERMINE CONJUGATE PLANE FOR SESSILE SEGMENT");
                 for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter){
-
-				//for (int k=0;k<Nslips;++k){
-//					if(	 B.normalized().cross(iter->slip.col(k)).norm()<tol && N.normalized().cross(iter->normal).norm()>tol){
-                        if(	 B.normalized().cross(*iter).norm()<tol && N.normalized().cross(*iter).norm()>tol){
-//						temp=iter->normal;
+                    if(	 std::fabs(B.normalized().dot(*iter))<tol && N.normalized().cross(*iter).norm()>tol){
                             temp=*iter;
-
 						++count;
 					}
-				//}
 			}
 			assert(count==1 && "FOUND MORE THAN ONE CONJUGATE PLANES"); // IN BCC THERE IS MORE THAN ONE PLANE!
 			return temp;
