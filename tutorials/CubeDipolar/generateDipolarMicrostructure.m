@@ -9,7 +9,7 @@ Burgers=0.2556e-9; % [m]
 
 %[N,V,R]=thompson_tetrahedron(1);
 
-L=2000;
+L=4000;
 %H=6*R;
 V=L^3;
 

@@ -13,11 +13,11 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <Eigen/Dense>
 
-#include <model/Dislocations/DislocationNetworkTraits.h>
+#include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
 #include <model/BVP/VirtualBoundarySlipSurface.h>
 #include <model/Utilities/SequentialOutputFile.h>
-#include <model/Dislocations/DislocationSharedObjects.h>
+#include <model/DislocationDynamics/DislocationSharedObjects.h>
 
 #include <model/BVP/Domain.h>
 

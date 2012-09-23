@@ -99,7 +99,7 @@ clean:
 # MAKE VIEWER
 ##########################################################	
 viewer: 
-	$(CC) $(model_DIR)/model/Dislocations/Visualization/DDviewer.cpp -o DDviewer -O3 $(IDIR)  $(VIEWERLIBS) 
+	$(CC) $(model_DIR)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -O3 $(IDIR)  $(VIEWERLIBS) 
 
 ##########################################################
 # MAKE EMPTY

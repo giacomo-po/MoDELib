@@ -17,7 +17,7 @@
 #include <utility>
 #include <memory>
 #include <model/BVP/SearchData.h>
-#include <model/Dislocations/Materials/Material.h>
+#include <model/DislocationDynamics/Materials/Material.h>
 
 
 namespace bvpfe{

@@ -1,13 +1,10 @@
-%function generateSTLcyl
 clc
-close all
-clear all
+
 addpath('../../../matlab/');
 
+L=4000; % the side length of the cube, in units of b
 
-L=2000;
-
-
+% coordinates of the 8 vertices of the cube
 v0=[0 0 0];
 v1=[L 0 0];
 v2=[L L 0];
@@ -17,7 +14,8 @@ v5=[L 0 L];
 v6=[L L L];
 v7=[0 L L];
 
-
+% Create 12 facets structure by splitting each face of the cube in 2
+% triangles
 Facets={};
 Facets=addFacet(Facets,v0,v3,v1);
 Facets=addFacet(Facets,v1,v3,v2);
@@ -37,51 +35,11 @@ Facets=addFacet(Facets,v7,v6,v2);
 Facets=addFacet(Facets,v1,v2,v6);
 Facets=addFacet(Facets,v1,v6,v5);
 
-
+% plot facets and make sure that normals point outward
+figure(1)
+clf
 plotFacets(Facets)
 grid on
+
+% write stl file
 writeSTL(Facets,['cube_' num2str(L)])
-
-
-
-return
-
-H=6*R;
-
-np=30;
-
-theta=[0:np-1]/np*2*pi;
-x=R*cos(theta)+R;
-y=R*sin(theta)+R;
-
-Facets={};
-    Facets=addFacet(Facets,v1,v2,v3);
-
-for k=1:np
-    k1=rem(k,np)+1;
-    
-    v1=[x(k)  y(k) 0];
-    v2=[x(k1) y(k1) 0];
-    v3=[x(k)  y(k) H];
-    Facets=addFacet(Facets,v1,v2,v3);
-        
-    v1=[x(k)  y(k) 0];
-    v2=[R R 0];
-    v3=[x(k1)  y(k1) 0];
-    Facets=addFacet(Facets,v1,v2,v3);
-    
-    v1=[x(k1)  y(k1) H];
-    v2=[x(k)  y(k) H];
-    v3=[x(k1)  y(k1) 0];
-    Facets=addFacet(Facets,v1,v2,v3);
-    
-    v1=[x(k1)  y(k1) H];
-    v2=[R R H];
-    v3=[x(k)  y(k) H];
-    Facets=addFacet(Facets,v1,v2,v3);
-    
-    
-end
-
-
-

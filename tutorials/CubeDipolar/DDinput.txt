@@ -1,6 +1,6 @@
 ######################################
 # Initialize number of simulation steps 
-Nsteps=10;
+Nsteps=1;
 timeWindow=5.1e03;
 startAtTimeStep = 0;
 
@@ -8,7 +8,7 @@ startAtTimeStep = 0;
 # Options for output files:
 outputFrequency=1;
 outputGlidePlanes=0;
-outputSpaceCells=0;
+outputSpaceCells=1;
 outputPKforce=0;
 
 ######################################

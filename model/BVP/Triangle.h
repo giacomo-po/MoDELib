@@ -11,7 +11,7 @@
 #define bvpfe_triangle_H_
 
 #include "model/Utilities/StaticID.h"
-#include <model/Dislocations/GlidePlanes/GlidePlaneObserver.h>
+#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include "model/BVP/Element.h"
 #include <model/Utilities/CompareVectorsByComponent.h>
 #include <cmath>

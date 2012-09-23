@@ -1,7 +1,7 @@
 #!/bin/bash
 
-filename=cube_2000;
-maxVolume=5000000;
+filename=cube_4000;
+maxVolume=500000;
 ./tetgen -pznnq1.414a"$maxVolume" "$filename".stl;
 
 rm *.smesh;

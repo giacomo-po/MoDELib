@@ -13,10 +13,10 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <Eigen/Dense>
 #include <stdio.h>
-#include <model/Dislocations/DislocationNetworkTraits.h>
-#include <model/Dislocations/GlidePlanes/GlidePlaneObserver.h>
-#include <model/Dislocations/Materials/Material.h>
-#include <model/Dislocations/Materials/CrystalOrientation.h>
+#include <model/DislocationDynamics/DislocationNetworkTraits.h>
+#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
+#include <model/DislocationDynamics/Materials/Material.h>
+#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
 
 
 namespace model {

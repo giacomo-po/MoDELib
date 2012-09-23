@@ -35,7 +35,7 @@
 #include "model/Quadrature/Quadrature.h"
 #include "model/Utilities/SequentialOutputFile.h"
 #include <model/Utilities/UniqueOutputFile.h>
-#include <model/Dislocations/GlidePlanes/GlidePlaneObserver.h>
+#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 
 #include "model/BVP/Node.h"
 #include "model/BVP/Tetrahedron.h"
