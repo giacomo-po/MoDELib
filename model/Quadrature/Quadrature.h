@@ -11,7 +11,7 @@
 
 #include <assert.h>
 #include <Eigen/Dense>
-#include <model/Quadrature/GaussLegendre.h>
+#include <model/Quadrature/GaussLegendre/GaussLegendre.h>
 #include <model/Quadrature/UniformOpen.h>
 
 
@@ -43,12 +43,12 @@ namespace model {
 	 *  and QuadratureRule and dimension.
 	 */
 	template<short unsigned int dim, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule = GaussLegendre>
-//	template<short unsigned int dim, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	struct Quadrature {
+        
 		
 		typedef typename VectorDimTypeSelector<dim,qOrder>::VectorDim VectorDim;
 		
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+//		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 				
 		// a static vector storing abcsissa values
 		static const Eigen::Matrix<double,dim,qOrder>	abscissas;
@@ -175,11 +175,7 @@ namespace model {
 			 * }
 			 * \endcode
 			 */
-			
-// USE OPENMP ???			
-//#ifdef _OPENMP
-//#pragma omp parallel for default(shared) private(k)
-//#endif			
+					
 			for(int k=0;k<qOrder;++k){
 				intgrl+=(C->*mfp)(k,args...) * weights(k);
 			}			

@@ -11,6 +11,7 @@
 
 
 #include <assert.h>
+#include <Eigen/Dense>
 //#include <model/Quadrature/QuadratureRecursiveRelation.h>
 
 namespace model {

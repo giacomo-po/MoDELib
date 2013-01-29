@@ -69,18 +69,18 @@ namespace model {
 				NNV.push_back(nodeIter->second->constraintNormals());
 			}
             
-            //            // Constrain sinple nodes to move normal to tangent
-            //            for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-            //                if(nodeIter->second->constraintNormals().size()==1){
-            //                    Eigen::Matrix<int,dim,1> node_dofID(nodeIter->second->node_dofID());
-            //                    Eigen::Matrix<double,dim,1> T(nodeIter->second->get_T());
-            //
-            //                    for(size_t d=0;d<dim;++d){
-            //                        kpqT.push_back(Eigen::Triplet<double>(KPQ_row,node_dofID(d),T(d)));
-            //                    }
-            //                    ++KPQ_row;
-            //                }
-            //			}
+            // Constrain simple nodes to move normal to tangent
+//            for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
+//                if(nodeIter->second->constraintNormals().size()==1){
+//                    Eigen::Matrix<int,dim,1> node_dofID(nodeIter->second->node_dofID());
+//                    Eigen::Matrix<double,dim,1> T(nodeIter->second->get_T());
+//
+//                    for(size_t d=0;d<dim;++d){
+//                        vT.push_back(Eigen::Triplet<double>(KPQ_row,node_dofID(d),T(d)));
+//                    }
+//                    ++KPQ_row;
+//                }
+//			}
             
             
             // loop over each segment and add segment contributions to kqqT and Fq

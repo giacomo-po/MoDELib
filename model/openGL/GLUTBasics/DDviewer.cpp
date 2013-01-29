@@ -172,6 +172,8 @@ void drawGLText (GLint window_width, GLint window_height)
 		BitmapPlotter::drawGLString (10, window_height - (lineSpacing * line++) - startOffest, outString);
 		sprintf (outString, "Focus Distance: %0.1f", Camera::focalLength);
 		BitmapPlotter::drawGLString (10, window_height - (lineSpacing * line++) - startOffest, outString);
+        sprintf (outString, "Vertex Order: %u", splinePlotter.vertexOrder());
+		BitmapPlotter::drawGLString (10, window_height - (lineSpacing * line++) - startOffest, outString);
 	}
 	
 	if (gShowHelp) {

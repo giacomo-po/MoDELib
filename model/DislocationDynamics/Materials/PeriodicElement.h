@@ -56,7 +56,6 @@ namespace model {
         typedef FCC CrystalStructure;
         
         static const std::string name;
-        
         static const double nu;
         static const double mu;
         static const double b;

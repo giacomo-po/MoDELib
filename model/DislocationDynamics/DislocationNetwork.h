@@ -347,6 +347,8 @@ namespace model {
 			make_dt();
 			totalTime+=dt;
             
+            plasticDistortion+=plasticDistortionRate()*dt;
+            
             
             //! 11- Output the current configuration, the corresponding velocities, PK force and dt
 			if (!(runID%outputFrequency)){
@@ -457,6 +459,9 @@ namespace model {
         bool outputGlidePlanes;
         bool outputSpaceCells;
         bool outputPKforce;
+        bool outputMeshDisplacement;
+        
+        MatrixDimD plasticDistortion;
         
 		/* Constructor ************************************************************/
         DislocationNetwork(const int& argc, char * const argv[]){
@@ -468,6 +473,8 @@ namespace model {
                 // argv[1] is assumed to be the filename with working directory the current directory
                 read("./",argv[1]);
             }
+            
+            plasticDistortion.setZero();
         }
         
 		
@@ -507,6 +514,11 @@ namespace model {
             EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
             Material<Isotropic>::rotateCrystal(C2Gtemp);
             
+            
+            // Min SubNetwork::nodeOrder for Assemble and solve
+            EDR.readScalarInFile(fullName.str(),"minSNorderForSolve",shared.minSNorderForSolve); // material by atomic number Z
+            assert(shared.minSNorderForSolve>=0 && "minSNorderForSolve must be >=0");
+            
             // QuadratureParticle
             EDR.readScalarInFile(fullName.str(),"coreWidthSquared",DislocationQuadratureParticle<dim,cellSize>::a2); // core-width
             assert((DislocationQuadratureParticle<dim,cellSize>::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
@@ -527,6 +539,9 @@ namespace model {
             EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",outputGlidePlanes);
             EDR.readScalarInFile(fullName.str(),"outputSpaceCells",outputSpaceCells);
             EDR.readScalarInFile(fullName.str(),"outputPKforce",outputPKforce);
+            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",outputMeshDisplacement);
+            
+            
 			
 			EDR.readScalarInFile(fullName.str(),"boundary_type",shared.boundary_type);
 			if (shared.boundary_type){
@@ -616,20 +631,23 @@ namespace model {
 			std::cout<<"		Solving..."<<std::flush;
 			t0=clock();
             
-            
-            
 #ifdef _OPENMP
 #pragma omp parallel for
             for (unsigned int k=0;k<this->Naddresses();++k){
                 typename SubNetworkContainerType::iterator snIter(this->ABbegin()); //  data within a parallel region is private to each thread
                 std::advance(snIter,k);
                 //				snIter->second->solve();
-                snIter->second->sparseSolve();
+                if (snIter->second->nodeOrder()>=shared.minSNorderForSolve){
+                    snIter->second->sparseSolve();
+                }
             }
 #else
 			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter){
                 //				snIter->second->solve();
-                snIter->second->sparseSolve();
+                //snIter->second->sparseSolve();
+                if (snIter->second->nodeOrder()>=shared.minSNorderForSolve){
+                    snIter->second->sparseSolve();
+                }
 			}
 #endif
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
@@ -719,8 +737,20 @@ namespace model {
                 std::cout<<", P/P_"<<p_file.sID;
             }
             
-            if (shared.use_bvp && (shared.boundary_type==1)){
-                shared.vbsc.outputVirtualDislocations(outputFrequency,runID);
+            if (shared.use_bvp){
+                if(outputMeshDisplacement){
+                    model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
+                    model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
+                    model::SequentialOutputFile<'D',true> d_file;
+                    for (unsigned int i = 0; i< shared.domain.nodeContainer.size(); i++){
+                        d_file<< shared.domain.nodeContainer[i].sID<<"	" << (shared.domain.nodeContainer[i].u+shared.domain.nodeContainer[i].uInf).transpose()<<std::endl;
+                    }
+                    std::cout<<", D/D_"<<d_file.sID;
+                }
+                if(shared.boundary_type==1){
+                    shared.vbsc.outputVirtualDislocations(outputFrequency,runID);
+                    
+                }
             }
             
 			
@@ -833,13 +863,14 @@ namespace model {
 				}
 			}
 			else{
-				SpaceCellObserverType sCO;
-				typename SpaceCellObserverType::SharedPtrType sharedCellPointer(sCO.getCellByPosition(Rfield));
-				for(typename SpaceCellType::ParticleContainerType::const_iterator particleIter =sharedCellPointer->neighborParticleContainer.begin();
-					/*                                                         */ particleIter!=sharedCellPointer->neighborParticleContainer.end();
-					/*                                                         */ ++particleIter){
-					temp+=(*particleIter)->stress_at(Rfield);
-				}
+                assert(0 && "RE-ENABLE THIS WITH NEW CELL CLASS");
+                //				SpaceCellObserverType sCO;
+                //				typename SpaceCellObserverType::SharedPtrType sharedCellPointer(sCO.getCellByPosition(Rfield));
+                //				for(typename SpaceCellType::ParticleContainerType::const_iterator particleIter =sharedCellPointer->neighborParticleContainer.begin();
+                //					/*                                                         */ particleIter!=sharedCellPointer->neighborParticleContainer.end();
+                //					/*                                                         */ ++particleIter){
+                //					temp+=(*particleIter)->stress_at(Rfield);
+                //				}
 			}
             if (shared.use_bvp && (shared.boundary_type==1)){
                 temp+= shared.vbsc.stress(Rfield);

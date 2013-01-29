@@ -167,8 +167,8 @@ namespace model {
 			 *	\f]
 			 */
 			MatrixDimNdof temp(SFgaussEx(k));
-            //			return temp.transpose()*Material<Isotropic>::B*temp*jgauss(k);
-			return temp.transpose()*temp*jgauss(k); // inverse mobility law
+            			return temp.transpose()*Material<Isotropic>::B*temp*jgauss(k);
+			//return temp.transpose()*temp*jgauss(k); // inverse mobility law
 		}
 		
 		/* SFgaussEx  ********************************/
@@ -224,8 +224,8 @@ namespace model {
 			 *  @param[in] k the current quadrature point
 			 */
 			MatrixDimNdof temp(SFgaussEx(k));
-            //			return temp.transpose()*pkGauss.col(k)*jgauss(k);
-			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
+            			return temp.transpose()*pkGauss.col(k)*jgauss(k);
+			//return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
 			
 		}
 		
@@ -292,6 +292,8 @@ namespace model {
 			
 			assert(this->flow.squaredNorm()>0.0);
 			pGlidePlane->addToGLidePlane(this);
+            pkGauss.setZero(); // necessary if this is not assembled
+
 		}
 		
 		/* Constructor from EdgeExpansion) ****************************/
@@ -305,6 +307,7 @@ namespace model {
             
 			assert(this->flow.squaredNorm()>0.0);
 			pGlidePlane->addToGLidePlane(this);
+            pkGauss.setZero(); // necessary if this is not assembled
 		}
 		
 		/* Destructor *************************************************/
@@ -465,83 +468,89 @@ namespace model {
 		//////////////////////////////////////////////////////////////
 		//! assemble
 		void assemble(){
-			//std::cout<<"Thread "<<omp_get_thread_num()<< " assembling DislocationSegment "<<this->sID<<" ..."<<std::flush;
-			//assemble_Fq();
-            //assemble_Kqq();
-            //std::cout<<" done"<<std::endl;
             
-            /*! 1- Assembles the force vector of this segment.
-			 *	\f[
-			 *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
-			 *	\f]
-			 */
-			pkGauss.setZero(); // not strictly necessary
-			for (int k=0;k<qOrder;++k){
-				pkGauss.col(k)=pkForce(k);
-			}
-			Fq.setZero();
-			Quadrature<1,qOrder,QuadratureRule>::integrate(this,Fq,&LinkType::PKintegrand);
+            if (this->pSN()->nodeOrder()>=shared.minSNorderForSolve){ // check that SubNetwork has at least shared.minSNorderForSolve nodes
+                //std::cout<<"Thread "<<omp_get_thread_num()<< " assembling DislocationSegment "<<this->sID<<" ..."<<std::flush;
+                //assemble_Fq();
+                //assemble_Kqq();
+                //std::cout<<" done"<<std::endl;
+                
+                /*! 1- Assembles the force vector of this segment.
+                 *	\f[
+                 *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
+                 *	\f]
+                 */
+//                pkGauss.setZero(); // not strictly necessary
+                for (int k=0;k<qOrder;++k){
+                    pkGauss.col(k)=pkForce(k);
+                }
+                Fq.setZero();
+                Quadrature<1,qOrder,QuadratureRule>::integrate(this,Fq,&LinkType::PKintegrand);
+                
+                /*! 2- Assembles the stiffness matrix of this segment.
+                 *	\f[
+                 *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
+                 *	\f]
+                 */
+                Kqq.setZero();
+                Quadrature<1,qOrder,QuadratureRule>::integrate(this,Kqq,&LinkType::stiffness_integrand);
+                
+                
+                
+                //            //! 3-
+                //            ortC.setZero();
+                //
+                //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,ortC,&LinkType::ortC_integrand);
+                
+                
+                
+                //! 4-
+                
+                //            std::set<size_t> segmentDOFs;
+                segmentDOFs.clear();
+                
+                const Eigen::VectorXi sourceDOFs(this->source->dofID());
+                for(int k=0;k<sourceDOFs.rows();++k){
+                    segmentDOFs.insert(sourceDOFs(k));
+                }
+                
+                const Eigen::VectorXi   sinkDOFs(this->sink->dofID());
+                for(int k=0;k<sinkDOFs.rows();++k){
+                    segmentDOFs.insert(sinkDOFs(k));
+                }
+                
+                //const size_t N(segmentDOFs.size());
+                
+                // Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,N));
+                Mseg.setZero(Ndof,segmentDOFs.size());
+                
+                Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2H());
+                //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2Ht());
+                Mso.block(dim,0,dim,Mso.cols())*=this->sourceTfactor;
+                
+                Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2H());
+                //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2Ht());
+                Msi.block(dim,0,dim,Msi.cols())*=-this->sinkTfactor;
+                
+                
+                for (int k=0;k<Mso.cols();++k){
+                    const std::set<size_t>::const_iterator f(segmentDOFs.find(sourceDOFs(k)));
+                    assert(f!=segmentDOFs.end());
+                    unsigned int curCol(std::distance(segmentDOFs.begin(),f));
+                    Mseg.template block<Ndof/2,1>(0,curCol)=Mso.col(k);
+                }
+                
+                
+                for (int k=0;k<Msi.cols();++k){
+                    const std::set<size_t>::const_iterator f(segmentDOFs.find(sinkDOFs(k)));
+                    assert(f!=segmentDOFs.end());
+                    unsigned int curCol(std::distance(segmentDOFs.begin(),f));
+                    Mseg.template block<Ndof/2,1>(Ndof/2,curCol)=Msi.col(k);
+                }
             
-            /*! 2- Assembles the stiffness matrix of this segment.
-			 *	\f[
-			 *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
-			 *	\f]
-			 */
-			Kqq.setZero();
-			Quadrature<1,qOrder,QuadratureRule>::integrate(this,Kqq,&LinkType::stiffness_integrand);
-            
-            
-            
-//            //! 3-
-//            ortC.setZero();
-//            
-//            Quadrature<1,qOrder,QuadratureRule>::integrate(this,ortC,&LinkType::ortC_integrand);
-            
-            
-            
-            //! 4-
-            
-            //            std::set<size_t> segmentDOFs;
-            segmentDOFs.clear();
-            
-            const Eigen::VectorXi sourceDOFs(this->source->dofID());
-            for(int k=0;k<sourceDOFs.rows();++k){
-                segmentDOFs.insert(sourceDOFs(k));
             }
             
-            const Eigen::VectorXi   sinkDOFs(this->sink->dofID());
-            for(int k=0;k<sinkDOFs.rows();++k){
-                segmentDOFs.insert(sinkDOFs(k));
-            }
-            
-            //const size_t N(segmentDOFs.size());
-            
-            // Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,N));
-            Mseg.setZero(Ndof,segmentDOFs.size());
-            
-            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2H());
-            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2Ht());
-            Mso.block(dim,0,dim,Mso.cols())*=this->sourceTfactor;
-            
-            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2H());
-            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2Ht());
-            Msi.block(dim,0,dim,Msi.cols())*=-this->sinkTfactor;
-            
-            
-            for (int k=0;k<Mso.cols();++k){
-                const std::set<size_t>::const_iterator f(segmentDOFs.find(sourceDOFs(k)));
-                assert(f!=segmentDOFs.end());
-                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
-                Mseg.template block<Ndof/2,1>(0,curCol)=Mso.col(k);
-            }
-            
-            
-            for (int k=0;k<Msi.cols();++k){
-                const std::set<size_t>::const_iterator f(segmentDOFs.find(sinkDOFs(k)));
-                assert(f!=segmentDOFs.end());
-                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
-                Mseg.template block<Ndof/2,1>(Ndof/2,curCol)=Msi.col(k);
-            }   
+  
             
 		}
         

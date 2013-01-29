@@ -20,7 +20,7 @@ namespace model {
 	template <typename LinkType>
 	struct DislocationSharedObjects {
 
-
+        static int minSNorderForSolve;
 		static unsigned int boundary_type;
 		static unsigned int use_bvp;
 		static bvpfe::Domain domain;					// temporary
@@ -38,6 +38,9 @@ namespace model {
 	
 	template <typename LinkType>
 	bvpfe::Domain DislocationSharedObjects<LinkType>::domain;
+    
+    template <typename LinkType>
+	int DislocationSharedObjects<LinkType>::minSNorderForSolve=0;
 		
 	//template <typename LinkType>
 	//typename TypeTraits<LinkType>::MaterialType DislocationSharedObjects<LinkType>::material;

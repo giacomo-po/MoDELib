@@ -790,7 +790,9 @@ namespace bvpfe {
 			for (unsigned int i = 0; i<3; i++){externalTraction+=shapeFunc(i)*tractionMatrix.col(i);}
 						
 			return (externalTraction -( pts.pt->stressFromGlidePlane(GlidePlaneKey,R) * outNormal) )*shapeFunc*J ;
-		
+			//return (externalTraction -( pts.pt->stress(R) * outNormal) )*shapeFunc*J ;
+
+            
 		}
 		/*
 		//============================================================================
