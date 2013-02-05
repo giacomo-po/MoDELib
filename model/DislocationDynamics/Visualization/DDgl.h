@@ -43,6 +43,8 @@
 #include <model/openGL/gl2ps.h>
 
 
+
+
 namespace model {
 	
 	std::string defaultColor    = "\033[0m";	  // the default color for the console
@@ -144,6 +146,7 @@ namespace model {
 		CellPlotter  cellPlotter;
 		PlanePlotter planePlotter;
 		MeshPlotter  meshPlotter;
+        
 
 		
         /* tgaScreenShot ************************************************/
@@ -975,6 +978,8 @@ namespace model {
 			planePlotter.read<true>(frameN);
 			cellPlotter.read(frameN);
 			meshPlotter.read(frameN);
+            
+            
 			std::cout<<" done ["<<(clock()-t0)/CLOCKS_PER_SEC<<defaultColor<<std::endl;
 		}
 		

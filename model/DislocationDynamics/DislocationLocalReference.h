@@ -30,7 +30,7 @@ namespace model {
 			R.col(2)=N.normalized();
 			R.col(1)= R.col(2).cross(R.col(0));
 //			assert(R.determinant())
-			return R;
+			return R.transpose();
 		}
 	};
 
