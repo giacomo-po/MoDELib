@@ -155,13 +155,15 @@ namespace model {
 		}
 		
 		/* Constructor from Link and position along link **********************/
-		DislocationNode(const ExpandingEdge<LinkType>& pL, const VectorDofType& Qin, const VectorDofType& Vin) : NodeBaseType::SplineNodeBase(pL,Qin),
-        /* init list                                                       */ velocity(Vin),
-		/* init list                                                       */ vOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list                                                       */ vOldOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list                                                       */ nodeMeshLocation(insideMesh),
-		/* init list                                                       */ boundaryNormal(VectorDim::Zero()),
-		/* init list                                                       */ bvpStress(MatrixDim::Zero()){    // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		DislocationNode(const ExpandingEdge<LinkType>& pL, const VectorDofType& Qin, const VectorDofType& Vin)
+        /* base constructor */ : NodeBaseType::SplineNodeBase(pL,Qin),
+        /* init list        */ velocity(Vin),
+		/* init list        */ vOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* init list        */ vOldOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* init list        */ nodeMeshLocation(insideMesh),
+		/* init list        */ boundaryNormal(VectorDim::Zero()),
+		/* init list        */ bvpStress(MatrixDim::Zero()) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        {    
             initMeshLocation();
 		}
 		

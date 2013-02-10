@@ -108,11 +108,11 @@
 
 namespace model {
 	
-//	std::string defaultColor    = "\033[0m";	  // the default color for the console
-//	std::string redBoldColor    = "\033[1;31m";   // a bold red color
-//	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
-//	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
-//	std::string magentaColor    = "\033[0;35m";   // a magenta color
+    //	std::string defaultColor    = "\033[0m";	  // the default color for the console
+    //	std::string redBoldColor    = "\033[1;31m";   // a bold red color
+    //	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
+    //	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
+    //	std::string magentaColor    = "\033[0;35m";   // a magenta color
 	
 	/**************************************************************************/
 	/**************************************************************************/
@@ -335,26 +335,14 @@ namespace model {
             
             
             //! 11- Output the current configuration, the corresponding velocities, PK force and dt
-			if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency)){
-				
-#ifdef DislocationNetworkMPI
-				if(localProc==0){
-					output();
-				}
-#else
-				output();
-#endif
-			}
+            output();
+
             
 			
 			//! 5- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
 			move(dt);
 			DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
 			
-            
-            
-            
-            
 			//! 6- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
 			loopInversion();
 			
@@ -371,27 +359,11 @@ namespace model {
             
 			//! 10- Cross Slip
 			crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
-            //			updateQuadraturePoints();
             
-			
-			
-            //			//! 11- Output the current configuration, the corresponding velocities and dt
-            //			if (!(runID%outputFrequency)){
-            //
-            //#ifdef DislocationNetworkMPI
-            //				if(localProc==0){
-            //					output();
-            //				}
-            //#else
-            //				output();
-            //#endif
-            //			}
-            
-            
-            updateQuadraturePoints();
+            updateQuadraturePoints(); // necessary if quadrature data are necessary in main
             
 			//! 12 - Increment runID counter
-			++runID;     // increment the runID counter first, since the original configuration has been outputed already
+			++runID;     // increment the runID counter
 		}
 		
 		
@@ -434,11 +406,11 @@ namespace model {
 		//! The number of simulation steps taken by the next call to runByStep()
 		int Nsteps;
 		double timeWindow;
-//		int outputFrequency;
-   //     bool outputGlidePlanes;
-   //     bool outputSpaceCells;
-   //     bool outputPKforce;
-   //     bool outputMeshDisplacement;
+        //		int outputFrequency;
+        //     bool outputGlidePlanes;
+        //     bool outputSpaceCells;
+        //     bool outputPKforce;
+        //     bool outputMeshDisplacement;
         
         MatrixDimD plasticDistortion;
         
@@ -520,15 +492,15 @@ namespace model {
 			
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
 			
-//            EDR.readScalarInFile(fullName.str(),"outputFrequency",outputFrequency);
+            //            EDR.readScalarInFile(fullName.str(),"outputFrequency",outputFrequency);
             EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
-//            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",outputGlidePlanes);
+            //            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",outputGlidePlanes);
             EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes);
-//            EDR.readScalarInFile(fullName.str(),"outputSpaceCells",outputSpaceCells);
+            //            EDR.readScalarInFile(fullName.str(),"outputSpaceCells",outputSpaceCells);
             EDR.readScalarInFile(fullName.str(),"outputSpaceCells",DislocationNetworkIO<DislocationNetworkType>::outputSpaceCells);
             //            EDR.readScalarInFile(fullName.str(),"outputPKforce",outputPKforce);
             EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
-//            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",outputMeshDisplacement);
+            //            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",outputMeshDisplacement);
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
             
             
@@ -604,7 +576,7 @@ namespace model {
 				remesh();	// expand initial FR sources
 			}
 			updateQuadraturePoints();
-			++runID;     // increment the runID counter first, since the original configuration has been outputed already
+			++runID;     // increment the runID counter
 		}
 		
 		/* solve ****************************************************************/
@@ -647,10 +619,18 @@ namespace model {
 		
 		/* output ***************************************************************/
 		void output() const
-        {/*! Outputs DislocationNetwork data 
+        {/*! Outputs DislocationNetwork data
           */
-            DislocationNetworkIO<DislocationNetworkType>(*this).outputTXT(runID);
-			double t0=clock();
+            double t0=clock();
+            if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency)){
+#ifdef DislocationNetworkMPI
+				if(localProc==0){
+                    DislocationNetworkIO<DislocationNetworkType>(*this).outputTXT(runID);
+				}
+#else
+                DislocationNetworkIO<DislocationNetworkType>(*this).outputTXT(runID);
+#endif
+			}
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
@@ -856,7 +836,7 @@ namespace model {
             return runID;
         }
         
-
+        
 		
 	};
     
