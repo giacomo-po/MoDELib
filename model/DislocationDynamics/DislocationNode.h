@@ -100,8 +100,6 @@ namespace model {
 		
 		
 	public:
-		/////////////////////////////////////////////////////////////
-		// DATA MEMBERS
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
 		
@@ -114,40 +112,49 @@ namespace model {
 		
 		unsigned int triIndex;
         
-		/* Constructor from dof **************************************************************/
-		DislocationNode(const VectorDofType & Qin) : NodeBaseType::SplineNodeBase(Qin),
-        /* init list                              */ velocity(VectorDofType::Zero()),
-		/* init list                              */ vOld(VectorDofType::Zero()),
-		/* init list                              */ vOldOld(VectorDofType::Zero()),
-		/* init list                              */ nodeMeshLocation(insideMesh),
-		/* init list                              */ boundaryNormal(VectorDim::Zero()),
-		/* init list                              */ bvpStress(MatrixDim::Zero()){
+		/* Constructor ********************************************************/
+		DislocationNode(const VectorDofType& Qin) :
+        /* base constructor */ NodeBaseType::SplineNodeBase(Qin),
+        /* init list        */ velocity(VectorDofType::Zero()),
+		/* init list        */ vOld(VectorDofType::Zero()),
+		/* init list        */ vOldOld(VectorDofType::Zero()),
+		/* init list        */ nodeMeshLocation(insideMesh),
+		/* init list        */ boundaryNormal(VectorDim::Zero()),
+		/* init list        */ bvpStress(MatrixDim::Zero())
+        {/*! Constructor from DOF
+          */
 			initMeshLocation();
 		}
 		
-		/* Constructor from Link and and parameter along link ********************************/
-		DislocationNode(const ExpandingEdge<LinkType>& pL, const double& u) : NodeBaseType::SplineNodeBase(pL,u),
-        /* init list                                              */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list                                              */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list                                              */ vOldOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list                                              */ nodeMeshLocation(insideMesh),
-		/* init list                                              */ boundaryNormal(VectorDim::Zero()),
-		/* init list                                              */ bvpStress(MatrixDim::Zero()){    // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* Constructor ********************************************************/
+		DislocationNode(const ExpandingEdge<LinkType>& pL, const double& u) :
+        /* base constructor */ NodeBaseType::SplineNodeBase(pL,u),
+        /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* init list        */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* init list        */ vOldOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* init list        */ nodeMeshLocation(insideMesh),
+		/* init list        */ boundaryNormal(VectorDim::Zero()),
+		/* init list        */ bvpStress(MatrixDim::Zero()) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        {/*! Constructor from ExpandingEdge and parameter along link
+          */
 			initMeshLocation();
 		}
 		
-		/* Constructor from Link and position along link *************************************/
-		DislocationNode(const ExpandingEdge<LinkType>& pL, const VectorDofType& Qin) : NodeBaseType::SplineNodeBase(pL,Qin),
-        /* init list                                                       */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list                                                       */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list                                                       */ vOldOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list                                                       */ nodeMeshLocation(insideMesh),
-		/* init list                                                       */ boundaryNormal(VectorDim::Zero()),
-		/* init list                                                       */ bvpStress(MatrixDim::Zero()){    // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* Constructor ********************************************************/
+		DislocationNode(const ExpandingEdge<LinkType>& pL, const VectorDofType& Qin) :
+        /* base constructor */ NodeBaseType::SplineNodeBase(pL,Qin),
+        /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* init list        */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* init list        */ vOldOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* init list        */ nodeMeshLocation(insideMesh),
+		/* init list        */ boundaryNormal(VectorDim::Zero()),
+		/* init list        */ bvpStress(MatrixDim::Zero()) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        {/*! Constructor from ExpandingEdge and DOF
+          */
 			initMeshLocation();
 		}
 		
-		/* Constructor from Link and position along link *************************************/
+		/* Constructor from Link and position along link **********************/
 		DislocationNode(const ExpandingEdge<LinkType>& pL, const VectorDofType& Qin, const VectorDofType& Vin) : NodeBaseType::SplineNodeBase(pL,Qin),
         /* init list                                                       */ velocity(Vin),
 		/* init list                                                       */ vOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
@@ -175,26 +182,6 @@ namespace model {
 					
 				}
 			}
-            
-            //            VectorOfNormalsType temp;
-            //			for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter){
-            //				if (boost::tuples::get<2>(neighborIter->second)){
-            //					LinkType* pL(boost::tuples::get<1>(neighborIter->second));
-            //					if (std::find(temp.begin(),temp.end(), pL->glidePlaneNormal )==planenormals.end() &&
-            //						std::find(temp.begin(),temp.end(),-pL->glidePlaneNormal )==planenormals.end()   ){
-            //						temp.push_back(pL->glidePlaneNormal );
-            //					}
-            //					if(pL->sessilePlaneNormal.norm()>FLT_EPSILON){
-            //						temp.push_back(pL->sessilePlaneNormal);
-            //					}
-            //
-            //				}
-            //			}
-            //
-            //            planenormals=GramSchmidt<dim>(temp);
-            
-            
-            
 			
 			//! 2- Compute projectionMatrix
 			make_projectionMatrix();
@@ -204,22 +191,26 @@ namespace model {
 		}
 		
 		/* findEdgeConfiguration *********************************************/
-		void findEdgeConfiguration(){
+		void findEdgeConfiguration()
+        {
 			DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
 		}
 		
 		/* planeNormals *******************************************************/
-		const int& meshID() const {
+		const int& meshID() const
+        {
             return currentMeshID;
         }
         
 		/* planeNormals *******************************************************/
-		const VectorOfNormalsType& planeNormals() const {
+		const VectorOfNormalsType& planeNormals() const
+        {
             return planenormals;
         }
 		
 		/* constraintNormals **************************************************/
-		VectorOfNormalsType constraintNormals() const {
+		VectorOfNormalsType constraintNormals() const
+        {
 			GramSchmidt<dim> GS;
 			if (nodeMeshLocation==insideMesh){ // DislocationNode is inside mesh
 				if (this->is_balanced()){ // DislocationNode is balanced
@@ -245,14 +236,16 @@ namespace model {
 		}
 		
 		///////////////////////////////
-		bool is_removable() const {
+		bool is_removable() const
+        {
 			return (this->is_simple() && constraintNormals().size()==1);
 		}
 		
 		
 		/////////////////////////////////////////////////////////////
 		// make_projectionMatrix
-		void make_projectionMatrix(){
+		void make_projectionMatrix()
+        {
 			Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
 			VectorOfNormalsType  CN = planenormals;
 			CN.push_back(boundaryNormal);
@@ -264,7 +257,8 @@ namespace model {
 		}
 		
 		/***************************************/
-		void updateBvpStress(){
+		void updateBvpStress()
+        {
 			bvpStress=shared.domain.tetContainer[currentMeshID].getStress(); // stress is constant in the element because of Linear Shape Functions
 		}
 		
@@ -281,28 +275,35 @@ namespace model {
 		
 		
 		/***************************************/
-		void set_V(const VectorDofType& vNew){
+		void set_V(const VectorDofType& vNew)
+        {
 			bool useMultiStep(false);
-			if (useMultiStep){
+			if (useMultiStep)
+            {
 				velocity=AB1*vNew+AB2*vOld+AB3*vOldOld;
 				double vNewNorm=vNew.norm();
-				if (vNewNorm>FLT_EPSILON){
+				if (vNewNorm>FLT_EPSILON)
+                {
 					velocity=velocity.dot(vNew/vNewNorm)*vNew/vNewNorm;
 				}
-				else{
+				else
+                {
 					velocity.setZero();
 				}
 				vOldOld=vOld;
 				vOld=velocity;
 			}
-			else{
+			else
+            {
                 velocity=this->prjM*vNew; // kill numerical errors from the solver
 				//velocity=vNew;
 			}
 		}
 		
 		/***************************************/
-		const VectorDofType& get_V() const {
+		const VectorDofType& get_V() const
+        {/*! The nodal velocity vector
+          */
 			return velocity;
 		}
         
@@ -376,7 +377,23 @@ namespace model {
 			
 		}
 		
-		
+        /* operator<< *********************************************************/
+        template <class T>
+		friend T& operator << (T& os, const NodeType& ds){
+			os  << ds.sID<<" "
+            /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<" "
+			/**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<" "
+            /**/<< ds.pSN()->sID<<" ";
+			if (ds.shared.use_bvp)
+            { //output in deformed configuration
+					os << std::setprecision(15)<<std::scientific<<ds.deformedPosition().transpose()<<" ";
+				}
+				else{
+					os<< VectorDim::Zero().transpose();
+				}
+				//os << "\n";
+			return os;
+       }
 		
 	};
 	
@@ -398,3 +415,23 @@ namespace model {
 	
 }
 #endif
+            
+            
+            
+            
+            //            VectorOfNormalsType temp;
+            //			for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter){
+            //				if (boost::tuples::get<2>(neighborIter->second)){
+            //					LinkType* pL(boost::tuples::get<1>(neighborIter->second));
+            //					if (std::find(temp.begin(),temp.end(), pL->glidePlaneNormal )==planenormals.end() &&
+            //						std::find(temp.begin(),temp.end(),-pL->glidePlaneNormal )==planenormals.end()   ){
+            //						temp.push_back(pL->glidePlaneNormal );
+            //					}
+            //					if(pL->sessilePlaneNormal.norm()>FLT_EPSILON){
+            //						temp.push_back(pL->sessilePlaneNormal);
+            //					}
+            //
+            //				}
+            //			}
+            //
+            //            planenormals=GramSchmidt<dim>(temp);

@@ -60,7 +60,9 @@ namespace model {
 
 		
 		/* Constructor ******************************/
-		DislocationJunctionFormation(DislocationNetworkType& DN_in) : DN(DN_in) {}
+		DislocationJunctionFormation(DislocationNetworkType& DN_in) :
+        /* init list */ DN(DN_in)
+        {}
 		
 		/* findIntersections **************************************************/
 		EdgeIntersectionPairContainerType findIntersections(const double& avoidNodeIntersection/*, const double& tol=FLT_EPSILON*/) const { 

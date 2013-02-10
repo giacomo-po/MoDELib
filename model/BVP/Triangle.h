@@ -712,7 +712,7 @@ namespace bvpfe {
 		  for (unsigned int i = 0; i<3; i++){tractionMatrix.col(i) = this->eleNodes[i]->traction;}
 		  
 		  model::GlidePlaneObserver<typename T::LinkType> gpObsever;
-		  Eigen::Matrix<double,dim+1,1> gpKey;
+//		  Eigen::Matrix<double,dim+1,1> gpKey;
 		  
 		  //std::cout << "Local points container size  " << localQuadPnts.size() << std::endl;
 		  
@@ -720,7 +720,9 @@ namespace bvpfe {
 		  //------------- otherwise integrate normally over the standard gauss points  -----------
 		  for (typename model::GlidePlaneObserver<typename T::LinkType>::const_iterator gpIter=gpObsever.begin(); gpIter!=gpObsever.end(); ++gpIter){
 		    
-		    gpKey << gpIter->second->planeNormal.normalized() , gpIter->second->height;
+            const Eigen::Matrix<double,dim+1,1> gpKey((Eigen::Matrix<double,dim+1,1>()<<gpIter->second->planeNormal.normalized() , gpIter->second->height).finished());
+
+		    //gpKey << gpIter->second->planeNormal.normalized() , gpIter->second->height;
 		    
 		    if (localQuadPnts.find(gpKey) != localQuadPnts.end()) integrate_gp<T> (pt ,tractionMatrix, tractionInt, gpKey);
 		    

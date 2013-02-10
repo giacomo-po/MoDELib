@@ -67,7 +67,8 @@ namespace model {
             this->push_back(pVBSS);
             
             //---------- check radial segments that are required for stress calculation
-            Eigen::Matrix<double,dim+1,1> gpKey;        gpKey << ds.pGlidePlane->planeNormal.normalized() , ds.pGlidePlane->height;
+            const Eigen::Matrix<double,dim+1,1> gpKey((Eigen::Matrix<double,dim+1,1>()<<ds.pGlidePlane->planeNormal.normalized() , ds.pGlidePlane->height).finished());
+            //gpKey << ds.pGlidePlane->planeNormal.normalized() , ds.pGlidePlane->height;
             
             radialSegmentsContainerIterator gpIter = radialSegmentsContainer.find(gpKey);
             

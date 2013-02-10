@@ -257,15 +257,22 @@ namespace model {
 
 		/*************************************************************/
 		template <typename T>
-		void parallelExecute(void (NodeType::*Vfptr)(const T&), const T& input){
+		void parallelExecute(void (NodeType::*Vfptr)(const T&), const T& input)
+        {
 			ParallelExecute<NodeType,LinkType>(*this,*this).execute(Vfptr,input);
 		}		
 
-
+//        /********************************************************/
+//        operator const NetworkLinkContainerType*() const
+//        {
+//            return dynamic_cast<const NetworkLinkContainerType*>(this);
+//        }
+        
 		/*************************************************************/
 		// friend T& operator <<
 		template <class T>
-		friend T& operator << (T& os, const NetworkNodeContainerType& nnC) {			
+		friend T& operator << (T& os, const NetworkNodeContainerType& nnC)
+        {
 			for (typename NetworkNodeContainerType::const_iterator nodeIter=nnC.begin();nodeIter!=nnC.end();++nodeIter){				
 				os << (*nodeIter->second) << "\n";
 			}
@@ -275,13 +282,16 @@ namespace model {
 		/*************************************************************/
 		// friend T& operator <<
 		template <class T>
-		friend T& operator << (T& os, const NetworkLinkContainerType& nlC) {			
+		friend T& operator << (T& os, const NetworkLinkContainerType& nlC)
+        {
 			for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter){				
 				os << (*linkIter->second) << "\n";
 			}
 			return os;
 		}
         
+                
+                
 
 		
 //		/*************************************************************/
