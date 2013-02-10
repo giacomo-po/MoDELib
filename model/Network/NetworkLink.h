@@ -10,9 +10,6 @@
 #ifndef model_NETWORKLINK_H_
 #define model_NETWORKLINK_H_
 
-#ifndef VERBOSELEVEL
-#define VERBOSELEVEL 0
-#endif
 
 #include <limits>
 #include <iomanip>

@@ -9,10 +9,6 @@
 #ifndef model_NETWORKNODE_H_
 #define model_NETWORKNODE_H_
 
-#ifndef VERBOSELEVEL
-#define VERBOSELEVEL 0
-#endif
-
 #include <iomanip>
 #include <map>
 #include <set>
@@ -57,9 +53,6 @@ namespace model {
 		/*****************************************************************************************/
 		/* Costructor with node arguments ********************************************************/
 		NetworkNode() : psn(new SubNetworkType(this->p_derived())){		
-#if VERBOSELEVEL == 0
-			std::cout<<"Creating Node "<<this->sID<<std::endl;
-#endif
 			// Insert this->p_derived() in the Neighborhood
 			Neighborhood.insert(std::make_pair(this->sID, boost::tuples::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
 			
@@ -69,9 +62,6 @@ namespace model {
 		/* Costructor from EdgeExpansion *********************************************************/
 		//		NetworkNode(const EdgeExpansion<LinkType>& ee) : state(0),
 		NetworkNode(const ExpandingEdge<LinkType>& ee) : psn(ee.E.pSN()){		
-#if VERBOSELEVEL == 0
-			std::cout<<"Creating Node "<<this->sID<<" by EdgeExpansion."<<std::endl;
-#endif
 			// Insert this->p_derived() in the Neighborhood
 			Neighborhood.insert(std::make_pair(this->sID, boost::tuples::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
 			
@@ -82,9 +72,6 @@ namespace model {
 		/*****************************************************************************************/
 		/* Destructor ****************************************************************************/
 		~NetworkNode(){
-#if VERBOSELEVEL == 0
-			std::cout<<"Deleting Node "<<this->sID<<std::endl;
-#endif
 			//! 1- Remove this from Neighborhood	
 			Neighborhood.erase(this->sID);
 			
@@ -450,12 +437,6 @@ namespace model {
 			return (outFlow() - inFlow()).norm()<FLT_EPSILON;
 		}
 		
-		
-		
-		
-		
-		
-		
 		//////////////////////////////////////////////////////////////////////////////
 		// is_simple
 		bool is_simple() const {
@@ -494,212 +475,3 @@ namespace model {
 } // namespace model
 #endif
 
-
-
-
-
-//		////////////////////////////////////////////////////////
-//		////////////////////////////////////////////////////////
-//		// nodeTransmit
-//		template <typename T>
-//		void nodeTransmit(void (Derived::*Nfptr)(const T&), const T & input, const size_t& N = ULONG_MAX){
-//			if (!this->get_state() && N!=0){
-//				this->set_state();
-//				(this->p_derived()->*Nfptr)(input);
-//				for (typename NeighborContainerType::iterator NeighborIter=Neighborhood.begin();NeighborIter!=Neighborhood.end();++NeighborIter){
-//					if (!boost::tuples::get<2>(NeighborIter->second)==0){
-//						boost::tuples::get<0>(NeighborIter->second)->nodeTransmit(Nfptr,input, N-1);//
-//					}
-//				}	
-//				this->reset_state();				
-//			}
-//		}
-//		
-//		void nodeTransmit(void (Derived::*Nfptr)(void), const size_t& N = ULONG_MAX){
-//			if (!this->get_state() && N!=0){
-//				this->set_state();
-//				(this->p_derived()->*Nfptr)();
-//				for (typename NeighborContainerType::iterator NeighborIter=Neighborhood.begin();NeighborIter!=Neighborhood.end();++NeighborIter){
-//					if (!boost::tuples::get<2>(NeighborIter->second)==0){
-//						boost::tuples::get<0>(NeighborIter->second)->nodeTransmit(Nfptr, N-1);//
-//					}
-//				}	
-//				this->reset_state();				
-//			}
-//		}
-//		
-//		
-//		void linkTransmit(void (LinkType::*Lfptr)(void), const size_t& N = ULONG_MAX){
-//			if (!this->get_state() && N!=0){
-//				this->set_state();
-//				//(this->p_derived()->*Nfptr)();
-//				for (typename NeighborContainerType::iterator NeighborIter=Neighborhood.begin();NeighborIter!=Neighborhood.end();++NeighborIter){
-//					if (!boost::tuples::get<2>(NeighborIter->second)==0){
-//						(boost::tuples::get<1>(NeighborIter->second)->*Lfptr)();
-//						boost::tuples::get<0>(NeighborIter->second)->linkTransmit(Lfptr, N-1);//
-//					}
-//				}	
-//				this->reset_state();				
-//			}
-//		}
-
-
-
-//		//////////////////////////////////////////////////////////////////////////////
-//		// is_simple
-//		bool is_simple() const {
-//			return outOrder()==1 && inOrder()==1 && is_balanced();
-//		}
-
-
-
-
-
-
-//		////////////////////////////////////////////////////////
-//		// canReach	
-//		bool canReach(const size_t& ID, const size_t& N = ULONG_MAX){
-//			bool reached(this->sID==ID);
-//			if (!this->get_state() && N!=0 && !reached){
-//				std::cout<<"Node "<<this->sID<< "can reach "<<ID;
-//				this->set_state();
-//				for (typename NeighborContainerType::const_iterator NeighborIter=Neighborhood.begin();NeighborIter!=Neighborhood.end();++NeighborIter){
-//					if (!boost::tuples::get<2>(NeighborIter->second)==0){
-//						reached=boost::tuples::get<0>(NeighborIter->second)->canReach(ID,N-1);//
-//						if (reached){
-//							std::cout<<"yes, reached"<<std::endl;
-////							this->reset_state();				
-//							break;
-//						}
-//						
-//					}
-//				}	
-//				this->reset_state();	
-//				std::cout<<"? "<<reached<<std::endl;;
-//			}
-//
-//			return reached;
-//		}
-
-
-
-
-
-//		////////////////////////////////////////////////////////
-//		// canOutReach	
-//		bool canOutReach(const size_t& ID, const size_t& N = ULONG_MAX){
-//			bool reached(this->sID==ID);
-//			if (!this->get_state() && N!=0 && !reached){
-//				this->set_state();
-//				for (typename NeighborContainerType::const_iterator NeighborIter=OutNeighborhood.begin();NeighborIter!=OutNeighborhood.end();++NeighborIter){
-//					reached=boost::tuples::get<0>(NeighborIter->second)->canReach(ID,N-1);//
-//					if (reached){
-//						break;
-//					}
-//				}	
-//				this->reset_state();				
-//			}
-//			return reached;
-//		}
-
-
-//		////////////////////////////////////////////////////////
-//		// pathTo
-//		std::vector<size_t> pathTo(const size_t& ID){
-//			std::vector<size_t> temp;
-//			if (!this->get_state()){
-//				this->set_state();
-//				bool reached(this->sID==ID);
-//				if (!reached) {
-//					for (typename NeighborContainerType::const_iterator NeighborIter=OutNeighborhood.begin();NeighborIter!=OutNeighborhood.end();++NeighborIter){
-//						temp=boost::tuples::get<0>(NeighborIter->second)->pathTo(ID);//
-//						if (temp.size()){ // there is a path from the current neighbor
-//							temp.push_back(this->sID); // add this to the path
-//							break;
-//						}
-//					}
-//				}
-//				else{
-//					temp.push_back(this->sID);
-//				}
-//				this->reset_state();				
-//			}
-//			return temp;
-//		}
-
-
-
-
-//		////////////////////////////////////////////////////////
-//		// flow THIS OPERATION IS NOT WELL DEFINED IF THE NODE IS UNBALANCED
-//		FlowType flow() {
-//			FlowType F;
-//			//F-=F; // this should make F "0" independently of the initial value
-//			if ( is_central() ){
-//				assert( is_balanced() );
-//				F=outFlow();
-//			}
-//			else if (is_sink()){
-//				F=inFlow();
-//			}
-//			else if (is_source() ){
-//				F=outFlow();
-//			}
-//			else{
-//				assert(0);
-//			}
-//			
-//			return F;
-//			
-//			// = outFlow()*(is_source()+is_central())+ inFlow()*is_sink()
-//		}
-
-
-
-
-//		/*****************************************************************************************/
-//		/* initData ******************************************************************************/
-//		const InitializationData<Derived>& initData() const {
-//			/*! The InitializationData<Derived> object used to construct this Vertex.
-//			 */
-//			return *static_cast<const InitializationData<Derived>*> (this);
-//		}
-
-////////////////////////////////////////////////////////
-// flowBalance
-//		void flowBalance() const {
-//			return outFlow()-inFlow();
-//		}
-
-//		//////////////////////////////////////////////////
-//		// topologyChangeActions
-//		void topologyChangeActions(){
-//			/*! This function is called by the NeworkLink destructor. It sould be overwritten by
-//			 *  the Derived class if some action is to be taken when topological changes in connection take place.
-//			 */
-//		}
-
-
-
-
-//		////////////////////////////////////////////////////////
-//		// outFlow
-//		FlowType outFlow() const {
-//			FlowType Fout;
-//			Fout-=Fout; // this should make Fout "0" independently of the initial value
-//			for (typename NeighborContainerType::const_iterator	 NeighborIter=OutNeighborhood.begin();NeighborIter!=OutNeighborhood.end();++NeighborIter){
-//				Fout+=boost::tuples::get<1>(NeighborIter->second)->flow;
-//			}
-//			return Fout;
-//		}
-//		
-//		////////////////////////////////////////////////////////
-//		// inFlow
-//		FlowType inFlow() const {
-//			FlowType Fin;
-//			Fin-=Fin;	// this should make Fin "0" independently of the initial value
-//			for (typename NeighborContainerType::const_iterator	 NeighborIter=InNeighborhood.begin();NeighborIter!=InNeighborhood.end();++NeighborIter){
-//				Fin+=boost::tuples::get<1>(NeighborIter->second)->flow;
-//			}
-//			return Fin;
-//		}

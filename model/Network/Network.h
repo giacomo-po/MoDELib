@@ -10,10 +10,6 @@
 #define model_NETWORK_H_
 
 
-#ifndef VERBOSELEVEL
-#define VERBOSELEVEL 0
-#endif
-
 #include <assert.h>
 
 #include <boost/ptr_container/ptr_map.hpp>

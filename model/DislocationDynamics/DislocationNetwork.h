@@ -59,10 +59,6 @@
 #define model_DISLOCATIONNETWORK_H_
 
 
-#ifndef VERBOSELEVEL
-#define VERBOSELEVEL 3
-#endif
-
 #include <iostream>
 #include <iomanip>
 #include <math.h>

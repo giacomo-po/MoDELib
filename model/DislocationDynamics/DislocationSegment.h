@@ -14,11 +14,6 @@
 #ifndef model_DISLOCATIONSEGMENT_H
 #define model_DISLOCATIONSEGMENT_H
 
-#ifndef VERBOSELEVEL
-#define VERBOSELEVEL 3
-#endif
-
-
 #ifdef _OPENMP
 #include <omp.h>
 #else

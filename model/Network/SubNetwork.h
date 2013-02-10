@@ -10,10 +10,6 @@
 #ifndef model_SUBNETWORK_H_
 #define model_SUBNETWORK_H_
 
-#ifndef VERBOSELEVEL
-#define VERBOSELEVEL 0
-#endif
-
 #include <iomanip>
 #include <assert.h>
 #include <map>
@@ -49,18 +45,12 @@ namespace model {
 			/************************************************************/
 			/* Constructor with pointer to Node *************************/
 			SubNetwork(NodeType* const pN){
-#if VERBOSELEVEL == 0
-				std::cout<<"Creating SubNetwork "<<this->sID<<" for Node "<<pN->sID<<std::endl;
-#endif
 				add(pN);
 			}
 			
 			/************************************************************/
 			/* Constructor with pointer to Link *************************/
 			SubNetwork(LinkType* const pL){
-#if VERBOSELEVEL == 0
-				std::cout<<"Creating SubNetwork "<<this->sID<<" for Link "<<pL->sID<<std::endl;
-#endif
 				add(pL);
 			}
 			
@@ -69,10 +59,6 @@ namespace model {
 			~SubNetwork(){
 				assert(SubNetworkNodeContainerType::empty() && "Destroying non-empty SubNetwork! Subnetwork contains Vertices.");	// make sure that only empty subnetworks are deleted
 				assert(SubNetworkLinkContainerType::empty() && "Destroying non-empty SubNetwork! Subnetwork contains Edges.");		// make sure that only empty subnetworks are deleted
-#if VERBOSELEVEL == 0
-				std::cout<<"Deleting SubNetwork "<<this->sID;
-				std::cout<<" .There are now "<<this->Naddresses()-1<<" SubNetworks"<<std::endl;
-#endif
 			}
 			
 			/************************************************************/
