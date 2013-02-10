@@ -1,17 +1,14 @@
 /* This file is part of finite element solution of BVP attached with model "Mechanics of Defects Evolution  Library".
  *
  * Copyright (C) 2011 by Mamdouh Mohamed <mamdouh.s.mohamed@gmail.com>,
- * Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.
+ * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
  *
  * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef bvpfe_domain_H_
-#define bvpfe_domain_H_
-
-//#define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
-
+#ifndef model_domain_H_
+#define model_domain_H_
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -42,32 +39,30 @@
 #include "model/BVP/Triangle.h"
 #include "model/BVP/Face.h"
 #include "model/BVP/SearchData.h"
-//#include <model/BVP/VirtualBoundarySlipContainer.h>
 
 
 #include <stdio.h>
 
-//#include "SparseLib/CG.h"
 
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 
 
-namespace bvpfe{
+namespace model{
 	
     //	template <typename MaterialType>
 	class Domain {
 		
 		enum {dim=3};
-		
+        
 #include <model/BVP/commonTypeDefs.h>
 		
 	public:
-		typedef boost::ptr_vector<Node<dim> >  NodeContainerType;
-		typedef boost::ptr_vector<Tetrahedron> TetContainerType;
-		typedef boost::ptr_vector<Triangle>    TriContainerType;
-		typedef boost::ptr_map<size_t,Face>    FaceContainerType;
-		typedef std::pair<bool,Tetrahedron*>   isTetrahedronType;
+		typedef boost::ptr_vector<bvpfe::Node<dim> >  NodeContainerType;
+		typedef boost::ptr_vector<bvpfe::Tetrahedron> TetContainerType;
+		typedef boost::ptr_vector<bvpfe::Triangle>    TriContainerType;
+		typedef boost::ptr_map<size_t,bvpfe::Face>    FaceContainerType;
+		typedef std::pair<bool,bvpfe::Tetrahedron*>   isTetrahedronType;
 		
 		typedef std::pair< unsigned int, std::pair<unsigned int, double> > inputBCsType;
 		
@@ -77,7 +72,7 @@ namespace bvpfe{
 	public:
 		NodeContainerType nodeContainer;                  // container for the nodes' pointers
 		TetContainerType tetContainer;		         // container for the tetrahedrons' pointers
-		std::vector<Triangle*> triContainer;
+		std::vector<bvpfe::Triangle*> triContainer;
 		
 		std::vector <inputBCsType> inputBCsContainer , usrBCsContainer;      // stores the input displacement BCs from the BC_0.txt file
 		
@@ -93,11 +88,7 @@ namespace bvpfe{
 		FaceContainerType faceContainer;                 // container for the faces pointers
 		
 		std::vector<double> Finf;                  // holds the r.h.s. traction (infinite + external) force vector for all the nodes
-		
-		
-		//TriContainerType triContainer;                 // container for triangle pointers
-		//std::vector<Triangle*> triContainer;
-		
+				
 		std::map<bvpfe::Face*,std::vector<double> > facesWtraction;    // container for the faces that have traction, and their traction vector
 		
 		unsigned int sysDim;                             // dimension of the global linear system
@@ -105,36 +96,21 @@ namespace bvpfe{
 		public :
 		Domain () {}
 		
-		//==================================================================================
-		// function to read the mesh data from input files mesh.*
-		//==================================================================================
-        //		template<typename SharedType>
-        //		void readMesh(const SharedType* sharedPtr){
-        void readMesh(){
-			
+        /**********************************************************************/
+        void readMesh()
+        {/*! Reads mesh data from input files mesh.*
+          */
 			readNodes();
-			
 			Finf.resize(nodeContainer.size()*3, 0.0);
-			
-            //			readVolElements(sharedPtr);
 			readVolElements();
-            
-			
 			readSurfElements();
-			
 			outputMesh();
-			
-			//output();
-			
-			//output_T_File();
 		}
 		
-		//==================================================================================
-		// ---------- function to read & store the nodes data in Node objects and container ---------------
-		//==================================================================================
-		
+        /**********************************************************************/
 		void readNodes()
-		{
+		{/*! Reads mesh vertex data from input files mesh.node
+          */
 			// int nNodes , d1, d2 , d3, in; // Giacomo 09-30-2011
 			unsigned int nNodes , d1, d2 , d3, in;
 			VectorDim tempP;
@@ -152,7 +128,7 @@ namespace bvpfe{
 				
 				for (unsigned int ii = 0; ii<3; ii++) {tempP(ii) = X[ii];}
 				
-				std::auto_ptr<Node<dim> > pNode (new Node<dim>(tempP) );
+				std::auto_ptr<bvpfe::Node<dim> > pNode (new bvpfe::Node<dim>(tempP) );
 				if(pNode->sID != in) assert(0&&"Error in .node file format. use -z option when creating the mesh to start numbering from 0");
 				nodeContainer.push_back(pNode);
 			}
@@ -161,13 +137,11 @@ namespace bvpfe{
 			
 		}
 		
-		//==================================================================================
-		//----------------- function to read & distribute the volume elements data ------------
-		//==================================================================================
-        //		template<typename SharedType>
-        //		void readVolElements(const SharedType* sharedPtr)
+        /**********************************************************************/
 		void readVolElements()
-		{
+		{/*! Read & distribute the volume elements data from mesh/mesh.ele and
+          *  mesh/mesh.neigh
+          */
 			
 			unsigned int nTets , d1, nn , ti , nt;
 			
@@ -183,12 +157,9 @@ namespace bvpfe{
 			int neighbor[4];
 			int tetNodes[4];
 			
-			for (unsigned int i=0; i<nTets; i++) {
-				
-                //				std::auto_ptr<Tetrahedron> pTet (new Tetrahedron (sharedPtr) );
-				std::auto_ptr<Tetrahedron> pTet (new Tetrahedron () );
+			for (unsigned int i=0; i<nTets; i++) {				
+				std::auto_ptr<bvpfe::Tetrahedron> pTet (new bvpfe::Tetrahedron () );
                 
-				
 				assert(fscanf (fneigh, "%u%d%d%d%d",  &ti, &neighbor[0], &neighbor[1], &neighbor[2], &neighbor[3])==5);
 				assert(fscanf (fTet, "%u%d%d%d%d",  &ti, &tetNodes[0], &tetNodes[1], &tetNodes[2], &tetNodes[3])==5);
 				
@@ -227,19 +198,19 @@ namespace bvpfe{
 			
 			if (di!=0) assert(0&&"Error in .face file format");
 			
-			Triangle* pTri;
+			bvpfe::Triangle* pTri;
 			
 			for (unsigned int iTri = 0; iTri < nTris; iTri++ ){
 				assert(fscanf (fTri, "%u%d%d%d%u%u", &ti , &triNodes[0], &triNodes[1], &triNodes[2], &iTet  , &iFc )==6);
 				
 				//----------- if the face does NOT exist, creat it ----------
 				if(faceContainer.find(iFc) == faceContainer.end()) {
-					std::auto_ptr<Face> pFace (new Face);
+					std::auto_ptr<bvpfe::Face> pFace (new bvpfe::Face);
 					assert(faceContainer.insert(iFc,pFace).second);
 				}
 				
 				//---------- add triangles ---------
-				pTri = new Triangle;
+				pTri = new bvpfe::Triangle;
 				
 				if(pTri->sID != ti) {
 					assert(0&&"Error in .face file format. use -z option when creating the mesh to start numbering from 0");
@@ -576,23 +547,23 @@ namespace bvpfe{
                 }
                 //model::SequentialOutputFile<'F',1>::set_increment(outputFrequency); // Vertices_file;
                 //model::SequentialOutputFile<'F',1>::set_count(runID); // Vertices_file;
-//                model::SequentialOutputFile<'F',true> f_file;
-//                for (unsigned int i = 0 ; i < nodeContainer.size(); i++ )
-//                {
-//                    if (nodeContainer[i].P(2)==4000)
-//                    {
-//                        f_file<< nodeContainer[i].P.transpose()<<" ";
-//                        for (int j=0;j<3;++j)
-//                        {
-//                            f_file<<  F(nodeContainer[i].eqnNumber[j])<<" ";
-//                        }
-//                        f_file<<std::endl;
-//                    }
-//                }
+                //                model::SequentialOutputFile<'F',true> f_file;
+                //                for (unsigned int i = 0 ; i < nodeContainer.size(); i++ )
+                //                {
+                //                    if (nodeContainer[i].P(2)==4000)
+                //                    {
+                //                        f_file<< nodeContainer[i].P.transpose()<<" ";
+                //                        for (int j=0;j<3;++j)
+                //                        {
+                //                            f_file<<  F(nodeContainer[i].eqnNumber[j])<<" ";
+                //                        }
+                //                        f_file<<std::endl;
+                //                    }
+                //                }
                 
             }
             
-
+            
 		    
 		    std::cout<<"DONE in"<<"["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
 		    
@@ -766,7 +737,7 @@ namespace bvpfe{
 			Eigen::Matrix<double,12,12> tetMat;         // 12x12 stiffness matrix for each tetrahedron
 			
 			//std::vector<Vector> Np;             // shape functions derivatives mapped to actual element
-			Eigen::Matrix<double,dim,Tetrahedron::Nnodes> Np;   // shape functions derivatives mapped to actual element
+			Eigen::Matrix<double,dim,bvpfe::Tetrahedron::Nnodes> Np;   // shape functions derivatives mapped to actual element
 			
 			int qi, qj;
 			int ie , je;
@@ -843,8 +814,8 @@ namespace bvpfe{
 		{
 			int qi, qj;
 			
-			Node<dim>* pNodei;
-			Node<dim>* pNodej;
+			bvpfe::Node<dim>* pNodei;
+			bvpfe::Node<dim>* pNodej;
 			
 			// ---- sort the neighbor vector for each node. This makes it easy to initiate sparse system ---
 			
@@ -911,8 +882,8 @@ namespace bvpfe{
             //		Eigen::Matrix<double,dim,3> TriVec;       // 3 is the number of nodes per triangle
 			
 			unsigned int nID;
-			Triangle* pTri;
-			std::vector<Triangle*>::iterator itt;
+			bvpfe::Triangle* pTri;
+			std::vector<bvpfe::Triangle*>::iterator itt;
 			
 			
 			// Loop and compute infinite force and store in each triangle
@@ -934,13 +905,13 @@ namespace bvpfe{
             
             
             
-//            model::SequentialOutputFile<'H',true> h_file;
-//            for (unsigned int kkk=0; kkk<triContainer.size(); kkk++ ) {
-//                for (int nnn=0;nnn<3;++nnn){
-//                    h_file<< triContainer[kkk]->eleNodes[nnn]->P.transpose()<<" "<< triContainer[kkk]->TriVec.col(nnn).transpose()<<" ";
-//                }
-//                h_file<<std::endl;
-//			}
+            //            model::SequentialOutputFile<'H',true> h_file;
+            //            for (unsigned int kkk=0; kkk<triContainer.size(); kkk++ ) {
+            //                for (int nnn=0;nnn<3;++nnn){
+            //                    h_file<< triContainer[kkk]->eleNodes[nnn]->P.transpose()<<" "<< triContainer[kkk]->TriVec.col(nnn).transpose()<<" ";
+            //                }
+            //                h_file<<std::endl;
+            //			}
 			
 			
 			
@@ -969,75 +940,19 @@ namespace bvpfe{
 			
 		}
 		
-		//===================================================================================
-		// function to assemble the force vector from surface traction
-		// we assume here uniform traction over the surface, so one quadrature point is used
-		//===================================================================================
-		/*
-		 void assembleTractionForce (VECTOR_double& Fm )
-		 {
-		 bvpfe::Face* pFace;
-		 std::map<bvpfe::Face*,std::vector<double> >::iterator itf;
-		 std::vector<double> tr;
-		 
-		 bvpfe::Triangle* pTri;
-		 std::map<size_t,bvpfe::Triangle*>::iterator itt;
-		 
-		 std::vector<double> triVec;
-		 triVec.resize(9,0.0e+00);     //The force vector for each triangle
-		 
-		 int ie , qi;
-		 
-		 //--------- loop over all faces subjected to traction ----------
-		 for (itf= facesWtraction.begin() ; itf != facesWtraction.end(); itf++ )
-		 {
-		 pFace = itf->first;
-		 tr = itf->second;
-		 
-		 //std::cout<< "traction " << tr[0] << " " << tr[1] << " " << tr[2] << std::endl;
-		 
-		 // ---------- loop over all triangles of the face ------------
-		 for (itt= pFace->triContainer.begin() ; itt != pFace->triContainer.end(); itt++ )
-		 {
-		 pTri = itt->second;
-		 
-		 triVec = pTri->getForceVec(tr);
-		 
-		 for (int ai = 0 ; ai < 3; ai++ )             // loop over the 3 surface element's nodes
-		 {
-		 ie = ai*3;
-		 
-		 for  (int in = 0 ; in < 3; in++ )   // loop over the 3 dofs
-		 {
-		 qi = pTri->eleNodes[ai]->eqnNumber(in);
-		 if (qi == -1) continue;
-		 Fm(qi) = Fm(qi) +  triVec[ie+in];
-		 }
-		 }
-		 }
-		 }
-		 
-		 
-		 }
-		 */
-		//===================================================================================
-		// function to calculate the stress field at any given point
-		//==================================================================================
+        
+        
+        /**********************************************************************/
 		Eigen::Matrix<double,dim,dim> stressAt(const VectorDim& P)
-		{
-			Eigen::Matrix<double,dim,dim> stress = Eigen::Matrix<double,dim,dim>::Zero();
-			isTetrahedronType isT = findIncludingTet(P);
-			
-			/*std::cout << "tetrahedron number : " << pTet->sID<< std::endl;
-			 std::cout<< "Point: "<< P[0]<< " "<< P[1]<< " "<< P[2]<< " "<<std::endl;
-			 
-			 std::cout<< pTet->eleNodes[0]->P[0]<< " "<< pTet->eleNodes[0]->P[1]<< " "<< pTet->eleNodes[0]->P[2]<< " "<<std::endl;
-			 std::cout<< pTet->eleNodes[1]->P[0]<< " "<< pTet->eleNodes[1]->P[1]<< " "<< pTet->eleNodes[1]->P[2]<< " "<<std::endl;
-			 std::cout<< pTet->eleNodes[2]->P[0]<< " "<< pTet->eleNodes[2]->P[1]<< " "<< pTet->eleNodes[2]->P[2]<< " "<<std::endl;
-			 std::cout<< pTet->eleNodes[3]->P[0]<< " "<< pTet->eleNodes[3]->P[1]<< " "<< pTet->eleNodes[3]->P[2]<< " "<<std::endl; */
-			
-			if (isT.first) {stress = isT.second->getStress();}
-			
+		{/*! @param[in] P the field point
+          * The stress tensor at the field point.
+          */
+			Eigen::Matrix<double,dim,dim> stress(Eigen::Matrix<double,dim,dim>::Zero());
+			const isTetrahedronType isT(findIncludingTet(P));
+			if (isT.first)
+            {
+                stress = isT.second->getStress();
+            }
 			return stress;
 		}
 		
@@ -1057,8 +972,8 @@ namespace bvpfe{
 				Eigen::Matrix<double,4,1>::Index ii;
 				// , jj;
 				VectorDim interP;                              // should save the velocity-surface intersection point
-				Triangle* pTri;
-				Tetrahedron* pTet;
+				bvpfe::Triangle* pTri;
+				bvpfe::Tetrahedron* pTet;
 				
 				Eigen::Matrix<double,4,1>  Bary;
 				
@@ -1122,7 +1037,7 @@ namespace bvpfe{
 							pTri = pTet->TetSurfTris.find(sI)->second->neighbor[dI];    // next neighbor triangle
 							pTet = &tetContainer[pTri->neighTetIndx];                   // new tetrahedron to move to
 							
-							for (std::map<size_t,Triangle*>::iterator it = pTet->TetSurfTris.begin(); it!= pTet->TetSurfTris.end(); it++){
+							for (std::map<size_t,bvpfe::Triangle*>::iterator it = pTet->TetSurfTris.begin(); it!= pTet->TetSurfTris.end(); it++){
 								if (it->second->sID == pTri->sID){sI = it->first; break;}
 							}
 							
@@ -1192,7 +1107,7 @@ namespace bvpfe{
 			int ci; // index of neighboor tet. -1 means outside.
 			int ni; //
 			
-			isTetrahedronType temp=std::make_pair(true, (Tetrahedron*) NULL);
+			isTetrahedronType temp=std::make_pair(true, (bvpfe::Tetrahedron*) NULL);
 			
 			//----- starting Tet, random start point ------------
 			ci = int(tetContainer.size()/2);
@@ -1374,7 +1289,7 @@ namespace bvpfe{
 					//nodeContainer[i].traction = VectorDim::Zero();         // set traction to be zero
 					nodeContainer[i].remove_BCs();                        // set displacement BC to be false
 				}
-			} 
+			}
 			
 		}
 		
@@ -1415,3 +1330,58 @@ namespace bvpfe{
 	
 }  //  namespace bvpfe
 #endif
+
+
+
+
+//===================================================================================
+// function to assemble the force vector from surface traction
+// we assume here uniform traction over the surface, so one quadrature point is used
+//===================================================================================
+/*
+ void assembleTractionForce (VECTOR_double& Fm )
+ {
+ bvpfe::Face* pFace;
+ std::map<bvpfe::Face*,std::vector<double> >::iterator itf;
+ std::vector<double> tr;
+ 
+ bvpfe::Triangle* pTri;
+ std::map<size_t,bvpfe::Triangle*>::iterator itt;
+ 
+ std::vector<double> triVec;
+ triVec.resize(9,0.0e+00);     //The force vector for each triangle
+ 
+ int ie , qi;
+ 
+ //--------- loop over all faces subjected to traction ----------
+ for (itf= facesWtraction.begin() ; itf != facesWtraction.end(); itf++ )
+ {
+ pFace = itf->first;
+ tr = itf->second;
+ 
+ //std::cout<< "traction " << tr[0] << " " << tr[1] << " " << tr[2] << std::endl;
+ 
+ // ---------- loop over all triangles of the face ------------
+ for (itt= pFace->triContainer.begin() ; itt != pFace->triContainer.end(); itt++ )
+ {
+ pTri = itt->second;
+ 
+ triVec = pTri->getForceVec(tr);
+ 
+ for (int ai = 0 ; ai < 3; ai++ )             // loop over the 3 surface element's nodes
+ {
+ ie = ai*3;
+ 
+ for  (int in = 0 ; in < 3; in++ )   // loop over the 3 dofs
+ {
+ qi = pTri->eleNodes[ai]->eqnNumber(in);
+ if (qi == -1) continue;
+ Fm(qi) = Fm(qi) +  triVec[ie+in];
+ }
+ }
+ }
+ }
+ 
+ 
+ }
+ */

@@ -16,15 +16,13 @@
 
 namespace model {
 	
-//	template <short unsigned int dim, typename _MaterialType, typename LinkType>
 	template <typename LinkType>
 	struct DislocationSharedObjects {
 
-        static int minSNorderForSolve;
+        static size_t minSNorderForSolve;
 		static unsigned int boundary_type;
 		static unsigned int use_bvp;
-		static bvpfe::Domain domain;					// temporary
-		//static typename TypeTraits<LinkType>::MaterialType material;
+		static Domain domain;					// temporary
 		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
 		static VirtualBoundarySlipContainer<LinkType> vbsc;
 	};
@@ -37,21 +35,16 @@ namespace model {
 	unsigned int DislocationSharedObjects<LinkType>::use_bvp=0;
 	
 	template <typename LinkType>
-	bvpfe::Domain DislocationSharedObjects<LinkType>::domain;
+	Domain DislocationSharedObjects<LinkType>::domain;
     
     template <typename LinkType>
-	int DislocationSharedObjects<LinkType>::minSNorderForSolve=0;
+	size_t DislocationSharedObjects<LinkType>::minSNorderForSolve=0;
 		
-	//template <typename LinkType>
-	//typename TypeTraits<LinkType>::MaterialType DislocationSharedObjects<LinkType>::material;
-
 	template <typename LinkType>
 	Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::externalStress=Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim>::Zero();
 
 	template <typename LinkType>
 	VirtualBoundarySlipContainer<LinkType> DislocationSharedObjects<LinkType>::vbsc;
-
-
 	
 } // namespace model
 #endif

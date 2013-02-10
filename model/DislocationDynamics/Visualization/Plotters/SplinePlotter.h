@@ -155,7 +155,7 @@ namespace model {
         
 		
 		/*********************************************************************/
-		void plot(const scalarType& radius, const bool& showTubes, const bool& showPlaneNormal, const int& colorScheme) const {
+		void plot(const scalarType& radius, const bool& showTubes, const bool& showPlaneNormal, const bool& showBurgers, const int& colorScheme) const {
 			
             // 1- Define the color
             VectorDim colorVector;
@@ -238,6 +238,14 @@ namespace model {
 				glVertex3f(tubeAxis(0,k)+planeNormal(0)*10.0*radius,tubeAxis(1,k)+planeNormal(1)*10.0*radius,tubeAxis(2,k)+planeNormal(2)*10.0*radius);
 				glEnd();
 			}
+            if(showBurgers)
+            {
+				glBegin(GL_LINES);
+				int k(Np*0.5);
+				glVertex3f(tubeAxis(0,k),tubeAxis(1,k),tubeAxis(2,k));
+				glVertex3f(tubeAxis(0,k)+burgers(0)*10.0*radius,tubeAxis(1,k)+burgers(1)*10.0*radius,tubeAxis(2,k)+burgers(2)*10.0*radius);
+				glEnd();
+			}
 			
 		}
 
@@ -273,6 +281,7 @@ namespace model {
 		bool showVertices;
 		bool deformedConfig;
 		bool showPlaneNormal;
+		bool showBurgers;
         bool showVertexID;
         int colorScheme;
         bool showSpecificVertex;
@@ -285,6 +294,7 @@ namespace model {
 		/* init list   */ showVertices(false),
 		/* init list   */ deformedConfig(false),
 		/* init list   */ showPlaneNormal(false),
+		/* init list   */ showBurgers(false),
         /* init list   */ showVertexID(false),
         /* init list   */ colorScheme(0),
         /* init list   */ showSpecificVertex(false),
@@ -355,7 +365,7 @@ namespace model {
 			
 			for (typename SingleSplinePlotterVectorType::const_iterator itEdge=SingleSplinePlotterVectorType::begin(); itEdge!=SingleSplinePlotterVectorType::end(); ++itEdge)
             {
-				itEdge->plot(radius,showTubes,showPlaneNormal,colorScheme);
+				itEdge->plot(radius,showTubes,showPlaneNormal,showBurgers,colorScheme);
 			}
             
             

@@ -341,6 +341,8 @@ namespace model {
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "n: hide/show glide plane normals\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
+                sprintf (outString, "b: hide/show Burgers vector\n");
+                BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "p: hide/show PK force\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "r (hold r and press -/+): decrese/increse edge and vertex radius\n");
@@ -757,6 +759,10 @@ namespace model {
                     
 				case 'a':
 					showAxes=!showAxes;
+					break;
+                    
+                case 'b':
+					splinePlotter.showBurgers=!splinePlotter.showBurgers;
 					break;
 					
 					//				case 'b':

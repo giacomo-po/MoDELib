@@ -490,17 +490,17 @@ namespace model {
 			}
 		}
 		
-		/* get_dt *****************************************************************/
+		/* get_dt *************************************************************/
 		const double& get_dt() const {
 			return dt;
 		}
-		
+        
+        /* get_totalTime ******************************************************/
 		const double& get_totalTime() const {
 			return totalTime;
 		}
 		
-		
-		/* read *****************************************************************/
+		/* read ***************************************************************/
 		void read(const std::string& inputDirectoryName_in, std::string inputFileName){
 			
             std::ostringstream fullName;
@@ -516,8 +516,10 @@ namespace model {
             
             
             // Min SubNetwork::nodeOrder for Assemble and solve
-            EDR.readScalarInFile(fullName.str(),"minSNorderForSolve",shared.minSNorderForSolve); // material by atomic number Z
-            assert(shared.minSNorderForSolve>=0 && "minSNorderForSolve must be >=0");
+            int minSNorderForSolve_temp(0);
+            EDR.readScalarInFile(fullName.str(),"minSNorderForSolve",minSNorderForSolve_temp); // material by atomic number Z
+            assert(minSNorderForSolve_temp>=0 && "minSNorderForSolve must be >=0");
+            shared.minSNorderForSolve=(size_t)minSNorderForSolve_temp;
             
             // QuadratureParticle
             EDR.readScalarInFile(fullName.str(),"coreWidthSquared",DislocationQuadratureParticle<dim,cellSize>::a2); // core-width
