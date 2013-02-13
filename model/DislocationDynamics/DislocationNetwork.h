@@ -58,7 +58,8 @@
 #ifndef model_DISLOCATIONNETWORK_H_
 #define model_DISLOCATIONNETWORK_H_
 
-
+//#include <stdlib.h> // random numbers
+//#include <time.h> // seed random numbers with time
 #include <iostream>
 #include <iomanip>
 #include <math.h>
@@ -134,7 +135,10 @@ namespace model {
 #ifdef UpdateBoundaryConditionsFile
 #include UpdateBoundaryConditionsFile
 #endif
-		
+        
+#ifdef DislocationNucleationFile
+#include DislocationNucleationFile
+#endif
 		
 #ifdef DislocationNetworkMPI
 #include DislocationNetworkMPI
@@ -296,6 +300,13 @@ namespace model {
             /*                                                           */<< ", subNetworks="<<this->Naddresses()
 			/*                                                           */<< defaultColor<<std::endl;
             
+            
+#ifdef DislocationNucleationFile
+            if(shared.use_bvp && !(runID%shared.use_bvp)){
+              nucleateDislocations(); // needs to be called before updateQuadraturePoints()
+            }
+#endif
+            
 			//! 1- Check that all nodes are balanced
 			checkBalance();
 			
@@ -309,6 +320,9 @@ namespace model {
 				if(!(runID%shared.use_bvp)){
 					shared.domain.update_BVP_Solution(updateUserBC,this);
                     //shared.domain.update_BVP_Solution(updateUserBC,this,*dynamic_cast<const GlidePlaneObserverType*>(this));
+//#ifdef DislocationNucleationFile
+//                    nucleateDislocations();
+//#endif
 				}
 				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
 					nodeIter->second->updateBvpStress();

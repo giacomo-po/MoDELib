@@ -450,6 +450,10 @@ namespace model {
 			boxSize= (boxSize > (yMax-yMin))? boxSize : (yMax-yMin);
 			boxSize= (boxSize > (zMax-zMin))? boxSize : (zMax-zMin);
 			//			scale=1.0;
+            if (boxSize==0.0)
+            {
+                boxSize=1000;
+            }
 			scale=boxSize;
 			radius=boxSize/400.0;
 			

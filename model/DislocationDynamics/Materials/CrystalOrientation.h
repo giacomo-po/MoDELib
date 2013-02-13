@@ -33,17 +33,20 @@ namespace model {
     private:
         static PlaneNormalContainerType planeNormalContainer;
         
+        static Eigen::Matrix<double,dim,dim> C2G;
 
     public:
         
         /* rotate *****************************************************/
         template <typename CrystalStructure>
-        static void rotate(const Eigen::Matrix<double,dim,dim>& C2G){
+        static void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in){
              
 			// make sure that C2G is orthogonal
-			assert((C2G*C2G.transpose()-Eigen::Matrix<double,dim,dim>::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && "CRYSTAL TO GLOBAL ROTATION MATRIX IS NOT ORTHOGONAL.");
+			assert((C2G_in*C2G_in.transpose()-Eigen::Matrix<double,dim,dim>::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && "CRYSTAL TO GLOBAL ROTATION MATRIX IS NOT ORTHOGONAL.");
             // make sure that C2G is proper
-            assert(std::fabs(C2G.determinant()-1.0) < FLT_EPSILON && "C2G IS NOT PROPER.");
+            assert(std::fabs(C2G_in.determinant()-1.0) < FLT_EPSILON && "C2G IS NOT PROPER.");
+            // store C2G
+            C2G=C2G_in;
 
             const PlaneNormalContainerType tempPN(CrystalStructure::template getPlaneNormals<dim>());
             planeNormalContainer.clear();
@@ -144,12 +147,20 @@ namespace model {
 		}
 
         
+        static const Eigen::Matrix<double,dim,dim>& c2g()
+        {
+            return C2G;
+        }
+        
  
     };
     
     template <int dim>
 //    std::vector<Eigen::Matrix<double,dim,1> > CrystalOrientation<dim>::planeNormalContainer=CrystalOrientation<dim>::template rotate<FCC>(Eigen::Matrix<double,dim,dim>::Identity());
     std::vector<Eigen::Matrix<double,dim,1> > CrystalOrientation<dim>::planeNormalContainer=FCC::getPlaneNormals<dim>();
+
+    template <int dim>
+    Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::C2G=Eigen::Matrix<double,dim,dim>::Identity();
 
     
     /**************************************************************************/
