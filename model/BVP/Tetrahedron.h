@@ -132,9 +132,9 @@ namespace bvpfe{
             mu =model::Material<model::Isotropic>::mu;
 			nu =model::Material<model::Isotropic>::nu;
 						
-			lambda = (2.0e+00*mu * nu)/(1.0e+00-(2.0e+00*nu)) ;
+			lambda = (2.0*mu * nu)/(1.0-2.0*nu) ;
 			
-			c11 = lambda + (2.0e+00*mu);
+			c11 = lambda + (2.0*mu);
 			c12 = lambda;
 			c44 = mu;
 		}
@@ -572,7 +572,7 @@ namespace bvpfe{
 		// function to return the barycentric coordinates of any point P
 		//========================================================================
 		
-		Eigen::Matrix<double,4,1>  getBarycentric (VectorDim P)
+		Eigen::Matrix<double,4,1>  getBarycentric (const VectorDim& P) const
 		{
 			//Vector bary;            bary.resize(4);
 			Eigen::Matrix<double,4,1> bary;
@@ -591,7 +591,7 @@ namespace bvpfe{
 		//======================================================================
 		// return the volume of a tetradedron, given its points coordinates in order
 		//======================================================================
-		double getVol(VectorDim a, VectorDim b, VectorDim c, VectorDim d)
+		double getVol(const VectorDim& a, const VectorDim& b, const VectorDim& c, const VectorDim& d) const
 		{
 
 			MatrixDim temp;

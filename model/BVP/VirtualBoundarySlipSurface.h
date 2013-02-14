@@ -93,7 +93,7 @@ namespace model {
             
             setElasticConstants();
             pGlidePlane->addToGLidePlane(this);
-            std::cout << sourceN.transpose() << "    :    " << sinkN.transpose() << std::endl;
+            //std::cout << sourceN.transpose() << "    :    " << sinkN.transpose() << std::endl;
             //----------calculate the displacement field induced by those segments on the boundary nodes ----
             for (unsigned int dN=0; dN<ds.shared.domain.nodeContainer.size();++dN){
                 if(ds.shared.domain.nodeContainer[dN].isBoundaryNode) {

@@ -30,6 +30,9 @@ namespace model {
         
         const DislocationNetworkType& DN; // a const reference to the DislocationNetwork
         
+        enum {dim=DislocationNetworkType::dim}; // make dim available outside class
+
+        
     public:
         
         typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
@@ -59,22 +62,21 @@ namespace model {
           * ./P/P_x.txt (PK force only if outputPKforce==true)
           * ./D/D_x.txt (mesh displacement only if outputMeshDisplacement==true)
           */
-			std::cout<<"		Writing to ";
-			double t0=clock();
+			std::cout<<"		Writing to "<<std::flush;
 			
 			//! 1- Outputs the Edge informations to file E_*.txt where * is the current simulation step
 			SequentialOutputFile<'E',1>::set_increment(outputFrequency); // edgeFile;
 			SequentialOutputFile<'E',1>::set_count(runID); // edgeFile;
 			SequentialOutputFile<'E',1> edgeFile;
 			edgeFile << *(const NetworkLinkContainerType*)(&DN);
-			std::cout<<" E/E_"<<edgeFile.sID;
+			std::cout<<" E/E_"<<edgeFile.sID<<std::flush;
 
 			//! 2- Outputs the Vertex informations to file V_*.txt where * is the current simulation step
 			SequentialOutputFile<'V',1>::set_increment(outputFrequency); // vertexFile;
 			SequentialOutputFile<'V',1>::set_count(runID); // vertexFile;
 			SequentialOutputFile<'V',1> vertexFile;
             vertexFile << *(const NetworkNodeContainerType*)(&DN);
-			std::cout<<", V/V_"<<vertexFile.sID;
+			std::cout<<", V/V_"<<vertexFile.sID<<std::flush;
 			
             if(outputSpaceCells){
                 //! 3- Outputs the nearest neighbor Cell structures to file C_*.txt where * is the current simulation step
@@ -87,7 +89,7 @@ namespace model {
                     Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<cellSize<<std::endl;
                     ++cID;
                 }
-                std::cout<<", C/C_"<<Cell_file.sID;
+                std::cout<<", C/C_"<<Cell_file.sID<<std::flush;
             }
 			
             if(outputGlidePlanes){
@@ -96,7 +98,7 @@ namespace model {
                 SequentialOutputFile<'G',1>::set_count(runID); // GlidePlanes_file;
                 SequentialOutputFile<'G',1> glide_file;
                 glide_file << *dynamic_cast<const GlidePlaneObserverType*>(&DN);
-                std::cout<<", G/G_"<<glide_file.sID;
+                std::cout<<", G/G_"<<glide_file.sID<<std::flush;
             }
             
             if(outputPKforce){
@@ -112,7 +114,7 @@ namespace model {
                     }
                     ll++;
                 }
-                std::cout<<", P/P_"<<p_file.sID;
+                std::cout<<", P/P_"<<p_file.sID<<std::flush;
             }
             
             if (DN.shared.use_bvp){
@@ -123,7 +125,7 @@ namespace model {
                     for (unsigned int i = 0; i< DN.shared.domain.nodeContainer.size(); i++){
                         d_file<< DN.shared.domain.nodeContainer[i].sID<<"	" << (DN.shared.domain.nodeContainer[i].u+DN.shared.domain.nodeContainer[i].uInf).transpose()<<std::endl;
                     }
-                    std::cout<<", D/D_"<<d_file.sID;
+                    std::cout<<", D/D_"<<d_file.sID<<std::flush;
                 }
                 if(DN.shared.boundary_type==1){
                     DN.shared.vbsc.outputVirtualDislocations(outputFrequency,runID);
@@ -136,7 +138,6 @@ namespace model {
 #include customUserOutputs
 #endif
 			
-			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
         
         

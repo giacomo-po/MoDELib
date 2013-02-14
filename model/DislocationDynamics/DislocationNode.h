@@ -81,7 +81,7 @@ namespace model {
 				currentMeshID = SD.newMeshID;
 				
 				if (SD.nodeMeshLocation == onMeshBoundary){
-					std::cout<< this->get_P().transpose() << std::endl;
+//					std::cout<<"DislocationNode "<<this->sID<<" is on mesh boundary at "<< this->get_P().transpose() << std::endl;
 					boundaryNormal=SD.outwardFaceNormal;
 					triIndex=SD.triIndex;
 				}
@@ -297,8 +297,7 @@ namespace model {
 			}
 			else
             {
-                velocity=this->prjM*vNew; // kill numerical errors from the solver
-				//velocity=vNew;
+                velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
 			}
 		}
 		

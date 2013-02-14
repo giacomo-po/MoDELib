@@ -514,7 +514,7 @@ namespace model{
 		    
 		    //-------- Assemble the the linear system ---------
 		    t0=clock();
-		    std::cout<<"Assembling stiffness matrix.......................  ";
+		    std::cout<<"Assembling stiffness matrix.......................  "<<std::flush;
 		    
 		    assemble (K,F);    // assmble stiffness matrix and force vector from displacment BCs
 		    
@@ -527,7 +527,7 @@ namespace model{
             
 		    if (dislocations_Stress){
 				t0=clock();
-				std::cout<<"Assembling infinite traction r.h.s. vector .......  ";
+				std::cout<<"Assembling infinite traction r.h.s. vector .......  "<<std::flush;
 				assembleInfiniteTraction <T> (F,pT);   // assemble force vector from infinite medium surface traction
 				std::cout<<"DONE in"<<"["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
 		    }
@@ -535,7 +535,7 @@ namespace model{
             
 		    //---------------- Solving linear system ---------------------------
 		    t0=clock();
-		    std::cout<<"Solving linear system ............................  ";
+		    std::cout<<"Solving linear system ............................  "<<std::flush;
             if (F.squaredNorm()>0.0){
                 Eigen::ConjugateGradient<Eigen::SparseMatrix<double> > solver;
                 solver.setTolerance(1.0e-8);
@@ -587,7 +587,7 @@ namespace model{
 #ifdef Contact_Loading
 		    while(pT->overConstraintNodes()) {
 				t0=clock();
-				std::cout<<"Resolving BVP .........................................  ";
+				std::cout<<"Resolving BVP .........................................  "<<std::flush;
 				reSolveBVP(true);
 				std::cout<<"DONE in"<<"["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
 		    }

@@ -253,16 +253,22 @@ namespace model {
 			EdgeIntersectionContainerType edgeIntersectionContainer;
 			for (IntersectionIDType interID=0;interID!=intersectionContainer.size();++interID){
 				
-				const EdgeIDType key1=intersectionContainer[interID]. first.first->nodeIDPair;
-				const EdgeIDType key2=intersectionContainer[interID].second.first->nodeIDPair;
+				const EdgeIDType key1(intersectionContainer[interID]. first.first->nodeIDPair);
+				const EdgeIDType key2(intersectionContainer[interID].second.first->nodeIDPair);
 				
                 
                 const isNetworkLinkType L1(DN.link(key1.first,key1.second));
                 const isNetworkLinkType L2(DN.link(key2.first,key2.second));
                 
-				const double du1(dx/L1.second->chordLength());
-				const double du2(dx/L2.second->chordLength());
-				
+                const double cR1(dx/L1.second->chordLength());
+                const double cR2(dx/L2.second->chordLength());
+                const double cRmax(0.05);
+                
+                const double du1((cR1<cRmax)? cR1 : cRmax);
+				const double du2((cR2<cRmax)? cR2 : cRmax);
+                
+//				const double du1(dx/L1.second->chordLength());
+//				const double du2(dx/L2.second->chordLength());
 				
 				if (intersectionContainer[interID]. first.second-du1 > avoidNodeIntersection && intersectionContainer[interID]. first.second+du1<1.0-avoidNodeIntersection &&
 					intersectionContainer[interID].second.second-du2 > avoidNodeIntersection && intersectionContainer[interID].second.second+du2<1.0-avoidNodeIntersection &&

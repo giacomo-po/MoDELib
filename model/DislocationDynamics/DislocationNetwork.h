@@ -113,12 +113,14 @@ namespace model {
 	
 	/**************************************************************************/
 	/**************************************************************************/
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-	class DislocationNetwork : public Network<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
-	/*                      */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>{
+	class DislocationNetwork : public Network<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
+	/*                      */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>{
 		
     public:
+        
+        enum {dim=_dim}; // make dim available outside class
         
 		typedef DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> DislocationNetworkType;
 		typedef DislocationNetworkType Derived;
@@ -138,6 +140,7 @@ namespace model {
         
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
+//         int nucleationFreq;
 #endif
 		
 #ifdef DislocationNetworkMPI
@@ -145,6 +148,7 @@ namespace model {
 #endif
 		
 	private:
+        
         
         
 		
@@ -162,7 +166,8 @@ namespace model {
 		double totalTime;
 		
 		double dx, dt;
-		
+        double vmax;
+        
 		
 		EigenDataReader EDR;
         
@@ -230,7 +235,8 @@ namespace model {
 			std::cout<<"		Computing dt..."<<std::flush;
 			double t0=clock();
 			
-			double vmax(0.0);
+            //			double vmax(0.0);
+            vmax=0.0;
 			
 			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
 				const double vNorm(nodeIter->second->get_V().norm());
@@ -303,7 +309,8 @@ namespace model {
             
 #ifdef DislocationNucleationFile
             if(shared.use_bvp && !(runID%shared.use_bvp)){
-              nucleateDislocations(); // needs to be called before updateQuadraturePoints()
+                nucleateDislocations(); // needs to be called before updateQuadraturePoints()
+                removeBoundarySegments();
             }
 #endif
             
@@ -320,9 +327,9 @@ namespace model {
 				if(!(runID%shared.use_bvp)){
 					shared.domain.update_BVP_Solution(updateUserBC,this);
                     //shared.domain.update_BVP_Solution(updateUserBC,this,*dynamic_cast<const GlidePlaneObserverType*>(this));
-//#ifdef DislocationNucleationFile
-//                    nucleateDislocations();
-//#endif
+                    //#ifdef DislocationNucleationFile
+                    //                    nucleateDislocations();
+                    //#endif
 				}
 				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
 					nodeIter->second->updateBvpStress();
@@ -346,7 +353,7 @@ namespace model {
             
             //! 11- Output the current configuration, the corresponding velocities, PK force and dt
             output();
-
+            
             
 			
 			//! 5- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
@@ -502,15 +509,10 @@ namespace model {
 			
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
 			
-            //            EDR.readScalarInFile(fullName.str(),"outputFrequency",outputFrequency);
             EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
-            //            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",outputGlidePlanes);
             EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes);
-            //            EDR.readScalarInFile(fullName.str(),"outputSpaceCells",outputSpaceCells);
             EDR.readScalarInFile(fullName.str(),"outputSpaceCells",DislocationNetworkIO<DislocationNetworkType>::outputSpaceCells);
-            //            EDR.readScalarInFile(fullName.str(),"outputPKforce",outputPKforce);
             EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
-            //            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",outputMeshDisplacement);
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
             
             
@@ -518,12 +520,9 @@ namespace model {
 			EDR.readScalarInFile(fullName.str(),"boundary_type",shared.boundary_type);
 			if (shared.boundary_type){
 				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
-                //				shared.domain.readMesh();
-                //shared.domain.readMesh(&shared);
                 shared.domain.readMesh();
 				if(shared.use_bvp){
 					shared.domain.readInputBCs();
-					//shared.domain.setBoundaryConditions();		// temporary
 				}
 			}
 			else{ // no boundary is used, this means dislocation network in inifinite medium
@@ -576,6 +575,12 @@ namespace model {
                 //                shared.vbsc.read(runID,&shared);
                 shared.vbsc.initializeVirtualSegments(*this);
             }
+            
+            
+//#ifdef DislocationNucleationFile
+//            EDR.readScalarInFile(fullName.str(),"nucleationFreq",nucleationFreq);
+//#endif
+
             
 			
 			// Initializing initial configuration
@@ -846,7 +851,11 @@ namespace model {
             return runID;
         }
         
-        
+        /********************************************************/
+        const double& vMax() const
+        {
+            return vmax;
+        }
 		
 	};
     
