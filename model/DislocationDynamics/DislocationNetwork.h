@@ -212,7 +212,8 @@ namespace model {
             {
 				double t0=clock();
 				std::cout<<"		Forming Junctions: found (";
-				DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx,0.05);
+                const double avoidNodeIntersection(0.05);
+				DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx,avoidNodeIntersection);
 				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
 		}

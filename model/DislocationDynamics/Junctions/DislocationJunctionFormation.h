@@ -28,6 +28,8 @@ namespace model {
 	class DislocationJunctionFormation{
 		
 		typedef typename DislocationNetworkType::LinkType LinkType;
+		typedef typename DislocationNetworkType::NodeType NodeType;
+
         typedef typename EdgeFinder<LinkType>::isNetworkEdgeType isNetworkLinkType;
 		typedef typename DislocationNetworkType::isNetworkNodeType isNetworkNodeType;
 		
@@ -36,6 +38,7 @@ namespace model {
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
 		
 		typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
+		typedef typename DislocationNetworkType::NetworkNodeContainerType NetworkNodeContainerType;
 		
 		typedef std::pair<const LinkType*, double> EdgeIntersectionType;
 		typedef std::pair<EdgeIntersectionType,EdgeIntersectionType> EdgeIntersectionPairType;
@@ -65,11 +68,11 @@ namespace model {
         {}
 		
 		/* findIntersections **************************************************/
-		EdgeIntersectionPairContainerType findIntersections(const double& avoidNodeIntersection/*, const double& tol=FLT_EPSILON*/) const { 
+		EdgeIntersectionPairContainerType findIntersections(const double& avoidNodeIntersection) const
+        {
 			
 			EdgeIntersectionPairContainerType intersectionContainer;
 			
-			//	const double avoidNodeIntersection=0.01;
 			
 			//! 2- loop over all links and determine their intersections
 			for (typename NetworkLinkContainerType::const_iterator linkIterA=DN.linkBegin();linkIterA!=DN.linkEnd();linkIterA++){
@@ -260,15 +263,15 @@ namespace model {
                 const isNetworkLinkType L1(DN.link(key1.first,key1.second));
                 const isNetworkLinkType L2(DN.link(key2.first,key2.second));
                 
-                const double cR1(dx/L1.second->chordLength());
-                const double cR2(dx/L2.second->chordLength());
-                const double cRmax(0.05);
+//                const double cR1(dx/L1.second->chordLength());
+//                const double cR2(dx/L2.second->chordLength());
+//                const double cRmax(0.1);
+//                
+//                const double du1((cR1<cRmax)? cR1 : cRmax);
+//				const double du2((cR2<cRmax)? cR2 : cRmax);
                 
-                const double du1((cR1<cRmax)? cR1 : cRmax);
-				const double du2((cR2<cRmax)? cR2 : cRmax);
-                
-//				const double du1(dx/L1.second->chordLength());
-//				const double du2(dx/L2.second->chordLength());
+				const double du1(dx/L1.second->chordLength());
+				const double du2(dx/L2.second->chordLength());
 				
 				if (intersectionContainer[interID]. first.second-du1 > avoidNodeIntersection && intersectionContainer[interID]. first.second+du1<1.0-avoidNodeIntersection &&
 					intersectionContainer[interID].second.second-du2 > avoidNodeIntersection && intersectionContainer[interID].second.second+du2<1.0-avoidNodeIntersection &&
@@ -423,10 +426,47 @@ namespace model {
                 
 				
 				
-			}			
+			}
+            
+            
+            
+            std::vector<std::pair<size_t,size_t> > nodeContractVector;
+            
+            for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
+            {
+                bool isSimple(nodeIter->second->is_simple());
+                if(isSimple) // has two neighbors
+                {
+                    const NodeType* const pNi(nodeIter->second->openNeighborNode(0));
+                    const NodeType* const pNj(nodeIter->second->openNeighborNode(1));
+                    if(pNi->openOrder()>2 && pNj->openOrder()>2)
+                    {
+                        const isNetworkLinkType lIJ(DN.link(pNi->sID,pNj->sID));
+                        const isNetworkLinkType lJI(DN.link(pNj->sID,pNi->sID));
+                        if(lIJ.first || lJI.first)
+                        {
+                            nodeContractVector.push_back(std::make_pair(pNi->sID,nodeIter->second->sID));
+                            
+                        }
+                    }
+                }
+                
+            }
+            
+            
+            for (unsigned int k=0;k<nodeContractVector.size();++k)
+            {
+                DN.contractSecond(nodeContractVector[k].first,nodeContractVector[k].second);
+            }
+            
+            
+            
 		}
-		
-		
+        
+        
+
+        
+        
 	};
     
     
