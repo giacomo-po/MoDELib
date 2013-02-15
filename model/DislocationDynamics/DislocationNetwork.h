@@ -339,9 +339,6 @@ namespace model {
 			}
 			
 			//! 3- Solve the equation of motion
-#ifdef DislocationNetworkMPI
-			MPIstep();
-#endif
 			assembleAndSolve();
 			
 			
@@ -358,7 +355,27 @@ namespace model {
             
 			
 			//! 5- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
-			move(dt);
+			move(dt,0.0);
+            
+            bool useImplicitIntegrator(true); // THIS CAN BE DECIDED ON THE FLY BASED ON DISTRIBUTION OF VELOCITIES
+            if(useImplicitIntegrator)
+            {
+                updateQuadraturePoints();
+                assembleAndSolve(); // this sends the new velocity to each node
+                
+                for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ 
+					nodeIter->second->implicitStep(); // average velocities
+				}
+                
+                const double dt_old(dt); // store current dt
+                totalTime-=dt; // subtract current dt
+                make_dt();      // compute dt again with average velocity
+                totalTime+=dt;
+                
+                move(dt,dt_old);
+
+            }
+            
 			DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
 			
 			//! 6- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
@@ -597,7 +614,7 @@ namespace model {
 			
 			// Initializing initial configuration
 			std::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
-			move(0.0);	// initial configuration
+			move(0.0,0.0);	// initial configuration
 			output();	// initial configuration, this overwrites the input file
 			if (runID==0){ // not a restart
 				remesh();	// expand initial FR sources
@@ -610,6 +627,12 @@ namespace model {
 		void assembleAndSolve()
         {/*! Assemble and solve equation system
           */
+            
+#ifdef DislocationNetworkMPI
+			MPIstep();
+#endif
+
+            
 			//! 1- Loop over DislocationSegments and assemble stiffness matrix and force vector
 			std::cout<<"		Assembling edge stiffness and force vectors..."<<std::flush;
 			typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
@@ -681,10 +704,10 @@ namespace model {
 		
 		
 		/***********************************************************/
-		void move(const double & dt_in)
+		void move(const double & dt_in, const double & dt_old)
         {/*! Moves all nodes in the DislocationNetwork using the stored velocity and current dt
           */
-			std::cout<<"		Moving Dislocation Nodes... "<<std::flush;
+			std::cout<<"		Moving Dislocation Nodes (dt="<<dt_in<< ")... "<<std::flush;
 			double t0=clock();
             //			typedef void (NodeType::*NodeMemberFunctionPointerType)(const double&); // define type of Link member function
             //			NodeMemberFunctionPointerType Nmfp(&NodeType::move); // Lmfp is a member function pointer to Link::assemble
@@ -692,7 +715,7 @@ namespace model {
             //			this->parallelExecute(Nmfp,dt_in);
             
 			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-				nodeIter->second->move(dt_in);
+				nodeIter->second->move(dt_in,dt_old);
 			}
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}

@@ -56,9 +56,9 @@ namespace model {
 		
 	private:
 		
-		static const double AB1; // First  Adams–Bashforth three-step =  23/12
-		static const double AB2; // Second Adams–Bashforth three-step = -16/12
-		static const double AB3; // Third  Adams–Bashforth three-step =   5/12
+//		static const double AB1; // First  Adams–Bashforth three-step =  23/12
+//		static const double AB2; // Second Adams–Bashforth three-step = -16/12
+//		static const double AB3; // Third  Adams–Bashforth three-step =   5/12
 		
 		
 		DislocationSharedObjects<LinkType> shared;
@@ -96,7 +96,7 @@ namespace model {
 		
 		VectorDofType velocity;
 		VectorDofType vOld;
-		VectorDofType vOldOld;
+//		VectorDofType vOldOld;
 		
 		
 	public:
@@ -117,7 +117,7 @@ namespace model {
         /* base constructor */ NodeBaseType::SplineNodeBase(Qin),
         /* init list        */ velocity(VectorDofType::Zero()),
 		/* init list        */ vOld(VectorDofType::Zero()),
-		/* init list        */ vOldOld(VectorDofType::Zero()),
+//		/* init list        */ vOldOld(VectorDofType::Zero()),
 		/* init list        */ nodeMeshLocation(insideMesh),
 		/* init list        */ boundaryNormal(VectorDim::Zero()),
 		/* init list        */ bvpStress(MatrixDim::Zero())
@@ -131,7 +131,7 @@ namespace model {
         /* base constructor */ NodeBaseType::SplineNodeBase(pL,u),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list        */ vOldOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+//		/* init list        */ vOldOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ nodeMeshLocation(insideMesh),
 		/* init list        */ boundaryNormal(VectorDim::Zero()),
 		/* init list        */ bvpStress(MatrixDim::Zero()) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
@@ -145,7 +145,7 @@ namespace model {
         /* base constructor */ NodeBaseType::SplineNodeBase(pL,Qin),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list        */ vOldOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+//		/* init list        */ vOldOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ nodeMeshLocation(insideMesh),
 		/* init list        */ boundaryNormal(VectorDim::Zero()),
 		/* init list        */ bvpStress(MatrixDim::Zero()) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
@@ -159,7 +159,7 @@ namespace model {
         /* base constructor */ : NodeBaseType::SplineNodeBase(pL,Qin),
         /* init list        */ velocity(Vin),
 		/* init list        */ vOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list        */ vOldOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+//		/* init list        */ vOldOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ nodeMeshLocation(insideMesh),
 		/* init list        */ boundaryNormal(VectorDim::Zero()),
 		/* init list        */ bvpStress(MatrixDim::Zero()) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
@@ -279,27 +279,37 @@ namespace model {
 		/***************************************/
 		void set_V(const VectorDofType& vNew)
         {
-			bool useMultiStep(false);
-			if (useMultiStep)
-            {
-				velocity=AB1*vNew+AB2*vOld+AB3*vOldOld;
-				double vNewNorm=vNew.norm();
-				if (vNewNorm>FLT_EPSILON)
-                {
-					velocity=velocity.dot(vNew/vNewNorm)*vNew/vNewNorm;
-				}
-				else
-                {
-					velocity.setZero();
-				}
-				vOldOld=vOld;
-				vOld=velocity;
-			}
-			else
-            {
-                velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
-			}
+//			bool useMultiStep(false);
+//			if (useMultiStep)
+//            {
+//				velocity=AB1*vNew+AB2*vOld+AB3*vOldOld;
+//				double vNewNorm=vNew.norm();
+//				if (vNewNorm>FLT_EPSILON)
+//                {
+//					velocity=velocity.dot(vNew/vNewNorm)*vNew/vNewNorm;
+//				}
+//				else
+//                {
+//					velocity.setZero();
+//				}
+//				vOldOld=vOld;
+//				vOld=velocity;
+//			}
+//			else
+//            {
+//                velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
+//			}
+            
+            vOld=velocity;
+            velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
+
 		}
+        
+        /***************************************/
+        void implicitStep()
+        {
+            velocity= (velocity+vOld)*0.5; // this brings back
+        }
 		
 		/***************************************/
 		const VectorDofType& get_V() const
@@ -311,9 +321,10 @@ namespace model {
 		
 		
 		/***************************************/
-		void move(const double & dt ){
+		void move(const double & dt, const double & dt_old){
 			
-			VectorDim dX=velocity.template segment<dim>(0)*dt;
+//			VectorDim dX=velocity.template segment<dim>(0)*dt;
+			VectorDim dX=velocity.template segment<dim>(0)*dt - vOld.template segment<dim>(0)*dt_old;
 			if (dX.squaredNorm()>0.0 && nodeMeshLocation!=onMeshBoundary) { // move a node only if |v|>0 and if not on mesh boundary
 				if(shared.boundary_type){
 					
@@ -398,21 +409,21 @@ namespace model {
 		
 	};
 	
-	// Declare static member
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    //	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB1=23.0/12.0;
-	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::AB1=1.0/2.0;
-	
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    //	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB2=-16.0/12.0;
-	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::AB2= 1.0/2.0;
-	
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    //	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB3=5.0/12.0;
-	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::AB3= 0.0/3.0;
+//	// Declare static member
+//	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+//	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//    //	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB1=23.0/12.0;
+//	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::AB1=1.0/2.0;
+//	
+//	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+//	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//    //	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB2=-16.0/12.0;
+//	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::AB2= 1.0/2.0;
+//	
+//	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+//	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//    //	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType>::AB3=5.0/12.0;
+//	const double DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::AB3= 0.0/3.0;
 	
 }
 #endif

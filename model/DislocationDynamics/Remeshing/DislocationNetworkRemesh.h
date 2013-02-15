@@ -21,8 +21,11 @@
 
 namespace model {
 	
+    /*! \brief Class template that handles the nodal remesh of the DislocationNetwork.
+     */
 	template <typename DislocationNetworkType>
-	class DislocationNetworkRemesh{
+	class DislocationNetworkRemesh
+    {
 		
 		enum{dim=DislocationNetworkType::dim};
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
@@ -33,10 +36,11 @@ namespace model {
 		DislocationNetworkType& DN;
         
         
-        /* contractWithCommonNeighborCheck ***********************************************************/
+        /* contractWithCommonNeighborCheck ************************************/
         unsigned int contractWithCommonNeighborCheck(const typename EdgeFinder<LinkType>::isNetworkEdgeType& Lij, const VectorDimD& P0)
         {/*! @param[in] Lij the edge i->j
           * @param[in] P0 the position of the vertex resulting from contracting Lij
+          *
           * Contracts the edge i->j into a new node located at P0, making sure
           * that if P0 is occupied by a neighbor of either i or j, then no
           * overlapping nodes are created.
@@ -85,8 +89,14 @@ namespace model {
             return temp;
         }
         
-        /* contractWithCommonNeighborCheck ***********************************************************/
-        unsigned int contractSecondWithCommonNeighborCheck(const int& i, const int& j){
+        /* contractWithCommonNeighborCheck ************************************/
+        unsigned int contractSecondWithCommonNeighborCheck(const int& i, const int& j)
+        {/*! @param[in] i StaticID of the first node (vertex i remains)
+          * @param[in] j StaticID of the second node (vertex j is contracted)
+          *
+          * Contracts  vertex j onto vertex i, making sure no other neighbors of j (but i)
+          * occupies the position of i.
+          */
             unsigned int temp(0);
 
             const typename DislocationNetworkType::isNetworkNodeType Ni(DN.node(i));
@@ -98,14 +108,16 @@ namespace model {
             std::set<size_t> isCNj(Nj.second->areNeighborsAt(Ni.second->get_P()));
             assert(isCNj.erase(i)==1 && "node i must be found at Pi"); // remove i from the set
                         
-            for (std::set<size_t>::const_iterator njIter=isCNj.begin(); njIter!=isCNj.end();++njIter){
+            for (std::set<size_t>::const_iterator njIter=isCNj.begin(); njIter!=isCNj.end();++njIter)
+            {
                 const size_t k(*njIter);
                 if (DN.node(k).first){
                     DN.contractSecond(i,k); // this could destroy j
                     temp++;
                 }
             }
-            if (DN.node(j).first){ // j still exists
+            if (DN.node(j).first) // j still exists
+            { 
                 DN.contractSecond(i,j); 
                 temp++;
             }
@@ -133,46 +145,40 @@ namespace model {
         static double Lmin;
         static double thetaDeg;
         
-		/* Constructor ******************************/
-		DislocationNetworkRemesh(DislocationNetworkType& DN_in) : DN(DN_in) {}
-		
-		/************************************************************/
-		// remesh
-//		void remesh(const double& Lmax, const double& Lmin,const double& thetaDeg){
-		void remesh()
-        {
-
-//            remeshByContraction(Lmin);
-//			remeshByExpansion(Lmax,Lmin,thetaDeg); // CALL THIS AFTER CONTRACTION TO EXPAND 2-NODES SUBNETWORKS
-
-            remeshByContraction();
-			remeshByExpansion(); // CALL THIS AFTER CONTRACTION TO EXPAND 2-NODES SUBNETWORKS
-        
+		/* Constructor ********************************************************/
+		DislocationNetworkRemesh(DislocationNetworkType& DN_in) :
+        /* init list */ DN(DN_in)
+        {/*! Initializes the reference to the DislocationNetwork 
+          */
         }
 		
-		/* remeshByContraction **************************************/
-//		void remeshByContraction(const double& Lmin){
+		/**********************************************************************/
+		void remesh()
+        {/*! Performs remeshByContraction and then remeshByExpansion. 
+          * This order guarantees that 2-vertex subnetworks are expanded.
+          */
+            remeshByContraction();
+			remeshByExpansion();
+        }
+		
+		/* remeshByContraction ************************************************/
 		void remeshByContraction()
-        {
+        {/*! Contract edges according to two criteria.
+          */
 			
 			const double vTolcont=0.0;
 			
 			std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
-			//std::map<double,std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
-            
-			for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter){				
-				
+			for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter){
 				const VectorDimD chord(linkIter->second->chord()); // this is sink->get_P() - source->get_P()
 				const double chordLength(chord.norm());
 				const VectorDimD dv(linkIter->second->sink->get_V()-linkIter->second->source->get_V());				
 				bool endsAreApproaching( chord.dot(dv) < -vTolcont*chordLength*dv.norm() );				
-				
                 if (endsAreApproaching && chordLength<Lmin){// toBeContracted part                    
 					assert(toBeContracted.insert(std::make_pair(chordLength,linkIter->second->nodeIDPair)).second && "COULD NOT INSERT IN SET.");
 				}
 			}
 			
-            
             
 			// Call Network::contract 
 			unsigned int Ncontracted(0); 
@@ -205,11 +211,16 @@ namespace model {
                 //				const VectorDimD dv(linkIter->second->sink->get_V()-linkIter->second->source->get_V());				
 				
 				
-				// Always expand single FR source segment 
-				//				if (!linkIter->second->source->is_balanced() && !linkIter->second->sink->is_balanced()){
-				//					assert(toBeExpanded.insert(linkIter->second->nodeIDPair).second && "COULD NOT INSERT LINK.");
-				//				}
-				if (linkIter->second->source->constraintNormals().size()>2 && linkIter->second->sink->constraintNormals().size()>2){
+				// Always expand single FR source segment
+                if (linkIter->second->source->openOrder()==1 && linkIter->second->sink->openOrder()==1)
+                {
+                    toBeExpanded.insert(linkIter->second->nodeIDPair);
+                }
+				
+                // Expand single FR source segment
+                if (   linkIter->second->source->constraintNormals().size()>2
+                    && linkIter->second->  sink->constraintNormals().size()>2
+                    && chordLength>3.0*Lmin){
                     toBeExpanded.insert(linkIter->second->nodeIDPair);
 				}
 				
