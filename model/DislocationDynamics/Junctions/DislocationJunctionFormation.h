@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
  *
- * model is distributed without any warranty under the 
+ * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
@@ -29,7 +29,7 @@ namespace model {
 		
 		typedef typename DislocationNetworkType::LinkType LinkType;
 		typedef typename DislocationNetworkType::NodeType NodeType;
-
+        
         typedef typename EdgeFinder<LinkType>::isNetworkEdgeType isNetworkLinkType;
 		typedef typename DislocationNetworkType::isNetworkNodeType isNetworkNodeType;
 		
@@ -60,7 +60,7 @@ namespace model {
 		
         
         static double collisionTol;
-
+        
 		
 		/* Constructor ******************************/
 		DislocationJunctionFormation(DislocationNetworkType& DN_in) :
@@ -84,17 +84,17 @@ namespace model {
 				for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.linkEnd();linkIterB++){
 					if (linkIterA->second->sID!=linkIterB->second->sID){	// don't intersect with itself
                         
-        //                std::cout<<"intersecting "<<linkIterA->second->source->sID<<"->"<<linkIterA->second->sink->sID<<" and "<<linkIterB->second->source->sID<<"->"<<linkIterB->second->sink->sID<<std::endl;
+                        //                std::cout<<"intersecting "<<linkIterA->second->source->sID<<"->"<<linkIterA->second->sink->sID<<" and "<<linkIterB->second->source->sID<<"->"<<linkIterB->second->sink->sID<<std::endl;
                         
-                        //                        const bool areIncidentAtNodes(   linkIterA->second->source->sID==linkIterB->second->source->sID 
-                        //                                                      || linkIterA->second->source->sID==linkIterB->second->sink->sID 
-                        //                                                      || linkIterA->second->  sink->sID==linkIterB->second->source->sID 
-                        //                                                      || linkIterA->second->  sink->sID==linkIterB->second->sink->sID); 
-                        //                        
+                        //                        const bool areIncidentAtNodes(   linkIterA->second->source->sID==linkIterB->second->source->sID
+                        //                                                      || linkIterA->second->source->sID==linkIterB->second->sink->sID
+                        //                                                      || linkIterA->second->  sink->sID==linkIterB->second->source->sID
+                        //                                                      || linkIterA->second->  sink->sID==linkIterB->second->sink->sID);
+                        //
                         //                       const bool areOnDifferentPlanes((linkIterA->second->glidePlaneNormal-linkIterB->second->glidePlaneNormal).squaredNorm()>FLT_EPSILON);
                         const bool L1isSessile(linkIterA->second->sessilePlaneNormal.squaredNorm()>FLT_EPSILON);
                         const bool L2isSessile(linkIterB->second->sessilePlaneNormal.squaredNorm()>FLT_EPSILON);
-                        //                       const bool eitherOneIsSessile(L1isSessile || L2isSessile);            
+                        //                       const bool eitherOneIsSessile(L1isSessile || L2isSessile);
                         //                       const bool areIncidentAndOnDifferentPlanes(areIncidentAtNodes && areOnDifferentPlanes && eitherOneIsSessile);
                         
                         
@@ -120,7 +120,7 @@ namespace model {
                             const bool gnAsnB((linkIterA->second->glidePlaneNormal-linkIterB->second->sessilePlaneNormal).squaredNorm()<FLT_EPSILON);
                             
                             if (!gnAgnB && !gnAsnB){
-                                // cannot intersect 
+                                // cannot intersect
                             }
                             else if(gnAgnB && !gnAsnB){ // use planeNormal of A and planeNormal of B
                                 temp = dsi.intersectWith(linkIterB->second->hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol);
@@ -137,7 +137,7 @@ namespace model {
                             const bool gnBsnA((linkIterB->second->glidePlaneNormal-linkIterA->second->sessilePlaneNormal).squaredNorm()<FLT_EPSILON);
                             
                             if (!gnBgnA && !gnBsnA){
-                                // cannot intersect 
+                                // cannot intersect
                             }
                             else if(gnBgnA && !gnBsnA){ // use planeNormal of A and planeNormal of B
                                 temp = dsi.intersectWith(linkIterB->second->hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol);
@@ -159,9 +159,9 @@ namespace model {
                         // std::set<std::pair<double,double> > temp ( dsi.intersectWith(linkIterB->second->hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol));
                         
                         
-                        for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter){					
+                        for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter){
                             if (   paramIter->first >avoidNodeIntersection && paramIter-> first<1.0-avoidNodeIntersection
-                                && paramIter->second>avoidNodeIntersection && paramIter->second<1.0-avoidNodeIntersection){		// avoid node intersection						
+                                && paramIter->second>avoidNodeIntersection && paramIter->second<1.0-avoidNodeIntersection){		// avoid node intersection
                                 EdgeIntersectionType intersectionOnA(std::make_pair(&(*linkIterA->second),paramIter->first ));
                                 EdgeIntersectionType intersectionOnB(std::make_pair(&(*linkIterB->second),paramIter->second));
                                 EdgeIntersectionPairType intersectionPair(std::make_pair(intersectionOnA,intersectionOnB));
@@ -169,9 +169,9 @@ namespace model {
                             }
                         }
                         //                       }
-                    }   
+                    }
 				}
-			}	
+			}
 			return intersectionContainer;
 		}
 		
@@ -190,7 +190,7 @@ namespace model {
 			std::cout<<intersectionContainer.size()<<" geometric) ";
 			
 			//! 2- Remove from intersectionContainer all intersections that don't satisfy Frank's rule
-			std::vector<int> dirVector;			
+			std::vector<int> dirVector;
 			for (typename EdgeIntersectionPairContainerType::iterator iter=intersectionContainer.begin();iter!=intersectionContainer.end();){
 				const double u1(iter-> first.second);
 				const double u2(iter->second.second);
@@ -210,7 +210,7 @@ namespace model {
                         prjDir=commonLine.normalized();
                     }
                     else{
-                        const double rl1Norm(rl1.norm()); 
+                        const double rl1Norm(rl1.norm());
                         assert(rl1Norm>FLT_EPSILON && "TANGENT HAS ZERO NORM");
                         prjDir=rl1/rl1Norm;
                     }
@@ -238,8 +238,8 @@ namespace model {
 					iter=intersectionContainer.erase(iter);
 				}
 				else{ // determine the relative orientation of the links
-                    //					const int dir((rl1.dot(rl2) > 0.0) ? 1 : ((rl1.dot(rl2) < 0.0) ? -1 : 0)); 
-					const int dir(( sgnrl1rl2 > 0.0) ? 1 : ((sgnrl1rl2 < 0.0) ? -1 : 0)); 
+                    //					const int dir((rl1.dot(rl2) > 0.0) ? 1 : ((rl1.dot(rl2) < 0.0) ? -1 : 0));
+					const int dir(( sgnrl1rl2 > 0.0) ? 1 : ((sgnrl1rl2 < 0.0) ? -1 : 0));
 					dirVector.push_back(dir);
 					++iter; // increment iterator only if didn't erase
 				}
@@ -263,12 +263,12 @@ namespace model {
                 const isNetworkLinkType L1(DN.link(key1.first,key1.second));
                 const isNetworkLinkType L2(DN.link(key2.first,key2.second));
                 
-//                const double cR1(dx/L1.second->chordLength());
-//                const double cR2(dx/L2.second->chordLength());
-//                const double cRmax(0.1);
-//                
-//                const double du1((cR1<cRmax)? cR1 : cRmax);
-//				const double du2((cR2<cRmax)? cR2 : cRmax);
+                //                const double cR1(dx/L1.second->chordLength());
+                //                const double cR2(dx/L2.second->chordLength());
+                //                const double cRmax(0.1);
+                //
+                //                const double du1((cR1<cRmax)? cR1 : cRmax);
+                //				const double du2((cR2<cRmax)? cR2 : cRmax);
                 
 				const double du1(dx/L1.second->chordLength());
 				const double du2(dx/L2.second->chordLength());
@@ -284,7 +284,7 @@ namespace model {
                         
                         const double u1m(intersectionContainer[interID]. first.second-du1);
                         const double u2m(intersectionContainer[interID].second.second-dirVector[interID]*du2);
-
+                        
                         bool firstIntersectionInsideMesh(true);
                         if (DN.shared.boundary_type){
                             SearchData<dim> SD1(L1.second->get_r(u1m));
@@ -301,10 +301,10 @@ namespace model {
                             assert(edgeIntersectionContainer[key2].insert(std::make_pair(u2m,2*interID)).second);
                         }
                         
-//						assert(edgeIntersectionContainer[key1].insert(std::make_pair(intersectionContainer[interID]. first.second-du1,2*interID)).second);
-//						assert(edgeIntersectionContainer[key2].insert(std::make_pair(intersectionContainer[interID].second.second-dirVector[interID]*du2,2*interID)).second);
-
-
+                        //						assert(edgeIntersectionContainer[key1].insert(std::make_pair(intersectionContainer[interID]. first.second-du1,2*interID)).second);
+                        //						assert(edgeIntersectionContainer[key2].insert(std::make_pair(intersectionContainer[interID].second.second-dirVector[interID]*du2,2*interID)).second);
+                        
+                        
 						
                         const double u1p(intersectionContainer[interID]. first.second+du1);
                         const double u2p(intersectionContainer[interID].second.second+dirVector[interID]*du2);
@@ -322,14 +322,14 @@ namespace model {
                         }
                         if(secondIntersectionInsideMesh){
                             assert(edgeIntersectionContainer[key1].insert(std::make_pair(u1p,2*interID+1)).second);
-                            assert(edgeIntersectionContainer[key2].insert(std::make_pair(u2p,2*interID+1)).second);	
+                            assert(edgeIntersectionContainer[key2].insert(std::make_pair(u2p,2*interID+1)).second);
                         }
                         
                         
-//						assert(edgeIntersectionContainer[key1].insert(std::make_pair(intersectionContainer[interID]. first.second+du1,2*interID+1)).second);
-//						assert(edgeIntersectionContainer[key2].insert(std::make_pair(intersectionContainer[interID].second.second+dirVector[interID]*du2,2*interID+1)).second);						
-					
-
+                        //						assert(edgeIntersectionContainer[key1].insert(std::make_pair(intersectionContainer[interID]. first.second+du1,2*interID+1)).second);
+                        //						assert(edgeIntersectionContainer[key2].insert(std::make_pair(intersectionContainer[interID].second.second+dirVector[interID]*du2,2*interID+1)).second);
+                        
+                        
 					}
 				}
 			}
@@ -373,7 +373,7 @@ namespace model {
                 if (!isIsessile && !isJsessile){
                     VectorDimD linePoint((P1+P2)*0.5);
                     const double denom(1.0-std::pow(N1.dot(N2),2));
-                    if(std::fabs(denom)>FLT_EPSILON){ // planes are incident: make sure to place intersection on common line 
+                    if(std::fabs(denom)>FLT_EPSILON){ // planes are incident: make sure to place intersection on common line
                         const double numer((P2-P1).dot(N2));
                         const double u(numer/denom);
                         linePoint = P1+(N2-N2.dot(N1)*N1)*u;
@@ -390,7 +390,7 @@ namespace model {
                         std::cout<<"Glissile Junction"<<std::endl;
                         DN.contract(i,j,linePoint);
                     }
-
+                    
                 }
                 else if(isIsessile && !isJsessile){ // use P1 (which is on sessile segment) as the intersection point
                     //   const VectorDimD dir(Ni.second->openNeighborLink(0)->glidePlaneNormal.cross(Ni.second->openNeighborLink(0)->sessilePlaneNormal).normalized());
@@ -445,8 +445,28 @@ namespace model {
                         const isNetworkLinkType lJI(DN.link(pNj->sID,pNi->sID));
                         if(lIJ.first || lJI.first)
                         {
-                            nodeContractVector.push_back(std::make_pair(pNi->sID,nodeIter->second->sID));
+                            const typename DislocationNetworkType::NodeType::VectorOfNormalsType ck(GramSchmidt<dim>(nodeIter->second->constraintNormals())); // THIS CAN BE A REFERENCE
                             
+                            if(ck.size()<2)
+                            {
+                                nodeContractVector.push_back(std::make_pair(pNi->sID,nodeIter->second->sID));
+                            }
+                            else
+                            {
+                                const typename DislocationNetworkType::NodeType::VectorOfNormalsType ci(GramSchmidt<dim>(pNi->constraintNormals())); // THIS CAN BE A REFERENCE
+                                if(ci.size()<2)
+                                {
+                                    nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,pNi->sID));
+                                }
+                                else
+                                {
+                                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType cj(GramSchmidt<dim>(pNj->constraintNormals())); // THIS CAN BE A REFERENCE
+                                    if(cj.size()<2)
+                                    {
+                                        nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,pNj->sID));
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -464,7 +484,7 @@ namespace model {
 		}
         
         
-
+        
         
         
 	};
@@ -474,7 +494,7 @@ namespace model {
     // Declare Static Data
     template <typename DislocationNetworkType>
     double DislocationJunctionFormation<DislocationNetworkType>::collisionTol=10.0;
-
+    
 	
 	//////////////////////////////////////////////////////////////
 } // namespace model
@@ -487,18 +507,18 @@ namespace model {
 
 //        /* dontIntersect ******************************/
 //        bool dontIntersect(const LinkType& L1, const LinkType& L2) const {
-//            
-//            bool areIncidentAtNodes(L1.source->sID==L2.source->sID || L1.source->sID==L2.sink->sID || L1.sink->sID==L2.source->sID || L1.sink->sID==L2.sink->sID); 
+//
+//            bool areIncidentAtNodes(L1.source->sID==L2.source->sID || L1.source->sID==L2.sink->sID || L1.sink->sID==L2.source->sID || L1.sink->sID==L2.sink->sID);
 //            bool areOnDifferentPlanes((L1.glidePlaneNormal-L2.glidePlaneNormal).squaredNorm()>FLT_EPSILON);
 //            bool L1isSessile(L1.sessilePlaneNormal.squaredNorm()>FLT_EPSILON);
 //            bool L2isSessile(L2.sessilePlaneNormal.squaredNorm()>FLT_EPSILON);
-//            bool eitherOneIsSessile(L1isSessile || L2isSessile);            
+//            bool eitherOneIsSessile(L1isSessile || L2isSessile);
 //            bool areIncidentAndOnDifferentPlanes(areIncidentAtNodes && areOnDifferentPlanes && eitherOneIsSessile);
-//            
+//
 //            bool bothAreSessile(L1isSessile && L2isSessile);
-//            
-////            
-////            
+//
+////
+////
 ////            if (L1isSessile && !L2isSessile){
 ////                std::cout<<"L1 is "<<L1.source->sID<<"->"<<L1.sink->sID<<std::endl;
 ////                std::cout<<"L2 is "<<L2.source->sID<<"->"<<L2.sink->sID<<std::endl;
@@ -506,7 +526,7 @@ namespace model {
 ////                std::cout<<"L1.sessilePlaneNormal="<<L1.sessilePlaneNormal.transpose()<<std::endl;
 ////                std::cout<<"L2.glidePlaneNormal="<<L2.glidePlaneNormal.transpose()<<std::endl;
 ////            }
-////            
+////
 ////            if (!L1isSessile && L2isSessile){
 ////                std::cout<<"L1 is "<<L1.source->sID<<"->"<<L1.sink->sID<<std::endl;
 ////                std::cout<<"L2 is "<<L2.source->sID<<"->"<<L2.sink->sID<<std::endl;
@@ -514,8 +534,8 @@ namespace model {
 ////                std::cout<<"L2.glidePlaneNormal="<<L2.glidePlaneNormal.transpose()<<std::endl;
 ////                std::cout<<"L2.sessilePlaneNormal="<<L2.sessilePlaneNormal.transpose()<<std::endl;
 ////            }
-////            
-//            
+////
+//
 //            bool L2NotOnL1Planes( L1isSessile && !L2isSessile && (L2.glidePlaneNormal-L1.glidePlaneNormal).norm()>FLT_EPSILON && (L2.glidePlaneNormal-L1.sessilePlaneNormal).norm()>FLT_EPSILON);
 //            bool L1NotOnL2Planes(!L1isSessile &&  L2isSessile && (L1.glidePlaneNormal-L2.glidePlaneNormal).norm()>FLT_EPSILON && (L1.glidePlaneNormal-L2.sessilePlaneNormal).norm()>FLT_EPSILON);
 //            
