@@ -157,7 +157,7 @@ namespace model {
 		
 		unsigned int runID;
 		
-		double Lmax,Lmin,thetaDeg;
+//		double Lmax,Lmin,thetaDeg;
 		
 		bool use_crossSlip;
 		double crossSlipDeg;
@@ -453,7 +453,8 @@ namespace model {
 				if(!(runID%use_redistribution)){
 					double t0=clock();
 					std::cout<<"		remeshing network... "<<std::flush;
-					DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(Lmax,Lmin,thetaDeg);
+//					DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(Lmax,Lmin,thetaDeg);
+					DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
 					std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 				}
 			}
@@ -547,22 +548,32 @@ namespace model {
             
             
             EDR.readScalarInFile(fullName.str(),"use_redistribution",use_redistribution);
-            EDR.readScalarInFile(fullName.str(),"Lmin",Lmin);
-            assert(Lmin>=0.0);
-            assert(Lmin>2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
-            EDR.readScalarInFile(fullName.str(),"Lmax",Lmax);
-            assert(Lmax>Lmin);
-            EDR.readScalarInFile(fullName.str(),"thetaDeg",thetaDeg);
-            assert(thetaDeg>=0.0);
-            assert(thetaDeg<=90.0);
+//            EDR.readScalarInFile(fullName.str(),"Lmin",Lmin);
+//            assert(Lmin>=0.0);
+//            assert(Lmin>2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
+            EDR.readScalarInFile(fullName.str(),"Lmin",DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
+//            EDR.readScalarInFile(fullName.str(),"Lmax",Lmax);
+//            assert(Lmax>Lmin);
+            EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
+//            EDR.readScalarInFile(fullName.str(),"thetaDeg",thetaDeg);
+//            assert(thetaDeg>=0.0);
+//            assert(thetaDeg<=90.0);
+            EDR.readScalarInFile(fullName.str(),"thetaDeg",DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg>=0.0);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg<=90.0);
+
 			
+            
             // Cross-Slip inputs
             EDR.readScalarInFile(fullName.str(),"use_crossSlip",use_crossSlip);
             if(use_crossSlip){
                 EDR.readScalarInFile(fullName.str(),"crossSlipDeg",crossSlipDeg);
                 assert(crossSlipDeg>=0.0 && crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
                 EDR.readScalarInFile(fullName.str(),"crossSlipLength",crossSlipLength);
-                assert(crossSlipLength>=Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
+                assert(crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
 				//				assert(crossSlipLength<Lmin && "YOU MUST CHOOSE crossSlipLength<Lmin."); // Because otherwise cross-slip points would go outside segment
             }
 			

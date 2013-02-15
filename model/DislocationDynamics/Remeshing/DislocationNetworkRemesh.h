@@ -11,10 +11,9 @@
 
 #include <utility>  // for std::pair and "<" operator between them
 #include <set>      // for std::set
-//#include <map>      // for std::set
 #include <assert.h>
 
-#include<Eigen/Dense>
+#include <Eigen/Dense>
 #include <model/Network/Operations/EdgeFinder.h>
 #include <model/Math/GramSchmidt.h>
 #include <model/BVP/SearchData.h>
@@ -25,69 +24,60 @@ namespace model {
 	template <typename DislocationNetworkType>
 	class DislocationNetworkRemesh{
 		
-		typedef typename DislocationNetworkType::LinkType LinkType;
-		
-		enum{dim=3}; // CHANGE THIS
+		enum{dim=DislocationNetworkType::dim};
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
 		
+        typedef typename DislocationNetworkType::LinkType LinkType;
 		typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
 		
 		DislocationNetworkType& DN;
         
         
         /* contractWithCommonNeighborCheck ***********************************************************/
-        unsigned int contractWithCommonNeighborCheck(const typename EdgeFinder<LinkType>::isNetworkEdgeType& Lij, const VectorDimD& P0){
+        unsigned int contractWithCommonNeighborCheck(const typename EdgeFinder<LinkType>::isNetworkEdgeType& Lij, const VectorDimD& P0)
+        {/*! @param[in] Lij the edge i->j
+          * @param[in] P0 the position of the vertex resulting from contracting Lij
+          * Contracts the edge i->j into a new node located at P0, making sure
+          * that if P0 is occupied by a neighbor of either i or j, then no
+          * overlapping nodes are created.
+          */
             unsigned int temp(0);
-            const size_t i(Lij.second->source->sID);
-            const size_t j(Lij.second->  sink->sID);
-            //std::pair<bool,size_t> isCN(Lij.second->isCommonNeighborAt(P0));
+            const size_t i(Lij.second->source->sID); // StaticID of the source node
+            const size_t j(Lij.second->  sink->sID); // StaticID of the sink   node
             const std::pair<bool,size_t> isCNi(Lij.second->source->isNeighborAt(P0));
             const std::pair<bool,size_t> isCNj(Lij.second->  sink->isNeighborAt(P0));
-            if(isCNi.first && isCNj.first){  // both have a common neighbor
-//                std::cout<<"Contract with CommonNeighbor Check: neighbors exist, case a."<<std::endl;
-//                std::cout<<"i="<<i<<std::endl;
-//                std::cout<<"j="<<j<<std::endl;
-//                std::cout<<"isCNi.second="<<isCNi.second<<std::endl;
-//                std::cout<<"isCNj.second="<<isCNj.second<<std::endl;                
+            if(isCNi.first && isCNj.first) // both have a neighbor at P0
+            {  
                 assert(isCNi.second==isCNj.second && "THERE ARE TWO DISTINCT NEIGHBORS AT THE SAME POSITION.");
                 DN.contractSecond(isCNi.second,i); 
                 temp++;
-//                std::cout<<"passed first contract"<<std::endl;
-                DN.contractSecond(isCNj.second,j); 
+                DN.contractSecond(isCNj.second,j);
                 temp++;
-//                std::cout<<"passed second contract"<<std::endl;
             }
-            else if(isCNi.first && !isCNj.first){  
-//                std::cout<<"Contract with CommonNeighbor Check: neighbors exist, case b."<<std::endl;
-//                std::cout<<"i="<<i<<std::endl;
-//                std::cout<<"j="<<j<<std::endl;
-//                std::cout<<"isCNi.second="<<isCNi.second<<std::endl;
+            else if(isCNi.first && !isCNj.first) // only i has a neighbor at P0
+            {
                 DN.contractSecond(isCNi.second,i);
                 temp++;
-//                std::cout<<"passed first contract"<<std::endl;
-                if(isCNi.second!=j){
+                if(isCNi.second!=j)
+                {
                     DN.contractSecond(isCNi.second,j); 
                     temp++;
-//                    std::cout<<"passed second contract"<<std::endl;
                 }
             }            
-            else if(!isCNi.first && isCNj.first){  
-//                std::cout<<"Contract with CommonNeighbor Check: neighbors exist, case c."<<std::endl;
-//                std::cout<<"i="<<i<<std::endl;
-//                std::cout<<"j="<<j<<std::endl;
-//                std::cout<<"isCNj.second="<<isCNj.second<<std::endl;
-                if(isCNj.second!=i){
+            else if(!isCNi.first && isCNj.first) // only j has a neighbor at P0
+            {
+                if(isCNj.second!=i)
+                {
                     DN.contractSecond(isCNj.second,i); 
                     temp++;
-//                    std::cout<<"passed first contract"<<std::endl;
                 }
                 DN.contractSecond(isCNj.second,j); 
                 temp++;
-//                std::cout<<"passed second contract"<<std::endl;
-            }             
-            else{
-//                std::cout<<"Contract with CommonNeighbor Check: neighbor does not exists."<<std::endl;
-                if(pointIsInsideMesh(P0,Lij.second->source->meshID())){
+            }
+            else // neither i nor j has a neighbor at P0
+            {
+                if(pointIsInsideMesh(P0,Lij.second->source->meshID())) // check that P0 is inside mesh
+                {
                     DN.contract(i,j,P0); 
                     temp++;
                 }
@@ -139,18 +129,31 @@ namespace model {
 		
 	public:
 		
+        static double Lmax;
+        static double Lmin;
+        static double thetaDeg;
+        
 		/* Constructor ******************************/
 		DislocationNetworkRemesh(DislocationNetworkType& DN_in) : DN(DN_in) {}
 		
 		/************************************************************/
 		// remesh
-		void remesh(const double& Lmax, const double& Lmin,const double& thetaDeg){
-			remeshByContraction(Lmin);
-			remeshByExpansion(Lmax,Lmin,thetaDeg); // CALL THIS AFTER CONTRACTION TO EXPAND 2-NODES SUBNETWORKS
-		}
+//		void remesh(const double& Lmax, const double& Lmin,const double& thetaDeg){
+		void remesh()
+        {
+
+//            remeshByContraction(Lmin);
+//			remeshByExpansion(Lmax,Lmin,thetaDeg); // CALL THIS AFTER CONTRACTION TO EXPAND 2-NODES SUBNETWORKS
+
+            remeshByContraction();
+			remeshByExpansion(); // CALL THIS AFTER CONTRACTION TO EXPAND 2-NODES SUBNETWORKS
+        
+        }
 		
 		/* remeshByContraction **************************************/
-		void remeshByContraction(const double& Lmin){
+//		void remeshByContraction(const double& Lmin){
+		void remeshByContraction()
+        {
 			
 			const double vTolcont=0.0;
 			
@@ -177,165 +180,7 @@ namespace model {
 				const size_t i(smallIter->second.first);
 				const size_t j(smallIter->second.second);
 				const typename EdgeFinder<LinkType>::isNetworkEdgeType Lij(DN.link(i,j));
-				if (Lij.first ){
-//                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType sourcePN(GramSchmidt<dim>(Lij.second->source->planeNormals())); // THIS CAN BE A REFERENCE
-//                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType   sinkPN(GramSchmidt<dim>(Lij.second->  sink->planeNormals())); // THIS CAN BE A REFERENCE
-                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType sourcePN(GramSchmidt<dim>(Lij.second->source->constraintNormals())); // THIS CAN BE A REFERENCE
-                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType   sinkPN(GramSchmidt<dim>(Lij.second->  sink->constraintNormals())); // THIS CAN BE A REFERENCE
-
-                    
-                    
-                    
-                    const size_t sourcePNsize(sourcePN.size());
-                    const size_t   sinkPNsize(  sinkPN.size());
-                    if (Lij.second->source->nodeMeshLocation==insideMesh && Lij.second->sink->nodeMeshLocation==insideMesh){ // source and sink are inside mesh
-                        //const bool sourceIsBalanced(Lij.second->source->is_balanced());
-                        //const bool   sinkIsBalanced(Lij.second->  sink->is_balanced());
-                        assert(sourcePNsize>0 && "source->planeNormals() CANNOT HAVE SIZE 0.");
-                        assert(  sinkPNsize>0 && "  sink->planeNormals() CANNOT HAVE SIZE 0.");
-                        if(sourcePNsize==1 && sinkPNsize==1){
-//                            std::cout<<"Contract case 1: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-                            //                            DN.contract(i,j,Lij.second->get_r(0.5));
-                            //                            Ncontracted++;
-                            Ncontracted+=contractWithCommonNeighborCheck(Lij,Lij.second->get_r(0.5)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
-                        }
-                        else if(sourcePNsize==1 && sinkPNsize>1){ // contract source
-//                            std::cout<<"Contract case 2: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-                            //DN.contractSecond(j,i);
-                            //Ncontracted++;
-                            Ncontracted+=contractSecondWithCommonNeighborCheck(j,i);
-                        }
-                        else if(sourcePNsize>1 && sinkPNsize==1){ // contract sink
-//                            std::cout<<"Contract case 3: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-//                            DN.contractSecond(i,j);
-//                            Ncontracted++;
-                            Ncontracted+=contractSecondWithCommonNeighborCheck(i,j);
-                        }
-                        else{
-                            const VectorDimD P1(Lij.second->source->get_P());
-                            const VectorDimD P2(Lij.second-> sink->get_P());
-                            const VectorDimD C(P2-P1);
-                            const double cNorm(C.norm());
-                            if (cNorm<FLT_EPSILON){ // nodes are on top of each other
-//                                std::cout<<"Contract case 4: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-                                //                                DN.contract(i,j,0.5*(P1+P2)); 
-                                //                                Ncontracted++;
-                                Ncontracted+=contractWithCommonNeighborCheck(Lij,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
-                            }
-                            else{  // cNorm>=FLT_EPSILON
-                                if(sourcePNsize==2 && sinkPNsize==2){ // both sink and source move on a line, check if lines intersect
-                                    // Compute first direction
-                                    VectorDimD d1(sourcePN[0].cross(sourcePN[1]));
-                                    const double d1norm(d1.norm());
-                                    assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
-                                    d1/=d1norm;
-                                    // Compute second direction
-                                    VectorDimD d2(sinkPN[0].cross(sinkPN[1]));
-                                    const double d2norm(d2.norm());
-                                    assert(d2norm>FLT_EPSILON && "DIRECTION d2 HAS ZERO NORM");
-                                    d2/=d2norm;
-                                    // Necessary condition is plannarity: C*(d1xd2)=0
-                                    const VectorDimD d3(d1.cross(d2));
-                                    const double d3Norm2(d3.squaredNorm());
-                                    if (d3Norm2<FLT_EPSILON){ // colinear or parallel
-                                        if (d1.cross(C/cNorm).norm()<FLT_EPSILON){ // colinear
-//                                            std::cout<<"Contract case 5: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-                                            //DN.contract(i,j,0.5*(P1+P2)); 
-                                            //Ncontracted++;
-                                            Ncontracted+=contractWithCommonNeighborCheck(Lij,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
-                                        }
-                                    }
-                                    else{ // coplanar or no-intersection
-                                        if (std::fabs((C/cNorm).dot(d3))<FLT_EPSILON){ // coplanar
-                                            const double u1=C.cross(d2).dot(d3)/d3Norm2;
-                                            if(std::fabs(u1<Lmin)){
-//                                                std::cout<<"Contract case 6: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-                                                //contract(i,j,P1+d1*u1);
-                                                //Ncontracted++;
-                                                Ncontracted+=contractWithCommonNeighborCheck(Lij,P1+d1*u1); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
-                                            }
-                                        }
-                                    }	
-                                }
-                                else if(sourcePNsize==2 && sinkPNsize>2){ // source moves on a line and sink is fixed
-                                    VectorDimD d1(sourcePN[0].cross(sourcePN[1]));
-                                    double d1norm(d1.norm());
-                                    assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
-                                    d1/=d1norm;
-                                    if(d1.cross(C/cNorm).norm()<FLT_EPSILON){
-//                                        std::cout<<"Contract case 7: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-                                        //DN.contractSecond(j,i);
-                                        //Ncontracted++;
-                                        Ncontracted+=contractSecondWithCommonNeighborCheck(j,i);
-
-                                    }
-                                }
-                                else if(sourcePNsize>2 && sinkPNsize==2){ // source is fixed and sink moves on a line
-                                    VectorDimD d2(sinkPN[0].cross(sinkPN[1]));
-                                    double d2norm(d2.norm());
-                                    assert(d2norm>FLT_EPSILON && "DIRECTION d2 HAS ZERO NORM");
-                                    d2/=d2norm;
-                                    if(d2.cross(C/cNorm).norm()<FLT_EPSILON){
-//                                        std::cout<<"Contract case 8: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-//                                        DN.contractSecond(i,j);
-//                                        Ncontracted++;
-                                        Ncontracted+=contractSecondWithCommonNeighborCheck(i,j);
-                                    }    
-                                }
-                                else{
-                                    // both are fixed, cannot contract
-                                }
-                            } // end P1==P2
-                        } // end case sourcePNsize>1 and sourcePNsize>1       
-                    } // end source and sink are inside mesh
-                    else if (Lij.second->source->nodeMeshLocation==insideMesh && Lij.second->sink->nodeMeshLocation!=insideMesh){ // source is inside mesh, sink in not                        
-                        switch (sourcePNsize) { // decide depending on size of source->planeNormals
-                            case 0:
-                                assert(0 && "source->planeNormals() CANNOT HAVE SIZE 0.");
-                                break;
-                            case 1:
- //                               std::cout<<"Contract case 9: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
- //                               DN.contractSecond(j,i);
- //                               Ncontracted++;
-                                Ncontracted+=contractSecondWithCommonNeighborCheck(j,i);
-                                break;
-                                
-                            case 2: // source moves on a line
-                                // compute intersection of the line and the mesh and place the new node there
-                                break;
-                                
-                            default:
-                                // don't do anythig
-                                break;
-                        }
-                    }
-                    else if (Lij.second->source->nodeMeshLocation!=insideMesh && Lij.second->sink->nodeMeshLocation==insideMesh){ // sink is inside mesh, source in not
-                        switch (sinkPNsize) { // decide depending on size of sink->planeNormals
-                            case 0:
-                                assert(0 && "sink->planeNormals() CANNOT HAVE SIZE 0.");
-                                break;
-                            case 1:
- //                               std::cout<<"Contract case 10: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
-//                                DN.contractSecond(i,j);
-//                                Ncontracted++;
-                                Ncontracted+=contractSecondWithCommonNeighborCheck(i,j);
-                                break;
-                                
-                            case 2: // sink moves on a line
-                                // compute intersection of the line and the mesh and place the new node there
-                                break;
-                                
-                            default:
-                                // don't do anythig
-                                break;
-                        }
-                    }
-                    else{
-                        // both are on the mesh, don't do anything
-                    }
-                    
-					
-				}
+                Ncontracted+=singleEdgeContract(Lij);
 			}
 			std::cout<<" ("<<Ncontracted<<" contracted)"<<std::flush;
 			
@@ -344,7 +189,9 @@ namespace model {
 		
 		
 		/* remeshByExpansion ****************************************************************/
-		void remeshByExpansion(const double& Lmax, const double& Lmin,const double& thetaDeg){
+//		void remeshByExpansion(const double& Lmax, const double& Lmin,const double& thetaDeg){
+        void remeshByExpansion()
+        {
 			
 			
 			double cos_theta_max_crit = std::cos(M_PI-thetaDeg*M_PI/180.0);  /*critical angle */
@@ -468,10 +315,360 @@ namespace model {
 				}
 			}
 		}
+        
+        
+        
+        /*************************************************************/
+        unsigned int singleEdgeContract(const typename EdgeFinder<LinkType>::isNetworkEdgeType& Lij)
+        {
+            unsigned int Ncontracted(0);
+            if (Lij.first ){
+                const size_t i(Lij.second->source->sID);
+                const size_t j(Lij.second->  sink->sID);
+                //                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType sourcePN(GramSchmidt<dim>(Lij.second->source->planeNormals())); // THIS CAN BE A REFERENCE
+                //                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType   sinkPN(GramSchmidt<dim>(Lij.second->  sink->planeNormals())); // THIS CAN BE A REFERENCE
+                const typename DislocationNetworkType::NodeType::VectorOfNormalsType sourcePN(GramSchmidt<dim>(Lij.second->source->constraintNormals())); // THIS CAN BE A REFERENCE
+                const typename DislocationNetworkType::NodeType::VectorOfNormalsType   sinkPN(GramSchmidt<dim>(Lij.second->  sink->constraintNormals())); // THIS CAN BE A REFERENCE
+                
+                
+                
+                
+                const size_t sourcePNsize(sourcePN.size());
+                const size_t   sinkPNsize(  sinkPN.size());
+                if (Lij.second->source->nodeMeshLocation==insideMesh && Lij.second->sink->nodeMeshLocation==insideMesh){ // source and sink are inside mesh
+                    //const bool sourceIsBalanced(Lij.second->source->is_balanced());
+                    //const bool   sinkIsBalanced(Lij.second->  sink->is_balanced());
+                    assert(sourcePNsize>0 && "source->planeNormals() CANNOT HAVE SIZE 0.");
+                    assert(  sinkPNsize>0 && "  sink->planeNormals() CANNOT HAVE SIZE 0.");
+                    if(sourcePNsize==1 && sinkPNsize==1){
+                        //                            std::cout<<"Contract case 1: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+                        //                            DN.contract(i,j,Lij.second->get_r(0.5));
+                        //                            Ncontracted++;
+                        Ncontracted+=contractWithCommonNeighborCheck(Lij,Lij.second->get_r(0.5)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+                    }
+                    else if(sourcePNsize==1 && sinkPNsize>1){ // contract source
+                        //                            std::cout<<"Contract case 2: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+                        //DN.contractSecond(j,i);
+                        //Ncontracted++;
+                        Ncontracted+=contractSecondWithCommonNeighborCheck(j,i);
+                    }
+                    else if(sourcePNsize>1 && sinkPNsize==1){ // contract sink
+                        //                            std::cout<<"Contract case 3: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+                        //                            DN.contractSecond(i,j);
+                        //                            Ncontracted++;
+                        Ncontracted+=contractSecondWithCommonNeighborCheck(i,j);
+                    }
+                    else{
+                        const VectorDimD P1(Lij.second->source->get_P());
+                        const VectorDimD P2(Lij.second-> sink->get_P());
+                        const VectorDimD C(P2-P1);
+                        const double cNorm(C.norm());
+                        if (cNorm<FLT_EPSILON){ // nodes are on top of each other
+                            //                                std::cout<<"Contract case 4: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+                            //                                DN.contract(i,j,0.5*(P1+P2));
+                            //                                Ncontracted++;
+                            Ncontracted+=contractWithCommonNeighborCheck(Lij,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+                        }
+                        else{  // cNorm>=FLT_EPSILON
+                            if(sourcePNsize==2 && sinkPNsize==2){ // both sink and source move on a line, check if lines intersect
+                                // Compute first direction
+                                VectorDimD d1(sourcePN[0].cross(sourcePN[1]));
+                                const double d1norm(d1.norm());
+                                assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
+                                d1/=d1norm;
+                                // Compute second direction
+                                VectorDimD d2(sinkPN[0].cross(sinkPN[1]));
+                                const double d2norm(d2.norm());
+                                assert(d2norm>FLT_EPSILON && "DIRECTION d2 HAS ZERO NORM");
+                                d2/=d2norm;
+                                // Necessary condition is plannarity: C*(d1xd2)=0
+                                const VectorDimD d3(d1.cross(d2));
+                                const double d3Norm2(d3.squaredNorm());
+                                if (d3Norm2<FLT_EPSILON){ // colinear or parallel
+                                    if (d1.cross(C/cNorm).norm()<FLT_EPSILON){ // colinear
+                                        //                                            std::cout<<"Contract case 5: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+                                        //DN.contract(i,j,0.5*(P1+P2));
+                                        //Ncontracted++;
+                                        Ncontracted+=contractWithCommonNeighborCheck(Lij,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+                                    }
+                                }
+                                else{ // coplanar or no-intersection
+                                    if (std::fabs((C/cNorm).dot(d3))<FLT_EPSILON){ // coplanar
+                                        const double u1=C.cross(d2).dot(d3)/d3Norm2;
+                                        if(std::fabs(u1<Lmin)){
+                                            //                                                std::cout<<"Contract case 6: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+                                            //contract(i,j,P1+d1*u1);
+                                            //Ncontracted++;
+                                            Ncontracted+=contractWithCommonNeighborCheck(Lij,P1+d1*u1); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+                                        }
+                                    }
+                                }
+                            }
+                            else if(sourcePNsize==2 && sinkPNsize>2){ // source moves on a line and sink is fixed
+                                VectorDimD d1(sourcePN[0].cross(sourcePN[1]));
+                                double d1norm(d1.norm());
+                                assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
+                                d1/=d1norm;
+                                if(d1.cross(C/cNorm).norm()<FLT_EPSILON){
+                                    //                                        std::cout<<"Contract case 7: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+                                    //DN.contractSecond(j,i);
+                                    //Ncontracted++;
+                                    Ncontracted+=contractSecondWithCommonNeighborCheck(j,i);
+                                    
+                                }
+                            }
+                            else if(sourcePNsize>2 && sinkPNsize==2){ // source is fixed and sink moves on a line
+                                VectorDimD d2(sinkPN[0].cross(sinkPN[1]));
+                                double d2norm(d2.norm());
+                                assert(d2norm>FLT_EPSILON && "DIRECTION d2 HAS ZERO NORM");
+                                d2/=d2norm;
+                                if(d2.cross(C/cNorm).norm()<FLT_EPSILON){
+                                    //                                        std::cout<<"Contract case 8: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+                                    //                                        DN.contractSecond(i,j);
+                                    //                                        Ncontracted++;
+                                    Ncontracted+=contractSecondWithCommonNeighborCheck(i,j);
+                                }
+                            }
+                            else{
+                                // both are fixed, cannot contract
+                            }
+                        } // end P1==P2
+                    } // end case sourcePNsize>1 and sourcePNsize>1
+                } // end source and sink are inside mesh
+                else if (Lij.second->source->nodeMeshLocation==insideMesh && Lij.second->sink->nodeMeshLocation!=insideMesh){ // source is inside mesh, sink in not
+                    switch (sourcePNsize) { // decide depending on size of source->planeNormals
+                        case 0:
+                            assert(0 && "source->planeNormals() CANNOT HAVE SIZE 0.");
+                            break;
+                        case 1:
+                            //                               std::cout<<"Contract case 9: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+                            //                               DN.contractSecond(j,i);
+                            //                               Ncontracted++;
+                            Ncontracted+=contractSecondWithCommonNeighborCheck(j,i);
+                            break;
+                            
+                        case 2: // source moves on a line
+                            // compute intersection of the line and the mesh and place the new node there
+                            break;
+                            
+                        default:
+                            // don't do anythig
+                            break;
+                    }
+                }
+                else if (Lij.second->source->nodeMeshLocation!=insideMesh && Lij.second->sink->nodeMeshLocation==insideMesh){ // sink is inside mesh, source in not
+                    switch (sinkPNsize) { // decide depending on size of sink->planeNormals
+                        case 0:
+                            assert(0 && "sink->planeNormals() CANNOT HAVE SIZE 0.");
+                            break;
+                        case 1:
+                            //                               std::cout<<"Contract case 10: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+                            //                                DN.contractSecond(i,j);
+                            //                                Ncontracted++;
+                            Ncontracted+=contractSecondWithCommonNeighborCheck(i,j);
+                            break;
+                            
+                        case 2: // sink moves on a line
+                            // compute intersection of the line and the mesh and place the new node there
+                            break;
+                            
+                        default:
+                            // don't do anythig
+                            break;
+                    }
+                }
+                else{
+                    // both are on the mesh, don't do anything
+                }
+                
+                
+            }
+            return Ncontracted;
+        }
+        
+        
+        
 		
 	};
+    
+    
+    // static data
+    template <typename DislocationNetworkType>
+	double DislocationNetworkRemesh<DislocationNetworkType>::Lmin=10.0;
+    
+    template <typename DislocationNetworkType>
+    double DislocationNetworkRemesh<DislocationNetworkType>::Lmax=100.0;
+    
+    template <typename DislocationNetworkType>
+    double DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg=45.0;
 	
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
+
+
+
+
+
+
+
+//				if (Lij.first ){
+////                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType sourcePN(GramSchmidt<dim>(Lij.second->source->planeNormals())); // THIS CAN BE A REFERENCE
+////                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType   sinkPN(GramSchmidt<dim>(Lij.second->  sink->planeNormals())); // THIS CAN BE A REFERENCE
+//                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType sourcePN(GramSchmidt<dim>(Lij.second->source->constraintNormals())); // THIS CAN BE A REFERENCE
+//                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType   sinkPN(GramSchmidt<dim>(Lij.second->  sink->constraintNormals())); // THIS CAN BE A REFERENCE
+//
+//
+//
+//
+//                    const size_t sourcePNsize(sourcePN.size());
+//                    const size_t   sinkPNsize(  sinkPN.size());
+//                    if (Lij.second->source->nodeMeshLocation==insideMesh && Lij.second->sink->nodeMeshLocation==insideMesh){ // source and sink are inside mesh
+//                        //const bool sourceIsBalanced(Lij.second->source->is_balanced());
+//                        //const bool   sinkIsBalanced(Lij.second->  sink->is_balanced());
+//                        assert(sourcePNsize>0 && "source->planeNormals() CANNOT HAVE SIZE 0.");
+//                        assert(  sinkPNsize>0 && "  sink->planeNormals() CANNOT HAVE SIZE 0.");
+//                        if(sourcePNsize==1 && sinkPNsize==1){
+////                            std::cout<<"Contract case 1: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+//                            //                            DN.contract(i,j,Lij.second->get_r(0.5));
+//                            //                            Ncontracted++;
+//                            Ncontracted+=contractWithCommonNeighborCheck(Lij,Lij.second->get_r(0.5)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+//                        }
+//                        else if(sourcePNsize==1 && sinkPNsize>1){ // contract source
+////                            std::cout<<"Contract case 2: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+//                            //DN.contractSecond(j,i);
+//                            //Ncontracted++;
+//                            Ncontracted+=contractSecondWithCommonNeighborCheck(j,i);
+//                        }
+//                        else if(sourcePNsize>1 && sinkPNsize==1){ // contract sink
+////                            std::cout<<"Contract case 3: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+////                            DN.contractSecond(i,j);
+////                            Ncontracted++;
+//                            Ncontracted+=contractSecondWithCommonNeighborCheck(i,j);
+//                        }
+//                        else{
+//                            const VectorDimD P1(Lij.second->source->get_P());
+//                            const VectorDimD P2(Lij.second-> sink->get_P());
+//                            const VectorDimD C(P2-P1);
+//                            const double cNorm(C.norm());
+//                            if (cNorm<FLT_EPSILON){ // nodes are on top of each other
+////                                std::cout<<"Contract case 4: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+//                                //                                DN.contract(i,j,0.5*(P1+P2));
+//                                //                                Ncontracted++;
+//                                Ncontracted+=contractWithCommonNeighborCheck(Lij,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+//                            }
+//                            else{  // cNorm>=FLT_EPSILON
+//                                if(sourcePNsize==2 && sinkPNsize==2){ // both sink and source move on a line, check if lines intersect
+//                                    // Compute first direction
+//                                    VectorDimD d1(sourcePN[0].cross(sourcePN[1]));
+//                                    const double d1norm(d1.norm());
+//                                    assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
+//                                    d1/=d1norm;
+//                                    // Compute second direction
+//                                    VectorDimD d2(sinkPN[0].cross(sinkPN[1]));
+//                                    const double d2norm(d2.norm());
+//                                    assert(d2norm>FLT_EPSILON && "DIRECTION d2 HAS ZERO NORM");
+//                                    d2/=d2norm;
+//                                    // Necessary condition is plannarity: C*(d1xd2)=0
+//                                    const VectorDimD d3(d1.cross(d2));
+//                                    const double d3Norm2(d3.squaredNorm());
+//                                    if (d3Norm2<FLT_EPSILON){ // colinear or parallel
+//                                        if (d1.cross(C/cNorm).norm()<FLT_EPSILON){ // colinear
+////                                            std::cout<<"Contract case 5: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+//                                            //DN.contract(i,j,0.5*(P1+P2));
+//                                            //Ncontracted++;
+//                                            Ncontracted+=contractWithCommonNeighborCheck(Lij,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+//                                        }
+//                                    }
+//                                    else{ // coplanar or no-intersection
+//                                        if (std::fabs((C/cNorm).dot(d3))<FLT_EPSILON){ // coplanar
+//                                            const double u1=C.cross(d2).dot(d3)/d3Norm2;
+//                                            if(std::fabs(u1<Lmin)){
+////                                                std::cout<<"Contract case 6: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+//                                                //contract(i,j,P1+d1*u1);
+//                                                //Ncontracted++;
+//                                                Ncontracted+=contractWithCommonNeighborCheck(Lij,P1+d1*u1); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                                else if(sourcePNsize==2 && sinkPNsize>2){ // source moves on a line and sink is fixed
+//                                    VectorDimD d1(sourcePN[0].cross(sourcePN[1]));
+//                                    double d1norm(d1.norm());
+//                                    assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
+//                                    d1/=d1norm;
+//                                    if(d1.cross(C/cNorm).norm()<FLT_EPSILON){
+////                                        std::cout<<"Contract case 7: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+//                                        //DN.contractSecond(j,i);
+//                                        //Ncontracted++;
+//                                        Ncontracted+=contractSecondWithCommonNeighborCheck(j,i);
+//
+//                                    }
+//                                }
+//                                else if(sourcePNsize>2 && sinkPNsize==2){ // source is fixed and sink moves on a line
+//                                    VectorDimD d2(sinkPN[0].cross(sinkPN[1]));
+//                                    double d2norm(d2.norm());
+//                                    assert(d2norm>FLT_EPSILON && "DIRECTION d2 HAS ZERO NORM");
+//                                    d2/=d2norm;
+//                                    if(d2.cross(C/cNorm).norm()<FLT_EPSILON){
+////                                        std::cout<<"Contract case 8: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+////                                        DN.contractSecond(i,j);
+////                                        Ncontracted++;
+//                                        Ncontracted+=contractSecondWithCommonNeighborCheck(i,j);
+//                                    }
+//                                }
+//                                else{
+//                                    // both are fixed, cannot contract
+//                                }
+//                            } // end P1==P2
+//                        } // end case sourcePNsize>1 and sourcePNsize>1
+//                    } // end source and sink are inside mesh
+//                    else if (Lij.second->source->nodeMeshLocation==insideMesh && Lij.second->sink->nodeMeshLocation!=insideMesh){ // source is inside mesh, sink in not
+//                        switch (sourcePNsize) { // decide depending on size of source->planeNormals
+//                            case 0:
+//                                assert(0 && "source->planeNormals() CANNOT HAVE SIZE 0.");
+//                                break;
+//                            case 1:
+// //                               std::cout<<"Contract case 9: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+// //                               DN.contractSecond(j,i);
+// //                               Ncontracted++;
+//                                Ncontracted+=contractSecondWithCommonNeighborCheck(j,i);
+//                                break;
+//
+//                            case 2: // source moves on a line
+//                                // compute intersection of the line and the mesh and place the new node there
+//                                break;
+//
+//                            default:
+//                                // don't do anythig
+//                                break;
+//                        }
+//                    }
+//                    else if (Lij.second->source->nodeMeshLocation!=insideMesh && Lij.second->sink->nodeMeshLocation==insideMesh){ // sink is inside mesh, source in not
+//                        switch (sinkPNsize) { // decide depending on size of sink->planeNormals
+//                            case 0:
+//                                assert(0 && "sink->planeNormals() CANNOT HAVE SIZE 0.");
+//                                break;
+//                            case 1:
+// //                               std::cout<<"Contract case 10: contracting "<<Lij.second->source->sID<<"->"<<Lij.second->sink->sID<<std::endl;
+////                                DN.contractSecond(i,j);
+////                                Ncontracted++;
+//                                Ncontracted+=contractSecondWithCommonNeighborCheck(i,j);
+//                                break;
+//
+//                            case 2: // sink moves on a line
+//                                // compute intersection of the line and the mesh and place the new node there
+//                                break;
+//
+//                            default:
+//                                // don't do anythig
+//                                break;
+//                        }
+//                    }
+//                    else{
+//                        // both are on the mesh, don't do anything
+//                    }
+//
+//
+//				}
 

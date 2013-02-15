@@ -16,6 +16,7 @@
 #include <model/Network/Operations/EdgeFinder.h>
 
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
+#include <model/DislocationDynamics/Remeshing/DislocationNetworkRemesh.h>
 #include <model/BVP/SearchData.h>
 
 
@@ -52,10 +53,6 @@ namespace model {
 		//	std::touple<int,double> tp;
         
         
-        
-        
-        
-		
 	public:
 		
         
@@ -182,7 +179,8 @@ namespace model {
 		
 		
 		/* formJunctions **************************************************/
-		void formJunctions(const double& dx, const double& avoidNodeIntersection) {
+		void formJunctions(const double& dx, const double& avoidNodeIntersection)
+        {
 			
 			
 			//! 1- Initialize intersectionContainer calling findIntersections
@@ -429,9 +427,9 @@ namespace model {
 			}
             
             
-            
-            std::vector<std::pair<size_t,size_t> > nodeContractVector;
-            
+            // Direct Node contraction
+            std::vector<std::pair<size_t,std::pair<size_t,size_t> > > nodeContractVector;
+            //            typename EdgeFinder<LinkType>::isNetworkEdgeType
             for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
             {
                 bool isSimple(nodeIter->second->is_simple());
@@ -441,42 +439,123 @@ namespace model {
                     const NodeType* const pNj(nodeIter->second->openNeighborNode(1));
                     if(pNi->openOrder()>2 && pNj->openOrder()>2)
                     {
-                        const isNetworkLinkType lIJ(DN.link(pNi->sID,pNj->sID));
-                        const isNetworkLinkType lJI(DN.link(pNj->sID,pNi->sID));
-                        if(lIJ.first || lJI.first)
-                        {
-                            const typename DislocationNetworkType::NodeType::VectorOfNormalsType ck(GramSchmidt<dim>(nodeIter->second->constraintNormals())); // THIS CAN BE A REFERENCE
-                            
-                            if(ck.size()<2)
-                            {
-                                nodeContractVector.push_back(std::make_pair(pNi->sID,nodeIter->second->sID));
-                            }
-                            else
-                            {
-                                const typename DislocationNetworkType::NodeType::VectorOfNormalsType ci(GramSchmidt<dim>(pNi->constraintNormals())); // THIS CAN BE A REFERENCE
-                                if(ci.size()<2)
-                                {
-                                    nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,pNi->sID));
-                                }
-                                else
-                                {
-                                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType cj(GramSchmidt<dim>(pNj->constraintNormals())); // THIS CAN BE A REFERENCE
-                                    if(cj.size()<2)
-                                    {
-                                        nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,pNj->sID));
-                                    }
-                                }
-                            }
-                        }
+                        //                        const size_t i(pNi->sID);
+                        //                        const size_t j(pNj->sID);
+                        //                        const size_t k(nodeIter->second->sID);
+                        
+                        nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,std::make_pair(pNi->sID,pNj->sID)));
+                        
+                        //                        const isNetworkLinkType Lki(DN.link(k,i));
+                        //                        if(Lki.first)
+                        //                        {
+                        //                            nodeContractVector.push_back(Lki);
+                        //                        }
+                        //                        else
+                        //                        {
+                        //                           nodeContractVector.push_back(DN.link(i,k));
+                        //                        }
+                        //
+                        //                        const isNetworkLinkType Lkj(DN.link(k,j));
+                        //                        if(Lkj.first)
+                        //                        {
+                        //                            nodeContractVector.push_back(Lkj);
+                        //                        }
+                        //                        else
+                        //                        {
+                        //                            nodeContractVector.push_back(DN.link(j,k));
+                        //                        }
+                        //
+                        //                        const isNetworkLinkType Lij(DN.link(i,j));
+                        //                        if(Lij.first)
+                        //                        {
+                        //                            nodeContractVector.push_back(Lij);
+                        //                        }
+                        //                        else
+                        //                        {
+                        //                            nodeContractVector.push_back(DN.link(j,i));
+                        //                        }
+                        
+                        
+                        //                        const isNetworkLinkType lIJ(DN.link(pNi->sID,pNj->sID));
+                        //                        const isNetworkLinkType lJI(DN.link(pNj->sID,pNi->sID));
+                        //                        if(lIJ.first || lJI.first)
+                        //                        {
+                        ////                            const typename DislocationNetworkType::NodeType::VectorOfNormalsType ck(GramSchmidt<dim>(nodeIter->second->constraintNormals())); // THIS CAN BE A REFERENCE
+                        ////
+                        ////                            if(ck.size()<2)
+                        ////                            {
+                        ////                                nodeContractVector.push_back(std::make_pair(pNi->sID,nodeIter->second->sID));
+                        ////                            }
+                        ////                            else
+                        ////                            {
+                        ////                                const typename DislocationNetworkType::NodeType::VectorOfNormalsType ci(GramSchmidt<dim>(pNi->constraintNormals())); // THIS CAN BE A REFERENCE
+                        ////                                if(ci.size()<2)
+                        ////                                {
+                        ////                                    nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,pNi->sID));
+                        ////                                }
+                        ////                                else
+                        ////                                {
+                        ////                                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType cj(GramSchmidt<dim>(pNj->constraintNormals())); // THIS CAN BE A REFERENCE
+                        ////                                    if(cj.size()<2)
+                        ////                                    {
+                        ////                                        nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,pNj->sID));
+                        ////                                    }
+                        ////                                }
+                        ////                            }
+                        ////                        }
                     }
                 }
                 
             }
             
             
-            for (unsigned int k=0;k<nodeContractVector.size();++k)
+            for (unsigned int m=0;m<nodeContractVector.size();++m)
             {
-                DN.contractSecond(nodeContractVector[k].first,nodeContractVector[k].second);
+                const size_t k(nodeContractVector[m].first);
+                const size_t i(nodeContractVector[m].second.first);
+                const size_t j(nodeContractVector[m].second.second);
+                
+                
+                
+                const isNetworkLinkType Lki(DN.link(k,i));
+                if(Lki.first)
+                {
+                    DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(Lki);
+                    //                    nodeContractVector.push_back(Lki);
+                }
+                else
+                {
+                    DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(DN.link(i,k));
+                    //nodeContractVector.push_back(DN.link(i,k));
+                }
+                
+                const isNetworkLinkType Lkj(DN.link(k,j));
+                if(Lkj.first)
+                {
+                    DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(Lkj);
+                    //nodeContractVector.push_back(Lkj);
+                }
+                else
+                {
+                    DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(DN.link(j,k));
+                    //                    nodeContractVector.push_back(DN.link(j,k));
+                }
+                
+                const isNetworkLinkType Lij(DN.link(i,j));
+                if(Lij.first)
+                {
+                    DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(Lij);
+                    //                    nodeContractVector.push_back(Lij);
+                }
+                else
+                {
+                    DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(DN.link(j,i));
+                    //                    nodeContractVector.push_back(DN.link(j,i));
+                }
+                
+                
+                //                DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(nodeContractVector[k]);
+                //DN.contractSecond(nodeContractVector[k].first,nodeContractVector[k].second);
             }
             
             
