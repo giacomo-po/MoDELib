@@ -299,6 +299,7 @@ namespace model {
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
         
+        
         /***********************************************************/
 		void singleStep(const bool& updateUserBC=false){
 			//! A simulation step consists of the following:
@@ -357,7 +358,7 @@ namespace model {
 			//! 5- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
 			move(dt,0.0);
             
-            bool useImplicitIntegrator(true); // THIS CAN BE DECIDED ON THE FLY BASED ON DISTRIBUTION OF VELOCITIES
+            bool useImplicitIntegrator(false); // THIS COULD BE DECIDED ON THE FLY BASED ON DISTRIBUTION OF VELOCITIES
             if(useImplicitIntegrator)
             {
                 updateQuadraturePoints();
@@ -370,10 +371,9 @@ namespace model {
                 const double dt_old(dt); // store current dt
                 totalTime-=dt; // subtract current dt
                 make_dt();      // compute dt again with average velocity
-                totalTime+=dt;
+                totalTime+=dt; // add new time step
                 
-                move(dt,dt_old);
-
+                move(dt,dt_old); // move again (this subtracts DislocationNode::vOld*dt_old)
             }
             
 			DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
@@ -515,6 +515,7 @@ namespace model {
             // QuadratureParticle
             EDR.readScalarInFile(fullName.str(),"coreWidthSquared",DislocationQuadratureParticle<dim,cellSize>::a2); // core-width
             assert((DislocationQuadratureParticle<dim,cellSize>::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
+            LinkType::coreLsquared=DislocationQuadratureParticle<dim,cellSize>::a2;
             //            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
             EDR.readScalarInFile(fullName.str(),"nearCellStressApproximation",DislocationQuadratureParticle<dim,cellSize>::nearCellStressApproximation); // useMultipoleStress
             EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationQuadratureParticle<dim,cellSize>::farCellStressApproximation); // useMultipoleStress
@@ -621,6 +622,7 @@ namespace model {
 			}
 			updateQuadraturePoints();
 			++runID;     // increment the runID counter
+//            output();	// initial configuration, this overwrites the input file
 		}
 		
 		/* solve ****************************************************************/

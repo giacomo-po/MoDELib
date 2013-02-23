@@ -86,7 +86,7 @@ namespace model {
         /* init list                                     */ sourcePatL(sourceP+L*sourceN),
         /* init list                                     */   sinkPatL(  sinkP+L*sinkN),
         /* init list                                     */ Burgers(ds.Burgers),
-        /* init list                                     */ coreL(ds.coreL),
+        /* init list                                     */ coreL(std::pow(DislocationSegmentType::coreLsquared,0.5)),
         /* init list                                     */ gp_H(ds.pGlidePlane->height),
         /* init list                                     */ gp_N(ds.pGlidePlane->planeNormal){
             

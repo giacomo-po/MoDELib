@@ -47,8 +47,12 @@ namespace model {
 	public:		
 		/* Constructor **********************************************/
 		EdgeExpansion(NetworkVertexMapType& networkVertexMapRef_in,
-		/*         */ NetworkEdgeMapType&     networkEdgeMapRef_in) : networkVertexMapRef(networkVertexMapRef_in),
-		/*                                                         */ networkEdgeMapRef(networkEdgeMapRef_in){}
+		/*         */ NetworkEdgeMapType&     networkEdgeMapRef_in) :
+        /* init list */ networkVertexMapRef(networkVertexMapRef_in),
+		/* init list */ networkEdgeMapRef(networkEdgeMapRef_in)
+        {/*! Initializes interanl references 
+          */
+        }
 		
 		/* expand ***************************************************/
 		template <typename ...NodeArgTypes>

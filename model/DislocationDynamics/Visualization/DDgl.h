@@ -303,6 +303,8 @@ namespace model {
 //                BitmapPlotter::drawGLString (10, window_height - (lineSpacing * line++) - startOffest, outString);
 //                sprintf (outString, "Focus Distance: %0.1f", Camera::focalLength);
 //                BitmapPlotter::drawGLString (10, windowHeight - (lineSpacing * line++) - startOffest, outString);
+                sprintf (outString, "Step: %u", frameN);
+                BitmapPlotter::drawGLString (10, windowHeight - (lineSpacing * line++) - startOffest, outString);
                 sprintf (outString, "Vertex Order: %u", splinePlotter.vertexOrder());
                 BitmapPlotter::drawGLString (10, windowHeight - (lineSpacing * line++) - startOffest, outString);
                 sprintf (outString, "Edge Order: %u", splinePlotter.edgeOrder());

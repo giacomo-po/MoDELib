@@ -37,8 +37,12 @@ namespace model {
 		static void findEdgeConfiguration(DislocationNodeType& dN){
 //            static void findEdgeConfiguration(DislocationNodeType& dN, const double& nu){
 			
+            	Eigen::VectorXi edgeConfiguration;
+
+            
 			if (dN.is_isolated()){
-				dN.edgeConfiguration.setZero(0);
+//				dN.edgeConfiguration.setZero(0);
+                edgeConfiguration.setZero(0);
 			}
 			else{
 				// 1- Collect all the Burgers from the neighbors considering them as out-neighbors.
@@ -63,7 +67,8 @@ namespace model {
                 const int nN(BsV.size());
                 
                 // 5- reset edgeConfiguration
-				dN.edgeConfiguration.setZero(nN);
+//				dN.edgeConfiguration.setZero(nN);
+				edgeConfiguration.setZero(nN);
 
                 if (nN<=15){
                 
@@ -143,7 +148,8 @@ namespace model {
                         assert(ELev.size()>1 && "MORE THAN ONE ENERGY LEVELS MUST BE FOUND FOR A BALANCED NODE");	
                         //std::multimap<double,Eigen::VectorXi>::const_iterator firstNonZero(ELev.lower_bound(FLT_EPSILON)); // the first element that compares >=FLT_EPSILON
                         //assert(firstNonZero!=ELev.end() && "AT LEAST ONE POSITIVE ENERGY LEVEL MUST EXIST");					
-                        dN.edgeConfiguration=ELev.rbegin()->second;
+                    //    dN.edgeConfiguration=ELev.rbegin()->second;
+                        edgeConfiguration=ELev.rbegin()->second;
                     }
                 
                 
@@ -159,18 +165,19 @@ namespace model {
 					int dir=boost::tuples::get<2>(neighborIter->second);
 					switch ( dir ) {
 						case   1:	// out
-							boost::tuples::get<1>(neighborIter->second)->sourceTfactor=dN.edgeConfiguration(kk);
+//							boost::tuples::get<1>(neighborIter->second)->sourceTfactor=dN.edgeConfiguration(kk);
+                            boost::tuples::get<1>(neighborIter->second)->sourceTfactor=edgeConfiguration(kk);
 							kk++;
 							break;
 						case  -1:	// in
-							boost::tuples::get<1>(neighborIter->second)->  sinkTfactor=dN.edgeConfiguration(kk);
+//							boost::tuples::get<1>(neighborIter->second)->  sinkTfactor=dN.edgeConfiguration(kk);
+                            boost::tuples::get<1>(neighborIter->second)->  sinkTfactor=edgeConfiguration(kk);
 							kk++;
 							break;
 						default:	// self
 							break;
 					} // end switch
 				} // end for
-
 			} // end else (not isolated)
 		}
 		

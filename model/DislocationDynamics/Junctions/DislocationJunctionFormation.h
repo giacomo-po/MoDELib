@@ -78,8 +78,10 @@ namespace model {
                 
                 const DislocationSegmentIntersection<dim,pOrder> dsi(linkIterA->second->hermiteCoefficients(),linkIterA->second->glidePlaneNormal);
                 
-				for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.linkEnd();linkIterB++){
-					if (linkIterA->second->sID!=linkIterB->second->sID){	// don't intersect with itself
+				for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.linkEnd();linkIterB++)
+                {
+					if (linkIterA->second->sID!=linkIterB->second->sID) // don't intersect with itself
+                    {	
                         
                         //                std::cout<<"intersecting "<<linkIterA->second->source->sID<<"->"<<linkIterA->second->sink->sID<<" and "<<linkIterB->second->source->sID<<"->"<<linkIterB->second->sink->sID<<std::endl;
                         
@@ -103,16 +105,19 @@ namespace model {
                         
                         
                         
+                        //std::cout<<"sessile_1="<<L1isSessile<<", "<<"sessile_2="<<L2isSessile<<std::endl;
                         
                         std::set<std::pair<double,double> > temp;
                         
                         
                         
-                        if (!L1isSessile && !L2isSessile) { // both are glissile
+                        if (!L1isSessile && !L2isSessile) // both are glissile
+                        { 
                             temp = dsi.intersectWith(linkIterB->second->hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol);
                         }
                         
-                        else if (!L1isSessile && L2isSessile){ // L1 is glissile and L2 is sessile
+                        else if (!L1isSessile && L2isSessile) // L1 is glissile and L2 is sessile
+                        { 
                             const bool gnAgnB((linkIterA->second->glidePlaneNormal-linkIterB->second->glidePlaneNormal  ).squaredNorm()<FLT_EPSILON);
                             const bool gnAsnB((linkIterA->second->glidePlaneNormal-linkIterB->second->sessilePlaneNormal).squaredNorm()<FLT_EPSILON);
                             
@@ -129,7 +134,8 @@ namespace model {
                                 assert(0 && "GLISSILE AND SESSILE PLANE NORMALS OF B MUST BE DISTINCT.");
                             }
                         }
-                        else if (L1isSessile && !L2isSessile){ // L1 is sessile and L2 is glissile
+                        else if (L1isSessile && !L2isSessile) // L1 is sessile and L2 is glissile
+                        { 
                             const bool gnBgnA((linkIterB->second->glidePlaneNormal-linkIterA->second->glidePlaneNormal  ).squaredNorm()<FLT_EPSILON);
                             const bool gnBsnA((linkIterB->second->glidePlaneNormal-linkIterA->second->sessilePlaneNormal).squaredNorm()<FLT_EPSILON);
                             
@@ -147,7 +153,8 @@ namespace model {
                                 assert(0 && "GLISSILE AND SESSILE PLANE NORMALS OF B MUST BE DISTINCT.");
                             }
                         }
-                        else { // both are sessile
+                        else
+                        { // both are sessile
                             // cannot intersect
                         }
                         
@@ -156,19 +163,20 @@ namespace model {
                         // std::set<std::pair<double,double> > temp ( dsi.intersectWith(linkIterB->second->hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol));
                         
                         
-                        for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter){
+                        for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter)
+                        {
                             if (   paramIter->first >avoidNodeIntersection && paramIter-> first<1.0-avoidNodeIntersection
-                                && paramIter->second>avoidNodeIntersection && paramIter->second<1.0-avoidNodeIntersection){		// avoid node intersection
+                                && paramIter->second>avoidNodeIntersection && paramIter->second<1.0-avoidNodeIntersection) // avoid node intersection
+                            {		
                                 EdgeIntersectionType intersectionOnA(std::make_pair(&(*linkIterA->second),paramIter->first ));
                                 EdgeIntersectionType intersectionOnB(std::make_pair(&(*linkIterB->second),paramIter->second));
                                 EdgeIntersectionPairType intersectionPair(std::make_pair(intersectionOnA,intersectionOnB));
                                 intersectionContainer.push_back(intersectionPair);
                             }
-                        }
-                        //                       }
-                    }
-				}
-			}
+                        } // end for
+                    } // end don't self-intersect
+				} // end loop over second segment
+			} // end loop over first segment
 			return intersectionContainer;
 		}
 		
@@ -276,8 +284,8 @@ namespace model {
 					dirVector[interID]!=0){
 					// Limit to 1 intersection per segment
 					if(edgeIntersectionContainer.find(key1)==edgeIntersectionContainer.end() && edgeIntersectionContainer.find(key2)==edgeIntersectionContainer.end()){
-						std::cout<<"key1 is "<<key1.first<<" "<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-						std::cout<<"key2 is "<<key2.first<<" "<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
+//						std::cout<<"key1 is "<<key1.first<<" "<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
+//						std::cout<<"key2 is "<<key2.first<<" "<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
 						
                         
                         const double u1m(intersectionContainer[interID]. first.second-du1);
@@ -445,64 +453,7 @@ namespace model {
                         
                         nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,std::make_pair(pNi->sID,pNj->sID)));
                         
-                        //                        const isNetworkLinkType Lki(DN.link(k,i));
-                        //                        if(Lki.first)
-                        //                        {
-                        //                            nodeContractVector.push_back(Lki);
-                        //                        }
-                        //                        else
-                        //                        {
-                        //                           nodeContractVector.push_back(DN.link(i,k));
-                        //                        }
-                        //
-                        //                        const isNetworkLinkType Lkj(DN.link(k,j));
-                        //                        if(Lkj.first)
-                        //                        {
-                        //                            nodeContractVector.push_back(Lkj);
-                        //                        }
-                        //                        else
-                        //                        {
-                        //                            nodeContractVector.push_back(DN.link(j,k));
-                        //                        }
-                        //
-                        //                        const isNetworkLinkType Lij(DN.link(i,j));
-                        //                        if(Lij.first)
-                        //                        {
-                        //                            nodeContractVector.push_back(Lij);
-                        //                        }
-                        //                        else
-                        //                        {
-                        //                            nodeContractVector.push_back(DN.link(j,i));
-                        //                        }
-                        
-                        
-                        //                        const isNetworkLinkType lIJ(DN.link(pNi->sID,pNj->sID));
-                        //                        const isNetworkLinkType lJI(DN.link(pNj->sID,pNi->sID));
-                        //                        if(lIJ.first || lJI.first)
-                        //                        {
-                        ////                            const typename DislocationNetworkType::NodeType::VectorOfNormalsType ck(GramSchmidt<dim>(nodeIter->second->constraintNormals())); // THIS CAN BE A REFERENCE
-                        ////
-                        ////                            if(ck.size()<2)
-                        ////                            {
-                        ////                                nodeContractVector.push_back(std::make_pair(pNi->sID,nodeIter->second->sID));
-                        ////                            }
-                        ////                            else
-                        ////                            {
-                        ////                                const typename DislocationNetworkType::NodeType::VectorOfNormalsType ci(GramSchmidt<dim>(pNi->constraintNormals())); // THIS CAN BE A REFERENCE
-                        ////                                if(ci.size()<2)
-                        ////                                {
-                        ////                                    nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,pNi->sID));
-                        ////                                }
-                        ////                                else
-                        ////                                {
-                        ////                                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType cj(GramSchmidt<dim>(pNj->constraintNormals())); // THIS CAN BE A REFERENCE
-                        ////                                    if(cj.size()<2)
-                        ////                                    {
-                        ////                                        nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,pNj->sID));
-                        ////                                    }
-                        ////                                }
-                        ////                            }
-                        ////                        }
+
                     }
                 }
                 
@@ -580,6 +531,66 @@ namespace model {
 #endif
 
 
+
+
+//                        const isNetworkLinkType Lki(DN.link(k,i));
+//                        if(Lki.first)
+//                        {
+//                            nodeContractVector.push_back(Lki);
+//                        }
+//                        else
+//                        {
+//                           nodeContractVector.push_back(DN.link(i,k));
+//                        }
+//
+//                        const isNetworkLinkType Lkj(DN.link(k,j));
+//                        if(Lkj.first)
+//                        {
+//                            nodeContractVector.push_back(Lkj);
+//                        }
+//                        else
+//                        {
+//                            nodeContractVector.push_back(DN.link(j,k));
+//                        }
+//
+//                        const isNetworkLinkType Lij(DN.link(i,j));
+//                        if(Lij.first)
+//                        {
+//                            nodeContractVector.push_back(Lij);
+//                        }
+//                        else
+//                        {
+//                            nodeContractVector.push_back(DN.link(j,i));
+//                        }
+
+
+//                        const isNetworkLinkType lIJ(DN.link(pNi->sID,pNj->sID));
+//                        const isNetworkLinkType lJI(DN.link(pNj->sID,pNi->sID));
+//                        if(lIJ.first || lJI.first)
+//                        {
+////                            const typename DislocationNetworkType::NodeType::VectorOfNormalsType ck(GramSchmidt<dim>(nodeIter->second->constraintNormals())); // THIS CAN BE A REFERENCE
+////
+////                            if(ck.size()<2)
+////                            {
+////                                nodeContractVector.push_back(std::make_pair(pNi->sID,nodeIter->second->sID));
+////                            }
+////                            else
+////                            {
+////                                const typename DislocationNetworkType::NodeType::VectorOfNormalsType ci(GramSchmidt<dim>(pNi->constraintNormals())); // THIS CAN BE A REFERENCE
+////                                if(ci.size()<2)
+////                                {
+////                                    nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,pNi->sID));
+////                                }
+////                                else
+////                                {
+////                                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType cj(GramSchmidt<dim>(pNj->constraintNormals())); // THIS CAN BE A REFERENCE
+////                                    if(cj.size()<2)
+////                                    {
+////                                        nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,pNj->sID));
+////                                    }
+////                                }
+////                            }
+////                        }
 
 
 

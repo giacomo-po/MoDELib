@@ -54,7 +54,10 @@ namespace model {
 		
 		
 		/******************************************************/
-		void topologyChangeActions(){
+//        template<typename ...TopologicalOperationType>
+//		void topologyChangeActions(const TopologicalOperationType&... op)
+		void topologyChangeActions()
+        {
 		
 			//! 1- Adds this to the source node neighborood and to the sink node neighborood
 			source->addToNeighborhood(this->p_derived());
@@ -91,8 +94,10 @@ namespace model {
 			}
 
 			//! 4- Calls 'topologyChangeActions' in source and sink
-			source->topologyChangeActions();
-			sink  ->topologyChangeActions();
+//			source->topologyChangeActions(op...);
+//			sink  ->topologyChangeActions(op...);
+//            source->topologyChangeActions();
+//			sink  ->topologyChangeActions();
 			
 		}
 		
@@ -102,10 +107,14 @@ namespace model {
 		/* Constructor with Flow *****************************************************************/
 		NetworkLink(const std::pair<NodeType* const,NodeType* const> & NodePair_in,
 		/*       */ const FlowType & Flow_in) :
-		/* initialization list               */ source(NodePair_in.first), 
-		/* initialization list               */ sink(NodePair_in.second),
-		/* initialization list               */ nodeIDPair(std::make_pair(source->sID,sink->sID)),
-		/* initialization list               */ flow(Flow_in){ 
+		/* init list */ source(NodePair_in.first), 
+		/* init list */ sink(NodePair_in.second),
+		/* init list */ nodeIDPair(std::make_pair(source->sID,sink->sID)),
+		/* init list */ flow(Flow_in)
+        {/*! Constructor with pointers to source and sink, and flow
+          *  @param[in] NodePair_in the pair of source and sink pointers
+          *  @param[in] Flow_in the input flow
+          */
 			topologyChangeActions();
 		}
 		
@@ -113,16 +122,31 @@ namespace model {
 		/* Constructor from ExpandingEdge ********************************************************/
 		NetworkLink(const std::pair<NodeType* const,NodeType* const> & NodePair_in,
 		/*       */ const ExpandingEdge<LinkType>& ee) :
-		/* initialization list               */ source(NodePair_in.first), 
-		/* initialization list               */ sink(NodePair_in.second),
-		/* initialization list               */ nodeIDPair(std::make_pair(source->sID,sink->sID)),
-		/* initialization list               */ flow(ee.E.flow){			
-			topologyChangeActions();
+		/* init list */ source(NodePair_in.first), 
+		/* init list */ sink(NodePair_in.second),
+		/* init list */ nodeIDPair(std::make_pair(source->sID,sink->sID)),
+		/* init list */ flow(ee.E.flow)
+        {
+			
+//            if (source==ee.E.source) // first new link in expansion
+//            {
+//                assert(sink!=ee.E.sink && "FIRST LINK IN EXPANSION FINDS WRONG SINK");
+//            }
+//            else // second new link in expansion
+//            {
+//                assert(sink==ee.E.sink && "SECOND LINK IN EXPANSION FINDS WRONG SINK");
+//                assert(source!=ee.E.source && "SECOND LINK IN EXPANSION FINDS WRONG SOURCE");
+//            }
+//            
+//			topologyChangeActions(ee);
+            
+            topologyChangeActions();
+
 		}
 		
-		/*****************************************************************************************/
-		/* Destructor ****************************************************************************/
-		~NetworkLink(){
+		/* Destructor *********************************************************/
+		~NetworkLink()
+        {
 
 			//! 1- Remove this from the Neighborood of Source and Sink nodes
 			source->removeFromNeighborhood(this->p_derived());			
@@ -139,14 +163,13 @@ namespace model {
 			}
 			
 			//! 4- Calls 'topologyChangeActions' in source and sink
-			source->topologyChangeActions();
-			sink  ->topologyChangeActions();
+//			source->topologyChangeActions(); // necessary to update source after Link destructor
+//			sink  ->topologyChangeActions(); // necessary to update   sink after Link destructor
 		}
 		
-		
-		//////////////////////////////////////////////////////////////////////////////
-		// formSubNetwork
-		void formSubNetwork(const boost::shared_ptr<SubNetworkType> & psnOther){
+		/* formSubNetwork *****************************************************/
+		void formSubNetwork(const boost::shared_ptr<SubNetworkType> & psnOther)
+        {
 			if (psn!=psnOther){
 				psn->remove(this->p_derived());
 				psn=psnOther;		// redirect psn to the new Subnetwork
@@ -154,19 +177,17 @@ namespace model {
 			}
 		}
 		
-		
-		
-		//////////////////////////////////////////////////////////////////////////////
-		// sndID
-		size_t snID() const {
+		/* snID ***************************************************************/
+		size_t snID() const
+        {/*! The StaticID of the SubNetwork containing this
+          */
 			return psn->snID(this->p_derived());
 		}
 		
-		
-		
-		//////////////////////////////////////////////////////////////////////////////
-		//! Returns a const pointer to the parent SubNetwork
-		const boost::shared_ptr<SubNetworkType> & pSN() const {
+		/* pSN ****************************************************************/
+		const boost::shared_ptr<SubNetworkType> & pSN() const
+        {/*! The shared_ptr to the SubNetwork containing this
+          */
 			return psn;
 		}
 		

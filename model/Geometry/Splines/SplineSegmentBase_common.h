@@ -110,10 +110,35 @@ SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in,
 
 
 SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in, 
-/*             */ const ExpandingEdge<LinkType>& ee) : NetworkLink<Derived>::NetworkLink(nodePair_in, ee){}
-///*             */ const LinkType* const pL) : NetworkLink<Derived>::NetworkLink(nodePair_in, pL){}
-///*                                        */ sourceTfactor(1),
-///*                                        */ sinkTfactor(1){}
+/*             */ const ExpandingEdge<LinkType>& ee) :
+/* init list */ NetworkLink<Derived>::NetworkLink(nodePair_in, ee)
+{/*! Constructor from ExpandingEdge
+  */
+    
+    
+//    assert(this->source!=ee.E.sink);
+//    assert(this->sink!=ee.E.source);
+//    
+//    if (this->source==ee.E.source) // first new link in expansion
+//    {
+//        sourceTfactor=ee.E.sourceTfactor;
+//        sinkTfactor= -ee.E.sinkTfactor;
+//    }
+//    else // second new link in expansion
+//    {
+//        sourceTfactor=-ee.E.sourceTfactor;
+//        sinkTfactor=ee.E.sinkTfactor;
+//    }
+    
+    
+//    if (this->source->sID==88 && this->sink->sID==1)
+//    {
+//        std::cout<<"sourceTfactor="<<sourceTfactor<<std::endl;
+//        std::cout<<"  sinkTfactor="<<sinkTfactor<<std::endl;
+//    }
+    
+}
+
 
 
 //////////////////////////////////////////////////////////////

@@ -166,10 +166,12 @@ namespace model {
         {    
             initMeshLocation();
 		}
-		
-		/* topologyChangeActions **********************************************/
-		void topologyChangeActions(){
-			//! 1- Clear and re-builds the std::vector planenormals
+        
+
+        /* make_planeNormals **********************************************/
+		void make_planeNormals()
+        {
+            //! 1- Clear and re-builds the std::vector planenormals
 			planenormals.clear();
 			for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter){
 				if (boost::tuples::get<2>(neighborIter->second)){
@@ -187,18 +189,55 @@ namespace model {
 			
 			//! 2- Compute projectionMatrix
 			make_projectionMatrix();
-			
-			//! 3- Call NodeBaseType::topologyChangeActions()
-			NodeBaseType::topologyChangeActions();
-		}
+        }
+
 		
-		/* findEdgeConfiguration *********************************************/
-		void findEdgeConfiguration()
+        void removeFromNeighborhood(LinkType* const pL)
         {
-			DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
-		}
+            NodeBaseType::removeFromNeighborhood(pL);
+            make_planeNormals();
+            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this); // This should not be called in edge expansion or contraction
+            NodeBaseType::make_T();
+        }
+
+        
+        
+//		/* topologyChangeActions **********************************************/
+//		void topologyChangeActions(){
+//
+//			make_planeNormals();
+//            
+////            findEdgeConfiguration(); // THIS IS ONLY FOR CR SPLINES!!!
+//            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this); // This should not be called in edge expansion or contraction
+//
+//
+//			//! 3- Call NodeBaseType::topologyChangeActions()
+////			NodeBaseType::topologyChangeActions();
+//            NodeBaseType::make_T();
+//
+//		}
+        
+//        /* topologyChangeActions **********************************************/
+//		void topologyChangeActions(const ExpandingEdge<LinkType>& ee){
+//            
+//			make_planeNormals();
+//            
+//            //            findEdgeConfiguration(); // THIS IS ONLY FOR CR SPLINES!!!
+//          //  DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this); // This should not be called in edge expansion or contraction
+//            
+//            
+//			//! 3- Call NodeBaseType::topologyChangeActions()
+////			NodeBaseType::topologyChangeActions();
+//            NodeBaseType::make_T();
+//		}
 		
-		/* planeNormals *******************************************************/
+////		/* findEdgeConfiguration *********************************************/
+//		void findEdgeConfiguration()
+//        {
+//			DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this); // This should not be called in edge expansion or contraction
+//		}
+		
+		/* meshID *************************************************************/
 		const int& meshID() const
         {
             return currentMeshID;
