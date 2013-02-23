@@ -154,7 +154,8 @@ namespace model {
 		
 		short unsigned int use_redistribution;
 		bool use_junctions;
-		
+		static bool useImplicitTimeIntegration;
+        
 		unsigned int runID;
 		
 //		double Lmax,Lmin,thetaDeg;
@@ -276,9 +277,25 @@ namespace model {
 				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
 		}
+        
+        /* update_BVP_Solution ************************************************/
+        void update_BVP_Solution(const bool& updateUserBC)
+        {
+            if (shared.use_bvp){
+				double t0=clock();
+				std::cout<<"		Updating bvp stress ... ";
+				if(!(runID%shared.use_bvp)){
+					shared.domain.update_BVP_Solution(updateUserBC,this);
+				}
+				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
+					nodeIter->second->updateBvpStress();
+				}
+				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+			}
+        }
 		
 		
-		/* loopInversion *****************************************************************/
+		/* loopInversion ******************************************************/
 		void loopInversion(){
 			double t0=clock();
 			std::cout<<"		Checking for loop inversions ... "<<std::flush;
@@ -323,21 +340,7 @@ namespace model {
 			updateQuadraturePoints();
             
 			//! 2- Calculate BVP correction
-			if (shared.use_bvp){
-				double t0=clock();
-				std::cout<<"		Updating bvp stress ... ";
-				if(!(runID%shared.use_bvp)){
-					shared.domain.update_BVP_Solution(updateUserBC,this);
-                    //shared.domain.update_BVP_Solution(updateUserBC,this,*dynamic_cast<const GlidePlaneObserverType*>(this));
-                    //#ifdef DislocationNucleationFile
-                    //                    nucleateDislocations();
-                    //#endif
-				}
-				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
-					nodeIter->second->updateBvpStress();
-				}
-				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
-			}
+            update_BVP_Solution(updateUserBC);
 			
 			//! 3- Solve the equation of motion
 			assembleAndSolve();
@@ -353,13 +356,11 @@ namespace model {
             //! 11- Output the current configuration, the corresponding velocities, PK force and dt
             output();
             
-            
-			
 			//! 5- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
 			move(dt,0.0);
             
-            bool useImplicitIntegrator(false); // THIS COULD BE DECIDED ON THE FLY BASED ON DISTRIBUTION OF VELOCITIES
-            if(useImplicitIntegrator)
+            //bool useImplicitTimeIntegration(false); // THIS COULD BE DECIDED ON THE FLY BASED ON DISTRIBUTION OF VELOCITIES
+            if(useImplicitTimeIntegration)
             {
                 updateQuadraturePoints();
                 assembleAndSolve(); // this sends the new velocity to each node
@@ -524,8 +525,9 @@ namespace model {
             
             EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
 			
-            
-			
+            // Implicit time integration
+            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
+        
 			
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
 			
@@ -895,6 +897,12 @@ namespace model {
         }
 		
 	};
+    
+    
+    // static data
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    bool DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::useImplicitTimeIntegration=false;
     
     
 	//////////////////////////////////////////////////////////////
