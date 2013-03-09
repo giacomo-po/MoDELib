@@ -317,7 +317,7 @@ namespace model {
 		}
         
         
-        /***********************************************************/
+        /*  singleStep*********************************************************/
 		void singleStep(const bool& updateUserBC=false){
 			//! A simulation step consists of the following:
 			std::cout<<blueBoldColor<<"runID="<<runID<<", time="<<totalTime<< ": nodeOrder="<<this->nodeOrder()
@@ -363,7 +363,7 @@ namespace model {
             if(useImplicitTimeIntegration)
             {
                 updateQuadraturePoints();
-                assembleAndSolve(); // this sends the new velocity to each node
+                assembleAndSolve(); // this also stores the new velocity in each node
                 
                 for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ 
 					nodeIter->second->implicitStep(); // average velocities
@@ -784,7 +784,7 @@ namespace model {
 			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
 				temp+= linkIter->second->energy();
 			}
-			return temp;
+			return 0.5*temp;
 		}
 		
 		/**********************************************************************/

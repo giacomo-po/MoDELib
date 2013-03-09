@@ -36,7 +36,6 @@
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/Geometry/Splines/SplineSegmentBase.h>
-//#include <model/DislocationDynamics/Materials/SlipSystem.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/Materials/CrystalOrientation.h>
 
@@ -52,7 +51,6 @@
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 
 #include <model/DislocationDynamics/CrossSlip/CrossSlipSegment.h>
-//#include <model/DislocationDynamics/DislocationSegmentInitializeBeforeBase.h>
 
 
 #include <model/BVP/VirtualBoundarySlipContainer.h>
@@ -62,9 +60,7 @@ namespace model {
     
 	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    //	class DislocationSegment : public DislocationSegmentInitializeBeforeBase<dim,MaterialType,TypeTraits<DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule,MaterialType> >::LinkType>, // This must be the first base class in the inheritance structure
 	class DislocationSegment :
-    //    /*	                      */ public DislocationSegmentInitializeBeforeBase<_dim>, // This must be the first base class in the inheritance structure
 	/*	                      */ public SplineSegmentBase<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>,
 	/*                                               */ _dim, corder, alpha>,
 	/*	                      */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >{
@@ -80,7 +76,6 @@ namespace model {
 #include <model/Geometry/Splines/SplineEnums.h>
         
         
-        //        typedef DislocationSegmentInitializeBeforeBase<dim> DislocationSegmentInitializeBeforeBaseType;
 		typedef SplineSegmentBase<Derived,dim,corder,alpha> SegmentBaseType;
 		typedef std::map<size_t,LinkType* const> AddressMapType;
 		typedef typename AddressMapType::iterator AddressMapIteratorType;
@@ -96,8 +91,6 @@ namespace model {
         /******************************************************************/
 	private: //  data members
 		/******************************************************************/
-        //! Positions corrersponding to the quadrature points
-        //		MatrixDimQorder rgauss;
 		//! Parametric tangents at the quadrature points
 		MatrixDimQorder rugauss;
 		//! Scalar jacobian corrersponding to the quadrature points
@@ -137,9 +130,12 @@ namespace model {
         
         
         
-		//! The Burgers vector
+		//! The Burgers vector 
 		const VectorDim Burgers;
+
+        //! The glide plane unit normal vector
         const VectorDim   glidePlaneNormal;
+        
 		const VectorDim sessilePlaneNormal;
         
 		static double coreLsquared;
@@ -147,7 +143,7 @@ namespace model {
         DislocationSharedObjects<Derived> shared;
         
 		
-		//! A shared pointer to the GlidePlane that geometrically contains this segment
+		//! A shared pointer to the GlidePlane of this segment
 		const GlidePlaneSharedPtrType pGlidePlane;
         
         //! Positions corrersponding to the quadrature points
@@ -218,7 +214,6 @@ namespace model {
 		
 		/* Constructor with Nodes and FLow ************************************/
 		DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const VectorDim & Fin) :
-        //		/* base class initialization */ DislocationSegmentInitializeBeforeBaseType::DislocationSegmentInitializeBeforeBase(nodePair.second->get_P()-nodePair.first->get_P(),Fin),
 		/* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,Fin) ,
 		/* init list       */ Burgers(this->flow * Material<Isotropic>::b),
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
@@ -244,10 +239,8 @@ namespace model {
 		
 		/* Constructor from EdgeExpansion) ************************************/
 		DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const ExpandingEdge<LinkType>& ee) :
-        //		/* base class initialization */ DislocationSegmentInitializeBeforeBaseType::DislocationSegmentInitializeBeforeBase(nodePair.second->get_P()-nodePair.first->get_P(),ee.E.flow),
 		/* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
 		/* init list       */ Burgers(this->flow * Material<Isotropic>::b),
-        //        /* init list       */ glidePlaneNormal(ee.E.glidePlaneNormal.normalized()), // doesn not work for cross-slip
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
 		/* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))) 			// change this

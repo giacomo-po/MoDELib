@@ -19,10 +19,6 @@
 #include <model/DislocationDynamics/Remeshing/DislocationNetworkRemesh.h>
 #include <model/BVP/SearchData.h>
 
-
-//#include <touple.h>
-
-
 namespace model {
 	
 	template <typename DislocationNetworkType>
@@ -47,26 +43,25 @@ namespace model {
 		
 		
 		
-		// a reference to the dislocation network
+		//! A reference to the DislocationNetwork
 		DislocationNetworkType& DN;
-		
-		//	std::touple<int,double> tp;
-        
         
 	public:
 		
-        
+        //! The tolerance (in units of distance) used for collision detection
         static double collisionTol;
         
 		
-		/* Constructor ******************************/
+		/* Constructor ********************************************************/
 		DislocationJunctionFormation(DislocationNetworkType& DN_in) :
         /* init list */ DN(DN_in)
         {}
 		
 		/* findIntersections **************************************************/
 		EdgeIntersectionPairContainerType findIntersections(const double& avoidNodeIntersection) const
-        {
+        {/*! @param[in]  avoidNodeIntersection
+          *  Computes all the intersections between the edges of the DislocationNetwork
+          */
 			
 			EdgeIntersectionPairContainerType intersectionContainer;
 			
@@ -93,20 +88,7 @@ namespace model {
                         //                       const bool areOnDifferentPlanes((linkIterA->second->glidePlaneNormal-linkIterB->second->glidePlaneNormal).squaredNorm()>FLT_EPSILON);
                         const bool L1isSessile(linkIterA->second->sessilePlaneNormal.squaredNorm()>FLT_EPSILON);
                         const bool L2isSessile(linkIterB->second->sessilePlaneNormal.squaredNorm()>FLT_EPSILON);
-                        //                       const bool eitherOneIsSessile(L1isSessile || L2isSessile);
-                        //                       const bool areIncidentAndOnDifferentPlanes(areIncidentAtNodes && areOnDifferentPlanes && eitherOneIsSessile);
-                        
-                        
-                        //                        const bool dontIntersect(areIncidentAndOnDifferentPlanes || bothAreSessile || L2NotOnL1Planes || L1NotOnL2Planes);
-                        //                        const bool dontIntersect(areIncidentAndOnDifferentPlanes);
-                        
-                        
-                        //                      if(!dontIntersect){
-                        
-                        
-                        
-                        //std::cout<<"sessile_1="<<L1isSessile<<", "<<"sessile_2="<<L2isSessile<<std::endl;
-                        
+                          
                         std::set<std::pair<double,double> > temp;
                         
                         
@@ -181,12 +163,7 @@ namespace model {
 		}
 		
 		
-		
-		
-		
-		
-		
-		/* formJunctions **************************************************/
+		/* formJunctions ******************************************************/
 		void formJunctions(const double& dx, const double& avoidNodeIntersection)
         {
 			
@@ -399,30 +376,12 @@ namespace model {
                     
                 }
                 else if(isIsessile && !isJsessile){ // use P1 (which is on sessile segment) as the intersection point
-                    //   const VectorDimD dir(Ni.second->openNeighborLink(0)->glidePlaneNormal.cross(Ni.second->openNeighborLink(0)->sessilePlaneNormal).normalized());
-                    //   const double denom(dir.dot(N2));
-                    //   if (std::fabs(denom)>FLT_EPSILON){
-                    //       const double u((P2-P1).dot(N2)/denom);
-                    // if (std::fabs(denom)<dx*0.25){
-                    std::cout<<"First-Sessile Junction"<<std::endl;
-                    //          DN.contract(i,j,P1+u*dir);
+                       std::cout<<"First-Sessile Junction"<<std::endl;
                     DN.contract(i,j,P1);
-                    
-                    //}
-                    //}
                 }
                 else if(!isIsessile && isJsessile){ // use P2 (which is on sessile segment) as the intersection point
-                    //  const VectorDimD dir(Nj.second->openNeighborLink(0)->glidePlaneNormal.cross(Nj.second->openNeighborLink(0)->sessilePlaneNormal).normalized());
-                    //  const double denom(dir.dot(N1));
-                    //  if (std::fabs(denom)>FLT_EPSILON){
-                    //     const double u((P1-P2).dot(N1)/denom);
-                    // if (std::fabs(denom)<dx*0.25){
                     std::cout<<"Second-Sessile Junction"<<std::endl;
-                    //         DN.contract(i,j,P2+u*dir);
                     DN.contract(i,j,P2);
-                    
-                    // }
-                    // }
                 }
                 else{
                     assert(0 && "CANNOT MAKE JUNCTION BETWEEN TWO SESSILE SEGMENTS.");
@@ -447,13 +406,7 @@ namespace model {
                     const NodeType* const pNj(nodeIter->second->openNeighborNode(1));
                     if(pNi->openOrder()>2 && pNj->openOrder()>2)
                     {
-                        //                        const size_t i(pNi->sID);
-                        //                        const size_t j(pNj->sID);
-                        //                        const size_t k(nodeIter->second->sID);
-                        
                         nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,std::make_pair(pNi->sID,pNj->sID)));
-                        
-
                     }
                 }
                 
@@ -529,108 +482,3 @@ namespace model {
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
-
-
-
-
-//                        const isNetworkLinkType Lki(DN.link(k,i));
-//                        if(Lki.first)
-//                        {
-//                            nodeContractVector.push_back(Lki);
-//                        }
-//                        else
-//                        {
-//                           nodeContractVector.push_back(DN.link(i,k));
-//                        }
-//
-//                        const isNetworkLinkType Lkj(DN.link(k,j));
-//                        if(Lkj.first)
-//                        {
-//                            nodeContractVector.push_back(Lkj);
-//                        }
-//                        else
-//                        {
-//                            nodeContractVector.push_back(DN.link(j,k));
-//                        }
-//
-//                        const isNetworkLinkType Lij(DN.link(i,j));
-//                        if(Lij.first)
-//                        {
-//                            nodeContractVector.push_back(Lij);
-//                        }
-//                        else
-//                        {
-//                            nodeContractVector.push_back(DN.link(j,i));
-//                        }
-
-
-//                        const isNetworkLinkType lIJ(DN.link(pNi->sID,pNj->sID));
-//                        const isNetworkLinkType lJI(DN.link(pNj->sID,pNi->sID));
-//                        if(lIJ.first || lJI.first)
-//                        {
-////                            const typename DislocationNetworkType::NodeType::VectorOfNormalsType ck(GramSchmidt<dim>(nodeIter->second->constraintNormals())); // THIS CAN BE A REFERENCE
-////
-////                            if(ck.size()<2)
-////                            {
-////                                nodeContractVector.push_back(std::make_pair(pNi->sID,nodeIter->second->sID));
-////                            }
-////                            else
-////                            {
-////                                const typename DislocationNetworkType::NodeType::VectorOfNormalsType ci(GramSchmidt<dim>(pNi->constraintNormals())); // THIS CAN BE A REFERENCE
-////                                if(ci.size()<2)
-////                                {
-////                                    nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,pNi->sID));
-////                                }
-////                                else
-////                                {
-////                                    const typename DislocationNetworkType::NodeType::VectorOfNormalsType cj(GramSchmidt<dim>(pNj->constraintNormals())); // THIS CAN BE A REFERENCE
-////                                    if(cj.size()<2)
-////                                    {
-////                                        nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,pNj->sID));
-////                                    }
-////                                }
-////                            }
-////                        }
-
-
-
-
-//        /* dontIntersect ******************************/
-//        bool dontIntersect(const LinkType& L1, const LinkType& L2) const {
-//
-//            bool areIncidentAtNodes(L1.source->sID==L2.source->sID || L1.source->sID==L2.sink->sID || L1.sink->sID==L2.source->sID || L1.sink->sID==L2.sink->sID);
-//            bool areOnDifferentPlanes((L1.glidePlaneNormal-L2.glidePlaneNormal).squaredNorm()>FLT_EPSILON);
-//            bool L1isSessile(L1.sessilePlaneNormal.squaredNorm()>FLT_EPSILON);
-//            bool L2isSessile(L2.sessilePlaneNormal.squaredNorm()>FLT_EPSILON);
-//            bool eitherOneIsSessile(L1isSessile || L2isSessile);
-//            bool areIncidentAndOnDifferentPlanes(areIncidentAtNodes && areOnDifferentPlanes && eitherOneIsSessile);
-//
-//            bool bothAreSessile(L1isSessile && L2isSessile);
-//
-////
-////
-////            if (L1isSessile && !L2isSessile){
-////                std::cout<<"L1 is "<<L1.source->sID<<"->"<<L1.sink->sID<<std::endl;
-////                std::cout<<"L2 is "<<L2.source->sID<<"->"<<L2.sink->sID<<std::endl;
-////                std::cout<<"L1.glidePlaneNormal="<<L1.glidePlaneNormal.transpose()<<std::endl;
-////                std::cout<<"L1.sessilePlaneNormal="<<L1.sessilePlaneNormal.transpose()<<std::endl;
-////                std::cout<<"L2.glidePlaneNormal="<<L2.glidePlaneNormal.transpose()<<std::endl;
-////            }
-////
-////            if (!L1isSessile && L2isSessile){
-////                std::cout<<"L1 is "<<L1.source->sID<<"->"<<L1.sink->sID<<std::endl;
-////                std::cout<<"L2 is "<<L2.source->sID<<"->"<<L2.sink->sID<<std::endl;
-////                std::cout<<"L1.glidePlaneNormal="<<L1.glidePlaneNormal.transpose()<<std::endl;
-////                std::cout<<"L2.glidePlaneNormal="<<L2.glidePlaneNormal.transpose()<<std::endl;
-////                std::cout<<"L2.sessilePlaneNormal="<<L2.sessilePlaneNormal.transpose()<<std::endl;
-////            }
-////
-//
-//            bool L2NotOnL1Planes( L1isSessile && !L2isSessile && (L2.glidePlaneNormal-L1.glidePlaneNormal).norm()>FLT_EPSILON && (L2.glidePlaneNormal-L1.sessilePlaneNormal).norm()>FLT_EPSILON);
-//            bool L1NotOnL2Planes(!L1isSessile &&  L2isSessile && (L1.glidePlaneNormal-L2.glidePlaneNormal).norm()>FLT_EPSILON && (L1.glidePlaneNormal-L2.sessilePlaneNormal).norm()>FLT_EPSILON);
-//            
-//            return areIncidentAndOnDifferentPlanes || bothAreSessile || L2NotOnL1Planes || L1NotOnL2Planes;
-//            //            return areIncidentAndOnDifferentPlanes || bothAreSessile;
-//            
-//            //           return areIncident && areOnDifferentPlanes;
-//        }
