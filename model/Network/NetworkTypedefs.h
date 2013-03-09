@@ -35,5 +35,6 @@ public:
 	typedef std::map<LinkIDType,LinkType* const>					SubNetworkLinkContainerType;
 
 	/* Containers and iterators used in SubNetwork **************************************************/
-	typedef boost::tuple<NodeType*,LinkType*,short int>				NeighborType;
-	typedef std::map<size_t,NeighborType>							NeighborContainerType;
+	typedef std::tuple<NodeType*,LinkType*,short int>				NeighborType;
+//    typedef boost::tuple<NodeType*,LinkType*,short int>				NeighborType;
+    typedef std::map<size_t,NeighborType>							NeighborContainerType;

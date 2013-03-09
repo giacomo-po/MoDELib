@@ -266,11 +266,11 @@ Eigen::Matrix<double, Ndof, Eigen::Dynamic>  get_G2H() const {
 std::pair<bool,size_t> isCommonNeighborAt(const VectorDim& P0) const {
     std::pair<bool,size_t> temp(false,0);
     for (typename Derived::NeighborContainerType::const_iterator nIiter=this->source->neighborhood().begin();nIiter!=this->source->neighborhood().end();++nIiter){ // loop over neighborhood of source
-        if (boost::tuples::get<0>(nIiter->second)->sID!=this->source->sID && boost::tuples::get<0>(nIiter->second)->sID!=this->sink->sID){ // neighbor is neither source nor sink
-            if((boost::tuples::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON){ // a neighbor of I exists at P0
-                const size_t p0ID(boost::tuples::get<0>(nIiter->second)->sID); // the sID of the neighbor at P0
+        if (std::get<0>(nIiter->second)->sID!=this->source->sID && std::get<0>(nIiter->second)->sID!=this->sink->sID){ // neighbor is neither source nor sink
+            if((std::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON){ // a neighbor of I exists at P0
+                const size_t p0ID(std::get<0>(nIiter->second)->sID); // the sID of the neighbor at P0
                 for (typename Derived::NeighborContainerType::const_iterator nJiter=this->sink->neighborhood().begin();nJiter!=this->sink->neighborhood().end();++nJiter){ // loop over neighborhood of sink
-                    if(boost::tuples::get<0>(nJiter->second)->sID==p0ID){
+                    if(std::get<0>(nJiter->second)->sID==p0ID){
                         temp=std::pair<bool,size_t>(true,p0ID);
                     }
                 }

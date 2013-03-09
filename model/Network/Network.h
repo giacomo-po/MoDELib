@@ -14,7 +14,7 @@
 
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
-#include <boost/tuple/tuple.hpp>
+//#include <boost/tuple/tuple.hpp>
 #include <boost/utility.hpp>
 
 #include <model/Utilities/TypeTraits.h>

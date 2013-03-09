@@ -17,7 +17,7 @@
 #include <algorithm>
 
 #include <boost/ptr_container/ptr_map.hpp>
-#include <boost/tuple/tuple.hpp>
+//#include <boost/tuple/tuple.hpp>
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 

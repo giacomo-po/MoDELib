@@ -162,8 +162,8 @@ namespace model {
             //! 1- Clear and re-builds the std::vector planenormals
 			planenormals.clear();
 			for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter){
-				if (boost::tuples::get<2>(neighborIter->second)){
-					LinkType* pL(boost::tuples::get<1>(neighborIter->second));
+				if (std::get<2>(neighborIter->second)){
+					LinkType* pL(std::get<1>(neighborIter->second));
 					if (std::find(planenormals.begin(),planenormals.end(), pL->glidePlaneNormal )==planenormals.end() &&
 						std::find(planenormals.begin(),planenormals.end(),-pL->glidePlaneNormal )==planenormals.end()   ){
 						planenormals.push_back(pL->glidePlaneNormal );

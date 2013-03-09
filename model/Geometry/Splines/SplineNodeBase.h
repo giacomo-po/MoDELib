@@ -13,7 +13,7 @@
 #include <vector>
 #include <assert.h>
 #include <iterator>
-#include <boost/tuple/tuple.hpp>
+//#include <boost/tuple/tuple.hpp>
 #include <Eigen/Dense>
 #include <model/Network/NetworkNode.h>
 //#include <model/Utilities/InitializationData.h>

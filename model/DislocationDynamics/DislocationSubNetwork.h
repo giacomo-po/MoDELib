@@ -378,7 +378,7 @@ namespace model {
 				VectorDim Anew(VectorDim::Zero());
 				for (typename SubNetworkNodeContainerType::const_iterator nodeIter1=this->nodeBegin();nodeIter1!=this->nodeEnd();++nodeIter1){
 					if (nodeIter1->second->outOrder()==1){
-						NodeType* nextNode=boost::tuples::get<0>(nodeIter1->second->outNeighborhood().begin()->second);						
+						NodeType* nextNode=std::get<0>(nodeIter1->second->outNeighborhood().begin()->second);
 						VectorDim Q1(nodeIter1->second->get_P());
 						VectorDim Q2(nextNode->get_P());
                         

@@ -159,7 +159,7 @@ public:
 		
 		size_t k=0;
 		for (constNeighborIteratorType neighborIter=this->neighborhood().begin(); neighborIter != this->neighborhood().end(); ++neighborIter) {
-			VectorDofID.segment<dim>(k*dim)	=boost::tuples::get<0>(neighborIter->second)->node_dofID();
+			VectorDofID.segment<dim>(k*dim)	=std::get<0>(neighborIter->second)->node_dofID();
 			++k;
 		}
 		
@@ -197,28 +197,28 @@ public:
    //         int sgnID(0);
             for (constNeighborIteratorType neighborIter=this->neighborhood().begin();neighborIter!=this->neighborhood().end();++neighborIter){
                 
-                const int dir(boost::tuples::get<2>(neighborIter->second));
+                const int dir(std::get<2>(neighborIter->second));
                 if (dir!=0)
                 {
                     int edgeConfig(0);
                     switch ( dir )
                     {
                         case  1:	// out
-                            edgeConfig=boost::tuples::get<1>(neighborIter->second)->sourceTfactor;
+                            edgeConfig=std::get<1>(neighborIter->second)->sourceTfactor;
                             break;
                         case -1:    // in
-                            edgeConfig=boost::tuples::get<1>(neighborIter->second)->  sinkTfactor;
+                            edgeConfig=std::get<1>(neighborIter->second)->  sinkTfactor;
                             break;
                         default:
                             assert(0);
                             break;
                     }
-                    const double CPL=boost::tuples::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
+                    const double CPL=std::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
                     CPLT+=CPL;
                     sjT+=edgeConfig;
                     sjOverGjT+=edgeConfig/CPL;
                     
-                    const VectorDim ci( (boost::tuples::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
+                    const VectorDim ci( (std::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
                     cP02+= alpha * edgeConfig * ci*ci.transpose() / CPL;
                     cP03a+= edgeConfig*ci;
                     cP03b+= ci*alpha/CPL;
@@ -233,12 +233,12 @@ public:
 //                    case  0:	// self
 //                        break;
 //                    default:	// neighbor
-//                        const double CPL=boost::tuples::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
+//                        const double CPL=std::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
 //                        CPLT+=CPL;
 //                        sjT+=edgeConfiguration(sgnID);
 //                        sjOverGjT+=edgeConfiguration(sgnID)/CPL;
 //                        
-//                        const VectorDim ci( (boost::tuples::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
+//                        const VectorDim ci( (std::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
 //                        cP02+= alpha * edgeConfiguration(sgnID) * ci*ci.transpose() / CPL;
 //                        cP03a+= edgeConfiguration(sgnID)*ci;
 //                        cP03b+= ci*alpha/CPL;
@@ -262,7 +262,7 @@ public:
             int sgnID=0;
             
             for (constNeighborIteratorType neighborIter=this->neighborhood().begin();neighborIter!=this->neighborhood().end();++neighborIter){
-                int dir=boost::tuples::get<2>(neighborIter->second);
+                int dir=std::get<2>(neighborIter->second);
                 switch ( dir ) {
                     case  0:	// self
                         temp.template block<dim,dim>(0,k*dim).setIdentity();
@@ -271,8 +271,8 @@ public:
                                                                             +cP03)/(this->neighborhood().size()-2);
                         break;
 //                    default:	// departing or arriving
-//                        const double CPL=boost::tuples::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
-//                        const VectorDim ci( (boost::tuples::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
+//                        const double CPL=std::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
+//                        const VectorDim ci( (std::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
 //                        
 //                        temp.template block<dim,dim>(dim,k*dim)= this->prjM*(edgeConfiguration(sgnID)*( 1.0/CPL-CPLTinv)*MatrixDim::Identity()
 //                                                                             -ci*ci.transpose()*edgeConfiguration(sgnID)*alpha/CPL
@@ -281,9 +281,9 @@ public:
 //                        break;
                     case  1:	// departing
                     {
-                        const double CPL=boost::tuples::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
-                        const VectorDim ci( (boost::tuples::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
-                        int edgeConfig=boost::tuples::get<1>(neighborIter->second)->sourceTfactor;
+                        const double CPL=std::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
+                        const VectorDim ci( (std::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
+                        int edgeConfig=std::get<1>(neighborIter->second)->sourceTfactor;
 
                         temp.template block<dim,dim>(dim,k*dim)= this->prjM*(edgeConfig*( 1.0/CPL-CPLTinv)*MatrixDim::Identity()
                                                                              -ci*ci.transpose()*edgeConfig*alpha/CPL
@@ -293,9 +293,9 @@ public:
                         break;
                     case -1:	// arriving
                     {
-                        const double CPL=boost::tuples::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
-                        const VectorDim ci( (boost::tuples::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
-                        int edgeConfig=boost::tuples::get<1>(neighborIter->second)->sinkTfactor;
+                        const double CPL=std::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
+                        const VectorDim ci( (std::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
+                        int edgeConfig=std::get<1>(neighborIter->second)->sinkTfactor;
 
                         temp.template block<dim,dim>(dim,k*dim)= this->prjM*(edgeConfig*( 1.0/CPL-CPLTinv)*MatrixDim::Identity()
                                                                              -ci*ci.transpose()*edgeConfig*alpha/CPL
@@ -346,7 +346,7 @@ private:
 		VectorDof.resize(Ndof);
 		size_t k=0;
 		for (constNeighborIteratorType neighborIter=this->neighborhood().begin(); neighborIter != this->neighborhood().end(); ++neighborIter) {
-			VectorDof.segment<dim>(k*dim)	=boost::tuples::get<0>(neighborIter->second)->get_P();
+			VectorDof.segment<dim>(k*dim)	=std::get<0>(neighborIter->second)->get_P();
 			++k;
 		}
 	}
@@ -382,7 +382,7 @@ private:
                 
 				int k=0;
 				for (constNeighborIteratorType neighborIter=this->neighborhood().begin();neighborIter!=this->neighborhood().end();++neighborIter){
-					const short int dir(boost::tuples::get<2>(neighborIter->second));
+					const short int dir(std::get<2>(neighborIter->second));
 					switch ( dir ) {
 						case  0:	// self
 							CR2H.template block<dim,dim>(0,k*dim).setIdentity();
@@ -415,23 +415,23 @@ private:
 //		int sgnID(0);
 		for (constNeighborIteratorType neighborIter=this->neighborhood().begin();neighborIter!=this->neighborhood().end();++neighborIter)
         {
-            const int dir(boost::tuples::get<2>(neighborIter->second));
+            const int dir(std::get<2>(neighborIter->second));
             if (dir!=0) // not self
             {
                 int edgeConfig(0);
                 switch ( dir )
                 {
                     case  1:	// out
-                        edgeConfig=boost::tuples::get<1>(neighborIter->second)->sourceTfactor;
+                        edgeConfig=std::get<1>(neighborIter->second)->sourceTfactor;
                         break;
                     case -1:    // in
-                        edgeConfig=boost::tuples::get<1>(neighborIter->second)->  sinkTfactor;
+                        edgeConfig=std::get<1>(neighborIter->second)->  sinkTfactor;
                         break;
                     default:
                         assert(0);
                         break;
                 }
-                const double CPL(boost::tuples::get<1>(neighborIter->second)->chordParametricLength());	// chord parametric length
+                const double CPL(std::get<1>(neighborIter->second)->chordParametricLength());	// chord parametric length
                 CPLT+=CPL;
 //                assert(edgeConfiguration(sgnID)==edgeConfig);
 //                sjT+=edgeConfiguration(sgnID);
@@ -440,8 +440,8 @@ private:
                 
 //                if (this->sID==88)
 //                {
-//                    std::cout<<boost::tuples::get<1>(neighborIter->second)->source->sID<<std::endl;
-//                    std::cout<<boost::tuples::get<1>(neighborIter->second)->sink->sID<<std::endl;
+//                    std::cout<<std::get<1>(neighborIter->second)->source->sID<<std::endl;
+//                    std::cout<<std::get<1>(neighborIter->second)->sink->sID<<std::endl;
 //                    std::cout<<"edgeConfig="<<edgeConfig<<std::endl;
 //                }
 
@@ -454,7 +454,7 @@ private:
 //				case  0:	// self
 //					break;
 //				default:	// neighbor
-//					double CPL=boost::tuples::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
+//					double CPL=std::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
 //					CPLT+=CPL;
 //					sjT+=edgeConfiguration(sgnID);
 //					sjOverGjT+=edgeConfiguration(sgnID)/CPL;
@@ -473,27 +473,27 @@ private:
 //		sgnID=0;
 		
 		for (constNeighborIteratorType neighborIter=this->neighborhood().begin();neighborIter!=this->neighborhood().end();++neighborIter){
-			const int dir(boost::tuples::get<2>(neighborIter->second));
+			const int dir(std::get<2>(neighborIter->second));
 			switch ( dir ) {
 				case  0:	// self
 					CR2H.template block<dim,dim>(0,k*dim).setIdentity();
 					CR2H.template block<dim,dim>(dim,k*dim)=this->prjM*( sjT/CPLT -  sjOverGjT)/(this->neighborhood().size()-2);						
 					break;
 //				default:	// departing or arriving
-//					CR2H.template block<dim,dim>(dim,k*dim)= edgeConfiguration(sgnID)*this->prjM*( 1.0/boost::tuples::get<1>(neighborIter->second)->chordParametricLength()-CPLTinv)/(this->neighborhood().size()-2);
+//					CR2H.template block<dim,dim>(dim,k*dim)= edgeConfiguration(sgnID)*this->prjM*( 1.0/std::get<1>(neighborIter->second)->chordParametricLength()-CPLTinv)/(this->neighborhood().size()-2);
 //					sgnID++;
 //					break;
 				case  1:	// departing or arriving
-//                    const int edgeConfig=boost::tuples::get<1>(neighborIter->second)->sourceTfactor;
-//					CR2H.template block<dim,dim>(dim,k*dim)= edgeConfiguration(sgnID)*this->prjM*( 1.0/boost::tuples::get<1>(neighborIter->second)->chordParametricLength()-CPLTinv)/(this->neighborhood().size()-2);
-					CR2H.template block<dim,dim>(dim,k*dim)= boost::tuples::get<1>(neighborIter->second)->sourceTfactor*this->prjM*( 1.0/boost::tuples::get<1>(neighborIter->second)->chordParametricLength()-CPLTinv)/(this->neighborhood().size()-2);
+//                    const int edgeConfig=std::get<1>(neighborIter->second)->sourceTfactor;
+//					CR2H.template block<dim,dim>(dim,k*dim)= edgeConfiguration(sgnID)*this->prjM*( 1.0/std::get<1>(neighborIter->second)->chordParametricLength()-CPLTinv)/(this->neighborhood().size()-2);
+					CR2H.template block<dim,dim>(dim,k*dim)= std::get<1>(neighborIter->second)->sourceTfactor*this->prjM*( 1.0/std::get<1>(neighborIter->second)->chordParametricLength()-CPLTinv)/(this->neighborhood().size()-2);
 
 //					sgnID++;
 					break;
                 case -1:	// departing or arriving
-//                    const int edgeConfig=boost::tuples::get<1>(neighborIter->second)->sinkTfactor;
-//					CR2H.template block<dim,dim>(dim,k*dim)= edgeConfiguration(sgnID)*this->prjM*( 1.0/boost::tuples::get<1>(neighborIter->second)->chordParametricLength()-CPLTinv)/(this->neighborhood().size()-2);
-					CR2H.template block<dim,dim>(dim,k*dim)= boost::tuples::get<1>(neighborIter->second)->sinkTfactor*this->prjM*( 1.0/boost::tuples::get<1>(neighborIter->second)->chordParametricLength()-CPLTinv)/(this->neighborhood().size()-2);
+//                    const int edgeConfig=std::get<1>(neighborIter->second)->sinkTfactor;
+//					CR2H.template block<dim,dim>(dim,k*dim)= edgeConfiguration(sgnID)*this->prjM*( 1.0/std::get<1>(neighborIter->second)->chordParametricLength()-CPLTinv)/(this->neighborhood().size()-2);
+					CR2H.template block<dim,dim>(dim,k*dim)= std::get<1>(neighborIter->second)->sinkTfactor*this->prjM*( 1.0/std::get<1>(neighborIter->second)->chordParametricLength()-CPLTinv)/(this->neighborhood().size()-2);
 //					sgnID++;
 					break;
                 default:

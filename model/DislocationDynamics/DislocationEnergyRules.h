@@ -9,7 +9,8 @@
 #ifndef model_DISLOCATIONENERGYRULES_H_
 #define model_DISLOCATIONENERGYRULES_H_
 
-#include <boost/tuple/tuple.hpp>
+//#include <boost/tuple/tuple.hpp>
+#include <tuple>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 
@@ -49,13 +50,13 @@ namespace model {
                 typedef typename DislocationNodeType::FlowType FlowType;
 				std::vector<FlowType,Eigen::aligned_allocator<FlowType> >  BsV{}; // the vector of Burgers as out-neighbors
 				for (typename DislocationNodeType::constNeighborIteratorType neighborIter=dN.neighborhood().begin();neighborIter!=dN.neighborhood().end();++neighborIter){
-					const int dir=boost::tuples::get<2>(neighborIter->second);
+					const int dir=std::get<2>(neighborIter->second);
 					switch ( dir ) {
 						case   1:
-							BsV.push_back(+1.0*(boost::tuples::get<1>(neighborIter->second)->flow));
+							BsV.push_back(+1.0*(std::get<1>(neighborIter->second)->flow));
 							break;
 						case  -1:
-							BsV.push_back(-1.0*(boost::tuples::get<1>(neighborIter->second)->flow));
+							BsV.push_back(-1.0*(std::get<1>(neighborIter->second)->flow));
 							break;
 						default:	// self
 							break;
@@ -80,7 +81,7 @@ namespace model {
                     // 3- Change the sign of Ci according to the direction of the first neighbor
                     int sigCi=1;
                     for (typename DislocationNodeType::constNeighborIteratorType neighborIter=dN.neighborhood().begin();neighborIter!=dN.neighborhood().end();++neighborIter){
-                        const int dir(boost::tuples::get<2>(neighborIter->second));
+                        const int dir(std::get<2>(neighborIter->second));
                         if (dir!=0){
                             sigCi=dir;
                             break;
@@ -91,8 +92,8 @@ namespace model {
                     // 4- Store total chord parametric length
                     double gT(0.0);
                     for (typename DislocationNodeType::constNeighborIteratorType neighborIter=dN.neighborhood().begin();neighborIter!=dN.neighborhood().end();++neighborIter){
-                        if (boost::tuples::get<2>(neighborIter->second)!=0){
-                            gT+=boost::tuples::get<1>(neighborIter->second)->chordParametricLength();
+                        if (std::get<2>(neighborIter->second)!=0){
+                            gT+=std::get<1>(neighborIter->second)->chordParametricLength();
                         }
                     }
                     
@@ -107,9 +108,9 @@ namespace model {
                         VectorDimD tTemp(VectorDimD::Zero());
                         int j(0);
                         for (typename DislocationNodeType::constNeighborIteratorType neighborIter=dN.neighborhood().begin();neighborIter!=dN.neighborhood().end();++neighborIter){
-                            if (boost::tuples::get<2>(neighborIter->second)!=0){
-                                double gkj(boost::tuples::get<1>(neighborIter->second)->chordParametricLength());
-                                tTemp+=Ci(k,j)*(boost::tuples::get<0>(neighborIter->second)->get_P()-dN.get_P())/gkj*(gT-gkj)/gT;
+                            if (std::get<2>(neighborIter->second)!=0){
+                                double gkj(std::get<1>(neighborIter->second)->chordParametricLength());
+                                tTemp+=Ci(k,j)*(std::get<0>(neighborIter->second)->get_P()-dN.get_P())/gkj*(gT-gkj)/gT;
                                 j++;
                             }
                         }
@@ -162,16 +163,16 @@ namespace model {
 				unsigned int kk(0);
 				typename DislocationNodeType::NeighborContainerType tempNeigh=dN.neighborhood(); // DESIGN FLAW: neighborhood should have a non-const version
 				for (typename DislocationNodeType::NeighborIteratorType neighborIter=tempNeigh.begin();neighborIter!=tempNeigh.end();++neighborIter){
-					int dir=boost::tuples::get<2>(neighborIter->second);
+					int dir=std::get<2>(neighborIter->second);
 					switch ( dir ) {
 						case   1:	// out
-//							boost::tuples::get<1>(neighborIter->second)->sourceTfactor=dN.edgeConfiguration(kk);
-                            boost::tuples::get<1>(neighborIter->second)->sourceTfactor=edgeConfiguration(kk);
+//							std::get<1>(neighborIter->second)->sourceTfactor=dN.edgeConfiguration(kk);
+                            std::get<1>(neighborIter->second)->sourceTfactor=edgeConfiguration(kk);
 							kk++;
 							break;
 						case  -1:	// in
-//							boost::tuples::get<1>(neighborIter->second)->  sinkTfactor=dN.edgeConfiguration(kk);
-                            boost::tuples::get<1>(neighborIter->second)->  sinkTfactor=edgeConfiguration(kk);
+//							std::get<1>(neighborIter->second)->  sinkTfactor=dN.edgeConfiguration(kk);
+                            std::get<1>(neighborIter->second)->  sinkTfactor=edgeConfiguration(kk);
 							kk++;
 							break;
 						default:	// self

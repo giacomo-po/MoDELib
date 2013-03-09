@@ -17,7 +17,8 @@
 #include <limits.h>
 
 #include <boost/ptr_container/ptr_map.hpp>
-#include <boost/tuple/tuple.hpp>
+//#include <boost/tuple/tuple.hpp>
+#include <tuple> // std::tuple replaces boost::tuple in c++11
 #include <boost/shared_ptr.hpp>
 #include <boost/utility.hpp>
 
@@ -54,7 +55,7 @@ namespace model {
 		/* Costructor with node arguments ********************************************************/
 		NetworkNode() : psn(new SubNetworkType(this->p_derived())){		
 			// Insert this->p_derived() in the Neighborhood
-			Neighborhood.insert(std::make_pair(this->sID, boost::tuples::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
+			Neighborhood.insert(std::make_pair(this->sID, std::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
 			
 		}
 		
@@ -63,7 +64,7 @@ namespace model {
 		//		NetworkNode(const EdgeExpansion<LinkType>& ee) : state(0),
 		NetworkNode(const ExpandingEdge<LinkType>& ee) : psn(ee.E.pSN()){		
 			// Insert this->p_derived() in the Neighborhood
-			Neighborhood.insert(std::make_pair(this->sID, boost::tuples::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
+			Neighborhood.insert(std::make_pair(this->sID, std::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
 			
 			// Manage SubNetwork
 			psn->add(this->p_derived());
@@ -118,19 +119,19 @@ namespace model {
 				pN=pL->sink;
 				key=pN->sID;
 				dir=1;
-				assert(OutNeighborhood.insert(std::make_pair(key, boost::tuples::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN OUT_NEIGHBORHOOD");
+				assert(OutNeighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN OUT_NEIGHBORHOOD");
 			}
 			
 			if (pL->sink==this->p_derived()){
 				pN=pL->source;
 				key=pN->sID;
 				dir=-1;
-				assert(InNeighborhood.insert(std::make_pair(key, boost::tuples::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN IN_NEIGHBORHOOD");
+				assert(InNeighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN IN_NEIGHBORHOOD");
 			}
 			
-			//			bool success=Neighborhood.insert(std::make_pair(key, boost::tuples::make_tuple(pN,pL,dir) )).second;
+			//			bool success=Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second;
 			//			assert(success);
-			assert(Neighborhood.insert(std::make_pair(key, boost::tuples::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN NEIGHBORHOOD.");
+			assert(Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN NEIGHBORHOOD.");
 			
 		}		
 		
@@ -165,7 +166,7 @@ namespace model {
             FlowType Fout(FlowType::Zero()); // generalize
 			Fout*=0.0;
 			for (typename NeighborContainerType::const_iterator     NeighborIter=OutNeighborhood.begin();NeighborIter!=OutNeighborhood.end();++NeighborIter){
-				Fout+=boost::tuples::get<1>(NeighborIter->second)->flow;
+				Fout+=std::get<1>(NeighborIter->second)->flow;
 			}
             return Fout;
         }
@@ -177,7 +178,7 @@ namespace model {
             FlowType Fin(FlowType::Zero());
 			Fin*=0.0;
 			for (typename NeighborContainerType::const_iterator     NeighborIter=InNeighborhood.begin();NeighborIter!=InNeighborhood.end();++NeighborIter){
-				Fin+=boost::tuples::get<1>(NeighborIter->second)->flow;
+				Fin+=std::get<1>(NeighborIter->second)->flow;
 			}
             return Fin;
         }
@@ -194,8 +195,8 @@ namespace model {
 			if (N!=0 && !reached){
 				assert(searchedNodes.insert(this->sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
 				for (typename NeighborContainerType::const_iterator NeighborIter=Neighborhood.begin();NeighborIter!=Neighborhood.end();++NeighborIter){
-					if (searchedNodes.find(boost::tuples::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
-						reached=boost::tuples::get<0>(NeighborIter->second)->depthFirstSearch(searchedNodes,ID,N-1); // ask if neighbor can reach
+					if (searchedNodes.find(std::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
+						reached=std::get<0>(NeighborIter->second)->depthFirstSearch(searchedNodes,ID,N-1); // ask if neighbor can reach
 						if (reached){
 							break;
 						}
@@ -220,14 +221,14 @@ namespace model {
 			if (N!=0){
 				assert(searchedNodes.insert(this->sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
 				for (typename NeighborContainerType::iterator NeighborIter=Neighborhood.begin();NeighborIter!=Neighborhood.end();++NeighborIter){
-					if (!boost::tuples::get<2>(NeighborIter->second)==0){
-						if (searchedLinks.find(boost::tuples::get<1>(NeighborIter->second)->nodeIDPair)==searchedLinks.end()){  // neighbor not searched
-							(boost::tuples::get<1>(NeighborIter->second)->*Lfptr)(input); // execute Lfptr on connecting link
-							assert(searchedLinks.insert(boost::tuples::get<1>(NeighborIter->second)->nodeIDPair).second && "CANNOT INSERT CURRENT LINK IN SEARCHED LINKS"); // this node has been searched
+					if (!std::get<2>(NeighborIter->second)==0){
+						if (searchedLinks.find(std::get<1>(NeighborIter->second)->nodeIDPair)==searchedLinks.end()){  // neighbor not searched
+							(std::get<1>(NeighborIter->second)->*Lfptr)(input); // execute Lfptr on connecting link
+							assert(searchedLinks.insert(std::get<1>(NeighborIter->second)->nodeIDPair).second && "CANNOT INSERT CURRENT LINK IN SEARCHED LINKS"); // this node has been searched
 						}
 					}
-					if (searchedNodes.find(boost::tuples::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
-						boost::tuples::get<0>(NeighborIter->second)->depthFirstExecute(searchedNodes,searchedLinks,Nfptr,Lfptr,input, N-1); // continue executing on neighbor
+					if (searchedNodes.find(std::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
+						std::get<0>(NeighborIter->second)->depthFirstExecute(searchedNodes,searchedLinks,Nfptr,Lfptr,input, N-1); // continue executing on neighbor
 					}
 				}	
 			}
@@ -247,8 +248,8 @@ namespace model {
 			if (N!=0){
 				assert(searchedNodes.insert(this->sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
 				for (typename NeighborContainerType::iterator NeighborIter=Neighborhood.begin();NeighborIter!=Neighborhood.end();++NeighborIter){
-					if (searchedNodes.find(boost::tuples::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
-						boost::tuples::get<0>(NeighborIter->second)->depthFirstNodeExecute(searchedNodes,Nfptr,input, N-1); // continue executing on neighbor
+					if (searchedNodes.find(std::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
+						std::get<0>(NeighborIter->second)->depthFirstNodeExecute(searchedNodes,Nfptr,input, N-1); // continue executing on neighbor
 					}
 				}	
 			}
@@ -264,8 +265,8 @@ namespace model {
 			if (N!=0){
 				assert(searchedNodes.insert(this->sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
 				for (typename NeighborContainerType::iterator NeighborIter=Neighborhood.begin();NeighborIter!=Neighborhood.end();++NeighborIter){
-					if (searchedNodes.find(boost::tuples::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
-						boost::tuples::get<0>(NeighborIter->second)->depthFirstNodeExecute(searchedNodes,Nfptr, N-1); // continue executing on neighbor
+					if (searchedNodes.find(std::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
+						std::get<0>(NeighborIter->second)->depthFirstNodeExecute(searchedNodes,Nfptr, N-1); // continue executing on neighbor
 					}
 				}	
 			}
@@ -306,7 +307,7 @@ namespace model {
 			for (unsigned int n=0;n<k;++n){
 				nIter++;
 			}
-			return (boost::tuples::get<0>(nIter->second));
+			return (std::get<0>(nIter->second));
 		}
 		
 		////////////////////////////////////////////////////////
@@ -326,7 +327,7 @@ namespace model {
 			if(nIter->first == this->sID){
 				nIter++;
 			}
-			return (boost::tuples::get<0>(nIter->second));
+			return (std::get<0>(nIter->second));
 		}
 		
 		////////////////////////////////////////////////////////
@@ -337,7 +338,7 @@ namespace model {
 			for (unsigned int n=0;n<k;++n){
 				nIter++;
 			}
-			return (boost::tuples::get<1>(nIter->second));
+			return (std::get<1>(nIter->second));
 		}
 		
 		////////////////////////////////////////////////////////
@@ -357,7 +358,7 @@ namespace model {
 			if(nIter->first == this->sID){
 				nIter++;
 			}
-			return (boost::tuples::get<1>(nIter->second));
+			return (std::get<1>(nIter->second));
 		}
 		
 		////////////////////////////////////////////////////////
@@ -456,12 +457,12 @@ namespace model {
 			
 			os << "		OutLinks: (outOrder= "<<NN.outOrder()<<")"<<std::endl;
 			for(typename NeighborContainerType::const_iterator	 NeighborIter=NN.OutNeighborhood.begin();NeighborIter!=NN.OutNeighborhood.end();++NeighborIter){
-				os<< *boost::tuples::get<1>(NeighborIter->second)<<std::endl;//
+				os<< *std::get<1>(NeighborIter->second)<<std::endl;//
 			}
 			
 			os << "		InLinks: (inOrder= "<<NN.inOrder()<<")"<<std::endl;
 			for(typename NeighborContainerType::const_iterator	 NeighborIter=NN.InNeighborhood.begin();NeighborIter!=NN.InNeighborhood.end();++NeighborIter){
-				os<< *boost::tuples::get<1>(NeighborIter->second)<<std::endl;//
+				os<< *std::get<1>(NeighborIter->second)<<std::endl;//
 			}
 			
 			return os;
