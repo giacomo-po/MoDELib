@@ -13,9 +13,10 @@
 #include <assert.h>
 
 #include <boost/ptr_container/ptr_map.hpp>
-#include <boost/smart_ptr/shared_ptr.hpp>
+//#include <boost/smart_ptr/shared_ptr.hpp>
 //#include <boost/tuple/tuple.hpp>
-#include <boost/utility.hpp>
+//#include <boost/utility.hpp>
+//#include <memory> // std::shared_ptr
 
 #include <model/Utilities/TypeTraits.h>
 #include <model/Utilities/CRTP.h>

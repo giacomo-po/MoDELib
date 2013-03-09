@@ -11,7 +11,8 @@
 #define model_GLIDEPLANEOBSERVER_H_
 
 #include <map>
-#include <boost/shared_ptr.hpp>
+//#include <boost/shared_ptr.hpp>
+#include <memory> // std::shared_ptr (c++11)
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
@@ -45,7 +46,7 @@ namespace model {
         /*            */ Eigen::aligned_allocator<std::pair<const VectorDimPlusOneD,GlidePlaneType* const> > > GlidePlaneMapType;
 
 		typedef typename GlidePlaneMapType::const_iterator const_iterator;
-		typedef boost::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
+		typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
 		
 		/* begin() ***************************************************/
 		typename GlidePlaneMapType::const_iterator begin() const {

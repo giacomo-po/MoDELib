@@ -13,8 +13,9 @@
 #include <math.h>
 #include <set>
 #include <map>
-#include <boost/utility.hpp>
-#include <boost/shared_ptr.hpp>
+//#include <boost/utility.hpp>
+//#include <boost/shared_ptr.hpp>
+//#include <memory> // std::shared_ptr (c++11)
 #include <Eigen/Dense>
 #include <model/Math/CompileTimeMath/Pow.h>
 #include <model/SpaceDecomposition/SpaceCellObserver.h>

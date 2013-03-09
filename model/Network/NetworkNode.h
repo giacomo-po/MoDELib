@@ -19,8 +19,10 @@
 #include <boost/ptr_container/ptr_map.hpp>
 //#include <boost/tuple/tuple.hpp>
 #include <tuple> // std::tuple replaces boost::tuple in c++11
-#include <boost/shared_ptr.hpp>
-#include <boost/utility.hpp>
+//#include <boost/shared_ptr.hpp>
+//#include <boost/utility.hpp>
+#include <memory> // std::shared_ptr
+
 
 #include <model/Network/Operations/includeNetworkOperations.h>
 #include <model/Utilities/StaticID.h>
@@ -40,7 +42,7 @@ namespace model {
 //#include "model/Network/SubNetworkComponent.h"
 		
 		
-		boost::shared_ptr<SubNetworkType> psn;
+		std::shared_ptr<SubNetworkType> psn;
 
 		
 	protected:
@@ -82,7 +84,7 @@ namespace model {
 		
 		//////////////////////////////////////////////////////////////////////////////
 		// formSubNetwork
-		void formSubNetwork(const boost::shared_ptr<SubNetworkType> & psnOther){
+		void formSubNetwork(const std::shared_ptr<SubNetworkType> & psnOther){
 			if (psn!=psnOther){
 				psn->remove(this->p_derived());
 				psn=psnOther;		// redirect psn to the new Subnetwork
@@ -102,7 +104,7 @@ namespace model {
 		
 		//////////////////////////////////////////////////////////////////////////////
 		//! Returns a const pointer to the parent SubNetwork
-		const boost::shared_ptr<SubNetworkType> & pSN() const {
+		const std::shared_ptr<SubNetworkType> & pSN() const {
 			return psn;
 		}
 		
@@ -283,10 +285,10 @@ namespace model {
 			//! 2- Creates a new SubNetwork containing this
 			this->psn.reset(new SubNetworkType(this->p_derived()));		
 			//! 3- Transmits 'formSubNetwork' to the neighbors
-			typedef void (Derived::*node_member_function_pointer_type)(const boost::shared_ptr<SubNetworkType>&); 
+			typedef void (Derived::*node_member_function_pointer_type)(const std::shared_ptr<SubNetworkType>&); 
 			node_member_function_pointer_type Nmfp(&Derived::formSubNetwork);
 //			Nmfp=&Derived::formSubNetwork;
-			typedef void (LinkType::*link_member_function_pointer_type)(const boost::shared_ptr<SubNetworkType>&); 
+			typedef void (LinkType::*link_member_function_pointer_type)(const std::shared_ptr<SubNetworkType>&); 
 			link_member_function_pointer_type Lmfp(&LinkType::formSubNetwork);
 //			Lmfp=&LinkType::formSubNetwork;
 			depthFirstExecute(Nmfp,Lmfp,this->psn);

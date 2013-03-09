@@ -18,8 +18,9 @@
 
 #include <boost/ptr_container/ptr_map.hpp>
 //#include <boost/tuple/tuple.hpp>
-#include <boost/utility.hpp>
-#include <boost/shared_ptr.hpp>
+//#include <boost/utility.hpp>
+//#include <boost/shared_ptr.hpp>
+#include <memory> // std::shared_ptr
 
 #include <model/Network/Operations/includeNetworkOperations.h>
 
@@ -38,7 +39,7 @@ namespace model {
 #include <model/Network/NetworkTypedefs.h>
 		
 		
-		boost::shared_ptr<SubNetworkType> psn;
+		std::shared_ptr<SubNetworkType> psn;
 
 		
 	public:
@@ -71,10 +72,10 @@ namespace model {
 			}
 			else{ // source and sink are in different subnetworks
 				
-				typedef void (NodeType::*node_member_function_pointer_type)(const boost::shared_ptr<SubNetworkType>&); 
+				typedef void (NodeType::*node_member_function_pointer_type)(const std::shared_ptr<SubNetworkType>&); 
 				node_member_function_pointer_type Nmfp;
 				Nmfp=&NodeType::formSubNetwork;
-				typedef void (Derived::*link_member_function_pointer_type)(const boost::shared_ptr<SubNetworkType>&); 
+				typedef void (Derived::*link_member_function_pointer_type)(const std::shared_ptr<SubNetworkType>&); 
 				link_member_function_pointer_type Lmfp;
 				Lmfp=&Derived::formSubNetwork;
 				
@@ -168,7 +169,7 @@ namespace model {
 		}
 		
 		/* formSubNetwork *****************************************************/
-		void formSubNetwork(const boost::shared_ptr<SubNetworkType> & psnOther)
+		void formSubNetwork(const std::shared_ptr<SubNetworkType> & psnOther)
         {
 			if (psn!=psnOther){
 				psn->remove(this->p_derived());
@@ -185,7 +186,7 @@ namespace model {
 		}
 		
 		/* pSN ****************************************************************/
-		const boost::shared_ptr<SubNetworkType> & pSN() const
+		const std::shared_ptr<SubNetworkType> & pSN() const
         {/*! The shared_ptr to the SubNetwork containing this
           */
 			return psn;
