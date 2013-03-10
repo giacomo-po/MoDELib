@@ -33,11 +33,12 @@ namespace model {
 			assert(0);
 		};
 	}; 
-	
-	#include "model/Geometry/Splines/SplineNodeBase_Hermite.h"
-	#include "model/Geometry/Splines/SplineNodeBase_CatmullRom.h"
-	
+		
 }
+
+#include "model/Geometry/Splines/SplineNodeBase_Hermite.h"
+#include "model/Geometry/Splines/SplineNodeBase_CatmullRom.h"
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 #endif

@@ -12,6 +12,7 @@
 
 #include <assert.h>
 
+//#include <map>
 #include <boost/ptr_container/ptr_map.hpp>
 //#include <boost/smart_ptr/shared_ptr.hpp>
 //#include <boost/tuple/tuple.hpp>
@@ -35,6 +36,8 @@ namespace model {
 	class Network : boost::noncopyable,
 	/*          */  protected boost::ptr_map<size_t,typename TypeTraits<Derived>::NodeType>,
 	/*          */  protected boost::ptr_map<std::pair<size_t,size_t>,typename TypeTraits<Derived>::LinkType>,
+//	/*          */  protected std::map<size_t,std::auto_ptr<typename TypeTraits<Derived>::NodeType> >,
+//	/*          */  protected std::map<std::pair<size_t,size_t>,std::auto_ptr<typename TypeTraits<Derived>::LinkType> >,
 	/*          */  public  CRTP<Derived>,
 	/*          */  public  AddressBook<typename TypeTraits<Derived>::SubNetworkType,0>{
 		
@@ -258,12 +261,6 @@ namespace model {
         {
 			ParallelExecute<NodeType,LinkType>(*this,*this).execute(Vfptr,input);
 		}		
-
-//        /********************************************************/
-//        operator const NetworkLinkContainerType*() const
-//        {
-//            return dynamic_cast<const NetworkLinkContainerType*>(this);
-//        }
         
 		/*************************************************************/
 		// friend T& operator <<
@@ -287,19 +284,6 @@ namespace model {
 			return os;
 		}
         
-                
-                
-
-		
-//		/*************************************************************/
-//		// friend T& operator <<
-//		template <char ch>
-//		friend SequentialBinFile<ch,EdgeType::BinDataType>& operator << (T& os, const NetworkLinkContainerType& nlC){			
-//			for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter){				
-//				os << (*linkIter->second) << "\n";
-//			}
-//			return os;
-//		}
 
 	};	// end Network
 	/************************************************************/

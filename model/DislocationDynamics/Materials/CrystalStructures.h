@@ -22,7 +22,8 @@ namespace model {
     struct FCC {
         
         template <int dim>
-        static std::vector<Eigen::Matrix<double,dim,1> > getPlaneNormals(){
+        static std::vector<Eigen::Matrix<double,dim,1> > getPlaneNormals()
+        {
             typedef Eigen::Matrix<double,dim,1> VectorDim;
             typedef std::vector<VectorDim> PlaneNormalContainerType;
             
@@ -42,7 +43,8 @@ namespace model {
         
         /**********************************************************************/
         template <int dim>
-        static std::vector<SlipSystem<dim> > getSlipSystems(const Eigen::Matrix<double,dim,dim>& C2G=Eigen::Matrix<double,dim,dim>::Identity()){
+        static std::vector<SlipSystem<dim> > getSlipSystems(const Eigen::Matrix<double,dim,dim>& C2G=Eigen::Matrix<double,dim,dim>::Identity())
+        {
             typedef Eigen::Matrix<double,dim,1> VectorDim;
             typedef SlipSystem<dim> SlipSystemDim;
             typedef std::vector<SlipSystemDim> SlipSystemContainerType;

@@ -24,12 +24,16 @@
 #include <memory> // std::shared_ptr
 
 
-#include <model/Network/Operations/includeNetworkOperations.h>
 #include <model/Utilities/StaticID.h>
 #include <model/Utilities/CRTP.h>
+//#include "model/Network/NetworkLink.h"
+#include <model/Network/Operations/includeNetworkOperations.h>
 
 
 namespace model {
+    
+    template <typename Derived>
+	class NetworkLink; // class predeclaration
 	
 	template <typename Derived>
 	class NetworkNode : boost::noncopyable,
@@ -38,79 +42,44 @@ namespace model {
 		
 	public:
 #include <model/Network/NetworkTypedefs.h>
+        friend class NetworkLink<LinkType>; // allow NetworkLink to call private NetworkNode::formSubNetwork
+        
+        
 	private:
 //#include "model/Network/SubNetworkComponent.h"
 		
 		
 		std::shared_ptr<SubNetworkType> psn;
 
-		
-	protected:
-		
-		NeighborContainerType Neighborhood;			
-		NeighborContainerType OutNeighborhood;
-		NeighborContainerType InNeighborhood;
-		
-	public:
-		
-		/*****************************************************************************************/
-		/* Costructor with node arguments ********************************************************/
-		NetworkNode() : psn(new SubNetworkType(this->p_derived())){		
-			// Insert this->p_derived() in the Neighborhood
-			Neighborhood.insert(std::make_pair(this->sID, std::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
-			
+   	protected:
+     
+        /**********************************************************************/
+		void resetPSN(){
+			//! 1- Removes this from the current SubNetwork
+			this->psn->remove(this->p_derived());
+			//! 2- Creates a new SubNetwork containing this
+			this->psn.reset(new SubNetworkType(this->p_derived()));
+			//! 3- Transmits 'formSubNetwork' to the neighbors
+			typedef void (Derived::*node_member_function_pointer_type)(const std::shared_ptr<SubNetworkType>&);
+			node_member_function_pointer_type Nmfp(&Derived::formSubNetwork);
+            //			Nmfp=&Derived::formSubNetwork;
+			typedef void (LinkType::*link_member_function_pointer_type)(const std::shared_ptr<SubNetworkType>&);
+			link_member_function_pointer_type Lmfp(&LinkType::formSubNetwork);
+            //			Lmfp=&LinkType::formSubNetwork;
+			depthFirstExecute(Nmfp,Lmfp,this->psn);
 		}
-		
-		/*****************************************************************************************/
-		/* Costructor from EdgeExpansion *********************************************************/
-		//		NetworkNode(const EdgeExpansion<LinkType>& ee) : state(0),
-		NetworkNode(const ExpandingEdge<LinkType>& ee) : psn(ee.E.pSN()){		
-			// Insert this->p_derived() in the Neighborhood
-			Neighborhood.insert(std::make_pair(this->sID, std::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
-			
-			// Manage SubNetwork
-			psn->add(this->p_derived());
-		}
-				
-		/*****************************************************************************************/
-		/* Destructor ****************************************************************************/
-		~NetworkNode(){
-			//! 1- Remove this from Neighborhood	
-			Neighborhood.erase(this->sID);
-			
-			//! 2- Remove this from the SubNetwork	
-			this->psn->remove(this->p_derived());	// remove this in the new subnetwork
-		}
-		
-		//////////////////////////////////////////////////////////////////////////////
-		// formSubNetwork
-		void formSubNetwork(const std::shared_ptr<SubNetworkType> & psnOther){
+        
+        /**********************************************************************/
+        void formSubNetwork(const std::shared_ptr<SubNetworkType> & psnOther)
+        {
 			if (psn!=psnOther){
 				psn->remove(this->p_derived());
 				psn=psnOther;		// redirect psn to the new Subnetwork
 				psn->add(this->p_derived());	// add this in the new subnetwork
 			}
 		}
-		
-		
-		
-		//////////////////////////////////////////////////////////////////////////////
-		// sndID
-		size_t snID() const {
-			return psn->snID(this->p_derived());
-		}
-		
-		
-		
-		//////////////////////////////////////////////////////////////////////////////
-		//! Returns a const pointer to the parent SubNetwork
-		const std::shared_ptr<SubNetworkType> & pSN() const {
-			return psn;
-		}
-		
-		
-		/*****************************************************************************************/
-		/* addToNeighborhood *********************************************************************/
+        
+		/* addToNeighborhood **************************************************/
 		void addToNeighborhood(LinkType* const pL){
 			
 			Derived* pN=NULL;
@@ -131,14 +100,11 @@ namespace model {
 				assert(InNeighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN IN_NEIGHBORHOOD");
 			}
 			
-			//			bool success=Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second;
-			//			assert(success);
 			assert(Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN NEIGHBORHOOD.");
 			
-		}		
+		}
 		
-		/*****************************************************************************************/
-		/* removeFromNeighborhood ****************************************************************/
+		/* removeFromNeighborhood *********************************************/
 		void removeFromNeighborhood(LinkType* const pL){
 			
 			Derived* pN=NULL;
@@ -159,7 +125,61 @@ namespace model {
 			bool success=Neighborhood.erase(key);
 			assert(success);
 			
-		}	
+		}
+		
+		
+		NeighborContainerType Neighborhood;			
+		NeighborContainerType OutNeighborhood;
+		NeighborContainerType InNeighborhood;
+		
+	public:
+		
+		/* Costructor with node arguments *************************************/
+		NetworkNode() : psn(new SubNetworkType(this->p_derived())){		
+			// Insert this->p_derived() in the Neighborhood
+			Neighborhood.insert(std::make_pair(this->sID, std::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
+			
+		}
+		
+		/* Costructor from EdgeExpansion **************************************/
+		//		NetworkNode(const EdgeExpansion<LinkType>& ee) : state(0),
+		NetworkNode(const ExpandingEdge<LinkType>& ee) : psn(ee.E.pSN()){		
+			// Insert this->p_derived() in the Neighborhood
+			Neighborhood.insert(std::make_pair(this->sID, std::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
+			
+			// Manage SubNetwork
+			psn->add(this->p_derived());
+		}
+				
+		/* Destructor *********************************************************/
+		~NetworkNode(){
+			//! 1- Remove this from Neighborhood	
+			Neighborhood.erase(this->sID);
+			
+			//! 2- Remove this from the SubNetwork	
+			this->psn->remove(this->p_derived());	// remove this in the new subnetwork
+		}
+		
+
+		
+		
+		
+		//////////////////////////////////////////////////////////////////////////////
+		// sndID
+		size_t snID() const {
+			return psn->snID(this->p_derived());
+		}
+		
+		
+		
+		//////////////////////////////////////////////////////////////////////////////
+		//! Returns a const pointer to the parent SubNetwork
+		const std::shared_ptr<SubNetworkType> & pSN() const {
+			return psn;
+		}
+		
+		
+
 		
 		/*****************************************************************************************/
 		/* outFlow *******************************************************************************/
@@ -277,23 +297,7 @@ namespace model {
 
 		
 		
-		////////////////////////////////////////////////////////
-		////////////////////////////////////////////////////////
-		void resetPSN(){
-			//! 1- Removes this from the current SubNetwork
-			this->psn->remove(this->p_derived());
-			//! 2- Creates a new SubNetwork containing this
-			this->psn.reset(new SubNetworkType(this->p_derived()));		
-			//! 3- Transmits 'formSubNetwork' to the neighbors
-			typedef void (Derived::*node_member_function_pointer_type)(const std::shared_ptr<SubNetworkType>&); 
-			node_member_function_pointer_type Nmfp(&Derived::formSubNetwork);
-//			Nmfp=&Derived::formSubNetwork;
-			typedef void (LinkType::*link_member_function_pointer_type)(const std::shared_ptr<SubNetworkType>&); 
-			link_member_function_pointer_type Lmfp(&LinkType::formSubNetwork);
-//			Lmfp=&LinkType::formSubNetwork;
-			depthFirstExecute(Nmfp,Lmfp,this->psn);
-		}
-		
+
 		
 		////////////////////////////////////////////////////////
 		// neighborhood
@@ -429,11 +433,7 @@ namespace model {
 			return inOrder()>0 && outOrder()>0;
 		}
 		
-		//////////////////////////////////////////////////////////////////////////////
-		// is_balanced
-		//		bool is_balanced() const {
-		//			return outFlow() == inFlow();
-		//		}
+
 		
 		bool is_balanced() const {
 			//			return FlowCompare<FlowType>(outFlow(),inFlow());
@@ -477,4 +477,91 @@ namespace model {
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
+            
+            
+            //		////////////////////////////////////////////////////////
+            //		////////////////////////////////////////////////////////
+            //		void resetPSN(){
+            //			//! 1- Removes this from the current SubNetwork
+            //			this->psn->remove(this->p_derived());
+            //			//! 2- Creates a new SubNetwork containing this
+            //			this->psn.reset(new SubNetworkType(this->p_derived()));
+            //			//! 3- Transmits 'formSubNetwork' to the neighbors
+            //			typedef void (Derived::*node_member_function_pointer_type)(const std::shared_ptr<SubNetworkType>&);
+            //			node_member_function_pointer_type Nmfp(&Derived::formSubNetwork);
+            ////			Nmfp=&Derived::formSubNetwork;
+            //			typedef void (LinkType::*link_member_function_pointer_type)(const std::shared_ptr<SubNetworkType>&);
+            //			link_member_function_pointer_type Lmfp(&LinkType::formSubNetwork);
+            ////			Lmfp=&LinkType::formSubNetwork;
+            //			depthFirstExecute(Nmfp,Lmfp,this->psn);
+            //		}
+            
+            //////////////////////////////////////////////////////////////////////////////
+            // formSubNetwork
+            //		void formSubNetwork(const std::shared_ptr<SubNetworkType> & psnOther){
+            //			if (psn!=psnOther){
+            //				psn->remove(this->p_derived());
+            //				psn=psnOther;		// redirect psn to the new Subnetwork
+            //				psn->add(this->p_derived());	// add this in the new subnetwork
+            //			}
+            //		}
+            
+            //////////////////////////////////////////////////////////////////////////////
+            // is_balanced
+            //		bool is_balanced() const {
+            //			return outFlow() == inFlow();
+            //		}
+            
+            
+            //		/*****************************************************************************************/
+            //		/* addToNeighborhood *********************************************************************/
+            //		void addToNeighborhood(LinkType* const pL){
+            //
+            //			Derived* pN=NULL;
+            //			size_t key=0;
+            //			short int dir;
+            //
+            //			if (pL->source==this->p_derived()){
+            //				pN=pL->sink;
+            //				key=pN->sID;
+            //				dir=1;
+            //				assert(OutNeighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN OUT_NEIGHBORHOOD");
+            //			}
+            //
+            //			if (pL->sink==this->p_derived()){
+            //				pN=pL->source;
+            //				key=pN->sID;
+            //				dir=-1;
+            //				assert(InNeighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN IN_NEIGHBORHOOD");
+            //			}
+            //
+            //			//			bool success=Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second;
+            //			//			assert(success);
+            //			assert(Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN NEIGHBORHOOD.");
+            //
+            //		}
+            //
+            //		/*****************************************************************************************/
+            //		/* removeFromNeighborhood ****************************************************************/
+            //		void removeFromNeighborhood(LinkType* const pL){
+            //
+            //			Derived* pN=NULL;
+            //			size_t key=0;
+            //			
+            //			if (pL->source==this->p_derived()){
+            //				pN=pL->sink;
+            //				key=pN->sID;
+            //				OutNeighborhood.erase(key);
+            //			}
+            //			
+            //			if (pL->sink==this->p_derived()){
+            //				pN=pL->source;
+            //				key=pN->sID;
+            //				InNeighborhood.erase(key);
+            //			}
+            //			
+            //			bool success=Neighborhood.erase(key);
+            //			assert(success);
+            //			
+            //		}
 

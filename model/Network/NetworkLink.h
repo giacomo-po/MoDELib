@@ -26,6 +26,8 @@
 
 #include "model/Utilities/AddressBook.h"
 #include "model/Network/SubNetwork.h"
+#include "model/Network/NetworkNode.h"
+
 #include <model/Utilities/TypeTraits.h>
 
 namespace model {
@@ -38,6 +40,7 @@ namespace model {
 		
 #include <model/Network/NetworkTypedefs.h>
 		
+        friend class NetworkNode<NodeType>; // allow NetworkNode to call private NetworkLink::formSubNetwork
 		
 		std::shared_ptr<SubNetworkType> psn;
 
@@ -51,12 +54,9 @@ namespace model {
 		const FlowType flow;
 		
 	private:
-//#include "model/Network/SubNetworkComponent.h"
 		
 		
-		/******************************************************/
-//        template<typename ...TopologicalOperationType>
-//		void topologyChangeActions(const TopologicalOperationType&... op)
+		/**********************************************************************/
 		void topologyChangeActions()
         {
 		
@@ -101,11 +101,21 @@ namespace model {
 //			sink  ->topologyChangeActions();
 			
 		}
+        
+        
+        /* formSubNetwork *****************************************************/
+		void formSubNetwork(const std::shared_ptr<SubNetworkType> & psnOther)
+        {
+			if (psn!=psnOther){
+				psn->remove(this->p_derived());
+				psn=psnOther;		// redirect psn to the new Subnetwork
+				psn->add(this->p_derived());    // add this in the new subnetwork
+			}
+		}
 		
 	public:
 		
-		/*****************************************************************************************/
-		/* Constructor with Flow *****************************************************************/
+		/* Constructor with Flow **********************************************/
 		NetworkLink(const std::pair<NodeType* const,NodeType* const> & NodePair_in,
 		/*       */ const FlowType & Flow_in) :
 		/* init list */ source(NodePair_in.first), 
@@ -119,8 +129,7 @@ namespace model {
 			topologyChangeActions();
 		}
 		
-		/*****************************************************************************************/
-		/* Constructor from ExpandingEdge ********************************************************/
+		/* Constructor from ExpandingEdge *************************************/
 		NetworkLink(const std::pair<NodeType* const,NodeType* const> & NodePair_in,
 		/*       */ const ExpandingEdge<LinkType>& ee) :
 		/* init list */ source(NodePair_in.first), 
@@ -168,26 +177,18 @@ namespace model {
 //			sink  ->topologyChangeActions(); // necessary to update   sink after Link destructor
 		}
 		
-		/* formSubNetwork *****************************************************/
-		void formSubNetwork(const std::shared_ptr<SubNetworkType> & psnOther)
-        {
-			if (psn!=psnOther){
-				psn->remove(this->p_derived());
-				psn=psnOther;		// redirect psn to the new Subnetwork
-				psn->add(this->p_derived());	// add this in the new subnetwork
-			}
-		}
+
 		
 		/* snID ***************************************************************/
 		size_t snID() const
-        {/*! The StaticID of the SubNetwork containing this
+        {/*! @return The StaticID of the SubNetwork containing this
           */
 			return psn->snID(this->p_derived());
 		}
 		
 		/* pSN ****************************************************************/
 		const std::shared_ptr<SubNetworkType> & pSN() const
-        {/*! The shared_ptr to the SubNetwork containing this
+        {/*! @return The shared_ptr to the SubNetwork containing this
           */
 			return psn;
 		}
@@ -203,13 +204,9 @@ namespace model {
 		////////////////////////////////////////////////////////
 		// operator <<
 		template <class T, typename OtherSegment>
-		friend T& operator << (T& os, const NetworkLink<OtherSegment>& NL){
-			
-			os<<"			Link "<<std::setw(3)<<NL.sID<<" ("<<std::setw(3)<<NL.dID()<<") ["<<NL.p_derived()<<"]"<<
-			" "<< std::setw(3)<<NL.source->sID<<
-			" -> "<< std::setw(3)<<NL.sink->sID<<
-			" flow = "<<NL.flow;
-			
+		friend T& operator << (T& os, const NetworkLink<OtherSegment>& NL)
+        {
+			os<<NL.source->sID<<" "<<NL.sink->sID<<" "<<NL.source->sID<<NL.flow;
 			return os;
 		}
 		
@@ -219,3 +216,15 @@ namespace model {
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
+            
+            
+            
+            //		/* formSubNetwork *****************************************************/
+            //		void formSubNetwork(const std::shared_ptr<SubNetworkType> & psnOther)
+            //        {
+            //			if (psn!=psnOther){
+            //				psn->remove(this->p_derived());
+            //				psn=psnOther;		// redirect psn to the new Subnetwork
+            //				psn->add(this->p_derived());	// add this in the new subnetwork
+            //			}
+            //		}

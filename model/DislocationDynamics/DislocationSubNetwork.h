@@ -16,7 +16,7 @@
 #include <model/Network/SubNetwork.h>
 
 #include <model/Math/SchurComplementSolver.h>
-#include <model/Math/SchurComplementSparseSolver.h>
+//#include <model/Math/SchurComplementSparseSolver.h>
 #include <model/Math/MINRES.h>
 
 //#include <model/Geometry/Splines/SplineNetworkTraits.h>
@@ -117,7 +117,7 @@ namespace model {
         
 		enum {NdofXnode=NodeType::NdofXnode};
         
-        static bool useSchurComplementSolver;
+ //       static bool useSchurComplementSolver;
 
 		
 		/************************************************************/
@@ -167,31 +167,31 @@ namespace model {
                 linkIter->second->addToGlobalAssembly(kqqT,Fq); // loop over each segment and add segment contributions to kqqT and Fq
 			}
             
-            if(useSchurComplementSolver){ // use SchurComplementSolver
-                // Assemble Kqq and Kpq separately
-                // Kqq
-                SparseMatrixType KQQ(Ndof,Ndof);
-                KQQ.setFromTriplets(kqqT.begin(),kqqT.end());
-                // Kpq
-                std::vector<Eigen::Triplet<double> > kpqT;
-                size_t KPQ_row=0;
-                assembleConstraints<false>(kpqT,KPQ_row);
-                SparseMatrixType KPQ(KPQ_row,Ndof);
-                KPQ.setFromTriplets(kpqT.begin(),kpqT.end());
-                
-                if (kqqT.size()<1){ // use direct solver (LLT decomposition) if the number of non-zeros in kqqT is less than a threshold
-                    SchurComplementSparseSolver<SparseMatrixType,true> scs(KQQ);
-                    scs.solve(KPQ,Fq);
-                    storeNodeSolution(scs.X());
-                }
-                else{ // use iterative solver (Conjugate Gradient)
-                    SchurComplementSparseSolver<SparseMatrixType,false> scs(KQQ);
-                    scs.solve(KPQ,Fq,FLT_EPSILON*0.001); // FLT_EPSILON is the tolerance
-                    storeNodeSolution(scs.X);
-                }
-                
-            }
-            else{ // use MINRES solver
+//            if(useSchurComplementSolver){ // use SchurComplementSolver
+//                // Assemble Kqq and Kpq separately
+//                // Kqq
+//                SparseMatrixType KQQ(Ndof,Ndof);
+//                KQQ.setFromTriplets(kqqT.begin(),kqqT.end());
+//                // Kpq
+//                std::vector<Eigen::Triplet<double> > kpqT;
+//                size_t KPQ_row=0;
+//                assembleConstraints<false>(kpqT,KPQ_row);
+//                SparseMatrixType KPQ(KPQ_row,Ndof);
+//                KPQ.setFromTriplets(kpqT.begin(),kpqT.end());
+//                
+//                if (kqqT.size()<1){ // use direct solver (LLT decomposition) if the number of non-zeros in kqqT is less than a threshold
+//                    SchurComplementSparseSolver<SparseMatrixType,true> scs(KQQ);
+//                    scs.solve(KPQ,Fq);
+//                    storeNodeSolution(scs.X());
+//                }
+//                else{ // use iterative solver (Conjugate Gradient)
+//                    SchurComplementSparseSolver<SparseMatrixType,false> scs(KQQ);
+//                    scs.solve(KPQ,Fq,FLT_EPSILON*0.001); // FLT_EPSILON is the tolerance
+//                    storeNodeSolution(scs.X);
+//                }
+//                
+//            }
+//            else{ // use MINRES solver
                 // Assemble Kqq and Kpq together
                 size_t KPQ_row=Ndof; // start placing constraints at row Ndof
                 assembleConstraints<true>(kqqT,KPQ_row); // kqqT and KPQ_row are overwritten
@@ -202,7 +202,7 @@ namespace model {
                 Eigen::VectorXd x0(Eigen::VectorXd::Zero(KPQ_row));
                 MINRES<double> mRS(KQQ,F,x0,DBL_EPSILON*100.0);                
                 storeNodeSolution(mRS.xMR.segment(0,Ndof));
-            }
+//            }
             
             
 
@@ -401,10 +401,10 @@ namespace model {
 		
 	};
 	
-	// static data
-    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-	bool DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::useSchurComplementSolver=false;
+//	// static data
+//    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+//	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//	bool DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::useSchurComplementSolver=false;
 
 	
 	
