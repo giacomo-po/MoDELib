@@ -9,11 +9,8 @@
 #ifndef model_DEPTHFIRST_H_
 #define model_DEPTHFIRST_H_
 
-#ifndef VERBOSELEVEL
-#define VERBOSELEVEL 0
-#endif
-
 #include <assert.h>
+#include <tuple>
 
 namespace model {
 	
@@ -30,8 +27,8 @@ namespace model {
 			if (N!=0 && !found){
 				assert(searchedNodes.insert(nodeRef.sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
 				for (typename NeighborContainerType::const_iterator NeighborIter=nodeRef.neighborhood().begin();NeighborIter!=nodeRef.neighborhood().end();++NeighborIter){
-					if (searchedNodes.find(boost::tuples::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
-						found=boost::tuples::get<0>(NeighborIter->second)->search(searchedNodes,ID,N-1); // ask if neighbor can reach
+					if (searchedNodes.find(std::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
+						found=std::get<0>(NeighborIter->second)->search(searchedNodes,ID,N-1); // ask if neighbor can reach
 						if (found){
 							break;
 						}
@@ -50,14 +47,14 @@ namespace model {
 			if (N!=0){
 				assert(searchedNodes.insert(nodeRef.sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
 				for (typename NeighborContainerType::iterator NeighborIter=nodeRef.neighborhood().begin();NeighborIter!=nodeRef.neighborhood().end();++NeighborIter){
-					if (!boost::tuples::get<2>(NeighborIter->second)==0){
-						if (searchedLinks.find(boost::tuples::get<1>(NeighborIter->second)->nodeIDPair)==searchedLinks.end()){  // neighbor not searched
-							(boost::tuples::get<1>(NeighborIter->second)->*Lfptr)(input); // execute Lfptr on connecting link
-							assert(searchedLinks.insert(boost::tuples::get<1>(NeighborIter->second)->nodeIDPair).second && "CANNOT INSERT CURRENT LINK IN SEARCHED LINKS"); // this node has been searched
+					if (!std::get<2>(NeighborIter->second)==0){
+						if (searchedLinks.find(std::get<1>(NeighborIter->second)->nodeIDPair)==searchedLinks.end()){  // neighbor not searched
+							(std::get<1>(NeighborIter->second)->*Lfptr)(input); // execute Lfptr on connecting link
+							assert(searchedLinks.insert(std::get<1>(NeighborIter->second)->nodeIDPair).second && "CANNOT INSERT CURRENT LINK IN SEARCHED LINKS"); // this node has been searched
 						}
 					}
-					if (searchedNodes.find(boost::tuples::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
-						boost::tuples::get<0>(NeighborIter->second)->execute(searchedNodes,searchedLinks,Nfptr,Lfptr,input, N-1); // continue executing on neighbor
+					if (searchedNodes.find(std::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
+						std::get<0>(NeighborIter->second)->execute(searchedNodes,searchedLinks,Nfptr,Lfptr,input, N-1); // continue executing on neighbor
 					}
 				}	
 			}
@@ -70,8 +67,8 @@ namespace model {
 			if (N!=0){
 				assert(searchedNodes.insert(nodeRef.sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
 				for (typename NeighborContainerType::iterator NeighborIter=nodeRef.neighborhood().begin();NeighborIter!=nodeRef.neighborhood().end();++NeighborIter){
-					if (searchedNodes.find(boost::tuples::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
-						boost::tuples::get<0>(NeighborIter->second)->nodeExecute(searchedNodes,Nfptr,input, N-1); // continue executing on neighbor
+					if (searchedNodes.find(std::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
+						std::get<0>(NeighborIter->second)->nodeExecute(searchedNodes,Nfptr,input, N-1); // continue executing on neighbor
 					}
 				}	
 			}
@@ -83,8 +80,8 @@ namespace model {
 			if (N!=0){
 				assert(searchedNodes.insert(nodeRef.sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
 				for (typename NeighborContainerType::iterator NeighborIter=nodeRef.neighborhood().begin();NeighborIter!=nodeRef.neighborhood().end();++NeighborIter){
-					if (searchedNodes.find(boost::tuples::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
-						boost::tuples::get<0>(NeighborIter->second)->nodeExecute(searchedNodes,Nfptr, N-1); // continue executing on neighbor
+					if (searchedNodes.find(std::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
+						std::get<0>(NeighborIter->second)->nodeExecute(searchedNodes,Nfptr, N-1); // continue executing on neighbor
 					}
 				}	
 			}

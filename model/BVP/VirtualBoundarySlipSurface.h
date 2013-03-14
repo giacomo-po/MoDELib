@@ -86,14 +86,14 @@ namespace model {
         /* init list                                     */ sourcePatL(sourceP+L*sourceN),
         /* init list                                     */   sinkPatL(  sinkP+L*sinkN),
         /* init list                                     */ Burgers(ds.Burgers),
-        /* init list                                     */ coreL(ds.coreL),
+        /* init list                                     */ coreL(std::pow(DislocationSegmentType::coreLsquared,0.5)),
         /* init list                                     */ gp_H(ds.pGlidePlane->height),
         /* init list                                     */ gp_N(ds.pGlidePlane->planeNormal){
             
             
             setElasticConstants();
             pGlidePlane->addToGLidePlane(this);
-            std::cout << sourceN.transpose() << "    :    " << sinkN.transpose() << std::endl;
+            //std::cout << sourceN.transpose() << "    :    " << sinkN.transpose() << std::endl;
             //----------calculate the displacement field induced by those segments on the boundary nodes ----
             for (unsigned int dN=0; dN<ds.shared.domain.nodeContainer.size();++dN){
                 if(ds.shared.domain.nodeContainer[dN].isBoundaryNode) {

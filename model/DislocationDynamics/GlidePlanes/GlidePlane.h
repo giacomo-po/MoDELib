@@ -9,12 +9,14 @@
 
 #ifndef model_GLIDEPLANE_H
 #define model_GLIDEPLANE_H
+
 #include <math.h>
 #include <set>
 #include <assert.h>
-#include <boost/shared_ptr.hpp>
+//#include <boost/shared_ptr.hpp>
+//#include <memory> // std::shared_ptr (c++11)
 #include <Eigen/Core>
-#include<Eigen/StdVector>
+#include <Eigen/StdVector>
 #include <model/Utilities/StaticID.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
@@ -27,14 +29,16 @@ namespace model {
 	/*************************************************************/
 	/*************************************************************/
 	template <typename SegmentType>
-	class GlidePlane : public  StaticID<GlidePlane<SegmentType> >,
-	/*              */ private std::set<const SegmentType*>,
-	/*              */ private std::set<const VirtualBoundarySlipSurface<SegmentType>*>,
-	/*              */ private GlidePlaneObserver<SegmentType>{
+	class GlidePlane :
+    /* base class   */ public  StaticID<GlidePlane<SegmentType> >,
+	/* base class   */ private std::set<const SegmentType*>,
+	/* base class   */ private std::set<const VirtualBoundarySlipSurface<SegmentType>*>,
+	/* base class   */ private GlidePlaneObserver<SegmentType>{
 		
 public:
 	typedef GlidePlane<SegmentType> GlidePlaneType;
-	typedef boost::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
+//	typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
+        typedef typename GlidePlaneObserver<SegmentType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
 
         enum{dim=TypeTraits<SegmentType>::dim};
         

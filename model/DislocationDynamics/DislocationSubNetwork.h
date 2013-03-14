@@ -16,7 +16,7 @@
 #include <model/Network/SubNetwork.h>
 
 #include <model/Math/SchurComplementSolver.h>
-#include <model/Math/SchurComplementSparseSolver.h>
+//#include <model/Math/SchurComplementSparseSolver.h>
 #include <model/Math/MINRES.h>
 
 //#include <model/Geometry/Splines/SplineNetworkTraits.h>
@@ -69,18 +69,18 @@ namespace model {
 				NNV.push_back(nodeIter->second->constraintNormals());
 			}
             
-            //            // Constrain sinple nodes to move normal to tangent
-            //            for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-            //                if(nodeIter->second->constraintNormals().size()==1){
-            //                    Eigen::Matrix<int,dim,1> node_dofID(nodeIter->second->node_dofID());
-            //                    Eigen::Matrix<double,dim,1> T(nodeIter->second->get_T());
-            //
-            //                    for(size_t d=0;d<dim;++d){
-            //                        kpqT.push_back(Eigen::Triplet<double>(KPQ_row,node_dofID(d),T(d)));
-            //                    }
-            //                    ++KPQ_row;
-            //                }
-            //			}
+            // Constrain simple nodes to move normal to tangent
+//            for (typename SubNetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
+//                if(nodeIter->second->constraintNormals().size()==1){
+//                    Eigen::Matrix<int,dim,1> node_dofID(nodeIter->second->node_dofID());
+//                    Eigen::Matrix<double,dim,1> T(nodeIter->second->get_T());
+//
+//                    for(size_t d=0;d<dim;++d){
+//                        vT.push_back(Eigen::Triplet<double>(KPQ_row,node_dofID(d),T(d)));
+//                    }
+//                    ++KPQ_row;
+//                }
+//			}
             
             
             // loop over each segment and add segment contributions to kqqT and Fq
@@ -117,7 +117,7 @@ namespace model {
         
 		enum {NdofXnode=NodeType::NdofXnode};
         
-        static bool useSchurComplementSolver;
+ //       static bool useSchurComplementSolver;
 
 		
 		/************************************************************/
@@ -167,31 +167,31 @@ namespace model {
                 linkIter->second->addToGlobalAssembly(kqqT,Fq); // loop over each segment and add segment contributions to kqqT and Fq
 			}
             
-            if(useSchurComplementSolver){ // use SchurComplementSolver
-                // Assemble Kqq and Kpq separately
-                // Kqq
-                SparseMatrixType KQQ(Ndof,Ndof);
-                KQQ.setFromTriplets(kqqT.begin(),kqqT.end());
-                // Kpq
-                std::vector<Eigen::Triplet<double> > kpqT;
-                size_t KPQ_row=0;
-                assembleConstraints<false>(kpqT,KPQ_row);
-                SparseMatrixType KPQ(KPQ_row,Ndof);
-                KPQ.setFromTriplets(kpqT.begin(),kpqT.end());
-                
-                if (kqqT.size()<1){ // use direct solver (LLT decomposition) if the number of non-zeros in kqqT is less than a threshold
-                    SchurComplementSparseSolver<SparseMatrixType,true> scs(KQQ);
-                    scs.solve(KPQ,Fq);
-                    storeNodeSolution(scs.X());
-                }
-                else{ // use iterative solver (Conjugate Gradient)
-                    SchurComplementSparseSolver<SparseMatrixType,false> scs(KQQ);
-                    scs.solve(KPQ,Fq,FLT_EPSILON*0.001); // FLT_EPSILON is the tolerance
-                    storeNodeSolution(scs.X);
-                }
-                
-            }
-            else{ // use MINRES solver
+//            if(useSchurComplementSolver){ // use SchurComplementSolver
+//                // Assemble Kqq and Kpq separately
+//                // Kqq
+//                SparseMatrixType KQQ(Ndof,Ndof);
+//                KQQ.setFromTriplets(kqqT.begin(),kqqT.end());
+//                // Kpq
+//                std::vector<Eigen::Triplet<double> > kpqT;
+//                size_t KPQ_row=0;
+//                assembleConstraints<false>(kpqT,KPQ_row);
+//                SparseMatrixType KPQ(KPQ_row,Ndof);
+//                KPQ.setFromTriplets(kpqT.begin(),kpqT.end());
+//                
+//                if (kqqT.size()<1){ // use direct solver (LLT decomposition) if the number of non-zeros in kqqT is less than a threshold
+//                    SchurComplementSparseSolver<SparseMatrixType,true> scs(KQQ);
+//                    scs.solve(KPQ,Fq);
+//                    storeNodeSolution(scs.X());
+//                }
+//                else{ // use iterative solver (Conjugate Gradient)
+//                    SchurComplementSparseSolver<SparseMatrixType,false> scs(KQQ);
+//                    scs.solve(KPQ,Fq,FLT_EPSILON*0.001); // FLT_EPSILON is the tolerance
+//                    storeNodeSolution(scs.X);
+//                }
+//                
+//            }
+//            else{ // use MINRES solver
                 // Assemble Kqq and Kpq together
                 size_t KPQ_row=Ndof; // start placing constraints at row Ndof
                 assembleConstraints<true>(kqqT,KPQ_row); // kqqT and KPQ_row are overwritten
@@ -202,7 +202,7 @@ namespace model {
                 Eigen::VectorXd x0(Eigen::VectorXd::Zero(KPQ_row));
                 MINRES<double> mRS(KQQ,F,x0,DBL_EPSILON*100.0);                
                 storeNodeSolution(mRS.xMR.segment(0,Ndof));
-            }
+//            }
             
             
 
@@ -378,7 +378,7 @@ namespace model {
 				VectorDim Anew(VectorDim::Zero());
 				for (typename SubNetworkNodeContainerType::const_iterator nodeIter1=this->nodeBegin();nodeIter1!=this->nodeEnd();++nodeIter1){
 					if (nodeIter1->second->outOrder()==1){
-						NodeType* nextNode=boost::tuples::get<0>(nodeIter1->second->outNeighborhood().begin()->second);						
+						NodeType* nextNode=std::get<0>(nodeIter1->second->outNeighborhood().begin()->second);
 						VectorDim Q1(nodeIter1->second->get_P());
 						VectorDim Q2(nextNode->get_P());
                         
@@ -401,10 +401,10 @@ namespace model {
 		
 	};
 	
-	// static data
-    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-	bool DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::useSchurComplementSolver=false;
+//	// static data
+//    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+//	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//	bool DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::useSchurComplementSolver=false;
 
 	
 	

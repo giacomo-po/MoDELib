@@ -30,29 +30,37 @@ namespace model {
 	/****************************************************************/
 	/****************************************************************/
 	template <typename VertexType, typename EdgeType>
-	class EdgeExpansion{
+	class EdgeExpansion
+    {
 
 		
 		typedef typename EdgeFinder<EdgeType>::isConstNetworkEdgeType isConstNetworkEdgeType;
 
 		
-		typedef boost::ptr_map<size_t,VertexType> NetworkVertexMapType;
+		//typedef boost::ptr_map<size_t,VertexType> NetworkVertexMapType;
+        typedef typename VertexType::NetworkNodeContainerType NetworkVertexMapType;
 		//! A reference to the network vertex map
 		NetworkVertexMapType& networkVertexMapRef;
 		
-		typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
+		//typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
+        typedef typename VertexType::NetworkLinkContainerType NetworkEdgeMapType;
 		//! A reference to the network Edge map
 		NetworkEdgeMapType& networkEdgeMapRef;
 		
 	public:		
 		/* Constructor **********************************************/
 		EdgeExpansion(NetworkVertexMapType& networkVertexMapRef_in,
-		/*         */ NetworkEdgeMapType&     networkEdgeMapRef_in) : networkVertexMapRef(networkVertexMapRef_in),
-		/*                                                         */ networkEdgeMapRef(networkEdgeMapRef_in){}
+		/*         */ NetworkEdgeMapType&     networkEdgeMapRef_in) :
+        /* init list */ networkVertexMapRef(networkVertexMapRef_in),
+		/* init list */ networkEdgeMapRef(networkEdgeMapRef_in)
+        {/*! Initializes internal references 
+          */
+        }
 		
 		/* expand ***************************************************/
 		template <typename ...NodeArgTypes>
-		std::pair<bool,size_t> expand(const size_t& i, const size_t& j, const NodeArgTypes&... Args){
+		std::pair<bool,size_t> expand(const size_t& i, const size_t& j, const NodeArgTypes&... Args)
+        {
 			isConstNetworkEdgeType Lij(EdgeFinder<EdgeType>(networkEdgeMapRef).link(i,j));
 			assert(Lij.first && "EXPANDING NON-EXISTING LINK.");
 			const size_t newID(VertexInsertion<VertexType>(networkVertexMapRef).insert(ExpandingEdge<EdgeType>(*Lij.second),Args...));

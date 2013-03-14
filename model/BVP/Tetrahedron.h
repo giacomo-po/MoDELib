@@ -132,9 +132,9 @@ namespace bvpfe{
             mu =model::Material<model::Isotropic>::mu;
 			nu =model::Material<model::Isotropic>::nu;
 						
-			lambda = (2.0e+00*mu * nu)/(1.0e+00-(2.0e+00*nu)) ;
+			lambda = (2.0*mu * nu)/(1.0-2.0*nu) ;
 			
-			c11 = lambda + (2.0e+00*mu);
+			c11 = lambda + (2.0*mu);
 			c12 = lambda;
 			c44 = mu;
 		}
@@ -253,7 +253,8 @@ namespace bvpfe{
 		//===================================================================
 		// function to calculate Jacobian matrix
 		//===================================================================
-		MatrixDim computeJacobianMatrix(){
+		MatrixDim computeJacobianMatrix() const
+        {
 			MatrixDim J;
 			
 			for (int c=0;c<dim;++c){
@@ -292,7 +293,7 @@ namespace bvpfe{
 		// function to calculate stress inside the tetrahedron. Also One Gauss point is used
 		//===================================================================
 		
-		Eigen::Matrix<double,dim,dim> getStress()
+		Eigen::Matrix<double,dim,dim> getStress() const 
 		{						
 			Eigen::Matrix<double,dim,dim> uprim = getUprim();
 						
@@ -318,7 +319,7 @@ namespace bvpfe{
 		// function to calculate elastic lattice rotation inside the tetrahedron. Also One Gauss point is used
 		//===================================================================
 		
-		Eigen::Matrix<double,dim,dim> getLatticeRotation()
+		Eigen::Matrix<double,dim,dim> getLatticeRotation() const 
 		{						
 			Eigen::Matrix<double,dim,dim> uprim = getUprim();
 						
@@ -330,7 +331,7 @@ namespace bvpfe{
 		// function to calculate derivative of the displacement inside the tet
 		//===================================================================
 		
-		Eigen::Matrix<double,dim,dim> getUprim()
+		Eigen::Matrix<double,dim,dim> getUprim() const
 		{
 			
 			Eigen::Matrix<double,dim,dim> uprim = Eigen::Matrix<double,dim,dim>::Zero();
@@ -571,7 +572,7 @@ namespace bvpfe{
 		// function to return the barycentric coordinates of any point P
 		//========================================================================
 		
-		Eigen::Matrix<double,4,1>  getBarycentric (VectorDim P)
+		Eigen::Matrix<double,4,1>  getBarycentric (const VectorDim& P) const
 		{
 			//Vector bary;            bary.resize(4);
 			Eigen::Matrix<double,4,1> bary;
@@ -590,7 +591,7 @@ namespace bvpfe{
 		//======================================================================
 		// return the volume of a tetradedron, given its points coordinates in order
 		//======================================================================
-		double getVol(VectorDim a, VectorDim b, VectorDim c, VectorDim d)
+		double getVol(const VectorDim& a, const VectorDim& b, const VectorDim& c, const VectorDim& d) const
 		{
 
 			MatrixDim temp;
@@ -635,34 +636,7 @@ namespace bvpfe{
 		    return gp;
 		}
 		
-		/*********************************************************************/
-		
-		/*Curently USELESS*/
-		/*
-		template <short unsigned int qOrder, typename T>
-		Eigen::Matrix<double,dim,Element<3>::Nnodes> get_dislocationForceVector(const T* const pt, std::vector<std::vector<double> > const Np) const{
-		  
-			Eigen::Matrix<double,dim,dim> stressInt=Eigen::Matrix<double,dim,dim>::Zero();
-		
-			PointerWrapper<T> pts(pt);
-//			pts.pt=pt;
-			
-			model::Quadrature<dim,qOrder>::integrate(this,stressInt,&Tetrahedron::dislocationStressKernel<PointerWrapper<T> > ,pts);
-		
-			//-------multiply stress by the shape function derivative --------------------------
-			
-			Eigen::Matrix<double,dim,Element<3>::Nnodes> temp=Eigen::Matrix<double,dim,Element<3>::Nnodes>::Zero();
-			
-			for (unsigned int i = 0; i< Tetrahedron::Nnodes; ++i){
-				temp(0,i) = (Np[i][0]*stressInt(0,0))+(Np[i][1]*stressInt(1,1))+(Np[i][2]*stressInt(2,2));
-				temp(1,i) = (Np[i][1]*stressInt(0,1))+(Np[i][0]*stressInt(1,1))+(Np[i][2]*stressInt(1,2));
-				temp(2,i) = (Np[i][2]*stressInt(0,2))+(Np[i][1]*stressInt(1,2))+(Np[i][0]*stressInt(2,2));
-			}
 
-			return temp;
-		}*/
-		
-		/*********************************************************************/
 		
 		//==============================================================================================
 		// Function to integrate the infinite medium stress field over Tetrahedron element
@@ -788,3 +762,33 @@ namespace bvpfe{
 	
 }  //  namespace bvpfe
 #endif
+
+
+/*********************************************************************/
+
+/*Curently USELESS*/
+/*
+ template <short unsigned int qOrder, typename T>
+ Eigen::Matrix<double,dim,Element<3>::Nnodes> get_dislocationForceVector(const T* const pt, std::vector<std::vector<double> > const Np) const{
+ 
+ Eigen::Matrix<double,dim,dim> stressInt=Eigen::Matrix<double,dim,dim>::Zero();
+ 
+ PointerWrapper<T> pts(pt);
+ //			pts.pt=pt;
+ 
+ model::Quadrature<dim,qOrder>::integrate(this,stressInt,&Tetrahedron::dislocationStressKernel<PointerWrapper<T> > ,pts);
+ 
+ //-------multiply stress by the shape function derivative --------------------------
+ 
+ Eigen::Matrix<double,dim,Element<3>::Nnodes> temp=Eigen::Matrix<double,dim,Element<3>::Nnodes>::Zero();
+ 
+ for (unsigned int i = 0; i< Tetrahedron::Nnodes; ++i){
+ temp(0,i) = (Np[i][0]*stressInt(0,0))+(Np[i][1]*stressInt(1,1))+(Np[i][2]*stressInt(2,2));
+ temp(1,i) = (Np[i][1]*stressInt(0,1))+(Np[i][0]*stressInt(1,1))+(Np[i][2]*stressInt(1,2));
+ temp(2,i) = (Np[i][2]*stressInt(0,2))+(Np[i][1]*stressInt(1,2))+(Np[i][0]*stressInt(2,2));
+ }
+ 
+ return temp;
+ }*/
+
+/*********************************************************************/

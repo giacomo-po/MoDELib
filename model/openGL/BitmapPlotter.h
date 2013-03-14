@@ -18,7 +18,7 @@
 #include <GL/glut.h>
 #endif
 
-//#include <Eigen/Core>
+#include <Eigen/Core>
 
 
 namespace model {
@@ -67,6 +67,18 @@ namespace model {
         {
   			glRasterPos3f(x,y,z);
 			//glColor3f(1.0f, 1.0f, 1.0f);
+  			for (unsigned int k=0; k<string2render.length(); ++k) {
+    			glutBitmapCharacter(font, string2render[k]);
+  			}
+		}
+        
+        
+        
+        /* EIGEN SHOULD NOT BE USED HERE ******************************************************/
+        template <typename scalarType>
+		static void renderString(const Eigen::Matrix<scalarType,3,1>& P, const std::string& string2render) {
+  			glRasterPos3f(P(0), P(1), P(2));
+			glColor3f(1.0f, 1.0f, 1.0f);
   			for (unsigned int k=0; k<string2render.length(); ++k) {
     			glutBitmapCharacter(font, string2render[k]);
   			}

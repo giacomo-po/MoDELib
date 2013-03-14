@@ -38,6 +38,22 @@ namespace model {
     			glutBitmapCharacter(font, string2render[k]);
   			}
 		}
+        
+        
+        /* drawGLString ******************************************************/
+        static void drawGLString(const GLfloat& x, const GLfloat& y, char *string)
+        {
+            /*! Renders
+             * \code
+             * 		sprintf (outString, "Camera Position: (%0.1f, %0.1f, %0.1f)", gCamera.viewPos.x, gCamera.viewPos.y, gCamera.viewPos.z);
+             * \endcode
+             */
+            glRasterPos2f(x, y);
+            int len = (int) strlen(string);
+            for (int i = 0; i < len; i++) {
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, string[i]);
+            }
+        }
 		
 		
 	};

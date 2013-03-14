@@ -67,7 +67,7 @@ namespace model {
             Binv=1.0/B;
             rho=IM::mu*std::pow(IM::b/IM::B,2)*IM::rho;  //! rho* = mu*(b/B)^2 * rho
             //        cs=IM::B/IM::b*std::pow(IM::rho*IM::mu,-0.5);
-            cs=std::pow(mu/rho,0.5); // sc*=mu*/rho*
+            cs=std::pow(mu/rho,0.5); // sc*=sqrt(mu*/rho*)
             nu=IM::nu;
             lambda=2.0*mu*nu/(1.0-2.0*nu);
             C1=1.0-nu;
@@ -87,17 +87,14 @@ namespace model {
             switch (Z) {
                 case Al:
                     selectedMaterial=Al;
-//                    select<Aluminum>();
                     select<Al>();
                     break;
                 case Ni:
                     selectedMaterial=Ni;
-                   // select<Nickel>();
                     select<Ni>();
                     break;
                 case Cu:
                     selectedMaterial=Cu;
-                    //select<Copper>();
                     select<Cu>();
                     break;
                     

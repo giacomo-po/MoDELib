@@ -12,16 +12,6 @@
 
 
 
-// DONE 15- STORE BVP DISPACEMENTS IN /D
-// DONE Clean GramSchmidt, derive from std::vector with right allocator for Eigen
-// 1- DONEBecause Output is after redistribution, Cell Files are not correct because GaussPoints are destroyed when segments are destroyed
-// DONE: CROSS_SLIP: NO, THIS CAUSES THE SAME NORMAL TO BE USED
-// DONE: Strategy changed with new BVP. 17- add inifinite line stress fields for segments terminating on the surface
-// DONE: STRATEGY CHANGED WITH NEW BVP. -1 - code isBoundarySubnetwork. If true don't solve AND set velocity to 0.
-// DONE: 39 - CLEAN NEW CATMUll-ROM (ENERGY). REMOVE CRNEGHBORS AND USE NEIGHBORHOOD ITSELF
-// DONE: 12 PlanarSplineImplicitization::intersect with has problems with some ill-conditioned matrices and gives wrong results.
-
-
 // BEING MODIFIED
 // 1- BIN WRITER/READER. DEFINE DISLOCATIONSEGMENT::OUTDATA as Eigen::Matrix<double,1,9>. Then in Network add the function friend void operator<< (SequentialBinFile<template Char,???>, ...)
 // 2- Zeo node Tangent Problem
@@ -68,11 +58,8 @@
 #ifndef model_DISLOCATIONNETWORK_H_
 #define model_DISLOCATIONNETWORK_H_
 
-
-#ifndef VERBOSELEVEL
-#define VERBOSELEVEL 3
-#endif
-
+//#include <stdlib.h> // random numbers
+//#include <time.h> // seed random numbers with time
 #include <iostream>
 #include <iomanip>
 #include <math.h>
@@ -91,55 +78,49 @@
 #include MPIheaders
 #endif
 
-
 #include <model/Network/Readers/VertexReader.h>
 #include <model/Network/Readers/EdgeReader.h>
 #include <model/Network/Network.h>
+
+#include <model/Utilities/EigenDataReader.h>
+#include <model/Utilities/OutputFile.h>
+#include <model/Utilities/SequentialOutputFile.h>
+#include <model/Utilities/UniqueOutputFile.h>
+#include <model/Utilities/SequentialBinFile.h>
 
 #include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationSubNetwork.h>
 #include <model/DislocationDynamics/DislocationNode.h>
 #include <model/DislocationDynamics/DislocationSegment.h>
-#include <model/Utilities/EigenDataReader.h>
-#include <model/Utilities/OutputFile.h>
-#include <model/Utilities/SequentialOutputFile.h>
-#include <model/Utilities/UniqueOutputFile.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
-//#include <model/DislocationDynamics/DislocationQuadratureParticle.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/Remeshing/DislocationNetworkRemesh.h>
 #include <model/DislocationDynamics/Junctions/DislocationJunctionFormation.h>
 #include <model/DislocationDynamics/CrossSlip/DislocationCrossSlip.h>
-
 #include <model/DislocationDynamics/Materials/Material.h>
 
-
-#include <model/Utilities/SequentialBinFile.h>
-
-
-
-
+#include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
 
 
 namespace model {
 	
-	std::string defaultColor    = "\033[0m";	    // the default color for the console
-	std::string redBoldColor    = "\033[1;31m";   // a bold red color
-	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
-	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
-	std::string magentaColor    = "\033[0;35m";   // a magenta color
+    //	std::string defaultColor    = "\033[0m";	  // the default color for the console
+    //	std::string redBoldColor    = "\033[1;31m";   // a bold red color
+    //	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
+    //	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
+    //	std::string magentaColor    = "\033[0;35m";   // a magenta color
 	
-	
-	//////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+	/**************************************************************************/
+	/**************************************************************************/
+	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    //	/*	   */ typename MaterialType>
-	class DislocationNetwork : public Network<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
-	/*                      */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>{
+	class DislocationNetwork : public Network<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
+	/*                      */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>{
 		
     public:
+        
+        enum {dim=_dim}; // make dim available outside class
         
 		typedef DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> DislocationNetworkType;
 		typedef DislocationNetworkType Derived;
@@ -153,12 +134,14 @@ namespace model {
 		typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
 		enum {NdofXnode=NodeType::NdofXnode};
 		
-        
-        
 #ifdef UpdateBoundaryConditionsFile
 #include UpdateBoundaryConditionsFile
 #endif
-		
+        
+#ifdef DislocationNucleationFile
+#include DislocationNucleationFile
+//         int nucleationFreq;
+#endif
 		
 #ifdef DislocationNetworkMPI
 #include DislocationNetworkMPI
@@ -167,13 +150,15 @@ namespace model {
 	private:
         
         
+        
 		
 		short unsigned int use_redistribution;
-		short unsigned int use_junctions;	// 0= no junctions, 1=only annahilation, 2= all junction types
-		
+		bool use_junctions;
+		static bool useImplicitTimeIntegration;
+        
 		unsigned int runID;
 		
-		double Lmax,Lmin,thetaDeg;
+//		double Lmax,Lmin,thetaDeg;
 		
 		bool use_crossSlip;
 		double crossSlipDeg;
@@ -182,15 +167,15 @@ namespace model {
 		double totalTime;
 		
 		double dx, dt;
-		
+        double vmax;
+        
 		
 		EigenDataReader EDR;
         
-        
-		
-		
-		/* readNodes ***************************************************************/
-		void readNodes(const unsigned int& fileID){
+		/* readNodes **********************************************************/
+		void readNodes(const unsigned int& fileID)
+        {/*! Reads file V/V_0.txt and creates DislocationNodes
+          */
 			typedef VertexReader<'V',11,double> VertexReaderType;
 			VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
 			assert(vReader.isGood(fileID) && "UNABLE TO READ VERTEX FILE V/V_x (x is the requested file ID).");
@@ -203,8 +188,10 @@ namespace model {
 			}
 		}
 		
-		/* readLinks ***************************************************************/
-		void readLinks(const unsigned int& fileID){
+		/* readLinks **********************************************************/
+		void readLinks(const unsigned int& fileID)
+        {/*! Reads file E/E_0.txt and creates DislocationSegments
+          */
 			typedef EdgeReader  <'E',11,double>	EdgeReaderType;
 			EdgeReaderType    eReader;	// sourceID,sinkID,Bx,By,Bz,Nx,Ny,Nz
 			assert(eReader.isGood<true>(fileID) && "Unable to read vertex file E/E_x (x is the requested fileID).");
@@ -218,37 +205,40 @@ namespace model {
 			}
 		}
         
-        
-		
-		/* formJunctions ************************************************************/
-		void formJunctions(){
-			if (use_junctions){
+		/* formJunctions ******************************************************/
+		void formJunctions()
+        {/*! Performs dislocation junction formation if use_junctions==true
+          */
+			if (use_junctions)
+            {
 				double t0=clock();
 				std::cout<<"		Forming Junctions: found (";
-				DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx,0.05);
+                const double avoidNodeIntersection(0.05);
+				DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx,avoidNodeIntersection);
 				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
 		}
 		
-		/* make_dt *****************************************************************/
-		void make_dt(){
-			/*! Computes the time step size \f$dt\f$ for the current simulation step,
-			 *  based on maximum nodal velocity \f$v_{max}\f$.
-			 *
-			 *  The time step is calculated according to:
-			 *	\f[
-			 *  dt=
-			 *  \begin{cases}
-			 *		\frac{dx}{v_{max}} & v_{max} > fc_s\\
-			 *      \frac{dx}{fc_s} & v_{max} \le fc_s\\
-			 *  \end{cases}
-			 *	\f]
-			 *  where \f$c_s\f$ is the shear velocity and \f$f=0.1\f$ is a constant.
-			 */
+		/* make_dt ************************************************************/
+		void make_dt()
+        {/*! Computes the time step size \f$dt\f$ for the current simulation step,
+          *  based on maximum nodal velocity \f$v_{max}\f$.
+          *
+          *  The time step is calculated according to:
+          *	\f[
+          *  dt=
+          *  \begin{cases}
+          *		\frac{dx}{v_{max}} & v_{max} > fc_s\\
+          *      \frac{dx}{fc_s} & v_{max} \le fc_s\\
+          *  \end{cases}
+          *	\f]
+          *  where \f$c_s\f$ is the shear velocity and \f$f=0.1\f$ is a constant.
+          */
 			std::cout<<"		Computing dt..."<<std::flush;
 			double t0=clock();
 			
-			double vmax(0.0);
+            //			double vmax(0.0);
+            vmax=0.0;
 			
 			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
 				const double vNorm(nodeIter->second->get_V().norm());
@@ -276,7 +266,9 @@ namespace model {
 		
 		
 		/* crossSlip *****************************************************************/
-		void crossSlip(){
+		void crossSlip()
+        {/*! Performs dislocation cross-slip if use_crossSlip==true
+          */
 			if(use_crossSlip){
 				double t0=clock();
 				std::cout<<"		Performing Cross Slip ... "<<std::flush;
@@ -285,9 +277,25 @@ namespace model {
 				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
 		}
+        
+        /* update_BVP_Solution ************************************************/
+        void update_BVP_Solution(const bool& updateUserBC)
+        {
+            if (shared.use_bvp){
+				double t0=clock();
+				std::cout<<"		Updating bvp stress ... ";
+				if(!(runID%shared.use_bvp)){
+					shared.domain.update_BVP_Solution(updateUserBC,this);
+				}
+				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
+					nodeIter->second->updateBvpStress();
+				}
+				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+			}
+        }
 		
 		
-		/* loopInversion *****************************************************************/
+		/* loopInversion ******************************************************/
 		void loopInversion(){
 			double t0=clock();
 			std::cout<<"		Checking for loop inversions ... "<<std::flush;
@@ -308,13 +316,22 @@ namespace model {
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
         
-        /***********************************************************/
+        
+        /*  singleStep*********************************************************/
 		void singleStep(const bool& updateUserBC=false){
 			//! A simulation step consists of the following:
 			std::cout<<blueBoldColor<<"runID="<<runID<<", time="<<totalTime<< ": nodeOrder="<<this->nodeOrder()
             /*                                                           */<< ", linkOrder="<<this->linkOrder()
             /*                                                           */<< ", subNetworks="<<this->Naddresses()
 			/*                                                           */<< defaultColor<<std::endl;
+            
+            
+#ifdef DislocationNucleationFile
+            if(shared.use_bvp && !(runID%shared.use_bvp)){
+                nucleateDislocations(); // needs to be called before updateQuadraturePoints()
+                removeBoundarySegments();
+            }
+#endif
             
 			//! 1- Check that all nodes are balanced
 			checkBalance();
@@ -323,23 +340,9 @@ namespace model {
 			updateQuadraturePoints();
             
 			//! 2- Calculate BVP correction
-			if (shared.use_bvp){
-				double t0=clock();
-				std::cout<<"		Updating bvp stress ... ";
-				if(!(runID%shared.use_bvp)){
-					shared.domain.update_BVP_Solution(updateUserBC,this);
-                    //shared.domain.update_BVP_Solution(updateUserBC,this,*dynamic_cast<const GlidePlaneObserverType*>(this));
-				}
-				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
-					nodeIter->second->updateBvpStress();
-				}
-				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
-			}
+            update_BVP_Solution(updateUserBC);
 			
 			//! 3- Solve the equation of motion
-#ifdef DislocationNetworkMPI
-			MPIstep();
-#endif
 			assembleAndSolve();
 			
 			
@@ -347,28 +350,35 @@ namespace model {
 			make_dt();
 			totalTime+=dt;
             
+            plasticDistortion+=plasticDistortionRate()*dt;
+            
             
             //! 11- Output the current configuration, the corresponding velocities, PK force and dt
-			if (!(runID%outputFrequency)){
-				
-#ifdef DislocationNetworkMPI
-				if(localProc==0){
-					output();
-				}
-#else
-				output();
-#endif
-			}
+            output();
             
-			
 			//! 5- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
-			move(dt);
+			move(dt,0.0);
+            
+            //bool useImplicitTimeIntegration(false); // THIS COULD BE DECIDED ON THE FLY BASED ON DISTRIBUTION OF VELOCITIES
+            if(useImplicitTimeIntegration)
+            {
+                updateQuadraturePoints();
+                assembleAndSolve(); // this also stores the new velocity in each node
+                
+                for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ 
+					nodeIter->second->implicitStep(); // average velocities
+				}
+                
+                const double dt_old(dt); // store current dt
+                totalTime-=dt; // subtract current dt
+                make_dt();      // compute dt again with average velocity
+                totalTime+=dt; // add new time step
+                
+                move(dt,dt_old); // move again (this subtracts DislocationNode::vOld*dt_old)
+            }
+            
 			DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
 			
-            
-            
-            
-            
 			//! 6- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
 			loopInversion();
 			
@@ -385,42 +395,21 @@ namespace model {
             
 			//! 10- Cross Slip
 			crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
-            //			updateQuadraturePoints();
             
-			
-			
-            //			//! 11- Output the current configuration, the corresponding velocities and dt
-            //			if (!(runID%outputFrequency)){
-            //
-            //#ifdef DislocationNetworkMPI
-            //				if(localProc==0){
-            //					output();
-            //				}
-            //#else
-            //				output();
-            //#endif
-            //			}
-            
-            
-            updateQuadraturePoints();
+            updateQuadraturePoints(); // necessary if quadrature data are necessary in main
             
 			//! 12 - Increment runID counter
-			++runID;     // increment the runID counter first, since the original configuration has been outputed already
+			++runID;     // increment the runID counter
 		}
 		
 		
-		/* remeshByContraction **************************************/
-		void removeBoundarySegments(){
+		/* remeshByContraction ************************************************/
+		void removeBoundarySegments()
+        {/*! Removes DislocationSegment(s) on the mesh boundary
+          */
 			if (shared.boundary_type==softBoundary){
 				double t0=clock();
 				std::cout<<"		Removing Segments outside Mesh Boundaries... ";
-                //				for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-                //					if(linkIter->second->is_boundarySegment()){
-                //                       	vbsc.add(*(linkIter->second));
-                //					}
-                //				}
-                
-                
 				typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
 				link_member_function_pointer_type boundarySegment_Lmfp;
 				boundarySegment_Lmfp=&LinkType::is_boundarySegment;
@@ -453,10 +442,13 @@ namespace model {
 		//! The number of simulation steps taken by the next call to runByStep()
 		int Nsteps;
 		double timeWindow;
-		int outputFrequency;
-        bool outputGlidePlanes;
-        bool outputSpaceCells;
-        bool outputPKforce;
+        //		int outputFrequency;
+        //     bool outputGlidePlanes;
+        //     bool outputSpaceCells;
+        //     bool outputPKforce;
+        //     bool outputMeshDisplacement;
+        
+        MatrixDimD plasticDistortion;
         
 		/* Constructor ************************************************************/
         DislocationNetwork(const int& argc, char * const argv[]){
@@ -468,6 +460,8 @@ namespace model {
                 // argv[1] is assumed to be the filename with working directory the current directory
                 read("./",argv[1]);
             }
+            
+            plasticDistortion.setZero();
         }
         
 		
@@ -477,24 +471,29 @@ namespace model {
 				if(!(runID%use_redistribution)){
 					double t0=clock();
 					std::cout<<"		remeshing network... "<<std::flush;
-					DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(Lmax,Lmin,thetaDeg);
+//					DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(Lmax,Lmin,thetaDeg);
+					DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
 					std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 				}
 			}
 		}
 		
-		/* get_dt *****************************************************************/
-		const double& get_dt() const {
+		/* get_dt *************************************************************/
+		const double& get_dt() const
+        {/*! The current simulation time step in dimensionless units
+          */
 			return dt;
 		}
-		
-		const double& get_totalTime() const {
+        
+        /* get_totalTime ******************************************************/
+		const double& get_totalTime() const
+        {/*! The elapsed simulation time step in dimensionless units
+          */
 			return totalTime;
 		}
 		
-		
-		/* read *****************************************************************/
-		void read(const std::string& inputDirectoryName_in, std::string inputFileName){
+		/* read ***************************************************************/
+		void read(const std::string& inputDirectoryName_in, std::string inputFileName){ // TO DO: move this to DislocationNetworkIO.h
 			
             std::ostringstream fullName;
             fullName<<inputDirectoryName_in<<inputFileName;
@@ -507,9 +506,17 @@ namespace model {
             EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
             Material<Isotropic>::rotateCrystal(C2Gtemp);
             
+            
+            // Min SubNetwork::nodeOrder for Assemble and solve
+            int minSNorderForSolve_temp(0);
+            EDR.readScalarInFile(fullName.str(),"minSNorderForSolve",minSNorderForSolve_temp); // material by atomic number Z
+            assert(minSNorderForSolve_temp>=0 && "minSNorderForSolve must be >=0");
+            shared.minSNorderForSolve=(size_t)minSNorderForSolve_temp;
+            
             // QuadratureParticle
             EDR.readScalarInFile(fullName.str(),"coreWidthSquared",DislocationQuadratureParticle<dim,cellSize>::a2); // core-width
             assert((DislocationQuadratureParticle<dim,cellSize>::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
+            LinkType::coreLsquared=DislocationQuadratureParticle<dim,cellSize>::a2;
             //            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
             EDR.readScalarInFile(fullName.str(),"nearCellStressApproximation",DislocationQuadratureParticle<dim,cellSize>::nearCellStressApproximation); // useMultipoleStress
             EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationQuadratureParticle<dim,cellSize>::farCellStressApproximation); // useMultipoleStress
@@ -518,25 +525,26 @@ namespace model {
             
             EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
 			
-            
-			
+            // Implicit time integration
+            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
+        
 			
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
 			
-            EDR.readScalarInFile(fullName.str(),"outputFrequency",outputFrequency);
-            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",outputGlidePlanes);
-            EDR.readScalarInFile(fullName.str(),"outputSpaceCells",outputSpaceCells);
-            EDR.readScalarInFile(fullName.str(),"outputPKforce",outputPKforce);
+            EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
+            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes);
+            EDR.readScalarInFile(fullName.str(),"outputSpaceCells",DislocationNetworkIO<DislocationNetworkType>::outputSpaceCells);
+            EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
+            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
+            
+            
 			
 			EDR.readScalarInFile(fullName.str(),"boundary_type",shared.boundary_type);
 			if (shared.boundary_type){
 				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
-                //				shared.domain.readMesh();
-                //shared.domain.readMesh(&shared);
                 shared.domain.readMesh();
 				if(shared.use_bvp){
 					shared.domain.readInputBCs();
-					//shared.domain.setBoundaryConditions();		// temporary
 				}
 			}
 			else{ // no boundary is used, this means dislocation network in inifinite medium
@@ -560,22 +568,32 @@ namespace model {
             
             
             EDR.readScalarInFile(fullName.str(),"use_redistribution",use_redistribution);
-            EDR.readScalarInFile(fullName.str(),"Lmin",Lmin);
-            assert(Lmin>=0.0);
-            assert(Lmin>2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
-            EDR.readScalarInFile(fullName.str(),"Lmax",Lmax);
-            assert(Lmax>Lmin);
-            EDR.readScalarInFile(fullName.str(),"thetaDeg",thetaDeg);
-            assert(thetaDeg>=0.0);
-            assert(thetaDeg<=90.0);
+//            EDR.readScalarInFile(fullName.str(),"Lmin",Lmin);
+//            assert(Lmin>=0.0);
+//            assert(Lmin>2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
+            EDR.readScalarInFile(fullName.str(),"Lmin",DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
+//            EDR.readScalarInFile(fullName.str(),"Lmax",Lmax);
+//            assert(Lmax>Lmin);
+            EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
+//            EDR.readScalarInFile(fullName.str(),"thetaDeg",thetaDeg);
+//            assert(thetaDeg>=0.0);
+//            assert(thetaDeg<=90.0);
+            EDR.readScalarInFile(fullName.str(),"thetaDeg",DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg>=0.0);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg<=90.0);
+
 			
+            
             // Cross-Slip inputs
             EDR.readScalarInFile(fullName.str(),"use_crossSlip",use_crossSlip);
             if(use_crossSlip){
                 EDR.readScalarInFile(fullName.str(),"crossSlipDeg",crossSlipDeg);
                 assert(crossSlipDeg>=0.0 && crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
                 EDR.readScalarInFile(fullName.str(),"crossSlipLength",crossSlipLength);
-                assert(crossSlipLength>=Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
+                assert(crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
 				//				assert(crossSlipLength<Lmin && "YOU MUST CHOOSE crossSlipLength<Lmin."); // Because otherwise cross-slip points would go outside segment
             }
 			
@@ -590,20 +608,35 @@ namespace model {
                 shared.vbsc.initializeVirtualSegments(*this);
             }
             
+            
+//#ifdef DislocationNucleationFile
+//            EDR.readScalarInFile(fullName.str(),"nucleationFreq",nucleationFreq);
+//#endif
+
+            
 			
 			// Initializing initial configuration
 			std::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
-			move(0.0);	// initial configuration
+			move(0.0,0.0);	// initial configuration
 			output();	// initial configuration, this overwrites the input file
 			if (runID==0){ // not a restart
 				remesh();	// expand initial FR sources
 			}
 			updateQuadraturePoints();
-			++runID;     // increment the runID counter first, since the original configuration has been outputed already
+			++runID;     // increment the runID counter
+//            output();	// initial configuration, this overwrites the input file
 		}
 		
 		/* solve ****************************************************************/
-		void assembleAndSolve(){
+		void assembleAndSolve()
+        {/*! Assemble and solve equation system
+          */
+            
+#ifdef DislocationNetworkMPI
+			MPIstep();
+#endif
+
+            
 			//! 1- Loop over DislocationSegments and assemble stiffness matrix and force vector
 			std::cout<<"		Assembling edge stiffness and force vectors..."<<std::flush;
 			typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
@@ -616,124 +649,49 @@ namespace model {
 			std::cout<<"		Solving..."<<std::flush;
 			t0=clock();
             
-            
-            
 #ifdef _OPENMP
 #pragma omp parallel for
             for (unsigned int k=0;k<this->Naddresses();++k){
                 typename SubNetworkContainerType::iterator snIter(this->ABbegin()); //  data within a parallel region is private to each thread
                 std::advance(snIter,k);
                 //				snIter->second->solve();
-                snIter->second->sparseSolve();
+                if (snIter->second->nodeOrder()>=shared.minSNorderForSolve){
+                    snIter->second->sparseSolve();
+                }
             }
 #else
 			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter){
                 //				snIter->second->solve();
-                snIter->second->sparseSolve();
+                //snIter->second->sparseSolve();
+                if (snIter->second->nodeOrder()>=shared.minSNorderForSolve){
+                    snIter->second->sparseSolve();
+                }
 			}
 #endif
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
 		/* output ***************************************************************/
-		void output() const {
-			std::cout<<"		Outputing to";
-			double t0=clock();
-			
-			//! 1- Outputs the Edge informations to file E_*.txt where * is the current simulation step
-			SequentialOutputFile<'E',1>::set_increment(outputFrequency); // edgeFile;
-			SequentialOutputFile<'E',1>::set_count(runID); // edgeFile;
-			SequentialOutputFile<'E',1> edgeFile;
-			edgeFile << *dynamic_cast<const NetworkLinkContainerType*>(this);
-			std::cout<<" E/E_"<<edgeFile.sID;
-			
-			typedef std::pair<std::pair<int,int>,Eigen::Matrix<double,1,9> > BinEdgeType;
-			SequentialBinFile<'E',BinEdgeType>::set_increment(outputFrequency);
-			SequentialBinFile<'E',BinEdgeType>::set_count(runID);
-			SequentialBinFile<'E',BinEdgeType> binEdgeFile;
-			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-				Eigen::Matrix<double,1,9> temp;
-				temp<< linkIter->second->flow.transpose(),
-				/*  */ linkIter->second->glidePlaneNormal.transpose(),
-				/*  */ linkIter->second->sourceTfactor,
-				/*  */ linkIter->second->sinkTfactor,
-				/*  */ linkIter->second->pSN()->sID;
-				binEdgeFile.write(std::make_pair(linkIter->first,temp));
-			}
-			
-			//! 2- Outputs the Vertex informations to file V_*.txt where * is the current simulation step
-			SequentialOutputFile<'V',1>::set_increment(outputFrequency); // vertexFile;
-			SequentialOutputFile<'V',1>::set_count(runID); // vertexFile;
-			SequentialOutputFile<'V',1> vertexFile;
-			for (typename NetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-				vertexFile << nodeIter->second->sID<<"\t"
-				/*         */ << std::setprecision(15)<<std::scientific<<nodeIter->second->get_P().transpose()<<"\t"
-				/*         */ << std::setprecision(15)<<std::scientific<<nodeIter->second->get_T().transpose()<<"\t"
-				/*         */ << nodeIter->second->pSN()->sID<<"\t";
-				if (shared.use_bvp){ //output in deformed configuration
-					vertexFile << std::setprecision(15)<<std::scientific<<nodeIter->second->deformedPosition().transpose()<<"\t";
+		void output() const
+        {/*! Outputs DislocationNetwork data
+          */
+            double t0=clock();
+            if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency)){
+#ifdef DislocationNetworkMPI
+				if(localProc==0){
+                    DislocationNetworkIO<DislocationNetworkType>(*this).outputTXT(runID);
 				}
-				else{
-					vertexFile<< VectorDimD::Zero().transpose();
-				}
-				vertexFile << std::endl;
-				
-			}
-			std::cout<<", V/V_"<<vertexFile.sID;
-			
-            if(outputSpaceCells){
-                //! 3- Outputs the nearest neighbor Cell structures to file C_*.txt where * is the current simulation step
-                SequentialOutputFile<'C',1>::set_increment(outputFrequency); // Cell_file;
-                SequentialOutputFile<'C',1>::set_count(runID); // Cell_file;
-                SequentialOutputFile<'C',1> Cell_file;
-                //              SpaceCellObserverType SPC;
-                int cID(0);
-                for (typename CellMapType::const_iterator cellIter=SpaceCellObserverType::begin();cellIter!=SpaceCellObserverType::end();++cellIter){
-                    Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<cellSize<<std::endl;
-                    ++cID;
-                }
-                std::cout<<", C/C_"<<Cell_file.sID;
-            }
-			
-            if(outputGlidePlanes){
-                //! 4- Outputs the glide planes
-                SequentialOutputFile<'G',1>::set_increment(outputFrequency); // GlidePlanes_file;
-                SequentialOutputFile<'G',1>::set_count(runID); // GlidePlanes_file;
-                SequentialOutputFile<'G',1> glide_file;
-                glide_file << *dynamic_cast<const GlidePlaneObserverType*>(this);
-                std::cout<<", G/G_"<<glide_file.sID;
-            }
-            
-            if(outputPKforce){
-                SequentialOutputFile<'P',1>::set_increment(outputFrequency); // Edges_file;
-                SequentialOutputFile<'P',1>::set_count(runID); // Edges_file;
-                SequentialOutputFile<'P',1> p_file;
-                // let's output the node velocity
-                int ll=0;
-                for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-                    for (int q=0;q<qOrder;++q){
-                        p_file << ll*qOrder+q<<" "<< linkIter->second->rgauss.col(q).transpose()<<" "<<linkIter->second->pkGauss.col(q).transpose()<<"\n";
-                    }
-                    ll++;
-                }
-                std::cout<<", P/P_"<<p_file.sID;
-            }
-            
-            if (shared.use_bvp && (shared.boundary_type==1)){
-                shared.vbsc.outputVirtualDislocations(outputFrequency,runID);
-            }
-            
-			
-#ifdef customUserOutputs
-#include customUserOutputs
+#else
+                DislocationNetworkIO<DislocationNetworkType>(*this).outputTXT(runID);
 #endif
-			
+			}
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
 		
 		/* updateQuadraturePoints ********************************/
-		void updateQuadraturePoints(){
+		void updateQuadraturePoints()
+        {
 			double t0=clock();
 			std::cout<<"		Updating Quadrature Points... "<<std::flush;
 			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
@@ -750,9 +708,10 @@ namespace model {
 		
 		
 		/***********************************************************/
-		void move(const double & dt_in){
-			//! 1- Moves all nodes in the DislocationNetwork using the stored velocity and current dt
-			std::cout<<"		Moving Dislocation Nodes... "<<std::flush;
+		void move(const double & dt_in, const double & dt_old)
+        {/*! Moves all nodes in the DislocationNetwork using the stored velocity and current dt
+          */
+			std::cout<<"		Moving Dislocation Nodes (dt="<<dt_in<< ")... "<<std::flush;
 			double t0=clock();
             //			typedef void (NodeType::*NodeMemberFunctionPointerType)(const double&); // define type of Link member function
             //			NodeMemberFunctionPointerType Nmfp(&NodeType::move); // Lmfp is a member function pointer to Link::assemble
@@ -760,19 +719,15 @@ namespace model {
             //			this->parallelExecute(Nmfp,dt_in);
             
 			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-				nodeIter->second->move(dt_in);
+				nodeIter->second->move(dt_in,dt_old);
 			}
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
-		
-        
-		
-		
 		/***********************************************************/
-		void runByStep(const bool& updateUserBC=false){
-			/*! A simulation step consists of the following:
-			 */
+		void runByStep(const bool& updateUserBC=false)
+        {/*! Runs Nsteps simulation steps
+          */
 			double ts=clock();
 			for (int k=0;k<Nsteps;++k){
 				std::cout<<std::endl; // leave a blank line
@@ -784,7 +739,10 @@ namespace model {
 		
 		
 		/***********************************************************/
-		void runByTime(const bool& updateUserBC=false){
+		void runByTime(const bool& updateUserBC=false)
+        {/*! Runs a number simulation steps corresponding to a total
+          * dimensionless time timeWindow
+          */
 			double ts=clock();
 			double elapsedTime(0.0);
 			while (elapsedTime<timeWindow){
@@ -797,8 +755,12 @@ namespace model {
 		}
 		
 		
-		/********************************************************/
-		void checkBalance() const {
+		/**********************************************************************/
+		void checkBalance() const
+        {/*! Checks that each DislocationNode is balanced, and asserts otherwise
+          * Exceptions are nodes with only one neighbors (FR source)
+          * and nodes on the boundary.
+          */
 			for (typename NetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
 				if (nodeIter->second->neighborhood().size()>2){
                     const bool nodeIsBalanced(nodeIter->second->is_balanced());
@@ -813,17 +775,19 @@ namespace model {
 		}
 		
 		
-		/********************************************************/
+		/**********************************************************************/
 		// energy
-		double energy(){
+		double energy()
+        {/*! The total elastic energy of the dislocation network
+          */
 			double temp=0.0;
 			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
 				temp+= linkIter->second->energy();
 			}
-			return temp;
+			return 0.5*temp;
 		}
 		
-		/********************************************************/
+		/**********************************************************************/
 		template <bool useFullField=true>
 		MatrixDimD stress(const VectorDimD & Rfield) const {
 			MatrixDimD temp=MatrixDimD::Zero();
@@ -833,13 +797,14 @@ namespace model {
 				}
 			}
 			else{
-				SpaceCellObserverType sCO;
-				typename SpaceCellObserverType::SharedPtrType sharedCellPointer(sCO.getCellByPosition(Rfield));
-				for(typename SpaceCellType::ParticleContainerType::const_iterator particleIter =sharedCellPointer->neighborParticleContainer.begin();
-					/*                                                         */ particleIter!=sharedCellPointer->neighborParticleContainer.end();
-					/*                                                         */ ++particleIter){
-					temp+=(*particleIter)->stress_at(Rfield);
-				}
+                assert(0 && "RE-ENABLE THIS WITH NEW CELL CLASS");
+                //				SpaceCellObserverType sCO;
+                //				typename SpaceCellObserverType::SharedPtrType sharedCellPointer(sCO.getCellByPosition(Rfield));
+                //				for(typename SpaceCellType::ParticleContainerType::const_iterator particleIter =sharedCellPointer->neighborParticleContainer.begin();
+                //					/*                                                         */ particleIter!=sharedCellPointer->neighborParticleContainer.end();
+                //					/*                                                         */ ++particleIter){
+                //					temp+=(*particleIter)->stress_at(Rfield);
+                //				}
 			}
             if (shared.use_bvp && (shared.boundary_type==1)){
                 temp+= shared.vbsc.stress(Rfield);
@@ -925,8 +890,19 @@ namespace model {
             return runID;
         }
         
+        /********************************************************/
+        const double& vMax() const
+        {
+            return vmax;
+        }
 		
 	};
+    
+    
+    // static data
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    bool DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::useImplicitTimeIntegration=false;
     
     
 	//////////////////////////////////////////////////////////////

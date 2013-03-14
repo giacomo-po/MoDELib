@@ -121,79 +121,103 @@ namespace model {
 	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,16,UniformOpen>{};
 	Eigen::Matrix<double,1,16> AvoidMacOsXBug5=Quadrature<1,16,UniformOpen>::abscissas; // is this static initialization fiasco?
 	Eigen::Matrix<double,1,16> AvoidMacOsXBug6=Quadrature<1,16,UniformOpen>::weights;   // is this static initialization fiasco?
-	/************************************************************************************/	
-
-	
+	/************************************************************************************/
+    
+    
     /************************************************************************************/
 	/*	TypeTraits for: dim=3, corder=1, alpha=centripetal, InterpolationType=CatmullRom
-	 qOrder=32, QuadratureRule=UniformOpen
+	 qOrder=16, QuadratureRule=UniformOpen
 	 */
 	template<>
-	struct TypeTraits<DislocationNetwork	<3,1,CatmullRom,centripetal,32,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,32,UniformOpen>{};
+	struct TypeTraits<DislocationNetwork	<3,1,CatmullRom,chordal,16,UniformOpen> > :
+	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,16,UniformOpen>{};
 	
 	template<>
-	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,centripetal,32,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,32,UniformOpen>{};
+	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,chordal,16,UniformOpen> > :
+	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,16,UniformOpen>{};
 	
 	template<>
-	struct TypeTraits<DislocationNode		<3,1,CatmullRom,centripetal,32,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,32,UniformOpen>{};
+	struct TypeTraits<DislocationNode		<3,1,CatmullRom,chordal,16,UniformOpen> > :
+	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,16,UniformOpen>{};
 	
 	template<>
-	struct TypeTraits<DislocationSegment	<3,1,CatmullRom,centripetal,32,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,32,UniformOpen>{};
-	Eigen::Matrix<double,1,32> AvoidMacOsXBug7=Quadrature<1,32,UniformOpen>::abscissas; // is this static initialization fiasco?
-	Eigen::Matrix<double,1,32> AvoidMacOsXBug8=Quadrature<1,32,UniformOpen>::weights;   // is this static initialization fiasco?
-	/************************************************************************************/
-
-    /************************************************************************************/
-	/*	TypeTraits for: dim=3, corder=1, alpha=centripetal, InterpolationType=CatmullRom
-	 qOrder=64, QuadratureRule=UniformOpen
-	 */
-	template<>
-	struct TypeTraits<DislocationNetwork	<3,1,CatmullRom,centripetal,64,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,64,UniformOpen>{};
-	
-	template<>
-	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,centripetal,64,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,64,UniformOpen>{};
-	
-	template<>
-	struct TypeTraits<DislocationNode		<3,1,CatmullRom,centripetal,64,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,64,UniformOpen>{};
-	
-	template<>
-	struct TypeTraits<DislocationSegment	<3,1,CatmullRom,centripetal,64,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,64,UniformOpen>{};
-	Eigen::Matrix<double,1,64> AvoidMacOsXBug9=Quadrature<1,64,UniformOpen>::abscissas; // is this static initialization fiasco?
-	Eigen::Matrix<double,1,64> AvoidMacOsXBug10=Quadrature<1,64,UniformOpen>::weights;   // is this static initialization fiasco?
-	/************************************************************************************/
-
-    /************************************************************************************/
-	/*	TypeTraits for: dim=3, corder=1, alpha=centripetal, InterpolationType=CatmullRom
-	 qOrder=64, QuadratureRule=UniformOpen
-	 */
-	template<>
-	struct TypeTraits<DislocationNetwork	<3,1,CatmullRom,chordal,64,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,64,UniformOpen>{};
-	
-	template<>
-	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,chordal,64,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,64,UniformOpen>{};
-	
-	template<>
-	struct TypeTraits<DislocationNode		<3,1,CatmullRom,chordal,64,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,64,UniformOpen>{};
-	
-	template<>
-	struct TypeTraits<DislocationSegment	<3,1,CatmullRom,chordal,64,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,64,UniformOpen>{};
-	Eigen::Matrix<double,1,64> AvoidMacOsXBug11=Quadrature<1,64,UniformOpen>::abscissas; // is this static initialization fiasco?
-	Eigen::Matrix<double,1,64> AvoidMacOsXBug12=Quadrature<1,64,UniformOpen>::weights;   // is this static initialization fiasco?
-	/************************************************************************************/
-
-	
+	struct TypeTraits<DislocationSegment	<3,1,CatmullRom,chordal,16,UniformOpen> > :
+	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,16,UniformOpen>{};
+	Eigen::Matrix<double,1,16> AvoidMacOsXBug7=Quadrature<1,16,UniformOpen>::abscissas; // is this static initialization fiasco?
+	Eigen::Matrix<double,1,16> AvoidMacOsXBug8=Quadrature<1,16,UniformOpen>::weights;   // is this static initialization fiasco?
+    
+//
+//	
+//    /************************************************************************************/
+//	/*	TypeTraits for: dim=3, corder=1, alpha=centripetal, InterpolationType=CatmullRom
+//	 qOrder=32, QuadratureRule=UniformOpen
+//	 */
+//	template<>
+//	struct TypeTraits<DislocationNetwork	<3,1,CatmullRom,centripetal,32,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,32,UniformOpen>{};
+//	
+//	template<>
+//	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,centripetal,32,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,32,UniformOpen>{};
+//	
+//	template<>
+//	struct TypeTraits<DislocationNode		<3,1,CatmullRom,centripetal,32,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,32,UniformOpen>{};
+//	
+//	template<>
+//	struct TypeTraits<DislocationSegment	<3,1,CatmullRom,centripetal,32,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,32,UniformOpen>{};
+//	Eigen::Matrix<double,1,32> AvoidMacOsXBug7=Quadrature<1,32,UniformOpen>::abscissas; // is this static initialization fiasco?
+//	Eigen::Matrix<double,1,32> AvoidMacOsXBug8=Quadrature<1,32,UniformOpen>::weights;   // is this static initialization fiasco?
+//	/************************************************************************************/
+//
+//    /************************************************************************************/
+//	/*	TypeTraits for: dim=3, corder=1, alpha=centripetal, InterpolationType=CatmullRom
+//	 qOrder=64, QuadratureRule=UniformOpen
+//	 */
+//	template<>
+//	struct TypeTraits<DislocationNetwork	<3,1,CatmullRom,centripetal,64,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,64,UniformOpen>{};
+//	
+//	template<>
+//	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,centripetal,64,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,64,UniformOpen>{};
+//	
+//	template<>
+//	struct TypeTraits<DislocationNode		<3,1,CatmullRom,centripetal,64,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,64,UniformOpen>{};
+//	
+//	template<>
+//	struct TypeTraits<DislocationSegment	<3,1,CatmullRom,centripetal,64,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,64,UniformOpen>{};
+//	Eigen::Matrix<double,1,64> AvoidMacOsXBug9=Quadrature<1,64,UniformOpen>::abscissas; // is this static initialization fiasco?
+//	Eigen::Matrix<double,1,64> AvoidMacOsXBug10=Quadrature<1,64,UniformOpen>::weights;   // is this static initialization fiasco?
+//	/************************************************************************************/
+//
+//    /************************************************************************************/
+//	/*	TypeTraits for: dim=3, corder=1, alpha=centripetal, InterpolationType=CatmullRom
+//	 qOrder=64, QuadratureRule=UniformOpen
+//	 */
+//	template<>
+//	struct TypeTraits<DislocationNetwork	<3,1,CatmullRom,chordal,64,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,64,UniformOpen>{};
+//	
+//	template<>
+//	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,chordal,64,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,64,UniformOpen>{};
+//	
+//	template<>
+//	struct TypeTraits<DislocationNode		<3,1,CatmullRom,chordal,64,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,64,UniformOpen>{};
+//	
+//	template<>
+//	struct TypeTraits<DislocationSegment	<3,1,CatmullRom,chordal,64,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,64,UniformOpen>{};
+//	Eigen::Matrix<double,1,64> AvoidMacOsXBug11=Quadrature<1,64,UniformOpen>::abscissas; // is this static initialization fiasco?
+//	Eigen::Matrix<double,1,64> AvoidMacOsXBug12=Quadrature<1,64,UniformOpen>::weights;   // is this static initialization fiasco?
+//	/************************************************************************************/
+//
+//	
 	
 	
 	

@@ -71,13 +71,17 @@ namespace model {
 				double hP(iterCS->midPoint.dot(iterCS->normalConjugate)); // heigth of midPoint along normalConjugate
 				
 				// 2.1- correct midPoint is there is an existing conjugate plane close to it
-				for (typename GlidePlaneObserverType::const_iterator gpIter=gpo.begin(); gpIter!=gpo.end();++gpIter){
-					if((gpIter->second->planeNormal-iterCS->normalConjugate).norm()<FLT_EPSILON){
-						if((gpIter->second->height-hP)<planeTol){
+				for (typename GlidePlaneObserverType::const_iterator gpIter=gpo.begin(); gpIter!=gpo.end();++gpIter)
+                {
+					if((gpIter->second->planeNormal-iterCS->normalConjugate).norm()<FLT_EPSILON)
+                    {
+						if((gpIter->second->height-hP)<planeTol)
+                        {
 							const double den(1.0-std::pow(iterCS->normalPrimary.dot(iterCS->normalConjugate),2));
 							const double num(gpIter->second->height-hP);
 							const double u(num/den);
-                            if(std::fabs(u)<planeTol){
+                            if(std::fabs(u)<planeTol)
+                            {
                                 midPoint += u*(iterCS->normalConjugate-(iterCS->normalConjugate.dot(iterCS->normalPrimary)*iterCS->normalPrimary));
                                 break;
                             }

@@ -10,16 +10,14 @@
 #define model_NETWORK_H_
 
 
-#ifndef VERBOSELEVEL
-#define VERBOSELEVEL 0
-#endif
-
 #include <assert.h>
 
+//#include <map>
 #include <boost/ptr_container/ptr_map.hpp>
-#include <boost/smart_ptr/shared_ptr.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/utility.hpp>
+//#include <boost/smart_ptr/shared_ptr.hpp>
+//#include <boost/tuple/tuple.hpp>
+//#include <boost/utility.hpp>
+//#include <memory> // std::shared_ptr
 
 #include <model/Utilities/TypeTraits.h>
 #include <model/Utilities/CRTP.h>
@@ -38,6 +36,8 @@ namespace model {
 	class Network : boost::noncopyable,
 	/*          */  protected boost::ptr_map<size_t,typename TypeTraits<Derived>::NodeType>,
 	/*          */  protected boost::ptr_map<std::pair<size_t,size_t>,typename TypeTraits<Derived>::LinkType>,
+//	/*          */  protected std::map<size_t,std::auto_ptr<typename TypeTraits<Derived>::NodeType> >,
+//	/*          */  protected std::map<std::pair<size_t,size_t>,std::auto_ptr<typename TypeTraits<Derived>::LinkType> >,
 	/*          */  public  CRTP<Derived>,
 	/*          */  public  AddressBook<typename TypeTraits<Derived>::SubNetworkType,0>{
 		
@@ -257,15 +257,16 @@ namespace model {
 
 		/*************************************************************/
 		template <typename T>
-		void parallelExecute(void (NodeType::*Vfptr)(const T&), const T& input){
+		void parallelExecute(void (NodeType::*Vfptr)(const T&), const T& input)
+        {
 			ParallelExecute<NodeType,LinkType>(*this,*this).execute(Vfptr,input);
 		}		
-
-
+        
 		/*************************************************************/
 		// friend T& operator <<
 		template <class T>
-		friend T& operator << (T& os, const NetworkNodeContainerType& nnC) {			
+		friend T& operator << (T& os, const NetworkNodeContainerType& nnC)
+        {
 			for (typename NetworkNodeContainerType::const_iterator nodeIter=nnC.begin();nodeIter!=nnC.end();++nodeIter){				
 				os << (*nodeIter->second) << "\n";
 			}
@@ -275,24 +276,14 @@ namespace model {
 		/*************************************************************/
 		// friend T& operator <<
 		template <class T>
-		friend T& operator << (T& os, const NetworkLinkContainerType& nlC) {			
+		friend T& operator << (T& os, const NetworkLinkContainerType& nlC)
+        {
 			for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter){				
 				os << (*linkIter->second) << "\n";
 			}
 			return os;
 		}
         
-
-		
-//		/*************************************************************/
-//		// friend T& operator <<
-//		template <char ch>
-//		friend SequentialBinFile<ch,EdgeType::BinDataType>& operator << (T& os, const NetworkLinkContainerType& nlC){			
-//			for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter){				
-//				os << (*linkIter->second) << "\n";
-//			}
-//			return os;
-//		}
 
 	};	// end Network
 	/************************************************************/

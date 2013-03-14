@@ -132,19 +132,29 @@ namespace model {
 		void plot() const {
 			if (showMesh>0){
 				float dispCorr(dispScale*(showMesh>1));
-				glDisable(GL_DEPTH_TEST);
+				//glDisable(GL_DEPTH_TEST);
 				glEnable (GL_BLEND);
 				glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glEnable(GL_ALPHA_TEST);
-				glAlphaFunc(GL_GREATER, 0.0f);
-				glEnable(GL_COLOR_MATERIAL);
-				glColor4f(0.0f, 0.0f, 0.0f, 0.1);
+				//glEnable(GL_ALPHA_TEST);
+				//glAlphaFunc(GL_GREATER, 0.0f);
+				//glEnable(GL_COLOR_MATERIAL);
+				//glColor4f(1.0f, 1.0f, 1.0f, 0.3);
+                glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
+                GLfloat materialColor[]={0.0, 0.0, 0.0, 0.1};
+                glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor);      // ambient color for the material
+                glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor);      // diffuse color for the material
+                glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor);  // specular color for the material
+                glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor);  // emission color for the material
+                
+                
 				for (EdgeVectoType::const_iterator iterE=edgeVector.begin(); iterE!=edgeVector.end();++iterE){
 					glBegin(GL_LINES); 
 				glVertex3f(iterE->operator()(0,0)+iterE->operator()(0,2)*dispCorr, iterE->operator()(1,0)+iterE->operator()(1,2)*dispCorr,iterE->operator()(2,0)+iterE->operator()(2,2)*dispCorr); 
 				glVertex3f(iterE->operator()(0,1)+iterE->operator()(0,3)*dispCorr, iterE->operator()(1,1)+iterE->operator()(1,3)*dispCorr,iterE->operator()(2,1)+iterE->operator()(2,3)*dispCorr); 
 					glEnd();
 				}
+                
+                glDisable(GL_BLEND);
 				glEnable(GL_DEPTH_TEST); //Makes 3D drawing work when something is in front of something else
                 
                 if (showQuad){

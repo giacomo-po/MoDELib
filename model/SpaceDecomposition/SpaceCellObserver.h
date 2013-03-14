@@ -10,7 +10,8 @@
 #define model_SPACECELLOBSERVER_H_
 
 #include <map>
-#include <boost/shared_ptr.hpp>
+//#include <boost/shared_ptr.hpp>
+#include <memory> // std::shared_ptr (c++11)
 
 #include <Eigen/Dense>
 #include <model/Utilities/CompareVectorsByComponent.h>
@@ -35,7 +36,7 @@ namespace model {
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
 		typedef Eigen::Matrix<int,dim,1>    VectorDimI;
 		typedef std::map<VectorDimI,SpaceCellType* const,CompareVectorsByComponent<int,dim> >  CellMapType;
-		typedef boost::shared_ptr<SpaceCellType> SharedPtrType;
+		typedef std::shared_ptr<SpaceCellType> SharedPtrType;
 
 
 		/* begin() ***************************************************/

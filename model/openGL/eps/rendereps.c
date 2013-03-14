@@ -10,6 +10,7 @@
  smooth shading (albeit limited due to PostScript). */
 
 /* Compile: cc -o rendereps rendereps.c -lglut -lGLU -lGL -lXmu -lXext -lX11 -lm */
+/* g++ -o rendereps rendereps.c -framework GLUT -framework OpenGL */
 
 #include <assert.h>
 #include <math.h>
@@ -567,7 +568,7 @@ outputEPS(int size, int doSort, char *filename)
     if (filename) {
         file = fopen(filename, "w");
         if (file) {
-            spewWireFrameEPS(file, doSort, returned, (GLfloat*) feedbackBuffer, "rendereps");
+            spewWireFrameEPS(file, doSort, returned, (GLfloat*)  , "rendereps");
         } else {
             printf("Could not open %s\n", filename);
         }

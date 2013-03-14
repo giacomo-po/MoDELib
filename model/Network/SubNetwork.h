@@ -10,17 +10,13 @@
 #ifndef model_SUBNETWORK_H_
 #define model_SUBNETWORK_H_
 
-#ifndef VERBOSELEVEL
-#define VERBOSELEVEL 0
-#endif
-
 #include <iomanip>
 #include <assert.h>
 #include <map>
 #include <utility>
 
 #include <boost/ptr_container/ptr_map.hpp>
-#include <boost/tuple/tuple.hpp>
+//#include <boost/tuple/tuple.hpp>
 #include <boost/utility.hpp>
 
 #include <model/Network/Operations/includeNetworkOperations.h>
@@ -49,18 +45,12 @@ namespace model {
 			/************************************************************/
 			/* Constructor with pointer to Node *************************/
 			SubNetwork(NodeType* const pN){
-#if VERBOSELEVEL == 0
-				std::cout<<"Creating SubNetwork "<<this->sID<<" for Node "<<pN->sID<<std::endl;
-#endif
 				add(pN);
 			}
 			
 			/************************************************************/
 			/* Constructor with pointer to Link *************************/
 			SubNetwork(LinkType* const pL){
-#if VERBOSELEVEL == 0
-				std::cout<<"Creating SubNetwork "<<this->sID<<" for Link "<<pL->sID<<std::endl;
-#endif
 				add(pL);
 			}
 			
@@ -69,10 +59,6 @@ namespace model {
 			~SubNetwork(){
 				assert(SubNetworkNodeContainerType::empty() && "Destroying non-empty SubNetwork! Subnetwork contains Vertices.");	// make sure that only empty subnetworks are deleted
 				assert(SubNetworkLinkContainerType::empty() && "Destroying non-empty SubNetwork! Subnetwork contains Edges.");		// make sure that only empty subnetworks are deleted
-#if VERBOSELEVEL == 0
-				std::cout<<"Deleting SubNetwork "<<this->sID;
-				std::cout<<" .There are now "<<this->Naddresses()-1<<" SubNetworks"<<std::endl;
-#endif
 			}
 			
 			/************************************************************/
@@ -143,50 +129,38 @@ namespace model {
 			
 			/************************************************************/
 			// linkEnd
-			typename SubNetworkLinkContainerType::iterator linkEnd() {
+			typename SubNetworkLinkContainerType::iterator linkEnd()
+            {/*! @return An iterator to the end of the link container
+              */
 				return SubNetworkLinkContainerType::end();
 			}
 			
-			typename SubNetworkLinkContainerType::const_iterator linkEnd() const {
+			typename SubNetworkLinkContainerType::const_iterator linkEnd() const
+            {
 				return SubNetworkLinkContainerType::end();
 			}
 			
 			/************************************************************/
 			// snID (link)
-			size_t snID(const LinkType* const & pL) const {
+			size_t snID(const LinkType* const & pL) const
+            {/*! @param[in] pL
+              *  @return The ID of pL in this SubNetwork
+              */
 				return std::distance(SubNetworkLinkContainerType::begin(), SubNetworkLinkContainerType::find(pL->nodeIDPair  ) );
 			}
 			
 			/************************************************************/
-			void add(LinkType* const pL){
+			void add(LinkType* const pL)
+            {/*! @param[in] pL
+              */
 				assert(SubNetworkLinkContainerType::insert(std::make_pair(pL->nodeIDPair ,pL)).second);
 			}
 			
 			/************************************************************/
-			void remove(LinkType* const pL){
+			void remove(LinkType* const pL)
+            {/*! @param[in] pL
+              */
 				assert(SubNetworkLinkContainerType::erase(pL->nodeIDPair )==1);
-			}
-			
-			/************************************************************/
-			// friend T& operator <<
-			template <class T, typename OtherDerived>
-			friend T& operator << (T& os, const SubNetwork<OtherDerived> & SN){
-				
-				os<<"////// SUBNETWORK "<<SN.sID<<" ["<<&SN<<"] ////// ";
-				os<<"nodeOrder =  "<<SN.nodeOrder();
-				os<<". linkOrder =  "<<SN.linkOrder()<<std::endl;
-				
-				os<<"Link Map:"<<std::endl;
-				for (typename SubNetworkLinkContainerType::const_iterator linkIter=SN.linkBegin(); linkIter!=SN.linkEnd(); ++linkIter){
-					os<<*linkIter->second<<std::endl;
-				}
-				
-				os<<"Node Map:"<<std::endl;
-				for (typename SubNetworkNodeContainerType::const_iterator nodeIter=SN.nodeBegin(); nodeIter!=SN.nodeEnd(); ++nodeIter){
-					os<<*nodeIter->second<<std::endl;
-				}
-				
-				return os;
 			}
 			
 		};

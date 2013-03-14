@@ -114,7 +114,7 @@ namespace model {
             this->close();
             
             if( isEmpty){
-                deleteFile();
+            //    deleteFile();
             } 
         }
         

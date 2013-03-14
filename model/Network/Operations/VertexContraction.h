@@ -52,9 +52,9 @@ namespace model {
             assert(i!=j && "IN CONTRACTING (i,j), i AND j MUST BE DISTINCT");
 			
 			for (typename NeighborContainerType::const_iterator nIter=Vj.second->outNeighborhood().begin(); nIter!=Vj.second->outNeighborhood().end();++nIter){
-				const size_t k(boost::tuples::get<0>(nIter->second)->sID);
+				const size_t k(std::get<0>(nIter->second)->sID);
 				if(k!=i){
-					const FlowType fjk(boost::tuples::get<1>(nIter->second)->flow);
+					const FlowType fjk(std::get<1>(nIter->second)->flow);
 					const isConstNetworkEdgeType eik(EdgeFinder<EdgeType>(networkEdgeMapRef).link(i,k));
 					if (eik.first){
 						const FlowType fik(eik.second->flow);
@@ -80,9 +80,9 @@ namespace model {
 			}
 			
 			for (typename NeighborContainerType::const_iterator nIter=Vj.second->inNeighborhood().begin(); nIter!=Vj.second->inNeighborhood().end();++nIter){
-				const size_t k(boost::tuples::get<0>(nIter->second)->sID);
+				const size_t k(std::get<0>(nIter->second)->sID);
 				if (k!=i){
-					const FlowType fkj(boost::tuples::get<1>(nIter->second)->flow);
+					const FlowType fkj(std::get<1>(nIter->second)->flow);
 					const isConstNetworkEdgeType eik(EdgeFinder<EdgeType>(networkEdgeMapRef).link(i,k));
 					if (eik.first){
 						const FlowType fik(eik.second->flow);
