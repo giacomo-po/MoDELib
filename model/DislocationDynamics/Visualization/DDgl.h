@@ -38,9 +38,11 @@
 #include <model/DislocationDynamics/Visualization/Plotters/CellPlotter.h>
 #include <model/DislocationDynamics/Visualization/Plotters/PlanePlotter.h>
 #include <model/DislocationDynamics/Visualization/Plotters/MeshPlotter.h>
-#include <model/DislocationDynamics/Visualization/Plotters/BitmapPlotter.h>
+//#include <model/DislocationDynamics/Visualization/Plotters/BitmapPlotter.h>
 
-#include <model/openGL/gl2ps.h>
+#include <model/openGL/BitmapPlotter.h>
+#include <model/openGL/GL2tga.h>
+#include <model/openGL/GL2pdf.h>
 
 
 
@@ -80,6 +82,10 @@ namespace model {
         
         //  #include <model/DislocationDynamics/Visualization/eps/rendereps.h>
         
+        enum MouseActions {MOUSE_NONE,MOUSE_ROTATE,MOUSE_PAN};
+        
+        MouseActions mouseAction;
+        
 		enum {dim=3};
 		int windowHeight;
 		int windowWidth;
@@ -112,10 +118,12 @@ namespace model {
 		bool rewind;
 		
 		
-		bool g_bButton1Down;
-		bool g_bButton2Down;
+        //		bool g_bButton1Down;
+        //		bool g_bButton2Down;
 		
-		bool saveTga;
+//		bool saveTga;
+		//bool savePdf;
+        
 		
 		bool showAxes;
 		
@@ -147,78 +155,19 @@ namespace model {
 		PlanePlotter planePlotter;
 		MeshPlotter  meshPlotter;
         
-
-		
-        /* tgaScreenShot ************************************************/
-		void epsScreenShot(const std::string& filename) const {
         
-            GLfloat viewport[4];
-            glGetFloatv(GL_VIEWPORT, viewport);
-            //char *creator
-            
-            std::fstream file(filename.c_str(), std::ios::out);
-            //fputs("%!PS-Adobe-3.0 EPSF-3.0\n", file);
-            file<<"%!PS-Adobe-3.0 EPSF-3.0\n";
-//            fprintf(file,"%!PS-Adobe-3.0 EPSF-3.0\n");
-            /* Notice %% for a single % in the fprintf calls. */
-   //         fprintf(file, "%%%%Creator: %s (using OpenGL feedback)\n", file, "DDviewer");
- //           fprintf(file, "%%%%BoundingBox: %g %g %g %g\n",
-   //                 viewport[0], viewport[1], viewport[2], viewport[3]);
-          //  "%!PS-Adobe-3.0 EPSF-3.0\n"
-            file<<"%%BoundingBox: "<<viewport[0]<<" "<<viewport[1]<<" "<<viewport[2]<<" "<<viewport[3]<<"\n";
-     //       fputs("%%EndComments\n", file);
-       //     fputs("\n", file);
-         //   fputs("gsave\n", file);
-           // fputs("\n", file);
-
-            file.close();
-
-        }
-
+        
 		
-		/* tgaScreenShot ************************************************/
-		void tgaScreenShot(const std::string& filename) const {
-			
-			
-            //			std::stringstream filenameStream;
-            //			filenameStream << "tga/image_" << frameN << ".tga";
-            //
-            //			std::cout<<"Saving file"<<filenameStream.str()<<std::endl;
-			
-			//const char* filename=filenameStream.str().c_str();
-			int x=glutGet(GLUT_WINDOW_WIDTH);
-			int y=glutGet(GLUT_WINDOW_HEIGHT);
-			
-			// get the image data
-			long imageSize = x * y * 3;
-			unsigned char* data = new unsigned char[imageSize];
-			glReadPixels(0,0,x,y, GL_BGR,GL_UNSIGNED_BYTE,data);
-			
-			// split x and y sizes into bytes
-			int xa= x % 256;
-			int xb= (x-xa)/256;
-			
-			int ya= y % 256;
-			int yb= (y-ya)/256;
-			
-			//assemble the header
-			unsigned char header[18]={0,0,2,0,0,0,0,0,0,0,0,0,(char)xa,(char)xb,(char)ya,(char)yb,24,0};
-			
-			// write header and data to file
-			std::fstream File(filename.c_str(), std::ios::out | std::ios::binary);
-			File.write (reinterpret_cast<const char*>(header), sizeof (char)*18);
-			File.write (reinterpret_cast<const char*>(data), sizeof (char)*imageSize);
-			
-			File.close();
-			
-			delete[] data;
-			data=NULL;
-		}
+        
 		
 		
 		/*************************************************************/
 		/* initGL ****************************************************/
 		void initGL() const {
+            
+            
+            
+            
             
             // Lights, see http://www.sjbaker.org/steve/omniv/opengl_lighting.html
             
@@ -228,10 +177,6 @@ namespace model {
             
 			glEnable(GL_LIGHTING); //Enable lighting
 			
-			//Add ambient light
-//			GLfloat ambientColor[] = {0.2f, 0.2f, 0.2f, 1.0 }; //Color (0.2, 0.2, 0.2)
-//			GLfloat ambientColor[] = {0.8f, 0.8f, 0.8f, 1.0 }; //Color (0.2, 0.2, 0.2)
-//			glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 			
 			//Add positioned light
 			glEnable(GL_LIGHT0); //Enable light #0
@@ -240,28 +185,24 @@ namespace model {
             GLfloat light0Amb[] =   {0.0f, 0.0f, 0.0f, 1.0f}; // ambient color for GL_LIGHT0
             glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
             GLfloat light0Dif[] =   {1.0f, 1.0f, 1.0f, 1.0f}; // diffuse color for GL_LIGHT0
-            glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Dif);        
+            glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Dif);
             GLfloat light0Spec[] =   {1.0f, 1.0f, 1.0f, 1.0f}; // specular color for GL_LIGHT0
-            glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);      
+            glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
             
             //glLightfv(GL_LIGHT0, GL_SPECULAR, lightColor0);
             
             
             
-			//GLfloat lightColor0[] = {1.0f, 1.0f, 1.0f, 1.0f}; //Color (0.5, 0.5, 0.5)
-			//GLfloat lightPos0[] =   {0.5f, 0.5f, 0.5f, 1.0f}; //Positioned at (4, 0, 8)
-            //	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor0);
-            //            			glLightfv(GL_LIGHT0, GL_SPECULAR, lightColor0);
             
-						glEnable(GL_COLOR_MATERIAL);
-
+			glEnable(GL_COLOR_MATERIAL);
+            
 			
 			glEnable(GL_NORMALIZE); //Automatically normalize normals
 			glShadeModel(GL_SMOOTH); //Enable smooth shading
-
+            
 			
             //Disable color materials, so that glMaterial calls work
-//			glDisable(GL_COLOR_MATERIAL);
+            //			glDisable(GL_COLOR_MATERIAL);
 		}
 		
 		
@@ -293,16 +234,6 @@ namespace model {
             glColor3f (0.0, 0.0, 1.0);
             if (showControls) {
                 
-//                sprintf (outString, "Camera Position: (%0.1f, %0.1f, %0.1f)", Camera::viewPos.x, Camera::viewPos.y, Camera::viewPos.z);
-//                BitmapPlotter::drawGLString (10, window_height - (lineSpacing * line++) - startOffest, outString);
-//                sprintf (outString, "Trackball Rotation: (%0.1f, %0.2f, %0.2f, %0.2f)", TrackBallCamera::gTrackBallRotation[0], TrackBallCamera::gTrackBallRotation[1], TrackBallCamera::gTrackBallRotation[2], TrackBallCamera::gTrackBallRotation[3]);
-//                BitmapPlotter::drawGLString (10, window_height - (lineSpacing * line++) - startOffest, outString);
-//                sprintf (outString, "World Rotation: (%0.1f, %0.2f, %0.2f, %0.2f)", Camera::gWorldRotation[0], Camera::gWorldRotation[1], Camera::gWorldRotation[2], Camera::gWorldRotation[3]);
-//                BitmapPlotter::drawGLString (10, window_height - (lineSpacing * line++) - startOffest, outString);
-//                sprintf (outString, "Aperture: %0.1f", Camera::aperture);
-//                BitmapPlotter::drawGLString (10, window_height - (lineSpacing * line++) - startOffest, outString);
-//                sprintf (outString, "Focus Distance: %0.1f", Camera::focalLength);
-//                BitmapPlotter::drawGLString (10, windowHeight - (lineSpacing * line++) - startOffest, outString);
                 sprintf (outString, "Step: %u", frameN);
                 BitmapPlotter::drawGLString (10, windowHeight - (lineSpacing * line++) - startOffest, outString);
                 sprintf (outString, "Vertex Order: %u", splinePlotter.vertexOrder());
@@ -317,13 +248,15 @@ namespace model {
             
             if (showControls) {
                 line = 1;
-                sprintf (outString, "Controls:\n");
+                sprintf (outString, "HELP:\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
-                sprintf (outString, "spacebar: hide/show controls\n");
+                sprintf (outString, "spacebar: hide/show help\n");
+                BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
+                sprintf (outString, "right mouse button: show menu\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "left mouse button drag: rotate camera\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
-                sprintf (outString, "right mouse button drag: translate camera\n");
+                sprintf (outString, "SHIFT + left mouse button drag: translate camera\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "a: hide/show axis\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
@@ -349,8 +282,8 @@ namespace model {
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "r (hold r and press -/+): decrese/increse edge and vertex radius\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
-                sprintf (outString, "s: saves frames to tga folder\n");
-                BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
+//                sprintf (outString, "s: saves frames to tga folder\n");
+//                BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "v: hide/show vertices\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "x: auto-zoom\n");
@@ -368,7 +301,7 @@ namespace model {
             
             
             glEnable(GL_LIGHTING);
-
+            
         }
 		
 		
@@ -386,7 +319,7 @@ namespace model {
 				//glEnable(GL_COLOR_MATERIAL);
                 //	//			glColor4f(0.0f, 0.0f, 0.0f, 0.1);
                 
- //               glColor3f(0.0f, 0.0f, 0.0f);
+                //               glColor3f(0.0f, 0.0f, 0.0f);
                 
                 glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
                 GLfloat materialColor[]={0.0, 0.0, 0.0, 0.1};
@@ -466,43 +399,70 @@ namespace model {
 		}
 		
         
-        //void
-        //render(void)
-        //{
-        //
-        //    gluLookAt(eyePoint(0),eyePoint(1),eyePoint(2), centerPoint(0), centerPoint(1), centerPoint(2), upVector(0), upVector(1), upVector(2)); //giacomo
-        //
-        //    glTranslatef(centerPoint(0),centerPoint(1),centerPoint(2));
-        //    int object=1;
-        //    //glPushMatrix();
-        //    //glRotatef(angle, 0.0, 1.0, 0.0);
-        //    switch (object) {
-        //        case 0:
-        //            glutSolidSphere(100.0, 10, 10);
-        //            break;
-        //        case 1:
-        //            glutSolidTorus(0.5, 1.0, 15, 15);
-        //            break;
-        //        case 2:
-        //            glutSolidTeapot(1.0);
-        //            break;
-        //    }
-        //   // glPopMatrix();
-        //}
         
         
-		/* drawScene *************************************************/
-		//template<short unsigned int dim, double & alpha>
-		void drawScene() {
+        
+        /* drawScene *************************************************/
+        void displayFunc()
+        {
+            
+            
+            drawScene();
+            
+            // Save screenshot
+            if(savedframeN!=frameN)
+            {
+                // tga files
+                if (GL2tga::saveTGA)
+                {
+                    std::stringstream filenameStream;
+                    filenameStream << "tga/image_" << frameN;
+                    GL2tga::saveAs(filenameStream.str());
+                }
+                
+                // pdf files
+                if (GL2pdf< DDgl<3,alpha> >::savePDF)
+                {
+                    std::stringstream filenameStream;
+                    filenameStream << "pdf/image_" << frameN;
+                    GL2pdf< DDgl<3,alpha> >(*this).saveAs(filenameStream.str());
+                }
+                savedframeN=frameN; // update savedframeN
+            }
+            
 			
             
 			
-			float transparency(0.1);
+            drawGLText();
+            
+            
+			
+			glutSwapBuffers(); //Send the 3D scene to the screen
+            
+			
+			// Load next frame is "autoplay" is on
+			if (autoplay){
+				if (rewind){
+					previousFrame();
+				}
+				else {
+					nextFrame();
+				}
+			}
+            
+        }
+        
+		/* drawScene *************************************************/
+		//template<short unsigned int dim, double & alpha>
+		void drawScene()
+        {
+			
+            float transparency(0.1);
 			glClearColor(1.0f,1.0f,1.0f,transparency);
-//			glClearColor(0.0f,0.0f,0.0f,transparency);
-
+            //			glClearColor(0.0f,0.0f,0.0f,transparency);
+            
             //            glClearColor(0.3, 0.5, 0.8, 0.);
-
+            
 			
 			// Clear information from the last draw
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -523,91 +483,27 @@ namespace model {
 			GLfloat lightPos0[] = {eyePoint(0)-centerPoint(0), eyePoint(1)-centerPoint(1), eyePoint(2)-centerPoint(2), 0.0f}; //Positioned at (4, 0, 8)
 			//glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor0);
 			glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);
-			
-			
-			
-			//			glScalef(scale,scale,scale);
-			
-			glEnable(GL_MULTISAMPLE);
+            
+            
+            //            glClear (GL_COLOR_BUFFER_BIT);
+            //            glEnable (GL_BLEND);
+            //            glEnable (GL_POLYGON_SMOOTH);
+            //            glDisable (GL_DEPTH_TEST);
+            
+            glEnable(GL_MULTISAMPLE);
+            //glEnable(GL_POLYGON_SMOOTH);
+            //           glEnable(GL_LINE_SMOOTH);
+            //           glEnable(GL_POLYGON_SMOOTH);
+            //           glEnable(GL_MULTISAMPLE_ARB);
+            //glShadeModel(GL_SMOOTH);
 			splinePlotter.plot(radius);
 			cellPlotter.plot();
 			plotAxes();
 			meshPlotter.plot();
 			planePlotter.plot();
             
-            
-            //            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            //            glEnable(GL_LINE_STIPPLE);
-            //            gl2psEnable(GL2PS_LINE_STIPPLE);
-            //            glDisable(GL_LINE_STIPPLE);
-            //            gl2psDisable(GL2PS_LINE_STIPPLE);
-            //
-            //
-            //            glFlush();
 			
-			if (saveTga && savedframeN!=frameN) {
-                
-                std::stringstream filenameStream;
-                filenameStream << "tga/image_" << frameN << ".tga";
-                std::string filename=filenameStream.str();
-                std::cout<<"Saving file"<<filename<<std::endl;
-                
-				tgaScreenShot(filename);
-
-                std::stringstream filenameStream1;
-                filenameStream1 << "eps/image_" << frameN << ".eps";
-                std::string filename1=filenameStream1.str();
-                std::cout<<"Saving file"<<filename1<<std::endl;
-
-                epsScreenShot(filename1);
-
-                
-                savedframeN=frameN;
-                
-                // EPS
-//                std::cout<<"I'm here 1"<<std::endl;
-//                FILE *fp;
-//                std::cout<<"I'm here 2"<<std::endl;
-//                int state = GL2PS_OVERFLOW, buffsize = 0;
-//                GLint* viewport;
-//                std::cout<<"I'm here 3"<<std::endl;
-//                glGetIntegerv(GL_VIEWPORT, viewport);
-//                std::cout<<"I'm here 4"<<std::endl;
-//                fp = fopen("out.eps", "wb");
-//                printf("Writing 'out.eps'... ");
-//                while(state == GL2PS_OVERFLOW){
-//                    buffsize += 1024*1024;
-//                    //                    gl2psBeginPage("test", "gl2psTestSimple", NULL, GL2PS_EPS, GL2PS_SIMPLE_SORT,
-//                    //                                   GL2PS_DRAW_BACKGROUND | GL2PS_USE_CURRENT_VIEWPORT,
-//                    //                                   GL_RGBA, 0, NULL, 0, 0, 0, buffsize, fp, "out.eps");
-//                    gl2psBeginPage("test", "gl2psTestSimple", NULL, GL2PS_EPS, GL2PS_SIMPLE_SORT,
-//                                   GL2PS_DRAW_BACKGROUND | GL2PS_USE_CURRENT_VIEWPORT,
-//                                   GL_RGBA, 0, NULL, 0, 0, 0, buffsize, fp, "out.eps");
-//                    //display();
-//                    state = gl2psEndPage();
-//                }
-//                fclose(fp);
-//                printf("Done!\n");
-                
-                
-			}
 			
-            drawGLText();
-
-
-			
-			glutSwapBuffers(); //Send the 3D scene to the screen
-            
-			
-			// Load next frame is "autoplay" is on
-			if (autoplay){
-				if (rewind){
-					previousFrame();
-				}
-				else {
-					nextFrame();
-				}
-			}
 		}
 		
 		
@@ -656,9 +552,11 @@ namespace model {
 			
 			autoplay = false;
 			
-			g_bButton1Down = false;
-			g_bButton2Down = false;
+            //			g_bButton1Down = false;
+            //			g_bButton2Down = false;
 			
+            mouseAction=MOUSE_NONE;
+            
 			showAxes=true;
 			
             //			showMeshStates=3; // 0=no mesh, 1= mesh, 2=deformed mesh
@@ -666,7 +564,10 @@ namespace model {
 			
             showControls=true;
 			
-			saveTga=false;
+			//saveTga=false;
+			GL2tga::saveTGA=false;
+			GL2pdf< DDgl<3,alpha> >::savePDF=false;
+            
 			savedframeN=-1;
 			
 			xMean=0.0f;
@@ -674,6 +575,10 @@ namespace model {
 			zMean=0.0f;
 			boxSize=0.0f;
 			
+            
+            
+            
+            
 			// Read first frame
 			readFrame();
             
@@ -770,11 +675,7 @@ namespace model {
                 case 'b':
 					splinePlotter.showBurgers=!splinePlotter.showBurgers;
 					break;
-					
-					//				case 'b':
-					//					showInteriorBoundaryMesh=!showInteriorBoundaryMesh;
-					//					break;
-					
+                    
 				case 'c':
 					cellPlotter.showCells=!cellPlotter.showCells;
 					break;
@@ -838,9 +739,9 @@ namespace model {
 					splinePlotter.showPK=!splinePlotter.showPK;
 					break;
 					
-				case 's':
-					saveTga=!saveTga;
-					break;
+//				case 's':
+//					saveTga=!saveTga;
+//					break;
 					
 				case 'v':
 					splinePlotter.showVertices=!splinePlotter.showVertices;
@@ -883,102 +784,107 @@ namespace model {
 		/* mouseMotion ***********************************************/
 		void mouseMotion(int x, int y){
 			
-			float mat[16];
-			glGetFloatv(GL_MODELVIEW_MATRIX, mat);
-			//mat[0], mat[4], mat[8] is the right vector
-			//mat[1], mat[5], mat[9] is the up vector
-			//mat[2], mat[6], mat[10] is the forward vector ( looking towards the screen )
+            
+            if (mouseAction != MOUSE_NONE) // ctrl key is pressed
+            {
+                float mat[16];
+                glGetFloatv(GL_MODELVIEW_MATRIX, mat);
+                //mat[0], mat[4], mat[8] is the right vector
+                //mat[1], mat[5], mat[9] is the up vector
+                //mat[2], mat[6], mat[10] is the forward vector ( looking towards the screen )
+                
+                VectorDimF center2eye;
+                center2eye<<mat[2], mat[6], mat[10];
+                
+                
+                VectorDimF rightVector(mat[0], mat[4], mat[8]);
+                //			VectorDimF currentUpVector(mat[1], mat[5], mat[9]);
+                //			currentUpVector<<mat[1], mat[5], mat[9];
+                upVector<<mat[1], mat[5], mat[9];
+                
+                //			upVector=currentUpVector;
+                
+                
+                float thetaX(0.0);
+                float thetaY(0.0);
+                float ytrans(0.0);
+                float xtrans(0.0);
+                
+                
+                float screeSize(0.5*(windowHeight+windowWidth));
+                
+                
+                if (mouseAction == MOUSE_PAN) // ctrl key is pressed
+                {// panning
+                    ytrans=static_cast<float>(old_y-y)/screeSize*boxSize*1.0;
+                    xtrans=static_cast<float>(old_x-x)/screeSize*boxSize*1.0;
+                    
+                    centerPoint+= (xtrans*rightVector - ytrans * upVector);
+                    
+                }
+                if (mouseAction == MOUSE_ROTATE) // ctrl key is pressed
+                {// rotation
+                    center2eye<< mat[2], mat[6], mat[10];
+                    
+                    //				std::cout<<"center2eye was"<<center2eye.transpose()<<std::endl;
+                    thetaX = static_cast<float>(old_y-y)/screeSize*M_PI*2.0;
+                    thetaY = static_cast<float>(old_x-x)/screeSize *M_PI*2.0;
+                    Eigen::AngleAxis<float> Rx(thetaX,rightVector);
+                    //				Eigen::AngleAxis<float> Ry(thetaY,currentUpVector);
+                    Eigen::AngleAxis<float> Ry(thetaY,upVector);
+                    
+                    
+                    center2eye=(Ry*Rx*center2eye).normalized();
+                    
+                    upVector=(Ry*Rx*upVector).normalized(); // apply rotation about rightvector first
+                }
+                
+                
+                
+                
+                eyePoint=centerPoint+center2eye*scale;
+            }
+            
 			
-			VectorDimF center2eye;
-			center2eye<<mat[2], mat[6], mat[10];
-			
-			
-			VectorDimF rightVector(mat[0], mat[4], mat[8]);
-			//			VectorDimF currentUpVector(mat[1], mat[5], mat[9]);
-			//			currentUpVector<<mat[1], mat[5], mat[9];
-			upVector<<mat[1], mat[5], mat[9];
-			
-			//			upVector=currentUpVector;
-			
-			
-			float thetaX(0.0);
-			float thetaY(0.0);
-			float ytrans(0.0);
-			float xtrans(0.0);
-			
-			
-			float screeSize(0.5*(windowHeight+windowWidth));
-			
-			if (g_bButton1Down){
-				center2eye<< mat[2], mat[6], mat[10];
-				
-				//				std::cout<<"center2eye was"<<center2eye.transpose()<<std::endl;
-				thetaX = static_cast<float>(old_y-y)/screeSize*M_PI*2.0;
-				thetaY = static_cast<float>(old_x-x)/screeSize *M_PI*2.0;
-				Eigen::AngleAxis<float> Rx(thetaX,rightVector);
-				//				Eigen::AngleAxis<float> Ry(thetaY,currentUpVector);
-				Eigen::AngleAxis<float> Ry(thetaY,upVector);
-				
-				
-				center2eye=(Ry*Rx*center2eye).normalized();
-				
-				upVector=(Ry*Rx*upVector).normalized(); // apply rotation about rightvector first
-				
-				//				std::cout<<"center2eye was"<<center2eye.transpose()<<std::endl;
-				//				std::cout<<"center2eye was"<<center2eye.transpose()<<std::endl;
-				
-				
-				//				Eigen::AngleAxis<float> Rx(thetaX,rightVector);
-				////				Eigen::AngleAxis<float> Ry(thetaY,currentUpVector);
-				//				Eigen::AngleAxis<float> Ry(thetaY,upVector);
-				//				upVector=(Ry*Rx*upVector).normalized();
-				//				center2eye=(Ry*Rx*center2eye).normalized();
-				//				std::cout<<"center2eye is now"<<center2eye.transpose()<<std::endl;
-				
-				//				eyePoint = centerPoint +  center2eye;
-			}
-			else if(g_bButton2Down) {
-				ytrans=static_cast<float>(old_y-y)/screeSize*boxSize*1.0;
-				xtrans=static_cast<float>(old_x-x)/screeSize*boxSize*1.0;
-				
-				centerPoint+= (xtrans*rightVector - ytrans * upVector);
-				
-				
-				//				thetaX=std::atan(ytrans/scale);
-				//				scale=std::pow(std::pow(scale,2)+std::pow(ytrans,2),0.5f);
-				
-				//				thetaY=std::atan(-xtrans/scale);
-				//				scale=std::pow(std::pow(scale,2)+std::pow(xtrans,2),0.5f);
-				
-				//				centerPoint+= (xtrans*rightVector - ytrans * currentUpVector);
-				//				centerPoint+= (xtrans*rightVector - ytrans * upVector);
-				//				centerPoint+= (xtrans*rightVector - ytrans * upVector);
-				
-			}
-			
-			//			Eigen::AngleAxis<float> Rx(thetaX,rightVector);
-			//			//				Eigen::AngleAxis<float> Ry(thetaY,currentUpVector);
-			//			Eigen::AngleAxis<float> Ry(thetaY,upVector);
-			eyePoint=centerPoint+center2eye*scale;
-			//std::pow(scale,2)+std::pow(xtrans,2)+std::pow(ytrans,2);
-			//			scale=std::pow(std::pow(scale,2)+std::pow(xtrans,2)+std::pow(ytrans,2),0.5f);
-			
-			
-			//			eyePoint = centerPoint +  center2eye*scale;
+            
 			
 			old_y=y;
 			old_x=x;
             
             
- //           GLfloat lightColor0[] = {1.0f, 1.0f, 1.0f, 1.0f}; //Color (0.5, 0.5, 0.5)
-	//		GLfloat lightPos0[] =   {eyePoint(0), eyePoint(1), eyePoint(2), 1.0f}; //Positioned at (4, 0, 8)
-	//		glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor0);
-	//		glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);
             
             
             
 		}
 		
+        /* mouseButton ***********************************************/
+		void mouseButton(const int& button, const int& state, const int& x, const int& y)
+        {/*! Callback function executed when a mouse button is pressed.
+          */
+            if (button == GLUT_LEFT_BUTTON) // mouse button is GLUT_LEFT_BUTTON
+            {
+                // Store mouse position when left button is pressed or released
+				old_y=y;
+				old_x=x;
+                
+                if (state == GLUT_DOWN) // mouse button is pressed down (as opposed to released)
+                {
+                    if (glutGetModifiers() == GLUT_ACTIVE_SHIFT) // SHIFT is pressed
+                    {
+                        mouseAction=MOUSE_PAN;
+                    }
+                    else // SHIFT is not pressed
+                    {
+                        mouseAction=MOUSE_ROTATE;
+                    }
+                }
+                else // mouse button is released
+                {
+                    mouseAction=MOUSE_NONE;
+                }
+			}
+            
+		}
 		
 		
 		/* readFrame **********************************************/
@@ -1027,7 +933,7 @@ namespace model {
 		/* specialKey ************************************************/
 		void specialKey(int key, int x, int y){
 			switch(key){
-				case GLUT_KEY_LEFT : 
+				case GLUT_KEY_LEFT :
 					autoplay = true;
 					rewind=true;
 					break;
@@ -1036,33 +942,19 @@ namespace model {
 					autoplay = true;
 					rewind=false;
 					break;
-				case GLUT_KEY_DOWN :		
+				case GLUT_KEY_DOWN :
 					autoplay=false;
 					previousFrame();
 					break;
 					
-				case GLUT_KEY_UP :		
+				case GLUT_KEY_UP :
 					autoplay=false;
 					nextFrame();
 					break;
 			}
 		}
 		
-		/* mouseButton ***********************************************/
-		void mouseButton(int button, int state, int x, int y){
-			// Respond to mouse button presses.
-			// If button1 pressed, mark this state so we know in motion function.
-			if (button == GLUT_LEFT_BUTTON){
-				old_y=y;
-				old_x=x;				
-				g_bButton1Down = (state == GLUT_DOWN) ? true : false;
-			}
-			else if(button == GLUT_RIGHT_BUTTON){
-				old_y=y;
-				old_x=x;
-				g_bButton2Down = (state == GLUT_DOWN) ? true : false;
-			}
-		}
+        
 		
 	};
 	

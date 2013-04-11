@@ -31,8 +31,9 @@
 #include <model/Network/Readers/VertexReader.h>
 #include <model/Network/Readers/EdgeReader.h>
 
-#include <model/DislocationDynamics/Visualization/Plotters/BitmapPlotter.h>
-#include <model/DislocationDynamics/Visualization/RGBmap.h>
+#include <model/openGL/BitmapPlotter.h>
+//#include <model/DislocationDynamics/Visualization/Plotters/BitmapPlotter.h>
+#include <model/OpenGL/RGBmap.h>
 
 
 

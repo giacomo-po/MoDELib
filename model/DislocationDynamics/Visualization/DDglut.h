@@ -20,8 +20,12 @@ float centripetalf=model::centripetal;
 
 float chordalf=model::chordal;
 
-model::DDgl<3,centripetalf> DDv;
+typedef model::DDgl<3,centripetalf> DDglType;
+
+DDglType DDv;
 //model::DDgl<3,chordalf> DDv;
+
+
 
 
 namespace model {
@@ -45,8 +49,8 @@ namespace model {
 	
 	/*************************************************************/
 	//Draws the 3D scene
-	void DDglut_drawScene(){
-		DDv.drawScene();
+	void DDglut_DisplayFunc(){
+		DDv.displayFunc();
 	}
 	
 	
@@ -88,12 +92,38 @@ namespace model {
 	void DDglut_keyUp(unsigned char key, int x, int y){
 		DDv.keyUp(key,x,y);
 	}
-
-	
+    
+	void DDglut_menu1(int item)
+    {
+        switch (item) {
+            case 0:
+                GL2tga::saveTGA=!GL2tga::saveTGA;
+                break;
+                
+            case 1:
+                GL2pdf<DDglType>::savePDF=!GL2pdf<DDglType>::savePDF;
+                break;
+                
+            default:
+                break;
+        }
+	}
+    
+    void DDglut_menu2(int item)
+    {
+	//	DDv.menu(item);
+	}
+    
+    void DDglut_menu3(int item)
+    {
+	//	DDv.menu(item);
+	}
 	
 	/*************************************************************/
 	int DDglut(int argc, char** argv) {
 		
+
+        
 		//! \brief A Glut wrapper for model::DDviewer
 		
 		//Initialize GLUT
@@ -107,7 +137,7 @@ namespace model {
 		//		initRendering();//Initialize rendering
 		
 		//Set handler functions for drawing, keypresses, and windows resizes
-		glutDisplayFunc(DDglut_drawScene);
+		glutDisplayFunc(DDglut_DisplayFunc);
 		glutKeyboardFunc(DDglut_handleKeypress);
 		glutMouseFunc (DDglut_mouseButton);
 		glutMotionFunc (DDglut_mouseMotion);	
@@ -116,6 +146,24 @@ namespace model {
 //		glutKeyboardFunc(DDglut_keyPressed); // Tell GLUT to use the method "keyPressed" for key presses  
 		glutKeyboardUpFunc(DDglut_keyUp); // Tell GLUT to use the method "keyUp" for key up events
 		glutReshapeFunc(DDglut_handleResize);
+        
+        GLint m1_choice=glutCreateMenu(DDglut_menu1);
+        glutAddMenuEntry("tga", 0);
+        glutAddMenuEntry("pdf", 1);
+        glutAddMenuEntry("eps", 2);
+
+        
+        GLint m2_choice=glutCreateMenu(DDglut_menu2);
+        glutAddMenuEntry("Burgers vector", 0);
+        glutAddMenuEntry("Plane normal", 1);
+        
+        glutCreateMenu(DDglut_menu3);
+        glutAddSubMenu("Save image...",m1_choice);
+        glutAddSubMenu("Coloring scheme",m2_choice);
+
+        
+        // Associate a mouse button with menu
+        glutAttachMenu(GLUT_RIGHT_BUTTON);
 		
 		glutTimerFunc(25, update, 0); //Add a timer
 		
