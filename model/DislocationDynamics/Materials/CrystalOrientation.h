@@ -74,7 +74,7 @@ namespace model {
 		static void find_slipSystem(const VectorDim  & chord, const VectorDim & Burgers,
                                     //                                    std::set<SlipSystem<dim,Nslips> > & allowedSlipSystems, const double& tol = FLT_EPSILON){
                                     PlaneNormalContainerType & allowedSlipSystems, const double& tol = FLT_EPSILON){
-            
+            std::cout<<chord.norm()<<std::endl;
 			assert(  chord.norm()>tol && "CHORD HAS ZERO NORM");
 			assert(Burgers.norm()>tol && "BURGERS HAS ZERO NORM");
 			
@@ -123,7 +123,7 @@ namespace model {
 				case 2: // CROSS-SLIP SEGMENT
 					break;
 				default:
-					assert(0 && "NUMBER OF SLIP SYSTEMS>2");
+//					assert(0 && "NUMBER OF SLIP SYSTEMS>2");
 					break;
 			}
             

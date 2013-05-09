@@ -94,7 +94,53 @@ namespace model {
     const double PeriodicElement<29,Isotropic>::b  =0.2556e-9; // Burgers vector[m]
     const double PeriodicElement<29,Isotropic>::B  =1.0e-4;  // Dislocation drag coefficient [Pa*sec]
     const double PeriodicElement<29,Isotropic>::rho=8940.0;  // Mass density [kg/m^3]
+    /**************************************************************************/
+    /**************************************************************************/    
+    template <>
+    struct PeriodicElement<74,Isotropic> {
+        
+        enum{Z=74};
+        typedef BCC CrystalStructure;
+        
+        static const std::string name;
+        static const double nu;
+        static const double mu;
+        static const double b;
+        static const double B;
+        static const double rho;
+        
+    };
     
+    const std::string PeriodicElement<74,Isotropic>::name="W";
+    const double PeriodicElement<74,Isotropic>::nu =0.28;    // Poisson ratio [-]
+    const double PeriodicElement<74,Isotropic>::mu =161e9;    // Shear modulus [Pa]
+    const double PeriodicElement<74,Isotropic>::b  =0.3165e-9; // Burgers vector[m]
+    const double PeriodicElement<74,Isotropic>::B  =1.0e-4;  // Dislocation drag coefficient [Pa*sec]
+    const double PeriodicElement<74,Isotropic>::rho=19250.0;  // Mass density [kg/m^3]
+    /**************************************************************************/
+    /**************************************************************************/    
+    template <>
+    struct PeriodicElement<26,Isotropic> {
+        
+        enum{Z=26};
+        typedef BCC CrystalStructure;
+        
+        static const std::string name;
+        static const double nu;
+        static const double mu;
+        static const double b;
+        static const double B;
+        static const double rho;
+        
+    };
+    
+    const std::string PeriodicElement<26,Isotropic>::name="Fe";
+    const double PeriodicElement<26,Isotropic>::nu =0.29;    // Poisson ratio [-]
+    const double PeriodicElement<26,Isotropic>::mu =82e9;    // Shear modulus [Pa]
+    const double PeriodicElement<26,Isotropic>::b  =0.2866e-9; // Burgers vector[m]
+    const double PeriodicElement<26,Isotropic>::B  =1.0e-4;  // Dislocation drag coefficient [Pa*sec]
+    const double PeriodicElement<26,Isotropic>::rho=7874.0;  // Mass density [kg/m^3]
+
     /**************************************************************************/
 } // namespace model
 #endif

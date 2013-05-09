@@ -39,7 +39,7 @@ namespace model {
         
     public:
         
-        enum{Al=13, Ni=28, Cu=29};
+        enum{Al=13, Ni=28, Cu=29, W=74, Fe=26};
         
         static double mu;
         static double b;
@@ -97,6 +97,14 @@ namespace model {
                     selectedMaterial=Cu;
                     select<Cu>();
                     break;
+                case W:
+                    selectedMaterial=W;
+                    select<W>();
+                    break;
+                case Fe:
+                    selectedMaterial=Fe;
+                    select<Fe>();
+                    break;
                     
                 default:
                     assert(0 && "Material not implemented.");
@@ -121,6 +129,14 @@ namespace model {
                 case Cu:
 //                    CrystalOrientation<dim>::template rotate<Copper<Isotropic>::CrystalStructure>(C2G);
                     CrystalOrientation<dim>::template rotate<PeriodicElement<Cu,Isotropic>::CrystalStructure>(C2G);
+                    break;
+                case W:
+                    //                    CrystalOrientation<dim>::template rotate<Copper<Isotropic>::CrystalStructure>(C2G);
+                    CrystalOrientation<dim>::template rotate<PeriodicElement<W,Isotropic>::CrystalStructure>(C2G);
+                    break;
+                case Fe:
+                    //                    CrystalOrientation<dim>::template rotate<Copper<Isotropic>::CrystalStructure>(C2G);
+                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
                     break;
                 default:
                     assert(0 && "Material not implemented.");
