@@ -1,0 +1,20 @@
+namespace pil {
+
+
+/*! \mainpage Welcome to PIL
+ 
+ The Particle Interaction Library 
+ 
+
+\b Table \b of \b contents
+  - \ref installation
+  - \ref introduction
+  - \ref design
+  - \ref tutorials
+
+ 
+ 
+ 
+ */
+
+}

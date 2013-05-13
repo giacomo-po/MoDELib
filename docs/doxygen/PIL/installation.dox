@@ -1,0 +1,85 @@
+namespace pil {
+
+/*! \page installation Installation
+
+Installation Instructions (by Shao-Chin) 
+
+
+- Use Intel 13.0 compiler
+
+* Add the line to the bottom of ~/.bashrc:
+
+ source /u/local/compilers/intel/13.0/bin/iccvars.sh intel64
+ 
+* Then log out and log in. Type "which icc". You should see something like:
+
+ /u/local/compilers/intel/13.0/composer_xe_2013.1.117/bin/intel64/icc
+ 
+
+- OpenMPI
+
+* download http://www.open-mpi.org/software/ompi/v1.6/downloads/openmpi-1.6.3.tar.gz (or whatever the latest stable release).
+
+* install OpenMPI into $HOME/local/openmpi
+
+  Put openmpi-1.6.3.tar.gz under /tmp/<some directory> 
+
+  Run the following commands:
+ 
+ $ tar xvfz openmpi-1.6.3.tar.gz
+
+ $ cd openmpi-1.6.3
+
+ $ ./configure --prefix=$HOME/local/openmpi --with-openib=/usr --with-sge CC=icc CXX=icpc F77=ifort FC=ifort
+
+ $ make
+
+ $ make install 
+
+
+- Metis
+
+*  Before installing Metis, load new version of cmake
+
+ $  module load cmake
+
+* Download http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-5.0.2.tar.gz (or whatever the latest stable release)
+ 
+* Install Metis to $HOME/local/metis
+ 
+* Put metis-5.0.2.tar.gz in /tmp/<some directory>, run:
+ 
+ $ tar xvfz metis-5.0.2.tar.gz
+
+ $ cd metis-5.0.2
+
+ $ make config prefix=$HOME/local/metis
+
+ $ make install
+ 
+
+- At this point, if you type "ls $HOME/local/openmpi", you should see "bin etc include lib share" (directories). If 
+you type "ls $HOME/local/metis", you should see "bin include lib".
+
+
+- Set up Environment "Permanently" 
+
+* After OpenMPI and Metis are installed, add the following lines to the bottom of ~/.bashrc:
+
+ export PATH=$HOME/local/openmpi/bin:$HOME/local/metis/bin:$PATH
+
+ export LD_LIBRARY_PATH=$HOME/local/openmpi/lib:$LD_LIBRARY_PATH
+ 
+ export MANPATH=$HOME/local/openmpi/man:$MANPATH 
+
+ Reasons:
+ 
+ "PATH" makes openmpi and metis' executables available to user environment.
+ 
+ "LD_LIBRARY_PATH" is for dynamic linking of openmpi libraries.
+ 
+ "MANPATH" is for man page (e.g. "man MPI_Init")
+
+
+*/
+}
