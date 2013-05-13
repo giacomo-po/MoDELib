@@ -12,12 +12,8 @@
 
 #include <assert.h>
 
-//#include <map>
 #include <boost/ptr_container/ptr_map.hpp>
-//#include <boost/smart_ptr/shared_ptr.hpp>
-//#include <boost/tuple/tuple.hpp>
-//#include <boost/utility.hpp>
-//#include <memory> // std::shared_ptr
+
 
 #include <model/Utilities/TypeTraits.h>
 #include <model/Utilities/CRTP.h>
@@ -71,22 +67,24 @@ namespace model {
 	public:
 		
 		/************************************************************/
-		// nodeOrder
-		size_t nodeOrder() const {
-			//! The number of nodes in the Network
+		size_t nodeOrder() const
+        {/*! The number of vertices in the Network
+          */
 			return NetworkNodeContainerType::size();
 		}
 		
 		/************************************************************/
 		// linkOrder
-		size_t linkOrder() const {
-			//! The number of edges in the Network
+		size_t linkOrder() const
+        {/*! The number of edges in the Network
+          */
 			return NetworkLinkContainerType::size();
 		}
 
 		/************************************************************/
 		// node
-		isNetworkNodeType node(const size_t & k)  {
+		isNetworkNodeType node(const size_t & k)
+        {
 			return VertexFinder<NodeType>(*this).node(k);
 		}
 		
@@ -145,62 +143,83 @@ namespace model {
 		
 		/************************************************************/
 		// linkEnd
-		typename NetworkLinkContainerType::iterator linkEnd() {
+		typename NetworkLinkContainerType::iterator linkEnd()
+        {
 			return NetworkLinkContainerType::end();
 		}
 		
-		typename NetworkLinkContainerType::const_iterator linkEnd() const {
+		typename NetworkLinkContainerType::const_iterator linkEnd() const
+        {
 			return NetworkLinkContainerType::end();
 		}
 
 		/* insert (a new vertex) **************************************/
 		template <typename ...NodeArgTypes>
-		size_t insert(const NodeArgTypes&... NodeInput){
+		size_t insert(const NodeArgTypes&... NodeInput)
+        {/*! @param[in] NodeInput
+          *  Inserts a new vertex in the Network using NodeInput as variable constructor arguments
+          */
 			return VertexInsertion<NodeType>(*this).insert(NodeInput...);
 		}
 		
 		/* connect ***************************************************/
-		bool connect(const size_t& i, const size_t& j, const FlowType& f){
+		bool connect(const size_t& i, const size_t& j, const FlowType& f)
+        {/*! @param[in] i the StaticID of the source vertex
+          *  @param[in] j the StaticID of the sink vertex
+          *  @param[in] f the flow
+          *  Connects source vertex i to sink vertex j with flow f
+          */
 			return VertexConnection<NodeType,LinkType>(*this,*this).connect(i,j,f);
 		}
 		
 		/* disconnect ************************************************/ 
 		template<bool removeIsolatedNodes>
-		bool disconnect(const size_t& i, const size_t& j){
+		bool disconnect(const size_t& i, const size_t& j)
+        {/*! @param[in] i the StaticID of the source vertex
+          *  @param[in] j the StaticID of the sink vertex
+          *  Disconnects the edge i->j
+          */
 			return VertexConnection<NodeType,LinkType>(*this,*this).disconnect<removeIsolatedNodes>(i,j);
 		}
 		
 		/************************************************************/
 		// remove (a node)
 		template<bool removeIsolatedNodes>
-		bool remove(const size_t& k){		
+		bool remove(const size_t& k)
+        {/*! @param[in] k the StaticID of the vertex
+          *  Removes the k-th Vertex from the Network
+          */
 			return VertexConnection<NodeType,LinkType>(*this,*this).remove<removeIsolatedNodes>(k);
 		}
 		
 		/************************************************************/
 		// disconnect_if
 		template<bool removeIsolatedNodes>
-		size_t disconnect_if(bool (LinkType::*Lfptr)(void) const){
+		size_t disconnect_if(bool (LinkType::*Lfptr)(void) const)
+        {
 			return VertexConnection<NodeType,LinkType>(*this,*this).disconnect_if<removeIsolatedNodes>(Lfptr);
 		}
 		
 		/************************************************************/
 		// disconnect_if
 		template<bool removeIsolatedNodes, typename T>
-		size_t disconnect_if(bool (LinkType::*Lfptr)(const T &) const, const T & input){
+		size_t disconnect_if(bool (LinkType::*Lfptr)(const T &) const, const T & input)
+        {
 			return VertexConnection<NodeType,LinkType>(*this,*this).disconnect_if<removeIsolatedNodes,T>(Lfptr,input);
 		}
 		
 		/* expand ***************************************************/
 		template <typename ...NodeArgTypes>
-		std::pair<bool,size_t> expand(const size_t & i, const size_t & j, const NodeArgTypes&... Args){
+		std::pair<bool,size_t> expand(const size_t & i, const size_t & j, const NodeArgTypes&... Args)
+        {
 			return EdgeExpansion<NodeType,LinkType>(*this,*this).expand(i,j,Args...);
 		}
 		
 		
 		/* multiExpand **************************************************/ // CLEAN THIS
 		template <typename T>
-		std::map<T,size_t>  multiExpand(const size_t& i, const size_t& j, const std::map<double,T>& expandMap){
+		std::map<T,size_t>  multiExpand(const size_t& i, const size_t& j, const std::map<double,T>& expandMap)
+        {
 			
 
 			
@@ -211,14 +230,16 @@ namespace model {
 			enum {dim=3};
 			typedef Eigen::Matrix<double,3,1> VectorDim;
 			std::map<double,VectorDim> pointMap;
-			for (typename std::map<double,T>::const_iterator iter=expandMap.begin(); iter!=expandMap.end();++iter){				
+			for (typename std::map<double,T>::const_iterator iter=expandMap.begin(); iter!=expandMap.end();++iter)
+            {
 				pointMap.insert(std::make_pair(iter->first,Lij.second->get_r(iter->first)));
 			}
 			
 			std::map<T,size_t> temp;
 			typename std::map<double,T>::const_iterator iterEx=expandMap.begin();
 			std::pair<bool,size_t> currNode = std::make_pair(true,i); // initialize currNode with i
-			for (typename std::map<double,VectorDim>::const_iterator iter=pointMap.begin(); iter!=pointMap.end();++iter){				
+			for (typename std::map<double,VectorDim>::const_iterator iter=pointMap.begin(); iter!=pointMap.end();++iter)
+            {
 				currNode = expand(currNode.second,j,iter->second);
 				assert(currNode.first);
 				temp.insert(std::make_pair(iterEx->second,currNode.second));
@@ -234,24 +255,28 @@ namespace model {
 		
 		/* contract **************************************************/
 		template <typename T>
-		void contract(const size_t& i, const size_t& j, const T& NodeInput){
+		void contract(const size_t& i, const size_t& j, const T& NodeInput)
+        {
 			VertexContraction<NodeType,LinkType>(*this,*this).contract(i,j,NodeInput);
 		}
 		
 
 		/* contractSecond ********************************************/
-		void contractSecond(const size_t& i, const size_t& j){
+		void contractSecond(const size_t& i, const size_t& j)
+        {
 			VertexContraction<NodeType,LinkType>(*this,*this).contractSecond(i,j);
 		} 
 
 
 		/*************************************************************/
-		void parallelExecute(void (LinkType::*Lfptr)(void)){
+		void parallelExecute(void (LinkType::*Lfptr)(void))
+        {
 			ParallelExecute<NodeType,LinkType>(*this,*this).execute(Lfptr);
 		}		
 
 		/*************************************************************/
-		void parallelExecute(void (NodeType::*Vfptr)(void)){
+		void parallelExecute(void (NodeType::*Vfptr)(void))
+        {
 			ParallelExecute<NodeType,LinkType>(*this,*this).execute(Vfptr);
 		}
 
@@ -267,7 +292,8 @@ namespace model {
 		template <class T>
 		friend T& operator << (T& os, const NetworkNodeContainerType& nnC)
         {
-			for (typename NetworkNodeContainerType::const_iterator nodeIter=nnC.begin();nodeIter!=nnC.end();++nodeIter){				
+			for (typename NetworkNodeContainerType::const_iterator nodeIter=nnC.begin();nodeIter!=nnC.end();++nodeIter)
+            {
 				os << (*nodeIter->second) << "\n";
 			}
 			return os;
@@ -278,7 +304,8 @@ namespace model {
 		template <class T>
 		friend T& operator << (T& os, const NetworkLinkContainerType& nlC)
         {
-			for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter){				
+			for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter)
+            {
 				os << (*linkIter->second) << "\n";
 			}
 			return os;

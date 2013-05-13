@@ -58,11 +58,20 @@ namespace model {
                 
                 glGetIntegerv(GL_VIEWPORT, viewport);
                 
+//                gl2psBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                gl2psBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                
                 while( state == GL2PS_OVERFLOW ){
+                    
+
+                    
                     buffsize += 1024*1024;
                     gl2psBeginPage ( "MyTitle", "MySoftware", viewport,
+//                                    GL2PS_EPS, GL2PS_BSP_SORT, GL2PS_SILENT |
                                     GL2PS_PDF, GL2PS_BSP_SORT, GL2PS_SILENT |
-                                    GL2PS_SIMPLE_LINE_OFFSET | GL2PS_NO_BLENDING |
+                                    GL2PS_SIMPLE_LINE_OFFSET |
+//                                    GL2PS_SIMPLE_LINE_OFFSET | GL2PS_NO_BLENDING |
                                     GL2PS_OCCLUSION_CULL | GL2PS_BEST_ROOT,
                                     GL_RGBA, 0, NULL, 0, 0, 0, buffsize,
                                     fp, "MyFile" );
