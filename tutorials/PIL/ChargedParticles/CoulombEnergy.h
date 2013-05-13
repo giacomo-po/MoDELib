@@ -13,7 +13,7 @@
 #define _CoulombEnergy_h
 
 #include <iostream>
-#include <tutorials/ChargedParticles/ChargedParticle.h>
+#include <tutorials/PIL/ChargedParticles/ChargedParticle.h>
 
 struct CoulombEnergy{
     

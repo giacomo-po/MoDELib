@@ -13,7 +13,7 @@
 #define pil_CellShift_H_
 
 #include <Eigen/Dense>
-#include <pil/Math/CompileTimePow.h>
+#include <model/Math/CompileTimeMath/Pow.h>
 
 namespace pil {
 	
@@ -24,7 +24,7 @@ namespace pil {
          */
         
         //! The number of "neighbors" that a spatial cell has in dim dimensions
-        enum{Nneighbors=CompileTimePow<2*neighborOrder+1,dim>::value};
+        enum{Nneighbors=model::Pow<2*neighborOrder+1,dim>::value};
         
         //! The type of matrix that contains the cellID(s) of all the neighbor cells
         typedef Eigen::Matrix<int,dim,Nneighbors> MatrixType; // WORK WITH TRANSPOSE

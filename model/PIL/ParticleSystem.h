@@ -30,7 +30,7 @@
 #include <pil/SpatialCells/SpatialCellObserver.h>
 
 
-#include <pil/Utilities/SequentialOutputFile.h>
+#include <model/Utilities/SequentialOutputFile.h>
 
 
 namespace pil {
@@ -144,7 +144,7 @@ namespace pil {
         void partionCells()
         {
             typedef typename SpatialCellObserverType::CellIdType CellIdType;
-            typedef std::map<CellIdType,const int,CompareVectorsByComponent<int,_ParticleType::dim> > ijk2idMapType;
+            typedef std::map<CellIdType,const int,model::CompareVectorsByComponent<int,_ParticleType::dim> > ijk2idMapType;
             //            typedef std::map<Eigen::Matrix<int,_ParticleType::dim,1>,const int,CompareVectorsByComponent<int,_ParticleType::dim> > ijk2idMapType;
             ijk2idMapType  ijk2idMap;;
             typedef std::map<int,const CellIdType> id2ijkMapType;
@@ -338,10 +338,10 @@ namespace pil {
             if (this->mpiRank == 0)
             //if (PilMPI::mpiRank == 0)
             {
-                pil::SequentialOutputFile<P,autodelete> pFile;
+                model::SequentialOutputFile<P,autodelete> pFile;
                 pFile<<*this<<std::endl;
                 
-                pil::SequentialOutputFile<'C',1> cFile;
+                model::SequentialOutputFile<'C',1> cFile;
                 cFile<<cells()<<std::endl;
             }
         }

@@ -1,21 +1,33 @@
-PIL_DIR = /u/home/campus/gpo/Desktop/PIL
-#PIL_DIR = /home/giacomo/Dropbox/PIL
+#PIL_DIR = /u/home/campus/gpo/Desktop/PIL
+#PIL_DIR = /home/giacomo/Dropbox/MODEL_MPI/model
+PIL_DIR = /Users/giacomo/Dropbox/MODEL_MPI/model
+MODEL_DIR = /Users/giacomo/Dropbox/MODEL_MPI
 #EIGEN_DIR = /usr/local/include
 EIGEN_DIR =/u/home/campus/gpo/local/include
 #BOOST_DIR = /usr/local/include
 BOOST_DIR =/u/home/campus/gpo/local/include
-METIS_DIR =/u/home/campus/gpo/local/metis
+#METIS_DIR =/u/home/campus/gpo/local/metis
+METIS_INCLUDE =/usr/local/include
+METIS_LIB =/usr/local/lib
+
+#MPI_INCLUDE = /usr/local/include
+MPI_LIB = /usr/local/lib
+
+
 IDIR  = -I/usr/local/include
 IDIR += -I./
 IDIR += -I$(PIL_DIR)
 IDIR += -I$(EIGEN_DIR)
 IDIR += -I$(BOOST_DIR)
-IDIR += -I$(METIS_DIR)/include
+IDIR += -I$(MODEL_DIR)
+#IDIR += -I$(MPI_INCLUDE)
+IDIR += -I$(METIS_INCLUDE)
 
 ##########################################################
 # COMPILER SETTINGS
 ##########################################################
-CC	= mpicxx
+#CC	= mpicxx
+CC = icpc
 #CC	= g++
 #CC	= /opt/local/bin/g++-mp-4.7
 #CC	= icc
@@ -58,16 +70,30 @@ ifeq ($(CC),mpicxx)
 
 endif
 
+ifeq ($(CC),icpc)
+	# optimization level
+	CFLAGS	 = -O3
+	CFLAGS	+= -fast
+	# enable common warnings
+	CFLAGS	+= -Wall
+	# enable openMP
+	CFLAGS	+= -openmp
+	#enable C++0x
+	CFLAGS	+= -std=c++0x
+endif
+
 ##########################################################
 # OS SPECIFIC SETTINGS
 ##########################################################
 OS= $(shell uname -s)
 
-#LIBS  =  -L/usr/local/lib/
-#LIBS +=	 -lgsl
-#LIBS +=  -lgslcblas
 
-LIBS += -L$(METIS_DIR)/lib -lmetis
+LIBS += -L$(METIS_LIB) 
+LIBS +=	 -lmetis
+
+LIBS += -L$(MPI_LIB) 
+LIBS +=	 -lmpi
+
 
 ifeq ($(OS),Darwin)
     #LIBS += -Wl,-no_pie

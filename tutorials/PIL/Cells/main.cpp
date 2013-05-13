@@ -13,12 +13,12 @@
 #include <iomanip>
 
 #include <pil/ParticleSystem.h> // the main object from pil library
-#include <pil/Utilities/TerminalColors.h> // the main object from pil library
-#include <pil/Utilities/SequentialOutputFile.h>
+#include <model/Utilities/TerminalColors.h> // the main object from pil library
+//#include <model/Utilities/SequentialOutputFile.h>
 
-#include <tutorials/ChargedParticles/ChargedParticle.h> // a user-defined type of particle to be inserted in ParticleSystem
-#include <tutorials/ChargedParticles/CoulombForce.h> // a user-defined type of force interaction between ChargedParticle objects
-#include <tutorials/ChargedParticles/CoulombEnergy.h> // a user-defined type of energy interaction between ChargedParticle objects
+#include <tutorials/PIL/ChargedParticles/ChargedParticle.h> // a user-defined type of particle to be inserted in ParticleSystem
+#include <tutorials/PIL/ChargedParticles/CoulombForce.h> // a user-defined type of force interaction between ChargedParticle objects
+#include <tutorials/PIL/ChargedParticles/CoulombEnergy.h> // a user-defined type of energy interaction between ChargedParticle objects
 
 #include <mpi.h>
 
@@ -29,7 +29,7 @@ int main (int argc, char * argv[]) {
     typedef pil::ParticleSystem<ChargedParticle> ChargedParticleSystem;
     
     // 1- create a particleSystem of ChargedParticle(s)
-    std::cout<<pil::blueBoldColor<<"CREATING RANDOM INITIAL PARTICLES"<<pil::defaultColor<<std::endl;
+    std::cout<<model::blueBoldColor<<"CREATING RANDOM INITIAL PARTICLES"<<model::defaultColor<<std::endl;
     double cellSize=6.0;
     ChargedParticleSystem particleSystem(cellSize);
     

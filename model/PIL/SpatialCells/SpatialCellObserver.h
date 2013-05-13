@@ -16,7 +16,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Dense>
-#include <pil/Utilities/CompareVectorsByComponent.h>
+#include <model/Utilities/CompareVectorsByComponent.h>
 #include <pil/SpatialCells/SpatialCell.h>
 
 namespace pil {
@@ -42,7 +42,7 @@ namespace pil {
         //typedef SpatialCell<ParticleType> SpatialCellType;
         typedef Eigen::Matrix<int,_dim,1>    CellIdType;
 
-		typedef std::map<Eigen::Matrix<int,_dim,1>,SpatialCell<ParticleType,_dim>* const,CompareVectorsByComponent<int,_dim> >  CellMapType;
+		typedef std::map<Eigen::Matrix<int,_dim,1>,SpatialCell<ParticleType,_dim>* const,model::CompareVectorsByComponent<int,_dim> >  CellMapType;
 		typedef boost::shared_ptr<SpatialCell<ParticleType,dim> > SharedPtrType;
         
         typedef std::pair<bool,SpatialCell<ParticleType,_dim>* const> isCellType;
@@ -120,7 +120,7 @@ namespace pil {
 	/////////////////////////////
 	// Declare static data member
 	template<typename ParticleType, int dim>
-	std::map<Eigen::Matrix<int,dim,1>,SpatialCell<ParticleType,dim>* const,CompareVectorsByComponent<int,dim> > SpatialCellObserver<ParticleType,dim>::cellMap;
+                std::map<Eigen::Matrix<int,dim,1>,SpatialCell<ParticleType,dim>* const,model::CompareVectorsByComponent<int,dim> > SpatialCellObserver<ParticleType,dim>::cellMap;
 
 	template<typename ParticleType, int dim>
 	double SpatialCellObserver<ParticleType,dim>::cellSize=1.0;

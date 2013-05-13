@@ -17,8 +17,8 @@
 
 #include <Eigen/Core>
 
-#include <pil/Utilities/StaticID.h>
-#include <pil/Utilities/CRTP.h>
+#include <model/Utilities/StaticID.h>
+#include <model/Utilities/CRTP.h>
 #include <pil/SpatialCells/SpatialCellObserver.h>
 
 
@@ -26,8 +26,8 @@ namespace pil {
 
     template <typename Derived, int _dim>
     struct SpatialParticle :
-    /* inheritance */ public StaticID<Derived>, // automatically generate unique ID(s) for SpatialParticle(s)
-    /* inheritance */ public CRTP<Derived> // functions to cast this to derived type
+    /* inheritance */ public model::StaticID<Derived>, // automatically generate unique ID(s) for SpatialParticle(s)
+    /* inheritance */ public model::CRTP<Derived> // functions to cast this to derived type
     {
         
         enum{dim=_dim};        

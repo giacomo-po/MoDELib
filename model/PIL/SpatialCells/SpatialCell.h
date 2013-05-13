@@ -20,7 +20,7 @@
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
 #include <pil/SpatialCells/CellShift.h>
-#include <pil/Utilities/CompareVectorsByComponent.h>
+//#include <model/Utilities/CompareVectorsByComponent.h>
 
 
 namespace pil {

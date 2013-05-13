@@ -14,7 +14,7 @@
 
 #include <iostream> 
 #include <pil/InteractionBase.h>
-#include <tutorials/ChargedParticles/ChargedParticle.h>
+#include <tutorials/PIL/ChargedParticles/ChargedParticle.h>
 
 struct CoulombForce : public pil::InteractionBase<double,3> { // change this 3 to ChargedParticle::dim
     
