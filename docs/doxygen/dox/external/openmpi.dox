@@ -1,0 +1,25 @@
+namespace model {
+/*! \page openmpi open-MPI
+
+- OpenMPI
+
+* download http://www.open-mpi.org/software/ompi/v1.6/downloads/openmpi-1.6.3.tar.gz (or whatever the latest stable release).
+
+* install OpenMPI into $HOME/local/openmpi
+
+  Put openmpi-1.6.3.tar.gz under /tmp/<some directory> 
+
+  Run the following commands:
+ 
+ $ tar xvfz openmpi-1.6.3.tar.gz
+
+ $ cd openmpi-1.6.3
+
+ $ ./configure --prefix=$HOME/local/openmpi --with-openib=/usr --with-sge CC=icc CXX=icpc F77=ifort FC=ifort
+
+ $ make
+
+ $ make install 
+
+*/
+}
