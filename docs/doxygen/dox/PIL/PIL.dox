@@ -1,7 +1,11 @@
 namespace pil {
 
-/*! \page installation Installation
 
+/*! \page PIL Particle Interaction Library (PIL)
+ 
+\section Introduction
+
+\section Installation
 Installation Instructions (by Shao-Chin) 
 
 
@@ -80,6 +84,9 @@ you type "ls $HOME/local/metis", you should see "bin include lib".
  
  "MANPATH" is for man page (e.g. "man MPI_Init")
 
+\section Tutorials
+ 
+ 
+ */
 
-*/
 }

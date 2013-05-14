@@ -1,6 +1,9 @@
 namespace model {
 
-/*! \page introduction Introduction
+
+/*! \mainpage The MODEL library
+ 
+ The Mechanics of Defect Evolution Library (MODEL) is a collection of 
  
 This page introduces the user to the main uses and advantages of the library. 
  
@@ -18,6 +21,16 @@ This page introduces the user to the main uses and advantages of the library.
  in electrical circuits.
  
 Now you can proceed to  \ref installation "Installing the MDML Library".
+
+
+\b Table \b of \b contents
+  - \ref DDD
+  - \ref PIL 
  
-*/
+ */
+
+
+\section Credits
+
+
 }

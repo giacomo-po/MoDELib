@@ -1,5 +1,5 @@
 namespace model {
-/*! \page meshes 
+/*! \page tetgen Generating Meshes with Tetgen
 
 ==== Crating Meshes (MOVE DO DOXYGEN)====
 
