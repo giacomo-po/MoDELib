@@ -17,7 +17,7 @@
 
 #include <Eigen/Dense>
 #include <model/Utilities/CompareVectorsByComponent.h>
-#include <pil/SpatialCells/SpatialCell.h>
+#include <model/PIL/SpatialCells/SpatialCell.h>
 
 namespace pil {
 	

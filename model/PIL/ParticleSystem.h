@@ -25,9 +25,9 @@
 
 #include <Eigen/Core>
 
-#include <pil/PilMPI.h>
-#include <pil/SystemProperties.h>
-#include <pil/SpatialCells/SpatialCellObserver.h>
+#include <model/PIL/PilMPI.h>
+#include <model/PIL/SystemProperties.h>
+#include <model/PIL/SpatialCells/SpatialCellObserver.h>
 
 
 #include <model/Utilities/SequentialOutputFile.h>

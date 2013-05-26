@@ -102,14 +102,12 @@
 
 #include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
 
+//#include <model/pil/ParticleSystem.h> // the main object from pil library
+
+
 
 namespace model {
 	
-    //	std::string defaultColor    = "\033[0m";	  // the default color for the console
-    //	std::string redBoldColor    = "\033[1;31m";   // a bold red color
-    //	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
-    //	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
-    //	std::string magentaColor    = "\033[0;35m";   // a magenta color
 	
 	/**************************************************************************/
 	/**************************************************************************/
@@ -178,7 +176,8 @@ namespace model {
 			VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
 			assert(vReader.isGood(fileID) && "UNABLE TO READ VERTEX FILE V/V_x (x is the requested file ID).");
 			vReader.read(fileID);
-			for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter){
+			for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
+            {
 				const size_t nodeIDinFile(vIter->first);
 				NodeType::set_count(nodeIDinFile);
 				const size_t nodeID(this->insert(vIter->second.template segment<NdofXnode>(0).transpose()));
@@ -194,7 +193,8 @@ namespace model {
 			EdgeReaderType    eReader;	// sourceID,sinkID,Bx,By,Bz,Nx,Ny,Nz
 			assert(eReader.isGood<true>(fileID) && "Unable to read vertex file E/E_x (x is the requested fileID).");
 			eReader.read<true>(fileID);
-			for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter){
+			for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
+            {
 				VectorDimD B(eIter->second.template segment<dim>(0  ).transpose()); // Burgers vector
 				VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
 				const size_t sourceID(eIter->first.first );
@@ -238,19 +238,23 @@ namespace model {
             //			double vmax(0.0);
             vmax=0.0;
 			
-			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
+			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
+            {
 				const double vNorm(nodeIter->second->get_V().norm());
-				if (vNorm>vmax){
+				if (vNorm>vmax)
+                {
 					vmax=vNorm;
 				}
 			}
 			
 			double shearWaveFraction(0.1);
 			//short unsigned int shearWaveExp=1;
-			if (vmax > Material<Isotropic>::cs*shearWaveFraction){
+			if (vmax > Material<Isotropic>::cs*shearWaveFraction)
+            {
 				dt=dx/vmax;
 			}
-			else{
+			else
+            {
                 //dt=dx/std::pow(shared.material.cs*shearWaveFraction,shearWaveExp+1)*std::pow(vmax,shearWaveExp);
 				//dt=dx/(shared.material.cs*shearWaveFraction)*std::pow(vmax/(shared.material.cs*shearWaveFraction),1);
 				dt=dx/(Material<Isotropic>::cs*shearWaveFraction);
@@ -267,7 +271,8 @@ namespace model {
 		void crossSlip()
         {/*! Performs dislocation cross-slip if use_crossSlip==true
           */
-			if(use_crossSlip){
+			if(use_crossSlip)
+            {
 				double t0=clock();
 				std::cout<<"		Performing Cross Slip ... "<<std::flush;
 				size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip(crossSlipDeg,crossSlipLength));
@@ -279,13 +284,16 @@ namespace model {
         /* update_BVP_Solution ************************************************/
         void update_BVP_Solution(const bool& updateUserBC)
         {
-            if (shared.use_bvp){
+            if (shared.use_bvp)
+            {
 				double t0=clock();
 				std::cout<<"		Updating bvp stress ... ";
-				if(!(runID%shared.use_bvp)){
+				if(!(runID%shared.use_bvp))
+                {
 					shared.domain.update_BVP_Solution(updateUserBC,this);
 				}
-				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
+				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
+                { // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
 					nodeIter->second->updateBvpStress();
 				}
 				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
@@ -299,16 +307,20 @@ namespace model {
 			std::cout<<"		Checking for loop inversions ... "<<std::flush;
 			//! 3- Check and remove loop inversions
 			std::vector<int> toBeErased;
-			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter){
-				if (snIter->second->loopInversion(dt)){
+			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
+            {
+				if (snIter->second->loopInversion(dt))
+                {
 					std::cout<<"SubNetwork "<<snIter->second->sID<<" containing "<<snIter->second->nodeOrder()<<" is an inverted loop"<<std::endl;
-					for (typename SubNetworkNodeContainerType::const_iterator nodeIter=snIter->second->nodeBegin();nodeIter!=snIter->second->nodeEnd();++nodeIter){
+					for (typename SubNetworkNodeContainerType::const_iterator nodeIter=snIter->second->nodeBegin();nodeIter!=snIter->second->nodeEnd();++nodeIter)
+                    {
 						toBeErased.push_back(nodeIter->second->sID);
 					}
 				}
 			}
 			std::cout<<" found "<<toBeErased.size()<<" inverted nodes ... ";
-			for (unsigned int nn=0;nn<toBeErased.size();++nn){
+			for (unsigned int nn=0;nn<toBeErased.size();++nn)
+            {
 				this->template remove<true>(toBeErased[nn]);
 			}
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
@@ -318,14 +330,16 @@ namespace model {
         /*  singleStep*********************************************************/
 		void singleStep(const bool& updateUserBC=false){
 			//! A simulation step consists of the following:
-			std::cout<<blueBoldColor<<"runID="<<runID<<", time="<<totalTime<< ": nodeOrder="<<this->nodeOrder()
-            /*                                                           */<< ", linkOrder="<<this->linkOrder()
-            /*                                                           */<< ", subNetworks="<<this->Naddresses()
-			/*                                                           */<< defaultColor<<std::endl;
-            
+			std::cout<<blueBoldColor<< "runID="<<runID
+            /*                    */<< ", time="<<totalTime
+            /*                    */<< ": nodeOrder="<<this->nodeOrder()
+            /*                    */<< ", linkOrder="<<this->linkOrder()
+            /*                    */<< ", subNetworks="<<this->Naddresses()
+			/*                    */<< defaultColor<<std::endl;
             
 #ifdef DislocationNucleationFile
-            if(shared.use_bvp && !(runID%shared.use_bvp)){
+            if(shared.use_bvp && !(runID%shared.use_bvp))
+            {
                 nucleateDislocations(); // needs to be called before updateQuadraturePoints()
                 removeBoundarySegments();
             }
@@ -363,7 +377,8 @@ namespace model {
                 updateQuadraturePoints();
                 assembleAndSolve(); // this also stores the new velocity in each node
                 
-                for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){ 
+                for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
+                {
 					nodeIter->second->implicitStep(); // average velocities
 				}
                 
@@ -383,7 +398,6 @@ namespace model {
 			//! 7- If soft boundaries are used, remove DislocationSegment(s) that exited the boundary
 			removeBoundarySegments();
 			
-            
 			//! 8- Form Junctions
 			formJunctions();
 			
@@ -400,12 +414,12 @@ namespace model {
 			++runID;     // increment the runID counter
 		}
 		
-		
 		/* remeshByContraction ************************************************/
 		void removeBoundarySegments()
         {/*! Removes DislocationSegment(s) on the mesh boundary
           */
-			if (shared.boundary_type==softBoundary){
+			if (shared.boundary_type==softBoundary)
+            {
 				double t0=clock();
 				std::cout<<"		Removing Segments outside Mesh Boundaries... ";
 				typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
@@ -416,16 +430,18 @@ namespace model {
 			}
 		}
         
-        
         /***********************************************************/
-		void segmentMeshCollision(){
+		void segmentMeshCollision()
+        {
 			typedef std::map<double,VectorDimD> MultiIntersectionType; // keeps intersections sorted for increasing parameter
 			typedef std::map<LinkIDType,MultiIntersectionType> MultiIntersectionContainerType; // Container of MultiIntersectionType for different links
 			MultiIntersectionContainerType multiIntersectionContainer;
-			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+            {
 				multiIntersectionContainer[linkIter->second->nodeIDPair()]=linkIter->second->boundaryCollision();
 			}
-			for (typename MultiIntersectionContainerType::const_iterator iter=multiIntersectionContainer.begin();iter!=multiIntersectionContainer.end();++iter){
+			for (typename MultiIntersectionContainerType::const_iterator iter=multiIntersectionContainer.begin();iter!=multiIntersectionContainer.end();++iter)
+            {
 				this->multiExpand(iter->first.first,iter->first.second,iter->second);
 			}
 		}
@@ -440,16 +456,12 @@ namespace model {
 		//! The number of simulation steps taken by the next call to runByStep()
 		int Nsteps;
 		double timeWindow;
-        //		int outputFrequency;
-        //     bool outputGlidePlanes;
-        //     bool outputSpaceCells;
-        //     bool outputPKforce;
-        //     bool outputMeshDisplacement;
         
         MatrixDimD plasticDistortion;
         
-		/* Constructor ************************************************************/
-        DislocationNetwork(const int& argc, char * const argv[]){
+		/* Constructor ********************************************************/
+        DislocationNetwork(const int& argc, char * const argv[])
+        {
         	if (argc==1){
                 // argv[0] is by default the name of the executable so use default name for inputfile
                 read("./","DDinput.txt");
@@ -463,13 +475,15 @@ namespace model {
         }
         
 		
-		/* remesh *****************************************************************/
-		void remesh(){
-			if (use_redistribution){
-				if(!(runID%use_redistribution)){
+		/* remesh *************************************************************/
+		void remesh()
+        {
+			if (use_redistribution)
+            {
+				if(!(runID%use_redistribution))
+                {
 					double t0=clock();
 					std::cout<<"		remeshing network... "<<std::flush;
-//					DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(Lmax,Lmin,thetaDeg);
 					DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
 					std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 				}
@@ -491,7 +505,8 @@ namespace model {
 		}
 		
 		/* read ***************************************************************/
-		void read(const std::string& inputDirectoryName_in, std::string inputFileName){ // TO DO: move this to DislocationNetworkIO.h
+		void read(const std::string& inputDirectoryName_in, std::string inputFileName)
+        { // TO DO: move this to DislocationNetworkIO.h
 			
             std::ostringstream fullName;
             fullName<<inputDirectoryName_in<<inputFileName;
@@ -518,7 +533,7 @@ namespace model {
             //            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
             EDR.readScalarInFile(fullName.str(),"nearCellStressApproximation",DislocationQuadratureParticle<dim,cellSize>::nearCellStressApproximation); // useMultipoleStress
             EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationQuadratureParticle<dim,cellSize>::farCellStressApproximation); // useMultipoleStress
-            assert((DislocationQuadratureParticle<dim,cellSize>::farCellStressApproximation >= DislocationQuadratureParticle<dim,cellSize>::nearCellStressApproximation) && "NEAR FIELD APPROXIMATION IS COARSER THAN FAR FIELD APPROXIMATION");
+            assert((DislocationQuadratureParticle<dim,cellSize>::farCellStressApproximation >= DislocationQuadratureParticle<dim,cellSize>::nearCellStressApproximation) && "NEAR-FIELD APPROXIMATION IS COARSER THAN FAR-FIELD APPROXIMATION");
             
             
             EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
@@ -526,9 +541,10 @@ namespace model {
             // Implicit time integration
             EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
         
-			
+			// Restart
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
 			
+            // IO
             EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
             EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes);
             EDR.readScalarInFile(fullName.str(),"outputSpaceCells",DislocationNetworkIO<DislocationNetworkType>::outputSpaceCells);
@@ -536,12 +552,14 @@ namespace model {
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
             
             
-			
+			// BVP
 			EDR.readScalarInFile(fullName.str(),"boundary_type",shared.boundary_type);
-			if (shared.boundary_type){
+			if (shared.boundary_type)
+            {
 				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
                 shared.domain.readMesh();
-				if(shared.use_bvp){
+				if(shared.use_bvp)
+                {
 					shared.domain.readInputBCs();
 				}
 			}
@@ -564,30 +582,21 @@ namespace model {
             EDR.readScalarInFile(fullName.str(),"use_junctions",use_junctions);
             EDR.readScalarInFile(fullName.str(),"collisionTol",DislocationJunctionFormation<DislocationNetworkType>::collisionTol);
             
-            
+            // VERTEX REDISTRIBUTION
             EDR.readScalarInFile(fullName.str(),"use_redistribution",use_redistribution);
-//            EDR.readScalarInFile(fullName.str(),"Lmin",Lmin);
-//            assert(Lmin>=0.0);
-//            assert(Lmin>2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
             EDR.readScalarInFile(fullName.str(),"Lmin",DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
-//            EDR.readScalarInFile(fullName.str(),"Lmax",Lmax);
-//            assert(Lmax>Lmin);
             EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
-//            EDR.readScalarInFile(fullName.str(),"thetaDeg",thetaDeg);
-//            assert(thetaDeg>=0.0);
-//            assert(thetaDeg<=90.0);
             EDR.readScalarInFile(fullName.str(),"thetaDeg",DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg>=0.0);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg<=90.0);
 
-			
-            
-            // Cross-Slip inputs
+            // Cross-Slip
             EDR.readScalarInFile(fullName.str(),"use_crossSlip",use_crossSlip);
-            if(use_crossSlip){
+            if(use_crossSlip)
+            {
                 EDR.readScalarInFile(fullName.str(),"crossSlipDeg",crossSlipDeg);
                 assert(crossSlipDeg>=0.0 && crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
                 EDR.readScalarInFile(fullName.str(),"crossSlipLength",crossSlipLength);
@@ -599,9 +608,8 @@ namespace model {
             readNodes(runID);
             readLinks(runID);
             
-            
-            
-            if (shared.use_bvp && (shared.boundary_type==softBoundary)) { // MOVE THIS WITH REST OB BVP STUFF
+            if (shared.use_bvp && (shared.boundary_type==softBoundary))
+            { // MOVE THIS WITH REST OB BVP STUFF
                 //                shared.vbsc.read(runID,&shared);
                 shared.vbsc.initializeVirtualSegments(*this);
             }
@@ -625,7 +633,7 @@ namespace model {
 //            output();	// initial configuration, this overwrites the input file
 		}
 		
-		/* solve ****************************************************************/
+		/* solve **************************************************************/
 		void assembleAndSolve()
         {/*! Assemble and solve equation system
           */
@@ -649,19 +657,21 @@ namespace model {
             
 #ifdef _OPENMP
 #pragma omp parallel for
-            for (unsigned int k=0;k<this->Naddresses();++k){
+            for (unsigned int k=0;k<this->Naddresses();++k)
+            {
                 typename SubNetworkContainerType::iterator snIter(this->ABbegin()); //  data within a parallel region is private to each thread
                 std::advance(snIter,k);
                 //				snIter->second->solve();
-                if (snIter->second->nodeOrder()>=shared.minSNorderForSolve){
+                if (snIter->second->nodeOrder()>=shared.minSNorderForSolve)
+                {
                     snIter->second->sparseSolve();
                 }
             }
 #else
-			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter){
-                //				snIter->second->solve();
-                //snIter->second->sparseSolve();
-                if (snIter->second->nodeOrder()>=shared.minSNorderForSolve){
+			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
+            {
+                if (snIter->second->nodeOrder()>=shared.minSNorderForSolve)
+                {
                     snIter->second->sparseSolve();
                 }
 			}
@@ -669,14 +679,16 @@ namespace model {
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
-		/* output ***************************************************************/
+		/* output *************************************************************/
 		void output() const
         {/*! Outputs DislocationNetwork data
           */
             double t0=clock();
-            if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency)){
+            if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency))
+            {
 #ifdef DislocationNetworkMPI
-				if(localProc==0){
+				if(localProc==0)
+                {
                     DislocationNetworkIO<DislocationNetworkType>(*this).outputTXT(runID);
 				}
 #else
@@ -687,25 +699,28 @@ namespace model {
 		}
 		
 		
-		/* updateQuadraturePoints ********************************/
+		/* updateQuadraturePoints *********************************************/
 		void updateQuadraturePoints()
         {
 			double t0=clock();
 			std::cout<<"		Updating Quadrature Points... "<<std::flush;
-			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+            {
 				linkIter->second->quadratureParticleVector.clear(); // first clear all quadrature points for all segments
 			}
-            for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+            for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+            {
 				Quadrature<1,qOrder>::execute(linkIter->second,&LinkType::updateQuadGeometryKernel); // then update again
 			}
-            for (typename CellMapType::const_iterator cellIter=SpaceCellObserverType::begin();cellIter!=SpaceCellObserverType::end();++cellIter){
+            for (typename CellMapType::const_iterator cellIter=SpaceCellObserverType::begin();cellIter!=SpaceCellObserverType::end();++cellIter)
+            {
                 cellIter->second->computeCenterStress();
             }
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
 		
-		/***********************************************************/
+		/* move ***************************************************************/
 		void move(const double & dt_in, const double & dt_old)
         {/*! Moves all nodes in the DislocationNetwork using the stored velocity and current dt
           */
@@ -716,18 +731,20 @@ namespace model {
             //			double t0=clock();
             //			this->parallelExecute(Nmfp,dt_in);
             
-			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
+			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
+            {
 				nodeIter->second->move(dt_in,dt_old);
 			}
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
-		/***********************************************************/
+		/**********************************************************************/
 		void runByStep(const bool& updateUserBC=false)
         {/*! Runs Nsteps simulation steps
           */
-			double ts=clock();
-			for (int k=0;k<Nsteps;++k){
+			double ts(clock());
+			for (int k=0;k<Nsteps;++k)
+            {
 				std::cout<<std::endl; // leave a blank line
 				std::cout<<blueBoldColor<<"Step "<<k+1<<" of "<<Nsteps<<defaultColor<<std::endl;
 				singleStep(updateUserBC);
@@ -736,14 +753,15 @@ namespace model {
 		}
 		
 		
-		/***********************************************************/
+		/**********************************************************************/
 		void runByTime(const bool& updateUserBC=false)
         {/*! Runs a number simulation steps corresponding to a total
           * dimensionless time timeWindow
           */
-			double ts=clock();
+			double ts(clock());
 			double elapsedTime(0.0);
-			while (elapsedTime<timeWindow){
+			while (elapsedTime<timeWindow)
+            {
 				std::cout<<std::endl; // leave a blank line
 				std::cout<<blueBoldColor<<"Time "<<elapsedTime<<" of "<<timeWindow<<defaultColor<<std::endl;
 				singleStep(updateUserBC);
@@ -759,10 +777,13 @@ namespace model {
           * Exceptions are nodes with only one neighbors (FR source)
           * and nodes on the boundary.
           */
-			for (typename NetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-				if (nodeIter->second->neighborhood().size()>2){
+			for (typename NetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
+            {
+				if (nodeIter->second->neighborhood().size()>2)
+                {
                     const bool nodeIsBalanced(nodeIter->second->is_balanced());
-                    if (!nodeIsBalanced && nodeIter->second->nodeMeshLocation==insideMesh) {
+                    if (!nodeIsBalanced && nodeIter->second->nodeMeshLocation==insideMesh)
+                    {
                         std::cout<<"Node "<<nodeIter->second->sID<<" is not balanced:"<<std::endl;
                         std::cout<<"    outflow="<<nodeIter->second->outFlow().transpose()<<std::endl;
                         std::cout<<"     inflow="<<nodeIter->second->inFlow().transpose()<<std::endl;
@@ -778,8 +799,9 @@ namespace model {
 		double energy()
         {/*! The total elastic energy of the dislocation network
           */
-			double temp=0.0;
-			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+			double temp(0.0);
+			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+            {
 				temp+= linkIter->second->energy();
 			}
 			return 0.5*temp;
@@ -787,14 +809,18 @@ namespace model {
 		
 		/**********************************************************************/
 		template <bool useFullField=true>
-		MatrixDimD stress(const VectorDimD & Rfield) const {
+		MatrixDimD stress(const VectorDimD & Rfield) const
+        {
 			MatrixDimD temp=MatrixDimD::Zero();
-			if(useFullField){
-				for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+			if(useFullField)
+            {
+				for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+                {
 					temp+= linkIter->second->stress_source(Rfield);
 				}
 			}
-			else{
+			else
+            {
                 assert(0 && "RE-ENABLE THIS WITH NEW CELL CLASS");
                 //				SpaceCellObserverType sCO;
                 //				typename SpaceCellObserverType::SharedPtrType sharedCellPointer(sCO.getCellByPosition(Rfield));
@@ -804,49 +830,58 @@ namespace model {
                 //					temp+=(*particleIter)->stress_at(Rfield);
                 //				}
 			}
-            if (shared.use_bvp && (shared.boundary_type==1)){
+            if (shared.use_bvp && (shared.boundary_type==1))
+            {
                 temp+= shared.vbsc.stress(Rfield);
             }
 			return temp;
 		}
         
-		/********************************************************/
-		MatrixDimD stressFromGlidePlane(const Eigen::Matrix<double,dim+1,1>& key, const VectorDimD& Rfield) const {
+		/**********************************************************************/
+		MatrixDimD stressFromGlidePlane(const Eigen::Matrix<double,dim+1,1>& key, const VectorDimD& Rfield) const
+        {
 			//GlidePlaneObserver<dim,LinkType> gpObsever;
 			MatrixDimD temp(MatrixDimD::Zero());
 			typedef typename GlidePlaneObserver<LinkType>::GlidePlaneType GlidePlaneType;
 			std::pair<bool, const GlidePlaneType* const> isGp(this->isGlidePlane(key));
-			if (isGp.first){
+			if (isGp.first)
+            {
 				temp=isGp.second->stress(Rfield);
 			}
-            if (shared.use_bvp && (shared.boundary_type==1)) {
+            if (shared.use_bvp && (shared.boundary_type==1))
+            {
                 temp+= shared.vbsc.stressFromGlidePlane(key,Rfield);
             }
 			return temp;
 		}
 		
-		/********************************************************/
-		VectorDimD displacement(const VectorDimD & Rfield,const VectorDimD & S) const {
+		/**********************************************************************/
+		VectorDimD displacement(const VectorDimD & Rfield,const VectorDimD & S) const
+        {
 			VectorDimD temp(VectorDimD::Zero());
-			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+            {
 				temp+= linkIter->second->displacement(Rfield,S);
 			}
 			return temp;
 		}
 		
         
-        /********************************************************/
-		MatrixDimD plasticDistortionRate() const {
+        /**********************************************************************/
+		MatrixDimD plasticDistortionRate() const
+        {
 			MatrixDimD temp(MatrixDimD::Zero());
-			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+            {
 				temp+= linkIter->second->plasticDistortionRate();
 			}
 			return temp;
 		}
         
         
-        /********************************************************/
-		MatrixDimD plasticStrainRate() const {
+        /**********************************************************************/
+		MatrixDimD plasticStrainRate() const
+        {
             //			MatrixDimD temp(MatrixDimD::Zero());
             //			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
             //				temp+= linkIter->second->plasticStrainRate();
@@ -856,18 +891,22 @@ namespace model {
 		}
 		
 		/********************************************************/
-		MatrixDimD lattice_rotation(const VectorDimD & Rfield) const {
+		MatrixDimD lattice_rotation(const VectorDimD & Rfield) const
+        {
 			MatrixDimD temp(MatrixDimD::Zero());
-			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+            {
 				temp+= linkIter->second->lattice_rotation_source(Rfield);
 			}
 			return temp;
 		}
 		
 		/********************************************************/
-		MatrixDimD elasticDistortion(const VectorDimD & Rfield) const {
+		MatrixDimD elasticDistortion(const VectorDimD & Rfield) const
+        {
 			MatrixDimD temp(MatrixDimD::Zero());
-			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+            {
 				temp+= linkIter->second->displacement_gradient_source(Rfield);
 			}
 			return temp;
@@ -875,7 +914,9 @@ namespace model {
 		
 		/********************************************************/
 		// function to return the length of the whole dislocation network
-		double network_length() const {
+		double network_length() const
+        {/*! The length of the dislocation network.
+          */
 			double temp(0.0);
 			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
 				temp+= linkIter->second->template arcLength<qOrder,QuadratureRule>();
@@ -884,13 +925,16 @@ namespace model {
 		}
         
         /********************************************************/
-        const unsigned int& runningID() const {
+        const unsigned int& runningID() const
+        {/*! The current simulation step ID.
+          */
             return runID;
         }
         
         /********************************************************/
         const double& vMax() const
-        {
+        {/*! The max vertex velocity.
+          */
             return vmax;
         }
 		
@@ -907,28 +951,3 @@ namespace model {
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
-
-
-//		/***********************************************************/
-//		void checkPlanarity(){
-//			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-//				std::cout<<"checking planarity for link "<<linkIter->second->nodeIDPair.first<<"->"<<linkIter->second->nodeIDPair.second<<std::endl;
-//				Eigen::Matrix<double,dim,4> H2(linkIter->second->hermiteCoefficients());
-//				Eigen::Matrix<double,dim,1> n2(linkIter->second->glidePlaneNormal);
-//				const double absN2dotC2(std::fabs(n2.dot(H2.col(2)-H2.col(0))));
-//				const double absN2dotT2source(std::fabs(n2.dot(H2.col(1))));
-//				const double   absN2dotT2sink(std::fabs(n2.dot(H2.col(3))));
-//				if (absN2dotC2>FLT_EPSILON || absN2dotT2source>FLT_EPSILON || absN2dotT2sink>FLT_EPSILON){
-//					std::cout<<"n2="<<n2.transpose()<<std::endl;
-//					std::cout<<"H2="<<H2<<std::endl;
-//					std::cout<<"absN2dotC2="<<absN2dotC2<<"\n";
-//					std::cout<<"absN2dotT2source="<<absN2dotT2source<<"\n";
-//					std::cout<<"absN2dotT2sink="<<absN2dotT2sink<<"\n";
-//					//							std::cout<<"n2"std::fabs(n2.dot(H2.col(3)))<<std::endl;
-//				}
-//
-//				assert(      absN2dotC2<FLT_EPSILON);
-//				assert(absN2dotT2source<FLT_EPSILON);
-//				assert(  absN2dotT2sink<FLT_EPSILON);
-//			}
-//		}

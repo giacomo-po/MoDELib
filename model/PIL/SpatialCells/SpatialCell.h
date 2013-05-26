@@ -19,8 +19,7 @@
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
-#include <pil/SpatialCells/CellShift.h>
-//#include <model/Utilities/CompareVectorsByComponent.h>
+#include <model/PIL/SpatialCells/CellShift.h>
 
 
 namespace pil {
