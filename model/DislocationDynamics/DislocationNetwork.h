@@ -22,7 +22,6 @@
 // TO DO
 // -3 MAKE isIsolated and isBalanced data members of NetworkNode that are modified by addToNeighbors and removeFromNeigbors
 // implement IndependentPath
-// -2: updateQuadraturePoints should be called as part of the topologyChangeActions() and move()
 
 // 0 - Finish DepthFirst class. Don't allow to search/execute if N=0, so that N=1 means that node only, n=2 means first neighbor. Or change SpineNodeBase_CatmullRom::TopologyChangeActions
 // 1- Implement operator << in DislocationNode, GlidePlane, SpaceCell
@@ -33,18 +32,15 @@
 // 14- RENAME ORIGINAL MESH FOLDER /M
 // 16- READ/WRITE IN BINARY FORMAT
 // 18- Should define linear=1, quadratic=2, cubic=3 and use polyDegree instead of corder. Put corder in SplineEnums
-// 30- Make coreL static
 // 37- IS PLANAR SHOULD RETURN 0 IF IS A LINE!!!!! CHANGE ALSO IN SPLINESEGMENTBASE
 // 38- IS PLANAR SHOULD RETURN the normal as pair<bool,normal>
 // 31- Implement LinearElasticGreensFunction Class
-// 12- Finish SimplexMesh library
 // 37- NetworkNode, initializations from expansion and contraction
 // ALSO: SUBNETWORKS SOULD BE CALLED PARTITIONS
 // 38- Finish cleaning STL-Eigen compatibility issue (http://eigen.tuxfamily.org/dox-devel/TopicStlContainers.html) examples include: DislocationSegment::boundaryCollision(),
 // IMPLEMENT NEIGHBOR ITERATORS IN NETWORKNODE
 // CHANGE CONST VERSION OF EDGEFINDER/VERTEXFINDER PASS this IN MEMBER FUNCTION, REMOVE TEMPLATE SPECIALIZATION AND MAKE STATIC FUNCTIONS
 // 9- cellSize should depend on applied load. Or better the number of cell neighbors used in each cell should depend on the applied stress to that cell
-// 11- Implement operator << in DislocationNode and DislocationLink to be used by DislocationNetwork::output
 
 
 // ISSUES
@@ -74,12 +70,12 @@
 #include <Eigen/Dense>
 
 
-#ifdef MPIheaders
-#include MPIheaders
-#endif
+//#ifdef MPIheaders
+//#include MPIheaders
+//#endif
 
-#include <model/Network/Readers/VertexReader.h>
-#include <model/Network/Readers/EdgeReader.h>
+//#include <model/Network/Readers/VertexReader.h>
+//#include <model/Network/Readers/EdgeReader.h>
 #include <model/Network/Network.h>
 
 #include <model/Utilities/EigenDataReader.h>
@@ -141,9 +137,9 @@ namespace model {
 //         int nucleationFreq;
 #endif
 		
-#ifdef DislocationNetworkMPI
-#include DislocationNetworkMPI
-#endif
+//#ifdef DislocationNetworkMPI
+//#include DislocationNetworkMPI
+//#endif
 		
 	private:
         
@@ -168,40 +164,6 @@ namespace model {
 		
 		EigenDataReader EDR;
         
-		/* readNodes **********************************************************/
-		void readNodes(const unsigned int& fileID)
-        {/*! Reads file V/V_0.txt and creates DislocationNodes
-          */
-			typedef VertexReader<'V',11,double> VertexReaderType;
-			VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
-			assert(vReader.isGood(fileID) && "UNABLE TO READ VERTEX FILE V/V_x (x is the requested file ID).");
-			vReader.read(fileID);
-			for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
-            {
-				const size_t nodeIDinFile(vIter->first);
-				NodeType::set_count(nodeIDinFile);
-				const size_t nodeID(this->insert(vIter->second.template segment<NdofXnode>(0).transpose()));
-				assert(nodeID==nodeIDinFile);
-			}
-		}
-		
-		/* readLinks **********************************************************/
-		void readLinks(const unsigned int& fileID)
-        {/*! Reads file E/E_0.txt and creates DislocationSegments
-          */
-			typedef EdgeReader  <'E',11,double>	EdgeReaderType;
-			EdgeReaderType    eReader;	// sourceID,sinkID,Bx,By,Bz,Nx,Ny,Nz
-			assert(eReader.isGood<true>(fileID) && "Unable to read vertex file E/E_x (x is the requested fileID).");
-			eReader.read<true>(fileID);
-			for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
-            {
-				VectorDimD B(eIter->second.template segment<dim>(0  ).transpose()); // Burgers vector
-				VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
-				const size_t sourceID(eIter->first.first );
-				const size_t   sinkID(eIter->first.second);
-				assert(this->connect(sourceID,sinkID,B) && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
-			}
-		}
         
 		/* formJunctions ******************************************************/
 		void formJunctions()
@@ -357,15 +319,16 @@ namespace model {
 			//! 3- Solve the equation of motion
 			assembleAndSolve();
 			
-			
+    
 			//! 4- Compute time step dt (based on max nodal velocity) and increment totalTime
 			make_dt();
 			totalTime+=dt;
             
-            plasticDistortion+=plasticDistortionRate()*dt;
+            const MatrixDimD pdr(plasticDistortionRate());
+            plasticDistortion += pdr*dt;
             
             
-            //! 11- Output the current configuration, the corresponding velocities, PK force and dt
+            //! 11- Output the current configuration before changing it
             output();
             
 			//! 5- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
@@ -383,11 +346,10 @@ namespace model {
 				}
                 
                 const double dt_old(dt); // store current dt
-                totalTime-=dt; // subtract current dt
                 make_dt();      // compute dt again with average velocity
-                totalTime+=dt; // add new time step
-                
-                move(dt,dt_old); // move again (this subtracts DislocationNode::vOld*dt_old)
+                totalTime += dt-dt_old; // correct accumulated totalTime
+                plasticDistortion += pdr*(dt-dt_old); // // correct accumulated plasticDistortion
+                move(dt,dt_old); // move again (internally this subtracts DislocationNode::vOld*dt_old)
             }
             
 			DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
@@ -605,8 +567,11 @@ namespace model {
             }
 			
             // Read Vertex and Edge information
-            readNodes(runID);
-            readLinks(runID);
+//            readNodes(runID);
+            DislocationNetworkIO<DislocationNetworkType>::readVertices(*this,runID);
+            //readLinks(runID);
+            DislocationNetworkIO<DislocationNetworkType>::readEdges(*this,runID);
+
             
             if (shared.use_bvp && (shared.boundary_type==softBoundary))
             { // MOVE THIS WITH REST OB BVP STUFF
@@ -638,10 +603,13 @@ namespace model {
         {/*! Assemble and solve equation system
           */
             
-#ifdef DislocationNetworkMPI
-			MPIstep();
+//#ifdef DislocationNetworkMPI
+//			MPIstep();
+//#endif
+#ifdef _MODEL_DD_MPI_
+            hghdfhd
 #endif
-
+            
             
 			//! 1- Loop over DislocationSegments and assemble stiffness matrix and force vector
 			std::cout<<"		Assembling edge stiffness and force vectors..."<<std::flush;
@@ -686,14 +654,14 @@ namespace model {
             double t0=clock();
             if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency))
             {
-#ifdef DislocationNetworkMPI
-				if(localProc==0)
-                {
-                    DislocationNetworkIO<DislocationNetworkType>(*this).outputTXT(runID);
-				}
-#else
-                DislocationNetworkIO<DislocationNetworkType>(*this).outputTXT(runID);
-#endif
+//#ifdef DislocationNetworkMPI
+//				if(localProc==0)
+//                {
+//                    DislocationNetworkIO<DislocationNetworkType>::outputTXT(*this,runID);
+//				}
+//#else
+//                DislocationNetworkIO<DislocationNetworkType>::outputTXT(*this,runID);
+//#endif
 			}
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
@@ -951,3 +919,40 @@ namespace model {
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
+
+
+/* readNodes **********************************************************/
+//		void readNodes(const unsigned int& fileID)
+//        {/*! Reads file V/V_0.txt and creates DislocationNodes
+//          */
+//			typedef VertexReader<'V',11,double> VertexReaderType;
+//			VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
+//			assert(vReader.isGood(fileID) && "UNABLE TO READ VERTEX FILE V/V_x (x is the requested file ID).");
+//			vReader.read(fileID);
+//			for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
+//            {
+//				const size_t nodeIDinFile(vIter->first);
+//				NodeType::set_count(nodeIDinFile);
+//				const size_t nodeID(this->insert(vIter->second.template segment<NdofXnode>(0).transpose()));
+//				assert(nodeID==nodeIDinFile);
+//			}
+//		}
+
+//		/* readLinks **********************************************************/
+//		void readLinks(const unsigned int& fileID)
+//        {/*! Reads file E/E_0.txt and creates DislocationSegments
+//          */
+//			typedef EdgeReader  <'E',11,double>	EdgeReaderType;
+//			EdgeReaderType    eReader;	// sourceID,sinkID,Bx,By,Bz,Nx,Ny,Nz
+//			assert(eReader.isGood<true>(fileID) && "Unable to read vertex file E/E_x (x is the requested fileID).");
+//			eReader.read<true>(fileID);
+//			for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
+//            {
+//				VectorDimD B(eIter->second.template segment<dim>(0  ).transpose()); // Burgers vector
+//				VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
+//				const size_t sourceID(eIter->first.first );
+//				const size_t   sinkID(eIter->first.second);
+//				assert(this->connect(sourceID,sinkID,B) && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
+//			}
+//		}
+

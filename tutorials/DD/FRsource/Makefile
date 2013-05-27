@@ -1,5 +1,5 @@
 USE_MPI = 0
-USE_ICC = 1
+USE_ICC = 0
 
 
 # MODEL LIBRARY #################################
@@ -69,7 +69,10 @@ else
     		# enable C++0x
     		CFLAGS += -std=c++0x        
 	endif
-	
+
+	# Define macro
+	CFLAGS += -D _MODEL_DD_MPI_
+
 	# Link to Metis partitioner
 	LIBS += -L$(METIS_LIB) 
 	LIBS +=	 -lmetis

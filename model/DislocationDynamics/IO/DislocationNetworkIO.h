@@ -10,7 +10,8 @@
 #define model_DISLOCATIONNETWORKIO_H_
 
 #include <string>
-
+#include <model/Network/Readers/VertexReader.h>
+#include <model/Network/Readers/EdgeReader.h>
 #include <model/Utilities/SequentialOutputFile.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 
@@ -25,35 +26,74 @@ namespace model {
 	/**************************************************************************/
 	/**************************************************************************/
     template <typename DislocationNetworkType>
-	class DislocationNetworkIO
+	struct DislocationNetworkIO
     {
         
-        const DislocationNetworkType& DN; // a const reference to the DislocationNetwork
+//        DislocationNetworkType& DN; // a reference to the DislocationNetwork
         
         enum {dim=DislocationNetworkType::dim}; // make dim available outside class
 
         
-    public:
-        
+//    public:
+        typedef typename DislocationNetworkType::VectorDimD VectorDimD;
+        typedef typename DislocationNetworkType::NodeType NodeType;
         typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
         typedef typename DislocationNetworkType::NetworkNodeContainerType NetworkNodeContainerType;
         typedef typename DislocationNetworkType::GlidePlaneObserverType GlidePlaneObserverType;
         typedef typename DislocationNetworkType::SpaceCellObserverType SpaceCellObserverType;
         typedef typename SpaceCellObserverType::CellMapType CellMapType;
         
-        static int outputFrequency;
+        enum {NdofXnode=NodeType::NdofXnode};
+
+        
+        static int  outputFrequency;
         static bool outputGlidePlanes;
         static bool outputSpaceCells;
         static bool outputPKforce;
         static bool outputMeshDisplacement;
         
-        /* Constructor ******************************/
-		DislocationNetworkIO(const DislocationNetworkType& DN_in) :
-        /* init list */ DN(DN_in) // initialize DN
-        {}
+//        /* Constructor ******************************/
+//		DislocationNetworkIO(DislocationNetworkType& DN_in) :
+//        /* init list */ DN(DN_in) // initialize DN
+//        {}
+        
+        /* readVertices *******************************************************/
+        static void readVertices(DislocationNetworkType& DN, const unsigned int& fileID)
+        {/*! Reads file V/V_0.txt and creates DislocationNodes
+          */
+			typedef VertexReader<'V',11,double> VertexReaderType;
+			VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
+			assert(vReader.isGood(fileID) && "UNABLE TO READ VERTEX FILE V/V_x (x is the requested file ID).");
+			vReader.read(fileID);
+			for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
+            {
+				const size_t nodeIDinFile(vIter->first);
+				NodeType::set_count(nodeIDinFile);
+				const size_t nodeID(DN.insert(vIter->second.template segment<NdofXnode>(0).transpose()));
+				assert(nodeID==nodeIDinFile);
+			}
+		}
+        
+        /* readEdges **********************************************************/
+		static void readEdges(DislocationNetworkType& DN, const unsigned int& fileID)
+        {/*! Reads file E/E_0.txt and creates DislocationSegments
+          */
+			typedef EdgeReader  <'E',11,double>	EdgeReaderType;
+			EdgeReaderType    eReader;	// sourceID,sinkID,Bx,By,Bz,Nx,Ny,Nz
+			assert(eReader.isGood<true>(fileID) && "Unable to read vertex file E/E_x (x is the requested fileID).");
+			eReader.read<true>(fileID);
+			for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
+            {
+				VectorDimD B(eIter->second.template segment<dim>(0  ).transpose()); // Burgers vector
+				VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
+				const size_t sourceID(eIter->first.first );
+				const size_t   sinkID(eIter->first.second);
+				assert(DN.connect(sourceID,sinkID,B) && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
+			}
+		}
 
         /* outputTXT **********************************************************/
-		void outputTXT(const unsigned int& runID) const
+		static void outputTXT(const DislocationNetworkType& DN, const unsigned int& runID) 
         {/*! Outputs DislocationNetwork data to the following files (x is the runID):
           * ./E/E_x.txt (DislocationSegment(s) are always outputted)
           * ./V/V_x.txt (DislocationNode(s) are always outputted)
@@ -142,7 +182,7 @@ namespace model {
         
         
         /* outputBIN **********************************************************/
-        void outputBIN(const unsigned int& runID) const
+        static void outputBIN(const unsigned int& runID)
         {
             //			typedef std::pair<std::pair<int,int>,Eigen::Matrix<double,1,9> > BinEdgeType;
             //			SequentialBinFile<'E',BinEdgeType>::set_increment(outputFrequency);
@@ -181,23 +221,4 @@ namespace model {
     /**************************************************************************/
 } // namespace model
 #endif
-
-
-
-
-
-//			for (typename NetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter){
-//				vertexFile << nodeIter->second->sID<<"\t"
-//				/*         */ << std::setprecision(15)<<std::scientific<<nodeIter->second->get_P().transpose()<<"\t"
-//				/*         */ << std::setprecision(15)<<std::scientific<<nodeIter->second->get_T().transpose()<<"\t"
-//				/*         */ << nodeIter->second->pSN()->sID<<"\t";
-//				if (shared.use_bvp){ //output in deformed configuration
-//					vertexFile << std::setprecision(15)<<std::scientific<<nodeIter->second->deformedPosition().transpose()<<"\t";
-//				}
-//				else{
-//					vertexFile<< VectorDimD::Zero().transpose();
-//				}
-//				vertexFile << std::endl;
-//
-//			}
 
