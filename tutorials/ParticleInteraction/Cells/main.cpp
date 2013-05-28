@@ -13,13 +13,15 @@
 // run
 // mpiexec -np 4 particles
 
-#include <pil/ParticleSystem.h> // the main object from pil library
+#include <model/ParticleInteraction/ParticleSystem.h> // the main object from pil library
 #include <model/Utilities/TerminalColors.h> // the main object from pil library
 
-#include <tutorials/PIL/ChargedParticles/ChargedParticle.h> // a user-defined type of particle to be inserted in ParticleSystem
-#include <tutorials/PIL/ChargedParticles/CoulombForce.h> // a user-defined type of force interaction between ChargedParticle objects
-#include <tutorials/PIL/ChargedParticles/CoulombEnergy.h> // a user-defined type of energy interaction between ChargedParticle objects
+#include <tutorials/ParticleInteraction/ChargedParticles/ChargedParticle.h> // a user-defined type of particle to be inserted in ParticleSystem
+#include <tutorials/ParticleInteraction/ChargedParticles/CoulombForce.h> // a user-defined type of force interaction between ChargedParticle objects
+#include <tutorials/ParticleInteraction/ChargedParticles/CoulombEnergy.h> // a user-defined type of energy interaction between ChargedParticle objects
 
+
+using namespace model;
 
 int main (int argc, char * argv[]) {
     

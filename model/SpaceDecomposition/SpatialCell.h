@@ -6,22 +6,23 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_SPACECELL_H_
-#define model_SPACECELL_H_
+#ifndef model_SpatialCell_h_
+#define model_SpatialCell_h_
 
 #include <assert.h>
 #include <math.h>
 #include <set>
-#include <map>
+//#include <map>
 //#include <boost/utility.hpp>
 //#include <boost/shared_ptr.hpp>
 //#include <memory> // std::shared_ptr (c++11)
 #include <Eigen/Dense>
-#include <model/Math/CompileTimeMath/Pow.h>
-#include <model/SpaceDecomposition/SpaceCellObserver.h>
+//#include <model/Math/CompileTimeMath/Pow.h>
+#include <model/Utilities/CRTP.h>
+#include <model/SpaceDecomposition/SpatialCellObserver.h>
 //#include <model/SpaceDecomposition/NeighborShift.h>
 #include <model/SpaceDecomposition/CellShift.h>
-#include <model/Utilities/CompareVectorsByComponent.h>
+//#include <model/Utilities/CompareVectorsByComponent.h>
 
 
 namespace model {
@@ -29,23 +30,25 @@ namespace model {
 	/********************************************************************************************/
 	/********************************************************************************************/
 	/*! \brief A dim-dimensional cell occupying the spatial region cellID<= x/cellSize < (cellID+1).
-	 *  SpaceCell is aware off all ParticleType objects present inside it.
+	 *  SpatialCell is aware off all ParticleType objects present inside it.
 	 */
 	template<typename Derived, short unsigned int dim>
-	struct SpaceCell : boost::noncopyable,
-	/*              */ private SpaceCellObserver<Derived,dim>,
+	struct SpatialCell : boost::noncopyable,
+	/*              */ private SpatialCellObserver<Derived,dim>,
     /*              */ public  CRTP<Derived>{
         
         
  
 		
         typedef typename TypeTraits<Derived>::ParticleType ParticleType;
-        typedef Derived SpaceCellType;
-		typedef SpaceCellObserver<SpaceCellType,dim> SpaceCellObserverType;
-		typedef typename SpaceCellObserverType::CellMapType  CellMapType;
-		typedef typename SpaceCellObserverType::VectorDimD  VectorDimD;
-		typedef typename SpaceCellObserverType::VectorDimI  VectorDimI;
+        typedef Derived SpatialCellType;
+		typedef SpatialCellObserver<SpatialCellType,dim> SpatialCellObserverType;
+		typedef typename SpatialCellObserverType::CellMapType  CellMapType;
+		typedef typename SpatialCellObserverType::VectorDimD  VectorDimD;
+		typedef typename SpatialCellObserverType::CellIdType  CellIdType;
 		typedef std::set<const ParticleType*> ParticleContainerType; // PTR COMPARE IS NOT NECESSARY
+//		typedef std::set<ParticleType*> ParticleContainerType; // PTR COMPARE IS NOT NECESSARY
+
         
         enum{neighborLayer=1}; // = (1+2*1)^dim  cells = 27  cells in 3d
         enum{    nearLayer=2}; // = (1+2*3)^dim  cells = 343 cells in 3d
@@ -57,10 +60,14 @@ namespace model {
         CellMapType  neighborCells;
         CellMapType      nearCells;
         CellMapType       farCells;
+        
+#ifdef _MODEL_MPI_
+        int assignedRank;
+#endif
 
         
         /* isNearCell *******************************************/
-        bool isNearCell(const VectorDimI& otherCellID) const {
+        bool isNearCell(const CellIdType& otherCellID) const {
             bool temp(false);
             for (int k=0;k<nearCellIDs.cols();++k){
                 if(nearCellIDs.col(k)==otherCellID){ // cell is a neighbor
@@ -72,7 +79,7 @@ namespace model {
         }
         
         /* isNeighborCell ***************************************/
-        bool isNeighborCell(const VectorDimI& otherCellID) const {
+        bool isNeighborCell(const CellIdType& otherCellID) const {
             bool temp(false);
             for (int k=0;k<neighborCellIDs.cols();++k){
                 if(neighborCellIDs.col(k)==otherCellID){ // cell is a neighbor
@@ -90,25 +97,25 @@ namespace model {
 		ParticleContainerType particleContainer; // TO DO: MAKE THIS A BASE CLASS
 				
         //! The ID of this cell, defining the dim-dimensional spatial region cellID<= x/cellSize < (cellID+1).
-		const VectorDimI cellID;
+		const CellIdType cellID;
         
         
         const VectorDimD center;
         
-		//! The cellID(s) of the neighboring SpaceCell(s) (in column)
+		//! The cellID(s) of the neighboring SpatialCell(s) (in column)
 		const Eigen::Matrix<int,dim, CellShiftType::Nneighbors> neighborCellIDs;
 		const Eigen::Matrix<int,dim,     NearShiftType::Nneighbors>     nearCellIDs;
 
         
 		/* Constructor *******************************************/
-		SpaceCell(const VectorDimI& cellID_in) :
+		SpatialCell(const CellIdType& cellID_in) :
         /* init list */ cellID(cellID_in),
         /* init list */ center((cellID.template cast<double>().array()+0.5).matrix()*this->cellSize),
         /* init list */ neighborCellIDs(CellShiftType::neighborIDs(cellID)),
         /* init list */     nearCellIDs(    NearShiftType::neighborIDs(cellID)){
             
-			//! 1- Adds this to static SpaceCellObserver::cellMap
-			assert(this->cellMap.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT SPACE CELL IN STATIC cellMap.");
+			//! 1- Adds this to static SpatialCellObserver::cellMap
+			assert(this->cellMap.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT Spatial CELL IN STATIC cellMap.");
             //! Populate nearCells and farCells
             for (typename CellMapType::const_iterator cellIter=this->begin();cellIter!=this->end();++cellIter){
                 if (isNearCell(cellIter->second->cellID)){
@@ -132,21 +139,24 @@ namespace model {
 		}
 		
 		/* Destructor *******************************************/
-		~SpaceCell(){
-			//! Removes this from static SpaceCellObserver::cellMap
+		~SpatialCell()
+        {/*! Removes this from static SpatialCellObserver::cellMap
+          */
 			this->cellMap.erase(cellID);
-			assert(particleContainer.empty() && "DESTROYING NON-EMPTY SPACE CELL.");
+			assert(particleContainer.empty() && "DESTROYING NON-EMPTY Spatial CELL.");
 		}
 		
 		/* addParticle *******************************************/
-		void addParticle(const ParticleType* const pP){
-			//! 1- Adds pP to the particleContainer
-			assert(particleContainer.insert(pP).second && "CANNOT INSERT PARTICLE IN SPACECELL");
+		void addParticle(const ParticleType* const pP)
+        {/*! Adds pP to the particleContainer
+          */
+			assert(particleContainer.insert(pP).second && "CANNOT INSERT PARTICLE IN SpatialCELL");
 		}
 		
 		/* removeParticle ****************************************/
-		void removeParticle(const ParticleType* const pP){
-			//! 1- Removes pP to the particleContainer
+		void removeParticle(const ParticleType* const pP)
+        {/*! Removes pP from the particleContainer
+          */
 			assert(particleContainer.erase(pP)==1 && "CANNOT ERASE PARTICLE FROM particleContainer.");
 		}
 

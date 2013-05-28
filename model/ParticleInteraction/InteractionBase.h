@@ -13,7 +13,7 @@
 #define _model_InteractionBase_h
 
 //#include <pil/MpiDataType.h>
-#include <pil/SpatialParticle.h>
+//#include <model/ParticleInteraction/SpatialCellParticle.h>
 
 
 namespace pil {

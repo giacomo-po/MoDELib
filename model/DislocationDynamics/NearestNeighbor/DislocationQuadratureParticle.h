@@ -10,7 +10,7 @@
 #define _MODEL_DISLOCATIONQUADRATUREPARTICLE_H_
 
 #include <Eigen/Dense>
-#include <model/SpaceDecomposition/SpaceCellParticle.h>
+#include <model/SpaceDecomposition/SpatialCellParticle.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/NearestNeighbor/DislocationCell.h>
 
@@ -22,7 +22,7 @@ namespace model {
 	/********************************************************************************************/
 	template<short unsigned int dim>
 	struct DislocationQuadratureParticle :
-    /* inheritance */ public SpaceCellParticle<DislocationQuadratureParticle<dim>,dim>
+    /* inheritance */ public SpatialCellParticle<DislocationQuadratureParticle<dim>,dim>
     {
         
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -32,11 +32,11 @@ namespace model {
 #endif
 		
 		typedef DislocationQuadratureParticle<dim> DislocationQuadratureParticleType;
-		typedef SpaceCellParticle<DislocationQuadratureParticleType,dim> SpaceCellParticleType;
-		typedef typename SpaceCellParticleType::CellMapType  CellMapType;
-		typedef typename SpaceCellParticleType::ParticleContainerType ParticleContainerType;
-		typedef typename SpaceCellParticleType::VectorDimD   VectorDimD;
-		typedef typename SpaceCellParticleType::VectorDimI   VectorDimI;
+		typedef SpatialCellParticle<DislocationQuadratureParticleType,dim> SpatialCellParticleType;
+		typedef typename SpatialCellParticleType::CellMapType  CellMapType;
+		typedef typename SpatialCellParticleType::ParticleContainerType ParticleContainerType;
+		typedef typename SpatialCellParticleType::VectorDimD   VectorDimD;
+//		typedef typename SpatialCellParticleType::VectorDimI   VectorDimI;
 		typedef Eigen::Matrix<double,dim,dim> MatrixDim;
 		
 		//! A const reference to Quadrature weight corresponding to this particle
@@ -62,7 +62,7 @@ namespace model {
 		/********************************************************/
 		DislocationQuadratureParticle(const double& qA,const double& qW,
 									  const VectorDimD& Pin, const VectorDimD& Tin, const VectorDimD& Bin) :
-		/* base init */ SpaceCellParticleType::SpaceCellParticle(Pin),
+		/* base init */ SpatialCellParticleType::SpatialCellParticle(Pin),
 		/* init list */ quadAbscissa(qA),
 		/* init list */ quadWeight(qW),
 		/* init list */ P(Pin),

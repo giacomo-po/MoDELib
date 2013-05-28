@@ -6,16 +6,17 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_SPACECELLPARTICLE_H_
-#define model_SPACECELLPARTICLE_H_
+#ifndef _model_SpatialCellParticle_h_
+#define _model_SpatialCellParticle_h_
 
 #include <math.h>
 #include <boost/utility.hpp>
 #include <Eigen/Dense>
-#include <model/SpaceDecomposition/SpaceCellObserver.h>
-#include <model/SpaceDecomposition/SpaceCell.h>
+#include <model/SpaceDecomposition/SpatialCellObserver.h>
+#include <model/SpaceDecomposition/SpatialCell.h>
 #include <model/Utilities/TypeTraits.h>
 #include <model/Utilities/CRTP.h>
+#include <model/Utilities/StaticID.h>
 
 
 namespace model {
@@ -24,19 +25,23 @@ namespace model {
 	
 	/********************************************************************************************/
 	/********************************************************************************************/
-	template<typename Derived, short unsigned int dim>
-	struct SpaceCellParticle : boost::noncopyable,
-	/*                      */ private SpaceCellObserver<typename TypeTraits<Derived>::CellType,dim>,
-	/*                      */ public  CRTP<Derived>{ 
+	template<typename Derived, short unsigned int _dim>
+	struct SpatialCellParticle : boost::noncopyable,
+	/*                      */ private SpatialCellObserver<typename TypeTraits<Derived>::CellType,_dim>,
+	/*                      */ public  CRTP<Derived>,
+    /*                      */ public  StaticID<Derived>
+    {
 
-		//typedef SpaceCell<Derived,dim,cellSize> SpaceCellType;
-        typedef typename TypeTraits<Derived>::CellType SpaceCellType;
-		typedef typename SpaceCellType::ParticleContainerType ParticleContainerType;
-		typedef SpaceCellObserver<SpaceCellType,dim> SpaceCellObserverType;
-		typedef typename SpaceCellObserverType::CellMapType  CellMapType;	
-		typedef typename SpaceCellObserverType::VectorDimD  VectorDimD;	
-		typedef typename SpaceCellObserverType::VectorDimI  VectorDimI;	
-		typedef typename SpaceCellObserverType::SharedPtrType  SharedPtrType;	
+        enum{dim=_dim};
+		//typedef SpatialCell<Derived,dim,cellSize> SpatialCellType;
+        typedef typename TypeTraits<Derived>::CellType SpatialCellType;
+		typedef typename SpatialCellType::ParticleContainerType ParticleContainerType;
+		typedef SpatialCellObserver<SpatialCellType,dim> SpatialCellObserverType;
+		typedef typename SpatialCellObserverType::CellMapType  CellMapType;
+        typedef typename SpatialCellObserverType::VectorDimD  PositionType;
+		typedef typename SpatialCellObserverType::VectorDimD  VectorDimD;
+//		typedef typename SpatialCellObserverType::VectorDimI  VectorDimI;
+		typedef typename SpatialCellObserverType::SharedPtrType  SharedPtrType;	
 		
 				
 	public:
@@ -46,9 +51,14 @@ namespace model {
 		
 		//! The pointer to the Cell
 		const SharedPtrType pCell;
+
+#ifdef _MODEL_MPI_
+        int rID;
+#endif
+
 		
 		/* Constructor **********************/
-		SpaceCellParticle(const VectorDimD& P) :
+		SpatialCellParticle(const VectorDimD& P) :
 //        /* init list */ cellID(floorEigen<dim>(P/cellSize)),
 //        /* init list */ cellID(getCellIDByPosition(P)),
 //		/* init list */ pCell(this->getCellByID(cellID))
@@ -58,7 +68,7 @@ namespace model {
 		}
 		
 		/* Destructor ********************************************/
-		~SpaceCellParticle(){			
+		~SpatialCellParticle(){			
 			pCell->removeParticle(this->p_derived());
 		}
 		

@@ -14,7 +14,7 @@ C=load(['C/C_' num2str(fileID) '.txt']);
 %% Prepare colors
 colormap jet
 cMap=colormap;
-rankMax=max(C(:,6))+1; % one-based
+rankMax=max(C(:,6))+1 % one-based
 rankColorIDs=round([1:rankMax]/rankMax*size(cMap,1));
 cellColors=cMap(rankColorIDs,:);
 
@@ -34,7 +34,7 @@ end
 optimumLoad=mean(rankLoads);
 inefficiency=max(rankLoads-optimumLoad)/optimumLoad;
 
-fontSize=18
+fontSize=18;
 
 figure(2)
 bar([1:rankMax]-1,rankLoads)

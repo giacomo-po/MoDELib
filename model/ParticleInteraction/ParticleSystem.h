@@ -27,11 +27,10 @@
 
 #include <Eigen/Core>
 
-#include <model/PIL/SystemProperties.h>
-#include <model/PIL/SpatialCells/SpatialCellObserver.h>
-
-
+#include <model/ParticleInteraction/SystemProperties.h>
+#include <model/SpaceDecomposition/SpatialCellObserver.h>
 #include <model/Utilities/SequentialOutputFile.h>
+#include <model/Utilities/CompareVectorsByComponent.h>
 
 
 namespace model {
@@ -45,10 +44,11 @@ namespace model {
     /* inheritance */  private UserSystemProperties
     {
         //enum {dim=_ParticleType::dim};
-        typedef SpatialCell<_ParticleType,_ParticleType::dim> SpatialCellType;
+//        typedef SpatialCell<_ParticleType,_ParticleType::dim> SpatialCellType;
+        typedef typename _ParticleType::SpatialCellType SpatialCellType;
         typedef boost::ptr_map<size_t,_ParticleType> ParticleContainerType;
-        typedef SpatialCellObserver<_ParticleType,_ParticleType::dim> SpatialCellObserverType;
-        typedef std::deque<SpatialCell<_ParticleType,_ParticleType::dim>*> AssignedCellContainerType;
+        typedef typename _ParticleType::SpatialCellObserverType SpatialCellObserverType;
+        typedef std::deque<SpatialCellType*> AssignedCellContainerType;
         
         //! The SpatialCell cells assigned to this MPI process
         AssignedCellContainerType assignedCells;
@@ -86,7 +86,7 @@ namespace model {
             for (typename AssignedCellContainerType::const_iterator cIter=assignedCells.begin();cIter!=assignedCells.end();++cIter){ // loop over cells assigned to this process
                 for (typename SpatialCellType::ParticleContainerType::const_iterator pIter=(*cIter)->particleBegin();pIter!=(*cIter)->particleEnd();++pIter) // loop over particles in the current cell
                 {
-                    (*pIter)->rID=rID+particleRankOffset;
+//                    (*pIter)->rID=rID+particleRankOffset;
                     rID++;
                 }
             }
@@ -120,18 +120,12 @@ namespace model {
         /* init list */ : ModelMPIbase(argc,argv)
 #endif
         {
-            SpatialCellObserver<_ParticleType,_ParticleType::dim>::cellSize=cellSize;
+            SpatialCellObserverType::cellSize=cellSize;
             particleRankOffsetVector.resize(this->nProcs);
             particleSizeVector.resize(this->nProcs);
         }
         
-//        /*****************************************/
-//        ~ParticleSystem()
-//        {
-//#ifdef _MODEL_MPI_
-//            MPI_Finalize();
-//#endif
-//        }
+
         
         /*****************************************/
         template <typename ...AdditionalConstructorTypes>
@@ -156,7 +150,7 @@ namespace model {
         void partionCells()
         {
             typedef typename SpatialCellObserverType::CellIdType CellIdType;
-            typedef std::map<CellIdType,const int,model::CompareVectorsByComponent<int,_ParticleType::dim> > ijk2idMapType;
+            typedef std::map<CellIdType,const int,CompareVectorsByComponent<int,_ParticleType::dim> > ijk2idMapType;
             //            typedef std::map<Eigen::Matrix<int,_ParticleType::dim,1>,const int,CompareVectorsByComponent<int,_ParticleType::dim> > ijk2idMapType;
             ijk2idMapType  ijk2idMap;;
             typedef std::map<int,const CellIdType> id2ijkMapType;
@@ -271,7 +265,7 @@ namespace model {
                     {
                         for(typename SpatialCellType::ParticleContainerType::const_iterator qIter=nIter->second->particleBegin();qIter!=nIter->second->particleEnd();++qIter) // loop over neighbor particles
                         {
-                            InteractionType(**pIter,**qIter);  // the constructor of InteractionType actually computes the binary interaction between *iterI and *iterJ
+//                            InteractionType(**pIter,**qIter);  // the constructor of InteractionType actually computes the binary interaction between *iterI and *iterJ
                         }
                     }
                 }
@@ -337,10 +331,10 @@ namespace model {
         
         
         /* cells ****************************************/
-        SpatialCellObserver<_ParticleType,_ParticleType::dim> cells()
-        {
-            return SpatialCellObserver<_ParticleType,_ParticleType::dim>();
-        }
+//        SpatialCellObserverType cells()
+//        {
+//            return SpatialCellObserverType();
+//        }
         
         /*****************************************/
         template<char P='P',bool autodelete=true>
@@ -351,11 +345,28 @@ namespace model {
             if (this->mpiRank == 0)
             //if (PilMPI::mpiRank == 0)
             {
-                model::SequentialOutputFile<P,autodelete> pFile;
+                SequentialOutputFile<P,autodelete> pFile;
                 pFile<<*this<<std::endl;
                 
-                model::SequentialOutputFile<'C',1> cFile;
-                cFile<<cells()<<std::endl;
+                
+//                SpatialCellObserverType sco;
+//                sco.end();
+                
+//                SpatialCellObserver<_ParticleType::SpatialCellType,_ParticleType::dim> sco;
+                
+                SequentialOutputFile<'C',1> cFile;
+//                cFile<<cells()<<std::endl;
+                
+                for (typename SpatialCellObserverType::CellMapType::const_iterator cIter=SpatialCellObserverType::begin();cIter!=SpatialCellObserverType::end();++cIter)
+                {
+                    //os<<sC.cellID.transpose()<<" "<< sC.size()<<" "<<sC.neighborSize()<< " "<<sC.assignedRank;
+                    cFile<<cIter->second->cellID.transpose()<<" "<< cIter->second->size()<<" "<<cIter->second->neighborSize()<< " "<<cIter->second->assignedRank<<std::endl;
+                }
+                
+
+                
+//                cFile<<sco<<std::endl;
+
             }
         }
         

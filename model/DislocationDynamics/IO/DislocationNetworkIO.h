@@ -41,15 +41,15 @@ namespace model {
         typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
         typedef typename DislocationNetworkType::NetworkNodeContainerType NetworkNodeContainerType;
         typedef typename DislocationNetworkType::GlidePlaneObserverType GlidePlaneObserverType;
-        typedef typename DislocationNetworkType::SpaceCellObserverType SpaceCellObserverType;
-        typedef typename SpaceCellObserverType::CellMapType CellMapType;
+        typedef typename DislocationNetworkType::SpatialCellObserverType SpatialCellObserverType;
+        typedef typename SpatialCellObserverType::CellMapType CellMapType;
         
         enum {NdofXnode=NodeType::NdofXnode};
 
         
         static int  outputFrequency;
         static bool outputGlidePlanes;
-        static bool outputSpaceCells;
+        static bool outputSpatialCells;
         static bool outputPKforce;
         static bool outputMeshDisplacement;
         
@@ -98,7 +98,7 @@ namespace model {
         {/*! Outputs DislocationNetwork data to the following files (x is the runID):
           * ./E/E_x.txt (DislocationSegment(s) are always outputted)
           * ./V/V_x.txt (DislocationNode(s) are always outputted)
-          * ./C/C_x.txt (DislocationCell(s) only if outputSpaceCells==true)
+          * ./C/C_x.txt (DislocationCell(s) only if outputSpatialCells==true)
           * ./G/G_x.txt (GlidePlane(s) only if outputGlidePlanes==true)
           * ./P/P_x.txt (PK force only if outputPKforce==true)
           * ./D/D_x.txt (mesh displacement only if outputMeshDisplacement==true)
@@ -119,17 +119,17 @@ namespace model {
             vertexFile << *(const NetworkNodeContainerType*)(&DN);
 			std::cout<<", V/V_"<<vertexFile.sID<<std::flush;
 			
-            if(outputSpaceCells)
+            if(outputSpatialCells)
             {
                 //! 3- Outputs the nearest neighbor Cell structures to file C_*.txt where * is the current simulation step
                 SequentialOutputFile<'C',1>::set_increment(outputFrequency); // Cell_file;
                 SequentialOutputFile<'C',1>::set_count(runID); // Cell_file;
                 SequentialOutputFile<'C',1> Cell_file;
-                //              SpaceCellObserverType SPC;
+                //              SpatialCellObserverType SPC;
                 int cID(0);
-                for (typename CellMapType::const_iterator cellIter=SpaceCellObserverType::begin();cellIter!=SpaceCellObserverType::end();++cellIter)
+                for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::begin();cellIter!=SpatialCellObserverType::end();++cellIter)
                 {
-                    Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<SpaceCellObserverType::cellSize<<std::endl;
+                    Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize<<std::endl;
                     ++cID;
                 }
                 std::cout<<", C/C_"<<Cell_file.sID<<std::flush;
@@ -212,7 +212,7 @@ namespace model {
     bool DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes=false;
 
     template <typename DislocationNetworkType>
-    bool DislocationNetworkIO<DislocationNetworkType>::outputSpaceCells=false;
+    bool DislocationNetworkIO<DislocationNetworkType>::outputSpatialCells=false;
     
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputPKforce=false;

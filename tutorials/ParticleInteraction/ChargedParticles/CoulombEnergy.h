@@ -13,40 +13,43 @@
 #define _CoulombEnergy_h
 
 #include <iostream>
-#include <tutorials/PIL/ChargedParticles/ChargedParticle.h>
+#include <tutorials/ParticleInteraction/ChargedParticles/ChargedParticle.h>
 
-struct CoulombEnergy{
-    
-    typedef ChargedParticle::PositionType PositionType;
+namespace model {
     
     
-    /*****************************************/
-    CoulombEnergy(ChargedParticle& cp1,ChargedParticle& cp2)
-    {/*! Constructor with two ChargedParticle(s). Compu
-      */
+    struct CoulombEnergy{
         
-        //std::cout<<"Computing CoulombEnergy"<<std::endl;
+        typedef ChargedParticle::PositionType PositionType;
         
-        const PositionType R(cp1.P()-cp2.P());
-        const double r(R.norm()); // distance between particles
-        if(r!=0.0)
-        {
-            const double e(cp1.q()*cp2.q()/r); // the force on particle 2
-            cp2.energy+=e;
-            cp1.energy+=e;
+        
+        /*****************************************/
+        CoulombEnergy(ChargedParticle& cp1,ChargedParticle& cp2)
+        {/*! Constructor with two ChargedParticle(s). Compu
+          */
+            
+            //std::cout<<"Computing CoulombEnergy"<<std::endl;
+            
+            const PositionType R(cp1.P()-cp2.P());
+            const double r(R.norm()); // distance between particles
+            if(r!=0.0)
+            {
+                const double e(cp1.q()*cp2.q()/r); // the force on particle 2
+                cp2.energy+=e;
+                cp1.energy+=e;
+            }
+            
         }
         
-    }
+        /*****************************************/
+        static void reset(ChargedParticle& cp)
+        {/*! Set energy of cp to zero
+          */
+            cp.energy=0.0;
+        }
+        
+    };
     
-    /*****************************************/
-    static void reset(ChargedParticle& cp)
-    {/*! Set energy of cp to zero
-      */
-        cp.energy=0.0;
-    }
-    
-};
-
-
+}
 #endif
 

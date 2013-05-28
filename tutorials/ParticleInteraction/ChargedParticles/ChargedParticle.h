@@ -12,61 +12,77 @@
 #ifndef _ChargedParticle_h
 #define _ChargedParticle_h
 
-#include <model/PIL/SpatialParticle.h>
+#include <tutorials/ParticleInteraction/ChargedParticles/ChargedCell.h>
+#include <model/SpaceDecomposition/SpatialCellParticle.h>
 
-class ChargedParticle : public model::SpatialParticle<ChargedParticle,3>
-{
-    
-public:
-    
-    enum{dim=3};
-    typedef  model::SpatialParticle<ChargedParticle,3>::PositionType PositionType;
-    typedef  model::SpatialParticle<ChargedParticle,3>::PositionType ForceType;
+namespace model {
     
     
-private:
-    
-    double _q; // the electric charge of the particle
-    
-public:
-    
-    ForceType force;
-    double energy;
-    
-    /*****************************************/
-    ChargedParticle(const PositionType& pIN, const double& qIN) :
-    /* init list */ model::SpatialParticle<ChargedParticle,3>::SpatialParticle(pIN), // SpatialParticle must be constructed with initial position
-    /* init list */ _q(qIN),
-    /* init list */ force(ForceType::Zero()),
-    /* init list */ energy(0.0)
-    {/*! Constructor with input position and charge
-      */
-        //std::cout<< "Creating particle ";
-        //std::cout<<*this;
-    }
-    
-    /*****************************************/
-    const double& q() const
-    {/*! The charge of this ChargedParticle
-      */
-        return _q;
-    }
-    
-    /*****************************************/
-    template <class T>
-    friend T& operator << (T& os, const ChargedParticle& cP)
-    {/*! operator << is used to output ChargedParticle info
-      *  Example: 
-      *  ChargedParticle p;
-      *  std::cout<<p;
-      */
-        os  <<cP.sID<<" "
+    class ChargedParticle : public SpatialCellParticle<ChargedParticle,3>
+    {
+        
+    public:
+        
+        enum{dim=3};
+        typedef  SpatialCellParticle<ChargedParticle,3>::PositionType PositionType;
+        typedef  SpatialCellParticle<ChargedParticle,3>::PositionType ForceType;
+        
+
+        
+    private:
+
+        PositionType _p;
+        double _q; // the electric charge of the particle
+        
+    public:
+        
+        ForceType force;
+        double energy;
+        
+        /*****************************************/
+        ChargedParticle(const PositionType& pIN, const double& qIN) :
+        /* init list */ SpatialCellParticle<ChargedParticle,3>::SpatialCellParticle(pIN), //  SpatialCellParticle must be constructed with initial position
+        /* init list */ _p(pIN),
+        /* init list */ _q(qIN),
+        /* init list */ force(ForceType::Zero()),
+        /* init list */ energy(0.0)
+        {/*! Constructor with input position and charge
+          */
+            //std::cout<< "Creating particle ";
+            //std::cout<<*this;
+        }
+        
+        /*****************************************/
+        const double& q() const
+        {/*! The charge of this ChargedParticle
+          */
+            return _q;
+        }
+        
+        /*****************************************/
+        const PositionType& P() const
+        {/*! The charge of this ChargedParticle
+          */
+            return _p;
+        }
+        
+        /*****************************************/
+        template <class T>
+        friend T& operator << (T& os, const ChargedParticle& cP)
+        {/*! operator << is used to output ChargedParticle info
+          *  Example:
+          *  ChargedParticle p;
+          *  std::cout<<p;
+          */
+            os  <<cP.sID<<" "
             <<cP.P().transpose()<<" "
             <<cP.q()<<" "
             <<cP.force.transpose()<<" "
-        <<cP.energy;
-        return os;
-    }
-        
-};
+            <<cP.energy;
+            return os;
+        }
+            
+    };
+            
+}
 #endif

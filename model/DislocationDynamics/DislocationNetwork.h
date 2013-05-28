@@ -24,7 +24,7 @@
 // implement IndependentPath
 
 // 0 - Finish DepthFirst class. Don't allow to search/execute if N=0, so that N=1 means that node only, n=2 means first neighbor. Or change SpineNodeBase_CatmullRom::TopologyChangeActions
-// 1- Implement operator << in DislocationNode, GlidePlane, SpaceCell
+// 1- Implement operator << in DislocationNode, GlidePlane, SpatialCell
 // 2- remove AddressBook, wherever possible, Done in Node chain
 // 40 - clean MultiExpand in Network Layer, remove get_r from there
 // 35- Simplify Neighborhood structure, remove boost::tuple, (use std::touple? Available in c++11, starting with g++4.7)
@@ -119,9 +119,9 @@ namespace model {
 		typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
 		typedef Eigen::Matrix<double,dim,1>		VectorDimD;
 		typedef typename LinkType::DislocationQuadratureParticleType DislocationQuadratureParticleType;
-		typedef DislocationCell<dim> SpaceCellType;
-		typedef SpaceCellObserver<SpaceCellType,dim> SpaceCellObserverType;
-		typedef typename SpaceCellObserverType::CellMapType CellMapType;
+		typedef DislocationCell<dim> SpatialCellType;
+		typedef SpatialCellObserver<SpatialCellType,dim> SpatialCellObserverType;
+		typedef typename SpatialCellObserverType::CellMapType CellMapType;
 		typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
 //        typedef ParticleSystem<DislocationQuadratureParticle<_dim,cellSize> > ParticleSystemType;
 		enum {NdofXnode=NodeType::NdofXnode};
@@ -470,7 +470,7 @@ namespace model {
             
             // Multipole Expansion
             
-            EDR.readScalarInFile(fullName.str(),"dislocationCellSize",SpaceCellObserverType::cellSize); // cellSize
+            EDR.readScalarInFile(fullName.str(),"dislocationCellSize",SpatialCellObserverType::cellSize); // cellSize
             EDR.readScalarInFile(fullName.str(),"nearCellStressApproximation",DislocationQuadratureParticle<dim>::nearCellStressApproximation); // useMultipoleStress
             EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationQuadratureParticle<dim>::farCellStressApproximation); // useMultipoleStress
             assert((DislocationQuadratureParticle<dim>::farCellStressApproximation >= DislocationQuadratureParticle<dim>::nearCellStressApproximation) && "NEAR-FIELD APPROXIMATION IS COARSER THAN FAR-FIELD APPROXIMATION");
@@ -487,7 +487,7 @@ namespace model {
             // IO
             EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
             EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes);
-            EDR.readScalarInFile(fullName.str(),"outputSpaceCells",DislocationNetworkIO<DislocationNetworkType>::outputSpaceCells);
+            EDR.readScalarInFile(fullName.str(),"outputSpatialCells",DislocationNetworkIO<DislocationNetworkType>::outputSpatialCells);
             EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
             
@@ -653,7 +653,7 @@ namespace model {
             {
 				Quadrature<1,qOrder>::execute(linkIter->second,&LinkType::updateQuadGeometryKernel); // then update again
 			}
-            for (typename CellMapType::const_iterator cellIter=SpaceCellObserverType::begin();cellIter!=SpaceCellObserverType::end();++cellIter)
+            for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::begin();cellIter!=SpatialCellObserverType::end();++cellIter)
             {
                 cellIter->second->computeCenterStress();
             }
@@ -763,9 +763,9 @@ namespace model {
 			else
             {
                 assert(0 && "RE-ENABLE THIS WITH NEW CELL CLASS");
-                //				SpaceCellObserverType sCO;
-                //				typename SpaceCellObserverType::SharedPtrType sharedCellPointer(sCO.getCellByPosition(Rfield));
-                //				for(typename SpaceCellType::ParticleContainerType::const_iterator particleIter =sharedCellPointer->neighborParticleContainer.begin();
+                //				SpatialCellObserverType sCO;
+                //				typename SpatialCellObserverType::SharedPtrType sharedCellPointer(sCO.getCellByPosition(Rfield));
+                //				for(typename SpatialCellType::ParticleContainerType::const_iterator particleIter =sharedCellPointer->neighborParticleContainer.begin();
                 //					/*                                                         */ particleIter!=sharedCellPointer->neighborParticleContainer.end();
                 //					/*                                                         */ ++particleIter){
                 //					temp+=(*particleIter)->stress_at(Rfield);
