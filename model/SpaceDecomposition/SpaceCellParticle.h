@@ -15,6 +15,8 @@
 #include <model/SpaceDecomposition/SpaceCellObserver.h>
 #include <model/SpaceDecomposition/SpaceCell.h>
 #include <model/Utilities/TypeTraits.h>
+#include <model/Utilities/CRTP.h>
+
 
 namespace model {
 	
@@ -22,15 +24,15 @@ namespace model {
 	
 	/********************************************************************************************/
 	/********************************************************************************************/
-	template<typename Derived, short unsigned int dim, double & cellSize>
+	template<typename Derived, short unsigned int dim>
 	struct SpaceCellParticle : boost::noncopyable,
-	/*                      */ private SpaceCellObserver<typename TypeTraits<Derived>::CellType,dim,cellSize>,
+	/*                      */ private SpaceCellObserver<typename TypeTraits<Derived>::CellType,dim>,
 	/*                      */ public  CRTP<Derived>{ 
 
 		//typedef SpaceCell<Derived,dim,cellSize> SpaceCellType;
         typedef typename TypeTraits<Derived>::CellType SpaceCellType;
 		typedef typename SpaceCellType::ParticleContainerType ParticleContainerType;
-		typedef SpaceCellObserver<SpaceCellType,dim,cellSize> SpaceCellObserverType;
+		typedef SpaceCellObserver<SpaceCellType,dim> SpaceCellObserverType;
 		typedef typename SpaceCellObserverType::CellMapType  CellMapType;	
 		typedef typename SpaceCellObserverType::VectorDimD  VectorDimD;	
 		typedef typename SpaceCellObserverType::VectorDimI  VectorDimI;	
@@ -40,14 +42,18 @@ namespace model {
 	public:
 		
 		//! The cell ID
-		const VectorDimI cellID;
+//		const VectorDimI cellID;
 		
 		//! The pointer to the Cell
 		const SharedPtrType pCell;
 		
 		/* Constructor **********************/
-		SpaceCellParticle(const VectorDimD& P) : cellID(floorEigen<dim>(P/cellSize)),
-		/*                                    */ pCell(this->getCellByID(cellID)){
+		SpaceCellParticle(const VectorDimD& P) :
+//        /* init list */ cellID(floorEigen<dim>(P/cellSize)),
+//        /* init list */ cellID(getCellIDByPosition(P)),
+//		/* init list */ pCell(this->getCellByID(cellID))
+		/* init list */ pCell(this->getCellByPosition(P))
+        {
 			pCell->addParticle(this->p_derived());
 		}
 		

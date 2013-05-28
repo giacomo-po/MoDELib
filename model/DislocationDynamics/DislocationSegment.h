@@ -86,7 +86,7 @@ namespace model {
         typedef typename GlidePlaneObserver<LinkType>::GlidePlaneType GlidePlaneType;
 		typedef typename GlidePlaneObserver<LinkType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
         
-        typedef DislocationQuadratureParticle<dim,cellSize> DislocationQuadratureParticleType;
+        typedef DislocationQuadratureParticle<dim> DislocationQuadratureParticleType;
         
         /******************************************************************/
 	private: //  data members

@@ -119,15 +119,17 @@ namespace model {
             vertexFile << *(const NetworkNodeContainerType*)(&DN);
 			std::cout<<", V/V_"<<vertexFile.sID<<std::flush;
 			
-            if(outputSpaceCells){
+            if(outputSpaceCells)
+            {
                 //! 3- Outputs the nearest neighbor Cell structures to file C_*.txt where * is the current simulation step
                 SequentialOutputFile<'C',1>::set_increment(outputFrequency); // Cell_file;
                 SequentialOutputFile<'C',1>::set_count(runID); // Cell_file;
                 SequentialOutputFile<'C',1> Cell_file;
                 //              SpaceCellObserverType SPC;
                 int cID(0);
-                for (typename CellMapType::const_iterator cellIter=SpaceCellObserverType::begin();cellIter!=SpaceCellObserverType::end();++cellIter){
-                    Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<cellSize<<std::endl;
+                for (typename CellMapType::const_iterator cellIter=SpaceCellObserverType::begin();cellIter!=SpaceCellObserverType::end();++cellIter)
+                {
+                    Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<SpaceCellObserverType::cellSize<<std::endl;
                     ++cID;
                 }
                 std::cout<<", C/C_"<<Cell_file.sID<<std::flush;

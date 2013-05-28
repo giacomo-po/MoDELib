@@ -45,6 +45,7 @@ dx=10;
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
 coreWidthSquared=9.0;
 # Use of multipole-expanded stress field for non-nearest neighbor cells
+dislocationCellSize=1000;
 nearCellStressApproximation=10;
 farCellStressApproximation=10;
 

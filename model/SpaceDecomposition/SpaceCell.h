@@ -31,9 +31,9 @@ namespace model {
 	/*! \brief A dim-dimensional cell occupying the spatial region cellID<= x/cellSize < (cellID+1).
 	 *  SpaceCell is aware off all ParticleType objects present inside it.
 	 */
-	template<typename Derived, short unsigned int dim, double & cellSize>
+	template<typename Derived, short unsigned int dim>
 	struct SpaceCell : boost::noncopyable,
-	/*              */ private SpaceCellObserver<Derived,dim,cellSize>,
+	/*              */ private SpaceCellObserver<Derived,dim>,
     /*              */ public  CRTP<Derived>{
         
         
@@ -41,7 +41,7 @@ namespace model {
 		
         typedef typename TypeTraits<Derived>::ParticleType ParticleType;
         typedef Derived SpaceCellType;
-		typedef SpaceCellObserver<SpaceCellType,dim,cellSize> SpaceCellObserverType;
+		typedef SpaceCellObserver<SpaceCellType,dim> SpaceCellObserverType;
 		typedef typename SpaceCellObserverType::CellMapType  CellMapType;
 		typedef typename SpaceCellObserverType::VectorDimD  VectorDimD;
 		typedef typename SpaceCellObserverType::VectorDimI  VectorDimI;
@@ -85,11 +85,9 @@ namespace model {
         
         
 	public:
-        
-        //static int nearestNeighborOrder;
-		
+        		
 		//! The container of pointers to particles in this cell
-		ParticleContainerType particleContainer;
+		ParticleContainerType particleContainer; // TO DO: MAKE THIS A BASE CLASS
 				
         //! The ID of this cell, defining the dim-dimensional spatial region cellID<= x/cellSize < (cellID+1).
 		const VectorDimI cellID;
@@ -105,7 +103,7 @@ namespace model {
 		/* Constructor *******************************************/
 		SpaceCell(const VectorDimI& cellID_in) :
         /* init list */ cellID(cellID_in),
-        /* init list */ center((cellID.template cast<double>().array()+0.5).matrix()*cellSize),
+        /* init list */ center((cellID.template cast<double>().array()+0.5).matrix()*this->cellSize),
         /* init list */ neighborCellIDs(CellShiftType::neighborIDs(cellID)),
         /* init list */     nearCellIDs(    NearShiftType::neighborIDs(cellID)){
             
@@ -192,13 +190,32 @@ namespace model {
             return particleContainer.end();
         }
         
+        /* size ************************************************/
+        size_t size() const
+        {
+            return particleContainer.size();
+        }
+        
+        /* neighborSize ****************************************/
+        size_t neighborSize() const
+        {
+            size_t temp(0);
+            for (typename CellMapType::const_iterator cIter=neighborCellsBegin(); cIter!=neighborCellsEnd(); ++cIter)
+            {
+                temp+=cIter->second->size();
+            }
+            return temp;
+        }
+        
+        /* size ************************************************/
+        size_t n2Weight() const
+        {
+            return size()*neighborSize();
+        }
+        
         
 	};
     
-    
-    // Declare Static data
-    //    template<typename ParticleType, short unsigned int dim, double & cellSize>
-    //    int SpaceCell<ParticleType,dim,cellSize>::nearestNeighborOrder=1;
 	
 	////////////////////////////////////////////////////////////////////////////////
 }	// close namespace model

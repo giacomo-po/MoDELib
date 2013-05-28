@@ -91,8 +91,8 @@
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
 
-#include <tutorials/PIL/ChargedParticles/ChargedParticle.h> // REMOVE THIS
-#include <model/pil/ParticleSystem.h> // the main object from pil library
+//#include <tutorials/PIL/ChargedParticles/ChargedParticle.h> // REMOVE THIS
+//#include <model/pil/ParticleSystem.h> // the main object from pil library
 
 
 
@@ -105,8 +105,8 @@ namespace model {
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	class DislocationNetwork :
     /* inheritance          */ public Network<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
-	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>,
-    /* inheritance          */ private ParticleSystem<ChargedParticle>
+	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>//,
+//    /* inheritance          */ private ParticleSystem<DislocationQuadratureParticle<_dim,cellSize> >
     {
 		
     public:
@@ -119,10 +119,11 @@ namespace model {
 		typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
 		typedef Eigen::Matrix<double,dim,1>		VectorDimD;
 		typedef typename LinkType::DislocationQuadratureParticleType DislocationQuadratureParticleType;
-		typedef DislocationCell<dim,cellSize> SpaceCellType;
-		typedef SpaceCellObserver<SpaceCellType,dim,cellSize> SpaceCellObserverType;
+		typedef DislocationCell<dim> SpaceCellType;
+		typedef SpaceCellObserver<SpaceCellType,dim> SpaceCellObserverType;
 		typedef typename SpaceCellObserverType::CellMapType CellMapType;
 		typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
+//        typedef ParticleSystem<DislocationQuadratureParticle<_dim,cellSize> > ParticleSystemType;
 		enum {NdofXnode=NodeType::NdofXnode};
 		
 #ifdef UpdateBoundaryConditionsFile
@@ -392,8 +393,8 @@ namespace model {
         MatrixDimD plasticDistortion;
         
 		/* Constructor ********************************************************/
-        DislocationNetwork(int& argc, char* argv[]) :
-        /* base initialization */ ParticleSystem(argc,argv)
+        DislocationNetwork(int& argc, char* argv[]) //:
+//        /* base initialization */ ParticleSystemType(argc,argv)
         {
 //        	if (argc==1){
                 // argv[0] is by default the name of the executable so use default name for inputfile
@@ -462,13 +463,17 @@ namespace model {
             shared.minSNorderForSolve=(size_t)minSNorderForSolve_temp;
             
             // QuadratureParticle
-            EDR.readScalarInFile(fullName.str(),"coreWidthSquared",DislocationQuadratureParticle<dim,cellSize>::a2); // core-width
-            assert((DislocationQuadratureParticle<dim,cellSize>::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
-            LinkType::coreLsquared=DislocationQuadratureParticle<dim,cellSize>::a2;
+            EDR.readScalarInFile(fullName.str(),"coreWidthSquared",DislocationQuadratureParticle<dim>::a2); // core-width
+            assert((DislocationQuadratureParticle<dim>::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
+            LinkType::coreLsquared=DislocationQuadratureParticle<dim>::a2;
             //            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
-            EDR.readScalarInFile(fullName.str(),"nearCellStressApproximation",DislocationQuadratureParticle<dim,cellSize>::nearCellStressApproximation); // useMultipoleStress
-            EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationQuadratureParticle<dim,cellSize>::farCellStressApproximation); // useMultipoleStress
-            assert((DislocationQuadratureParticle<dim,cellSize>::farCellStressApproximation >= DislocationQuadratureParticle<dim,cellSize>::nearCellStressApproximation) && "NEAR-FIELD APPROXIMATION IS COARSER THAN FAR-FIELD APPROXIMATION");
+            
+            // Multipole Expansion
+            
+            EDR.readScalarInFile(fullName.str(),"dislocationCellSize",SpaceCellObserverType::cellSize); // cellSize
+            EDR.readScalarInFile(fullName.str(),"nearCellStressApproximation",DislocationQuadratureParticle<dim>::nearCellStressApproximation); // useMultipoleStress
+            EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationQuadratureParticle<dim>::farCellStressApproximation); // useMultipoleStress
+            assert((DislocationQuadratureParticle<dim>::farCellStressApproximation >= DislocationQuadratureParticle<dim>::nearCellStressApproximation) && "NEAR-FIELD APPROXIMATION IS COARSER THAN FAR-FIELD APPROXIMATION");
             
             
             EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);

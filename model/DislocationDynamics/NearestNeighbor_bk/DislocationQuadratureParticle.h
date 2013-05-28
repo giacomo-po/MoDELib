@@ -20,9 +20,9 @@ namespace model {
 	
 	/********************************************************************************************/
 	/********************************************************************************************/
-	template<short unsigned int dim>
+	template<short unsigned int dim, double & cellSize>
 	struct DislocationQuadratureParticle :
-    /* inheritance */ public SpaceCellParticle<DislocationQuadratureParticle<dim>,dim>
+    /* inheritance */ public SpaceCellParticle<DislocationQuadratureParticle<dim,cellSize>,dim,cellSize>
     {
         
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -31,8 +31,8 @@ namespace model {
 #include UserStressFile
 #endif
 		
-		typedef DislocationQuadratureParticle<dim> DislocationQuadratureParticleType;
-		typedef SpaceCellParticle<DislocationQuadratureParticleType,dim> SpaceCellParticleType;
+		typedef DislocationQuadratureParticle<dim,cellSize> DislocationQuadratureParticleType;
+		typedef SpaceCellParticle<DislocationQuadratureParticleType,dim,cellSize> SpaceCellParticleType;
 		typedef typename SpaceCellParticleType::CellMapType  CellMapType;
 		typedef typename SpaceCellParticleType::ParticleContainerType ParticleContainerType;
 		typedef typename SpaceCellParticleType::VectorDimD   VectorDimD;
@@ -194,17 +194,20 @@ namespace model {
 	};
     
     // Static data members
-	template <short unsigned int dim>
-    double DislocationQuadratureParticle<dim>::a2=1.0;  // square of core size a
+	template <short unsigned int dim, double & cellSize>
+    double DislocationQuadratureParticle<dim,cellSize>::a2=1.0;  // square of core size a
     
-	template <short unsigned int dim>
-	const Eigen::Matrix<double,dim,dim> DislocationQuadratureParticle<dim>::I=Eigen::Matrix<double,dim,dim>::Identity();  // square of core size a
-        
-    template <short unsigned int dim>
-    int DislocationQuadratureParticle<dim>::nearCellStressApproximation=3;  // square of core size a
+	template <short unsigned int dim, double & cellSize>
+	const Eigen::Matrix<double,dim,dim> DislocationQuadratureParticle<dim,cellSize>::I=Eigen::Matrix<double,dim,dim>::Identity();  // square of core size a
     
-    template <short unsigned int dim>
-    int DislocationQuadratureParticle<dim>::farCellStressApproximation=3;  // square of core size a
+    //    template <short unsigned int dim, double & cellSize>
+    //    bool DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress=false;  // square of core size a
+    
+    template <short unsigned int dim, double & cellSize>
+    int DislocationQuadratureParticle<dim,cellSize>::nearCellStressApproximation=3;  // square of core size a
+    
+    template <short unsigned int dim, double & cellSize>
+    int DislocationQuadratureParticle<dim,cellSize>::farCellStressApproximation=3;  // square of core size a
     
     
     /**************************************************************************/

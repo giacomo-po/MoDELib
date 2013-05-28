@@ -16,28 +16,28 @@
 #include <model/Utilities/TypeTraits.h>
 
 namespace model {	
-	   
+	
+    double cellSize= 1000.0;
+    
     /**************************************************************************/
 	/* TRAITS *****************************************************************/
-	template<short unsigned int dim>
+	template<short unsigned int dim, double & cellSize>
 	struct DislocationQuadratureParticle;
 
-	template<short unsigned int dim>
+	template<short unsigned int dim, double & cellSize>
 	struct DislocationCell;
     
     template<>
-	struct TypeTraits<DislocationQuadratureParticle<3> >
-    {
+	struct TypeTraits<DislocationQuadratureParticle<3,cellSize> > {
         //enum {dim=3;}
-        typedef DislocationQuadratureParticle<3> ParticleType;
-        typedef               DislocationCell<3> CellType;
+        typedef DislocationQuadratureParticle<3,cellSize> ParticleType;
+        typedef               DislocationCell<3,cellSize> CellType;
     };
 
     template<>
-	struct TypeTraits<DislocationCell<3> >
-    {
-        typedef DislocationQuadratureParticle<3> ParticleType;
-        typedef               DislocationCell<3> CellType;
+	struct TypeTraits<DislocationCell<3,cellSize> > {
+        typedef DislocationQuadratureParticle<3,cellSize> ParticleType;
+        typedef               DislocationCell<3,cellSize> CellType;
     };
     
     
@@ -46,11 +46,11 @@ namespace model {
 	/*! \brief A dim-dimensional cell occupying the spatial region cellID<= x/cellSize < (cellID+1). 
 	 *  DislocationCell is aware off all ParticleType objects present inside it. 
 	 */
-	template<short unsigned int dim>
-	struct DislocationCell : public SpaceCell<DislocationCell<dim>,dim>{
+	template<short unsigned int dim, double & cellSize>
+	struct DislocationCell : public SpaceCell<DislocationCell<dim,cellSize>,dim,cellSize>{
 		
-        typedef typename TypeTraits<DislocationCell<dim> >::ParticleType ParticleType;
-		typedef SpaceCell<DislocationCell<dim>,dim> Base;
+        typedef typename TypeTraits<DislocationCell<dim,cellSize> >::ParticleType ParticleType;
+		typedef SpaceCell<DislocationCell<dim,cellSize>,dim,cellSize> Base;
         typedef typename Base::CellMapType CellMapType;
         typedef typename Base::VectorDimI VectorDimI;
         typedef typename Base::VectorDimD VectorDimD;
