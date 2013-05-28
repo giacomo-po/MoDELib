@@ -1,4 +1,4 @@
-USE_MPI = 0
+USE_MPI = 1
 USE_ICC = 0
 
 
@@ -50,6 +50,9 @@ ifeq ($(USE_MPI), 0)
     		# enable C++0x
     		CFLAGS += -std=c++0x
 	endif
+
+	OBJS 	= DDcode
+
 else
     	ifeq ($(USE_ICC), 1)
 		CC= icpc
@@ -69,6 +72,8 @@ else
     		# enable C++0x
     		CFLAGS += -std=c++0x        
 	endif
+
+	OBJS 	= DDcodeMPI
 
 	# Define macro
 	CFLAGS += -D _MODEL_DD_MPI_
@@ -106,7 +111,6 @@ endif
 # MAKE
 ##########################################################
 PROGRAM = DDcode
-OBJS 	= DDcode
 
 $(PROGRAM): 
 	$(CC) main.cpp -o $(OBJS)  $(CFLAGS)  $(IDIR) $(LIBS)

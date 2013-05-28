@@ -91,8 +91,7 @@
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
 
-//#include <tutorials/PIL/ChargedParticles/ChargedParticle.h> // REMOVE THIS
-//#include <model/pil/ParticleSystem.h> // the main object from pil library
+#include <model/ParticleInteraction/ParticleSystem.h> // the main object from pil library
 
 
 
@@ -105,8 +104,8 @@ namespace model {
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	class DislocationNetwork :
     /* inheritance          */ public Network<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
-	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>//,
-//    /* inheritance          */ private ParticleSystem<DislocationQuadratureParticle<_dim,cellSize> >
+	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>,
+    /* inheritance          */ private ParticleSystem<DislocationQuadratureParticle<_dim> >
     {
 		
     public:
@@ -123,7 +122,7 @@ namespace model {
 		typedef SpatialCellObserver<SpatialCellType,dim> SpatialCellObserverType;
 		typedef typename SpatialCellObserverType::CellMapType CellMapType;
 		typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
-//        typedef ParticleSystem<DislocationQuadratureParticle<_dim,cellSize> > ParticleSystemType;
+        typedef ParticleSystem<DislocationQuadratureParticle<_dim> > ParticleSystemType;
 		enum {NdofXnode=NodeType::NdofXnode};
 		
 #ifdef UpdateBoundaryConditionsFile
@@ -393,8 +392,8 @@ namespace model {
         MatrixDimD plasticDistortion;
         
 		/* Constructor ********************************************************/
-        DislocationNetwork(int& argc, char* argv[]) //:
-//        /* base initialization */ ParticleSystemType(argc,argv)
+        DislocationNetwork(int& argc, char* argv[]) :
+        /* base initialization */ ParticleSystemType(argc,argv)
         {
 //        	if (argc==1){
                 // argv[0] is by default the name of the executable so use default name for inputfile

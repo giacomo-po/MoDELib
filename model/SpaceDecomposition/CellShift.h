@@ -9,8 +9,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _MODEL_CellShift_H_
-#define _MODEL_CellShift_H_
+#ifndef _model_CellShift_h_
+#define _model_CellShift_h_
 
 #include <Eigen/Dense>
 #include <model/Math/CompileTimeMath/Pow.h>
@@ -37,23 +37,24 @@ namespace model {
      *  for a SpatialCell in dim dimensions.
      */
     template <int dim, int neighborOrder>
-    struct CellShift{
+    struct CellShift
+    {
         
-        
-        static_assert(dim>=1, "dim MUST BE >=1.");
-        static_assert(neighborOrder>=0, "neighborOrder MUST BE >=0.");
+        static_assert(dim>=1, "dim MUST BE >=1."); // c++0x
+        static_assert(neighborOrder>=0, "neighborOrder MUST BE >=0."); // c++0x
         
         enum{Nneighbors=CellShiftTraits<dim,neighborOrder>::Nneighbors};
         static const typename CellShiftTraits<dim,neighborOrder>::MatrixType shifts;
         
         /**************************************************************************/
-        static typename CellShiftTraits<dim,neighborOrder>::MatrixType getShifts(){
-            /*!
-             */
+        static typename CellShiftTraits<dim,neighborOrder>::MatrixType getShifts()
+        {/*!
+          */
             const typename CellShiftTraits<dim-1,neighborOrder>::MatrixType shiftsLower(CellShift<dim-1,neighborOrder>::getShifts());
             const typename CellShiftTraits<1,neighborOrder>::MatrixType shifts1(CellShift<1,neighborOrder>::getShifts());
             typename CellShiftTraits<dim,neighborOrder>::MatrixType temp;
-            for (int k=0;k<CellShift<1,neighborOrder>::Nneighbors;++k){
+            for (int k=0;k<CellShift<1,neighborOrder>::Nneighbors;++k)
+            {
                 temp.template block<dim-1,CellShiftTraits<dim-1,neighborOrder>::Nneighbors>(0,k*CellShiftTraits<dim-1,neighborOrder>::Nneighbors)=shiftsLower;
                 temp.template block<1,CellShiftTraits<dim-1,neighborOrder>::Nneighbors>(dim-1,k*CellShiftTraits<dim-1,neighborOrder>::Nneighbors).setConstant(shifts1(k));
             }
@@ -61,9 +62,11 @@ namespace model {
         }
         
         /**************************************************************************/
-        static typename CellShiftTraits<dim,neighborOrder>::MatrixType neighborIDs(const Eigen::Matrix<int,dim,1>& cellID){
+        static typename CellShiftTraits<dim,neighborOrder>::MatrixType neighborIDs(const Eigen::Matrix<int,dim,1>& cellID)
+        {
             typename CellShiftTraits<dim,neighborOrder>::MatrixType temp(CellShiftTraits<dim,neighborOrder>::MatrixType::Zero());
-            for (int n=0;n<Nneighbors;++n){
+            for (int n=0;n<Nneighbors;++n)
+            {
                 temp.col(n)=cellID+shifts.col(n);
             }
             return temp;
@@ -73,6 +76,9 @@ namespace model {
     
     /**************************************************************************/
     /**************************************************************************/
+    /*! Template specialization for dim=1. The specialization ends the template
+     *  recursion.
+     */
     template <int neighborOrder>
     struct CellShift<1,neighborOrder>{
         enum{dim=1};
@@ -81,12 +87,14 @@ namespace model {
         
         
         /**************************************************************************/
-        static typename CellShiftTraits<dim,neighborOrder>::MatrixType getShifts(){
+        static typename CellShiftTraits<dim,neighborOrder>::MatrixType getShifts()
+        {
             return Eigen::Matrix<int,CellShiftTraits<dim,neighborOrder>::Nneighbors,dim>::LinSpaced(-neighborOrder,neighborOrder);
         }
         
         /**************************************************************************/
-        static typename CellShiftTraits<dim,neighborOrder>::MatrixType neighborIDs(const Eigen::Matrix<int,dim,1>& cellID){
+        static typename CellShiftTraits<dim,neighborOrder>::MatrixType neighborIDs(const Eigen::Matrix<int,dim,1>& cellID)
+        {
             typename CellShiftTraits<dim,neighborOrder>::MatrixType temp(CellShiftTraits<dim,neighborOrder>::MatrixType::Zero());
             for (int n=0;n<Nneighbors;++n){
                 temp.col(n)=cellID+shifts.col(n);
