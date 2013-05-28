@@ -12,6 +12,7 @@
 namespace model {
 	
 enum {outsideMesh=0, insideMesh=1, onMeshBoundary=2};
+    
 enum {noBoundary=0, softBoundary=1, hardBoundary=2};
 	
 }
