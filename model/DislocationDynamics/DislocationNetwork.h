@@ -14,7 +14,7 @@
 
 // BEING MODIFIED
 // 1- BIN WRITER/READER. DEFINE DISLOCATIONSEGMENT::OUTDATA as Eigen::Matrix<double,1,9>. Then in Network add the function friend void operator<< (SequentialBinFile<template Char,???>, ...)
-// 2- Zeo node Tangent Problem
+// 2- Zero node Tangent Problem
 // BVP: integration method
 // 3 crossSlip
 // Motion of BoundarySubnetworks
@@ -71,7 +71,7 @@
 
 
 #ifdef _MODEL_DD_MPI_
-#define _MODEL_MPI_
+#define _MODEL_MPI_  // required in ParticleSystem.h
 #endif
 
 
@@ -219,11 +219,8 @@ namespace model {
 			std::cout<<std::setprecision(3)<<std::scientific<<" dt="<<dt;
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
-		
-		
-		
-		
-		/* crossSlip *****************************************************************/
+				
+		/* crossSlip **********************************************************/
 		void crossSlip()
         {/*! Performs dislocation cross-slip if use_crossSlip==true
           */
@@ -255,37 +252,10 @@ namespace model {
 				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
         }
-		
-		
-//		/* loopInversion ******************************************************/
-//		void loopInversion()
-//        {
-//			double t0=clock();
-//			std::cout<<"		Checking for loop inversions ... "<<std::flush;
-//			//! 3- Check and remove loop inversions
-//			std::vector<int> toBeErased;
-//			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
-//            {
-//				if (snIter->second->loopInversion(dt))
-//                {
-//					std::cout<<"SubNetwork "<<snIter->second->sID<<" containing "<<snIter->second->nodeOrder()<<" is an inverted loop"<<std::endl;
-//					for (typename SubNetworkNodeContainerType::const_iterator nodeIter=snIter->second->nodeBegin();nodeIter!=snIter->second->nodeEnd();++nodeIter)
-//                    {
-//						toBeErased.push_back(nodeIter->second->sID);
-//					}
-//				}
-//			}
-//			std::cout<<" found "<<toBeErased.size()<<" inverted nodes ... ";
-//			for (unsigned int nn=0;nn<toBeErased.size();++nn)
-//            {
-//				this->template removeVertex<true>(toBeErased[nn]);
-//			}
-//			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
-//		}
-        
-        
+		        
         /*  singleStep*********************************************************/
-		void singleStep(const bool& updateUserBC=false){
+		void singleStep(const bool& updateUserBC=false)
+        {
 			//! A simulation step consists of the following:
 			std::cout<<blueBoldColor<< "runID="<<runID
             /*                    */<< ", time="<<totalTime
@@ -311,6 +281,10 @@ namespace model {
 			//! 2- Calculate BVP correction
             update_BVP_Solution(updateUserBC);
 			
+#ifdef _MODEL_DD_MPI_
+            MPI_Barrier(MPI_COMM_WORLD);
+#endif
+
 			//! 3- Solve the equation of motion
 			assembleAndSolve();
 			
@@ -388,7 +362,7 @@ namespace model {
 			}
 		}
         
-        /***********************************************************/
+        /**********************************************************************/
 		void segmentMeshCollision()
         {
 			typedef std::map<double,VectorDimD> MultiIntersectionType; // keeps intersections sorted for increasing parameter
@@ -404,8 +378,8 @@ namespace model {
 			}
 		}
         
-		/**********************************************************************************/
-		/* PUBLIC SECTION *****************************************************************/
+		/**********************************************************************/
+		/* PUBLIC SECTION *****************************************************/
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
@@ -433,7 +407,6 @@ namespace model {
             plasticDistortion.setZero();
         }
         
-		
 		/* remesh *************************************************************/
 		void remesh()
         {
@@ -539,7 +512,6 @@ namespace model {
 			EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
 			assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
             
-            
             // JUNCTION FORMATION
             EDR.readScalarInFile(fullName.str(),"use_junctions",use_junctions);
             EDR.readScalarInFile(fullName.str(),"collisionTol",DislocationJunctionFormation<DislocationNetworkType>::collisionTol);
@@ -590,12 +562,12 @@ namespace model {
 			std::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
 			move(0.0,0.0);	// initial configuration
 			output();	// initial configuration, this overwrites the input file
-			if (runID==0){ // not a restart
+			if (runID==0) // not a restart
+            { 
 				remesh();	// expand initial FR sources
 			}
 			updateQuadraturePoints();
 			++runID;     // increment the runID counter
-//            output();	// initial configuration, this overwrites the input file
 		}
 		
 		/* solve **************************************************************/
@@ -607,8 +579,6 @@ namespace model {
 //			MPIstep();
 //#endif
 
-            
-            
 			//! 1- Loop over DislocationSegments and assemble stiffness matrix and force vector
 			std::cout<<"		Assembling edge stiffness and force vectors..."<<std::flush;
 			typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
@@ -653,10 +623,10 @@ namespace model {
             if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency))
             {
 #ifdef _MODEL_DD_MPI_
-//				if(this->mpiRank==0)
-//                {
-//                    DislocationNetworkIO<DislocationNetworkType>::outputTXT(*this,runID);
-//				}
+				if(this->mpiRank==0)
+                {
+                    DislocationNetworkIO<DislocationNetworkType>::outputTXT(*this,runID);
+				}
 #else
                 DislocationNetworkIO<DislocationNetworkType>::outputTXT(*this,runID);
 #endif
@@ -884,7 +854,8 @@ namespace model {
         {/*! The length of the dislocation network.
           */
 			double temp(0.0);
-			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
+			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+            {
 				temp+= linkIter->second->template arcLength<qOrder,QuadratureRule>();
 			}
 			return temp;
@@ -917,40 +888,3 @@ namespace model {
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
-
-
-/* readNodes **********************************************************/
-//		void readNodes(const unsigned int& fileID)
-//        {/*! Reads file V/V_0.txt and creates DislocationNodes
-//          */
-//			typedef VertexReader<'V',11,double> VertexReaderType;
-//			VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
-//			assert(vReader.isGood(fileID) && "UNABLE TO READ VERTEX FILE V/V_x (x is the requested file ID).");
-//			vReader.read(fileID);
-//			for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
-//            {
-//				const size_t nodeIDinFile(vIter->first);
-//				NodeType::set_count(nodeIDinFile);
-//				const size_t nodeID(this->insert(vIter->second.template segment<NdofXnode>(0).transpose()));
-//				assert(nodeID==nodeIDinFile);
-//			}
-//		}
-
-//		/* readLinks **********************************************************/
-//		void readLinks(const unsigned int& fileID)
-//        {/*! Reads file E/E_0.txt and creates DislocationSegments
-//          */
-//			typedef EdgeReader  <'E',11,double>	EdgeReaderType;
-//			EdgeReaderType    eReader;	// sourceID,sinkID,Bx,By,Bz,Nx,Ny,Nz
-//			assert(eReader.isGood<true>(fileID) && "Unable to read vertex file E/E_x (x is the requested fileID).");
-//			eReader.read<true>(fileID);
-//			for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
-//            {
-//				VectorDimD B(eIter->second.template segment<dim>(0  ).transpose()); // Burgers vector
-//				VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
-//				const size_t sourceID(eIter->first.first );
-//				const size_t   sinkID(eIter->first.second);
-//				assert(this->connect(sourceID,sinkID,B) && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
-//			}
-//		}
-
