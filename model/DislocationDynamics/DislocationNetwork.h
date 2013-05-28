@@ -66,24 +66,18 @@
 #define omp_get_thread_num() 0
 #endif
 
-#define EIGEN_DONT_PARALLELIZE // disable Eigen Internal Parallelization
+#define EIGEN_DONT_PARALLELIZE // disable Eigen Internal openmp Parallelization
 #include <Eigen/Dense>
 
 
-//#ifdef MPIheaders
-//#include MPIheaders
-//#endif
+#ifdef _MODEL_DD_MPI_
+#define _MODEL_MPI_
+#endif
 
-//#include <model/Network/Readers/VertexReader.h>
-//#include <model/Network/Readers/EdgeReader.h>
+
 #include <model/Network/Network.h>
 
 #include <model/Utilities/EigenDataReader.h>
-#include <model/Utilities/OutputFile.h>
-#include <model/Utilities/SequentialOutputFile.h>
-#include <model/Utilities/UniqueOutputFile.h>
-#include <model/Utilities/SequentialBinFile.h>
-
 #include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationSubNetwork.h>
@@ -98,7 +92,8 @@
 
 #include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
 
-//#include <model/pil/ParticleSystem.h> // the main object from pil library
+#include <tutorials/PIL/ChargedParticles/ChargedParticle.h> // REMOVE THIS
+#include <model/pil/ParticleSystem.h> // the main object from pil library
 
 
 
@@ -109,15 +104,18 @@ namespace model {
 	/**************************************************************************/
 	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-	class DislocationNetwork : public Network<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
-	/*                      */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>{
+	class DislocationNetwork :
+    /* inheritance          */ public Network<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
+	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>,
+    /* inheritance          */ private ParticleSystem<ChargedParticle>
+    {
 		
     public:
         
         enum {dim=_dim}; // make dim available outside class
         
 		typedef DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> DislocationNetworkType;
-		typedef DislocationNetworkType Derived;
+		typedef DislocationNetworkType Derived; // define Derived to use NetworkTypedefs.h
 #include <model/Network/NetworkTypedefs.h>
 		typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
 		typedef Eigen::Matrix<double,dim,1>		VectorDimD;
@@ -137,9 +135,6 @@ namespace model {
 //         int nucleationFreq;
 #endif
 		
-//#ifdef DislocationNetworkMPI
-//#include DislocationNetworkMPI
-//#endif
 		
 	private:
         
@@ -162,7 +157,7 @@ namespace model {
         double vmax;
         
 		
-		EigenDataReader EDR;
+
         
         
 		/* formJunctions ******************************************************/
@@ -263,30 +258,31 @@ namespace model {
         }
 		
 		
-		/* loopInversion ******************************************************/
-		void loopInversion(){
-			double t0=clock();
-			std::cout<<"		Checking for loop inversions ... "<<std::flush;
-			//! 3- Check and remove loop inversions
-			std::vector<int> toBeErased;
-			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
-            {
-				if (snIter->second->loopInversion(dt))
-                {
-					std::cout<<"SubNetwork "<<snIter->second->sID<<" containing "<<snIter->second->nodeOrder()<<" is an inverted loop"<<std::endl;
-					for (typename SubNetworkNodeContainerType::const_iterator nodeIter=snIter->second->nodeBegin();nodeIter!=snIter->second->nodeEnd();++nodeIter)
-                    {
-						toBeErased.push_back(nodeIter->second->sID);
-					}
-				}
-			}
-			std::cout<<" found "<<toBeErased.size()<<" inverted nodes ... ";
-			for (unsigned int nn=0;nn<toBeErased.size();++nn)
-            {
-				this->template remove<true>(toBeErased[nn]);
-			}
-			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
-		}
+//		/* loopInversion ******************************************************/
+//		void loopInversion()
+//        {
+//			double t0=clock();
+//			std::cout<<"		Checking for loop inversions ... "<<std::flush;
+//			//! 3- Check and remove loop inversions
+//			std::vector<int> toBeErased;
+//			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
+//            {
+//				if (snIter->second->loopInversion(dt))
+//                {
+//					std::cout<<"SubNetwork "<<snIter->second->sID<<" containing "<<snIter->second->nodeOrder()<<" is an inverted loop"<<std::endl;
+//					for (typename SubNetworkNodeContainerType::const_iterator nodeIter=snIter->second->nodeBegin();nodeIter!=snIter->second->nodeEnd();++nodeIter)
+//                    {
+//						toBeErased.push_back(nodeIter->second->sID);
+//					}
+//				}
+//			}
+//			std::cout<<" found "<<toBeErased.size()<<" inverted nodes ... ";
+//			for (unsigned int nn=0;nn<toBeErased.size();++nn)
+//            {
+//				this->template removeVertex<true>(toBeErased[nn]);
+//			}
+//			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+//		}
         
         
         /*  singleStep*********************************************************/
@@ -355,7 +351,8 @@ namespace model {
 			DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
 			
 			//! 6- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
-			loopInversion();
+//			loopInversion();
+            DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
 			
 			//! 7- If soft boundaries are used, remove DislocationSegment(s) that exited the boundary
 			removeBoundarySegments();
@@ -422,16 +419,17 @@ namespace model {
         MatrixDimD plasticDistortion;
         
 		/* Constructor ********************************************************/
-        DislocationNetwork(const int& argc, char * const argv[])
+        DislocationNetwork(int& argc, char* argv[]) :
+        /* base initialization */ ParticleSystem(argc,argv)
         {
-        	if (argc==1){
+//        	if (argc==1){
                 // argv[0] is by default the name of the executable so use default name for inputfile
                 read("./","DDinput.txt");
-            }
-            else{
-                // argv[1] is assumed to be the filename with working directory the current directory
-                read("./",argv[1]);
-            }
+//            }
+//            else{
+//                // argv[1] is assumed to be the filename with working directory the current directory
+//                read("./",argv[1]);
+//            }
             
             plasticDistortion.setZero();
         }
@@ -472,6 +470,9 @@ namespace model {
 			
             std::ostringstream fullName;
             fullName<<inputDirectoryName_in<<inputFileName;
+            
+            // Create a file-reader object
+            EigenDataReader EDR;
             
 			// Material and crystal orientation
             unsigned int materialZ;
@@ -606,9 +607,7 @@ namespace model {
 //#ifdef DislocationNetworkMPI
 //			MPIstep();
 //#endif
-#ifdef _MODEL_DD_MPI_
-            hghdfhd
-#endif
+
             
             
 			//! 1- Loop over DislocationSegments and assemble stiffness matrix and force vector
@@ -654,14 +653,14 @@ namespace model {
             double t0=clock();
             if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency))
             {
-//#ifdef DislocationNetworkMPI
-//				if(localProc==0)
+#ifdef _MODEL_DD_MPI_
+//				if(this->mpiRank==0)
 //                {
 //                    DislocationNetworkIO<DislocationNetworkType>::outputTXT(*this,runID);
 //				}
-//#else
-//                DislocationNetworkIO<DislocationNetworkType>::outputTXT(*this,runID);
-//#endif
+#else
+                DislocationNetworkIO<DislocationNetworkType>::outputTXT(*this,runID);
+#endif
 			}
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
@@ -740,7 +739,7 @@ namespace model {
 		
 		
 		/**********************************************************************/
-		void checkBalance() const
+		void checkBalance() const // TO DO: MOVE THIS TO NETWORK LAYER
         {/*! Checks that each DislocationNode is balanced, and asserts otherwise
           * Exceptions are nodes with only one neighbors (FR source)
           * and nodes on the boundary.

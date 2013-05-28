@@ -1,16 +1,16 @@
-/* This file is part of PIL, the Particle Interaction Library.
+/* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
  * Copyright (C) 2012 by Giacomo Po <gpo@ucla.edu>
  * Copyright (C) 2012 by Shao-Ching Huang <sch@ucla.edu>
  * Copyright (C) 2012 by Tajendra Singh <tvsingh@ucla.edu>
  * Copyright (C) 2012 by Tamer Crosby <tcrosby@ucla.edu>
  *
- * PIL is distributed without any warranty under the
+ * MODEL is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef pil_SpatialCell_H_
-#define pil_SpatialCell_H_
+#ifndef _MODEL_SpatialCell_H_
+#define _MODEL_SpatialCell_H_
 
 #include <assert.h>
 #include <math.h>
@@ -19,10 +19,10 @@
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
-#include <model/PIL/SpatialCells/CellShift.h>
+#include <model/SpaceDecomposition/CellShift.h>
 
 
-namespace pil {
+namespace model {
 	
     // class pre-declaration
 	template<typename ParticleType, int _dim>

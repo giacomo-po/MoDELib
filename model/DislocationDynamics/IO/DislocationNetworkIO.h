@@ -13,15 +13,16 @@
 #include <model/Network/Readers/VertexReader.h>
 #include <model/Network/Readers/EdgeReader.h>
 #include <model/Utilities/SequentialOutputFile.h>
+#include <model/Utilities/TerminalColors.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 
 namespace model {
 	
-	std::string defaultColor    = "\033[0m";	  // the default color for the console
-	std::string redBoldColor    = "\033[1;31m";   // a bold red color
-	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
-	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
-	std::string magentaColor    = "\033[0;35m";   // a magenta color
+//	std::string defaultColor    = "\033[0m";	  // the default color for the console
+//	std::string redBoldColor    = "\033[1;31m";   // a bold red color
+//	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
+//	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
+//	std::string magentaColor    = "\033[0;35m";   // a magenta color
 	
 	/**************************************************************************/
 	/**************************************************************************/
@@ -69,7 +70,7 @@ namespace model {
             {
 				const size_t nodeIDinFile(vIter->first);
 				NodeType::set_count(nodeIDinFile);
-				const size_t nodeID(DN.insert(vIter->second.template segment<NdofXnode>(0).transpose()));
+				const size_t nodeID(DN.insertVertex(vIter->second.template segment<NdofXnode>(0).transpose()));
 				assert(nodeID==nodeIDinFile);
 			}
 		}

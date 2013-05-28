@@ -1,27 +1,28 @@
-/* This file is part of PIL, the Particle Interaction Library.
+/* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
  * Copyright (C) 2012 by Giacomo Po <gpo@ucla.edu>
  * Copyright (C) 2012 by Shao-Ching Huang <sch@ucla.edu>
  * Copyright (C) 2012 by Tajendra Singh <tvsingh@ucla.edu>
  * Copyright (C) 2012 by Tamer Crosby <tcrosby@ucla.edu>
  *
- * PIL is distributed without any warranty under the
+ * MODEL is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef pil_CellShift_H_
-#define pil_CellShift_H_
+#ifndef _MODEL_CellShift_H_
+#define _MODEL_CellShift_H_
 
 #include <Eigen/Dense>
 #include <model/Math/CompileTimeMath/Pow.h>
 
-namespace pil {
+namespace model {
 	
+    /*! A trait class defining how many neighbors of order neighborOrder a
+     *  SpatialCell has in dim dimensions.
+     */
     template <int dim, int neighborOrder>
-    struct CellShiftTraits{
-        /*! A trait class defining how many neighbors of order neighborOrder a 
-         *  SpatialCell has in dim dimensions.
-         */
+    struct CellShiftTraits
+    {
         
         //! The number of "neighbors" that a spatial cell has in dim dimensions
         enum{Nneighbors=model::Pow<2*neighborOrder+1,dim>::value};
@@ -32,11 +33,12 @@ namespace pil {
     
     /**************************************************************************/
     /**************************************************************************/
+    /*! A class to compute the neighbors (or shifts) of order neighborOrder
+     *  for a SpatialCell in dim dimensions.
+     */
     template <int dim, int neighborOrder>
     struct CellShift{
-        /*! A class to compute the neighbors (or shifts) of order neighborOrder 
-         *  for a SpatialCell in dim dimensions.
-         */
+        
         
         static_assert(dim>=1, "dim MUST BE >=1.");
         static_assert(neighborOrder>=0, "neighborOrder MUST BE >=0.");
@@ -46,7 +48,7 @@ namespace pil {
         
         /**************************************************************************/
         static typename CellShiftTraits<dim,neighborOrder>::MatrixType getShifts(){
-            /*! 
+            /*!
              */
             const typename CellShiftTraits<dim-1,neighborOrder>::MatrixType shiftsLower(CellShift<dim-1,neighborOrder>::getShifts());
             const typename CellShiftTraits<1,neighborOrder>::MatrixType shifts1(CellShift<1,neighborOrder>::getShifts());
@@ -98,7 +100,7 @@ namespace pil {
     template <int dim, int neighborOrder>
     const typename CellShiftTraits<dim,neighborOrder>::MatrixType CellShift<dim,neighborOrder>::shifts=CellShift<dim,neighborOrder>::getShifts();
     
-
+    
 	
 	////////////////////////////////////////////////////////////////////////////////
 }	// close namespace pil

@@ -1,20 +1,22 @@
-/* This file is part of PIL, the Particle Interaction Library.
+/* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
  * Copyright (C) 2012 by Giacomo Po <gpo@ucla.edu>
  * Copyright (C) 2012 by Shao-Ching Huang <sch@ucla.edu>
  * Copyright (C) 2012 by Tajendra Singh <tvsingh@ucla.edu>
  * Copyright (C) 2012 by Tamer Crosby <tcrosby@ucla.edu>
  *
- * PIL is distributed without any warranty under the
+ * MODEL is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _ParticleSystem_h
-#define _ParticleSystem_h
+#ifndef _MODEL_ParticleSystem_h_
+#define _MODEL_ParticleSystem_h_
 
-#include <mpi.h>
-
+#ifdef _MODEL_MPI_
+#include <model/MPI/ModelMPIbase.h>
 #include <metis.h> // partitioner
+#endif
+
 
 #include <memory> // for auto_ptr
 #include <utility> // for std::pair
@@ -25,7 +27,6 @@
 
 #include <Eigen/Core>
 
-#include <model/PIL/PilMPI.h>
 #include <model/PIL/SystemProperties.h>
 #include <model/PIL/SpatialCells/SpatialCellObserver.h>
 
@@ -33,11 +34,13 @@
 #include <model/Utilities/SequentialOutputFile.h>
 
 
-namespace pil {
+namespace model {
     
     template <typename _ParticleType, typename UserSystemProperties = SystemProperties<> >
     class ParticleSystem :
-    /* inheritance */  public PilMPI, 
+#ifdef _MODEL_MPI_
+    /* inheritance */  public ModelMPIbase,
+#endif
     /* inheritance */  protected boost::ptr_map<size_t,_ParticleType>, // TO BE CHANGED WITH ACTUAL MPI IMPLEMENTATION
     /* inheritance */  private UserSystemProperties
     {
@@ -45,24 +48,34 @@ namespace pil {
         typedef SpatialCell<_ParticleType,_ParticleType::dim> SpatialCellType;
         typedef boost::ptr_map<size_t,_ParticleType> ParticleContainerType;
         typedef SpatialCellObserver<_ParticleType,_ParticleType::dim> SpatialCellObserverType;
-        
         typedef std::deque<SpatialCell<_ParticleType,_ParticleType::dim>*> AssignedCellContainerType;
+        
+        //! The SpatialCell cells assigned to this MPI process
         AssignedCellContainerType assignedCells;
 
         
-        int particleRankOffset;
+//        int particleRankOffset;
+        
+        //! The number of ParticleType particles assigned to this MPI process
         int assignedParticleSize;
+        
+        
         std::vector<int> particleRankOffsetVector;
         std::vector<int> particleSizeVector;
+        
         /*****************************************/
         void assignReorderedIDs()
-        {
+        {/*! Assigns each particle in the system a unique ID (SpatialParticle::rID)
+          * such that particles are sorted by MPI process
+          */
             
             // Find Offset
-            particleRankOffset=0;
+//            particleRankOffset=0;
+            int particleRankOffset(0);
+            // Compute particleRankOffset by comulative summing assignedParticleSize across the MPI processes
             MPI_Exscan(&assignedParticleSize,&particleRankOffset,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-            //if (this->mpiRank==0) particleRankOffset=0; // make sure that on processor 0 particleRankOffset is 0
 
+            // Collect assignedParticleSize in the particleSizeVector the MPI processes
             MPI_Allgather(&assignedParticleSize,1,MPI_INT,&particleSizeVector[0],1,MPI_INT,MPI_COMM_WORLD);
 
             
@@ -96,31 +109,35 @@ namespace pil {
         
     public:
         
-    //    const int mpiRank;
-    //    const int nProcs;
-
         
         typedef _ParticleType ParticleType; // make ParticleType available outside the class
         typedef typename ParticleType::PositionType PositionType;
         
         
         /*****************************************/
-        ParticleSystem(const double& cellSize=1.0)
-        /* init list */ 
+        ParticleSystem(int argc, char* argv[], const double& cellSize=1.0)
+#ifdef _MODEL_MPI_
+        /* init list */ : ModelMPIbase(argc,argv)
+#endif
         {
-//            int mpiRank_temp, nProcs_temp;
-//            MPI_Comm_size(MPI_COMM_WORLD,&nProcs);
-//            MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank);
             SpatialCellObserver<_ParticleType,_ParticleType::dim>::cellSize=cellSize;
             particleRankOffsetVector.resize(this->nProcs);
             particleSizeVector.resize(this->nProcs);
         }
         
+//        /*****************************************/
+//        ~ParticleSystem()
+//        {
+//#ifdef _MODEL_MPI_
+//            MPI_Finalize();
+//#endif
+//        }
+        
         /*****************************************/
         template <typename ...AdditionalConstructorTypes>
         int addParticle(const PositionType& p, const AdditionalConstructorTypes&... args)
-        {/*! Constructor with particle position and arbitrary number of
-          *  additional parameters.
+        {/*! Adds a ParticleType particle with position p and an arbitrary (variadic)
+          * number of additional constructor parameters.
           */
             // 1- Generate a new ParticleType objects using std::auto_ptr
             std::auto_ptr<ParticleType> pN (new ParticleType(p,args...) );
@@ -128,11 +145,6 @@ namespace pil {
             const size_t sID(pN->sID);
             // 3- Insert the particle in the ParticleSystem using sID as the key. Assert succesful insertion
             assert(this->insert(sID , pN ).second && "CANNOT INSERT PARTICLE IN PARTICLE SYSTEM.");
-            
-            
-            //assignedCells
-            
-            
             // 4- Returns the sID of the particle.
             return sID;
         }
@@ -285,7 +297,8 @@ namespace pil {
 //            &InteractionType::resultVector[0],&interactionSizeVector[0],&interactionRankOffsetVector[0],InteractionType::ResultType,MPI_COMM_WORLD);
 
             
-            if (this->mpiRank==0){
+            if (this->mpiRank==0)
+            {
                 for (int k=0;k<InteractionType::resultVector.size()/3;++k)
                 {
                     std::cout<<InteractionType::resultVector[3*k]<<" "<<InteractionType::resultVector[3*k+1]<<" "<<InteractionType::resultVector[3*k+2]<<"\n";

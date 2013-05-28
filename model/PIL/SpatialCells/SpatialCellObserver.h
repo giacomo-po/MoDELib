@@ -1,16 +1,16 @@
-/* This file is part of PIL, the Particle Interaction Library.
+/* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
  * Copyright (C) 2012 by Giacomo Po <gpo@ucla.edu>
  * Copyright (C) 2012 by Shao-Ching Huang <sch@ucla.edu>
  * Copyright (C) 2012 by Tajendra Singh <tvsingh@ucla.edu>
  * Copyright (C) 2012 by Tamer Crosby <tcrosby@ucla.edu>
  *
- * PIL is distributed without any warranty under the
+ * MODEL is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef pil_SpatialCellObserver_H_
-#define pil_SpatialCellObserver_H_
+#ifndef _MODEL_SpatialCellObserver_H_
+#define _MODEL_SpatialCellObserver_H_
 
 #include <map>
 #include <boost/shared_ptr.hpp>
@@ -19,17 +19,17 @@
 #include <model/Utilities/CompareVectorsByComponent.h>
 #include <model/PIL/SpatialCells/SpatialCell.h>
 
-namespace pil {
+namespace model {
 	
-	template <short unsigned int dim>
-	Eigen::Matrix<int,dim,1> floorEigen(const Eigen::Matrix<double,dim,1>& P) {
-		return (Eigen::Matrix<int,dim,1>()<< (int)std::floor(P(0)), floorEigen<dim-1>(P.template segment<dim-1>(1))).finished();
-	}
-	
-	template <>
-	Eigen::Matrix<int,1,1> floorEigen<1>(const Eigen::Matrix<double,1,1>& P) {
-		return (Eigen::Matrix<int,1,1>()<< (int)std::floor(P(0)) ).finished();
-	}
+//	template <short unsigned int dim>
+//	Eigen::Matrix<int,dim,1> floorEigen(const Eigen::Matrix<double,dim,1>& P) {
+//		return (Eigen::Matrix<int,dim,1>()<< (int)std::floor(P(0)), floorEigen<dim-1>(P.template segment<dim-1>(1))).finished();
+//	}
+//	
+//	template <>
+//	Eigen::Matrix<int,1,1> floorEigen<1>(const Eigen::Matrix<double,1,1>& P) {
+//		return (Eigen::Matrix<int,1,1>()<< (int)std::floor(P(0)) ).finished();
+//	}
 	
 	/********************************************************************************************/
 	/********************************************************************************************/	

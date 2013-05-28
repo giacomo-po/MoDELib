@@ -155,7 +155,7 @@ namespace model {
 
 		/* insert (a new vertex) **************************************/
 		template <typename ...NodeArgTypes>
-		size_t insert(const NodeArgTypes&... NodeInput)
+		size_t insertVertex(const NodeArgTypes&... NodeInput)
         {/*! @param[in] NodeInput
           *  Inserts a new vertex in the Network using NodeInput as variable constructor arguments
           */
@@ -185,11 +185,11 @@ namespace model {
 		/************************************************************/
 		// remove (a node)
 		template<bool removeIsolatedNodes>
-		bool remove(const size_t& k)
+		bool removeVertex(const size_t& k)
         {/*! @param[in] k the StaticID of the vertex
           *  Removes the k-th Vertex from the Network
           */
-			return VertexConnection<NodeType,LinkType>(*this,*this).remove<removeIsolatedNodes>(k);
+			return VertexConnection<NodeType,LinkType>(*this,*this).template remove<removeIsolatedNodes>(k);
 		}
 		
 		/************************************************************/

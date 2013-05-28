@@ -19,7 +19,8 @@
 #include <Eigen/Dense>
 #include <model/Math/CompileTimeMath/Pow.h>
 #include <model/SpaceDecomposition/SpaceCellObserver.h>
-#include <model/SpaceDecomposition/NeighborShift.h>
+//#include <model/SpaceDecomposition/NeighborShift.h>
+#include <model/SpaceDecomposition/CellShift.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
 
 
@@ -49,8 +50,8 @@ namespace model {
         enum{neighborLayer=1}; // = (1+2*1)^dim  cells = 27  cells in 3d
         enum{    nearLayer=2}; // = (1+2*3)^dim  cells = 343 cells in 3d
         
-        typedef NeighborShift<dim,1> NeighborShiftType;
-        typedef NeighborShift<dim,1>     NearShiftType;
+        typedef CellShift<dim,1> CellShiftType;
+        typedef CellShift<dim,1>     NearShiftType;
 
         
         CellMapType  neighborCells;
@@ -97,7 +98,7 @@ namespace model {
         const VectorDimD center;
         
 		//! The cellID(s) of the neighboring SpaceCell(s) (in column)
-		const Eigen::Matrix<int,dim, NeighborShiftType::Nneighbors> neighborCellIDs;
+		const Eigen::Matrix<int,dim, CellShiftType::Nneighbors> neighborCellIDs;
 		const Eigen::Matrix<int,dim,     NearShiftType::Nneighbors>     nearCellIDs;
 
         
@@ -105,7 +106,7 @@ namespace model {
 		SpaceCell(const VectorDimI& cellID_in) :
         /* init list */ cellID(cellID_in),
         /* init list */ center((cellID.template cast<double>().array()+0.5).matrix()*cellSize),
-        /* init list */ neighborCellIDs(NeighborShiftType::neighborIDs(cellID)),
+        /* init list */ neighborCellIDs(CellShiftType::neighborIDs(cellID)),
         /* init list */     nearCellIDs(    NearShiftType::neighborIDs(cellID)){
             
 			//! 1- Adds this to static SpaceCellObserver::cellMap

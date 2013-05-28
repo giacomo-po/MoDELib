@@ -1,27 +1,27 @@
-/* This file is part of PIL, the Particle Interaction Library.
+/* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
  * Copyright (C) 2012 by Giacomo Po <gpo@ucla.edu>
  * Copyright (C) 2012 by Shao-Ching Huang <sch@ucla.edu>
  * Copyright (C) 2012 by Tajendra Singh <tvsingh@ucla.edu>
  * Copyright (C) 2012 by Tamer Crosby <tcrosby@ucla.edu>
  *
- * PIL is distributed without any warranty under the
+ * MODEL is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
 #ifndef _ChargedParticle_h
 #define _ChargedParticle_h
 
-#include <pil/SpatialParticle.h>
+#include <model/PIL/SpatialParticle.h>
 
-class ChargedParticle : public pil::SpatialParticle<ChargedParticle,3>
+class ChargedParticle : public model::SpatialParticle<ChargedParticle,3>
 {
     
 public:
     
     enum{dim=3};
-    typedef  pil::SpatialParticle<ChargedParticle,3>::PositionType PositionType;
-    typedef  pil::SpatialParticle<ChargedParticle,3>::PositionType ForceType;
+    typedef  model::SpatialParticle<ChargedParticle,3>::PositionType PositionType;
+    typedef  model::SpatialParticle<ChargedParticle,3>::PositionType ForceType;
     
     
 private:
@@ -35,7 +35,7 @@ public:
     
     /*****************************************/
     ChargedParticle(const PositionType& pIN, const double& qIN) :
-    /* init list */ pil::SpatialParticle<ChargedParticle,3>::SpatialParticle(pIN), // SpatialParticle must be constructed with initial position
+    /* init list */ model::SpatialParticle<ChargedParticle,3>::SpatialParticle(pIN), // SpatialParticle must be constructed with initial position
     /* init list */ _q(qIN),
     /* init list */ force(ForceType::Zero()),
     /* init list */ energy(0.0)

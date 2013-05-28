@@ -9,8 +9,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SpatialParticle_h
-#define _SpatialParticle_h
+#ifndef _MODEL_SpatialParticle_h
+#define _MODEL_SpatialParticle_h
 
 #include <boost/shared_ptr.hpp>
 //#include <boost/utility.hpp> // defines shared_pointer<T>
@@ -19,10 +19,10 @@
 
 #include <model/Utilities/StaticID.h>
 #include <model/Utilities/CRTP.h>
-#include <pil/SpatialCells/SpatialCellObserver.h>
+#include <model/PIL/SpatialCells/SpatialCellObserver.h>
 
 
-namespace pil {
+namespace model {
 
     template <typename Derived, int _dim>
     struct SpatialParticle :

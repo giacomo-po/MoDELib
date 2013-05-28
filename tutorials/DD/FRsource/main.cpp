@@ -6,7 +6,7 @@
 
 using namespace model;
 
-int main (int argc, char * const argv[]) {
+int main (int argc, char* argv[]) {
     // Create a DislocationNetwork object with:
     // dim=3, tangentContinuity=1, CatmullRom splines, centripetal parametrization
     // 16 quadrature points per segment Uniformly distributed

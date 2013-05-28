@@ -1,4 +1,4 @@
-USE_MPI = 0
+USE_MPI = 1
 USE_ICC = 0
 
 
@@ -120,6 +120,7 @@ clean:
 ##########################################################
 # MAKE VIEWER
 ##########################################################	
+
 viewer: 
 	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -O3 $(IDIR)  $(VIEWERLIBS) 
 

@@ -11,6 +11,7 @@
 
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
+#include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/BVP/VirtualBoundarySlipContainer.h>
 #include <model/BVP/Domain.h>
 
@@ -21,6 +22,7 @@ namespace model {
 
         static size_t minSNorderForSolve;
 		static unsigned int boundary_type;
+//		static enum BoundaryType boundary_type;
 		static unsigned int use_bvp;
 		static Domain domain;					// temporary
 		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
@@ -30,6 +32,8 @@ namespace model {
 	// Instantiate Static data members
 	template <typename LinkType>
 	unsigned int DislocationSharedObjects<LinkType>::boundary_type=0;
+//    enum BoundaryType DislocationSharedObjects<LinkType>::boundary_type=noBoundary;
+
 	
 	template <typename LinkType>
 	unsigned int DislocationSharedObjects<LinkType>::use_bvp=0;

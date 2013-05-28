@@ -130,7 +130,8 @@ namespace model {
             }
             
             
-            switch (nearCellStressApproximation) {
+            switch (nearCellStressApproximation)
+            {
                 case FULL: // quadrature-quadrature
                     // finish here
                     assert(0 && "FINISH HERE");
@@ -149,7 +150,8 @@ namespace model {
             }
             
             
-            switch (farCellStressApproximation) {
+            switch (farCellStressApproximation)
+            {
                 case FULL: // quadrature-quadrature
                     // finish here
                     assert(0 && "FINISH HERE");

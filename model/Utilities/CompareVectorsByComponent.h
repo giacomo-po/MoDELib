@@ -13,6 +13,15 @@
 
 namespace model {
 
+    template <short unsigned int dim>
+	Eigen::Matrix<int,dim,1> floorEigen(const Eigen::Matrix<double,dim,1>& P) {
+		return (Eigen::Matrix<int,dim,1>()<< (int)std::floor(P(0)), floorEigen<dim-1>(P.template segment<dim-1>(1))).finished();
+	}
+	
+	template <>
+	Eigen::Matrix<int,1,1> floorEigen<1>(const Eigen::Matrix<double,1,1>& P) {
+		return (Eigen::Matrix<int,1,1>()<< (int)std::floor(P(0)) ).finished();
+	}
 	
 	template<typename T, unsigned int N, typename CastType=T>
 	struct CompareVectorsByComponent {

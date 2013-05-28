@@ -5,37 +5,21 @@
  * Copyright (C) 2012 by Tajendra Singh <tvsingh@ucla.edu>
  * Copyright (C) 2012 by Tamer Crosby <tcrosby@ucla.edu>
  *
- * PIL is distributed without any warranty under the
+ * MODEL is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _PilMPI_h
-#define _PilMPI_h
+#ifndef _MODELMPI_h_
+#define _MODELMPI_h_
 
 #include <mpi.h>
-
-//#include <metis.h> // partitioner
-
-//#include <memory> // for auto_ptr
-//#include <utility> // for std::pair
-//#include <map> 
-//#include <vector>
-//#include <deque> 
-//#include <boost/ptr_container/ptr_map.hpp> // TO BE CHANGED WITH ACTUAL MPI IMPLEMENTATION
-//
-//#include <Eigen/Core>
-//
-//#include <pil/SystemProperties.h>
-//#include <pil/SpatialCells/SpatialCellObserver.h>
-//
-//
-//#include <pil/Utilities/SequentialOutputFile.h>
+#include <model/Utilities/TerminalColors.h>
 
 
-namespace pil {
+namespace model {
     
     //template <typename _ParticleType, typename UserSystemProperties = SystemProperties<> >
-    class PilMPI
+    class ModelMPIbase
     {
         
         /*****************************************/
@@ -54,25 +38,43 @@ namespace pil {
             return nProcs_temp;
         }
         
+        bool initMPI(int argc, char* argv[])
+        {
+            int temp(0);
+            MPI_Initialized(&temp);
+            if (!temp)
+            {
+                MPI_Init(&argc,&argv);
+            }
+            MPI_Initialized(&temp);
+            return temp;
+        }
         
     public:
+        
+        const bool mpiInitialized;
+        
         const int mpiRank;
         const int nProcs;
         
         /* Constructor */
-        PilMPI() :
+        ModelMPIbase(int argc, char* argv[]) :
+        /* init list */ mpiInitialized(initMPI(argc,argv)),
         /* init list */ mpiRank(getMPIrank()),
         /* init list */ nProcs(getMPInProcs())
         {
+            std::cout<<greenBoldColor<<"MPI process "<<mpiRank<<" of "<<nProcs
+            /*     */<<", mpiInitialized="<<mpiInitialized<<defaultColor<<std::endl;
+            assert(mpiInitialized && "MPI not initialized.");
+        }
         
+        /* Destructor */
+        ~ModelMPIbase()
+        {
+            MPI_Finalize();
         }
         
     };
     
-    
-//	const int PilMPI::mpiRank=PilMPI::getMPIrank();
-//	const int PilMPI::nProcs=PilMPI::getMPInProcs();
-
-                
 } // end namespace
 #endif

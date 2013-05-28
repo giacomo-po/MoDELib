@@ -28,9 +28,9 @@
 
 int main (int argc, char * argv[]) {
     
-    MPI_Init(&argc,&argv);
+//    MPI_Init(&argc,&argv);
     // 0- define the type of ParticleSystem specifying the type of particles
-    typedef pil::ParticleSystem<ChargedParticle> ChargedParticleSystem;
+    typedef pil::ParticleSystem<ChargedParticle> ChargedParticleSystem(argc,argv);
     
     // 1- create a particleSystem of ChargedParticle(s)
     std::cout<<model::blueBoldColor<<"CREATING RANDOM INITIAL PARTICLES"<<model::defaultColor<<std::endl;
@@ -79,7 +79,7 @@ int main (int argc, char * argv[]) {
 
 
     
-    MPI_Finalize();
+//    MPI_Finalize();
     return 0;
 }
 
