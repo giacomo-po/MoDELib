@@ -109,12 +109,12 @@ namespace model {
         
 		/* Constructor *******************************************/
 		SpatialCell(const VectorDimI& cellID_in) :
+        /* init list */ assignedRank(0),
         /* init list */ cellID(cellID_in),
         /* init list */ cellSize(SpatialCellObserver<ParticleType,dim>::cellSize),
         /* init list */ center((cellID.template cast<double>().array()+0.5).matrix()*cellSize),
         /* init list */ neighborCellIDs(CellShiftType::neighborIDs(cellID)),
-        /* init list */     nearCellIDs(    NearShiftType::neighborIDs(cellID)),
-        /* init list */ assignedRank(0){
+        /* init list */     nearCellIDs(    NearShiftType::neighborIDs(cellID)){
                         
 			//! 1- Adds this to static SpatialCellObserver::cellMap
 			assert(this->cellMap.insert(std::make_pair(cellID,this)).second && "CANNOT INSERT SPACE CELL IN STATIC cellMap.");

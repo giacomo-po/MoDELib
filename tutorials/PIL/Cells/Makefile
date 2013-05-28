@@ -1,3 +1,6 @@
+USE_MPI = 1
+USE_ICC = 0
+
 #PIL_DIR = /u/home/campus/gpo/Desktop/PIL
 #PIL_DIR = /home/giacomo/Dropbox/MODEL_MPI/model
 PIL_DIR = /Users/giacomo/Dropbox/MODEL_MPI/model
@@ -24,86 +27,60 @@ IDIR += -I$(MODEL_DIR)
 IDIR += -I$(METIS_INCLUDE)
 
 ##########################################################
-# COMPILER SETTINGS
+# COMPILER SETTINGS - DO NOT EDIT-
 ##########################################################
-#CC	= mpicxx
-CC = icpc
-#CC	= g++
-#CC	= /opt/local/bin/g++-mp-4.7
-#CC	= icc
-#CC = clang++
+ifeq ($(USE_MPI), 0)
+	ifeq ($(USE_ICC), 1)
+		CC= icc
+		# optimization level
+		CFLAGS	 = -O3
+		CFLAGS	+= -fast
+		# enable openMP
+		CFLAGS	+= -openmp
+		#enable C++0x
+		CFLAGS	+= -std=c++0x
+	else
+    		CC= g++
+    		# optimization level = fast
+		CFLAGS  += -O2
+        	# enable openMP   
+    		CFLAGS += -fopenmp
+    		# enable C++0x
+    		CFLAGS += -std=c++0x
+	endif
+else
+    	ifeq ($(USE_ICC), 1)
+		CC= icpc
+		# optimization level
+		CFLAGS += -O3
+		CFLAGS += -fast
+		# enable openMP
+		CFLAGS += -openmp
+		#enable C++0x
+		CFLAGS	+= -std=c++0x
+	else
+    		CC= mpicxx
+    		# optimization level
+		CFLAGS  += -O2
+        	# enable openMP   
+    		CFLAGS += -fopenmp
+    		# enable C++0x
+    		CFLAGS += -std=c++0x        
+	endif
 
+	# Define macro
+	CFLAGS += -D _MODEL_MPI_
 
-ifeq ($(CC), g++)
-
-    # optimization level = fast
-	CFLAGS  = -O2
-    # auto-vectorization
-    #CFLAGS += -ftree-vectorize
-    # enable openMP
-    #CFLAGS += -fopenmp
-    # enable C++0x
-    CFLAGS += -std=c++0x
-    #CFLAGS += -std=c++11
-
-    # enable warnings
-	CFLAGS += -Wall
-    # and more warnings
-    CFLAGS += -Wextra
+	# Link to Metis partitioner
+	LIBS += -L$(METIS_LIB) 
+	LIBS +=	 -lmetis
 
 endif
 
-
-
-ifeq ($(CC),mpicxx)
-	# optimization level
-	CFLAGS	 = -O2
-	#CFLAGS	+= -fast
-
-	# enable openMP
-	#CFLAGS	+= -fopenmp
-	#enable C++0x
-	CFLAGS	+= -std=c++0x
-
-    # enable common warnings
-	CFLAGS	+= -Wall
-
-endif
-
-ifeq ($(CC),icpc)
-	# optimization level
-	CFLAGS	 = -O3
-	CFLAGS	+= -fast
-	# enable common warnings
-	CFLAGS	+= -Wall
-	# enable openMP
-	CFLAGS	+= -openmp
-	#enable C++0x
-	CFLAGS	+= -std=c++0x
-endif
-
-##########################################################
-# OS SPECIFIC SETTINGS
-##########################################################
-OS= $(shell uname -s)
-
-
-LIBS += -L$(METIS_LIB) 
-LIBS +=	 -lmetis
-
-LIBS += -L$(MPI_LIB) 
-LIBS +=	 -lmpi
-
-
-ifeq ($(OS),Darwin)
-    #LIBS += -Wl,-no_pie
-    #LIBS +=	-Wl,-allow_heap_execute
-endif
-
-ifeq ($(OS),Linux)
-#	LIBS +=  -lm
-endif
-
+# enable common warnings… 
+CFLAGS	+= -Wall
+# … and more warnings       
+CFLAGS += -Wextra
 
 
 ##########################################################

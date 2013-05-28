@@ -284,7 +284,7 @@ namespace model {
             std::vector<int> interactionSizeVector(this->nProcs);            
             std::vector<int> interactionRankOffsetVector(this->nProcs);
             
-            for (int k=0;k<interactionSizeVector.size();++k)
+            for (unsigned int k=0;k<interactionSizeVector.size();++k)
             {
                 interactionSizeVector[k]=particleSizeVector[k]*InteractionType::DataPerParticle;
                 interactionRankOffsetVector[k]=particleRankOffsetVector[k]*InteractionType::DataPerParticle;
@@ -299,7 +299,7 @@ namespace model {
             
             if (this->mpiRank==0)
             {
-                for (int k=0;k<InteractionType::resultVector.size()/3;++k)
+                for (unsigned int k=0;k<InteractionType::resultVector.size()/3;++k)
                 {
                     std::cout<<InteractionType::resultVector[3*k]<<" "<<InteractionType::resultVector[3*k+1]<<" "<<InteractionType::resultVector[3*k+2]<<"\n";
                 }

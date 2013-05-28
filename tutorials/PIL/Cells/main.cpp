@@ -13,32 +13,27 @@
 // run
 // mpiexec -np 4 particles
 
-#include <iostream>
-#include <iomanip>
-
 #include <pil/ParticleSystem.h> // the main object from pil library
 #include <model/Utilities/TerminalColors.h> // the main object from pil library
-//#include <model/Utilities/SequentialOutputFile.h>
 
 #include <tutorials/PIL/ChargedParticles/ChargedParticle.h> // a user-defined type of particle to be inserted in ParticleSystem
 #include <tutorials/PIL/ChargedParticles/CoulombForce.h> // a user-defined type of force interaction between ChargedParticle objects
 #include <tutorials/PIL/ChargedParticles/CoulombEnergy.h> // a user-defined type of energy interaction between ChargedParticle objects
 
-#include <mpi.h>
 
 int main (int argc, char * argv[]) {
     
-//    MPI_Init(&argc,&argv);
     // 0- define the type of ParticleSystem specifying the type of particles
-    typedef pil::ParticleSystem<ChargedParticle> ChargedParticleSystem(argc,argv);
+    typedef model::ParticleSystem<ChargedParticle> ChargedParticleSystem;
     
     // 1- create a particleSystem of ChargedParticle(s)
-    std::cout<<model::blueBoldColor<<"CREATING RANDOM INITIAL PARTICLES"<<model::defaultColor<<std::endl;
     double cellSize=6.0;
-    ChargedParticleSystem particleSystem(cellSize);
+    ChargedParticleSystem particleSystem(argc,argv,cellSize);
+    MPI_Barrier(MPI_COMM_WORLD);
     
     // 2- add some ChargedParticle(s) to the particleSystem with random position
     //    and different charges
+    std::cout<<model::blueBoldColor<<"CREATING RANDOM INITIAL PARTICLES"<<model::defaultColor<<std::endl;
     typedef  ChargedParticleSystem::PositionType PositionType; // helper
     for (int k=0;k<500;++k)
     {
@@ -51,8 +46,6 @@ int main (int argc, char * argv[]) {
                 particleSystem.addParticle(PositionType::Random()*10.0, 1.0); // uniform
     }
     
-    //particleSystem.addParticle(PositionType::Random(),-1.0);
-    //particleSystem.addParticle(PositionType::Random(), 2.0);
     
     
     // 4- compute all binary CoulombEnergy interactions
@@ -76,10 +69,7 @@ int main (int argc, char * argv[]) {
 
     
     particleSystem.MPIoutput();
-
-
     
-//    MPI_Finalize();
     return 0;
 }
 

@@ -9,12 +9,12 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _MODELMPI_h_
-#define _MODELMPI_h_
+#ifndef _MODELMPIBASE_h_
+#define _MODELMPIBASE_h_
 
+#include <assert.h>
 #include <mpi.h>
 #include <model/Utilities/TerminalColors.h>
-
 
 namespace model {
     

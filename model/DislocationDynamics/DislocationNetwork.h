@@ -89,7 +89,6 @@
 #include <model/DislocationDynamics/Junctions/DislocationJunctionFormation.h>
 #include <model/DislocationDynamics/CrossSlip/DislocationCrossSlip.h>
 #include <model/DislocationDynamics/Materials/Material.h>
-
 #include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
 
 #include <tutorials/PIL/ChargedParticles/ChargedParticle.h> // REMOVE THIS
