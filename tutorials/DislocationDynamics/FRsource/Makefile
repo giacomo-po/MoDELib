@@ -26,8 +26,14 @@ IDIR += -I$(METIS_INCLUDE)
 ##########################################################
 # COMPILER SETTINGS - DO NOT EDIT-
 ##########################################################
+esc=`echo "\033"`
+normalColor="${esc}[m\017"
+greenColor="${esc}[0;32m"
+redColor="${esc}[0;31m"
+blueColor="${esc}[0;34m"
+
 all:
-	@echo please use "make serial" or "make parallel"
+	@echo ${redColor}please use ${greenColor}make serial ${redColor}or ${greenColor}make parallel ${normalColor}.
 
 
 ##########################################################
@@ -53,13 +59,14 @@ else
 endif
 
 # enable common warnings… 
-CFLAGS	+= -Wall
+CFLAGS += -Wall
 # … and more warnings       
 CFLAGS += -Wextra
 
 OBJS 	= DDserial
 
 serial: 
+	@echo ${greenColor}making serial version of Dislocation Dynamics code... ${normalColor}
 	$(CC) main.cpp -o $(OBJS)  $(CFLAGS)  $(IDIR)
 
 
@@ -67,28 +74,28 @@ serial:
 # MAKE PARALLEL
 ##########################################################
 ifeq ($(USE_ICC), 1)
-		MPICC= icpc
+		mpiCC= icpc
 		# optimization level
-		CFLAGS += -O3
-		CFLAGS += -fast
+		mpiCFLAGS += -O3
+		mpiCFLAGS += -fast
 		# enable openMP
-		CFLAGS += -openmp
+		mpiCFLAGS += -openmp
 		#enable C++0x
-		CFLAGS	+= -std=c++0x
+		mpiCFLAGS	+= -std=c++0x
 else
-    	MPICC = mpicxx
+    	mpiCC = mpicxx
     	# optimization level
-		CFLAGS  += -O2
+		mpiCFLAGS  += -O2
         # enable openMP   
-    	CFLAGS += -fopenmp
+    	mpiCFLAGS += -fopenmp
     	# enable C++0x
-    	CFLAGS += -std=c++0x        
+    	mpiCFLAGS += -std=c++0x
 endif
 
 # enable common warnings… 
-CFLAGS	+= -Wall
+mpiCFLAGS += -Wall
 # … and more warnings       
-CFLAGS += -Wextra
+mpiCFLAGS += -Wextra
 
 # Link to Metis partitioner
 LIBS += -L$(METIS_LIB) 
@@ -97,7 +104,8 @@ LIBS +=	 -lmetis
 MPIOBJS = DDparallel
 
 parallel:
-	$(MPICC) main.cpp -o $(MPIOBJS) $(CFLAGS) -D _MODEL_DD_MPI_ $(IDIR) $(LIBS)
+	@echo ${blueColor}making parallel version of Dislocation Dynamics code... ${normalColor}
+	$(mpiCC) main.cpp -o $(MPIOBJS) $(mpiCFLAGS) -D _MODEL_DD_MPI_ $(IDIR) $(LIBS)
 
 
 ##########################################################
