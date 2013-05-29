@@ -18,13 +18,15 @@
 
 namespace model {
     
-    //template <typename _ParticleType, typename UserSystemProperties = SystemProperties<> >
+    
+    
     class ModelMPIbase
     {
         
         /*****************************************/
         static int getMPIrank()
         {
+ //           assert(mpiInitialized && "MPI not initialized.");
             int mpiRank_temp;
             MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank_temp);
             return mpiRank_temp;
@@ -49,23 +51,27 @@ namespace model {
             MPI_Initialized(&temp);
             return temp;
         }
+
+
+
         
     public:
         
-        const bool mpiInitialized;
-        
+        const bool mpiInitialized;        
         const int mpiRank;
-        const int nProcs;
+        const int mpiProcs;
         
         /* Constructor */
         ModelMPIbase(int argc, char* argv[]) :
         /* init list */ mpiInitialized(initMPI(argc,argv)),
         /* init list */ mpiRank(getMPIrank()),
-        /* init list */ nProcs(getMPInProcs())
+        /* init list */ mpiProcs(getMPInProcs())
         {
-            std::cout<<greenBoldColor<<"MPI process "<<mpiRank<<" of "<<nProcs
+            std::cout<<greenBoldColor<<"MPI process "<<mpiRank<<" of "<<mpiProcs
             /*     */<<", mpiInitialized="<<mpiInitialized<<defaultColor<<std::endl;
+            
             assert(mpiInitialized && "MPI not initialized.");
+
         }
         
         /* Destructor */
@@ -75,6 +81,9 @@ namespace model {
         }
         
     };
+    
+    // static data
+    //bool ModelMPIbase::mpiInitialized=false;
     
 } // end namespace
 #endif

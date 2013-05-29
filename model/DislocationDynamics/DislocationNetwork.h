@@ -23,20 +23,19 @@
 // -3 MAKE isIsolated and isBalanced data members of NetworkNode that are modified by addToNeighbors and removeFromNeigbors
 // implement IndependentPath
 
+// -1 - remove DislocationEnergyRules and EdgeConfig !!!
 // 0 - Finish DepthFirst class. Don't allow to search/execute if N=0, so that N=1 means that node only, n=2 means first neighbor. Or change SpineNodeBase_CatmullRom::TopologyChangeActions
-// 1- Implement operator << in DislocationNode, GlidePlane, SpatialCell
+// 1- Implement operator << SpatialCell
 // 2- remove AddressBook, wherever possible, Done in Node chain
 // 40 - clean MultiExpand in Network Layer, remove get_r from there
-// 35- Simplify Neighborhood structure, remove boost::tuple, (use std::touple? Available in c++11, starting with g++4.7)
+// 35- Simplify Neighborhood structure
 // 25- Remove template parameter alpha and make template member function
 // 14- RENAME ORIGINAL MESH FOLDER /M
 // 16- READ/WRITE IN BINARY FORMAT
 // 18- Should define linear=1, quadratic=2, cubic=3 and use polyDegree instead of corder. Put corder in SplineEnums
 // 37- IS PLANAR SHOULD RETURN 0 IF IS A LINE!!!!! CHANGE ALSO IN SPLINESEGMENTBASE
 // 38- IS PLANAR SHOULD RETURN the normal as pair<bool,normal>
-// 31- Implement LinearElasticGreensFunction Class
 // 37- NetworkNode, initializations from expansion and contraction
-// 38- Finish cleaning STL-Eigen compatibility issue (http://eigen.tuxfamily.org/dox-devel/TopicStlContainers.html) examples include: DislocationSegment::boundaryCollision(),
 // IMPLEMENT NEIGHBOR ITERATORS IN NETWORKNODE
 // CHANGE CONST VERSION OF EDGEFINDER/VERTEXFINDER PASS this IN MEMBER FUNCTION, REMOVE TEMPLATE SPECIALIZATION AND MAKE STATIC FUNCTIONS
 // 9- cellSize should depend on applied load. Or better the number of cell neighbors used in each cell should depend on the applied stress to that cell
@@ -53,11 +52,7 @@
 #ifndef model_DISLOCATIONNETWORK_H_
 #define model_DISLOCATIONNETWORK_H_
 
-//#include <stdlib.h> // random numbers
-//#include <time.h> // seed random numbers with time
-#include <iostream>
-#include <iomanip>
-#include <math.h>
+
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -68,12 +63,10 @@
 #define EIGEN_DONT_PARALLELIZE // disable Eigen Internal openmp Parallelization
 #include <Eigen/Dense>
 
-
-
-
-
+#include <math.h>
 #include <model/Network/Network.h>
 
+#include <model/Utilities/TerminalColors.h>
 #include <model/Utilities/EigenDataReader.h>
 #include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
@@ -477,7 +470,6 @@ namespace model {
             //            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
             
             // Multipole Expansion
-            
             EDR.readScalarInFile(fullName.str(),"dislocationCellSize",SpatialCellObserverType::cellSize); // cellSize
             EDR.readScalarInFile(fullName.str(),"nearCellStressApproximation",DislocationQuadratureParticle<dim>::nearCellStressApproximation); // useMultipoleStress
             EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationQuadratureParticle<dim>::farCellStressApproximation); // useMultipoleStress
@@ -588,10 +580,6 @@ namespace model {
         {/*! Assemble and solve equation system
           */
             
-//#ifdef DislocationNetworkMPI
-//			MPIstep();
-//#endif
-
 			//! 1- Loop over DislocationSegments and assemble stiffness matrix and force vector
 			std::cout<<"		Assembling edge stiffness and force vectors..."<<std::flush;
 			typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function

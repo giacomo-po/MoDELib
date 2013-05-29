@@ -11,7 +11,6 @@
 #define model_GLIDEPLANEOBSERVER_H_
 
 #include <map>
-//#include <boost/shared_ptr.hpp>
 #include <memory> // std::shared_ptr (c++11)
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
@@ -33,8 +32,6 @@ namespace model {
 		
 		typedef GlidePlaneObserver<SegmentType> GlidePlaneObserverType;
 		typedef GlidePlane<SegmentType> GlidePlaneType;
-//		typedef Eigen::Matrix<double,dim  ,1> VectorDimD;
-//		typedef Eigen::Matrix<double,dim+1,1> VectorDimPlusOneD;
         typedef Eigen::Matrix<double,TypeTraits<SegmentType>::dim,1> VectorDimD;
 		typedef Eigen::Matrix<double,TypeTraits<SegmentType>::dim+1,1> VectorDimPlusOneD;
 

@@ -121,8 +121,8 @@ namespace model {
 #endif
         {
             SpatialCellObserverType::cellSize=cellSize;
-            particleRankOffsetVector.resize(this->nProcs);
-            particleSizeVector.resize(this->nProcs);
+            particleRankOffsetVector.resize(this->mpiProcs);
+            particleSizeVector.resize(this->mpiProcs);
         }
         
 
@@ -199,7 +199,7 @@ namespace model {
 //            MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank);
             
             // partition into the same number of MPI processes
-            int numPart = this->nProcs;
+            int numPart = this->mpiProcs;
             //int numPart = PilMPI::nProcs;
             
 
@@ -275,8 +275,8 @@ namespace model {
             //InteractionType::resultVerctor;
             
             //particleRankOffsetVector
-            std::vector<int> interactionSizeVector(this->nProcs);            
-            std::vector<int> interactionRankOffsetVector(this->nProcs);
+            std::vector<int> interactionSizeVector(this->mpiProcs);            
+            std::vector<int> interactionRankOffsetVector(this->mpiProcs);
             
             for (unsigned int k=0;k<interactionSizeVector.size();++k)
             {

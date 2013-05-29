@@ -33,7 +33,7 @@ redColor="${esc}[0;31m"
 blueColor="${esc}[0;34m"
 
 all:
-	@echo ${redColor}please use ${greenColor}make serial ${redColor}or ${greenColor}make parallel ${normalColor}.
+	@echo ${redColor}please use ${greenColor}make serial ${redColor}or ${greenColor}make parallel ${normalColor}
 
 
 ##########################################################
@@ -101,18 +101,18 @@ mpiCFLAGS += -Wextra
 LIBS += -L$(METIS_LIB) 
 LIBS +=	 -lmetis
 
-MPIOBJS = DDparallel
+mpiOBJS = DDparallel
 
 parallel:
 	@echo ${blueColor}making parallel version of Dislocation Dynamics code... ${normalColor}
-	$(mpiCC) main.cpp -o $(MPIOBJS) $(mpiCFLAGS) -D _MODEL_DD_MPI_ $(IDIR) $(LIBS)
+	$(mpiCC) main.cpp -o $(mpiOBJS) $(mpiCFLAGS) -D _MODEL_DD_MPI_ $(IDIR) $(LIBS)
 
 
 ##########################################################
 # MAKE CLEAN
 ##########################################################
 clean:
-		rm -f $(OBJS) $(MPIOBJS)
+		rm -f $(OBJS) $(mpiOBJS)
 
 
 ##########################################################
