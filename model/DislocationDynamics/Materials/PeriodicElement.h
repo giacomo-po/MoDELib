@@ -114,7 +114,7 @@ namespace model {
     const std::string PeriodicElement<74,Isotropic>::name="W";
     const double PeriodicElement<74,Isotropic>::nu =0.28;    // Poisson ratio [-]
     const double PeriodicElement<74,Isotropic>::mu =161e9;    // Shear modulus [Pa]
-    const double PeriodicElement<74,Isotropic>::b  =0.3165e-9; // Burgers vector[m]
+    const double PeriodicElement<74,Isotropic>::b  =0.2722e-9; // Burgers vector[m]
     const double PeriodicElement<74,Isotropic>::B  =1.0e-4;  // Dislocation drag coefficient [Pa*sec]
     const double PeriodicElement<74,Isotropic>::rho=19250.0;  // Mass density [kg/m^3]
     /**************************************************************************/
@@ -137,7 +137,7 @@ namespace model {
     const std::string PeriodicElement<26,Isotropic>::name="Fe";
     const double PeriodicElement<26,Isotropic>::nu =0.29;    // Poisson ratio [-]
     const double PeriodicElement<26,Isotropic>::mu =82e9;    // Shear modulus [Pa]
-    const double PeriodicElement<26,Isotropic>::b  =0.2866e-9; // Burgers vector[m]
+    const double PeriodicElement<26,Isotropic>::b  =0.2482e-9; // Burgers vector[m]
     const double PeriodicElement<26,Isotropic>::B  =1.0e-4;  // Dislocation drag coefficient [Pa*sec]
     const double PeriodicElement<26,Isotropic>::rho=7874.0;  // Mass density [kg/m^3]
 
