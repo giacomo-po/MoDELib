@@ -1,4 +1,4 @@
-USE_MPI = 0
+#USE_MPI = 0
 USE_ICC = 0
 
 
@@ -6,18 +6,13 @@ USE_ICC = 0
  MODEL_INCLUDE = /Users/giacomo/Dropbox/Model_MPI
 # MODEL_INCLUDE = /home/giacomo/Dropbox/Model
 
-# MPI LIBRARY ###################################
+# MPI LIBRARY (PARALLEL ONLY) ###################
 #MPI_INCLUDE = /usr/local/include
 MPI_LIB = /usr/local/lib
 
-# METIS LIBRARY #################################
+# METIS LIBRARY (PARALLEL ONLY) #################
 METIS_INCLUDE =/usr/local/include
 METIS_LIB =/usr/local/lib
-
-# METIS LIBRARY #################################
-METIS_INCLUDE =/usr/local/include
-METIS_LIB =/usr/local/lib
-
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
@@ -31,57 +26,30 @@ IDIR += -I$(METIS_INCLUDE)
 ##########################################################
 # COMPILER SETTINGS - DO NOT EDIT-
 ##########################################################
-ifeq ($(USE_MPI), 0)
-	ifeq ($(USE_ICC), 1)
-		CC= icc
-		# optimization level
-		CFLAGS	 = -O3
-		CFLAGS	+= -fast
-		# enable openMP
-		CFLAGS	+= -openmp
-		#enable C++0x
-		CFLAGS	+= -std=c++0x
-	else
-    		CC= g++
-    		# optimization level = fast
-		CFLAGS  += -O2
-        	# enable openMP   
-    		CFLAGS += -fopenmp
-    		# enable C++0x
-    		CFLAGS += -std=c++0x
-	endif
+all:
+	@echo please use "make serial" or "make parallel"
 
-	OBJS 	= DDcode
 
+##########################################################
+# MAKE SERIAL
+##########################################################
+ifeq ($(USE_ICC), 1)
+	CC= icc
+	# optimization level
+	CFLAGS	 = -O3
+	CFLAGS	+= -fast
+	# enable openMP
+	CFLAGS	+= -openmp
+	#enable C++0x
+	CFLAGS	+= -std=c++0x
 else
-    	ifeq ($(USE_ICC), 1)
-		CC= icpc
-		# optimization level
-		CFLAGS += -O3
-		CFLAGS += -fast
-		# enable openMP
-		CFLAGS += -openmp
-		#enable C++0x
-		CFLAGS	+= -std=c++0x
-	else
-    		CC= mpicxx
-    		# optimization level
-		CFLAGS  += -O2
-        	# enable openMP   
-    		CFLAGS += -fopenmp
-    		# enable C++0x
-    		CFLAGS += -std=c++0x        
-	endif
-
-	OBJS 	= DDcodeMPI
-
-	# Define macro
-	CFLAGS += -D _MODEL_DD_MPI_
-
-	# Link to Metis partitioner
-	LIBS += -L$(METIS_LIB) 
-	LIBS +=	 -lmetis
-
+    CC= g++
+    # optimization level = fast
+	CFLAGS  += -O2
+    # enable openMP   
+    CFLAGS += -fopenmp
+    # enable C++0x
+    CFLAGS += -std=c++0x
 endif
 
 # enable common warnings… 
@@ -89,10 +57,59 @@ CFLAGS	+= -Wall
 # … and more warnings       
 CFLAGS += -Wextra
 
+OBJS 	= DDserial
+
+serial: 
+	$(CC) main.cpp -o $(OBJS)  $(CFLAGS)  $(IDIR)
+
 
 ##########################################################
-# OS-SPECIFIC SETTINGS
+# MAKE PARALLEL
 ##########################################################
+ifeq ($(USE_ICC), 1)
+		MPICC= icpc
+		# optimization level
+		CFLAGS += -O3
+		CFLAGS += -fast
+		# enable openMP
+		CFLAGS += -openmp
+		#enable C++0x
+		CFLAGS	+= -std=c++0x
+else
+    	MPICC = mpicxx
+    	# optimization level
+		CFLAGS  += -O2
+        # enable openMP   
+    	CFLAGS += -fopenmp
+    	# enable C++0x
+    	CFLAGS += -std=c++0x        
+endif
+
+# enable common warnings… 
+CFLAGS	+= -Wall
+# … and more warnings       
+CFLAGS += -Wextra
+
+# Link to Metis partitioner
+LIBS += -L$(METIS_LIB) 
+LIBS +=	 -lmetis
+
+MPIOBJS = DDparallel
+
+parallel:
+	$(MPICC) main.cpp -o $(MPIOBJS) $(CFLAGS) -D _MODEL_DD_MPI_ $(IDIR) $(LIBS)
+
+
+##########################################################
+# MAKE CLEAN
+##########################################################
+clean:
+		rm -f $(OBJS) $(MPIOBJS)
+
+
+##########################################################
+# MAKE VIEWER
+##########################################################	
 OS= $(shell uname -s)
 
 ifeq ($(OS),Darwin)
@@ -107,24 +124,5 @@ ifeq ($(OS),Linux)
 	VIEWERLIBS += -lglut
 endif	
 
-##########################################################
-# MAKE
-##########################################################
-PROGRAM = DDcode
-
-$(PROGRAM): 
-	$(CC) main.cpp -o $(OBJS)  $(CFLAGS)  $(IDIR) $(LIBS)
-
-##########################################################
-# MAKE CLEAN
-##########################################################
-clean:
-		rm -f $(OBJS)
-
-##########################################################
-# MAKE VIEWER
-##########################################################	
-
 viewer: 
 	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -O3 $(IDIR)  $(VIEWERLIBS) 
-
