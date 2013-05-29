@@ -135,7 +135,6 @@ namespace model {
 				}
                 
 			}
-            
 			return CSC.size();
 		}
         

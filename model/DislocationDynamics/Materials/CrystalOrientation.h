@@ -27,6 +27,7 @@ namespace model {
         
     public:
         typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef std::vector<VectorDim> vector_VectorDim;
         //        typedef std::vector<const VectorDim> PlaneNormalContainerType;
         typedef std::vector<VectorDim> PlaneNormalContainerType;
         
@@ -74,7 +75,6 @@ namespace model {
 		static void find_slipSystem(const VectorDim  & chord, const VectorDim & Burgers,
                                     //                                    std::set<SlipSystem<dim,Nslips> > & allowedSlipSystems, const double& tol = FLT_EPSILON){
                                     PlaneNormalContainerType & allowedSlipSystems, const double& tol = FLT_EPSILON){
-            std::cout<<chord.norm()<<std::endl;
 			assert(  chord.norm()>tol && "CHORD HAS ZERO NORM");
 			assert(Burgers.norm()>tol && "BURGERS HAS ZERO NORM");
 			
@@ -187,14 +187,17 @@ namespace model {
 		
         
         /* conjugatePlaneNormal ************************************************************************************/
-        static VectorDim conjugatePlaneNormal(const VectorDim& B, const VectorDim& N, const double& tol=FLT_EPSILON) {
+        static vector_VectorDim /*VectorDim*/ conjugatePlaneNormal(const VectorDim& B, const VectorDim& N, const double& tol=FLT_EPSILON) {
             
 			int count(0);
-			VectorDim temp(VectorDim::Zero());
+//			VectorDim temp(VectorDim::Zero());
+            vector_VectorDim temp;
             assert((std::fabs(B.normalized().dot(N.normalized()))<FLT_EPSILON) && "CANNOT DETERMINE CONJUGATE PLANE FOR SESSILE SEGMENT");
             for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter){
+//                std::cout<<*iter.transpose()<<std::endl;
                 if(	 std::fabs(B.normalized().dot(*iter))<tol && N.normalized().cross(*iter).norm()>tol){
-                    temp=*iter;
+//                    temp=*iter;
+                    temp.push_back(*iter);
                     ++count;
                 }
 			}

@@ -88,6 +88,8 @@ namespace model {
         
         typedef DislocationQuadratureParticle<dim,cellSize> DislocationQuadratureParticleType;
         
+        typedef std::vector<Eigen::Matrix<double,dim,1>> vector_VectorDim;
+
         /******************************************************************/
 	private: //  data members
 		/******************************************************************/
@@ -743,7 +745,7 @@ namespace model {
 		}
         
 		/*********************************************************************/
-		VectorDim conjugatePlaneNormal() const
+		/*VectorDim*/ vector_VectorDim conjugatePlaneNormal() const
         {
 			return CrystalOrientation<dim>::conjugatePlaneNormal(Burgers,this->glidePlaneNormal);
 		}

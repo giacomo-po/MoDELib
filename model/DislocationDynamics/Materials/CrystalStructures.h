@@ -193,7 +193,7 @@ namespace model {
             temp.push_back(SlipSystemDim(C2G*system1_delta.normalized(),C2G*system1_delta_2.normalized()));
             
             // System 1 -> The epsilon-plane
-			const VectorDim system1_epsilon(1.0,1.0,1.0);
+			const VectorDim system1_epsilon(1.0,1.0,0.0);
             const VectorDim system1_epsilon_1( 1.0,-1.0,-1.0);
             const VectorDim system1_epsilon_2(1.0,-1.0,1.0);
             temp.push_back(SlipSystemDim(C2G*system1_epsilon.normalized(),C2G*system1_epsilon_1.normalized()));
@@ -249,7 +249,7 @@ namespace model {
             temp.push_back(SlipSystemDim(C2G*system2_iota.normalized(),C2G*system2_iota_1.normalized()));
             
             // System 2 -> The kappa-plane
-			const VectorDim system2_kappa(1.0,-1.0,2.0);
+			const VectorDim system2_kappa(1.0,-1.0,-2.0);
             const VectorDim system2_kappa_1(1.0,-1.0,1.0);
             temp.push_back(SlipSystemDim(C2G*system2_kappa.normalized(),C2G*system2_kappa_1.normalized()));
             
@@ -264,7 +264,7 @@ namespace model {
             temp.push_back(SlipSystemDim(C2G*system2_mu.normalized(),C2G*system2_mu_1.normalized()));
             
             // System 2 -> The nu-plane
-			const VectorDim system2_nu(1.0,1.0,2.0);
+			const VectorDim system2_nu(1.0,1.0,-2.0);
             const VectorDim system2_nu_1(1.0,1.0,1.0);
             temp.push_back(SlipSystemDim(C2G*system2_nu.normalized(),C2G*system2_nu_1.normalized()));
 
