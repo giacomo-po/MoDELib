@@ -7,8 +7,8 @@
  */
 
 
-#ifndef model_SUBNETWORK_H_
-#define model_SUBNETWORK_H_
+#ifndef model_NetworkComponent_h_
+#define model_NetworkComponent_h_
 
 #include <iomanip>
 #include <assert.h>
@@ -29,36 +29,44 @@ namespace model {
 
 		/************************************************************/
 		/************************************************************/
-		template <typename Derived>
-		class SubNetwork : boost::noncopyable,
-		/*              */ private	std::map<size_t,typename TypeTraits<Derived>::NodeType* const>,
-		/*              */ private	std::map<std::pair<size_t,size_t>,typename TypeTraits<Derived>::LinkType* const>,
-		/*              */ public	AddressBook<Derived>{
+    
+        /*! \brief Class template containing the network component
+         */
+		template <typename NodeType, typename LinkType>
+		class NetworkComponent : boost::noncopyable,
+		/*              */ private	std::map<size_t,NodeType* const>,
+		/*              */ private	std::map<std::pair<size_t,size_t>,LinkType* const>,
+		/*              */ public	AddressBook<NetworkComponent<NodeType,LinkType> >{
 			
-			/*! \brief CRTP-based class template which 
-			 */
+
 			
-			#include <model/Network/NetworkTypedefs.h>
+//			#include <model/Network/NetworkTypedefs.h>
+            
+
 			
-		public:	
+		public:
+            
+            typedef std::map<size_t,NodeType* const>						NetworkComponentNodeContainerType;
+            typedef std::map<std::pair<size_t,size_t>,LinkType* const>		NetworkComponentLinkContainerType;
+
 			
 			/************************************************************/
 			/* Constructor with pointer to Node *************************/
-			SubNetwork(NodeType* const pN){
+			NetworkComponent(NodeType* const pN){
 				add(pN);
 			}
 			
 			/************************************************************/
 			/* Constructor with pointer to Link *************************/
-			SubNetwork(LinkType* const pL){
+			NetworkComponent(LinkType* const pL){
 				add(pL);
 			}
 			
 			/************************************************************/
 			// Destructor
-			~SubNetwork(){
-				assert(SubNetworkNodeContainerType::empty() && "Destroying non-empty SubNetwork! Subnetwork contains Vertices.");	// make sure that only empty subnetworks are deleted
-				assert(SubNetworkLinkContainerType::empty() && "Destroying non-empty SubNetwork! Subnetwork contains Edges.");		// make sure that only empty subnetworks are deleted
+			~NetworkComponent(){
+				assert(NetworkComponentNodeContainerType::empty() && "Destroying non-empty NetworkComponent! NetworkComponent contains Vertices.");	// make sure that only empty NetworkComponents are deleted
+				assert(NetworkComponentLinkContainerType::empty() && "Destroying non-empty NetworkComponent! NetworkComponent contains Edges.");		// make sure that only empty NetworkComponents are deleted
 			}
 			
 			/************************************************************/
@@ -66,47 +74,47 @@ namespace model {
 			/************************************************************/
 			// nodeOrder
 			size_t nodeOrder() const {
-				return SubNetworkNodeContainerType::size();
+				return NetworkComponentNodeContainerType::size();
 			}
 			
 			/************************************************************/
 			// nodeBegin
-			typename SubNetworkNodeContainerType::iterator nodeBegin() {
-				return SubNetworkNodeContainerType::begin();
+			typename NetworkComponentNodeContainerType::iterator nodeBegin() {
+				return NetworkComponentNodeContainerType::begin();
 			}
 			
 			/************************************************************/
 			// nodeBegin
-			typename SubNetworkNodeContainerType::const_iterator nodeBegin() const {
-				return SubNetworkNodeContainerType::begin();
+			typename NetworkComponentNodeContainerType::const_iterator nodeBegin() const {
+				return NetworkComponentNodeContainerType::begin();
 			}
 			
 			/************************************************************/
 			// nodeEnd
-			typename SubNetworkNodeContainerType::iterator nodeEnd() {
-				return SubNetworkNodeContainerType::end();
+			typename NetworkComponentNodeContainerType::iterator nodeEnd() {
+				return NetworkComponentNodeContainerType::end();
 			}
 			
 			/************************************************************/
 			// nodeEnd
-			typename SubNetworkNodeContainerType::const_iterator nodeEnd() const {
-				return SubNetworkNodeContainerType::end();
+			typename NetworkComponentNodeContainerType::const_iterator nodeEnd() const {
+				return NetworkComponentNodeContainerType::end();
 			}
 			
 			/************************************************************/
 			// snID
 			size_t snID(const NodeType* const & pN) const {
-				return std::distance(SubNetworkNodeContainerType::begin(), SubNetworkNodeContainerType::find(pN->sID) );
+				return std::distance(NetworkComponentNodeContainerType::begin(), NetworkComponentNodeContainerType::find(pN->sID) );
 			}
 			
 			/************************************************************/
 			void add(NodeType* const pN){
-				assert(SubNetworkNodeContainerType::insert(std::make_pair(pN->sID,pN)).second);
+				assert(NetworkComponentNodeContainerType::insert(std::make_pair(pN->sID,pN)).second);
 			}
 			
 			/************************************************************/
 			void remove(NodeType* const pN){
-				assert(SubNetworkNodeContainerType::erase(pN->sID)==1);
+				assert(NetworkComponentNodeContainerType::erase(pN->sID)==1);
 			}
 			
 			/************************************************************/
@@ -114,53 +122,53 @@ namespace model {
 			/************************************************************/
 			// linkOrder
 			size_t linkOrder() const {
-				return SubNetworkLinkContainerType::size();
+				return NetworkComponentLinkContainerType::size();
 			}
 			
 			/************************************************************/
 			// linkBegin
-			typename SubNetworkLinkContainerType::iterator linkBegin()  {
-				return SubNetworkLinkContainerType::begin();
+			typename NetworkComponentLinkContainerType::iterator linkBegin()  {
+				return NetworkComponentLinkContainerType::begin();
 			}
 			
-			typename SubNetworkLinkContainerType::const_iterator linkBegin() const {
-				return SubNetworkLinkContainerType::begin();
+			typename NetworkComponentLinkContainerType::const_iterator linkBegin() const {
+				return NetworkComponentLinkContainerType::begin();
 			}
 			
 			/************************************************************/
 			// linkEnd
-			typename SubNetworkLinkContainerType::iterator linkEnd()
+			typename NetworkComponentLinkContainerType::iterator linkEnd()
             {/*! @return An iterator to the end of the link container
               */
-				return SubNetworkLinkContainerType::end();
+				return NetworkComponentLinkContainerType::end();
 			}
 			
-			typename SubNetworkLinkContainerType::const_iterator linkEnd() const
+			typename NetworkComponentLinkContainerType::const_iterator linkEnd() const
             {
-				return SubNetworkLinkContainerType::end();
+				return NetworkComponentLinkContainerType::end();
 			}
 			
 			/************************************************************/
 			// snID (link)
 			size_t snID(const LinkType* const & pL) const
             {/*! @param[in] pL
-              *  @return The ID of pL in this SubNetwork
+              *  @return The ID of pL in this NetworkComponent
               */
-				return std::distance(SubNetworkLinkContainerType::begin(), SubNetworkLinkContainerType::find(pL->nodeIDPair  ) );
+				return std::distance(NetworkComponentLinkContainerType::begin(), NetworkComponentLinkContainerType::find(pL->nodeIDPair  ) );
 			}
 			
 			/************************************************************/
 			void add(LinkType* const pL)
             {/*! @param[in] pL
               */
-				assert(SubNetworkLinkContainerType::insert(std::make_pair(pL->nodeIDPair ,pL)).second);
+				assert(NetworkComponentLinkContainerType::insert(std::make_pair(pL->nodeIDPair ,pL)).second);
 			}
 			
 			/************************************************************/
 			void remove(LinkType* const pL)
             {/*! @param[in] pL
               */
-				assert(SubNetworkLinkContainerType::erase(pL->nodeIDPair )==1);
+				assert(NetworkComponentLinkContainerType::erase(pL->nodeIDPair )==1);
 			}
 			
 		};

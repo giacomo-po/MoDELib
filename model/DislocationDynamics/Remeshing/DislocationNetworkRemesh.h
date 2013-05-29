@@ -156,7 +156,7 @@ namespace model {
 		/**********************************************************************/
 		void remesh()
         {/*! Performs remeshByContraction and then remeshByExpansion. 
-          * This order guarantees that 2-vertex subnetworks are expanded.
+          * This order guarantees that 2-vertex NetworkComponents are expanded.
           */
             remeshByContraction();
 			remeshByExpansion();
@@ -505,12 +505,14 @@ namespace model {
 			std::cout<<"		Checking for loop inversions ... "<<std::flush;
 			//! 3- Check and remove loop inversions
 			std::vector<int> toBeErased;
-			for (typename DislocationNetworkType::SubNetworkContainerType::iterator snIter=DN.ABbegin(); snIter!=DN.ABend();++snIter)
+			for (typename DislocationNetworkType::NetworkComponentContainerType::iterator snIter=DN.ABbegin(); snIter!=DN.ABend();++snIter)
             {
-				if (snIter->second->loopInversion(dt))
+                typename DislocationNetworkType::DislocationNetworkComponentType dnC(*snIter->second);
+                
+				if (dnC.loopInversion(dt))
                 {
-					std::cout<<"SubNetwork "<<snIter->second->sID<<" containing "<<snIter->second->nodeOrder()<<" is an inverted loop"<<std::endl;
-					for (typename DislocationNetworkType::SubNetworkNodeContainerType::const_iterator nodeIter=snIter->second->nodeBegin();nodeIter!=snIter->second->nodeEnd();++nodeIter)
+					std::cout<<"NetworkComponent "<<snIter->second->sID<<" containing "<<snIter->second->nodeOrder()<<" is an inverted loop"<<std::endl;
+					for (typename DislocationNetworkType::NetworkComponentType::NetworkComponentNodeContainerType::const_iterator nodeIter=snIter->second->nodeBegin();nodeIter!=snIter->second->nodeEnd();++nodeIter)
                     {
 						toBeErased.push_back(nodeIter->second->sID);
 					}

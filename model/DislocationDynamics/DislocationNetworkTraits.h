@@ -26,9 +26,9 @@ namespace model {
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	class DislocationNetwork;
 	
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-	class DislocationSubNetwork;
+//	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+//	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//	class DislocationSubNetwork;
 	
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
@@ -47,7 +47,7 @@ namespace model {
         enum{dim=_dim};
         //typedef _MaterialType MaterialType;
 		typedef DislocationNetwork   <dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>	NetworkType;
-		typedef DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>	SubNetworkType;
+//		typedef DislocationSubNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>	SubNetworkType;
 		typedef DislocationNode      <dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>	NodeType;
 		typedef DislocationSegment   <dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>	LinkType;
 		typedef Eigen::Matrix<double,dim,1>																		FlowType;
@@ -61,9 +61,9 @@ namespace model {
 	struct TypeTraits<DislocationNetwork	<3,1,CatmullRom,centripetal,16,GaussLegendre> > : 
 	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,16,GaussLegendre>{};
 	
-	template<>
-	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,centripetal,16,GaussLegendre> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,16,GaussLegendre>{};
+//	template<>
+//	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,centripetal,16,GaussLegendre> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,16,GaussLegendre>{};
 	
 	template<>
 	struct TypeTraits<DislocationNode		<3,1,CatmullRom,centripetal,16,GaussLegendre> > : 
@@ -85,9 +85,9 @@ namespace model {
 	struct TypeTraits<DislocationNetwork	<3,1,CatmullRom,centripetal,8,GaussLegendre> > : 
 	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,8,GaussLegendre>{};
 	
-	template<>
-	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,centripetal,8,GaussLegendre> > : 
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,8,GaussLegendre>{};
+//	template<>
+//	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,centripetal,8,GaussLegendre> > : 
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,8,GaussLegendre>{};
 	
 	template<>
 	struct TypeTraits<DislocationNode		<3,1,CatmullRom,centripetal,8,GaussLegendre> > : 
@@ -108,9 +108,9 @@ namespace model {
 	struct TypeTraits<DislocationNetwork	<3,1,CatmullRom,centripetal,16,UniformOpen> > : 
 	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,16,UniformOpen>{};
 	
-	template<>
-	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,centripetal,16,UniformOpen> > : 
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,16,UniformOpen>{};
+//	template<>
+//	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,centripetal,16,UniformOpen> > : 
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,centripetal,16,UniformOpen>{};
 	
 	template<>
 	struct TypeTraits<DislocationNode		<3,1,CatmullRom,centripetal,16,UniformOpen> > : 
@@ -132,9 +132,9 @@ namespace model {
 	struct TypeTraits<DislocationNetwork	<3,1,CatmullRom,chordal,16,UniformOpen> > :
 	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,16,UniformOpen>{};
 	
-	template<>
-	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,chordal,16,UniformOpen> > :
-	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,16,UniformOpen>{};
+//	template<>
+//	struct TypeTraits<DislocationSubNetwork	<3,1,CatmullRom,chordal,16,UniformOpen> > :
+//	public DislocationNetworkTraitsBase		<3,1,CatmullRom,chordal,16,UniformOpen>{};
 	
 	template<>
 	struct TypeTraits<DislocationNode		<3,1,CatmullRom,chordal,16,UniformOpen> > :

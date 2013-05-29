@@ -162,7 +162,7 @@ namespace model {
 
             
             int id(0);
-            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter=SpatialCellObserverType::begin();cIter!=SpatialCellObserverType::end();++cIter)
+            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter=SpatialCellObserverType::cellBegin();cIter!=SpatialCellObserverType::cellEnd();++cIter)
             {
                 ijk2idMap.insert(std::pair<Eigen::Matrix<int,_ParticleType::dim,1>,const int>(cIter->second->cellID,id));
                 id2ijkMap.insert(std::pair<int,Eigen::Matrix<int,_ParticleType::dim,1> >(id,cIter->second->cellID));
@@ -177,7 +177,7 @@ namespace model {
             std::vector<int> vOffsets;
             
             int offSet(0);
-            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter=SpatialCellObserverType::begin();cIter!=SpatialCellObserverType::end();++cIter)
+            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter=SpatialCellObserverType::cellBegin();cIter!=SpatialCellObserverType::cellEnd();++cIter)
             {
                 vOffsets.push_back(offSet);
                 for (typename SpatialCellObserverType::CellMapType::const_iterator nIter=cIter->second->neighborCellsBegin();nIter!=cIter->second->neighborCellsEnd();++nIter)
@@ -357,7 +357,7 @@ namespace model {
                 SequentialOutputFile<'C',1> cFile;
 //                cFile<<cells()<<std::endl;
                 
-                for (typename SpatialCellObserverType::CellMapType::const_iterator cIter=SpatialCellObserverType::begin();cIter!=SpatialCellObserverType::end();++cIter)
+                for (typename SpatialCellObserverType::CellMapType::const_iterator cIter=SpatialCellObserverType::cellBegin();cIter!=SpatialCellObserverType::cellEnd();++cIter)
                 {
                     //os<<sC.cellID.transpose()<<" "<< sC.size()<<" "<<sC.neighborSize()<< " "<<sC.assignedRank;
                     cFile<<cIter->second->cellID.transpose()<<" "<< cIter->second->size()<<" "<<cIter->second->neighborSize()<< " "<<cIter->second->assignedRank<<std::endl;

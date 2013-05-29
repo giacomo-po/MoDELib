@@ -1,6 +1,6 @@
 ######################################
 # Initialize number of simulation steps 
-Nsteps=100;
+Nsteps=300;
 timeWindow=5.1e03;
 startAtTimeStep = 0;
 
@@ -54,8 +54,8 @@ farCellStressApproximation=10;
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
-Lmax=500;
-Lmin=21;
+Lmax=1000;
+Lmin=100;
 thetaDeg=45.0;
 
 ######################################
@@ -64,7 +64,7 @@ thetaDeg=45.0;
 # use_junctions = 1 annihilation only
 # use_junctions = 2 full junctions
 use_junctions=2;
-collisionTol=2;
+collisionTol=20;
 
 ######################################
 # Enable/disable the use of a confining boundary.

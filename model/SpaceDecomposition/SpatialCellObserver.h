@@ -27,7 +27,6 @@ namespace model {
     {
 		
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
-		//typedef Eigen::Matrix<int,dim,1>    VectorDimI;
         typedef Eigen::Matrix<int,dim,1> CellIdType;
 		typedef std::map<CellIdType, SpatialCellType* const,CompareVectorsByComponent<int,dim> >  CellMapType;
 		typedef std::shared_ptr< SpatialCellType> SharedPtrType;
@@ -37,40 +36,52 @@ namespace model {
         static double cellSize;
         
 		/* begin() ***************************************************/
-		static typename CellMapType::const_iterator begin()
-        {
+		static typename CellMapType::const_iterator cellBegin()
+        {/*! \returns A const_iterator to the first SpatialCellType cell. 
+          */
 			return cellMap.begin();
 		}
 		
 		/* end() *****************************************************/		
-		static typename CellMapType::const_iterator end()
-        {
+		static typename CellMapType::const_iterator cellEnd()
+        {/*! \returns A const_iterator to the past-the-last SpatialCellType cell.
+          */
 			return cellMap.end();
 		}
         
         static size_t size()
-        {/*! @param[out] The number of observed SpatialCellType cells.
+        {/*! \returns The number of observed SpatialCellType cells.
           */
             return cellMap.size();
         }
 
         /* getCellIDByPosition ************************************************/
 		static CellIdType getCellIDByPosition(const VectorDimD& P)
-        {
+        {/*! \returns The CellIdType ID of the cell that contains P. The ID
+          *  satisfies cellID <= P/cellSize < (cellID+1).
+          */
 			return floorEigen<dim>(P/cellSize);
 		}
         
 		/* getCellByID ********************************************************/
 		static SharedPtrType getCellByID(const CellIdType& cellID)
-        {
+        {/*! @param[in] cellID The ID of the cell.
+          *  \returns If a cell with ID=cellID exists, a shared-pointer to that
+          *  cell is returned. Otherwise, a shared-pointer to a new cell with 
+          *  ID=cellID is returned.
+          */
 			typename CellMapType::const_iterator iter(cellMap.find(cellID));
 			return (iter!=cellMap.end())? (*(iter->second->particleContainer.begin()))->pCell : SharedPtrType(new SpatialCellType(cellID));
 		}
 		
 		/* getCellByPosition **************************************************/		
 		static SharedPtrType getCellByPosition(const VectorDimD& P)
-        {
-//			return getCellByID(floorEigen<dim>(P/cellSize));
+        {/*! @param[in] P The position vector.
+          *  \returns If a cell satisfying cellID <= P/cellSize < (cellID+1) 
+          *   exists, a shared-pointer to that cell is returned. Otherwise, a
+          *   shared-pointer to a new cell satisfying cellID <= P/cellSize < (cellID+1)
+          *   is returned.
+          */
 			return getCellByID(getCellIDByPosition(P));
 		}
         

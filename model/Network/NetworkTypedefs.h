@@ -10,10 +10,11 @@ public:
 
 	/* Basic types defined by TypeTraits<Derived> ***************************************************/
 	typedef typename TypeTraits<Derived>::NetworkType				NetworkType;			
-	typedef typename TypeTraits<Derived>::SubNetworkType			SubNetworkType;
-	typedef typename TypeTraits<Derived>::NodeType					NodeType;
+    typedef typename TypeTraits<Derived>::NodeType					NodeType;
 	typedef typename TypeTraits<Derived>::LinkType					LinkType;
 	typedef typename TypeTraits<Derived>::FlowType					FlowType;
+    typedef NetworkComponent<NodeType,LinkType>                     NetworkComponentType;
+
 
 	/* Containers and iterators used in Network *****************************************************/
 	typedef typename boost::ptr_map<size_t,NodeType>				NetworkNodeContainerType;
@@ -30,9 +31,10 @@ public:
 
 
 	/* Containers and iterators used in SubNetwork **************************************************/
-	typedef std::map<size_t,SubNetworkType* const>					SubNetworkContainerType;
-	typedef std::map<size_t,NodeType* const>						SubNetworkNodeContainerType;
-	typedef std::map<LinkIDType,LinkType* const>					SubNetworkLinkContainerType;
+	typedef std::map<size_t,NetworkComponentType* const>			NetworkComponentContainerType;
+    typedef typename NetworkComponent<NodeType,LinkType>::NetworkComponentNodeContainerType SubNetworkNodeContainerType;
+    typedef typename NetworkComponent<NodeType,LinkType>::NetworkComponentLinkContainerType SubNetworkLinkContainerType;
+
 
 	/* Containers and iterators used in SubNetwork **************************************************/
 	typedef std::tuple<NodeType*,LinkType*,short int>				NeighborType;

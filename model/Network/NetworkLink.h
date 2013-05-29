@@ -22,11 +22,12 @@
 //#include <boost/shared_ptr.hpp>
 #include <memory> // std::shared_ptr
 
+#include <model/Network/NetworkComponent.h>
 #include <model/Network/Operations/includeNetworkOperations.h>
 
-#include "model/Utilities/AddressBook.h"
-#include "model/Network/SubNetwork.h"
-#include "model/Network/NetworkNode.h"
+#include <model/Utilities/AddressBook.h>
+//#include "model/Network/NetworkComponent.h"
+#include <model/Network/NetworkNode.h>
 
 #include <model/Utilities/TypeTraits.h>
 
@@ -40,9 +41,9 @@ namespace model {
 		
 #include <model/Network/NetworkTypedefs.h>
 		
-        friend class NetworkNode<NodeType>; // allow NetworkNode to call private NetworkLink::formSubNetwork
+        friend class NetworkNode<NodeType>; // allow NetworkNode to call private NetworkLink::formNetworkComponent
 		
-		std::shared_ptr<SubNetworkType> psn;
+		std::shared_ptr<NetworkComponentType> psn;
 
 		
 	public:
@@ -65,32 +66,32 @@ namespace model {
 			sink  ->addToNeighborhood(this->p_derived());
 			
 			
-			//! 2 - Joins source and sink SubNetworks			
-			if (source->pSN()==sink->pSN()){ // source and sink are already in the same subnetwork
+			//! 2 - Joins source and sink NetworkComponents			
+			if (source->pSN()==sink->pSN()){ // source and sink are already in the same NetworkComponent
 				psn=source->pSN();				// redirect psn to the source psn
-				psn->add(this->p_derived());	// add this to the existing subnetwork
+				psn->add(this->p_derived());	// add this to the existing NetworkComponent
 			}
-			else{ // source and sink are in different subnetworks
+			else{ // source and sink are in different NetworkComponents
 				
-				typedef void (NodeType::*node_member_function_pointer_type)(const std::shared_ptr<SubNetworkType>&); 
+				typedef void (NodeType::*node_member_function_pointer_type)(const std::shared_ptr<NetworkComponentType>&); 
 				node_member_function_pointer_type Nmfp;
-				Nmfp=&NodeType::formSubNetwork;
-				typedef void (Derived::*link_member_function_pointer_type)(const std::shared_ptr<SubNetworkType>&); 
+				Nmfp=&NodeType::formNetworkComponent;
+				typedef void (Derived::*link_member_function_pointer_type)(const std::shared_ptr<NetworkComponentType>&); 
 				link_member_function_pointer_type Lmfp;
-				Lmfp=&Derived::formSubNetwork;
+				Lmfp=&Derived::formNetworkComponent;
 				
 				// find the size of the source and sink 
 				size_t sourceSNsize(source->pSN()->nodeOrder());
 				size_t   sinkSNsize(  sink->pSN()->nodeOrder());
 				if (sourceSNsize>=sinkSNsize){
 					psn=source->pSN();					   // redirect psn to the source psn
-					psn->add(this->p_derived());		   // add this to the source subnetwork
-					sink->depthFirstExecute(Nmfp,Lmfp,this->psn);   // Transmits 'formSubNetwork' on the sink side
+					psn->add(this->p_derived());		   // add this to the source NetworkComponent
+					sink->depthFirstExecute(Nmfp,Lmfp,this->psn);   // Transmits 'formNetworkComponent' on the sink side
 				}
 				else{
 					psn=sink->pSN();				       // redirect psn to the sink psn
-					psn->add(this->p_derived());	       // add this to the source subnetwork
-					source->depthFirstExecute(Nmfp,Lmfp,this->psn); // Transmits 'formSubNetwork' on the source side
+					psn->add(this->p_derived());	       // add this to the source NetworkComponent
+					source->depthFirstExecute(Nmfp,Lmfp,this->psn); // Transmits 'formNetworkComponent' on the source side
 				}
 			}
 
@@ -103,13 +104,13 @@ namespace model {
 		}
         
         
-        /* formSubNetwork *****************************************************/
-		void formSubNetwork(const std::shared_ptr<SubNetworkType> & psnOther)
+        /* formNetworkComponent *****************************************************/
+		void formNetworkComponent(const std::shared_ptr<NetworkComponentType> & psnOther)
         {
 			if (psn!=psnOther){
 				psn->remove(this->p_derived());
-				psn=psnOther;		// redirect psn to the new Subnetwork
-				psn->add(this->p_derived());    // add this in the new subnetwork
+				psn=psnOther;		// redirect psn to the new NetworkComponent
+				psn->add(this->p_derived());    // add this in the new NetworkComponent
 			}
 		}
 		
@@ -162,10 +163,10 @@ namespace model {
 			source->removeFromNeighborhood(this->p_derived());			
 			sink  ->removeFromNeighborhood(this->p_derived());
 			
-			//! 2- Remove this from the SubNetwork	
+			//! 2- Remove this from the NetworkComponent	
 			this->psn->remove(this->p_derived());
 
-			//! 3- If Now Source and Sink are disconnected then reset the SubNetwork in the sink
+			//! 3- If Now Source and Sink are disconnected then reset the NetworkComponent in the sink
 			const bool sourceCanReachSink(source->depthFirstSearch(sink->sID));
 
 			if (!sourceCanReachSink){
@@ -181,14 +182,14 @@ namespace model {
 		
 		/* snID ***************************************************************/
 		size_t snID() const
-        {/*! @return The StaticID of the SubNetwork containing this
+        {/*! @return The StaticID of the NetworkComponent containing this
           */
 			return psn->snID(this->p_derived());
 		}
 		
 		/* pSN ****************************************************************/
-		const std::shared_ptr<SubNetworkType> & pSN() const
-        {/*! @return The shared_ptr to the SubNetwork containing this
+		const std::shared_ptr<NetworkComponentType> & pSN() const
+        {/*! @return The shared_ptr to the NetworkComponent containing this
           */
 			return psn;
 		}
@@ -219,12 +220,12 @@ namespace model {
             
             
             
-            //		/* formSubNetwork *****************************************************/
-            //		void formSubNetwork(const std::shared_ptr<SubNetworkType> & psnOther)
+            //		/* formNetworkComponent *****************************************************/
+            //		void formNetworkComponent(const std::shared_ptr<NetworkComponentType> & psnOther)
             //        {
             //			if (psn!=psnOther){
             //				psn->remove(this->p_derived());
-            //				psn=psnOther;		// redirect psn to the new Subnetwork
-            //				psn->add(this->p_derived());	// add this in the new subnetwork
+            //				psn=psnOther;		// redirect psn to the new NetworkComponent
+            //				psn->add(this->p_derived());	// add this in the new NetworkComponent
             //			}
             //		}

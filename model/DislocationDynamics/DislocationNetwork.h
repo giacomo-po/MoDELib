@@ -36,7 +36,6 @@
 // 38- IS PLANAR SHOULD RETURN the normal as pair<bool,normal>
 // 31- Implement LinearElasticGreensFunction Class
 // 37- NetworkNode, initializations from expansion and contraction
-// ALSO: SUBNETWORKS SOULD BE CALLED PARTITIONS
 // 38- Finish cleaning STL-Eigen compatibility issue (http://eigen.tuxfamily.org/dox-devel/TopicStlContainers.html) examples include: DislocationSegment::boundaryCollision(),
 // IMPLEMENT NEIGHBOR ITERATORS IN NETWORKNODE
 // CHANGE CONST VERSION OF EDGEFINDER/VERTEXFINDER PASS this IN MEMBER FUNCTION, REMOVE TEMPLATE SPECIALIZATION AND MAKE STATIC FUNCTIONS
@@ -70,9 +69,7 @@
 #include <Eigen/Dense>
 
 
-#ifdef _MODEL_DD_MPI_
-#define _MODEL_MPI_  // required in ParticleSystem.h
-#endif
+
 
 
 #include <model/Network/Network.h>
@@ -80,7 +77,7 @@
 #include <model/Utilities/EigenDataReader.h>
 #include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
-#include <model/DislocationDynamics/DislocationSubNetwork.h>
+#include <model/DislocationDynamics/DislocationNetworkComponent.h>
 #include <model/DislocationDynamics/DislocationNode.h>
 #include <model/DislocationDynamics/DislocationSegment.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
@@ -91,7 +88,11 @@
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
 
+#ifdef _MODEL_DD_MPI_
+#define _MODEL_MPI_  // required in ParticleSystem.h
 #include <model/ParticleInteraction/ParticleSystem.h> // the main object from pil library
+#endif
+
 
 
 
@@ -104,8 +105,10 @@ namespace model {
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	class DislocationNetwork :
     /* inheritance          */ public Network<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
-	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>,
-    /* inheritance          */ private ParticleSystem<DislocationQuadratureParticle<_dim> >
+	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>
+#ifdef _MODEL_DD_MPI_
+    /* inheritance          */, private ParticleSystem<DislocationQuadratureParticle<_dim> >
+#endif
     {
 		
     public:
@@ -115,6 +118,7 @@ namespace model {
 		typedef DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> DislocationNetworkType;
 		typedef DislocationNetworkType Derived; // define Derived to use NetworkTypedefs.h
 #include <model/Network/NetworkTypedefs.h>
+        typedef DislocationNetworkComponent<NodeType,LinkType> DislocationNetworkComponentType;
 		typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
 		typedef Eigen::Matrix<double,dim,1>		VectorDimD;
 		typedef typename LinkType::DislocationQuadratureParticleType DislocationQuadratureParticleType;
@@ -122,7 +126,9 @@ namespace model {
 		typedef SpatialCellObserver<SpatialCellType,dim> SpatialCellObserverType;
 		typedef typename SpatialCellObserverType::CellMapType CellMapType;
 		typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
+#ifdef _MODEL_DD_MPI_
         typedef ParticleSystem<DislocationQuadratureParticle<_dim> > ParticleSystemType;
+#endif
 		enum {NdofXnode=NodeType::NdofXnode};
 		
 #ifdef UpdateBoundaryConditionsFile
@@ -261,7 +267,7 @@ namespace model {
             /*                    */<< ", time="<<totalTime
             /*                    */<< ": nodeOrder="<<this->nodeOrder()
             /*                    */<< ", linkOrder="<<this->linkOrder()
-            /*                    */<< ", subNetworks="<<this->Naddresses()
+            /*                    */<< ", components="<<this->Naddresses()
 			/*                    */<< defaultColor<<std::endl;
             
 #ifdef DislocationNucleationFile
@@ -392,8 +398,11 @@ namespace model {
         MatrixDimD plasticDistortion;
         
 		/* Constructor ********************************************************/
-        DislocationNetwork(int& argc, char* argv[]) :
-        /* base initialization */ ParticleSystemType(argc,argv)
+        DislocationNetwork(int& argc, char* argv[])
+#ifdef _MODEL_DD_MPI_
+        /* base initialization */ : ParticleSystemType(argc,argv)
+#endif
+        
         {
 //        	if (argc==1){
                 // argv[0] is by default the name of the executable so use default name for inputfile
@@ -599,20 +608,19 @@ namespace model {
 #pragma omp parallel for
             for (unsigned int k=0;k<this->Naddresses();++k)
             {
-                typename SubNetworkContainerType::iterator snIter(this->ABbegin()); //  data within a parallel region is private to each thread
+                typename NetworkComponentContainerType::iterator snIter(this->ABbegin()); //  data within a parallel region is private to each thread
                 std::advance(snIter,k);
-                //				snIter->second->solve();
                 if (snIter->second->nodeOrder()>=shared.minSNorderForSolve)
                 {
-                    snIter->second->sparseSolve();
+                    DislocationNetworkComponentType(*snIter->second).sparseSolve();
                 }
             }
 #else
-			for (typename SubNetworkContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
+			for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
             {
                 if (snIter->second->nodeOrder()>=shared.minSNorderForSolve)
                 {
-                    snIter->second->sparseSolve();
+                    DislocationNetworkComponentType(*snIter->second).sparseSolve();
                 }
 			}
 #endif
@@ -652,7 +660,7 @@ namespace model {
             {
 				Quadrature<1,qOrder>::execute(linkIter->second,&LinkType::updateQuadGeometryKernel); // then update again
 			}
-            for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::begin();cellIter!=SpatialCellObserverType::end();++cellIter)
+            for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::cellBegin();cellIter!=SpatialCellObserverType::cellEnd();++cellIter)
             {
                 cellIter->second->computeCenterStress();
             }

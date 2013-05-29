@@ -53,10 +53,6 @@ namespace model {
         static bool outputPKforce;
         static bool outputMeshDisplacement;
         
-//        /* Constructor ******************************/
-//		DislocationNetworkIO(DislocationNetworkType& DN_in) :
-//        /* init list */ DN(DN_in) // initialize DN
-//        {}
         
         /* readVertices *******************************************************/
         static void readVertices(DislocationNetworkType& DN, const unsigned int& fileID)
@@ -127,7 +123,7 @@ namespace model {
                 SequentialOutputFile<'C',1> Cell_file;
                 //              SpatialCellObserverType SPC;
                 int cID(0);
-                for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::begin();cellIter!=SpatialCellObserverType::end();++cellIter)
+                for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::cellBegin();cellIter!=SpatialCellObserverType::cellEnd();++cellIter)
                 {
                     Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize<<std::endl;
                     ++cID;

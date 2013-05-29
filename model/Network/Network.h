@@ -19,6 +19,7 @@
 #include <model/Utilities/CRTP.h>
 #include <model/Utilities/AddressBook.h>
 
+#include <model/Network/NetworkComponent.h>
 #include <model/Network/Operations/includeNetworkOperations.h>
 #include <model/Network/Algorithms/ParallelExecute.h>
 
@@ -35,14 +36,15 @@ namespace model {
     //	/*          */  protected std::map<size_t,std::auto_ptr<typename TypeTraits<Derived>::NodeType> >,
     //	/*          */  protected std::map<std::pair<size_t,size_t>,std::auto_ptr<typename TypeTraits<Derived>::LinkType> >,
 	/*          */  public  CRTP<Derived>,
-	/*          */  public  AddressBook<typename TypeTraits<Derived>::SubNetworkType,0>{
+	/*          */  public  AddressBook<NetworkComponent<typename TypeTraits<Derived>::NodeType,typename TypeTraits<Derived>::LinkType>,0>{
 		
 		/*!
 		 *		\code
-		 *		namespace model{
+		 *		namespace model
+         *      {
 		 *			template<>
-		 *			struct TypeTraits<Derived>{
-		 *				typedef SomeSubNetworkType	NodeType;
+		 *			struct TypeTraits<Derived>
+         *          {
 		 *				typedef SomeNodeType		NodeType;
 		 *				typedef SomeLinkType		LinkType;
 		 *				typedef SomeFlowType		FlowType;
@@ -53,16 +55,7 @@ namespace model {
 		
 #include <model/Network/NetworkTypedefs.h>
 		
-		
-		
-		
-		typedef std::map<size_t,SubNetworkType* const> AddressMapType;
-		typedef typename AddressMapType::iterator AddressMapIteratorType;
-        
-	private:
-		
-        
-		
+				
 		
 	public:
 		
