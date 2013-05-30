@@ -2,7 +2,7 @@
 # Initialize number of simulation steps 
 Nsteps=300;
 timeWindow=5.1e03;
-startAtTimeStep = 0;
+startAtTimeStep = 4700;
 
 ######################################
 # Choose time integration method
@@ -16,9 +16,9 @@ minSNorderForSolve=0;
 # Options for output files:
 outputFrequency=1;
 outputBinary=1;
-outputGlidePlanes=1;
-outputSpatialCells=1;
-outputPKforce=1;
+outputGlidePlanes=0;
+outputSpatialCells=0;
+outputPKforce=0;
 
 minSNorderForSolve=0;
 outputMeshDisplacement=0;
