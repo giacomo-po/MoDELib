@@ -1,0 +1,21 @@
+namespace model {
+/*! \page DD_intro Discrete Dislocation Dynamics (DDD)
+
+\section Introduction
+	
+
+
+\section Tutorials 
+  
+The best way to learn how to use the Discrete Dislocation Dynamics module of MODEL is to study the following tutorials: 
+- \subpage FRsource
+- \subpage DD_visualization
+- \subpage FRsource_bnd
+    
+
+\section Credits
+
+
+
+*/ 
+}

@@ -7,6 +7,9 @@ syntax: regexp
 [ABCDFGHIJKLMNOPQRSTUWXYZ]_[0123456789]*\.txt
 [ABCDFGHIJKLMNOPQRSTUWXYZ]_[0123456789]*\.bin
 
+# mesh files
+mesh.*
+
 # Files ending in ~
 [.]*\.[.]*~
 
@@ -15,6 +18,8 @@ syntax: glob
  
 # Executable
 DDcode
+DDserial
+DDparallel
 DDviewer
 tetgen
 

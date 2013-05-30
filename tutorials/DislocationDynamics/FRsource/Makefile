@@ -1,6 +1,4 @@
-#USE_MPI = 0
 USE_ICC = 0
-
 
 # MODEL LIBRARY #################################
  MODEL_INCLUDE = /Users/giacomo/Dropbox/Model_MPI

@@ -675,7 +675,7 @@ namespace model {
 		}
 		
 		/**********************************************************************/
-		void runByStep(const bool& updateUserBC=false)
+		void runSteps(const bool& updateUserBC=false)
         {/*! Runs Nsteps simulation steps
           */
 			double ts(clock());
@@ -690,7 +690,7 @@ namespace model {
 		
 		
 		/**********************************************************************/
-		void runByTime(const bool& updateUserBC=false)
+		void runTime(const bool& updateUserBC=false)
         {/*! Runs a number simulation steps corresponding to a total
           * dimensionless time timeWindow
           */

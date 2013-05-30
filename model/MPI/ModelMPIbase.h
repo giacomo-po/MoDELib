@@ -26,7 +26,7 @@ namespace model {
         /*****************************************/
         static int getMPIrank()
         {
- //           assert(mpiInitialized && "MPI not initialized.");
+            //           assert(mpiInitialized && "MPI not initialized.");
             int mpiRank_temp;
             MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank_temp);
             return mpiRank_temp;
@@ -51,13 +51,13 @@ namespace model {
             MPI_Initialized(&temp);
             return temp;
         }
-
-
-
+        
+        
+        
         
     public:
         
-        const bool mpiInitialized;        
+        const bool mpiInitialized;
         const int mpiRank;
         const int mpiProcs;
         
@@ -71,7 +71,7 @@ namespace model {
             /*     */<<", mpiInitialized="<<mpiInitialized<<defaultColor<<std::endl;
             
             assert(mpiInitialized && "MPI not initialized.");
-
+            
         }
         
         /* Destructor */

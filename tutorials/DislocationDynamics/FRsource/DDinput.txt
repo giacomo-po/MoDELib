@@ -16,8 +16,8 @@ minSNorderForSolve=0;
 # Options for output files:
 outputFrequency=1;
 outputGlidePlanes=0;
-outputSpatialCells=1;
-outputPKforce=1;
+outputSpatialCells=0;
+outputPKforce=0;
 
 minSNorderForSolve=0;
 outputMeshDisplacement=0;
@@ -71,7 +71,7 @@ collisionTol=20;
 # boundary_type = 0 for no confining boundary. This automatically sets use_bvp=0 (see below)
 # boundary_type = 1 for shearable confining boundary. The file mesh.ele, mesh.face, mesh.neigh and mesh.node must be present in the working directory
 # boundary_type = 2 for unshearable confining boundary. The file mesh.ele, mesh.face, mesh.neigh and mesh.node must be present in the working directory
-boundary_type =1;
+boundary_type =0;
 
 
 ######################################
