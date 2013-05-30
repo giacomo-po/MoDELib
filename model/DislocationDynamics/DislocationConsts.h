@@ -11,9 +11,8 @@
 
 namespace model {
 	
-//enum {freeNode=0, fixedNode=1, moveLine=2, boundaryNode=3};
-//enum {freeNode=0, fixedNode=1, moveLine=2};	
 enum {outsideMesh=0, insideMesh=1, onMeshBoundary=2};
+    
 enum {noBoundary=0, softBoundary=1, hardBoundary=2};
 	
 }

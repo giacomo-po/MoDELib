@@ -161,7 +161,6 @@ namespace model {
         
         
         /* stiffness_integrand ************************************************/
-        
         MatrixNdof stiffness_integrand(const int& k) const
         { /*! @param[in] k the current quadrature point
            *  The stiffness matrix integrand evaluated at the k-th quadrature point.

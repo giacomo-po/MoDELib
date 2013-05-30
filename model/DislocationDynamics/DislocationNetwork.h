@@ -157,9 +157,7 @@ namespace model {
 		static bool useImplicitTimeIntegration;
         
 		unsigned int runID;
-		
-//		double Lmax,Lmin,thetaDeg;
-		
+				
 		bool use_crossSlip;
 		double crossSlipDeg;
 		double crossSlipLength;
