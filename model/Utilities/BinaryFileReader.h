@@ -46,16 +46,16 @@ public:
 		
 			// Since the get pointer is at the end of the file, call file.tellg() to obtain the number of bytes in the file
 			_bytes_in_file = file.tellg();
-			std::cout << "File '"<< filename <<"' contains:"<<std::endl;
-			std::cout << "	bytes in file : "     << _bytes_in_file <<std::endl;
-			std::cout << "	bytes per element:  " << _bytes_in_Type  <<std::endl;
+//			std::cout << "File '"<< filename <<"' contains:"<<std::endl;
+//			std::cout << "	bytes in file : "     << _bytes_in_file <<std::endl;
+//			std::cout << "	bytes per element:  " << _bytes_in_Type  <<std::endl;
 			
 			// The number of bytes in the file must be a multiple of the number of bytes in Type 
 			assert((_bytes_in_file%_bytes_in_Type)==0 && " Incorrect format.");
 			
 			// Calculate how many element of type Type are in the file
 			_array_size = _bytes_in_file/_bytes_in_Type;
-			std::cout << "	array size:  "<< _array_size  <<std::endl;
+//			std::cout << "	array size:  "<< _array_size  <<std::endl;
 			
 			// resize memblock with _array_size
 			memblock = new Type [_array_size];

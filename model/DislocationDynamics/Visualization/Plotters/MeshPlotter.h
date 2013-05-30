@@ -58,45 +58,45 @@ namespace model {
 		/* init list */ nodeFileIsGood(false),
 		/* init list */ dispFileIsGood(false),
 		/* init list */ showMesh(0),
-        /* init list */ showQuad(true),
+        /* init list */ showQuad(false),
 		/* init list */ dispScale(1.0f){}
 		
 		/* read *************************************************/		
 		void read(const int& frameN){
 			// Read edge file T only if it exists, otherwise try to read 0
-			edgeFileIsGood=EdgeContainerType::isGood<true>(frameN);
+			edgeFileIsGood=EdgeContainerType::isGood(frameN,true);
 			if (edgeFileIsGood){
-				EdgeContainerType::read<true>(frameN);
+				EdgeContainerType::read(frameN,true);
 			}
 			else{
-				EdgeContainerType::read<true>(0);					
+				EdgeContainerType::read(0,true);
 			}
 			
 			// Read node file N only if it exists, otherwise try to read 0
-			nodeFileIsGood=NodeContainerType::isGood(frameN);
+			nodeFileIsGood=NodeContainerType::isGood(frameN,true);
 			if (nodeFileIsGood){
-				NodeContainerType::read(frameN);
+				NodeContainerType::read(frameN,true);
 			}
 			else{
-				NodeContainerType::read(0);		
+				NodeContainerType::read(0,true);
 			}
 			
-			dispFileIsGood=DispContainerType::isGood(frameN);
+			dispFileIsGood=DispContainerType::isGood(frameN,true);
 			if (dispFileIsGood){
-				DispContainerType::read(frameN);
+				DispContainerType::read(frameN,true);
 				
 			}
 			else{
-				DispContainerType::read(0);
+				DispContainerType::read(0,true);
 			}
             
-            quadFileIsGood=QuadContainerType::isGood(frameN);
+            quadFileIsGood=QuadContainerType::isGood(frameN,true);
             if (quadFileIsGood){
-				QuadContainerType::read(frameN);
+				QuadContainerType::read(frameN,true);
 				
 			}
 			else{
-				QuadContainerType::read(0);
+				QuadContainerType::read(0,true);
 			}
 			//			assert(NodeContainerType==DispContainerType && "NUMBER OF NODES IN DISPLACEMENT FILE");
 			

@@ -680,9 +680,9 @@ namespace model {
 					cellPlotter.showCells=!cellPlotter.showCells;
 					break;
 					
-				case 'd':
-					splinePlotter.deformedConfig=!splinePlotter.deformedConfig;
-					break;
+//				case 'd':
+//					splinePlotter.deformedConfig=!splinePlotter.deformedConfig;
+//					break;
 					
 				case 'e':
 					splinePlotter.showTubes=!splinePlotter.showTubes;
@@ -719,7 +719,8 @@ namespace model {
 					std::cout<<"Enter a step number ane press Enter: ";
 					int temp;
 					std::cin>>temp;
-					if (splinePlotter.isGood(temp)) {
+					if (splinePlotter.isGood(temp,true) || splinePlotter.isGood(temp,false))
+                    {
 						frameN=temp;
 						ddrIter=ddr.begin();
 						std::advance(ddrIter,temp);
@@ -888,17 +889,18 @@ namespace model {
 		
 		
 		/* readFrame **********************************************/
-		void readFrame(){
+		void readFrame()
+        {
 			double t0(clock());
 			std::cout<<greenBoldColor<<"Reading frame "<<frameN<<"..."<<defaultColor<<std::endl;
             
 			splinePlotter.read(frameN);
-			planePlotter.read<true>(frameN);
-			cellPlotter.read(frameN);
+			planePlotter.read(frameN,true);
+			cellPlotter.read(frameN,true);
 			meshPlotter.read(frameN);
             
             
-			std::cout<<" done ["<<(clock()-t0)/CLOCKS_PER_SEC<<defaultColor<<std::endl;
+//			std::cout<<" done ["<<(clock()-t0)/CLOCKS_PER_SEC<<defaultColor<<std::endl;
 		}
 		
 		

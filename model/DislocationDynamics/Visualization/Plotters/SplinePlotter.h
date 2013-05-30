@@ -258,15 +258,16 @@ namespace model {
 	/*************************************************************/
 	template <int dim, int Np, int Nc, float & alpha>
 	class SplinePlotter :
-	/* inherits from   */ public VertexReader<'V',11,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
+	/* inherits from   */ public VertexReader<'V',8,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ public EdgeReader  <'E',11,double>,
 	/*                 */ public VertexReader<'P',7,double>,
 	//	/* inherits from   */ private std::vector<SingleSplinePlotter<dim,Np,Nc,alpha> >{ // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ private boost::ptr_vector<SingleSplinePlotter<dim,Np,Nc,alpha> >{ // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
 		
 		typedef float scalarType;
-		typedef model::VertexReader<'V',11,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
-		typedef model::EdgeReader  <'E',11,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
+		typedef VertexReader<'V',8,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
+		typedef EdgeReader  <'E',11,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
+        typedef VertexReader<'P',7,double> PKContainerType;
 		typedef SingleSplinePlotter<dim,Np,Nc,alpha> SingleSplinePlotterType;
         //		typedef std::vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
 		typedef boost::ptr_vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
@@ -280,7 +281,7 @@ namespace model {
 		
 		bool showTubes;
 		bool showVertices;
-		bool deformedConfig;
+//		bool deformedConfig;
 		bool showPlaneNormal;
 		bool showBurgers;
         bool showVertexID;
@@ -293,7 +294,7 @@ namespace model {
         /* Constructor ***********************************************/
 		SplinePlotter() : showTubes(false),
 		/* init list   */ showVertices(false),
-		/* init list   */ deformedConfig(false),
+//		/* init list   */ deformedConfig(false),
 		/* init list   */ showPlaneNormal(false),
 		/* init list   */ showBurgers(false),
         /* init list   */ showVertexID(false),
@@ -304,17 +305,27 @@ namespace model {
         /* init list   */ PKfactor(1000.0){}
 		
 		/* isGood ***************************************************/
-		static bool isGood(const int& frameN)
+		static bool isGood(const int& frameN, const bool& useTXT)
         {
-			return VertexContainerType::isGood(frameN) && EdgeContainerType::isGood<true>(frameN);
+			return VertexContainerType::isGood(frameN,useTXT) && EdgeContainerType::isGood(frameN,useTXT);
 		}
 		
 		/* read ***************************************************/
 		void read(const int& frameN)
         {
-			VertexContainerType::read(frameN);
-			EdgeContainerType::read<true>(frameN);
-			VertexReader<'P',7,double>::read(frameN);
+            if (isGood(frameN,false)) // bin format
+            {
+                VertexContainerType::read(frameN,false);
+                EdgeContainerType::read(frameN,false);
+            }
+            else // txt format
+            {
+                VertexContainerType::read(frameN,true);
+                EdgeContainerType::read(frameN,true);
+            }
+            
+            
+			PKContainerType::read(frameN,true);
             
 			SingleSplinePlotterVectorType::clear(); // clear the current content of sspVector
 			SingleSplinePlotterVectorType::reserve(EdgeContainerType::size()); // reserve to speed-up push_back
@@ -331,16 +342,16 @@ namespace model {
 				int sourceTfactor(itEdge->second(2*dim));
 				int   sinkTfactor(itEdge->second(2*dim+1));
 				
-				if(deformedConfig)
-                {
-					P0T0P1T1BN.col(0) = itSource->second.segment<dim>(7).transpose().template cast<float>();	// source position
-					P0T0P1T1BN.col(2) =   itSink->second.segment<dim>(7).transpose().template cast<float>();	// sink position
-				}
-				else
-                {
+//				if(deformedConfig)
+//                {
+//					P0T0P1T1BN.col(0) = itSource->second.segment<dim>(7).transpose().template cast<float>();	// source position
+//					P0T0P1T1BN.col(2) =   itSink->second.segment<dim>(7).transpose().template cast<float>();	// sink position
+//				}
+//				else
+//                {
 					P0T0P1T1BN.col(0) = itSource->second.segment<dim>(0*dim).transpose().template cast<float>();	// source position
 					P0T0P1T1BN.col(2) =   itSink->second.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
-				}
+//				}
 				P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
 				P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
 				P0T0P1T1BN.col(4) = itEdge->second.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
@@ -351,14 +362,6 @@ namespace model {
 		}
 		
 		
-        //		/* plot ******************************************************/
-        //		void renderBitmapString(const VectorDim& P,	void *font, const std::string& string2render) const {
-        //  			glRasterPos3f(P(0), P(1), P(2));
-        //			glColor3f(1.0f, 1.0f, 1.0f);
-        //  			for (unsigned int k=0; k<string2render.length(); ++k) {
-        //    			glutBitmapCharacter(font, string2render[k]);
-        //  			}
-        //		}
         
 		/* plot ******************************************************/
 		void plot(const scalarType& radius)
@@ -414,7 +417,7 @@ namespace model {
 			}
             
             if (showPK){
-                for (typename VertexReader<'P',7,double>::const_iterator vIter=VertexReader<'P',7,double>::begin();vIter!=VertexReader<'P',7,double>::end();++vIter){
+                for (typename PKContainerType::const_iterator vIter=PKContainerType::begin();vIter!=PKContainerType::end();++vIter){
                     //std::cout<<"I'm here"<< 	PKfactor<<std::endl;
                     glBegin(GL_LINES);
                     glVertex3f(vIter->second(0),vIter->second(1),vIter->second(2));
@@ -451,7 +454,7 @@ namespace model {
         /* vertexOrder ******************************************************/
         unsigned int vertexOrder() const
         {
-            return VertexReader<'V',11,double>::size();
+            return VertexContainerType::size();
         }
         
         /* vertexOrder ******************************************************/

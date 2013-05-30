@@ -486,6 +486,7 @@ namespace model {
 			
             // IO
             EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
+            EDR.readScalarInFile(fullName.str(),"outputBinary",DislocationNetworkIO<DislocationNetworkType>::outputBinary);
             EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes);
             EDR.readScalarInFile(fullName.str(),"outputSpatialCells",DislocationNetworkIO<DislocationNetworkType>::outputSpatialCells);
             EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
@@ -625,10 +626,10 @@ namespace model {
 #ifdef _MODEL_DD_MPI_
 				if(this->mpiRank==0)
                 {
-                    DislocationNetworkIO<DislocationNetworkType>::outputTXT(*this,runID);
+                    DislocationNetworkIO<DislocationNetworkType>::output(*this,runID);
 				}
 #else
-                DislocationNetworkIO<DislocationNetworkType>::outputTXT(*this,runID);
+                DislocationNetworkIO<DislocationNetworkType>::output(*this,runID);
 #endif
 			}
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;

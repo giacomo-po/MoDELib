@@ -13,16 +13,18 @@
 #include <model/Network/Readers/VertexReader.h>
 #include <model/Network/Readers/EdgeReader.h>
 #include <model/Utilities/SequentialOutputFile.h>
+#include <model/Utilities/SequentialBinFile.h>
+
 #include <model/Utilities/TerminalColors.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 
 namespace model {
 	
-//	std::string defaultColor    = "\033[0m";	  // the default color for the console
-//	std::string redBoldColor    = "\033[1;31m";   // a bold red color
-//	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
-//	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
-//	std::string magentaColor    = "\033[0;35m";   // a magenta color
+    //	std::string defaultColor    = "\033[0m";	  // the default color for the console
+    //	std::string redBoldColor    = "\033[1;31m";   // a bold red color
+    //	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
+    //	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
+    //	std::string magentaColor    = "\033[0;35m";   // a magenta color
 	
 	/**************************************************************************/
 	/**************************************************************************/
@@ -30,12 +32,12 @@ namespace model {
 	struct DislocationNetworkIO
     {
         
-//        DislocationNetworkType& DN; // a reference to the DislocationNetwork
+        //        DislocationNetworkType& DN; // a reference to the DislocationNetwork
         
         enum {dim=DislocationNetworkType::dim}; // make dim available outside class
-
         
-//    public:
+        
+        //    public:
         typedef typename DislocationNetworkType::VectorDimD VectorDimD;
         typedef typename DislocationNetworkType::NodeType NodeType;
         typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
@@ -45,9 +47,10 @@ namespace model {
         typedef typename SpatialCellObserverType::CellMapType CellMapType;
         
         enum {NdofXnode=NodeType::NdofXnode};
-
+        
         
         static int  outputFrequency;
+        static bool outputBinary;
         static bool outputGlidePlanes;
         static bool outputSpatialCells;
         static bool outputPKforce;
@@ -58,10 +61,27 @@ namespace model {
         static void readVertices(DislocationNetworkType& DN, const unsigned int& fileID)
         {/*! Reads file V/V_0.txt and creates DislocationNodes
           */
-			typedef VertexReader<'V',11,double> VertexReaderType;
+			typedef VertexReader<'V',8,double> VertexReaderType;
 			VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
-			assert(vReader.isGood(fileID) && "UNABLE TO READ VERTEX FILE V/V_x (x is the requested file ID).");
-			vReader.read(fileID);
+            if (vReader.isGood(fileID,false)) // bin file exists
+            {
+                vReader.read(fileID,false);
+
+            }
+            else 
+            {
+                if (vReader.isGood(fileID,true)) // txt file exists
+                {
+                    vReader.read(fileID,true);
+                    
+                }
+                else
+                {
+                    assert(0 && "UNABLE TO READ VERTEX FILE V/V_x (x is the requested file ID).");
+
+                }
+            }
+            
 			for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
             {
 				const size_t nodeIDinFile(vIter->first);
@@ -77,8 +97,27 @@ namespace model {
           */
 			typedef EdgeReader  <'E',11,double>	EdgeReaderType;
 			EdgeReaderType    eReader;	// sourceID,sinkID,Bx,By,Bz,Nx,Ny,Nz
-			assert(eReader.isGood<true>(fileID) && "Unable to read vertex file E/E_x (x is the requested fileID).");
-			eReader.read<true>(fileID);
+            if (eReader.isGood(fileID,false)) // bin file exists
+            {
+                eReader.read(fileID,false);
+                
+            }
+            else
+            {
+                if (eReader.isGood(fileID,true)) // txt file exists
+                {
+                    eReader.read(fileID,true);
+                    
+                }
+                else
+                {
+                    assert(0 && "UNABLE TO READ EDGE FILE E/E_x (x is the requested file ID).");
+                    
+                }
+            }
+            
+            //			assert(eReader.isGood(fileID,true) && "Unable to read vertex file E/E_x (x is the requested fileID).");
+//			eReader.read(fileID,true);
 			for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
             {
 				VectorDimD B(eIter->second.template segment<dim>(0  ).transpose()); // Burgers vector
@@ -88,9 +127,9 @@ namespace model {
 				assert(DN.connect(sourceID,sinkID,B) && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
 			}
 		}
-
+        
         /* outputTXT **********************************************************/
-		static void outputTXT(const DislocationNetworkType& DN, const unsigned int& runID) 
+		static void output(const DislocationNetworkType& DN, const unsigned int& runID)
         {/*! Outputs DislocationNetwork data to the following files (x is the runID):
           * ./E/E_x.txt (DislocationSegment(s) are always outputted)
           * ./V/V_x.txt (DislocationNode(s) are always outputted)
@@ -102,18 +141,57 @@ namespace model {
 			std::cout<<"		Writing to "<<std::flush;
 			
 			//! 1- Outputs the Edge informations to file E_*.txt where * is the current simulation step
-			SequentialOutputFile<'E',1>::set_increment(outputFrequency); // edgeFile;
-			SequentialOutputFile<'E',1>::set_count(runID); // edgeFile;
-			SequentialOutputFile<'E',1> edgeFile;
-			edgeFile << *(const NetworkLinkContainerType*)(&DN);
-			std::cout<<" E/E_"<<edgeFile.sID<<std::flush;
-
+            if (outputBinary)
+            {
+                typedef std::pair<std::pair<int,int>,Eigen::Matrix<double,1,9> > BinEdgeType;
+                SequentialBinFile<'E',BinEdgeType>::set_increment(outputFrequency);
+                SequentialBinFile<'E',BinEdgeType>::set_count(runID);
+                SequentialBinFile<'E',BinEdgeType> binEdgeFile;
+                for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+                {
+                    Eigen::Matrix<double,1,9> temp( (Eigen::Matrix<double,1,9>()<< linkIter->second->flow.transpose(),
+                    /*                                                          */ linkIter->second->glidePlaneNormal.transpose(),
+                    /*                                                          */ linkIter->second->sourceTfactor,
+                    /*                                                          */ linkIter->second->sinkTfactor,
+                    /*                                                          */ linkIter->second->pSN()->sID).finished());
+                    binEdgeFile.write(std::make_pair(linkIter->first,temp));
+                }
+                std::cout<<" E/E_"<<binEdgeFile.sID<<".bin"<<std::flush;
+            }
+            else
+            {
+                SequentialOutputFile<'E',1>::set_increment(outputFrequency); // edgeFile;
+                SequentialOutputFile<'E',1>::set_count(runID); // edgeFile;
+                SequentialOutputFile<'E',1> edgeFile;
+                edgeFile << *(const NetworkLinkContainerType*)(&DN);
+                std::cout<<" E/E_"<<edgeFile.sID<<".txt"<<std::flush;
+            }
+            
 			//! 2- Outputs the Vertex informations to file V_*.txt where * is the current simulation step
-			SequentialOutputFile<'V',1>::set_increment(outputFrequency); // vertexFile;
-			SequentialOutputFile<'V',1>::set_count(runID); // vertexFile;
-			SequentialOutputFile<'V',1> vertexFile;
-            vertexFile << *(const NetworkNodeContainerType*)(&DN);
-			std::cout<<", V/V_"<<vertexFile.sID<<std::flush;
+            if (outputBinary)
+            {
+                typedef Eigen::Matrix<double,1,7> VertexDataType;
+                typedef std::pair<int, VertexDataType> BinVertexType;
+                SequentialBinFile<'V',BinVertexType>::set_increment(outputFrequency);
+                SequentialBinFile<'V',BinVertexType>::set_count(runID);
+                SequentialBinFile<'V',BinVertexType> binVertexFile;
+                for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
+                {
+                    VertexDataType temp( (VertexDataType()<< nodeIter->second->get_P().transpose(),
+                    /*                                    */ nodeIter->second->get_T().transpose(),
+                    /*                                    */ nodeIter->second->pSN()->sID).finished());
+                    binVertexFile.write(std::make_pair(nodeIter->first,temp));
+                }
+                std::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;
+            }
+            else
+            {
+                SequentialOutputFile<'V',1>::set_increment(outputFrequency); // vertexFile;
+                SequentialOutputFile<'V',1>::set_count(runID); // vertexFile;
+                SequentialOutputFile<'V',1> vertexFile;
+                vertexFile << *(const NetworkNodeContainerType*)(&DN);
+                std::cout<<", V/V_"<<vertexFile.sID<<".txt"<<std::flush;
+            }
 			
             if(outputSpatialCells)
             {
@@ -179,34 +257,19 @@ namespace model {
 			
 		}
         
-        
-        /* outputBIN **********************************************************/
-        static void outputBIN(const unsigned int& runID)
-        {
-            //			typedef std::pair<std::pair<int,int>,Eigen::Matrix<double,1,9> > BinEdgeType;
-            //			SequentialBinFile<'E',BinEdgeType>::set_increment(outputFrequency);
-            //			SequentialBinFile<'E',BinEdgeType>::set_count(runID);
-            //			SequentialBinFile<'E',BinEdgeType> binEdgeFile;
-            //			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter){
-            //				Eigen::Matrix<double,1,9> temp;
-            //				temp<< linkIter->second->flow.transpose(),
-            //				/*  */ linkIter->second->glidePlaneNormal.transpose(),
-            //				/*  */ linkIter->second->sourceTfactor,
-            //				/*  */ linkIter->second->sinkTfactor,
-            //				/*  */ linkIter->second->pSN()->sID;
-            //				binEdgeFile.write(std::make_pair(linkIter->first,temp));
-            //			}
-        }
-        
     };
     
     // Declare static data
     template <typename DislocationNetworkType>
     int DislocationNetworkIO<DislocationNetworkType>::outputFrequency=1;
-
+    
+    template <typename DislocationNetworkType>
+    bool DislocationNetworkIO<DislocationNetworkType>::outputBinary=false;
+    
+    
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes=false;
-
+    
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputSpatialCells=false;
     

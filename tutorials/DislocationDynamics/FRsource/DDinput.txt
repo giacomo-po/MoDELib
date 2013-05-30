@@ -15,9 +15,10 @@ minSNorderForSolve=0;
 ######################################
 # Options for output files:
 outputFrequency=1;
+outputBinary=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=0;
+outputPKforce=1;
 
 minSNorderForSolve=0;
 outputMeshDisplacement=0;

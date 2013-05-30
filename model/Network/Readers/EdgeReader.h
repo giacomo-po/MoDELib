@@ -13,18 +13,17 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <time.h> // clock()
 #include <map>
 #include <assert.h>
 #include <utility>
 #include <Eigen/Dense>
-
 #include <model/Utilities/BinaryFileReader.h>
-
 
 namespace model {
 	
 	/*******************************************************************************************/
-	template <char c, int cols, typename scalar=double>
+	template <char c, int cols, typename scalar>
 	//	class EdgeReader : public std::map< std::pair<int, int>, Eigen::Matrix<scalar,1,cols-2> > {
 	
 	class EdgeReader : public std::map<std::pair<int, int>, Eigen::Matrix<scalar,1,cols-2>, 
@@ -50,7 +49,8 @@ namespace model {
 			
 			std::ifstream ifs ( filename.c_str() , std::ifstream::in );
 			
-			if (ifs.is_open()) {
+			if (ifs.is_open())
+            {
 				std::cout<<"Reading: "<<filename;
 				double t0(clock());
 				int row = 0;
@@ -88,7 +88,7 @@ namespace model {
 				//				currentFrame=frameN;
 				success=true;
 				
-				std::cout<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<"]"<<std::endl;
+                std::cout<<" ("<<this->size()<<" edges) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
 			}
 			else {
 				std::cout<<"Unable to  open:"<<filename<<std::endl;
@@ -103,13 +103,12 @@ namespace model {
 			double t0(clock());
 			typedef std::pair<std::pair<int,int>, Eigen::Matrix<scalar,1,cols-2> > BinEdgeType;
 			BinaryFileReader<BinEdgeType> rE(filename);
-			std::cout<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<"]";
-			double t1(clock());
+//			double t1(clock());
 			for (unsigned int k=0;k<rE.size();++k){
-				this->insert(std::make_pair(rE[k].first,rE[k].second));
-//				assert(this->insert(std::make_pair(rE[k].first,rE[k].second)).second && "COULD NOT INSERT EDGE AFTER BINARY READ.");
+//				this->insert(std::make_pair(rE[k].first,rE[k].second));
+				assert(this->insert(std::make_pair(rE[k].first,rE[k].second)).second && "COULD NOT INSERT EDGE AFTER BINARY READ.");
 			}
-			std::cout<<" ["<<(clock()-t1)/CLOCKS_PER_SEC<<"]"<<std::endl;
+			std::cout<<" ("<<this->size()<<" edges) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
 		}
 		
 	public:	
@@ -121,8 +120,8 @@ namespace model {
 		//		EdgeReader () :  success(false) {}
 		
 		/*****************************************/
-		template <bool useTXT>
-		static std::string getFilename(const int& frameN){
+//		template <bool useTXT>
+		static std::string getFilename(const int& frameN, const bool& useTXT){
 			std::stringstream filename;
 			if(useTXT){
 				filename << c << "/" << c << "_" << frameN << ".txt";
@@ -134,18 +133,18 @@ namespace model {
 		}
 		
 		/* isGood *********************************/
-		template <bool useTXT>
-		static bool isGood(const int& frameN){
+//		template <bool useTXT>
+		static bool isGood(const int& frameN, const bool& useTXT){
 			/*!	Checks whether the file named "E/E_ \param[frameN] .txt" is good for reading.
 			 */
-			std::ifstream ifs ( getFilename<useTXT>(frameN).c_str() , std::ifstream::in );
+			std::ifstream ifs ( getFilename(frameN,useTXT).c_str() , std::ifstream::in );
 			return ifs.good();
 		}
 		
 		/*****************************************/
 		/* read */
-		template <bool useTXT>
-		bool read(const int& frameN){
+//		template <bool useTXT>
+		bool read(const int& frameN, const bool& useTXT){
 			assert(frameN>=0);
 			if (frameN!=currentFrame){
 				currentFrame=frameN;
@@ -154,10 +153,10 @@ namespace model {
 				this->clear();
 				
 				if (useTXT){
-					readTXT(getFilename<true >(frameN));
+					readTXT(getFilename(frameN,true));
 				}
 				else{
-					readBIN(getFilename<false>(frameN));
+					readBIN(getFilename(frameN,false));
 				}
 			} 
 			return success;
