@@ -498,6 +498,9 @@ namespace model {
             std::ostringstream fullName;
             fullName<<inputDirectoryName_in<<inputFileName;
             
+            // Temperature
+            EDR.readScalarInFile(fullName.str(),"temperature",Material<Isotropic>::T); // material by atomic number Z
+            
 			// Material and crystal orientation
             unsigned int materialZ;
             EDR.readScalarInFile(fullName.str(),"material",materialZ); // material by atomic number Z
@@ -505,7 +508,6 @@ namespace model {
             MatrixDimD C2Gtemp;
             EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
             Material<Isotropic>::rotateCrystal(C2Gtemp);
-            
             
             // Min SubNetwork::nodeOrder for Assemble and solve
             int minSNorderForSolve_temp(0);

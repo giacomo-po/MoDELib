@@ -60,7 +60,6 @@ namespace model {
 			for (typename NetworkLinkContainerType::const_iterator linkIter=dislocationNetwork.linkBegin();linkIter!=dislocationNetwork.linkEnd();++linkIter){
 				CrossSlipSegmentType css(linkIter->second->isCrossSlipSegment(sinCrossSlipRad,crossSlipLength));
 				if(css.isCrossSlipSegment){
-					std::cout<<"TRYING TO CROSS SLIP"<<std::endl;
 					CSC.push_back(css);
 				}
 			}
@@ -122,7 +121,9 @@ namespace model {
 					}
 				}
                 
-				if (crossSlipPointsInsideMesh){
+				if (crossSlipPointsInsideMesh)
+                {
+                    std::cout<<" cross-slipping "<<std::endl;
 					// 2.4- call expand
 					std::pair<bool,size_t> expand1(dislocationNetwork.expand(iterCS->sourceID,iterCS->sinkID,crossPoints.first)); // place first point on common line
                     assert(expand1.first && "COULD NOT DO FIRST EXPANSION IN CROSS SLIP");

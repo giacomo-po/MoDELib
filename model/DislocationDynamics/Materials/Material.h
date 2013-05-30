@@ -53,6 +53,11 @@ namespace model {
         static double C2;
         static double C3;
         static double C4;
+        static double T;
+        static double kT;
+        static double tauIII;
+        static double vAct;
+        
         
         /* select **************************************/
         //template<template<typename T> class MaterialType>
@@ -74,7 +79,7 @@ namespace model {
             C2=1.0/(4.0*M_PI*C1);
             C3=1.0-2.0*nu;
             C4=0.5*C2;
-                        
+            kT=1.38e-23/IM::mu/std::pow(IM::b,3)*T;
             std::string magentaColor    = "\033[0;35m";   // a magenta color
             std::string defaultColor    = "\033[0m";	   // the default color for the console
             std::cout<<magentaColor<<"Material is now: "<<IM::name<<defaultColor<<std::endl;
@@ -161,6 +166,10 @@ namespace model {
     double Material<Isotropic>::C2=1.0/(4.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
     double Material<Isotropic>::C3=1.0-2.0*0.34; // 1-2*nu
     double Material<Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
+	double Material<Isotropic>::T=300.0;  // Temperature [K]
+	double Material<Isotropic>::kT=1.38e-23/48.0e9/std::pow(0.2556e-9,3)*300.0;  // boltzmann constant * Temperature 
+	double Material<Isotropic>::tauIII=0.667e-3;  // critical resovled shear stress in stage III
+	double Material<Isotropic>::vAct=300.0;  // Activation volume [b^3]
 	
     /**************************************************************************/
     /**************************************************************************/
