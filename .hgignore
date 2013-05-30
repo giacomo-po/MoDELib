@@ -8,7 +8,10 @@ syntax: regexp
 [ABCDFGHIJKLMNOPQRSTUWXYZ]_[0123456789]*\.bin
 
 # mesh files
-mesh.*
+mesh.ele
+mesh.face
+mesh.neigh
+mesh.node
 
 # Files ending in ~
 [.]*\.[.]*~
