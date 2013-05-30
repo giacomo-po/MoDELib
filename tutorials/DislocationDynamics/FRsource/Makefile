@@ -161,7 +161,7 @@ empty:
 	@find E/ -name E_\*.bin ! -name E_0.bin -exec rm {} \;
 ifeq ($(Gexists),1)
 	@echo ${blueColor}emptying folder G ${normalColor}
-	@find G/ -name G_\*.bin -exec rm {} \;
+	@find G/ -name G_\*.txt -exec rm {} \;
 	@find G/ -name G_\*.bin -exec rm {} \;
 endif
 ifeq ($(Cexists),1)
