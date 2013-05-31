@@ -53,30 +53,37 @@ namespace model {
                 std::set<double> probabilities;
                 double ptotal(0.0);
                 
-                vector_VectorDim AllNormals(ds.conjugatePlaneNormal());
-                AllNormals.push_back(normalPrimary);
-                std::cout<<std::endl;
+                vector_VectorDim allNormals(ds.conjugatePlaneNormal());
+                // add normalPrimary at the beginning of allNormals.
+                // This way, in case of duplicate keys, normalPrimary is inserted in argMap
+                allNormals.insert(allNormals.begin(),normalPrimary);
+//                allNormals.push_back(normalPrimary);
+//                std::cout<<std::endl;
+                                
 
-                std::map<double,int> argMap; 
+
                 
-                for (int i=0; i< AllNormals.size(); i++) {
-                    const double trss((pkForce-pkForce.dot(AllNormals[i])*AllNormals[i]).norm());
+                std::map<double,int> argMap; // map automatically sorts keys
+                
+                for (int i=0; i< allNormals.size(); i++)
+                {
+                    const double trss((pkForce-pkForce.dot(allNormals[i])*allNormals[i]).norm());
                     const double arg(-Material<Isotropic>::vAct*(Material<Isotropic>::tauIII-trss)/( Material<Isotropic>::kT ));
                     const double ptemp( exp(arg));
                     if(isinf(ptemp)) // arg makes exp(arg) blow up, so store arg itself
                     {
-                        argMap.insert(std::make_pair(arg,i)); // map automatically sorts the arg(s)
+                        argMap.insert(std::make_pair(arg,i)); // normalPrimary
                     }
                     
                     ptotal+=ptemp;
-//                    std::cout<<" ptemp = "<<ptemp<<" conjugate normal = "<<AllNormals[i]<<std::endl;
+//                    std::cout<<" ptemp = "<<ptemp<<" conjugate normal = "<<allNormals[i]<<std::endl;
                     probabilities.insert(ptotal);
                 }
                 
                 if (argMap.size()>1) // at least one probability is inf
                 {
                     // Pick the highest arg
-                    temp= AllNormals[argMap.rbegin()->second];
+                    temp= allNormals[argMap.rbegin()->second];
 
                 }
                 else // none of the  probabilities are inf
@@ -87,7 +94,7 @@ namespace model {
                     std::set<double>::iterator it(probabilities.lower_bound(r));
                     int n(std::distance(probabilities.begin(),it));
                     
-                    temp= AllNormals[n];
+                    temp= allNormals[n];
                 }
                 
                 
