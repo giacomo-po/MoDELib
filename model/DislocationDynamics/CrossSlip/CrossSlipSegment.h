@@ -1,5 +1,6 @@
 /* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
+ * Copyright (C) 2013 by Tamer Crosby     <tcrosby@ucla.edu>.
  * Copyright (C) 2011 by Can Erel         <canerel55@gmail.com>,
  * Copyright (C) 2011 by Giacomo Po       <gpo@ucla.edu>.
  *
@@ -11,23 +12,27 @@
 #ifndef model_CROSSSLIPSEGMENT_H
 #define model_CROSSSLIPSEGMENT_H
 
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
-#include <model/DislocationDynamics/Materials/Material.h>
-#include <math.h>
+#include <math.h> // isinf
 #include <float.h>
 #include <list>
-#include <stdlib.h>
+#include <stdlib.h> // rand()
 #include <ctime> 
 #include <time.h>
 #include <iterator>
+#include <vector>
+#include <set>
+#include <map>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <model/DislocationDynamics/Materials/Material.h>
 
 namespace model {
     
     boost::random::mt19937 gen(time(0));
     
     template <typename DislocationSegmentType>
-	class CrossSlipSegment {
+	class CrossSlipSegment
+    {
 		
 		typedef typename DislocationSegmentType::VectorDim VectorDim;
         typedef std::vector<Eigen::Matrix<double,3,1>> vector_VectorDim;
@@ -42,7 +47,8 @@ namespace model {
                 && chord.normalized().cross(Burgers.normalized()).norm()<=sinThetaCrossSlipCr
                 && !isSessile
                 && chord.norm()>1.1*crossSlipLength
-                && Material<Isotropic>::kT > 0.0 ) {
+                && Material<Isotropic>::kT > 0.0 )
+            {
                 
                 std::set<double> probabilities;
                 double ptotal(0.0);
@@ -51,21 +57,40 @@ namespace model {
                 AllNormals.push_back(normalPrimary);
                 std::cout<<std::endl;
 
+                std::map<double,int> argMap; 
+                
                 for (int i=0; i< AllNormals.size(); i++) {
-                    const double trss((pkForce-pkForce.dot(AllNormals[i])*AllNormals[i]).norm()); 
-                    const double ptemp( exp( -Material<Isotropic>::vAct*(Material<Isotropic>::tauIII-trss)/( Material<Isotropic>::kT ) ));  
+                    const double trss((pkForce-pkForce.dot(AllNormals[i])*AllNormals[i]).norm());
+                    const double arg(-Material<Isotropic>::vAct*(Material<Isotropic>::tauIII-trss)/( Material<Isotropic>::kT ));
+                    const double ptemp( exp(arg));
+                    if(isinf(ptemp)) // arg makes exp(arg) blow up, so store arg itself
+                    {
+                        argMap.insert(std::make_pair(arg,i)); // map automatically sorts the arg(s)
+                    }
+                    
                     ptotal+=ptemp;
 //                    std::cout<<" ptemp = "<<ptemp<<" conjugate normal = "<<AllNormals[i]<<std::endl;
                     probabilities.insert(ptotal);
                 }
                 
-                double random_number(roll_die());
-                double r(0.1*random_number*ptotal);
+                if (argMap.size()>1) // at least one probability is inf
+                {
+                    // Pick the highest arg
+                    temp= AllNormals[argMap.rbegin()->second];
+
+                }
+                else // none of the  probabilities are inf
+                {
+                    double random_number(roll_die());
+                    double r(0.1*random_number*ptotal);
+                    
+                    std::set<double>::iterator it(probabilities.lower_bound(r));
+                    int n(std::distance(probabilities.begin(),it));
+                    
+                    temp= AllNormals[n];
+                }
                 
-                std::set<double>::iterator it(probabilities.lower_bound(r));
-                int n(std::distance(probabilities.begin(),it));
-        
-                temp= AllNormals[n];
+                
                 
 //                std::cout<<"r = "<<r<<std::endl;
 //                std::cout<<" random number = "<<random_number<<std::endl; 
@@ -105,7 +130,6 @@ namespace model {
         /*init list   */ isSessile(std::fabs(Burgers.dot(normalPrimary))>FLT_EPSILON),
         /*init list   */ normalConjugate(getConjugateNormal(ds,sinThetaCrossSlipCr,crossSlipLength)),
 		/*init list   */ isCrossSlipSegment(normalConjugate != normalPrimary) 
-
         {
             
                         
