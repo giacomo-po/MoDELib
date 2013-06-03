@@ -12,7 +12,7 @@
 #ifndef model_CROSSSLIPSEGMENT_H
 #define model_CROSSSLIPSEGMENT_H
 
-#include <math.h> // isinf
+#include <math.h> // isfinite
 #include <float.h>
 #include <list>
 #include <stdlib.h> // rand()
@@ -22,13 +22,13 @@
 #include <vector>
 #include <set>
 #include <map>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
+//#include <boost/random/mersenne_twister.hpp>
+//#include <boost/random/uniform_int_distribution.hpp>
 #include <model/DislocationDynamics/Materials/Material.h>
 
 namespace model {
     
-    boost::random::mt19937 gen(time(0));
+//    boost::random::mt19937 gen(time(0));
     
     template <typename DislocationSegmentType>
 	class CrossSlipSegment
@@ -49,20 +49,14 @@ namespace model {
                 && chord.norm()>1.1*crossSlipLength
                 && Material<Isotropic>::kT > 0.0 )
             {
-                
                 std::set<double> probabilities;
                 double ptotal(0.0);
-                
                 vector_VectorDim allNormals(ds.conjugatePlaneNormal());
                 // add normalPrimary at the beginning of allNormals.
                 // This way, in case of duplicate keys, normalPrimary is inserted in argMap
                 allNormals.insert(allNormals.begin(),normalPrimary);
 //                allNormals.push_back(normalPrimary);
 //                std::cout<<std::endl;
-                                
-
-
-                
                 std::map<double,int> argMap; // map automatically sorts keys
                 
                 for (int i=0; i< allNormals.size(); i++)
@@ -70,7 +64,7 @@ namespace model {
                     const double trss((pkForce-pkForce.dot(allNormals[i])*allNormals[i]).norm());
                     const double arg(-Material<Isotropic>::vAct*(Material<Isotropic>::tauIII-trss)/( Material<Isotropic>::kT ));
                     const double ptemp( exp(arg));
-                    if(isinf(ptemp)) // arg makes exp(arg) blow up, so store arg itself
+                    if(!std::isfinite(ptemp)) // arg makes exp(arg) blow up, so store arg itself
                     {
                         argMap.insert(std::make_pair(arg,i)); // normalPrimary
                     }
@@ -88,23 +82,24 @@ namespace model {
                 }
                 else // none of the  probabilities are inf
                 {
-                    double random_number(roll_die());
-                    double r(0.1*random_number*ptotal);
+//                    double random_number(roll_die());
+//                    double r(0.1*random_number*ptotal);
+//                    double r(0.1*random_number*ptotal);
+
+                    double r(static_cast<double>(std::rand()) / RAND_MAX * ptotal);
                     
                     std::set<double>::iterator it(probabilities.lower_bound(r));
                     int n(std::distance(probabilities.begin(),it));
                     
                     temp= allNormals[n];
                 }
-                
-                
-                
 //                std::cout<<"r = "<<r<<std::endl;
 //                std::cout<<" random number = "<<random_number<<std::endl; 
 //                std::cout<<"ptotal = "<<ptotal<<std::endl;
 //                std::cout<<"primary normal " <<normalPrimary.transpose()<<std::endl;
 //                std::cout<<" conjugate normal final = "<<temp.transpose()<<std::endl; 
             }
+            
             return temp;
         }
         
@@ -142,11 +137,11 @@ namespace model {
                         
         }
         
-        /*-----------------------------------------------------------------------*/
-        int roll_die() const {
-            boost::random::uniform_int_distribution<> dist(1,10);
-            return dist(gen);
-        }
+//        /*-----------------------------------------------------------------------*/
+//        int roll_die() const {
+//            boost::random::uniform_int_distribution<> dist(1,10);
+//            return dist(gen);
+//        }
         
     };
     
