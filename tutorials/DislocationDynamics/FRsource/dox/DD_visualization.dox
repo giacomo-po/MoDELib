@@ -18,8 +18,11 @@ This creates the executable \b DDviewer, which you can run by calling:
 \section DD_visualization_options Visualization Options
 
   \image html DislocationDynamics/FRsource/jpg/image_0.jpg "FR source at step 0" width=7cm
-  \image html DislocationDynamics/FRsource/jpg/image_70.jpg "FR source at step 70" width=7cm
-  \image html DislocationDynamics/FRsource/jpg/image_148.jpg "FR source at step 148" width=7cm
+  \image html DislocationDynamics/FRsource/jpg/image_100.jpg "FR source at step 100" width=7cm
+  \image html DislocationDynamics/FRsource/jpg/image_200.jpg "FR source at step 200" width=7cm
+  \image html DislocationDynamics/FRsource/jpg/image_300.jpg "FR source at step 300" width=7cm
+  \image html DislocationDynamics/FRsource/jpg/image_400.jpg "FR source at step 400" width=7cm
+  \image html DislocationDynamics/FRsource/jpg/image_500.jpg "FR source at step 500" width=7cm
 
 
 */ 

@@ -1,40 +1,41 @@
 ######################################
-# Initialize number of simulation steps 
+# Number of simulation steps 
 Nsteps=500;
 timeWindow=5.1e03;
-startAtTimeStep = 4700;
+startAtTimeStep = 0;
 
 ######################################
-# Choose time integration method
+# TIME STEP
+# Maximum nodal displacement per time step (this controls time step size) 
+dx=10;
+# Time integration method:
 useImplicitTimeIntegration=0;
 
 ######################################
-# Don't assemble and solve SubNetworks with less than "minSNorderForSolve" nodes:
-minSNorderForSolve=0;
-
-######################################
+# OUTPUT
 # Options for output files:
 outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=0;
-
-minSNorderForSolve=0;
 outputMeshDisplacement=0;
 
 ######################################
+# MATERIAL
 # Choose a material by its atomic number (Z), for example Al=13; Ni=28; Cu=29;
 material=29;
+
+######################################
+# CRYSTAL ORIENTATION
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
 C2G =  0.7071067811865475 -0.7071067811865475  0.0
       0.4082482904638631  0.4082482904638631 -0.8164965809277261
       0.5773502691896258  0.5773502691896258  0.5773502691896258;
 
 ######################################
-# Temperature in [K]
+# TEMPERATURE in [K]
 temperature = 300.0;
-
 
 ######################################
 # Set the remote external stress (a uniform stress felt by dislocations)
@@ -43,20 +44,17 @@ externalStress = 0.0 0.0 0.01
 		 0.01 0.0 0.0;
 
 ######################################
-# Maximum nodal displacement per time step (this controls time step size) 
-dx=10;
-
-
-######################################
+# STRESS FIELD
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
 coreWidthSquared=1.0;
 # Use of multipole-expanded stress field for non-nearest neighbor cells
-dislocationCellSize=500;
+dislocationCellSize=1000;
 nearCellStressApproximation=10;
 farCellStressApproximation=10;
 
 ######################################
-# Enable/disable node redistribution (network remeshing)
+# NETWORK REMESHING
+# Enable/disable node redistribution 
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
@@ -65,11 +63,10 @@ Lmin=100;
 thetaDeg=45.0;
 
 ######################################
+# DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
-# use_junctions = 0 for no junctions
-# use_junctions = 1 annihilation only
-# use_junctions = 2 full junctions
-use_junctions=2;
+use_junctions=1;
+# Tolerance used in detecting collisions between dislocation segments in different planes
 collisionTol=20;
 
 ######################################
@@ -79,7 +76,6 @@ collisionTol=20;
 # boundary_type = 2 for unshearable confining boundary. The file mesh.ele, mesh.face, mesh.neigh and mesh.node must be present in the working directory
 boundary_type =0;
 
-
 ######################################
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
 # use_bvp = 0 for no BVP solution
@@ -88,7 +84,12 @@ use_bvp = 0;
 
 ######################################
 # Enable/disable cross-slip
-use_crossSlip=0;
-crossSlipDeg=10.0;
+use_crossSlip=1;
+crossSlipDeg=5.0;
 crossSlipLength=110.0;
+
+######################################
+# Don't assemble and solve SubNetworks with less than "minSNorderForSolve" nodes:
+minSNorderForSolve=0;
+
 
