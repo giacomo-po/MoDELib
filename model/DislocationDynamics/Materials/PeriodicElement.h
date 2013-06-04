@@ -42,7 +42,7 @@ namespace model {
     
     const std::string PeriodicElement<13,Isotropic>::name="Aluminum";
     const double PeriodicElement<13,Isotropic>::nu =0.347;        // Poisson ratio [-]
-    const double PeriodicElement<13,Isotropic>::mu =26e9;         // Shear modulus [Pa]
+    const double PeriodicElement<13,Isotropic>::mu =26.0e9;         // Shear modulus [Pa]
     const double PeriodicElement<13,Isotropic>::b  =0.2851e-9;    // Burgers vector[m]
     const double PeriodicElement<13,Isotropic>::B  =1.0e-4;       // Dislocation drag coefficient [Pa*sec]
     const double PeriodicElement<13,Isotropic>::rho=2700.0;       // Mass density [kg/m^3]
@@ -66,7 +66,7 @@ namespace model {
     
     const std::string PeriodicElement<28,Isotropic>::name="Nickel";
     const double PeriodicElement<28,Isotropic>::nu =0.31;       // Poisson ratio [-]
-    const double PeriodicElement<28,Isotropic>::mu =76e9;       // Shear modulus [Pa]
+    const double PeriodicElement<28,Isotropic>::mu =76.0e9;       // Shear modulus [Pa]
     const double PeriodicElement<28,Isotropic>::b  =0.2489e-9;  // Burgers vector[m]
     const double PeriodicElement<28,Isotropic>::B  =1.0e-4;     // Dislocation drag coefficient [Pa*sec]
     const double PeriodicElement<28,Isotropic>::rho=8908.0;     // Mass density [kg/m^3]
@@ -90,7 +90,7 @@ namespace model {
     
     const std::string PeriodicElement<29,Isotropic>::name="Copper";
     const double PeriodicElement<29,Isotropic>::nu =0.34;    // Poisson ratio [-]
-    const double PeriodicElement<29,Isotropic>::mu =48e9;    // Shear modulus [Pa]
+    const double PeriodicElement<29,Isotropic>::mu =48.0e9;    // Shear modulus [Pa]
     const double PeriodicElement<29,Isotropic>::b  =0.2556e-9; // Burgers vector[m]
     const double PeriodicElement<29,Isotropic>::B  =1.0e-4;  // Dislocation drag coefficient [Pa*sec]
     const double PeriodicElement<29,Isotropic>::rho=8940.0;  // Mass density [kg/m^3]

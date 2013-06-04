@@ -447,6 +447,9 @@ namespace model {
             
             // Create a file-reader object
             EigenDataReader EDR;
+
+            // Temperature. Make sure you initialize before calling Material<Isotropic>::select()
+            EDR.readScalarInFile(fullName.str(),"temperature",Material<Isotropic>::T); // temperature
             
 			// Material and crystal orientation
             unsigned int materialZ;
@@ -456,7 +459,7 @@ namespace model {
             EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
             Material<Isotropic>::rotateCrystal(C2Gtemp);
             
-            
+
             // Min SubNetwork::nodeOrder for Assemble and solve
             int minSNorderForSolve_temp(0);
             EDR.readScalarInFile(fullName.str(),"minSNorderForSolve",minSNorderForSolve_temp); // material by atomic number Z

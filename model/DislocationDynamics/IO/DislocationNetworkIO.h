@@ -82,13 +82,17 @@ namespace model {
                 }
             }
             
+            unsigned int kk(1);
 			for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
             {
 				const size_t nodeIDinFile(vIter->first);
 				NodeType::set_count(nodeIDinFile);
+                std::cout << "\r \r" << "Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<vReader.size()<<")"<<std::flush;
 				const size_t nodeID(DN.insertVertex(vIter->second.template segment<NdofXnode>(0).transpose()));
 				assert(nodeID==nodeIDinFile);
+                kk++;
 			}
+            std::cout<<std::endl;
 		}
         
         /* readEdges **********************************************************/
@@ -118,14 +122,18 @@ namespace model {
             
             //			assert(eReader.isGood(fileID,true) && "Unable to read vertex file E/E_x (x is the requested fileID).");
 //			eReader.read(fileID,true);
+            unsigned int kk(1);
 			for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
             {
 				VectorDimD B(eIter->second.template segment<dim>(0  ).transpose()); // Burgers vector
 				VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
 				const size_t sourceID(eIter->first.first );
 				const size_t   sinkID(eIter->first.second);
+                std::cout << "\r \r" << "Creating DislocationSegment "<<sourceID<<"->"<<sinkID<<" ("<<kk<<" of "<<eReader.size()<<")              "<<std::flush;
 				assert(DN.connect(sourceID,sinkID,B) && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
+                kk++;
 			}
+            std::cout<<std::endl;
 		}
         
         /* outputTXT **********************************************************/

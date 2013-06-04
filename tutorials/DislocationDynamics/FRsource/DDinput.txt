@@ -1,6 +1,6 @@
 ######################################
 # Initialize number of simulation steps 
-Nsteps=300;
+Nsteps=500;
 timeWindow=5.1e03;
 startAtTimeStep = 4700;
 
@@ -15,7 +15,7 @@ minSNorderForSolve=0;
 ######################################
 # Options for output files:
 outputFrequency=1;
-outputBinary=1;
+outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=0;
@@ -32,10 +32,15 @@ C2G =  0.7071067811865475 -0.7071067811865475  0.0
       0.5773502691896258  0.5773502691896258  0.5773502691896258;
 
 ######################################
+# Temperature in [K]
+temperature = 300.0;
+
+
+######################################
 # Set the remote external stress (a uniform stress felt by dislocations)
-externalStress = 0.0 0.0 0.1
+externalStress = 0.0 0.0 0.01
 		 0.0 0.0 0.0
-		 0.1 0.0 0.0;
+		 0.01 0.0 0.0;
 
 ######################################
 # Maximum nodal displacement per time step (this controls time step size) 
@@ -44,7 +49,7 @@ dx=10;
 
 ######################################
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
-coreWidthSquared=9.0;
+coreWidthSquared=1.0;
 # Use of multipole-expanded stress field for non-nearest neighbor cells
 dislocationCellSize=500;
 nearCellStressApproximation=10;
@@ -55,7 +60,7 @@ farCellStressApproximation=10;
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
-Lmax=1000;
+Lmax=300;
 Lmin=100;
 thetaDeg=45.0;
 

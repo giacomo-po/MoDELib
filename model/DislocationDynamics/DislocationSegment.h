@@ -63,7 +63,9 @@ namespace model {
 	class DislocationSegment :
 	/*	                      */ public SplineSegmentBase<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>,
 	/*                                               */ _dim, corder, alpha>,
-	/*	                      */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >{
+//    /*               */ public AddressBook<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >, // REMOVE THIS
+	/*	                      */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >
+    {
 		
         
     public:

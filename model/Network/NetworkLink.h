@@ -25,7 +25,9 @@
 #include <model/Network/NetworkComponent.h>
 #include <model/Network/Operations/includeNetworkOperations.h>
 
-#include <model/Utilities/AddressBook.h>
+//#include <model/Utilities/AddressBook.h>
+#include <model/Utilities/CRTP.h>
+#include <model/Utilities/StaticID.h>
 //#include "model/Network/NetworkComponent.h"
 #include <model/Network/NetworkNode.h>
 
@@ -37,7 +39,11 @@ namespace model {
 	/**************************************************************************************/
 	template <typename  Derived>
 	class NetworkLink : boost::noncopyable,
-	/*               */ public AddressBook<Derived>{
+    /*               */ public CRTP<Derived>,
+	/*               */ public StaticID<Derived>
+    {
+//    ,
+//	/*               */ public AddressBook<Derived>{
 		
 #include <model/Network/NetworkTypedefs.h>
 		
@@ -56,6 +62,25 @@ namespace model {
 		
 	private:
 		
+        /**********************************************************************/
+        void changeSN(const NetworkComponent<NodeType,LinkType>& SN)
+        {
+        
+            const std::map<size_t,NodeType* const> tempNodeMap(SN);
+            const std::map<std::pair<size_t,size_t>,LinkType* const> tempLinkMap(SN);
+
+            for (typename std::map<size_t,NodeType* const>::const_iterator vIter=tempNodeMap.begin();vIter!=tempNodeMap.end();++vIter)
+            {
+                vIter->second->formNetworkComponent(psn);
+            }
+            
+            for (typename std::map<std::pair<size_t,size_t>,LinkType* const>::const_iterator lIter=tempLinkMap.begin();lIter!=tempLinkMap.end();++lIter)
+            {
+                lIter->second->formNetworkComponent(psn);
+            }
+            
+        }
+        
 		
 		/**********************************************************************/
 		void topologyChangeActions()
@@ -67,18 +92,20 @@ namespace model {
 			
 			
 			//! 2 - Joins source and sink NetworkComponents			
-			if (source->pSN()==sink->pSN()){ // source and sink are already in the same NetworkComponent
+			if (source->pSN()==sink->pSN()) // source and sink are already in the same NetworkComponent
+            { 
 				psn=source->pSN();				// redirect psn to the source psn
 				psn->add(this->p_derived());	// add this to the existing NetworkComponent
 			}
-			else{ // source and sink are in different NetworkComponents
+			else // source and sink are in different NetworkComponents
+            { 
 				
-				typedef void (NodeType::*node_member_function_pointer_type)(const std::shared_ptr<NetworkComponentType>&); 
-				node_member_function_pointer_type Nmfp;
-				Nmfp=&NodeType::formNetworkComponent;
-				typedef void (Derived::*link_member_function_pointer_type)(const std::shared_ptr<NetworkComponentType>&); 
-				link_member_function_pointer_type Lmfp;
-				Lmfp=&Derived::formNetworkComponent;
+//				typedef void (NodeType::*node_member_function_pointer_type)(const std::shared_ptr<NetworkComponentType>&); 
+//				node_member_function_pointer_type Nmfp;
+//				Nmfp=&NodeType::formNetworkComponent;
+//				typedef void (Derived::*link_member_function_pointer_type)(const std::shared_ptr<NetworkComponentType>&); 
+//				link_member_function_pointer_type Lmfp;
+//				Lmfp=&Derived::formNetworkComponent;
 				
 				// find the size of the source and sink 
 				size_t sourceSNsize(source->pSN()->nodeOrder());
@@ -86,20 +113,16 @@ namespace model {
 				if (sourceSNsize>=sinkSNsize){
 					psn=source->pSN();					   // redirect psn to the source psn
 					psn->add(this->p_derived());		   // add this to the source NetworkComponent
-					sink->depthFirstExecute(Nmfp,Lmfp,this->psn);   // Transmits 'formNetworkComponent' on the sink side
+                    changeSN(*(sink->psn.get()));
+//					sink->depthFirstExecute(Nmfp,Lmfp,this->psn);   // Transmits 'formNetworkComponent' on the sink side
 				}
 				else{
 					psn=sink->pSN();				       // redirect psn to the sink psn
 					psn->add(this->p_derived());	       // add this to the source NetworkComponent
-					source->depthFirstExecute(Nmfp,Lmfp,this->psn); // Transmits 'formNetworkComponent' on the source side
+                    changeSN(*(source->psn.get()));
+//                    source->depthFirstExecute(Nmfp,Lmfp,this->psn); // Transmits 'formNetworkComponent' on the source side
 				}
 			}
-
-			//! 4- Calls 'topologyChangeActions' in source and sink
-//			source->topologyChangeActions(op...);
-//			sink  ->topologyChangeActions(op...);
-//            source->topologyChangeActions();
-//			sink  ->topologyChangeActions();
 			
 		}
         
@@ -107,7 +130,8 @@ namespace model {
         /* formNetworkComponent *****************************************************/
 		void formNetworkComponent(const std::shared_ptr<NetworkComponentType> & psnOther)
         {
-			if (psn!=psnOther){
+			if (psn!=psnOther)
+            {
 				psn->remove(this->p_derived());
 				psn=psnOther;		// redirect psn to the new NetworkComponent
 				psn->add(this->p_derived());    // add this in the new NetworkComponent

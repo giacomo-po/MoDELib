@@ -19,6 +19,7 @@
 //#include <boost/tuple/tuple.hpp>
 #include <boost/utility.hpp>
 
+//#include <model/Network/NetworkLink.h>
 #include <model/Network/Operations/includeNetworkOperations.h>
 
 
@@ -27,6 +28,9 @@
 
 namespace model {
 
+    template<typename Derived>
+    class NetworkLink;
+    
 		/************************************************************/
 		/************************************************************/
     
@@ -42,6 +46,7 @@ namespace model {
 			
 //			#include <model/Network/NetworkTypedefs.h>
             
+            friend class NetworkLink<LinkType>; // allow NetworkLink to access std::map<size_t,NodeType* const>
 
 			
 		public:

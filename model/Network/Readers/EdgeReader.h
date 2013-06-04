@@ -102,7 +102,7 @@ namespace model {
 		bool readBIN(const std::string& filename)
         {/*! Reads the binary file filename and stores its data in this
           */
-            bool success(false);
+            //bool success(false);
 			std::cout<<"Reading: "<<filename;
 			double t0(clock());
 			typedef std::pair<std::pair<int,int>, Eigen::Matrix<scalar,1,cols-2> > BinEdgeType;

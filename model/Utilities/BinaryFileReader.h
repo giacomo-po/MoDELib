@@ -91,7 +91,7 @@ namespace model {
         ~BinaryFileReader()
         {/*! Destructor 
           */
-            //		delete[] memblock;
+            		delete[] memblock;
             //		delete memblock;
         }
         
