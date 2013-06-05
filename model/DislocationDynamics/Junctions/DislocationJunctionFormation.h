@@ -258,9 +258,12 @@ namespace model {
 				
 				if (intersectionContainer[interID]. first.second-du1 > avoidNodeIntersection && intersectionContainer[interID]. first.second+du1<1.0-avoidNodeIntersection &&
 					intersectionContainer[interID].second.second-du2 > avoidNodeIntersection && intersectionContainer[interID].second.second+du2<1.0-avoidNodeIntersection &&
-					dirVector[interID]!=0){
+					dirVector[interID]!=0)
+                {
 					// Limit to 1 intersection per segment
-					if(edgeIntersectionContainer.find(key1)==edgeIntersectionContainer.end() && edgeIntersectionContainer.find(key2)==edgeIntersectionContainer.end()){
+					if(   edgeIntersectionContainer.find(key1)==edgeIntersectionContainer.end()
+                       && edgeIntersectionContainer.find(key2)==edgeIntersectionContainer.end())
+                    {
 //						std::cout<<"key1 is "<<key1.first<<" "<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
 //						std::cout<<"key2 is "<<key2.first<<" "<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
 						

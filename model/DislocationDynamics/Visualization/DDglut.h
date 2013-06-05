@@ -111,7 +111,27 @@ namespace model {
     
     void DDglut_menu2(int item)
     {
-	//	DDv.menu(item);
+        switch (item) {
+            case DDglType::SingleSplinePlotterType::colorBurgers:
+                DDglType::SplinePlotterType::colorScheme=DDglType::SingleSplinePlotterType::colorBurgers;
+                break;
+                
+            case DDglType::SingleSplinePlotterType::colorSessile:
+                DDglType::SplinePlotterType::colorScheme=DDglType::SingleSplinePlotterType::colorSessile;
+                break;
+                
+            case DDglType::SingleSplinePlotterType::colorNormal:
+                DDglType::SplinePlotterType::colorScheme=DDglType::SingleSplinePlotterType::colorNormal;
+                break;
+                
+            case DDglType::SingleSplinePlotterType::colorComponent:
+                DDglType::SplinePlotterType::colorScheme=DDglType::SingleSplinePlotterType::colorComponent;
+                break;
+                
+            default:
+                DDglType::SplinePlotterType::colorScheme=DDglType::SingleSplinePlotterType::colorBurgers;
+                break;
+        }
 	}
     
     void DDglut_menu3(int item)
@@ -154,8 +174,12 @@ namespace model {
 
         
         GLint m2_choice=glutCreateMenu(DDglut_menu2);
-        glutAddMenuEntry("Burgers vector", 0);
-        glutAddMenuEntry("Plane normal", 1);
+        glutAddMenuEntry("Burgers vector", DDglType::SingleSplinePlotterType::colorBurgers);
+        glutAddMenuEntry("Glissile-Sessile", DDglType::SingleSplinePlotterType::colorSessile);
+        glutAddMenuEntry("Plane normal", DDglType::SingleSplinePlotterType::colorNormal);
+        glutAddMenuEntry("Network Component", DDglType::SingleSplinePlotterType::colorComponent);
+
+//        glutAddMenuEntry("Network Component", 3);
         
         glutCreateMenu(DDglut_menu3);
         glutAddSubMenu("Save image...",m1_choice);

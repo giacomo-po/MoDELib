@@ -122,30 +122,43 @@ namespace model {
 			//! 1- Adds this to static SpatialCellObserver::cellMap
 			assert(this->cellMap.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT Spatial CELL IN STATIC cellMap.");
             //! Populate nearCells and farCells
-            for (typename CellMapType::const_iterator cellIter=this->cellBegin();cellIter!=this->cellEnd();++cellIter)
+
+            for (int c=0;c<neighborCellIDs.cols();++c)
             {
-                if (isNearCell(cellIter->second->cellID))
+                typename SpatialCellObserverType::isCellType isC(SpatialCellObserverType::isCell(neighborCellIDs.col(c)));
+                if (isC.first)
                 {
-                    if (isNeighborCell(cellIter->second->cellID))
-                    {
-                        assert(                  neighborCells.insert(std::make_pair(cellIter->first,cellIter->second)).second && "CANNOT INSERT CELL IN NEIGHBORCELLS");
-                        if(cellID!=cellIter->second->cellID)
-                        {
-                            assert(cellIter->second->neighborCells.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT THIS IN NEIGHBORCELLS");
-                        }
+                    assert(neighborCells.insert(std::make_pair(isC.second->cellID,isC.second)).second && "CANNOT INSERT CELL IN NEIGHBORCELLS");
+                    if(cellID!=isC.second->cellID){
+                        assert(isC.second->neighborCells.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT THIS IN NEIGHBORCELLS");
                     }
-                    else
-                    {
-                        assert(                  nearCells.insert(std::make_pair(cellIter->first,cellIter->second)).second && "CANNOT INSERT CELL IN NEARCELLS");
-                        assert(cellIter->second->nearCells.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT THIS IN NEARCELLS");
-                    }
-                }
-                else
-                {
-                    assert(                  farCells.insert(std::make_pair(cellIter->first, cellIter->second)).second && "CANNOT INSERT CELL IN FARCELLS");
-                    assert(cellIter->second->farCells.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT THIS IN FARCELLS");
                 }
             }
+            
+//            for (typename CellMapType::const_iterator cellIter=this->cellBegin();cellIter!=this->cellEnd();++cellIter)
+//            {
+//                if (isNearCell(cellIter->second->cellID))
+//                {
+//                    if (isNeighborCell(cellIter->second->cellID))
+//                    {
+//                        assert(                  neighborCells.insert(std::make_pair(cellIter->first,cellIter->second)).second && "CANNOT INSERT CELL IN NEIGHBORCELLS");
+//                        if(cellID!=cellIter->second->cellID)
+//                        {
+//                            assert(cellIter->second->neighborCells.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT THIS IN NEIGHBORCELLS");
+//                        }
+//                    }
+//                    else
+//                    {
+//                        assert(                  nearCells.insert(std::make_pair(cellIter->first,cellIter->second)).second && "CANNOT INSERT CELL IN NEARCELLS");
+//                        assert(cellIter->second->nearCells.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT THIS IN NEARCELLS");
+//                    }
+//                }
+//                else
+//                {
+//                    assert(                  farCells.insert(std::make_pair(cellIter->first, cellIter->second)).second && "CANNOT INSERT CELL IN FARCELLS");
+//                    assert(cellIter->second->farCells.insert(std::make_pair(cellID,this->p_derived())).second && "CANNOT INSERT THIS IN FARCELLS");
+//                }
+//            }
             
 		}
 		

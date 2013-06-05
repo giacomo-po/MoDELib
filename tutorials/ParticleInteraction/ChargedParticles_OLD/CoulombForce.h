@@ -19,17 +19,18 @@
 namespace model {
     
     
-    struct CoulombForce :
-    /* inheritance */ public InteractionBase<double,3>
-    { // change this 3 to ChargedParticle::dim
+    struct CoulombForce : public pil::InteractionBase<double,3> { // change this 3 to ChargedParticle::dim
         
         typedef ChargedParticle::PositionType PositionType;
         typedef ChargedParticle::ForceType ForceType;
         typedef ForceType ResultType;
         
+        //   static std::vector<double> resultVector;
+        //typedef MPI_DOUBLE ResultType;
+        //enum{ResultType=MPI_DOUBLE};
         
         /*****************************************/
-        CoulombForce(const ChargedParticle& cp1,const ChargedParticle& cp2)
+        CoulombForce(ChargedParticle& cp1,ChargedParticle& cp2)
         {/*! Constructor with two ChargedParticle(s). Compu
           */
             //std::cout<<"Computing CoulombForce"<<std::endl;
@@ -41,9 +42,9 @@ namespace model {
                 ForceType f(cp1.q()*cp2.q()/r2*R.normalized()); // the force on particle 2
                 //cp2.force+=f;
                 //cp1.force-=f;
-//                this->resultVector[cp1.mpiID*3+0]+=f(0);
-//                this->resultVector[cp1.mpiID*3+1]+=f(1);
-//                this->resultVector[cp1.mpiID*3+2]+=f(2);
+                this->resultVector[cp1.mpiID*3+0]+=f(0);
+                this->resultVector[cp1.mpiID*3+1]+=f(1);
+                this->resultVector[cp1.mpiID*3+2]+=f(2);
             }
             
         }

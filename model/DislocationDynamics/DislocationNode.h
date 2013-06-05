@@ -354,10 +354,10 @@ namespace model {
         template <class T>
 		friend T& operator << (T& os, const NodeType& ds)
         {
-			os  << ds.sID<<" "
-            /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<" "
-			/**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<" "
-            /**/<< ds.pSN()->sID<<" ";
+			os  << ds.sID<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<"\t"
+			/**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<"\t"
+            /**/<< ds.pSN()->sID;
 //			if (ds.shared.use_bvp)
 //            { //output in deformed configuration
 //					os << std::setprecision(15)<<std::scientific<<ds.deformedPosition().transpose()<<" ";

@@ -100,7 +100,7 @@ namespace model {
     /* inheritance          */ public Network<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
 	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>
 #ifdef _MODEL_DD_MPI_
-    /* inheritance          */, private ParticleSystem<DislocationQuadratureParticle<_dim> >
+    /* inheritance          */, private ParticleSystem<true,DislocationQuadratureParticle<_dim> >
 #endif
     {
 		
@@ -120,7 +120,7 @@ namespace model {
 		typedef typename SpatialCellObserverType::CellMapType CellMapType;
 		typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
 #ifdef _MODEL_DD_MPI_
-        typedef ParticleSystem<DislocationQuadratureParticle<_dim> > ParticleSystemType;
+        typedef ParticleSystem<true,DislocationQuadratureParticle<_dim> > ParticleSystemType;
 #endif
 		enum {NdofXnode=NodeType::NdofXnode};
 		

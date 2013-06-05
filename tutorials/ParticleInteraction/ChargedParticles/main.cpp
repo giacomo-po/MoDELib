@@ -5,56 +5,71 @@
  * Copyright (C) 2012 by Tajendra Singh <tvsingh@ucla.edu>
  * Copyright (C) 2012 by Tamer Crosby <tcrosby@ucla.edu>
  *
- * model is distributed without any warranty under the
+ * PIL is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include <iomanip>
 
-#include <pil/ParticleSystem.h> // the main object from pil library
-#include <pil/Utilities/TerminalColors.h> // the main object from pil library
+// run
+// mpiexec -np 4 particles
 
-#include <ChargedParticle.h> // a user-defined type of particle to be inserted in ParticleSystem
-#include <CoulombForce.h> // a user-defined type of force interaction between ChargedParticle objects
-#include <CoulombEnergy.h> // a user-defined type of energy interaction between ChargedParticle objects
+#include <model/ParticleInteraction/ParticleSystem.h> // the main object from pil library
+#include <model/Utilities/TerminalColors.h> // the main object from pil library
+
+#include <tutorials/ParticleInteraction/ChargedParticles/ChargedParticle.h> // a user-defined type of particle to be inserted in ParticleSystem
+#include <tutorials/ParticleInteraction/ChargedParticles/CoulombForce.h> // a user-defined type of force interaction between ChargedParticle objects
+#include <tutorials/ParticleInteraction/ChargedParticles/CoulombEnergy.h> // a user-defined type of energy interaction between ChargedParticle objects
 
 
-int main (int argc, char * const argv[]) {
+using namespace model;
+
+int main (int argc, char * argv[]) {
     
     // 0- define the type of ParticleSystem specifying the type of particles
-    typedef pil::ParticleSystem<ChargedParticle> ChargedParticleSystem;
+    typedef model::ParticleSystem<true,ChargedParticle> ChargedParticleSystem;
+    //ChargedParticleSystem::useCellPartitioner=true;
     
     // 1- create a particleSystem of ChargedParticle(s)
-    std::cout<<pil::blueBoldColor<<"CREATING INITIAL PARTICLES"<<pil::defaultColor<<std::endl;
-    ChargedParticleSystem particleSystem;
+    double cellSize=1.0;
+    ChargedParticleSystem particleSystem(argc,argv,cellSize);
+    MPI_Barrier(MPI_COMM_WORLD);
     
     // 2- add some ChargedParticle(s) to the particleSystem with random position
     //    and different charges
-    typedef ChargedParticleSystem::PositionType PositionType; // helper
-    particleSystem.addParticle(PositionType::Random(), 1.0);
-    particleSystem.addParticle(PositionType::Random(),-1.0);
-    particleSystem.addParticle(PositionType::Random(), 2.0);
+    std::cout<<model::blueBoldColor<<"CREATING RANDOM INITIAL PARTICLES"<<model::defaultColor<<std::endl;
+    typedef  ChargedParticleSystem::PositionType PositionType; // helper
+    for (int k=0;k<500000;++k)
+    {
+        particleSystem.addParticle(PositionType::Random()*10.0, 1.0);
+    }
+    // Add a more particles 
+//    for (int k=0;k<500;++k)
+//    {
+////        particleSystem.addParticle(PositionType::Random()*3.0+PositionType::Ones()*2.0, 1.0); // cluster
+//                particleSystem.addParticle(PositionType::Random()*10.0, 1.0); // uniform
+//    }
     
+    
+    
+
+
+    particleSystem.MPIoutput();
+//
+//
+    
+    std::cout<<model::blueBoldColor<<"PARTITIONING"<<model::defaultColor<<std::endl;
+	particleSystem.partionSystem(true);
+    
+    std::cout<<model::blueBoldColor<<"COMPUTING INTERACTION"<<model::defaultColor<<std::endl;
     // 3- compute all binary CoulombForce interactions
     particleSystem.computeInteraction<CoulombForce>();
+//
+//
+//    particleSystem.getInteractionResult<CoulombForce>(0);
+//
+//    
+//    particleSystem.MPIoutput();
     
-    // 4- compute all binary CoulombEnergy interactions
-    particleSystem.computeInteraction<CoulombEnergy>();
-    
-    // 5- List all particles again
-    std::cout<<pil::blueBoldColor<<"PARTICLE SYSTEM AFTER COMPUTATION:"<<pil::defaultColor<<std::endl;
-    std::cout<<particleSystem<<std::endl;
-
-    
-    // 6- Reset all computation for next iteration
-    particleSystem.resetInteraction<CoulombForce>();
-    particleSystem.resetInteraction<CoulombEnergy>();
-    
-    // 7- List all particles again
-    std::cout<<pil::blueBoldColor<<"PARTICLE SYSTEM AFTER RESET:"<<pil::defaultColor<<std::endl;
-    std::cout<<particleSystem<<std::endl;
-	
     return 0;
 }
 

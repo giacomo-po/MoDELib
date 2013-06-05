@@ -53,7 +53,7 @@ namespace model {
 		const SharedPtrType pCell;
 
 #ifdef _MODEL_MPI_
-        int rID;
+        int mpiID;
 #endif
 
 		

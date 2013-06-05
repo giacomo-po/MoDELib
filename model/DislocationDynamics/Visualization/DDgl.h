@@ -150,7 +150,10 @@ namespace model {
 		VectorDimF transVector;
 		
 		// The plotters
-		SplinePlotter<dim,50,10,alpha> splinePlotter;
+		typedef SplinePlotter<dim,50,10,alpha> SplinePlotterType;
+		typedef SingleSplinePlotter<dim,50,10,alpha> SingleSplinePlotterType;
+
+        SplinePlotterType splinePlotter;
 		CellPlotter  cellPlotter;
 		PlanePlotter planePlotter;
 		MeshPlotter  meshPlotter;
@@ -756,17 +759,17 @@ namespace model {
 					splinePlotter.showVertexID=!splinePlotter.showVertexID;
 					break;
                     
-                case '0':
-					splinePlotter.colorScheme=0;
-					break;
-                    
-                case '1':
-					splinePlotter.colorScheme=1;
-					break;
-                    
-                case '2':
-					splinePlotter.colorScheme=2;
-					break;
+//                case '0':
+//					splinePlotter.colorScheme=0;
+//					break;
+//                    
+//                case '1':
+//					splinePlotter.colorScheme=1;
+//					break;
+//                    
+//                case '2':
+//					splinePlotter.colorScheme=2;
+//					break;
                     
                     
                     //                case 'b':

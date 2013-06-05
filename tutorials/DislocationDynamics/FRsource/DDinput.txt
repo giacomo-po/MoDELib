@@ -9,7 +9,7 @@ startAtTimeStep = 0;
 # Maximum nodal displacement per time step (this controls time step size) 
 dx=10;
 # Time integration method:
-useImplicitTimeIntegration=0;
+useImplicitTimeIntegration=1;
 
 ######################################
 # OUTPUT
@@ -43,6 +43,9 @@ externalStress = 0.0 0.0 0.01
 		 0.0 0.0 0.0
 		 0.01 0.0 0.0;
 
+time=6.212e+05
+time=6.275e+05
+
 ######################################
 # STRESS FIELD
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
@@ -58,7 +61,7 @@ farCellStressApproximation=10;
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
-Lmax=300;
+Lmax=500;
 Lmin=100;
 thetaDeg=45.0;
 

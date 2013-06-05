@@ -16,7 +16,7 @@
 //#include <model/ParticleInteraction/SpatialCellParticle.h>
 
 
-namespace pil {
+namespace model {
     
     
     
@@ -38,6 +38,29 @@ namespace pil {
 //            
 //            //resultVector[rid*3+1]
 //            //resultVector[rid*3+2]
+//        }
+        
+        static void resize(const unsigned int&  k, const _DataType& val = _DataType())
+        {
+            resultVector.resize(k,val);
+        }
+        
+        
+        static _DataType* data()
+        {
+            return resultVector.data();
+        }
+        
+//        operator const char *()
+//        {
+//            m_pStr[m_nSize] = '\0';
+//            return(m_pStr);
+//        }
+        
+        
+//        static _DataType& operator[](const unsigned int& k)
+//        {
+//            return  resultVector[k];
 //        }
         
     };
