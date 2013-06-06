@@ -59,7 +59,7 @@ namespace model {
 //                std::cout<<std::endl;
                 std::map<double,int> argMap; // map automatically sorts keys
                 
-                for (int i=0; i< allNormals.size(); i++)
+                for (unsigned int i=0; i< allNormals.size(); i++)
                 {
                     const double trss((pkForce-pkForce.dot(allNormals[i])*allNormals[i]).norm());
                     const double arg(-Material<Isotropic>::vAct*(Material<Isotropic>::tauIII-trss)/( Material<Isotropic>::kT ));

@@ -1,7 +1,7 @@
 USE_ICC = 0
 
 # MODEL LIBRARY #################################
- MODEL_INCLUDE = /Users/giacomo/Dropbox/Model_MPI
+ MODEL_INCLUDE = /Users/giacomo/Dropbox/MODEL
 # MODEL_INCLUDE = /home/giacomo/Dropbox/Model
 
 # MPI LIBRARY (PARALLEL ONLY) ###################
