@@ -24,7 +24,8 @@ namespace model {
     
 	
 	template <typename DislocationNetworkType>
-	class DislocationCrossSlip {
+	class DislocationCrossSlip
+    {
 		
         typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
         typedef typename DislocationNetworkType::LinkType LinkType;
@@ -47,37 +48,49 @@ namespace model {
 		
 		
 		/* Constructor *******************************************************/		
-		DislocationCrossSlip(DislocationNetworkType& dislocationNetwork_in) : dislocationNetwork(dislocationNetwork_in) {}
+		DislocationCrossSlip(DislocationNetworkType& dislocationNetwork_in) :
+        /* init list */ dislocationNetwork(dislocationNetwork_in)
+        {/* @param[in] dislocationNetwork_in A reference to the DislocationNetwork
+          * Constructor Initializes
+          */
+        }
 		
 		/* crossSlip *******************************************************/		
-		size_t crossSlip(const double& crossSlipDeg,const double& crossSlipLength) {
+		size_t crossSlip(const double& crossSlipDeg,const double& crossSlipLength)
+        {
             
             const double sinCrossSlipRad(std::sin(crossSlipDeg*M_PI/180.0));
             const double planeTol(5.0);
             const double conjugatePointDistance(0.01*crossSlipLength);
 			
 			//! 1-Loop over DislocationSegment(s), check cross-slip criterion and store CrossSlipSegment(s)
-			for (typename NetworkLinkContainerType::const_iterator linkIter=dislocationNetwork.linkBegin();linkIter!=dislocationNetwork.linkEnd();++linkIter){
+			for (typename NetworkLinkContainerType::const_iterator linkIter=dislocationNetwork.linkBegin();linkIter!=dislocationNetwork.linkEnd();++linkIter)
+            {
 				CrossSlipSegmentType css(linkIter->second->isCrossSlipSegment(sinCrossSlipRad,crossSlipLength));
-				if(css.isCrossSlipSegment){
+				if(css.isCrossSlipSegment)
+                {
 					CSC.push_back(css);
 				}
 			}
 			
 			//! 2- Loop over container of CrossSlipSegment(s) and perform cross-slip
-			for (typename CrossSlipContainerType::const_iterator iterCS=CSC.begin();iterCS!=CSC.end();++iterCS){
+			for (typename CrossSlipContainerType::const_iterator iterCS=CSC.begin();iterCS!=CSC.end();++iterCS)
+            {
 				VectorDimD midPoint(iterCS->midPoint);
-				double hP(iterCS->midPoint.dot(iterCS->normalConjugate)); // heigth of midPoint along normalConjugate
+				const double hP(iterCS->midPoint.dot(iterCS->normalConjugate)); // heigth of midPoint along normalConjugate
 				
-				// 2.1- correct midPoint is there is an existing conjugate plane close to it
+				// 2.1- correct midPoint if there is an existing conjugate plane close to it
 				for (typename GlidePlaneObserverType::const_iterator gpIter=gpo.begin(); gpIter!=gpo.end();++gpIter)
                 {
 					if((gpIter->second->planeNormal-iterCS->normalConjugate).norm()<FLT_EPSILON)
                     {
-						if((gpIter->second->height-hP)<planeTol)
+                        const double num(gpIter->second->height-hP);
+
+//						if((gpIter->second->height-hP)<planeTol)
+                        if(std::fabs(num)<planeTol)
                         {
 							const double den(1.0-std::pow(iterCS->normalPrimary.dot(iterCS->normalConjugate),2));
-							const double num(gpIter->second->height-hP);
+//							const double num(gpIter->second->height-hP);
 							const double u(num/den);
                             if(std::fabs(u)<planeTol)
                             {
@@ -102,17 +115,20 @@ namespace model {
 				VectorDimD conjugatePoint(0.5*(crossPoints.first+crossPoints.second)+crossSlipDisplacement);
 				
 				bool crossSlipPointsInsideMesh(true);
-				if (dislocationNetwork.shared.boundary_type){
+				if (dislocationNetwork.shared.boundary_type)
+                {
 					SearchData<dim> SD(conjugatePoint);
                     //                    dislocationNetwork.shared.domain.findIncludingTet(SD);
                     dislocationNetwork.shared.domain.findIncludingTet(SD,dislocationNetwork.node(iterCS->sourceID).second->meshID());
 					crossSlipPointsInsideMesh*=(SD.nodeMeshLocation==insideMesh);
-					if (crossSlipPointsInsideMesh){
+					if (crossSlipPointsInsideMesh)
+                    {
 						SearchData<dim> SD1(crossPoints.first);
 						//dislocationNetwork.shared.domain.findIncludingTet(SD1);
                         dislocationNetwork.shared.domain.findIncludingTet(SD1,dislocationNetwork.node(iterCS->sourceID).second->meshID());
 						crossSlipPointsInsideMesh*=(SD1.nodeMeshLocation==insideMesh);
-						if(crossSlipPointsInsideMesh){
+						if(crossSlipPointsInsideMesh)
+                        {
 							SearchData<dim> SD2(crossPoints.second);
                             //							dislocationNetwork.shared.domain.findIncludingTet(SD2);
                             dislocationNetwork.shared.domain.findIncludingTet(SD2,dislocationNetwork.node(iterCS->sourceID).second->meshID());
