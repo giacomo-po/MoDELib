@@ -32,15 +32,14 @@ namespace model {
     /**************************************************************************/
     /**************************************************************************/
     template<>
-    class Material<Isotropic>
-    {
+    class Material<Isotropic> {
         
         
         static int selectedMaterial;
         
     public:
         
-        enum{Al=13, Ni=28, Cu=29};
+        enum{Al=13, Ni=28, Cu=29, W=74, Fe=26};
         
         static double mu;
         static double b;
@@ -54,16 +53,16 @@ namespace model {
         static double C2;
         static double C3;
         static double C4;
-        static double T; // temperature in [K]
-        static double kT; // temperature in [K]
-        static double tauIII; // stage III tau
-        static double vAct; // activation volume for cross slip
+        static double T;
+        static double kT;
+        static double tauIII;
+        static double vAct;
+        
         
         /* select **************************************/
         //template<template<typename T> class MaterialType>
         template<int Z>
-        static void select()
-        {
+        static void select(){
         //    typedef MaterialType<Isotropic> IM;
                 typedef PeriodicElement<Z,Isotropic> IM;
 
@@ -81,7 +80,6 @@ namespace model {
             C3=1.0-2.0*nu;
             C4=0.5*C2;
             kT=1.38e-23/IM::mu/std::pow(IM::b,3)*T;
-            
             std::string magentaColor    = "\033[0;35m";   // a magenta color
             std::string defaultColor    = "\033[0m";	   // the default color for the console
             std::cout<<magentaColor<<"Material is now: "<<IM::name<<defaultColor<<std::endl;
@@ -89,8 +87,7 @@ namespace model {
         }
         
         /* select **************************************/
-        static void select(const unsigned int& Z)
-        {
+        static void select(const unsigned int& Z){
         
             switch (Z) {
                 case Al:
@@ -105,6 +102,14 @@ namespace model {
                     selectedMaterial=Cu;
                     select<Cu>();
                     break;
+                case W:
+                    selectedMaterial=W;
+                    select<W>();
+                    break;
+                case Fe:
+                    selectedMaterial=Fe;
+                    select<Fe>();
+                    break;
                     
                 default:
                     assert(0 && "Material not implemented.");
@@ -115,8 +120,7 @@ namespace model {
         
         /* select **************************************/
         template <int dim>
-        static void rotateCrystal(const Eigen::Matrix<double,dim,dim>& C2G)
-        {
+        static void rotateCrystal(const Eigen::Matrix<double,dim,dim>& C2G){
             
             switch (selectedMaterial) {
                 case Al:
@@ -130,6 +134,14 @@ namespace model {
                 case Cu:
 //                    CrystalOrientation<dim>::template rotate<Copper<Isotropic>::CrystalStructure>(C2G);
                     CrystalOrientation<dim>::template rotate<PeriodicElement<Cu,Isotropic>::CrystalStructure>(C2G);
+                    break;
+                case W:
+                    //                    CrystalOrientation<dim>::template rotate<Copper<Isotropic>::CrystalStructure>(C2G);
+                    CrystalOrientation<dim>::template rotate<PeriodicElement<W,Isotropic>::CrystalStructure>(C2G);
+                    break;
+                case Fe:
+                    //                    CrystalOrientation<dim>::template rotate<Copper<Isotropic>::CrystalStructure>(C2G);
+                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
                     break;
                 default:
                     assert(0 && "Material not implemented.");
@@ -154,11 +166,11 @@ namespace model {
     double Material<Isotropic>::C2=1.0/(4.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
     double Material<Isotropic>::C3=1.0-2.0*0.34; // 1-2*nu
     double Material<Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
-    double Material<Isotropic>::T=300.0;  // temperature in [K]
-    double Material<Isotropic>::kT=1.38e-23/48.0e9/std::pow(0.2556e-9,3)*300.0;  // 
-	double Material<Isotropic>::tauIII=0.667e-3;  // critical resolved shear stress in stage III normalized by mu
-    double Material<Isotropic>::vAct=300.0;  // activation volume [b^3]
-    
+	double Material<Isotropic>::T=300.0;  // Temperature [K]
+	double Material<Isotropic>::kT=1.38e-23/48.0e9/std::pow(0.2556e-9,3)*300.0;  // boltzmann constant * Temperature 
+	double Material<Isotropic>::tauIII=0.667e-3;  // critical resovled shear stress in stage III
+	double Material<Isotropic>::vAct=300.0;  // Activation volume [b^3]
+	
     /**************************************************************************/
     /**************************************************************************/
 } // namespace model
