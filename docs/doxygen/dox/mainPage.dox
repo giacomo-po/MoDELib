@@ -1,36 +1,49 @@
 namespace model {
-
-
 /*! \mainpage The MODEL library
  
- The Mechanics of Defect Evolution Library (MODEL) is a collection of 
  
-This page introduces the user to the main uses and advantages of the library. 
- 
- \section sec1 Main Features
- 
- - The library is built using object oriented programming in C++. It consists of header only files.
    
  
+\section introduction Introduction 
+
+MODEL is the The Mechanics of Defect Evolution Library, a collection of free software for the study of defects in materials. 
+
+MODEL contains the following modules:
+- \ref DD_intro
+- \ref PIL 
+
+\section installation Installation
+MODEL is a header-only library, therefore you just need to have MODEL in your include path.
+
+MODEL is written in C++ and is heavily object-oriented. In particular, some of the latest features of the C++11 standard are used. Therefore MODEL can only be compiled with C++11-capable compilers. The following compilers should do the job:
+- GNU g++ version 4.7 or above (available at http://gcc.gnu.org)
+- INTEL icc version 13.0.1 or above
+
+Are you testing MODEL on <a href="http://www.apple.com/osx/">Mac OsX</a>? Then make sure you read the dedicated \ref macosx page.
+
+
+\subsection libraries External libraries
+The Discrete Dislocation Dynamics module of MODEL requires the following external libraries:
+	- the c++ standard library
+	- the boost library (header only, available at http://www.boost.org/)
+	- the Eigen library (header only, available at http://eigen.tuxfamily.org)	
+
+In order to run MODEL-DDD in parallel mode, additional libraries are needed:
+	- the \ref openmpi protocol
+	- the \ref metis partitioner
+
+\subsection packages Other useful packages
+Some bash scripts used for post-processing of pictures and videos are:
+- <a href="http://www.imagemagick.org">ImageMagick</a>
+- <a href="http://www.ffmpeg.org">FFmpeg</a>
+
+These are standard packages on most Unix/Linux distributions. 
+
+Meshes are generated using the following library: 
+- <a href="http://tetgen.berlios.de"> TetGen </a> 
+
+See the dedicated \ref tetgen page for sample use.  
  
- 
- \section se3 Application
 
- - The library can be used in numerous applications. The main application where is it used right now, is discrete dislocation 
- dynamics simulations. However with minor changes, the library can be used in other applications, for instance simulation of current
- in electrical circuits.
- 
-Now you can proceed to  \ref installation "Installing the MDML Library".
-
-
-\b Table \b of \b contents
-  - \ref DDD
-  - \ref PIL 
- 
- */
-
-
-\section Credits
-
-
+*/
 }

@@ -13,18 +13,17 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <time.h> // clock()
 #include <map>
 #include <assert.h>
 #include <utility>
 #include <Eigen/Dense>
-
 #include <model/Utilities/BinaryFileReader.h>
-
 
 namespace model {
 	
 	/*******************************************************************************************/
-	template <char c, int cols, typename scalar=double>
+	template <char c, int cols, typename scalar>
 	//	class EdgeReader : public std::map< std::pair<int, int>, Eigen::Matrix<scalar,1,cols-2> > {
 	
 	class EdgeReader : public std::map<std::pair<int, int>, Eigen::Matrix<scalar,1,cols-2>, 
@@ -38,10 +37,10 @@ namespace model {
 		 */
 		
 		int currentFrame;
-		bool success;
+//		bool success;
 		
 		/* readTXT ************************************/
-		void readTXT(const std::string& filename){
+		bool readTXT(const std::string& filename){
 			scalar temp;
 			//int key1, key2, row, col;
 			std::string line;
@@ -50,7 +49,10 @@ namespace model {
 			
 			std::ifstream ifs ( filename.c_str() , std::ifstream::in );
 			
-			if (ifs.is_open()) {
+            bool success(false);
+            
+			if (ifs.is_open())
+            {
 				std::cout<<"Reading: "<<filename;
 				double t0(clock());
 				int row = 0;
@@ -85,44 +87,50 @@ namespace model {
 				
 				ifs.close();
 				
-				//				currentFrame=frameN;
 				success=true;
 				
-				std::cout<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<"]"<<std::endl;
+                std::cout<<" ("<<this->size()<<" edges) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
 			}
 			else {
 				std::cout<<"Unable to  open:"<<filename<<std::endl;
-				success=false;
 			}
 			
+            return success;
 		}
 		
 		/* readBin *******************************/
-		void readBIN(const std::string& filename){
+		bool readBIN(const std::string& filename)
+        {/*! Reads the binary file filename and stores its data in this
+          */
+            //bool success(false);
 			std::cout<<"Reading: "<<filename;
 			double t0(clock());
 			typedef std::pair<std::pair<int,int>, Eigen::Matrix<scalar,1,cols-2> > BinEdgeType;
 			BinaryFileReader<BinEdgeType> rE(filename);
-			std::cout<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<"]";
-			double t1(clock());
-			for (unsigned int k=0;k<rE.size();++k){
-				this->insert(std::make_pair(rE[k].first,rE[k].second));
-//				assert(this->insert(std::make_pair(rE[k].first,rE[k].second)).second && "COULD NOT INSERT EDGE AFTER BINARY READ.");
+			for (unsigned int k=0;k<rE.size();++k)
+            {
+//				this->insert(std::make_pair(rE[k].first,rE[k].second));
+				assert(this->insert(std::make_pair(rE[k].first,rE[k].second)).second && "COULD NOT INSERT EDGE AFTER BINARY READ.");
 			}
-			std::cout<<" ["<<(clock()-t1)/CLOCKS_PER_SEC<<"]"<<std::endl;
+			std::cout<<" ("<<this->size()<<" edges) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
+            return rE.success();
 		}
 		
 	public:	
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
 		/*****************************************/
-		/* Constructor*/
-		EdgeReader () : currentFrame(-1), success(false) {}
-		//		EdgeReader () :  success(false) {}
+		EdgeReader () :
+        /* init list */ currentFrame(-1)
+ //       /* init list */ success(false)
+        {/*! Constructor initializes currentFrame to -1 so that the statement
+          *  frameN!=currentFrame will initially return false
+          */
+        }
 		
 		/*****************************************/
-		template <bool useTXT>
-		static std::string getFilename(const int& frameN){
+//		template <bool useTXT>
+		static std::string getFilename(const int& frameN, const bool& useTXT){
 			std::stringstream filename;
 			if(useTXT){
 				filename << c << "/" << c << "_" << frameN << ".txt";
@@ -134,30 +142,36 @@ namespace model {
 		}
 		
 		/* isGood *********************************/
-		template <bool useTXT>
-		static bool isGood(const int& frameN){
+//		template <bool useTXT>
+		static bool isGood(const int& frameN, const bool& useTXT){
 			/*!	Checks whether the file named "E/E_ \param[frameN] .txt" is good for reading.
 			 */
-			std::ifstream ifs ( getFilename<useTXT>(frameN).c_str() , std::ifstream::in );
+			std::ifstream ifs ( getFilename(frameN,useTXT).c_str() , std::ifstream::in );
 			return ifs.good();
 		}
 		
 		/*****************************************/
 		/* read */
-		template <bool useTXT>
-		bool read(const int& frameN){
-			assert(frameN>=0);
-			if (frameN!=currentFrame){
+//		template <bool useTXT>
+		bool read(const int& frameN, const bool& useTXT)
+        {/*! @param[in] frameN the frame number to be read
+          *  @param[in] useTXT if true text files (.txt) are read, 
+          *  otherwise binary files (.bin) are read
+          *  \returns true if the file has been read correctly
+          */
+			assert(frameN>=0 && "frameN MUST BE >= 0");
+			bool success(false);
+            if (frameN!=currentFrame){
 				currentFrame=frameN;
 				
 				// clear the content of the map
 				this->clear();
 				
 				if (useTXT){
-					readTXT(getFilename<true >(frameN));
+					success=readTXT(getFilename(frameN,true));
 				}
 				else{
-					readBIN(getFilename<false>(frameN));
+					success=readBIN(getFilename(frameN,false));
 				}
 			} 
 			return success;

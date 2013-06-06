@@ -30,10 +30,11 @@ namespace model {
 		const std::string blueColor;		// a bold blue color
 		
 		/* readDir *****************************************************/
-		void readDir (const std::string& dirName){
+		void readDir (const std::string& dirName, const std::string& extension)
+        {
 			
 			const std::string prefix(dirName+"_");
-			const std::string extension(".txt");
+		//	const std::string extension(".txt");
 			
 			std::cout<<"Opening directory: "<<dirName<<std::endl;
 			
@@ -45,14 +46,14 @@ namespace model {
 			
 			while ((dirp = readdir(dp)) != NULL) {
 				std::string filename(dirp->d_name);
-				if (filename.find(prefix)!=std::string::npos && filename.find(extension)!=std::string::npos){
+				if (filename.find(prefix)!=std::string::npos && filename.find(extension)!=std::string::npos)
+                {
 					std::string stringID=filename.substr(filename.find(prefix)+prefix.length());
 					const size_t extPos(stringID.rfind(extension));
 					assert(extPos>0);
 					stringID.replace(extPos,extension.length(),"");
 					const unsigned int fileID = atoi(stringID.c_str());
 					this->operator[](fileID).insert(filename);
-
 				}
 			}
 			closedir(dp);
@@ -66,14 +67,18 @@ namespace model {
 		/*        */ greenBoldColor("\033[1;32m"),
 		/*        */ blueColor("\033[0;34m"){
 			
-			readDir("E");
-			readDir("V");
+			readDir("E","txt");
+			readDir("V","txt");
+            
+            readDir("E","bin");
+            readDir("V","bin");
 			//readDir("C");
 			//readDir("G");
 		}
 		
 		/* list ************************************************/		
-		void list() const {
+		void list() const
+        {
 			std::cout<<greenBoldColor<<"listing files found:"<<std::endl;
 			for (std::map<size_t,std::set<std::string> >::const_iterator fileIter=this->begin();fileIter!=this->end();++fileIter){
 				std::cout<<std::setw(5)<<greenBoldColor<<fileIter->first<<blueColor<<" ";

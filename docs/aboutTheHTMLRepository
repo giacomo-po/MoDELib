@@ -1,0 +1,24 @@
+The HTML subfolder corresponds to the remote repository:
+https://model@bitbucket.org/model/model.bitbucket.org
+
+In order to update the documentation do the following:
+
+1) Delete the folder HTML
+
+2) Clone the remote repository into the local HTML folder
+hg clone https://model@bitbucket.org/model/model.bitbucket.org ./HTML
+
+3) Empty the HTML folder
+
+4) Run  oxygen using the following doxyfile
+MODEL/docs/doxygen/doxyfile 
+(which has ../../ as source directory and ../HTML as destination directory)
+
+4) move into the HTML and use hg
+cd HTML
+hg addremove
+hg commit -m 'some comment'
+hg push
+
+
+Note that MODEL/.hgignore does not track Model/docs/HTML, which is a repository itself. 

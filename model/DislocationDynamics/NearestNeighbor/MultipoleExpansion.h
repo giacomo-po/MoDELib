@@ -14,12 +14,6 @@
 
 namespace model {	
 	
-	/********************************************************************************************/
-	/********************************************************************************************/
-	/*! \brief A dim-dimensional cell occupying the spatial region cellID<= x/cellSize < (cellID+1). 
-	 *  SpaceCell is aware off all ParticleType objects present inside it. 
-	 */
-    //	template<typename ParticleType, short unsigned int dim, double & cellSize>
 	template <int dim>
     struct MultipoleExpansion {
 		
@@ -91,13 +85,13 @@ namespace model {
 			 *		\mathbf{\sigma}*=\frac{\mu}{4\pi R^3}\left(\mathbf{\sigma}*+\mathbf{\sigma}*^T\right)
 			 *	\f]
 			 */
-            //const VectorDimD R0((cellID.template cast<double>().array()+0.5).matrix()*cellSize); // add 0.5 to all components of ceID to find the center of the cell
             const VectorDimD R(Rfield- R0);
             const double R2(R.squaredNorm());
             const double R3(std::pow(R2,1.5));
             const VectorDimD a(axialVector(alpha));
             const MatrixDimD S(skewMatrix(R));
             const MatrixDimD temp( -alpha.transpose()*S+1.0/(1.0-Material<Isotropic>::nu)*(-R*a.transpose()+0.5*I*(R.dot(a))+1.5*R*R.transpose()*R.dot(a)/R2) );
+            
             return Material<Isotropic>::mu/(4.0*M_PI*R3)*( temp+temp.transpose() );
         }
 		

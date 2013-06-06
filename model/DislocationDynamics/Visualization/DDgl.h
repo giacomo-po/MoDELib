@@ -150,7 +150,10 @@ namespace model {
 		VectorDimF transVector;
 		
 		// The plotters
-		SplinePlotter<dim,50,10,alpha> splinePlotter;
+		typedef SplinePlotter<dim,50,10,alpha> SplinePlotterType;
+		typedef SingleSplinePlotter<dim,50,10,alpha> SingleSplinePlotterType;
+
+        SplinePlotterType splinePlotter;
 		CellPlotter  cellPlotter;
 		PlanePlotter planePlotter;
 		MeshPlotter  meshPlotter;
@@ -680,9 +683,9 @@ namespace model {
 					cellPlotter.showCells=!cellPlotter.showCells;
 					break;
 					
-				case 'd':
-					splinePlotter.deformedConfig=!splinePlotter.deformedConfig;
-					break;
+//				case 'd':
+//					splinePlotter.deformedConfig=!splinePlotter.deformedConfig;
+//					break;
 					
 				case 'e':
 					splinePlotter.showTubes=!splinePlotter.showTubes;
@@ -719,7 +722,8 @@ namespace model {
 					std::cout<<"Enter a step number ane press Enter: ";
 					int temp;
 					std::cin>>temp;
-					if (splinePlotter.isGood(temp)) {
+					if (splinePlotter.isGood(temp,true) || splinePlotter.isGood(temp,false))
+                    {
 						frameN=temp;
 						ddrIter=ddr.begin();
 						std::advance(ddrIter,temp);
@@ -755,17 +759,17 @@ namespace model {
 					splinePlotter.showVertexID=!splinePlotter.showVertexID;
 					break;
                     
-                case '0':
-					splinePlotter.colorScheme=0;
-					break;
-                    
-                case '1':
-					splinePlotter.colorScheme=1;
-					break;
-                    
-                case '2':
-					splinePlotter.colorScheme=2;
-					break;
+//                case '0':
+//					splinePlotter.colorScheme=0;
+//					break;
+//                    
+//                case '1':
+//					splinePlotter.colorScheme=1;
+//					break;
+//                    
+//                case '2':
+//					splinePlotter.colorScheme=2;
+//					break;
                     
                     
                     //                case 'b':
@@ -888,17 +892,18 @@ namespace model {
 		
 		
 		/* readFrame **********************************************/
-		void readFrame(){
+		void readFrame()
+        {
 			double t0(clock());
 			std::cout<<greenBoldColor<<"Reading frame "<<frameN<<"..."<<defaultColor<<std::endl;
             
 			splinePlotter.read(frameN);
-			planePlotter.read<true>(frameN);
-			cellPlotter.read(frameN);
+			planePlotter.read(frameN,true);
+			cellPlotter.read(frameN,true);
 			meshPlotter.read(frameN);
             
             
-			std::cout<<" done ["<<(clock()-t0)/CLOCKS_PER_SEC<<defaultColor<<std::endl;
+//			std::cout<<" done ["<<(clock()-t0)/CLOCKS_PER_SEC<<defaultColor<<std::endl;
 		}
 		
 		

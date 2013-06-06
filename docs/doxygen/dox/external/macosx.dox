@@ -1,0 +1,31 @@
+namespace model {
+/*! \page macosx Mac osX
+
+\section macosxGCC Updating gcc
+At the time of writing this guide (May 2013), the version of gcc that ships with <a href="https://developer.apple.com/xcode/">Xcode</a> is 4.2. You need version 4.7 or higher to compile the c++11 features used in MODEL. Therefore you need to install a more recent version of gcc in your <a href="http://www.apple.com/osx/">Mac OsX</a>.
+
+You can install the most recent gcc using <a href="http://www.macports.org">MacPorts</a>. 
+
+After you have successfully installed the current version of gcc, make sure  to select that version as the default gcc compiler. You can select a particular version of  gcc by first installing gcc_select, again via <a href="http://www.macports.org">MacPorts</a>:
+\verbatim
+sudo port install gcc_select
+\endverbatim
+Then, list the available gcc versions in your system:
+\verbatim
+port select --list gcc
+\endverbatim
+And finally select the most current version, say mp-gcc47:
+\verbatim
+sudo port select --set gcc mp-gcc47
+\endverbatim
+
+Make sure to complete these steps before installing \ref openmpi and \ref metis.
+
+\section macosxPorting Porting other Unix/Linux packages
+<a href="http://www.macports.org">MacPorts</a> can also be used to port the following packages to <a href="http://www.apple.com/osx/">Mac OsX</a>:
+- <a href="http://www.imagemagick.org">ImageMagick</a>
+- <a href="http://www.ffmpeg.org">FFmpeg</a>
+
+*/
+
+}

@@ -30,15 +30,17 @@
 
 namespace model {
 	
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-	class DislocationNode : public SplineNodeBase<DislocationNode<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>,
-	/*                                         */ dim,corder,InterpolationType>{
+	class DislocationNode : public SplineNodeBase<DislocationNode<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>,
+	/*                                         */ _dim,corder,InterpolationType>{
 		
 	public:
 		
-		
-		// define Derived to use NetworkTypedefs.h
+        // make dim available outside class
+        enum{dim=_dim};
+        
+        // define Derived to use NetworkTypedefs.h
 		typedef DislocationNode       <dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> Derived;
 #include <model/Network/NetworkTypedefs.h>
 		
@@ -350,21 +352,22 @@ namespace model {
 		
         /* operator<< *********************************************************/
         template <class T>
-		friend T& operator << (T& os, const NodeType& ds){
-			os  << ds.sID<<" "
-            /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<" "
-			/**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<" "
-            /**/<< ds.pSN()->sID<<" ";
-			if (ds.shared.use_bvp)
-            { //output in deformed configuration
-					os << std::setprecision(15)<<std::scientific<<ds.deformedPosition().transpose()<<" ";
-				}
-				else{
-					os<< VectorDim::Zero().transpose();
-				}
+		friend T& operator << (T& os, const NodeType& ds)
+        {
+			os  << ds.sID<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<"\t"
+			/**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<"\t"
+            /**/<< ds.pSN()->sID;
+//			if (ds.shared.use_bvp)
+//            { //output in deformed configuration
+//					os << std::setprecision(15)<<std::scientific<<ds.deformedPosition().transpose()<<" ";
+//				}
+//				else{
+//					os<< VectorDim::Zero().transpose();
+//				}
 				//os << "\n";
 			return os;
-       }
+        }
 		
 	}; // close DislocationNode
 	

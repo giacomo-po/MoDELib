@@ -104,7 +104,12 @@ public:
 // Constructor with Subnetwork* pair of Nodes*
 //template <typename FlowType>
 SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in, 
-/*             */ const FlowType& Fin) : NetworkLink<Derived>::NetworkLink(nodePair_in, Fin){}
+/*             */ const FlowType& Fin) : NetworkLink<Derived>::NetworkLink(nodePair_in, Fin)
+{/*! Constructor with Nodes and flow
+  */
+
+}
+
 ///*                                    */ sourceTfactor(1),
 ///*                                    */ sinkTfactor(1){}
 

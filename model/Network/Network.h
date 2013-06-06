@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
  *
- * model is distributed without any warranty under the 
+ * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
@@ -19,6 +19,7 @@
 #include <model/Utilities/CRTP.h>
 #include <model/Utilities/AddressBook.h>
 
+#include <model/Network/NetworkComponent.h>
 #include <model/Network/Operations/includeNetworkOperations.h>
 #include <model/Network/Algorithms/ParallelExecute.h>
 
@@ -32,37 +33,29 @@ namespace model {
 	class Network : boost::noncopyable,
 	/*          */  protected boost::ptr_map<size_t,typename TypeTraits<Derived>::NodeType>,
 	/*          */  protected boost::ptr_map<std::pair<size_t,size_t>,typename TypeTraits<Derived>::LinkType>,
-//	/*          */  protected std::map<size_t,std::auto_ptr<typename TypeTraits<Derived>::NodeType> >,
-//	/*          */  protected std::map<std::pair<size_t,size_t>,std::auto_ptr<typename TypeTraits<Derived>::LinkType> >,
+    //	/*          */  protected std::map<size_t,std::auto_ptr<typename TypeTraits<Derived>::NodeType> >,
+    //	/*          */  protected std::map<std::pair<size_t,size_t>,std::auto_ptr<typename TypeTraits<Derived>::LinkType> >,
 	/*          */  public  CRTP<Derived>,
-	/*          */  public  AddressBook<typename TypeTraits<Derived>::SubNetworkType,0>{
+	/*          */  public  AddressBook<NetworkComponent<typename TypeTraits<Derived>::NodeType,typename TypeTraits<Derived>::LinkType>,0>{
 		
 		/*!
 		 *		\code
-		 *		namespace model{
+		 *		namespace model
+         *      {
 		 *			template<>
-		 *			struct TypeTraits<Derived>{
-		 *				typedef SomeSubNetworkType	NodeType;
+		 *			struct TypeTraits<Derived>
+         *          {
 		 *				typedef SomeNodeType		NodeType;
 		 *				typedef SomeLinkType		LinkType;
 		 *				typedef SomeFlowType		FlowType;
-		 *			};	
+		 *			};
 		 *		}
 		 *		\endcode
 		 */
 		
 #include <model/Network/NetworkTypedefs.h>
 		
-		
-		
-		
-		typedef std::map<size_t,SubNetworkType* const> AddressMapType;
-		typedef typename AddressMapType::iterator AddressMapIteratorType;
-
-	private:
-		
-
-		
+				
 		
 	public:
 		
@@ -80,7 +73,7 @@ namespace model {
           */
 			return NetworkLinkContainerType::size();
 		}
-
+        
 		/************************************************************/
 		// node
 		isNetworkNodeType node(const size_t & k)
@@ -98,10 +91,10 @@ namespace model {
 			return EdgeFinder<LinkType>(*this).link(i,j);
 		}
 		
-//		isConstNetworkLinkType link(const size_t& i, const size_t& j) const {
-//			return EdgeFinder<LinkType>(*this).link(i,j);
-//		}
-
+        //		isConstNetworkLinkType link(const size_t& i, const size_t& j) const {
+        //			return EdgeFinder<LinkType>(*this).link(i,j);
+        //		}
+        
 		isConstNetworkLinkType link(const size_t& i, const size_t& j) const {
 			return EdgeFinder<LinkType,true>(*this).link(i,j);
 		}
@@ -110,24 +103,28 @@ namespace model {
 		/************************************************************/
 		// nodeBegin
 		typename NetworkNodeContainerType::iterator nodeBegin() {
-			//! An iterator to the first node in the network. 
+			//! An iterator to the first node in the network.
 			return NetworkNodeContainerType::begin();
 		}
 		
 		typename NetworkNodeContainerType::const_iterator nodeBegin() const {
-			//! A const iterator to the node in the network. 
+			//! A const iterator to the first node in the network.
 			return NetworkNodeContainerType::begin();
 		}
 		
 		/************************************************************/
 		// nodeEnd
-		typename NetworkNodeContainerType::iterator nodeEnd() {
-			//! An iterator to the first link in the network. 
+		typename NetworkNodeContainerType::iterator nodeEnd()
+        {/*! @param[out] An iterator referring to the past-the-end vertex in 
+          *  the network.
+          */
 			return NetworkNodeContainerType::end();
 		}
 		
-		typename NetworkNodeContainerType::const_iterator nodeEnd() const {
-			//! An const iterator to the first link in the network. 
+		typename NetworkNodeContainerType::const_iterator nodeEnd() const
+        {/*! @param[out] A const iterator referring to the past-the-end vertex 
+          *  in the network.
+          */
 			return NetworkNodeContainerType::end();
 		}
 		
@@ -152,12 +149,13 @@ namespace model {
         {
 			return NetworkLinkContainerType::end();
 		}
-
+        
 		/* insert (a new vertex) **************************************/
 		template <typename ...NodeArgTypes>
-		size_t insert(const NodeArgTypes&... NodeInput)
+		size_t insertVertex(const NodeArgTypes&... NodeInput)
         {/*! @param[in] NodeInput
-          *  Inserts a new vertex in the Network using NodeInput as variable constructor arguments
+          *  Inserts a new vertex in the Network using NodeInput as variable 
+          *  constructor arguments
           */
 			return VertexInsertion<NodeType>(*this).insert(NodeInput...);
 		}
@@ -172,7 +170,7 @@ namespace model {
 			return VertexConnection<NodeType,LinkType>(*this,*this).connect(i,j,f);
 		}
 		
-		/* disconnect ************************************************/ 
+		/* disconnect ************************************************/
 		template<bool removeIsolatedNodes>
 		bool disconnect(const size_t& i, const size_t& j)
         {/*! @param[in] i the StaticID of the source vertex
@@ -185,11 +183,11 @@ namespace model {
 		/************************************************************/
 		// remove (a node)
 		template<bool removeIsolatedNodes>
-		bool remove(const size_t& k)
+		bool removeVertex(const size_t& k)
         {/*! @param[in] k the StaticID of the vertex
           *  Removes the k-th Vertex from the Network
           */
-			return VertexConnection<NodeType,LinkType>(*this,*this).remove<removeIsolatedNodes>(k);
+			return VertexConnection<NodeType,LinkType>(*this,*this).template remove<removeIsolatedNodes>(k);
 		}
 		
 		/************************************************************/
@@ -221,7 +219,7 @@ namespace model {
 		std::map<T,size_t>  multiExpand(const size_t& i, const size_t& j, const std::map<double,T>& expandMap)
         {
 			
-
+            
 			
 			isNetworkLinkType Lij(this->link(i,j));
 			assert(Lij.first);
@@ -249,9 +247,9 @@ namespace model {
 			assert(temp.size()==expandMap.size());
 			
 			
-			return temp;	
+			return temp;
 		}
-
+        
 		
 		/* contract **************************************************/
 		template <typename T>
@@ -260,32 +258,32 @@ namespace model {
 			VertexContraction<NodeType,LinkType>(*this,*this).contract(i,j,NodeInput);
 		}
 		
-
+        
 		/* contractSecond ********************************************/
 		void contractSecond(const size_t& i, const size_t& j)
         {
 			VertexContraction<NodeType,LinkType>(*this,*this).contractSecond(i,j);
-		} 
-
-
+		}
+        
+        
 		/*************************************************************/
 		void parallelExecute(void (LinkType::*Lfptr)(void))
         {
 			ParallelExecute<NodeType,LinkType>(*this,*this).execute(Lfptr);
-		}		
-
+		}
+        
 		/*************************************************************/
 		void parallelExecute(void (NodeType::*Vfptr)(void))
         {
 			ParallelExecute<NodeType,LinkType>(*this,*this).execute(Vfptr);
 		}
-
+        
 		/*************************************************************/
 		template <typename T>
 		void parallelExecute(void (NodeType::*Vfptr)(const T&), const T& input)
         {
 			ParallelExecute<NodeType,LinkType>(*this,*this).execute(Vfptr,input);
-		}		
+		}
         
 		/*************************************************************/
 		// friend T& operator <<
@@ -295,25 +293,25 @@ namespace model {
 			for (typename NetworkNodeContainerType::const_iterator nodeIter=nnC.begin();nodeIter!=nnC.end();++nodeIter)
             {
 				os << (*nodeIter->second) << "\n";
-			}
-			return os;
-		}
-		
-		/*************************************************************/
-		// friend T& operator <<
-		template <class T>
-		friend T& operator << (T& os, const NetworkLinkContainerType& nlC)
-        {
-			for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter)
-            {
-				os << (*linkIter->second) << "\n";
-			}
-			return os;
-		}
-        
-
-	};	// end Network
-	/************************************************************/
-	/************************************************************/
-} // namespace model
+                }
+                return os;
+                }
+                
+                /*************************************************************/
+                // friend T& operator <<
+                template <class T>
+                friend T& operator << (T& os, const NetworkLinkContainerType& nlC)
+                {
+                    for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter)
+                    {
+                        os << (*linkIter->second) << "\n";
+                    }
+                    return os;
+                }
+                
+                
+                };	// end Network
+                /************************************************************/
+                /************************************************************/
+                } // namespace model
 #endif

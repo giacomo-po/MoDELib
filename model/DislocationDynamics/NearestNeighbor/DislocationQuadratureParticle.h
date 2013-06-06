@@ -6,21 +6,23 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_DISLOCATIONQUADRATUREPARTICLE_H_
-#define model_DISLOCATIONQUADRATUREPARTICLE_H_
+#ifndef _MODEL_DISLOCATIONQUADRATUREPARTICLE_H_
+#define _MODEL_DISLOCATIONQUADRATUREPARTICLE_H_
 
 #include <Eigen/Dense>
-#include <model/SpaceDecomposition/SpaceCellParticle.h>
+#include <model/SpaceDecomposition/SpatialCellParticle.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/NearestNeighbor/DislocationCell.h>
+
 
 
 namespace model {
 	
 	/********************************************************************************************/
 	/********************************************************************************************/
-	template<short unsigned int dim, double & cellSize>
-	struct DislocationQuadratureParticle : public SpaceCellParticle<DislocationQuadratureParticle<dim,cellSize>,dim,cellSize>
+	template<short unsigned int dim>
+	struct DislocationQuadratureParticle :
+    /* inheritance */ public SpatialCellParticle<DislocationQuadratureParticle<dim>,dim>
     {
         
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -29,12 +31,12 @@ namespace model {
 #include UserStressFile
 #endif
 		
-		typedef DislocationQuadratureParticle<dim,cellSize> DislocationQuadratureParticleType;
-		typedef SpaceCellParticle<DislocationQuadratureParticleType,dim,cellSize> SpaceCellParticleType;
-		typedef typename SpaceCellParticleType::CellMapType  CellMapType;
-		typedef typename SpaceCellParticleType::ParticleContainerType ParticleContainerType;
-		typedef typename SpaceCellParticleType::VectorDimD   VectorDimD;
-		typedef typename SpaceCellParticleType::VectorDimI   VectorDimI;
+		typedef DislocationQuadratureParticle<dim> DislocationQuadratureParticleType;
+		typedef SpatialCellParticle<DislocationQuadratureParticleType,dim> SpatialCellParticleType;
+		typedef typename SpatialCellParticleType::CellMapType  CellMapType;
+		typedef typename SpatialCellParticleType::ParticleContainerType ParticleContainerType;
+		typedef typename SpatialCellParticleType::VectorDimD   VectorDimD;
+//		typedef typename SpatialCellParticleType::VectorDimI   VectorDimI;
 		typedef Eigen::Matrix<double,dim,dim> MatrixDim;
 		
 		//! A const reference to Quadrature weight corresponding to this particle
@@ -60,15 +62,16 @@ namespace model {
 		/********************************************************/
 		DislocationQuadratureParticle(const double& qA,const double& qW,
 									  const VectorDimD& Pin, const VectorDimD& Tin, const VectorDimD& Bin) :
-		/* init list */ SpaceCellParticleType::SpaceCellParticle(Pin),
-        //		/* init list */ k(kin),
+		/* base init */ SpatialCellParticleType::SpatialCellParticle(Pin),
 		/* init list */ quadAbscissa(qA),
 		/* init list */ quadWeight(qW),
 		/* init list */ P(Pin),
 		/* init list */ T(Tin),
 		/* init list */ B(Bin)
-        {
+        {/*! Constructor updates the alpha-tensor of the cell containing this
+          */
             
+            //this->pCell->alpha += B * T.transpose() * quadWeight;
             this->pCell->alpha += B * T.transpose() * quadWeight;
 		}
 		
@@ -130,7 +133,8 @@ namespace model {
             }
             
             
-            switch (nearCellStressApproximation) {
+            switch (nearCellStressApproximation)
+            {
                 case FULL: // quadrature-quadrature
                     // finish here
                     assert(0 && "FINISH HERE");
@@ -141,6 +145,7 @@ namespace model {
                     }
                     break;
                 case CELL_CELL: // cell-cell
+                    //temp+= this->pCell->nearStress;
                     temp+= this->pCell->nearStress;
                     break;
                     
@@ -149,7 +154,8 @@ namespace model {
             }
             
             
-            switch (farCellStressApproximation) {
+            switch (farCellStressApproximation)
+            {
                 case FULL: // quadrature-quadrature
                     // finish here
                     assert(0 && "FINISH HERE");
@@ -160,6 +166,7 @@ namespace model {
                     }
                     break;
                 case CELL_CELL: // cell-cell
+                    //temp+= this->pCell->farStress;
                     temp+= this->pCell->farStress;
                     break;
                     
@@ -187,20 +194,17 @@ namespace model {
 	};
     
     // Static data members
-	template <short unsigned int dim, double & cellSize>
-    double DislocationQuadratureParticle<dim,cellSize>::a2=1.0;  // square of core size a
+	template <short unsigned int dim>
+    double DislocationQuadratureParticle<dim>::a2=1.0;  // square of core size a
     
-	template <short unsigned int dim, double & cellSize>
-	const Eigen::Matrix<double,dim,dim> DislocationQuadratureParticle<dim,cellSize>::I=Eigen::Matrix<double,dim,dim>::Identity();  // square of core size a
+	template <short unsigned int dim>
+	const Eigen::Matrix<double,dim,dim> DislocationQuadratureParticle<dim>::I=Eigen::Matrix<double,dim,dim>::Identity();  // square of core size a
+        
+    template <short unsigned int dim>
+    int DislocationQuadratureParticle<dim>::nearCellStressApproximation=3;  // square of core size a
     
-    //    template <short unsigned int dim, double & cellSize>
-    //    bool DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress=false;  // square of core size a
-    
-    template <short unsigned int dim, double & cellSize>
-    int DislocationQuadratureParticle<dim,cellSize>::nearCellStressApproximation=3;  // square of core size a
-    
-    template <short unsigned int dim, double & cellSize>
-    int DislocationQuadratureParticle<dim,cellSize>::farCellStressApproximation=3;  // square of core size a
+    template <short unsigned int dim>
+    int DislocationQuadratureParticle<dim>::farCellStressApproximation=3;  // square of core size a
     
     
     /**************************************************************************/

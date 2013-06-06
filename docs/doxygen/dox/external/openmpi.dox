@@ -15,6 +15,8 @@ namespace model {
 
  $ cd openmpi-1.6.3
 
+$ make sure that the configure/make/make install process is done with a c++0x compiler. In os X you can use "gcc select" to select the right gcc compiler
+
  $ ./configure --prefix=$HOME/local/openmpi --with-openib=/usr --with-sge CC=icc CXX=icpc F77=ifort FC=ifort
 
  $ make

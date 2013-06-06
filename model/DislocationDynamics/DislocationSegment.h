@@ -63,7 +63,9 @@ namespace model {
 	class DislocationSegment :
 	/*	                      */ public SplineSegmentBase<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>,
 	/*                                               */ _dim, corder, alpha>,
-	/*	                      */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >{
+//    /*               */ public AddressBook<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >, // REMOVE THIS
+	/*	                      */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >
+    {
 		
         
     public:
@@ -86,7 +88,7 @@ namespace model {
         typedef typename GlidePlaneObserver<LinkType>::GlidePlaneType GlidePlaneType;
 		typedef typename GlidePlaneObserver<LinkType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
         
-        typedef DislocationQuadratureParticle<dim,cellSize> DislocationQuadratureParticleType;
+        typedef DislocationQuadratureParticle<dim> DislocationQuadratureParticleType;
         
         typedef std::vector<Eigen::Matrix<double,dim,1>> vector_VectorDim;
 

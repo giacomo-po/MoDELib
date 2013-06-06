@@ -1,9 +1,9 @@
 /* This file is part of model, the Mechanics of Defects Evolution Library.
  *
- * Copyright (C) 2011 by Mamdouh Mohamed <mamdouh.s.mohamed@gmail.com>, 
+ * Copyright (C) 2011 by Mamdouh Mohamed <mamdouh.s.mohamed@gmail.com>,
  * Copyright (C) 2011 by Giacomo Po <giacomopo@gmail.com>.
  *
- * model is distributed without any warranty under the 
+ * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
@@ -39,13 +39,13 @@ namespace model {
         
         typedef boost::ptr_vector<VirtualBoundarySlipSurfaceType> BaseContainerType;
         
-        typedef Eigen::Matrix<double,dim,dim> MatrixDim;			
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
         
         //    typedef std::map<Eigen::Matrix<double,dim+1,1> , std::map<Eigen::Matrix<double,dim,1>, std::auto_ptr<VirtualBoundarySlipSurfaceType > , model::CompareVectorsByComponent<double,dim,float> > ,
         //					               model::CompareVectorsByComponent<double,dim+1,float> > radialSegmentsContainerType;
         
-        typedef std::map< Eigen::Matrix<double,dim+1,1> , std::vector<VirtualBoundarySlipSurfaceType* > , 
+        typedef std::map< Eigen::Matrix<double,dim+1,1> , std::vector<VirtualBoundarySlipSurfaceType* > ,
         model::CompareVectorsByComponent<double,dim+1,float>,
         Eigen::aligned_allocator<std::pair<const Eigen::Matrix<double,dim+1,1>,std::vector<VirtualBoundarySlipSurfaceType* > > > > radialSegmentsContainerType;
         
@@ -122,22 +122,23 @@ namespace model {
                     if(fscanf(fp, "%le%le%le%le%le%le%le%le%le", &sourceP(0),&sourceP(1),&sourceP(2),&sinkP(0),&sinkP(1),&sinkP(2),&Burgers(0),&Burgers(1),&Burgers(2))==9){
                         ii++;
                         
-                        sourceID = DN.insert(sourceP);
+                        sourceID = DN.insertVertex(sourceP);
                         if (DN.node(sourceID).second->nodeMeshLocation!=onMeshBoundary) {
                             std::cout << "Error: Source node of Virtual dislocation no. " << ii << " was not recognized as boundary node. Check its coordinates" << std::endl;
                             assert(0);
-                        }	 
+                        }
                         
-                        sinkID   = DN.insert(sinkP);
+                        sinkID   = DN.insertVertex(sinkP);
                         
                         if (DN.node(sinkID).second->nodeMeshLocation!=onMeshBoundary) {
                             std::cout << "Error: Sink node of Virtual dislocation no. " << ii << " was not recognized as boundary node. Check its coordinates" << std::endl;
                             assert(0);
                         }
-			if ((sinkP-sourceP).norm()>1.0e-5){
-                        DN.connect(sourceID,sinkID,Burgers); // create a dislocation segment
-                        DN.template disconnect<true>(sourceID,sinkID); // destroy the dislocation segment in order to create the boundary segment. true=remove isolated nodes
-			}
+                        if ((sinkP-sourceP).norm()>1.0e-5)
+                        {
+                            DN.connect(sourceID,sinkID,Burgers); // create a dislocation segment
+                            DN.template disconnect<true>(sourceID,sinkID); // destroy the dislocation segment in order to create the boundary segment. true=remove isolated nodes
+                        }
                     }
                 }
                 
@@ -156,7 +157,7 @@ namespace model {
         
         bool checkSegmentsRepeatness (const radialSegmentsContainerIterator& gpIter, const VectorDim& P, const VectorDim& disBurg, const unsigned int& addIndex) {
             
-            double tol = 1.0e-7;	
+            double tol = 1.0e-7;
             
             int toBeRemoved_r = -1;
             int toBeRemoved_v = -1;
@@ -174,10 +175,10 @@ namespace model {
                         toBeRemoved_r = ir;
                         toBeRemoved_v = iv;
                         break;
-                    }  
+                    }
                 }
                 
-                if (toBeRemoved_r >= 0) break;  
+                if (toBeRemoved_r >= 0) break;
             }
             
             if (toBeRemoved_r >= 0) {
@@ -187,7 +188,7 @@ namespace model {
                 //------- if a virtual dislocation didn't have any more radial segments, remove it from the list "radialSegmentsContainer"
                 if (gpIter->second[toBeRemoved_v]->radialSegmentsVector.size() == 0) gpIter->second.erase(gpIter->second.begin()+toBeRemoved_v);
             }
-            else	this->rbegin()->addRadialSegments (addIndex); 
+            else	this->rbegin()->addRadialSegments (addIndex);
             
             return (toBeRemoved_r == -1);
         }
@@ -211,15 +212,15 @@ namespace model {
         MatrixDim stressFromGlidePlane(const Eigen::Matrix<double,dim+1,1>& gpKey, const VectorDim& Rfield) const {
             /*! the stress field induced by boundary segments that belongs to a given glide plane
              */
-            MatrixDim temp(MatrixDim::Zero());            
+            MatrixDim temp(MatrixDim::Zero());
             radialSegmentsContainerConstIterator gpIter = radialSegmentsContainer.find(gpKey);
-            if( gpIter != radialSegmentsContainer.end() ) { 
+            if( gpIter != radialSegmentsContainer.end() ) {
                 for (unsigned int iv=0; iv<gpIter->second.size(); iv++) {
-                    temp+=gpIter->second[iv]->stress(Rfield);	
+                    temp+=gpIter->second[iv]->stress(Rfield);
                 }
             }
             return temp;
-        }   
+        }
         
         
         /* displacement *******************************************************/
@@ -228,18 +229,18 @@ namespace model {
              */
             VectorDim temp(VectorDim::Zero());
             for(typename BaseContainerType::const_iterator sIter=this->begin();sIter!=this->end();++sIter){
-                temp+=sIter->displacement(Rfield,S);	
+                temp+=sIter->displacement(Rfield,S);
             }
             return temp;
-        }	
+        }
         
         
         /* outputVirtualDislocations ******************************************/
         void outputVirtualDislocations (const int& outputFrequency, const unsigned int& runID) const {
             /*! Function to output the Virtual Dislocations structure
              */
-            model::SequentialOutputFile<'B',true>::set_increment(outputFrequency); 
-            model::SequentialOutputFile<'B',true>::set_count(runID); 	
+            model::SequentialOutputFile<'B',true>::set_increment(outputFrequency);
+            model::SequentialOutputFile<'B',true>::set_count(runID);
             model::SequentialOutputFile<'B',true> BSFile;
             for(typename BaseContainerType::const_iterator sIter=this->begin();sIter!=this->end();++sIter){
                 BSFile << std::setprecision(15)<<std::scientific << sIter->sourceP.transpose() << "  " <<
@@ -247,7 +248,7 @@ namespace model {
                 sIter->Burgers.transpose() << "  " << std::endl;   // coreL shouldn't be outputted
             }
         }
-                
+        
     };
     /**************************************************************************/
     /**************************************************************************/
@@ -258,7 +259,7 @@ namespace model {
 
 //=======================================================================
 // add a new entity to the container (from a restart file)
-//======================================================================		   
+//======================================================================
 //      template <typename SharedType>
 //      void add (const double gp_H, const VectorDim gp_N, const VectorDim sourceP, const VectorDim sourceN, const VectorDim sinkP, const VectorDim sinkN,
 //	        const VectorDim Burgers, const double coreL, const SharedType* sharedPtr) {
