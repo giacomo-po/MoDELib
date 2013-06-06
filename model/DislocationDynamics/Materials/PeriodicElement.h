@@ -94,6 +94,7 @@ namespace model {
     const double PeriodicElement<29,Isotropic>::b  =0.2556e-9; // Burgers vector[m]
     const double PeriodicElement<29,Isotropic>::B  =1.0e-4;  // Dislocation drag coefficient [Pa*sec]
     const double PeriodicElement<29,Isotropic>::rho=8940.0;  // Mass density [kg/m^3]
+   
     /**************************************************************************/
     /**************************************************************************/    
     template <>
@@ -117,6 +118,7 @@ namespace model {
     const double PeriodicElement<74,Isotropic>::b  =0.2722e-9; // Burgers vector[m]
     const double PeriodicElement<74,Isotropic>::B  =1.0e-4;  // Dislocation drag coefficient [Pa*sec]
     const double PeriodicElement<74,Isotropic>::rho=19250.0;  // Mass density [kg/m^3]
+    
     /**************************************************************************/
     /**************************************************************************/    
     template <>
