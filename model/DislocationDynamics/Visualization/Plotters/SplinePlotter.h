@@ -35,7 +35,7 @@
 
 #include <model/openGL/BitmapPlotter.h>
 //#include <model/DislocationDynamics/Visualization/Plotters/BitmapPlotter.h>
-#include <model/OpenGL/RGBmap.h>
+#include <model/openGL/RGBmap.h>
 
 
 

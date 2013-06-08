@@ -26,7 +26,7 @@ namespace model {
 	 * Let \f$u\in[0,1]\f$ and \f$\mathbf{r}(u): [0,1]\rightarrow \mathbb{R}^d\f$ a parametric curve. 
 	 * The first derivative \f$\mathbf{r}_{,u}\f$ with respect to the parameter \f$u\f$ represents the (non unitary) 
 	 * parametric tangent to the curve. The arc length \f$l\f$ along the curve can be calculated as:
-	 * of the parameter $u$ at each time $t$:
+	 * of the parameter \f$u\f$ at each time \f$t\f$:
 	 * \f[
 	 * l(u)=\int_0^u\sqrt{\mathbf{r}_{,v}\cdot\mathbf{r}_{,v}}dv
 	 * \f]
@@ -34,7 +34,7 @@ namespace model {
 	 * \f[
 	 * L=\int_0^1\sqrt{\mathbf{r}_{,u}\cdot\mathbf{r}_{,u}}du
 	 * \f]
-	 * The kernel of the integral above represents the jacobian of the transformation between $u$ and $l$:
+	 * The kernel of the integral above represents the jacobian of the transformation between \f$ u \f$ and \f$ l \f$:
 	 * \f[
 	 * \begin{eqnarray}
 	 * J&=\frac{d l}{d u}=\sqrt{\mathbf{r}_{,u}\cdot\mathbf{r}_{,u}} \\

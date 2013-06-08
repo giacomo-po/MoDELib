@@ -53,8 +53,12 @@ namespace model {
 		const SharedPtrType pCell;
 
 #ifdef _MODEL_MPI_
-        int mpiID;
+        size_t mpiID;
+#else
+        const size_t mpiID;
 #endif
+        
+
 
 		
 		/* Constructor **********************/
@@ -62,7 +66,8 @@ namespace model {
 //        /* init list */ cellID(floorEigen<dim>(P/cellSize)),
 //        /* init list */ cellID(getCellIDByPosition(P)),
 //		/* init list */ pCell(this->getCellByID(cellID))
-		/* init list */ pCell(this->getCellByPosition(P))
+		/* init list */ pCell(this->getCellByPosition(P)),
+        /* init list */ mpiID(this->sID)
         {
 			pCell->addParticle(this->p_derived());
 		}
@@ -83,33 +88,46 @@ namespace model {
 //		}
 
         /* neighborCellsBegin ***************************************/
-        typename CellMapType::const_iterator neighborCellsBegin() const {
+        typename CellMapType::const_iterator neighborCellsBegin() const
+        {
             return pCell->neighborCellsBegin();
         }
         
         /* neighborCellsEnd ***************************************/
-        typename CellMapType::const_iterator neighborCellsEnd() const {
+        typename CellMapType::const_iterator neighborCellsEnd() const
+        {
             return pCell->neighborCellsEnd();
         }
         
         /* nearCellsBegin ***************************************/
-        typename CellMapType::const_iterator nearCellsBegin() const {
+        typename CellMapType::const_iterator nearCellsBegin() const
+        {
             return pCell->nearCellsBegin();
         }
         
         /* nearCellsEnd ***************************************/
-        typename CellMapType::const_iterator nearCellsEnd() const {
+        typename CellMapType::const_iterator nearCellsEnd() const
+        {
             return pCell->nearCellsEnd();
         }
         
         /* farCellsBegin ***************************************/
-        typename CellMapType::const_iterator farCellsBegin() const {
+        typename CellMapType::const_iterator farCellsBegin() const
+        {
             return pCell->farCellsBegin();
         }
         
         /* farCellsEnd ***************************************/
-        typename CellMapType::const_iterator farCellsEnd() const {
+        typename CellMapType::const_iterator farCellsEnd() const
+        {
             return pCell->farCellsEnd();
+        }
+        
+        
+        template<typename InteractionType>
+        typename InteractionType::ResultType get() const
+        {
+            return InteractionType::get(this->derived());
         }
         
 	};

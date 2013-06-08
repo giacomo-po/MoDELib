@@ -22,6 +22,15 @@ Before installing Metis, load new version of cmake
 
  - cd metis-5.0.2
 
++ (Optional) To build Metis with 64-bit integers (to avoid integer overflow when using large number of particles), in include/metis.h change
++
++   #define IDXTYPEWIDTH 32
++
++ to
++
++   #define IDXTYPEWIDTH 64
++
+
  - make config prefix=$HOME/local/metis
 
  - make install

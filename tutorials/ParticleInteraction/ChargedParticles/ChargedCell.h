@@ -53,6 +53,15 @@ namespace model {
         }
         
         
+        /*****************************************/
+        template <class T>
+        friend T& operator<< (T& os, const ChargedCell& cC)
+        {/*! Operator << use ParticleType specific << operator
+          */
+            os<<cC.cellID.transpose()<<"\t"<<cC.size()<<"\t"<<cC.neighborSize()<<"\t"<<cC.assignedRank;
+            return os;
+        }
+        
     };
     
 }

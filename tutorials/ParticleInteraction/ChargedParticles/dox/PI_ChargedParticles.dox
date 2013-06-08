@@ -1,0 +1,49 @@
+namespace model {
+/*! \page PI_chargedparticles Getting Started
+
+
+
+\section PI_chargedparticles_main The source file (main.cpp)
+The source file is main.cpp. This file contains the following code:
+\include ParticleInteraction/ChargedParticles/main.cpp
+
+
+\section FRsource_makefile Compiling: the Makefile
+\verbatim
+cd <MODELDIR>/tutorials/ParticleInteraction/ChargedParticles
+\endverbatim
+
+The same Makefile can now be used to compile both the serial version and the parallel version (MPI) of the code. The serial version can be compiled executing the following command in your terminal:
+\verbatim
+make serial
+\endverbatim
+This compiles the source code into the executable \b CPserial. 
+
+Similarly, The parallel version (MPI) of the code can be compiled using:
+\verbatim
+make parallel 
+\endverbatim
+This creates the executable \b CPparallel. Compiling the parallel version requires that both \ref openmpi and \ref metis are correctly installed in your system.
+
+
+\section FRsource_run Running CPserial and CPparallel
+
+The serial version of the code can be run executing:
+\verbatim
+./CPserial
+\endverbatim
+
+On the other hand, the parallel version of the code can be run executing:
+\verbatim
+mpirun -np N v
+\endverbatim
+where \b N is the number of processors to be used.
+
+  \image html ParticleInteraction/ChargedParticles/dox/cells_50k.jpg
+  \image latex ParticleInteraction/ChargedParticles/dox/cells_50k.eps "Decomposition in cells" width=7cm
+
+
+
+
+ */ 
+}

@@ -14,11 +14,16 @@
 
 #include <tutorials/ParticleInteraction/ChargedParticles/ChargedCell.h>
 #include <model/SpaceDecomposition/SpatialCellParticle.h>
+#include <tutorials/ParticleInteraction/ChargedParticles/CoulombForce.h>
 
 namespace model {
     
     
-    class ChargedParticle : public SpatialCellParticle<ChargedParticle,3>
+//    class CoulombForce;
+    
+    
+    class ChargedParticle :
+    /* inheritance     */ public SpatialCellParticle<ChargedParticle,3>
     {
         
     public:
@@ -27,37 +32,35 @@ namespace model {
         typedef  SpatialCellParticle<ChargedParticle,3>::PositionType PositionType;
         typedef  SpatialCellParticle<ChargedParticle,3>::PositionType ForceType;
         
-
+        typedef CoulombForce<ChargedParticle> CoulombForceInteraction;
         
     private:
 
-        PositionType _p;
-        double _q; // the electric charge of the particle
-        
+        PositionType _p; // THIS SHOULD BE STORED IN SpatialCellParticle
+
     public:
         
         ForceType force;
+        const double q; // the electric charge of the particle
         double energy;
         
         /*****************************************/
         ChargedParticle(const PositionType& pIN, const double& qIN) :
         /* init list */ SpatialCellParticle<ChargedParticle,3>::SpatialCellParticle(pIN), //  SpatialCellParticle must be constructed with initial position
         /* init list */ _p(pIN),
-        /* init list */ _q(qIN),
         /* init list */ force(ForceType::Zero()),
+        /* init list */ q(qIN),
         /* init list */ energy(0.0)
         {/*! Constructor with input position and charge
           */
-            //std::cout<< "Creating particle ";
-            //std::cout<<*this;
         }
         
-        /*****************************************/
-        const double& q() const
-        {/*! The charge of this ChargedParticle
-          */
-            return _q;
-        }
+//        /*****************************************/
+//        const double& q() const
+//        {/*! The charge of this ChargedParticle
+//          */
+//            return _q;
+//        }
         
         /*****************************************/
         const PositionType& P() const
@@ -74,11 +77,13 @@ namespace model {
           *  ChargedParticle p;
           *  std::cout<<p;
           */
-            os  <<cP.sID<<" "
-            <<cP.P().transpose()<<" "
-            <<cP.q()<<" "
-            <<cP.force.transpose()<<" "
-            <<cP.energy;
+            os<<cP.sID<<"\t"
+            <<cP.P().transpose()<<"\t"
+            <<cP.q<<"\t"
+//            <<cP.force.transpose()<<"\t"
+            <<cP.get<CoulombForceInteraction>().transpose()<<"\t"
+            <<cP.energy<<"\t"
+            <<cP.mpiID<<"\t";
             return os;
         }
             

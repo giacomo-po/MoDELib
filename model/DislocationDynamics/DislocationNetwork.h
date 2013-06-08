@@ -20,6 +20,8 @@
 // Motion of BoundarySubnetworks
 
 // TO DO
+// -5 use modelMacros instead of assert
+// -4 CHANGE definition of modelMacros in debug mode BECAUSE assert(x) CAN BE REMOVED BY NDEBUG!!! MUST USE mode::assert_fail
 // -3 MAKE isIsolated and isBalanced data members of NetworkNode that are modified by addToNeighbors and removeFromNeigbors
 // implement IndependentPath
 
@@ -100,7 +102,7 @@ namespace model {
     /* inheritance          */ public Network<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
 	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>
 #ifdef _MODEL_DD_MPI_
-    /* inheritance          */, private ParticleSystem<true,DislocationQuadratureParticle<_dim> >
+    /* inheritance          */, private ParticleSystem<DislocationQuadratureParticle<_dim> >
 #endif
     {
 		
@@ -120,7 +122,7 @@ namespace model {
 		typedef typename SpatialCellObserverType::CellMapType CellMapType;
 		typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
 #ifdef _MODEL_DD_MPI_
-        typedef ParticleSystem<true,DislocationQuadratureParticle<_dim> > ParticleSystemType;
+        typedef ParticleSystem<DislocationQuadratureParticle<_dim> > ParticleSystemType;
 #endif
 		enum {NdofXnode=NodeType::NdofXnode};
 		

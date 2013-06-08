@@ -63,6 +63,15 @@ namespace model {
 //            return  resultVector[k];
 //        }
         
+        //        /**********************************************************************/
+        //        static ResultType get(const ChargedParticleType& cp1)
+        //        {
+        //            return ResultType((ResultType()<<this->resultVector[cp1.mpiID*3+0],
+        //                               /*         */ this->resultVector[cp1.mpiID*3+1],
+        //                               /*         */ this->resultVector[cp1.mpiID*3+2]).finished());
+        //        }
+
+        
     };
     
     

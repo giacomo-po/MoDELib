@@ -10,15 +10,12 @@
  */
 
 
-// run
-// mpiexec -np 4 particles
-
-#include <model/ParticleInteraction/ParticleSystem.h> // the main object from pil library
-#include <model/Utilities/TerminalColors.h> // the main object from pil library
+#include <model/ParticleInteraction/ParticleSystem.h>
+#include <model/Utilities/TerminalColors.h> 
 
 #include <tutorials/ParticleInteraction/ChargedParticles/ChargedParticle.h> // a user-defined type of particle to be inserted in ParticleSystem
-#include <tutorials/ParticleInteraction/ChargedParticles/CoulombForce.h> // a user-defined type of force interaction between ChargedParticle objects
-#include <tutorials/ParticleInteraction/ChargedParticles/CoulombEnergy.h> // a user-defined type of energy interaction between ChargedParticle objects
+
+//#include <tutorials/ParticleInteraction/ChargedParticles/CoulombEnergy.h> // a user-defined type of energy interaction between ChargedParticle objects
 
 
 using namespace model;
@@ -26,20 +23,22 @@ using namespace model;
 int main (int argc, char * argv[]) {
     
     // 0- define the type of ParticleSystem specifying the type of particles
-    typedef model::ParticleSystem<true,ChargedParticle> ChargedParticleSystem;
-    //ChargedParticleSystem::useCellPartitioner=true;
+    typedef model::ParticleSystem<ChargedParticle> ChargedParticleSystem;
+    
+    
+//    std::cout<<" bytes in ChargedParticle="<<sizeof(ChargedParticle)<<std::endl;
     
     // 1- create a particleSystem of ChargedParticle(s)
     double cellSize=1.0;
     ChargedParticleSystem particleSystem(argc,argv,cellSize);
-    MPI_Barrier(MPI_COMM_WORLD);
     
     // 2- add some ChargedParticle(s) to the particleSystem with random position
-    //    and different charges
+    //    in [-10,10] and charge=1.0
     std::cout<<model::blueBoldColor<<"CREATING RANDOM INITIAL PARTICLES"<<model::defaultColor<<std::endl;
     typedef  ChargedParticleSystem::PositionType PositionType; // helper
-    for (int k=0;k<500000;++k)
+    for (size_t k=0;k<500000;++k)
     {
+        // note that PositionType::Random() returns values in [-1, 1]
         particleSystem.addParticle(PositionType::Random()*10.0, 1.0);
     }
     // Add a more particles 
@@ -53,21 +52,34 @@ int main (int argc, char * argv[]) {
     
 
 
-    particleSystem.MPIoutput();
 //
 //
     
-    std::cout<<model::blueBoldColor<<"PARTITIONING"<<model::defaultColor<<std::endl;
-	particleSystem.partionSystem(true);
+//    std::cout<<model::blueBoldColor<<"PARTITIONING"<<model::defaultColor<<std::endl;
+	//particleSystem.partionSystem();
     
+    
+//    SequentialOutputFile<'P',true> pFile0;
+//    pFile0<<particleSystem.particles()<<std::endl;
+
+//    particleSystem.MPIoutput();
+
     std::cout<<model::blueBoldColor<<"COMPUTING INTERACTION"<<model::defaultColor<<std::endl;
-    // 3- compute all binary CoulombForce interactions
-    particleSystem.computeInteraction<CoulombForce>();
-//
-//
-//    particleSystem.getInteractionResult<CoulombForce>(0);
-//
-//    
+
+    //    // 3- compute all binary CoulombForce interactions
+    typedef ChargedParticle::CoulombForceInteraction CoulombForceInteraction;
+    particleSystem.computeInteraction<CoulombForceInteraction>();
+    
+    
+    SequentialOutputFile<'P',true> pFile1;
+    pFile1<<particleSystem.particles()<<std::endl;
+
+
+    ////
+////
+////    particleSystem.getInteractionResult<CoulombForce>(0);
+////
+////    
 //    particleSystem.MPIoutput();
     
     return 0;

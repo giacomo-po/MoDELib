@@ -92,17 +92,22 @@ namespace model {
 			return (iter!=cellMap.end())? std::make_pair(true,iter->second) : std::make_pair(false,( SpatialCellType*) NULL);
         }
         
-//        /*****************************************/
-//        template <class T>
-//        friend T& operator<< (T& os, const SpatialCellObserver<SpatialCellType,dim>& sCO)
-//        {/*! Operator << use ParticleType specific << operator
-//          */
-//            for (typename CellMapType::const_iterator cIter=sCO.begin();cIter!=sCO.end();++cIter)
-//            {
-//                os << (*cIter->second) << std::endl;
-//            }
-//            return os;
-//        }
+        static const CellMapType& cells()
+        {
+            return cellMap;
+        }
+        
+        /*****************************************/
+        template <class T>
+        friend T& operator<< (T& os, const SpatialCellObserver<SpatialCellType,dim>& sCO)
+        {/*! Operator << uses ParticleType-specific operator <<
+          */
+            for (typename CellMapType::const_iterator cIter=sCO.begin();cIter!=sCO.end();++cIter)
+            {
+                os << (*cIter->second) << std::endl;
+            }
+            return os;
+        }
 		
 		
 	protected:

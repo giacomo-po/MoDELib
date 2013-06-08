@@ -9,7 +9,8 @@
 #ifndef model_STATICID_H_
 #define model_STATICID_H_
 
-#include <assert.h> 
+//#include <assert.h>
+#include <model/Utilities/modelMacros.h> // model_checkInput
 
 namespace model {
 	
@@ -65,14 +66,14 @@ namespace model {
 		/* set_count  **************************************/
 
 		static void set_count(const size_t& newCount){
-			assert(newCount>=count && "YOU ARE TRYING TO SET THE COUNTER TO A LOWER VALUE THAN THE CURRENT ONE.");
+			model_checkInput(newCount>=count && "YOU ARE TRYING TO SET THE COUNTER TO A LOWER VALUE THAN THE CURRENT ONE.");
 			count =  newCount;
 			nextCount=count+increment;
 		}
 		
 		/* set_increment  **********************************/
 		static void set_increment(const int& newIncrement){
-			assert(newIncrement>=1 && "newIncrement MUST BE >=1.");
+			model_checkInput(newIncrement>=1 && "newIncrement MUST BE >=1.");
 			nextCount+=(newIncrement-increment);	// now next time count will be used it will be correct
 			increment = newIncrement;
 		}

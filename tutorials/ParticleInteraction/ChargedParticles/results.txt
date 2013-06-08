@@ -1,0 +1,7 @@
+for 500k particles, no writing to file
+
+time ./CPserial (no-openmp) 	1m32.476s
+time ./CPserial (   openmp) 	0m18.218s
+
+time mpirun -np 1 CPparallel	1m39.987s
+time mpirun -np 8 CPparallel	0m22.794s

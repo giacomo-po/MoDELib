@@ -5,11 +5,12 @@ close all
 
 
 %% Load files
-fileID=1;
-cellSize=6;
+fileID=0;
+cellSize=1;
 P=load(['P/P_' num2str(fileID) '.txt']);
 C=load(['C/C_' num2str(fileID) '.txt']);
 
+nCells=size(C,1)
 
 %% Prepare colors
 colormap jet
@@ -37,6 +38,7 @@ inefficiency=max(rankLoads-optimumLoad)/optimumLoad;
 fontSize=18;
 
 figure(2)
+clf
 bar([1:rankMax]-1,rankLoads)
 hold on 
 plot(C(:,6),C(:,4).*C(:,5),'ro')
@@ -48,15 +50,14 @@ legend('cumulative processor weight','individual cell weight','optimum (average)
 set(gca,'FontSize',fontSize)
 title(['load imbalance = ' num2str(inefficiency*100) '%'])
 
-%return
 %% Plot particles and cells
 figure(1)
-plot3(P(:,2),P(:,3),P(:,4),'k.','linewidth',1)
+clf
+plot3(P(:,2),P(:,3),P(:,4),'k.')
 hold on
 for c=1:size(C,1)
     color=cellColors(C(c,6)+1,:);
-    %disp(color)
-plotCube(C(c,[1:3]),cellSize,color)
+    plotCube(C(c,[1:3]),cellSize,color)
 end
 grid on
 axis equal
