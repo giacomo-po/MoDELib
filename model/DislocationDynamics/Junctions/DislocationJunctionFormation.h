@@ -71,7 +71,7 @@ namespace model {
                 
                 
                 
-                const DislocationSegmentIntersection<dim,pOrder> dsi(linkIterA->second->hermiteCoefficients(),linkIterA->second->glidePlaneNormal);
+                const DislocationSegmentIntersection<dim,pOrder> dsi(linkIterA->second-> hermiteCoefficients(),linkIterA->second->glidePlaneNormal);
                 
 				for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.linkEnd();linkIterB++)
                 {
@@ -95,7 +95,7 @@ namespace model {
                         
                         if (!L1isSessile && !L2isSessile) // both are glissile
                         { 
-                            temp = dsi.intersectWith(linkIterB->second->hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol);
+                            temp = dsi.intersectWith(linkIterB->second-> hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol);
                         }
                         
                         else if (!L1isSessile && L2isSessile) // L1 is glissile and L2 is sessile
@@ -107,10 +107,10 @@ namespace model {
                                 // cannot intersect
                             }
                             else if(gnAgnB && !gnAsnB){ // use planeNormal of A and planeNormal of B
-                                temp = dsi.intersectWith(linkIterB->second->hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol);
+                                temp = dsi.intersectWith(linkIterB->second-> hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol);
                             }
                             else if (!gnAgnB && gnAsnB){ // use planeNormal of A and sessileNormal of B
-                                temp = dsi.intersectWith(linkIterB->second->hermiteCoefficients(),linkIterB->second->sessilePlaneNormal,collisionTol);
+                                temp = dsi.intersectWith(linkIterB->second-> hermiteCoefficients(),linkIterB->second->sessilePlaneNormal,collisionTol);
                             }
                             else{
                                 assert(0 && "GLISSILE AND SESSILE PLANE NORMALS OF B MUST BE DISTINCT.");
@@ -125,11 +125,11 @@ namespace model {
                                 // cannot intersect
                             }
                             else if(gnBgnA && !gnBsnA){ // use planeNormal of A and planeNormal of B
-                                temp = dsi.intersectWith(linkIterB->second->hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol);
+                                temp = dsi.intersectWith(linkIterB->second-> hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol);
                             }
                             else if (!gnBgnA && gnBsnA){ // use sessileNormal of A and use planeNormal of B
-                                const DislocationSegmentIntersection<dim,pOrder> dsi2(linkIterA->second->hermiteCoefficients(),linkIterA->second->sessilePlaneNormal);
-                                temp = dsi2.intersectWith(linkIterB->second->hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol);
+                                const DislocationSegmentIntersection<dim,pOrder> dsi2(linkIterA->second-> hermiteCoefficients(),linkIterA->second->sessilePlaneNormal);
+                                temp = dsi2.intersectWith(linkIterB->second-> hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol);
                             }
                             else{
                                 assert(0 && "GLISSILE AND SESSILE PLANE NORMALS OF B MUST BE DISTINCT.");
@@ -142,7 +142,7 @@ namespace model {
                         
                         
                         
-                        // std::set<std::pair<double,double> > temp ( dsi.intersectWith(linkIterB->second->hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol));
+                        // std::set<std::pair<double,double> > temp ( dsi.intersectWith(linkIterB->second-> hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol));
                         
                         
                         for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter)

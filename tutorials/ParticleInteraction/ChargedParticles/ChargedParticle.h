@@ -19,7 +19,6 @@
 namespace model {
     
     
-//    class CoulombForce;
     
     
     class ChargedParticle :
@@ -51,17 +50,13 @@ namespace model {
         /* init list */ force(ForceType::Zero()),
         /* init list */ q(qIN),
         /* init list */ energy(0.0)
-        {/*! Constructor with input position and charge
+        {/*!@param[in] pIN position of this ChargedParticle
+          * @param[in] qIN charge of this ChargedParticle
+          * 
+          * Constructor with input position and charge
           */
         }
-        
-//        /*****************************************/
-//        const double& q() const
-//        {/*! The charge of this ChargedParticle
-//          */
-//            return _q;
-//        }
-        
+                
         /*****************************************/
         const PositionType& P() const
         {/*! The charge of this ChargedParticle

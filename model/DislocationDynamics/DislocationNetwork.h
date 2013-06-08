@@ -97,10 +97,10 @@ namespace model {
 	/**************************************************************************/
 	/**************************************************************************/
 	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	class DislocationNetwork :
-    /* inheritance          */ public Network<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >,
-	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >::LinkType>
+    /* inheritance          */ public Network<DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule> >,
+	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule> >::LinkType>
 #ifdef _MODEL_DD_MPI_
     /* inheritance          */, private ParticleSystem<DislocationQuadratureParticle<_dim> >
 #endif
@@ -110,7 +110,7 @@ namespace model {
         
         enum {dim=_dim}; // make dim available outside class
         
-		typedef DislocationNetwork<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> DislocationNetworkType;
+		typedef DislocationNetwork<dim,corder,InterpolationType,qOrder,QuadratureRule> DislocationNetworkType;
 		typedef DislocationNetworkType Derived; // define Derived to use NetworkTypedefs.h
 #include <model/Network/NetworkTypedefs.h>
         typedef DislocationNetworkComponent<NodeType,LinkType> DislocationNetworkComponentType;
@@ -886,8 +886,8 @@ namespace model {
     
     // static data
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    bool DislocationNetwork<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::useImplicitTimeIntegration=false;
+	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    bool DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::useImplicitTimeIntegration=false;
     
     
 	//////////////////////////////////////////////////////////////

@@ -59,12 +59,11 @@
 namespace model {
     
 	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	class DislocationSegment :
-	/*	                      */ public SplineSegmentBase<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>,
-	/*                                               */ _dim, corder, alpha>,
-//    /*               */ public AddressBook<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >, // REMOVE THIS
-	/*	                      */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> >
+	/*	                      */ public SplineSegmentBase<DislocationSegment<_dim,corder,InterpolationType,qOrder,QuadratureRule>,
+	/*                                               */ _dim, corder>,
+	/*	                      */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,qOrder,QuadratureRule> >
     {
 		
         
@@ -73,12 +72,12 @@ namespace model {
         enum{dim=_dim}; // make dim available outside class
         
         
-		typedef DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> Derived; 		// Define "Derived" so that NetworkTypedefs.h can be used
+		typedef DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule> Derived; 		// Define "Derived" so that NetworkTypedefs.h can be used
 #include <model/Network/NetworkTypedefs.h>
 #include <model/Geometry/Splines/SplineEnums.h>
         
         
-		typedef SplineSegmentBase<Derived,dim,corder,alpha> SegmentBaseType;
+		typedef SplineSegmentBase<Derived,dim,corder> SegmentBaseType;
 		typedef std::map<size_t,LinkType* const> AddressMapType;
 		typedef typename AddressMapType::iterator AddressMapIteratorType;
 		typedef Eigen::Matrix<double,dim,qOrder>	MatrixDimQorder;
@@ -91,7 +90,7 @@ namespace model {
         typedef DislocationQuadratureParticle<dim> DislocationQuadratureParticleType;
         
         typedef std::vector<Eigen::Matrix<double,dim,1>> vector_VectorDim;
-
+        
         /******************************************************************/
 	private: //  data members
 		/******************************************************************/
@@ -134,9 +133,9 @@ namespace model {
         
         
         
-		//! The Burgers vector 
+		//! The Burgers vector
 		const VectorDim Burgers;
-
+        
         //! The glide plane unit normal vector
         const VectorDim   glidePlaneNormal;
         
@@ -295,8 +294,8 @@ namespace model {
 			jgauss(k)=rugauss.col(k).norm();
 			rlgauss.col(k)=rugauss.col(k)/jgauss(k);
 			quadratureParticleVector.push_back(new DislocationQuadratureParticleType(Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
-                                                                                     /*                                                                    */ Quadrature<1,qOrder,QuadratureRule>::weights(k),
-                                                                                     /*                                                                    */ rgauss.col(k),rugauss.col(k),Burgers));
+                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k),
+                                                                                     rgauss.col(k),rugauss.col(k),Burgers));
 		}
 		
 		/* stress_source ******************************************************/
@@ -336,7 +335,7 @@ namespace model {
 					  +  0.5* R.cross(Burgers).dot(rugauss.col(k)) * (I*(1.0+3.0*coreLsquared/RaSquared) + 3.0/RaSquared*R*R.transpose())
 					  )/std::pow(RaSquared,1.5);
 		}
-		 
+        
         /* stress_field *******************************************************/
 		MatrixDim stress_field(const size_t & k)
         {/*! @param[in] k			the k-th quadrature point
@@ -783,12 +782,12 @@ namespace model {
             
             // Static Data
             template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-            /*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-            const Eigen::Matrix<double,dim,dim> DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::I=Eigen::Matrix<double,dim,dim>::Identity();
+            /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+            const Eigen::Matrix<double,dim,dim> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::I=Eigen::Matrix<double,dim,dim>::Identity();
             
             template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-            /*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-            double DislocationSegment<dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>::coreLsquared=1.0;
+            /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+            double DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::coreLsquared=1.0;
             
             
             //////////////////////////////////////////////////////////////s

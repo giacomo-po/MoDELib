@@ -48,11 +48,12 @@ typedef typename NetworkLink<Derived>::NodeType NodeType;
 typedef typename NetworkLink<Derived>::LinkType LinkType;
 typedef typename NetworkLink<Derived>::FlowType FlowType;
 
-//typedef model::SplineSegmentBase<Derived,dim,corder,alpha,qOrder,QuadratureRule> SplineSegmentBaseType;
-typedef model::SplineSegmentBase<Derived,dim,corder,alpha> SplineSegmentBaseType;
+//typedef SplineSegmentBase<Derived,dim,corder,alpha,qOrder,QuadratureRule> SplineSegmentBaseType;
+//typedef SplineSegmentBase<Derived,dim,corder,alpha> SplineSegmentBaseType;
+typedef SplineSegmentBase<Derived,dim,corder> SplineSegmentBaseType;
 
 
-typedef model::ParametricCurve<SplineSegmentBaseType,dim> ParametricCurveType;
+typedef ParametricCurve<SplineSegmentBaseType,dim> ParametricCurveType;
 
 //#include<model/Geometry/Splines/SplineEnums.h>
 
@@ -103,7 +104,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////
 // Constructor with Subnetwork* pair of Nodes*
 //template <typename FlowType>
-SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in, 
+SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in,
 /*             */ const FlowType& Fin) : NetworkLink<Derived>::NetworkLink(nodePair_in, Fin)
 {/*! Constructor with Nodes and flow
   */
@@ -158,11 +159,12 @@ double chordLength() const {
 	return chord().norm();
 }
 
-//////////////////////////////////////////////////////////////
-//! Returns the length of the chord vector to the power alpha
-double chordParametricLength() const {
-	return std::pow(chordLength(),alpha);;
-}
+////////////////////////////////////////////////////////////////
+////! Returns the length of the chord vector to the power alpha
+//double chordParametricLength() const
+//{
+//	return std::pow(chordLength(),alpha);;
+//}
 
 
 /////////////////////////////////////////////////////////////////////////////////

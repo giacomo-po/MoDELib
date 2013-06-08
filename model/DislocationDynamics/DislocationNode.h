@@ -31,8 +31,8 @@
 namespace model {
 	
 	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ double & alpha, short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-	class DislocationNode : public SplineNodeBase<DislocationNode<_dim,corder,InterpolationType,alpha,qOrder,QuadratureRule>,
+	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+	class DislocationNode : public SplineNodeBase<DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>,
 	/*                                         */ _dim,corder,InterpolationType>{
 		
 	public:
@@ -41,7 +41,7 @@ namespace model {
         enum{dim=_dim};
         
         // define Derived to use NetworkTypedefs.h
-		typedef DislocationNode       <dim,corder,InterpolationType,alpha,qOrder,QuadratureRule> Derived;
+		typedef DislocationNode       <dim,corder,InterpolationType,qOrder,QuadratureRule> Derived;
 #include <model/Network/NetworkTypedefs.h>
 		
 		

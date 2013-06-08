@@ -68,15 +68,15 @@ namespace model {
 	/************************************************************************/
 	/* SplineSegmentBase, general case **************************************/
 	/************************************************************************/
-	template <typename Derived, short unsigned int dim, short unsigned int corder, double & alpha>
+	template <typename Derived, short unsigned int dim, short unsigned int corder>
 	class SplineSegmentBase {};
 	
 	
 	/************************************************************************/
 	/* SplineSegmentBase, template specialization corder=0 ******************/
 	/************************************************************************/
-	template <typename Derived, short unsigned int dim, double & alpha> 
-	class SplineSegmentBase<Derived,dim,0,alpha> : public NetworkLink<Derived>,
+	template <typename Derived, short unsigned int dim> 
+	class SplineSegmentBase<Derived,dim,0> : public NetworkLink<Derived>,
 	/*	                                        */ public ParametricCurve<Derived, dim> {
 		
 		
@@ -84,6 +84,13 @@ namespace model {
 #include<model/Geometry/Splines/SplineEnums.h>
 		
 		
+        ////////////////////////////////////////////////////////////////
+        //! Returns the length of the chord vector to the power alpha
+        double chordParametricLength() const
+        {
+        	return chordLength();
+        }
+        
 	public:
 		RowNcoeff get_UPOW(const double & uin) const {
 			return (RowNcoeff()<<1.0, uin).finished();
@@ -101,7 +108,8 @@ namespace model {
 			// ????????????????????????
 		}
 		
-		MatrixNcoeff get_SFCH() const {
+		static MatrixNcoeff get_SFCH()
+        {
 			/*! The matrix of shape function coefficients in Hermite form of this 
 			 *  spline segment.
 			 */
@@ -140,19 +148,28 @@ namespace model {
 	/************************************************************************/
 	/* SplineSegmentBase, template specialization corder=1 ******************/
 	/************************************************************************/
-	template <typename Derived, short unsigned int dim, double & alpha>
-	class SplineSegmentBase<Derived,dim,1,alpha> : public NetworkLink<Derived>,
+	template <typename Derived, short unsigned int dim>
+	class SplineSegmentBase<Derived,dim,1> : public NetworkLink<Derived>,
 	/*	                                        */ public ParametricCurve<Derived,dim> {
 		
 				
 		enum {corder=1};
 #include<model/Geometry/Splines/SplineEnums.h>
 		
-		
+
 		
 	public:
-		
+        
+        
+        static double alpha;
 
+		
+        ////////////////////////////////////////////////////////////////
+        //! Returns the length of the chord vector to the power alpha
+        double chordParametricLength() const
+        {
+        	return std::pow(chordLength(),alpha);;
+        }
 		
 		
 		RowNcoeff get_UPOW(const double & uin) const {
@@ -173,7 +190,8 @@ namespace model {
 		
 		//////////////////////////////////////////////////////////////
 		//get_SFCH
-		MatrixNcoeff get_SFCH() const {
+		 MatrixNcoeff get_SFCH() const
+        {
 			/*! The matrix of shape function coefficients in Hermite form of this 
 			 *  spline segment.
 			 */
@@ -215,7 +233,8 @@ namespace model {
 		//change		
 		//////////////////////////////////////////////////////////////
 		//hermiteCoefficients: Hermite coefficients (uniform parametrization)
-		Eigen::Matrix<double,dim,Ncoeff> hermiteCoefficients() const {
+		Eigen::Matrix<double,dim,Ncoeff> hermiteCoefficients() const
+        {
 			Eigen::Matrix<double,dim,Ncoeff> HrCf;
 			HrCf.col(0)= this->source->get_P();
 			HrCf.col(1)= sourceT()*chordParametricLength();
@@ -224,22 +243,13 @@ namespace model {
 			return HrCf;
 		}
 		
-//		//////////////////////////////////////////////////////////////
-//		//hermiteCoefficients: Hermite coefficients (uniform parametrization)
-//		Eigen::Matrix<double,dim,Ncoeff> hermiteCoefficients() const {
-//			Eigen::Matrix<double,dim,Ncoeff> HrCf;
-//			HrCf.col(0)= this->source->get_P();
-//			HrCf.col(1)= this-;
-//			HrCf.col(2)= this->sink->get_P();
-//			HrCf.col(3)= sinkT()*chordParametricLength();
-//			return HrCf;
-//		}
+
 		
 
 		
         /************************************************************************/
-		Eigen::Matrix<double,dim,Ncoeff> polynomialCoeff() const {
-			/*! The matrix of coefficients of the polynomial associated to this 
+		Eigen::Matrix<double,dim,Ncoeff> polynomialCoeff() const
+        {/*! The matrix of coefficients of the polynomial associated to this 
 			 *  SplineSegmentBase. If C=polynomialCoeff() then the polynomial is:
 			 *  P(u)=C.col(0)+u*C.col(1)+u^2*C.col(2)+...
 			 */
@@ -253,22 +263,35 @@ namespace model {
 #include "SplineSegmentBase_common.h"
 		
 	};
+    
+    //static data 
+    template <typename Derived, short unsigned int dim>
+	double SplineSegmentBase<Derived,dim,1>::alpha=0.5;
+
 	
 	/************************************************************************/
 	/* SplineSegmentBase, template specialization corder=2 ******************/
 	/************************************************************************/
-	template <typename Derived, short unsigned int dim, double & alpha> 
-	class SplineSegmentBase<Derived,dim,2,alpha> : public NetworkLink<Derived>,
+	template <typename Derived, short unsigned int dim>
+	class SplineSegmentBase<Derived,dim,2> : public NetworkLink<Derived>,
 	/*	                                        */ public ParametricCurve<Derived,dim> {
 		
 		
 		enum {corder=2};
 #include<model/Geometry/Splines/SplineEnums.h>
 		
-		
+
+        
+        ////////////////////////////////////////////////////////////////
+        //! Returns the length of the chord vector to the power alpha
+        double chordParametricLength() const
+        {
+        	return std::pow(chordLength(),alpha);;
+        }
 		
 	public:
 		
+        static double alpha;
 
 		
 		RowNcoeff get_UPOW(const double & uin){
@@ -306,6 +329,11 @@ namespace model {
 #include "SplineSegmentBase_common.h"
 		
 	};
+    
+    //static data
+    template <typename Derived, short unsigned int dim>
+	double SplineSegmentBase<Derived,dim,2>::alpha=0.5;
+
 	
 	//////////////////////////////////////////////////////////////s
 } // namespace model

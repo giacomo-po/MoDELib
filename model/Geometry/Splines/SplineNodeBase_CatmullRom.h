@@ -173,11 +173,14 @@ namespace model {
         
         //////////////////////////////////////////////////
         // W2H
-        Eigen::Matrix<double, dim*(corder+1), Eigen::Dynamic> W2Ht() const {
+        Eigen::Matrix<double, dim*(corder+1), Eigen::Dynamic> W2Ht() const
+        {
             Eigen::Matrix<double, dim*(corder+1), Eigen::Dynamic> temp(CR2H);
             
-            
-            const double alpha(0.5); //! CHANGE THIS IN CATMULLROM
+//            LinkType
+//            const double alpha(0.5); //! CHANGE THIS IN CATMULLROM
+            const double alpha(LinkType::alpha); //! CHANGE THIS IN CATMULLROM
+
             
             if ( !this->is_isolated() && this->is_balanced() ){
                 //	double CPL;
