@@ -37,15 +37,20 @@ namespace model {
      *  for a SpatialCell in dim dimensions.
      */
     template <int dim, int neighborOrder>
-    struct CellShift
+    class CellShift 
     {
         
         static_assert(dim>=1, "dim MUST BE >=1."); // c++0x
         static_assert(neighborOrder>=0, "neighborOrder MUST BE >=0."); // c++0x
         
+        template <int anyDim,int anyNeighborOrder> friend class CellShift; // allow CellShift<dim+1> to call private getShifts()
+
+        
+    public:
         enum{Nneighbors=CellShiftTraits<dim,neighborOrder>::Nneighbors};
         static const typename CellShiftTraits<dim,neighborOrder>::MatrixType shifts;
-        
+
+    private:
         /**************************************************************************/
         static typename CellShiftTraits<dim,neighborOrder>::MatrixType getShifts()
         {/*!
@@ -61,6 +66,7 @@ namespace model {
             return temp;
         }
         
+    public:
         /**************************************************************************/
         static typename CellShiftTraits<dim,neighborOrder>::MatrixType neighborIDs(const Eigen::Matrix<int,dim,1>& cellID)
         {
@@ -80,18 +86,23 @@ namespace model {
      *  recursion.
      */
     template <int neighborOrder>
-    struct CellShift<1,neighborOrder>{
+    class CellShift<1,neighborOrder>
+    {
+        template <int anyDim,int anyNeighborOrder> friend class CellShift; // allow CellShift<dim+1> to call private getShifts()
+
+    public:
         enum{dim=1};
         enum{Nneighbors=CellShiftTraits<dim,neighborOrder>::Nneighbors};
         static const typename CellShiftTraits<dim,neighborOrder>::MatrixType shifts;
         
-        
+    private:
         /**************************************************************************/
         static typename CellShiftTraits<dim,neighborOrder>::MatrixType getShifts()
         {
             return Eigen::Matrix<int,CellShiftTraits<dim,neighborOrder>::Nneighbors,dim>::LinSpaced(-neighborOrder,neighborOrder);
         }
         
+    public:
         /**************************************************************************/
         static typename CellShiftTraits<dim,neighborOrder>::MatrixType neighborIDs(const Eigen::Matrix<int,dim,1>& cellID)
         {

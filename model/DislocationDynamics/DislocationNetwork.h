@@ -13,8 +13,6 @@
 
 
 // BEING MODIFIED
-// 1- BIN WRITER/READER. DEFINE DISLOCATIONSEGMENT::OUTDATA as Eigen::Matrix<double,1,9>. Then in Network add the function friend void operator<< (SequentialBinFile<template Char,???>, ...)
-// 2- Zero node Tangent Problem
 // BVP: integration method
 // 3 crossSlip
 // Motion of BoundarySubnetworks
@@ -31,9 +29,6 @@
 // 2- remove AddressBook, wherever possible, Done in Node chain
 // 40 - clean MultiExpand in Network Layer, remove get_r from there
 // 35- Simplify Neighborhood structure
-// 25- Remove template parameter alpha and make template member function
-// 14- RENAME ORIGINAL MESH FOLDER /M
-// 16- READ/WRITE IN BINARY FORMAT
 // 18- Should define linear=1, quadratic=2, cubic=3 and use polyDegree instead of corder. Put corder in SplineEnums
 // 37- IS PLANAR SHOULD RETURN 0 IF IS A LINE!!!!! CHANGE ALSO IN SPLINESEGMENTBASE
 // 38- IS PLANAR SHOULD RETURN the normal as pair<bool,normal>
@@ -41,6 +36,7 @@
 // IMPLEMENT NEIGHBOR ITERATORS IN NETWORKNODE
 // CHANGE CONST VERSION OF EDGEFINDER/VERTEXFINDER PASS this IN MEMBER FUNCTION, REMOVE TEMPLATE SPECIALIZATION AND MAKE STATIC FUNCTIONS
 // 9- cellSize should depend on applied load. Or better the number of cell neighbors used in each cell should depend on the applied stress to that cell
+// 1- BIN WRITER/READER. DEFINE DISLOCATIONSEGMENT::OUTDATA as Eigen::Matrix<double,1,9>. Then in Network add the function friend void operator<< (SequentialBinFile<template Char,???>, ...)
 
 
 // ISSUES
