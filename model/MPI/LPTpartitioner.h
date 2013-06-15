@@ -9,8 +9,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _model_LongestProcessingTime_h_
-#define _model_LongestProcessingTime_h_
+#ifndef _model_LPTpartitioner_h_
+#define _model_LPTpartitioner_h_
 
 #include <map>
 #include <vector>
@@ -27,10 +27,10 @@ namespace model {
      * task partiotioning.
      */
     template <typename T>
-    class LongestProcessingTime :
-    /* inheritance             */ private std::multimap<double,T*>,
-    /* inheritance             */ public std::vector<std::deque<T*> >,
-    /* inheritance             */ private std::vector<double>
+    class LPTpartitioner :
+    /* inheritance    */ private std::multimap<double,T*>,
+    /* inheritance    */ private std::vector<std::deque<T*> >,
+    /* inheritance    */ private std::vector<double>
     {
         
    

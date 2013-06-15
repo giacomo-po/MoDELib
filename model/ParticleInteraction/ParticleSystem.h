@@ -56,11 +56,18 @@ namespace model {
 #else
         /*****************************************/
         ParticleSystem(int argc, char* argv[])
-        {/*!
+        {/*! Dummy constructor, does nothing
           */
             argc+=0; // avoid unused warning
             argv=argv; // avoid unused warning
 
+        }
+        
+        static void initMPI(int argc, char* argv[])
+        {/*! Dummy static function, does nothing 
+          */
+            argc+=0; // avoid unused warning
+            argv=argv; // avoid unused warning
         }
 #endif
         

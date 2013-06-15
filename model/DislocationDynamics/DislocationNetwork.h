@@ -385,7 +385,8 @@ namespace model {
         DislocationNetwork(int& argc, char* argv[]) :
         /* init list                              */ plasticDistortion(MatrixDimD::Zero())
         {
-                read("./","DDinput.txt");
+            ParticleSystemType::initMPI(argc,argv);
+            read("./","DDinput.txt");
         }
         
         /* Constructor ********************************************************/

@@ -53,25 +53,9 @@ namespace model {
     {
         typedef ParticleSystemBase<_ParticleType,UserSystemProperties> ParticleSystemBaseType;
         typedef _ParticleType ParticleType; // make ParticleType available outside the class
-        //        typedef typename ParticleSystemBaseType::PositionType PositionType;
         typedef typename ParticleSystemBaseType::SpatialCellType SpatialCellType;
         typedef typename ParticleSystemBaseType::ParticleContainerType ParticleContainerType;
-//        typedef typename ParticleSystemBaseType::SpatialCellObserverType SpatialCellObserverType;
         
-        
-        
-        
-        //        void loopOverNeighCells(typename ParticleContainerType::iterator& pIter)
-        //        {
-        //            for (typename SpatialCellType::CellMapType::const_iterator cIter=pIter->second->neighborCellsBegin();cIter!=pIter->second->neighborCellsEnd();++cIter)
-        //            {
-        //                // loop over particles in the neighbor cell
-        //                for(typename SpatialCellType::ParticleContainerType::const_iterator qIter=cIter->second->particleBegin();qIter!=cIter->second->particleEnd();++qIter) // loop over neighbor particles
-        //                {
-        //                    InteractionType(*pIter->second,**qIter);  // the constructor of InteractionType actually computes the binary interaction between *iterI and *iterJ
-        //                }
-        //            }
-        //        }
         
         
     public:
@@ -104,21 +88,7 @@ namespace model {
 //            std::cout<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<std::endl;
         }
         
-        
-        //        /**********************************************************************/
-        //        template <typename CellProperty>
-        //        void computeCellProperty() const
-        //        {
-        ////#ifdef _OPENMP
-        //
-        //
-        ////#else
-        //            for (typename SpatialCellType::CellMapType::const_iterator cIter=SpatialCellObserverType::cellBegin();cIter!=SpatialCellObserverType::cellEnd();++cIter)
-        //            {
-        //                CellProperty(*cIter->second);
-        //            }
-        ////#endif
-        //        }
+ 
         
         /**********************************************************************/
         template <class T>
@@ -140,4 +110,21 @@ namespace model {
     
 } // end namespace
 #endif
+                
+                
+                
+                //        /**********************************************************************/
+                //        template <typename CellProperty>
+                //        void computeCellProperty() const
+                //        {
+                ////#ifdef _OPENMP
+                //
+                //
+                ////#else
+                //            for (typename SpatialCellType::CellMapType::const_iterator cIter=SpatialCellObserverType::cellBegin();cIter!=SpatialCellObserverType::cellEnd();++cIter)
+                //            {
+                //                CellProperty(*cIter->second);
+                //            }
+                ////#endif
+                //        }
 

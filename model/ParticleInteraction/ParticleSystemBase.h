@@ -53,20 +53,7 @@ namespace model {
         typedef typename SpatialCellObserverType::SpatialCellType SpatialCellType;
         //        typedef typename _ParticleType::SpatialCellType SpatialCellType;
         typedef std::deque<_ParticleType> ParticleContainerType;
-        
-        static bool useCellPartitioner;
-        
-//        /**********************************************************************/
-//        ~ParticleSystemBase() //:
-//        //        /* init list */ particleCounter(0)
-//        {
-//            
-//            std::cout<<"~ParticleSystemBase destructor: There are now "<< SpatialCellObserverType::totalCells()<< "cells. ";
-////            clearParticles();
-//            std::cout<<" done"<<std::endl;
-//
-//        }
-        
+                
         
         /**********************************************************************/
         template <typename ...AdditionalConstructorTypes>
@@ -193,9 +180,9 @@ namespace model {
         
     };
     
-    // declare static data
-    template <typename _ParticleType, typename UserSystemProperties>
-    bool ParticleSystemBase<_ParticleType,UserSystemProperties>::useCellPartitioner=true;
+//    // declare static data
+//    template <typename _ParticleType, typename UserSystemProperties>
+//    bool ParticleSystemBase<_ParticleType,UserSystemProperties>::useCellPartitioner=true;
     
     
 } // end namespace
