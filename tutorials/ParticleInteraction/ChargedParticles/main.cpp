@@ -15,7 +15,10 @@
 
 #include <tutorials/ParticleInteraction/ChargedParticles/ChargedParticle.h> // a user-defined type of particle to be inserted in ParticleSystem
 
+//#include <model/MPI/MPIcout.h>
+
 //#include <tutorials/ParticleInteraction/ChargedParticles/CoulombEnergy.h> // a user-defined type of energy interaction between ChargedParticle objects
+
 
 
 using namespace model;
@@ -25,23 +28,27 @@ int main (int argc, char * argv[]) {
     // 0- define the type of ParticleSystem specifying the type of particles
     typedef model::ParticleSystem<ChargedParticle> ChargedParticleSystem;
     
-    
-//    std::cout<<" bytes in ChargedParticle="<<sizeof(ChargedParticle)<<std::endl;
-    
     // 1- create a particleSystem of ChargedParticle(s)
+    ChargedParticleSystem particleSystem(argc,argv); // initialized constructor: for both serial and parallel
+    //ChargedParticleSystem particleSystem; // uninitialized constructor: for both serial and parallel
+    //ChargedParticleSystem::initMPI(argc,argv); // if uninitialized constructor is used, call initMPI (parallel only)
+    
     double cellSize=1.0;
-    ChargedParticleSystem particleSystem(argc,argv,cellSize);
+    particleSystem.setCellSize(cellSize);
     
     // 2- add some ChargedParticle(s) to the particleSystem with random position
     //    in [-10,10] and charge=1.0
-    std::cout<<model::blueBoldColor<<"CREATING RANDOM INITIAL PARTICLES"<<model::defaultColor<<std::endl;
-    typedef  ChargedParticleSystem::PositionType PositionType; // helper
+    std::cout<<"Creating particles..."<<std::endl;
+    typedef typename ChargedParticleSystem::PositionType PositionType; // helper
     for (size_t k=0;k<500000;++k)
     {
         // note that PositionType::Random() returns values in [-1, 1]
-        particleSystem.addParticle(PositionType::Random()*10.0, 1.0);
+        particleSystem.addParticle(PositionType::Random()*10+PositionType::Ones()*0.0*cellSize, 1.0);
     }
-    // Add a more particles 
+//    std::cout<<model::greenColor<<" done."<<model::defaultColor<<std::endl;
+//    std::cout<<model::greenColor<<" done."<<model::defaultColor<<std::endl;
+
+    // Add a more particles
 //    for (int k=0;k<500;++k)
 //    {
 ////        particleSystem.addParticle(PositionType::Random()*3.0+PositionType::Ones()*2.0, 1.0); // cluster
@@ -49,7 +56,7 @@ int main (int argc, char * argv[]) {
 //    }
     
     
-    
+    std::cout<<"There are "<<particleSystem.cells().size()<<" cells"<<std::endl;
 
 
 //
@@ -63,16 +70,34 @@ int main (int argc, char * argv[]) {
 //    pFile0<<particleSystem.particles()<<std::endl;
 
 //    particleSystem.MPIoutput();
-
-    std::cout<<model::blueBoldColor<<"COMPUTING INTERACTION"<<model::defaultColor<<std::endl;
-
-    //    // 3- compute all binary CoulombForce interactions
-    typedef ChargedParticle::CoulombForceInteraction CoulombForceInteraction;
-    particleSystem.computeInteraction<CoulombForceInteraction>();
     
+//    std::cout<<model::blueBoldColor<<"COMPUTING INTERACTION"<<model::defaultColor<<std::endl;
+
     
+    // -3 computation of the CoulombForceInteraction
+    typedef typename ChargedParticle::CoulombForceInteraction CoulombForceInteraction;
+    // -3.1  reset CoulombForceInteraction
+ //   particleSystem.resetInteraction<CoulombForceInteraction>();
+
+    
+//    particleSystem.computeMoment0<CoulombForceInteraction>();
+
+    
+    // -3.2a compute all binary CoulombForce interactions
+    std::cout<<"Computing nearest-neighbor interaction..."<<std::endl;
+    particleSystem.computeNeighborInteraction<CoulombForceInteraction>();
+//    std::cout<<model::greenColor<<" done."<<model::defaultColor<<std::endl;
+
+    // -3.2b
+//    typedef typename ChargedParticle::TotalCellCharge CellCharge;
+//    particleSystem.computeCellProperty<CellCharge>();
+//    particleSystem.computeFarInteraction<CoulombForceInteraction>();
+
+    // -4 output
+    std::cout<<"Writing output file P/P_0.txt..."<<std::endl;
     SequentialOutputFile<'P',true> pFile1;
     pFile1<<particleSystem.particles()<<std::endl;
+//    std::cout<<model::greenColor<<" done."<<model::defaultColor<<std::endl;
 
 
     ////

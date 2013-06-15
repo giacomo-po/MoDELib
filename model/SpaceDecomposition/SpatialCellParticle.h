@@ -13,8 +13,8 @@
 #include <boost/utility.hpp>
 #include <Eigen/Dense>
 #include <model/SpaceDecomposition/SpatialCellObserver.h>
-#include <model/SpaceDecomposition/SpatialCell.h>
-#include <model/Utilities/TypeTraits.h>
+//#include <model/SpaceDecomposition/SpatialCell.h>
+//#include <model/Utilities/TypeTraits.h>
 #include <model/Utilities/CRTP.h>
 #include <model/Utilities/StaticID.h>
 
@@ -26,32 +26,39 @@ namespace model {
 	/********************************************************************************************/
 	/********************************************************************************************/
 	template<typename Derived, short unsigned int _dim>
-	struct SpatialCellParticle : boost::noncopyable,
-	/*                      */ private SpatialCellObserver<typename TypeTraits<Derived>::CellType,_dim>,
+	struct SpatialCellParticle :
+    /*                      */ boost::noncopyable,
 	/*                      */ public  CRTP<Derived>,
-    /*                      */ public  StaticID<Derived>
+    /*                      */ public  StaticID<Derived>//,
+//    /*                      */ private SpatialCellObserver<Derived,_dim>
     {
 
         enum{dim=_dim};
 		//typedef SpatialCell<Derived,dim,cellSize> SpatialCellType;
-        typedef typename TypeTraits<Derived>::CellType SpatialCellType;
-		typedef typename SpatialCellType::ParticleContainerType ParticleContainerType;
-		typedef SpatialCellObserver<SpatialCellType,dim> SpatialCellObserverType;
+//        typedef typename TypeTraits<Derived>::CellType SpatialCellType;
+//        typedef SpatialCell<Derived,_dim> SpatialCellType;
+//		typedef typename SpatialCellType::ParticleContainerType ParticleContainerType;
+		typedef SpatialCellObserver<Derived,dim> SpatialCellObserverType;
+//		typedef SpatialCellObserverType::ParticleContainerType ParticleContainerType;
 		typedef typename SpatialCellObserverType::CellMapType  CellMapType;
         typedef typename SpatialCellObserverType::VectorDimD  PositionType;
 		typedef typename SpatialCellObserverType::VectorDimD  VectorDimD;
 //		typedef typename SpatialCellObserverType::VectorDimI  VectorDimI;
 		typedef typename SpatialCellObserverType::SharedPtrType  SharedPtrType;	
+
+        typedef  SpatialCell<Derived,_dim> SpatialCellType;
+
+        typedef typename SpatialCellType::ParticleContainerType ParticleContainerType;
 		
 				
 	public:
-		
-		//! The cell ID
-//		const VectorDimI cellID;
-		
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+        
 		//! The pointer to the Cell
 		const SharedPtrType pCell;
 
+        
 #ifdef _MODEL_MPI_
         size_t mpiID;
 #else
@@ -61,41 +68,33 @@ namespace model {
 
 
 		
-		/* Constructor **********************/
+        /**********************************************************************/
 		SpatialCellParticle(const VectorDimD& P) :
-//        /* init list */ cellID(floorEigen<dim>(P/cellSize)),
-//        /* init list */ cellID(getCellIDByPosition(P)),
-//		/* init list */ pCell(this->getCellByID(cellID))
-		/* init list */ pCell(this->getCellByPosition(P)),
+		/* init list */ pCell(SpatialCellObserverType::getCellByPosition(P)),
         /* init list */ mpiID(this->sID)
-        {
+        {/*!\param[in] P the position of this SpatialCellParticle 
+          */
 			pCell->addParticle(this->p_derived());
 		}
 		
-		/* Destructor ********************************************/
-		~SpatialCellParticle(){			
+        /**********************************************************************/
+        ~SpatialCellParticle()
+        {/*! Destructor removes this from SpatialCell
+          */
 			pCell->removeParticle(this->p_derived());
 		}
 		
-//		/* neighborBegin() ******************************************/
-//		typename ParticleContainerType::const_iterator neighborBegin() const {
-//			return pCell->neighborParticleContainer.begin();
-//		}
-//
-//		/* neighborEnd() ******************************************/
-//		typename ParticleContainerType::const_iterator neighborEnd() const {
-//			return pCell->neighborParticleContainer.end();
-//		}
-
         /* neighborCellsBegin ***************************************/
         typename CellMapType::const_iterator neighborCellsBegin() const
-        {
+        {/*!\returns a const iterator to the first neighbor SpatialCell
+          */
             return pCell->neighborCellsBegin();
         }
         
         /* neighborCellsEnd ***************************************/
         typename CellMapType::const_iterator neighborCellsEnd() const
-        {
+        {/*!\returns a const iterator to the past-the-end neighbor SpatialCell
+          */
             return pCell->neighborCellsEnd();
         }
         
@@ -136,3 +135,14 @@ namespace model {
 	/********************************************************************************************/
 }	// close namespace
 #endif
+
+
+//		/* neighborBegin() ******************************************/
+//		typename ParticleContainerType::const_iterator neighborBegin() const {
+//			return pCell->neighborParticleContainer.begin();
+//		}
+//
+//		/* neighborEnd() ******************************************/
+//		typename ParticleContainerType::const_iterator neighborEnd() const {
+//			return pCell->neighborParticleContainer.end();
+//		}

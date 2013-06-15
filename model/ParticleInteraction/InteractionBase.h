@@ -12,8 +12,6 @@
 #ifndef _model_InteractionBase_h
 #define _model_InteractionBase_h
 
-//#include <pil/MpiDataType.h>
-//#include <model/ParticleInteraction/SpatialCellParticle.h>
 
 
 namespace model {
@@ -21,13 +19,19 @@ namespace model {
     
     
     //template <typename _ParticleType, typename UserSystemProperties = SystemProperties<> >
-    template<typename _DataType, int _DataPerParticle>
+    template<typename Derived, typename _DataType, int _DataPerParticle, int _DataPerCellMoment> //char...otherChars
     struct InteractionBase
     {
+        // note: "Derived" is used to keep resultVector distinct for different interactions
+        
         //enum{DataType=MpiDataType<_DataType>::DataType};
         enum{DataPerParticle=_DataPerParticle};
+        enum{DataPerCellMoment=_DataPerCellMoment};
+
+        
         
         static std::vector<_DataType> resultVector;
+        static std::vector<_DataType> momentVector;
 
 //        /*****************************************/
 //        template <typename DerivedParticle,int dim>
@@ -76,9 +80,11 @@ namespace model {
     
     
     // declare statica data
-    template<typename _DataType, int _DataPerParticle>
-    std::vector<_DataType> InteractionBase<_DataType,_DataPerParticle>::resultVector;
+    template<typename Derived, typename _DataType, int _DataPerParticle, int _DataPerCellMoment> //char...otherChars
+    std::vector<_DataType> InteractionBase<Derived,_DataType,_DataPerParticle,_DataPerCellMoment>::resultVector;
 
+    template<typename Derived, typename _DataType, int _DataPerParticle, int _DataPerCellMoment> //char...otherChars
+    std::vector<_DataType> InteractionBase<Derived,_DataType,_DataPerParticle,_DataPerCellMoment>::momentVector;
 
     
 } // end namespace

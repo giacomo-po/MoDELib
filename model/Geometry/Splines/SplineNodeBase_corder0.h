@@ -11,8 +11,12 @@ typedef NetworkNode<Derived> NetworkNodeType;
 
 typedef typename NetworkNodeType::LinkType LinkType;
 
-typedef std::tuple<Derived*,LinkType*,short int> NeighborType;
-typedef std::map<size_t,NeighborType> NeighborContainerType;
+//typedef std::tuple<Derived*,LinkType*,short int> NeighborType;
+//typedef std::map<size_t,NeighborType> NeighborContainerType;
+typedef typename NetworkNodeType::NeighborType NeighborType;
+typedef typename NetworkNodeType::NeighborContainerType NeighborContainerType;
+
+
 typedef typename NeighborContainerType::iterator NeighborIteratorType;
 typedef typename NeighborContainerType::const_iterator constNeighborIteratorType;
 

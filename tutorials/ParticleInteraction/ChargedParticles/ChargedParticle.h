@@ -12,9 +12,10 @@
 #ifndef _ChargedParticle_h
 #define _ChargedParticle_h
 
-#include <tutorials/ParticleInteraction/ChargedParticles/ChargedCell.h>
+//#include <tutorials/ParticleInteraction/ChargedParticles/ChargedCell.h>
 #include <model/SpaceDecomposition/SpatialCellParticle.h>
 #include <tutorials/ParticleInteraction/ChargedParticles/CoulombForce.h>
+//#include <tutorials/ParticleInteraction/ChargedParticles/CellCharge.h> // a user-defined type of cell-property
 
 namespace model {
     
@@ -32,6 +33,8 @@ namespace model {
         typedef  SpatialCellParticle<ChargedParticle,3>::PositionType ForceType;
         
         typedef CoulombForce<ChargedParticle> CoulombForceInteraction;
+//        typedef CellCharge<ChargedParticle>   TotalCellCharge;
+        
         
     private:
 
@@ -75,7 +78,6 @@ namespace model {
             os<<cP.sID<<"\t"
             <<cP.P().transpose()<<"\t"
             <<cP.q<<"\t"
-//            <<cP.force.transpose()<<"\t"
             <<cP.get<CoulombForceInteraction>().transpose()<<"\t"
             <<cP.energy<<"\t"
             <<cP.mpiID<<"\t";

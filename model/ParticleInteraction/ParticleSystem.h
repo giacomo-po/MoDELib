@@ -12,22 +12,6 @@
 #ifndef _MODEL_ParticleSystem_h_
 #define _MODEL_ParticleSystem_h_
 
-
-
-
-
-
-#include <memory> // for auto_ptr
-#include <utility> // for std::pair
-#include <map>
-#include <vector>
-#include <deque>
-#include <time.h>
-#include <iomanip> // std::scientific
-
-#include <Eigen/Core>
-
-#include <model/ParticleInteraction/ParticleSystemBase.h>
 #ifdef _MODEL_MPI_
 #include <model/ParticleInteraction/ParticleSystemParallel.h>
 #else
@@ -36,55 +20,51 @@
 
 #include <model/ParticleInteraction/SystemProperties.h>
 
-//#include <model/SpaceDecomposition/SpatialCellObserver.h>
-#include <model/Utilities/SequentialOutputFile.h>
-#include <model/Utilities/CompareVectorsByComponent.h>
-
-
 namespace model {
     
-    
-    
-    
     /**************************************************************************/
     /**************************************************************************/
-    /*! \brief Serial Version
+    /*! \brief Class template that stores _ParticleType objects organized
+     * in SpatialCell(s) and computes nearest-neighbor and far-field interactions
+     * among them. 
+     * 
+     * ParticleSystem can be compiled in serial and parallel version, depending
+     * whether _MODEL_MPI_ is defined or not.
      */
     template <typename _ParticleType, typename UserSystemProperties = SystemProperties<> >
     struct ParticleSystem :
 #ifdef _MODEL_MPI_
     /* inheritance */  public ParticleSystemParallel<_ParticleType,UserSystemProperties>
-    {
-        
-        /*****************************************/
-        ParticleSystem(int argc, char* argv[], const double& cellSize=1.0) :
-        /* init list */  ParticleSystemParallel<_ParticleType,UserSystemProperties>(argc,argv,cellSize)
-        {/*!
-          */
-        }
-        
-    };
 #else
     /* inheritance */  public ParticleSystemSerial<_ParticleType,UserSystemProperties>
+#endif
     {
         
         /*****************************************/
-        ParticleSystem(int argc, char* argv[], const double& cellSize=1.0) :
-        /* init list */  ParticleSystemSerial<_ParticleType,UserSystemProperties>(argc,argv,cellSize)
+        ParticleSystem()
         {/*!
           */
         }
-    };
+        
+#ifdef _MODEL_MPI_
+        /*****************************************/
+        ParticleSystem(int argc, char* argv[]) :
+        /* init list */  ParticleSystemParallel<_ParticleType,UserSystemProperties>(argc,argv)
+        {/*!
+          */
+        }
+#else
+        /*****************************************/
+        ParticleSystem(int argc, char* argv[])
+        {/*!
+          */
+            argc+=0; // avoid unused warning
+            argv=argv; // avoid unused warning
+
+        }
 #endif
-    
-    
-    
-    
-    
-    
-    
-    
-    
+        
+    };
     
 } // end namespace
 #endif

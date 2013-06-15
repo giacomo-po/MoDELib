@@ -19,23 +19,14 @@
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 
 namespace model {
-	
-    //	std::string defaultColor    = "\033[0m";	  // the default color for the console
-    //	std::string redBoldColor    = "\033[1;31m";   // a bold red color
-    //	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
-    //	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
-    //	std::string magentaColor    = "\033[0;35m";   // a magenta color
-	
+    
 	/**************************************************************************/
 	/**************************************************************************/
     template <typename DislocationNetworkType>
 	struct DislocationNetworkIO
     {
         
-        //        DislocationNetworkType& DN; // a reference to the DislocationNetwork
-        
-        enum {dim=DislocationNetworkType::dim}; // make dim available outside class
-        
+        enum {dim=DislocationNetworkType::dim};
         
         //    public:
         typedef typename DislocationNetworkType::VectorDimD VectorDimD;
@@ -66,9 +57,9 @@ namespace model {
             if (vReader.isGood(fileID,false)) // bin file exists
             {
                 vReader.read(fileID,false);
-
+                
             }
-            else 
+            else
             {
                 if (vReader.isGood(fileID,true)) // txt file exists
                 {
@@ -78,7 +69,7 @@ namespace model {
                 else
                 {
                     assert(0 && "UNABLE TO READ VERTEX FILE V/V_x (x is the requested file ID).");
-
+                    
                 }
             }
             
@@ -121,7 +112,7 @@ namespace model {
             }
             
             //			assert(eReader.isGood(fileID,true) && "Unable to read vertex file E/E_x (x is the requested fileID).");
-//			eReader.read(fileID,true);
+            //			eReader.read(fileID,true);
             unsigned int kk(1);
 			for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
             {
@@ -186,8 +177,8 @@ namespace model {
                 for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
                 {
                     VertexDataType temp( (VertexDataType()<< nodeIter->second->get_P().transpose(),
-                    /*                                    */ nodeIter->second->get_T().transpose(),
-                    /*                                    */ nodeIter->second->pSN()->sID).finished());
+                                          /*                                    */ nodeIter->second->get_T().transpose(),
+                                          /*                                    */ nodeIter->second->pSN()->sID).finished());
                     binVertexFile.write(std::make_pair(nodeIter->first,temp));
                 }
                 std::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;
@@ -211,7 +202,7 @@ namespace model {
                 int cID(0);
                 for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::cellBegin();cellIter!=SpatialCellObserverType::cellEnd();++cellIter)
                 {
-                    Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize<<std::endl;
+                    Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize<<"\n";
                     ++cID;
                 }
                 std::cout<<", C/C_"<<Cell_file.sID<<std::flush;
@@ -230,11 +221,12 @@ namespace model {
                 SequentialOutputFile<'P',1>::set_increment(outputFrequency); // Edges_file;
                 SequentialOutputFile<'P',1>::set_count(runID); // Edges_file;
                 SequentialOutputFile<'P',1> p_file;
-                // let's output the node velocity
                 int ll=0;
-                for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter){
+                for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+                {
                     const int qOrder(linkIter->second->rgauss.cols());
-                    for (int q=0;q<qOrder;++q){
+                    for (int q=0;q<qOrder;++q)
+                    {
                         p_file << ll*qOrder+q<<" "<< linkIter->second->rgauss.col(q).transpose()<<" "<<linkIter->second->pkGauss.col(q).transpose()<<"\n";
                     }
                     ll++;
@@ -248,7 +240,7 @@ namespace model {
                     model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
                     model::SequentialOutputFile<'D',true> d_file;
                     for (unsigned int i = 0; i< DN.shared.domain.nodeContainer.size(); i++){
-                        d_file<< DN.shared.domain.nodeContainer[i].sID<<"	" << (DN.shared.domain.nodeContainer[i].u+DN.shared.domain.nodeContainer[i].uInf).transpose()<<std::endl;
+                        d_file<< DN.shared.domain.nodeContainer[i].sID<<"	" << (DN.shared.domain.nodeContainer[i].u+DN.shared.domain.nodeContainer[i].uInf).transpose()<<"\n";
                     }
                     std::cout<<", D/D_"<<d_file.sID<<std::flush;
                 }

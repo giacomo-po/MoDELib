@@ -69,7 +69,7 @@ namespace model {
 			
 			//value.derived()=Derived::Map(&get_table()[0][0], get_table()[0].size());
 			
-			std::cout<<"(vector "<< typeid(value.derived()).name()<<") "<<varName_in<<"="<<std::endl<<value<<std::endl;
+			//std::cout<<"(vector "<< typeid(value.derived()).name()<<") "<<varName_in<<"="<<std::endl<<value<<std::endl;
 			success=1;}
 		else{
 			std::cout<<"Error in reading the "<<occurrence_in<<"-th occurrence of "<<varName_in << " in "<<fileName_in;
@@ -121,7 +121,7 @@ namespace model {
 				}}
 			
 			
-			std::cout<<"(Matrix "<< typeid(value.derived()).name()<<") "<<varName_in<<"="<<std::endl<<value<<std::endl;
+			//std::cout<<"(Matrix "<< typeid(value.derived()).name()<<") "<<varName_in<<"="<<std::endl<<value<<std::endl;
 			success=1;
 		}
 		else{

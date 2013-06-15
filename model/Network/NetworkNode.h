@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
  *
- * model is distributed without any warranty under the 
+ * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
@@ -37,8 +37,8 @@ namespace model {
 	
 	template <typename Derived>
 	class NetworkNode : boost::noncopyable,
-	/*               */ public CRTP<Derived>,		
-	/*               */ public StaticID<Derived>{		
+	/*               */ public CRTP<Derived>,
+	/*               */ public StaticID<Derived>{
 		
 	public:
 #include <model/Network/NetworkTypedefs.h>
@@ -46,15 +46,15 @@ namespace model {
         
         
 	private:
-//#include "model/Network/NetworkComponentComponent.h"
+        //#include "model/Network/NetworkComponentComponent.h"
 		
 		
 		std::shared_ptr<NetworkComponentType> psn;
-//		std::shared_ptr<NetworkComponentType> psn;
-
+        //		std::shared_ptr<NetworkComponentType> psn;
+        
         
    	protected:
-     
+        
         /**********************************************************************/
 		void resetPSN(){
 			//! 1- Removes this from the current NetworkComponent
@@ -84,25 +84,61 @@ namespace model {
 		/* addToNeighborhood **************************************************/
 		void addToNeighborhood(LinkType* const pL){
 			
-			Derived* pN=NULL;
-			size_t key=0;
-			short int dir;
+            //			Derived* pN=NULL;
+            //			size_t key=0;
+            //			short int dir;
 			
-			if (pL->source==this->p_derived()){
-				pN=pL->sink;
-				key=pN->sID;
-				dir=1;
-				assert(OutNeighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN OUT_NEIGHBORHOOD");
+			if (pL->source==this->p_derived())
+            {// this vertex is the source of edge *pL
+                
+                //				pN=pL->sink;
+                //				key=pN->sID;
+
+//                Derived* const pN(pL->sink);
+//                const size_t key(pN->sID);
+//				const short int dir(1);
+//				assert(OutNeighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN OUT_NEIGHBORHOOD");
+//                assert(Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN NEIGHBORHOOD.");
+
+                const NeighborType temp(pL->sink,pL,1);
+				assert(OutNeighborhood.insert( std::make_pair(pL->sink->sID,temp) ).second && "CANNOT INSERT IN OUT_NEIGHBORHOOD");
+                assert(   Neighborhood.insert( std::make_pair(pL->sink->sID,temp) ).second && "CANNOT INSERT IN NEIGHBORHOOD.");
+
+             
+
+                
 			}
-			
-			if (pL->sink==this->p_derived()){
-				pN=pL->source;
-				key=pN->sID;
-				dir=-1;
-				assert(InNeighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN IN_NEIGHBORHOOD");
+			else if (pL->sink==this->p_derived())
+            {// this vertex is the sink of edge *pL
+                
+                //				pN=pL->source;
+                //				key=pN->sID;
+                //				dir=-1;
+                
+//                Derived* const pN(pL->source);
+//                const size_t key(pN->sID);
+//                const short int dir(-1);
+//				assert(InNeighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN IN_NEIGHBORHOOD");
+//                assert(Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN NEIGHBORHOOD.");
+
+                
+                const NeighborType temp(pL->source,pL,-1);
+
+				assert(InNeighborhood.insert( std::make_pair(pL->source->sID,temp) ).second && "CANNOT INSERT IN IN_NEIGHBORHOOD");
+                assert(  Neighborhood.insert( std::make_pair(pL->source->sID,temp) ).second && "CANNOT INSERT IN NEIGHBORHOOD.");
+
+                
 			}
+            else
+            {
+                //                Derived* const pN(NULL);
+                //                const size_t key(0);
+                
+                assert(0 && "CANNOT INSERT NON-INCIDENT EDGE");
+                
+                //                assert(Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN NEIGHBORHOOD.");
+            }
 			
-			assert(Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN NEIGHBORHOOD.");
 			
 		}
 		
@@ -130,63 +166,70 @@ namespace model {
 		}
 		
 		
-		NeighborContainerType Neighborhood;			
+		NeighborContainerType Neighborhood;
 		NeighborContainerType OutNeighborhood;
 		NeighborContainerType InNeighborhood;
 		
 	public:
 		
-		/* Costructor with node arguments *************************************/
-		NetworkNode() : psn(new NetworkComponentType(this->p_derived())){		
+		/**********************************************************************/
+		NetworkNode() :
+        /* init list */ psn(new NetworkComponentType(this->p_derived()))
+        {/*! Costructor with node arguments
+          */
 			// Insert this->p_derived() in the Neighborhood
-			Neighborhood.insert(std::make_pair(this->sID, std::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
+            //			Neighborhood.insert(std::make_pair(this->sID, std::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
+			Neighborhood.insert(std::make_pair(this->sID, NeighborType(this->p_derived(),(LinkType*) NULL,0) ));
 			
 		}
 		
-		/* Costructor from EdgeExpansion **************************************/
-		//		NetworkNode(const EdgeExpansion<LinkType>& ee) : state(0),
-		NetworkNode(const ExpandingEdge<LinkType>& ee) : psn(ee.E.pSN()){		
+        /**********************************************************************/
+		NetworkNode(const ExpandingEdge<LinkType>& ee) :
+        /* init list                                  */ psn(ee.E.pSN())
+        {/*! Costructor from EdgeExpansion
+          */
 			// Insert this->p_derived() in the Neighborhood
-			Neighborhood.insert(std::make_pair(this->sID, std::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
+            //			Neighborhood.insert(std::make_pair(this->sID, std::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
+			Neighborhood.insert(std::make_pair(this->sID, NeighborType(this->p_derived(),(LinkType*) NULL,0) ));
 			
 			// Manage NetworkComponent
 			psn->add(this->p_derived());
 		}
-				
+        
 		/* Destructor *********************************************************/
-		~NetworkNode(){
-			//! 1- Remove this from Neighborhood	
+		~NetworkNode()
+        {/*! The NetworkNode destructor performs two actions:
+          */
+			//! -1 Removes this from Neighborhood
 			Neighborhood.erase(this->sID);
 			
-			//! 2- Remove this from the NetworkComponent	
-			this->psn->remove(this->p_derived());	// remove this in the new NetworkComponent
-		}
+			//! -2 Removes this from the NetworkComponent
+			this->psn->remove(this->p_derived());
+        }
 		
-
-		
-		
-		
-		//////////////////////////////////////////////////////////////////////////////
-		// sndID
-		size_t snID() const {
+		/**********************************************************************/
+		size_t snID() const
+        {/*!\returns The NetworkComponent::snID() of the component
+          * containing this.
+          */
 			return psn->snID(this->p_derived());
 		}
 		
-		
-		
-		//////////////////////////////////////////////////////////////////////////////
-		//! Returns a const pointer to the parent NetworkComponent
-		const std::shared_ptr<NetworkComponentType> & pSN() const {
+		/**********************************************************************/
+		const std::shared_ptr<NetworkComponentType> & pSN() const
+        {/*!\returns A const reference to the shared-pointer to the
+          * NetworkComponent containing this.
+          */
 			return psn;
 		}
 		
 		
-
+        
 		
 		/*****************************************************************************************/
 		/* outFlow *******************************************************************************/
         FlowType outFlow() const {
-//            FlowType Fout;
+            //            FlowType Fout;
             FlowType Fout(FlowType::Zero()); // generalize
 			Fout*=0.0;
 			for (typename NeighborContainerType::const_iterator     NeighborIter=OutNeighborhood.begin();NeighborIter!=OutNeighborhood.end();++NeighborIter){
@@ -198,7 +241,7 @@ namespace model {
 		/*****************************************************************************************/
 		/* inFlow ********************************************************************************/
         FlowType inFlow() const {
-//            FlowType Fin;
+            //            FlowType Fin;
             FlowType Fin(FlowType::Zero());
 			Fin*=0.0;
 			for (typename NeighborContainerType::const_iterator     NeighborIter=InNeighborhood.begin();NeighborIter!=InNeighborhood.end();++NeighborIter){
@@ -206,7 +249,7 @@ namespace model {
 			}
             return Fin;
         }
-
+        
 		/*****************************************************************************************/
 		/* depthFirstSearch **********************************************************************/
 		bool depthFirstSearch (const size_t& ID, const size_t& N = ULONG_MAX) const {
@@ -225,7 +268,7 @@ namespace model {
 							break;
 						}
 					}
-				}	
+				}
 			}
 			return reached;
 		}
@@ -254,7 +297,7 @@ namespace model {
 					if (searchedNodes.find(std::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
 						std::get<0>(NeighborIter->second)->depthFirstExecute(searchedNodes,searchedLinks,Nfptr,Lfptr,input, N-1); // continue executing on neighbor
 					}
-				}	
+				}
 			}
 		}
 		
@@ -275,7 +318,7 @@ namespace model {
 					if (searchedNodes.find(std::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
 						std::get<0>(NeighborIter->second)->depthFirstNodeExecute(searchedNodes,Nfptr,input, N-1); // continue executing on neighbor
 					}
-				}	
+				}
 			}
 		}
 		
@@ -292,14 +335,14 @@ namespace model {
 					if (searchedNodes.find(std::get<0>(NeighborIter->second)->sID)==searchedNodes.end()){  // neighbor not searched
 						std::get<0>(NeighborIter->second)->depthFirstNodeExecute(searchedNodes,Nfptr, N-1); // continue executing on neighbor
 					}
-				}	
+				}
 			}
 		}
 		
-
+        
 		
 		
-
+        
 		
 		////////////////////////////////////////////////////////
 		// neighborhood
@@ -435,7 +478,7 @@ namespace model {
 			return inOrder()>0 && outOrder()>0;
 		}
 		
-
+        
 		
 		bool is_balanced() const {
 			//			return FlowCompare<FlowType>(outFlow(),inFlow());
@@ -470,13 +513,13 @@ namespace model {
 			}
 			
 			return os;
-		}
-		
-	};
-		
-	
-	//////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////
-} // namespace model
+            }
+            
+            };
+            
+            
+            //////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////
+            } // namespace model
 #endif
             

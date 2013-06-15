@@ -14,6 +14,8 @@
 
 #include <iostream>
 #include <model/ParticleInteraction/InteractionBase.h>
+#include <model/SpaceDecomposition/SpatialCell.h>
+
 //#include <tutorials/ParticleInteraction/ChargedParticles/ChargedParticle.h>
 
 
@@ -24,12 +26,17 @@ namespace model {
 //    class ChargedParticle;
     
     template <typename ChargedParticleType>
-    struct CoulombForce :
-    /* inheritance   */ public InteractionBase<double,3>
+    struct CoulombForce
+//#ifdef _MODEL_MPI_
+    /* inheritance   */ : public InteractionBase<CoulombForce<ChargedParticleType>,double,3,1>
+//#endif
     { // change this 3 to ChargedParticle::dim
         
+        typedef InteractionBase<CoulombForce<ChargedParticleType>,double,3,1> InteractionBaseType;
         typedef typename ChargedParticleType::PositionType PositionType;
-//        typedef Eigen::Matrix<double,3,1> PositionType;
+        typedef SpatialCell<ChargedParticleType,ChargedParticleType::dim> SpatialCellType;
+
+        //        typedef Eigen::Matrix<double,3,1> PositionType;
 //        typedef Eigen::Matrix<double,3,1> ForceType;
 //        typedef Eigen::Matrix<double,3,1> ResultType;
 
@@ -65,9 +72,9 @@ namespace model {
         /**********************************************************************/
         static ResultType get(const ChargedParticleType& cp1)
         {
-            return ResultType((ResultType()<<InteractionBase<double,3>::resultVector[cp1.mpiID*3+0],
-                               /*         */ InteractionBase<double,3>::resultVector[cp1.mpiID*3+1],
-                               /*         */ InteractionBase<double,3>::resultVector[cp1.mpiID*3+2]).finished());
+            return ResultType((ResultType()<<InteractionBaseType::resultVector[cp1.mpiID*3+0],
+                               /*         */ InteractionBaseType::resultVector[cp1.mpiID*3+1],
+                               /*         */ InteractionBaseType::resultVector[cp1.mpiID*3+2]).finished());
         }
         
 #else
@@ -92,6 +99,29 @@ namespace model {
         }
         
         /**********************************************************************/
+        CoulombForce(ChargedParticleType& cp1, const SpatialCellType& sC)
+        {/*! @param[in] cp1 A reference to ChargedParticle 1
+          *  @param[in] cp2 A reference to ChargedParticle 2
+          *
+          *  This constructor works with ParticleSystem<false,ChargedParticle>,
+          *  that is the serial version of ParticleSystem. The result of the
+          *  interaction between cp1 and cp2 is stored in each particle.
+          */
+            
+            PositionType R(cp1.P()-sC.center);
+            double r2( R.squaredNorm() ); // squared distance between particles
+            if(r2!=0.0)
+            {
+                ForceType f(cp1.q/r2*R.normalized()); // the force on particle 1
+                cp1.force+=f;
+            }
+            
+        }
+        
+        
+        
+        
+        /**********************************************************************/
         static const ResultType& get(const ChargedParticleType& cp1)
         {
             return cp1.force;
@@ -110,6 +140,20 @@ namespace model {
         static int dataPerParticle()
         {
             return 3;
+        }
+        
+        /**********************************************************************/
+        static double computeMoment0(const SpatialCellType& sC)
+        {
+            double charge(0.0);
+            
+            for(typename SpatialCellType::ParticleContainerType::const_iterator pIter=sC.particleBegin();pIter!=sC.particleEnd();++pIter) // loop over neighbor particles
+            {
+                charge+=(*pIter)->q;
+            }
+//            std::cout<<"Cell "<<sC.cellID.transpose()<<" has total charge: "<<charge<<std::endl;
+            
+            return charge;
         }
         
 //        /*****************************************/

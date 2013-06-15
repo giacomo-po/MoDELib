@@ -15,10 +15,15 @@
 #include <model/BVP/VirtualBoundarySlipContainer.h>
 #include <model/BVP/Domain.h>
 
+#include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
+#include <model/ParticleInteraction/ParticleSystem.h>
+
 namespace model {
 	
 	template <typename LinkType>
-	struct DislocationSharedObjects {
+	struct DislocationSharedObjects
+    {
+        //enum{dim=3};
 
         static size_t minSNorderForSolve;
 		static unsigned int boundary_type;
@@ -27,6 +32,15 @@ namespace model {
 		static Domain domain;					// temporary
 		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
 		static VirtualBoundarySlipContainer<LinkType> vbsc;
+
+        
+
+//        static ParticleSystem<DislocationParticle<TypeTraits<LinkType>::dim> > particleSystem;
+//         ParticleSystem<DislocationParticle<TypeTraits<LinkType>::dim> > particleSystem;
+
+//        static SpatialCellObserver<DislocationParticle<TypeTraits<LinkType>::dim>,TypeTraits<LinkType>::dim> spatialCellObserver;
+
+        
 	};
 	
 	// Instantiate Static data members
@@ -50,6 +64,14 @@ namespace model {
 	template <typename LinkType>
 	VirtualBoundarySlipContainer<LinkType> DislocationSharedObjects<LinkType>::vbsc;
 	
+    //0x7f8732c04dc0
+    
+//    template <typename LinkType>
+//    ParticleSystem<DislocationParticle<TypeTraits<LinkType>::dim> > DislocationSharedObjects<LinkType>::particleSystem;
+    
+//	template <typename LinkType>
+//    SpatialCellObserver<DislocationParticle<TypeTraits<LinkType>::dim>,TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::spatialCellObserver;
+
 } // namespace model
 #endif
 

@@ -12,6 +12,16 @@
 
 
 
+// profiling
+// http://stackoverflow.com/questions/375913/what-can-i-use-to-profile-c-code-in-linux/378024#378024
+// valgrind --tool=callgrind ./(Your binary)
+// It will generate a file called callgrind.out.x. You can then use kcachegrind tool to read this file. It will give you a graphical analysis of things with results like which lines cost how much.
+
+// http://code.google.com/p/jrfonseca/wiki/Gprof2Dot
+
+// valgrind --tool=callgrind ./DDserial
+// KCachegrind callgrind.out.1378
+
 // BEING MODIFIED
 // BVP: integration method
 // 3 crossSlip
@@ -50,6 +60,11 @@
 #ifndef model_DISLOCATIONNETWORK_H_
 #define model_DISLOCATIONNETWORK_H_
 
+#ifdef _MODEL_DD_MPI_
+#define _MODEL_MPI_  // required in ParticleSystem.h
+//#include <model/ParticleInteraction/ParticleSystem.h> // the main object from pil library
+#endif
+
 
 
 #ifdef _OPENMP
@@ -61,9 +76,7 @@
 #define EIGEN_DONT_PARALLELIZE // disable Eigen Internal openmp Parallelization
 #include <Eigen/Dense>
 
-#include <math.h>
 #include <model/Network/Network.h>
-
 #include <model/Utilities/TerminalColors.h>
 #include <model/Utilities/EigenDataReader.h>
 #include <model/DislocationDynamics/DislocationConsts.h>
@@ -78,13 +91,9 @@
 #include <model/DislocationDynamics/CrossSlip/DislocationCrossSlip.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
-
-#ifdef _MODEL_DD_MPI_
-#define _MODEL_MPI_  // required in ParticleSystem.h
+#include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h> // the main object from pil library
+#include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h> // the main object from pil library
 #include <model/ParticleInteraction/ParticleSystem.h> // the main object from pil library
-#endif
-
-
 
 
 namespace model {
@@ -97,9 +106,6 @@ namespace model {
 	class DislocationNetwork :
     /* inheritance          */ public Network<DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule> >,
 	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule> >::LinkType>
-#ifdef _MODEL_DD_MPI_
-    /* inheritance          */, private ParticleSystem<DislocationQuadratureParticle<_dim> >
-#endif
     {
 		
     public:
@@ -112,14 +118,14 @@ namespace model {
         typedef DislocationNetworkComponent<NodeType,LinkType> DislocationNetworkComponentType;
 		typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
 		typedef Eigen::Matrix<double,dim,1>		VectorDimD;
-		typedef typename LinkType::DislocationQuadratureParticleType DislocationQuadratureParticleType;
-		typedef DislocationCell<dim> SpatialCellType;
-		typedef SpatialCellObserver<SpatialCellType,dim> SpatialCellObserverType;
-		typedef typename SpatialCellObserverType::CellMapType CellMapType;
 		typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
-#ifdef _MODEL_DD_MPI_
-        typedef ParticleSystem<DislocationQuadratureParticle<_dim> > ParticleSystemType;
-#endif
+        typedef DislocationParticle<_dim> DislocationParticleType;
+        typedef DislocationStress<DislocationParticleType> DislocationStressType;
+        typedef typename DislocationParticleType::DislocationStressInteraction DislocationStressInteraction;
+
+        typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
+        typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
+        
 		enum {NdofXnode=NodeType::NdofXnode};
 		
 #ifdef UpdateBoundaryConditionsFile
@@ -130,13 +136,11 @@ namespace model {
 #include DislocationNucleationFile
 //         int nucleationFreq;
 #endif
-		
-		
+        
+        static ParticleSystem<DislocationParticle<_dim> > particleSystem;
+        
 	private:
         
-        
-        
-		
 		short unsigned int use_redistribution;
 		bool use_junctions;
 		static bool useImplicitTimeIntegration;
@@ -151,10 +155,6 @@ namespace model {
 		
 		double dx, dt;
         double vmax;
-        
-		
-
-        
         
 		/* formJunctions ******************************************************/
 		void formJunctions()
@@ -278,21 +278,15 @@ namespace model {
 			//! 2- Calculate BVP correction
             update_BVP_Solution(updateUserBC);
 			
-#ifdef _MODEL_DD_MPI_
-            MPI_Barrier(MPI_COMM_WORLD);
-#endif
-
 			//! 3- Solve the equation of motion
 			assembleAndSolve();
-			
-    
+			    
 			//! 4- Compute time step dt (based on max nodal velocity) and increment totalTime
 			make_dt();
 			totalTime+=dt;
             
             const MatrixDimD pdr(plasticDistortionRate());
             plasticDistortion += pdr*dt;
-            
             
             //! 11- Output the current configuration before changing it
             output();
@@ -321,7 +315,6 @@ namespace model {
 			DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
 			
 			//! 6- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
-//			loopInversion();
             DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
 			
 			//! 7- If soft boundaries are used, remove DislocationSegment(s) that exited the boundary
@@ -378,7 +371,7 @@ namespace model {
 		/**********************************************************************/
 		/* PUBLIC SECTION *****************************************************/
 	public:
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+//		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
 		DislocationSharedObjects<LinkType> shared;
 		
@@ -389,24 +382,27 @@ namespace model {
         MatrixDimD plasticDistortion;
         
 		/* Constructor ********************************************************/
-        DislocationNetwork(int& argc, char* argv[])
-#ifdef _MODEL_DD_MPI_
-        /* base initialization */ : ParticleSystemType(argc,argv)
-#endif
-        
+        DislocationNetwork(int& argc, char* argv[]) :
+        /* init list                              */ plasticDistortion(MatrixDimD::Zero())
         {
-//        	if (argc==1){
-                // argv[0] is by default the name of the executable so use default name for inputfile
                 read("./","DDinput.txt");
-//            }
-//            else{
-//                // argv[1] is assumed to be the filename with working directory the current directory
-//                read("./",argv[1]);
-//            }
-            
-            plasticDistortion.setZero();
         }
         
+        /* Constructor ********************************************************/
+        ~DislocationNetwork() 
+        {
+            // this destructor in only needed to avoid a bug in in gcc
+            for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
+                 /*                                       */ linkIter!=this->linkEnd();
+                 /*                                     */ ++linkIter)
+            {
+				linkIter->second->quadratureParticleContainer.clear();
+			}
+            
+            particleSystem.clearParticles();
+        }
+        
+                
 		/* remesh *************************************************************/
 		void remesh()
         {
@@ -465,16 +461,17 @@ namespace model {
             shared.minSNorderForSolve=(size_t)minSNorderForSolve_temp;
             
             // QuadratureParticle
-            EDR.readScalarInFile(fullName.str(),"coreWidthSquared",DislocationQuadratureParticle<dim>::a2); // core-width
-            assert((DislocationQuadratureParticle<dim>::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
-            LinkType::coreLsquared=DislocationQuadratureParticle<dim>::a2;
+            EDR.readScalarInFile(fullName.str(),"coreWidthSquared",DislocationStressType::a2); // core-width
+            assert((DislocationStressType::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
+            LinkType::coreLsquared=DislocationStressType::a2;
             //            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
             
             // Multipole Expansion
             EDR.readScalarInFile(fullName.str(),"dislocationCellSize",SpatialCellObserverType::cellSize); // cellSize
-            EDR.readScalarInFile(fullName.str(),"nearCellStressApproximation",DislocationQuadratureParticle<dim>::nearCellStressApproximation); // useMultipoleStress
-            EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationQuadratureParticle<dim>::farCellStressApproximation); // useMultipoleStress
-            assert((DislocationQuadratureParticle<dim>::farCellStressApproximation >= DislocationQuadratureParticle<dim>::nearCellStressApproximation) && "NEAR-FIELD APPROXIMATION IS COARSER THAN FAR-FIELD APPROXIMATION");
+
+            //            EDR.readScalarInFile(fullName.str(),"nearCellStressApproximation",DislocationParticleType::nearCellStressApproximation); // useMultipoleStress
+//            EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationParticleType::farCellStressApproximation); // useMultipoleStress
+//            assert((DislocationParticleType::farCellStressApproximation >= DislocationParticleType::nearCellStressApproximation) && "NEAR-FIELD APPROXIMATION IS COARSER THAN FAR-FIELD APPROXIMATION");
             
             
             EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
@@ -546,9 +543,7 @@ namespace model {
             }
 			
             // Read Vertex and Edge information
-//            readNodes(runID);
             DislocationNetworkIO<DislocationNetworkType>::readVertices(*this,runID);
-            //readLinks(runID);
             DislocationNetworkIO<DislocationNetworkType>::readEdges(*this,runID);
 
             
@@ -575,18 +570,24 @@ namespace model {
 			}
 			updateQuadraturePoints();
 			++runID;     // increment the runID counter
-		}
+        }
 		
 		/* solve **************************************************************/
 		void assembleAndSolve()
         {/*! Assemble and solve equation system
           */
             
+            std::cout<<"		Assembling edge stiffness and force vectors..."<<std::flush;
+			double t0=clock();
+
+            
+            //!-
+//            typedef typename DislocationParticleType::DislocationStressInteraction DislocationStressInteraction;
+            particleSystem.template computeNeighborInteraction<DislocationStressInteraction>();
+            
 			//! 1- Loop over DislocationSegments and assemble stiffness matrix and force vector
-			std::cout<<"		Assembling edge stiffness and force vectors..."<<std::flush;
 			typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
 			LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
-			double t0=clock();
 			this->parallelExecute(Lmfp);
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
             
@@ -640,20 +641,34 @@ namespace model {
 		/* updateQuadraturePoints *********************************************/
 		void updateQuadraturePoints()
         {
+            std::cout<<"		Updating Quadrature Points... "<<std::flush;
 			double t0=clock();
-			std::cout<<"		Updating Quadrature Points... "<<std::flush;
-			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+            
+            
+            // first clear all quadrature points for all segments
+			for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
+                 /*                                       */ linkIter!=this->linkEnd();
+                 /*                                     */ ++linkIter)
             {
-				linkIter->second->quadratureParticleVector.clear(); // first clear all quadrature points for all segments
+				linkIter->second->quadratureParticleContainer.clear();
+				linkIter->second->quadratureParticleContainer.reserve(qOrder);
 			}
-            for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+
+            // Clear DislocationParticles
+            particleSystem.clearParticles();
+
+            
+            // then update again
+            for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
+                 /*                                       */ linkIter!=this->linkEnd();
+                 /*                                     */ ++linkIter)
             {
-				Quadrature<1,qOrder>::execute(linkIter->second,&LinkType::updateQuadGeometryKernel); // then update again
+				Quadrature<1,qOrder>::execute(linkIter->second,&LinkType::updateQuadGeometryKernel); 
 			}
-            for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::cellBegin();cellIter!=SpatialCellObserverType::cellEnd();++cellIter)
-            {
-                cellIter->second->computeCenterStress();
-            }
+//            for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::cellBegin();cellIter!=SpatialCellObserverType::cellEnd();++cellIter)
+//            {
+//                cellIter->second->computeCenterStress();
+//            }
 			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
@@ -880,11 +895,14 @@ namespace model {
 	};
     
     
-    // static data
+    // decalre static data
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     bool DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::useImplicitTimeIntegration=false;
     
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    ParticleSystem<DislocationParticle<_dim> > DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::particleSystem;
     
 	//////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////

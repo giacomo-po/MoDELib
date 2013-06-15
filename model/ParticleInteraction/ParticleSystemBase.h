@@ -15,8 +15,13 @@
 
 
 
-#include <memory> // for auto_ptr
-#include <boost/ptr_container/ptr_map.hpp>
+//#include <memory> // for unique_ptr auto_ptr
+//#include <boost/ptr_container/ptr_map.hpp>
+//#include <boost/ptr_container/ptr_vector.hpp>
+//#include <boost/ptr_container/ptr_deque.hpp> // SHOULD USE THIS TO STORE PARTICLES, BUT REQUIRES CHANGING THE PARTITIONING ALGORITHM
+#include <deque>
+//#include <memory>
+
 
 #include <model/Utilities/modelMacros.h> // model_checkInput
 #include <model/ParticleInteraction/InteractionBase.h>
@@ -28,12 +33,13 @@
 namespace model {
     
     
-    // TO DO: REMOVE cellSize from Constructor and simplify constructors
     
     template <typename _ParticleType, typename UserSystemProperties>
     class ParticleSystemBase :
-    /* inheritance */  protected boost::ptr_map<size_t,_ParticleType>,
-    /* inheritance */  private UserSystemProperties
+//    /* inheritance          */ public SpatialCellObserver<_ParticleType,_ParticleType::dim>,
+//    /* inheritance          */  protected boost::ptr_map<size_t,_ParticleType>,
+    /* inheritance          */  protected std::deque<_ParticleType>, // iteration and fast insertion are priority
+    /* inheritance          */  private UserSystemProperties
     {
         
         //        size_t particleCounter;
@@ -42,51 +48,63 @@ namespace model {
         
         typedef _ParticleType ParticleType; // make ParticleType available outside the class
         typedef typename _ParticleType::PositionType PositionType;
-        typedef typename _ParticleType::SpatialCellType SpatialCellType;
-        typedef typename _ParticleType::SpatialCellObserverType SpatialCellObserverType;
-        typedef boost::ptr_map<size_t,_ParticleType> ParticleContainerType;
+        typedef SpatialCellObserver<_ParticleType,_ParticleType::dim> SpatialCellObserverType;
+        
+        typedef typename SpatialCellObserverType::SpatialCellType SpatialCellType;
+        //        typedef typename _ParticleType::SpatialCellType SpatialCellType;
+        typedef std::deque<_ParticleType> ParticleContainerType;
         
         static bool useCellPartitioner;
         
-        /**********************************************************************/
-        ParticleSystemBase(const double& cellSize=1.0) //:
-        //        /* init list */ particleCounter(0)
-        {
-            SpatialCellObserverType::cellSize=cellSize;
-        }
+//        /**********************************************************************/
+//        ~ParticleSystemBase() //:
+//        //        /* init list */ particleCounter(0)
+//        {
+//            
+//            std::cout<<"~ParticleSystemBase destructor: There are now "<< SpatialCellObserverType::totalCells()<< "cells. ";
+////            clearParticles();
+//            std::cout<<" done"<<std::endl;
+//
+//        }
         
         
         /**********************************************************************/
         template <typename ...AdditionalConstructorTypes>
-        int addParticle(const PositionType& p, const AdditionalConstructorTypes&... args)
+        ParticleType* addParticle(const PositionType& p, const AdditionalConstructorTypes&... args)
         {/*! Adds a ParticleType particle with position p and an arbitrary (variadic)
           * number of additional constructor parameters.
           */
             // 1- Generate a new ParticleType objects using std::auto_ptr
-            std::auto_ptr<ParticleType> pN (new ParticleType(p,args...) );
-            // 2- Obtain the sID (StaticID) of the new particle
-            const size_t sID(pN->sID);
+//            std::auto_ptr<ParticleType> pN (new ParticleType(p,args...) );
             
-            //            const size_t sID(particleCounter);
-            //            particleCounter++;
+//            // 2- Obtain the sID (StaticID) of the new particle
+//            const size_t sID(pN->sID);
+//            // 3- Insert the particle in the ParticleSystem using sID as the key. Assert succesful insertion
+//            std::pair<typename ParticleContainerType::iterator,bool> pIb(this->insert(sID , pN ));
             
-            // 3- Insert the particle in the ParticleSystem using sID as the key. Assert succesful insertion
-//            assert(this->insert(sID , pN ).second && "CANNOT INSERT PARTICLE IN PARTICLE SYSTEM.");
-            model_execAssert(this->insert(sID , pN ),.second,"CANNOT INSERT PARTICLE IN PARTICLE SYSTEM.");
+            
+            // 2- Insert the particle in the ParticleSystem using sID as the key. Assert succesful insertion
+//            std::pair<typename ParticleContainerType::iterator,bool> pIb(this->insert(sID , pN ));
+//            model_removeAssert(pIb.second && "CANNOT INSERT PARTICLE IN PARTICLE SYSTEM.");
+
+            this->emplace_back(p,args...);
             // 4- Returns the sID of the particle.
-            return sID;
+        //    return pIb.first->second;
+            return &*this->rbegin();
+
         }
         
         /**********************************************************************/
         void clearParticles()
-        {
+        {/*! Removes all particles from the ParticleSystem
+          */
             this->clear();
         }
         
         /*****************************************/
         template <typename Property>
         const typename Property::PropertyType& getProperty() const
-        {/*! Compute full particle interaction according to InteractionType
+        {/*!
           */
             return *static_cast<const Property*>(this);
         }
@@ -103,31 +121,75 @@ namespace model {
             return SpatialCellObserverType::cells();
         }
         
-//        /*****************************************/
-//        template <class T>
-//        friend T& operator<< (T& os, const ParticleContainerType& pS)
-//        {/*! Operator << use ParticleType specific << operator
-//          */
-//            for (typename ParticleContainerType::const_iterator pIter=pS.begin();pIter!=pS.end();++pIter)
+        static void setCellSize(const double& cellSize)
+        {
+            assert(cellSize>0.0);
+            SpatialCellObserverType::cellSize=cellSize;
+        }
+        
+//        /**********************************************************************/
+//        template <typename InteractionType>
+//        void computeMoment0() const
+//        {
+//            
+//            // TO DO: remove from here and parallelize in ParticlesSystemSerial and ParticleSystemParallel
+//            
+//            
+//            //#ifdef _OPENMP
+//            InteractionType::momentVector.resize(SpatialCellObserverType::totalCells()*InteractionType::DataPerCellMoment);
+//            
+//            //#else
+//            int kk=0;
+//            for (typename SpatialCellType::CellMapType::const_iterator cIter =SpatialCellObserverType::cellBegin();
+//                 /*                                                 */ cIter!=SpatialCellObserverType::cellEnd();
+//                 /*                                               */ ++cIter)
 //            {
-//                os<<(*pIter->second)<<std::endl;
+////                InteractionType::computeMoment0(*cIter->second);
+//                InteractionType::momentVector[kk]=InteractionType::computeMoment0(*cIter->second);
+//
 //            }
-//            return os;
+//            //#endif
 //        }
         
-        //        /*****************************************/
-        //        template <class T>
-        //        friend T& operator<< (T& os, const typename SpatialCellObserverType::CellMapType& cM)
-        //        {/*! Operator << use ParticleType specific << operator
-        //          */
-        //            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter =cM.cellBegin();
-        //                 /*                                                         */ cIter!=cM.cellEnd();
-        //                 /*                                                         */ cIter++)
-        //            {
-        //                os<<(*cIter->second)<<std::endl;
-        //            }
-        //            return os;
-        //        }
+//        /**********************************************************************/
+//        template <typename InteractionType>
+//        void computeFarInteraction()
+//        {
+//            
+//            double t0(clock());
+//            std::cout<<"Computing far field"<<std::endl;
+//            
+//            // TO DO: remove from here and parallelize in ParticlesSystemSerial and ParticleSystemParallel
+//            
+//            
+////            //#ifdef _OPENMP
+////            
+////            //#else
+////            //int kk=0;
+////            
+////            
+////            
+////            
+//            for (typename ParticleContainerType::iterator pIter=this->begin();pIter!=this->end();++pIter)
+//            {
+//                // loop over neighbor cells
+//                for (typename SpatialCellType::CellMapType::const_iterator cIter =SpatialCellObserverType::cellBegin();
+//                     /*                                                 */ cIter!=SpatialCellObserverType::cellEnd();
+//                     /*                                               */ ++cIter)
+//                {
+//
+//                        InteractionType(*pIter->second,*cIter->second);  // the constructor of InteractionType actually computes the binary interaction between *iterI and *iterJ
+//                }
+//            }
+////            //#endif
+//            
+//            
+//            std::cout<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<std::endl;
+//
+//        }
+
+
+
         
     };
     
@@ -139,3 +201,51 @@ namespace model {
 } // end namespace
 #endif
 
+
+//        /**********************************************************************/
+//        template <typename CellProperty>
+//        void computeCellProperty() const
+//        {
+//
+//            // TO DO: remove from here and parallelize in ParticlesSystemSerial and ParticleSystemParallel
+//
+//
+//            //#ifdef _OPENMP
+//
+//
+//            //#else
+//            for (typename SpatialCellType::CellMapType::const_iterator cIter =SpatialCellObserverType::cellBegin();
+//                 /*                                                 */ cIter!=SpatialCellObserverType::cellEnd();
+//                 /*                                               */ ++cIter)
+//            {
+//                CellProperty(*cIter->second);
+//            }
+//            //#endif
+//        }
+
+
+//        /*****************************************/
+//        template <class T>
+//        friend T& operator<< (T& os, const ParticleContainerType& pS)
+//        {/*! Operator << use ParticleType specific << operator
+//          */
+//            for (typename ParticleContainerType::const_iterator pIter=pS.begin();pIter!=pS.end();++pIter)
+//            {
+//                os<<(*pIter->second)<<std::endl;
+//            }
+//            return os;
+//        }
+
+//        /*****************************************/
+//        template <class T>
+//        friend T& operator<< (T& os, const typename SpatialCellObserverType::CellMapType& cM)
+//        {/*! Operator << use ParticleType specific << operator
+//          */
+//            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter =cM.cellBegin();
+//                 /*                                                         */ cIter!=cM.cellEnd();
+//                 /*                                                         */ cIter++)
+//            {
+//                os<<(*cIter->second)<<std::endl;
+//            }
+//            return os;
+//        }

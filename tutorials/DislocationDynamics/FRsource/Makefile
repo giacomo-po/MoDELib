@@ -1,7 +1,7 @@
 USE_ICC = 0
 
 # MODEL LIBRARY #################################
- MODEL_INCLUDE = /Users/giacomo/Dropbox/MODEL
+ MODEL_INCLUDE =/Users/giacomo/Documents/MODEL
 # MODEL_INCLUDE = /home/giacomo/Dropbox/Model
 
 # MPI LIBRARY (PARALLEL ONLY) ###################
@@ -50,13 +50,13 @@ CFLAGS	+= -fast
 # enable openMP
 CFLAGS	+= -openmp
 #enable C++0x
-CFLAGS	+= -std=c++0x
+CFLAGS	+= -std=c++11
 else
 CC= g++
 # optimization level = fast
-CFLAGS  += -O2
+CFLAGS  += -O3
 # enable openMP
-CFLAGS += -fopenmp
+#CFLAGS += -fopenmp
 # enable C++0x
 CFLAGS += -std=c++0x
 endif
@@ -67,9 +67,9 @@ CFLAGS += -Wall
 CFLAGS += -Wextra
 
 #disable model-assertions
-CFLAGS += -D _MODEL_NO_DEBUG_
+#CFLAGS += -D _MODEL_NO_DEBUG_
 #disable model-input-checks
-CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
+#CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 
 
 OBJS 	= DDserial

@@ -37,5 +37,5 @@ public:
 
 
 	/* Containers and iterators used in SubNetwork **************************************************/
-	typedef std::tuple<NodeType*,LinkType*,short int>				NeighborType;
+	typedef std::tuple<NodeType* const ,LinkType* const,short int>				NeighborType;
     typedef std::map<size_t,NeighborType>							NeighborContainerType;

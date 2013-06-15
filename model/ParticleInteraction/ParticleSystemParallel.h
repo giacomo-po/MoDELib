@@ -35,6 +35,7 @@
 #include <model/Utilities/CompareVectorsByComponent.h>
 #include <model/ParticleInteraction/ParticleSystemBase.h>
 #include <model/ParticleInteraction/SystemProperties.h>
+#include <model/MPI/LongestProcessingTime.h>
 
 //#include <model/SpaceDecomposition/SpatialCellObserver.h>
 
@@ -59,269 +60,280 @@ namespace model {
         typedef typename ParticleSystemBaseType::ParticleContainerType ParticleContainerType;
         typedef typename ParticleSystemBaseType::SpatialCellObserverType SpatialCellObserverType;
         //        typedef std::deque<SpatialCellType*> AssignedCellContainerType;
-        typedef std::map<size_t,_ParticleType*>   AssignedParticleContainerType;
+//        typedef std::map<size_t,_ParticleType*>   AssignedParticleContainerType;
         
         //! The SpatialCell cells assigned to this MPI process
         //        AssignedCellContainerType assignedCells;
-        AssignedParticleContainerType assignedParticles;
+        //AssignedParticleContainerType assignedParticles;
         
         
         //        bool useCellPartitioner;
         
         bool partitionIsValid;
-        std::vector<int> mpiIDoffsetVector;
-        std::vector<int> particleSizeVector;
+//        std::vector<int> mpiIDoffsetVector;
+//        std::vector<int> particleSizeVector;
+        
+        LongestProcessingTime<ParticleType> lpt;
+
         
         /**********************************************************************/
         void evaluatePerformance(const std::vector<int>& partitionerRankVector,
                                  const std::vector<int>& vWeights,
                                  const int& totalWeight) const
         {
-            std::vector<int> procWeights(this->mpiProcs,0); // vector containing the weight of each processor
+            std::vector<int> procWeights(this->mpiProcs(),0); // vector containing the weight of each processor
             
             for (unsigned int w=0;w<partitionerRankVector.size();++w)
             {
                 procWeights[partitionerRankVector[w]]+=vWeights[w];
             }
             
-            double speedup(this->mpiProcs);
-            for (unsigned int w=0;w<procWeights.size();++w)
+            if (mpiRank()==0)
             {
-                float temp(static_cast<float>(totalWeight)/procWeights[w]);
-                if(speedup>temp)
+                std::cout<<"Processor weights: ";
+                for (unsigned int w=0;w<procWeights.size();++w)
                 {
-                    speedup=temp;
+                    std::cout<<static_cast<float>(procWeights[w])/totalWeight*100.0f<<"%, ";
+//                    double speedup(this->mpiProcs());
+//                    float temp(static_cast<float>(totalWeight)/procWeights[w]);
+//                    if(speedup>temp)
+//                    {
+//                        speedup=temp;
+//                    }
                 }
+                std::cout<<std::endl;
+
             }
+            
             //            std::cout<<"Expected speed-up="<<speedup<<std::endl;
         }
         
         
         /**********************************************************************/
-        void partionByCells()
-        {
-            typedef typename SpatialCellObserverType::CellIdType CellIdType;
-            typedef std::map<CellIdType,const int,CompareVectorsByComponent<int,_ParticleType::dim> > ijk2idMapType;
-            //            typedef std::map<Eigen::Matrix<int,_ParticleType::dim,1>,const int,CompareVectorsByComponent<int,_ParticleType::dim> > ijk2idMapType;
-            ijk2idMapType  ijk2idMap;;
-            typedef std::map<int,const CellIdType> id2ijkMapType;
-            //            typedef std::map<int,Eigen::Matrix<int,_ParticleType::dim,1> > id2ijkMapType;
-            id2ijkMapType id2ijkMap;;
-            
-            // Populate ijk2idMap and id2ijkMap
-            int k(0);
-            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter =SpatialCellObserverType::cellBegin();
-                 /*                                                         */ cIter!=SpatialCellObserverType::cellEnd();
-                 /*                                                         */ ++cIter)
-            {
-                ijk2idMap.insert(std::pair<Eigen::Matrix<int,_ParticleType::dim,1>,const int>(cIter->second->cellID,k));
-                id2ijkMap.insert(std::pair<int,Eigen::Matrix<int,_ParticleType::dim,1> >(k,cIter->second->cellID));
-                ++k;
-            }
-            
-            
-            
-            // Compute weightScaleFactor to avoid int overflow in std::vector<int> vWeights
-            double totalWeightD(0.0);
-            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter =SpatialCellObserverType::cellBegin();
-                 /*                                                         */ cIter!=SpatialCellObserverType::cellEnd();
-                 /*                                                       */ ++cIter)
-            {
-                totalWeightD+=cIter->second->n2WeightD();
-            }
-            double weightScaleFactor(1.0);
-            if (totalWeightD>=INT_MAX) // need to rescale actual "int" weights
-            {
-                weightScaleFactor=totalWeightD/INT_MAX;
-                if (this->mpiRank == 0)
-                {
-                    
-                    std::cout<<"detected weight overflow. Rescaling weights: weightScaleFactor="<<weightScaleFactor<<std::endl;
-                }
-            }
-            
-            // Assemble std::vector<int> vWeights
-            std::vector<int> vWeights(SpatialCellObserverType::size(),1); // vector containing the (scaled) weight of each cell
-            int kk(0);
-            int totalWeight(0);
-            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter =SpatialCellObserverType::cellBegin();
-                 /*                                                         */ cIter!=SpatialCellObserverType::cellEnd();
-                 /*                                                       */ ++cIter)
-            {
-                vWeights[kk]=cIter->second->n2Weight()/weightScaleFactor;
-                totalWeight+=vWeights[kk];
-                ++kk;
-            }
-            
-            // Check overflow
-            if (totalWeightD>=INT_MAX) // actual totalWeight will overflow: need to rescale actual "int" weights
-            {
-                const double actualScaleFactor(totalWeightD/totalWeight);
-                if (this->mpiRank == 0)
-                {
-                    std::cout<<"totalWeight="<<totalWeight<<", totalWeightD="<<totalWeightD<<", actualScaleFactor="<<actualScaleFactor<<std::endl;
-                }
-                model_removeAssert(std::fabs(actualScaleFactor-weightScaleFactor)/weightScaleFactor<0.01 && "WEIGHT SCALE FACTOR MISMATCH");
-            }
-            
-            
-            // - Populate vector of neighbors and offsets
-            std::vector<int> vNeighbors;
-            std::vector<int> vOffsets;
-            
-            int offSet(0);
-            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter =SpatialCellObserverType::cellBegin();
-                 /*                                                         */ cIter!=SpatialCellObserverType::cellEnd();
-                 /*                                                       */ ++cIter)
-            {
-                vOffsets.push_back(offSet);
-                for (typename SpatialCellObserverType::CellMapType::const_iterator nIter =cIter->second->neighborCellsBegin();
-                     /*                                                         */ nIter!=cIter->second->neighborCellsEnd();
-                     /*                                                       */ ++nIter)
-                {
-                    if (cIter->second->cellID!=nIter->second->cellID)
-                    {
-                        typename ijk2idMapType::const_iterator mIter(ijk2idMap.find(nIter->second->cellID.transpose()));
-                        vNeighbors.push_back(mIter->second);
-                        ++offSet;
-                    }
-                }
-            }
-            vOffsets.push_back(offSet); // push back an extra offset (required by Metis)
-            
-            
-            // Create a vector to store the output of the partitioner. Initialize at process=0
-            std::vector<int> partitionerRankVector(SpatialCellObserverType::size(),0);
-            
-            // partition into the same number of MPI processes
-            int numPart = this->mpiProcs;
-            
-            if (numPart > 1)
-            {
-                int metisOptions[METIS_NOPTIONS];
-                int numVert = SpatialCellObserverType::size(); // number of nodes
-                int ncon = 1;  // number of weights per node
-                int objval;
-                float ubvec = 1.001; // load imbalance tolerance
-                METIS_SetDefaultOptions(metisOptions);
-                METIS_PartGraphKway(&numVert,&ncon,&vOffsets[0],&vNeighbors[0],
-                                    &vWeights[0],NULL,NULL,&numPart,NULL,
-                                    &ubvec,metisOptions,&objval,&partitionerRankVector[0]);
-            }
-            
-            
-            
-            // Assign each cell the corresponding processor, as found by metis
-            //            int assignedParticleSize(0);
-            for (unsigned int i=0; i<SpatialCellObserverType::size(); ++i)
-            {
-                typename id2ijkMapType::const_iterator idIter(id2ijkMap.find(i));
-                const CellIdType cellID(idIter->second);
-                
-                typename SpatialCellObserverType::isCellType isC(SpatialCellObserverType::isCell(cellID));
-                model_removeAssert(isC.first && "CELL MUST EXIST!");
-                isC.second->assignedRank=partitionerRankVector[i];
-                
-                if (this->mpiRank==partitionerRankVector[i])
-                {
-                    //                    assignedCells.push_back(isC.second);
-                    // loop over particles in the current cell
-                    for (typename SpatialCellType::ParticleContainerType::const_iterator pIter =isC.second->particleBegin();
-                         /*                                                           */ pIter!=isC.second->particleEnd();
-                         /*                                                         */ ++pIter)
-                    {
-                        
-                        const typename ParticleContainerType::iterator nIter(this->find((*pIter)->sID));
-                        //                        assert(nIter!=this->end());
-                        assignedParticles.insert(std::make_pair((*pIter)->sID,nIter->second));
-                        //                        assignedParticles.push_back(nIter->second);
-                    }
-                    
-                    
-                    //                    assignedParticleSize+=isC.second->size();
-                }
-            }
-            
-            // evaluate Performance
-            evaluatePerformance(partitionerRankVector,vWeights,totalWeight);
-            
-            //            return assignedParticles.size();
-            //            return assignedParticleSize;
-        }
+//        void partionByCells()
+//        {
+//            typedef typename SpatialCellObserverType::CellIdType CellIdType;
+//            typedef std::map<CellIdType,const int,CompareVectorsByComponent<int,_ParticleType::dim> > ijk2idMapType;
+//            //            typedef std::map<Eigen::Matrix<int,_ParticleType::dim,1>,const int,CompareVectorsByComponent<int,_ParticleType::dim> > ijk2idMapType;
+//            ijk2idMapType  ijk2idMap;;
+//            typedef std::map<int,const CellIdType> id2ijkMapType;
+//            //            typedef std::map<int,Eigen::Matrix<int,_ParticleType::dim,1> > id2ijkMapType;
+//            id2ijkMapType id2ijkMap;;
+//            
+//            // Populate ijk2idMap and id2ijkMap
+//            int k(0);
+//            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter =SpatialCellObserverType::cellBegin();
+//                 /*                                                         */ cIter!=SpatialCellObserverType::cellEnd();
+//                 /*                                                         */ ++cIter)
+//            {
+//                ijk2idMap.insert(std::pair<Eigen::Matrix<int,_ParticleType::dim,1>,const int>(cIter->second->cellID,k));
+//                id2ijkMap.insert(std::pair<int,Eigen::Matrix<int,_ParticleType::dim,1> >(k,cIter->second->cellID));
+//                ++k;
+//            }
+//            
+//            
+//            
+//            // Compute weightScaleFactor to avoid int overflow in std::vector<int> vWeights
+//            double totalWeightD(0.0);
+//            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter =SpatialCellObserverType::cellBegin();
+//                 /*                                                         */ cIter!=SpatialCellObserverType::cellEnd();
+//                 /*                                                       */ ++cIter)
+//            {
+//                totalWeightD+=cIter->second->n2WeightD();
+//            }
+//            double weightScaleFactor(1.0);
+//            if (totalWeightD>=INT_MAX) // need to rescale actual "int" weights
+//            {
+//                weightScaleFactor=totalWeightD/INT_MAX;
+//                if (this->mpiRank() == 0)
+//                {
+//                    
+//                    std::cout<<"detected weight overflow. Rescaling weights: weightScaleFactor="<<weightScaleFactor<<std::endl;
+//                }
+//            }
+//            
+//            // Assemble std::vector<int> vWeights
+//            std::vector<int> vWeights(SpatialCellObserverType::totalCells(),0); // vector containing the (scaled) weight of each cell
+//            int kk(0);
+//            int totalWeight(0);
+//            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter =SpatialCellObserverType::cellBegin();
+//                 /*                                                         */ cIter!=SpatialCellObserverType::cellEnd();
+//                 /*                                                       */ ++cIter)
+//            {
+//                vWeights[kk]=cIter->second->n2Weight()/weightScaleFactor;
+//                totalWeight+=vWeights[kk];
+//                ++kk;
+//            }
+//            
+//            // Check overflow
+//            if (totalWeightD>=INT_MAX) // actual totalWeight will overflow: need to rescale actual "int" weights
+//            {
+//                const double actualScaleFactor(totalWeightD/totalWeight);
+//                if (this->mpiRank() == 0)
+//                {
+//                    std::cout<<"totalWeight="<<totalWeight<<", totalWeightD="<<totalWeightD<<", actualScaleFactor="<<actualScaleFactor<<std::endl;
+//                }
+//                model_removeAssert(std::fabs(actualScaleFactor-weightScaleFactor)/weightScaleFactor<0.01 && "WEIGHT SCALE FACTOR MISMATCH");
+//            }
+//            
+//            
+//            // - Populate vector of neighbors and offsets
+//            std::vector<int> vNeighbors;
+//            std::vector<int> vOffsets;
+//            
+//            int offSet(0);
+//            for (typename SpatialCellObserverType::CellMapType::const_iterator cIter =SpatialCellObserverType::cellBegin();
+//                 /*                                                         */ cIter!=SpatialCellObserverType::cellEnd();
+//                 /*                                                       */ ++cIter)
+//            {
+//                vOffsets.push_back(offSet);
+//                for (typename SpatialCellObserverType::CellMapType::const_iterator nIter =cIter->second->neighborCellsBegin();
+//                     /*                                                         */ nIter!=cIter->second->neighborCellsEnd();
+//                     /*                                                       */ ++nIter)
+//                {
+//                    if (cIter->second->cellID!=nIter->second->cellID)
+//                    {
+//                        typename ijk2idMapType::const_iterator mIter(ijk2idMap.find(nIter->second->cellID.transpose()));
+//                        vNeighbors.push_back(mIter->second);
+//                        ++offSet;
+//                    }
+//                }
+//            }
+//            vOffsets.push_back(offSet); // push back an extra offset (required by Metis)
+//            
+//            
+//            // Create a vector to store the output of the partitioner. Initialize at process=0
+//            std::vector<int> partitionerRankVector(SpatialCellObserverType::totalCells(),0);
+//            
+//            // partition into the same number of MPI processes
+//            int numPart = this->mpiProcs();
+//            
+//            if (numPart > 1)
+//            {
+//                int metisOptions[METIS_NOPTIONS];
+//                int numVert = SpatialCellObserverType::totalCells(); // number of nodes
+//                int ncon = 1;  // number of weights per node
+//                int objval;
+//                float ubvec = 1.001; // load imbalance tolerance
+//                METIS_SetDefaultOptions(metisOptions);
+//                METIS_PartGraphKway(&numVert,&ncon,&vOffsets[0],&vNeighbors[0],
+//                                    &vWeights[0],NULL,NULL,&numPart,NULL,
+//                                    &ubvec,metisOptions,&objval,&partitionerRankVector[0]);
+//            }
+//            
+//            
+//            
+//            // Assign each cell the corresponding processor, as found by metis
+//            //            int assignedParticleSize(0);
+//            for (unsigned int i=0; i<SpatialCellObserverType::totalCells(); ++i)
+//            {
+//                typename id2ijkMapType::const_iterator idIter(id2ijkMap.find(i));
+//                const CellIdType cellID(idIter->second);
+//                
+//                typename SpatialCellObserverType::isCellType isC(SpatialCellObserverType::isCell(cellID));
+//                model_removeAssert(isC.first && "CELL MUST EXIST!");
+//                isC.second->assignedRank=partitionerRankVector[i];
+//                
+//                if (this->mpiRank()==partitionerRankVector[i])
+//                {
+//                    //                    assignedCells.push_back(isC.second);
+//                    // loop over particles in the current cell
+//                    for (typename SpatialCellType::ParticleContainerType::const_iterator pIter =isC.second->particleBegin();
+//                         /*                                                           */ pIter!=isC.second->particleEnd();
+//                         /*                                                         */ ++pIter)
+//                    {
+//                        
+//                        const typename ParticleContainerType::iterator nIter(this->find((*pIter)->sID));
+//                        //                        assert(nIter!=this->end());
+//                        assignedParticles.insert(std::make_pair((*pIter)->sID,nIter->second));
+//                        //                        assignedParticles.push_back(nIter->second);
+//                    }
+//                    
+//                    
+//                    //                    assignedParticleSize+=isC.second->size();
+//                }
+//            }
+//            
+//            // evaluate Performance
+//            evaluatePerformance(partitionerRankVector,vWeights,totalWeight);
+//            
+//            //            return assignedParticles.size();
+//            //            return assignedParticleSize;
+//        }
         
         /**********************************************************************/
-        void partionByParticles()
-        {
-            // Initialize the vector containing the weight of each particle
-            std::vector<int> vWeights(this->size(),1);
-            
-            // Populate the vector containing the weight of each particle
-            int kk(0);
-            for (typename ParticleContainerType::const_iterator pIter =this->begin();
-                 /*                                          */ pIter!=this->end();
-                 /*                                        */ ++pIter)
-            {
-                // The weight of the kk-th particle is the n2Weight() of its cell
-                vWeights[kk]=pIter->second->pCell->n2Weight();
-                ++kk;
-            }
-            
-            // Initialize METIS vectors
-            std::vector<int> vNeighbors;
-            std::vector<int> vOffsets;
-            
-            // Populate METIS vectors
-            int offSet(0);
-            int pp(0);
-            for (typename ParticleContainerType::const_iterator pIter =this->begin();
-                 /*                                          */ pIter!=this->end();
-                 /*                                        */ ++pIter)
-            {
-                vOffsets.push_back(offSet);
-                vNeighbors.push_back(pp); // each particle is its only neighbor
-                ++offSet;
-                ++pp;
-            }
-            vOffsets.push_back(offSet); // push back an extra offset (required by Metis)
-            
-            
-            // partition into the same number of MPI processes
-            int numPart = this->mpiProcs;
-            
-            // Create a vector to store the output of the partitioner. Initialize at process=0
-            std::vector<int> partitionerRankVector(this->size(),0); //
-            
-            // Call METIS
-            if (numPart > 1)
-            {
-                int metisOptions[METIS_NOPTIONS];
-                int numVert = this->size(); // number of nodes
-                int ncon = 1;  // number of weights per node
-                int objval;
-                float ubvec = 1.001; // load imbalance tolerance
-                METIS_SetDefaultOptions(metisOptions);
-                METIS_PartGraphKway(&numVert,&ncon,&vOffsets[0],&vNeighbors[0],
-                                    &vWeights[0],NULL,NULL,&numPart,NULL,
-                                    &ubvec,metisOptions,&objval,&partitionerRankVector[0]);
-            }
-            
-            //            int assignedParticleSize(0);
-            
-            for (unsigned int i=0; i<this->size(); ++i)
-            {
-                if (this->mpiRank==partitionerRankVector[i])
-                {
-                    typename ParticleContainerType::iterator pIter(this->begin());
-                    std::advance(pIter,i);
-                    //                    assignedParticles.push_back(pIter->second);
-                    assignedParticles.insert(std::make_pair(pIter->second->sID,pIter->second));
-                    
-                    //                    assignedParticleSize+=1;
-                }
-            }
-            
-            //          return assignedParticleSize;
-        }
+//        void partionByParticles()
+//        {
+//            // Initialize the vector containing the weight of each particle
+//            std::vector<int> vWeights(this->size(),1);
+//            
+//            // Populate the vector containing the weight of each particle
+//            int kk(0);
+//            for (typename ParticleContainerType::const_iterator pIter =this->begin();
+//                 /*                                          */ pIter!=this->end();
+//                 /*                                        */ ++pIter)
+//            {
+//                // The weight of the kk-th particle is the n2Weight() of its cell
+//                vWeights[kk]=pIter->second->pCell->n2Weight();
+//                ++kk;
+//            }
+//            
+//            // Initialize METIS vectors
+//            std::vector<int> vNeighbors;
+//            std::vector<int> vOffsets;
+//            
+//            // Populate METIS vectors
+//            int offSet(0);
+//            int pp(0);
+//            for (typename ParticleContainerType::const_iterator pIter =this->begin();
+//                 /*                                          */ pIter!=this->end();
+//                 /*                                        */ ++pIter)
+//            {
+//                vOffsets.push_back(offSet);
+//                vNeighbors.push_back(pp); // each particle is its only neighbor
+//                ++offSet;
+//                ++pp;
+//            }
+//            vOffsets.push_back(offSet); // push back an extra offset (required by Metis)
+//            
+//            
+//            // partition into the same number of MPI processes
+//            int numPart = this->mpiProcs();
+//            
+//            // Create a vector to store the output of the partitioner. Initialize at process=0
+//            std::vector<int> partitionerRankVector(this->size(),0); //
+//            
+//            // Call METIS
+//            if (numPart > 1)
+//            {
+//                int metisOptions[METIS_NOPTIONS];
+//                int numVert = this->size(); // number of nodes
+//                int ncon = 1;  // number of weights per node
+//                int objval;
+//                float ubvec = 1.001; // load imbalance tolerance
+//                METIS_SetDefaultOptions(metisOptions);
+//                METIS_PartGraphKway(&numVert,&ncon,&vOffsets[0],&vNeighbors[0],
+//                                    &vWeights[0],NULL,NULL,&numPart,NULL,
+//                                    &ubvec,metisOptions,&objval,&partitionerRankVector[0]);
+//            }
+//            
+//            //            int assignedParticleSize(0);
+//            
+//            for (unsigned int i=0; i<this->size(); ++i)
+//            {
+//                if (this->mpiRank()==partitionerRankVector[i])
+//                {
+//                    typename ParticleContainerType::iterator pIter(this->begin());
+//                    std::advance(pIter,i);
+//                    //                    assignedParticles.push_back(pIter->second);
+//                    assignedParticles.insert(std::make_pair(pIter->second->sID,pIter->second));
+//                    
+//                    //                    assignedParticleSize+=1;
+//                }
+//            }
+//            
+//            //          return assignedParticleSize;
+//        }
         
         
         
@@ -333,21 +345,29 @@ namespace model {
         
         
         /**********************************************************************/
-        ParticleSystemParallel(int argc, char* argv[], const double& cellSize=1.0) :
-        /* init list       */  ParticleSystemBaseType::ParticleSystemBase(cellSize),
+        ParticleSystemParallel(int argc, char* argv[]) :
+//        /* init list       */  ParticleSystemBaseType::ParticleSystemBase(cellSize),
         /* init list       */  ModelMPIbase(argc,argv),
         /* init list       */  partitionIsValid(false)
         {
-            particleSizeVector.resize(this->mpiProcs);
-            mpiIDoffsetVector.resize(this->mpiProcs);
+//            particleSizeVector.resize(this->mpiProcs());
+//            mpiIDoffsetVector.resize(this->mpiProcs());
+        }
+        
+        /**********************************************************************/
+        ParticleSystemParallel() :
+        /* init list       */  partitionIsValid(false)
+        {
+
         }
         
         /**********************************************************************/
         template <typename ...AdditionalConstructorTypes>
-        int addParticle(const typename ParticleSystemBaseType::PositionType& p, const AdditionalConstructorTypes&... args)
+        ParticleType* addParticle(const typename ParticleSystemBaseType::PositionType& p, const AdditionalConstructorTypes&... args)
         {/*! Adds a ParticleType particle with position p and an arbitrary (variadic)
           * number of additional constructor parameters.
           */
+            assert(mpiInitialized() && "CANNOT INSERT PARTICLES BEFORE CALLING ModelMPIbase::initMPI(argc,argv).");
             partitionIsValid=false;
             return ParticleSystemBaseType::addParticle(p,args...);
         }
@@ -367,95 +387,128 @@ namespace model {
             //            assignedCells.clear();
             
             //! -1 Clear the container of "assignedParticles"
-            assignedParticles.clear();
+//            assignedParticles.clear();
             //            assignedParticles.reserve(this->size());
             
             //! -2 The number of ParticleType particles assigned to this MPI process
             //            int assignedParticleSize(0);
             
-            if(this->useCellPartitioner)
+//            if(this->useCellPartitioner)
+//            {
+//                partionByCells();
+//            }
+//            else
+//            {
+//                partionByParticles();
+//            }
+            
+            
+//            LongestProcessingTime<ParticleType> lpt;
+            lpt.clear();
+            
+            for (typename ParticleContainerType::iterator pIter =this->begin();
+                 /*                                          */ pIter!=this->end();
+                 /*                                        */ ++pIter)
             {
-                partionByCells();
+                lpt.insert(pIter->pCell->n2Weight(),&*pIter);
             }
-            else
+            lpt.partition(this->mpiProcs());
+            
+            if (this->mpiRank()==0){lpt.show();}
+            
+            
+            size_t binOffset(0);
+            for (size_t b=0;b<lpt.bins();++b)
             {
-                partionByParticles();
-            }
-            
-            /*! -3 Assign each particle in the "assignedParticles" container a unique ID (mpiID)
-             *  All mpiID(s) of particles assigned to a given processor are sequential
-             */
-            
-            //!     -3.1 Collect assignedParticleSize from each MPI process into particleSizeVector
-            int assignedParticleSize(assignedParticles.size());
-            MPI_Allgather(&assignedParticleSize,1,MPI_INT,&particleSizeVector[0],1,MPI_INT,MPI_COMM_WORLD);
-            
-            // Check that all particles have been partitioned
-            unsigned int totalAssignedParticle(0);
-            for (unsigned int k=0;k<particleSizeVector.size();++k)
-            {
-                totalAssignedParticle+=particleSizeVector[k];
-            }
-            model_removeAssert(totalAssignedParticle==this->size() && "SOMETHING WENT VERY WRONG");
-            
-            //!     -3.2 Compute mpiIDoffset by comulative summing assignedParticleSize across the MPI processes
-            int mpiIDoffset(0);
-            MPI_Exscan(&assignedParticleSize,&mpiIDoffset,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-            
-            //!     -3.3 Collect mpiIDoffset from each MPI process into mpiIDoffsetVector
-            MPI_Allgather(&mpiIDoffset,1,MPI_INT,&mpiIDoffsetVector[0],1,MPI_INT,MPI_COMM_WORLD);
-            
-            //!     -3.4 Loop over assignedParticles and assign an increasing ID with offset mpiIDoffsetVector[this->mpiRank]
-            std::vector<size_t> mpiIDvector(this->size(),0);
-            size_t mpiLocalID(0);
-            
-            for (typename AssignedParticleContainerType::iterator pIter =assignedParticles.begin();
-                 /*                                            */ pIter!=assignedParticles.end();
-                 /*                                          */ ++pIter)
-            {
-                mpiIDvector[mpiLocalID+mpiIDoffsetVector[this->mpiRank]]=pIter->second->sID;
-                //                (*pIter)->mpiID=mpiLocalID+mpiIDoffsetVector[this->mpiRank];
-                ++mpiLocalID;
+                const size_t binSize(lpt.bin(b).size());
+                for (size_t p=0;p<binSize;++p)
+                {
+                    lpt.bin(b)[p]->mpiID=binOffset+p;
+                }
+                binOffset+=binSize;
             }
             
-            
-            //            //! Syncronize InteractionType::resultVector among processors
-            MPI_Allgatherv(MPI_IN_PLACE,0,MPI_DATATYPE_NULL,
-                           &mpiIDvector[0],&particleSizeVector[0],&mpiIDoffsetVector[0],MPI_UNSIGNED_LONG,MPI_COMM_WORLD);
+                        partitionIsValid=true;
             
             
-            for (size_t k=0;k<this->size();++k)
-            {
-                const typename ParticleContainerType::iterator pIter(this->find(mpiIDvector[k]));
-                pIter->second->mpiID=k;
-            }
-            
-            //            size_t mpiLocalID(0);
-            //            for (typename AssignedParticleContainerType::iterator pIter =assignedParticles.begin();
-            //                 /*                                            */ pIter!=assignedParticles.end();
-            //                 /*                                            */ pIter++)
-            //            {
-            //                (*pIter)->mpiID=mpiLocalID+mpiIDoffsetVector[this->mpiRank];
-            //                mpiLocalID++;
-            //            }
-            
-            // Set flag "partitionIsValid" to true
-            partitionIsValid=true;
-            
-            //            if (this->mpiRank == 0)
-            //            {
-            //            std::cout<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<std::endl;
-            //            }
-            
-            
-            //            return HERE RETURN THE LOAD IMBALANCE;
+// //           DON'T USE METIS !!!!
+//            
+//            /*! -3 Assign each particle in the "assignedParticles" container a unique ID (mpiID)
+//             *  All mpiID(s) of particles assigned to a given processor are sequential
+//             */
+//            
+//            //!     -3.1 Collect assignedParticleSize from each MPI process into particleSizeVector
+//            particleSizeVector.resize(this->mpiProcs());
+//            int assignedParticleSize(assignedParticles.size());
+//            MPI_Allgather(&assignedParticleSize,1,MPI_INT,&particleSizeVector[0],1,MPI_INT,MPI_COMM_WORLD);
+//            
+//            // Check that all particles have been partitioned
+//            unsigned int totalAssignedParticle(0);
+//            for (unsigned int k=0;k<particleSizeVector.size();++k)
+//            {
+//                totalAssignedParticle+=particleSizeVector[k];
+//            }
+//            model_removeAssert(totalAssignedParticle==this->size() && "SOMETHING WENT VERY WRONG");
+//            
+//            //!     -3.2 Compute mpiIDoffset by comulative summing assignedParticleSize across the MPI processes
+//            int mpiIDoffset(0);
+//            MPI_Exscan(&assignedParticleSize,&mpiIDoffset,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+//            
+//            //!     -3.3 Collect mpiIDoffset from each MPI process into mpiIDoffsetVector
+//            mpiIDoffsetVector.resize(this->mpiProcs());
+//            MPI_Allgather(&mpiIDoffset,1,MPI_INT,&mpiIDoffsetVector[0],1,MPI_INT,MPI_COMM_WORLD);
+//            
+//            //!     -3.4 Loop over assignedParticles and assign an increasing ID with offset mpiIDoffsetVector[this->mpiRank()]
+//            std::vector<size_t> mpiIDvector(this->size(),0);
+//            size_t mpiLocalID(0);
+//            
+//            for (typename AssignedParticleContainerType::iterator pIter =assignedParticles.begin();
+//                 /*                                            */ pIter!=assignedParticles.end();
+//                 /*                                          */ ++pIter)
+//            {
+//                mpiIDvector[mpiLocalID+mpiIDoffsetVector[this->mpiRank()]]=pIter->second->sID;
+//                //                (*pIter)->mpiID=mpiLocalID+mpiIDoffsetVector[this->mpiRank()];
+//                ++mpiLocalID;
+//            }
+//            
+//            
+//            //            //! Syncronize InteractionType::resultVector among processors
+//            MPI_Allgatherv(MPI_IN_PLACE,0,MPI_DATATYPE_NULL,
+//                           &mpiIDvector[0],&particleSizeVector[0],&mpiIDoffsetVector[0],MPI_UNSIGNED_LONG,MPI_COMM_WORLD);
+//            
+//            
+//            for (size_t k=0;k<this->size();++k)
+//            {
+//                const typename ParticleContainerType::iterator pIter(this->find(mpiIDvector[k]));
+//                pIter->second->mpiID=k;
+//            }
+//            
+//            //            size_t mpiLocalID(0);
+//            //            for (typename AssignedParticleContainerType::iterator pIter =assignedParticles.begin();
+//            //                 /*                                            */ pIter!=assignedParticles.end();
+//            //                 /*                                            */ pIter++)
+//            //            {
+//            //                (*pIter)->mpiID=mpiLocalID+mpiIDoffsetVector[this->mpiRank()];
+//            //                mpiLocalID++;
+//            //            }
+//            
+//            // Set flag "partitionIsValid" to true
+//            partitionIsValid=true;
+//            
+//            //            if (this->mpiRank() == 0)
+//            //            {
+//            //            std::cout<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<std::endl;
+//            //            }
+//            
+//            
+//            //            return HERE RETURN THE LOAD IMBALANCE;
             return 1.0;
             
         }
         
         /**********************************************************************/
         template <typename InteractionType>
-        void computeInteraction()
+        void computeNeighborInteraction()
         {/*! Compute nearest-neighbor particle interaction according to InteractionType
           */
             
@@ -467,8 +520,8 @@ namespace model {
             model_removeAssert(partitionIsValid && "PARTITION IS NOT VALID");
             
             // Construct a vector to store the number of particles in each processor
-            //            std::vector<int> particleSizeVector(this->mpiProcs,0);
-            //            particleSizeVector.resize(this->mpiProcs);
+            //            std::vector<int> particleSizeVector(this->mpiProcs(),0);
+            //            particleSizeVector.resize(this->mpiProcs());
             
             
             //            assignMpiIDs(particleSizeVector);
@@ -479,15 +532,15 @@ namespace model {
             //            InteractionType::resultVector.resize(3*this->size(),0.0);
             InteractionType::resize(3*this->size(),0.0);
             
- //           size_t Ninteractions(0);
+            //           size_t Ninteractions(0);
             
-            for (typename AssignedParticleContainerType::const_iterator pIter=assignedParticles.begin();
-                 /*                                                  */ pIter!=assignedParticles.end();
+            for (typename LongestProcessingTime<ParticleType>::BaseDequeType::const_iterator pIter=lpt.bin(this->mpiRank()).begin();
+                 /*                                                  */ pIter!=lpt.bin(this->mpiRank()).end();
                  /*                                                */ ++pIter)
             {
                 // loop over neighbor cells of the current particle
                 //                for (typename SpatialCellType::CellMapType::const_iterator cIter=(*pIter)->neighborCellsBegin();cIter!=(*pIter)->neighborCellsEnd();++cIter)
-                for (typename SpatialCellType::CellMapType::const_iterator cIter=pIter->second->neighborCellsBegin();cIter!=pIter->second->neighborCellsEnd();++cIter)
+                for (typename SpatialCellType::CellMapType::const_iterator cIter=(*pIter)->neighborCellsBegin();cIter!=(*pIter)->neighborCellsEnd();++cIter)
                     
                 {
                     // loop over particles in the neighbor cell
@@ -496,31 +549,32 @@ namespace model {
                         //                        const typename ParticleContainerType::iterator nIter(this->find((*qIter)->sID));
                         //                        InteractionType(**pIter,*nIter->second);  // the constructor of InteractionType actually computes the binary interaction between *iterI and *iterJ
                         //                        InteractionType(**pIter,**qIter);  // the constructor of InteractionType actually computes the binary interaction between *iterI and *iterJ
-                        InteractionType(*pIter->second,**qIter);  // the constructor of InteractionType actually computes the binary interaction between *iterI and *iterJ
+                        InteractionType(**pIter,**qIter);  // the constructor of InteractionType actually computes the binary interaction between *iterI and *iterJ
                         
-//                        ++Ninteractions;
+                        //                        ++Ninteractions;
                     }
                 }
             }
             
             
             //mpiIDoffsetVector
-            std::vector<int> interactionSizeVector(this->mpiProcs);
-            std::vector<int> interactionRankOffsetVector(this->mpiProcs);
+            std::vector<int> interactionSizeVector(this->mpiProcs());
+            std::vector<int> interactionRankOffsetVector(this->mpiProcs());
             
-            for (unsigned int k=0;k<interactionSizeVector.size();++k)
+            size_t dofOffset(0);
+            for (int k=0;k<this->mpiProcs();++k)
             {
                 // Store the number
-                interactionSizeVector[k]=particleSizeVector[k]*InteractionType::DataPerParticle;
-                interactionRankOffsetVector[k]=mpiIDoffsetVector[k]*InteractionType::DataPerParticle;
-                
+                interactionSizeVector[k]=lpt.bin(k).size()*InteractionType::DataPerParticle;
+                interactionRankOffsetVector[k]=dofOffset;
+                dofOffset+=lpt.bin(k).size()*InteractionType::DataPerParticle;
             }
             
             //! Syncronize InteractionType::resultVector among processors
             MPI_Allgatherv(MPI_IN_PLACE,0,MPI_DATATYPE_NULL,
                            &InteractionType::resultVector[0],&interactionSizeVector[0],&interactionRankOffsetVector[0],MPI_DOUBLE,MPI_COMM_WORLD);
             
-            if (this->mpiRank == 0)
+            if (this->mpiRank() == 0)
             {
                 std::cout<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<std::endl;
             }
@@ -550,17 +604,17 @@ namespace model {
         friend T& operator<< (T& os, const ParticleContainerType& pS)
         {/*! Operator << use ParticleType specific << operator
           */
-            int mpiRank;
-            MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank);
-            //            std::cout<<"mpiRank="<<mpiRank<<std::endl;
-            if (mpiRank==0)
+//            int temp();
+//            MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank());
+            //            std::cout<<"mpiRank()="<<mpiRank()<<std::endl;
+            if (ModelMPIbase::mpiRank()==0)
             {
                 for (typename ParticleContainerType::const_iterator pIter=pS.begin();pIter!=pS.end();++pIter)
                 {
-                    os<<(*pIter->second)<<std::endl;
+                    os<<(*pIter)<<std::endl;
                     }
                     }
-                      MPI_Barrier(MPI_COMM_WORLD);
+                    MPI_Barrier(MPI_COMM_WORLD);
                     return os;
                     }
                     
@@ -623,10 +677,10 @@ namespace model {
                     //        template<char P='P',bool autodelete=true>
                     //        void MPIoutput()
                     //        {
-                    //            //           int mpiRank;
-                    //            //           MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank);
-                    //            if (this->mpiRank == 0)
-                    //                //if (PilMPI::mpiRank == 0)
+                    //            //           int mpiRank();
+                    //            //           MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank());
+                    //            if (this->mpiRank() == 0)
+                    //                //if (PilMPI::mpiRank() == 0)
                     //            {
                     //                SequentialOutputFile<P,autodelete> pFile;
                     //                //                pFile<<*this<<std::endl;
@@ -648,10 +702,10 @@ namespace model {
                     //                    //os<<sC.cellID.transpose()<<" "<< sC.size()<<" "<<sC.neighborSize()<< " "<<sC.assignedRank;
                     //                    cFile<<cIter->second->cellID.transpose()<<" "<< cIter->second->size()<<" "<<cIter->second->neighborSize()<< " "<<cIter->second->assignedRank<<std::endl;
                     //                }
-                    //                
-                    //                
-                    //                
+                    //
+                    //
+                    //
                     //                //                cFile<<sco<<std::endl;
-                    //                
+                    //
                     //            }
                     //        }

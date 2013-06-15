@@ -87,7 +87,7 @@ namespace model {
 			 */
             const VectorDimD R(Rfield- R0);
             const double R2(R.squaredNorm());
-            const double R3(std::pow(R2,1.5));
+            const double R3(std::pow(sqrt(R2),3));
             const VectorDimD a(axialVector(alpha));
             const MatrixDimD S(skewMatrix(R));
             const MatrixDimD temp( -alpha.transpose()*S+1.0/(1.0-Material<Isotropic>::nu)*(-R*a.transpose()+0.5*I*(R.dot(a))+1.5*R*R.transpose()*R.dot(a)/R2) );

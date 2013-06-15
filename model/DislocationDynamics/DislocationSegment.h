@@ -46,7 +46,10 @@
 #include <model/Geometry/Splines/Coeff2Hermite.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
 
-#include <model/DislocationDynamics/NearestNeighbor/DislocationQuadratureParticle.h>
+//#include <model/DislocationDynamics/NearestNeighbor/DislocationQuadratureParticle.h>
+#include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
+#include <model/ParticleInteraction/ParticleSystem.h>
+
 #include <model/DislocationDynamics/DislocationLocalReference.h>
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 
@@ -76,6 +79,9 @@ namespace model {
 #include <model/Network/NetworkTypedefs.h>
 #include <model/Geometry/Splines/SplineEnums.h>
         
+
+        typedef DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule> DislocationNetworkType;
+
         
 		typedef SplineSegmentBase<Derived,dim,corder> SegmentBaseType;
 		typedef std::map<size_t,LinkType* const> AddressMapType;
@@ -87,9 +93,13 @@ namespace model {
         typedef typename GlidePlaneObserver<LinkType>::GlidePlaneType GlidePlaneType;
 		typedef typename GlidePlaneObserver<LinkType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
         
-        typedef DislocationQuadratureParticle<dim> DislocationQuadratureParticleType;
+//        typedef DislocationQuadratureParticle<dim> DislocationQuadratureParticleType;
         
         typedef std::vector<Eigen::Matrix<double,dim,1>> vector_VectorDim;
+        
+        typedef DislocationParticle<dim> DislocationQuadratureParticleType;
+        typedef std::vector<DislocationQuadratureParticleType*> QuadratureParticleContainerType;
+
         
         /******************************************************************/
 	private: //  data members
@@ -125,13 +135,11 @@ namespace model {
 	public: //  data members
 		/******************************************************************/
 		
-		//		typedef DislocationQuadratureParticle<dim,cellSize,qOrder,QuadratureRule> DislocationQuadratureParticleType;
+//	//	boost::ptr_vector<DislocationQuadratureParticleType> quadratureParticleContainer;
 		
-		boost::ptr_vector<DislocationQuadratureParticleType> quadratureParticleVector;
-		
-        
-        
-        
+//        std::vector<std::pair<size_t,DislocationParticle<dim>* const> > quadratureParticleContainer;
+        QuadratureParticleContainerType quadratureParticleContainer;
+                
         
 		//! The Burgers vector
 		const VectorDim Burgers;
@@ -278,6 +286,8 @@ namespace model {
 			}
 			//! Removes this from *pGlidePlane
 			pGlidePlane->removeFromGlidePlane(this);
+//            quadratureParticleContainer.clear();
+          
 		}
 		
 		/* updateQuadGeometryKernel *******************************************/
@@ -293,9 +303,14 @@ namespace model {
 			rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH;
 			jgauss(k)=rugauss.col(k).norm();
 			rlgauss.col(k)=rugauss.col(k)/jgauss(k);
-			quadratureParticleVector.push_back(new DislocationQuadratureParticleType(Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
-                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k),
-                                                                                     rgauss.col(k),rugauss.col(k),Burgers));
+            
+            quadratureParticleContainer.push_back(DislocationNetworkType::particleSystem.addParticle(rgauss.col(k),rugauss.col(k),Burgers,
+                                                 Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
+                                                 Quadrature<1,qOrder,QuadratureRule>::weights(k))
+                                               );
+            
+            
+            
 		}
 		
 		/* stress_source ******************************************************/
@@ -333,7 +348,7 @@ namespace model {
 			return   (Material<Isotropic>::C1*(1.0+1.5*coreLsquared/RaSquared)*rugauss.col(k)*(Burgers.cross(R)).transpose()
 					  + 	R*(rugauss.col(k).cross(Burgers)).transpose()
 					  +  0.5* R.cross(Burgers).dot(rugauss.col(k)) * (I*(1.0+3.0*coreLsquared/RaSquared) + 3.0/RaSquared*R*R.transpose())
-					  )/std::pow(RaSquared,1.5);
+					  )/std::pow(sqrt(RaSquared),3);
 		}
         
         /* stress_field *******************************************************/
@@ -371,11 +386,22 @@ namespace model {
 		VectorDim pkForce(const size_t & k)
         {
             //						return (stress_field(k)*Burgers).cross(rlgauss.col(k));
-			//			return (shared.use_bvp) ? ((quadratureParticleVector[k].stress(this->source->bvpStress,this->sink->bvpStress)+shared.loadController.externalStress())*Burgers).cross(rlgauss.col(k))
-			//			/*                   */ : ((quadratureParticleVector[k].stress()+shared.loadController.externalStress())*Burgers).cross(rlgauss.col(k));
-			return (shared.use_bvp) ? ((quadratureParticleVector[k].stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleVector[k].P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
-			/*                   */ : ((quadratureParticleVector[k].stress()+shared.externalStress)*Burgers).cross(rlgauss.col(k));
-		}
+			//			return (shared.use_bvp) ? ((quadratureParticleContainer[k].stress(this->source->bvpStress,this->sink->bvpStress)+shared.loadController.externalStress())*Burgers).cross(rlgauss.col(k))
+			//			/*                   */ : ((quadratureParticleContainer[k].stress()+shared.loadController.externalStress())*Burgers).cross(rlgauss.col(k));
+
+//			return (shared.use_bvp) ? ((quadratureParticleContainer[k].second->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k].second->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
+//			/*                   */ : ((quadratureParticleContainer[k].second->stress()+shared.externalStress)*Burgers).cross(rlgauss.col(k));
+
+            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
+			/*                   */ : ((quadratureParticleContainer[k]->stress()+shared.externalStress)*Burgers).cross(rlgauss.col(k));
+
+            
+//            return (shared.use_bvp) ? ((shared.externalStress)*Burgers).cross(rlgauss.col(k))
+//			/*                   */ : ((shared.externalStress)*Burgers).cross(rlgauss.col(k));
+
+        
+        
+        }
 		
 		//////////////////////////////////
 		//! get_pkGauss
@@ -384,10 +410,10 @@ namespace model {
 		}
 		
 		/********************************************************/
-		double energy() const {
-			/*! The total elastic energy generated by this segment.
-			 *  Includes self-energy and interation energy between this segment and other segments in the network.
-			 */
+		double energy() const
+        {/*! The total elastic energy generated by this segment.
+          *  Includes self-energy and interation energy between this segment and other segments in the network.
+          */
 			double temp=0.0;
 			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::energy_field);
 			return temp;
@@ -395,9 +421,13 @@ namespace model {
 		
 		
 		//////////////////////////////////
-		//! energy_field. Calculates the elastic energy at the k-th quadrature point due to other dislocation segments.
 		double energy_field(const int & k) const
-        {
+        {/*!@param[in] k the k-th quadrature point
+          *
+          * \returns The elastic energy at the k-th quadrature
+          * point due to other dislocation segments.
+          */
+            
 			double temp=0.0;
 			for (AddressMapIteratorType aIter=this->ABbegin(); aIter!=this->ABend();++aIter){
 				temp+=aIter->second->energy_source(rgauss.col(k), rugauss.col(k), Burgers);
@@ -406,31 +436,37 @@ namespace model {
 		}
 		
 		//////////////////////////////////
-		double energy_source(const VectorDim & rf, const VectorDim & ruf, const VectorDim & bf) const {
-			/*! The elastic energy generated by this (source) segment at the input field point
-			 */
+		double energy_source(const VectorDim & rf, const VectorDim & ruf, const VectorDim & bf) const
+        {/*! The elastic energy generated by this (source) segment at the input field point
+          */
 			double temp(0.0);
 			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::energy_integrand,rf,ruf,bf);
 			return -Material<Isotropic>::C2*temp;
 		}
 		
 		//////////////////////////////////
-		//! energy_integrand
+		
 		//double energy_integrand(const int & k, const VectorDim & rf, const VectorDim & ruf, const VectorDim & bf) const {
-		double energy_integrand(const int & k,  VectorDim & rf, const VectorDim & ruf, const VectorDim & bf) const
-        {
+        /**********************************************************************/
+        double energy_integrand(const int & k,  VectorDim & rf, const VectorDim & ruf, const VectorDim & bf) const
+        {/*!
+          * \returns the energy_integrand
+          */
 			VectorDim DR= rf-rgauss.col(k);
 			double RaSquared = DR.squaredNorm() + coreLsquared;
 			return  (Material<Isotropic>::C1*(1.0+0.5*coreLsquared/RaSquared)*Burgers.dot(rugauss.col(k))*bf.dot(ruf)
 					 +2.0*Material<Isotropic>::nu*(1.0+0.5*coreLsquared/RaSquared)*(bf.dot(rugauss.col(k))*Burgers.dot(ruf))
 					 -(Burgers.dot(bf)*(1.0+coreLsquared/RaSquared)+ Burgers.dot(DR)*bf.dot(DR)*1.0/RaSquared )*ruf.dot(rugauss.col(k))
-					 )/std::pow(RaSquared,0.5);
+					 )/sqrt(RaSquared);
 		}
 		
-		//////////////////////////////////////////////////////////////
-		//! assemble
+        /**********************************************************************/
 		void assemble()
-        {
+        {/*!Computes the following:
+          * - edge stiffness matrix Kqq
+          * - nodal force vector Fq
+          * - edge-to-component matrix Mseg
+          */
             
             if (this->pSN()->nodeOrder()>=shared.minSNorderForSolve){ // check that SubNetwork has at least shared.minSNorderForSolve nodes
                 //std::cout<<"Thread "<<omp_get_thread_num()<< " assembling DislocationSegment "<<this->sID<<" ..."<<std::flush;
@@ -531,20 +567,24 @@ namespace model {
         {
             
             const Eigen::MatrixXd tempKqq(Mseg.transpose()*Kqq*Mseg); // Create the temporaty stiffness matrix and push into triplets
-            for (unsigned int i=0;i<segmentDOFs.size();++i){
+            for (unsigned int i=0;i<segmentDOFs.size();++i)
+            {
                 std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
                 std::advance(iterI,i);
-                for (unsigned int j=0;j<segmentDOFs.size();++j){ // temp is symmetric
+                for (unsigned int j=0;j<segmentDOFs.size();++j)
+                {
                     std::set<size_t>::const_iterator iterJ(segmentDOFs.begin());
                     std::advance(iterJ,j);
-                    if (std::fabs(tempKqq(i,j))>FLT_EPSILON){
+                    if (std::fabs(tempKqq(i,j))>FLT_EPSILON)
+                    {
                         kqqT.push_back(Eigen::Triplet<double>(*iterI,*iterJ,tempKqq(i,j)));
                     }
                 }
             }
             
             const Eigen::VectorXd tempFq(Mseg.transpose()*Fq); // Create temporary force vector and add to global FQ
-            for (unsigned int i=0;i<segmentDOFs.size();++i){
+            for (unsigned int i=0;i<segmentDOFs.size();++i)
+            {
                 std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
                 std::advance(iterI,i);
                 FQ(*iterI)+=tempFq(i);
@@ -645,11 +685,12 @@ namespace model {
           * [1] Asvestas, J. Line integrals and physical optics. Part I. The transformation of the solid-angle surface integral to a line integral. J. Opt. Soc. Am. A, 2(6), 891–895.
           */
 			
-			VectorDim R(Rfield-rgauss.col(k));
-			double Ra=std::pow(R.squaredNorm()+coreLsquared,0.5);
+			const VectorDim R(Rfield-rgauss.col(k));
+            const double RaSquared(R.squaredNorm()+coreLsquared);
+			const double Ra=sqrt(RaSquared);
 			return 1.0/Ra * (+ 2.0*Material<Isotropic>::C1/(Ra+R.dot(S))*Burgers*(S.cross(R)).dot(rugauss.col(k))
                              /*            */ + Material<Isotropic>::C3*rugauss.col(k).cross(Burgers)
-                             /*            */ + 1.0/std::pow(Ra,2)*(rugauss.col(k).cross(Burgers)).dot(R)*R
+                             /*            */ + 1.0/RaSquared*(rugauss.col(k).cross(Burgers)).dot(R)*R
                              /*            */ );
 		}
 		
@@ -681,7 +722,7 @@ namespace model {
 			const double RaSquared ( R.squaredNorm() + coreLsquared);
 			return  ( Material<Isotropic>::C1*( 2.0 + (3.0*coreLsquared/RaSquared) ) * (Burgers*(rugauss.col(k).cross(R)).transpose() + (Burgers.cross(rugauss.col(k)))*R.transpose())
 					 + (rugauss.col(k).cross(Burgers))*R.transpose() + R * (rugauss.col(k).cross(Burgers)).transpose()
-					 + R.cross(Burgers).dot(rugauss.col(k)) * (3.0/RaSquared*R*R.transpose() - I) ) / std::pow(RaSquared,1.5);
+					 + R.cross(Burgers).dot(rugauss.col(k)) * (3.0/RaSquared*R*R.transpose() - I) ) / std::pow(sqrt(RaSquared),3);
 		}
 		
 		

@@ -200,7 +200,10 @@ namespace model {
 			//! 4- Calls 'topologyChangeActions' in source and sink
 //			source->topologyChangeActions(); // necessary to update source after Link destructor
 //			sink  ->topologyChangeActions(); // necessary to update   sink after Link destructor
-		}
+
+
+        
+        }
 		
 
 		

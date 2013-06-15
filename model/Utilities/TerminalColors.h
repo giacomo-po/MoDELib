@@ -18,10 +18,15 @@
 
 namespace model {
     std::string defaultColor    = "\033[0m";	  // the default color for the console
-    std::string redBoldColor    = "\033[1;31m";   // a bold red color
+
+    std::string redColor        = "\033[0;31m";
+    std::string redBoldColor    = "\033[1;31m";
+
+    std::string greenColor      = "\033[0;32m";   // a bold green color
     std::string greenBoldColor  = "\033[1;32m";   // a bold green color
-    std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
+
     std::string magentaColor    = "\033[0;35m";   // a magenta color
+    std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
 }
 
 

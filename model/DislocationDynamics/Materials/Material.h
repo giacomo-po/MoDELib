@@ -72,7 +72,7 @@ namespace model {
             Binv=1.0/B;
             rho=IM::mu*std::pow(IM::b/IM::B,2)*IM::rho;  //! rho* = mu*(b/B)^2 * rho
             //        cs=IM::B/IM::b*std::pow(IM::rho*IM::mu,-0.5);
-            cs=std::pow(mu/rho,0.5); // sc*=sqrt(mu*/rho*)
+            cs=sqrt(mu/rho); // sc*=sqrt(mu*/rho*)
             nu=IM::nu;
             lambda=2.0*mu*nu/(1.0-2.0*nu);
             C1=1.0-nu;
@@ -167,7 +167,7 @@ namespace model {
     double Material<Isotropic>::C3=1.0-2.0*0.34; // 1-2*nu
     double Material<Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
 	double Material<Isotropic>::T=300.0;  // Temperature [K]
-	double Material<Isotropic>::kT=1.38e-23/48.0e9/std::pow(0.2556e-9,3)*300.0;  // boltzmann constant * Temperature 
+	double Material<Isotropic>::kT=1.38e-23/48.0e9/pow(0.2556e-9,3)*300.0;  // boltzmann constant * Temperature 
 	double Material<Isotropic>::tauIII=0.667e-3;  // critical resovled shear stress in stage III
 	double Material<Isotropic>::vAct=300.0;  // Activation volume [b^3]
 	
