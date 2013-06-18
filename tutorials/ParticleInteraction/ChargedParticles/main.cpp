@@ -25,8 +25,14 @@ using namespace model;
 
 int main (int argc, char * argv[]) {
     
+    // We work in three dimensions
+    enum{dim=3};
+    
+//    ChargedParticle<dim> cp(Eigen::Matrix<double,dim,1>::Random(),1.0);
+    
     // 0- define the type of ParticleSystem specifying the type of particles
-    typedef model::ParticleSystem<ChargedParticle> ChargedParticleSystem;
+    typedef ChargedParticle<dim> ChargedParticleType;
+    typedef model::ParticleSystem<ChargedParticleType> ChargedParticleSystem;
     
     // 1- create a particleSystem of ChargedParticle(s)
     ChargedParticleSystem particleSystem(argc,argv); // initialized constructor: for both serial and parallel
@@ -39,11 +45,11 @@ int main (int argc, char * argv[]) {
     // 2- add some ChargedParticle(s) to the particleSystem with random position
     //    in [-10,10] and charge=1.0
     std::cout<<"Creating particles..."<<std::endl;
-    typedef typename ChargedParticleSystem::PositionType PositionType; // helper
+    typedef typename ChargedParticle<dim>::VectorDimD VectorDimD; // helper
     for (size_t k=0;k<500000;++k)
     {
         // note that PositionType::Random() returns values in [-1, 1]
-        particleSystem.addParticle(PositionType::Random()*10+PositionType::Ones()*0.0*cellSize, 1.0);
+        particleSystem.addParticle(VectorDimD::Random()*10+VectorDimD::Ones()*0.0*cellSize, 1.0);
     }
 //    std::cout<<model::greenColor<<" done."<<model::defaultColor<<std::endl;
 //    std::cout<<model::greenColor<<" done."<<model::defaultColor<<std::endl;
@@ -75,7 +81,7 @@ int main (int argc, char * argv[]) {
 
     
     // -3 computation of the CoulombForceInteraction
-    typedef typename ChargedParticle::CoulombForceInteraction CoulombForceInteraction;
+//    typedef typename ChargedParticle::CoulombForceInteraction CoulombForceInteraction;
     // -3.1  reset CoulombForceInteraction
  //   particleSystem.resetInteraction<CoulombForceInteraction>();
 
@@ -84,9 +90,16 @@ int main (int argc, char * argv[]) {
 
     
     // -3.2a compute all binary CoulombForce interactions
-    std::cout<<"Computing nearest-neighbor interaction..."<<std::endl;
-    particleSystem.computeNeighborInteraction<CoulombForceInteraction>();
-//    std::cout<<model::greenColor<<" done."<<model::defaultColor<<std::endl;
+    std::cout<<"Computing electric field (nearest-neighbor)..."<<std::endl;
+    typedef typename ChargedParticleType::Efield Efield;
+    particleSystem.computeNeighborField<Efield>();
+
+    std::cout<<"Computing magnetic field (nearest-neighbor)..."<<std::endl;
+    typedef typename ChargedParticleType::Bfield Bfield;
+    particleSystem.computeNeighborField<Bfield>();
+
+    
+    //    std::cout<<model::greenColor<<" done."<<model::defaultColor<<std::endl;
 
     // -3.2b
 //    typedef typename ChargedParticle::TotalCellCharge CellCharge;

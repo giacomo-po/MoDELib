@@ -59,30 +59,46 @@ namespace model {
 		const SharedPtrType pCell;
 
         
-#ifdef _MODEL_MPI_
-        size_t mpiID;
-#else
-        const size_t mpiID;
-#endif
+//#ifdef _MODEL_MPI_
+//        size_t mpiID;
+//#else
+//        const size_t mpiID;
+//#endif
         
 
 
 		
         /**********************************************************************/
 		SpatialCellParticle(const VectorDimD& P) :
-		/* init list */ pCell(SpatialCellObserverType::getCellByPosition(P)),
-        /* init list */ mpiID(this->sID)
+		/* init list */ pCell(SpatialCellObserverType::getCellByPosition(P))
+//        /* init list */ mpiID(this->sID)
         {/*!\param[in] P the position of this SpatialCellParticle 
           */
 			pCell->addParticle(this->p_derived());
 		}
 		
+        
         /**********************************************************************/
         ~SpatialCellParticle()
         {/*! Destructor removes this from SpatialCell
           */
 			pCell->removeParticle(this->p_derived());
 		}
+        
+        /**********************************************************************/
+        void moveTo(const VectorDimD& Pin)
+        {/*!
+          */
+            assert(0 && "NEED TO TEST");
+//            const SharedPtrType temp(SpatialCellObserverType::getCellByPosition(Pin));
+//            if (pCell!=temp)
+//            {
+//                pCell->removeParticle(this->p_derived());
+//                pCell=temp;
+//                pCell->addParticle(this->p_derived());
+//            }
+		}
+
 		
         /* neighborCellsBegin ***************************************/
         typename CellMapType::const_iterator neighborCellsBegin() const
@@ -123,11 +139,22 @@ namespace model {
         }
         
         
-        template<typename InteractionType>
-        typename InteractionType::ResultType get() const
-        {
-            return InteractionType::get(this->derived());
-        }
+//        template<typename InteractionType>
+//        typename const InteractionType& get() const
+//        {
+//            return *static_cast<const InteractionType*>(this->p_derived());
+////
+////            
+////#ifdef _MODEL_MPI_
+////            return *static_cast<const InteractionType*>(this->p_derived());
+////#else
+////            return *static_cast<const InteractionType*>(this->p_derived());
+////#endif
+////
+//////            return InteractionType::get(this->derived());
+//        }
+        
+        
         
 	};
 		

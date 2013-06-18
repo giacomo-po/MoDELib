@@ -13,7 +13,7 @@
 #define model_SPACECELLOBSERVER_H_
 
 #include <map>
-//#include <memory> // std::shared_ptr (c++11)
+#include <memory> // std::shared_ptr (c++11)
 //#include <Eigen/Dense>
 //#include <model/Utilities/CompareVectorsByComponent.h>
 //#include <model/SpaceDecomposition/SpatialCellTraits.h>
@@ -27,7 +27,7 @@ namespace model {
 	/********************************************************************************************/
 	/********************************************************************************************/
 	template<typename ParticleType,short unsigned int dim>
-	class SpatialCellObserver
+	struct SpatialCellObserver
     {
 		
 //        typedef SpatialCell<ParticleType,dim> SpatialCellType;
@@ -48,19 +48,35 @@ namespace model {
 //            
 //        }
         
-    public:
+//    public:
         
         
-            ~SpatialCellObserver()
-                {
-                    std::cout<<"~SpatialCellObserver destructor."<<std::endl;
-                }
+
         
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         typedef Eigen::Matrix<int,dim,1> CellIdType;
         typedef SpatialCell<ParticleType,dim> SpatialCellType;
 		typedef std::map<CellIdType, SpatialCellType* const,CompareVectorsByComponent<int,dim> >  CellMapType;
+		typedef std::shared_ptr<SpatialCellType> SharedPtrType;
+        typedef std::pair<bool,SpatialCellType* const> isCellType;
 
+        const SharedPtrType oCell;
+
+        
+        SpatialCellObserver(const VectorDimD& P) :
+		/* init list */ oCell(getCellByPosition(P))
+        //        /* init list */ mpiID(this->sID)
+        {/*!\param[in] P the position of this SpatialCellObserver
+          * 
+          * Creates and anchor to a SpatialCell at position P
+          */
+		}
+        
+//        ~SpatialCellObserver()
+//        {
+//            std::cout<<"~SpatialCellObserver destructor."<<std::endl;
+//        }
+        
 //        typedef boost::ptr_map<CellIdType, SpatialCellType* const,CompareVectorsByComponent<int,dim> >  CellMapType;
 
         
@@ -70,8 +86,6 @@ namespace model {
 //        /*    */ Eigen::aligned_allocator<std::pair<const CellIdType, SpatialCellType* const> > > CellMapType;
 
         
-		typedef std::shared_ptr<SpatialCellType> SharedPtrType;
-        typedef std::pair<bool,SpatialCellType* const> isCellType;
 
         
         //! The size of a SpatialCell

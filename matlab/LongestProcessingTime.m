@@ -9,7 +9,7 @@ np=7; % number of particles
 wMax=1000; % max expected weight of a particle
 w=rand(np,1)*wMax; % weight of particles
 
-% add a many light particles
+% add many light particles
 np=1000; % number of particles
 wMax=10; % max expected weight of a particle
 w=[w;rand(np,1)*wMax]; % weight of particles

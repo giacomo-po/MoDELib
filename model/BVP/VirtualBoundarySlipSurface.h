@@ -78,17 +78,18 @@ namespace model {
         
         /* Constructor ********************************************************/
         VirtualBoundarySlipSurface(const DislocationSegmentType& ds) :
-        /* init list                                     */ pGlidePlane(ds.pGlidePlane),
-        /* init list                                     */ sourceP(ds.source->get_P()),
-        /* init list                                     */   sinkP(ds.sink->get_P()),
-        /* init list                                     */ sourceN(getOutDirection(ds,*(ds.source))),
-        /* init list                                     */   sinkN(getOutDirection(ds,*(ds.sink))),
-        /* init list                                     */ sourcePatL(sourceP+L*sourceN),
-        /* init list                                     */   sinkPatL(  sinkP+L*sinkN),
-        /* init list                                     */ Burgers(ds.Burgers),
-        /* init list                                     */ coreL(std::pow(DislocationSegmentType::coreLsquared,0.5)),
-        /* init list                                     */ gp_H(ds.pGlidePlane->height),
-        /* init list                                     */ gp_N(ds.pGlidePlane->planeNormal){
+        /* init list       */ pGlidePlane(ds.pGlidePlane),
+        /* init list       */ sourceP(ds.source->get_P()),
+        /* init list       */   sinkP(ds.sink->get_P()),
+        /* init list       */ sourceN(getOutDirection(ds,*(ds.source))),
+        /* init list       */   sinkN(getOutDirection(ds,*(ds.sink))),
+        /* init list       */ sourcePatL(sourceP+L*sourceN),
+        /* init list       */   sinkPatL(  sinkP+L*sinkN),
+        /* init list       */ Burgers(ds.Burgers),
+        /* init list       */ coreL(sqrt(DislocationSegmentType::coreLsquared)),
+        /* init list       */ gp_H(ds.pGlidePlane->height),
+        /* init list       */ gp_N(ds.pGlidePlane->planeNormal)
+        {
             
             
             setElasticConstants();
@@ -406,8 +407,8 @@ namespace model {
         //=========================================================
         VectorDim f_function (VectorDim t, VectorDim Ra , VectorDim Rb) const {
             
-            double ra = sqrt(Ra.squaredNorm()+std::pow(coreL,2.0));
-            double rb = sqrt(Rb.squaredNorm()+std::pow(coreL,2.0));
+            double ra = sqrt(Ra.squaredNorm()+std::pow(coreL,2));
+            double rb = sqrt(Rb.squaredNorm()+std::pow(coreL,2));
             
             VectorDim temp = log( (rb+Rb.dot(t)) / (ra+Ra.dot(t))  ) * Burgers.cross(t);
             

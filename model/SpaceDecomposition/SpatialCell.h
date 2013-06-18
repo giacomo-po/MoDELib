@@ -32,7 +32,7 @@
 #include <model/SpaceDecomposition/CellShift.h>
 //#include <model/Utilities/CompareVectorsByComponent.h>
 
-#include <model/SpaceDecomposition/SpatialCellProperty.h>
+//#include <model/SpaceDecomposition/SpatialCellProperty.h>
 
 #include <stdexcept>      // std::out_of_range
 
@@ -60,7 +60,7 @@ namespace model {
 		typedef std::shared_ptr<SpatialCellType> SharedPtrType;
         typedef std::pair<bool,SpatialCellType* const> isCellType;
 		typedef SpatialCellObserver<ParticleType,dim> SpatialCellObserverType;
-        		typedef std::set<const ParticleType*> ParticleContainerType; // PTR COMPARE IS NOT NECESSARY
+        typedef std::set<const ParticleType*> ParticleContainerType; // PTR COMPARE IS NOT NECESSARY
 
         enum{neighborLayer=1}; // = (1+2*1)^dim  cells = 27  cells in 3d
         enum{    nearLayer=2}; // = (1+2*3)^dim  cells = 343 cells in 3d

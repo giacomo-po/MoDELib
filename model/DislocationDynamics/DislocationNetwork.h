@@ -120,8 +120,9 @@ namespace model {
 		typedef Eigen::Matrix<double,dim,1>		VectorDimD;
 		typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
         typedef DislocationParticle<_dim> DislocationParticleType;
-        typedef DislocationStress<DislocationParticleType> DislocationStressType;
-        typedef typename DislocationParticleType::DislocationStressInteraction DislocationStressInteraction;
+        typedef typename DislocationParticleType::StressField StressField;
+ //       typedef DislocationStress<_dim> DislocationStressType;
+//        typedef typename DislocationParticleType::DislocationStressInteraction DislocationStressInteraction;
 
         typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
         typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
@@ -462,9 +463,9 @@ namespace model {
             shared.minSNorderForSolve=(size_t)minSNorderForSolve_temp;
             
             // QuadratureParticle
-            EDR.readScalarInFile(fullName.str(),"coreWidthSquared",DislocationStressType::a2); // core-width
-            assert((DislocationStressType::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
-            LinkType::coreLsquared=DislocationStressType::a2;
+            EDR.readScalarInFile(fullName.str(),"coreWidthSquared",StressField::a2); // core-width
+            assert((StressField::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
+            LinkType::coreLsquared=StressField::a2;
             //            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
             
             // Multipole Expansion
@@ -584,7 +585,7 @@ namespace model {
             
             //!-
 //            typedef typename DislocationParticleType::DislocationStressInteraction DislocationStressInteraction;
-            particleSystem.template computeNeighborInteraction<DislocationStressInteraction>();
+            particleSystem.template computeNeighborField<StressField>();
             
 			//! 1- Loop over DislocationSegments and assemble stiffness matrix and force vector
 			typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
@@ -627,7 +628,7 @@ namespace model {
             if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency))
             {
 #ifdef _MODEL_DD_MPI_
-				if(this->mpiRank==0)
+				if(ModelMPIbase::mpiRank()==0)
                 {
                     DislocationNetworkIO<DislocationNetworkType>::output(*this,runID);
 				}

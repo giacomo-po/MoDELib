@@ -12,47 +12,71 @@
 #ifndef _ChargedParticle_h
 #define _ChargedParticle_h
 
-//#include <tutorials/ParticleInteraction/ChargedParticles/ChargedCell.h>
-#include <model/SpaceDecomposition/SpatialCellParticle.h>
-#include <tutorials/ParticleInteraction/ChargedParticles/CoulombForce.h>
+#include <model/ParticleInteraction/PointSource.h>
+#include <model/ParticleInteraction/FieldPoint.h>
+
+#include <tutorials/ParticleInteraction/ChargedParticles/ElectricField.h>
+#include <tutorials/ParticleInteraction/ChargedParticles/MagneticField.h>
+
 //#include <tutorials/ParticleInteraction/ChargedParticles/CellCharge.h> // a user-defined type of cell-property
+
+
+// http://www.mathpages.com/home/kmath576/kmath576.htm
 
 namespace model {
     
     
     
     
+    template <short unsigned int _dim>
     class ChargedParticle :
-    /* inheritance     */ public SpatialCellParticle<ChargedParticle,3>
+    /* inheritance     */ public PointSource<ChargedParticle<_dim>,
+    /*                                    */ _dim,
+    /*                                    */ ElectricField<_dim>,
+    /*                                    */ MagneticField<_dim> >,
+    /* inheritance     */ public  FieldPoint<ChargedParticle<_dim>,
+    /*                                    */ _dim,
+    /*                                    */ ElectricField<_dim>,
+    /*                                    */ MagneticField<_dim> >
     {
-        
     public:
         
-        enum{dim=3};
-        typedef  SpatialCellParticle<ChargedParticle,3>::PositionType PositionType;
-        typedef  SpatialCellParticle<ChargedParticle,3>::PositionType ForceType;
+        enum{dim=_dim};
+//        typedef SpatialCellParticle<ChargedParticle<_dim>,_dim> SpatialCellParticleType;
         
-        typedef CoulombForce<ChargedParticle> CoulombForceInteraction;
-//        typedef CellCharge<ChargedParticle>   TotalCellCharge;
+        typedef ElectricField<_dim> Efield;
+        typedef MagneticField<_dim> Bfield;
+
+        
+        typedef PointSource<ChargedParticle<_dim>,_dim,Efield,Bfield> PointSourceType;
+        typedef FieldPoint <ChargedParticle<_dim>,_dim,Efield,Bfield> FieldPointType;
+
+//        typedef PointSource<ChargedParticle<_dim>,_dim,Efield> PointSourceType;
+//        typedef FieldPoint <ChargedParticle<_dim>,_dim,Efield> FieldPointType;
+
+
+        typedef typename PointSourceType::VectorDimD VectorDimD;
+
+        
         
         
     private:
 
-        PositionType _p; // THIS SHOULD BE STORED IN SpatialCellParticle
+        VectorDimD _p; // THIS SHOULD BE STORED IN SpatialCellParticle
+        VectorDimD _v; // THIS SHOULD BE STORED IN SpatialCellParticle
 
-    public:
         
-        ForceType force;
+    public:
+
         const double q; // the electric charge of the particle
-        double energy;
         
         /*****************************************/
-        ChargedParticle(const PositionType& pIN, const double& qIN) :
-        /* init list */ SpatialCellParticle<ChargedParticle,3>::SpatialCellParticle(pIN), //  SpatialCellParticle must be constructed with initial position
+        ChargedParticle(const VectorDimD& pIN, const double& qIN) :
+        /* init list */ PointSourceType(pIN), //  SpatialCellParticle must be constructed with initial position
+        /* init list */  FieldPointType(pIN), //  SpatialCellParticle must be constructed with initial position
         /* init list */ _p(pIN),
-        /* init list */ force(ForceType::Zero()),
-        /* init list */ q(qIN),
-        /* init list */ energy(0.0)
+        /* init list */ _v(VectorDimD::Zero()),
+        /* init list */ q(qIN)//,
         {/*!@param[in] pIN position of this ChargedParticle
           * @param[in] qIN charge of this ChargedParticle
           * 
@@ -61,10 +85,24 @@ namespace model {
         }
                 
         /*****************************************/
-        const PositionType& P() const
-        {/*! The charge of this ChargedParticle
+        const VectorDimD& P() const
+        {/*! The position of this ChargedParticle
           */
             return _p;
+        }
+        
+        /*****************************************/
+        const VectorDimD& V() const
+        {/*! The velocity of this ChargedParticle
+          */
+            return _v;
+        }
+        
+        /*****************************************/
+        VectorDimD force() const
+        {/*! The charge of this ChargedParticle
+          */
+            return q*this->template getField<Efield>();
         }
         
         /*****************************************/
@@ -78,8 +116,7 @@ namespace model {
             os<<cP.sID<<"\t"
             <<cP.P().transpose()<<"\t"
             <<cP.q<<"\t"
-            <<cP.get<CoulombForceInteraction>().transpose()<<"\t"
-            <<cP.energy<<"\t"
+            <<cP.force().transpose()<<"\t"
             <<cP.mpiID<<"\t";
             return os;
         }

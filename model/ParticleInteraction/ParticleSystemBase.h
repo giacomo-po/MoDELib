@@ -22,10 +22,14 @@
 #include <deque>
 //#include <memory>
 
+//#include <Eigen/Dense>
 
 #include <model/Utilities/modelMacros.h> // model_checkInput
-#include <model/ParticleInteraction/InteractionBase.h>
+//#include <model/ParticleInteraction/InteractionBase.h>
+#include <model/ParticleInteraction/FieldPoint.h>
+#include <model/ParticleInteraction/PointSource.h>
 #include <model/ParticleInteraction/SystemProperties.h>
+
 
 #include <model/SpaceDecomposition/SpatialCellObserver.h>
 
