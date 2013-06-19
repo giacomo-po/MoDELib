@@ -9,8 +9,8 @@ USE_ICC = 0
 MPI_LIB = /usr/local/lib
 
 # METIS LIBRARY (PARALLEL ONLY) #################
-METIS_INCLUDE =/usr/local/include
-METIS_LIB =/usr/local/lib
+#METIS_INCLUDE =/usr/local/include
+#METIS_LIB =/usr/local/lib
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
@@ -19,7 +19,7 @@ IDIR  = -I/usr/local/include
 IDIR += -I./
 IDIR += -I$(MODEL_INCLUDE)
 #IDIR += -I$(MPI_INCLUDE)
-IDIR += -I$(METIS_INCLUDE)
+#IDIR += -I$(METIS_INCLUDE)
 
 ##########################################################
 # COMPILER SETTINGS - DO NOT EDIT-
@@ -115,8 +115,8 @@ mpiCFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 mpiCFLAGS += -D _MODEL_DD_MPI_
 
 # Link to Metis partitioner
-mpiLIBS += -L$(METIS_LIB) 
-mpiLIBS +=	 -lmetis
+#mpiLIBS += -L$(METIS_LIB) 
+#mpiLIBS +=	 -lmetis
 
 mpiOBJS = DDparallel
 

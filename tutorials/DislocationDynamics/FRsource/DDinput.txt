@@ -17,8 +17,8 @@ useImplicitTimeIntegration=1;
 outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
-outputSpatialCells=0;
-outputPKforce=0;
+outputSpatialCells=1;
+outputPKforce=1;
 outputMeshDisplacement=0;
 
 ######################################

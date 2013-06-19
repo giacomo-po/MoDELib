@@ -43,11 +43,15 @@ namespace model {
         typedef std::vector<double> BaseWeightVectorType;
         
         
+        static bool partitionIsValid;
+
+        
         void clear()
         {
             BaseMapType::clear();
             BaseDequeVectorType::clear();
             BaseWeightVectorType::clear();
+            partitionIsValid=false;
         }
         
         /**********************************************************************/
@@ -55,6 +59,7 @@ namespace model {
         {
             assert(w>=0 && "WEIGHT MUST BE POSITIVE");
             BaseMapType::insert(std::make_pair(w,pT));
+            partitionIsValid=false;
         }
         
         /**********************************************************************/
@@ -77,6 +82,8 @@ namespace model {
                 BaseDequeVectorType::operator[](argMin).push_back(rIter->second);
             }
             
+            partitionIsValid=true;
+
         }
         
         /**********************************************************************/
@@ -130,22 +137,34 @@ namespace model {
         /**********************************************************************/
         void show() const
         {
+ 
+            std::cout<<"Processor loads [%]: ";
             const double wT(totalWeight());
             for (unsigned int k=0;k<BaseWeightVectorType::size();++k)
             {
                 double wr(weight(k)/wT);
-                int nC(wr*20*BaseWeightVectorType::size());
-                std::cout<<"processor "<<std::setw(3)<<k<<std::setw(5)<<" ("<<wr*100<<"%): ";
 
-                for (int c=0;c<nC;++c)
-                {
-                    std::cout<<"*";
-                }
-                std::cout<<"\n";
+                std::cout<<std::fixed << std::setprecision(2)<<wr*100.0<<" ";
+
+//                std::cout<<"processor "<<std::setw(3)<<k<<std::setw(5)<<" ("<<wr*100<<"%): ";
+//                int nC(wr*20*BaseWeightVectorType::size());
+//                for (int c=0;c<nC;++c)
+//                {
+//                    std::cout<<"*";
+//                }
+//                std::cout<<"\n";
             }
+            std::cout<<std::endl;
+
         }
         
         
     };
+    
+    // declare static data
+    template <typename T>
+    bool LPTpartitioner<T>::partitionIsValid=false;
+    
+    
 } // end namespace
 #endif

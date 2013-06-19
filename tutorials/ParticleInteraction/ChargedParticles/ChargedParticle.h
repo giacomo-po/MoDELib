@@ -18,11 +18,6 @@
 #include <tutorials/ParticleInteraction/ChargedParticles/ElectricField.h>
 #include <tutorials/ParticleInteraction/ChargedParticles/MagneticField.h>
 
-//#include <tutorials/ParticleInteraction/ChargedParticles/CellCharge.h> // a user-defined type of cell-property
-
-
-// http://www.mathpages.com/home/kmath576/kmath576.htm
-
 namespace model {
     
     
@@ -42,7 +37,6 @@ namespace model {
     public:
         
         enum{dim=_dim};
-//        typedef SpatialCellParticle<ChargedParticle<_dim>,_dim> SpatialCellParticleType;
         
         typedef ElectricField<_dim> Efield;
         typedef MagneticField<_dim> Bfield;
@@ -51,31 +45,23 @@ namespace model {
         typedef PointSource<ChargedParticle<_dim>,_dim,Efield,Bfield> PointSourceType;
         typedef FieldPoint <ChargedParticle<_dim>,_dim,Efield,Bfield> FieldPointType;
 
-//        typedef PointSource<ChargedParticle<_dim>,_dim,Efield> PointSourceType;
-//        typedef FieldPoint <ChargedParticle<_dim>,_dim,Efield> FieldPointType;
-
-
         typedef typename PointSourceType::VectorDimD VectorDimD;
 
-        
-        
-        
     private:
 
         VectorDimD _p; // THIS SHOULD BE STORED IN SpatialCellParticle
         VectorDimD _v; // THIS SHOULD BE STORED IN SpatialCellParticle
 
-        
     public:
 
         const double q; // the electric charge of the particle
         
         /*****************************************/
-        ChargedParticle(const VectorDimD& pIN, const double& qIN) :
+        ChargedParticle(const VectorDimD& pIN, const VectorDimD& vIN, const double& qIN) :
         /* init list */ PointSourceType(pIN), //  SpatialCellParticle must be constructed with initial position
         /* init list */  FieldPointType(pIN), //  SpatialCellParticle must be constructed with initial position
         /* init list */ _p(pIN),
-        /* init list */ _v(VectorDimD::Zero()),
+        /* init list */ _v(vIN),
         /* init list */ q(qIN)//,
         {/*!@param[in] pIN position of this ChargedParticle
           * @param[in] qIN charge of this ChargedParticle
@@ -117,7 +103,12 @@ namespace model {
             <<cP.P().transpose()<<"\t"
             <<cP.q<<"\t"
             <<cP.force().transpose()<<"\t"
-            <<cP.mpiID<<"\t";
+#ifdef _MODEL_MPI_
+            <<cP.mpiID()
+#else
+            <<cP.sID      
+#endif
+            <<std::endl;
             return os;
         }
             

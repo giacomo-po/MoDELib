@@ -27,16 +27,14 @@
 #include <time.h>
 #include <iomanip> // std::scientific
 #include <utility> // std::pair
-#include <vector> // std::vector
 
-#include <model/Utilities/SequentialOutputFile.h>
 
 //#include <model/SpaceDecomposition/SpatialCellProperty.h>
 
-#include <model/ParticleInteraction/ParticleSystemBase.h>
-#include <model/ParticleInteraction/SystemProperties.h>
 #include <model/ParticleInteraction/PointSource.h>
 #include <model/ParticleInteraction/FieldPoint.h>
+#include <model/ParticleInteraction/ParticleSystemBase.h>
+#include <model/ParticleInteraction/SystemProperties.h>
 
 
 
@@ -83,20 +81,7 @@ namespace model {
                         /*                                                           */ qIter!=cIter->second->particleEnd();
                         /*                                                         */ ++qIter)
                     {
-//                        FieldType(this->operator[](k),**qIter);  // the constructor of FieldType actually computes the binary interaction between *iterI and *iterJ
-//                        FieldType::compute(*pIter->second,**qIter);  // the constructor of FieldType actually computes the binary interaction between *iterI and *iterJ
-//                        *static_cast<*FieldPointParticle<FieldType> >(this->operator[](k)) += (*qIter)->computeAt(this->operator[](k));
-                        
-//                        *static_cast<*FieldPointParticle<FieldType> >(this->operator[](k)) += static_cast<SourcePoint<FieldType<ParticleType>>*>(*qIter)->computeAt(this->operator[](k));
-//                        *static_cast<*FieldPointParticle<FieldType> >(this->operator[](k)) +=
                         *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::compute(**qIter,this->operator[](k));
-
-//                        FieldType::operate
-                        
-//                        static_cast<FieldPoint<ParticleType,3,FieldType>* const>(&this->operator[](k));
-                        
-//                        static_cast<const PointSource<ParticleType,3,FieldType>* const>(*qIter);
-
                     }
                 }
             }
@@ -144,7 +129,7 @@ namespace model {
           */
             for (typename ParticleContainerType::const_iterator pIter=pS.begin();pIter!=pS.end();++pIter)
             {
-                os<<(*pIter)<<std::endl;
+                os<<(*pIter);
             }
             return os;
         }

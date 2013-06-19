@@ -48,14 +48,6 @@ namespace model {
         typedef FieldPoint <DislocationParticleType,_dim,StressField> FieldPointType;
         typedef typename PointSourceType::VectorDimD VectorDimD;
 
-//		typedef SpatialCellParticle<DislocationParticleType,_dim> SpatialCellParticleType;
-//		typedef typename SpatialCellParticleType::CellMapType  CellMapType;
-//		typedef typename SpatialCellParticleType::ParticleContainerType ParticleContainerType;
-//		typedef typename SpatialCellParticleType::VectorDimD   VectorDimD;
-//		typedef typename SpatialCellParticleType::VectorDimI   VectorDimI;
-//		typedef Eigen::Matrix<double,_dim,_dim> MatrixDim;
-		
-//        typedef DislocationStress<DislocationParticleType> DislocationStressInteraction;
         
 		//! A const reference to Quadrature weight corresponding to this particle
         
@@ -99,39 +91,12 @@ namespace model {
 		}
         
         
-//        void computeStress()
-//        {
-//        
-//             //_stress=MatrixDim::Zero();
-//            for (typename CellMapType::const_iterator neighCellIter=this->neighborCellsBegin();neighCellIter!=this->neighborCellsEnd();++neighCellIter){
-//                for (typename ParticleContainerType::const_iterator partIter=neighCellIter->second->particleBegin();partIter!=neighCellIter->second->particleEnd();++partIter){
-//                    _stress+=(*partIter)->stress_at(P);
-//                }
-//            }
-//        }
-//
+
         /********************************************************/
 		typename StressField::MatrixType stress() const
         {/*! The total stress field on this DislocationQuadratureParticle
           */
-            //            MatrixDim temp(MatrixDim::Zero());
-            //            for (typename CellMapType::const_iterator nearCellIter=this->nearCellsBegin();nearCellIter!=this->nearCellsEnd();++nearCellIter){
-            //                for (typename ParticleContainerType::const_iterator partIter=nearCellIter->second->particleBegin();partIter!=nearCellIter->second->particleEnd();++partIter){
-            //                    temp+=(*partIter)->stress_at(P);
-            //                }
-            //            }
-            //            if(useMultipoleStress){
-            //                for (typename CellMapType::const_iterator farCellIter=this->farCellsBegin();farCellIter!=this->farCellsEnd();++farCellIter){
-            //                    temp+= farCellIter->second->multipoleStress(P);
-            //                }
-            //            }
-            
-//            MatrixDim temp(MatrixDim::Zero());
-//            for (typename CellMapType::const_iterator neighCellIter=this->neighborCellsBegin();neighCellIter!=this->neighborCellsEnd();++neighCellIter){
-//                for (typename ParticleContainerType::const_iterator partIter=neighCellIter->second->particleBegin();partIter!=neighCellIter->second->particleEnd();++partIter){
-//                    _stress+=(*partIter)->stress_at(P);
-//                }
-//            }
+
             
             
 //            switch (nearCellStressApproximation)
@@ -194,6 +159,44 @@ namespace model {
 //			temp+=sourceBvpStress*(1.0-quadAbscissa)+sinkBvpStress*quadAbscissa;
 			return stress()+sourceBvpStress*(1.0-quadAbscissa)+sinkBvpStress*quadAbscissa;
 		}
+	
+	};
+    
+//    // Static data members
+//	template <short unsigned int _dim>
+//    double DislocationParticle<_dim>::a2=1.0;  // square of core size a
+//    
+//	template <short unsigned int _dim>
+//	const Eigen::Matrix<double,_dim,_dim> DislocationParticle<_dim>::I=Eigen::Matrix<double,_dim,_dim>::Identity();  // square of core size a
+//
+//    template <short unsigned int _dim>
+//    int DislocationParticle<_dim>::nearCellStressApproximation=3;  // square of core size a
+//    
+//    template <short unsigned int _dim>
+//    int DislocationParticle<_dim>::farCellStressApproximation=3;  // square of core size a
+    
+    
+    /**************************************************************************/
+    /**************************************************************************/
+}	// close namespace
+#endif
+
+
+//        void computeStress()
+//        {
+//
+//             //_stress=MatrixDim::Zero();
+//            for (typename CellMapType::const_iterator neighCellIter=this->neighborCellsBegin();neighCellIter!=this->neighborCellsEnd();++neighCellIter){
+//                for (typename ParticleContainerType::const_iterator partIter=neighCellIter->second->particleBegin();partIter!=neighCellIter->second->particleEnd();++partIter){
+//                    _stress+=(*partIter)->stress_at(P);
+//                }
+//            }
+//        }
+//
+
+
+
+
 //
 //		/********************************************************/
 //        //		template<short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule = GaussLegendre>
@@ -222,15 +225,15 @@ namespace model {
 //                               + 	R*(T.cross(B)).transpose()
 //                               +   0.5* R.cross(B).dot(T) * (I*(1.0+3.0*a2/RaSquared) + 3.0/RaSquared*R*R.transpose())
 //                               )/std::pow(sqrt(RaSquared),3)*quadWeight);
-//			
+//
 ////			return Material<Isotropic>::C2*(temp+temp.transpose());
 //			return temp;
 //
 //		}
 ////
-////        
-////        
-////		
+////
+////
+////
 ////		/********************************************************/
 ////		MatrixDim stress() const
 ////        {/*! The total stress field on this DislocationParticle
@@ -246,15 +249,15 @@ namespace model {
 ////            //                    temp+= farCellIter->second->multipoleStress(P);
 ////            //                }
 ////            //            }
-////            
+////
 ////            MatrixDim temp(MatrixDim::Zero());
 ////            for (typename CellMapType::const_iterator neighCellIter=this->neighborCellsBegin();neighCellIter!=this->neighborCellsEnd();++neighCellIter){
 ////                for (typename ParticleContainerType::const_iterator partIter=neighCellIter->second->particleBegin();partIter!=neighCellIter->second->particleEnd();++partIter){
 ////                    temp+=(*partIter)->stress_at(P);
 ////                }
 ////            }
-////            
-////            
+////
+////
 ////            switch (nearCellStressApproximation)
 ////            {
 ////                case FULL: // quadrature-quadrature
@@ -270,12 +273,12 @@ namespace model {
 ////                    //temp+= this->pCell->nearStress;
 ////                    temp+= this->pCell->nearStress;
 ////                    break;
-////                    
+////
 ////                default: // no computation
 ////                    break;
 ////            }
-////            
-////            
+////
+////
 ////            switch (farCellStressApproximation)
 ////            {
 ////                case FULL: // quadrature-quadrature
@@ -291,19 +294,19 @@ namespace model {
 ////                    //temp+= this->pCell->farStress;
 ////                    temp+= this->pCell->farStress;
 ////                    break;
-////                    
+////
 ////                default: // no computation
 ////                    break;
 ////            }
-////            
-////            
+////
+////
 ////#ifdef UserStressFile
 ////            //			temp+=userStress(k);
 ////#endif
-////            
+////
 ////			return temp;
 ////		}
-////		
+////
 ////		/********************************************************/
 ////		MatrixDim stress(const MatrixDim& sourceBvpStress, const MatrixDim& sinkBvpStress) const {
 ////			/*! The total stress field on this DislocationParticle
@@ -312,24 +315,4 @@ namespace model {
 ////			temp+=sourceBvpStress*(1.0-quadAbscissa)+sinkBvpStress*quadAbscissa;
 ////			return temp;
 ////		}
-//		
-	};
-    
-//    // Static data members
-//	template <short unsigned int _dim>
-//    double DislocationParticle<_dim>::a2=1.0;  // square of core size a
-//    
-//	template <short unsigned int _dim>
-//	const Eigen::Matrix<double,_dim,_dim> DislocationParticle<_dim>::I=Eigen::Matrix<double,_dim,_dim>::Identity();  // square of core size a
 //
-//    template <short unsigned int _dim>
-//    int DislocationParticle<_dim>::nearCellStressApproximation=3;  // square of core size a
-//    
-//    template <short unsigned int _dim>
-//    int DislocationParticle<_dim>::farCellStressApproximation=3;  // square of core size a
-    
-    
-    /**************************************************************************/
-    /**************************************************************************/
-}	// close namespace
-#endif

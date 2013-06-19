@@ -39,12 +39,19 @@ namespace model {
         
 #ifdef _MODEL_MPI_
         static std::vector<Scalar> resultVector;
-        typedef Eigen::Map<Eigen::Matrix<typename FieldType::Scalar,FieldType::rows,FieldType::cols> > BaseDataType;
+        typedef Eigen::Map<Eigen::Matrix<typename FieldType::Scalar,FieldType::rows,FieldType::cols> > EigenMapType;
+        typedef EigenMapType BaseEigenType;
         
         /**********************************************************************/
         static void resize(const unsigned int&  k, const Scalar& val = Scalar())
         {
             resultVector.resize(k*DataPerParticle,val);
+        }
+        
+        /**********************************************************************/
+        void set_mpiID(const size_t& k)
+        {
+            new (static_cast<EigenMapType*>(this)) EigenMapType(&resultVector[k*DataPerParticle]);
         }
         
         /**********************************************************************/
@@ -55,7 +62,7 @@ namespace model {
         }
         
 #else
-        typedef Eigen::Matrix<typename FieldType::Scalar,FieldType::rows,FieldType::cols> BaseDataType;
+        typedef Eigen::Matrix<typename FieldType::Scalar,FieldType::rows,FieldType::cols> BaseEigenType;
         
         /**********************************************************************/
         FieldPointBase() :
@@ -68,7 +75,7 @@ namespace model {
         template<typename OtherDerived>
         FieldPointBaseType & operator= (const Eigen::MatrixBase<OtherDerived>& other)
         {
-            BaseDataType::operator=(other);
+            BaseEigenType::operator=(other);
             return *this;
         }
         

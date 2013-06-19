@@ -10,10 +10,11 @@
  */
 
 
-#include <model/ParticleInteraction/ParticleSystem.h>
-#include <model/Utilities/TerminalColors.h> 
+#include <model/Utilities/TerminalColors.h>
+#include <model/Utilities/SequentialOutputFile.h>
 
 #include <tutorials/ParticleInteraction/ChargedParticles/ChargedParticle.h> // a user-defined type of particle to be inserted in ParticleSystem
+#include <model/ParticleInteraction/ParticleSystem.h>
 
 //#include <model/MPI/MPIcout.h>
 
@@ -24,15 +25,11 @@
 using namespace model;
 
 int main (int argc, char * argv[]) {
-    
-    // We work in three dimensions
-    enum{dim=3};
-    
-//    ChargedParticle<dim> cp(Eigen::Matrix<double,dim,1>::Random(),1.0);
-    
+
     // 0- define the type of ParticleSystem specifying the type of particles
-    typedef ChargedParticle<dim> ChargedParticleType;
-    typedef model::ParticleSystem<ChargedParticleType> ChargedParticleSystem;
+    enum{dim=3}; // We work in three dimensions
+    typedef ChargedParticle<dim> ChargedParticleType; // the type of particle
+    typedef ParticleSystem<ChargedParticleType> ChargedParticleSystem;
     
     // 1- create a particleSystem of ChargedParticle(s)
     ChargedParticleSystem particleSystem(argc,argv); // initialized constructor: for both serial and parallel
@@ -49,10 +46,8 @@ int main (int argc, char * argv[]) {
     for (size_t k=0;k<500000;++k)
     {
         // note that PositionType::Random() returns values in [-1, 1]
-        particleSystem.addParticle(VectorDimD::Random()*10+VectorDimD::Ones()*0.0*cellSize, 1.0);
+        particleSystem.addParticle(VectorDimD::Random()*10.0*cellSize, 1.0);
     }
-//    std::cout<<model::greenColor<<" done."<<model::defaultColor<<std::endl;
-//    std::cout<<model::greenColor<<" done."<<model::defaultColor<<std::endl;
 
     // Add a more particles
 //    for (int k=0;k<500;++k)
@@ -62,32 +57,8 @@ int main (int argc, char * argv[]) {
 //    }
     
     
-    std::cout<<"There are "<<particleSystem.cells().size()<<" cells"<<std::endl;
-
-
-//
-//
-    
-//    std::cout<<model::blueBoldColor<<"PARTITIONING"<<model::defaultColor<<std::endl;
-	//particleSystem.partionSystem();
-    
-    
-//    SequentialOutputFile<'P',true> pFile0;
-//    pFile0<<particleSystem.particles()<<std::endl;
-
-//    particleSystem.MPIoutput();
-    
-//    std::cout<<model::blueBoldColor<<"COMPUTING INTERACTION"<<model::defaultColor<<std::endl;
-
-    
-    // -3 computation of the CoulombForceInteraction
-//    typedef typename ChargedParticle::CoulombForceInteraction CoulombForceInteraction;
-    // -3.1  reset CoulombForceInteraction
- //   particleSystem.resetInteraction<CoulombForceInteraction>();
-
-    
-//    particleSystem.computeMoment0<CoulombForceInteraction>();
-
+    std::cout<<"There are "<<particleSystem.particles().size()
+    <<" particles occupying "<<particleSystem.cells().size()<<" cells."<<std::endl;
     
     // -3.2a compute all binary CoulombForce interactions
     std::cout<<"Computing electric field (nearest-neighbor)..."<<std::endl;
@@ -99,7 +70,7 @@ int main (int argc, char * argv[]) {
     particleSystem.computeNeighborField<Bfield>();
 
     
-    //    std::cout<<model::greenColor<<" done."<<model::defaultColor<<std::endl;
+    //    std::cout<< greenColor<<" done."<< defaultColor<<std::endl;
 
     // -3.2b
 //    typedef typename ChargedParticle::TotalCellCharge CellCharge;
@@ -110,15 +81,7 @@ int main (int argc, char * argv[]) {
     std::cout<<"Writing output file P/P_0.txt..."<<std::endl;
     SequentialOutputFile<'P',true> pFile1;
     pFile1<<particleSystem.particles()<<std::endl;
-//    std::cout<<model::greenColor<<" done."<<model::defaultColor<<std::endl;
 
-
-    ////
-////
-////    particleSystem.getInteractionResult<CoulombForce>(0);
-////
-////    
-//    particleSystem.MPIoutput();
     
     return 0;
 }

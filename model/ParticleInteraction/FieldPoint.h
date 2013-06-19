@@ -63,6 +63,17 @@ namespace model {
             return *static_cast<const FieldPointBase<Derived,OtherFieldType>* const>(this);
         }
         
+#ifdef _MODEL_MPI_
+        
+        typedef typename FieldPointBase<Derived,FieldType>::EigenMapType EigenMapType;
+        
+        void set_mpiID(const size_t& k)
+        {
+            FieldPoint<Derived,_dim,MoreFieldTypes...>::set_mpiID(k);
+            FieldPointBase<Derived,FieldType>::set_mpiID(k);
+        }
+#endif
+        
     };
     
     // template specialization: zero fields
@@ -76,22 +87,37 @@ namespace model {
         typedef typename SpatialCellObserverType::VectorDimD VectorDimD;
 
 #ifdef _MODEL_MPI_
-        size_t mpiID;
+    private:
+        size_t _mpiID;
+#endif
+
+    public:
+#ifdef _MODEL_MPI_
+        
+        const size_t& mpiID() const
+        {
+            return _mpiID;
+        }
+        
+        void set_mpiID(const size_t& k)
+        {
+            _mpiID=k;
+        }
         
         /**********************************************************************/
         FieldPoint(const VectorDimD& p) :
         /* init list */ SpatialCellObserverType(p),
-        /* init list */ mpiID(0)
+        /* init list */ _mpiID(0)
         {/*
           */
         }
 #else
-        const size_t mpiID;
+//        const size_t mpiID;
         
         /**********************************************************************/
         FieldPoint(const VectorDimD& p) :
-        /* init list */ SpatialCellObserverType(p),
-        /* init list */ mpiID(0)
+        /* init list */ SpatialCellObserverType(p)
+//        /* init list */ mpiID(0)
         {/*
           */
         }
