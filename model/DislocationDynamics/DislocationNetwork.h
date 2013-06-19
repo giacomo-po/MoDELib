@@ -96,6 +96,9 @@
 #include <model/ParticleInteraction/ParticleSystem.h> // the main object from pil library
 
 
+#include <model/MPI/MPIcout.h>
+
+
 namespace model {
 	
 	
@@ -164,10 +167,10 @@ namespace model {
 			if (use_junctions)
             {
 				double t0=clock();
-				std::cout<<"		Forming Junctions: found (";
+				model::cout<<"		Forming Junctions: found (";
                 const double avoidNodeIntersection(0.05);
 				DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx,avoidNodeIntersection);
-				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
 		}
 		
@@ -186,7 +189,7 @@ namespace model {
           *	\f]
           *  where \f$c_s\f$ is the shear velocity and \f$f=0.1\f$ is a constant.
           */
-			std::cout<<"		Computing dt..."<<std::flush;
+			model::cout<<"		Computing dt..."<<std::flush;
 			double t0=clock();
 			
             //			double vmax(0.0);
@@ -213,9 +216,9 @@ namespace model {
 				//dt=dx/(shared.material.cs*shearWaveFraction)*std::pow(vmax/(shared.material.cs*shearWaveFraction),1);
 				dt=dx/(Material<Isotropic>::cs*shearWaveFraction);
 			}
-			std::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
-			std::cout<<std::setprecision(3)<<std::scientific<<" dt="<<dt;
-			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+			model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
+			model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<dt;
+			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 				
 		/* crossSlip **********************************************************/
@@ -225,10 +228,10 @@ namespace model {
 			if(use_crossSlip)
             {
 				double t0=clock();
-				std::cout<<"		Performing Cross Slip ... "<<std::flush;
+				model::cout<<"		Performing Cross Slip ... "<<std::flush;
 				size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip(crossSlipDeg,crossSlipLength));
-				std::cout<<crossSlipEvents<<" cross slip events found ";
-				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+				model::cout<<crossSlipEvents<<" cross slip events found ";
+				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
 		}
         
@@ -238,7 +241,7 @@ namespace model {
             if (shared.use_bvp)
             {
 				double t0=clock();
-				std::cout<<"		Updating bvp stress ... ";
+				model::cout<<"		Updating bvp stress ... ";
 				if(!(runID%shared.use_bvp))
                 {
 					shared.domain.update_BVP_Solution(updateUserBC,this);
@@ -247,7 +250,7 @@ namespace model {
                 { // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
 					nodeIter->second->updateBvpStress();
 				}
-				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
         }
 		        
@@ -255,7 +258,7 @@ namespace model {
 		void singleStep(const bool& updateUserBC=false)
         {
 			//! A simulation step consists of the following:
-			std::cout<<blueBoldColor<< "runID="<<runID
+			model::cout<<blueBoldColor<< "runID="<<runID
             /*                    */<< ", time="<<totalTime
             /*                    */<< ": nodeOrder="<<this->nodeOrder()
             /*                    */<< ", linkOrder="<<this->linkOrder()
@@ -344,12 +347,12 @@ namespace model {
 			if (shared.boundary_type==softBoundary)
             {
 				double t0=clock();
-				std::cout<<"		Removing Segments outside Mesh Boundaries... ";
+				model::cout<<"		Removing Segments outside Mesh Boundaries... ";
 				typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
 				link_member_function_pointer_type boundarySegment_Lmfp;
 				boundarySegment_Lmfp=&LinkType::is_boundarySegment;
 				this->template disconnect_if<1>(boundarySegment_Lmfp);
-				std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
 		}
         
@@ -413,9 +416,9 @@ namespace model {
 				if(!(runID%use_redistribution))
                 {
 					double t0=clock();
-					std::cout<<"		remeshing network... "<<std::flush;
+					model::cout<<"		remeshing network... "<<std::flush;
 					DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
-					std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+					model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 				}
 			}
 		}
@@ -560,10 +563,14 @@ namespace model {
 //            EDR.readScalarInFile(fullName.str(),"nucleationFreq",nucleationFreq);
 //#endif
 
-            
+#ifdef _MODEL_MPI_
+            // Avoid that a processor starts writing before other are reading
+            MPI_Barrier(MPI_COMM_WORLD);
+#endif
+
 			
 			// Initializing initial configuration
-			std::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
+			model::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
 			move(0.0,0.0);	// initial configuration
 			output();	// initial configuration, this overwrites the input file
 			if (runID==0) // not a restart
@@ -579,7 +586,7 @@ namespace model {
         {/*! Assemble and solve equation system
           */
             
-            std::cout<<"		Assembling edge stiffness and force vectors..."<<std::flush;
+            model::cout<<"		Assembling edge stiffness and force vectors..."<<std::flush;
 			double t0=clock();
 
             
@@ -591,10 +598,10 @@ namespace model {
 			typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
 			LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
 			this->parallelExecute(Lmfp);
-			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
             
 			//! 2- Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve
-			std::cout<<"		Solving..."<<std::flush;
+			model::cout<<"		Solving..."<<std::flush;
 			t0=clock();
             
 #ifdef _OPENMP
@@ -617,7 +624,7 @@ namespace model {
                 }
 			}
 #endif
-			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
 		/* output *************************************************************/
@@ -636,14 +643,14 @@ namespace model {
                 DislocationNetworkIO<DislocationNetworkType>::output(*this,runID);
 #endif
 			}
-			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
 		
 		/* updateQuadraturePoints *********************************************/
 		void updateQuadraturePoints()
         {
-            std::cout<<"		Updating Quadrature Points... "<<std::flush;
+            model::cout<<"		Updating Quadrature Points... "<<std::flush;
 			double t0=clock();
             
             
@@ -671,7 +678,7 @@ namespace model {
 //            {
 //                cellIter->second->computeCenterStress();
 //            }
-			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
 		
@@ -679,7 +686,7 @@ namespace model {
 		void move(const double & dt_in, const double & dt_old)
         {/*! Moves all nodes in the DislocationNetwork using the stored velocity and current dt
           */
-			std::cout<<"		Moving Dislocation Nodes (dt="<<dt_in<< ")... "<<std::flush;
+			model::cout<<"		Moving Dislocation Nodes (dt="<<dt_in<< ")... "<<std::flush;
 			double t0=clock();
             //			typedef void (NodeType::*NodeMemberFunctionPointerType)(const double&); // define type of Link member function
             //			NodeMemberFunctionPointerType Nmfp(&NodeType::move); // Lmfp is a member function pointer to Link::assemble
@@ -690,7 +697,7 @@ namespace model {
             {
 				nodeIter->second->move(dt_in,dt_old);
 			}
-			std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
 		/**********************************************************************/
@@ -700,11 +707,11 @@ namespace model {
 			double ts(clock());
 			for (int k=0;k<Nsteps;++k)
             {
-				std::cout<<std::endl; // leave a blank line
-				std::cout<<blueBoldColor<<"Step "<<k+1<<" of "<<Nsteps<<defaultColor<<std::endl;
+				model::cout<<std::endl; // leave a blank line
+				model::cout<<blueBoldColor<<"Step "<<k+1<<" of "<<Nsteps<<defaultColor<<std::endl;
 				singleStep(updateUserBC);
 			}
-			std::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(clock()-ts)/CLOCKS_PER_SEC<<" [sec]"<<defaultColor<<std::endl;
+			model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(clock()-ts)/CLOCKS_PER_SEC<<" [sec]"<<defaultColor<<std::endl;
 		}
 		
 		
@@ -717,12 +724,12 @@ namespace model {
 			double elapsedTime(0.0);
 			while (elapsedTime<timeWindow)
             {
-				std::cout<<std::endl; // leave a blank line
-				std::cout<<blueBoldColor<<"Time "<<elapsedTime<<" of "<<timeWindow<<defaultColor<<std::endl;
+				model::cout<<std::endl; // leave a blank line
+				model::cout<<blueBoldColor<<"Time "<<elapsedTime<<" of "<<timeWindow<<defaultColor<<std::endl;
 				singleStep(updateUserBC);
 				elapsedTime+=dt;
 			}
-			std::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<timeWindow<< " simulation time completed in "<<(clock()-ts)/CLOCKS_PER_SEC<<" [sec]"<<defaultColor<<std::endl;
+			model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<timeWindow<< " simulation time completed in "<<(clock()-ts)/CLOCKS_PER_SEC<<" [sec]"<<defaultColor<<std::endl;
 		}
 		
 		
@@ -739,9 +746,9 @@ namespace model {
                     const bool nodeIsBalanced(nodeIter->second->is_balanced());
                     if (!nodeIsBalanced && nodeIter->second->nodeMeshLocation==insideMesh)
                     {
-                        std::cout<<"Node "<<nodeIter->second->sID<<" is not balanced:"<<std::endl;
-                        std::cout<<"    outflow="<<nodeIter->second->outFlow().transpose()<<std::endl;
-                        std::cout<<"     inflow="<<nodeIter->second->inFlow().transpose()<<std::endl;
+                        model::cout<<"Node "<<nodeIter->second->sID<<" is not balanced:"<<std::endl;
+                        model::cout<<"    outflow="<<nodeIter->second->outFlow().transpose()<<std::endl;
+                        model::cout<<"     inflow="<<nodeIter->second->inFlow().transpose()<<std::endl;
                         assert(0 && "NODE IS NOT BALANCED");
                     }
 				}

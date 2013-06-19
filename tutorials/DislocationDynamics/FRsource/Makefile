@@ -46,7 +46,7 @@ CC= g++
 # optimization level = fast
 CFLAGS  += -O3
 # enable openMP
-#CFLAGS += -fopenmp
+CFLAGS += -fopenmp
 # enable C++0x
 CFLAGS += -std=c++0x
 endif

@@ -45,9 +45,8 @@ int main (int argc, char * argv[]) {
     typedef typename ChargedParticle<dim>::VectorDimD VectorDimD; // helper
     for (size_t k=0;k<500000;++k)
     {
-        // note that PositionType::Random() returns values in [-1, 1]
-        const VectorDimD P(VectorDimD::Random()*10.0*cellSize);
-        const VectorDimD V(VectorDimD::Random());
+        const VectorDimD P(VectorDimD::Random()*10.0*cellSize); // PositionType::Random() returns values in [-1, 1]
+        const VectorDimD V(VectorDimD::Random()*0.0);
         const double q(1.0);
         particleSystem.addParticle(P,V,q);
     }

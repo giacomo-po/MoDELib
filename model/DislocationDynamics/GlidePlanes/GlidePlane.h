@@ -22,6 +22,7 @@
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/BVP/VirtualBoundarySlipSurface.h>
+#include <model/MPI/MPIcout.h>
 
 
 namespace model {
@@ -83,7 +84,7 @@ namespace model {
 		/* init list */ height(height_in)
         {
 			assert(std::fabs(planeNormal.norm()-1.0)<=DBL_EPSILON && "GLIDE PLANE NORMAL IS NOT UNIT");
-			//std::cout<<"Creating GlidePlane "<<this->sID<<" with unit plane normal: "<<planeNormal.transpose()<<" and height "<<height<<std::flush;
+			//model::cout<<"Creating GlidePlane "<<this->sID<<" with unit plane normal: "<<planeNormal.transpose()<<" and height "<<height<<std::flush;
 			assert(this->glidePlaneMap.insert(std::make_pair((VectorDimPlusOneD()<< planeNormal, height).finished(),this)).second && "CANNOT INSERT GLIDE PLANE  IN STATIC glidePlaneMap.");
             if (shared.boundary_type)
             {
@@ -92,13 +93,13 @@ namespace model {
 				//intersectMeshWithParallelPlanes (planeNormal,height);
 				intersectMeshWithParallelPlanes ();
 			}
-            //std::cout<<" done"<<std::endl;
+            //model::cout<<" done"<<std::endl;
 		}
 		
 		/* Desctructor  **********************************************/
 		~GlidePlane()
         {
-			std::cout<<"Deleting GlidePlane "<<this->sID<<std::endl;
+			model::cout<<"Deleting GlidePlane "<<this->sID<<std::endl;
 			assert(this->glidePlaneMap.erase((VectorDimPlusOneD()<< planeNormal, height).finished())==1 && "CANNOT ERASE GLIDE PLANE  FROM STATIC glidePlaneMap.");
 			assert(        SegmentContainerType::empty() && "DELETING NON-EMPTY GLIDE PLANE.");
 			assert(BoundarySegmentContainerType::empty() && "DELETING NON-EMPTY GLIDE PLANE.");
@@ -247,20 +248,20 @@ namespace model {
             int ii = std::abs(iP);
             int sign = iP/ii;
             
-            //std::cout << iP << " " << ii << " " << sign << std::endl;
+            //model::cout << iP << " " << ii << " " << sign << std::endl;
             
             VectorDimD x0;
             
             while (!allDone) {
                 ii++;
                 
-                //std::cout << height << " " << sign << " " << ii << " " << separation << " " << sign*ii << " " << height+(sign*ii*separation) << std::endl;
+                //model::cout << height << " " << sign << " " << ii << " " << separation << " " << sign*ii << " " << height+(sign*ii*separation) << std::endl;
                 x0 = planeNormal*(height+(sign*ii*separation));
                 
                 segmentMeshCollisionPairContainerType temp ;
                 shared.domain.get_planeMeshIntersection(x0,planeNormal,temp);
                 
-                //std::cout<< temp.size() << " ";
+                //model::cout<< temp.size() << " ";
                 
                 if (temp.size()>0) {
                     bool foundTriangles = false;
@@ -278,7 +279,7 @@ namespace model {
                 
                 else allDone = true;
                 
-                //std::cout<< allDone<< std::endl;
+                //model::cout<< allDone<< std::endl;
                 
             }
         }
@@ -295,25 +296,25 @@ namespace model {
             VectorDimD dir = (pointsPair.second - pointsPair.first).normalized();
             
             double dx = 0.5e00*(l - ((nPnts-1)*separation));
-            //std::cout<<l << " " << separation << " " << nPnts << " " << dx << " : ";
-            //std::cout << pointsPair.first.transpose() << std::endl;
-            //std::cout << pointsPair.second.transpose() << std::endl;
+            //model::cout<<l << " " << separation << " " << nPnts << " " << dx << " : ";
+            //model::cout << pointsPair.first.transpose() << std::endl;
+            //model::cout << pointsPair.second.transpose() << std::endl;
             
             for (int i=0; i<nPnts; i++) {
                 
-                //std::cout << dx << " ";
+                //model::cout << dx << " ";
                 //VectorDimD P = pointsPair.first + (dx+(i*separation))*dir;
                 VectorDimD P = pointsPair.first + dx*dir;
                 
                 if(shared.domain.triContainer[triID]->localQuadPnts.find( (VectorDimPlusOneD()<<planeNormal.normalized(),height).finished() ) !=
                    shared.domain.triContainer[triID]->localQuadPnts.end() ) {
-                    //std::cout << P.transpose()<<std::endl;
+                    //model::cout << P.transpose()<<std::endl;
                     shared.domain.triContainer[triID]->localQuadPnts.find( (VectorDimPlusOneD()<<planeNormal.normalized(),height).finished() )->second.push_back(P);
                 }
                 
                 dx+=separation;
             }
-            //std::cout << std::endl;
+            //model::cout << std::endl;
             
         }
         
@@ -400,19 +401,19 @@ namespace model {
                     
                     if (found) temp.erase(iTriNext);
                     
-                    if (minDis > 1.0e-2) std::cout<< "Warning: distance between two consecutive lines is " << minDis << std::endl;
+                    if (minDis > 1.0e-2) model::cout<< "Warning: distance between two consecutive lines is " << minDis << std::endl;
                     
                 }
                 
                 //  		  if (!found) {
-                //  		    std::cout <<"==================== Glide plane-mesh intersection lines ========================" << std::endl;
+                //  		    model::cout <<"==================== Glide plane-mesh intersection lines ========================" << std::endl;
                 //
-                // 		    for (unsigned int i=0; i<linesVector.size(); i++) std::cout<< linesVector[i].second.first.transpose() << "    " << linesVector[i].second.second.transpose() << std::endl;
-                // 		    std::cout << std::endl;
+                // 		    for (unsigned int i=0; i<linesVector.size(); i++) model::cout<< linesVector[i].second.first.transpose() << "    " << linesVector[i].second.second.transpose() << std::endl;
+                // 		    model::cout << std::endl;
                 //  		    for (typename segmentMeshCollisionPairContainerType::iterator itt = temp.begin(); itt != temp.end() ;++itt)
-                // 		           std::cout << (*itt).second.first.transpose() << "  " << (*itt).second.second.transpose()<< std::endl; ;
+                // 		           model::cout << (*itt).second.first.transpose() << "  " << (*itt).second.second.transpose()<< std::endl; ;
                 //
-                //  		    std::cout<< "===================================================================================== " << std::endl;
+                //  		    model::cout<< "===================================================================================== " << std::endl;
                 //  		  }
                 
                 assert(found && "unable to find next segment on which the glide plane intersects the mesh boundary");
@@ -451,7 +452,7 @@ namespace model {
                 
                 while (dl <= l) {
                     P = contourPointsVector[i].second.first + dl*uv;
-                    //std::cout << P.transpose()<<std::endl;
+                    //model::cout << P.transpose()<<std::endl;
                     //-------- check if there is a container for this glide plane already exists or not -------------
                     if(shared.domain.triContainer[contourPointsVector[i].first]->localQuadPnts.find( (VectorDimPlusOneD()<<planeNormal.normalized(),height).finished() ) !=
                        shared.domain.triContainer[contourPointsVector[i].first]->localQuadPnts.end() ) {

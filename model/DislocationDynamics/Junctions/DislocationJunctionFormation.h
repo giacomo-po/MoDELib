@@ -18,6 +18,8 @@
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 #include <model/DislocationDynamics/Remeshing/DislocationNetworkRemesh.h>
 #include <model/BVP/SearchData.h>
+#include <model/MPI/MPIcout.h>
+
 
 namespace model {
 	
@@ -78,7 +80,7 @@ namespace model {
 					if (linkIterA->second->sID!=linkIterB->second->sID) // don't intersect with itself
                     {	
                         
-                        //                std::cout<<"intersecting "<<linkIterA->second->source->sID<<"->"<<linkIterA->second->sink->sID<<" and "<<linkIterB->second->source->sID<<"->"<<linkIterB->second->sink->sID<<std::endl;
+                        //                model::cout<<"intersecting "<<linkIterA->second->source->sID<<"->"<<linkIterA->second->sink->sID<<" and "<<linkIterB->second->source->sID<<"->"<<linkIterB->second->sink->sID<<std::endl;
                         
                         //                        const bool areIncidentAtNodes(   linkIterA->second->source->sID==linkIterB->second->source->sID
                         //                                                      || linkIterA->second->source->sID==linkIterB->second->sink->sID
@@ -170,7 +172,7 @@ namespace model {
 			
 			//! 1- Initialize intersectionContainer calling findIntersections
 			EdgeIntersectionPairContainerType intersectionContainer(findIntersections(avoidNodeIntersection));
-			std::cout<<intersectionContainer.size()<<" geometric) ";
+			model::cout<<intersectionContainer.size()<<" geometric) ";
 			
 			//! 2- Remove from intersectionContainer all intersections that don't satisfy Frank's rule
 			std::vector<int> dirVector;
@@ -227,7 +229,7 @@ namespace model {
 					++iter; // increment iterator only if didn't erase
 				}
 			}
-			std::cout<<intersectionContainer.size()<<" physical intersections. ";
+			model::cout<<intersectionContainer.size()<<" physical intersections. ";
 			assert(intersectionContainer.size()==dirVector.size());
             
 			//! 3- Organize intersections by segments to use multiexpand
@@ -264,8 +266,8 @@ namespace model {
 					if(   edgeIntersectionContainer.find(key1)==edgeIntersectionContainer.end()
                        && edgeIntersectionContainer.find(key2)==edgeIntersectionContainer.end())
                     {
-//						std::cout<<"key1 is "<<key1.first<<" "<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-//						std::cout<<"key2 is "<<key2.first<<" "<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
+//						model::cout<<"key1 is "<<key1.first<<" "<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
+//						model::cout<<"key2 is "<<key2.first<<" "<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
 						
                         
                         const double u1m(intersectionContainer[interID]. first.second-du1);
@@ -320,7 +322,7 @@ namespace model {
 				}
 			}
 			
-			std::cout<<"Using "<< edgeIntersectionContainer.size()/2<<" intersections. ";
+			model::cout<<"Using "<< edgeIntersectionContainer.size()/2<<" intersections. ";
 			
 			// Call Multiexpand
 			std::map<IntersectionIDType, std::set<size_t> > nodeIntersectionMap;
@@ -373,17 +375,17 @@ namespace model {
                         linePointInsideMesh*=(SD.nodeMeshLocation==insideMesh);
                     }
                     if(linePointInsideMesh){
-                        std::cout<<"Glissile Junction"<<std::endl;
+                        model::cout<<"Glissile Junction"<<std::endl;
                         DN.contract(i,j,linePoint);
                     }
                     
                 }
                 else if(isIsessile && !isJsessile){ // use P1 (which is on sessile segment) as the intersection point
-                       std::cout<<"First-Sessile Junction"<<std::endl;
+                       model::cout<<"First-Sessile Junction"<<std::endl;
                     DN.contract(i,j,P1);
                 }
                 else if(!isIsessile && isJsessile){ // use P2 (which is on sessile segment) as the intersection point
-                    std::cout<<"Second-Sessile Junction"<<std::endl;
+                    model::cout<<"Second-Sessile Junction"<<std::endl;
                     DN.contract(i,j,P2);
                 }
                 else{
