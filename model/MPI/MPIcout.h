@@ -12,95 +12,82 @@
 #ifndef model_MPIcout_h_
 #define model_MPIcout_h_
 
-#include <assert.h>
+#include <iostream>
+
+#ifdef _MODEL_MPI_
 #include <mpi.h>
-#include <model/Utilities/TerminalColors.h>
+#endif
 
 namespace model {
     
-    struct MPIcout : public std::ostream,
-    public ModelMPIbase
+    struct MPIcout
     {
         typedef std::basic_ostream<char, std::char_traits<char> > StlEndl_IO;
         // define StlEndl as a pointer-to-function taking and returning a reference to StlEndl_IO
         typedef StlEndl_IO& (*StlEndl)(StlEndl_IO&);
-
-#ifdef _MODEL_MPI_
-//        template<typename T>
-//        std::ostream& operator<<(const T& t)
-//        {
-//            if (this->mpiRank()==0)
-//            {
-//                return std::cout<<t;
-//            }
-//            else
-//            {
-//                return std::cout;
-//            }
-//        }
-        template<typename T>
-        MPIcout& operator<<(const T& t)
-        {
-            if (this->mpiRank()==0)
-            {
-                std::cout<<t;
-                return *this;
-            }
-            else
-            {
-                return *this;
-            }
+        
+        
+        /**********************************************************************/
+        MPIcout(const MPIcout&) :
+        /* base init*/ os(std::cout)
+        {/*! Copy constructor is private (no copying allowed)
+          */
         }
-#else
-//        template<typename T>
-//        std::ostream& operator<<(const T& t)
-//        {
-//            return std::cout<<t;
-//        }
-        template<typename T>
-        MPIcout& operator<<(const T& t)
-        {
-            std::cout<<t;
+        
+        /**********************************************************************/
+        MPIcout& operator=(const MPIcout&)
+        {/*! Assignment operator is private (no assignment allowed)
+          */
             return *this;
         }
-#endif
-//                /**********************************************************************/
-//                std::ostream& operator<<(StlEndl manip)
-//                {/*! Overload << for Std::endl
-//                  */
-//#ifdef _MODEL_MPI_
-//                    //            int mpiRank;
-//                    //            MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank);
-//                    if(mpiRank==0)
-//                    {
-//                        manip(std::cout);
-//                    }
-//#else
-//                    manip(std::cout);
-//                    
-//#endif            
-//                    return std::cout;
-//                }
-
-                /**********************************************************************/
-                MPIcout& operator<<(StlEndl manip)
-                {/*! Overload << for Std::endl
-                  */
+        
+        
+        std::ostream& os;
+        
+    public:
+        /**********************************************************************/
+        MPIcout() :
+        /* base init*/ os(std::cout)
+        {/*!
+          */
+        }
+        
+        /**********************************************************************/
+        template<typename T>
+        MPIcout& operator<<(const T& t)
+        {
 #ifdef _MODEL_MPI_
-                    if(mpiRank==0)
-                    {
-                        manip(*this);
-                    }
+            
+            if (ModelMPIbase::mpiRank()==0)
+            {
+                os<<t;
+            }
 #else
-                    manip(*this);
-                    
+            os<<t;
 #endif
-                    return *this;
-                }
-                
-                };
-                
+            return *this;
+        }
+        
+        /**********************************************************************/
+        MPIcout& operator<<(StlEndl manip)
+        {/*! Overload << for Std::endl
+          */
+#ifdef _MODEL_MPI_
+            if(ModelMPIbase::mpiRank()==0)
+            {
+                manip(os);
+            }
+#else
+            manip(os);
+            
+#endif
+            return *this;
+        }
+        
+    };
+    
+    // declare object cout
     MPIcout cout;
-                
+    
 } // end namespace
 #endif

@@ -16,7 +16,7 @@
 #include <tutorials/ParticleInteraction/ChargedParticles/ChargedParticle.h> // a user-defined type of particle to be inserted in ParticleSystem
 #include <model/ParticleInteraction/ParticleSystem.h>
 
-//#include <model/MPI/MPIcout.h>
+#include <model/MPI/MPIcout.h>
 
 //#include <tutorials/ParticleInteraction/ChargedParticles/CoulombEnergy.h> // a user-defined type of energy interaction between ChargedParticle objects
 
@@ -41,12 +41,15 @@ int main (int argc, char * argv[]) {
     
     // 2- add some ChargedParticle(s) to the particleSystem with random position
     //    in [-10,10] and charge=1.0
-    std::cout<<"Creating particles..."<<std::endl;
+    model::cout<<"Creating particles..."<<std::endl;
     typedef typename ChargedParticle<dim>::VectorDimD VectorDimD; // helper
     for (size_t k=0;k<500000;++k)
     {
         // note that PositionType::Random() returns values in [-1, 1]
-        particleSystem.addParticle(VectorDimD::Random()*10.0*cellSize, 1.0);
+        const VectorDimD P(VectorDimD::Random()*10.0*cellSize);
+        const VectorDimD V(VectorDimD::Random());
+        const double q(1.0);
+        particleSystem.addParticle(P,V,q);
     }
 
     // Add a more particles
@@ -57,15 +60,15 @@ int main (int argc, char * argv[]) {
 //    }
     
     
-    std::cout<<"There are "<<particleSystem.particles().size()
+    model::cout<<"There are "<<particleSystem.particles().size()
     <<" particles occupying "<<particleSystem.cells().size()<<" cells."<<std::endl;
     
     // -3.2a compute all binary CoulombForce interactions
-    std::cout<<"Computing electric field (nearest-neighbor)..."<<std::endl;
+    model::cout<<"Computing electric field (nearest-neighbor)..."<<std::endl;
     typedef typename ChargedParticleType::Efield Efield;
     particleSystem.computeNeighborField<Efield>();
 
-    std::cout<<"Computing magnetic field (nearest-neighbor)..."<<std::endl;
+    model::cout<<"Computing magnetic field (nearest-neighbor)..."<<std::endl;
     typedef typename ChargedParticleType::Bfield Bfield;
     particleSystem.computeNeighborField<Bfield>();
 
@@ -78,7 +81,7 @@ int main (int argc, char * argv[]) {
 //    particleSystem.computeFarInteraction<CoulombForceInteraction>();
 
     // -4 output
-    std::cout<<"Writing output file P/P_0.txt..."<<std::endl;
+    model::cout<<"Writing output file P/P_0.txt..."<<std::endl;
     SequentialOutputFile<'P',true> pFile1;
     pFile1<<particleSystem.particles()<<std::endl;
 

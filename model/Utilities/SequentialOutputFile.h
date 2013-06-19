@@ -135,8 +135,6 @@ namespace model {
           *
           */
 #ifdef _MODEL_MPI_
-//            int mpiRank;
-//            MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank);
             if(mpiRank==0)
             {
                 openFile();

@@ -4,22 +4,12 @@ USE_ICC = 0
  MODEL_INCLUDE =/Users/giacomo/Documents/MODEL
 # MODEL_INCLUDE = /home/giacomo/Dropbox/Model
 
-# MPI LIBRARY (PARALLEL ONLY) ###################
-#MPI_INCLUDE = /usr/local/include
-MPI_LIB = /usr/local/lib
-
-# METIS LIBRARY (PARALLEL ONLY) #################
-#METIS_INCLUDE =/usr/local/include
-#METIS_LIB =/usr/local/lib
-
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
 ##########################################################
 IDIR  = -I/usr/local/include
 IDIR += -I./
 IDIR += -I$(MODEL_INCLUDE)
-#IDIR += -I$(MPI_INCLUDE)
-#IDIR += -I$(METIS_INCLUDE)
 
 ##########################################################
 # COMPILER SETTINGS - DO NOT EDIT-
@@ -113,10 +103,6 @@ mpiCFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 
 # define _MODEL_DD_MPI_
 mpiCFLAGS += -D _MODEL_DD_MPI_
-
-# Link to Metis partitioner
-#mpiLIBS += -L$(METIS_LIB) 
-#mpiLIBS +=	 -lmetis
 
 mpiOBJS = DDparallel
 

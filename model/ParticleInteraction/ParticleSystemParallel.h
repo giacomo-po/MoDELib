@@ -39,6 +39,9 @@
 #include <model/ParticleInteraction/SystemProperties.h>
 #include <model/MPI/LPTpartitioner.h>
 
+#include <model/MPI/MPIcout.h>
+
+
 //#include <model/SpaceDecomposition/SpatialCellObserver.h>
 
 
@@ -129,7 +132,7 @@ namespace model {
         {/*! Compute nearest-neighbor particle interaction according to FieldType
           */
             
-            double t0(clock());
+ //           double t0(clock());
             
             
             //            LPTpartitioner<ParticleType> lpt;
@@ -212,10 +215,10 @@ namespace model {
             MPI_Allgatherv(MPI_IN_PLACE,0,MPI_DATATYPE_NULL,
                            &FieldPointBase<ParticleType,FieldType>::resultVector[0],&interactionSizeVector[0],&interactionRankOffsetVector[0],MPI_DOUBLE,MPI_COMM_WORLD);
             
-            if (this->mpiRank() == 0)
-            {
-                std::cout<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<std::endl;
-            }
+//            if (this->mpiRank() == 0)
+//            {
+//                model::cout<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<std::endl;
+//            }
             
         }
         
