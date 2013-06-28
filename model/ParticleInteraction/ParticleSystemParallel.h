@@ -21,14 +21,8 @@
 //#include <metis.h> // partitioner
 #endif
 
-#include <utility> // for std::pair
-//#include <map>
 #include <vector>
-#include <deque>
 #include <time.h>
-#include <iomanip> // std::scientific
-
-#include <Eigen/Core>
 
 #include <model/Utilities/modelMacros.h> // model_checkInput
 #include <model/Utilities/SequentialOutputFile.h>
@@ -36,14 +30,8 @@
 #include <model/ParticleInteraction/PointSource.h>
 #include <model/ParticleInteraction/FieldPoint.h>
 #include <model/ParticleInteraction/ParticleSystemBase.h>
-#include <model/ParticleInteraction/SystemProperties.h>
 #include <model/MPI/LPTpartitioner.h>
-
 #include <model/MPI/MPIcout.h>
-
-
-//#include <model/SpaceDecomposition/SpatialCellObserver.h>
-
 
 namespace model {
     
@@ -51,32 +39,25 @@ namespace model {
     /**************************************************************************/
     /*! \brief Parallel Version (MPI)
      */
-    template <typename _ParticleType, typename UserSystemProperties>
+    template <typename _ParticleType>
     class ParticleSystemParallel :
-    /* inheritance */  public ParticleSystemBase<_ParticleType,UserSystemProperties>,
+    /* inheritance */  public ParticleSystemBase<_ParticleType>,
     /* inheritance */  public ModelMPIbase
     {
         
-        typedef ParticleSystemBase<_ParticleType,UserSystemProperties> ParticleSystemBaseType;
+        typedef ParticleSystemBase<_ParticleType> ParticleSystemBaseType;
         typedef _ParticleType ParticleType; // make ParticleType available outside the class
         typedef typename ParticleSystemBaseType::SpatialCellType SpatialCellType;
         typedef typename ParticleSystemBaseType::ParticleContainerType ParticleContainerType;
         typedef typename ParticleSystemBaseType::SpatialCellObserverType SpatialCellObserverType;
-        
-        //        bool partitionIsValid;
-        
-        //        LPTpartitioner<ParticleType> lpt;
-        
+                
     public:
         
         /**********************************************************************/
         ParticleSystemParallel(int argc, char* argv[]) :
-        //        /* init list       */  ParticleSystemBaseType::ParticleSystemBase(cellSize),
         /* init list       */  ModelMPIbase(argc,argv)
-        //        /* init list       */  partitionIsValid(false)
         {
-            //            particleSizeVector.resize(this->mpiProcs());
-            //            mpiIDoffsetVector.resize(this->mpiProcs());
+
         }
         
         /**********************************************************************/
@@ -116,23 +97,17 @@ namespace model {
             {
                 partitioner.insert(pIter->pCell->n2Weight(),&*pIter);
             }
+            
             partitioner.partition(this->mpiProcs());
-            
-            if (this->mpiRank()==0){partitioner.show();}
-            
-            
-            
-            //            partitionIsValid=true;
-            
         }
         
         /**********************************************************************/
         template <typename FieldType>
-        void computeNeighborField()
+        size_t computeNeighborField()
         {/*! Compute nearest-neighbor particle interaction according to FieldType
+          *\returns the number of interactions computed
           */
             
- //           double t0(clock());
             
             
             //            LPTpartitioner<ParticleType> lpt;
@@ -172,7 +147,9 @@ namespace model {
             
             
             
-            
+//#ifdef _OPENMP
+//#pragma omp parallel for
+//#endif
             // loop over field particles in the neighbor cell
             size_t nInteractions(0);
             for (typename PartitionerType::BaseDequeType::const_iterator fIter=lpt.bin(this->mpiRank()).begin();
@@ -194,11 +171,7 @@ namespace model {
                     }
                 }
             }
-            std::cout<<"processor "<<this->mpiRank()<<": "<<nInteractions<<" interactions."<<std::endl;
             
-            
-            
-            //mpiIDoffsetVector
             std::vector<int> interactionSizeVector(this->mpiProcs());
             std::vector<int> interactionRankOffsetVector(this->mpiProcs());
             
@@ -215,11 +188,7 @@ namespace model {
             MPI_Allgatherv(MPI_IN_PLACE,0,MPI_DATATYPE_NULL,
                            &FieldPointBase<ParticleType,FieldType>::resultVector[0],&interactionSizeVector[0],&interactionRankOffsetVector[0],MPI_DOUBLE,MPI_COMM_WORLD);
             
-//            if (this->mpiRank() == 0)
-//            {
-//                model::cout<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<std::endl;
-//            }
-            
+            return nInteractions;
         }
         
         /**********************************************************************/
@@ -245,9 +214,6 @@ namespace model {
         friend T& operator<< (T& os, const ParticleContainerType& pS)
         {/*! Operator << use ParticleType specific << operator
           */
-            //            int temp();
-            //            MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank());
-            //            std::cout<<"mpiRank()="<<mpiRank()<<std::endl;
             if (ModelMPIbase::mpiRank()==0)
             {
                 for (typename ParticleContainerType::const_iterator pIter=pS.begin();pIter!=pS.end();++pIter)
@@ -255,7 +221,6 @@ namespace model {
                     os<<(*pIter);
                 }
             }
-//            MPI_Barrier(MPI_COMM_WORLD);
             return os;
         }
         

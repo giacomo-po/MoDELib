@@ -109,24 +109,6 @@ namespace model {
         {
             return BaseDequeVectorType::operator[](k);
         }
-
-//        /**********************************************************************/
-//        const size_t& binSize(const int& k) const
-//        {
-//            return BaseDequeVectorType::operator[](k).size();
-//        }
-        
-//        /**********************************************************************/
-//        size_t binOffset(const int& k) const
-//        {
-//            size_t n(0);
-//            for (int j=0;j<k;++j)
-//            {
-//                n+=binSize(j);
-//            }
-//            
-//            return n;
-//        }
         
         /**********************************************************************/
         const double& weight(const int& k) const

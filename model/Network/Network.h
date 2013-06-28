@@ -55,7 +55,7 @@ namespace model {
 		
 #include <model/Network/NetworkTypedefs.h>
 		
-				
+        
 		
 	public:
 		
@@ -115,14 +115,14 @@ namespace model {
 		/************************************************************/
 		// nodeEnd
 		typename NetworkNodeContainerType::iterator nodeEnd()
-        {/*! @param[out] An iterator referring to the past-the-end vertex in 
+        {/*! @param[out] An iterator referring to the past-the-end vertex in
           *  the network.
           */
 			return NetworkNodeContainerType::end();
 		}
 		
 		typename NetworkNodeContainerType::const_iterator nodeEnd() const
-        {/*! @param[out] A const iterator referring to the past-the-end vertex 
+        {/*! @param[out] A const iterator referring to the past-the-end vertex
           *  in the network.
           */
 			return NetworkNodeContainerType::end();
@@ -154,7 +154,7 @@ namespace model {
 		template <typename ...NodeArgTypes>
 		size_t insertVertex(const NodeArgTypes&... NodeInput)
         {/*! @param[in] NodeInput
-          *  Inserts a new vertex in the Network using NodeInput as variable 
+          *  Inserts a new vertex in the Network using NodeInput as variable
           *  constructor arguments
           */
 			return VertexInsertion<NodeType>(*this).insert(NodeInput...);
@@ -296,7 +296,7 @@ namespace model {
                 }
                 return os;
                 }
-                
+
                 /*************************************************************/
                 // friend T& operator <<
                 template <class T>
@@ -308,10 +308,38 @@ namespace model {
                     }
                     return os;
                 }
-                
-                
-                };	// end Network
-                /************************************************************/
-                /************************************************************/
-                } // namespace model
+        
+        
+    };	// end Network
+    
+    
+    
+		/*************************************************************/
+		// friend T& operator <<
+//		template <class T,typename key,typename value,typename compare,typename allocator>
+//     T& operator << (T& os, const boost::ptr_map<key,value,compare,allocator>& pMap)
+//        {
+//			for (typename boost::ptr_map<key,value>::const_iterator iter=pMap.begin();iter!=pMap.end();++iter)
+//            {
+//				os << (*iter->second) << "\n";
+//                }
+//                return os;
+//                }
+
+//                /*************************************************************/
+//                // friend T& operator <<
+//                template <class T>
+//                friend T& operator << (T& os, const NetworkLinkContainerType& nlC)
+//                {
+//                    for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter)
+//                    {
+//                        os << (*linkIter->second) << "\n";
+//                    }
+//                    return os;
+//                }
+
+    
+    /************************************************************/
+    /************************************************************/
+} // namespace model
 #endif

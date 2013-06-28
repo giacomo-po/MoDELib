@@ -18,7 +18,7 @@
 #include <model/ParticleInteraction/ParticleSystemSerial.h>
 #endif
 
-#include <model/ParticleInteraction/SystemProperties.h>
+//#include <model/ParticleInteraction/SystemProperties.h>
 
 namespace model {
     
@@ -31,12 +31,12 @@ namespace model {
      * ParticleSystem can be compiled in serial and parallel version, depending
      * whether _MODEL_MPI_ is defined or not.
      */
-    template <typename _ParticleType, typename UserSystemProperties = SystemProperties<> >
+    template <typename _ParticleType >
     struct ParticleSystem :
 #ifdef _MODEL_MPI_
-    /* inheritance */  public ParticleSystemParallel<_ParticleType,UserSystemProperties>
+    /* inheritance */  public ParticleSystemParallel<_ParticleType>
 #else
-    /* inheritance */  public ParticleSystemSerial<_ParticleType,UserSystemProperties>
+    /* inheritance */  public ParticleSystemSerial<_ParticleType>
 #endif
     {
         
@@ -49,7 +49,7 @@ namespace model {
 #ifdef _MODEL_MPI_
         /*****************************************/
         ParticleSystem(int argc, char* argv[]) :
-        /* init list */  ParticleSystemParallel<_ParticleType,UserSystemProperties>(argc,argv)
+        /* init list */  ParticleSystemParallel<_ParticleType>(argc,argv)
         {/*!
           */
         }

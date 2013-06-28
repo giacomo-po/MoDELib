@@ -297,7 +297,7 @@ namespace model {
         {
 			
 			VectorDim dX=velocity.template segment<dim>(0)*dt - vOld.template segment<dim>(0)*dt_old;
-			if (dX.squaredNorm()>0.0 && (nodeMeshLocation!=onMeshBoundary || shared.use_bvp==0)) // move a node only if |v|>0 and if not on mesh boundary
+			if (dX.squaredNorm()>0.0 && (nodeMeshLocation!=onMeshBoundary || shared.use_bvp==0)) // move a node only if |v|!=0 and if not on mesh boundary
             { 
 				if(shared.boundary_type)
                 {

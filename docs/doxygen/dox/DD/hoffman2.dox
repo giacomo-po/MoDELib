@@ -1,0 +1,112 @@
+namespace model {
+/*! \page hoffman2 DD on the Hoffman2 cluster
+
+<a href="https://idre.ucla.edu/hoffman2">Hoffman2</a> is the high-performance computer cluster at UCLA
+<a href="http://www.ucla.edu">UCLA</a>. If you are using MODEL-DD on Hoffman2, this page may contain useful information about the use of MODEL.
+
+###########################################################
+\section hoffman2_login Login and Setup
+\verbatim
+ssh <username>@hoffman2.idre.ucla.edu
+\endverbatim
+
+First request a c++11-capable compiler:
+\verbatim
+module load gcc/4.7.2
+\endverbatim
+Then, if you are building or running the MPI version of the code you also need to load the MPI library built with gcc/4.7.2:
+\verbatim
+module openmpi
+\endverbatim
+
+###########################################################
+\section hoffma2_dd_compile Compiling
+Compile DDomp with
+\verbatim
+make serial
+\endverbatim
+
+Compile DDmpi with
+\verbatim
+make parallel
+\endverbatim
+
+See also the instructions in the tutorial \ref FRsource_makefile.
+
+###########################################################
+\section hoffma2_dd_interactive Running in interactive mode
+The command used to obtain an interactive section is <a href="http://hpc.ucla.edu/hoffman2/computing/sge_qrsh.php">qrsh</a>. The command qrsh is followed by the "-l" directive which allows to specify a series of parameters separated by commas. For example
+\verbatim
+qrsh -l h_data=4g,h_rt=2:00:00
+\endverbatim
+requests one (1) interactive processor with 4Gb of memory (h_data=4g) for  2 hours, 0 minutes, and 0 seconds (h_rt=8:00:00). The maximum time limit is 24h, unless you are a member of a resource group. In that case the time limit is 14days, but the "highp" parameter must be used:
+\verbatim
+qrsh -l h_data=4g,h_rt=48:00:00,highp
+\endverbatim
+If your request cannot be accommodated immediately but you are willing to wait indefinitely until it is eventually honored, you can append the flag "-now n" to the qrsh command:
+\verbatim
+qrsh -l h_data=4g,h_rt=48:00:00,highp -now n
+\endverbatim
+The maximum wait time for members of resource groups is 24h.
+
+If you issue one of the previous commands, however, you still ha have one (1) processors to work with. In order to request more than one processor, we need the "-pe" (parallel environment) directive. The way you use the "-pe" directive depends on the version of the DD code that we run, as explained below.
+
+\subsection hoffma2_dd_interactive_DDomp DDomp
+If you compiled DDomp, <a href="http://openmp.org">OpenMP</a> is used to speed up the most computationally-intensive loops. Therefore, in order to achieve optimum performance, DDomp must be run on a shared-memory machine with the largest possible number of cores. In order to obtain one such machine with the qrsh command, you can use the directive "-pe shared N", where "N" is the requested number of cores. For example:
+\verbatim
+qrsh -l h_data=4g,h_rt=4:00:00 -pe shared 8
+\endverbatim
+requests 8 cores on the same node, which "share" the memory of that node. Note that Hoffman2 has 8-, 12-, and 16-core nodes. 
+
+After the node has been obtained, you can run DDomp as:
+\verbatim
+./DDomp
+\endverbatim
+
+\subsection hoffma2_dd_interactive_DDmpi DDmpi
+If you compiled DDmpi, <a href="http://www.open-mpi.org">Open-MPI</a> is used to speed up the most computationally-intensive loops. Therefore, you can request processors belonging to different nodes using the "-pe dc_* N" directive, where N is the number of nodes. For example:
+\verbatim
+qrsh -l h_data=4g,h_rt=4:00:00 -pe dc_* 96
+\endverbatim
+requests 96 processors. To use group resources (highp): 
+\verbatim
+qrsh -l h_data=4g,h_rt=48:00:00,highp -now n -pe dc_* 96
+\endverbatim
+request 96 processors of your resource group.
+
+After the processors have been obtained, you can run DDmpi using the "mpirun" command. However, in order to make sure that the correct version of mpirun is used, it is recommended to specify the full path using the environmental variable $MPI_BIN:
+\verbatim
+$MPI_BIN/mpirun -np N DDmpi
+\endverbatim
+where "N" is the number of requested processors.
+
+###########################################################
+\section hoffma2_dd_batch Running in batch mode
+
+
+\subsection hoffma2_dd_batch_DDomp DDomp
+
+\verbatim
+openmp.q
+\endverbatim
+Answer the following questions
+-
+-
+-
+- answer NO to the
+
+Edit the file DDomp.cmd
+
+add the line "module load gcc/4.7.2"
+
+
+\subsection hoffma2_dd_batch_DDmpi DDmpi
+
+Call
+\verbatim
+parallel.q
+\endverbatim
+
+
+*/
+}

@@ -16,10 +16,6 @@
 #ifdef _OPENMP
 #include <omp.h>
 #define EIGEN_DONT_PARALLELIZE // disable Eigen Internal openmp Parallelization
-#else
-#define omp_get_thread_num() 0
-#define omp_get_num_threads() 1
-//#define omp_get_max_threads() 1
 #endif
 
 
@@ -28,15 +24,11 @@
 #include <iomanip> // std::scientific
 #include <utility> // std::pair
 
-
-//#include <model/SpaceDecomposition/SpatialCellProperty.h>
-
 #include <model/ParticleInteraction/PointSource.h>
 #include <model/ParticleInteraction/FieldPoint.h>
 #include <model/ParticleInteraction/ParticleSystemBase.h>
-#include <model/ParticleInteraction/SystemProperties.h>
 
-
+//#include <model/Threads/ParallelFor.h> // alterative to openmp using std::thread
 
 namespace model {
     
@@ -47,14 +39,37 @@ namespace model {
     /**************************************************************************/
     /*! \brief Serial Version
      */
-    template <typename _ParticleType, typename UserSystemProperties = SystemProperties<> >
+    template <typename _ParticleType >
     class ParticleSystemSerial :
-    /* inheritance */  public ParticleSystemBase<_ParticleType,UserSystemProperties>
+    /* inheritance */  public ParticleSystemBase<_ParticleType>
     {
-        typedef ParticleSystemBase<_ParticleType,UserSystemProperties> ParticleSystemBaseType;
+        typedef ParticleSystemBase<_ParticleType> ParticleSystemBaseType;
         typedef _ParticleType ParticleType; // make ParticleType available outside the class
         typedef typename ParticleSystemBaseType::SpatialCellType SpatialCellType;
         typedef typename ParticleSystemBaseType::ParticleContainerType ParticleContainerType;
+        typedef ParticleSystemSerial<_ParticleType> ParticleSystemSerialType;
+        
+        
+        template <typename FieldType>
+        void neighborFieldIteration(const size_t& _begin, const size_t& _end)
+        {
+            for (unsigned int k=_begin; k<_end;++k)
+            {
+                //! -2 loop over neighbor cells of current particle
+                for (typename SpatialCellType::CellMapType::const_iterator cIter =this->operator[](k).neighborCellsBegin();
+                     /*                                                 */ cIter!=this->operator[](k).neighborCellsEnd();
+                     /*                                               */ ++cIter)
+                {
+                    //! -3 loop over particles in the current neighbor cell
+                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
+                        /*                                                           */ qIter!=cIter->second->particleEnd();
+                        /*                                                         */ ++qIter)
+                    {
+                        *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::compute(**qIter,this->operator[](k));
+                    }
+                }
+            }
+        }
         
         
         
@@ -65,10 +80,15 @@ namespace model {
         template <typename FieldType>
         void computeNeighborField()
         {
+
+            //! -1 loop over all particles in the ParticleSystem (parallelized in OpenMP)
+
+            
+//            ParallelFor().runRange(0,this->size(),this,&ParticleSystemSerial<_ParticleType>::neighborFieldIteration<FieldType>); // alternative to openmp
+
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-            //! -1 loop over all particles in the ParticleSystem (parallelized in OpenMP)
             for (unsigned int k=0; k<this->size();++k)
             {
                 //! -2 loop over neighbor cells of current particle
@@ -85,40 +105,11 @@ namespace model {
                     }
                 }
             }
-            //                pIter->second->computeStress(); 
-//            std::cout<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<std::endl;
+
         }
         
         
-//        /**********************************************************************/
-//        template <typename FieldType>
-//        void computeAtFieldPoints(std::deque<FieldPoint<FieldType>*>& fieldDeq)
-//        {
-////            // loop over all particles
-//#ifdef _OPENMP
-//#pragma omp parallel for
-//#endif
-//            for (unsigned int k=0; k<fieldDeq.size();++k)
-//            {// loop over neighbor cells
-//            
-//            
-//                for (typename SpatialCellType::CellMapType::const_iterator cIter =this->operator[](k).neighborCellsBegin();
-//                     /*                                                 */ cIter!=this->operator[](k).neighborCellsEnd();
-//                     /*                                               */ ++cIter)
-//                {// loop over particles in the neighbor cell
-//                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
-//                        /*                                                           */ qIter!=cIter->second->particleEnd();
-//                        /*                                                         */ ++qIter)
-//                    {
-//                        //                        FieldType(this->operator[](k),**qIter);  // the constructor of FieldType actually computes the binary interaction between *iterI and *iterJ
-//                        //                        FieldType::compute(*pIter->second,**qIter);  // the constructor of FieldType actually computes the binary interaction between *iterI and *iterJ
-//                        *static_cast<*FieldPointParticle<FieldType> >(this->operator[](k)) += (*qIter)->computeAt(this->operator[](k));
-//                    }
-//                }
-//            }
-//            //                pIter->second->computeStress();
-//            //            std::cout<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<std::endl;
-//        }
+
         
  
         
@@ -144,19 +135,32 @@ namespace model {
 #endif
                 
                 
-                
                 //        /**********************************************************************/
-                //        template <typename CellProperty>
-                //        void computeCellProperty() const
+                //        template <typename FieldType>
+                //        void computeAtFieldPoints(std::deque<FieldPoint<FieldType>*>& fieldDeq)
                 //        {
-                ////#ifdef _OPENMP
+                ////            // loop over all particles
+                //#ifdef _OPENMP
+                //#pragma omp parallel for
+                //#endif
+                //            for (unsigned int k=0; k<fieldDeq.size();++k)
+                //            {// loop over neighbor cells
                 //
                 //
-                ////#else
-                //            for (typename SpatialCellType::CellMapType::const_iterator cIter=SpatialCellObserverType::cellBegin();cIter!=SpatialCellObserverType::cellEnd();++cIter)
-                //            {
-                //                CellProperty(*cIter->second);
+                //                for (typename SpatialCellType::CellMapType::const_iterator cIter =this->operator[](k).neighborCellsBegin();
+                //                     /*                                                 */ cIter!=this->operator[](k).neighborCellsEnd();
+                //                     /*                                               */ ++cIter)
+                //                {// loop over particles in the neighbor cell
+                //                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
+                //                        /*                                                           */ qIter!=cIter->second->particleEnd();
+                //                        /*                                                         */ ++qIter)
+                //                    {
+                //                        //                        FieldType(this->operator[](k),**qIter);  // the constructor of FieldType actually computes the binary interaction between *iterI and *iterJ
+                //                        //                        FieldType::compute(*pIter->second,**qIter);  // the constructor of FieldType actually computes the binary interaction between *iterI and *iterJ
+                //                        *static_cast<*FieldPointParticle<FieldType> >(this->operator[](k)) += (*qIter)->computeAt(this->operator[](k));
+                //                    }
+                //                }
                 //            }
-                ////#endif
+                //            //                pIter->second->computeStress();
+                //            //            std::cout<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<std::endl;
                 //        }
-

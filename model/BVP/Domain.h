@@ -10,12 +10,10 @@
 #ifndef model_domain_H_
 #define model_domain_H_
 
-#ifdef _OPENMP
-#include <omp.h>
-#else
-#define omp_get_thread_num() 0
-#define omp_get_num_threads() 1
-#endif
+//#ifdef _OPENMP
+//#include <omp.h>
+//#else
+//#endif
 
 
 #include <iterator>
@@ -892,9 +890,9 @@ namespace model{
 			
             //				for (itt= triContainer.begin() ; itt != triContainer.end(); itt++ ) {
             
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
+//#ifdef _OPENMP
+//#pragma omp parallel for
+//#endif
             for (unsigned int kkk=0; kkk<triContainer.size(); kkk++ ) {
                 //	std::vector<Triangle*>::iterator itt(triContainer.begin());
                 //	std::advance(itt,kkk);

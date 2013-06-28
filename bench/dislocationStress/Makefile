@@ -1,39 +1,16 @@
-USE_ICC = 0
-
-# MODEL LIBRARY #################################
- MODEL_INCLUDE = /Users/giacomo/Documents/MODEL
-# MODEL_INCLUDE = /home/giacomo/Dropbox/Model
-
-# MPI LIBRARY (PARALLEL ONLY) ###################
-#MPI_INCLUDE = /usr/local/include
-MPI_LIB = /usr/local/lib
-
-# METIS LIBRARY (PARALLEL ONLY) #################
-#METIS_INCLUDE =/usr/local/include
-#METIS_LIB =/usr/local/lib
-
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
 ##########################################################
 IDIR  = -I/usr/local/include
-IDIR += -I./
-IDIR += -I$(MODEL_INCLUDE)
-#IDIR += -I$(MPI_INCLUDE)
-#IDIR += -I$(METIS_INCLUDE)
+IDIR += -I./../../
 
-##########################################################
-# COMPILER SETTINGS - DO NOT EDIT-
-##########################################################
-esc=`echo "\033"`
-normalColor="${esc}[m\017"
-greenColor="${esc}[0;32m"
-redColor="${esc}[0;31m"
-blueColor="${esc}[0;34m"
 
-all:
+serial:
 	@echo ${redColor}please use \
 	${greenColor}make serial \
 	${redColor}or ${greenColor}make parallel \
+	${redColor}or ${greenColor}make viewer \
+	${redColor}or ${greenColor}make empty \
 	${normalColor}
 
 
@@ -41,35 +18,31 @@ all:
 # MAKE SERIAL
 ##########################################################
 ifeq ($(USE_ICC), 1)
-CC= icc
+CC= icpc
 # optimization level
-CFLAGS	 = -O3
+CFLAGS	 = -O2
 CFLAGS	+= -fast
 # enable openMP
 CFLAGS	+= -openmp
 #enable C++0x
 CFLAGS	+= -std=c++0x
 else
-CC= g++
+CC = g++
 # optimization level = fast
-CFLAGS  += -O3
+CFLAGS  += -Ofast
+CFLAGS  += -msse2
 # enable openMP
-#CFLAGS += -fopenmp
+CFLAGS += -fopenmp
 # enable C++0x
 CFLAGS += -std=c++0x
 endif
 
 # enable common warnings… 
 CFLAGS += -Wall
-# … and more warnings
+# … and more warnings       
 CFLAGS += -Wextra
 
-#disable model-assertions
-CFLAGS += -D _MODEL_NO_DEBUG_
-#disable model-input-checks
-CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
-
-OBJS 	= CPserial
+OBJS 	= DDserial
 
 serial: 
 	@echo ${greenColor}making serial version... ${normalColor}
@@ -82,7 +55,7 @@ serial:
 ifeq ($(USE_ICC), 1)
 mpiCC= icpc
 # optimization level
-mpiCFLAGS += -O3
+mpiCFLAGS += -O2
 mpiCFLAGS += -fast
 # enable openMP
 mpiCFLAGS += -openmp
@@ -91,9 +64,9 @@ mpiCFLAGS += -std=c++0x
 else
 mpiCC = mpicxx
 # optimization level
-mpiCFLAGS  += -O3
-# enable openMP
-#mpiCFLAGS += -fopenmp
+mpiCFLAGS  += -O2
+# enable openMP   
+mpiCFLAGS += -fopenmp
 # enable C++0x
 mpiCFLAGS += -std=c++0x
 endif
@@ -109,13 +82,9 @@ mpiCFLAGS += -D _MODEL_NO_DEBUG_
 mpiCFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 
 # define _MODEL_DD_MPI_
-mpiCFLAGS += -D _MODEL_MPI_
+mpiCFLAGS += -D _MODEL_DD_MPI_
 
-# Link to Metis partitioner
-#mpiLIBS += -L$(METIS_LIB) 
-#mpiLIBS +=	 -lmetis
-
-mpiOBJS = CPparallel
+mpiOBJS = DDparallel
 
 parallel:
 	@echo ${blueColor}making parallel version... ${normalColor}
@@ -127,5 +96,4 @@ parallel:
 ##########################################################
 clean:
 		rm -f $(OBJS) $(mpiOBJS)
-
 

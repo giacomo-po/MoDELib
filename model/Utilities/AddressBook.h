@@ -9,6 +9,7 @@
 #ifndef model_ADDRESSBOOK_H_
 #define model_ADDRESSBOOK_H_
 
+#include <iostream>
 #include <map>
 #include <iterator>		// for std::distance
 #include <model/Utilities/CRTP.h>

@@ -12,7 +12,6 @@
 #include <Eigen/Dense>
 #include <model/SpaceDecomposition/SpatialCellParticle.h>
 #include <model/DislocationDynamics/Materials/Material.h>
-//#include <model/DislocationDynamics/NearestNeighbor/DislocationCell.h>
 #include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
 
 #include <model/ParticleInteraction/PointSource.h>
@@ -60,10 +59,6 @@ namespace model {
         
         const double quadAbscissa;
 		const double quadWeight;
-//
-//
-//		static  double a2;
-//		static const MatrixDim I;
         
 //        enum{FULL=0,CELL_PARTICLE=1,CELL_CELL=2};
 //        
@@ -143,38 +138,36 @@ namespace model {
             
             typename StressField::MatrixType temp(this->template getField<StressField>());
             
+            
+            const double dig(1.0e+08);
+
+            
+
+            // stress is in fraction of mu. Keep only resolution of 6 digits
+            temp = ((temp*dig).template cast<long int>().template cast<double>()/dig);
+             
+//            std::cout<<std::setprecision(15)<<std::scientific<<temp<<std::endl;
+
+
+            
 #ifdef UserStressFile
             //			temp+=userStress(k);
 #endif
             
 //			return _stress;
             return Material<Isotropic>::C2*(temp+temp.transpose());
+//            return temp;
+
 		}
 //
         /********************************************************/
 		typename StressField::MatrixType stress(const typename StressField::MatrixType& sourceBvpStress, const typename StressField::MatrixType& sinkBvpStress) const {
 			/*! The total stress field on this DislocationQuadratureParticle
 			 */
-//            MatrixDim temp(stress());
-//			temp+=sourceBvpStress*(1.0-quadAbscissa)+sinkBvpStress*quadAbscissa;
 			return stress()+sourceBvpStress*(1.0-quadAbscissa)+sinkBvpStress*quadAbscissa;
 		}
 	
 	};
-    
-//    // Static data members
-//	template <short unsigned int _dim>
-//    double DislocationParticle<_dim>::a2=1.0;  // square of core size a
-//    
-//	template <short unsigned int _dim>
-//	const Eigen::Matrix<double,_dim,_dim> DislocationParticle<_dim>::I=Eigen::Matrix<double,_dim,_dim>::Identity();  // square of core size a
-//
-//    template <short unsigned int _dim>
-//    int DislocationParticle<_dim>::nearCellStressApproximation=3;  // square of core size a
-//    
-//    template <short unsigned int _dim>
-//    int DislocationParticle<_dim>::farCellStressApproximation=3;  // square of core size a
-    
     
     /**************************************************************************/
     /**************************************************************************/

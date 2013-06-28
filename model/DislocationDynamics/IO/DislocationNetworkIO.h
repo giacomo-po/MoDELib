@@ -162,7 +162,11 @@ namespace model {
                 SequentialOutputFile<'E',1>::set_increment(outputFrequency); // edgeFile;
                 SequentialOutputFile<'E',1>::set_count(runID); // edgeFile;
                 SequentialOutputFile<'E',1> edgeFile;
-                edgeFile << *(const NetworkLinkContainerType*)(&DN);
+                //edgeFile << *(const NetworkLinkContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
+                for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+                {
+                    edgeFile<< *(linkIter->second)<<"\n";
+                }
                 std::cout<<" E/E_"<<edgeFile.sID<<".txt"<<std::flush;
             }
             
@@ -188,7 +192,11 @@ namespace model {
                 SequentialOutputFile<'V',1>::set_increment(outputFrequency); // vertexFile;
                 SequentialOutputFile<'V',1>::set_count(runID); // vertexFile;
                 SequentialOutputFile<'V',1> vertexFile;
-                vertexFile << *(const NetworkNodeContainerType*)(&DN);
+                //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
+                for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
+                {
+                    vertexFile << *(nodeIter->second)<<"\n";
+                }
                 std::cout<<", V/V_"<<vertexFile.sID<<".txt"<<std::flush;
             }
 			

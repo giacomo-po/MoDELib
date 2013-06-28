@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=500;
+Nsteps=30;
 timeWindow=5.1e03;
 startAtTimeStep = 0;
 
@@ -18,7 +18,7 @@ outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=1;
+outputPKforce=0;
 outputMeshDisplacement=0;
 
 ######################################
@@ -29,9 +29,9 @@ material=29;
 ######################################
 # CRYSTAL ORIENTATION
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
-C2G =  0.7071067811865475 -0.7071067811865475  0.0
-      0.4082482904638631  0.4082482904638631 -0.8164965809277261
-      0.5773502691896258  0.5773502691896258  0.5773502691896258;
+C2G = 1.0   0.0  0.0
+      0.0   1.0  0.0
+      0.0   0.0  1.0;
 
 ######################################
 # TEMPERATURE in [K]
@@ -39,14 +39,14 @@ temperature = 300.0;
 
 ######################################
 # Set the remote external stress (a uniform stress felt by dislocations)
-externalStress = 0.0 0.0 0.01
+externalStress = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.01 0.0 0.0;
+		 0.0 0.0 0.0;
 
 ######################################
 # STRESS FIELD
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
-coreWidthSquared=1.0;
+coreWidthSquared=4.0;
 # Use of multipole-expanded stress field for non-nearest neighbor cells
 dislocationCellSize=1000;
 nearCellStressApproximation=10;
@@ -67,14 +67,14 @@ thetaDeg=45.0;
 # Enable/disable the use of dislocation junction formation
 use_junctions=1;
 # Tolerance used in detecting collisions between dislocation segments in different planes
-collisionTol=20;
+collisionTol=10;
 
 ######################################
 # Enable/disable the use of a confining boundary.
 # boundary_type = 0 for no confining boundary. This automatically sets use_bvp=0 (see below)
 # boundary_type = 1 for shearable confining boundary. The file mesh.ele, mesh.face, mesh.neigh and mesh.node must be present in the working directory
 # boundary_type = 2 for unshearable confining boundary. The file mesh.ele, mesh.face, mesh.neigh and mesh.node must be present in the working directory
-boundary_type =0;
+boundary_type =1;
 
 ######################################
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
@@ -85,7 +85,7 @@ use_bvp = 0;
 ######################################
 # Enable/disable cross-slip
 use_crossSlip=0;
-crossSlipDeg=5.0;
+crossSlipDeg=2.0;
 crossSlipLength=110.0;
 
 ######################################

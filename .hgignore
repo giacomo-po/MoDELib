@@ -22,6 +22,8 @@ syntax: glob
 DDcode
 DDserial
 DDparallel
+DDomp
+DDmpi
 DDviewer
 tetgen
 
