@@ -72,13 +72,6 @@ int main (int argc, char * argv[]) {
     particleSystem.computeNeighborField<Bfield>();
 
     
-    //    std::cout<< greenColor<<" done."<< defaultColor<<std::endl;
-
-    // -3.2b
-//    typedef typename ChargedParticle::TotalCellCharge CellCharge;
-//    particleSystem.computeCellProperty<CellCharge>();
-//    particleSystem.computeFarInteraction<CoulombForceInteraction>();
-
     // -4 output
     model::cout<<"Writing output file P/P_0.txt..."<<std::endl;
     SequentialOutputFile<'P',true> pFile1;

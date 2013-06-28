@@ -22,29 +22,31 @@ blueColor="${esc}[0;34m"
 
 all:
 	@echo ${redColor}please use \
-	${greenColor}make serial \
-	${redColor}or ${greenColor}make parallel \
-	${redColor}or ${greenColor}make viewer \
+	${greenColor}make DDomp \
+	${redColor}or ${greenColor}make DDmpi \
+	${redColor}or ${greenColor}make DDviewer \
 	${redColor}or ${greenColor}make empty \
 	${normalColor}
 
 
 ##########################################################
-# MAKE SERIAL
+# MAKE DDOMP
 ##########################################################
 ifeq ($(USE_ICC), 1)
 CC= icpc
 # optimization level
-CFLAGS	 = -O2
+CFLAGS	 = -O3
 CFLAGS	+= -fast
 # enable openMP
-CFLAGS	+= -openmp
+#CFLAGS	+= -openmp 
 #enable C++0x
 CFLAGS	+= -std=c++0x
 else
-CC = g++
+CC= g++
 # optimization level = fast
+#CFLAGS  += -O3
 CFLAGS  += -Ofast
+#CFLAGS  += -g
 CFLAGS  += -msse2
 # enable openMP
 CFLAGS += -fopenmp
@@ -57,20 +59,26 @@ CFLAGS += -Wall
 # … and more warnings       
 CFLAGS += -Wextra
 
-OBJS 	= DDserial
+#disable model-assertions
+FLAGS += -D _MODEL_NO_DEBUG_
+#disable model-input-checks
+CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 
-serial: 
-	@echo ${greenColor}making serial version... ${normalColor}
-	$(CC) main.cpp -o $(OBJS)  $(CFLAGS)  $(IDIR)
+
+OBJS 	= DDomp
+
+$(OBJS): 
+	@echo ${greenColor}making omp version... ${normalColor}
+	$(CC) main.cpp -o  $(OBJS)  $(CFLAGS) $(IDIR)
 
 
 ##########################################################
-# MAKE PARALLEL
+# MAKE DDMPI
 ##########################################################
 ifeq ($(USE_ICC), 1)
 mpiCC= icpc
 # optimization level
-mpiCFLAGS += -O2
+mpiCFLAGS += -O3
 mpiCFLAGS += -fast
 # enable openMP
 mpiCFLAGS += -openmp
@@ -79,9 +87,9 @@ mpiCFLAGS += -std=c++0x
 else
 mpiCC = mpicxx
 # optimization level
-mpiCFLAGS  += -O2
+mpiCFLAGS  += -O3
 # enable openMP   
-mpiCFLAGS += -fopenmp
+#mpiCFLAGS += -fopenmp 
 # enable C++0x
 mpiCFLAGS += -std=c++0x
 endif
@@ -99,10 +107,10 @@ mpiCFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 # define _MODEL_DD_MPI_
 mpiCFLAGS += -D _MODEL_DD_MPI_
 
-mpiOBJS = DDparallel
+mpiOBJS = DDmpi
 
-parallel:
-	@echo ${blueColor}making parallel version... ${normalColor}
+$(mpiOBJS):
+	@echo ${blueColor}making mpi version... ${normalColor}
 	$(mpiCC) main.cpp -o $(mpiOBJS) $(mpiCFLAGS) $(IDIR) $(mpiLIBS)
 
 
@@ -130,7 +138,7 @@ ifeq ($(OS),Linux)
 	VIEWERLIBS += -lglut
 endif	
 
-viewer: 
+DDviewer: 
 	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -O3 $(IDIR)  $(VIEWERLIBS) 
 
 ##########################################################
