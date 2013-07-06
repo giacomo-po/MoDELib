@@ -55,23 +55,16 @@ namespace model {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
         
+        //! The position vector
+        const VectorDimD P;
+        
 		//! The pointer to the Cell
 		const SharedPtrType pCell;
 
-        
-//#ifdef _MODEL_MPI_
-//        size_t mpiID;
-//#else
-//        const size_t mpiID;
-//#endif
-        
-
-
-		
         /**********************************************************************/
-		SpatialCellParticle(const VectorDimD& P) :
+		SpatialCellParticle(const VectorDimD& Pin) :
+		/* init list */ P(Pin),
 		/* init list */ pCell(SpatialCellObserverType::getCellByPosition(P))
-//        /* init list */ mpiID(this->sID)
         {/*!\param[in] P the position of this SpatialCellParticle 
           */
 			pCell->addParticle(this->p_derived());
@@ -114,46 +107,31 @@ namespace model {
             return pCell->neighborCellsEnd();
         }
         
-        /* nearCellsBegin ***************************************/
-        typename CellMapType::const_iterator nearCellsBegin() const
-        {
-            return pCell->nearCellsBegin();
-        }
-        
-        /* nearCellsEnd ***************************************/
-        typename CellMapType::const_iterator nearCellsEnd() const
-        {
-            return pCell->nearCellsEnd();
-        }
-        
-        /* farCellsBegin ***************************************/
-        typename CellMapType::const_iterator farCellsBegin() const
-        {
-            return pCell->farCellsBegin();
-        }
-        
-        /* farCellsEnd ***************************************/
-        typename CellMapType::const_iterator farCellsEnd() const
-        {
-            return pCell->farCellsEnd();
-        }
-        
-        
-//        template<typename InteractionType>
-//        typename const InteractionType& get() const
+//        /* nearCellsBegin ***************************************/
+//        typename CellMapType::const_iterator nearCellsBegin() const
 //        {
-//            return *static_cast<const InteractionType*>(this->p_derived());
-////
-////            
-////#ifdef _MODEL_MPI_
-////            return *static_cast<const InteractionType*>(this->p_derived());
-////#else
-////            return *static_cast<const InteractionType*>(this->p_derived());
-////#endif
-////
-//////            return InteractionType::get(this->derived());
+//            return pCell->nearCellsBegin();
+//        }
+//        
+//        /* nearCellsEnd ***************************************/
+//        typename CellMapType::const_iterator nearCellsEnd() const
+//        {
+//            return pCell->nearCellsEnd();
+//        }
+//        
+//        /* farCellsBegin ***************************************/
+//        typename CellMapType::const_iterator farCellsBegin() const
+//        {
+//            return pCell->farCellsBegin();
+//        }
+//        
+//        /* farCellsEnd ***************************************/
+//        typename CellMapType::const_iterator farCellsEnd() const
+//        {
+//            return pCell->farCellsEnd();
 //        }
         
+            
         
         
 	};

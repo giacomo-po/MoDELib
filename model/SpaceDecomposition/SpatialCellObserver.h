@@ -19,6 +19,7 @@
 //#include <model/SpaceDecomposition/SpatialCellTraits.h>
 //#include <boost/ptr_container/ptr_map.hpp>
 #include <model/SpaceDecomposition/SpatialCell.h>
+#include <model/SpaceDecomposition/CellShift.h>
 
 
 namespace model {
@@ -59,32 +60,7 @@ namespace model {
 		typedef std::map<CellIdType, SpatialCellType* const,CompareVectorsByComponent<int,dim> >  CellMapType;
 		typedef std::shared_ptr<SpatialCellType> SharedPtrType;
         typedef std::pair<bool,SpatialCellType* const> isCellType;
-
-        const SharedPtrType oCell;
-
-        
-        SpatialCellObserver(const VectorDimD& P) :
-		/* init list */ oCell(getCellByPosition(P))
-        //        /* init list */ mpiID(this->sID)
-        {/*!\param[in] P the position of this SpatialCellObserver
-          * 
-          * Creates and anchor to a SpatialCell at position P
-          */
-		}
-        
-//        ~SpatialCellObserver()
-//        {
-//            std::cout<<"~SpatialCellObserver destructor."<<std::endl;
-//        }
-        
-//        typedef boost::ptr_map<CellIdType, SpatialCellType* const,CompareVectorsByComponent<int,dim> >  CellMapType;
-
-        
-//        typedef std::map<CellIdType,
-//        /*    */ SpatialCellType* const,
-//        /*    */ CompareVectorsByComponent<int,dim>,
-//        /*    */ Eigen::aligned_allocator<std::pair<const CellIdType, SpatialCellType* const> > > CellMapType;
-
+            typedef CellShift<dim,1>    CellShiftType;
         
 
         
@@ -105,11 +81,6 @@ namespace model {
 			return cellMap.end();
 		}
         
-//        static size_t size()
-//        {/*! \returns The number of observed SpatialCellType cells.
-//          */
-//            return cellMap.size();
-//        }
         
         static size_t totalCells()
         {/*! \returns The number of observed SpatialCellType cells.
@@ -160,6 +131,30 @@ namespace model {
             return cellMap;
         }
         
+        /* neighborCells ******************************************************/
+        static CellMapType neighborCells(const VectorDimD& P)
+        {
+            const CellIdType cellID(getCellIDByPosition(P));
+            const Eigen::Matrix<int,dim, CellShiftType::Nneighbors> neighborCellIDs(CellShiftType::neighborIDs(cellID));
+            
+            CellMapType temp;
+            
+            for (unsigned int c=0;c<CellShiftType::Nneighbors;++c)
+            {
+                
+                isCellType isC(isCell(neighborCellIDs.col(c)));
+                if (isC.first)
+                {
+                    model_execAssert(temp.insert(std::make_pair(isC.second->cellID,isC.second)),.second,"CANNOT INSERT CELL IN NEIGHBORCELLS");
+
+                }
+
+            }
+            
+            return temp;
+        }
+    
+        
         /*****************************************/
         template <class T>
         friend T& operator<< (T& os, const SpatialCellObserver<SpatialCellType,dim>& sCO)
@@ -201,4 +196,33 @@ namespace model {
                 
 }	// close namespace
 #endif
+
+                
+                
+                
+                //        const SharedPtrType pCell;
+                //
+                //
+                //        SpatialCellObserver(const VectorDimD& P) :
+                //		/* init list */ pCell(getCellByPosition(P))
+                //        //        /* init list */ mpiID(this->sID)
+                //        {/*!\param[in] P the position of this SpatialCellObserver
+                //          *
+                //          * Creates and anchor to a SpatialCell at position P
+                //          */
+                //		}
+                //
+                //        /* neighborCellsBegin ***************************************/
+                //        typename CellMapType::const_iterator neighborCellsBegin() const
+                //        {/*!\returns a const iterator to the first neighbor SpatialCell
+                //          */
+                //            return pCell->neighborCellsBegin();
+                //        }
+                //
+                //        /* neighborCellsEnd ***************************************/
+                //        typename CellMapType::const_iterator neighborCellsEnd() const
+                //        {/*!\returns a const iterator to the past-the-end neighbor SpatialCell
+                //          */
+                //            return pCell->neighborCellsEnd();
+                //        }
 

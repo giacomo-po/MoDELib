@@ -110,7 +110,8 @@ namespace model {
 	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	class DislocationNetwork :
     /* inheritance          */ public Network<DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule> >,
-	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule> >::LinkType>
+	/* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule> >::LinkType>,
+    /* inheritance          */ public ParticleSystem<DislocationParticle<_dim> >
     {
 		
     public:
@@ -139,7 +140,7 @@ namespace model {
 //         int nucleationFreq;
 #endif
         
-        ParticleSystem<DislocationParticle<_dim> > particleSystem;
+        //ParticleSystem<DislocationParticle<_dim> > particleSystem;
         
 	private:
         
@@ -402,7 +403,8 @@ namespace model {
 				linkIter->second->quadratureParticleContainer.clear();
 			}
             
-            particleSystem.clearParticles();
+//            particleSystem.clearParticles();
+                        this->clearParticles();
         }
         
                 
@@ -589,7 +591,8 @@ namespace model {
 			double t0=clock();
 
             //! -1 Compute the interaction StressField between dislocation particles
-            particleSystem.template computeNeighborField<StressField>();
+//            particleSystem.template computeNeighborField<StressField>();
+            this->template computeNeighborField<StressField>();
             
 			//! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
 			typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
@@ -660,14 +663,17 @@ namespace model {
 //			}
 
             // Clear DislocationParticles
-            particleSystem.clearParticles();
+//            particleSystem.clearParticles();
+            this->clearParticles();
 
             // then update again
             for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
                  /*                                       */ linkIter!=this->linkEnd();
                  /*                                     */ ++linkIter)
             {
-                linkIter->second->updateQuadraturePoints(particleSystem);
+                linkIter->second->updateQuadraturePoints(*this);
+
+                //                linkIter->second->updateQuadraturePoints(particleSystem);
 //				Quadrature<1,qOrder>::execute(linkIter->second,&LinkType::updateQuadGeometryKernel);
 			}
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;

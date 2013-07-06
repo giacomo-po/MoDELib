@@ -10,6 +10,7 @@
 #define _model_DislocationStress_h_
 
 #include <model/ParticleInteraction/FieldBase.h>
+#include <model/ParticleInteraction/FieldPoint.h>
 
 
 namespace model
@@ -72,6 +73,22 @@ namespace model
 //            temp. template selfadjointView<Eigen::Upper>().rankUpdate(R,R,c2*c4);
 //            
 //            return temp.template selfadjointView<Eigen::Upper>();
+            
+        }
+        
+        template <typename DislocationParticleType, typename OtherParticleType>
+        static MatrixType compute(const DislocationParticleType& source, const OtherParticleType& field)
+        {/*!@param[in] source the DislocationParticle that is source of stress
+          * @param[in] field  the DislocationParticle on which stress is computed
+          *\returns the stress field produced by source on field
+          */
+            
+            Eigen::Matrix<double,_dim,1> R(field.P-source.P);
+			double RaSquared (R.squaredNorm() + a2);
+			return   (Material<Isotropic>::C1*(1.0+1.5*a2/RaSquared)*source.T*(source.B.cross(R)).transpose()
+                      + 	R*(source.T.cross(source.B)).transpose()
+                      +   0.5* R.cross(source.B).dot(source.T) * (I*(1.0+3.0*a2/RaSquared) + 3.0/RaSquared*R*R.transpose())
+                      )/std::pow(sqrt(RaSquared),3)*source.quadWeight;
             
         }
         

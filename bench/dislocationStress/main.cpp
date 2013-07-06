@@ -1,59 +1,107 @@
 #include <model/DislocationDynamics/DislocationNetwork.h>
 #include <model/Utilities/SequentialOutputFile.h>
 
-int main()
-{
-    
-    DislocationNetwork<3,1,CatmullRom,16,UniformOpen> DN(argc,argv);
+using namespace model;
 
-    // The Burgers vector of the dislocation
-    Eigen::Matrix<double,3,1> B;
-    B<<1.0,0.0,0.0;
+/******************************************************************************/
+Eigen::Matrix<double,3,3> stressStraightEdge(const Eigen::Matrix<double,3,1>& P)
+{
+    Eigen::Matrix<double,3,3> stress(Eigen::Matrix<double,3,3>::Zero()); // 3x3 matrix of zeros
     
-    const double Lz=200.0;
-    const int nz=50;
-    const double dz=Lz/nz;
-    const int np=2*nz+1;
+    // Assume unitary b and mu
+
+    //  stress(0,0)=...; // sigma_xx
+    //  stress(0,1)=...; // sigma_xy
+    //  stress(1,1)=...; // sigma_yy
+
+    //  stress(1,0)=stress(0,1); // sigma_yx is same as sigma_xy
     
+    return stress;
+}
+
+
+/******************************************************************************/
+struct SimpleFieldPoint :
+/* inheritance */ public FieldPoint<SimpleFieldPoint,3,DislocationStress<3> >
+{    
+    const Eigen::Matrix<double,3,1> P;
     
-    // Generate straight dislocation along z
+    SimpleFieldPoint(const Eigen::Matrix<double,3,1>& Pin) : P(Pin){}
+    
+};
+
+
+/******************************************************************************/
+int main(int argc, char * argv[])
+{
+    // Some definitions
+    typedef  DislocationNetwork<3,1,CatmullRom,16,UniformOpen> DislocationNetworkType;
+    typedef typename DislocationNetworkType::StressField StressField;
+
+    // Create DislocationNetwork
+    DislocationNetworkType DN(argc,argv);
+
+    // The (unitary) Burgers vector of the dislocation. Length units are in b.
+    Eigen::Matrix<double,3,1> b;
+    b<<1.0,0.0,0.0;
+
+    // Generate straight dislocation along z, centered at origin
+    const double Lz=200.0;  // dislocation extends along x3 from -Lz to Lz
+    const int nz=50;        // dislocation has 2*nz+1 vertices
+    const double dz=Lz/nz;  // spacing between vertices
+    
     size_t oldID(0);
     for (int k=0;k<2*nz+1;++k)
     {
-        Eigen::Matrix<double,3,np> P;
-        P<<0.0,0.0,k*dz-Lz;
-        const size_t newID(DN.insertVertex(P));
+        Eigen::Matrix<double,3,1> P(0.0,0.0,k*dz-Lz); // position of current vertex
+        const size_t newID(DN.insertVertex(P)); // insert vertex ind DislocationNetwork
         if (k>0)
         {
-           DN.connect(oldID,newID,B);
+           DN.connect(oldID,newID,b); // connect two vertices with a DislocationSegment 
         }
         oldID=newID;
     }
     
+    // Construct a grid of field points on the plane z=0
+    std::deque<SimpleFieldPoint> fieldPoints; // the container of field points
+    
+    double Lx( 1.0e+02);    // grid extends in [-Lx,Lx] along x direction (units of b)
+    int nx=50;              // the number of grid points in x is 2*nx+1
+    
+    double Ly( 1.0e+02);    // grid extends in [-Ly,Ly] along y direction (units of b)
+    int ny=50;              // the number of grid points in y is 2*ny+1
 
-    
-    
-    double Lx( 1.0e+03);
-    double Ly( 1.0e+03);
-    
-    
-    
-    model::SequentialOutputFile<'A',1> analyticalFile;
-    model::SequentialOutputFile<'N',1>  numericalFile;
-    
-    for (int i=-nL;i<nL+1;++i)
+    for (int i=-nx;i<nx+1;++i)
     {
-        for (int j=-nL;j<nL+1;++j)
+        for (int j=-ny;j<ny+1;++j)
         {
-            Eigen::Matrix<double,3,np> P;
-            analyticalFile << P.transpose()<<"\n";
-             numericalFile << P.transpose()<<"\n";
+            Eigen::Matrix<double,3,1> P(i*Lx/nx,j*Ly/ny,0.0); // position of current field point
+            fieldPoints.emplace_back(P);
         }
+    }
+    
+    // Let the DislocationNetwork compute the stress at the field points
+    DN.updateQuadraturePoints();
+    DN.computeField<SimpleFieldPoint,StressField>(fieldPoints);
+
+    // Ouput results to file
+    model::SequentialOutputFile<'S',1>  numericalFile; // this is file S/S_0.txt
+    model::SequentialOutputFile<'S',1> analyticalFile; // this is file S/S_1.txt
+    
+    for (unsigned int k=0;k<fieldPoints.size();++k)
+    {
+        numericalFile << fieldPoints[k].P.transpose()<<" "<<fieldPoints[k].field<StressField>().row(0)
+        /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(1)
+        /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(2)<<"\n";
+        
+        
+        Eigen::Matrix<double,3,3> temp(stressStraightEdge(fieldPoints[k].P));
+        analyticalFile << fieldPoints[k].P.transpose()<<" "<<temp.row(0)
+        /*                                        */ <<" "<<temp.row(1)
+        /*                                        */ <<" "<<temp.row(2)<<"\n";
 
     }
     
-    
-
     
     return 0;
 }

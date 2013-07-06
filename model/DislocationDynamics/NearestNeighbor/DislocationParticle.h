@@ -51,7 +51,7 @@ namespace model {
 		//! A const reference to Quadrature weight corresponding to this particle
         
 		//const int k;			// *this is the k-th quadrature point on the segment
-		const VectorDimD  P;
+//		const VectorDimD  P;
 		const VectorDimD  T;
 		
 		//! A const reference to the Burgers vector of the parent DislocationSegment
@@ -71,8 +71,9 @@ namespace model {
 		DislocationParticle(const VectorDimD& Pin, const VectorDimD& Tin, const VectorDimD& Bin,
                             const double& qA,const double& qW) :
 		/* base init     */ PointSourceType(Pin),
-		/* base init     */  FieldPointType(Pin),
-		/* init list     */ P(Pin),
+//		/* base init     */  FieldPointType(Pin),
+//		/* base init     */  FieldPointType(PointSourceType::P),
+        //		/* init list     */ P(Pin),
 		/* init list     */ T(Tin),
 		/* init list     */ B(Bin),
 		/* init list     */ quadAbscissa(qA),
@@ -136,7 +137,7 @@ namespace model {
 //            }
             
             
-            typename StressField::MatrixType temp(this->template getField<StressField>());
+            typename StressField::MatrixType temp(this->template field<StressField>());
             
             
             const double dig(1.0e+08);

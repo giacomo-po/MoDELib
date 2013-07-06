@@ -14,12 +14,6 @@
 #ifndef model_DISLOCATIONSEGMENT_H
 #define model_DISLOCATIONSEGMENT_H
 
-//#ifdef _OPENMP
-//#include <omp.h>
-//#else
-//#define omp_get_thread_num() 0
-//#endif
-
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/Sparse>

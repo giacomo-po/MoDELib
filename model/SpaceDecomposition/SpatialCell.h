@@ -146,6 +146,8 @@ namespace model {
 			//! 1- Adds this to static SpatialCellObserver::cellMap
             //			model_execAssert(this->cellMap.insert(std::make_pair(cellID,this->p_derived())).second,"CANNOT INSERT Spatial CELL IN STATIC cellMap.");
 //			model_execAssert(this->cellMap.insert(std::make_pair(cellID,this->p_derived())),.second,"CANNOT INSERT Spatial CELL IN STATIC cellMap.");
+            
+//            std::cout<<"Creating SpatialCell "<<cellID.transpose()<<std::endl;
 			
             model_execAssert(SpatialCellObserverType::cellMap.insert(std::make_pair(cellID,this)),.second,"CANNOT INSERT Spatial CELL IN STATIC cellMap.");
 
@@ -200,6 +202,20 @@ namespace model {
 		~SpatialCell()
         {/*! Removes this from static SpatialCellObserver::cellMap
           */
+//            std::cout<<"Destroying SpatialCell "<<cellID.transpose()<<std::endl;
+
+            for (typename CellMapType::iterator cIter=neighborCells.begin();cIter!=neighborCells.end();++cIter)
+            {
+
+
+                if(cellID!=cIter->second->cellID)
+                {
+//                                    std::cout<<"Neighbor Cell is "<<cIter->second->cellID.transpose()<<std::endl;
+                    model_execAssert(cIter->second->neighborCells.erase(cellID),==1,"CANNOT ERASE SPATIALCELL FROM NEIGHBOR-CELLMAP.");
+                }
+            }
+            
+            
             model_execAssert(SpatialCellObserverType::cellMap.erase(cellID),==1,"CANNOT ERASE SPATIALCELL FROM CELLMAP.");
 		}
 		

@@ -7,7 +7,7 @@ startAtTimeStep = 0;
 ######################################
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
-dx=0;
+dx=1.0;
 # Time integration method:
 useImplicitTimeIntegration=0;
 
@@ -29,9 +29,9 @@ material=29;
 ######################################
 # CRYSTAL ORIENTATION
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
-C2G =  0.7071067811865475 -0.7071067811865475  0.0
-      0.4082482904638631  0.4082482904638631 -0.8164965809277261
-      0.5773502691896258  0.5773502691896258  0.5773502691896258;
+C2G =                     0   0.707106781186547  -0.707106781186547
+   0.577350269189626   0.577350269189626   0.577350269189626
+   0.816496580927726  -0.408248290463863  -0.408248290463863;
 
 ######################################
 # TEMPERATURE in [K]

@@ -27,6 +27,8 @@
 #include <model/ParticleInteraction/PointSource.h>
 #include <model/ParticleInteraction/FieldPoint.h>
 #include <model/ParticleInteraction/ParticleSystemBase.h>
+#include <model/SpaceDecomposition/SpatialCellObserver.h>
+
 
 //#include <model/Threads/ParallelFor.h> // alterative to openmp using std::thread
 
@@ -109,6 +111,74 @@ namespace model {
         }
         
         
+        /**********************************************************************/
+        template <typename OtherParticleType, typename FieldType>
+        void computeField(std::deque<OtherParticleType* const>& fpDeq)
+        {
+                        
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+            for (unsigned int k=0; k<fpDeq.size();++k)
+            {
+                
+//                SpatialCellObserver<_ParticleType,_ParticleType::dim> sco(fpDeq[k]->template asObserver<_ParticleType>());
+                typename SpatialCellType::CellMapType cellMap(fpDeq[k]->template neighborCells<_ParticleType>());
+
+                
+                //! -2 loop over neighbor cells of current particle
+                for (typename SpatialCellType::CellMapType::const_iterator cIter =cellMap.begin();
+                     /*                                                 */ cIter!=cellMap.end();
+                     /*                                               */ ++cIter)
+                {
+                    //! -3 loop over particles in the current neighbor cell
+                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
+                        /*                                                           */ qIter!=cIter->second->particleEnd();
+                        /*                                                         */ ++qIter)
+                    {
+                        fpDeq[k]->template field<FieldType>() += FieldType::compute(**qIter,*fpDeq[k]);
+                    }
+                }
+            }
+            
+        }
+        
+        
+        /**********************************************************************/
+        template <typename OtherParticleType, typename FieldType>
+        void computeField(std::deque<OtherParticleType>& fpDeq)
+        {
+            
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+            for (unsigned int k=0; k<fpDeq.size();++k)
+            {
+                
+                typename SpatialCellType::CellMapType cellMap(fpDeq[k].template neighborCells<_ParticleType>());
+                
+                
+                //! -2 loop over neighbor cells of current particle
+                for (typename SpatialCellType::CellMapType::const_iterator cIter =cellMap.begin();
+                     /*                                                 */ cIter!=cellMap.end();
+                     /*                                               */ ++cIter)
+                {
+                    //! -3 loop over particles in the current neighbor cell
+                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
+                        /*                                                           */ qIter!=cIter->second->particleEnd();
+                        /*                                                         */ ++qIter)
+                    {
+                        fpDeq[k].template field<FieldType>() += FieldType::compute(**qIter,fpDeq[k]);
+                    }
+                }
+            }
+            
+        }
+        
+        
+
+        
+        
 
         
  
@@ -133,6 +203,38 @@ namespace model {
     
 } // end namespace
 #endif
+                
+                
+                //        /**********************************************************************/
+                //        template <typename OtherParticleType, typename FieldType>
+                //        void computeField(std::deque<OtherParticleType>& fpDeq)
+                //        {
+                //
+                //#ifdef _OPENMP
+                //#pragma omp parallel for
+                //#endif
+                //            for (unsigned int k=0; k<fpDeq.size();++k)
+                //            {
+                //
+                //                SpatialCellObserver<_ParticleType,_ParticleType::dim> sco(fpDeq[k].template asObserver<_ParticleType>());
+                //
+                //
+                //                //! -2 loop over neighbor cells of current particle
+                //                for (typename SpatialCellType::CellMapType::const_iterator cIter =sco.neighborCellsBegin();
+                //                     /*                                                 */ cIter!=sco.neighborCellsEnd();
+                //                     /*                                               */ ++cIter)
+                //                {
+                //                    //! -3 loop over particles in the current neighbor cell
+                //                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
+                //                        /*                                                           */ qIter!=cIter->second->particleEnd();
+                //                        /*                                                         */ ++qIter)
+                //                    {
+                //                        fpDeq[k].template field<FieldType>() += FieldType::compute(**qIter,fpDeq[k]);
+                //                    }
+                //                }
+                //            }
+                //            
+                //        }
                 
                 
                 //        /**********************************************************************/

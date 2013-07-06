@@ -88,7 +88,7 @@ namespace model {
         VectorDimD force() const
         {/*! The charge of this ChargedParticle
           */
-            return q*this->template getField<Efield>();
+            return q*this->template field<Efield>();
         }
         
         /*****************************************/
