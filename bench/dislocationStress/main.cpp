@@ -42,8 +42,7 @@ int main(int argc, char * argv[])
     DislocationNetworkType DN(argc,argv);
 
     // The (unitary) Burgers vector of the dislocation. Length units are in b.
-    Eigen::Matrix<double,3,1> b;
-    b<<1.0,0.0,0.0;
+    Eigen::Matrix<double,3,1> b(1.0,0.0,0.0);
 
     // Generate straight dislocation along z, centered at origin
     const double Lz=200.0;  // dislocation extends along x3 from -Lz to Lz
@@ -94,12 +93,10 @@ int main(int argc, char * argv[])
         /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(1)
         /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(2)<<"\n";
         
-        
         Eigen::Matrix<double,3,3> temp(stressStraightEdge(fieldPoints[k].P));
         analyticalFile << fieldPoints[k].P.transpose()<<" "<<temp.row(0)
-        /*                                        */ <<" "<<temp.row(1)
-        /*                                        */ <<" "<<temp.row(2)<<"\n";
-
+        /*                                         */ <<" "<<temp.row(1)
+        /*                                         */ <<" "<<temp.row(2)<<"\n";
     }
     
     

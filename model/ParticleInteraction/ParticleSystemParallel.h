@@ -78,28 +78,28 @@ namespace model {
         }
         
         
-        /**********************************************************************/
-        template <typename T>
-        void partionSystem(LPTpartitioner<T>& partitioner)
-        {/*! @param[in] useCellPartitioner Flag that determines whether the
-          *  ParticleSystem is partitioned by particles or by cells.
-          *
-          *  Partitions particles among processors.
-          */
-            
-            
-            // Clear and call the LPT partitioner
-            partitioner.clear();
-            
-            for (typename ParticleContainerType::iterator pIter =this->begin();
-                 /*                                    */ pIter!=this->end();
-                 /*                                  */ ++pIter)
-            {
-                partitioner.insert(pIter->pCell->n2Weight(),&*pIter);
-            }
-            
-            partitioner.partition(this->mpiProcs());
-        }
+//        /**********************************************************************/
+//        template <typename T>
+//        void partionSystem(LPTpartitioner<T>& partitioner)
+//        {/*! @param[in] useCellPartitioner Flag that determines whether the
+//          *  ParticleSystem is partitioned by particles or by cells.
+//          *
+//          *  Partitions particles among processors.
+//          */
+//            
+//            
+//            // Clear and call the LPT partitioner
+//            partitioner.clear();
+//            
+//            for (typename ParticleContainerType::iterator pIter =this->begin();
+//                 /*                                    */ pIter!=this->end();
+//                 /*                                  */ ++pIter)
+//            {
+//                partitioner.insert(pIter->pCell->n2Weight(),&*pIter);
+//            }
+//            
+//            partitioner.partition(this->mpiProcs());
+//        }
         
         /**********************************************************************/
         template <typename FieldType>
@@ -113,7 +113,16 @@ namespace model {
             //            LPTpartitioner<ParticleType> lpt;
             typedef LPTpartitioner<ParticleType> PartitionerType;
             PartitionerType lpt;
+//            partionSystem(lpt);
+
+            for (typename ParticleContainerType::iterator pIter =this->begin();
+                 /*                                    */ pIter!=this->end();
+                 /*                                  */ ++pIter)
+            {
+                lpt.insert(pIter->pCell->n2Weight(),&*pIter);
+            }
             
+            lpt.partition(this->mpiProcs());
             
             
 //            if (!lpt.partitionIsValid)
@@ -123,7 +132,7 @@ namespace model {
 //            model_removeAssert(lpt.partitionIsValid && "PARTITION IS NOT VALID");
             
             
-            partionSystem(lpt);
+//            partionSystem(lpt);
 
             
             
@@ -191,23 +200,114 @@ namespace model {
             return nInteractions;
         }
         
-        /**********************************************************************/
-        template <typename FieldType>
-        typename FieldType::ResultType getInteractionResult(const int& pID)
-        {
-            return FieldType::getResult(*(this->find(pID)->second));
-        }
         
         /**********************************************************************/
-        template <typename FieldType>
-        void resetInteraction()
-        {/*! Compute full particle interaction according to FieldType
+        template <typename OtherParticleType, typename FieldType>
+        size_t computeField(std::deque<OtherParticleType>& fpDeq)
+        {/*! Compute nearest-neighbor particle interaction according to FieldType
+          *\returns the number of interactions computed
           */
-            for (typename ParticleContainerType::iterator iterJ=this->begin();iterJ!=this->end();++iterJ) // FOR SYMMETRIC INTERACTION iterJ STARTS AT iterI
+            
+            
+            
+            //            LPTpartitioner<ParticleType> lpt;
+            typedef LPTpartitioner<OtherParticleType> PartitionerType;
+            PartitionerType lpt;
+            //            partionSystem(lpt);
+            
+            for (typename std::deque<OtherParticleType>::iterator pIter =fpDeq.begin();
+                 /*                                    */ pIter!=fpDeq.end();
+                 /*                                  */ ++pIter)
             {
-                FieldType::reset(*iterJ->second);  // the constructor of FieldType actually computes the binary interaction between *iterI and *iterJ
+                typename SpatialCellType::CellMapType cellMap(pIter->template neighborCells<_ParticleType>());
+                double weight(0.0);
+                for (typename SpatialCellType::CellMapType::const_iterator cIter=cellMap.begin();cIter!=cellMap.end();++cIter)
+                {
+                    weight += cIter->second->size();
+                }
+
+                lpt.insert(weight,&*pIter);
             }
+            
+            lpt.partition(this->mpiProcs());
+            
+            
+            
+            // Resize FieldPointBase<OtherParticleType,FieldType>::resultVector
+            FieldPointBase<OtherParticleType,FieldType>::resize(fpDeq.size(),0.0);
+            
+            // Assign mpiID
+            size_t binOffset(0);
+            for (size_t b=0;b<lpt.bins();++b)
+            {
+                const size_t binSize(lpt.bin(b).size());
+                for (size_t p=0;p<binSize;++p)
+                {
+                    lpt.bin(b)[p]->set_mpiID(binOffset+p);
+                }
+                binOffset+=binSize;
+            }
+            
+            
+            
+            
+            
+            //#ifdef _OPENMP
+            //#pragma omp parallel for
+            //#endif
+            // loop over field particles in the neighbor cell
+            size_t nInteractions(0);
+            for (typename PartitionerType::BaseDequeType::const_iterator fIter=lpt.bin(this->mpiRank()).begin();
+                 /*                                                  */ fIter!=lpt.bin(this->mpiRank()).end();
+                 /*                                                */ ++fIter)
+            {
+                
+                static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(*fIter) -> setZero();
+                
+                typename SpatialCellType::CellMapType cellMap((*fIter)->template neighborCells<_ParticleType>());
+
+                
+                // loop over neighbor cells of the current particle
+                for (typename SpatialCellType::CellMapType::const_iterator cIter =cellMap.begin();
+                     /*                                                 */ cIter!=cellMap.end();
+                     /*                                               */ ++cIter)
+                {
+                    // loop over source particles in the neighbor cell
+                    for(typename SpatialCellType::ParticleContainerType::const_iterator sIter=cIter->second->particleBegin();sIter!=cIter->second->particleEnd();++sIter) // loop over neighbor particles
+                    {
+                        //                        FieldType(**fIter,**sIter);  // the constructor of FieldType actually computes the binary interaction between *iterI and *iterJ
+//                        *static_cast<FieldPointBase<ParticleType,FieldType>* const>(*fIter) += FieldType::compute(**sIter,**fIter);
+                        (*fIter)->template field<FieldType>() += FieldType::compute(**sIter,**fIter);
+
+                        ++nInteractions;
+                    }
+                }
+            }
+            
+            
+            
+            
+            std::vector<int> interactionSizeVector(this->mpiProcs());
+            std::vector<int> interactionRankOffsetVector(this->mpiProcs());
+            
+            size_t dofOffset(0);
+            for (int k=0;k<this->mpiProcs();++k)
+            {
+                // Store the number
+                interactionSizeVector[k]=lpt.bin(k).size()*FieldPointBase<OtherParticleType,FieldType>::DataPerParticle;
+                interactionRankOffsetVector[k]=dofOffset;
+                dofOffset+=lpt.bin(k).size()*FieldPointBase<OtherParticleType,FieldType>::DataPerParticle;
+            }
+            
+            //! Syncronize FieldType::resultVector among processors
+            MPI_Allgatherv(MPI_IN_PLACE,0,MPI_DATATYPE_NULL,
+                           &FieldPointBase<OtherParticleType,FieldType>::resultVector[0],&interactionSizeVector[0],&interactionRankOffsetVector[0],MPI_DOUBLE,MPI_COMM_WORLD);
+            
+            
+            
+            return nInteractions;
         }
+        
         
         /**********************************************************************/
         template <class T>
@@ -230,6 +330,26 @@ namespace model {
 } // end namespace
 #endif
 
+                    
+                    //        /**********************************************************************/
+                    //        template <typename FieldType>
+                    //        typename FieldType::ResultType getInteractionResult(const int& pID)
+                    //        {
+                    //            return FieldType::getResult(*(this->find(pID)->second));
+                    //        }
+                    //
+                    //        /**********************************************************************/
+                    //        template <typename FieldType>
+                    //        void resetInteraction()
+                    //        {/*! Compute full particle interaction according to FieldType
+                    //          */
+                    //            for (typename ParticleContainerType::iterator iterJ=this->begin();iterJ!=this->end();++iterJ) // FOR SYMMETRIC INTERACTION iterJ STARTS AT iterI
+                    //            {
+                    //                FieldType::reset(*iterJ->second);  // the constructor of FieldType actually computes the binary interaction between *iterI and *iterJ
+                    //            }
+                    //        }
+
+                    
 
 /**********************************************************************/
 //        void partionByCells()
