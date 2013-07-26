@@ -71,7 +71,7 @@ After the node has been obtained, you can run DDomp as:
 \endverbatim
 
 ###########################
-\subsection hoffma2_dd_interactive_DDmpi DDmpi
+\subsection hoffma2_dd_interactive_DDmpi DDmpi (OUTDATED, NOW THE MIXED MODE MPI-OMP IS AVAILABLE)
 If you compiled DDmpi, <a href="http://www.open-mpi.org">Open-MPI</a> is used to speed up the most computationally-intensive loops. Therefore, you can request processors belonging to different nodes using the "-pe dc_* N" directive, where N is the number of nodes. For example:
 \verbatim
 qrsh -l h_data=4g,h_rt=4:00:00 -pe dc_* 96

@@ -289,7 +289,7 @@ std::pair<bool,size_t> isCommonNeighborAt(const VectorDim& P0) const {
 
 
 /* closestPoint *****************************************************/
-std::pair<double,VectorDim> closestPoint(const VectorDim& P0) const
+std::map<double,std::pair<double,VectorDim> > closestPoint(const VectorDim& P0) const
 {
         
     // solve (P-P0)*dP/du=0
@@ -335,6 +335,6 @@ std::pair<double,VectorDim> closestPoint(const VectorDim& P0) const
         
     }
     
-    return rootMap.begin()->second;
+    return rootMap;
     
 }

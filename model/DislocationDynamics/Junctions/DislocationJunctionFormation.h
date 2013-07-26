@@ -452,62 +452,73 @@ namespace model {
                                 
                                 if (nodeIter->first != linkIter->first.first && nodeIter->first != linkIter->first.second)
                                 {
-                                    std::pair<double,VectorDimD> closestPoint( linkIter->second->closestPoint(nodeIter->second->get_P() ) );
+                                    std::map<double,std::pair<double,VectorDimD> > rootMap( linkIter->second->closestPoint(nodeIter->second->get_P() ) );
                                     
-                                    if ((closestPoint.second-nodeIter->second->get_P()).norm()<dx)
+                                    if (rootMap.size())
                                     {
+                                    
+                                        const double d(rootMap.begin()->first);
+                                        const double u(rootMap.begin()->second.first);
                                         
-                                        const bool frankRule(B.dot(linkIter->second->flow)*T.dot(linkIter->second->get_ru(closestPoint.first))<=0.0);
-
-                                        if (frankRule)
+                                        if (d<dx)
                                         {
-                                        
-//                                            vertexEdgeIntersectionContainer.insert(std::make_pair(nodeIter->second->sID,std::make_pair(,)));
-
-                                        
-                                    const VectorDimD N1(vertexPN[0]);
-                                    const VectorDimD N2(linkIter->second->glidePlaneNormal);
-                                    const VectorDimD P1(nodeIter->second->get_P());
-                                    const VectorDimD P2(linkIter->second->source->get_P());
-
-                                    const int ppt(PlanePlaneIntersection<dim>::planePlaneType(N1,N2,P1,P2));
-
-
-                                    switch (ppt)
-                                    {
-                                        case 0: // paralle planes
-                                            // do nothing, no intersection possile
-                                            break;
-
-                                        case 1: // coincident planes
-                                        {
-
-                                            break;
-                                        }
-
-                                        default: // incident planes
-                                        {
-                                            const double denom(1.0-std::pow(N1.dot(N2),2));
-                                            if(std::fabs(denom)>FLT_EPSILON)
+                                            
+                                            const bool frankRule(B.dot(linkIter->second->flow)*T.dot(linkIter->second->get_ru(u))<=0.0);
+                                            
+                                            if (frankRule)
                                             {
-                                                const double numer((P2-P1).dot(N2));
-                                                const double u(numer/denom);
-                                                const VectorDimD dP=(N2-N2.dot(N1)*N1)*u;
-                                                if (dP.norm()<dx)
+                                                
+                                                //                                            vertexEdgeIntersectionContainer.insert(std::make_pair(nodeIter->second->sID,std::make_pair(,)));
+                                                
+                                                
+                                                const VectorDimD N1(vertexPN[0]);
+                                                const VectorDimD N2(linkIter->second->glidePlaneNormal);
+                                                const VectorDimD P1(nodeIter->second->get_P());
+                                                const VectorDimD P2(linkIter->second->source->get_P());
+                                                
+                                                const int ppt(PlanePlaneIntersection<dim>::planePlaneType(N1,N2,P1,P2));
+                                                
+                                                
+                                                switch (ppt)
                                                 {
-                                                    const VectorDimD linePoint = P1+dP;
-                                                    
-                                                    std::cout<<"formVertexEdgeJunctions: vertex "<<nodeIter->second->sID <<
-                                                    ", link "<<linkIter->second->source->sID<<"->"<<linkIter->second->sink->sID<<" @ "<<closestPoint.first <<std::endl;
+                                                    case 0: // paralle planes
+                                                        // do nothing, no intersection possile
+                                                        break;
+                                                        
+                                                    case 1: // coincident planes
+                                                    {
+                                                        
+                                                        break;
+                                                    }
+                                                        
+                                                    default: // incident planes
+                                                    {
+                                                        const double denom(1.0-std::pow(N1.dot(N2),2));
+                                                        if(std::fabs(denom)>FLT_EPSILON)
+                                                        {
+                                                            const double numer((P2-P1).dot(N2));
+                                                            const double u(numer/denom);
+                                                            const VectorDimD dP=(N2-N2.dot(N1)*N1)*u;
+                                                            if (dP.norm()<dx)
+                                                            {
+                                                                const VectorDimD linePoint = P1+dP;
+                                                                
+                                                                std::cout<<"formVertexEdgeJunctions: vertex "<<nodeIter->second->sID <<
+                                                                ", link "<<linkIter->second->source->sID<<"->"<<linkIter->second->sink->sID<<" @ "<< u <<std::endl;
+                                                            }
+                                                        }
+                                                        break;
+                                                    }
+                                                        
                                                 }
                                             }
-                                            break;
+                                            
                                         }
-
+                                    
                                     }
-                                        }
-                                        
-                                    }
+                                    
+                                    
+                                    
                                 }
                             }
                         }
