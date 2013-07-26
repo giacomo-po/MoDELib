@@ -112,36 +112,29 @@ namespace model {
         size_t computeNeighborField()
         {/*! Compute nearest-neighbor particle interaction according to FieldType
           *\returns the number of interactions computed
+          *
+          * This member function performs the following operations:
           */
-            
-            
-            
-            //            LPTpartitioner<ParticleType> lpt;
+                        
+            //! -1 Partitioning:
+            //! -1.1 creates a LPTpartitioner
             typedef LPTpartitioner<ParticleType> PartitionerType;
             PartitionerType lpt;
-            //            partionSystem(lpt);
-            
+
+            //! -1.2 populate the LPTpartitioner using the particles stored in *this
             for (typename ParticleContainerType::iterator pIter =this->begin();
                  /*                                    */ pIter!=this->end();
                  /*                                  */ ++pIter)
             {
-                lpt.insert(pIter->pCell->n2Weight(),&*pIter);
+                //lpt.insert(pIter->pCell->n2Weight(),&*pIter);
+                lpt.insert(pIter->pCell->neighborSize(),&*pIter);
             }
-            
+            //! -1.3 partition particles among MPI processes
             lpt.partition(this->mpiProcs());
             
             
-            //            if (!lpt.partitionIsValid)
-            //            {
-            //                partionSystem(lpt);
-            //            }
-            //            model_removeAssert(lpt.partitionIsValid && "PARTITION IS NOT VALID");
             
-            
-            //            partionSystem(lpt);
-            
-            
-            
+                
             // Resize FieldPointBase<ParticleType,FieldType>::resultVector
             FieldPointBase<ParticleType,FieldType>::resize(this->size(),0.0);
             
@@ -204,6 +197,7 @@ namespace model {
                 }
             }
             
+            //! 4- syncronize FieldType::resultVector among processors
             std::vector<int> interactionSizeVector(this->mpiProcs());
             std::vector<int> interactionRankOffsetVector(this->mpiProcs());
             
@@ -216,7 +210,6 @@ namespace model {
                 dofOffset+=lpt.bin(k).size()*FieldPointBase<ParticleType,FieldType>::DataPerParticle;
             }
             
-            //! Syncronize FieldType::resultVector among processors
             MPI_Allgatherv(MPI_IN_PLACE,0,MPI_DATATYPE_NULL,
                            &FieldPointBase<ParticleType,FieldType>::resultVector[0],
                            &interactionSizeVector[0],&interactionRankOffsetVector[0],

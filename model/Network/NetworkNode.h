@@ -17,10 +17,7 @@
 #include <limits.h>
 
 #include <boost/ptr_container/ptr_map.hpp>
-//#include <boost/tuple/tuple.hpp>
 #include <tuple> // std::tuple replaces boost::tuple in c++11
-//#include <boost/shared_ptr.hpp>
-//#include <boost/utility.hpp>
 #include <memory> // std::shared_ptr
 
 #include <model/Network/NetworkComponent.h>
@@ -56,7 +53,8 @@ namespace model {
    	protected:
         
         /**********************************************************************/
-		void resetPSN(){
+		void resetPSN()
+        {
 			//! 1- Removes this from the current NetworkComponent
 			this->psn->remove(this->p_derived());
 			//! 2- Creates a new NetworkComponent containing this
@@ -73,8 +71,14 @@ namespace model {
         
         /**********************************************************************/
         void formNetworkComponent(const std::shared_ptr<NetworkComponentType> & psnOther)
-        {
-			if (psn!=psnOther){
+        {/*!@param[in] psnOther a shared_ptr to another NetworkComponent
+          *
+          * If the shared_ptr to the NetworkComponent of *this is different from
+          * psnOther, the former is reset (this may destroy the NetworkComponent)
+          * and reassigned to psnOther.
+          */
+			if (psn!=psnOther)
+            {
 				psn->remove(this->p_derived());
 				psn=psnOther;		// redirect psn to the new NetworkComponent
 				psn->add(this->p_derived());	// add this in the new NetworkComponent
@@ -82,68 +86,32 @@ namespace model {
 		}
         
 		/* addToNeighborhood **************************************************/
-		void addToNeighborhood(LinkType* const pL){
-			
-            //			Derived* pN=NULL;
-            //			size_t key=0;
-            //			short int dir;
-			
+		void addToNeighborhood(LinkType* const pL)
+        {/*!@param[in] pL a pointer to a LinkType edge
+          */
+						
 			if (pL->source==this->p_derived())
             {// this vertex is the source of edge *pL
-                
-                //				pN=pL->sink;
-                //				key=pN->sID;
-
-//                Derived* const pN(pL->sink);
-//                const size_t key(pN->sID);
-//				const short int dir(1);
-//				assert(OutNeighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN OUT_NEIGHBORHOOD");
-//                assert(Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN NEIGHBORHOOD.");
-
                 const NeighborType temp(pL->sink,pL,1);
 				assert(OutNeighborhood.insert( std::make_pair(pL->sink->sID,temp) ).second && "CANNOT INSERT IN OUT_NEIGHBORHOOD");
                 assert(   Neighborhood.insert( std::make_pair(pL->sink->sID,temp) ).second && "CANNOT INSERT IN NEIGHBORHOOD.");
-
-             
-
-                
 			}
 			else if (pL->sink==this->p_derived())
             {// this vertex is the sink of edge *pL
-                
-                //				pN=pL->source;
-                //				key=pN->sID;
-                //				dir=-1;
-                
-//                Derived* const pN(pL->source);
-//                const size_t key(pN->sID);
-//                const short int dir(-1);
-//				assert(InNeighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN IN_NEIGHBORHOOD");
-//                assert(Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN NEIGHBORHOOD.");
-
-                
                 const NeighborType temp(pL->source,pL,-1);
-
 				assert(InNeighborhood.insert( std::make_pair(pL->source->sID,temp) ).second && "CANNOT INSERT IN IN_NEIGHBORHOOD");
                 assert(  Neighborhood.insert( std::make_pair(pL->source->sID,temp) ).second && "CANNOT INSERT IN NEIGHBORHOOD.");
-
-                
 			}
             else
             {
-                //                Derived* const pN(NULL);
-                //                const size_t key(0);
-                
                 assert(0 && "CANNOT INSERT NON-INCIDENT EDGE");
-                
-                //                assert(Neighborhood.insert(std::make_pair(key, std::make_tuple(pN,pL,dir) )).second && "CANNOT INSERT IN NEIGHBORHOOD.");
             }
-			
 			
 		}
 		
 		/* removeFromNeighborhood *********************************************/
-		void removeFromNeighborhood(LinkType* const pL){
+		void removeFromNeighborhood(LinkType* const pL)
+        {
 			
 			Derived* pN=NULL;
 			size_t key=0;
@@ -252,12 +220,14 @@ namespace model {
         
 		/*****************************************************************************************/
 		/* depthFirstSearch **********************************************************************/
-		bool depthFirstSearch (const size_t& ID, const size_t& N = ULONG_MAX) const {
+		bool depthFirstSearch (const size_t& ID, const size_t& N = ULONG_MAX) const
+        {
 			std::set<size_t> searchedNodes;
 			return depthFirstSearch(searchedNodes,ID,N);
 		}
 		
-		bool depthFirstSearch (std::set<size_t>& searchedNodes, const size_t& ID, const size_t& N = ULONG_MAX) const{
+		bool depthFirstSearch (std::set<size_t>& searchedNodes, const size_t& ID, const size_t& N = ULONG_MAX) const
+        {
 			bool reached(this->sID==ID);
 			if (N!=0 && !reached){
 				assert(searchedNodes.insert(this->sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
@@ -276,7 +246,8 @@ namespace model {
 		/*****************************************************************************************/
 		/* depthFirstExecute *********************************************************************/
 		template <typename T>
-		void depthFirstExecute(void (Derived::*Nfptr)(const T&),void (LinkType::*Lfptr)(const T&), const T & input, const size_t& N = ULONG_MAX){
+		void depthFirstExecute(void (Derived::*Nfptr)(const T&),void (LinkType::*Lfptr)(const T&), const T & input, const size_t& N = ULONG_MAX)
+        {
 			std::set<size_t> searchedNodes;
 			std::set<std::pair<size_t,size_t> > searchedLinks;
 			depthFirstExecute(searchedNodes,searchedLinks,Nfptr,Lfptr,input, N);
