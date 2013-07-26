@@ -190,6 +190,13 @@ namespace model {
            */
 			MatrixDimNdof temp(SFgaussEx(k));
             //			return temp.transpose()*pkGauss.col(k)*jgauss(k);
+//			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
+
+ //                       double screwFactor=(10.0*(1.0-std::pow(Burgers.dot(rlgauss.col(k)),2))+1.0);
+            
+ //           std::cout<<screwFactor<<std::endl;
+            
+
 			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
 			
 		}
@@ -260,7 +267,7 @@ namespace model {
             
 			assert(this->flow.squaredNorm()>0.0);
 			pGlidePlane->addToGLidePlane(this);
-            pkGauss.setZero(); // necessary if this is not assembled
+            pkGauss.setZero(); // necessary if this is not assembled            
 		}
 		
 		/* Destructor *********************************************************/
@@ -278,7 +285,6 @@ namespace model {
 			//! Removes this from *pGlidePlane
 			pGlidePlane->removeFromGlidePlane(this);
             //            quadratureParticleContainer.clear();
-            
 		}
 		
 		/* updateQuadGeometryKernel *******************************************/
@@ -648,7 +654,7 @@ namespace model {
 		/**********************************************************************/
 		Eigen::Matrix<double,dim-1,Ncoeff> polynomialLocalCoeff() const //change name polynomialCoeff
         {
-			return Coeff2Hermite<pOrder>::h2c<dim-1>(hermiteLocalCoefficient());
+			return Coeff2Hermite<pOrder>::template h2c<dim-1>(hermiteLocalCoefficient());
 		}
 		
 		/**********************************************************************/

@@ -1,13 +1,13 @@
 namespace model {
 /*! \page hoffman2 DD on the Hoffman2 cluster
 
-<a href="https://idre.ucla.edu/hoffman2">Hoffman2</a> is the high-performance computer cluster at UCLA
+<a href="https://idre.ucla.edu/hoffman2">Hoffman2</a> is the high-performance computer cluster at
 <a href="http://www.ucla.edu">UCLA</a>. If you are using MODEL-DD on Hoffman2, this page may contain useful information about the use of MODEL.
 
 ###########################################################
 \section hoffman2_login Login and Setup
 \verbatim
-ssh <username>@hoffman2.idre.ucla.edu
+ssh username@hoffman2.idre.ucla.edu
 \endverbatim
 
 First request a c++11-capable compiler:
@@ -16,19 +16,25 @@ module load gcc/4.7.2
 \endverbatim
 Then, if you are building or running the MPI version of the code you also need to load the MPI library built with gcc/4.7.2:
 \verbatim
-module openmpi
+module load openmpi
+\endverbatim
+
+Alternatively, you can add the following lines to your .bashrc file
+\verbatim
+module load gcc/4.7.2 > /dev/null 2>&1 
+module load openmpi > /dev/null 2>&1 
 \endverbatim
 
 ###########################################################
 \section hoffma2_dd_compile Compiling
 Compile DDomp with
 \verbatim
-make serial
+make DDomp
 \endverbatim
 
 Compile DDmpi with
 \verbatim
-make parallel
+make DDmpi
 \endverbatim
 
 See also the instructions in the tutorial \ref FRsource_makefile.
@@ -51,6 +57,7 @@ The maximum wait time for members of resource groups is 24h.
 
 If you issue one of the previous commands, however, you still ha have one (1) processors to work with. In order to request more than one processor, we need the "-pe" (parallel environment) directive. The way you use the "-pe" directive depends on the version of the DD code that we run, as explained below.
 
+###########################
 \subsection hoffma2_dd_interactive_DDomp DDomp
 If you compiled DDomp, <a href="http://openmp.org">OpenMP</a> is used to speed up the most computationally-intensive loops. Therefore, in order to achieve optimum performance, DDomp must be run on a shared-memory machine with the largest possible number of cores. In order to obtain one such machine with the qrsh command, you can use the directive "-pe shared N", where "N" is the requested number of cores. For example:
 \verbatim
@@ -63,6 +70,7 @@ After the node has been obtained, you can run DDomp as:
 ./DDomp
 \endverbatim
 
+###########################
 \subsection hoffma2_dd_interactive_DDmpi DDmpi
 If you compiled DDmpi, <a href="http://www.open-mpi.org">Open-MPI</a> is used to speed up the most computationally-intensive loops. Therefore, you can request processors belonging to different nodes using the "-pe dc_* N" directive, where N is the number of nodes. For example:
 \verbatim
@@ -74,7 +82,7 @@ qrsh -l h_data=4g,h_rt=48:00:00,highp -now n -pe dc_* 96
 \endverbatim
 request 96 processors of your resource group.
 
-After the processors have been obtained, you can run DDmpi using the "mpirun" command. However, in order to make sure that the correct version of mpirun is used, it is recommended to specify the full path using the environmental variable $MPI_BIN:
+After the processors have been obtained, you can run DDmpi using the "mpirun" command. However, in order to make sure that the correct version of "mpirun" is used, it is recommended to specify its full path using the environmental variable $MPI_BIN:
 \verbatim
 $MPI_BIN/mpirun -np N DDmpi
 \endverbatim
@@ -83,9 +91,10 @@ where "N" is the number of requested processors.
 ###########################################################
 \section hoffma2_dd_batch Running in batch mode
 
-
+###########################
 \subsection hoffma2_dd_batch_DDomp DDomp
 
+TO BE COMPLETED
 \verbatim
 openmp.q
 \endverbatim
@@ -99,13 +108,34 @@ Edit the file DDomp.cmd
 
 add the line "module load gcc/4.7.2"
 
-
+###########################
 \subsection hoffma2_dd_batch_DDmpi DDmpi
 
-Call
+A dedicated script has been created to run DDmpi on the Hoffman2 cluster in batch mode. The script, named submit_DDmpi.sh, is listed at the bottom of this page. 
+
+Before using the script, the following should be edited
+- h_rt=HHH:MM:SS (the time requested for the run)
+- if only resource nodes are to be used, append the "highp" directive to the "-l" list
+
+Once the above options have been selected, use the script as follows: 
 \verbatim
-parallel.q
+qsub -pe node* 10 submit_DDmpi.sh
 \endverbatim
+where, in this example, 10 is the number of requested nodes. Notice that by using "-pe node* 10" you are requesting 10 nodes on the cluster, each of them containing multiple cores. DDmpi will then create 10 mpi processes, each of them using openmp internally to fully take advantage of multithreading.
+
+The job should now be visible using 
+\verbatim
+myjob
+\endverbatim
+
+The job can be deleted using 
+\verbatim
+qdel <jobID>
+\endverbatim
+
+
+Following is the submit_DDmpi.sh script (thanks Raffaella D'Auria): 
+\include ./submit_DDmpi.sh
 
 
 */

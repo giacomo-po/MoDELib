@@ -411,7 +411,7 @@ namespace model {
                                 for(int k=1;k<otherPolyDegree+1;++k){
                                     Ps+=otherCoeffs.col(k)*std::pow(s,k);
                                 }
-                                if((Pt-Ps).norm()<physTol){
+                                if((Pt-Ps).norm()<physTol){ // TO DO: COMPARE THE squaredNorm to avoid computing the root
                                     intersectionParameters.insert(std::make_pair(t,s));
                                 }
                                 //intersectionParameters.insert(std::make_pair(t,s));                                

@@ -153,7 +153,8 @@ namespace model {
 			
 			
 			
-			if((0.5*(P0+P1)-0.5*(P2+P3)).norm()<0.75*(chord1.norm()+chord2.norm())){
+			if((0.5*(P0+P1)-0.5*(P2+P3)).norm()<0.75*(chord1.norm()+chord2.norm()))
+            {
 				
 				
 				
@@ -169,7 +170,7 @@ namespace model {
 				switch (planesType) {
 					case 1:{ // coplanar planes
 						
-       //                 											std::cout<<"Coplanar case ";
+//                        											std::cout<<"Coplanar case ";
 						const Eigen::Matrix<double,dim,dim> R1(DislocationLocalReference<dim>::global2local(chord1,n1));
 						
 						Eigen::Matrix<double,dim-1,polyCoeff> H1L;
@@ -194,7 +195,7 @@ namespace model {
 						
 					case 2:{ // incident planes
 						
-      //                  						std::cout<<"Incident case ";
+ //                       						std::cout<<"Incident case ";
                         
 						
 						std::set<std::pair<double,double> > lineIntersectionParameters1;
@@ -227,8 +228,6 @@ namespace model {
 							Eigen::Matrix<double,dim,1> P5=Pmean-(chord1.norm()+chord2.norm())*lineDir;
 							
 							
-							//						std::cout<<"P4 = "<<P4.transpose()<<std::endl;
-							//						std::cout<<"P5 = "<<P5.transpose()<<std::endl;
 							
 							const Eigen::Matrix<double,dim,dim> R1(DislocationLocalReference<dim>::global2local(P5-P4,n1));
 							const Eigen::Matrix<double,dim,dim> R2(DislocationLocalReference<dim>::global2local(P5-P4,n2));
@@ -245,20 +244,14 @@ namespace model {
 							H2L.col(0)=(R1*(P4-P4)).segment<dim-1>(0);
 							H2L.col(1)=(R1*(P5-P4)).segment<dim-1>(0);
 							
-							//						std::cout<<"H1L="<<std::endl;
-							//						std::cout<<H1L<<std::endl;
-							//						std::cout<<"H2L="<<std::endl;
-							//						std::cout<<H2L<<std::endl;
+//                            std::cout<<std::setprecision(15)<<std::scientific<<Coeff2Hermite<polyDegree>::h2c<dim-1>(H1L)<<std::endl;
+//                            std::cout<<std::setprecision(15)<<std::scientific<<Coeff2Hermite<1>::h2c<dim-1>(H2L)<<std::endl;
 							
 							PlanarSplineImplicitization<polyDegree> sli1(Coeff2Hermite<polyDegree>::h2c<dim-1>(H1L)); 
 //							lineIntersectionParameters1=sli1.intersectWith<1>(Coeff2Hermite<1>::h2c<dim-1>(H2L),physTol);
                             PlanarSplineImplicitization<polyDegree>::physTol=physTol;
 							lineIntersectionParameters1=sli1.intersectWith<1>(Coeff2Hermite<1>::h2c<dim-1>(H2L));
 							
-                            //													std::cout<<"intersections of spline 1 and line are:"<<std::endl;
-                            //													for (std::set<std::pair<double,double> >::const_iterator iter1=lineIntersectionParameters1.begin();iter1!=lineIntersectionParameters1.end();++iter1){
-                            //														std::cout<<iter1->first<<" "<<iter1->second<<std::endl;
-                            //													}
 							
 							
 							
@@ -270,16 +263,16 @@ namespace model {
 							
 							H2L.col(0)=(R2*(P4-P4)).segment<dim-1>(0);
 							H2L.col(1)=(R2*(P5-P4)).segment<dim-1>(0);
+                            
+//                            std::cout<<std::setprecision(15)<<std::scientific<<Coeff2Hermite<polyDegree>::h2c<dim-1>(H3L)<<std::endl;
+//                            std::cout<<std::setprecision(15)<<std::scientific<<Coeff2Hermite<1>::h2c<dim-1>(H2L)<<std::endl;
+
 							
-							PlanarSplineImplicitization<polyDegree> sli2(Coeff2Hermite<polyDegree>::h2c<dim-1>(H3L)); 
+							PlanarSplineImplicitization<polyDegree> sli2(Coeff2Hermite<polyDegree>::h2c<dim-1>(H3L));
 //							lineIntersectionParameters2=sli2.intersectWith<1>(Coeff2Hermite<1>::h2c<dim-1>(H2L),physTol);
                             PlanarSplineImplicitization<polyDegree>::physTol=physTol;
 							lineIntersectionParameters2=sli2.intersectWith<1>(Coeff2Hermite<1>::h2c<dim-1>(H2L));
 							
-                            //												std::cout<<"intersections of spline 2 and line are:"<<std::endl;
-                            //													for (std::set<std::pair<double,double> >::const_iterator iter1=lineIntersectionParameters2.begin();iter1!=lineIntersectionParameters2.end();++iter1){
-                            //														std::cout<<iter1->first<<" "<<iter1->second<<std::endl;
-                            //													}
 							
 							
 							// du = dl / j = dl/L for a line

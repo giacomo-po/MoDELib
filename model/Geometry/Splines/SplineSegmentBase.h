@@ -24,6 +24,7 @@
 #include <model/Geometry/Splines/Coeff2Hermite.h>
 #include <model/Network/Operations/EdgeFinder.h>
 #include <Eigen/Sparse>
+#include <model/Math/MatrixCompanion.h>
 
 namespace model {
 	

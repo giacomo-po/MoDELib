@@ -296,8 +296,10 @@ namespace model {
                     //                        DN.shared.domain.findIncludingTet(SD,Lij.second->source->meshID());
                     //                        expandPointInsideMesh*=(SD.nodeMeshLocation==insideMesh);
                     //                    }
-                    if(pointIsInsideMesh(expandPoint,Lij.second->source->meshID())){
-                        DN.expand(i,j,expandPoint);	
+                    if(pointIsInsideMesh(expandPoint,Lij.second->source->meshID()))
+                    {
+                        //std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
+                        DN.expand(i,j,expandPoint);
                         Nexpanded++;	
                     }
 				}

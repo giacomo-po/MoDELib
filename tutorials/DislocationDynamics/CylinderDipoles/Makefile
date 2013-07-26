@@ -38,20 +38,19 @@ CC= icpc
 CFLAGS	 = -O3
 CFLAGS	+= -fast
 # enable openMP
-#CFLAGS	+= -openmp 
+CFLAGS	+= -openmp 
 #enable C++0x
 CFLAGS	+= -std=c++0x
 else
 CC= g++
 # optimization level = fast
-#CFLAGS  += -O3
 CFLAGS  += -Ofast
-#CFLAGS  += -g
-CFLAGS  += -msse2
 # enable openMP
 CFLAGS += -fopenmp
 # enable C++0x
 CFLAGS += -std=c++0x
+#CFLAGS  += -g
+#CFLAGS  += -msse2
 endif
 
 # enable common warnings… 
@@ -89,7 +88,7 @@ mpiCC = mpicxx
 # optimization level
 mpiCFLAGS  += -O3
 # enable openMP   
-#mpiCFLAGS += -fopenmp 
+mpiCFLAGS += -fopenmp 
 # enable C++0x
 mpiCFLAGS += -std=c++0x
 endif

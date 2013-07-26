@@ -147,6 +147,8 @@ namespace model {
 		short unsigned int use_redistribution;
 		bool use_junctions;
 		static bool useImplicitTimeIntegration;
+        static double equilibriumVelocity;
+
         
 		unsigned int runID;
 				
@@ -203,17 +205,17 @@ namespace model {
 				}
 			}
 			
-			double shearWaveFraction(0.1);
+//			double equilibriumVelocity(0.01);
 			//short unsigned int shearWaveExp=1;
-			if (vmax > Material<Isotropic>::cs*shearWaveFraction)
+			if (vmax > Material<Isotropic>::cs*equilibriumVelocity)
             {
 				dt=dx/vmax;
 			}
 			else
             {
-                //dt=dx/std::pow(shared.material.cs*shearWaveFraction,shearWaveExp+1)*std::pow(vmax,shearWaveExp);
-				//dt=dx/(shared.material.cs*shearWaveFraction)*std::pow(vmax/(shared.material.cs*shearWaveFraction),1);
-				dt=dx/(Material<Isotropic>::cs*shearWaveFraction);
+                //dt=dx/std::pow(shared.material.cs*equilibriumVelocity,shearWaveExp+1)*std::pow(vmax,shearWaveExp);
+				//dt=dx/(shared.material.cs*equilibriumVelocity)*std::pow(vmax/(shared.material.cs*equilibriumVelocity),1);
+				dt=dx/(Material<Isotropic>::cs*equilibriumVelocity);
 			}
 			model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
 			model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<dt;
@@ -486,6 +488,9 @@ namespace model {
         
 			// Restart
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
+            
+
+            
 			
             // IO
             EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
@@ -514,6 +519,8 @@ namespace model {
 			dt=0.0;
 			EDR.readScalarInFile(fullName.str(),"dx",dx);
 			assert(dx>0.0);
+            EDR.readScalarInFile(fullName.str(),"equilibriumVelocity",equilibriumVelocity);
+
 			
 			EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
 			assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
@@ -902,6 +909,11 @@ namespace model {
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     bool DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::useImplicitTimeIntegration=false;
+
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    double DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::equilibriumVelocity=0.01;
+
     
 	//////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////

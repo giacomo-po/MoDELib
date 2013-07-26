@@ -6,7 +6,6 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef model_PERIODICELEMENT_H_
 #define model_PERIODICELEMENT_H_
 

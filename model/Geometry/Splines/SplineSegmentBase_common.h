@@ -3,7 +3,7 @@
  * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
  * Copyright (C) 2011 by Benjamin Ramirez<ramirezbrf@gmail.com>.
  *
- * model is distributed without any warranty under the 
+ * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
@@ -28,7 +28,7 @@
  \verbatim
  make_UPOWuu()	  make_UPOWu()	make_UPOW()
  ^				  ^				^
- |				  |				| 
+ |				  |				|
  make_SFuu()	  make_SFu()	make_SF()
  ^				  ^				^
  |				  |				|
@@ -78,10 +78,10 @@ VectorDim sinkT() const {
 
 //////////////////////////////////////////////////////////////
 protected:
-//////////////////////////////////////////////////////////////		
+//////////////////////////////////////////////////////////////
 //model::SplineIntersection<dim,corder> SI;
 
-// Eigen::Matrix<double, Ndof, Eigen::Dynamic> G2H;	
+// Eigen::Matrix<double, Ndof, Eigen::Dynamic> G2H;
 
 
 
@@ -108,40 +108,40 @@ SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in,
 /*             */ const FlowType& Fin) : NetworkLink<Derived>::NetworkLink(nodePair_in, Fin)
 {/*! Constructor with Nodes and flow
   */
-
+    
 }
 
 ///*                                    */ sourceTfactor(1),
 ///*                                    */ sinkTfactor(1){}
 
 
-SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in, 
+SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in,
 /*             */ const ExpandingEdge<LinkType>& ee) :
 /* init list */ NetworkLink<Derived>::NetworkLink(nodePair_in, ee)
 {/*! Constructor from ExpandingEdge
   */
     
     
-//    assert(this->source!=ee.E.sink);
-//    assert(this->sink!=ee.E.source);
-//    
-//    if (this->source==ee.E.source) // first new link in expansion
-//    {
-//        sourceTfactor=ee.E.sourceTfactor;
-//        sinkTfactor= -ee.E.sinkTfactor;
-//    }
-//    else // second new link in expansion
-//    {
-//        sourceTfactor=-ee.E.sourceTfactor;
-//        sinkTfactor=ee.E.sinkTfactor;
-//    }
+    //    assert(this->source!=ee.E.sink);
+    //    assert(this->sink!=ee.E.source);
+    //
+    //    if (this->source==ee.E.source) // first new link in expansion
+    //    {
+    //        sourceTfactor=ee.E.sourceTfactor;
+    //        sinkTfactor= -ee.E.sinkTfactor;
+    //    }
+    //    else // second new link in expansion
+    //    {
+    //        sourceTfactor=-ee.E.sourceTfactor;
+    //        sinkTfactor=ee.E.sinkTfactor;
+    //    }
     
     
-//    if (this->source->sID==88 && this->sink->sID==1)
-//    {
-//        std::cout<<"sourceTfactor="<<sourceTfactor<<std::endl;
-//        std::cout<<"  sinkTfactor="<<sinkTfactor<<std::endl;
-//    }
+    //    if (this->source->sID==88 && this->sink->sID==1)
+    //    {
+    //        std::cout<<"sourceTfactor="<<sourceTfactor<<std::endl;
+    //        std::cout<<"  sinkTfactor="<<sinkTfactor<<std::endl;
+    //    }
     
 }
 
@@ -243,7 +243,7 @@ Eigen::Matrix<double, Ndof, Eigen::Dynamic>  get_G2H() const {
 	
 	size_t gDof(this->pSN()->nodeOrder()*this->source->NdofXnode); // CHANGE HERE, NdofXnode should be available directly
 	
-	Eigen::Matrix<double, Ndof, Eigen::Dynamic> G2H(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,gDof));	
+	Eigen::Matrix<double, Ndof, Eigen::Dynamic> G2H(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,gDof));
 	
 	//G2H.setZero(Ndof,gDof);
 	
@@ -285,4 +285,56 @@ std::pair<bool,size_t> isCommonNeighborAt(const VectorDim& P0) const {
         }
     }
     return temp;
+}
+
+
+/* closestPoint *****************************************************/
+std::pair<double,VectorDim> closestPoint(const VectorDim& P0) const
+{
+        
+    // solve (P-P0)*dP/du=0
+    
+    // The polynomial coefficients of this spine segment
+    Eigen::Matrix<double,dim,Ncoeff> coeffs(this->polynomialCoeff());
+    coeffs.col(0)-=P0;
+    
+    
+    // The derivative of the polynomial coefficients
+    Eigen::Matrix<double,dim,Ncoeff-1> dcoeffs(Eigen::Matrix<double,dim,Ncoeff-1>::Zero());
+    for (int i=0;i<Ncoeff-1;++i)
+    {
+        dcoeffs.col(i)=(i+1)*coeffs.col(i+1);
+    }
+    
+    Eigen::Matrix<double,1,2*Ncoeff-2> pcoeffs(Eigen::Matrix<double,1,2*Ncoeff-2>::Zero()); // degree of product = pOrder+(pOrder-1)=2*pOrder-1. nCoeffs of product = 2*pOrder-1+1= 2*pOrder = 2*Ncoeff-2
+    
+    // The polynomial coefficients of (P-P0)*dP/du, in reverse order
+    for (int i=0;i<Ncoeff;++i)
+    {
+        for (int j=0;j<Ncoeff-1;++j)
+        {
+            pcoeffs(2*Ncoeff-3-i-j) += coeffs.col(i).dot(dcoeffs.col(j));            
+        }
+    }
+    
+    // Compute roots using the eigenvalue method
+    MatrixCompanion<2*Ncoeff-3> mc(pcoeffs);
+    
+    // sort roots according to distance to P0
+    std::map<double,std::pair<double,VectorDim> > rootMap;
+    
+    for (int k=0;k<2*Ncoeff-3;++k)
+    {
+        if (std::fabs(mc.root(k).imag())<FLT_EPSILON && mc.root(k).real()>=0.0 && mc.root(k).real()<=1.0 )
+        {
+            
+            VectorDim P(this->get_r(mc.root(k).real()));
+            rootMap.insert(std::make_pair((P-P0).norm(), std::make_pair(mc.root(k).real(),P) ));
+            
+        }
+        
+    }
+    
+    return rootMap.begin()->second;
+    
 }
