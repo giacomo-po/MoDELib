@@ -1,3 +1,4 @@
+#include <stdlib.h> // atoi
 #include <model/DislocationDynamics/DislocationNetwork.h>
 #include <model/Utilities/SequentialOutputFile.h>
 
@@ -64,11 +65,21 @@ int main(int argc, char * argv[])
     // Construct a grid of field points on the plane z=0
     std::deque<SimpleFieldPoint> fieldPoints; // the container of field points
     
-    double Lx( 1.0e+02);    // grid extends in [-Lx,Lx] along x direction (units of b)
     int nx=50;              // the number of grid points in x is 2*nx+1
+    int ny=50;              // the number of grid points in y is 2*ny+1
+
+    if (argc>1) // overwrite nx and ny using input arguments to program
+    {
+        ny=nx=atoi(argv[1]);
+        if (argc>2)
+        {
+            ny=atoi(argv[2]);
+        }
+    }
+    
+    double Lx( 1.0e+02);    // grid extends in [-Lx,Lx] along x direction (units of b)
     
     double Ly( 1.0e+02);    // grid extends in [-Ly,Ly] along y direction (units of b)
-    int ny=50;              // the number of grid points in y is 2*ny+1
 
     for (int i=-nx;i<nx+1;++i)
     {

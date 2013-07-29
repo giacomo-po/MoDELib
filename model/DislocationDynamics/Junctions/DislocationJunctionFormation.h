@@ -13,8 +13,6 @@
 #include <vector>
 
 #include <Eigen/Dense>
-
-#include <model/Utilities/modelMacros.h> // model_checkInput
 #include <model/Network/Operations/EdgeFinder.h>
 #include <model/Geometry/PlanePlaneIntersection.h>
 
@@ -46,7 +44,7 @@ namespace model {
 		
 		typedef std::pair<const LinkType*, double> EdgeIntersectionType;
 		typedef std::pair<EdgeIntersectionType,EdgeIntersectionType> EdgeIntersectionPairType;
-//		typedef std::vector<EdgeIntersectionPairType> EdgeIntersectionPairContainerType;
+        //		typedef std::vector<EdgeIntersectionPairType> EdgeIntersectionPairContainerType;
 		typedef std::deque<EdgeIntersectionPairType> EdgeIntersectionPairContainerType;
 		
 		
@@ -242,7 +240,7 @@ namespace model {
 			typedef std::pair<size_t,size_t> EdgeIDType;
 			typedef std::map<EdgeIDType,MultiExpandInputType> EdgeIntersectionContainerType;
             
-                            const double dx2=std::pow(dx,2);
+            const double dx2=std::pow(dx,2);
 			
 			EdgeIntersectionContainerType edgeIntersectionContainer;
 			for (IntersectionIDType interID=0;interID!=intersectionContainer.size();++interID){
@@ -264,7 +262,7 @@ namespace model {
 				const double du1(dx/L1.second->chordLength());
 				const double du2(dx/L2.second->chordLength());
 				
-
+                
                 
 				if (
                     intersectionContainer[interID]. first.second-du1 > avoidNodeIntersection
@@ -273,10 +271,10 @@ namespace model {
                     && intersectionContainer[interID].second.second+du2<1.0-avoidNodeIntersection
                     
                     
-//                       (L1.second->source->get_P()-L1.second->get_r(intersectionContainer[interID].first.second-du1) ).squaredNorm() > dx2
-//                    && (L1.second->sink  ->get_P()-L1.second->get_r(intersectionContainer[interID].first.second+du1) ).squaredNorm() > dx2
-//                    && (L2.second->source->get_P()-L2.second->get_r(intersectionContainer[interID].second.second-du2) ).squaredNorm() > dx2
-//                    && (L2.second->sink  ->get_P()-L2.second->get_r(intersectionContainer[interID].second.second+du2) ).squaredNorm() > dx2
+                    //                       (L1.second->source->get_P()-L1.second->get_r(intersectionContainer[interID].first.second-du1) ).squaredNorm() > dx2
+                    //                    && (L1.second->sink  ->get_P()-L1.second->get_r(intersectionContainer[interID].first.second+du1) ).squaredNorm() > dx2
+                    //                    && (L2.second->source->get_P()-L2.second->get_r(intersectionContainer[interID].second.second-du2) ).squaredNorm() > dx2
+                    //                    && (L2.second->sink  ->get_P()-L2.second->get_r(intersectionContainer[interID].second.second+du2) ).squaredNorm() > dx2
                     
                     && dirVector[interID]!=0)
                 {
@@ -284,8 +282,8 @@ namespace model {
 					if(   edgeIntersectionContainer.find(key1)==edgeIntersectionContainer.end()
                        && edgeIntersectionContainer.find(key2)==edgeIntersectionContainer.end())
                     {
-//                        						model::cout<<"key1 is "<<key1.first<<" "<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-//                        						model::cout<<"key2 is "<<key2.first<<" "<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
+                        //                        						model::cout<<"key1 is "<<key1.first<<" "<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
+                        //                        						model::cout<<"key2 is "<<key2.first<<" "<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
 						
                         
                         const double u1m(intersectionContainer[interID]. first.second-du1);
@@ -344,7 +342,9 @@ namespace model {
 			
 			// Call Multiexpand on segments in edgeIntersectionContainer. Store correspoinding new nodes in nodeIntersectionMap
 			std::map<IntersectionIDType, std::set<size_t> > nodeIntersectionMap;
-			for (typename EdgeIntersectionContainerType::const_iterator edgeIter=edgeIntersectionContainer.begin();edgeIter!=edgeIntersectionContainer.end();++edgeIter)
+			for (typename EdgeIntersectionContainerType::const_iterator edgeIter=edgeIntersectionContainer.begin();
+                 /*                                                  */ edgeIter!=edgeIntersectionContainer.end();
+                 /*                                                */ ++edgeIter)
             {
 				const size_t i(edgeIter->first. first);
 				const size_t j(edgeIter->first.second);
@@ -356,7 +356,9 @@ namespace model {
 			}
 			
             // Call Contract on nodes in nodeIntersectionMap
-			for (std::map<IntersectionIDType, std::set<size_t> >::const_iterator mapIter=nodeIntersectionMap.begin();mapIter!=nodeIntersectionMap.end();++mapIter)
+			for (std::map<IntersectionIDType, std::set<size_t> >::const_iterator mapIter=nodeIntersectionMap.begin();
+                 /*                                                           */ mapIter!=nodeIntersectionMap.end();
+                 /*                                                         */ ++mapIter)
             {
 				assert(mapIter->second.size()==2 && "THERE SHOULD BE TWO NODES IN EACH INTERSECTION");
 				const size_t i(*(mapIter->second.begin()));
@@ -456,7 +458,7 @@ namespace model {
                                 
                                 if (nodeIter->first != linkIter->first.first && nodeIter->first != linkIter->first.second)
                                 {
-                                 
+                                    
                                     const double chord2(linkIter->second->chord().squaredNorm());
                                     if (  (linkIter->second->source->get_P()-nodeIter->second->get_P()).squaredNorm()<chord2    // vertex is not too far from edge source
                                         ||(linkIter->second->  sink->get_P()-nodeIter->second->get_P()).squaredNorm()<chord2 )  // vertex is not too far from edge sink
@@ -561,12 +563,12 @@ namespace model {
     // Declare Static Data
     template <typename DislocationNetworkType>
     double DislocationJunctionFormation<DislocationNetworkType>::collisionTol=10.0;
-
+    
     
     // Declare Static Data
     template <typename DislocationNetworkType>
     bool DislocationJunctionFormation<DislocationNetworkType>::useVertexEdgeJunctions=true;
-
+    
 	
 	//////////////////////////////////////////////////////////////
 } // namespace model

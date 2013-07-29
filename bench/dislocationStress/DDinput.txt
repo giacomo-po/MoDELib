@@ -3,7 +3,7 @@
 Nsteps=0;
 timeWindow=0;
 startAtTimeStep = 0;
-
+equilibriumVelocity=0.01;
 ######################################
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
