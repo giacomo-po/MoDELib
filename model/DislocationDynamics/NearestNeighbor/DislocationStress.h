@@ -21,63 +21,25 @@ namespace model
 	template<short unsigned int _dim>
 	class DislocationStress
     /* inheritance */ : public FieldBase<double,_dim,_dim>
-    {
-        
-//        typedef typename DislocationParticleType::VectorDimD VectorDimD;
-//        typedef typename DislocationParticleType::MatrixDim MatrixDim;
-        
-//        enum{dim=DislocationParticleType::dim};
-//        enum{dataSize=dim*dim};
-        
+    {        
         
     public:
         
-
+        
         
         typedef DislocationStress<_dim> DislocationStressType;
         typedef FieldBase<double,_dim,_dim> FieldBaseType;
         typedef typename FieldBaseType::MatrixType MatrixType;
         
+        static  double a;
         static  double a2;
 		static const Eigen::Matrix<double,_dim,_dim> I;
-
         
+        
+        
+#if _MODEL_NON_SINGULAR_DD_ == 1 /* Cai's non-singular theory */
         template <typename DislocationParticleType>
         static MatrixType compute(const DislocationParticleType& source,const DislocationParticleType& field)
-        {/*!@param[in] source the DislocationParticle that is source of stress 
-          * @param[in] field  the DislocationParticle on which stress is computed
-          *\returns the stress field produced by source on field
-          */
-            
-            Eigen::Matrix<double,_dim,1> R(field.P-source.P);
-			double RaSquared (R.squaredNorm() + a2);
-			return   (Material<Isotropic>::C1*(1.0+1.5*a2/RaSquared)*source.T*(source.B.cross(R)).transpose()
-                               + 	R*(source.T.cross(source.B)).transpose()
-                               +   0.5* R.cross(source.B).dot(source.T) * (I*(1.0+3.0*a2/RaSquared) + 3.0/RaSquared*R*R.transpose())
-                               )/std::pow(sqrt(RaSquared),3)*source.quadWeight;
-            
-            
-//            const double c2 (Material<Isotropic>::C2*source.quadWeight/std::pow(sqrt(RaSquared),3));
-//            const double c1(Material<Isotropic>::C1*(1.0+1.5*a2/RaSquared));
-//            
-//            const Eigen::Matrix<double,_dim,1> BcrossR(source.B.cross(R));
-//            
-//            const double BcrossRdotT(BcrossR.dot(source.T));
-//            const double c3(-BcrossRdotT*(1.0+3.0*a2/RaSquared));
-//            const double c4(-BcrossRdotT*3.0/RaSquared);
-//            
-//            
-//            MatrixType temp(c2*c3*I);
-//            temp. template selfadjointView<Eigen::Upper>().rankUpdate(source.T,BcrossR,c2*c1);
-//            temp. template selfadjointView<Eigen::Upper>().rankUpdate(R,source.T.cross(source.B),c2);
-//            temp. template selfadjointView<Eigen::Upper>().rankUpdate(R,R,c2*c4);
-//            
-//            return temp.template selfadjointView<Eigen::Upper>();
-            
-        }
-        
-        template <typename DislocationParticleType, typename OtherParticleType>
-        static MatrixType compute(const DislocationParticleType& source, const OtherParticleType& field)
         {/*!@param[in] source the DislocationParticle that is source of stress
           * @param[in] field  the DislocationParticle on which stress is computed
           *\returns the stress field produced by source on field
@@ -89,12 +51,69 @@ namespace model
                       + 	R*(source.T.cross(source.B)).transpose()
                       +   0.5* R.cross(source.B).dot(source.T) * (I*(1.0+3.0*a2/RaSquared) + 3.0/RaSquared*R*R.transpose())
                       )/std::pow(sqrt(RaSquared),3)*source.quadWeight;
+        }
+        
+        template <typename DislocationParticleType, typename OtherParticleType>
+        static MatrixType compute(const DislocationParticleType& source, const OtherParticleType& field)
+        {/*!@param[in] source the DislocationParticle that is source of stress
+          * @param[in] field  the DislocationParticle on which stress is computed
+          *\returns the stress field produced by source on field
+          */
+            
+            Eigen::Matrix<double,_dim,1> R(field.P-source.P);
+            double RaSquared (R.squaredNorm() + a2);
+            return   (Material<Isotropic>::C1*(1.0+1.5*a2/RaSquared)*source.T*(source.B.cross(R)).transpose()
+                      + 	R*(source.T.cross(source.B)).transpose()
+                      +   0.5* R.cross(source.B).dot(source.T) * (I*(1.0+3.0*a2/RaSquared) + 3.0/RaSquared*R*R.transpose())
+                      )/std::pow(sqrt(RaSquared),3)*source.quadWeight;
             
         }
         
+#elif _MODEL_NON_SINGULAR_DD_ == 2 /* Lazar's non-singular theory */
+        template <typename DislocationParticleType>
+        static MatrixType compute(const DislocationParticleType& source,const DislocationParticleType& field)
+        {/*!@param[in] source the DislocationParticle that is source of stress
+          * @param[in] field  the DislocationParticle on which stress is computed
+          *\returns the stress field produced by source on field
+          */
+            
+            MatrixType temp(MatrixType::Zero());
+            
+            Eigen::Matrix<double,_dim,1> r(field.P-source.P);
+            const double R2(r.squaredNorm());
+            if (R2>0.0)
+            {
+                const double R(sqrt(R2));
+                
+                double F1(1.0/R2);
+                double F2(F1);
+                double F3(F1);
+                
+                
+                const double RL(R/a);
+                const double LR(a/R);
+                const double eRL(exp(-RL));
+                F1*=(1.0-(1.0+RL)*eRL);
+                F2*=(1.0-6.0*a2/R2*(1.0-eRL)+(2.0+6.0*LR)*eRL);
+                F3*=(1.0-10.0*a2/R2*(1.0-eRL)+(4.0+10.0*LR+2.0/3.0*RL)*eRL);
+                
+                r/=R; // normalize r
+                temp = Material<Isotropic>::C1*source.T*(source.B.cross(r)).transpose()*F1
+                /*  */ +r*(source.T.cross(source.B)).transpose()*F2
+                /*  */ +0.5* r.cross(source.B).dot(source.T) * (I*(2.0*F1-F2) + 3.0*F3*r*r.transpose());
+            }
+            
+            return temp*source.quadWeight;
+        }
         
-				
+#else // Note that if _MODEL_NON_SINGULAR_DD_ is not #defined, the preprocessor treats it as having the value 0.
+#error Unsupported choice of field regularization
+#endif
+        
 	};
+    
+    template<short unsigned int _dim>
+    double DislocationStress<_dim>::a=1.0;  // square of core size a
     
     // Static data members
 	template<short unsigned int _dim>
@@ -102,7 +121,7 @@ namespace model
     
 	template<short unsigned int _dim>
 	const Eigen::Matrix<double,_dim,_dim> DislocationStress<_dim>::I=Eigen::Matrix<double,_dim,_dim>::Identity();  // square of core size a
-
+    
     
     /**************************************************************************/
     /**************************************************************************/

@@ -13,7 +13,6 @@
 #include <assert.h>
 #include <float.h>
 #include <vector>
-#include <iterator>     // std::distance
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/Materials/CrystalStructures.h>
 
@@ -24,16 +23,14 @@ namespace model {
     /**************************************************************************/
     /**************************************************************************/
     template <int dim>
-    class CrystalOrientation
-    {
+    class CrystalOrientation {
         
     public:
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-//        typedef std::vector<VectorDim> PlaneNormalContainerType;
-        typedef std::vector<VectorDim> PlaneNormalContainerType;
-        typedef std::vector<typename PlaneNormalContainerType::const_iterator> PlaneNormalIteratorContainerType;
+        typedef std::vector<VectorDim> vector_VectorDim;
         //        typedef std::vector<const VectorDim> PlaneNormalContainerType;
-
+        typedef std::vector<VectorDim> PlaneNormalContainerType;
+        
         
     private:
         static PlaneNormalContainerType planeNormalContainer;
@@ -42,10 +39,9 @@ namespace model {
         
     public:
         
-        /* rotate *************************************************************/
+        /* rotate *****************************************************/
         template <typename CrystalStructure>
-        static void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in)
-        {
+        static void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in){
             
 			// make sure that C2G is orthogonal
 			assert((C2G_in*C2G_in.transpose()-Eigen::Matrix<double,dim,dim>::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && "CRYSTAL TO GLOBAL ROTATION MATRIX IS NOT ORTHOGONAL.");
@@ -77,7 +73,7 @@ namespace model {
         
         /**********************************************************************/
 		static void find_slipSystem(const VectorDim& chord, const VectorDim& Burgers,
-                                    PlaneNormalIteratorContainerType& allowedSlipSystems,
+                                    PlaneNormalContainerType& allowedSlipSystems,
                                     const double& tol = FLT_EPSILON)
         {/*!
           */
@@ -96,7 +92,7 @@ namespace model {
 				if(	  std::fabs( iter->dot(normalizedChord))<tol && std::fabs( iter->dot(Burgers.normalized()))<tol)
                 {
 					//allowedSlipSystems.insert( *iter );
-					allowedSlipSystems.push_back( iter );
+					allowedSlipSystems.push_back( *iter );
 				}
 			}
 			
@@ -110,7 +106,7 @@ namespace model {
 						if(	std::fabs( iter->dot(normalizedChord))<tol )
                         {
 							//allowedSlipSystems.insert( *iter );
-							allowedSlipSystems.push_back( iter );
+							allowedSlipSystems.push_back( *iter );
 						}
 					}
                     //					if (allowedSlipSystems.size()==0){
@@ -136,19 +132,19 @@ namespace model {
 		}
         
         /**********************************************************************/
-		static const VectorDim& find_planeNormal(const VectorDim& chord,
-                                                 const VectorDim& Burgers)
-        {/*!@param[in] chord the chord of a DislocationSegment
-          * @param[in] Burgers the Burgers vector of a DislocationSegment
-          *\returns A const reference to the first vector in planeNormalContainer 
-          * which is orthogonal to both chord and Burgers.
-          */
-            PlaneNormalIteratorContainerType allowedSlipSystems;
+		static VectorDim find_planeNormal(const VectorDim& chord, const VectorDim& Burgers)
+        {
+            PlaneNormalContainerType allowedSlipSystems;
 			//shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
             //            CrystalBase<dim,Nslips>::find_slipSystem(chord,Burgers,allowedSlipSystems);
             find_slipSystem(chord,Burgers,allowedSlipSystems);
-            assert(std::fabs(  chord.dot(**allowedSlipSystems.begin()))<FLT_EPSILON && "CHORD AND NORMAL ARE NOT ORTHOGONAL");
-			return **allowedSlipSystems.begin(); // RETURNING THE FIRST PLANE FOUND IS SOMEWHAT ARBITRARY
+            
+            const VectorDim temp(*allowedSlipSystems.begin()); // DON't LIKE THIS
+            
+            assert(std::fabs(  chord.dot(temp))<FLT_EPSILON && "CHORD AND NORMAL ARE NOT ORTHOGONAL");
+            //assert(std::fabs(Burgers.dot(temp))<FLT_EPSILON && "BURGERS AND NORMAL ARE NOT ORTHOGONAL"); // NOT VALID FOR SESSILE SEGMENTS
+			return temp;
+            
 		}
         
         /**********************************************************************/
@@ -157,7 +153,7 @@ namespace model {
             //			assert(chord.norm()>FLT_EPSILON && "CHORD TOO SMALL");
             //			assert(Burgers.norm()>FLT_EPSILON && "Burgers TOO SMALL");
             //            std::set<SlipSystem<dim,Nslips> > allowedSlipSystems;
-            PlaneNormalIteratorContainerType allowedSlipSystems;
+            PlaneNormalContainerType allowedSlipSystems;
             
             //shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
             //            CrystalBase<dim,Nslips>::find_slipSystem(chord,Burgers,allowedSlipSystems);
@@ -174,7 +170,7 @@ namespace model {
 			else{ // not a screw segment
                 if (allowedSlipSystems.size()>=2){ // a sessile segment
                     //temp=allowedSlipSystems.rbegin()->normal;
-                    temp=**allowedSlipSystems.rbegin();
+                    temp=*allowedSlipSystems.rbegin();
                     
                 }
                 else{ // a glissile segment
@@ -191,12 +187,12 @@ namespace model {
 		
         
         /**********************************************************************/
-        static PlaneNormalContainerType conjugatePlaneNormal(const VectorDim& B, const VectorDim& N, const double& tol=FLT_EPSILON)
+        static vector_VectorDim conjugatePlaneNormal(const VectorDim& B, const VectorDim& N, const double& tol=FLT_EPSILON)
         {
             
 			int count(0);
 //			VectorDim temp(VectorDim::Zero());
-            PlaneNormalContainerType temp;
+            vector_VectorDim temp;
             assert((std::fabs(B.normalized().dot(N.normalized()))<FLT_EPSILON) && "CANNOT DETERMINE CONJUGATE PLANE FOR SESSILE SEGMENT");
             for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter){
 //                std::cout<<*iter.transpose()<<std::endl;
@@ -216,14 +212,6 @@ namespace model {
             return C2G;
         }
         
-        
-        /**********************************************************************/
-        static size_t planeID(const VectorDim& planeNormal)
-        {
-            typename PlaneNormalContainerType::iterator pIter(std::find(planeNormalContainer.begin(),planeNormalContainer.end(),planeNormal));
-            assert(pIter!=planeNormalContainer.end() && "PLANE NORMAL NOT FOUND");
-            return std::distance(planeNormalContainer.begin(),pIter);
-        }
         
     };
     

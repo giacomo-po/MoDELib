@@ -50,7 +50,7 @@ namespace model {
         
         
         typedef typename GlidePlaneObserver<DislocationSegmentType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
-    	typedef typename CrystalOrientation<dim>::PlaneNormalContainerType PlaneNormalContainerType;
+    	typedef typename CrystalOrientation<dim>::PlaneNormalIteratorContainerType PlaneNormalIteratorContainerType;
         
     public:
         const GlidePlaneSharedPtrType pGlidePlane;
@@ -178,7 +178,7 @@ namespace model {
 	    
 	    //VectorDim conjugatePlaneNormal = ds.conjugatePlaneNormal(ds.chord());
             //VectorDim conjugatePlaneNormal = ds.get_sessileNormal(ds.chord(),ds.Burgers);
-	    PlaneNormalContainerType allowedSlipSystems;
+	    PlaneNormalIteratorContainerType allowedSlipSystems;
 	    CrystalOrientation<dim>::find_slipSystem(ds.chord(),ds.Burgers,allowedSlipSystems);
 	    
 	    VectorDim conjugatePlaneNormal;
@@ -193,8 +193,8 @@ namespace model {
             else if (allowedSlipSystems.size() > 1) {
 	      
 	      for (unsigned int k=0;k<allowedSlipSystems.size();k++) {
-		if ((ds.pGlidePlane->planeNormal.cross(allowedSlipSystems[k])).norm() < FLT_EPSILON) continue;
-		conjugatePlaneNormal = allowedSlipSystems[k].normalized();
+		if ((ds.pGlidePlane->planeNormal.cross(*allowedSlipSystems[k])).norm() < FLT_EPSILON) continue;
+		conjugatePlaneNormal = allowedSlipSystems[k]->normalized();
 	      }
 	      
 	      

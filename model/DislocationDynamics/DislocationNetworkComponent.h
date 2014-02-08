@@ -191,6 +191,11 @@ namespace model {
             KQQ.setFromTriplets(kqqT.begin(),kqqT.end()); // now KQQ is idefinite (NOT SPD) therefore conjugate-gradient cannot be used
             
             
+//            SequentialOutputFile<'F',1>::set_increment(1); // edgeFile;
+//            SequentialOutputFile<'F',1>::set_count(1); // edgeFile;
+//            SequentialOutputFile<'F',1> fFile;
+//            fFile<<Fq;
+            
             Eigen::VectorXd F(Eigen::VectorXd::Zero(KPQ_row));
             F.segment(0,Ndof)=Fq;
             Eigen::VectorXd x1(Eigen::VectorXd::Zero(KPQ_row));

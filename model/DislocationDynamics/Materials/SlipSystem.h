@@ -10,6 +10,7 @@
 #ifndef model_SLIPSYSTEM_H_
 #define model_SLIPSYSTEM_H_
 
+#include <cfloat> // FLT_EPSILON
 #include <assert.h>
 #include <vector>
 #include <Eigen/Dense>

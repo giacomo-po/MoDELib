@@ -13,6 +13,7 @@
 #define _MODELMPIBASE_h_
 
 #include <assert.h>
+#include <string>
 #include <mpi.h>
 #include <model/Utilities/TerminalColors.h>
 
@@ -24,6 +25,7 @@ namespace model {
         static int _mpiInitialized;
         static int _mpiRank;
         static int _mpiProcs;
+        static std::string _processorName;
 
         
     public:
@@ -38,6 +40,7 @@ namespace model {
         /**********************************************************************/
         ModelMPIbase()
         {
+            
         }
         
         /**********************************************************************/
@@ -59,10 +62,17 @@ namespace model {
                 MPI_Initialized(&_mpiInitialized);
                 assert(_mpiInitialized && "MPI not initialized.");
                 
+                
                 MPI_Comm_rank(MPI_COMM_WORLD,&_mpiRank);
                 MPI_Comm_size(MPI_COMM_WORLD,&_mpiProcs);
+                
+                int tempLen;
+                char tempName[MPI_MAX_PROCESSOR_NAME];
+                MPI_Get_processor_name(tempName, &tempLen);
+                _processorName=tempName;
+                
                 std::cout<<greenBoldColor<<"MPI process "<<_mpiRank<<" of "<<_mpiProcs
-                /*     */<<", mpiInitialized="<<_mpiInitialized<<defaultColor<<std::endl;
+                /*     */<<" (on node"<<_processorName<<"), mpiInitialized="<<_mpiInitialized<<defaultColor<<std::endl;
 
                 MPI_Barrier(MPI_COMM_WORLD);
 
@@ -73,6 +83,7 @@ namespace model {
         static const int& mpiRank() {return _mpiRank;}
         static const int& mpiProcs(){return _mpiProcs;}
         static const int& mpiInitialized(){return _mpiInitialized;}
+        static const std::string& processorName(){return _processorName;}
         
     };
     
@@ -80,6 +91,7 @@ namespace model {
     int ModelMPIbase::_mpiInitialized=0;
     int ModelMPIbase::_mpiRank=0;
     int ModelMPIbase::_mpiProcs=1;
+    std::string ModelMPIbase::_processorName="NO NAME ASSIGNED YET";
     
 } // end namespace
 #endif

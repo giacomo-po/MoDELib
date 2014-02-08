@@ -19,8 +19,9 @@ useImplicitTimeIntegration=0;
 outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
-outputSpatialCells=0;
-outputPKforce=0;
+outputSpatialCells=1;
+outputPKforce=1;
+outputElasticEnergy=0;
 outputMeshDisplacement=0;
 
 ######################################
@@ -48,7 +49,7 @@ externalStress = 0.0 0.0 0.01
 ######################################
 # STRESS FIELD
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
-coreWidthSquared=1.0;
+coreSize=1.0;
 # Use of multipole-expanded stress field for non-nearest neighbor cells
 dislocationCellSize=1000;
 nearCellStressApproximation=10;

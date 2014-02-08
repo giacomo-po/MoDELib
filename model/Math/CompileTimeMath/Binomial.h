@@ -9,33 +9,18 @@
 #ifndef model_BINOMIAL_H_
 #define model_BINOMIAL_H_
 
-#include <model/Utilities/Factorial.h>
+#include <model/Math/CompileTimeMath/Factorial.h>
 
 namespace model {
 	
 	//////////////////////////////////////////////////////////////////////////
 	template< int N, int k>
-	struct Binomial {
+	struct Binomial
+    {
 		enum { value = Factorial<N>::value / (Factorial<N-k>::value * Factorial<k>::value)};
 		
-//		template<typename T>
-//		T operator+(const T & rhs){return value+rhs;}
-//		
-//		template<typename T>
-//		T operator-(const T & rhs){return value-rhs;}
-//		
-//		template<typename T>
-//		T operator*(const T & rhs){return value*rhs;}
-//		
-//		template<typename T>
-//		T operator/(const T & rhs){return value/rhs;}
 	};
-	
-//	template<>
-//	struct Factorial<0> {
-//		enum { value = 1 };
-//	};
-	
+		
 	//////////////////////////////////////////////////////////////////////////
 } // end namespace model
 

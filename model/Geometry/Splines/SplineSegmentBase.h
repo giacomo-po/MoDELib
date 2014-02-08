@@ -334,6 +334,7 @@ namespace model {
     //static data
     template <typename Derived, short unsigned int dim>
 	double SplineSegmentBase<Derived,dim,2>::alpha=0.5;
+//	double SplineSegmentBase<Derived,dim,2>::alpha=1.0;
 
 	
 	//////////////////////////////////////////////////////////////s

@@ -65,8 +65,8 @@ int main(int argc, char * argv[])
     // Construct a grid of field points on the plane z=0
     std::deque<SimpleFieldPoint> fieldPoints; // the container of field points
     
-    int nx=50;              // the number of grid points in x is 2*nx+1
-    int ny=50;              // the number of grid points in y is 2*ny+1
+    int nx=500;              // the number of grid points in x is 2*nx+1
+    int ny=500;              // the number of grid points in y is 2*ny+1
 
     if (argc>1) // overwrite nx and ny using input arguments to program
     {
@@ -94,21 +94,21 @@ int main(int argc, char * argv[])
     DN.updateQuadraturePoints();
     DN.computeField<SimpleFieldPoint,StressField>(fieldPoints);
 
-    // Ouput results to file
-    model::SequentialOutputFile<'S',1>  numericalFile; // this is file S/S_0.txt
-    model::SequentialOutputFile<'S',1> analyticalFile; // this is file S/S_1.txt
-    
-    for (unsigned int k=0;k<fieldPoints.size();++k)
-    {
-        numericalFile << fieldPoints[k].P.transpose()<<" "<<fieldPoints[k].field<StressField>().row(0)
-        /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(1)
-        /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(2)<<"\n";
-        
-        Eigen::Matrix<double,3,3> temp(stressStraightEdge(fieldPoints[k].P));
-        analyticalFile << fieldPoints[k].P.transpose()<<" "<<temp.row(0)
-        /*                                         */ <<" "<<temp.row(1)
-        /*                                         */ <<" "<<temp.row(2)<<"\n";
-    }
+//    // Ouput results to file
+//    model::SequentialOutputFile<'S',1>  numericalFile; // this is file S/S_0.txt
+//    model::SequentialOutputFile<'S',1> analyticalFile; // this is file S/S_1.txt
+//    
+//    for (unsigned int k=0;k<fieldPoints.size();++k)
+//    {
+//        numericalFile << fieldPoints[k].P.transpose()<<" "<<fieldPoints[k].field<StressField>().row(0)
+//        /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(1)
+//        /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(2)<<"\n";
+//        
+//        Eigen::Matrix<double,3,3> temp(stressStraightEdge(fieldPoints[k].P));
+//        analyticalFile << fieldPoints[k].P.transpose()<<" "<<temp.row(0)
+//        /*                                         */ <<" "<<temp.row(1)
+//        /*                                         */ <<" "<<temp.row(2)<<"\n";
+//    }
     
     
     return 0;

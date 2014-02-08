@@ -48,6 +48,7 @@
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 
 #include <model/DislocationDynamics/CrossSlip/CrossSlipSegment.h>
+#include <model/DislocationDynamics/DislocationMobility.h>
 
 
 #include <model/BVP/VirtualBoundarySlipContainer.h>
@@ -148,6 +149,15 @@ namespace model {
 		//! A shared pointer to the GlidePlane of this segment
 		const GlidePlaneSharedPtrType pGlidePlane;
         
+        
+//        const Eigen::Matrix<double,1,2> dH0;
+        
+        const DislocationMobility<dim> dm;
+
+        
+//        const double& DHs;
+//        const double& DHe;
+        
         //! Positions corrersponding to the quadrature points
 		MatrixDimQorder rgauss;
         
@@ -190,18 +200,15 @@ namespace model {
            */
 			MatrixDimNdof temp(SFgaussEx(k));
             //			return temp.transpose()*pkGauss.col(k)*jgauss(k);
-//			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
-
- //                       double screwFactor=(10.0*(1.0-std::pow(Burgers.dot(rlgauss.col(k)),2))+1.0);
-            
- //           std::cout<<screwFactor<<std::endl;
-            
+////			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
 
 			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
-			
+//            return temp.transpose()*dm.getVelocity(pkGauss.col(k),rlgauss.col(k))*jgauss(k); // inverse mobility law
+
+            
 		}
 		
-		/* radiativeVel *******************************************************/
+		/**********************************************************************/
 		VectorDim radiativeVel(const VectorDim& pkF) const
         {
 			const VectorDim v0(Material<Isotropic>::Binv*pkF);
@@ -226,7 +233,11 @@ namespace model {
 		/* init list       */ Burgers(this->flow * Material<Isotropic>::b),
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
-		/* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))) // change this
+		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), // change this
+//        /* init list       */ dH0(Material<Isotropic>::dH0.row(CrystalOrientation<dim>::planeID(glidePlaneNormal)))
+        /* init list       */ dm(glidePlaneNormal,Burgers)
+        //        /* init list       */ DHs(),
+//        /* init list       */ DHe()
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
@@ -243,6 +254,8 @@ namespace model {
 			assert(this->flow.squaredNorm()>0.0);
 			pGlidePlane->addToGLidePlane(this);
             pkGauss.setZero(); // necessary if this is not assembled
+            
+            
 		}
 		
 		/* Constructor from EdgeExpansion) ************************************/
@@ -251,7 +264,9 @@ namespace model {
 		/* init list       */ Burgers(this->flow * Material<Isotropic>::b),
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
-		/* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))) 			// change this
+		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), 			// change this
+//        /* init list       */ dH0(Material<Isotropic>::dH0.row(CrystalOrientation<dim>::planeID(glidePlaneNormal)))
+        /* init list       */ dm(glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and ExpandingEdge
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] ee the expanding edge
@@ -267,7 +282,9 @@ namespace model {
             
 			assert(this->flow.squaredNorm()>0.0);
 			pGlidePlane->addToGLidePlane(this);
-            pkGauss.setZero(); // necessary if this is not assembled            
+            pkGauss.setZero(); // necessary if this is not assembled
+            
+            
 		}
 		
 		/* Destructor *********************************************************/
@@ -287,10 +304,9 @@ namespace model {
             //            quadratureParticleContainer.clear();
 		}
 		
-		/* updateQuadGeometryKernel *******************************************/
-//		void updateQuadGeometryKernel(const int& k)
+		/**********************************************************************/
 		void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
-        {/*! @param[in] k The k-th quadrature point along this segment
+        {/*! @param[in] particleSystem the ParticleSystem of DislocationParticle
           *  Computes all geometric properties at the k-th quadrature point
           */
             
@@ -334,54 +350,6 @@ namespace model {
 			return pkGauss;
 		}
 		
-		/**********************************************************************/
-		double energy() const
-        {/*! The total elastic energy generated by this segment.
-          *  Includes self-energy and interation energy between this segment and other segments in the network.
-          */
-			double temp=0.0;
-			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::energy_field);
-			return temp;
-		}
-		
-		
-		//////////////////////////////////
-		double energy_field(const int & k) const
-        {/*!@param[in] k the k-th quadrature point
-          *
-          * \returns The elastic energy at the k-th quadrature
-          * point due to other dislocation segments.
-          */
-            
-			double temp=0.0;
-			for (AddressMapIteratorType aIter=this->ABbegin(); aIter!=this->ABend();++aIter){
-				temp+=aIter->second->energy_source(rgauss.col(k), rugauss.col(k), Burgers);
-			}
-			return temp;
-		}
-		
-		//////////////////////////////////
-		double energy_source(const VectorDim & rf, const VectorDim & ruf, const VectorDim & bf) const
-        {/*! The elastic energy generated by this (source) segment at the input field point
-          */
-			double temp(0.0);
-			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::energy_integrand,rf,ruf,bf);
-			return -Material<Isotropic>::C2*temp;
-		}
-		
-		
-        /**********************************************************************/
-        double energy_integrand(const int & k,  VectorDim & rf, const VectorDim & ruf, const VectorDim & bf) const
-        {/*!
-          * \returns the energy_integrand
-          */
-			VectorDim DR= rf-rgauss.col(k);
-			double RaSquared = DR.squaredNorm() + coreLsquared;
-			return  (Material<Isotropic>::C1*(1.0+0.5*coreLsquared/RaSquared)*Burgers.dot(rugauss.col(k))*bf.dot(ruf)
-					 +2.0*Material<Isotropic>::nu*(1.0+0.5*coreLsquared/RaSquared)*(bf.dot(rugauss.col(k))*Burgers.dot(ruf))
-					 -(Burgers.dot(bf)*(1.0+coreLsquared/RaSquared)+ Burgers.dot(DR)*bf.dot(DR)*1.0/RaSquared )*ruf.dot(rugauss.col(k))
-					 )/sqrt(RaSquared);
-		}
 		
         /**********************************************************************/
 		void assemble()
@@ -483,7 +451,9 @@ namespace model {
         
         /* addToGlobalAssembly ************************************************/
         void addToGlobalAssembly(std::vector<Eigen::Triplet<double> >& kqqT,  Eigen::VectorXd& FQ) const
-        {
+        {/*!\param[in] kqqT the stiffness matrix of the network component
+          * \param[in] FQ the force vector of the network component
+          */
             
             const Eigen::MatrixXd tempKqq(Mseg.transpose()*Kqq*Mseg); // Create the temporaty stiffness matrix and push into triplets
             for (unsigned int i=0;i<segmentDOFs.size();++i)
@@ -511,8 +481,7 @@ namespace model {
         }
         
 		
-		//////////////////////////////////////////////////////////////
-		// get_Kqq
+		/**********************************************************************/
 		const MatrixNdof& get_Kqq() const
         {/*!\returns the edge stiffness matrix
           */
@@ -561,9 +530,9 @@ namespace model {
 		
 		/**********************************************************************/
 		VectorDim displacement(const VectorDim & Rfield, const VectorDim& S) const
-        {/*! The infinitesimal dispacement field generated by this segment at a field point
-          * @param[in] k			the current quadrature point
-          * @param[in] Rfield	the field point
+        {/*!@param[in] Rfield the field point
+          * @param[in] S the unit vector necessary to compute displacement as line integral
+          * \returns the infinitesimal dispacement field generated by this segment at Rfield
           *
           * The return value is calculated according to:
           *	\f[
@@ -577,9 +546,10 @@ namespace model {
 		
 		/**********************************************************************/
 		VectorDim displacement_integrand(const int & k, const VectorDim & Rfield, const VectorDim& S) const
-        {/*! The infinitesimal dispacement field generated by this segment at a field point
-          * @param[in] k			the current quadrature point
+        {/*!@param[in] k			the current quadrature point
           * @param[in] Rfield	the field point
+          * @param[in] S the unit vector necessary to compute displacement as line integral
+          * \returns The infinitesimal dispacement field generated by this segment at a field point
           *
           * The return value is calculated according to:
           *	\f[
@@ -643,7 +613,7 @@ namespace model {
 		/**********************************************************************/
 		Eigen::Matrix<double,dim-1,Ncoeff> hermiteLocalCoefficient() const
         {
-			const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),this->glidePlaneNormal));
+			const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),glidePlaneNormal));
 			Eigen::Matrix<double,dim-1,Ncoeff> HrCf = Eigen::Matrix<double,dim-1,Ncoeff>::Zero();
 			HrCf.col(1)= (G2L*this->sourceT()*this->chordParametricLength()).template segment<dim-1>(0);
 			HrCf.col(2)= (G2L*(this->sink->get_P()-this->source->get_P())).template segment<dim-1>(0);
@@ -671,7 +641,7 @@ namespace model {
 				const Eigen::Matrix<double,dim-1,Ncoeff> C1L(polynomialLocalCoeff()); // the local polynomial coefficients of this
                 PlanarSplineImplicitization<pOrder> psi(Coeff2Hermite<pOrder>::template h2c<dim-1>(C1L));
                 
-				const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),this->glidePlaneNormal));
+				const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),glidePlaneNormal));
 				
 				for (int k=0; k<pGlidePlane->segmentMeshCollisionPairContainer.size();++k)
                 {
@@ -699,7 +669,7 @@ namespace model {
 		/*********************************************************************/
 		/*VectorDim*/ vector_VectorDim conjugatePlaneNormal() const
         {
-			return CrystalOrientation<dim>::conjugatePlaneNormal(Burgers,this->glidePlaneNormal);
+			return CrystalOrientation<dim>::conjugatePlaneNormal(Burgers,glidePlaneNormal);
 		}
 		
 		/*********************************************************************/
@@ -707,13 +677,6 @@ namespace model {
         {
 			return pkGauss.col(qOrder/2)*this->chord().norm();
 		}
-        
-        //		/* intersectWith ******************************************************/
-        //		std::set<std::pair<double,double> > intersectWith( const Derived* const p_other) const {
-        ////			return DislocationSegmentIntersection<dim,pOrder>(this->hermiteCoefficients(),this->glidePlaneNormal).intersectWith(p_other->hermiteCoefficients(),p_other->glidePlaneNormal,tol,p_other);
-        //			return DislocationSegmentIntersection<dim,pOrder>(this->hermiteCoefficients(),this->glidePlaneNormal).intersectWith(p_other->hermiteCoefficients(),p_other->glidePlaneNormal);
-        //		}
-        
         
         /* stress_source ******************************************************/
 		MatrixDim stress_source(const VectorDim & Rfield) const __attribute__ ((deprecated))
@@ -755,7 +718,7 @@ namespace model {
 
 		
 		
-		/* friend T& operator << **********************************************/
+		/**********************************************************************/
 		template <class T>
 		friend T& operator << (T& os, const Derived& ds)
         {
@@ -786,6 +749,65 @@ namespace model {
 } // namespace model
 #endif
 
+            //		/* intersectWith ******************************************************/
+            //		std::set<std::pair<double,double> > intersectWith( const Derived* const p_other) const {
+            ////			return DislocationSegmentIntersection<dim,pOrder>(this->hermiteCoefficients(),glidePlaneNormal).intersectWith(p_other->hermiteCoefficients(),p_other->glidePlaneNormal,tol,p_other);
+            //			return DislocationSegmentIntersection<dim,pOrder>(this->hermiteCoefficients(),glidePlaneNormal).intersectWith(p_other->hermiteCoefficients(),p_other->glidePlaneNormal);
+            //		}
+
+            
+            
+            //		/**********************************************************************/
+            //		double energy() const
+            //        {/*! The total elastic energy generated by this segment.
+            //          *  Includes self-energy and interation energy between this segment and other segments in the network.
+            //          */
+            //			double temp=0.0;
+            //			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::energy_field);
+            //			return temp;
+            //		}
+            //
+            //
+            //		//////////////////////////////////
+            //		double energy_field(const int & k) const
+            //        {/*!@param[in] k the k-th quadrature point
+            //          *
+            //          * \returns The elastic energy at the k-th quadrature
+            //          * point due to other dislocation segments.
+            //          */
+            //
+            //			double temp=0.0;
+            //			for (AddressMapIteratorType aIter=this->ABbegin(); aIter!=this->ABend();++aIter){
+            //				temp+=aIter->second->energy_source(rgauss.col(k), rugauss.col(k), Burgers);
+            //			}
+            //			return temp;
+            //		}
+            //
+            //		//////////////////////////////////
+            //		double energy_source(const VectorDim & rf, const VectorDim & ruf, const VectorDim & bf) const
+            //        {/*! The elastic energy generated by this (source) segment at the input field point
+            //          */
+            //			double temp(0.0);
+            //			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::energy_integrand,rf,ruf,bf);
+            //			return -Material<Isotropic>::C2*temp;
+            //		}
+            //
+            //
+            //        /**********************************************************************/
+            //        double energy_integrand(const int & k,  VectorDim & rf, const VectorDim & ruf, const VectorDim & bf) const
+            //        {/*!
+            //          * \returns the energy_integrand
+            //          */
+            //			VectorDim DR= rf-rgauss.col(k);
+            //			double RaSquared = DR.squaredNorm() + coreLsquared;
+            //			return  (Material<Isotropic>::C1*(1.0+0.5*coreLsquared/RaSquared)*Burgers.dot(rugauss.col(k))*bf.dot(ruf)
+            //					 +2.0*Material<Isotropic>::nu*(1.0+0.5*coreLsquared/RaSquared)*(bf.dot(rugauss.col(k))*Burgers.dot(ruf))
+            //					 -(Burgers.dot(bf)*(1.0+coreLsquared/RaSquared)+ Burgers.dot(DR)*bf.dot(DR)*1.0/RaSquared )*ruf.dot(rugauss.col(k))
+            //					 )/sqrt(RaSquared);
+            //		}
+
+            
+            
 //
 //        /* stress_field *******************************************************/
 //		MatrixDim stress_field(const size_t & k)

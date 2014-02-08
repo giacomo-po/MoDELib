@@ -45,6 +45,7 @@ namespace model {
         static bool outputGlidePlanes;
         static bool outputSpatialCells;
         static bool outputPKforce;
+        static bool outputElasticEnergy;
         static bool outputMeshDisplacement;
         
         
@@ -216,7 +217,8 @@ namespace model {
                 std::cout<<", C/C_"<<Cell_file.sID<<std::flush;
             }
 			
-            if(outputGlidePlanes){
+            if(outputGlidePlanes)
+            {
                 //! 4- Outputs the glide planes
                 SequentialOutputFile<'G',1>::set_increment(outputFrequency); // GlidePlanes_file;
                 SequentialOutputFile<'G',1>::set_count(runID); // GlidePlanes_file;
@@ -225,7 +227,8 @@ namespace model {
                 std::cout<<", G/G_"<<glide_file.sID<<std::flush;
             }
             
-            if(outputPKforce){
+            if(outputPKforce)
+            {
                 SequentialOutputFile<'P',1>::set_increment(outputFrequency); // Edges_file;
                 SequentialOutputFile<'P',1>::set_count(runID); // Edges_file;
                 SequentialOutputFile<'P',1> p_file;
@@ -242,8 +245,29 @@ namespace model {
                 std::cout<<", P/P_"<<p_file.sID<<std::flush;
             }
             
-            if (DN.shared.use_bvp){
-                if(outputMeshDisplacement){
+            if(outputElasticEnergy)
+            {
+                typedef typename DislocationNetworkType::DislocationParticleType::ElasticEnergy ElasticEnergy;
+                SequentialOutputFile<'W',1>::set_increment(outputFrequency); 
+                SequentialOutputFile<'W',1>::set_count(runID);
+                SequentialOutputFile<'W',1> w_file; //energy_file
+                int ll=0;
+                for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+                {
+                    const int qOrder(linkIter->second->rgauss.cols());
+                    for (int q=0;q<linkIter->second->quadratureParticleContainer.size();++q)
+                    {
+                        w_file << ll*qOrder+q<<" "<< linkIter->second->rgauss.col(q).transpose()<<" "<< linkIter->second->quadratureParticleContainer[q]->template field<ElasticEnergy>()<<"\n";
+                    }
+                    ll++;
+                }
+                std::cout<<", W/W_"<<w_file.sID<<std::flush;
+            }
+            
+            if (DN.shared.use_bvp)
+            {
+                if(outputMeshDisplacement)
+                {
                     model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
                     model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
                     model::SequentialOutputFile<'D',true> d_file;
@@ -252,9 +276,9 @@ namespace model {
                     }
                     std::cout<<", D/D_"<<d_file.sID<<std::flush;
                 }
-                if(DN.shared.boundary_type==1){
+                if(DN.shared.boundary_type==1)
+                {
                     DN.shared.vbsc.outputVirtualDislocations(outputFrequency,runID);
-                    
                 }
             }
             
@@ -283,7 +307,10 @@ namespace model {
     
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputPKforce=false;
-    
+
+    template <typename DislocationNetworkType>
+    bool DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy=true;
+
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement=false;
     

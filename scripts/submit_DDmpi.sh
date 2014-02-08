@@ -40,4 +40,4 @@ module load gcc/4.7.2  > /dev/null 2>&1
 module load openmpi > /dev/null 2>&1 
 
 # run the program
-$MPI_BIN/mpiexec -n $NSLOTS ./DDmpi >& parallel_job_penode.output.$JOB_ID
+$MPI_BIN/mpiexec -pernode ./DDmpi >& parallel_job_penode.output.$JOB_ID

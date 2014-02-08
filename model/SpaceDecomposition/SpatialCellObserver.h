@@ -14,45 +14,16 @@
 
 #include <map>
 #include <memory> // std::shared_ptr (c++11)
-//#include <Eigen/Dense>
-//#include <model/Utilities/CompareVectorsByComponent.h>
-//#include <model/SpaceDecomposition/SpatialCellTraits.h>
-//#include <boost/ptr_container/ptr_map.hpp>
 #include <model/SpaceDecomposition/SpatialCell.h>
 #include <model/SpaceDecomposition/CellShift.h>
 
-
 namespace model {
 	
-	
-	/********************************************************************************************/
-	/********************************************************************************************/
+	/**************************************************************************/
+	/**************************************************************************/
 	template<typename ParticleType,short unsigned int dim>
 	struct SpatialCellObserver
     {
-		
-//        typedef SpatialCell<ParticleType,dim> SpatialCellType;
-//        typedef typename SpatialCellType::VectorDimD VectorDimD;
-//        typedef typename SpatialCellType::CellIdType CellIdType;
-//		typedef std::map<Eigen::Matrix<int,dim,1>, SpatialCell<ParticleType,dim>* const,CompareVectorsByComponent<int,dim> >  CellMapType;
-//        typedef typename SpatialCellType::SharedPtrType SharedPtrType;
-//        typedef typename SpatialCellType::isCellType isCellType;
-
-        
-//        SpatialCellObserver()
-//        {
-//
-//        }
-//        
-//        SpatialCellObserver(const SpatialCellObserver& other)
-//        {
-//            
-//        }
-        
-//    public:
-        
-        
-
         
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         typedef Eigen::Matrix<int,dim,1> CellIdType;
@@ -60,35 +31,35 @@ namespace model {
 		typedef std::map<CellIdType, SpatialCellType* const,CompareVectorsByComponent<int,dim> >  CellMapType;
 		typedef std::shared_ptr<SpatialCellType> SharedPtrType;
         typedef std::pair<bool,SpatialCellType* const> isCellType;
-            typedef CellShift<dim,1>    CellShiftType;
+        typedef CellShift<dim,1>    CellShiftType;
         
-
+        
         
         //! The size of a SpatialCell
         static double cellSize;
         
-		/* begin() ***************************************************/
+		/**********************************************************************/
 		static typename CellMapType::const_iterator cellBegin()
         {/*! \returns A const_iterator to the first SpatialCellType cell.
           */
 			return cellMap.begin();
 		}
 		
-		/* end() *****************************************************/
+		/**********************************************************************/
 		static typename CellMapType::const_iterator cellEnd()
         {/*! \returns A const_iterator to the past-the-last SpatialCellType cell.
           */
 			return cellMap.end();
 		}
         
-        
+        /**********************************************************************/
         static size_t totalCells()
         {/*! \returns The number of observed SpatialCellType cells.
           */
             return cellMap.size();
         }
         
-        /* getCellIDByPosition ************************************************/
+		/**********************************************************************/
 		static CellIdType getCellIDByPosition(const VectorDimD& P)
         {/*! \returns The CellIdType ID of the cell that contains P. The ID
           *  satisfies cellID <= P/cellSize < (cellID+1).
@@ -96,7 +67,7 @@ namespace model {
 			return floorEigen<dim>(P/cellSize);
 		}
         
-		/* getCellByID ********************************************************/
+		/**********************************************************************/
 		static SharedPtrType getCellByID(const CellIdType& cellID)
         {/*! @param[in] cellID The ID of the cell.
           *  \returns If a cell with ID=cellID exists, a shared-pointer to that
@@ -146,14 +117,14 @@ namespace model {
                 if (isC.first)
                 {
                     model_execAssert(temp.insert(std::make_pair(isC.second->cellID,isC.second)),.second,"CANNOT INSERT CELL IN NEIGHBORCELLS");
-
+                    
                 }
-
+                
             }
             
             return temp;
         }
-    
+        
         
         /*****************************************/
         template <class T>
@@ -163,40 +134,40 @@ namespace model {
             for (typename CellMapType::const_iterator cIter=sCO.begin();cIter!=sCO.end();++cIter)
             {
                 os << (*cIter->second) << std::endl;
-            }
-            return os;
-        }
-        
-        
-    private:
-        
-        friend class SpatialCell<ParticleType,dim>;
-        
-        static  CellMapType cellMap;
-    };
-    
-    /////////////////////////////
-    // Declare static data member
-    template <typename ParticleType,short unsigned int dim>
-    double SpatialCellObserver<ParticleType,dim>::cellSize=1.0;
-    
-    template <typename ParticleType,short unsigned int dim>
-    std::map<Eigen::Matrix<int,dim,1>, SpatialCell<ParticleType,dim>* const,CompareVectorsByComponent<int,dim> > SpatialCellObserver<ParticleType,dim>::cellMap;
-
-//                template <typename ParticleType,short unsigned int dim>
-//                boost::ptr_map<Eigen::Matrix<int,dim,1>, SpatialCell<ParticleType,dim>* const,CompareVectorsByComponent<int,dim> > SpatialCellObserver<ParticleType,dim>::cellMap;
-
+                }
+                return os;
+                }
                 
-//                template <typename ParticleType,short unsigned int dim>
-//                std::map<Eigen::Matrix<int,dim,1>,
-//                /*    */ SpatialCell<ParticleType,dim>* const,
-//                /*    */ CompareVectorsByComponent<int,dim>,
-//                /*    */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<int,dim,1>, SpatialCell<ParticleType,dim>* const> > > SpatialCellObserver<ParticleType,dim>::cellMap;
-
                 
-}	// close namespace
+            private:
+                
+                friend class SpatialCell<ParticleType,dim>;
+                
+                static  CellMapType cellMap;
+                };
+                
+                /////////////////////////////
+                // Declare static data member
+                template <typename ParticleType,short unsigned int dim>
+                double SpatialCellObserver<ParticleType,dim>::cellSize=1.0;
+                
+                template <typename ParticleType,short unsigned int dim>
+                std::map<Eigen::Matrix<int,dim,1>, SpatialCell<ParticleType,dim>* const,CompareVectorsByComponent<int,dim> > SpatialCellObserver<ParticleType,dim>::cellMap;
+                
+                //                template <typename ParticleType,short unsigned int dim>
+                //                boost::ptr_map<Eigen::Matrix<int,dim,1>, SpatialCell<ParticleType,dim>* const,CompareVectorsByComponent<int,dim> > SpatialCellObserver<ParticleType,dim>::cellMap;
+                
+                
+                //                template <typename ParticleType,short unsigned int dim>
+                //                std::map<Eigen::Matrix<int,dim,1>,
+                //                /*    */ SpatialCell<ParticleType,dim>* const,
+                //                /*    */ CompareVectorsByComponent<int,dim>,
+                //                /*    */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<int,dim,1>, SpatialCell<ParticleType,dim>* const> > > SpatialCellObserver<ParticleType,dim>::cellMap;
+                
+                
+                }	// close namespace
 #endif
-
+                
                 
                 
                 
@@ -225,4 +196,4 @@ namespace model {
                 //          */
                 //            return pCell->neighborCellsEnd();
                 //        }
-
+                

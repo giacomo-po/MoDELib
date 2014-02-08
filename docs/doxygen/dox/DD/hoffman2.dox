@@ -71,7 +71,26 @@ After the node has been obtained, you can run DDomp as:
 \endverbatim
 
 ###########################
-\subsection hoffma2_dd_interactive_DDmpi DDmpi (OUTDATED, NOW THE MIXED MODE MPI-OMP IS AVAILABLE)
+\subsection hoffma2_dd_interactive_DDmpi DDmpi
+If you compiled DDmpi, <a href="http://www.open-mpi.org">Open-MPI</a> is used in combination with <a href="http://openmp.org">OpenMP</a> to speed up the most computationally-intensive loops. You can then request multiple nodes (machines) on the cluster which communicate using <a href="http://www.open-mpi.org">Open-MPI</a>, each of them internally using <a href="http://openmp.org">OpenMP</a>. Therefore, you must request "entire" nodes on the <a href="https://idre.ucla.edu/hoffman2">Hoffman2</a> cluster, where "entire" here that all cores on a specific machine will be reserved to run DDmpi. The parallel environment to be requested via qrsh is "-pe node*" in combination with the "exclusive" directive. For example:
+\verbatim
+qrsh -l h_data=4g,h_rt=3:00:00,exclusive,highp -now n -pe node* 4
+\endverbatim
+requests 4 nodes, for 3 hours, and from the resource group (highp). If each node has 12 cores, the total number of cores used will be 4*12=48. DDmpi will then create 4 MPI processes (on for each node), each internally creating 12 threads.
+
+After the nodes have been obtained, it is necessary to update the environmental variables.
+\verbatim
+. /u/local/bin/set_qrsh_env.sh
+\endverbatim
+
+You can run DDmpi using the "mpirun" command. However, in order to make sure that the correct version of "mpirun" is used, it is recommended to specify its full path using the environmental variable $MPI_BIN:
+\verbatim
+$MPI_BIN/mpirun -pernode DDmpi
+\endverbatim
+where "N" is the number of requested nodes. The "-pernode" flag is an alternative to using a hostfile.
+
+###########################
+\subsection hoffma2_dd_interactive_DDmpiOLD DDmpi (OLD)
 If you compiled DDmpi, <a href="http://www.open-mpi.org">Open-MPI</a> is used to speed up the most computationally-intensive loops. Therefore, you can request processors belonging to different nodes using the "-pe dc_* N" directive, where N is the number of nodes. For example:
 \verbatim
 qrsh -l h_data=4g,h_rt=4:00:00 -pe dc_* 96
@@ -86,7 +105,7 @@ After the processors have been obtained, you can run DDmpi using the "mpirun" co
 \verbatim
 $MPI_BIN/mpirun -np N DDmpi
 \endverbatim
-where "N" is the number of requested processors.
+where "N" is the number of requested processors. 
 
 ###########################################################
 \section hoffma2_dd_batch Running in batch mode

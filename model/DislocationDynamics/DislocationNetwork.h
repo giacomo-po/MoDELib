@@ -149,7 +149,6 @@ namespace model {
 		static bool useImplicitTimeIntegration;
         static double equilibriumVelocity;
 
-        
 		unsigned int runID;
 				
 		bool use_crossSlip;
@@ -243,7 +242,7 @@ namespace model {
             {
 				double t0=clock();
 				model::cout<<"		Updating bvp stress ... ";
-				if(!(runID%shared.use_bvp))
+				if(!(runID%shared.use_bvp)) // enter the if statement if runID is a multiple of use_bvp
                 {
 					shared.domain.update_BVP_Solution(updateUserBC,this);
 				}
@@ -292,6 +291,12 @@ namespace model {
             
             const MatrixDimD pdr(plasticDistortionRate());
             plasticDistortion += pdr*dt;
+            
+            if(DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy)
+            {
+                typedef typename DislocationParticleType::ElasticEnergy ElasticEnergy;
+                this->template computeNeighborField<ElasticEnergy>();
+            }
             
             //! 11- Output the current configuration before changing it
             output();
@@ -468,8 +473,9 @@ namespace model {
             shared.minSNorderForSolve=(size_t)minSNorderForSolve_temp;
             
             // QuadratureParticle
-            EDR.readScalarInFile(fullName.str(),"coreWidthSquared",StressField::a2); // core-width
-            assert((StressField::a2)>0.0 && "coreWidthSquared MUST BE > 0.");
+            EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width
+            assert((StressField::a)>0.0 && "coreSize MUST BE > 0.");
+            StressField::a2=StressField::a*StressField::a;
             LinkType::coreLsquared=StressField::a2;
             //            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
             
@@ -499,6 +505,8 @@ namespace model {
             EDR.readScalarInFile(fullName.str(),"outputSpatialCells",DislocationNetworkIO<DislocationNetworkType>::outputSpatialCells);
             EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
+            EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
+            
             
             
 			// BVP
@@ -520,6 +528,7 @@ namespace model {
 			EDR.readScalarInFile(fullName.str(),"dx",dx);
 			assert(dx>0.0);
             EDR.readScalarInFile(fullName.str(),"equilibriumVelocity",equilibriumVelocity);
+			assert(equilibriumVelocity>=0.0);
 
 			
 			EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
