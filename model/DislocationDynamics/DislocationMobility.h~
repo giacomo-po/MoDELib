@@ -44,7 +44,7 @@ namespace model {
 //        const double& Ta;
         const double& p;
         const double& q;
-        const double& A ;
+        const double& A;
         
         
         /**********************************************************************/
