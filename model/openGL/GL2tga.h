@@ -19,7 +19,11 @@
 #include <GL/gl.h>
 #endif
 
-
+/* TO INCREASE RESOLUTION:
+ http://stackoverflow.com/questions/21574723/save-image-from-opengl-pyqt-in-high-resolution
+ http://www.lighthouse3d.com/tutorials/opengl-short-tutorials/opengl_framebuffer_objects/
+ http://www.songho.ca/opengl/gl_fbo.html
+ */
 
 namespace model {
 	
@@ -38,8 +42,8 @@ namespace model {
             
             if (saveTGA)
             {
-                int x=glutGet(GLUT_WINDOW_WIDTH);
-                int y=glutGet(GLUT_WINDOW_HEIGHT);
+                int x=glutGet(GLUT_WINDOW_WIDTH);  // must be < GL_MAX_RENDERBUFFER_SIZE
+                int y=glutGet(GLUT_WINDOW_HEIGHT); // must be < GL_MAX_RENDERBUFFER_SIZE
                 
                 // get the image data
                 long imageSize = x * y * 3;
@@ -60,7 +64,7 @@ namespace model {
                 std::stringstream filenameStream;
                 filenameStream << filename << ".tga";
                 std::string filenameWithExtension=filenameStream.str();
-                std::cout<<"Saving file"<<filenameWithExtension<<std::endl;
+                std::cout<<"Saving file"<<filenameWithExtension<<" ("<<x<<" x "<<y<<" pixels) "<<std::endl;
                 
                 
                 // write header and data to file
