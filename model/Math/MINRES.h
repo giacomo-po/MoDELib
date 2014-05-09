@@ -65,6 +65,8 @@ namespace model {
             xMR=x0;
             norm_rMR=beta;
             const ScalarType norm_r0(beta);
+            
+//            std::cout<<"norm_r0="<<norm_r0<<std::endl;
 
 //            while ( n<n_max && norm_rMR/norm_r0 > tol){
                 while ( n<n_max ){
@@ -101,14 +103,17 @@ namespace model {
                 norm_rMR=norm_rMR*std::fabs(s);
                 eta=-s*eta;
                     
+                    
                     if(norm_rMR/norm_r0 < tol){
                         break;
                     }
                 
                 n++;
+                    std::cout<<"MINRES iteration "<< n << " of "<<n_max<<": realtive error = "<< norm_rMR/norm_r0 << ", tol="<<tol<<std::endl;
+
                     
                     if(n==n_max){
-                        std::cout<<"MINRES iteration "<< n << "of "<<n_max<<": realtive error = "<< norm_rMR/norm_r0 << ", tol="<<tol<<std::endl;
+                        std::cout<<"MINRES iteration "<< n << " of "<<n_max<<": realtive error = "<< norm_rMR/norm_r0 << ", tol="<<tol<<std::endl;
                         assert(0 && "MINRES DID NOT CONVERGE.");
                     }
             

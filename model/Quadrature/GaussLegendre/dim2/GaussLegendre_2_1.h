@@ -15,10 +15,9 @@ namespace model{
 	template <>
 	struct GaussLegendre<2,1>{
 		static Eigen::Matrix<double,3,1> abcsissasAndWeights(){
-			Eigen::Matrix<double,3,1> U;
-			U(0,0)= 3.333333333333333e-01;		U(2,0)= 5.000000000000000e-01;
-			U(1,0)= 3.333333333333333e-01;
-			return U;
+			Eigen::Matrix<double,1,3> aw;
+			aw<< 3.333333333333333e-01, 3.333333333333333e-01, 5.000000000000000e-01;
+			return aw.transpose();
 		}
 	};
 /*************************************************/

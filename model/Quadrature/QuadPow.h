@@ -15,35 +15,29 @@
 #include <float.h>
 #include <Eigen/Dense>
 
-#include <model/Quadrature/Quadrature.h>
-//#include <model/Quadrature/GaussLegendre.h>
 
 
-namespace model {
-	
+namespace model
+{
 
-	
 	template<short unsigned int pOrder, short unsigned int qOrder, template<short unsigned int,short unsigned int> class QuadratureRule>
-	struct QuadPow {
+	class QuadPow
+    {
 	
-	//	static const Eigen::Matrix<double,1,qOrder> A;
+    public:
+        
 		static const Eigen::Matrix<double,qOrder,pOrder+1>   uPow;
 		static const Eigen::Matrix<double,qOrder,pOrder  >  duPow;
 		static const Eigen::Matrix<double,qOrder,pOrder-1> dduPow;
 		
-		
-		static Eigen::Matrix<double,qOrder,pOrder+1> uPowFill(){
+        /**********************************************************************/
+		static Eigen::Matrix<double,qOrder,pOrder+1> uPowFill()
+        {
+            const Eigen::Matrix<double,1,qOrder> abscissas=QuadratureRule<1,qOrder>::abcsissasAndWeights().template block<1,qOrder>(0,0);
 
-//			Quadrature<1,qOrder,QuadratureRule> Q;
-//			Eigen::Matrix<double,1,qOrder> B = Q.abscissas;
-//			std::cout<<Quadrature<1,qOrder,QuadratureRule>::abscissas<<std::endl;
-
-			//std::cout<<Quadrature<1,qOrder,QuadratureRule>::abscissas_(0)<<std::endl;
-			if ( Quadrature<1,qOrder,QuadratureRule>::abscissas.squaredNorm() > FLT_EPSILON){}
-			else{
-                std::cout<<"norm of quadrature="<<Quadrature<1,qOrder,QuadratureRule>::abscissas.squaredNorm()<<std::endl;
-				std::cout<<"THIS IS A BUG WITH GCC IN MAC osX."<<std::endl;
-				std::cout<<"To fix it create make a call to the coresponding EXPLICIT Quadrature<1,qOrder>::abscissas before using QuadPow<pOrder,qOrder>. Eg, call Quadrature<1,8,QuadratureRule>::abscissa. "<<std::endl;
+            if ( abscissas.squaredNorm() < FLT_EPSILON)
+            {
+                std::cout<<"norm of quadrature="<<abscissas.squaredNorm()<<std::endl;
 				assert(0);
 			}
 			
@@ -51,9 +45,11 @@ namespace model {
 	
 			Eigen::Matrix<double,qOrder,pOrder+1> temp;
 			
-			for (int i=0; i<qOrder; ++i){
-				for (int j=0; j<pOrder+1; ++j){
-					temp(i,j)=std::pow(Quadrature<1,qOrder,QuadratureRule>::abscissas(i),j);
+			for (int i=0; i<qOrder; ++i)
+            {
+				for (int j=0; j<pOrder+1; ++j)
+                {
+					temp(i,j)=std::pow(abscissas(i),j);
 				}
 			}
 			
@@ -64,13 +60,19 @@ namespace model {
 			return temp;
 		}
 		
-		static Eigen::Matrix<double,qOrder,pOrder> duPowFill(){
-			
+        /**********************************************************************/
+		static Eigen::Matrix<double,qOrder,pOrder> duPowFill()
+        {
+            
+            const Eigen::Matrix<double,1,qOrder> abscissas=QuadratureRule<1,qOrder>::abcsissasAndWeights().template block<1,qOrder>(0,0);
+
 			Eigen::Matrix<double,qOrder,pOrder> temp;
 			
-			for (int i=0; i<qOrder; ++i){
-				for (int j=1; j<pOrder+1; ++j){
-					temp(i,j-1)=j*std::pow(Quadrature<1,qOrder,QuadratureRule>::abscissas(i),j-1);
+			for (int i=0; i<qOrder; ++i)
+            {
+				for (int j=1; j<pOrder+1; ++j)
+                {
+					temp(i,j-1)=j*std::pow(abscissas(i),j-1);
 				}
 			}
 			std::cout<< "Computing 1-st derivative of powers of abscissas:"<<std::endl;
@@ -78,13 +80,19 @@ namespace model {
 			return temp;
 		}
 		
-		static Eigen::Matrix<double,qOrder,pOrder-1> dduPowFill(){
-			
+        /**********************************************************************/
+		static Eigen::Matrix<double,qOrder,pOrder-1> dduPowFill()
+        {
+            
+            const Eigen::Matrix<double,1,qOrder> abscissas=QuadratureRule<1,qOrder>::abcsissasAndWeights().template block<1,qOrder>(0,0);
+
 			Eigen::Matrix<double,qOrder,pOrder-1> temp;
 			
-			for (int i=0; i<qOrder; ++i){
-				for (int j=2; j<pOrder+1; ++j){
-					temp(i,j-2)=j*(j-1)*std::pow(Quadrature<1,qOrder,QuadratureRule>::abscissas(i),j-2);
+			for (int i=0; i<qOrder; ++i)
+            {
+				for (int j=2; j<pOrder+1; ++j)
+                {
+					temp(i,j-2)=j*(j-1)*std::pow(abscissas(i),j-2);
 				}
 			}
 			std::cout<< "Computing 2-nd derivative of powers of abscissas:"<<std::endl;
@@ -94,10 +102,9 @@ namespace model {
 	
 	};
 	
-//	template<short unsigned int pOrder, short unsigned int qOrder,  template <short unsigned int, short unsigned int> class QuadratureRule>
-//	const Eigen::Matrix<double,1,qOrder> QuadPow<pOrder,qOrder,QuadratureRule>::A=Quadrature<1,qOrder,QuadratureRule>::abscissas;
+//    // Declare static data members
 	
-	template<short unsigned int pOrder, short unsigned int qOrder,  template <short unsigned int, short unsigned int> class QuadratureRule>
+    template<short unsigned int pOrder, short unsigned int qOrder,  template <short unsigned int, short unsigned int> class QuadratureRule>
 	const Eigen::Matrix<double,qOrder,pOrder+1> QuadPow<pOrder,qOrder,QuadratureRule>::uPow=QuadPow<pOrder,qOrder,QuadratureRule>::uPowFill();
 	
 	template<short unsigned int pOrder, short unsigned int qOrder,  template <short unsigned int, short unsigned int> class QuadratureRule>
@@ -105,8 +112,6 @@ namespace model {
 	
 	template<short unsigned int pOrder, short unsigned int qOrder,  template <short unsigned int, short unsigned int> class QuadratureRule>
 	const Eigen::Matrix<double,qOrder,pOrder-1> QuadPow<pOrder,qOrder,QuadratureRule>::dduPow=QuadPow<pOrder,qOrder,QuadratureRule>::dduPowFill();
-
 	
-	//////////////////////////////////////////////////////////////s
 } // namespace model
 #endif

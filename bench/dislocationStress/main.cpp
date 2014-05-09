@@ -1,3 +1,7 @@
+
+#define _MODEL_NON_SINGULAR_DD_ 1 /* Cai's regularization method */
+
+
 #include <stdlib.h> // atoi
 #include <model/DislocationDynamics/DislocationNetwork.h>
 #include <model/Utilities/SequentialOutputFile.h>
@@ -94,21 +98,21 @@ int main(int argc, char * argv[])
     DN.updateQuadraturePoints();
     DN.computeField<SimpleFieldPoint,StressField>(fieldPoints);
 
-//    // Ouput results to file
-//    model::SequentialOutputFile<'S',1>  numericalFile; // this is file S/S_0.txt
+    // Ouput results to file
+    model::SequentialOutputFile<'S',1>  numericalFile; // this is file S/S_0.txt
 //    model::SequentialOutputFile<'S',1> analyticalFile; // this is file S/S_1.txt
-//    
-//    for (unsigned int k=0;k<fieldPoints.size();++k)
-//    {
-//        numericalFile << fieldPoints[k].P.transpose()<<" "<<fieldPoints[k].field<StressField>().row(0)
-//        /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(1)
-//        /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(2)<<"\n";
-//        
+    
+    for (unsigned int k=0;k<fieldPoints.size();++k)
+    {
+        numericalFile << fieldPoints[k].P.transpose()<<" "<<fieldPoints[k].field<StressField>().row(0)
+        /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(1)
+        /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(2)<<"\n";
+        
 //        Eigen::Matrix<double,3,3> temp(stressStraightEdge(fieldPoints[k].P));
 //        analyticalFile << fieldPoints[k].P.transpose()<<" "<<temp.row(0)
 //        /*                                         */ <<" "<<temp.row(1)
 //        /*                                         */ <<" "<<temp.row(2)<<"\n";
-//    }
+    }
     
     
     return 0;

@@ -20,6 +20,7 @@ outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=0;
 outputMeshDisplacement=0;
+outputElasticEnergy=0;
 
 ######################################
 # MATERIAL
@@ -46,7 +47,7 @@ externalStress = 0.0 0.0 0.00
 ######################################
 # STRESS FIELD
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
-coreWidthSquared=1.0;
+coreSize=1.0;
 # Use of multipole-expanded stress field for non-nearest neighbor cells
 dislocationCellSize=1000;
 nearCellStressApproximation=10;
@@ -92,4 +93,6 @@ crossSlipLength=110.0;
 # Don't assemble and solve SubNetworks with less than "minSNorderForSolve" nodes:
 minSNorderForSolve=0;
 
-
+######################################
+# parametrization of cubic splines 
+parametrizationExponent=0.5;

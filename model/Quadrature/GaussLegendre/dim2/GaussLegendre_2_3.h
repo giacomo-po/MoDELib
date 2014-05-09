@@ -11,10 +11,11 @@
 
 namespace model{
 
-	//////////////////////////////////////////////////////////////
 	template <>
-	struct GaussLegendre<2,3>{
-		static Eigen::Matrix<double,3,3> abcsissasAndWeights(){
+	struct GaussLegendre<2,3>
+    {
+		static Eigen::Matrix<double,3,3> abcsissasAndWeights()
+        {
 			Eigen::Matrix<double,3,3> U;
 			U(0,0)=  1.666666666666667e-01;		U(2,0)= 1.666666666666667e-01;
 			U(1,0)=  1.666666666666667e-01;
@@ -25,7 +26,6 @@ namespace model{
 			return U;
 		}
 	};
-/*************************************************/
-} 
+}
 #endif 
 

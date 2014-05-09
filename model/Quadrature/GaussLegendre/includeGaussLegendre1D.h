@@ -20,7 +20,7 @@
 
 //#include <model/Quadrature/GaussLegendre/dim1/GaussLegendre_1_1.h>
 //#include <model/Quadrature/GaussLegendre/dim1/GaussLegendre_1_2.h>
-//#include <model/Quadrature/GaussLegendre/dim1/GaussLegendre_1_4.h>
+#include <model/Quadrature/GaussLegendre/dim1/GaussLegendre_1_4.h>
 #include <model/Quadrature/GaussLegendre/dim1/GaussLegendre_1_8.h>
 #include <model/Quadrature/GaussLegendre/dim1/GaussLegendre_1_16.h>
 //#include <model/Quadrature/GaussLegendre/dim1/GaussLegendre_1_32.h>

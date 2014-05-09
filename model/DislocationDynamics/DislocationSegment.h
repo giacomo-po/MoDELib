@@ -234,10 +234,7 @@ namespace model {
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
 		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), // change this
-//        /* init list       */ dH0(Material<Isotropic>::dH0.row(CrystalOrientation<dim>::planeID(glidePlaneNormal)))
         /* init list       */ dm(glidePlaneNormal,Burgers)
-        //        /* init list       */ DHs(),
-//        /* init list       */ DHe()
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
@@ -265,7 +262,6 @@ namespace model {
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
 		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), 			// change this
-//        /* init list       */ dH0(Material<Isotropic>::dH0.row(CrystalOrientation<dim>::planeID(glidePlaneNormal)))
         /* init list       */ dm(glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and ExpandingEdge
           *  @param[in] NodePair_in the pair of source and sink pointers
@@ -318,9 +314,9 @@ namespace model {
                 MatrixNcoeff  SFCH(this->get_SFCH());
                 MatrixNcoeffDim qH(this->get_qH());
                 //			QuadPowType::uPow.row(k)*SFCH;
-                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH;
-                rgauss.col(k)=SFgauss.row(k)*qH;
-                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH;
+                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION????
+                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION????
+                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION????
                 jgauss(k)=rugauss.col(k).norm();
                 rlgauss.col(k)=rugauss.col(k)/jgauss(k);
                 
@@ -331,14 +327,13 @@ namespace model {
             
             }
             
-                        
 		}
 		
-		
-		//////////////////////////////////
-		//! PK force. Calculates the PK force at the k-th field point
+		/**********************************************************************/
 		VectorDim pkForce(const size_t & k)
-        {
+        {/*!@param[in] k the k-th quandrature point
+          *\returns the PK force at the k-th quandrature point
+          */
             return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
 			/*                   */ : ((quadratureParticleContainer[k]->stress()+shared.externalStress)*Burgers).cross(rlgauss.col(k));
             
@@ -346,10 +341,10 @@ namespace model {
 		
 		/**********************************************************************/
 		MatrixDimQorder get_pkGauss() const
-        {
+        {/*!\returns the matrix of PK force at the quandrature points
+          */
 			return pkGauss;
 		}
-		
 		
         /**********************************************************************/
 		void assemble()

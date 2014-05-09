@@ -32,6 +32,7 @@
 // -4 CHANGE definition of modelMacros in debug mode BECAUSE assert(x) CAN BE REMOVED BY NDEBUG!!! MUST USE mode::assert_fail
 // -3 MAKE isIsolated and isBalanced data members of NetworkNode that are modified by addToNeighbors and removeFromNeigbors
 // implement IndependentPath
+// There is a bug with implicit integration. Nodes may exit the domain boundary.
 
 // -1 - remove DislocationEnergyRules and EdgeConfig !!!
 // 0 - Finish DepthFirst class. Don't allow to search/execute if N=0, so that N=1 means that node only, n=2 means first neighbor. Or change SpineNodeBase_CatmullRom::TopologyChangeActions
@@ -56,14 +57,6 @@
 //									assert(T1.norm()>tol && "SplineIntersection<3,3,1,2>: T1 too small.");	// NOT RIGHT FOR DIPOLAR LOOPS
 // 14- If T0=0 or T1=0, then rl(0)=0/0=NaN !!!!! This is not true since rl still tends to a finite vector. Remove class Parametric curve and implement special case of rl at 0 and 1 for vanishing nodal tangents
 
-/*
-#CFLAGS += -print-search-dirs
-#CFLAGS += -print-file-name=libgomp.a
-#CFLAGS += -fsanitize=address
-#CFLAGS += -fno-omit-frame-pointer
-#CFLAGS += -g
-#CFLAGS += -fsanitize=thread
-*/
 
 #ifndef model_DISLOCATIONNETWORK_H_
 #define model_DISLOCATIONNETWORK_H_
@@ -453,6 +446,11 @@ namespace model {
             
             // Create a file-reader object
             EigenDataReader EDR;
+            
+            // Parametrization exponent
+            EDR.readScalarInFile(fullName.str(),"parametrizationExponent",LinkType::alpha);
+            assert((LinkType::alpha)>=0.0 && "parametrizationExponent MUST BE >= 0.0");
+            assert((LinkType::alpha)<=1.0 && "parametrizationExponent MUST BE <= 1.0");
 
             // Temperature. Make sure you initialize before calling Material<Isotropic>::select()
             EDR.readScalarInFile(fullName.str(),"temperature",Material<Isotropic>::T); // temperature
