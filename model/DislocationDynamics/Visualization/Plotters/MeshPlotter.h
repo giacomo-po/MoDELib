@@ -25,17 +25,19 @@
 #include <model/Network/Readers/VertexReader.h>
 #include <model/Network/Readers/EdgeReader.h>
 
-namespace model {
+namespace model
+{
 	
 	class MeshPlotter : public VertexReader<'N',5,float>,
 	/*               */ public VertexReader<'D',4,float>,
     /*               */ public VertexReader<'Q',4,float>,
-	/*               */ public EdgeReader  <'T',3,float>{
+	/*               */ public EdgeReader  <'T',3,float>
+    {
 		
 		typedef VertexReader<'N',5,float> NodeContainerType;
 		typedef VertexReader<'D',4,float> DispContainerType;
 		typedef VertexReader<'Q',4,float> QuadContainerType;
-		typedef EdgeReader<'T',3,float>   EdgeContainerType;
+		typedef   EdgeReader<'T',3,float> EdgeContainerType;
 		
 		bool edgeFileIsGood;
 		bool nodeFileIsGood;
@@ -103,7 +105,8 @@ namespace model {
 			
 			edgeVector.clear();
 			edgeVector.reserve(EdgeContainerType::size()); // use reserve to speed-up push_back used later
-			for (EdgeContainerType::const_iterator iterE=EdgeContainerType::begin(); iterE!=EdgeContainerType::end();++iterE){
+			for (EdgeContainerType::const_iterator iterE=EdgeContainerType::begin(); iterE!=EdgeContainerType::end();++iterE)
+            {
 				VertexReader<'N',5,float>::const_iterator iterN1 = NodeContainerType::find(iterE->first.first);
 				VertexReader<'N',5,float>::const_iterator iterN2 = NodeContainerType::find(iterE->first.second);
 				assert(iterN1!=NodeContainerType::end() && "MESH NODE NOT FOUND IN N FILE");
@@ -111,7 +114,8 @@ namespace model {
 				bool isBoundaryNode1(iterN1->second.operator()(3));
 				bool isBoundaryNode2(iterN2->second.operator()(3));
 				
-				if ( (isBoundaryNode1 && isBoundaryNode2) /*|| showInteriorBoundaryMesh*/ ) {
+				if ( (isBoundaryNode1 && isBoundaryNode2) /*|| showInteriorBoundaryMesh*/ )
+                {
 					Eigen::Matrix<float,3,4> temp(Eigen::Matrix<float,3,4>::Zero());
 					temp.col(0)=iterN1->second.segment<3>(0);
 					temp.col(1)=iterN2->second.segment<3>(0);
@@ -129,8 +133,10 @@ namespace model {
 		}
 		
 		/* plot *************************************************/
-		void plot() const {
-			if (showMesh>0){
+		void plot() const
+        {
+			if (showMesh>0)
+            {
 				float dispCorr(dispScale*(showMesh>1));
 				//glDisable(GL_DEPTH_TEST);
 				glEnable (GL_BLEND);
@@ -147,7 +153,8 @@ namespace model {
                 glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor);  // emission color for the material
                 
                 
-				for (EdgeVectoType::const_iterator iterE=edgeVector.begin(); iterE!=edgeVector.end();++iterE){
+				for (EdgeVectoType::const_iterator iterE=edgeVector.begin(); iterE!=edgeVector.end();++iterE)
+                {
 					glBegin(GL_LINES); 
 				glVertex3f(iterE->operator()(0,0)+iterE->operator()(0,2)*dispCorr, iterE->operator()(1,0)+iterE->operator()(1,2)*dispCorr,iterE->operator()(2,0)+iterE->operator()(2,2)*dispCorr); 
 				glVertex3f(iterE->operator()(0,1)+iterE->operator()(0,3)*dispCorr, iterE->operator()(1,1)+iterE->operator()(1,3)*dispCorr,iterE->operator()(2,1)+iterE->operator()(2,3)*dispCorr); 
@@ -162,7 +169,8 @@ namespace model {
                     myQuad=gluNewQuadric();
                     float radius=10.0;
                     glColor4f(0.0f, 0.0f, 0.0f, 0.7);
-                    for (QuadContainerType::const_iterator iterQ=QuadContainerType::begin(); iterQ!=QuadContainerType::end();++iterQ){
+                    for (QuadContainerType::const_iterator iterQ=QuadContainerType::begin(); iterQ!=QuadContainerType::end();++iterQ)
+                    {
                         glTranslatef(  iterQ->second(0),  iterQ->second(1),  iterQ->second(2) );
                         gluSphere( myQuad , radius , 10 , 10 );
                         glTranslatef( -iterQ->second(0), -iterQ->second(1), -iterQ->second(2) );

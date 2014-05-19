@@ -23,26 +23,22 @@ namespace model
 	template<short unsigned int pOrder, short unsigned int qOrder, template<short unsigned int,short unsigned int> class QuadratureRule>
 	class QuadPow
     {
-	
-    public:
         
-		static const Eigen::Matrix<double,qOrder,pOrder+1>   uPow;
-		static const Eigen::Matrix<double,qOrder,pOrder  >  duPow;
-		static const Eigen::Matrix<double,qOrder,pOrder-1> dduPow;
-		
         /**********************************************************************/
 		static Eigen::Matrix<double,qOrder,pOrder+1> uPowFill()
-        {
+        {/*/returns a matrix M, where M(i,j) is the j-th power of the i-th
+          * abscissa: M(i,j)=a(i)^j.
+          */
             const Eigen::Matrix<double,1,qOrder> abscissas=QuadratureRule<1,qOrder>::abcsissasAndWeights().template block<1,qOrder>(0,0);
-
+            
             if ( abscissas.squaredNorm() < FLT_EPSILON)
             {
                 std::cout<<"norm of quadrature="<<abscissas.squaredNorm()<<std::endl;
 				assert(0);
 			}
 			
-
-	
+            
+            
 			Eigen::Matrix<double,qOrder,pOrder+1> temp;
 			
 			for (int i=0; i<qOrder; ++i)
@@ -62,10 +58,12 @@ namespace model
 		
         /**********************************************************************/
 		static Eigen::Matrix<double,qOrder,pOrder> duPowFill()
-        {
+        {/*/returns a matrix M, where M(i,j) is the first derivative of j-th power 
+          * of the i-the abscissa: M(i,j)=j*a(i)^(j-1).
+          */
             
             const Eigen::Matrix<double,1,qOrder> abscissas=QuadratureRule<1,qOrder>::abcsissasAndWeights().template block<1,qOrder>(0,0);
-
+            
 			Eigen::Matrix<double,qOrder,pOrder> temp;
 			
 			for (int i=0; i<qOrder; ++i)
@@ -82,10 +80,12 @@ namespace model
 		
         /**********************************************************************/
 		static Eigen::Matrix<double,qOrder,pOrder-1> dduPowFill()
-        {
+        {/*/returns a matrix M, where M(i,j) is the second derivative of j-th power
+          * of the i-the abscissa: M(i,j)=j*(j-1)*a(i)^(j-2).
+          */
             
             const Eigen::Matrix<double,1,qOrder> abscissas=QuadratureRule<1,qOrder>::abcsissasAndWeights().template block<1,qOrder>(0,0);
-
+            
 			Eigen::Matrix<double,qOrder,pOrder-1> temp;
 			
 			for (int i=0; i<qOrder; ++i)
@@ -100,10 +100,15 @@ namespace model
 			return temp;
 		}
 	
+    public:
+        
+		static const Eigen::Matrix<double,qOrder,pOrder+1>   uPow;
+		static const Eigen::Matrix<double,qOrder,pOrder  >  duPow;
+		static const Eigen::Matrix<double,qOrder,pOrder-1> dduPow;
+		
 	};
 	
-//    // Declare static data members
-	
+    // Declare static data members
     template<short unsigned int pOrder, short unsigned int qOrder,  template <short unsigned int, short unsigned int> class QuadratureRule>
 	const Eigen::Matrix<double,qOrder,pOrder+1> QuadPow<pOrder,qOrder,QuadratureRule>::uPow=QuadPow<pOrder,qOrder,QuadratureRule>::uPowFill();
 	

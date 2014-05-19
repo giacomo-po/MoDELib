@@ -160,7 +160,7 @@ namespace model {
 			if (use_junctions)
             {
 				double t0=clock();
-				model::cout<<"		Forming Junctions: found (";
+				model::cout<<"		Forming Junctions: found ("<<std::flush;
                 const double avoidNodeIntersection(0.05);
 				DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx,avoidNodeIntersection);
 				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
@@ -234,7 +234,7 @@ namespace model {
             if (shared.use_bvp)
             {
 				double t0=clock();
-				model::cout<<"		Updating bvp stress ... ";
+				model::cout<<"		Updating bvp stress ... "<<std::flush;
 				if(!(runID%shared.use_bvp)) // enter the if statement if runID is a multiple of use_bvp
                 {
 					shared.domain.update_BVP_Solution(updateUserBC,this);
@@ -863,7 +863,7 @@ namespace model {
 		}
 		
 		/********************************************************/
-		MatrixDimD lattice_rotation(const VectorDimD & Rfield) const
+		MatrixDimD latticeRotation(const VectorDimD & Rfield) const
         {
 			MatrixDimD temp(MatrixDimD::Zero());
 			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
@@ -885,7 +885,7 @@ namespace model {
 		}
 		
         /**********************************************************************/
-		double network_length() const
+		double networkLength() const
         {/*!\returns the length of this DislocationNetwork.
           */
 			double temp(0.0);

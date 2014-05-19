@@ -124,25 +124,25 @@ namespace model {
 				remove(filename.c_str());	// ENABLE
 			}
 			
-
-			///////////////////////////////
-			// Public
 		public:
 			//////////////////////////////////////////////////////////////
 			// Constructor
-			SequentialBinFile() {
+			SequentialBinFile()
+            {
 				new_file();
 			}
 			
 			
 			//////////////////////////////////////////////////////////////
 			// Destructor
-			~SequentialBinFile(){
+			~SequentialBinFile()
+            {
 				bool isEmpty = !p_ofstream->tellp();	// if tellp()==0 then file is empty
 				
 				p_ofstream->close();
 				
-				if( isEmpty){
+				if( isEmpty)
+                {
 				//	std::cout<<"File is empty. ";
 					deleteFile();
 				} 
@@ -152,7 +152,8 @@ namespace model {
 			
 			
 			//////////////////////////////////////////////////////////////
-			void write(const OutputType& nextOutput){
+			void write(const OutputType& nextOutput)
+            {
 				p_ofstream->write((char *) &nextOutput, (sizeof nextOutput));
 
 			}
@@ -162,7 +163,5 @@ namespace model {
 			
 		};
 		
-		//////////////////////////////////////////////////////////////
-//	} // namespace utils
 } // namespace model
 #endif

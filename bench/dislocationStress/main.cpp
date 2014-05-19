@@ -43,6 +43,7 @@ int main(int argc, char * argv[])
     typedef  DislocationNetwork<3,1,CatmullRom,16,UniformOpen> DislocationNetworkType;
     typedef typename DislocationNetworkType::StressField StressField;
 
+    
     // Create DislocationNetwork
     DislocationNetworkType DN(argc,argv);
 
@@ -100,7 +101,7 @@ int main(int argc, char * argv[])
 
     // Ouput results to file
     model::SequentialOutputFile<'S',1>  numericalFile; // this is file S/S_0.txt
-//    model::SequentialOutputFile<'S',1> analyticalFile; // this is file S/S_1.txt
+//    model::SequentialOutputFile<'S',1>  analyticalFile; // this is file S/S_1.txt
     
     for (unsigned int k=0;k<fieldPoints.size();++k)
     {
@@ -108,11 +109,15 @@ int main(int argc, char * argv[])
         /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(1)
         /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(2)<<"\n";
         
-//        Eigen::Matrix<double,3,3> temp(stressStraightEdge(fieldPoints[k].P));
-//        analyticalFile << fieldPoints[k].P.transpose()<<" "<<temp.row(0)
-//        /*                                         */ <<" "<<temp.row(1)
-//        /*                                         */ <<" "<<temp.row(2)<<"\n";
+//        Eigen::Matrix<double,3,3> s(stressStraightEdge(fieldPoints[k].P));
+//        analyticalFile << fieldPoints[k].P.transpose()<<" "<<s.row(0)
+//        /*                                        */ <<" "<<s.row(1)
+//        /*                                        */ <<" "<<s.row(2)<<"\n";
+        
     }
+    
+    
+    
     
     
     return 0;

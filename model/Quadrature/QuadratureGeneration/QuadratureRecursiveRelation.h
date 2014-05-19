@@ -41,7 +41,8 @@ namespace model {
 		 *	- [2] Press, W. et al. "Numerical Recipes", 3rd edition, p.188. [ISBN-10: 0521880688]
 		 *	
 		 */
-	class QuadratureRecursiveRelation{
+	class QuadratureRecursiveRelation
+    {
 
 	public:
 	/*
@@ -62,7 +63,8 @@ namespace model {
 		
 		/* abcsissasAndWeights *******************************/
         template<typename PolynomialType>
-		static Eigen::MatrixXd abcsissasAndWeights(const int& qOrder){
+		static Eigen::MatrixXd abcsissasAndWeights(const int& qOrder)
+        {
 			
 			// Create and fill the Jacobi upper triangular matrix  
 			Eigen::MatrixXd jUT = Eigen::MatrixXd::Zero(qOrder,qOrder);

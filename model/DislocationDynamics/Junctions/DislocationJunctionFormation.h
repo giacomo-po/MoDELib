@@ -69,12 +69,13 @@ namespace model {
         {/*! @param[in]  avoidNodeIntersection
           *  Computes all the intersections between the edges of the DislocationNetwork
           */
-			
+                        
 			EdgeIntersectionPairContainerType intersectionContainer;
 			
 			
 			//! 2- loop over all links and determine their intersections
-			for (typename NetworkLinkContainerType::const_iterator linkIterA=DN.linkBegin();linkIterA!=DN.linkEnd();linkIterA++){
+			for (typename NetworkLinkContainerType::const_iterator linkIterA=DN.linkBegin();linkIterA!=DN.linkEnd();linkIterA++)
+            {
                 
                 
                 
@@ -178,7 +179,8 @@ namespace model {
 			
 			//! 2- Remove from intersectionContainer all intersections that don't satisfy Frank's rule
 			std::vector<int> dirVector;
-			for (typename EdgeIntersectionPairContainerType::iterator iter=intersectionContainer.begin();iter!=intersectionContainer.end();){
+			for (typename EdgeIntersectionPairContainerType::iterator iter=intersectionContainer.begin();iter!=intersectionContainer.end();)
+            {
 				const double u1(iter-> first.second);
 				const double u2(iter->second.second);
 				const VectorDimD b1(iter-> first.first->flow);
@@ -193,22 +195,27 @@ namespace model {
                 VectorDimD prjDir(VectorDimD::Zero());
                 if (!isIsessile && !isJsessile){
                     const VectorDimD commonLine(iter-> first.first->glidePlaneNormal.cross(iter->second.first->glidePlaneNormal));
-                    if(commonLine.norm()>FLT_EPSILON){ // planes are not parallel, intersection will be on common line
+                    if(commonLine.norm()>FLT_EPSILON)
+                    { // planes are not parallel, intersection will be on common line
                         prjDir=commonLine.normalized();
                     }
-                    else{
+                    else
+                    {
                         const double rl1Norm(rl1.norm());
                         assert(rl1Norm>FLT_EPSILON && "TANGENT HAS ZERO NORM");
                         prjDir=rl1/rl1Norm;
                     }
                 }
-                else if(isIsessile && !isJsessile){ // use chord of I
+                else if(isIsessile && !isJsessile)
+                { // use chord of I
                     prjDir=iter-> first.first->chord().normalized();
                 }
-                else if(!isIsessile && isJsessile){ // use chord of J
+                else if(!isIsessile && isJsessile)
+                { // use chord of J
                     prjDir=iter->second.first->chord().normalized();
                 }
-                else{
+                else
+                {
                     assert(0 && "CANNOT DETERMINE COMMON LINE BETWEEN TWO SESSILE SEGMENTS.");
                 }
                 
@@ -221,10 +228,12 @@ namespace model {
                 
                 
                 //				const bool frankRule(true);
-				if (!frankRule){
+				if (!frankRule)
+                {
 					iter=intersectionContainer.erase(iter);
 				}
-				else{ // determine the relative orientation of the links
+				else
+                { // determine the relative orientation of the links
                     //					const int dir((rl1.dot(rl2) > 0.0) ? 1 : ((rl1.dot(rl2) < 0.0) ? -1 : 0));
 					const int dir(( sgnrl1rl2 > 0.0) ? 1 : ((sgnrl1rl2 < 0.0) ? -1 : 0));
 					dirVector.push_back(dir);
