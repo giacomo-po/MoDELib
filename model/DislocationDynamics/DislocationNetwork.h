@@ -155,7 +155,7 @@ namespace model
 		double dx, dt;
         double vmax;
         
-        SimplicialMesh<dim> mesh;
+//        SimplicialMesh<dim> mesh;
         
         
         
@@ -392,7 +392,7 @@ namespace model
         
 		/* Constructor ********************************************************/
         DislocationNetwork(int& argc, char* argv[]) :
-        /* init list  */ mesh(0), // this reads mesh files N/N_0.txt and T/T_0.txt
+ //       /* init list  */ mesh(0), // this reads mesh files N/N_0.txt and T/T_0.txt
         /* init list  */ plasticDistortion(MatrixDimD::Zero())
         {
             ParticleSystemType::initMPI(argc,argv);
@@ -512,13 +512,18 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
             
             
+
+            
             
 			// BVP
 			EDR.readScalarInFile(fullName.str(),"boundary_type",shared.boundary_type);
 			if (shared.boundary_type)
             {
+                
+                shared.mesh.readMesh(0);
+                
 				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
-                shared.domain.readMesh();
+                //shared.domain.readMesh(); // OLD BVP
 				if(shared.use_bvp)
                 {
 					shared.domain.readInputBCs();

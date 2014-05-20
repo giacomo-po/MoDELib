@@ -37,8 +37,11 @@ namespace model {
 		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
 		static VirtualBoundarySlipContainer<LinkType> vbsc;
 
-//        static SimplicialMesh<TypeTraits<LinkType>::dim> mesh;
+        static SimplicialMesh<TypeTraits<LinkType>::dim> mesh;
 
+//        static SimplicialMesh<TypeTraits<LinkType>::dim>* const  p_mesh;
+
+        
 //        static BVPsolver<TypeTraits<LinkType>::dim,2> bvpSolver;
 
 //        static ParticleSystem<DislocationParticle<TypeTraits<LinkType>::dim> > particleSystem;
@@ -46,6 +49,11 @@ namespace model {
 
 //        static SpatialCellObserver<DislocationParticle<TypeTraits<LinkType>::dim>,TypeTraits<LinkType>::dim> spatialCellObserver;
 
+        
+//        static const SimplicialMesh<TypeTraits<LinkType>::dim>& mesh()
+//        {
+//            return *p_mesh;
+//        }
         
 	};
 	
@@ -70,8 +78,13 @@ namespace model {
 	template <typename LinkType>
 	VirtualBoundarySlipContainer<LinkType> DislocationSharedObjects<LinkType>::vbsc;
 
+    template <typename LinkType>
+	SimplicialMesh<TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::mesh;
+
+    
 //    template <typename LinkType>
-//	SimplicialMesh<TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::mesh(0); // this reads mesh files N/N_0.txt and T/T_0.txt
+//	SimplicialMesh<TypeTraits<LinkType>::dim>* const DislocationSharedObjects<LinkType>::p_mesh=new SimplicialMesh<TypeTraits<LinkType>::dim>(0); // this reads mesh files N/N_0.txt and T/T_0.txt
+
     
 //    template <typename LinkType>
 //	BVPsolver<TypeTraits<LinkType>::dim,2> DislocationSharedObjects<LinkType>::bvpSolver(DislocationSharedObjects<LinkType>::mesh);

@@ -662,7 +662,7 @@ namespace model {
 		}
         
 		/*********************************************************************/
-		/*VectorDim*/ vector_VectorDim conjugatePlaneNormal() const
+        vector_VectorDim conjugatePlaneNormal() const
         {
 			return CrystalOrientation<dim>::conjugatePlaneNormal(Burgers,glidePlaneNormal);
 		}

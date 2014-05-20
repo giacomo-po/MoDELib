@@ -11,6 +11,7 @@
 #define model_GLIDEPLANE_H
 
 #include <math.h>
+#include <deque>
 #include <set>
 #include <assert.h>
 //#include <boost/shared_ptr.hpp>
@@ -23,6 +24,7 @@
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/DislocationDynamics/VirtualBoundarySlipSurface.h>
 #include <model/MPI/MPIcout.h>
+#include <model/Mesh/SimplexObserver.h>
 
 
 namespace model {
@@ -50,41 +52,96 @@ namespace model {
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
 		typedef Eigen::Matrix<double,dim+1,1> VectorDimPlusOneD;
 		typedef std::pair<VectorDimD,VectorDimD> segmentMeshCollisionPair;
-		typedef std::map<unsigned int, segmentMeshCollisionPair, std::less<unsigned int>,
-		/*            */ Eigen::aligned_allocator<std::pair<const unsigned int, segmentMeshCollisionPair> > > segmentMeshCollisionPairContainerType;
+//		typedef std::map<unsigned int, segmentMeshCollisionPair, std::less<unsigned int>,
+//		/*            */ Eigen::aligned_allocator<std::pair<const unsigned int, segmentMeshCollisionPair> > > SegmentMeshCollisionPairContainerType;
+		typedef std::deque<segmentMeshCollisionPair> SegmentMeshCollisionPairContainerType;
 		typedef  std::pair<unsigned int, segmentMeshCollisionPair> planeTraingleIntersection;
 		typedef  std::vector<planeTraingleIntersection, Eigen::aligned_allocator<planeTraingleIntersection> > planeMeshIntersectionType;
         
     private:
 		static DislocationSharedObjects<SegmentType> shared;
 		
+        
+        /**********************************************************************/
+        SegmentMeshCollisionPairContainerType getPlaneMeshIntersection(const VectorDimD& x0, const VectorDimD& n) const
+        {/*!@param[in] x0 a point on *this GlidePlane
+          *!@param[n]  n  the unit plane normal to *this GlidePlane
+          *\returns a container of segments representing the intersection of *this GlidePLane with the SimplexMesh
+          */
+            SegmentMeshCollisionPairContainerType temp;
+            if (shared.boundary_type)
+            {
+                for(typename SimplexObserver<dim,dim-1>::const_iterator fIter =SimplexObserver<dim,dim-1>::simplexBegin();
+                    /*                                               */ fIter!=SimplexObserver<dim,dim-1>::simplexEnd();++fIter)
+                {
+                    if(fIter->second->isBoundarySimplex())
+                    {
+                        std::deque<VectorDimD> intersectionPoints;
+                        for(unsigned int e=0;e<dim;++e)
+                        {// this part of the code is specific to dim=3;
+                            const VectorDimD& v0(fIter->second->child(e).child(0).P0);
+                            const VectorDimD& v1(fIter->second->child(e).child(1).P0);
+                            const double u ((x0-v0).dot(n) / (v1-v0).dot(n));
+                            if(u>=0 && u<=1.0)
+                            {
+                                const VectorDimD P(v0 + u*(v1-v0));
+                                bool isDifferent=true;
+                                for (unsigned int k=0;k<intersectionPoints.size();++k)
+                                {
+                                    isDifferent*= (P-intersectionPoints[k]).squaredNorm()>FLT_EPSILON;
+                                }
+                                
+                                if (isDifferent)
+                                {
+                                    intersectionPoints.emplace_back(P);
+                                }
+                            }
+                        }
+                        assert(intersectionPoints.size()<3);
+                        if (intersectionPoints.size()==2)
+                        {
+                            //collisionContainer.push_back(std::make_pair(intersectionPoints[0],intersectionPoints[1]));
+//                            temp.insert(std::make_pair(triContainer[i]->sID,std::make_pair(intersectionPoints[0],intersectionPoints[1])));
+                            temp.emplace_back(intersectionPoints[0],intersectionPoints[1]);
+                        }
+                    }
+                }
+            }
+            return temp;
+        }
+        
+        
+        
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
-		
-		//! Make this const and initialize at constructor time
-		segmentMeshCollisionPairContainerType segmentMeshCollisionPairContainer;
-		
-		std::vector <planeMeshIntersectionType> planesMeshIntersectionContainer;         // stores the intersection lines of planes (parallel to this glide plane) with the mesh
-		
-		
-		//! The unit vector normal to *this GlidePlane
+        
+        //! The unit vector normal to *this GlidePlane
 		const VectorDimD planeNormal;
 		
         //! The height from the origin along the planeNormal
         const double height;
+        
+		
+		//! Make this const and initialize at constructor time
+		const SegmentMeshCollisionPairContainerType segmentMeshCollisionPairContainer;
+		
+		std::vector <planeMeshIntersectionType> planesMeshIntersectionContainer;         // stores the intersection lines of planes (parallel to this glide plane) with the mesh
+		
+		
 		
 		/**********************************************************************/
 		GlidePlane(const VectorDimD& planeNormal_in, const double& height_in) :
         /* init list */ planeNormal(planeNormal_in),
-		/* init list */ height(height_in)
+		/* init list */ height(height_in),
+        /* init list */ segmentMeshCollisionPairContainer(getPlaneMeshIntersection(planeNormal*height,planeNormal))
         {
 			assert(std::fabs(planeNormal.norm()-1.0)<=DBL_EPSILON && "GLIDE PLANE NORMAL IS NOT UNIT");
 			//model::cout<<"Creating GlidePlane "<<this->sID<<" with unit plane normal: "<<planeNormal.transpose()<<" and height "<<height<<std::flush;
 			assert(this->glidePlaneMap.insert(std::make_pair((VectorDimPlusOneD()<< planeNormal, height).finished(),this)).second && "CANNOT INSERT GLIDE PLANE  IN STATIC glidePlaneMap.");
             if (shared.boundary_type)
             {
-				shared.domain.get_planeMeshIntersection(planeNormal*height,planeNormal,segmentMeshCollisionPairContainer);
+                //				shared.domain.get_planeMeshIntersection(planeNormal*height,planeNormal,segmentMeshCollisionPairContainer);
                 
 				//----------- intersect the mesh with parallel planes to this glide plane -------------
 				intersectMeshWithParallelPlanes ();
@@ -161,11 +218,13 @@ namespace model {
 		friend T& operator << (T& os, const GlidePlaneType& gp)
         {
             unsigned int ii = 0 ;
-            typename segmentMeshCollisionPairContainerType::const_iterator itt;
+            typename SegmentMeshCollisionPairContainerType::const_iterator itt;
             for (itt = gp.segmentMeshCollisionPairContainer.begin(); itt != gp.segmentMeshCollisionPairContainer.end() ;++itt){
                 os << gp.sID<< " "<< ii <<" "
-                << (*itt).second.first.transpose()<<" "
-                << (*itt).second.second.transpose()<<"\n";
+//                << (*itt).second.first.transpose()<<" "
+//                << (*itt).second.second.transpose()<<"\n";
+                << itt->first.transpose()<<" "
+                << itt->second.transpose()<<"\n";
                 ii++;
             }
             /*for (unsigned int k=0; k<gp.segmentMeshCollisionPairContainer.size();++k){
@@ -199,7 +258,7 @@ namespace model {
             
             bool isLast = false;
             
-            //segmentMeshCollisionPairContainerType temp;
+            //SegmentMeshCollisionPairContainerType temp;
             
             for (unsigned int i=1; i<= nPlanes; i++ ) {
                 
@@ -222,26 +281,26 @@ namespace model {
         
         //void addParallelPlane(VectorDimD x0, VectorDimD planeNormal, double separation) {
         //  void addParallelPlane(const double height, const VectorDimD planeNormal, double separation, unsigned int iP, int sign, const bool isLast) {
-        void addParallelPlane(const double separation, const int iP, const bool isLast)
+        void addParallelPlane(const double separation, const int iP, const bool isLast) __attribute__ ((deprecated))
         {
             
-            VectorDimD x0 = (height+(iP*separation))*planeNormal;
-            
-            segmentMeshCollisionPairContainerType collContainer, temp ;
-            
-            shared.domain.get_planeMeshIntersection(x0,planeNormal,collContainer);
-            
-            temp = collContainer;
-            
-            if (temp.size()>0) {
-                planeMeshIntersectionType contourPointsVector = sortIntersectionLines(temp);
-                generateIntegrationPoints (contourPointsVector, separation);
-                
-                //------------ if this is the last generated parallel plane, add additional points so that triangles will not have just few points
-                // ----------- on one just on side of it -----------------------------------------------------------------------------------------
-                //if (isLast) completeTrianglesPopulation(collContainer,height,planeNormal,separation,iP,sign);
-                if (isLast) completeTrianglesPopulation(collContainer,separation,iP);
-            }
+//            VectorDimD x0 = (height+(iP*separation))*planeNormal;
+//            
+//            SegmentMeshCollisionPairContainerType collContainer, temp ;
+//            
+//            shared.domain.get_planeMeshIntersection(x0,planeNormal,collContainer);
+//            
+//            temp = collContainer;
+//            
+//            if (temp.size()>0) {
+//                planeMeshIntersectionType contourPointsVector = sortIntersectionLines(temp);
+//                generateIntegrationPoints (contourPointsVector, separation);
+//                
+//                //------------ if this is the last generated parallel plane, add additional points so that triangles will not have just few points
+//                // ----------- on one just on side of it -----------------------------------------------------------------------------------------
+//                //if (isLast) completeTrianglesPopulation(collContainer,height,planeNormal,separation,iP,sign);
+//                if (isLast) completeTrianglesPopulation(collContainer,separation,iP);
+//            }
             
         }
         
@@ -249,7 +308,7 @@ namespace model {
         // function to add more points to triangles that has been cut with planes parallel to the glide plane
         //===================================================================================================
         
-        void completeTrianglesPopulation(const segmentMeshCollisionPairContainerType collContainer,const double separation,const int iP)
+        void completeTrianglesPopulation(const SegmentMeshCollisionPairContainerType collContainer,const double separation,const int iP)
         {
             
             bool allDone = false;
@@ -266,14 +325,14 @@ namespace model {
                 //model::cout << height << " " << sign << " " << ii << " " << separation << " " << sign*ii << " " << height+(sign*ii*separation) << std::endl;
                 x0 = planeNormal*(height+(sign*ii*separation));
                 
-                segmentMeshCollisionPairContainerType temp ;
+                SegmentMeshCollisionPairContainerType temp ;
                 shared.domain.get_planeMeshIntersection(x0,planeNormal,temp);
                 
                 //model::cout<< temp.size() << " ";
                 
                 if (temp.size()>0) {
                     bool foundTriangles = false;
-                    for (typename segmentMeshCollisionPairContainerType::iterator itt=temp.begin(); itt!= temp.end(); itt++ ) {
+                    for (typename SegmentMeshCollisionPairContainerType::iterator itt=temp.begin(); itt!= temp.end(); itt++ ) {
                         if (collContainer.find(itt->first)!= collContainer.end()) {
                             
                             addPointToTriangle(itt->first, itt->second, separation);
@@ -331,7 +390,7 @@ namespace model {
         // function to sort the plane-mesh intersection line to be in a sequence
         //===========================================================================
         
-        planeMeshIntersectionType sortIntersectionLines(segmentMeshCollisionPairContainerType & temp) {
+        planeMeshIntersectionType sortIntersectionLines(SegmentMeshCollisionPairContainerType & temp) {
             
             double tol = 1.0e-7;
             
@@ -387,7 +446,7 @@ namespace model {
                 
                 if (!found) {
                     
-                    typename segmentMeshCollisionPairContainerType::iterator itt , itt_min;
+                    typename SegmentMeshCollisionPairContainerType::iterator itt , itt_min;
                     
                     for (itt = temp.begin(); itt != temp.end() ;++itt){
                         if      ((P-(*itt).second.first).norm() < minDis)       { minDis = (P-(*itt).second.first).norm();    itt_min=itt;}
@@ -419,7 +478,7 @@ namespace model {
                 //
                 // 		    for (unsigned int i=0; i<linesVector.size(); i++) model::cout<< linesVector[i].second.first.transpose() << "    " << linesVector[i].second.second.transpose() << std::endl;
                 // 		    model::cout << std::endl;
-                //  		    for (typename segmentMeshCollisionPairContainerType::iterator itt = temp.begin(); itt != temp.end() ;++itt)
+                //  		    for (typename SegmentMeshCollisionPairContainerType::iterator itt = temp.begin(); itt != temp.end() ;++itt)
                 // 		           model::cout << (*itt).second.first.transpose() << "  " << (*itt).second.second.transpose()<< std::endl; ;
                 //
                 //  		    model::cout<< "===================================================================================== " << std::endl;

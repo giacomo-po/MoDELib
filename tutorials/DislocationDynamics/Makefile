@@ -148,8 +148,6 @@ DDviewer:
 Gexists=$(shell test -d G && echo 1)
 Cexists=$(shell test -d C && echo 1)
 Pexists=$(shell test -d P && echo 1)
-Nexists=$(shell test -d N && echo 1)
-Texists=$(shell test -d T && echo 1)
 TGAexists=$(shell test -d tga && echo 1)
 JPGexists=$(shell test -d jpg && echo 1)
 
@@ -172,16 +170,6 @@ ifeq ($(Pexists),1)
 	@echo ${blueColor}emptying folder P ${normalColor}
 	@find P/ -name P_\*.txt -exec rm {} \;
 	@find P/ -name P_\*.bin -exec rm {} \;
-endif	
-ifeq ($(Nexists),1)
-	@echo ${blueColor}emptying folder N ${normalColor}
-	@find N/ -name N_\*.txt -exec rm {} \;
-	@find N/ -name N_\*.bin -exec rm {} \;
-endif	
-ifeq ($(Texists),1)
-	@echo ${blueColor}emptying folder T ${normalColor}
-	@find T/ -name T_\*.txt -exec rm {} \;
-	@find T/ -name T_\*.bin -exec rm {} \;
 endif	
 ifeq ($(TGAexists),1)
 	@echo ${blueColor}emptying folder tga ${normalColor}

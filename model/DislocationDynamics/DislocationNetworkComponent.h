@@ -200,7 +200,7 @@ namespace model {
 //                storeNodeSolution(mRS.xMR.segment(0,Ndof)); // solution is checked inside
                 Eigen::MINRES<SparseMatrixType> solver(KQQ);
                 solver.setTolerance(DBL_EPSILON);
-                solver.setMaxIterations(2*F.rows());
+                solver.setMaxIterations(10*F.rows());
                 x1=solver.solveWithGuess(F,x1);
                 if(solver.info()==Eigen::Success)
                 {

@@ -190,18 +190,18 @@ namespace model
             switch (assembleCase)
             {
                 case LAGRANGE:
-                {
-                    
+                {// A is SPsD, so use MINRES sover
                     Eigen::MINRES<SparseMatrixType> solver(A);
                     solver.setTolerance(tol);
-                    x=solver.solveWithGuess(b,x);                    
+                    x=solver.solveWithGuess(b,x);
+                    assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
 //                    MINRES<double> mRS(A,b,x,tol);
 //                    x=mRS.xMR;
                     break;
                 }
                     
                 case PENALTY:
-                {
+                {// A is SPD, so use MINRES sover
                     const size_t cSize(lhs.trialExp.trial().dcContainer.size());
 
                     Eigen::ConjugateGradient<SparseMatrixType> solver(A);

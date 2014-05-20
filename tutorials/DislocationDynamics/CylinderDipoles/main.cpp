@@ -35,7 +35,7 @@ int main (int argc, char* argv[]) {
 		Eigen::Matrix<double,3,3> eDotP=DN.plasticStrainRate()/V;
 		double dt=DN.get_dt();
 		UniqueOutputFile<'S'> standard_output;
-		standard_output<<i<<"  "<<DN.get_totalTime()<<" "<<dt<<"  "<<DN.network_length()<<" "<<DN.shared.externalStress(2,2)<<"  "<<eDotP.row(0)<<"  "<<eDotP.row(1)<<"  "<<eDotP.row(2)<<std::endl;
+		standard_output<<i<<"  "<<DN.get_totalTime()<<" "<<dt<<"  "<<DN.networkLength()<<" "<<DN.shared.externalStress(2,2)<<"  "<<eDotP.row(0)<<"  "<<eDotP.row(1)<<"  "<<eDotP.row(2)<<std::endl;
         
 		DN.shared.externalStress(2,2)+=2.0*(1.0+nu)*(eDot33-eDotP(2,2))*dt;
     }
