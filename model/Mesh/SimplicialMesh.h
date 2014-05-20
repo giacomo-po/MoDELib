@@ -67,9 +67,6 @@ namespace model {
           */
             
             Simplex<dim,0>::nodeReader.read(meshID,true);
-//            SimplexTraits<dim,0> st0;
-//            st0.nodeReader.read(meshID,true);
-
             
             this->clear();
             
@@ -78,43 +75,63 @@ namespace model {
             std::string filename(filestream.str());
 
             
+            VertexReader<'T',dim+2,size_t> elementReader;
+            const bool success=elementReader.read(meshID,true);
             
-            std::ifstream ifs ( filename.c_str() , std::ifstream::in );
-
-            if (ifs.is_open())
+            if (success)
             {
-                std::cout<<"Reading mesh elements from file "<<filename<<"..."<<std::flush;
-
-                
-                std::string line;
-
-                while (std::getline(ifs, line))
+                double t0(clock());
+                std::cout<<"Creating mesh..."<<std::flush;
+                for (typename VertexReader<'T',dim+2,size_t>::const_iterator eIter =elementReader.begin();
+                     /*                                       */ eIter!=elementReader.end();++eIter)
                 {
-                    std::stringstream ss(line);
-                    typename SimplexTraits<dim,dim>::SimplexIDType xID;
-                    int i(0);
-                    int temp;
-
-                    while (ss >> temp)
-                    {
-                        xID(i) =temp;
-                        i++;
-                    }
-                    
-                    insertSimplex(xID);
+                    insertSimplex(eIter->second);
                 }
-                
-                std::cout<<" done."<<std::endl;
+                std::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
                 MeshStats<dim,dim>::stats(true);
                 Simplex<dim,0>::nodeReader.clear();
-//                st0.nodeReader.clear();
-
             }
             else
             {
                 std::cout<<"Cannot read mesh file "<<filename<<". Mesh is empty."<<std::endl;
-                //assert(0);
             }
+            
+
+            
+//            std::ifstream ifs ( filename.c_str() , std::ifstream::in );
+//
+//            if (ifs.is_open())
+//            {
+//                std::cout<<"Reading mesh elements from file "<<filename<<"..."<<std::flush;
+//
+//                
+//                std::string line;
+//
+//                while (std::getline(ifs, line))
+//                {
+//                    std::stringstream ss(line);
+//                    typename SimplexTraits<dim,dim>::SimplexIDType xID;
+//                    int i(0);
+//                    int temp;
+//
+//                    while (ss >> temp)
+//                    {
+//                        xID(i) =temp;
+//                        i++;
+//                    }
+//                    
+//                    insertSimplex(xID);
+//                }
+//                
+//                std::cout<<" done."<<std::endl;
+//                MeshStats<dim,dim>::stats(true);
+//                Simplex<dim,0>::nodeReader.clear();
+//            }
+//            else
+//            {
+//                std::cout<<"Cannot read mesh file "<<filename<<". Mesh is empty."<<std::endl;
+//                //assert(0);
+//            }
         
         }
         
@@ -131,11 +148,6 @@ namespace model {
         
         
 	};
-
-        // Declare static data
-//    template<short int dim>
-//    VertexReader<'N',dim+1,double> Simplex<dim,0>::nodeReader;
-
     
 }	// close namespace
 #endif

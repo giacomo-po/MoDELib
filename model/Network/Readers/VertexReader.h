@@ -20,27 +20,25 @@
 #include <model/Utilities/BinaryFileReader.h>
 
 namespace model {
-    
+
+    /*!	\brief A class template to read Vertex data from file.
+     *	\param[c]    the data files are c/c_x.txt or c/c_x.bin
+     *	\param[cols] is the number of columns in the file.
+     *	\param[scalra] the type of data stored in the columns (e.g. double, int, ...)
+     *	First column is the Vertex ID (int), other columns are optional.
+     */
     template <char c, int cols, typename scalar>
-    //class VertexReader : public std::map<int, Eigen::Matrix<scalar,1,cols-1> > {
 	class VertexReader : public std::map<int, Eigen::Matrix<scalar,1,cols-1>,
 	/*                                */ std::less<int>,
-	/*                                */ Eigen::aligned_allocator<std::pair<const int, Eigen::Matrix<scalar,1,cols-1> > > > {
-        
-        /*!	\brief A class template to read Vertex data from file.
-         *	\param[cols] is the number of columns in the file.
-         *	First column is the Vertex ID, other columns are optional.
-         */
+	/*                                */ Eigen::aligned_allocator<std::pair<const int, Eigen::Matrix<scalar,1,cols-1> > > >
+    {
         
         int currentFrame;
         bool success;
         
-        
-        
-        
-        
-        /* readBin *******************************/
-		void readBIN(const std::string& filename){
+        /**********************************************************************/
+		void readBIN(const std::string& filename)
+        {
 			std::cout<<"Reading: "<<filename;
 			double t0(clock());
 			typedef std::pair<int, Eigen::Matrix<scalar,1,cols-1> > BinVertexType;
@@ -55,8 +53,7 @@ namespace model {
 		}
         
         
-        /*****************************************/
-        /* read */
+        /**********************************************************************/
         void readTXT(const std::string& filename)
         {
             scalar temp;
@@ -105,13 +102,14 @@ namespace model {
         }
         
     public:
+        
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         /*****************************************/
         /* Constructor */
         VertexReader() : currentFrame(-1), success(false)
         {
-            std::cout<<"Creating VertexReader<"<<c<<","<<cols<<">"<<std::endl;
+
         }
         
         /*****************************************/
