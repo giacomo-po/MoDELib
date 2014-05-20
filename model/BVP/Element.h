@@ -14,7 +14,9 @@
 //#include "model/Dislocations/Materials/Copper.h"
 #include "model/BVP/Node.h"
 //#include <model/Geometry/Simplex.h>
-#include <model/Geometry/Mesh/SimplexEnums.h>
+//#include <model/Geometry/Mesh/SimplexEnums.h>
+#include <model/Mesh/Simplex.h>
+
 #include "model/Quadrature/Quadrature.h"
 
 namespace bvpfe{
@@ -29,7 +31,8 @@ namespace bvpfe{
 	public: 
 		
 		//enum{Nnodes=model::Simplex<dim>::Nnodes};
-		enum{Nnodes=model::SimplexEnums<dim>::nVertices};
+//		enum{Nnodes=model::SimplexEnums<dim>::nVertices};
+		enum{Nnodes=model::Simplex<dim,dim>::nVertices};
 		
 		//static model::Copper material;
 		

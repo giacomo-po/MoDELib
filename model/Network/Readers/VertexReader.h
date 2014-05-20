@@ -59,7 +59,6 @@ namespace model {
         /* read */
         void readTXT(const std::string& filename)
         {
-            
             scalar temp;
             int key;//, row;//, col;
             std::string line;
@@ -108,11 +107,12 @@ namespace model {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
-        //std::map<int, Eigen::Matrix<double,1,cols-1> > vertexMap;
-        
         /*****************************************/
         /* Constructor */
-        VertexReader() : currentFrame(-1), success(false) {}
+        VertexReader() : currentFrame(-1), success(false)
+        {
+            std::cout<<"Creating VertexReader<"<<c<<","<<cols<<">"<<std::endl;
+        }
         
         /*****************************************/
         static std::string getFilename(const int& frameN, const bool& useTXT){
@@ -127,7 +127,6 @@ namespace model {
 		}
         
         /*****************************************/
-        /* isGood */
         static bool isGood(const int& frameN, const bool& useTXT){
             std::stringstream filename;
             std::ifstream ifs;
@@ -147,9 +146,8 @@ namespace model {
         
         
 		/*****************************************/
-		/* read */
-        //		template <bool useTXT>
-		bool read(const int& frameN, const bool& useTXT){
+		bool read(const int& frameN, const bool& useTXT)
+        {
 			assert(frameN>=0);
 			if (frameN!=currentFrame)
             {
@@ -168,9 +166,6 @@ namespace model {
 			return success;
 			
 		}
-        
-        
-        
         
     };
     

@@ -6,6 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
+#include <model/DislocationDynamics/Visualization/DDgl.h>
+#include <model/Geometry/Splines/SplineConsts.h>
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -13,19 +15,15 @@
 #include <GL/glut.h>
 #endif
 
-#include <model/DislocationDynamics/Visualization/DDgl.h>
-#include <model/Geometry/Splines/SplineConsts.h>
-
 float centripetalf=model::centripetal;
 
 float chordalf=model::chordal;
 
-typedef model::DDgl<3,centripetalf> DDglType;
-
-DDglType DDv;
-//model::DDgl<3,chordalf> DDv;
+typedef model::DDgl<centripetalf> DDglType;
 
 
+model::SimplicialMesh<3>* p_mesh;  // declaring as pointer is necessary for glut
+model::DDgl<centripetalf>* p_DDgl; // declaring as pointer is necessary for glut
 
 
 namespace model {
@@ -50,7 +48,7 @@ namespace model {
 	/*************************************************************/
 	//Draws the 3D scene
 	void DDglut_DisplayFunc(){
-		DDv.displayFunc();
+		p_DDgl->displayFunc();
 	}
 	
 	
@@ -70,27 +68,27 @@ namespace model {
 	
 	/*************************************************************/
 	void DDglut_handleKeypress(unsigned char key, int x, int y) {// key and current mouse coordinates
-		DDv.handleKeypress(key,x,y);
+		p_DDgl->handleKeypress(key,x,y);
 	}
 	
 	/*************************************************************/
 	void DDglut_mouseButton(int button, int state, int x, int y){
 		//! see DDviewer::DDglut_mouseButton
-		DDv.mouseButton(button,state,x,y);
+		p_DDgl->mouseButton(button,state,x,y);
 	}
 	
 	/*************************************************************/
 	void DDglut_mouseMotion(int x, int y){
-		DDv.mouseMotion(x,y);
+		p_DDgl->mouseMotion(x,y);
 	}
 	
 	/*************************************************************/
 	void DDglut_specialKey(int key, int x, int y){
-		DDv.specialKey(key,x,y);
+		p_DDgl->specialKey(key,x,y);
 	}
 	
 	void DDglut_keyUp(unsigned char key, int x, int y){
-		DDv.keyUp(key,x,y);
+		p_DDgl->keyUp(key,x,y);
 	}
     
 	void DDglut_menu1(int item)
@@ -136,24 +134,25 @@ namespace model {
     
     void DDglut_menu3(int item)
     {
-	//	DDv.menu(item);
+	//	p_DDgl->menu(item);
 	}
 	
 	/*************************************************************/
 	int DDglut(int argc, char** argv) {
-		
-
         
+        
+        p_mesh = new model::SimplicialMesh<3>(0);
+        p_DDgl = new model::DDgl<centripetalf>(p_mesh);
 		//! \brief A Glut wrapper for model::DDviewer
 		
 		//Initialize GLUT
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE);
-		glutInitWindowSize(DDv.windowWidth, DDv.windowHeight); //Set windows size
+		glutInitWindowSize(p_DDgl->windowWidth, p_DDgl->windowHeight); //Set windows size
 		
 		//Create the window
 		glutCreateWindow("DDviewer");
-		DDv.initGL();
+		p_DDgl->initGL();
 		//		initRendering();//Initialize rendering
 		
 		//Set handler functions for drawing, keypresses, and windows resizes
@@ -192,6 +191,9 @@ namespace model {
 		glutTimerFunc(25, update, 0); //Add a timer
 		
 		glutMainLoop();//Start the main loop. glutMainLoop doesn't return.
+        
+        //delete p_mesh;
+        
 		return 0;//This line is never reached, its purpose is to avoid compilation error
 	}
 	

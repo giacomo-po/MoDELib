@@ -112,7 +112,7 @@ namespace model {
         typedef size_t ScalarIDType;
         
         typedef Eigen::Matrix<ScalarIDType,1,nVertices> SimplexIDType;
-        
+                
         /**********************************************************************/
         static SimplexIDType sortID(const SimplexIDType& vIN)
         {
@@ -120,6 +120,7 @@ namespace model {
 		}
 
 	};
+    
 	
 }
 #endif

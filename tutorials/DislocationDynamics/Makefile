@@ -138,7 +138,7 @@ ifeq ($(OS),Linux)
 endif	
 
 DDviewer: 
-	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -O3 $(IDIR)  $(VIEWERLIBS) 
+	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -std=c++0x -O3 $(IDIR)  $(VIEWERLIBS) 
 
 ##########################################################
 # MAKE EMPTY

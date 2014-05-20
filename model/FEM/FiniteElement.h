@@ -81,7 +81,7 @@ namespace model {
             }
 
             std::cout<<"   # elements: "<<elementSize()<<"\n";
-            std::cout<<"   # nodes: "<<nodeSize()<<std::endl;
+            std::cout<<"   # nodes: "   <<nodeSize()   <<std::endl;
         }
         
         /**********************************************************************/

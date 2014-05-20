@@ -46,6 +46,7 @@ namespace model {
         /*            */ >  SimplexMapType;
         
 
+
         
         /**********************************************************************/
         SimplicialMesh()
@@ -54,12 +55,21 @@ namespace model {
         }
         
         /**********************************************************************/
+        SimplicialMesh(const int& meshID)
+        {
+            std::cout<<greenColor<<"Creating SimplicialMesh"<<defaultColor<<std::endl;
+            readMesh(meshID);
+        }
+        
+        /**********************************************************************/
         void readMesh(const int& meshID)
         {/*!
           */
             
             Simplex<dim,0>::nodeReader.read(meshID,true);
-            
+//            SimplexTraits<dim,0> st0;
+//            st0.nodeReader.read(meshID,true);
+
             
             this->clear();
             
@@ -73,7 +83,7 @@ namespace model {
 
             if (ifs.is_open())
             {
-                std::cout<<"Reading mesh from file "<<filename<<"..."<<std::flush;
+                std::cout<<"Reading mesh elements from file "<<filename<<"..."<<std::flush;
 
                 
                 std::string line;
@@ -95,18 +105,17 @@ namespace model {
                 }
                 
                 std::cout<<" done."<<std::endl;
+                MeshStats<dim,dim>::stats(true);
+                Simplex<dim,0>::nodeReader.clear();
+//                st0.nodeReader.clear();
 
             }
             else
             {
-                std::cout<<"Cannot read mesh file "<<filename<<std::endl;
-                assert(0);
+                std::cout<<"Cannot read mesh file "<<filename<<". Mesh is empty."<<std::endl;
+                //assert(0);
             }
         
-        
-            MeshStats<dim,dim>::stats(true);
-        
-            Simplex<dim,0>::nodeReader.clear();
         }
         
         
@@ -122,6 +131,10 @@ namespace model {
         
         
 	};
+
+        // Declare static data
+//    template<short int dim>
+//    VertexReader<'N',dim+1,double> Simplex<dim,0>::nodeReader;
 
     
 }	// close namespace

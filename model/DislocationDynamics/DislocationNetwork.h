@@ -94,7 +94,9 @@
 #include <model/MPI/MPIcout.h> // defines mode::cout
 
 
-namespace model {
+
+namespace model
+{
 	
 	
 	/**************************************************************************/
@@ -130,7 +132,7 @@ namespace model {
         
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
-//         int nucleationFreq;
+        //         int nucleationFreq;
 #endif
         
         //ParticleSystem<DislocationParticle<_dim> > particleSystem;
@@ -141,9 +143,9 @@ namespace model {
 		bool use_junctions;
 		static bool useImplicitTimeIntegration;
         static double equilibriumVelocity;
-
+        
 		unsigned int runID;
-				
+        
 		bool use_crossSlip;
 		double crossSlipDeg;
 		double crossSlipLength;
@@ -152,6 +154,10 @@ namespace model {
 		
 		double dx, dt;
         double vmax;
+        
+        SimplicialMesh<dim> mesh;
+        
+        
         
 		/* formJunctions ******************************************************/
 		void formJunctions()
@@ -197,7 +203,7 @@ namespace model {
 				}
 			}
 			
-//			double equilibriumVelocity(0.01);
+            //			double equilibriumVelocity(0.01);
 			//short unsigned int shearWaveExp=1;
 			if (vmax > Material<Isotropic>::cs*equilibriumVelocity)
             {
@@ -213,7 +219,7 @@ namespace model {
 			model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<dt;
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
-				
+        
 		/* crossSlip **********************************************************/
 		void crossSlip()
         {/*! Performs dislocation cross-slip if use_crossSlip==true
@@ -246,7 +252,7 @@ namespace model {
 				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
         }
-		        
+        
         /*  singleStep*********************************************************/
 		void singleStep(const bool& updateUserBC=false)
         {
@@ -277,7 +283,7 @@ namespace model {
 			
 			//! 3- Solve the equation of motion
 			assembleAndSolve();
-			    
+            
 			//! 4- Compute time step dt (based on max nodal velocity) and increment totalTime
 			make_dt();
 			totalTime+=dt;
@@ -374,7 +380,7 @@ namespace model {
 		/**********************************************************************/
 		/* PUBLIC SECTION *****************************************************/
 	public:
-//		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        //		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
 		DislocationSharedObjects<LinkType> shared;
 		
@@ -386,14 +392,15 @@ namespace model {
         
 		/* Constructor ********************************************************/
         DislocationNetwork(int& argc, char* argv[]) :
-        /* init list                              */ plasticDistortion(MatrixDimD::Zero())
+        /* init list  */ mesh(0), // this reads mesh files N/N_0.txt and T/T_0.txt
+        /* init list  */ plasticDistortion(MatrixDimD::Zero())
         {
             ParticleSystemType::initMPI(argc,argv);
             read("./","DDinput.txt");
         }
         
         /* Constructor ********************************************************/
-        ~DislocationNetwork() 
+        ~DislocationNetwork()
         {
             // this destructor in only needed to avoid a bug in in gcc
             for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
@@ -403,11 +410,10 @@ namespace model {
 				linkIter->second->quadratureParticleContainer.clear();
 			}
             
-//            particleSystem.clearParticles();
-                        this->clearParticles();
+            this->clearParticles();
         }
         
-                
+        
 		/* remesh *************************************************************/
 		void remesh()
         {
@@ -451,7 +457,7 @@ namespace model {
             EDR.readScalarInFile(fullName.str(),"parametrizationExponent",LinkType::alpha);
             assert((LinkType::alpha)>=0.0 && "parametrizationExponent MUST BE >= 0.0");
             assert((LinkType::alpha)<=1.0 && "parametrizationExponent MUST BE <= 1.0");
-
+            
             // Temperature. Make sure you initialize before calling Material<Isotropic>::select()
             EDR.readScalarInFile(fullName.str(),"temperature",Material<Isotropic>::T); // temperature
             
@@ -463,7 +469,7 @@ namespace model {
             EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
             Material<Isotropic>::rotateCrystal(C2Gtemp);
             
-
+            
             // Min SubNetwork::nodeOrder for Assemble and solve
             int minSNorderForSolve_temp(0);
             EDR.readScalarInFile(fullName.str(),"minSNorderForSolve",minSNorderForSolve_temp); // material by atomic number Z
@@ -479,21 +485,21 @@ namespace model {
             
             // Multipole Expansion
             EDR.readScalarInFile(fullName.str(),"dislocationCellSize",SpatialCellObserverType::cellSize); // cellSize
-
+            
             //            EDR.readScalarInFile(fullName.str(),"nearCellStressApproximation",DislocationParticleType::nearCellStressApproximation); // useMultipoleStress
-//            EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationParticleType::farCellStressApproximation); // useMultipoleStress
-//            assert((DislocationParticleType::farCellStressApproximation >= DislocationParticleType::nearCellStressApproximation) && "NEAR-FIELD APPROXIMATION IS COARSER THAN FAR-FIELD APPROXIMATION");
+            //            EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationParticleType::farCellStressApproximation); // useMultipoleStress
+            //            assert((DislocationParticleType::farCellStressApproximation >= DislocationParticleType::nearCellStressApproximation) && "NEAR-FIELD APPROXIMATION IS COARSER THAN FAR-FIELD APPROXIMATION");
             
             
             EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
 			
             // Implicit time integration
             EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
-        
+            
 			// Restart
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
             
-
+            
             
 			
             // IO
@@ -527,7 +533,7 @@ namespace model {
 			assert(dx>0.0);
             EDR.readScalarInFile(fullName.str(),"equilibriumVelocity",equilibriumVelocity);
 			assert(equilibriumVelocity>=0.0);
-
+            
 			
 			EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
 			assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
@@ -543,14 +549,14 @@ namespace model {
             EDR.readScalarInFile(fullName.str(),"use_redistribution",use_redistribution);
             EDR.readScalarInFile(fullName.str(),"Lmin",DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
-//            DislocationNetworkRemesh<DislocationNetworkType>::Lmin=2.0*dx;
+            //            DislocationNetworkRemesh<DislocationNetworkType>::Lmin=2.0*dx;
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
             EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             EDR.readScalarInFile(fullName.str(),"thetaDeg",DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg>=0.0);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg<=90.0);
-
+            
             // Cross-Slip
             EDR.readScalarInFile(fullName.str(),"use_crossSlip",use_crossSlip);
             if(use_crossSlip)
@@ -565,7 +571,7 @@ namespace model {
             // Read Vertex and Edge information
             DislocationNetworkIO<DislocationNetworkType>::readVertices(*this,runID);
             DislocationNetworkIO<DislocationNetworkType>::readEdges(*this,runID);
-
+            
             
             if (shared.use_bvp && (shared.boundary_type==softBoundary))
             { // MOVE THIS WITH REST OB BVP STUFF
@@ -574,22 +580,22 @@ namespace model {
             }
             
             
-//#ifdef DislocationNucleationFile
-//            EDR.readScalarInFile(fullName.str(),"nucleationFreq",nucleationFreq);
-//#endif
-
+            //#ifdef DislocationNucleationFile
+            //            EDR.readScalarInFile(fullName.str(),"nucleationFreq",nucleationFreq);
+            //#endif
+            
 #ifdef _MODEL_MPI_
             // Avoid that a processor starts writing before other are reading
             MPI_Barrier(MPI_COMM_WORLD);
 #endif
-
+            
 			
 			// Initializing initial configuration
 			model::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
 			move(0.0,0.0);	// initial configuration
 			output();	// initial configuration, this overwrites the input file
 			if (runID==0) // not a restart
-            { 
+            {
 				remesh();	// expand initial FR sources
 			}
 			updateQuadraturePoints();
@@ -603,9 +609,9 @@ namespace model {
             
             model::cout<<"		Assembling edge stiffness and force vectors..."<<std::flush;
 			double t0=clock();
-
+            
             //! -1 Compute the interaction StressField between dislocation particles
-//            particleSystem.template computeNeighborField<StressField>();
+            //            particleSystem.template computeNeighborField<StressField>();
             this->template computeNeighborField<StressField>();
             
 			//! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
@@ -668,27 +674,27 @@ namespace model {
 			double t0=clock();
             
             // first clear all quadrature points for all segments
-//			for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
-//                 /*                                       */ linkIter!=this->linkEnd();
-//                 /*                                     */ ++linkIter)
-//            {
-//				linkIter->second->quadratureParticleContainer.clear();
-//				linkIter->second->quadratureParticleContainer.reserve(qOrder);
-//			}
-
+            //			for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
+            //                 /*                                       */ linkIter!=this->linkEnd();
+            //                 /*                                     */ ++linkIter)
+            //            {
+            //				linkIter->second->quadratureParticleContainer.clear();
+            //				linkIter->second->quadratureParticleContainer.reserve(qOrder);
+            //			}
+            
             // Clear DislocationParticles
-//            particleSystem.clearParticles();
+            //            particleSystem.clearParticles();
             this->clearParticles();
-
+            
             // then update again
             for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
                  /*                                       */ linkIter!=this->linkEnd();
                  /*                                     */ ++linkIter)
             {
                 linkIter->second->updateQuadraturePoints(*this);
-
+                
                 //                linkIter->second->updateQuadraturePoints(particleSystem);
-//				Quadrature<1,qOrder>::execute(linkIter->second,&LinkType::updateQuadGeometryKernel);
+                //				Quadrature<1,qOrder>::execute(linkIter->second,&LinkType::updateQuadGeometryKernel);
 			}
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
@@ -855,7 +861,7 @@ namespace model {
         
         /**********************************************************************/
 		MatrixDimD plasticStrainRate() const
-        {/*!\returns the plastic distortion rate tensor generated by this 
+        {/*!\returns the plastic distortion rate tensor generated by this
           * DislocaitonNetwork.
           */
             const MatrixDimD temp(plasticDistortionRate());
@@ -916,11 +922,11 @@ namespace model {
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     bool DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::useImplicitTimeIntegration=false;
-
+    
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     double DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::equilibriumVelocity=0.01;
-
+    
     
 	//////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////

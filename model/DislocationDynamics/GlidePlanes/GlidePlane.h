@@ -21,7 +21,7 @@
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
-#include <model/BVP/VirtualBoundarySlipSurface.h>
+#include <model/DislocationDynamics/VirtualBoundarySlipSurface.h>
 #include <model/MPI/MPIcout.h>
 
 

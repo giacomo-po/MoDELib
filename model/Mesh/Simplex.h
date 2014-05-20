@@ -16,6 +16,7 @@
 #include <model/Mesh/SimplexObserver.h>
 #include <model/Mesh/SimplexBase.h>
 #include <model/Mesh/SimplexChild.h>
+#include <model/Network/Readers/VertexReader.h>
 
 namespace model {
     
@@ -38,14 +39,25 @@ namespace model {
         /**********************************************************************/
         Eigen::Matrix<double,dim,1> get_P0() const
         {
+//            if (isFirstSimplex)
+//            {
+//                nodeReader.read(meshID,true);
+//                isFirstSimplex=false;
+//            }
             const typename VertexReader<'N',dim+1,double>::const_iterator nIter(nodeReader.find((this->xID)(0)));
-            assert(nIter!=nodeReader.end() && "MESH VERTEX NOT FOUND IN N_0.txt.");
+            assert((nIter!=nodeReader.end()) && "MESH VERTEX NOT FOUND IN N/N_x.txt.");
             return nIter->second;
         }
         
+//        static bool isFirstSimplex;
+//        static VertexReader<'N',dim+1,double> nodeReader;
+    
     public:
         
+//        static int meshID;
+//        static bool isFirstSimplex;
         static VertexReader<'N',dim+1,double> nodeReader;
+
         
 		/**********************************************************************/
         Simplex(const SimplexIDType& vIN) :
@@ -67,7 +79,13 @@ namespace model {
         }
         
 	};
-    
+
+//    template<short int dim>
+//    int Simplex<dim,0>::meshID=0;
+//
+//    template<short int dim>
+//    bool Simplex<dim,0>::isFirstSimplex=true;
+
     template<short int dim>
     VertexReader<'N',dim+1,double> Simplex<dim,0>::nodeReader;
     

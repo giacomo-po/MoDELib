@@ -15,7 +15,7 @@
 
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
-#include <model/BVP/VirtualBoundarySlipSurface.h>
+#include <model/DislocationDynamics/VirtualBoundarySlipSurface.h>
 #include <model/Utilities/SequentialOutputFile.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 

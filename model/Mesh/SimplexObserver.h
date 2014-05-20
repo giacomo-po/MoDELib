@@ -30,7 +30,7 @@ namespace model {
         /*                                      */ SimplexTraits<dim,order>::nVertices> // key compare
         /*            */ >  SimplexMapType;
 		
-        
+        typedef typename SimplexMapType::const_iterator const_iterator;
         
         typedef typename SimplexTraits<dim,order>::SimplexIDType SimplexIDType;
         typedef std::shared_ptr<SimplexType> SharedPtrType;

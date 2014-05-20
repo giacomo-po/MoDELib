@@ -23,6 +23,20 @@
 #include <iterator> // std::advance
 #include <time.h>
 
+
+
+#include <model/Utilities/TerminalColors.h>
+#include <model/DislocationDynamics/Visualization/DDreader.h>
+
+#include <model/DislocationDynamics/Visualization/Plotters/SplinePlotter.h>
+#include <model/DislocationDynamics/Visualization/Plotters/CellPlotter.h>
+#include <model/DislocationDynamics/Visualization/Plotters/PlanePlotter.h>
+#include <model/DislocationDynamics/Visualization/Plotters/MeshPlotter.h>
+
+#include <model/openGL/BitmapPlotter.h>
+#include <model/openGL/GL2tga.h>
+#include <model/openGL/GL2pdf.h>
+
 #ifdef __APPLE__
 #include <OpenGL/OpenGL.h>
 #else
@@ -31,54 +45,41 @@
 #endif
 
 
-
-#include <model/DislocationDynamics/Visualization/DDreader.h>
-
-#include <model/DislocationDynamics/Visualization/Plotters/SplinePlotter.h>
-#include <model/DislocationDynamics/Visualization/Plotters/CellPlotter.h>
-#include <model/DislocationDynamics/Visualization/Plotters/PlanePlotter.h>
-#include <model/DislocationDynamics/Visualization/Plotters/MeshPlotter.h>
-//#include <model/DislocationDynamics/Visualization/Plotters/BitmapPlotter.h>
-
-#include <model/openGL/BitmapPlotter.h>
-#include <model/openGL/GL2tga.h>
-#include <model/openGL/GL2pdf.h>
-
-
-
-
 namespace model {
 	
-	std::string defaultColor    = "\033[0m";	  // the default color for the console
-	std::string redBoldColor    = "\033[1;31m";   // a bold red color
-	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
-	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
-	std::string magentaColor    = "\033[0;35m";   // a magenta color
+//	std::string defaultColor    = "\033[0m";	  // the default color for the console
+//	std::string redBoldColor    = "\033[1;31m";   // a bold red color
+//	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
+//	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
+//	std::string magentaColor    = "\033[0;35m";   // a magenta color
 	
 	
     //#include <model/DislocationDynamics/Visualization/eps/rendereps_out.h>
     
-    
+//    mesh.readMesh(0);
 	
 	/*************************************************************/
 	/* DDgl **************************************************/
 	/*************************************************************/
-	template <short unsigned int dim, float & alpha>
-	struct DDgl{
-		
-	public:
-		DDgl(){
-			assert(0 && "DDgl.h: template specialization not implemented");
-		}
-		
-	};
+//	template <short unsigned int dim, float & alpha>
+//	struct DDgl{
+//		
+//	public:
+//		DDgl(){
+//			assert(0 && "DDgl.h: template specialization not implemented");
+//		}
+//		
+//	};
 	
 	/*************************************************************/
 	/* DDgl **************************************************/
 	/*************************************************************/
 	template <float & alpha>
-	struct DDgl<3,alpha>{
+	struct DDgl
+    {
 		
+        const SimplicialMesh<3>* const p_mesh; // declaring mesh as pointer is necessary
+
         
         //  #include <model/DislocationDynamics/Visualization/eps/rendereps.h>
         
@@ -157,7 +158,6 @@ namespace model {
 		CellPlotter  cellPlotter;
 		PlanePlotter planePlotter;
 		MeshPlotter  meshPlotter;
-        
         
         
 		
@@ -249,7 +249,8 @@ namespace model {
                 
             }
             
-            if (showControls) {
+            if (showControls)
+            {
                 line = 1;
                 sprintf (outString, "HELP:\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
@@ -424,11 +425,11 @@ namespace model {
                 }
                 
                 // pdf files
-                if (GL2pdf< DDgl<3,alpha> >::savePDF)
+                if (GL2pdf< DDgl<alpha> >::savePDF)
                 {
                     std::stringstream filenameStream;
                     filenameStream << "pdf/image_" << frameN;
-                    GL2pdf< DDgl<3,alpha> >(*this).saveAs(filenameStream.str());
+                    GL2pdf< DDgl<alpha> >(*this).saveAs(filenameStream.str());
                 }
                 savedframeN=frameN; // update savedframeN
             }
@@ -532,8 +533,15 @@ namespace model {
 		
 		
 		/* Constructor **************************************************/
-		DDgl(){
+		DDgl(const SimplicialMesh<3>* const p_mesh_in) :
+        /* init list */ p_mesh(p_mesh_in),
+        /* init list */ meshPlotter(p_mesh)
+        {
 			
+ //               mesh.readMesh(0);
+
+
+            
 			ddr.list();
 			
 			assert(ddr.size() && "NO FILES FOUND");
@@ -569,7 +577,7 @@ namespace model {
 			
 			//saveTga=false;
 			GL2tga::saveTGA=false;
-			GL2pdf< DDgl<3,alpha> >::savePDF=false;
+			GL2pdf< DDgl<alpha> >::savePDF=false;
             
 			savedframeN=-1;
 			

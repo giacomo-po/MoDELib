@@ -12,11 +12,15 @@
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationConsts.h>
-#include <model/BVP/VirtualBoundarySlipContainer.h>
+#include <model/DislocationDynamics/VirtualBoundarySlipContainer.h>
 #include <model/BVP/Domain.h>
 
 #include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
+
+#include <model/Mesh/SimplicialMesh.h> // defines mode::cout
+#include <model/DislocationDynamics/BVPsolver.h>
+
 
 namespace model {
 	
@@ -33,7 +37,9 @@ namespace model {
 		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
 		static VirtualBoundarySlipContainer<LinkType> vbsc;
 
-        
+//        static SimplicialMesh<TypeTraits<LinkType>::dim> mesh;
+
+//        static BVPsolver<TypeTraits<LinkType>::dim,2> bvpSolver;
 
 //        static ParticleSystem<DislocationParticle<TypeTraits<LinkType>::dim> > particleSystem;
 //         ParticleSystem<DislocationParticle<TypeTraits<LinkType>::dim> > particleSystem;
@@ -63,7 +69,14 @@ namespace model {
 
 	template <typename LinkType>
 	VirtualBoundarySlipContainer<LinkType> DislocationSharedObjects<LinkType>::vbsc;
-	
+
+//    template <typename LinkType>
+//	SimplicialMesh<TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::mesh(0); // this reads mesh files N/N_0.txt and T/T_0.txt
+    
+//    template <typename LinkType>
+//	BVPsolver<TypeTraits<LinkType>::dim,2> DislocationSharedObjects<LinkType>::bvpSolver(DislocationSharedObjects<LinkType>::mesh);
+
+    
     //0x7f8732c04dc0
     
 //    template <typename LinkType>
