@@ -12,12 +12,13 @@
 #include <sstream>
 #include <fstream>
 #include <assert.h>
+#include <utility>      // std::pair, std::make_pair
 
 
 #include <map>
 #include <model/Network/Readers/VertexReader.h>
-
 #include <model/Utilities/TerminalColors.h>
+#include <model/Utilities/SequentialBinFile.h>
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Mesh/Simplex.h>
 #include <model/Mesh/MeshStats.h>
@@ -70,13 +71,15 @@ namespace model {
             
             this->clear();
             
-            std::stringstream filestream;
-            filestream << "T/T_" << meshID << ".txt";
-            std::string filename(filestream.str());
+//            std::stringstream filestream;
+//            filestream << "T/T_" << meshID << ".txt";
+//            std::string filename(filestream.str());
 
             
             VertexReader<'T',dim+2,size_t> elementReader;
             const bool success=elementReader.read(meshID,true);
+            
+//            SequentialBinFile<'T',std::pair<int,typename SimplexTraits<dim,dim>::SimplexIDType>,true> binFile;
             
             if (success)
             {
@@ -86,6 +89,9 @@ namespace model {
                      /*                                       */ eIter!=elementReader.end();++eIter)
                 {
                     insertSimplex(eIter->second);
+                    
+//                    binFile.write(std::make_pair(eIter->first,eIter->second));
+                    
                 }
                 std::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
                 MeshStats<dim,dim>::stats(true);
@@ -93,7 +99,7 @@ namespace model {
             }
             else
             {
-                std::cout<<"Cannot read mesh file "<<filename<<". Mesh is empty."<<std::endl;
+                std::cout<<"Cannot read mesh file T/T_"<<meshID<<".txt . Mesh is empty."<<std::endl;
             }
             
 

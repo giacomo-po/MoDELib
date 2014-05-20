@@ -16,9 +16,9 @@
 #include <model/Network/NetworkComponent.h>
 
 //#include <model/Math/SchurComplementSolver.h>
+#include <Eigen/Sparse>
 #include <model/Math/MINRES.h>
 #include <model/Utilities/SequentialOutputFile.h>
-#include <Eigen/Sparse>
 
 
 namespace model {
@@ -125,8 +125,6 @@ namespace model {
           */
         }
         
-        
-        
         /************************************************************/
         void sparseSolve()
         {
@@ -190,12 +188,6 @@ namespace model {
             SparseMatrixType KQQ(KPQ_row,KPQ_row);
             KQQ.setFromTriplets(kqqT.begin(),kqqT.end()); // now KQQ is idefinite (NOT SPD) therefore conjugate-gradient cannot be used
             
-            
-//            SequentialOutputFile<'F',1>::set_increment(1); // edgeFile;
-//            SequentialOutputFile<'F',1>::set_count(1); // edgeFile;
-//            SequentialOutputFile<'F',1> fFile;
-//            fFile<<Fq;
-            
             Eigen::VectorXd F(Eigen::VectorXd::Zero(KPQ_row));
             F.segment(0,Ndof)=Fq;
             Eigen::VectorXd x1(Eigen::VectorXd::Zero(KPQ_row));
@@ -204,8 +196,25 @@ namespace model {
             bool useMINRES=true;
             if (useMINRES)
             {
-                MINRES<double> mRS(KQQ,F,x1,DBL_EPSILON);
-                storeNodeSolution(mRS.xMR.segment(0,Ndof)); // solution is checked inside
+                //MINRES<double> mRS(KQQ,F,x1,DBL_EPSILON);
+//                storeNodeSolution(mRS.xMR.segment(0,Ndof)); // solution is checked inside
+                Eigen::MINRES<SparseMatrixType> solver(KQQ);
+                solver.setTolerance(DBL_EPSILON);
+                solver.setMaxIterations(2*F.rows());
+                x1=solver.solveWithGuess(F,x1);
+                if(solver.info()==Eigen::Success)
+                {
+                    storeNodeSolution(x1.segment(0,Ndof));
+                }
+                else
+                {
+                    std::cout<<"Solver did not converge\n";
+                    std::cout<<"iterations="<<solver.iterations()<<"\n";
+                    std::cout<<"maxIterations="<<solver.maxIterations()<<"\n";
+                    std::cout<<"error="<<solver.error()<<"\n";
+                    std::cout<<"tolerance="<<solver.tolerance()<<"\n";
+                    assert(0 && "SOLVER DID NOT CONVERGE.");
+                }
             }
             else
             {
@@ -233,106 +242,6 @@ namespace model {
             
         }
         
-        
-        
-        
-        //		/************************************************************/
-        //		void solve() {
-        //
-        //
-        //
-        //            //#ifdef _OPENMP
-        //            //            std::cout<<"Thread "<<omp_get_thread_num()<<" of "<<omp_get_num_threads()<<" solving SubNetwork "<<NC.sID<<std::endl;
-        //            //#endif
-        //
-        //
-        //			const size_t nodeOrdr(NC.nodeOrder());
-        //
-        //			if (nodeOrdr==0 || nodeOrdr==1){
-        //                std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
-        //                assert(0 && "DislocationSubNetework has less than 2 Nodes.");
-        //			}
-        //
-        //			if (nodeOrdr==2){
-        //				typename NodeContainerType::const_iterator nodeIter1=NC.nodeBegin();
-        //				typename NodeContainerType::const_iterator nodeIter2(nodeIter1);
-        //				nodeIter2++;
-        //				if (nodeIter1->second->constraintNormals().size()>2 && nodeIter2->second->constraintNormals().size()>2){
-        //					assert(0 && "DislocationSubNetework has only 2 fixed Nodes.");
-        //				}
-        //			}
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //			//! 1- Assemble KQQ and Fq
-        //			const size_t NDOF = NC.nodeOrder()*NdofXnode;
-        //
-        //
-        //
-        //			Eigen::MatrixXd KQQ = Eigen::MatrixXd::Zero(NDOF,NDOF);
-        //			Eigen::VectorXd Fq  = Eigen::VectorXd::Zero(NDOF);
-        //
-        //
-        //			for (typename LinkContainerType::const_iterator linkIter=NC.linkBegin();linkIter!=NC.linkEnd();++linkIter){
-        //
-        //                //		linkIter->second->assemble(); // moved to DislocationNetwork::solve
-        //
-        //				Eigen::MatrixXd G2H(linkIter->second->get_G2H());
-        //				KQQ+=G2H.transpose() * linkIter->second->get_Kqq() * G2H;
-        //				Fq +=G2H.transpose() * linkIter->second->get_Fq();
-        //			}
-        //
-        //
-        //
-        //
-        //			//! 1- Assemble KPQ and Fp
-        //			std::vector<typename NodeType::VectorOfNormalsType> NNV;
-        //
-        //			for (typename NodeContainerType::const_iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter){
-        //				NNV.push_back(nodeIter->second->constraintNormals());
-        //			}
-        //
-        //			size_t count=0;
-        //			for (size_t k=0;k<NNV.size();++k){
-        //				count+=NNV[k].size();
-        //			}
-        //
-        //			//assert(count<KQQ.rows() && "SUBNETWORK IS FULLY CONSTRAINED");
-        //
-        //			Eigen::MatrixXd KPQ = Eigen::MatrixXd::Zero(count,KQQ.cols());
-        //            //			Eigen::VectorXd Fp  = Eigen::VectorXd::Zero(count);
-        //
-        //			size_t KPQ_row=0;
-        //
-        //			for (size_t n=0 ;n<NNV.size();++n){
-        //				for (size_t c=0;c<NNV[n].size();++c){
-        //					KPQ.block(KPQ_row,n*dim,1,dim)=NNV[n][c].transpose();
-        //                    //					Fp(KPQ_row)=0.0;
-        //					++KPQ_row;
-        //				}
-        //			}
-        //
-        //
-        //
-        //			//! Solve the system of equations
-        //            //			const SchurComplementSolver LS(KQQ,KPQ,Fq,Fp);
-        //			const SchurComplementSolver LS(KQQ,KPQ,Fq);
-        //
-        //			//! Store velocities in DislocationNodes
-        //            size_t k=0;
-        //			for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter){
-        //				nodeIter->second->set_V(LS.X.segment(NdofXnode*k,NdofXnode));
-        //				++k;
-        //			}
-        //
-        //
-        //
-        //		}
-		
 		/* isBoundarySubNetwork *********************************/
 		bool isBoundarySubNetwork() const {
 			bool temp(true);
@@ -428,3 +337,102 @@ namespace model {
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
+
+
+
+//		/************************************************************/
+//		void solve() {
+//
+//
+//
+//            //#ifdef _OPENMP
+//            //            std::cout<<"Thread "<<omp_get_thread_num()<<" of "<<omp_get_num_threads()<<" solving SubNetwork "<<NC.sID<<std::endl;
+//            //#endif
+//
+//
+//			const size_t nodeOrdr(NC.nodeOrder());
+//
+//			if (nodeOrdr==0 || nodeOrdr==1){
+//                std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
+//                assert(0 && "DislocationSubNetework has less than 2 Nodes.");
+//			}
+//
+//			if (nodeOrdr==2){
+//				typename NodeContainerType::const_iterator nodeIter1=NC.nodeBegin();
+//				typename NodeContainerType::const_iterator nodeIter2(nodeIter1);
+//				nodeIter2++;
+//				if (nodeIter1->second->constraintNormals().size()>2 && nodeIter2->second->constraintNormals().size()>2){
+//					assert(0 && "DislocationSubNetework has only 2 fixed Nodes.");
+//				}
+//			}
+//
+//
+//
+//
+//
+//
+//
+//			//! 1- Assemble KQQ and Fq
+//			const size_t NDOF = NC.nodeOrder()*NdofXnode;
+//
+//
+//
+//			Eigen::MatrixXd KQQ = Eigen::MatrixXd::Zero(NDOF,NDOF);
+//			Eigen::VectorXd Fq  = Eigen::VectorXd::Zero(NDOF);
+//
+//
+//			for (typename LinkContainerType::const_iterator linkIter=NC.linkBegin();linkIter!=NC.linkEnd();++linkIter){
+//
+//                //		linkIter->second->assemble(); // moved to DislocationNetwork::solve
+//
+//				Eigen::MatrixXd G2H(linkIter->second->get_G2H());
+//				KQQ+=G2H.transpose() * linkIter->second->get_Kqq() * G2H;
+//				Fq +=G2H.transpose() * linkIter->second->get_Fq();
+//			}
+//
+//
+//
+//
+//			//! 1- Assemble KPQ and Fp
+//			std::vector<typename NodeType::VectorOfNormalsType> NNV;
+//
+//			for (typename NodeContainerType::const_iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter){
+//				NNV.push_back(nodeIter->second->constraintNormals());
+//			}
+//
+//			size_t count=0;
+//			for (size_t k=0;k<NNV.size();++k){
+//				count+=NNV[k].size();
+//			}
+//
+//			//assert(count<KQQ.rows() && "SUBNETWORK IS FULLY CONSTRAINED");
+//
+//			Eigen::MatrixXd KPQ = Eigen::MatrixXd::Zero(count,KQQ.cols());
+//            //			Eigen::VectorXd Fp  = Eigen::VectorXd::Zero(count);
+//
+//			size_t KPQ_row=0;
+//
+//			for (size_t n=0 ;n<NNV.size();++n){
+//				for (size_t c=0;c<NNV[n].size();++c){
+//					KPQ.block(KPQ_row,n*dim,1,dim)=NNV[n][c].transpose();
+//                    //					Fp(KPQ_row)=0.0;
+//					++KPQ_row;
+//				}
+//			}
+//
+//
+//
+//			//! Solve the system of equations
+//            //			const SchurComplementSolver LS(KQQ,KPQ,Fq,Fp);
+//			const SchurComplementSolver LS(KQQ,KPQ,Fq);
+//
+//			//! Store velocities in DislocationNodes
+//            size_t k=0;
+//			for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter){
+//				nodeIter->second->set_V(LS.X.segment(NdofXnode*k,NdofXnode));
+//				++k;
+//			}
+//
+//
+//
+//		}

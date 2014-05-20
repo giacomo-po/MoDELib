@@ -191,8 +191,12 @@ namespace model
             {
                 case LAGRANGE:
                 {
-                    MINRES<double> mRS(A,b,x,tol);
-                    x=mRS.xMR;
+                    
+                    Eigen::MINRES<SparseMatrixType> solver(A);
+                    solver.setTolerance(tol);
+                    x=solver.solveWithGuess(b,x);                    
+//                    MINRES<double> mRS(A,b,x,tol);
+//                    x=mRS.xMR;
                     break;
                 }
                     

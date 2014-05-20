@@ -34,11 +34,11 @@ namespace model {
     /* base class   */ public  StaticID<GlidePlane<SegmentType> >,
 	/* base class   */ private std::set<const SegmentType*>,
 	/* base class   */ private std::set<const VirtualBoundarySlipSurface<SegmentType>*>,
-	/* base class   */ private GlidePlaneObserver<SegmentType>{
+	/* base class   */ private GlidePlaneObserver<SegmentType>
+    {
 		
     public:
         typedef GlidePlane<SegmentType> GlidePlaneType;
-        //	typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
         typedef typename GlidePlaneObserver<SegmentType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
         
         enum{dim=TypeTraits<SegmentType>::dim};
@@ -46,19 +46,13 @@ namespace model {
 		typedef std::set<const SegmentType*> 				         SegmentContainerType;
 		typedef std::set<const VirtualBoundarySlipSurface<SegmentType>*> BoundarySegmentContainerType;
         
-		//typedef GlidePlane<SegmentType> GlidePlaneType;
-		//typedef typename SegmentType::TempMaterialType MaterialType;
 		typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
 		typedef Eigen::Matrix<double,dim+1,1> VectorDimPlusOneD;
 		typedef std::pair<VectorDimD,VectorDimD> segmentMeshCollisionPair;
-		//typedef std::vector<segmentMeshCollisionPair> segmentMeshCollisionPairContainerType;
-		//typedef std::map<unsigned int , segmentMeshCollisionPair> segmentMeshCollisionPairContainerType;
 		typedef std::map<unsigned int, segmentMeshCollisionPair, std::less<unsigned int>,
 		/*            */ Eigen::aligned_allocator<std::pair<const unsigned int, segmentMeshCollisionPair> > > segmentMeshCollisionPairContainerType;
-        
 		typedef  std::pair<unsigned int, segmentMeshCollisionPair> planeTraingleIntersection;
-        //		typedef  std::vector<planeTraingleIntersection> planeMeshIntersectionType;
 		typedef  std::vector<planeTraingleIntersection, Eigen::aligned_allocator<planeTraingleIntersection> > planeMeshIntersectionType;
         
     private:
@@ -74,11 +68,13 @@ namespace model {
 		std::vector <planeMeshIntersectionType> planesMeshIntersectionContainer;         // stores the intersection lines of planes (parallel to this glide plane) with the mesh
 		
 		
-		//! The non-unit vector defining the plane in space
+		//! The unit vector normal to *this GlidePlane
 		const VectorDimD planeNormal;
-		const double height;
 		
-		/* Constructor with non-unit plane normal ******************************/
+        //! The height from the origin along the planeNormal
+        const double height;
+		
+		/**********************************************************************/
 		GlidePlane(const VectorDimD& planeNormal_in, const double& height_in) :
         /* init list */ planeNormal(planeNormal_in),
 		/* init list */ height(height_in)
@@ -89,8 +85,8 @@ namespace model {
             if (shared.boundary_type)
             {
 				shared.domain.get_planeMeshIntersection(planeNormal*height,planeNormal,segmentMeshCollisionPairContainer);
+                
 				//----------- intersect the mesh with parallel planes to this glide plane -------------
-				//intersectMeshWithParallelPlanes (planeNormal,height);
 				intersectMeshWithParallelPlanes ();
 			}
             //model::cout<<" done"<<std::endl;
@@ -106,7 +102,8 @@ namespace model {
 		}
         
 		/* getSharedPointer ******************************************/
-		GlidePlaneSharedPtrType getSharedPointer() const{
+		GlidePlaneSharedPtrType getSharedPointer() const
+        {
 			GlidePlaneSharedPtrType temp;
 			if (!SegmentContainerType::empty()){
 				temp=(*SegmentContainerType::begin())->pGlidePlane;
@@ -123,39 +120,46 @@ namespace model {
 		}
 		
 		/* addToGLidePlane  ******************************************/
-		void addToGLidePlane(SegmentType* const pS){
+		void addToGLidePlane(SegmentType* const pS)
+        {
 			assert(SegmentContainerType::insert(pS).second && "COULD NOT INSERT SEGMENT POINTER IN SEGMENT CONTAINER.");
 		}
 		
 		/* removeFromGlidePlane  *************************************/
-		void removeFromGlidePlane(SegmentType* const pS){
+		void removeFromGlidePlane(SegmentType* const pS)
+        {
 			assert(SegmentContainerType::erase(pS)==1 && "COULD NOT ERASE SEGMENT POINTER FROM SEGMENT CONTAINER.");
 		}
         
 		/* addToGLidePlane  ******************************************/
-		void addToGLidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS){
+		void addToGLidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS)
+        {
 			assert(BoundarySegmentContainerType::insert(pS).second && "COULD NOT INSERT BOUNDARY SEGMENT POINTER IN SEGMENT CONTAINER.");
 		}
 		
 		/* removeFromGlidePlane  *************************************/
-		void removeFromGlidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS){
+		void removeFromGlidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS)
+        {
 			assert(BoundarySegmentContainerType::erase(pS)==1 && "COULD NOT ERASE BOUNDARY SEGMENT POINTER FROM SEGMENT CONTAINER.");
 		}
 		
 		/* begin  **************************************************/
-		typename std::set<const SegmentType*>::const_iterator begin() const {
+		typename std::set<const SegmentType*>::const_iterator begin() const
+        {
 			return SegmentContainerType::begin();
 		}
 		
 		/* end  **************************************************/
-		typename std::set<const SegmentType*>::const_iterator end() const {
+		typename std::set<const SegmentType*>::const_iterator end() const
+        {
 			return SegmentContainerType::end();
 		}
 		
 		
         /* friend T& operator << **********************************************/
 		template <class T>
-		friend T& operator << (T& os, const GlidePlaneType& gp){
+		friend T& operator << (T& os, const GlidePlaneType& gp)
+        {
             unsigned int ii = 0 ;
             typename segmentMeshCollisionPairContainerType::const_iterator itt;
             for (itt = gp.segmentMeshCollisionPairContainer.begin(); itt != gp.segmentMeshCollisionPairContainer.end() ;++itt){
@@ -163,18 +167,19 @@ namespace model {
                 << (*itt).second.first.transpose()<<" "
                 << (*itt).second.second.transpose()<<"\n";
                 ii++;
-                }
-                /*for (unsigned int k=0; k<gp.segmentMeshCollisionPairContainer.size();++k){
-                 os << gp.sID<< " "<< k <<" "
-                 << gp.segmentMeshCollisionPairContainer[k].first.transpose()<<" "
-                 << gp.segmentMeshCollisionPairContainer[k].second.transpose();
-                 }*/
-                return os;
-                }
+            }
+            /*for (unsigned int k=0; k<gp.segmentMeshCollisionPairContainer.size();++k){
+             os << gp.sID<< " "<< k <<" "
+             << gp.segmentMeshCollisionPairContainer[k].first.transpose()<<" "
+             << gp.segmentMeshCollisionPairContainer[k].second.transpose();
+             }*/
+            return os;
+        }
         
         
         /* stress from all segments on this glide plane ************************************************/
-        MatrixDimD stress(const VectorDimD& Rfield) const {
+        MatrixDimD stress(const VectorDimD& Rfield) const
+        {
             MatrixDimD temp(MatrixDimD::Zero());
             for (typename std::set<const SegmentType*>::const_iterator sIter = SegmentContainerType::begin(); sIter != SegmentContainerType::end() ;++sIter){
                 temp+=(*sIter)->stress_source(Rfield);
@@ -186,7 +191,8 @@ namespace model {
         // function to intersect the mesh with planes parallel to the current slip plane
         //============================================================================
         //void intersectMeshWithParallelPlanes (const VectorDimD planeNormal,const double height) {
-        void intersectMeshWithParallelPlanes () {
+        void intersectMeshWithParallelPlanes ()
+        {
             
             unsigned int nPlanes = 3;            // number of parallel planes on each side of the glise plane
             double separation = 50.0e00;         // the separation distance between each plane
@@ -216,7 +222,8 @@ namespace model {
         
         //void addParallelPlane(VectorDimD x0, VectorDimD planeNormal, double separation) {
         //  void addParallelPlane(const double height, const VectorDimD planeNormal, double separation, unsigned int iP, int sign, const bool isLast) {
-        void addParallelPlane(const double separation, const int iP, const bool isLast) {
+        void addParallelPlane(const double separation, const int iP, const bool isLast)
+        {
             
             VectorDimD x0 = (height+(iP*separation))*planeNormal;
             
@@ -242,7 +249,8 @@ namespace model {
         // function to add more points to triangles that has been cut with planes parallel to the glide plane
         //===================================================================================================
         
-        void completeTrianglesPopulation(const segmentMeshCollisionPairContainerType collContainer,const double separation,const int iP){
+        void completeTrianglesPopulation(const segmentMeshCollisionPairContainerType collContainer,const double separation,const int iP)
+        {
             
             bool allDone = false;
             int ii = std::abs(iP);
@@ -288,7 +296,8 @@ namespace model {
         // function to add more integration points to a specific triangle
         //===========================================================================
         
-        void addPointToTriangle (const unsigned int triID, const segmentMeshCollisionPair pointsPair, const double separation) {
+        void addPointToTriangle (const unsigned int triID, const segmentMeshCollisionPair pointsPair, const double separation)
+        {
             
             double l = (pointsPair.second - pointsPair.first).norm();
             int nPnts = int(l/ separation) + 1;

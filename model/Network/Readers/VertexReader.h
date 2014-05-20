@@ -125,7 +125,8 @@ namespace model {
 		}
         
         /*****************************************/
-        static bool isGood(const int& frameN, const bool& useTXT){
+        static bool isGood(const int& frameN, const bool& useTXT)
+        {
             std::stringstream filename;
             std::ifstream ifs;
             switch (useTXT){

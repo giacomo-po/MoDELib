@@ -1205,21 +1205,7 @@ namespace model{
 					collisionContainer.insert(std::make_pair(triContainer[i]->sID,std::make_pair(intersectionPoints[0],intersectionPoints[1])));
 					
 					
-					//---------------- generate custom Quadrature points around the triangle-glide plane intersection line------
-					//triContainer[i]->makeLocalQuadPoints(intersectionPoints[0],intersectionPoints[1] , gpID);
-					
-                    // 					fprintf (ft, "%22.15e %22.15e %22.15e %22.15e %22.15e %22.15e %22.15e %22.15e %22.15e \n",
-                    // 						 triContainer[i]->eleNodes[0]->P(0),triContainer[i]->eleNodes[0]->P(1), triContainer[i]->eleNodes[0]->P(2),
-                    // 						 triContainer[i]->eleNodes[1]->P(0),triContainer[i]->eleNodes[1]->P(1), triContainer[i]->eleNodes[1]->P(2),
-                    // 						 triContainer[i]->eleNodes[2]->P(0),triContainer[i]->eleNodes[2]->P(1), triContainer[i]->eleNodes[2]->P(2));
-                    
-					
-                    // 				std::cout<<"Tri ID  " << triContainer[i]->sID << std::endl;
-                    // 				std::cout<< std::setprecision(15) <<triContainer[i]->eleNodes[0]->P.transpose() << std::endl;
-                    // 				std::cout<< std::setprecision(15) <<triContainer[i]->eleNodes[1]->P.transpose() << std::endl;
-                    // 				std::cout<< std::setprecision(15) <<triContainer[i]->eleNodes[2]->P.transpose() << std::endl;
-                    // 				std::cout<< std::setprecision(15) << intersectionPoints[0].transpose() << "   " << intersectionPoints[1].transpose() << std::endl;
-                    // 				std::cout<<  std::endl;
+
 					
 				}
 				
@@ -1290,38 +1276,7 @@ namespace model{
 			}
 			
 		}
-		
-		
-		
-		//================================================================================
-		//  function to set the dof of a face (the whole face)
-		//================================================================================
-		//	template <typename T>
-		/*
-		 void setFaceDof(int iface, int idof, double val)
-		 {
-		 bvpfe::Face* pFace;
-		 std::map<size_t,bvpfe::Triangle*>::iterator it;
-		 
-		 idof = idof -1;
-		 pFace = faceContainer.find(iface)->second;    // pointer to the targetted face
-		 
-		 //----- loop over the face triangles ---
-		 
-		 for (it= pFace->triContainer.begin() ; it != pFace->triContainer.end(); it++ )
-		 {
-		 //----- loop over the triangle nodes ---
-		 for(unsigned int i = 0; i<it->second->Nnodes; i++)
-		 {
-		 //std::cout<< it->second->eleNodes[i]->sID;
-		 //VectorDim uInf = pT->displacement(it->second->eleNodes[i]->P);
-		 it->second->eleNodes[i]->setBC (idof , val-it->second->eleNodes[i]->uInf(idof)*0);
-		 }
-		 }
-		 
-		 
-		 }*/
-		//===========================================================================================
+    
 	};
 	
 	
@@ -1331,6 +1286,35 @@ namespace model{
 
 
 
+
+//================================================================================
+//  function to set the dof of a face (the whole face)
+//================================================================================
+//	template <typename T>
+/*
+ void setFaceDof(int iface, int idof, double val)
+ {
+ bvpfe::Face* pFace;
+ std::map<size_t,bvpfe::Triangle*>::iterator it;
+ 
+ idof = idof -1;
+ pFace = faceContainer.find(iface)->second;    // pointer to the targetted face
+ 
+ //----- loop over the face triangles ---
+ 
+ for (it= pFace->triContainer.begin() ; it != pFace->triContainer.end(); it++ )
+ {
+ //----- loop over the triangle nodes ---
+ for(unsigned int i = 0; i<it->second->Nnodes; i++)
+ {
+ //std::cout<< it->second->eleNodes[i]->sID;
+ //VectorDim uInf = pT->displacement(it->second->eleNodes[i]->P);
+ it->second->eleNodes[i]->setBC (idof , val-it->second->eleNodes[i]->uInf(idof)*0);
+ }
+ }
+ 
+ 
+ }*/
 
 //===================================================================================
 // function to assemble the force vector from surface traction
