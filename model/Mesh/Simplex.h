@@ -199,6 +199,16 @@ namespace model {
         
         typedef typename SimplexTraits<dim,dim>::BaseArrayType BaseArrayType;
         
+//        bool beingSearched;
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dim+1,dim+1> get_b2p() const
+        {
+            Eigen::Matrix<double,dim+1,dim+1> temp(Eigen::Matrix<double,dim+1,dim+1>::Ones());
+            temp.template block<dim,dim+1>(0,0)=this->vertexPositionMatrix();
+            return temp;
+        }
+        
     public:
         enum{order=dim};
         enum{nVertices=SimplexTraits<dim,order>::nVertices};
@@ -208,11 +218,16 @@ namespace model {
         typedef Simplex<dim,order-1> ChildSimplexType;
         typedef typename SimplexTraits<dim,order-1>::SimplexIDType ChildIDType;
         
+        const Eigen::Matrix<double,dim+1,dim+1> b2p;
+        const Eigen::Matrix<double,dim+1,dim+1> p2b;
         
 		/**********************************************************************/
         Simplex(const SimplexIDType& vIN) :
         /* init list */ SimplexBase<dim,order>(vIN),
-        /* init list */ BaseArrayType(SimplexObserver<dim,dim>::faces(vIN))
+        /* init list */ BaseArrayType(SimplexObserver<dim,dim>::faces(vIN)),
+//        /* init list */ beingSearched(false),
+        /* init list */ b2p(get_b2p()),
+        /* init list */ p2b(b2p.inverse())
         {/*!
           */
             SimplexObserver<dim,order>::insertSimplex(*this);
@@ -285,6 +300,55 @@ namespace model {
         {
             return BoundarySimplex<dim,dim-order>::isBoundarySimplex(*this);
         }
+        
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dim+1,1> pos2bary(const Eigen::Matrix<double,dim,1>& P) const
+        {
+            return p2b*(Eigen::Matrix<double,dim+1,1>()<<P,1.0).finished();
+        }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dim,1> bary2pos(const Eigen::Matrix<double,dim+1,1>& bary) const
+        {
+            return (b2p*bary).template segment<dim>(0);
+        }
+        
+        /**********************************************************************/
+        std::pair<bool,const Simplex<dim,dim>*> search(const Eigen::Matrix<double,dim,1>& P, std::set<int>& searchSet) const
+        {
+            std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
+            if(searchSet.find(this->sID)==searchSet.end())
+            {// this simplex has not been searched yet
+                searchSet.insert(this->sID);
+                const Eigen::Matrix<double,dim+1,1> bary(pos2bary(P));
+#ifdef _MODEL_BENCH_SEARCH_
+                searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<"\n"; // REMOVE THIS
+#endif
+                int kMin;
+                const double baryMin(bary.minCoeff(&kMin));
+                int kMax;
+                const double baryMax(bary.maxCoeff(&kMax));
+                if (baryMin>=0.0 && baryMax<=1.0)
+                {
+                    temp = make_pair(true,this);
+                }
+                else
+                {
+                    for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
+                        /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
+                    {
+                        temp=(*pIter)->search(P,searchSet);
+                        if (temp.first)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            return temp;
+        }
+
         
 	};
     

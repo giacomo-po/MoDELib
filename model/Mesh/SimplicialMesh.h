@@ -13,7 +13,7 @@
 #include <fstream>
 #include <assert.h>
 #include <utility>      // std::pair, std::make_pair
-
+#include <set>
 
 #include <map>
 #include <model/Network/Readers/VertexReader.h>
@@ -102,15 +102,43 @@ namespace model {
                 std::cout<<"Cannot read mesh file T/T_"<<meshID<<".txt . Mesh is empty."<<std::endl;
             }
             
+        }
+        
+        /**********************************************************************/
+        void insertSimplex(const typename SimplexTraits<dim,dim>::SimplexIDType& xIN)
+        {
+            const typename SimplexTraits<dim,dim>::SimplexIDType xID(SimplexTraits<dim,dim>::sortID(xIN));
+            this->emplace(xID,xID); // requires gcc4.8 and above
+        }
+        
+        
+        /**********************************************************************/
+        std::pair<bool,const Simplex<dim,dim>*> search(const Eigen::Matrix<double,dim,1>& P) const
+        {
+            std::set<int> searchSet;
+            return this->begin()->second.search(P,searchSet);
+        }
 
-            
+        /**********************************************************************/
+        std::pair<bool,const Simplex<dim,dim>*> searchWithGuess(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* const s) const
+        {
+            std::set<int> searchSet;
+            return s->search(P,searchSet);
+        }
+        
+	};
+    
+}	// close namespace
+#endif
+
+
 //            std::ifstream ifs ( filename.c_str() , std::ifstream::in );
 //
 //            if (ifs.is_open())
 //            {
 //                std::cout<<"Reading mesh elements from file "<<filename<<"..."<<std::flush;
 //
-//                
+//
 //                std::string line;
 //
 //                while (std::getline(ifs, line))
@@ -125,10 +153,10 @@ namespace model {
 //                        xID(i) =temp;
 //                        i++;
 //                    }
-//                    
+//
 //                    insertSimplex(xID);
 //                }
-//                
+//
 //                std::cout<<" done."<<std::endl;
 //                MeshStats<dim,dim>::stats(true);
 //                Simplex<dim,0>::nodeReader.clear();
@@ -138,22 +166,3 @@ namespace model {
 //                std::cout<<"Cannot read mesh file "<<filename<<". Mesh is empty."<<std::endl;
 //                //assert(0);
 //            }
-        
-        }
-        
-        
-        
-        /**********************************************************************/
-        void insertSimplex(const typename SimplexTraits<dim,dim>::SimplexIDType& xIN)
-        {
-            const typename SimplexTraits<dim,dim>::SimplexIDType xID(SimplexTraits<dim,dim>::sortID(xIN));
-            this->emplace(xID,xID); // requires gcc4.8 and above
-        }
-        
-        
-        
-        
-	};
-    
-}	// close namespace
-#endif

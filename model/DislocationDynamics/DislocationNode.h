@@ -70,7 +70,8 @@ namespace model {
 		/* initMeshLocation ***************************************************/
 		void initMeshLocation()
         {
-			if (shared.boundary_type){
+			if (shared.boundary_type)
+            {
 				model::SearchData<dim> SD(this->get_P());
 				shared.domain.findIncludingTet(SD);
 				

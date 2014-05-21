@@ -9,6 +9,7 @@
 #ifndef model_SimplexBase_H_
 #define model_SimplexBase_H_
 
+#include <model/Utilities/StaticID.h>
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Mesh/SimplexObserver.h>
 
@@ -19,7 +20,7 @@ namespace model
 	/**************************************************************************/
 	/**************************************************************************/	
 	template<short int dim, short int order>
-	struct SimplexBase 
+	struct SimplexBase : public StaticID<SimplexBase<dim,order> >
     {
         
         typedef SimplexTraits<dim,order> SimplexTraitsType;
@@ -45,6 +46,21 @@ namespace model
             }
             return temp;
         }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dim,SimplexTraits<dim,order>::nVertices>  vertexPositionMatrix() const
+        {
+            Eigen::Matrix<double,dim,SimplexTraits<dim,order>::nVertices> temp;
+            for (int v=0;v<SimplexTraits<dim,order>::nVertices;++v)
+            {
+                typename SimplexTraits<dim,0>::SimplexIDType vID;
+                vID<<xID(v);
+                temp.col(v)=SimplexObserver<dim,0>::pSimplex(vID)->P0;
+            }
+            return temp;
+        }
+        
+
         
 	};
     
