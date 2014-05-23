@@ -57,7 +57,7 @@ namespace model {
         /**********************************************************************/
         static void stats(const bool& countBoundarySimplices)
         {
-            std::cout<<"    Simplex<"<<dim<<","<<k  <<">:"<<SimplexObserverType::size();
+            std::cout<<"    Simplex<"<<dim<<","<<k  <<">: "<<SimplexObserverType::size();
             if (countBoundarySimplices)
             {
                 size_t nB(0);

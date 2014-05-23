@@ -11,12 +11,14 @@
 
 #include <set>
 #include <map>
+#include <float.h>
 #include <Eigen/Dense>
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Mesh/SimplexObserver.h>
 #include <model/Mesh/SimplexBase.h>
 #include <model/Mesh/SimplexChild.h>
 #include <model/Network/Readers/VertexReader.h>
+#include <model/FEM/BarycentricTraits.h>
 
 namespace model {
     
@@ -39,25 +41,16 @@ namespace model {
         /**********************************************************************/
         Eigen::Matrix<double,dim,1> get_P0() const
         {
-//            if (isFirstSimplex)
-//            {
-//                nodeReader.read(meshID,true);
-//                isFirstSimplex=false;
-//            }
             const typename VertexReader<'N',dim+1,double>::const_iterator nIter(nodeReader.find((this->xID)(0)));
             assert((nIter!=nodeReader.end()) && "MESH VERTEX NOT FOUND IN N/N_x.txt.");
             return nIter->second;
         }
         
-//        static bool isFirstSimplex;
-//        static VertexReader<'N',dim+1,double> nodeReader;
-    
+        
     public:
         
-//        static int meshID;
-//        static bool isFirstSimplex;
         static VertexReader<'N',dim+1,double> nodeReader;
-
+        
         
 		/**********************************************************************/
         Simplex(const SimplexIDType& vIN) :
@@ -79,13 +72,7 @@ namespace model {
         }
         
 	};
-
-//    template<short int dim>
-//    int Simplex<dim,0>::meshID=0;
-//
-//    template<short int dim>
-//    bool Simplex<dim,0>::isFirstSimplex=true;
-
+    
     template<short int dim>
     VertexReader<'N',dim+1,double> Simplex<dim,0>::nodeReader;
     
@@ -199,14 +186,21 @@ namespace model {
         
         typedef typename SimplexTraits<dim,dim>::BaseArrayType BaseArrayType;
         
-//        bool beingSearched;
-        
         /**********************************************************************/
         Eigen::Matrix<double,dim+1,dim+1> get_b2p() const
         {
             Eigen::Matrix<double,dim+1,dim+1> temp(Eigen::Matrix<double,dim+1,dim+1>::Ones());
             temp.template block<dim,dim+1>(0,0)=this->vertexPositionMatrix();
             return temp;
+        }
+        
+        /**********************************************************************/
+        const Eigen::Matrix<double,dim,dim+1> get_nda() const
+        {
+            Eigen::Matrix<double,dim,dim+1> vP(this->vertexPositionMatrix());
+            Eigen::Matrix<double,dim,dim> F(vP.template block<dim,dim>(0,0));
+            F.colwise() -= vP.col(dim);
+            return F.determinant()*F.inverse()*BarycentricTraits<dim>::NdA;
         }
         
     public:
@@ -218,16 +212,22 @@ namespace model {
         typedef Simplex<dim,order-1> ChildSimplexType;
         typedef typename SimplexTraits<dim,order-1>::SimplexIDType ChildIDType;
         
+        //! The barycentric-coordinate to position transformation matrix
         const Eigen::Matrix<double,dim+1,dim+1> b2p;
+        
+        //! The position to barycentric-coordinate transformation matrix
         const Eigen::Matrix<double,dim+1,dim+1> p2b;
+        
+        //! The column matrix of face normals
+        const Eigen::Matrix<double,dim,dim+1> nda;
         
 		/**********************************************************************/
         Simplex(const SimplexIDType& vIN) :
         /* init list */ SimplexBase<dim,order>(vIN),
         /* init list */ BaseArrayType(SimplexObserver<dim,dim>::faces(vIN)),
-//        /* init list */ beingSearched(false),
         /* init list */ b2p(get_b2p()),
-        /* init list */ p2b(b2p.inverse())
+        /* init list */ p2b(b2p.inverse()),
+        /* init list */ nda(get_nda())
         {/*!
           */
             SimplexObserver<dim,order>::insertSimplex(*this);
@@ -315,15 +315,19 @@ namespace model {
         }
         
         /**********************************************************************/
-        std::pair<bool,const Simplex<dim,dim>*> search(const Eigen::Matrix<double,dim,1>& P, std::set<int>& searchSet) const
+        //        std::pair<bool,const Simplex<dim,dim>*>
+        void search(const Eigen::Matrix<double,dim,1>& P,
+                    std::pair<bool,const Simplex<dim,dim>*>& lastSearched,
+                    std::set<int>& searchSet) const
         {
-            std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
+            //            std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
             if(searchSet.find(this->sID)==searchSet.end())
             {// this simplex has not been searched yet
                 searchSet.insert(this->sID);
+                lastSearched.second=this;
                 const Eigen::Matrix<double,dim+1,1> bary(pos2bary(P));
-#ifdef _MODEL_BENCH_SEARCH_
-                searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<"\n"; // REMOVE THIS
+#ifdef _MODEL_BENCH_BARYSEARCH_
+                searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<"\n";
 #endif
                 int kMin;
                 const double baryMin(bary.minCoeff(&kMin));
@@ -331,24 +335,51 @@ namespace model {
                 const double baryMax(bary.maxCoeff(&kMax));
                 if (baryMin>=0.0 && baryMax<=1.0)
                 {
-                    temp = make_pair(true,this);
+                    //                    lastSearched = make_pair(true,this);
+                    lastSearched.first=true;// = make_pair(true,this);
+                    
                 }
                 else
                 {
                     for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
                         /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
                     {
-                        temp=(*pIter)->search(P,searchSet);
-                        if (temp.first)
+                        //                        temp=(*pIter)->search(P,searchSet);
+                        (*pIter)->search(P,lastSearched,searchSet);
+                        
+                        if (lastSearched.first)
                         {
                             break;
                         }
                     }
                 }
             }
-            return temp;
+            //            return temp;
         }
-
+        
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dim+1,1> baryFaceIntersection(const Eigen::Matrix<double,dim+1,1>& baryIn,
+                                                           const Eigen::Matrix<double,dim+1,1>& baryOut) const
+        {
+            // Check that baricentric coordinates sum to 1
+            assert(std::fabs( baryIn.sum()-1.0)<=FLT_EPSILON && "baryIn must sum to 1");
+            assert(std::fabs(baryOut.sum()-1.0)<=FLT_EPSILON && "baryOut must sum to 1");
+            
+            // Check that baryIn is a point inside
+            int kMin;
+            const double baryMinIn(baryIn.minCoeff(&kMin));
+            assert(baryMinIn>=0.0 && "min(baryIn) must be >=0");
+            
+            const double baryMinOut(baryOut.minCoeff(&kMin)); // kMin is now the index of minimum baryOut
+            assert(baryMinOut<=0.0 && "min(baryIn) must be <=0");
+            
+            const double u(-baryIn(kMin)/(baryOut(kMin)-baryIn(kMin))); // interpolate linearly
+            
+            return baryIn*(1.0-u)+baryOut*u;
+            
+        }
+        
         
 	};
     

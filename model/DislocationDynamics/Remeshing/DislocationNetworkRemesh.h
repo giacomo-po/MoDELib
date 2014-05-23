@@ -20,7 +20,7 @@
 #include <model/BVP/SearchData.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/MPI/MPIcout.h>
-
+#include <model/Mesh/Simplex.h>
 
 namespace model {
 	
@@ -83,7 +83,8 @@ namespace model {
             }
             else // neither i nor j has a neighbor at P0
             {
-                if(pointIsInsideMesh(P0,Lij.second->source->meshID())) // check that P0 is inside mesh
+//                if(pointIsInsideMesh(P0,Lij.second->source->meshID())) // check that P0 is inside mesh
+                    if(pointIsInsideMesh(P0,Lij.second->source->includingSimplex())) // check that P0 is inside mesh
                 {
                     DN.contract(i,j,P0); 
                     temp++;
@@ -130,7 +131,8 @@ namespace model {
         
         
         /************************************************************/
-        bool pointIsInsideMesh(const VectorDimD& P0, const size_t& startingMeshID){
+        bool pointIsInsideMesh(const VectorDimD& P0, const size_t& startingMeshID) __attribute__ ((deprecated))
+        {
             bool temp(true);
             if (DN.shared.boundary_type){
                 SearchData<dim> SD(P0);
@@ -138,6 +140,21 @@ namespace model {
                 temp*=(SD.nodeMeshLocation==insideMesh);
             }
             return temp;
+        }
+        
+        /************************************************************/
+        bool pointIsInsideMesh(const VectorDimD& P0, const Simplex<dim,dim>* const guess)
+        {
+//            bool temp(true);
+            std::pair<bool,const Simplex<dim,dim>*> temp(true,NULL);
+            if (DN.shared.boundary_type)
+            {
+                temp=DN.shared.mesh.isStrictlyInsideMesh(P0,guess,FLT_EPSILON);
+                //SearchData<dim> SD(P0);
+//                DN.shared.domain.findIncludingTet(SD,startingMeshID);
+//                temp*=(SD.nodeMeshLocation==insideMesh);
+            }
+            return temp.first;
         }
         
         
@@ -296,7 +313,9 @@ namespace model {
                     //                        DN.shared.domain.findIncludingTet(SD,Lij.second->source->meshID());
                     //                        expandPointInsideMesh*=(SD.nodeMeshLocation==insideMesh);
                     //                    }
-                    if(pointIsInsideMesh(expandPoint,Lij.second->source->meshID()))
+
+                    //if(pointIsInsideMesh(expandPoint,Lij.second->source->meshID()))
+                        if(pointIsInsideMesh(expandPoint,Lij.second->source->includingSimplex()))
                     {
                         //std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
                         DN.expand(i,j,expandPoint);

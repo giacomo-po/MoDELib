@@ -36,7 +36,7 @@ namespace model {
     /*                                */ SimplexTraits<_dim,_dim>::nVertices> // key compare
     /*                                */ >
     {
-     
+        
         enum {dim=_dim};
         
         
@@ -46,8 +46,8 @@ namespace model {
         /*                                      */ SimplexTraits<dim,dim>::nVertices> // key compare
         /*            */ >  SimplexMapType;
         
-
-
+        
+        
         
         /**********************************************************************/
         SimplicialMesh()
@@ -71,15 +71,15 @@ namespace model {
             
             this->clear();
             
-//            std::stringstream filestream;
-//            filestream << "T/T_" << meshID << ".txt";
-//            std::string filename(filestream.str());
-
+            //            std::stringstream filestream;
+            //            filestream << "T/T_" << meshID << ".txt";
+            //            std::string filename(filestream.str());
+            
             
             VertexReader<'T',dim+2,size_t> elementReader;
             const bool success=elementReader.read(meshID,true);
             
-//            SequentialBinFile<'T',std::pair<int,typename SimplexTraits<dim,dim>::SimplexIDType>,true> binFile;
+            //            SequentialBinFile<'T',std::pair<int,typename SimplexTraits<dim,dim>::SimplexIDType>,true> binFile;
             
             if (success)
             {
@@ -90,7 +90,7 @@ namespace model {
                 {
                     insertSimplex(eIter->second);
                     
-//                    binFile.write(std::make_pair(eIter->first,eIter->second));
+                    //                    binFile.write(std::make_pair(eIter->first,eIter->second));
                     
                 }
                 std::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
@@ -114,16 +114,65 @@ namespace model {
         
         /**********************************************************************/
         std::pair<bool,const Simplex<dim,dim>*> search(const Eigen::Matrix<double,dim,1>& P) const
-        {
-            std::set<int> searchSet;
-            return this->begin()->second.search(P,searchSet);
-        }
+        {/*!
+          *\returns a pair, where:
+          * -pair.first is a boolean indicating whether the
+          * search succesfully found a Simplex<dim,dim> which includes P.
+          * -pair.second is a pointer to the last Simplex<dim,dim> searched.
+          */
 
+            return searchWithGuess(P,(const Simplex<dim,dim>*) NULL);
+            //            std::set<int> searchSet;
+//            std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,NULL);
+//            this->begin()->second.search(P,lastSearched,searchSet);
+//            return lastSearched;
+//            return this->begin()->second.search(P,searchSet);
+        }
+        
         /**********************************************************************/
-        std::pair<bool,const Simplex<dim,dim>*> searchWithGuess(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* const s) const
+        std::pair<bool,const Simplex<dim,dim>*> searchWithGuess(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* const guess) const
         {
+            
             std::set<int> searchSet;
-            return s->search(P,searchSet);
+            std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,guess);
+            this->begin()->second.search(P,lastSearched,searchSet);
+            return lastSearched;
+//            std::set<int> searchSet;
+//            return guess->search(P,searchSet);
+        }
+        
+        /**********************************************************************/
+        std::pair<bool,const Simplex<dim,dim>*> isStrictlyInsideMesh(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* const guess, const double& tol) const
+        {
+            std::pair<bool,const Simplex<dim,dim>*> temp(searchWithGuess(P,guess));
+            if(temp.first)
+            {
+                const Eigen::Matrix<double,dim+1,1> bary(temp.second->pos2bary(P));
+                int kMin;
+                const double baryMin(bary.minCoeff(&kMin));
+                if (std::fabs(baryMin)<tol && guess->child(kMin).isBoundarySimplex()) // on a boundary face
+                {
+                    temp.first=false;
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        std::pair<bool,const Simplex<dim,dim>*> isOnMeshBoundary(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* const guess, const double& tol) const
+        {
+            std::pair<bool,const Simplex<dim,dim>*> temp(searchWithGuess(P,guess));
+            if(temp.first)
+            {
+                const Eigen::Matrix<double,dim+1,1> bary(temp.second->pos2bary(P));
+                int kMin;
+                const double baryMin(bary.minCoeff(&kMin));
+                if (!(std::fabs(baryMin)<tol && guess->child(kMin).isBoundarySimplex())) // not on a boundary face
+                {
+                    temp.first=false;
+                }
+            }
+            return temp;
         }
         
 	};

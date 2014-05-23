@@ -6,7 +6,7 @@ dim=2;
 
 meshID=2;
 %x=rand(1,2)*30
-x=[100 100]
+x=[30 -250]
 
 system(['./search ' num2str(meshID) ' ' num2str(x(1)) ' ' num2str(x(2))])
 
@@ -22,4 +22,4 @@ fill(P(t,1:dim+1),P(t+1,1:dim+1),'g')
 end
 
 plot(S(1,1),S(1,2),'ro')
-plot(S(2:end,1),S(2:end,2))
+plot(S(2:end,1),S(2:end,2),'Linewidth',2)

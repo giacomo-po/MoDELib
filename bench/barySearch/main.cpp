@@ -1,7 +1,7 @@
 
 #include <model/Utilities/SequentialOutputFile.h>
 
-#define _MODEL_BENCH_SEARCH_
+#define _MODEL_BENCH_BARYSEARCH_
 model::SequentialOutputFile<'S',1> searchFile;
 
 #include <model/Mesh/SimplicialMesh.h>
@@ -29,11 +29,13 @@ int main(int argc, char * argv[])
     SimplicialMesh<2> mesh2;
     mesh2.readMesh(meshID);
     
-
-    
     searchFile<<P2.transpose()<<"\n";
     auto p=mesh2.search(P2);
     std::cout<<"Found? "<<p.first<<std::endl;
+    if(!p.first)
+    {// output boundary intersection
+        searchFile<<p.second->bary2pos(p.second->baryFaceIntersection(Eigen::Matrix<double,3,1>::Ones()/3.0,p.second->pos2bary(P2))).transpose()<<std::endl;
+    }
     
     SequentialOutputFile<'P',true> pFile;
     for (typename SimplexObserver<2,2>::const_iterator sIter=SimplexObserver<2,2>::simplexBegin();
