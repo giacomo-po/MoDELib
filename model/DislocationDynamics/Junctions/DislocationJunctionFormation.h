@@ -300,13 +300,16 @@ namespace model {
                         
                         bool firstIntersectionInsideMesh(true);
                         if (DN.shared.boundary_type){
-                            SearchData<dim> SD1(L1.second->get_r(u1m));
-                            DN.shared.domain.findIncludingTet(SD1,L1.second->source->meshID());
-                            firstIntersectionInsideMesh*=(SD1.nodeMeshLocation==insideMesh);
+//                            SearchData<dim> SD1(L1.second->get_r(u1m));
+//                            DN.shared.domain.findIncludingTet(SD1,L1.second->source->meshID());
+//                            firstIntersectionInsideMesh*=(SD1.nodeMeshLocation==insideMesh);
+                            firstIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L1.second->get_r(u1m),L1.second->source->includingSimplex(),FLT_EPSILON).first;
                             if(firstIntersectionInsideMesh){
-                                SearchData<dim> SD2(L2.second->get_r(u2m));
-                                DN.shared.domain.findIncludingTet(SD2,L2.second->source->meshID());
-                                firstIntersectionInsideMesh*=(SD2.nodeMeshLocation==insideMesh);
+//                                SearchData<dim> SD2(L2.second->get_r(u2m));
+//                                DN.shared.domain.findIncludingTet(SD2,L2.second->source->meshID());
+//                                firstIntersectionInsideMesh*=(SD2.nodeMeshLocation==insideMesh);
+                                firstIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2m),L2.second->source->includingSimplex(),FLT_EPSILON).first;
+
                             }
                         }
                         if(firstIntersectionInsideMesh){
@@ -324,13 +327,18 @@ namespace model {
                         
                         bool secondIntersectionInsideMesh(true);
                         if (DN.shared.boundary_type){
-                            SearchData<dim> SD1(L1.second->get_r(u1p));
-                            DN.shared.domain.findIncludingTet(SD1,L1.second->source->meshID());
-                            secondIntersectionInsideMesh*=(SD1.nodeMeshLocation==insideMesh);
+//                            SearchData<dim> SD1(L1.second->get_r(u1p));
+//                            DN.shared.domain.findIncludingTet(SD1,L1.second->source->meshID());
+//                            secondIntersectionInsideMesh*=(SD1.nodeMeshLocation==insideMesh);
+
+                            secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L1.second->get_r(u1p),L1.second->source->includingSimplex(),FLT_EPSILON).first;
+                            
                             if(secondIntersectionInsideMesh){
-                                SearchData<dim> SD2(L2.second->get_r(u2p));
-                                DN.shared.domain.findIncludingTet(SD2,L2.second->source->meshID());
-                                secondIntersectionInsideMesh*=(SD2.nodeMeshLocation==insideMesh);
+//                                SearchData<dim> SD2(L2.second->get_r(u2p));
+//                                DN.shared.domain.findIncludingTet(SD2,L2.second->source->meshID());
+//                                secondIntersectionInsideMesh*=(SD2.nodeMeshLocation==insideMesh);
+                                
+                                                            secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2p),L2.second->source->includingSimplex(),FLT_EPSILON).first;
                             }
                         }
                         if(secondIntersectionInsideMesh){
@@ -402,9 +410,13 @@ namespace model {
                     
                     bool linePointInsideMesh(true);
                     if (DN.shared.boundary_type){
-                        SearchData<dim> SD(linePoint);
-                        DN.shared.domain.findIncludingTet(SD,Ni.second->meshID());
-                        linePointInsideMesh*=(SD.nodeMeshLocation==insideMesh);
+//                        SearchData<dim> SD(linePoint);
+//                        DN.shared.domain.findIncludingTet(SD,Ni.second->meshID());
+//                        linePointInsideMesh*=(SD.nodeMeshLocation==insideMesh);
+                        
+                        linePointInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(linePoint,Ni.second->includingSimplex(),FLT_EPSILON).first;
+
+                        
                     }
                     if(linePointInsideMesh){
                         model::cout<<"Glissile Junction"<<std::endl;

@@ -142,7 +142,9 @@ namespace model {
         }
         
         /**********************************************************************/
-        std::pair<bool,const Simplex<dim,dim>*> isStrictlyInsideMesh(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* const guess, const double& tol) const
+        std::pair<bool,const Simplex<dim,dim>*> isStrictlyInsideMesh(const Eigen::Matrix<double,dim,1>& P,
+                                                                     const Simplex<dim,dim>* const guess,
+                                                                     const double& tol) const
         {
             std::pair<bool,const Simplex<dim,dim>*> temp(searchWithGuess(P,guess));
             if(temp.first)

@@ -112,8 +112,6 @@ namespace model {
                 }
             }
             
-            //			assert(eReader.isGood(fileID,true) && "Unable to read vertex file E/E_x (x is the requested fileID).");
-            //			eReader.read(fileID,true);
             unsigned int kk(1);
 			for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
             {

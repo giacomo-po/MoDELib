@@ -767,6 +767,7 @@ namespace model
 				if (nodeIter->second->neighborhood().size()>2)
                 {
                     const bool nodeIsBalanced(nodeIter->second->is_balanced());
+//                    std::cout<<"Node "<<nodeIter->second->sID<<" is balanced?"<<nodeIsBalanced<<" meshLocation="<<nodeIter->second->nodeMeshLocation<<std::endl;
                     if (!nodeIsBalanced && nodeIter->second->nodeMeshLocation==insideMesh)
                     {
                         model::cout<<"Node "<<nodeIter->second->sID<<" is not balanced:"<<std::endl;

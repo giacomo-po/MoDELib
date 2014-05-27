@@ -6,7 +6,7 @@ dim=2;
 
 meshID=2;
 %x=rand(1,2)*30
-x=[303 10]
+x=[305 -1]
 
 system(['./search ' num2str(meshID) ' ' num2str(x(1)) ' ' num2str(x(2))])
 

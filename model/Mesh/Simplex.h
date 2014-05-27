@@ -226,7 +226,8 @@ namespace model {
         /* init list */ SimplexBase<dim,order>(vIN),
         /* init list */ BaseArrayType(SimplexObserver<dim,dim>::faces(vIN)),
         /* init list */ b2p(get_b2p()),
-        /* init list */ p2b(b2p.inverse()),
+        //        /* init list */ p2b(b2p.inverse()),
+        /* init list */ p2b(b2p.fullPivLu().solve(Eigen::Matrix<double,dim+1,dim+1>::Identity())),
         /* init list */ nda(get_nda())
         {/*!
           */
@@ -315,12 +316,10 @@ namespace model {
         }
         
         /**********************************************************************/
-        //        std::pair<bool,const Simplex<dim,dim>*>
         void search(const Eigen::Matrix<double,dim,1>& P,
                     std::pair<bool,const Simplex<dim,dim>*>& lastSearched,
                     std::set<int>& searchSet) const
         {
-            //            std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
             if(searchSet.find(this->sID)==searchSet.end())
             {// this simplex has not been searched yet
                 searchSet.insert(this->sID);
@@ -335,18 +334,14 @@ namespace model {
                 const double baryMax(bary.maxCoeff(&kMax));
                 if (baryMin>=0.0 && baryMax<=1.0)
                 {
-                    //                    lastSearched = make_pair(true,this);
-                    lastSearched.first=true;// = make_pair(true,this);
-                    
+                    lastSearched.first=true;
                 }
                 else
                 {
                     for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
                         /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
                     {
-                        //                        temp=(*pIter)->search(P,searchSet);
                         (*pIter)->search(P,lastSearched,searchSet);
-                        
                         if (lastSearched.first)
                         {
                             break;
@@ -354,29 +349,38 @@ namespace model {
                     }
                 }
             }
-            //            return temp;
         }
         
-        
+
         /**********************************************************************/
-        Eigen::Matrix<double,dim+1,1> baryFaceIntersection(const Eigen::Matrix<double,dim+1,1>& baryIn,
-                                                           const Eigen::Matrix<double,dim+1,1>& baryOut) const
-        {
+        Eigen::Matrix<double,dim+1,1> faceLineIntersection(const Eigen::Matrix<double,dim+1,1>& bary0,
+                                                           const Eigen::Matrix<double,dim+1,1>& bary1,
+                                                           const int& faceID) const
+        {/*!@param[in] bary0 barycentric coordinate of the initial point on the line
+          * @param[in] P1 barycentric coordinate of the final point on the line
+          * @param[in] faceID the ID of the face
+          * \returns The barycentric cooridinate of the point on the line bary0->bary1
+          * that intersects the facedID-face. If the line bary0->bary1 in on the face,
+          * the mean point between bary0 and bary1 is returned.
+          */
+            
+            assert((faceID>=0) && (faceID<=dim) && "0 <= faceID <= dim");
+            
+            //
             // Check that baricentric coordinates sum to 1
-            assert(std::fabs( baryIn.sum()-1.0)<=FLT_EPSILON && "baryIn must sum to 1");
-            assert(std::fabs(baryOut.sum()-1.0)<=FLT_EPSILON && "baryOut must sum to 1");
+            assert(std::fabs(bary0.sum()-1.0)<=FLT_EPSILON && "bary0 must sum to 1");
+            assert(std::fabs(bary1.sum()-1.0)<=FLT_EPSILON && "bary1 must sum to 1");
             
-            // Check that baryIn is a point inside
-            int kMin;
-            const double baryMinIn(baryIn.minCoeff(&kMin));
-            assert(baryMinIn>=0.0 && "min(baryIn) must be >=0");
-            
-            const double baryMinOut(baryOut.minCoeff(&kMin)); // kMin is now the index of minimum baryOut
-            assert(baryMinOut<=0.0 && "min(baryIn) must be <=0");
-            
-            const double u(-baryIn(kMin)/(baryOut(kMin)-baryIn(kMin))); // interpolate linearly
-            
-            return baryIn*(1.0-u)+baryOut*u;
+            Eigen::Matrix<double,dim+1,1> temp(bary0*0.5+bary1*0.5);
+            const double den(bary1(faceID)-bary0(faceID));
+            if (std::fabs(den)>DBL_EPSILON) // non-parallel points
+            {
+                double u(-bary0(faceID)/den); // interpolate linearly
+                
+                temp=bary0*(1.0-u)+bary1*u;
+                temp(faceID)=0.0; // make sure
+            }
+            return temp;
             
         }
         
@@ -386,3 +390,42 @@ namespace model {
     
 }	// close namespace
 #endif
+
+
+
+
+//        /**********************************************************************/
+//        std::pair<Eigen::Matrix<double,dim+1,1>,int> baryFaceIntersection(const Eigen::Matrix<double,dim+1,1>& baryIn,
+//                                                           const Eigen::Matrix<double,dim+1,1>& baryOut) const
+//        {
+//
+////            std::cout<<"Simplex::baryFaceIntersection, baryIn="<<baryIn.transpose()<<std::endl;
+//
+//            // Check that baricentric coordinates sum to 1
+//            assert(std::fabs( baryIn.sum()-1.0)<=FLT_EPSILON && "baryIn must sum to 1");
+//            assert(std::fabs(baryOut.sum()-1.0)<=FLT_EPSILON && "baryOut must sum to 1");
+//
+//            // Check that baryIn is a point inside
+//            int kMin;
+//            const double baryMinIn(baryIn.minCoeff(&kMin));
+////            assert(baryMinIn>=0.0 && "min(baryIn) must be >=0");
+//            assert(baryMinIn >= -FLT_EPSILON && "min(baryIn) must be >=0");
+//
+//            const double baryMinOut(baryOut.minCoeff(&kMin)); // kMin is now the index of minimum baryOut
+//            assert(baryMinOut<=0.0 && "min(baryIn) must be <=0");
+//
+//
+//            double u(0.5);
+//            const double den(baryOut(kMin)-baryIn(kMin));
+//            if (den<0.0)
+//            {
+//                u=-baryIn(kMin)/den; // interpolate linearly
+//            }
+//
+//
+//            std::cout<<"Simplex::baryFaceIntersection bary="<<(baryIn*(1.0-u)+baryOut*u).transpose()<<std::endl;
+//
+//
+//            return std::make_pair(baryIn*(1.0-u)+baryOut*u,kMin);
+//
+//        }

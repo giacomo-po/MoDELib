@@ -34,7 +34,15 @@ int main(int argc, char * argv[])
     std::cout<<"Found? "<<p.first<<std::endl;
     if(!p.first)
     {// output boundary intersection
-        searchFile<<p.second->bary2pos(p.second->baryFaceIntersection(Eigen::Matrix<double,3,1>::Ones()/3.0,p.second->pos2bary(P2))).transpose()<<std::endl;
+
+        const Eigen::Matrix<double,3,1> bary1(Eigen::Matrix<double,3,1>::Ones()/3.0);
+        const Eigen::Matrix<double,3,1> bary2(p.second->pos2bary(P2));
+ 
+                int faceID;
+//        const double baryMinIn(
+                               bary2.minCoeff(&faceID);
+        
+        searchFile<<p.second->bary2pos(p.second->faceLineIntersection(bary1,bary2,faceID)).transpose()<<std::endl;
     }
     
     SequentialOutputFile<'P',true> pFile;

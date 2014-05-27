@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=30;
+Nsteps=1000;
 timeWindow=5.1e03;
 startAtTimeStep = 0;
 
@@ -18,7 +18,7 @@ useImplicitTimeIntegration=0;
 # Options for output files:
 outputFrequency=1;
 outputBinary=0;
-outputGlidePlanes=1;
+outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=0;
 outputElasticEnergy=0;
@@ -44,7 +44,7 @@ temperature = 300.0;
 # Set the remote external stress (a uniform stress felt by dislocations)
 externalStress = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.0;
+		 0.0 0.0 0.01;
 
 ######################################
 # STRESS FIELD
