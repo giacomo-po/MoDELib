@@ -484,7 +484,7 @@ namespace model {
 		}
 		
 		/**********************************************************************/
-		const VectorNdof & get_Fq() const
+		const VectorNdof& get_Fq() const
         {/*!\returns the edge force vector
           */
 			return Fq;
