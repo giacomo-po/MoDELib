@@ -168,7 +168,7 @@ namespace model {
         VectorDim getOutDirection(const DislocationSegmentType& ds, const DislocationNodeType& dn){
             
             //----------- displace the node in the direction of boundary normal, then project this to the segments glide plane -----
-            VectorDim P_BN = dn.get_P() + 1000.0*dn.boundaryNormal;
+            VectorDim P_BN = dn.get_P() + 1000.0*dn.bndNormal();
             
             //-------------- project this point to the glide plane ------------
             VectorDim P_Prj = P_BN + ( ( (ds.pGlidePlane->height*ds.pGlidePlane->planeNormal)-P_BN ).dot(ds.pGlidePlane->planeNormal) )*ds.pGlidePlane->planeNormal;
@@ -185,7 +185,7 @@ namespace model {
 	    
             if((P_Prj - dn.get_P()).norm() > 1.0e-7) {
                 temp =  (P_Prj - dn.get_P()).normalized() ;
-                temp = dn.boundaryNormal.dot(temp) / std::abs(dn.boundaryNormal.dot(temp)) * temp;
+                temp = dn.bndNormal().dot(temp) / std::abs(dn.bndNormal().dot(temp)) * temp;
                 calculated = true;
             }
             
@@ -203,7 +203,7 @@ namespace model {
                 
                 if((P_Prj - dn.get_P()).norm() > 1.0e-7) {
                     temp =  (P_Prj - dn.get_P()).normalized() ;
-                    temp = dn.boundaryNormal.dot(temp) / std::abs(dn.boundaryNormal.dot(temp)) * temp;
+                    temp = dn.bndNormal().dot(temp) / std::abs(dn.bndNormal().dot(temp)) * temp;
                     calculated = true;
                 }
             }

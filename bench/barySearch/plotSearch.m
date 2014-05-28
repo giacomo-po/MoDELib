@@ -4,9 +4,9 @@ clc
 
 dim=2;
 
-meshID=2;
+meshID=3;
 %x=rand(1,2)*30
-x=[305 -1]
+x=[10 -10]
 
 system(['./search ' num2str(meshID) ' ' num2str(x(1)) ' ' num2str(x(2))])
 

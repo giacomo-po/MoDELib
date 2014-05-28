@@ -125,8 +125,8 @@ namespace model {
 		/*init list   */ chord(ds.chord()),
 		/*init list   */ midPoint(ds.get_r(0.5)),
 		/*init list   */ Burgers(ds.Burgers),
-		/*init list   */ sourceOnMeshBoundary(ds.source->nodeMeshLocation == onMeshBoundary),
-		/*init list   */ sinkOnMeshBoundary(ds.sink  ->nodeMeshLocation == onMeshBoundary),
+		/*init list   */ sourceOnMeshBoundary(ds.source->meshLocation() == onMeshBoundary),
+		/*init list   */ sinkOnMeshBoundary  (ds.sink  ->meshLocation() == onMeshBoundary),
 		/*init list   */ pkForce(ds.integralPK()),
 		/*init list   */ normalPrimary(ds.glidePlaneNormal),
         /*init list   */ isSessile(std::fabs(Burgers.dot(normalPrimary))>FLT_EPSILON),
@@ -138,7 +138,7 @@ namespace model {
         }
         
 //        /*-----------------------------------------------------------------------*/
-//        int roll_die() const {
+//        int roll_dice() const {
 //            boost::random::uniform_int_distribution<> dist(1,10);
 //            return dist(gen);
 //        }

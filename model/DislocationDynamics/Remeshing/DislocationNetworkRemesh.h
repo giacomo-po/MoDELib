@@ -387,7 +387,7 @@ namespace model {
                 
                 const size_t sourcePNsize(sourcePN.size());
                 const size_t   sinkPNsize(  sinkPN.size());
-                if (Lij.second->source->nodeMeshLocation==insideMesh && Lij.second->sink->nodeMeshLocation==insideMesh)
+                if (Lij.second->source->meshLocation()==insideMesh && Lij.second->sink->meshLocation()==insideMesh)
                 { // source and sink are inside mesh
                     assert(sourcePNsize>0 && "source->planeNormals() CANNOT HAVE SIZE 0.");
                     assert(  sinkPNsize>0 && "  sink->planeNormals() CANNOT HAVE SIZE 0.");
@@ -485,7 +485,7 @@ namespace model {
                         } // end P1==P2
                     } // end case sourcePNsize>1 and sourcePNsize>1
                 } // end source and sink are inside mesh
-                else if (Lij.second->source->nodeMeshLocation==insideMesh && Lij.second->sink->nodeMeshLocation!=insideMesh){ // source is inside mesh, sink in not
+                else if (Lij.second->source->meshLocation()==insideMesh && Lij.second->sink->meshLocation()!=insideMesh){ // source is inside mesh, sink in not
                     switch (sourcePNsize)
                     { // decide depending on size of source->planeNormals
                         case 0:
@@ -502,7 +502,7 @@ namespace model {
                             break;
                     }
                 }
-                else if (Lij.second->source->nodeMeshLocation!=insideMesh && Lij.second->sink->nodeMeshLocation==insideMesh){ // sink is inside mesh, source in not
+                else if (Lij.second->source->meshLocation()!=insideMesh && Lij.second->sink->meshLocation()==insideMesh){ // sink is inside mesh, source in not
                     switch (sinkPNsize) { // decide depending on size of sink->planeNormals
                         case 0:
                             assert(0 && "sink->planeNormals() CANNOT HAVE SIZE 0.");

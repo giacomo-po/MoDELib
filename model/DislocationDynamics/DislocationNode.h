@@ -103,6 +103,9 @@ namespace model {
             VectorDim temp(VectorDim::Zero());
 			if (shared.boundary_type)
             {
+                
+                
+                
                 const Eigen::Matrix<double,dim+1,1> bary(p_Simplex->pos2bary(this->get_P()));
                 int kMin;
                 const double baryMin(bary.minCoeff(&kMin));
@@ -110,20 +113,30 @@ namespace model {
                 {
                     temp=p_Simplex->nda.col(kMin).normalized();
                 }
+                
+                //if(this->sID==46)
+                //{
+                    std::cout<<"Node "<<this->sID<<", kMin="<<kMin<<", baryMin="<<baryMin<<", temp="<<temp.transpose()<<", in Simplex"<<p_Simplex->xID<<std::endl;
+                //}
+                
 			}
 			return temp;
 		}
 		
 		VectorDofType velocity;
 		VectorDofType vOld;
+        
+        VectorDim boundaryNormal;
+        int nodeMeshLocation; // 1=inside
+
 		
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
 		
 		
-		VectorDim   boundaryNormal;
-        int nodeMeshLocation; // 1=inside
+//		VectorDim boundaryNormal;
+//        int nodeMeshLocation; // 1=inside
         
         
 		MatrixDim bvpStress;
@@ -354,6 +367,7 @@ namespace model {
                     const std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<LinkType>::mesh.searchWithGuess(this->get_P()+dX,p_Simplex));
                     p_Simplex=temp.second;
                     
+                    std::cout<<"DIslocationNode "<<this->sID<<", searching in Simplex"<<p_Simplex->xID<<std::endl;
                     
                     if (temp.first)  // new position is inside mesh
                     {
@@ -373,7 +387,18 @@ namespace model {
                         const Eigen::Matrix<double,dim+1,1> faceInt(p_Simplex->faceLineIntersection(bary1,bary2,faceID));
                         dX=p_Simplex->bary2pos(faceInt)-this->get_P();
                         //boundaryNormal=get_boundaryNormal();
-                        VectorDim newP(this->get_P()+dX);
+//                        VectorDim newP(this->get_P()+dX);
+                        this->set(this->get_P()+dX);
+                        velocity=dX/dt; // correct stored velocity
+//                        boundaryNormal=p_Simplex->nda.col(faceID).normalized();
+//                        nodeMeshLocation=(boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh);
+                        boundaryNormal=get_boundaryNormal();
+                        nodeMeshLocation=(boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh);
+                        
+                        std::cout<<"DislocationNode "<<this->sID<<", faceID="<<faceID<<", faceInt="<<faceInt.transpose()<<std::endl;
+                        
+                        assert(nodeMeshLocation==onMeshBoundary && "NODE MUST NOW BE ON MESH BOUNDARY");
+                        
                         
                         //                        int iter(0);
                         //                        while(p_Simplex->pos2bary(newP).minCoeff()<=0.0)
@@ -386,12 +411,6 @@ namespace model {
                         //                            newP=this->get_P()+dX;
                         //                            ++iter;
                         //                        }
-                        
-                        velocity=dX/dt; // correct stored velocity
-                        boundaryNormal=p_Simplex->nda.col(faceID).normalized();
-                        nodeMeshLocation=(boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh);
-                        assert(nodeMeshLocation==onMeshBoundary && "NODE MUST NOW BE ON MESH BOUNDARY");
-                        this->set(newP);
                         
                         //                        p_Simplex->pos2bary(newP).transpose()
                         
@@ -459,6 +478,11 @@ namespace model {
 					this->set(this->get_nodeDof()+dX);
 				}
 			}
+            
+            if(nodeMeshLocation==onMeshBoundary)
+            {
+                std::cout<<"DislocationNode "<<this->sID<<", nodeMeshLocation="<<onMeshBoundary<<", normal="<<boundaryNormal.transpose()<<std::endl;
+            }
 			
 		}
         
@@ -467,6 +491,18 @@ namespace model {
         {
             return p_Simplex;
         }
+        
+        
+        const VectorDim& bndNormal() const
+        {
+            return boundaryNormal;
+        }
+        
+        const int& meshLocation() const
+        {
+            return nodeMeshLocation;
+        }
+
 		
         /* operator<< *********************************************************/
         template <class T>

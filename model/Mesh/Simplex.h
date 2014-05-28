@@ -200,7 +200,9 @@ namespace model {
             Eigen::Matrix<double,dim,dim+1> vP(this->vertexPositionMatrix());
             Eigen::Matrix<double,dim,dim> F(vP.template block<dim,dim>(0,0));
             F.colwise() -= vP.col(dim);
-            return F.determinant()*F.inverse()*BarycentricTraits<dim>::NdA;
+            const double jFabs(std::fabs(F.determinant()));
+            assert(jFabs>FLT_EPSILON && "SIMPLEX HAS ZERO VOLUME");
+            return jFabs*F.inverse().transpose()*BarycentricTraits<dim>::NdA;
         }
         
     public:
@@ -316,23 +318,20 @@ namespace model {
         }
         
         /**********************************************************************/
-        void search(const Eigen::Matrix<double,dim,1>& P,
+        void convexDelaunaynSearch(const Eigen::Matrix<double,dim,1>& P,
                     std::pair<bool,const Simplex<dim,dim>*>& lastSearched,
-                    std::set<int>& searchSet) const
+                    std::set<int>& searchSet) const // TO DO: searchSet is not necessary, because baryMin changes sign in next Simplex
         {
             if(searchSet.find(this->sID)==searchSet.end())
             {// this simplex has not been searched yet
                 searchSet.insert(this->sID);
                 lastSearched.second=this;
-                const Eigen::Matrix<double,dim+1,1> bary(pos2bary(P));
 #ifdef _MODEL_BENCH_BARYSEARCH_
+                const Eigen::Matrix<double,dim+1,1> bary(pos2bary(P));
                 searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<"\n";
 #endif
                 int kMin;
-                const double baryMin(bary.minCoeff(&kMin));
-                int kMax;
-                const double baryMax(bary.maxCoeff(&kMax));
-                if (baryMin>=0.0 && baryMax<=1.0)
+                if (pos2bary(P).minCoeff(&kMin)>=0.0)
                 {
                     lastSearched.first=true;
                 }
@@ -341,7 +340,7 @@ namespace model {
                     for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
                         /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
                     {
-                        (*pIter)->search(P,lastSearched,searchSet);
+                        (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
                         if (lastSearched.first)
                         {
                             break;
@@ -351,7 +350,7 @@ namespace model {
             }
         }
         
-
+        
         /**********************************************************************/
         Eigen::Matrix<double,dim+1,1> faceLineIntersection(const Eigen::Matrix<double,dim+1,1>& bary0,
                                                            const Eigen::Matrix<double,dim+1,1>& bary1,

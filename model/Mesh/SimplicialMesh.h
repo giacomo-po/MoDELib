@@ -114,31 +114,30 @@ namespace model {
         
         /**********************************************************************/
         std::pair<bool,const Simplex<dim,dim>*> search(const Eigen::Matrix<double,dim,1>& P) const
-        {/*!
+        {/*!@param[in] P position to search for
+          *\returns a pair, where:
+          * -pair.first is a boolean indicating whether the
+          * search succesfully found a Simplex<dim,dim> which includes P.
+          * -pair.second is a pointer to the last Simplex<dim,dim> searched.
+          *
+          * By default the search starts at this->begin()->second
+          */
+            return searchWithGuess(P,&(this->begin()->second));
+        }
+        
+        /**********************************************************************/
+        std::pair<bool,const Simplex<dim,dim>*> searchWithGuess(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* const guess) const
+        {/*!@param[in] P position to search for
+          * @param[in] guess Simplex* where the search starts
           *\returns a pair, where:
           * -pair.first is a boolean indicating whether the
           * search succesfully found a Simplex<dim,dim> which includes P.
           * -pair.second is a pointer to the last Simplex<dim,dim> searched.
           */
-
-            return searchWithGuess(P,(const Simplex<dim,dim>*) NULL);
-            //            std::set<int> searchSet;
-//            std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,NULL);
-//            this->begin()->second.search(P,lastSearched,searchSet);
-//            return lastSearched;
-//            return this->begin()->second.search(P,searchSet);
-        }
-        
-        /**********************************************************************/
-        std::pair<bool,const Simplex<dim,dim>*> searchWithGuess(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* const guess) const
-        {
-            
             std::set<int> searchSet;
-            std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,guess);
-            this->begin()->second.search(P,lastSearched,searchSet);
+            std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,NULL);
+            guess->convexDelaunaynSearch(P,lastSearched,searchSet);
             return lastSearched;
-//            std::set<int> searchSet;
-//            return guess->search(P,searchSet);
         }
         
         /**********************************************************************/

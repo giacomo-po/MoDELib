@@ -123,14 +123,14 @@ namespace model {
                         ii++;
                         
                         sourceID = DN.insertVertex(sourceP);
-                        if (DN.node(sourceID).second->nodeMeshLocation!=onMeshBoundary) {
+                        if (DN.node(sourceID).second->meshLocation()!=onMeshBoundary) {
                             std::cout << "Error: Source node of Virtual dislocation no. " << ii << " was not recognized as boundary node. Check its coordinates" << std::endl;
                             assert(0);
                         }
                         
                         sinkID   = DN.insertVertex(sinkP);
                         
-                        if (DN.node(sinkID).second->nodeMeshLocation!=onMeshBoundary) {
+                        if (DN.node(sinkID).second->meshLocation()!=onMeshBoundary) {
                             std::cout << "Error: Sink node of Virtual dislocation no. " << ii << " was not recognized as boundary node. Check its coordinates" << std::endl;
                             assert(0);
                         }

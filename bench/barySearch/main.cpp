@@ -12,14 +12,13 @@ using namespace model;
 int main(int argc, char * argv[])
 {
     Eigen::Matrix<double,2,1> P2(Eigen::Matrix<double,2,1>::Zero());
-
+    
     int meshID(0);
     
     if (argc>1)
     {
         meshID=atoi(argv[1]);
     }
-    
     
     if (argc>3)
     {
@@ -30,17 +29,18 @@ int main(int argc, char * argv[])
     mesh2.readMesh(meshID);
     
     searchFile<<P2.transpose()<<"\n";
-    auto p=mesh2.search(P2);
+    //    auto p=mesh2.search(P2);
+    auto p=mesh2.searchWithGuess(P2,&(mesh2.rbegin()->second));
+    
     std::cout<<"Found? "<<p.first<<std::endl;
     if(!p.first)
     {// output boundary intersection
-
+        
         const Eigen::Matrix<double,3,1> bary1(Eigen::Matrix<double,3,1>::Ones()/3.0);
         const Eigen::Matrix<double,3,1> bary2(p.second->pos2bary(P2));
- 
-                int faceID;
-//        const double baryMinIn(
-                               bary2.minCoeff(&faceID);
+        
+        int faceID;
+        bary2.minCoeff(&faceID);
         
         searchFile<<p.second->bary2pos(p.second->faceLineIntersection(bary1,bary2,faceID)).transpose()<<std::endl;
     }

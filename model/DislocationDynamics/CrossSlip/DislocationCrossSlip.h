@@ -16,7 +16,7 @@
 #include <math.h>
 
 #include <model/DislocationDynamics/CrossSlip/CrossSlipSegment.h>
-#include <model/BVP/SearchData.h>
+//#include <model/BVP/SearchData.h>
 
 
 namespace model {
@@ -86,11 +86,9 @@ namespace model {
                     {
                         const double num(gpIter->second->height-hP);
 
-//						if((gpIter->second->height-hP)<planeTol)
                         if(std::fabs(num)<planeTol)
                         {
 							const double den(1.0-std::pow(iterCS->normalPrimary.dot(iterCS->normalConjugate),2));
-//							const double num(gpIter->second->height-hP);
 							const double u(num/den);
                             if(std::fabs(u)<planeTol)
                             {
@@ -117,22 +115,38 @@ namespace model {
 				bool crossSlipPointsInsideMesh(true);
 				if (dislocationNetwork.shared.boundary_type)
                 {
-					SearchData<dim> SD(conjugatePoint);
-                    //                    dislocationNetwork.shared.domain.findIncludingTet(SD);
-                    dislocationNetwork.shared.domain.findIncludingTet(SD,dislocationNetwork.node(iterCS->sourceID).second->meshID());
-					crossSlipPointsInsideMesh*=(SD.nodeMeshLocation==insideMesh);
-					if (crossSlipPointsInsideMesh)
+//					SearchData<dim> SD(conjugatePoint);
+//                    //                    dislocationNetwork.shared.domain.findIncludingTet(SD);
+//                    dislocationNetwork.shared.domain.findIncludingTet(SD,dislocationNetwork.node(iterCS->sourceID).second->meshID());
+//					crossSlipPointsInsideMesh*=(SD.meshLocation()==insideMesh);
+					
+                    crossSlipPointsInsideMesh*=dislocationNetwork.shared.mesh.isStrictlyInsideMesh(conjugatePoint,
+                                                                                                   dislocationNetwork.node(iterCS->sourceID).second->includingSimplex(),
+                                                                                                   FLT_EPSILON).first;
+                    
+                    if (crossSlipPointsInsideMesh)
                     {
-						SearchData<dim> SD1(crossPoints.first);
-						//dislocationNetwork.shared.domain.findIncludingTet(SD1);
-                        dislocationNetwork.shared.domain.findIncludingTet(SD1,dislocationNetwork.node(iterCS->sourceID).second->meshID());
-						crossSlipPointsInsideMesh*=(SD1.nodeMeshLocation==insideMesh);
+//						SearchData<dim> SD1(crossPoints.first);
+//						//dislocationNetwork.shared.domain.findIncludingTet(SD1);
+//                        dislocationNetwork.shared.domain.findIncludingTet(SD1,dislocationNetwork.node(iterCS->sourceID).second->meshID());
+//						crossSlipPointsInsideMesh*=(SD1.meshLocation()==insideMesh);
+                        
+                        crossSlipPointsInsideMesh*=dislocationNetwork.shared.mesh.isStrictlyInsideMesh(crossPoints.first,
+                                                                                                       dislocationNetwork.node(iterCS->sourceID).second->includingSimplex(),
+                                                                                                       FLT_EPSILON).first;
+
+                        
 						if(crossSlipPointsInsideMesh)
                         {
-							SearchData<dim> SD2(crossPoints.second);
-                            //							dislocationNetwork.shared.domain.findIncludingTet(SD2);
-                            dislocationNetwork.shared.domain.findIncludingTet(SD2,dislocationNetwork.node(iterCS->sourceID).second->meshID());
-							crossSlipPointsInsideMesh*=(SD2.nodeMeshLocation==insideMesh);
+//							SearchData<dim> SD2(crossPoints.second);
+//                            //							dislocationNetwork.shared.domain.findIncludingTet(SD2);
+//                            dislocationNetwork.shared.domain.findIncludingTet(SD2,dislocationNetwork.node(iterCS->sourceID).second->meshID());
+//							crossSlipPointsInsideMesh*=(SD2.meshLocation()==insideMesh);
+                            
+                            crossSlipPointsInsideMesh*=dislocationNetwork.shared.mesh.isStrictlyInsideMesh(crossPoints.second,
+                                                                                                           dislocationNetwork.node(iterCS->sourceID).second->includingSimplex(),
+                                                                                                           FLT_EPSILON).first;
+
 						}
 					}
 				}
