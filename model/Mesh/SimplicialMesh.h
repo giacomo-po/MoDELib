@@ -52,13 +52,11 @@ namespace model {
         /**********************************************************************/
         SimplicialMesh()
         {
-            std::cout<<greenColor<<"Creating SimplicialMesh"<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/
         SimplicialMesh(const int& meshID)
         {
-            std::cout<<greenColor<<"Creating SimplicialMesh"<<defaultColor<<std::endl;
             readMesh(meshID);
         }
         
@@ -66,6 +64,9 @@ namespace model {
         void readMesh(const int& meshID)
         {/*!
           */
+            
+            std::cout<<greenColor<<"Reading mesh "<<meshID<<defaultColor<<std::endl;
+
             
             Simplex<dim,0>::nodeReader.read(meshID,true);
             

@@ -511,16 +511,14 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
             EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
             
-            
-
-            
-            
-			// BVP
+			// Mesh and BVP
 			EDR.readScalarInFile(fullName.str(),"boundary_type",shared.boundary_type);
 			if (shared.boundary_type)
             {
-                
-                shared.mesh.readMesh(0);
+                int meshID(0);
+                EDR.readScalarInFile(fullName.str(),"meshID",meshID);
+                shared.mesh.readMesh(meshID);
+                assert(shared.mesh.size() && "MESH IS EMPTY.");
                 
 				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
                 //shared.domain.readMesh(); // OLD BVP

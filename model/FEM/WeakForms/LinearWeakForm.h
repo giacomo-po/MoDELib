@@ -26,8 +26,6 @@
 namespace model
 {
     
-    //SequentialOutputFile<'A',1> aFile; // REMOVE THIS
-
     template <int cols>
     struct JGNselector
     {
