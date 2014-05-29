@@ -524,7 +524,8 @@ namespace model
                 //shared.domain.readMesh(); // OLD BVP
 				if(shared.use_bvp)
                 {
-					shared.domain.readInputBCs();
+                    shared.bvpSolver.init();
+//					shared.domain.readInputBCs(); // OLD BVP
 				}
 			}
 			else{ // no boundary is used, this means dislocation network in inifinite medium

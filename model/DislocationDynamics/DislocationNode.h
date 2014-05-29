@@ -125,15 +125,9 @@ namespace model {
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
-		
-		
-        //		VectorDim boundaryNormal;
-        //        int nodeMeshLocation; // 1=inside
-        
         
 		MatrixDim bvpStress;
 		
-        //		unsigned int triIndex;
         
 		/* Constructor ********************************************************/
 		DislocationNode(const VectorDofType& Qin) :
@@ -141,15 +135,10 @@ namespace model {
         /* init list        */ p_Simplex(get_includingSimplex((const Simplex<dim,dim>*) NULL)),
         /* init list        */ velocity(VectorDofType::Zero()),
 		/* init list        */ vOld(VectorDofType::Zero()),
-        //		/* init list        */ nodeMeshLocation(insideMesh),
-        //		/* init list        */ boundaryNormal(VectorDim::Zero()),
         /* init list        */ boundaryNormal(get_boundaryNormal()),
-        //        /* init list        */ nodeMeshLocation(boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh),
 		/* init list        */ bvpStress(MatrixDim::Zero())
         {/*! Constructor from DOF
           */
-            //			initMeshLocation();
-            //            std::cout<<"CreatingNode "<<this->sID<<": noundaryNormal="<<boundaryNormal.transpose()<<", nodeMeshLocation="<<nodeMeshLocation<<std::endl;
 		}
 		
 		/* Constructor ********************************************************/
@@ -158,15 +147,10 @@ namespace model {
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-        //		/* init list        */ nodeMeshLocation(insideMesh),
-        //		/* init list        */ boundaryNormal(VectorDim::Zero()),
         /* init list        */ boundaryNormal(get_boundaryNormal()),
-        //        /* init list        */ nodeMeshLocation(boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh),
 		/* init list        */ bvpStress(MatrixDim::Zero()) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         {/*! Constructor from ExpandingEdge and parameter along link
           */
-            //			initMeshLocation();
-            //            std::cout<<"CreatingNode "<<this->sID<<": noundaryNormal="<<boundaryNormal.transpose()<<", nodeMeshLocation="<<nodeMeshLocation<<std::endl;
 		}
 		
 		/* Constructor ********************************************************/
@@ -175,15 +159,10 @@ namespace model {
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-        //		/* init list        */ nodeMeshLocation(insideMesh),
-        //		/* init list        */ boundaryNormal(VectorDim::Zero()),
         /* init list        */ boundaryNormal(get_boundaryNormal()),
-        //        /* init list        */ nodeMeshLocation(boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh),
 		/* init list        */ bvpStress(MatrixDim::Zero()) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         {/*! Constructor from ExpandingEdge and DOF
           */
-            //			initMeshLocation();
-            //            std::cout<<"CreatingNode "<<this->sID<<": noundaryNormal="<<boundaryNormal.transpose()<<", nodeMeshLocation="<<nodeMeshLocation<<std::endl;
 		}
 		
 		/* Constructor from Link and position along link **********************/
@@ -192,14 +171,10 @@ namespace model {
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity(Vin),
 		/* init list        */ vOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-        //		/* init list        */ nodeMeshLocation(insideMesh),
-        //		/* init list        */ boundaryNormal(VectorDim::Zero()),
 		/* init list        */ boundaryNormal(get_boundaryNormal()),
-        //        /* init list        */ nodeMeshLocation(boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh),
 		/* init list        */ bvpStress(MatrixDim::Zero()) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         {
-            //           initMeshLocation();
-            //            std::cout<<"CreatingNode "<<this->sID<<": noundaryNormal="<<boundaryNormal.transpose()<<", nodeMeshLocation="<<nodeMeshLocation<<std::endl;
+
 		}
         
         

@@ -36,7 +36,7 @@ namespace model {
 		static VirtualBoundarySlipContainer<LinkType> vbsc;
         static SimplicialMesh<TypeTraits<LinkType>::dim> mesh;
         
-//        static BVPsolver<TypeTraits<LinkType>::dim,2> bvpSolver;
+        static BVPsolver<TypeTraits<LinkType>::dim,2> bvpSolver;
 
 	};
 	
@@ -62,8 +62,8 @@ namespace model {
     template <typename LinkType>
 	SimplicialMesh<TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::mesh;
     
-//    template <typename LinkType>
-//	BVPsolver<TypeTraits<LinkType>::dim,2> DislocationSharedObjects<LinkType>::bvpSolver(DislocationSharedObjects<LinkType>::mesh);
+    template <typename LinkType>
+	BVPsolver<TypeTraits<LinkType>::dim,2> DislocationSharedObjects<LinkType>::bvpSolver(DislocationSharedObjects<LinkType>::mesh);
 
 } // namespace model
 #endif

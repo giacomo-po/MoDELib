@@ -66,7 +66,7 @@ namespace model {
           */
             
             std::cout<<greenColor<<"Reading mesh "<<meshID<<defaultColor<<std::endl;
-
+            this->clear();
             
             Simplex<dim,0>::nodeReader.read(meshID,true);
             
