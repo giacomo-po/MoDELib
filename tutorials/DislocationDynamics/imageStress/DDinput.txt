@@ -32,9 +32,10 @@ material=29;
 ######################################
 # CRYSTAL ORIENTATION
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
-C2G = 1.0   0.0  0.0
-      0.0   1.0  0.0
-      0.0   0.0  1.0;
+C2G =  0.7071067811865475 -0.7071067811865475  0.0
+      0.4082482904638631  0.4082482904638631 -0.8164965809277261
+      0.5773502691896258  0.5773502691896258  0.5773502691896258;
+
 
 ######################################
 # TEMPERATURE in [K]
@@ -42,9 +43,9 @@ temperature = 300.0;
 
 ######################################
 # Set the remote external stress (a uniform stress felt by dislocations)
-externalStress = 0.0 0.0 0.0
+externalStress = 0.0 0.0 0.01
 		 0.0 0.0 0.0
-		 0.0 0.0 0.01;
+		 0.01 0.0 0.0;
 
 ######################################
 # STRESS FIELD
