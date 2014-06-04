@@ -184,9 +184,29 @@ namespace model
 //            
 //        }
 
+//        /**********************************************************************/
+//        template<typename Condition>
+//        void addDirechletCondition(const size_t& nodeListID, const int& dof)
+//        {/*!@param[in] dc the Dirichlet condition
+//          * @param[in] the nodal dof to be constrained
+//          */
+//            
+//            assert(dof>=0 && "dof MUST BE >=0");
+//            assert(dof<dofPerNode && "dof MUST BE < dofPerNode");
+//            
+//            
+//            const typename FiniteElementType::NodeListType& nodeList(fe.nodeList(nodeListID));
+//            
+//            for(typename FiniteElementType::NodeListType::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
+//            {
+//                    dcContainer.emplace_back(dofPerNode*(*nIter)->gID+dof,Condition::at(**nIter));
+//            }
+//            
+//        }
+
         /**********************************************************************/
         template<typename Condition>
-        void addDirechletCondition(const size_t& nodeListID, const int& dof)
+        void addDirechletCondition(const Condition& cond, const size_t& nodeListID, const int& dof)
         {/*!@param[in] dc the Dirichlet condition
           * @param[in] the nodal dof to be constrained
           */
@@ -199,11 +219,7 @@ namespace model
             
             for(typename FiniteElementType::NodeListType::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
             {
-                //std::pair<bool,double> temp(dc(*nIter));
-//                if(Condition::at(**nIter)) // condition applies o current node
-//                {
-                    dcContainer.emplace_back(dofPerNode*(*nIter)->gID+dof,Condition::at(**nIter));
-//                }
+                dcContainer.emplace_back(dofPerNode*(*nIter)->gID+dof,cond.at(**nIter));
             }
             
         }

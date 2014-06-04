@@ -13,7 +13,6 @@
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/DislocationDynamics/VirtualBoundarySlipContainer.h>
-//#include <model/BVP/Domain.h>
 
 #include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
@@ -31,9 +30,9 @@ namespace model {
         static size_t minSNorderForSolve;
 		static unsigned int boundary_type;
 		static unsigned int use_bvp;
-//		static Domain domain;					// temporary
 		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
 		static VirtualBoundarySlipContainer<LinkType> vbsc;
+        
         static SimplicialMesh<TypeTraits<LinkType>::dim> mesh;
         
         static BVPsolver<TypeTraits<LinkType>::dim,2> bvpSolver;
