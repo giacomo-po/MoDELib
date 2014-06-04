@@ -22,7 +22,8 @@
 namespace model {
     
     template <short unsigned int dim>
-    struct RadialVirtualSegment {
+    struct RadialVirtualSegment
+    {
         
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
@@ -37,10 +38,9 @@ namespace model {
         
     };
     
-    //   template <>
-    //    template <typename DislocationSegmentType, short unsigned int dim>
     template <typename DislocationSegmentType>
-    class VirtualBoundarySlipSurface {
+    class VirtualBoundarySlipSurface
+    {
         
         enum{dim=TypeTraits<DislocationSegmentType>::dim};
         
@@ -95,13 +95,15 @@ namespace model {
             setElasticConstants();
             pGlidePlane->addToGLidePlane(this);
             //std::cout << sourceN.transpose() << "    :    " << sinkN.transpose() << std::endl;
-            //----------calculate the displacement field induced by those segments on the boundary nodes ----
-            for (unsigned int dN=0; dN<ds.shared.domain.nodeContainer.size();++dN){
-                if(ds.shared.domain.nodeContainer[dN].isBoundaryNode) {
-                    if(ds.shared.domain.nodeContainer[dN].triIDs.size() == 0) assert(0&&"Error: Boundary node without triangle element index array");
-                    ds.shared.domain.nodeContainer[dN].uVir+= displacement(ds.shared.domain.nodeContainer[dN].P , ds.shared.domain.triContainer[ds.shared.domain.nodeContainer[dN].triIDs[0]]->outNormal);
-                }
-            }
+//            //----------calculate the displacement field induced by those segments on the boundary nodes ----
+//            for (unsigned int dN=0; dN<ds.shared.domain.nodeContainer.size();++dN){
+//                if(ds.shared.domain.nodeContainer[dN].isBoundaryNode) {
+//                    if(ds.shared.domain.nodeContainer[dN].triIDs.size() == 0) assert(0&&"Error: Boundary node without triangle element index array");
+//                    ds.shared.domain.nodeContainer[dN].uVir+= displacement(ds.shared.domain.nodeContainer[dN].P , ds.shared.domain.triContainer[ds.shared.domain.nodeContainer[dN].triIDs[0]]->outNormal);
+//                }
+//            }
+            
+            std::cout<<"VirtualBoundarySlipSurface: FINISH HERE, NEED TO ADD THE DISPLACEMENT OF BOUNDARY SURFACES TO THE MESH NODES"<<std::endl;
         }
         
         

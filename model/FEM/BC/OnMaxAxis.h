@@ -6,42 +6,42 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_FixMin_H_
-#define model_FixMin_H_
+#ifndef model_OnMaxAxis_H_
+#define model_OnMaxAxis_H_
 
 #include <Eigen/Dense>
 
 namespace model
 {
     template <int i>
-    class FixMin
+    class OnMaxAxis
     {
         
-        const double val;
-        double min;
+        const Eigen::MatrixXd axisPoint;
+        
+        
+        Eigen::MatrixXd get_axisPoint(const Eigen::MatrixXd& xMax) const
+        {
+            Eigen::MatrixXd temp(xMax*0.0);
+            temp(i)=xMax(i);
+            return temp;
+        }
         
     public:
         
         /**************************************/
         template <typename FiniteElementType>
-        FixMin(const FiniteElementType& fe) :
-        val(0.0),
-        min(DBL_MAX)
+        OnMaxAxis(const FiniteElementType& fe) :
+        axisPoint(get_axisPoint(fe.xMin()))
         {
-            for (int n=0;n<fe.nodeSize();++n)
-            {
-                if (fe.node(n).p0(i)<min)
-                {
-                    min=fe.node(n).p0(i);
-                }
-            }
+
         }
         
         /**************************************/
         template <typename NodeType>
-        std::pair<bool,double> operator()(const NodeType& node) const
+        bool operator()(const NodeType& node) const
         {
-            return std::pair<bool,double>(node.p0(i)==min,val);
+            return (node.p0-axisPoint).norm()<FLT_EPSILON;
             
         }
         

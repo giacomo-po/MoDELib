@@ -11,6 +11,8 @@
 
 #include <utility>      // std::pair, std::make_pair
 #include <deque>
+#include <map>
+#include <list>
 
 #include <model/Utilities/TerminalColors.h>
 #include <model/FEM/TrialFunctionTraits.h>
@@ -27,20 +29,28 @@ namespace model
 {
     
 	template<int _nComponents, typename _FiniteElementType>
-	struct TrialFunction : public TrialExpressionBase<TrialFunction<_nComponents,_FiniteElementType> >
+	class TrialFunction : public TrialExpressionBase<TrialFunction<_nComponents,_FiniteElementType> >
+//    ,
+//    /*                 */ private std::map<size_t,std::list<const typename _FiniteElementType::NodeType* > >
     {
         
+//        typedef std::list<const typename _FiniteElementType::NodeType* > NodeListType;
+//        typedef std::map<size_t,NodeListType> NodeMapType;
+//        
+//        size_t incrementalNodeListID;
+        
+    public:
         typedef _FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::ElementType ElementType;
         typedef typename FiniteElementType::NodeType NodeType;
-
+        
         typedef TrialFunction<_nComponents,FiniteElementType> TrialFunctionType;
         constexpr static int rows=_nComponents;
-
+        
         typedef typename TypeTraits<TrialFunctionType>::NodeContainerType NodeContainerType;
         typedef std::pair<size_t,double> DirichletConditionType;
         typedef std::deque<DirichletConditionType> DirichletConditionContainerType;
-
+        
         constexpr static int dim=ElementType::dim;
         constexpr static int nodesPerElement=ElementType::nodesPerElement;
         constexpr static int dofPerNode=TypeTraits<TrialFunctionType>::dofPerNode;
@@ -59,6 +69,7 @@ namespace model
         
         /**********************************************************************/
         TrialFunction(const FiniteElementType& fe_in) :
+//        /* init list */ incrementalNodeListID(0),
         /* init list */ fe(fe_in)
         {
             std::cout<<greenColor<<"Creating TrialFunction "<<defaultColor<<std::endl;
@@ -90,13 +101,13 @@ namespace model
             return fe.element(n);
         }
         
-//        /**********************************************************************/
-//        ElementType& element(const size_t& n)
-//        {/*!@param[in] n the node ID
-//          * \returns a reference to the n-th node in the FiniteElement
-//          */
-//            return fe.element(n);
-//        }
+        //        /**********************************************************************/
+        //        ElementType& element(const size_t& n)
+        //        {/*!@param[in] n the node ID
+        //          * \returns a reference to the n-th node in the FiniteElement
+        //          */
+        //            return fe.element(n);
+        //        }
         
         //        /**********************************************************************/
         //        typename NodeContainerType::const_iterator nodeBegin() const
@@ -121,7 +132,7 @@ namespace model
         {
             return fe.node(n);
         }
-
+        
         /**********************************************************************/
         ShapeFunctionMatrixType sfm(const ElementType& ele, const BaryType& bary) const
         {/*!\param[in] ele a finite element
@@ -152,9 +163,30 @@ namespace model
             return ele.template sfmDef<TrialFunctionType>(bary);
         }
         
+//        /**********************************************************************/
+//        template<typename Condition>
+//        void addDirechletCondition(const Condition& dc, const int& dof)
+//        {/*!@param[in] dc the Dirichlet condition
+//          * @param[in] the nodal dof to be constrained
+//          */
+//            
+//            assert(dof>=0 && "dof MUST BE >=0");
+//            assert(dof<dofPerNode && "dof MUST BE < dofPerNode");
+//            
+//            for(typename NodeContainerType::const_iterator nIter=fe.nodeBegin();nIter!=fe.nodeEnd();++nIter)
+//            {
+//                std::pair<bool,double> temp(dc(*nIter));
+//                if(temp.first) // condition applies o current node
+//                {
+//                    dcContainer.emplace_back(dofPerNode*nIter->gID+dof,temp.second);
+//                }
+//            }
+//            
+//        }
+
         /**********************************************************************/
         template<typename Condition>
-        void addDirechletCondition(const Condition& dc, const int& dof)
+        void addDirechletCondition(const size_t& nodeListID, const int& dof)
         {/*!@param[in] dc the Dirichlet condition
           * @param[in] the nodal dof to be constrained
           */
@@ -162,13 +194,16 @@ namespace model
             assert(dof>=0 && "dof MUST BE >=0");
             assert(dof<dofPerNode && "dof MUST BE < dofPerNode");
             
-            for(typename NodeContainerType::const_iterator nIter=fe.nodeBegin();nIter!=fe.nodeEnd();++nIter)
+            
+            const typename FiniteElementType::NodeListType& nodeList(fe.nodeList(nodeListID));
+            
+            for(typename FiniteElementType::NodeListType::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
             {
-                std::pair<bool,double> temp(dc(*nIter));
-                if(temp.first) // condition applies o current node
-                {
-                    dcContainer.emplace_back(dofPerNode*nIter->gID+dof,temp.second);
-                }
+                //std::pair<bool,double> temp(dc(*nIter));
+//                if(Condition::at(**nIter)) // condition applies o current node
+//                {
+                    dcContainer.emplace_back(dofPerNode*(*nIter)->gID+dof,Condition::at(**nIter));
+//                }
             }
             
         }
@@ -185,7 +220,35 @@ namespace model
             return temp;
         }
         
+        /**********************************************************************/
+        Eigen::Matrix<double,rows,1> operator()(const ElementType& ele, const BaryType& bary) const
+        {/*!@param[in] ele the element
+          * @param[in] bary the vector of barycentric coordinates
+          * \returns the value of the Derived expression at bary.
+          *
+          * \todo: in order to be optimized, this function should be Derived-specific
+          */
+            return sfm(ele,bary)*dofs(ele);
+        }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,rows,1> operator()(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* guess) const
+        {/*!@param[in] P the position vector
+          * @param[in] guess the Simplex where the search starts
+          * \returns the value of the Derived expression at P.
+          */
+            const std::pair<bool,const ElementType*> temp=fe.searchWithGuess(P,guess);
+            //            return (temp.first? sfm(*(temp.second),temp.second->simplex.pos2bary(P))*this->trial().dofs(*(temp.second)) : Eigen::Matrix<double,rows,1>::Zero());
+            Eigen::Matrix<double,rows,1> val(Eigen::Matrix<double,rows,1>::Zero());
+            if(temp.first)
+            {
+                val=sfm(*(temp.second),temp.second->simplex.pos2bary(P))*dofs(*(temp.second));
+            }
+            return val;
+        }
+        
 
+        
         
     };
     

@@ -269,10 +269,10 @@ namespace model {
                     model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
                     model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
                     model::SequentialOutputFile<'D',true> d_file;
-                    for (unsigned int i = 0; i< DN.shared.domain.nodeContainer.size(); i++){
-                        d_file<< DN.shared.domain.nodeContainer[i].sID<<"	" << (DN.shared.domain.nodeContainer[i].u+DN.shared.domain.nodeContainer[i].uInf).transpose()<<"\n";
-                    }
-                    std::cout<<", D/D_"<<d_file.sID<<std::flush;
+//                    for (unsigned int i = 0; i< DN.shared.domain.nodeContainer.size(); i++){
+//                        d_file<< DN.shared.domain.nodeContainer[i].sID<<"	" << (DN.shared.domain.nodeContainer[i].u+DN.shared.domain.nodeContainer[i].uInf).transpose()<<"\n";
+//                    }
+                    std::cout<<", D/D_"<<d_file.sID<<"(FINISH HERE)"<<std::flush;
                 }
                 if(DN.shared.boundary_type==1)
                 {

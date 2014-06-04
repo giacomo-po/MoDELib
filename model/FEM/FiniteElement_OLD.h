@@ -11,7 +11,6 @@
 
 #include <deque>
 #include <map>
-#include <iterator>     // std::advance
 
 #include <Eigen/Dense>
 
@@ -27,23 +26,21 @@
 #include <model/FEM/Domains/IntegrationDomain.h>
 #include <model/FEM/Domains/ExternalBoundary.h>
 
+//#include <model/FEM/WeakForms/LinearDomainAssemble.h>
+//#include <model/FEM/WeakForms/LinearBoundaryAssemble.h>
 
-namespace model
-{
 
+namespace model {
     
     template<typename _ElementType>
     class FiniteElement :
-    /* inherits        */ public std::map<Eigen::Matrix<size_t,_ElementType::dim+1,1>, // key
-    /*                                  */ _ElementType, // value
-    /*                                  */ CompareVectorsByComponent<size_t,_ElementType::dim+1> // key compare
-    /*                                  */ >,
-    /* inherits        */ public std::deque<typename _ElementType::NodeType>,
-    /* inherits        */ public std::map<Eigen::Matrix<double,_ElementType::dim,1>, // key
+    /* inherit         */ public std::deque<_ElementType>,
+    /* inherit         */ public std::deque<typename _ElementType::NodeType>,
+    /* inherit         */ public std::map<Eigen::Matrix<double,_ElementType::dim,1>, // key
     /*                                  */ const typename _ElementType::NodeType* const, // value
     /*                                  */ CompareVectorsByComponent<double,_ElementType::dim,float> // key compare
     /*                                  */ >,
-    /* inherits        */ private std::map<size_t,std::list<const typename _ElementType::NodeType* > >
+    /*                 */ private std::map<size_t,std::list<const typename _ElementType::NodeType* > >
     {
         
     public:
@@ -70,13 +67,7 @@ namespace model
         
         
         typedef SimplicialMesh<dim> MeshType;
-//        typedef std::deque<ElementType> ElementContainerType;
-        
-        typedef std::map<Eigen::Matrix<size_t,_ElementType::dim+1,1>, // key
-        /*                                  */ _ElementType, // value
-        /*                                  */ CompareVectorsByComponent<size_t,_ElementType::dim+1> // key compare
-        /*                                  */ > ElementContainerType;
-        
+        typedef std::deque<ElementType> ElementContainerType;
         typedef std::deque<typename _ElementType::NodeType> NodeContainerType;
         typedef std::map<Eigen::Matrix<double,_ElementType::dim,1>, // key
         /*                                  */ const typename _ElementType::NodeType* const, // value
@@ -93,8 +84,7 @@ namespace model
         /* init list */ _xMin(Eigen::Matrix<double,ElementType::dim,1>::Constant( DBL_MAX)),
         /* init list */ _xMax(Eigen::Matrix<double,ElementType::dim,1>::Constant(-DBL_MAX)),
         /* init list */ mesh(m)
-        {/*!@param[in] s A const reference to a SimplicialMesh on which *this 
-          * FiniteElement is constructed.
+        {/*!@param[in] s A const reference to a Simplex<dim,dim>
           */
             
             std::cout<<greenColor<<"Creating FiniteElement:\n"<<defaultColor<<std::flush;
@@ -106,8 +96,7 @@ namespace model
             // Insert elements
             for (typename SimplicialMesh<dim>::const_iterator eIter=mesh.begin();eIter!=mesh.end();++eIter)
             {
-                auto temp=ElementContainerType::emplace(eIter->first,ElementType(eIter->second,*this,*this));
-                assert(temp.second && "UNABLE TO INSERT ELEMENT.");
+                ElementContainerType::emplace_back(eIter->second,*this,*this);
             }
             
             // Compute _xMin and _xMax
@@ -165,19 +154,16 @@ namespace model
         {/*!@param[in] n the node ID
           * \returns a const reference to the n-th node in the FiniteElement
           */
-            assert(n<elementSize() && "INDEX EXCEEDS ELEMENT-SIZE.");
-            typename FiniteElementType::ElementContainerType::const_iterator eIter=elementBegin();
-            std::advance(eIter,n);
-            return eIter->second;
+            return ElementContainerType::operator[](n);
         }
         
-//        /**********************************************************************/
-//        ElementType& element(const size_t& n)
-//        {/*!@param[in] n the node ID
-//          * \returns a reference to the n-th node in the FiniteElement
-//          */
-//            return ElementContainerType::operator[](n);
-//        }
+        /**********************************************************************/
+        ElementType& element(const size_t& n)
+        {/*!@param[in] n the node ID
+          * \returns a reference to the n-th node in the FiniteElement
+          */
+            return ElementContainerType::operator[](n);
+        }
         
         /**********************************************************************/
         typename NodeContainerType::const_iterator nodeBegin() const
@@ -199,10 +185,17 @@ namespace model
         
         /**********************************************************************/
         const NodeType& node(const size_t& n) const
-        {/*!@param[in] n the n-th node stored in *this FiniteElement
-          * \returns a reference to the n-th node in *this FiniteElement
+        {/*!@param[in] n the node ID
+          * \returns a reference to the n-th node in the FiniteElement
           */
             return NodeContainerType::operator[](n);
+        }
+        
+        /**********************************************************************/
+        template <typename BndType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+        IntegrationDomain<dim,1,qOrder,QuadratureRule> boundary() const
+        {
+            return BndType::template domain<FiniteElementType,qOrder,QuadratureRule>(*this);
         }
         
         /**********************************************************************/
@@ -216,15 +209,6 @@ namespace model
         {
             return _xMax;
         }
-        
-        /**********************************************************************/
-        template <typename BndType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-        IntegrationDomain<dim,1,qOrder,QuadratureRule> boundary() const
-        {
-            return BndType::template domain<FiniteElementType,qOrder,QuadratureRule>(*this);
-        }
-        
-
         
         
         /**********************************************************************/
@@ -252,43 +236,6 @@ namespace model
         {
             return NodeMapType::at(n);
         }
-        
-        
-        
-        
-        /**********************************************************************/
-        std::pair<bool,const ElementType*> search(const Eigen::Matrix<double,dim,1>& P) const
-        {/*!@param[in] P position to search for
-          *\returns a pair, where:
-          * -pair.first is a boolean indicating whether the
-          * search succesfully found a Simplex<dim,dim> which includes P.
-          * -pair.second is a pointer to the last Simplex<dim,dim> searched.
-          *
-          * By default the search starts at this->begin()->second
-          */
-            return searchWithGuess(P,&(elementBegin()->second.simplex));
-        }
-        
-        /**********************************************************************/
-        std::pair<bool,const ElementType*> searchWithGuess(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* const guess) const
-        {/*!@param[in] P position to search for
-          * @param[in] guess Simplex* where the search starts
-          *\returns a pair, where:
-          * -pair.first is a boolean indicating whether the
-          * search succesfully found a Simplex<dim,dim> which includes P.
-          * -pair.second is a pointer to the last Simplex<dim,dim> searched.
-          */
-            
-            const std::pair<bool,const Simplex<dim,dim>*> temp(mesh.searchWithGuess(P,guess));
-            //const typename Simplex<dim,dim>::SimplexIDType xID(temp.second->xID);
-            const typename ElementContainerType::const_iterator eIter(ElementContainerType::find(temp.second->xID));
-            assert(eIter!=elementEnd() && "ELEMENT NOT FOUND");
-            //std::set<int> searchSet;
-            //std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,NULL);
-            //guess->convexDelaunaynSearch(P,lastSearched,searchSet);
-            return std::pair<bool,const ElementType*>(temp.first,&(eIter->second));
-        }
-        
         
     };
     

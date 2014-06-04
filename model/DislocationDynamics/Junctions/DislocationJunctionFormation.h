@@ -18,7 +18,7 @@
 
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 #include <model/DislocationDynamics/Remeshing/DislocationNetworkRemesh.h>
-#include <model/BVP/SearchData.h>
+//#include <model/BVP/SearchData.h>
 #include <model/MPI/MPIcout.h>
 
 //#include <model/Math/MatrixCompanion.h>

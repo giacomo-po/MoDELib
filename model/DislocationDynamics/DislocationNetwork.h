@@ -23,7 +23,6 @@
 // KCachegrind callgrind.out.1378
 
 // BEING MODIFIED
-// BVP: integration method
 // 3 crossSlip
 // Motion of BoundarySubnetworks
 
@@ -67,7 +66,7 @@
 
 #ifdef _OPENMP
 #include <omp.h>
-#define EIGEN_DONT_PARALLELIZE // disable Eigen Internal openmp Parallelization
+//#define EIGEN_DONT_PARALLELIZE // disable Eigen Internal openmp Parallelization
 #endif
 
 
@@ -97,10 +96,7 @@
 
 namespace model
 {
-	
-	
-	/**************************************************************************/
-	/**************************************************************************/
+ 
 	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	class DislocationNetwork :
@@ -132,10 +128,7 @@ namespace model
         
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
-        //         int nucleationFreq;
 #endif
-        
-        //ParticleSystem<DislocationParticle<_dim> > particleSystem;
         
 	private:
         
@@ -154,12 +147,8 @@ namespace model
 		
 		double dx, dt;
         double vmax;
-        
-//        SimplicialMesh<dim> mesh;
-        
-        
-        
-		/* formJunctions ******************************************************/
+
+        /**********************************************************************/
 		void formJunctions()
         {/*! Performs dislocation junction formation if use_junctions==true
           */
@@ -173,7 +162,7 @@ namespace model
 			}
 		}
 		
-		/* make_dt ************************************************************/
+        /**********************************************************************/
 		void make_dt()
         {/*! Computes the time step size \f$dt\f$ for the current simulation step,
           *  based on maximum nodal velocity \f$v_{max}\f$.
@@ -203,7 +192,7 @@ namespace model
 				}
 			}
 			
-            //			double equilibriumVelocity(0.01);
+            //double equilibriumVelocity(0.01);
 			//short unsigned int shearWaveExp=1;
 			if (vmax > Material<Isotropic>::cs*equilibriumVelocity)
             {
@@ -220,7 +209,7 @@ namespace model
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
         
-		/* crossSlip **********************************************************/
+        /**********************************************************************/
 		void crossSlip()
         {/*! Performs dislocation cross-slip if use_crossSlip==true
           */
@@ -234,27 +223,22 @@ namespace model
 			}
 		}
         
-        /* update_BVP_Solution ************************************************/
-        void update_BVP_Solution(const bool& updateUserBC)
+        /**********************************************************************/
+        void update_BVP_Solution()
         {
-            if (shared.use_bvp)
+            // enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
+            if (shared.use_bvp && !(runID%shared.use_bvp))
             {
-				double t0=clock();
-				model::cout<<"		Updating bvp stress ... "<<std::flush;
-				if(!(runID%shared.use_bvp)) // enter the if statement if runID is a multiple of use_bvp
-                {
-					shared.domain.update_BVP_Solution(updateUserBC,this);
-				}
-				for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
-                { // THIS SHOULD BE PUT IN THE MOVE FUNCTION OF DISLOCATIONNODE
-					nodeIter->second->updateBvpStress();
-				}
-				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+                    double t0=clock();
+                    model::cout<<"		Updating bvp stress ... "<<std::flush;
+                    shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,4>(*this);
+                    std::cout<<"FINISH HERE";
+                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
         }
         
-        /*  singleStep*********************************************************/
-		void singleStep(const bool& updateUserBC=false)
+        /**********************************************************************/
+		void singleStep()
         {
 			//! A simulation step consists of the following:
 			model::cout<<blueBoldColor<< "runID="<<runID
@@ -279,8 +263,8 @@ namespace model
 			updateQuadraturePoints();
             
 			//! 2- Calculate BVP correction
-            update_BVP_Solution(updateUserBC);
-			
+            update_BVP_Solution();
+            
 			//! 3- Solve the equation of motion
 			assembleAndSolve();
             
@@ -345,14 +329,14 @@ namespace model
 			++runID;     // increment the runID counter
 		}
 		
-		/* remeshByContraction ************************************************/
+		/**********************************************************************/
 		void removeBoundarySegments()
         {/*! Removes DislocationSegment(s) on the mesh boundary
           */
 			if (shared.boundary_type==softBoundary)
             {
 				double t0=clock();
-				model::cout<<"		Removing Segments outside Mesh Boundaries... ";
+				model::cout<<"		Removing DislocationSegments outside mesh boundary... ";
 				typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
 				link_member_function_pointer_type boundarySegment_Lmfp;
 				boundarySegment_Lmfp=&LinkType::is_boundarySegment;
@@ -377,8 +361,6 @@ namespace model
 			}
 		}
         
-		/**********************************************************************/
-		/* PUBLIC SECTION *****************************************************/
 	public:
         //		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
@@ -390,22 +372,20 @@ namespace model
         
         MatrixDimD plasticDistortion;
         
-		/* Constructor ********************************************************/
+		/**********************************************************************/
         DislocationNetwork(int& argc, char* argv[]) :
- //       /* init list  */ mesh(0), // this reads mesh files N/N_0.txt and T/T_0.txt
         /* init list  */ plasticDistortion(MatrixDimD::Zero())
         {
             ParticleSystemType::initMPI(argc,argv);
             read("./","DDinput.txt");
         }
         
-        /* Constructor ********************************************************/
+		/**********************************************************************/
         ~DislocationNetwork()
         {
-            // this destructor in only needed to avoid a bug in in gcc
             for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
                  /*                                       */ linkIter!=this->linkEnd();
-                 /*                                     */ ++linkIter)
+                 /*                                       */ linkIter++)
             {
 				linkIter->second->quadratureParticleContainer.clear();
 			}
@@ -414,7 +394,7 @@ namespace model
         }
         
         
-		/* remesh *************************************************************/
+		/**********************************************************************/
 		void remesh()
         {
 			if (use_redistribution)
@@ -422,28 +402,28 @@ namespace model
 				if(!(runID%use_redistribution))
                 {
 					double t0=clock();
-					model::cout<<"		remeshing network... "<<std::flush;
+					model::cout<<"		Remeshing network... "<<std::flush;
 					DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
 					model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 				}
 			}
 		}
 		
-		/* get_dt *************************************************************/
+		/**********************************************************************/
 		const double& get_dt() const
         {/*! The current simulation time step in dimensionless units
           */
 			return dt;
 		}
         
-        /* get_totalTime ******************************************************/
+		/**********************************************************************/
 		const double& get_totalTime() const
         {/*! The elapsed simulation time step in dimensionless units
           */
 			return totalTime;
 		}
 		
-		/* read ***************************************************************/
+		/**********************************************************************/
 		void read(const std::string& inputDirectoryName_in, std::string inputFileName)
         { // TO DO: move this to DislocationNetworkIO.h
 			
@@ -499,9 +479,6 @@ namespace model
 			// Restart
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
             
-            
-            
-			
             // IO
             EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
             EDR.readScalarInFile(fullName.str(),"outputBinary",DislocationNetworkIO<DislocationNetworkType>::outputBinary);
@@ -528,7 +505,7 @@ namespace model
 //					shared.domain.readInputBCs(); // OLD BVP
 				}
 			}
-			else{ // no boundary is used, this means dislocation network in inifinite medium
+			else{ // no boundary is used, DislocationNetwork is in inifinite medium
 				shared.use_bvp=0;	// never comupute boundary correction
 			}
 			
@@ -573,14 +550,15 @@ namespace model
             }
 			
             // Read Vertex and Edge information
-            DislocationNetworkIO<DislocationNetworkType>::readVertices(*this,runID);
-            DislocationNetworkIO<DislocationNetworkType>::readEdges(*this,runID);
+            DislocationNetworkIO<DislocationNetworkType>::readVertices(*this,runID); // this requires mesh to be up-to-date
+            DislocationNetworkIO<DislocationNetworkType>::readEdges(*this,runID);    // this requires mesh to be up-to-date
             
             
             if (shared.use_bvp && (shared.boundary_type==softBoundary))
             { // MOVE THIS WITH REST OB BVP STUFF
                 //                shared.vbsc.read(runID,&shared);
                 shared.vbsc.initializeVirtualSegments(*this);
+                
             }
             
             
@@ -592,21 +570,20 @@ namespace model
             // Avoid that a processor starts writing before other are reading
             MPI_Barrier(MPI_COMM_WORLD);
 #endif
-            
 			
 			// Initializing initial configuration
-			model::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
+//			model::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
 			move(0.0,0.0);	// initial configuration
-			output();	// initial configuration, this overwrites the input file
-			if (runID==0) // not a restart
-            {
-				remesh();	// expand initial FR sources
-			}
-			updateQuadraturePoints();
-			++runID;     // increment the runID counter
+//			output();	// initial configuration, this overwrites the input file
+//			if (runID==0) // not a restart
+//            {
+//				remesh();	// expand initial FR sources
+//			}
+//			updateQuadraturePoints();
+//			++runID;     // increment the runID counter
         }
 		
-		/* solve **************************************************************/
+		/**********************************************************************/
 		void assembleAndSolve()
         {/*! Performs the following operatons:
           */
@@ -615,7 +592,6 @@ namespace model
 			double t0=clock();
             
             //! -1 Compute the interaction StressField between dislocation particles
-            //            particleSystem.template computeNeighborField<StressField>();
             this->template computeNeighborField<StressField>();
             
 			//! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
@@ -651,7 +627,7 @@ namespace model
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
-		/* output *************************************************************/
+		/**********************************************************************/
 		void output() const
         {/*! Outputs DislocationNetwork data
           */
@@ -671,44 +647,31 @@ namespace model
 		}
 		
 		
-		/* updateQuadraturePoints *********************************************/
+		/**********************************************************************/
 		void updateQuadraturePoints()
         {
-            model::cout<<"		Updating Quadrature Points... "<<std::flush;
+            model::cout<<"		Updating quadrature points... "<<std::flush;
 			double t0=clock();
             
-            // first clear all quadrature points for all segments
-            //			for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
-            //                 /*                                       */ linkIter!=this->linkEnd();
-            //                 /*                                     */ ++linkIter)
-            //            {
-            //				linkIter->second->quadratureParticleContainer.clear();
-            //				linkIter->second->quadratureParticleContainer.reserve(qOrder);
-            //			}
-            
             // Clear DislocationParticles
-            //            particleSystem.clearParticles();
             this->clearParticles();
             
-            // then update again
+            // Populate DislocationParticles
             for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
                  /*                                       */ linkIter!=this->linkEnd();
                  /*                                     */ ++linkIter)
             {
                 linkIter->second->updateQuadraturePoints(*this);
-                
-                //                linkIter->second->updateQuadraturePoints(particleSystem);
-                //				Quadrature<1,qOrder>::execute(linkIter->second,&LinkType::updateQuadGeometryKernel);
 			}
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
 		
-		/* move ***************************************************************/
+		/**********************************************************************/
 		void move(const double & dt_in, const double & dt_old)
         {/*! Moves all nodes in the DislocationNetwork using the stored velocity and current dt
           */
-			model::cout<<"		Moving Dislocation Nodes (dt="<<dt_in<< ")... "<<std::flush;
+			model::cout<<"		Moving DislocationNodes (dt="<<dt_in<< ")... "<<std::flush;
 			double t0=clock();
             //			typedef void (NodeType::*NodeMemberFunctionPointerType)(const double&); // define type of Link member function
             //			NodeMemberFunctionPointerType Nmfp(&NodeType::move); // Lmfp is a member function pointer to Link::assemble
@@ -723,7 +686,7 @@ namespace model
 		}
 		
 		/**********************************************************************/
-		void runSteps(const bool& updateUserBC=false)
+		void runSteps()
         {/*! Runs Nsteps simulation steps
           */
 			double ts(clock());
@@ -731,14 +694,13 @@ namespace model
             {
 				model::cout<<std::endl; // leave a blank line
 				model::cout<<blueBoldColor<<"Step "<<k+1<<" of "<<Nsteps<<defaultColor<<std::endl;
-				singleStep(updateUserBC);
+				singleStep();
 			}
 			model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(clock()-ts)/CLOCKS_PER_SEC<<" [sec]"<<defaultColor<<std::endl;
 		}
 		
-		
 		/**********************************************************************/
-		void runTime(const bool& updateUserBC=false)
+		void runTime()
         {/*! Runs a number simulation steps corresponding to a total
           * dimensionless time timeWindow
           */
@@ -748,12 +710,11 @@ namespace model
             {
 				model::cout<<std::endl; // leave a blank line
 				model::cout<<blueBoldColor<<"Time "<<elapsedTime<<" of "<<timeWindow<<defaultColor<<std::endl;
-				singleStep(updateUserBC);
+				singleStep();
 				elapsedTime+=dt;
 			}
 			model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<timeWindow<< " simulation time completed in "<<(clock()-ts)/CLOCKS_PER_SEC<<" [sec]"<<defaultColor<<std::endl;
 		}
-		
 		
 		/**********************************************************************/
 		void checkBalance() const // TO DO: MOVE THIS TO NETWORK LAYER
@@ -766,7 +727,6 @@ namespace model
 				if (nodeIter->second->neighborhood().size()>2)
                 {
                     const bool nodeIsBalanced(nodeIter->second->is_balanced());
-//                    std::cout<<"Node "<<nodeIter->second->sID<<" is balanced?"<<nodeIsBalanced<<" meshLocation="<<nodeIter->second->nodeMeshLocation<<std::endl;
                     if (!nodeIsBalanced && nodeIter->second->meshLocation()==insideMesh)
                     {
                         model::cout<<"Node "<<nodeIter->second->sID<<" is not balanced:"<<std::endl;
@@ -777,12 +737,10 @@ namespace model
 				}
 			}
 		}
-		
-		
+				
 		/**********************************************************************/
-		// energy
 		double energy()
-        {/*! The total elastic energy of the dislocation network
+        {/*!\returns The total elastic energy of the dislocation network
           */
 			double temp(0.0);
 			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
@@ -851,7 +809,6 @@ namespace model
 			return temp;
 		}
 		
-        
         /**********************************************************************/
 		MatrixDimD plasticDistortionRate() const
         {
@@ -863,7 +820,6 @@ namespace model
 			return temp;
 		}
         
-        
         /**********************************************************************/
 		MatrixDimD plasticStrainRate() const
         {/*!\returns the plastic distortion rate tensor generated by this
@@ -873,7 +829,7 @@ namespace model
 			return (temp+temp.transpose())*0.5;
 		}
 		
-		/********************************************************/
+        /**********************************************************************/
 		MatrixDimD latticeRotation(const VectorDimD & Rfield) const
         {
 			MatrixDimD temp(MatrixDimD::Zero());
@@ -884,7 +840,7 @@ namespace model
 			return temp;
 		}
 		
-		/********************************************************/
+        /**********************************************************************/
 		MatrixDimD elasticDistortion(const VectorDimD & Rfield) const
         {
 			MatrixDimD temp(MatrixDimD::Zero());
@@ -907,14 +863,14 @@ namespace model
 			return temp;
 		}
         
-        /********************************************************/
+        /**********************************************************************/
         const unsigned int& runningID() const
         {/*! The current simulation step ID.
           */
             return runID;
         }
         
-        /********************************************************/
+        /**********************************************************************/
         const double& vMax() const
         {/*! The max vertex velocity.
           */
@@ -932,8 +888,5 @@ namespace model
 	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     double DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::equilibriumVelocity=0.01;
     
-    
-	//////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif

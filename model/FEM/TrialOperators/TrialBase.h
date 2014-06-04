@@ -24,18 +24,20 @@ namespace model
 	class TrialBase
     {
 
-//        typedef typename TypeTraits<TrialFunctionType>::FiniteElementType FiniteElementType;
+    public:
+        typedef typename TypeTraits<_TrialFunctionType>::FiniteElementType FiniteElementType;
         typedef typename TypeTraits<_TrialFunctionType>::ElementType ElementType;
         typedef typename TypeTraits<_TrialFunctionType>::NodeType NodeType;
+        typedef _TrialFunctionType TrialFunctionType;
 
         //        const FiniteElementType& fe;
-
+    private:
+        
         const _TrialFunctionType& tf;
 
         
     public:
         
-        typedef _TrialFunctionType TrialFunctionType;
 //        const TrialFunctionType& tf;
 
         
@@ -47,13 +49,13 @@ namespace model
             
         }
         
-//        /**********************************************************************/
-//        const ElementType& element(const size_t& n) const
-//        {/*!@param[in] n the node ID
-//          * \returns a const reference to the n-th node in the FiniteElement
-//          */
-//            return tf.fe.element(n);
-//        }
+        /**********************************************************************/
+        const ElementType& element(const size_t& n) const
+        {/*!@param[in] n the node ID
+          * \returns a const reference to the n-th node in the FiniteElement
+          */
+            return tf.fe.element(n);
+        }
 
         /**********************************************************************/
         const TrialFunctionType& trial() const
@@ -83,33 +85,45 @@ namespace model
             return tf.fe.elementSize();
         }
         
-        /**********************************************************************/
-        const ElementType& element(const size_t& n) const
-        {/*!@param[in] n the node ID
-          * \returns a const reference to the n-th node in the FiniteElement
-          */
-            return tf.fe.element(n);
-        }
-        
-        /**********************************************************************/
-        ElementType& element(const size_t& n)
-        {/*!@param[in] n the node ID
-          * \returns a reference to the n-th node in the FiniteElement
-          */
-            return tf.fe.element(n);
-        }
-        
 //        /**********************************************************************/
-//        typename NodeContainerType::const_iterator nodeBegin() const
-//        {
-//            return tf.fe.nodeBegin();
+//        const ElementType& element(const size_t& n) const
+//        {/*!@param[in] n the node ID
+//          * \returns a const reference to the n-th node in the FiniteElement
+//          */
+//            return tf.fe.element(n);
 //        }
 //        
 //        /**********************************************************************/
-//        typename NodeContainerType::const_iterator nodeEnd() const
-//        {
-//            return tf.fe.nodeEnd();
+//        ElementType& element(const size_t& n)
+//        {/*!@param[in] n the node ID
+//          * \returns a reference to the n-th node in the FiniteElement
+//          */
+//            return tf.fe.element(n);
 //        }
+        
+        /**********************************************************************/
+        typename FiniteElementType::ElementContainerType::const_iterator elementBegin() const
+        {
+            return tf.fe.elementBegin();
+        }
+        
+        /**********************************************************************/
+        typename FiniteElementType::ElementContainerType::const_iterator elementEnd() const
+        {
+            return tf.fe.elementEnd();
+        }
+
+        //        /**********************************************************************/
+        //        typename NodeContainerType::const_iterator nodeBegin() const
+        //        {
+        //            return tf.fe.nodeBegin();
+        //        }
+        //
+        //        /**********************************************************************/
+        //        typename NodeContainerType::const_iterator nodeEnd() const
+        //        {
+        //            return tf.fe.nodeEnd();
+        //        }
         
         /**********************************************************************/
         size_t nodeSize() const

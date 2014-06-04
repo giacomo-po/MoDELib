@@ -9,7 +9,9 @@
 #ifndef model_TrialExpressionBase_H_
 #define model_TrialExpressionBase_H_
 
+#include <model/Utilities/TypeTraits.h>
 #include <model/FEM/TrialOperators/TestExpression.h>
+#include <model/Mesh/Simplex.h>
 
 namespace model
 {
@@ -65,54 +67,110 @@ namespace model
             return TestExpression<Derived>(derived());
         }
         
-        /**********************************************************************/
-        template <typename ElementType, typename BaryType>
-        Eigen::Matrix<double,Eigen::Dynamic,1> operator()(const ElementType& ele, const BaryType& bary) const
-        {/*!@param[in] ele the element
-          * @param[in] bary the vector of barycentric coordinates
-          * \returns the value of the Derived expression at bary.
-          */
-            return derived().sfm(ele,bary)*derived().trial().dofs(ele);
-        }
+//        /**********************************************************************/
+//        template <typename ElementType, typename BaryType>
+//        Eigen::Matrix<double,Eigen::Dynamic,1> operator()(const ElementType& ele, const BaryType& bary) const
+//        {/*!@param[in] ele the element
+//          * @param[in] bary the vector of barycentric coordinates
+//          * \returns the value of the Derived expression at bary.
+//          *
+//          * \todo: in order to be optimized, this function should be Derived-specific
+//          */
+//            return derived().sfm(ele,bary)*derived().trial().dofs(ele);
+//        }
         
-        
-        /**********************************************************************/
-//        void onExternalNodes() const
-		/**********************************************************************/
-		template <class T>
-		friend T& operator << (T& os, const TrialExpressionBase<Derived>& expr)
-        {
-//            const int dim=expr.derived().trial().dim;
-            const int dim=3;
-            const Eigen::Matrix<double,dim+1,dim+1> vertexBary(Eigen::Matrix<double,dim+1,dim+1>::Identity());
-//            const Eigen::MatrixXd vertexBary(Eigen::MatrixXd::Identity(dim,dim));
-
-            
-            for (int n=0;n<expr.derived().trial().fe.elementSize();++n)
-            {
-                if(expr.derived().trial().fe.element(n).isBoundaryElement())
-                {
-                    const std::vector<int> boundaryFaces=expr.derived().trial().fe.element(n).boundaryFaces();
-                    for (int f=0;f<boundaryFaces.size();++f)
-                    {
-                        for (int v=0;v<dim+1;++v)
-                        {
-                        if (v!=boundaryFaces[f])
-                        {
-                        os<<expr.derived().trial().fe.element(n).position(vertexBary.col(v)).transpose()<<" "
-                          <<expr(expr.derived().trial().fe.element(n),vertexBary.col(v)).transpose()<<"\n";
-                        }
-                        }
-                    }
-                }
-            }
-            return os;
-        }
+        //        /**********************************************************************/
+        //        template <int dim>
+        //        Eigen::Matrix<double,Eigen::Dynamic,1> operator()(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* guess) const
+        //        {/*!@param[in] ele the element
+        //          * @param[in] bary the vector of barycentric coordinates
+        //          * \returns the value of the Derived expression at bary.
+        //          */
+        //            const std::pair<bool,const ElementType*> temp=derived().fe.searchWithGuess(P,guess);
+        //
+        //
+        //            Eigen::Matrix<double,Eigen::Dynamic,1> temp1(derived().sfm(*temp.second,bary)*derived().trial().dofs(*temp.second));
+        //
+        //            return temp.first?  : ;
+        //        }
         
         
     };
     
     
+    /**************************************************************************/
+    template <typename T, typename Derived>
+    T& operator << (T& os, const TrialExpressionBase<Derived>& expr)
+    {/*!@param[in] os the stream object
+      * @param[in] expr the expression
+      *
+      * Outputs the value of Derived on the faces of the mes
+      */
+        constexpr int dim=Derived::TrialFunctionType::dim;
+        const Eigen::Matrix<double,dim+1,dim+1> vertexBary(Eigen::Matrix<double,dim+1,dim+1>::Identity());
+        
+        
+        for (typename Derived::FiniteElementType::ElementContainerType::const_iterator eIter =expr.derived().trial().fe.elementBegin();
+             /*                                                                     */ eIter!=expr.derived().trial().fe.elementEnd();
+             /*                                                                   */ ++eIter)
+        {
+            if(eIter->second.isBoundaryElement())
+            {
+                const std::vector<int> boundaryFaces=eIter->second.boundaryFaces();
+                for (int f=0;f<boundaryFaces.size();++f)
+                {
+                    for (int v=0;v<dim+1;++v)
+                    {
+                        if (v!=boundaryFaces[f])
+                        {
+                            os<<eIter->second.position(vertexBary.col(v)).transpose()<<" "
+                            <<expr.derived()(eIter->second,vertexBary.col(v)).transpose()<<"\n";
+                        }
+                    }
+                }
+            }
+        }
+        return os;
+    }
+    
     
 }	// close namespace
 #endif
+
+
+
+
+
+
+/**********************************************************************/
+//        void onExternalNodes() const
+/**********************************************************************/
+//		template <class T>
+//		friend T& operator << (T& os, const TrialExpressionBase<Derived>& expr)
+//        {
+////            const int dim=expr.derived().trial().dim;
+//            const int dim=3;
+//            const Eigen::Matrix<double,dim+1,dim+1> vertexBary(Eigen::Matrix<double,dim+1,dim+1>::Identity());
+////            const Eigen::MatrixXd vertexBary(Eigen::MatrixXd::Identity(dim,dim));
+//
+//
+//            for (int n=0;n<expr.derived().trial().fe.elementSize();++n)
+//            {
+//                if(expr.derived().trial().fe.element(n).isBoundaryElement())
+//                {
+//                    const std::vector<int> boundaryFaces=expr.derived().trial().fe.element(n).boundaryFaces();
+//                    for (int f=0;f<boundaryFaces.size();++f)
+//                    {
+//                        for (int v=0;v<dim+1;++v)
+//                        {
+//                        if (v!=boundaryFaces[f])
+//                        {
+//                        os<<expr.derived().trial().fe.element(n).position(vertexBary.col(v)).transpose()<<" "
+//                          <<expr(expr.derived().trial().fe.element(n),vertexBary.col(v)).transpose()<<"\n";
+//                        }
+//                        }
+//                    }
+//                }
+//            }
+//            return os;
+//        }

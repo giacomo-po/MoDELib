@@ -11,12 +11,6 @@
 
 #include <time.h>       /* clock_t, clock, CLOCKS_PER_SEC */
 #include <vector>
-#include <iterator>     // std::advance
-
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 #include <Eigen/SparseCore>
 
 #include <model/FEM/TrialOperators/TrialExpressionBase.h>
@@ -28,6 +22,10 @@
 #include <model/FEM/WeakForms/ElementaryDomain.h>
 
 
+#ifdef _OPENMP
+#include <omp.h>
+//#define EIGEN_DONT_PARALLELIZE // disable Eigen Internal openmp Parallelization
+#endif
 
 namespace model
 {
@@ -41,10 +39,18 @@ namespace model
         static_assert(AreSameType<typename T1::TrialFunctionType,typename T2::TrialFunctionType>::value,"YOU ARE CREATING A BilinearWeakForm OF DIFFERENT TRIALFUNCTIONS.");
         static_assert((T1::rows-T2::rows)==0,"YOU ARE CREATING A BilinearWeakForm BETWEEN A TRIALEXPRESSION AND A TESTEXPRESSION WITH DIFFERENT NUMBER OF ROWS");
         
-        typedef typename T2::TrialFunctionType TF;
+        typedef typename T1::TrialFunctionType TF;
         typedef BilinearWeakForm<T1,T2> BilinearWeakFormType;
         typedef typename TypeTraits<TF>::ElementType ElementType;
-        typedef typename TypeTraits<TF>::FiniteElementType FiniteElementType;
+        
+        
+        
+//        /**********************************************************************/
+//        void assembleTriplets()
+//        {
+//        
+//        }
+        
         
     public:
         
@@ -56,8 +62,8 @@ namespace model
         
         typedef Eigen::Matrix<double,dofPerElement,dofPerElement> ElementMatrixType;
         
-        const T1  testExp;
-        const T2 trialExp;
+        const T2  testExp;
+        const T1 trialExp;
 
         const size_t gSize;
         
@@ -69,7 +75,7 @@ namespace model
 
         
         /**********************************************************************/
-        BilinearWeakForm(const TestExpression<T1>& testE, const TrialExpressionBase<T2>& trialE) :
+        BilinearWeakForm(const TestExpression<T2>& testE, const TrialExpressionBase<T1>& trialE) :
         /* init list */ testExp(testE), // cast testE to its base T2 type
         /* init list */ trialExp(trialE.derived()), // cast trialE to its derived T1 type
         /* init list */ gSize(trialExp.nodeSize()*dofPerNode),
@@ -112,7 +118,7 @@ namespace model
             for (int n=0;n<trialExp.elementSize();++n)
             {
                 // Compute element stiffness Matrix
-                //ElementMatrixType ke(ElementMatrixType::Zero());
+                ElementMatrixType ke(ElementMatrixType::Zero());
                 kv[n].setZero();
                 QuadratureType::integrate(this,kv[n],&BilinearWeakFormType::elementAssemblyKernel<AbscissaType>,trialExp.element(n));
             }
@@ -124,7 +130,6 @@ namespace model
             
             for (int n=0;n<trialExp.elementSize();++n)
             {
-                const ElementType& element(trialExp.element(n));
                 //Assemble into global array of triplets
                 for (int i=0;i<dofPerElement;++i)
                 {
@@ -134,11 +139,11 @@ namespace model
                         {
                             const size_t  nodeID_I(i/dofPerNode);
                             const size_t nodeDof_I(i%dofPerNode);
-                            const size_t gI= element.node(nodeID_I).gID*dofPerNode+nodeDof_I;
+                            const size_t gI= testExp.element(n).node(nodeID_I).gID*dofPerNode+nodeDof_I;
                             
                             const size_t  nodeID_J(j/dofPerNode);
                             const size_t nodeDof_J(j%dofPerNode);
-                            const size_t gJ=element.node(nodeID_J).gID*dofPerNode+nodeDof_J;
+                            const size_t gJ=trialExp.element(n).node(nodeID_J).gID*dofPerNode+nodeDof_J;
                             
                             globalTriplets.emplace_back(gI,gJ,kv[n](i,j));
                             
@@ -156,15 +161,11 @@ namespace model
 //            A.reserve(Eigen::VectorXi::Constant(gSize,1000));
 
             
-//            for (int n=0;n<trialExp.elementSize();++n)
-            for (typename FiniteElementType::ElementContainerType::const_iterator eIter =trialExp.elementBegin();
-                 /*                                                            */ eIter!=trialExp.elementEnd();
-                 /*                                                            */ ++eIter)
+            for (int n=0;n<trialExp.elementSize();++n)
             {
                 // Compute element stiffness Matrix
                 ElementMatrixType ke(ElementMatrixType::Zero());
-//                QuadratureType::integrate(this,ke,&BilinearWeakFormType::elementAssemblyKernel<AbscissaType>,trialExp.element(n));
-                QuadratureType::integrate(this,ke,&BilinearWeakFormType::elementAssemblyKernel<AbscissaType>,eIter->second);
+                QuadratureType::integrate(this,ke,&BilinearWeakFormType::elementAssemblyKernel<AbscissaType>,trialExp.element(n));
                 
                 //Assemble into global array of triplets
                 for (int i=0;i<dofPerElement;++i)
@@ -175,11 +176,11 @@ namespace model
                         {
                             const size_t  nodeID_I(i/dofPerNode);
                             const size_t nodeDof_I(i%dofPerNode);
-                            const size_t gI= eIter->second.node(nodeID_I).gID*dofPerNode+nodeDof_I;
+                            const size_t gI= testExp.element(n).node(nodeID_I).gID*dofPerNode+nodeDof_I;
                             
                             const size_t  nodeID_J(j/dofPerNode);
                             const size_t nodeDof_J(j%dofPerNode);
-                            const size_t gJ=eIter->second.node(nodeID_J).gID*dofPerNode+nodeDof_J;
+                            const size_t gJ=trialExp.element(n).node(nodeID_J).gID*dofPerNode+nodeDof_J;
                             
                             globalTriplets.emplace_back(gI,gJ,ke(i,j));
 
@@ -228,7 +229,7 @@ namespace model
     
     
     template <typename T1,typename T2>
-    BilinearWeakForm<T1,T2> operator, (const TestExpression<T1>& testE, const TrialExpressionBase<T2>& trialE)
+    BilinearWeakForm<T1,T2> operator, (const TestExpression<T2>& testE, const TrialExpressionBase<T1>& trialE)
     {
         return BilinearWeakForm<T1,T2>(testE,trialE);
     }

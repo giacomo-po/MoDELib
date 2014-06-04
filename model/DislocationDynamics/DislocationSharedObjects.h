@@ -13,13 +13,13 @@
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/DislocationDynamics/VirtualBoundarySlipContainer.h>
-#include <model/BVP/Domain.h>
+//#include <model/BVP/Domain.h>
 
 #include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
 
 #include <model/Mesh/SimplicialMesh.h> // defines mode::cout
-#include <model/DislocationDynamics/BVPsolver.h>
+#include <model/DislocationDynamics/BVP/BVPsolver.h>
 
 
 namespace model {
@@ -31,7 +31,7 @@ namespace model {
         static size_t minSNorderForSolve;
 		static unsigned int boundary_type;
 		static unsigned int use_bvp;
-		static Domain domain;					// temporary
+//		static Domain domain;					// temporary
 		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
 		static VirtualBoundarySlipContainer<LinkType> vbsc;
         static SimplicialMesh<TypeTraits<LinkType>::dim> mesh;
@@ -47,8 +47,8 @@ namespace model {
 	template <typename LinkType>
 	unsigned int DislocationSharedObjects<LinkType>::use_bvp=0;
 	
-	template <typename LinkType>
-	Domain DislocationSharedObjects<LinkType>::domain;
+//	template <typename LinkType>
+//	Domain DislocationSharedObjects<LinkType>::domain;
     
     template <typename LinkType>
 	size_t DislocationSharedObjects<LinkType>::minSNorderForSolve=0;

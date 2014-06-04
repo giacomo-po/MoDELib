@@ -10,6 +10,9 @@
 #ifndef  model_VIRTUALBOUNDARYSLIPCONTAINER_H_
 #define  model_VIRTUALBOUNDARYSLIPCONTAINER_H_
 
+#include <stdio.h>
+#include <string>
+
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <Eigen/Dense>
 
@@ -19,13 +22,8 @@
 #include <model/Utilities/SequentialOutputFile.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 
-#include <model/BVP/Domain.h>
-
-#include <stdio.h>
-#include <string>
-
-
-namespace model {
+namespace model
+{
     
     /**************************************************************************/
     /**************************************************************************/

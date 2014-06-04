@@ -14,10 +14,10 @@
 #include <deque>
 #include <set>
 #include <assert.h>
-//#include <boost/shared_ptr.hpp>
-//#include <memory> // std::shared_ptr (c++11)
+
 #include <Eigen/Core>
 #include <Eigen/StdVector>
+
 #include <model/Utilities/StaticID.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
@@ -55,8 +55,8 @@ namespace model {
 //		typedef std::map<unsigned int, segmentMeshCollisionPair, std::less<unsigned int>,
 //		/*            */ Eigen::aligned_allocator<std::pair<const unsigned int, segmentMeshCollisionPair> > > SegmentMeshCollisionPairContainerType;
 		typedef std::deque<segmentMeshCollisionPair> SegmentMeshCollisionPairContainerType;
-		typedef  std::pair<unsigned int, segmentMeshCollisionPair> planeTraingleIntersection;
-		typedef  std::vector<planeTraingleIntersection, Eigen::aligned_allocator<planeTraingleIntersection> > planeMeshIntersectionType;
+		typedef std::pair<unsigned int, segmentMeshCollisionPair> planeTraingleIntersection;
+		typedef std::vector<planeTraingleIntersection, Eigen::aligned_allocator<planeTraingleIntersection> > planeMeshIntersectionType;
         
     private:
 		static DislocationSharedObjects<SegmentType> shared;
@@ -126,7 +126,7 @@ namespace model {
 		//! Make this const and initialize at constructor time
 		const SegmentMeshCollisionPairContainerType segmentMeshCollisionPairContainer;
 		
-		std::vector <planeMeshIntersectionType> planesMeshIntersectionContainer;         // stores the intersection lines of planes (parallel to this glide plane) with the mesh
+//		std::vector <planeMeshIntersectionType> planesMeshIntersectionContainer;         // stores the intersection lines of planes (parallel to this glide plane) with the mesh
 		
 		
 		
@@ -139,13 +139,13 @@ namespace model {
 			assert(std::fabs(planeNormal.norm()-1.0)<=DBL_EPSILON && "GLIDE PLANE NORMAL IS NOT UNIT");
 			//model::cout<<"Creating GlidePlane "<<this->sID<<" with unit plane normal: "<<planeNormal.transpose()<<" and height "<<height<<std::flush;
 			assert(this->glidePlaneMap.insert(std::make_pair((VectorDimPlusOneD()<< planeNormal, height).finished(),this)).second && "CANNOT INSERT GLIDE PLANE  IN STATIC glidePlaneMap.");
-            if (shared.boundary_type)
-            {
-                //				shared.domain.get_planeMeshIntersection(planeNormal*height,planeNormal,segmentMeshCollisionPairContainer);
-                
-				//----------- intersect the mesh with parallel planes to this glide plane -------------
-				intersectMeshWithParallelPlanes ();
-			}
+//            if (shared.boundary_type)
+//            {
+//                //				shared.domain.get_planeMeshIntersection(planeNormal*height,planeNormal,segmentMeshCollisionPairContainer);
+//                
+//				//----------- intersect the mesh with parallel planes to this glide plane -------------
+//				intersectMeshWithParallelPlanes ();
+//			}
             //model::cout<<" done"<<std::endl;
 		}
 		
@@ -162,14 +162,18 @@ namespace model {
 		GlidePlaneSharedPtrType getSharedPointer() const
         {
 			GlidePlaneSharedPtrType temp;
-			if (!SegmentContainerType::empty()){
+			if (!SegmentContainerType::empty())
+            {
 				temp=(*SegmentContainerType::begin())->pGlidePlane;
 			}
-			else{ // no segments in the container
-				if (!BoundarySegmentContainerType::empty()){
+			else
+            { // no segments in the container
+				if (!BoundarySegmentContainerType::empty())
+                {
 					temp=(*BoundarySegmentContainerType::begin())->pGlidePlane;
 				}
-				else{
+				else
+                {
 					assert(0 && "GLIDE PLANE CONTAINS NO SEGMENTS AND NO BOUNDARY SEGMENTS");
 				}
 			}
@@ -245,6 +249,8 @@ namespace model {
             }
             return temp;
         }
+        
+        /*
         
         //===========================================================================
         // function to intersect the mesh with planes parallel to the current slip plane
@@ -540,7 +546,7 @@ namespace model {
             
         }
         
-        
+        */
         
         
     };

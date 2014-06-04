@@ -29,8 +29,12 @@ namespace model
         static_assert(AreSameType<typename T1::TrialFunctionType,typename T2::TrialFunctionType>::value,"YOU ARE SUMMING TrialExpressionBase OF DIFFERENT TRIALFUNCTIONS.");
         static_assert(T1::rows==T2::rows,"YOU ARE SUMMING TrialExpressionBaseS WITH DIFFERENT NUMBER OF ROWS");
         typedef typename T1::TrialFunctionType _TrialFunctionType;
+        typedef typename TypeTraits<_TrialFunctionType>::ElementType _ElementType;
+        typedef typename TypeTraits<_TrialFunctionType>::BaryType _BaryType;
         typedef TrialBase<_TrialFunctionType> TrialBaseType;
-
+        constexpr static int dim=TypeTraits<_TrialFunctionType>::dim;
+        constexpr static int dofPerElement=TypeTraits<_TrialFunctionType>::dofPerElement;
+        
         //! first operand
         const T1 op1; // expression could be a temporary, so copy by value
         //! second operand
@@ -40,24 +44,6 @@ namespace model
         
         constexpr static int rows=T1::rows;
         
-        
-//        /**********************************************************************/
-//        TrialSum(const TrialExpressionBase<T1>& x, const TrialExpressionBase<T2>& y) :
-//        /* base initialization */ TrialBaseType(x.derived().trial()),
-//        /* init list           */ op1(x.derived()),
-//        /* init list           */ op2(y.derived())
-//        {/*!
-//          */
-//            
-//            if(&op1.trial()!=&op2.trial())
-//            {
-//                std::cout<<"&op1.trial()="<<&op1.trial()<<std::endl;
-//                std::cout<<"&op2.trial()="<<&op2.trial()<<std::endl;
-//                std::cout<<"SUMMING EXPRESSIONS OF DIFFERENT TRIAL FUNCTIONS! Exiting."<<std::endl;
-//                //std::exit(EXIT_FAILURE);
-//            }
-//        }
-
         /**********************************************************************/
         TrialSum(const T1& x, const T2& y) :
         /* base initialization */ TrialBaseType(x.trial()),
@@ -74,12 +60,10 @@ namespace model
                 //std::exit(EXIT_FAILURE);
             }
         }
-
-        
         
         /**********************************************************************/
-        Eigen::Matrix<double,rows,TypeTraits<_TrialFunctionType>::dofPerElement> sfm(const typename TypeTraits<_TrialFunctionType>::ElementType& ele,
-                                                                                     const typename TypeTraits<_TrialFunctionType>::BaryType& bary) const
+        Eigen::Matrix<double,rows,TypeTraits<_TrialFunctionType>::dofPerElement> sfm(const _ElementType& ele,
+                                                                                     const  _BaryType& bary) const
         {/*!@param[in] elem the element
           * @param[in] bary the barycentric cooridinate
           *\returns the sum of the shape-function-matrices of the operands,
@@ -89,14 +73,40 @@ namespace model
         }
         
         /**********************************************************************/
-        Eigen::Matrix<double,rows*TypeTraits<_TrialFunctionType>::dim,TypeTraits<_TrialFunctionType>::dofPerElement> sfmGrad(const typename TypeTraits<_TrialFunctionType>::ElementType& ele,
-                                                                                                                             const typename TypeTraits<_TrialFunctionType>::BaryType& bary) const
+        Eigen::Matrix<double,rows*dim,dofPerElement> sfmGrad(const _ElementType& ele,
+                                                             const  _BaryType& bary) const
         {/*!@param[in] elem the element
           * @param[in] bary the barycentric cooridinate
           *\returns the sum of gradients of the shape-function-matrices of the
           * operands, evaluated at bary on ele.
           */
             return op1.sfmGrad(ele,bary)+op2.sfmGrad(ele,bary);
+        }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,rows,1> operator()(const _ElementType& ele, const _BaryType& bary) const
+        {/*!@param[in] ele the element
+          * @param[in] bary the vector of barycentric coordinates
+          * \returns the value of the Derived expression at bary.
+          */
+            return sfm(ele,bary)*this->trial().dofs(ele);
+        }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,rows,1> operator()(const Eigen::Matrix<double,dim,1>& P,
+                                                const Simplex<dim,dim>* guess) const
+        {/*!@param[in] P the position vector
+          * @param[in] guess the Simplex where the search starts
+          * \returns the value of the Derived expression at P.
+          */
+            const std::pair<bool,const _ElementType*> temp=this->trial().fe.searchWithGuess(P,guess);
+            //            return (temp.first? sfm(*(temp.second),temp.second->simplex.pos2bary(P))*this->trial().dofs(*(temp.second)) : Eigen::Matrix<double,rows,1>::Zero());
+            Eigen::Matrix<double,rows,1> val(Eigen::Matrix<double,rows,1>::Zero());
+            if(temp.first)
+            {
+                val=sfm(*(temp.second),temp.second->simplex.pos2bary(P))*this->trial().dofs(*(temp.second));
+            }
+            return val;
         }
         
     };
@@ -111,25 +121,3 @@ namespace model
     
 }	// close namespace
 #endif
-
-
-//    /**************************************************************************/
-//    template <int N, typename FE, typename T2>
-//    TrialSum<TrialExpression<TrialFunction<N,FE> >,T2> operator+(const TrialFunction<N,FE>& op1,const TrialExpressionBase<T2>& op2)
-//    {
-//        return TrialSum<TrialExpression<TrialFunction<N,FE> >,T2>(TrialExpression<TrialFunction<N,FE> >(op1),op2);
-//    }
-
-//    /**************************************************************************/
-//    template <int N, typename FE, typename T2>
-//    TrialSum<TrialExpression<TrialFunction<N,FE> >,T2> operator+(const TrialExpressionBase<T2>& op2,const TrialFunction<N,FE>& op1)
-//    {
-//        return TrialSum<TrialExpression<TrialFunction<N,FE> >,T2>(TrialExpression<TrialFunction<N,FE> >(op1),op2);
-//    }
-
-//    /**************************************************************************/
-//    template <int N1, typename FE1, int N2, typename FE2>
-//    TrialSum<TrialExpression<TrialFunction<N1,FE1> >,TrialExpression<TrialFunction<N2,FE2> > > operator+(const TrialFunction<N1,FE1>& op1, const TrialFunction<N2,FE2>& op2)
-//    {
-//        return TrialSum<TrialExpression<TrialFunction<N1,FE1> >,TrialExpression<TrialFunction<N2,FE2> > >(TrialExpression<TrialFunction<N1,FE1> >(op1),TrialExpression<TrialFunction<N2,FE2> >(op2));
-//    }

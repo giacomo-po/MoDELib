@@ -20,7 +20,7 @@ outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=0;
+outputPKforce=1;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 
@@ -43,9 +43,9 @@ temperature = 300.0;
 
 ######################################
 # Set the remote external stress (a uniform stress felt by dislocations)
-externalStress = 0.0 0.0 0.01
+externalStress = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.01 0.0 0.0;
+		 0.0 0.0 0.0;
 
 ######################################
 # STRESS FIELD
@@ -86,7 +86,7 @@ meshID=0;
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
-use_bvp = 1;
+use_bvp = 10;
 
 ######################################
 # Enable/disable cross-slip

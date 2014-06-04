@@ -17,7 +17,7 @@
 #include <Eigen/Dense>
 #include <model/Network/Operations/EdgeFinder.h>
 #include <model/Math/GramSchmidt.h>
-#include <model/BVP/SearchData.h>
+//#include <model/BVP/SearchData.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/MPI/MPIcout.h>
 #include <model/Mesh/Simplex.h>

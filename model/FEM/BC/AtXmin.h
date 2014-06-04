@@ -6,42 +6,34 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_FixMin_H_
-#define model_FixMin_H_
+#ifndef model_AtxMin_H_
+#define model_AtxMin_H_
 
 #include <Eigen/Dense>
 
 namespace model
 {
     template <int i>
-    class FixMin
+    class AtXmin
     {
         
-        const double val;
-        double min;
+        const double min;
         
     public:
         
         /**************************************/
         template <typename FiniteElementType>
-        FixMin(const FiniteElementType& fe) :
-        val(0.0),
-        min(DBL_MAX)
+        AtXmin(const FiniteElementType& fe) :
+        min(fe.xMin()(i))
         {
-            for (int n=0;n<fe.nodeSize();++n)
-            {
-                if (fe.node(n).p0(i)<min)
-                {
-                    min=fe.node(n).p0(i);
-                }
-            }
+
         }
         
         /**************************************/
         template <typename NodeType>
-        std::pair<bool,double> operator()(const NodeType& node) const
+        bool operator()(const NodeType& node) const
         {
-            return std::pair<bool,double>(node.p0(i)==min,val);
+            return std::abs(node.p0(i)-min)<FLT_EPSILON;
             
         }
         

@@ -334,9 +334,16 @@ namespace model {
         {/*!@param[in] k the k-th quandrature point
           *\returns the PK force at the k-th quandrature point
           */
-            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
+//            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
+            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress()+shared.externalStress+bvpStress(quadratureParticleContainer[k]->P))*Burgers).cross(rlgauss.col(k))
 			/*                   */ : ((quadratureParticleContainer[k]->stress()+shared.externalStress)*Burgers).cross(rlgauss.col(k));
             
+        }
+        
+        /**********************************************************************/
+        MatrixDim bvpStress(const VectorDim& P) const
+        {
+            return shared.vbsc.stress(P)+shared.bvpSolver.stress(P,this->source->includingSimplex());
         }
 		
 		/**********************************************************************/

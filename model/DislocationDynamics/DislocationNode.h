@@ -1,10 +1,10 @@
 /* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
- * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
- * Copyright (C) 2011 by Benjamin Ramirez <ramirezbrf@gmail.com>.
- * Copyright (C) 2011 by Tamer Crsoby     <tamercrosby@gmail.com>,
- * Copyright (C) 2011 by Can Erel         <canerel55@gmail.com>,
- * Copyright (C) 2011 by Mamdouh Mohamed  <msm07d@fsu.edu>
+ * Copyright (C) 2011 by Giacomo Po         <gpo@ucla.edu>.
+ * Copyright (C) 2011 by Benjamin Ramirez   <ramirezbrf@gmail.com>.
+ * Copyright (C) 2011 by Tamer Crsoby       <tamercrosby@gmail.com>,
+ * Copyright (C) 2011 by Can Erel           <canerel55@gmail.com>,
+ * Copyright (C) 2011 by Mamdouh Mohamed    <msm07d@fsu.edu>
  *
  * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
@@ -22,11 +22,9 @@
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/Geometry/Splines/SplineNodeBase.h>
-//#include <model/BVP/SearchData.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/Math/GramSchmidt.h>
 #include <model/DislocationDynamics/DislocationEnergyRules.h>
-//#include <model/BVP/Tetrahedron.h>
 #include <model/Mesh/Simplex.h>
 
 namespace model {
@@ -59,20 +57,20 @@ namespace model {
 		
 		DislocationSharedObjects<LinkType> shared;
 		
-        //!
+        //! A pointer to the Simplex containing *this
         const Simplex<dim,dim>* p_Simplex;
         
-        //! The mesh ID containing this
-		int  currentMeshID;
-		
 		//! The std::vector containing the glidePlaneNormal(s) of the connected DislocationSegment(s)
 		VectorOfNormalsType planenormals;
 		
+        //! The current velocity vector of *this DislocationNode
         VectorDofType velocity;
+        
+        //! The previous velocity vector of *this DislocationNode
 		VectorDofType vOld;
         
+        //! The normal unit vector of the boundary on which *this DislocationNode is moving on
         VectorDim boundaryNormal;
-        //        int nodeMeshLocation; // 1=inside
 
         
         /**********************************************************************/
@@ -124,10 +122,6 @@ namespace model {
 		
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-		
-        
-		MatrixDim bvpStress;
-		
         
 		/* Constructor ********************************************************/
 		DislocationNode(const VectorDofType& Qin) :
@@ -135,8 +129,7 @@ namespace model {
         /* init list        */ p_Simplex(get_includingSimplex((const Simplex<dim,dim>*) NULL)),
         /* init list        */ velocity(VectorDofType::Zero()),
 		/* init list        */ vOld(VectorDofType::Zero()),
-        /* init list        */ boundaryNormal(get_boundaryNormal()),
-		/* init list        */ bvpStress(MatrixDim::Zero())
+        /* init list        */ boundaryNormal(get_boundaryNormal())
         {/*! Constructor from DOF
           */
 		}
@@ -147,8 +140,7 @@ namespace model {
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-        /* init list        */ boundaryNormal(get_boundaryNormal()),
-		/* init list        */ bvpStress(MatrixDim::Zero()) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        /* init list        */ boundaryNormal(get_boundaryNormal())
         {/*! Constructor from ExpandingEdge and parameter along link
           */
 		}
@@ -159,8 +151,7 @@ namespace model {
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-        /* init list        */ boundaryNormal(get_boundaryNormal()),
-		/* init list        */ bvpStress(MatrixDim::Zero()) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        /* init list        */ boundaryNormal(get_boundaryNormal())
         {/*! Constructor from ExpandingEdge and DOF
           */
 		}
@@ -171,8 +162,7 @@ namespace model {
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity(Vin),
 		/* init list        */ vOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list        */ boundaryNormal(get_boundaryNormal()),
-		/* init list        */ bvpStress(MatrixDim::Zero()) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+		/* init list        */ boundaryNormal(get_boundaryNormal())
         {
 
 		}
@@ -211,12 +201,6 @@ namespace model {
             make_planeNormals();
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
             NodeBaseType::make_T();
-        }
-		
-        /**********************************************************************/
-		const int& meshID() const
-        {
-            return currentMeshID;
         }
         
         /**********************************************************************/
@@ -263,7 +247,6 @@ namespace model {
 			return (this->is_simple() && constraintNormals().size()==1);
 		}
 		
-		
         /**********************************************************************/
 		void make_projectionMatrix()
         {
@@ -276,25 +259,6 @@ namespace model {
 				this->prjM*=( I-GS[k]*GS[k].transpose() );
 			}
 		}
-		
-        /**********************************************************************/
-		void updateBvpStress() __attribute__ ((deprecated))
-        {
-			bvpStress=shared.domain.tetContainer[currentMeshID].getStress(); // stress is constant in the element because of Linear Shape Functions
-		}
-		
-		
-        /**********************************************************************/
-		VectorDim deformedPosition() const __attribute__ ((deprecated))
-        {
-			VectorDim temp(this->get_P());
-			Eigen::Matrix<double,4,1> barycoord(shared.domain.tetContainer[currentMeshID].getBarycentric(this->get_P()));
-			for(int k=0;k<4;++k){
-				temp+=shared.domain.tetContainer[currentMeshID].eleNodes[0]->u*barycoord(k);
-			}
-			return temp;
-		}
-		
 		
         /**********************************************************************/
 		void set_V(const VectorDofType& vNew)
@@ -323,8 +287,6 @@ namespace model {
 			return velocity.template segment<dim>(0).dot( vOld.template segment<dim>(0) ) < 0.0;
 		}
         
-		
-		
         /**********************************************************************/
 		void move(const double & dt, const double & dt_old)
         {
@@ -346,32 +308,21 @@ namespace model {
                     }
                     else // new position is outside mesh
                     {
-//                        std::cout<<"DislocationNode "<<this->sID<<", outside Simplex "<<p_Simplex->xID<<std::endl;
-                        
                         
                         int faceID;
                         const Eigen::Matrix<double,dim+1,1> baryNew(p_Simplex->pos2bary(this->get_P()+dX));
                         const double baryMin(baryNew.minCoeff(&faceID)); // this also finds faceID
                         assert(p_Simplex->child(faceID).isBoundarySimplex() && "FACE MUST BE A BOUNDARY FACE");
 
-                        
                         if(baryMin>-FLT_EPSILON) // DislocationNode is sligtly outside the boundary
                         {
-//                            std::cout<<"case 1"<<std::endl;
-                            
                             this->set(this->get_P()+dX); // move node
                             boundaryNormal=get_boundaryNormal(); // check if node is now on a boundary
                         }
                         else // Node is completely outside the boundary. We bring it back to the boundary.
                         {
-//                            std::cout<<"case 2"<<std::endl;
                             const Eigen::Matrix<double,dim+1,1> baryOld(p_Simplex->pos2bary(this->get_P()));
                             const Eigen::Matrix<double,dim+1,1> faceInt(p_Simplex->faceLineIntersection(baryOld,baryNew,faceID));
-
-//                            std::cout<<"baryOld="<<baryOld.transpose()<<std::endl;
-//                            std::cout<<"baryNew="<<baryNew.transpose()<<std::endl;
-//                            std::cout<<"faceInt="<<faceInt.transpose()<<std::endl;
-
                             dX=p_Simplex->bary2pos(faceInt)-this->get_P();
                             this->set(this->get_P()+dX);
                                 boundaryNormal=p_Simplex->nda.col(faceID).normalized();
@@ -393,7 +344,8 @@ namespace model {
         
         /**********************************************************************/
         const Simplex<dim,dim>* includingSimplex() const
-        {
+        {/*!\returns A pointer to the const Simplex imcluding *this DislocationNode
+          */
             return p_Simplex;
         }
         
@@ -404,14 +356,12 @@ namespace model {
         }
         
         /**********************************************************************/
-//        const int& meshLocation() const
         int meshLocation() const
         {/*!\returns the position of *this relative to the bonudary:
           * 1 = inside mesh
           * 2 = on mesh boundary
           */
             return (boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh);
-            //            return nodeMeshLocation;
         }
         
         /* operator<< *********************************************************/
@@ -433,77 +383,32 @@ namespace model {
 			return os;
         }
 		
-	}; // close DislocationNode
+	};
 	
-} // close namespace model
+} // close namespace
 #endif
 
 
-
-
-
-//					VectorDim newP, dir;
-//					if (nodeMeshLocation){ // inside=1 or boundary=2
-//						newP=this->get_P()+dX;
-//						dir=dX;
-//					}
-//					else{ // outside=0
-//						newP=this->get_P();
-//						dir=dX;
-//					}
-//
-//
-//					model::SearchData<dim> SD(newP,dir,currentMeshID,nodeMeshLocation,triIndex,boundaryNormal);
-//                    //					model::SearchData<dim> SD(newP,dir,currentMeshID,nodeMeshLocation,triIndex); // OLD
-//
-//					shared.domain.SearchMovingNode(SD);
-//
-//
-//					currentMeshID=SD.newMeshID;
-//					nodeMeshLocation=SD.nodeMeshLocation;
-//
-//
-//					switch (SD.nodeMeshLocation)
-//                    {
-//						case onMeshBoundary:
-//							boundaryNormal=SD.outwardFaceNormal;
-//							assert(dir.cross(SD.projectedP-this->get_P()).norm()<FLT_EPSILON && "CORRECTION NOT ALIGNED WITH DIR");
-//							velocity=(SD.projectedP-this->get_P())/dt;
-//							this->set(SD.projectedP);
-//							triIndex=SD.triIndex;
-//							break;
-//						case insideMesh:
-//							boundaryNormal=VectorDim::Zero();
-//							this->set(this->get_nodeDof()+velocity*dt);
-//							break;
-//						default:
-//							assert(0);
-//							break;
-//					}
-//					make_projectionMatrix();
-
-
-
-//		/* initMeshLocation ***************************************************/
-//		void initMeshLocation() __attribute__ ((deprecated))
+//        /**********************************************************************/
+//		const int& meshID() const
 //        {
-//            int temp=insideMesh;
-//			if (shared.boundary_type)
-//            {
-//				model::SearchData<dim> SD(this->get_P());
-//				shared.domain.findIncludingTet(SD);
-//
-//				nodeMeshLocation = SD.nodeMeshLocation;
-//				currentMeshID = SD.newMeshID;
-//
-//				if (SD.nodeMeshLocation == onMeshBoundary){
-//					boundaryNormal=SD.outwardFaceNormal;
-//					triIndex=SD.triIndex;
-//				}
-//				if (SD.nodeMeshLocation == outsideMesh) {
-//                    std::cout<< "NODE "<<this->sID<<" IS OUTSIDE DOMAIN AT " << this->get_P().transpose() << std::endl;
-//                    assert(0 && "DISLOCATION NODE CREATED OUTSIDE DOMAIN.");
-//                }
+//            return currentMeshID;
+//        }
+
+//        /**********************************************************************/
+//		void updateBvpStress() __attribute__ ((deprecated))
+//        {
+//			bvpStress=shared.domain.tetContainer[currentMeshID].getStress(); // stress is constant in the element because of Linear Shape Functions
+//		}
+
+
+//        /**********************************************************************/
+//		VectorDim deformedPosition() const __attribute__ ((deprecated))
+//        {
+//			VectorDim temp(this->get_P());
+//			Eigen::Matrix<double,4,1> barycoord(shared.domain.tetContainer[currentMeshID].getBarycentric(this->get_P()));
+//			for(int k=0;k<4;++k){
+//				temp+=shared.domain.tetContainer[currentMeshID].eleNodes[0]->u*barycoord(k);
 //			}
-//
+//			return temp;
 //		}

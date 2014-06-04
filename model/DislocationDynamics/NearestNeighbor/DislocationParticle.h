@@ -10,14 +10,15 @@
 #define _MODEL_DislocationParticle_H_
 
 #include <Eigen/Dense>
+
 #include <model/SpaceDecomposition/SpatialCellParticle.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
 #include <model/DislocationDynamics/NearestNeighbor/DislocationEnergy.h>
-
-
 #include <model/ParticleInteraction/PointSource.h>
 #include <model/ParticleInteraction/FieldPoint.h>
+#include <model/Mesh/SimplicialMesh.h>
+
 
 
 namespace model {
@@ -54,8 +55,7 @@ namespace model {
 
         
         
-		//const int k;			// *this is the k-th quadrature point on the segment
-//		const VectorDimD  P;
+		//! The tangent vector of the parent DislocationSegment at this point
 		const VectorDimD  T;
 		
 		//! A const reference to the Burgers vector of the parent DislocationSegment
@@ -158,13 +158,23 @@ namespace model {
 
 		}
 //
-        /********************************************************/
-		typename StressField::MatrixType stress(const typename StressField::MatrixType& sourceBvpStress, const typename StressField::MatrixType& sinkBvpStress) const {
-			/*! The total stress field on this DislocationQuadratureParticle
-			 */
-			return stress()+sourceBvpStress*(1.0-quadAbscissa)+sinkBvpStress*quadAbscissa;
-		}
-	
+//        /********************************************************/
+//		typename StressField::MatrixType stress(const typename StressField::MatrixType& sourceBvpStress, const typename StressField::MatrixType& sinkBvpStress) const
+//        {
+//			/*! The total stress field on this DislocationQuadratureParticle
+//			 */
+//			return stress()+sourceBvpStress*(1.0-quadAbscissa)+sinkBvpStress*quadAbscissa;
+//		}
+
+        
+//        /********************************************************/
+//		typename StressField::MatrixType stress(const SimplicialMesh<_dim>& sourceBvpStress, const typename StressField::MatrixType& sinkBvpStress) const
+//        {
+//			/*! The total stress field on this DislocationQuadratureParticle
+//			 */
+//			return stress()+sourceBvpStress*(1.0-quadAbscissa)+sinkBvpStress*quadAbscissa;
+//		}
+
 	};
     
     /**************************************************************************/

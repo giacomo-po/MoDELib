@@ -11,7 +11,9 @@
 
 #include <time.h>       /* clock_t, clock, CLOCKS_PER_SEC */
 
-#include <Eigen/SparseCore>
+//#include <Eigen/SparseCore>
+#include <Eigen/Sparse>
+
 
 
 #include <model/Utilities/SequentialOutputFile.h>
@@ -61,7 +63,7 @@ namespace model
             
             if(lhs.gSize!=rhs.gSize)
             {
-                std::cout<<"LHS and RHS OF WEAKPROBLEM HAVE DIFERENT GLOBAL SIZE! Exiting."<<std::endl;
+                std::cout<<"LHS and RHS OF WEAKPROBLEM HAVE DIFERENT GLOBAL SIZE. Exiting."<<std::endl;
                 std::exit(EXIT_FAILURE);
             }
             
