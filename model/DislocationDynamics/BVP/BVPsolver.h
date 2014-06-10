@@ -30,7 +30,10 @@ namespace model
         typedef Eigen::Matrix<double,6,6> CmatrixType;
         typedef Constant<CmatrixType,6,6> CconstantType;
         typedef TrialProd<CconstantType,TrialDefType> TrialStressType;
-        typedef BilinearWeakForm<TrialDefType,TrialStressType> BilinearWeakFormType;
+//        typedef BilinearWeakForm<TrialDefType,TrialStressType> BilinearWeakFormType;
+        typedef IntegrationDomain<FiniteElementType,0,4,GaussLegendre> IntegrationDomainType;
+
+        
         //        SimplicialMesh<dim> mesh;
         
         const SimplicialMesh<dim>& mesh;
@@ -43,7 +46,7 @@ namespace model
         std::unique_ptr<TrialGradType>  b;      // displacement gradient *b=[u11 u12 u13 u21 u22 u23 u31 u32 u33]'
         std::unique_ptr<TrialDefType>  e;       // strain *e=[e11 e22 e33 e12 e23 e13]'
         std::unique_ptr<TrialStressType> s;     // stress *s=[s11 s22 s33 s12 s23 s13]'
-        std::unique_ptr<BilinearWeakFormType> _bWF;
+        IntegrationDomainType dV;
         
         
         /**********************************************************************/
@@ -109,11 +112,13 @@ namespace model
             e  = std::move(std::unique_ptr<TrialDefType>(new TrialDefType(def(*u))));
             C=get_C(); // Material<Isotropic>  may have changed
             s  = std::move(std::unique_ptr<TrialStressType>(new TrialStressType(C**e)));
-            _bWF = std::move(std::unique_ptr<BilinearWeakFormType>(new BilinearWeakFormType(e->test(),*s)));
+//            _bWF = std::move(std::unique_ptr<BilinearWeakFormType>(new BilinearWeakFormType(e->test(),*s)));
             
-            ElementaryDomain<3,4,GaussLegendre>  dV;
+            dV = fe->template domain<EntireDomain,4,GaussLegendre>();
             
-            (*_bWF)*dV;
+//            auto dV=fe->domain<EntireDomain,4,GaussLegendre>();
+            
+//            (*_bWF)*dV;
             
         }
         
@@ -127,6 +132,9 @@ namespace model
             const DislocationNegativeStressType ds(DN);
             
             //typedef LinearWeakForm<TrialFunctionType,DislocationNegativeStressType> LinearWeakFormType;
+
+            auto bWF=(e->test(),*s)*dV;
+
             
             //LinearWeakFormType lwf(u->test(),ds);
             auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
@@ -135,7 +143,7 @@ namespace model
             auto lWF=(u->test(),ds)*ndA;
             
             // Create the WeakProblem
-            auto wp(*_bWF=lWF); //  weak problem
+            auto wp(bWF=lWF); //  weak problem
             
             //wp.assembleWithLagrangeConstraints();
             wp.assembleWithPenaltyConstraints(1000.0);

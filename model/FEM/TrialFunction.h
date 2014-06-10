@@ -21,8 +21,8 @@
 #include <model/FEM/TrialOperators/TrialProd.h>
 #include <model/FEM/TrialOperators/TrialGrad.h>
 #include <model/FEM/TrialOperators/TrialDef.h>
-#include <model/FEM/DirichletCondition.h>
-#include <model/FEM/Boundary/NodeList.h>
+//#include <model/FEM/DirichletCondition.h>
+#include <model/FEM/Boundaries/NodeList.h>
 
 
 
@@ -31,14 +31,7 @@ namespace model
     
 	template<int _nComponents, typename _FiniteElementType>
 	class TrialFunction : public TrialExpressionBase<TrialFunction<_nComponents,_FiniteElementType> >
-//    ,
-//    /*                 */ private std::map<size_t,std::list<const typename _FiniteElementType::NodeType* > >
     {
-        
-//        typedef std::list<const typename _FiniteElementType::NodeType* > NodeListType;
-//        typedef std::map<size_t,NodeListType> NodeMapType;
-//        
-//        size_t incrementalNodeListID;
         
     public:
         typedef _FiniteElementType FiniteElementType;
@@ -88,14 +81,6 @@ namespace model
           */
             return fe.elementSize();
         }
-        
-//        /**********************************************************************/
-//        const ElementType& element(const size_t& n) const // THIS IS TOO SLOW TO BE USED
-//        {/*!@param[in] n the node ID
-//          * \returns a const reference to the n-th node in the FiniteElement
-//          */
-//            return fe.element(n);
-//        }
         
         //        /**********************************************************************/
         //        ElementType& element(const size_t& n)
@@ -159,66 +144,6 @@ namespace model
             return ele.template sfmDef<TrialFunctionType>(bary);
         }
         
-//        /**********************************************************************/
-//        template<typename Condition>
-//        void add DirichletCondition(const Condition& dc, const int& dof)
-//        {/*!@param[in] dc the Dirichlet condition
-//          * @param[in] the nodal dof to be constrained
-//          */
-//            
-//            assert(dof>=0 && "dof MUST BE >=0");
-//            assert(dof<dofPerNode && "dof MUST BE < dofPerNode");
-//            
-//            for(typename NodeContainerType::const_iterator nIter=fe.nodeBegin();nIter!=fe.nodeEnd();++nIter)
-//            {
-//                std::pair<bool,double> temp(dc(*nIter));
-//                if(temp.first) // condition applies o current node
-//                {
-//                    dcContainer.emplace_back(dofPerNode*nIter->gID+dof,temp.second);
-//                }
-//            }
-//            
-//        }
-
-//        /**********************************************************************/
-//        template<typename Condition>
-//        void add DirichletCondition(const size_t& nodeListID, const int& dof)
-//        {/*!@param[in] dc the Dirichlet condition
-//          * @param[in] the nodal dof to be constrained
-//          */
-//            
-//            assert(dof>=0 && "dof MUST BE >=0");
-//            assert(dof<dofPerNode && "dof MUST BE < dofPerNode");
-//            
-//            
-//            const typename FiniteElementType::NodeListType& nodeList(fe.nodeList(nodeListID));
-//            
-//            for(typename FiniteElementType::NodeListType::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
-//            {
-//                    dcContainer.emplace_back(dofPerNode*(*nIter)->gID+dof,Condition::at(**nIter));
-//            }
-//            
-//        }
-
-//        /**********************************************************************/
-//        template<typename Condition>
-//        void addDirichletCondition(const Condition& cond, const size_t& nodeListID, const int& dof)
-//        {/*!@param[in] dc the Dirichlet condition
-//          * @param[in] the nodal dof to be constrained
-//          */
-//            
-//            assert(dof>=0 && "dof MUST BE >=0");
-//            assert(dof<dofPerNode && "dof MUST BE < dofPerNode");
-//            
-//            // Create a reference to the node list nodeListID (stored in fe)
-//            const typename FiniteElementType::NodeListType& nodeList(fe.nodeList(nodeListID));
-//            
-//            for(typename FiniteElementType::NodeListType::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
-//            {
-//                dcContainer.emplace_back(dofPerNode*(*nIter)->gID+dof,cond.at(**nIter));
-//            }
-//        }
-        
         /**********************************************************************/
         template<typename Condition>
         void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList, const int& dof)
@@ -276,10 +201,7 @@ namespace model
             }
             return val;
         }
-        
 
-        
-        
     };
     
 }	// close namespace

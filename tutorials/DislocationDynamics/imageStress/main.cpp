@@ -10,9 +10,9 @@
 
 //#define customUserOutputs "./myOutputs.h" // declare the custom output file
 #include <model/DislocationDynamics/DislocationNetwork.h>
-#include <model/FEM/BC/LowerCorner.h>
-#include <model/FEM/BC/OnMaxAxis.h>
-#include <model/FEM/BC/Fix.h>
+#include <model/FEM/Boundaries/LowerCorner.h>
+#include <model/FEM/Boundaries/OnMaxAxis.h>
+#include <model/FEM/BoundaryConditions/Fix.h>
 
 
 using namespace model;
@@ -27,19 +27,19 @@ int main (int argc, char* argv[])
     {
         Fix fix;
         // Set up boundary conditions
-        const size_t id0=DN.shared.bvpSolver.finiteElement().createNodeList<OnMaxAxis<0>>();
-        DN.shared.bvpSolver.displacement().addDirechletCondition(fix,id0,1);
+        auto nodeList_0=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<0>>();
+        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_0,1);
         
-        const size_t id1=DN.shared.bvpSolver.finiteElement().createNodeList<OnMaxAxis<1>>();
-        DN.shared.bvpSolver.displacement().addDirechletCondition(fix,id1,2);
+        auto nodeList_1=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<1>>();
+        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_1,2);
         
-        const size_t id2=DN.shared.bvpSolver.finiteElement().createNodeList<OnMaxAxis<2>>();
-        DN.shared.bvpSolver.displacement().addDirechletCondition(fix,id2,0);
+        auto nodeList_2=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<2>>();
+        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_2,0);
         
-        const size_t id3=DN.shared.bvpSolver.finiteElement().createNodeList<LowerCorner>();
-        DN.shared.bvpSolver.displacement().addDirechletCondition(fix,id3,0);
-        DN.shared.bvpSolver.displacement().addDirechletCondition(fix,id3,1);
-        DN.shared.bvpSolver.displacement().addDirechletCondition(fix,id3,2);
+        auto nodeList_3=DN.shared.bvpSolver.finiteElement().getNodeList<LowerCorner>();
+        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,0);
+        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,1);
+        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,2);
     }
     // Run time steps
     DN.runSteps();

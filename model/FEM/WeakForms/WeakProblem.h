@@ -21,9 +21,9 @@
 
 #include <model/Math/MINRES.h>
 
-
-//#include <Eigen/PardisoSupport>
-
+#ifdef _MODEL_PARDISO_SOLVER_
+#include <Eigen/PardisoSupport>
+#endif
 
 
 
@@ -46,7 +46,7 @@ namespace model
         int assembleCase;
         
         double maxAbsValue;
-
+        
         
     public:
         const size_t gSize;
@@ -70,11 +70,11 @@ namespace model
             
             
             
-//            if(lhs.gSize!=rhs.gSize())
-//            {
-//                std::cout<<"LHS and RHS OF WEAKPROBLEM HAVE DIFERENT GLOBAL SIZE. Exiting."<<std::endl;
-//                std::exit(EXIT_FAILURE);
-//            }
+            //            if(lhs.gSize!=rhs.gSize())
+            //            {
+            //                std::cout<<"LHS and RHS OF WEAKPROBLEM HAVE DIFERENT GLOBAL SIZE. Exiting."<<std::endl;
+            //                std::exit(EXIT_FAILURE);
+            //            }
             
         }
         
@@ -85,11 +85,11 @@ namespace model
             assembleCase=NO_CONSTRAINTS;
             
             
-//            const double t0(clock());
-//            std::cout<<"    Assembling global matrix..."<<std::flush;
-
+            //            const double t0(clock());
+            //            std::cout<<"    Assembling global matrix..."<<std::flush;
+            
             const auto t0= std::chrono::system_clock::now();
-
+            
             maxAbsValue=0.0;
             std::vector<Eigen::Triplet<double> > globalTriplets(lhs.assembleOnDomain(maxAbsValue));
             // Create sparse stiffness matrix from global triplets
@@ -102,11 +102,11 @@ namespace model
             
             // Resize b
             b=rhs.globalVector();
-            x.resize(gSize);
+            x.setZero(gSize);
             
-
             
-//            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            
+            //            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         }
         
         
@@ -118,12 +118,12 @@ namespace model
             assembleCase=PENALTY;
             
             const double K(pf*maxAbsValue);
-            const size_t cSize(lhs.trialExp.trial().dcContainer.size());
+            const size_t cSize(lhs.trialExpr.trial().dcContainer.size());
             for (int c=0;c<cSize;++c)
             {
-                A.coeffRef(lhs.trialExp.trial().dcContainer[c].first,lhs.trialExp.trial().dcContainer[c].first) += K;
-                b(lhs.trialExp.trial().dcContainer[c].first) += K*lhs.trialExp.trial().dcContainer[c].second;
-                x(lhs.trialExp.trial().dcContainer[c].first)=lhs.trialExp.trial().dcContainer[c].second;
+                A.coeffRef(lhs.trialExpr.trial().dcContainer[c].first,lhs.trialExpr.trial().dcContainer[c].first) += K;
+                b(lhs.trialExpr.trial().dcContainer[c].first) += K*lhs.trialExpr.trial().dcContainer[c].second;
+                //          x(lhs.trialExpr.trial().dcContainer[c].first)=lhs.trialExpr.trial().dcContainer[c].second;
             }
             A.makeCompressed();
         }
@@ -132,7 +132,7 @@ namespace model
         void assembleWithLagrangeConstraints()
         {
             std::cout<<"Assembling global constrained matrix..."<<std::endl;
-
+            
             assembleCase=LAGRANGE;
             
             auto t0= std::chrono::system_clock::now();
@@ -143,16 +143,12 @@ namespace model
             if(cSize>0)
             {
                 std::cout<<"    creating triplets..."<<std::flush;
-                // Copy lhs.globalTriplets into tempTriplets
-                //                std::vector<Eigen::Triplet<double> > tempTriplets(lhs.globalTriplets);
-//                std::vector<Eigen::Triplet<double> > tempTriplets;
                 maxAbsValue=0.0;
                 std::vector<Eigen::Triplet<double> > globalTriplets(lhs.assembleOnDomain(maxAbsValue));
-
+                
                 // Compute number of constraints, and reserve space in tempTriplets
                 globalTriplets.reserve(globalTriplets.size()+2*cSize);
                 
-//                tempTriplets=lhs.globalTriplets;
                 
                 // Resize b and x
                 b.setZero(gSize+cSize);
@@ -161,8 +157,6 @@ namespace model
                 
                 for (int c=0;c<cSize;++c)
                 {
-                    //                    tempTriplets.emplace_back(gSize+c,lhs.trialExp.tf.dcContainer[c].first,1.0);
-                    //                    tempTriplets.emplace_back(lhs.trialExp.tf.dcContainer[c].first,gSize+c,1.0);
                     
                     globalTriplets.emplace_back(gSize+c,lhs.trialExpr.trial().dcContainer[c].first,1.0);
                     globalTriplets.emplace_back(lhs.trialExpr.trial().dcContainer[c].first,gSize+c,1.0);
@@ -174,20 +168,15 @@ namespace model
                 std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                 
                 std::cout<<"    creating matrix..."<<std::flush;
-
+                
                 
                 auto t1= std::chrono::system_clock::now();
-
+                
                 // Resize A and pupulate it from tempTriplets
                 A.resize(gSize+cSize,gSize+cSize);
                 A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
                 std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
                 
-                //                std::cout<<"    pruning... ("<<A.nonZeros()<<"->";
-                //                t0=clock();
-                //                A.prune(lhs.maxAbsValue);
-                //                std::cout<<A.nonZeros()<<" non-zeros)";
-                //                std::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
             }
             else // no Dirichlet Boundary conditions
             {
@@ -200,40 +189,41 @@ namespace model
         /**********************************************************************/
         void solve(const double& tol, const bool& enforceExactConstraints=false)
         {
-            std::cout<<" (pruning: "<<A.nonZeros()<<"->";
+            std::cout<<"Pruning maxtrix: "<<A.nonZeros()<<"->";
             auto t0= std::chrono::system_clock::now();
             A.prune(maxAbsValue);
-            std::cout<<A.nonZeros()<<" non-zeros)";
-            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            std::cout<<A.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             
             
-            std::cout<<"    Solving..."<<std::flush;
             auto t1= std::chrono::system_clock::now();
             
             switch (assembleCase)
             {
                 case LAGRANGE:
                 {// A is SPsD, so use MINRES sover
+                    std::cout<<"Solving (MINRES)..."<<std::flush;
                     Eigen::MINRES<SparseMatrixType> solver(A);
                     solver.setTolerance(tol);
                     x=solver.solveWithGuess(b,x);
                     assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
-//                    MINRES<double> mRS(A,b,x,tol);
-//                    x=mRS.xMR;
                     break;
                 }
                     
                 case PENALTY:
-                {// A is SPD, so use MINRES sover
+                {// A is SPD, so use ConjugateGradient sover
                     const size_t cSize(lhs.trialExpr.trial().dcContainer.size());
-
+#ifdef _MODEL_PARDISO_SOLVER_
+                    std::cout<<"Solving (PardisoLLT)..."<<std::flush;
+                    Eigen::PardisoLLT<SparseMatrixType> solver(A);
+                    x=solver.solve(b);
+#else
+                    std::cout<<"Solving (ConjugateGradient)..."<<std::flush;
                     Eigen::ConjugateGradient<SparseMatrixType> solver(A);
                     solver.setTolerance(tol);
                     x=solver.solveWithGuess(b,x);
+#endif
                     
-//                    Eigen::PardisoLLT<SparseMatrixType> solver(A);
-//                    x=solver.solve(b);
-
+                    
                     
                     assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
                     if(enforceExactConstraints)
@@ -245,69 +235,19 @@ namespace model
                     }
                     break;
                 }
-    
+                    
                 default:
                     break;
             }
             
-//                       lhs.trialExp.trial().dofContainer=x.segment(0,lhs.gSize);
+            //                       lhs.trialExp.trial().dofContainer=x.segment(0,lhs.gSize);
             
             std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
             
             
         }
         
-        
-
-        
     };
-    
-    
-    
-    
     
 }	// close namespace
 #endif
-
-
-
-
-//        /**********************************************************************/
-//        void output() const
-//        {
-//            const double t0(clock());
-//            std::cout<<"    Outputing..."<<std::flush;
-//
-//
-//
-//
-//
-//
-//
-//            //Eigen::VectorXd x(mRS.xMR);
-//
-//            SequentialOutputFile<'F',1> fFile;
-//            fFile<<b;
-//
-//            SequentialOutputFile<'X',1> xFile;
-//            //            xFile<<x;
-//
-//            for (size_t n=0;n<lhs.trialExp.nodeSize();++n)
-//            {
-//                xFile<<x.template segment<BilinearWeakFormType::dofPerNode>(BilinearWeakFormType::dofPerNode*n).transpose()<<"\n";
-//            }
-//
-//
-//            //            SequentialOutputFile<'K',1> kFile;
-//            //            kFile<<Eigen::MatrixXd(lhs.K);
-//
-//            SequentialOutputFile<'P',1> pFile;
-//            for (size_t n=0;n<lhs.trialExp.nodeSize();++n)
-//            {
-//                pFile<<lhs.trialExp.node(n).p0.transpose()<<"\n";
-//            }
-//
-//
-//            std::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
-//
-//        }

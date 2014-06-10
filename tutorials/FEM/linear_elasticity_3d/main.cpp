@@ -4,21 +4,12 @@
 
 #include <model/FEM/FiniteElement.h>
 //#include <model/FEM/Boundary/TopBoundary.h>
-#include <model/FEM/Boundary/AtXmin.h>
-#include <model/FEM/BoundaryCondition/Fix.h>
+#include <model/FEM/Boundaries/AtXmin.h>
+#include <model/FEM/Boundaries/AtXmax.h>
+#include <model/FEM/BoundaryConditions/Fix.h>
 
 using namespace model;
 
-struct PushTop //: public DirichletCondition<TrialFunctionType>
-{
-    
-    template <typename NodeType>
-    std::pair<bool,double> operator()(const NodeType& node) const
-    {
-        return std::pair<bool,double>(node.p0(1)==0.0 && node.p0(0)<=50.0,-5);
-    }
-    
-};
 
 
 int main(int argc, char** argv)
@@ -64,29 +55,27 @@ int main(int argc, char** argv)
     auto e=def(u);              // strain e=[u1,1; u2,2; u3,3; u1,2+u2,1; u2,3+u3,12; u1,3+u3,1]
     auto s=C*e;                 // stress field s=[s11; s12; s21; s22]
 
-    
+    /**************************************************************************/
     // Create the BilinearWeakForm bWF_u=int(test(e)^T*s)dV
-    auto dV=fe.integrationDomain<EntireDomain,4,GaussLegendre>();
+    auto dV=fe.domain<EntireDomain,4,GaussLegendre>();
     auto bWF_u=(e.test(),s)*dV;
     
+    /**************************************************************************/
+    // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndA
     Eigen::Matrix<double,3,1> f;
     f<<0.0,0.0,0.1;
-    Eigen::Matrix<double,3,3> p(0.1*Eigen::Matrix<double,3,3>::Identity());
-    
-//    auto ndA=fe.externalBoundary<TopBoundary,3,GaussLegendre>();
-    //auto  dV=fe.domain<Top,3,GaussLegendre>();
-    auto ndA=fe.boundary<ExternalBoundary,3,GaussLegendre>();
-//    auto ndA=fe.boundary<TopBoundary,3,GaussLegendre>();
+    auto ndA_1=fe.boundary<AtXmax<2>,3,GaussLegendre>();
+    auto lWF_1=(u.test(),f)*ndA_1;
     
     /**************************************************************************/
-    // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndS
-    auto lWF_1=(u.test(),f)*ndA;
-    auto lWF_2=(u.test(),p)*ndA;
-    auto lWF_3=lWF_1+lWF_2;
-//
+    // Create the LinearWeakForm lWF_2=int(test(u)^T*p)ndA
+    Eigen::Matrix<double,3,3> p(0.0*Eigen::Matrix<double,3,3>::Identity());
+    auto ndA_2=fe.boundary<ExternalBoundary,3,GaussLegendre>();
+    auto lWF_2=(u.test(),p)*ndA_2;
+
     /**************************************************************************/
     // Create the WeakProblem
-    auto wp_u(bWF_u=lWF_1); //  weak problem
+    auto wp_u(bWF_u=lWF_1+lWF_2); //  weak problem
     
     /**************************************************************************/
     // Set up Dirichlet boundary conditions
@@ -94,44 +83,37 @@ int main(int argc, char** argv)
     
     // Create a list of nodes having x(0)=x0_min, where x0_min is the minimum value among the fe nodes
     auto nodeList_0(fe.getNodeList<AtXmin<0>>());
-    //    const size_t nodeListID_0=fe.createNodeList<AtXmin<0> >();
     // Fix the 0-th component of displacement for those nodes
     u.addDirichletCondition(fix,nodeList_0,0);
-//    u.addDirichletCondition(fix,nodeListID_0,0);
 
     // Create a list of nodes having x(1)=x1_min, where x1_min is the minimum value among the fe nodes
     auto nodeList_1(fe.getNodeList<AtXmin<1>>());
-    //    const size_t nodeListID_1=fe.createNodeList<AtXmin<1> >();
     // Fix the 1-st component of displacement for those nodes
     u.addDirichletCondition(fix,nodeList_1,1);
-//    u.addDirichletCondition(fix,nodeListID_1,1);
     
     // Create a list of nodes having x(2)=x2_min, where x2_min is the minimum value among the fe nodes
     auto nodeList_2(fe.getNodeList<AtXmin<2>>());
-//    const size_t nodeListID_2=fe.createNodeList<AtXmin<2> >();
     // Fix the 2-nd component of displacement for those nodes
     u.addDirichletCondition(fix,nodeList_2,2);
-//    u.addDirichletCondition(fix,nodeListID_2,2);
 
     
 
     /**************************************************************************/
     // Solve
     
-    wp_u.assembleWithLagrangeConstraints();
-//    wp_u.assembleWithPenaltyConstraints(1000.0);
+//    wp_u.assembleWithLagrangeConstraints();
+    wp_u.assembleWithPenaltyConstraints(1000.0);
     
     wp_u.solve(0.0001);
-    //wp_u.output();
     u.dofContainer=wp_u.x.segment(0,u.dofContainer.size());
 
-
+    /**************************************************************************/
+    // Output displacement and stress on external mesh faces
     SequentialOutputFile<'U',1> uFile;
     uFile<<u;
     
     SequentialOutputFile<'S',1> sFile;
     sFile<<s;
-    
     
 	return 0;
 }

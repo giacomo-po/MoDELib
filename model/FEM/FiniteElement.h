@@ -24,9 +24,9 @@
 #include <model/FEM/WeakForms/LinearWeakForm.h>
 #include <model/FEM/WeakForms/BilinearWeakForm.h>
 #include <model/FEM/Domains/IntegrationDomain.h>
-#include <model/FEM/Boundary/ExternalBoundary.h>
 #include <model/FEM/Domains/EntireDomain.h>
-#include <model/FEM/Boundary/NodeList.h>
+#include <model/FEM/Boundaries/ExternalBoundary.h>
+#include <model/FEM/Boundaries/NodeList.h>
 
 
 namespace model
@@ -43,12 +43,9 @@ namespace model
     /*                                  */ const typename _ElementType::NodeType* const, // value
     /*                                  */ CompareVectorsByComponent<double,_ElementType::dim,float> // key compare
     /*                                  */ >
-//    ,
-//    /* inherits        */ private std::map<size_t,std::list<const typename _ElementType::NodeType* > >
     {
         
     private:
-//        size_t incrementalNodeListID;
         Eigen::Matrix<double,_ElementType::dim,1> _xMin;
         Eigen::Matrix<double,_ElementType::dim,1> _xMax;
         
@@ -77,7 +74,6 @@ namespace model
         
         /**********************************************************************/
         FiniteElement(const SimplicialMesh<dim>& m) :
-//        /* init list */ incrementalNodeListID(0),
         /* init list */ _xMin(Eigen::Matrix<double,ElementType::dim,1>::Constant( DBL_MAX)),
         /* init list */ _xMax(Eigen::Matrix<double,ElementType::dim,1>::Constant(-DBL_MAX)),
         /* init list */ mesh(m)
@@ -189,41 +185,15 @@ namespace model
         template <typename BndType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
         IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> boundary() const
         {
-            return BndType::template domain<FiniteElementType,qOrder,QuadratureRule>(*this);
+            return BndType::template boundary<FiniteElementType,qOrder,QuadratureRule>(*this);
         }
         
         /**********************************************************************/
         template <typename DomainType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-        IntegrationDomain<FiniteElementType,0,qOrder,QuadratureRule> integrationDomain() const
+        IntegrationDomain<FiniteElementType,0,qOrder,QuadratureRule> domain() const
         {
             return DomainType::template domain<FiniteElementType,qOrder,QuadratureRule>(*this);
         }
-        
-//        /**********************************************************************/
-//        template <typename ListSelectorType>
-//        size_t createNodeList()
-//        {
-//            std::cout<<"Adding node list... "<<std::flush;
-//            const ListSelectorType listSelector(*this);
-//            const std::pair<typename NodeMapType::iterator,bool> ip(NodeMapType::emplace(incrementalNodeListID,NodeListType()));
-//            assert(ip.second && "NODE LIST COULD NOT BE INSERTED");
-//            for(typename NodeContainerType::const_iterator nIter=nodeBegin(); nIter!=nodeEnd();++nIter)
-//            {
-//                if(listSelector(*nIter))
-//                {
-//                    ip.first->second.emplace_back(&(*nIter));
-//                }
-//            }
-//            std::cout<<"("<<ip.first->second.size()<<" nodes)."<<std::endl;
-//            ++incrementalNodeListID; // increment key for next call
-//            return ip.first->first;
-//        }
-//        
-//        /**********************************************************************/
-//        const NodeListType& nodeList(const size_t& n) const
-//        {
-//            return NodeMapType::at(n);
-//        }
         
         /**********************************************************************/
         template <typename NodeSelectorType>
@@ -269,39 +239,7 @@ namespace model
             return std::pair<bool,const ElementType*>(temp.first,&(eIter->second));
         }
         
-
-        
     };
     
 }	// close namespace
 #endif
-
-
-
-
-//        /**********************************************************************/
-//        const ElementType& element(const size_t& n) const // THIS IS TOO SLOW TO BE USED
-//        {/*!@param[in] n the node ID
-//          * \returns a const reference to the n-th node in the FiniteElement
-//          */
-//            assert(n<elementSize() && "INDEX EXCEEDS ELEMENT-SIZE.");
-//            typename FiniteElementType::ElementContainerType::const_iterator eIter=elementBegin();
-//            std::advance(eIter,n);
-//            return eIter->second;
-//        }
-
-//        /**********************************************************************/
-//        ElementType& element(const size_t& n)
-//        {/*!@param[in] n the node ID
-//          * \returns a reference to the n-th node in the FiniteElement
-//          */
-//            return ElementContainerType::operator[](n);
-//        }
-
-
-//        /**********************************************************************/
-//        template <typename BndType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-//        ExternalBoundary<BndType,dim,qOrder,QuadratureRule> externalBoundary() const
-//        {
-//            return ExternalBoundary<BndType,dim,qOrder,QuadratureRule>(*this);
-//        }

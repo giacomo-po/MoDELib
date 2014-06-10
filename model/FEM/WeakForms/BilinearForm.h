@@ -18,12 +18,14 @@ namespace model
     
     /**************************************************************************/
 	/**************************************************************************/
+    /*! A class template representing the product between a TestExpression and
+     * a TrialExpression.
+     */
     template <typename T1,typename T2>
 	struct BilinearForm
     {
         
         static_assert(AreSameType<typename T1::TrialFunctionType,typename T2::TrialFunctionType>::value,"YOU ARE CREATING A BilinearForm OF DIFFERENT TrialFunction TYPES.");
-//        static_assert((T1::rows-T2::rows)==0,"YOU ARE CREATING A BilinearForm BETWEEN A TrialExpression AND A TestExpression WITH DIFFERENT NUMBER OF ROWS");
         static_assert(T1::rows==T2::rows,"YOU ARE CREATING A BilinearForm BETWEEN A TrialExpression AND A TestExpression WITH DIFFERENT NUMBER OF ROWS");
 
         typedef typename TestExpression<T1>::TestExpressionType TestExpressionType;

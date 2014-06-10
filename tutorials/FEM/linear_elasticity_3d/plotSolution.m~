@@ -6,6 +6,7 @@ U=load('U/U_0.txt');
 S=load('S/S_0.txt');
 
 %% Plot displacement 
+comp={'x_1','x_2','x_3','u_1','u_2','u_3'};
 figure(1)
 hold on
 axis equal
@@ -25,13 +26,15 @@ grid on
 xlabel('X_1','FontSize',14)
 ylabel('X_2','FontSize',14)
 zlabel('X_3','FontSize',14)
+title(comp{clrCol},'FontSize',14)
 
 %% Plot stress 
+comp={'x_1','x_2','x_3','\sigma_{11}','\sigma_{22}','\sigma_{33}','\sigma_{12}','\sigma_{23}','\sigma_{13}'};
 figure(2)
 hold on
 axis equal
 
-clrCol=9;
+clrCol=6;
 sMax=max(S(:,clrCol))
 sMin=min(S(:,clrCol))
 clrID=round((S(:,clrCol)-sMin)/(sMax-sMin)*size(colormap,1));
@@ -43,5 +46,5 @@ grid on
 xlabel('X_1','FontSize',14)
 ylabel('X_2','FontSize',14)
 zlabel('X_3','FontSize',14)
-
+title(comp{clrCol},'FontSize',14)
 

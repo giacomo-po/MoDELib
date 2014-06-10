@@ -20,99 +20,15 @@
 #include <model/Math/CompileTimeMath/Binomial.h>
 #include <model/Math/CompileTimeMath/CombinationWithRepetition.h>
 #include <model/Math/CompileTimeMath/StarsAndBars.h>
-//#include <model/FEM/Elements/ShapeFunctionBase.h>
 #include <model/FEM/BarycentricTraits.h>
 #include <model/FEM/Elements/IsoparametricMapping.h>
 #include <model/FEM/Elements/LagrangeNode.h>
+#include <model/FEM/Elements/MulticomponentExpander.h>
 #include <model/Mesh/Simplex.h>
 
 
 namespace model
 {
-    
-    
-    template<int c>
-    struct LagrangeDiagExpander
-    {
-        
-        template<typename T, int N>
-        static Eigen::Matrix<T,c,c*N> expandSF(const Eigen::Matrix<T,1,N>& m)
-        {
-            Eigen::Matrix<T,c,c*N> temp;
-            for (int j=0;j<N;++j)
-            {
-                temp.template block<c,c>(0,c*j).setIdentity()*=m(j);
-                //temp.template block<c,c>(0,c*j)*=m(j);
-                
-            }
-            return temp;
-        }
-        
-        template<typename T,int dim, int N>
-        static Eigen::Matrix<T,c*dim,c*N> expandSFgrad(const Eigen::Matrix<T,dim,N>& m)
-        {
-            Eigen::Matrix<T,c*dim,c*N> temp(Eigen::Matrix<T,c*dim,c*N>::Zero());
-            for (int j=0;j<N;++j)
-            {
-                for (int i=0;i<c;++i)
-                {
-                    temp.template block<dim,1>(dim*i,c*j+i).setIdentity()=m.col(j);
-                }
-            }
-            return temp;
-        }
-        
-        template<typename T, int N>
-        static Eigen::Matrix<T,(c*(c+1))/2,c*N> expandSFdef(const Eigen::Matrix<T,c,N>& m)
-        {
-            Eigen::Matrix<T,(c*(c+1))/2,c*N> temp(Eigen::Matrix<T,(c*(c+1))/2,c*N>::Zero());
-            
-            for (int n=0;n<N;++n) // loop over shape functions
-            {
-                int row=0;
-                for (int k=0;k<c;++k) // k is the index of the diagonal
-                {
-                    for (int j=0;j<c-k;++j)
-                    {
-                        // i=j+k;
-//                        SOMETHING WRONG HERE
-//                        temp(row,n*c+j+k)=0.5*m(j  ,n);
-//                        temp(row,n*c+j  )=0.5*m(j+k,n);
-                        temp(row,n*c+j+k)+=0.5*m(j  ,n);
-                        temp(row,n*c+j  )+=0.5*m(j+k,n);
-                        row++;
-                    }
-                }
-            }
-            return temp;
-        }
-        
-    };
-    
-    template<>
-    struct LagrangeDiagExpander<1>
-    {
-        
-        template<typename T, int N>
-        static const Eigen::Matrix<T,1,N>& expandSF(const Eigen::Matrix<T,1,N>& m)
-        {
-            return m;
-        }
-        
-        template<typename T,int dim, int N>
-        static const Eigen::Matrix<T,dim,N>& expandSFgrad(const Eigen::Matrix<T,dim,N>& m)
-        {
-            return m;
-        }
-        
-        template<typename T, int N>
-        static Eigen::Matrix<T,1,N>& expandSFdef(const Eigen::Matrix<T,1,N>& m)
-        {
-            return m;
-        }
-        
-        
-    };
     
     /**************************************************************************/
 	/**************************************************************************/
@@ -350,7 +266,7 @@ namespace model
           *		N_{\{I_k\}}(A_0,\ldot A_{d})=\prod_{i=0}^{d+1}\left([c_{i0},\ldots,c_{ip}]\cdot[A_i^0,\ldots,A_i^p]\right)
           *	\f]
           */
-            return LagrangeDiagExpander<TypeTraits<TrialFunctionType>::nComponents>::expandSF(sf(bary));
+            return MulticomponentExpander<TypeTraits<TrialFunctionType>::nComponents>::expandSF(sf(bary));
         }
         
         /**********************************************************************/
@@ -401,7 +317,7 @@ namespace model
           *	\f]
           */
             Eigen::Matrix<double,dim,nodesPerElement> temp(Gs(bary).transpose()*gradS(bary));
-            return LagrangeDiagExpander<TypeTraits<TrialFunctionType>::nComponents>::expandSFgrad(temp);
+            return MulticomponentExpander<TypeTraits<TrialFunctionType>::nComponents>::expandSFgrad(temp);
         }
         
         
@@ -414,7 +330,7 @@ namespace model
           */
             static_assert(TypeTraits<TrialFunctionType>::nComponents==dim,"SYMMETRIC GRADIENT (DEF) CAN ONLY BE COMPUTED IF nComponents==dim.");
             Eigen::Matrix<double,dim,nodesPerElement> temp(Gs(bary).transpose()*gradS(bary));
-            return LagrangeDiagExpander<TypeTraits<TrialFunctionType>::nComponents>::expandSFdef(temp);
+            return MulticomponentExpander<TypeTraits<TrialFunctionType>::nComponents>::expandSFdef(temp);
         }
         
         /**********************************************************************/

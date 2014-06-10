@@ -72,35 +72,7 @@ namespace model
         {
             return derived().trial().fe.nodeSize()*derived().trial().dofPerNode;
         }
-        
-//        /**********************************************************************/
-//        template <typename ElementType, typename BaryType>
-//        Eigen::Matrix<double,Eigen::Dynamic,1> operator()(const ElementType& ele, const BaryType& bary) const
-//        {/*!@param[in] ele the element
-//          * @param[in] bary the vector of barycentric coordinates
-//          * \returns the value of the Derived expression at bary.
-//          *
-//          * \todo: in order to be optimized, this function should be Derived-specific
-//          */
-//            return derived().sfm(ele,bary)*derived().trial().dofs(ele);
-//        }
-        
-        //        /**********************************************************************/
-        //        template <int dim>
-        //        Eigen::Matrix<double,Eigen::Dynamic,1> operator()(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* guess) const
-        //        {/*!@param[in] ele the element
-        //          * @param[in] bary the vector of barycentric coordinates
-        //          * \returns the value of the Derived expression at bary.
-        //          */
-        //            const std::pair<bool,const ElementType*> temp=derived().fe.searchWithGuess(P,guess);
-        //
-        //
-        //            Eigen::Matrix<double,Eigen::Dynamic,1> temp1(derived().sfm(*temp.second,bary)*derived().trial().dofs(*temp.second));
-        //
-        //            return temp.first?  : ;
-        //        }
-        
-        
+
     };
     
     
@@ -142,41 +114,3 @@ namespace model
     
 }	// close namespace
 #endif
-
-
-
-
-
-
-/**********************************************************************/
-//        void onExternalNodes() const
-/**********************************************************************/
-//		template <class T>
-//		friend T& operator << (T& os, const TrialExpressionBase<Derived>& expr)
-//        {
-////            const int dim=expr.derived().trial().dim;
-//            const int dim=3;
-//            const Eigen::Matrix<double,dim+1,dim+1> vertexBary(Eigen::Matrix<double,dim+1,dim+1>::Identity());
-////            const Eigen::MatrixXd vertexBary(Eigen::MatrixXd::Identity(dim,dim));
-//
-//
-//            for (int n=0;n<expr.derived().trial().fe.elementSize();++n)
-//            {
-//                if(expr.derived().trial().fe.element(n).isBoundaryElement())
-//                {
-//                    const std::vector<int> boundaryFaces=expr.derived().trial().fe.element(n).boundaryFaces();
-//                    for (int f=0;f<boundaryFaces.size();++f)
-//                    {
-//                        for (int v=0;v<dim+1;++v)
-//                        {
-//                        if (v!=boundaryFaces[f])
-//                        {
-//                        os<<expr.derived().trial().fe.element(n).position(vertexBary.col(v)).transpose()<<" "
-//                          <<expr(expr.derived().trial().fe.element(n),vertexBary.col(v)).transpose()<<"\n";
-//                        }
-//                        }
-//                    }
-//                }
-//            }
-//            return os;
-//        }
