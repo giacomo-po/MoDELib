@@ -11,7 +11,7 @@
 
 #include <deque>
 #include <map>
-#include <iterator>     // std::advance
+#include <list>
 
 #include <Eigen/Dense>
 
@@ -21,17 +21,17 @@
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/FEM/Elements/LagrangeElement.h>
 #include <model/FEM/TrialFunction.h>
-
 #include <model/FEM/WeakForms/LinearWeakForm.h>
 #include <model/FEM/WeakForms/BilinearWeakForm.h>
 #include <model/FEM/Domains/IntegrationDomain.h>
-#include <model/FEM/Domains/ExternalBoundary.h>
+#include <model/FEM/Boundary/ExternalBoundary.h>
+#include <model/FEM/Domains/EntireDomain.h>
+#include <model/FEM/Boundary/NodeList.h>
 
 
 namespace model
 {
 
-    
     template<typename _ElementType>
     class FiniteElement :
     /* inherits        */ public std::map<Eigen::Matrix<size_t,_ElementType::dim+1,1>, // key
@@ -42,41 +42,30 @@ namespace model
     /* inherits        */ public std::map<Eigen::Matrix<double,_ElementType::dim,1>, // key
     /*                                  */ const typename _ElementType::NodeType* const, // value
     /*                                  */ CompareVectorsByComponent<double,_ElementType::dim,float> // key compare
-    /*                                  */ >,
-    /* inherits        */ private std::map<size_t,std::list<const typename _ElementType::NodeType* > >
+    /*                                  */ >
+//    ,
+//    /* inherits        */ private std::map<size_t,std::list<const typename _ElementType::NodeType* > >
     {
         
-    public:
-        typedef std::list<const typename _ElementType::NodeType* > NodeListType;
-        typedef std::map<size_t,NodeListType> NodeMapType;
-        
     private:
-        size_t incrementalNodeListID;
-        
-        
-        
+//        size_t incrementalNodeListID;
         Eigen::Matrix<double,_ElementType::dim,1> _xMin;
         Eigen::Matrix<double,_ElementType::dim,1> _xMax;
-        
         
     public:
         
         typedef _ElementType ElementType;
         typedef FiniteElement<ElementType> FiniteElementType;
         typedef typename ElementType::NodeType NodeType;
-        
+        typedef std::list<const NodeType*> NodeListType;
+        typedef std::map<size_t,NodeListType> NodeMapType;
         constexpr static int dim=ElementType::dim;
         constexpr static int nodesPerElement=ElementType::nodesPerElement;
-        
-        
         typedef SimplicialMesh<dim> MeshType;
-//        typedef std::deque<ElementType> ElementContainerType;
-        
         typedef std::map<Eigen::Matrix<size_t,_ElementType::dim+1,1>, // key
         /*                                  */ _ElementType, // value
         /*                                  */ CompareVectorsByComponent<size_t,_ElementType::dim+1> // key compare
         /*                                  */ > ElementContainerType;
-        
         typedef std::deque<typename _ElementType::NodeType> NodeContainerType;
         typedef std::map<Eigen::Matrix<double,_ElementType::dim,1>, // key
         /*                                  */ const typename _ElementType::NodeType* const, // value
@@ -86,10 +75,9 @@ namespace model
         
         const MeshType& mesh;
         
-        
         /**********************************************************************/
         FiniteElement(const SimplicialMesh<dim>& m) :
-        /* init list */ incrementalNodeListID(0),
+//        /* init list */ incrementalNodeListID(0),
         /* init list */ _xMin(Eigen::Matrix<double,ElementType::dim,1>::Constant( DBL_MAX)),
         /* init list */ _xMax(Eigen::Matrix<double,ElementType::dim,1>::Constant(-DBL_MAX)),
         /* init list */ mesh(m)
@@ -131,7 +119,6 @@ namespace model
             std::cout<<"   # nodes: "   <<nodeSize()       <<"\n";
             std::cout<<"   # xMin: "    <<_xMin.transpose()<<"\n";
             std::cout<<"   # xMax: "    <<_xMax.transpose()<<std::endl;
-            
         }
         
         /**********************************************************************/
@@ -159,25 +146,6 @@ namespace model
           */
             return ElementContainerType::size();
         }
-        
-        /**********************************************************************/
-        const ElementType& element(const size_t& n) const
-        {/*!@param[in] n the node ID
-          * \returns a const reference to the n-th node in the FiniteElement
-          */
-            assert(n<elementSize() && "INDEX EXCEEDS ELEMENT-SIZE.");
-            typename FiniteElementType::ElementContainerType::const_iterator eIter=elementBegin();
-            std::advance(eIter,n);
-            return eIter->second;
-        }
-        
-//        /**********************************************************************/
-//        ElementType& element(const size_t& n)
-//        {/*!@param[in] n the node ID
-//          * \returns a reference to the n-th node in the FiniteElement
-//          */
-//            return ElementContainerType::operator[](n);
-//        }
         
         /**********************************************************************/
         typename NodeContainerType::const_iterator nodeBegin() const
@@ -219,42 +187,59 @@ namespace model
         
         /**********************************************************************/
         template <typename BndType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-        IntegrationDomain<dim,1,qOrder,QuadratureRule> boundary() const
+        IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> boundary() const
         {
             return BndType::template domain<FiniteElementType,qOrder,QuadratureRule>(*this);
         }
         
-
+        /**********************************************************************/
+        template <typename DomainType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+        IntegrationDomain<FiniteElementType,0,qOrder,QuadratureRule> integrationDomain() const
+        {
+            return DomainType::template domain<FiniteElementType,qOrder,QuadratureRule>(*this);
+        }
         
+//        /**********************************************************************/
+//        template <typename ListSelectorType>
+//        size_t createNodeList()
+//        {
+//            std::cout<<"Adding node list... "<<std::flush;
+//            const ListSelectorType listSelector(*this);
+//            const std::pair<typename NodeMapType::iterator,bool> ip(NodeMapType::emplace(incrementalNodeListID,NodeListType()));
+//            assert(ip.second && "NODE LIST COULD NOT BE INSERTED");
+//            for(typename NodeContainerType::const_iterator nIter=nodeBegin(); nIter!=nodeEnd();++nIter)
+//            {
+//                if(listSelector(*nIter))
+//                {
+//                    ip.first->second.emplace_back(&(*nIter));
+//                }
+//            }
+//            std::cout<<"("<<ip.first->second.size()<<" nodes)."<<std::endl;
+//            ++incrementalNodeListID; // increment key for next call
+//            return ip.first->first;
+//        }
+//        
+//        /**********************************************************************/
+//        const NodeListType& nodeList(const size_t& n) const
+//        {
+//            return NodeMapType::at(n);
+//        }
         
         /**********************************************************************/
-        template <typename ListSelectorType>
-        size_t createNodeList()
+        template <typename NodeSelectorType>
+        NodeList<FiniteElementType> getNodeList() const
         {
-            std::cout<<"Adding node list... "<<std::flush;
-            const ListSelectorType listSelector(*this);
-            const std::pair<typename NodeMapType::iterator,bool> ip(NodeMapType::emplace(incrementalNodeListID,NodeListType()));
-            assert(ip.second && "NODE LIST COULD NOT BE INSERTED");
+            NodeList<FiniteElementType> temp(*this);
+            const NodeSelectorType nodeSelector(*this);
             for(typename NodeContainerType::const_iterator nIter=nodeBegin(); nIter!=nodeEnd();++nIter)
             {
-                if(listSelector(*nIter))
+                if(nodeSelector(*nIter))
                 {
-                    ip.first->second.emplace_back(&(*nIter));
+                    temp.emplace_back(&(*nIter));
                 }
             }
-            std::cout<<"("<<ip.first->second.size()<<" nodes)."<<std::endl;
-            ++incrementalNodeListID; // increment key for next call
-            return ip.first->first;
+            return temp;
         }
-        
-        /**********************************************************************/
-        const NodeListType& nodeList(const size_t& n) const
-        {
-            return NodeMapType::at(n);
-        }
-        
-        
-        
         
         /**********************************************************************/
         std::pair<bool,const ElementType*> search(const Eigen::Matrix<double,dim,1>& P) const
@@ -278,22 +263,40 @@ namespace model
           * search succesfully found a Simplex<dim,dim> which includes P.
           * -pair.second is a pointer to the last Simplex<dim,dim> searched.
           */
-            
             const std::pair<bool,const Simplex<dim,dim>*> temp(mesh.searchWithGuess(P,guess));
-            //const typename Simplex<dim,dim>::SimplexIDType xID(temp.second->xID);
             const typename ElementContainerType::const_iterator eIter(ElementContainerType::find(temp.second->xID));
             assert(eIter!=elementEnd() && "ELEMENT NOT FOUND");
-            //std::set<int> searchSet;
-            //std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,NULL);
-            //guess->convexDelaunaynSearch(P,lastSearched,searchSet);
             return std::pair<bool,const ElementType*>(temp.first,&(eIter->second));
         }
         
+
         
     };
     
 }	// close namespace
 #endif
+
+
+
+
+//        /**********************************************************************/
+//        const ElementType& element(const size_t& n) const // THIS IS TOO SLOW TO BE USED
+//        {/*!@param[in] n the node ID
+//          * \returns a const reference to the n-th node in the FiniteElement
+//          */
+//            assert(n<elementSize() && "INDEX EXCEEDS ELEMENT-SIZE.");
+//            typename FiniteElementType::ElementContainerType::const_iterator eIter=elementBegin();
+//            std::advance(eIter,n);
+//            return eIter->second;
+//        }
+
+//        /**********************************************************************/
+//        ElementType& element(const size_t& n)
+//        {/*!@param[in] n the node ID
+//          * \returns a reference to the n-th node in the FiniteElement
+//          */
+//            return ElementContainerType::operator[](n);
+//        }
 
 
 //        /**********************************************************************/

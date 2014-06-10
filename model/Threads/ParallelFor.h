@@ -12,8 +12,9 @@
 #include <thread>
 #include <vector>
 #include <assert.h>
-#include <iostream>
+//#include <iostream>
 
+#include <Model/Threads/EqualIteratorRange.h>
 
 namespace model {
 	
@@ -28,9 +29,9 @@ namespace model {
         /* init list */ nThreads(n)
         {
 //            std::cout<<"Creating ParallelFor with "<<nThreads<<" threads."<<std::endl;
-            
+
             assert(nThreads>0 && "NUMBER OF THREADS MUST BE >0");
-            
+            this->reserve(nThreads);
         }
         
         template< typename AnyClass, class Function, class... Args >

@@ -122,9 +122,9 @@ namespace model
         typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
 		enum {NdofXnode=NodeType::NdofXnode};
 		
-#ifdef UpdateBoundaryConditionsFile
-#include UpdateBoundaryConditionsFile
-#endif
+//#ifdef UpdateBoundaryConditionsFile
+//#include UpdateBoundaryConditionsFile
+//#endif
         
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
@@ -498,11 +498,9 @@ namespace model
                 assert(shared.mesh.size() && "MESH IS EMPTY.");
                 
 				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
-                //shared.domain.readMesh(); // OLD BVP
 				if(shared.use_bvp)
                 {
                     shared.bvpSolver.init();
-//					shared.domain.readInputBCs(); // OLD BVP
 				}
 			}
 			else{ // no boundary is used, DislocationNetwork is in inifinite medium
@@ -558,7 +556,6 @@ namespace model
             { // MOVE THIS WITH REST OB BVP STUFF
                 //                shared.vbsc.read(runID,&shared);
                 shared.vbsc.initializeVirtualSegments(*this);
-                
             }
             
             
@@ -722,7 +719,9 @@ namespace model
           * Exceptions are nodes with only one neighbors (FR source)
           * and nodes on the boundary.
           */
-			for (typename NetworkNodeContainerType::const_iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
+			for (typename NetworkNodeContainerType::const_iterator nodeIter =this->nodeBegin();
+                 /*                                             */ nodeIter!=this->nodeEnd();
+                 /*                                             */ nodeIter++)
             {
 				if (nodeIter->second->neighborhood().size()>2)
                 {
@@ -802,7 +801,9 @@ namespace model
 		VectorDimD displacement(const VectorDimD & Rfield,const VectorDimD & S) const
         {
 			VectorDimD temp(VectorDimD::Zero());
-			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+			for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
+                 /*                                             */ linkIter!=this->linkEnd();
+                 /*                                             */ linkIter++)
             {
 				temp+= linkIter->second->displacement(Rfield,S);
 			}
@@ -813,7 +814,9 @@ namespace model
 		MatrixDimD plasticDistortionRate() const
         {
 			MatrixDimD temp(MatrixDimD::Zero());
-			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+			for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
+                 /*                                             */ linkIter!=this->linkEnd();
+                 /*                                             */ linkIter++)
             {
 				temp+= linkIter->second->plasticDistortionRate();
 			}
@@ -833,7 +836,9 @@ namespace model
 		MatrixDimD latticeRotation(const VectorDimD & Rfield) const
         {
 			MatrixDimD temp(MatrixDimD::Zero());
-			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+			for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
+                 /*                                             */ linkIter!=this->linkEnd();
+                 /*                                             */ linkIter++)
             {
 				temp+= linkIter->second->lattice_rotation_source(Rfield);
 			}
@@ -844,7 +849,9 @@ namespace model
 		MatrixDimD elasticDistortion(const VectorDimD & Rfield) const
         {
 			MatrixDimD temp(MatrixDimD::Zero());
-			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+			for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
+                 /*                                             */ linkIter!=this->linkEnd();
+                 /*                                             */ linkIter++)
             {
 				temp+= linkIter->second->displacement_gradient_source(Rfield);
 			}
@@ -853,10 +860,12 @@ namespace model
 		
         /**********************************************************************/
 		double networkLength() const
-        {/*!\returns the length of this DislocationNetwork.
+        {/*!\returns the line length of *this DislocationNetwork.
           */
 			double temp(0.0);
-			for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+			for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
+                 /*                                             */ linkIter!=this->linkEnd();
+                 /*                                             */ linkIter++)
             {
 				temp+= linkIter->second->template arcLength<qOrder,QuadratureRule>();
 			}
@@ -872,7 +881,7 @@ namespace model
         
         /**********************************************************************/
         const double& vMax() const
-        {/*! The max vertex velocity.
+        {/*! The maximum vertex velocity.
           */
             return vmax;
         }

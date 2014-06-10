@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=1000;
+Nsteps=1;
 timeWindow=5.1e03;
 startAtTimeStep = 0;
 
@@ -79,14 +79,14 @@ collisionTol=10;
 # boundary_type = 1 for shearable confining boundary. The files N/N_meshID.txt, T/T_meshID.txt must be present in the working directory
 # boundary_type = 2 for unshearable confining boundary. The files N/N_meshID.txt, T/T_meshID.txt must be present in the working directory
 boundary_type =1;
-meshID=0;
+meshID=1;
 
 
 ######################################
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
-use_bvp = 10;
+use_bvp = 1;
 
 ######################################
 # Enable/disable cross-slip

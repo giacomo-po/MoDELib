@@ -9,23 +9,20 @@
 #ifndef model_BilinearWeakForm_H_
 #define model_BilinearWeakForm_H_
 
-#include <time.h>       /* clock_t, clock, CLOCKS_PER_SEC */
+#include <chrono>
 #include <vector>
-#include <iterator>     // std::advance
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
+//#ifdef _OPENMP
+//#include <omp.h>
+//#include <Model/Threads/EqualIteratorRange.h>
+//#endif
 
-#include <Eigen/SparseCore>
+#include <Eigen/Sparse>
 
-#include <model/FEM/TrialOperators/TrialExpressionBase.h>
 #include <model/FEM/WeakForms/LinearWeakForm.h>
 #include <model/FEM/WeakForms/WeakProblem.h>
-#include <model/Quadrature/Quadrature.h>
-#include <model/Utilities/AreSameType.h>
 #include <model/Utilities/TerminalColors.h>
-#include <model/FEM/WeakForms/ElementaryDomain.h>
+#include <model/FEM/WeakForms/BilinearForm.h>
 
 
 
@@ -34,138 +31,95 @@ namespace model
     
     /**************************************************************************/
 	/**************************************************************************/
-    template <typename T1,typename T2>
-	class BilinearWeakForm
+    template <typename _BilinearFormType,typename _IntegrationDomainType>
+	struct BilinearWeakForm
     {
         
-        static_assert(AreSameType<typename T1::TrialFunctionType,typename T2::TrialFunctionType>::value,"YOU ARE CREATING A BilinearWeakForm OF DIFFERENT TRIALFUNCTIONS.");
-        static_assert((T1::rows-T2::rows)==0,"YOU ARE CREATING A BilinearWeakForm BETWEEN A TRIALEXPRESSION AND A TESTEXPRESSION WITH DIFFERENT NUMBER OF ROWS");
+        //        static_assert(AreSameType<typename T1::TrialFunctionType,typename T2::TrialFunctionType>::value,"YOU ARE CREATING A BilinearWeakForm OF DIFFERENT TRIALFUNCTIONS.");
+        //        static_assert((T1::rows-T2::rows)==0,"YOU ARE CREATING A BilinearWeakForm BETWEEN A TRIALEXPRESSION AND A TESTEXPRESSION WITH DIFFERENT NUMBER OF ROWS");
         
-        typedef typename T2::TrialFunctionType TF;
-        typedef BilinearWeakForm<T1,T2> BilinearWeakFormType;
-        typedef typename TypeTraits<TF>::ElementType ElementType;
-        typedef typename TypeTraits<TF>::FiniteElementType FiniteElementType;
+        //        typedef typename T2::TrialFunctionType TF;
+        //        typedef BilinearWeakForm<T1,T2> BilinearWeakFormType;
+        //        typedef typename TypeTraits<TF>::ElementType ElementType;
+        //        typedef typename TypeTraits<TF>::FiniteElementType FiniteElementType;
+        //
+        //        /**********************************************************************/
+        //        BilinearWeakForm(const BilinearWeakFormType&) = default; // prevent copy (too expensive)
+        //
+        //        /**********************************************************************/
+        //        BilinearWeakForm& operator=(const BilinearWeakFormType&) = default; // prevent assignment (too expensive)
         
-    public:
         
-        enum {dim=TypeTraits<TF>::dim};
-        enum {nodesPerElement=TypeTraits<TF>::nodesPerElement};
-        enum {dofPerNode=TypeTraits<TF>::dofPerNode};
-        enum {dofPerElement=TypeTraits<TF>::dofPerElement};
+        typedef _BilinearFormType BilinearFormType;
+        typedef _IntegrationDomainType IntegrationDomainType;
+        typedef BilinearWeakForm<BilinearFormType,IntegrationDomainType> BilinearWeakFormType;
+        typedef typename BilinearFormType::TrialFunctionType TrialFunctionType;
+        typedef typename BilinearFormType::TestExpressionType TestExpressionType;
+        typedef typename BilinearFormType::TrialExpressionType TrialExpressionType;
+        typedef typename TrialFunctionType::ElementType ElementType;
+        typedef typename IntegrationDomainType::QuadratureType QuadratureType;
+        typedef typename QuadratureType::VectorDim AbscissaType;
+        
+        
+        constexpr static int dim=TypeTraits<TrialFunctionType>::dim;
+        constexpr static int nodesPerElement=TypeTraits<TrialFunctionType>::nodesPerElement;
+        constexpr static int dofPerNode=TypeTraits<TrialFunctionType>::dofPerNode;
+        constexpr static int dofPerElement=TypeTraits<TrialFunctionType>::dofPerElement;
         
         
         typedef Eigen::Matrix<double,dofPerElement,dofPerElement> ElementMatrixType;
         
-        const T1  testExp;
-        const T2 trialExp;
-
+        const BilinearFormType bilinearForm;
+        const IntegrationDomainType& domain;
+        const TestExpressionType testExpr;
+        const TrialExpressionType trialExpr;
         const size_t gSize;
         
-        std::vector<Eigen::Triplet<double> > globalTriplets; // this should be private
         
-        
-        double maxAbsValue; // this should be private
-        
-
         
         /**********************************************************************/
-        BilinearWeakForm(const TestExpression<T1>& testE, const TrialExpressionBase<T2>& trialE) :
-        /* init list */ testExp(testE), // cast testE to its base T2 type
-        /* init list */ trialExp(trialE.derived()), // cast trialE to its derived T1 type
-        /* init list */ gSize(trialExp.nodeSize()*dofPerNode),
-        /* init list */ maxAbsValue(0.0)
+        BilinearWeakForm(const BilinearFormType& bf, const IntegrationDomainType& dom) :
+        /* init list */ bilinearForm(bf), // cast testE to its base T2 type
+        /* init list */ domain(dom), // cast trialE to its derived T1 type
+        testExpr(bf.testExpr),
+        trialExpr(bf.trialExpr),
+        /* init list */ gSize(bilinearForm.gSize)
+//        /* init list */ maxAbsValue(0.0)
         {
             
             std::cout<<greenColor<<"Creating BilinearWeakForm: gSize="<<gSize<<defaultColor<<std::endl;
-
+            
         }
         
-        /**********************************************************************/
-        template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-        const BilinearWeakFormType& operator*(const ElementaryDomain<dim,qOrder,QuadratureRule>& dV)
-        {
-            assembleOnDomain<qOrder,QuadratureRule>();
-            return *this;
-        }
+//        const TrialFunctionType& trialExpr() const
+//        {
+//            return trialExprr();
+//        }
+//
+//        const TrialFunctionType& testExpr() const
+//        {
+//            return trialExprr();
+//        }
         
         /**********************************************************************/
-        template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-        void assembleOnDomain()
+        //template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+        std::vector<Eigen::Triplet<double> >  assembleOnDomain(double& maxAbsValue) const
         {
-            typedef Quadrature<TF::dim,qOrder,QuadratureRule> QuadratureType;
-            typedef typename QuadratureType::VectorDim AbscissaType;
             
-            double t0(clock());
-            std::cout<<"Assembling on domain..."<<std::flush;
+            std::cout<<"Assembling BilinearWeakForm on domain..."<<std::flush;
             
-            globalTriplets.clear();
+            std::vector<Eigen::Triplet<double> > globalTriplets;
+            //            globalTriplets.clear();
+            globalTriplets.reserve(dofPerElement*dofPerElement*trialExpr.elementSize());
             maxAbsValue=0.0;
-            globalTriplets.reserve(dofPerElement*dofPerElement*trialExp.elementSize());
             
-#ifdef _OPENMP
-            std::cout<<"\n    computing element matrices..."<<std::flush;
             
-            std::vector<ElementMatrixType> kv;
-            kv.resize(trialExp.elementSize());
-            
-#pragma omp parallel for
-            for (int n=0;n<trialExp.elementSize();++n)
+            const auto t0= std::chrono::system_clock::now();
+            for (int k=0;k<domain.size();++k)
             {
-                // Compute element stiffness Matrix
-                //ElementMatrixType ke(ElementMatrixType::Zero());
-                kv[n].setZero();
-                QuadratureType::integrate(this,kv[n],&BilinearWeakFormType::elementAssemblyKernel<AbscissaType>,trialExp.element(n));
-            }
-            std::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
-            
-            // Assemble in globalTriplets
-            t0=clock();
-            std::cout<<"    assembling in global vector of triplets..."<<std::flush;
-            
-            for (int n=0;n<trialExp.elementSize();++n)
-            {
-                const ElementType& element(trialExp.element(n));
-                //Assemble into global array of triplets
-                for (int i=0;i<dofPerElement;++i)
-                {
-                    for (int j=0;j<dofPerElement;++j)
-                    {
-                        if(kv[n](i,j)!=0.0)
-                        {
-                            const size_t  nodeID_I(i/dofPerNode);
-                            const size_t nodeDof_I(i%dofPerNode);
-                            const size_t gI= element.node(nodeID_I).gID*dofPerNode+nodeDof_I;
-                            
-                            const size_t  nodeID_J(j/dofPerNode);
-                            const size_t nodeDof_J(j%dofPerNode);
-                            const size_t gJ=element.node(nodeID_J).gID*dofPerNode+nodeDof_J;
-                            
-                            globalTriplets.emplace_back(gI,gJ,kv[n](i,j));
-                            
-                            if (std::fabs(kv[n](i,j))>maxAbsValue)
-                            {
-                                maxAbsValue=std::fabs(kv[n](i,j));
-                            }
-                        }
-                    }
-                }
-            }
-            
-#else
-//            A.resize(gSize,gSize);
-//            A.reserve(Eigen::VectorXi::Constant(gSize,1000));
-
-            
-//            for (int n=0;n<trialExp.elementSize();++n)
-            for (typename FiniteElementType::ElementContainerType::const_iterator eIter =trialExp.elementBegin();
-                 /*                                                            */ eIter!=trialExp.elementEnd();
-                 /*                                                            */ ++eIter)
-            {
-                // Compute element stiffness Matrix
+                const ElementType& ele(domain.element(k));
                 ElementMatrixType ke(ElementMatrixType::Zero());
-//                QuadratureType::integrate(this,ke,&BilinearWeakFormType::elementAssemblyKernel<AbscissaType>,trialExp.element(n));
-                QuadratureType::integrate(this,ke,&BilinearWeakFormType::elementAssemblyKernel<AbscissaType>,eIter->second);
-                
+                QuadratureType::integrate(this,ke,&BilinearWeakFormType::elementAssemblyKernel<AbscissaType>,ele);
                 //Assemble into global array of triplets
                 for (int i=0;i<dofPerElement;++i)
                 {
@@ -175,15 +129,15 @@ namespace model
                         {
                             const size_t  nodeID_I(i/dofPerNode);
                             const size_t nodeDof_I(i%dofPerNode);
-                            const size_t gI= eIter->second.node(nodeID_I).gID*dofPerNode+nodeDof_I;
+                            const size_t gI= ele.node(nodeID_I).gID*dofPerNode+nodeDof_I;
                             
                             const size_t  nodeID_J(j/dofPerNode);
                             const size_t nodeDof_J(j%dofPerNode);
-                            const size_t gJ=eIter->second.node(nodeID_J).gID*dofPerNode+nodeDof_J;
+                            const size_t gJ=ele.node(nodeID_J).gID*dofPerNode+nodeDof_J;
                             
                             globalTriplets.emplace_back(gI,gJ,ke(i,j));
-
-//                            A.coeffRef(gI,gJ) += ke(i,j);
+                            
+                            //                            A.coeffRef(gI,gJ) += ke(i,j);
                             
                             if (std::fabs(ke(i,j))>maxAbsValue)
                             {
@@ -194,11 +148,8 @@ namespace model
                 }
             }
             
-//            A.makeCompressed();
-            
-#endif
-            
-            std::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
+            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            return globalTriplets;
         }
         
         /**********************************************************************/
@@ -206,33 +157,161 @@ namespace model
         ElementMatrixType elementAssemblyKernel(const AbscissaType& a, const ElementType& ele) const
         {
             const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::x2l(a));
-            return testExp.sfm(ele,bary).transpose()*trialExp.sfm(ele,bary)*ele.absJ(bary);
+            return testExpr.sfm(ele,bary).transpose()*trialExpr.sfm(ele,bary)*ele.absJ(bary);
 		}
         
-        
-        
-        //        /**********************************************************************/
-        //        WeakProblem<BilinearWeakFormType> operator=(const int& a) const
-        //        {
-        //            return WeakProblem<BilinearWeakFormType>(*this);
-        //        }
-        
         /**********************************************************************/
-        template< typename T3,typename T4>
-        WeakProblem<BilinearWeakFormType,LinearWeakForm<T3,T4> > operator=(const LinearWeakForm<T3,T4>& lwf) const
+        template< typename T3>
+        WeakProblem<BilinearWeakFormType,T3> operator=(const LinearWeakExpression<T3>& lwf) const
         {
-            return WeakProblem<BilinearWeakFormType,LinearWeakForm<T3,T4> >(*this,lwf);
+            return WeakProblem<BilinearWeakFormType,T3>(*this,lwf);
         }
         
     };
     
     
-    template <typename T1,typename T2>
-    BilinearWeakForm<T1,T2> operator, (const TestExpression<T1>& testE, const TrialExpressionBase<T2>& trialE)
+    /**************************************************************************/
+    /**************************************************************************/
+    // Operator *
+    template <typename T1, typename T2, typename FiniteElementType, int qOrder, int dimMinusDomainDim,
+    /*     */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    BilinearWeakForm<BilinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> > operator*(const BilinearForm<T1,T2>& bilinearForm,
+                                                                                                                                  const IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule>& domain)
     {
-        return BilinearWeakForm<T1,T2>(testE,trialE);
+        return BilinearWeakForm<BilinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> >(bilinearForm,domain);
     }
     
 }	// close namespace
 #endif
+
+
+
+
+
+
+
+
+
+//        /**********************************************************************/
+//        WeakProblem<BilinearWeakFormType> operator=(const int& a) const
+//        {
+//            return WeakProblem<BilinearWeakFormType>(*this);
+//        }
+
+//        /**********************************************************************/
+//        template< typename T3,typename T4>
+//        WeakProblem<BilinearWeakFormType,LinearWeakForm<T3,T4> > operator=(const LinearWeakForm<T3,T4>& lwf) const
+//        {
+//            return WeakProblem<BilinearWeakFormType,LinearWeakForm<T3,T4> >(*this,lwf);
+//        }
+
+
+//        /**********************************************************************/
+//        BilinearWeakForm(BilinearWeakForm&&) = default; // explicit move constructor (required since copy constructor is private)
+//
+//        /**********************************************************************/
+//        BilinearWeakForm& operator=(BilinearWeakForm&&) = default; // explicit a move assignment (required since assignment is private)
+
+
+//        /**********************************************************************/
+//        template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//        const BilinearWeakFormType& operator*(const ElementaryDomain<dim,qOrder,QuadratureRule>& dV)
+//        {
+//            assembleOnDomain<qOrder,QuadratureRule>();
+//            return *this;
+//        }
+
+
+//        /**********************************************************************/
+//        template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//        BilinearWeakFormType&& operator*(const ElementaryDomain<dim,qOrder,QuadratureRule>& dV)
+//        {/*
+//          * See section "Returning an explicit rvalue-reference from a function" in
+//          * http://www.cprogramming.com/c++11/rvalue-references-and-move-semantics-in-c++11.html
+//          */
+//            assembleOnDomain<qOrder,QuadratureRule>();
+//            return std::move(*this);
+//        }
+
+//        /**********************************************************************/
+//        template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//        BilinearWeakFormType operator*(const ElementaryDomain<dim,qOrder,QuadratureRule>& dV)
+//        {
+//            assembleOnDomain<qOrder,QuadratureRule>();
+//            return *this;
+//        }
+
+
+
+
+
+
+//            for (typename FiniteElementType::ElementContainerType::const_iterator eIter =trialExp.elementBegin();
+//                 /*                                                            */ eIter!=trialExp.elementEnd();
+//                 /*                                                            */ ++eIter)
+//            {
+//                // Compute element stiffness Matrix
+//                ElementMatrixType ke(ElementMatrixType::Zero());
+//                QuadratureType::integrate(this,ke,&BilinearWeakFormType::elementAssemblyKernel<AbscissaType>,eIter->second);
+//
+//                //Assemble into global array of triplets
+//                //                for (int i=0;i<dofPerElement;++i)
+//                //                {
+//                //                    for (int j=0;j<dofPerElement;++j)
+//                //                    {
+//                //                        if(ke(i,j)!=0.0)
+//                //                        {
+//                //                            const size_t  nodeID_I(i/dofPerNode);
+//                //                            const size_t nodeDof_I(i%dofPerNode);
+//                //                            const size_t gI= eIter->second.node(nodeID_I).gID*dofPerNode+nodeDof_I;
+//                //
+//                //                            const size_t  nodeID_J(j/dofPerNode);
+//                //                            const size_t nodeDof_J(j%dofPerNode);
+//                //                            const size_t gJ=eIter->second.node(nodeID_J).gID*dofPerNode+nodeDof_J;
+//                //
+//                //                            globalTriplets.emplace_back(gI,gJ,ke(i,j));
+//                //
+//                //                            //                            A.coeffRef(gI,gJ) += ke(i,j);
+//                //
+//                //                            if (std::fabs(ke(i,j))>maxAbsValue)
+//                //                            {
+//                //                                maxAbsValue=std::fabs(ke(i,j));
+//                //                            }
+//                //                        }
+//                //                    }
+//                //                }
+//
+//                //                    std::map<int,const int> iMap;
+//                //                    for (int i=0;i<dofPerElement;++i)
+//                //                    {
+//                //                        const size_t  nodeID_I(i/dofPerNode);
+//                //                        const size_t nodeDof_I(i%dofPerNode);
+//                //                        const size_t gI= eIter->second.node(nodeID_I).gID*dofPerNode+nodeDof_I;
+//                //                        iMap.emplace(gI,i);
+//                //                    }
+//                //
+//                //                    std::map<int,const int> jMap;
+//                //                    for (int j=0;j<dofPerElement;++j)
+//                //                    {
+//                //                        const size_t  nodeID_J(j/dofPerNode);
+//                //                        const size_t nodeDof_J(j%dofPerNode);
+//                //                        const size_t gJ=eIter->second.node(nodeID_J).gID*dofPerNode+nodeDof_J;
+//                //                        jMap.emplace(gJ,j);
+//                //                    }
+//                //
+//                //                    for (std::map<int,const int>::const_iterator jIter=jMap.begin();jIter!=jMap.end();++jIter)
+//                //                        for (std::map<int,const int>::const_iterator iIter=iMap.begin();iIter!=iMap.end();++iIter)
+//                //                    {
+//                //                        {
+//                //                            A.insert(iIter->first,jIter->first) += ke(iIter->second,jIter->second);
+//                //                        }
+//                //                    }
+//
+//
+//            }
+
+//            A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
+
+//            A.makeCompressed();
+
 

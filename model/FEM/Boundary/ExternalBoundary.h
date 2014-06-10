@@ -64,21 +64,36 @@ namespace model
         
         
         template <typename FiniteElementType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-        static IntegrationDomain<FiniteElementType::dim,1,qOrder,QuadratureRule> domain(const FiniteElementType& fe)
+        static IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> domain(const FiniteElementType& fe)
         {
-            IntegrationDomain<FiniteElementType::dim,1,qOrder,QuadratureRule> temp;
-            for (int n=0;n<fe.elementSize();++n)
+            IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> temp;
+//            for (int n=0;n<fe.elementSize();++n)
+//            {
+//                if(fe.element(n).isBoundaryElement())
+//                {
+//                    const std::vector<int> boundaryFaces=fe.element(n).boundaryFaces();
+//                    for (int f=0;f<boundaryFaces.size();++f)
+//                    {
+//                        //temp.push_back(std::make_pair(n,boundaryFaces[f]));
+//                        temp.emplace_back(n,boundaryFaces[f]);
+//                    }
+//                }
+//            }
+            for (typename FiniteElementType::ElementContainerType::const_iterator eIter =fe.elementBegin();
+                 /*                                                            */ eIter!=fe.elementEnd();
+                 /*                                                            */ eIter++)
             {
-                if(fe.element(n).isBoundaryElement())
+                if(eIter->second.isBoundaryElement())
                 {
-                    const std::vector<int> boundaryFaces=fe.element(n).boundaryFaces();
+                    const std::vector<int> boundaryFaces=eIter->second.boundaryFaces();
                     for (int f=0;f<boundaryFaces.size();++f)
                     {
                         //temp.push_back(std::make_pair(n,boundaryFaces[f]));
-                        temp.emplace_back(n,boundaryFaces[f]);
+                        temp.emplace_back(&eIter->second,boundaryFaces[f]);
                     }
                 }
             }
+            
             return temp;
         }
         

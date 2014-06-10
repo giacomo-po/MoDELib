@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_  AtXmax_H_
-#define model_  AtXmax_H_
+#ifndef model_AtXmax_H_
+#define model_AtXmax_H_
 
 #include <Eigen/Dense>
 

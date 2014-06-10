@@ -67,6 +67,12 @@ namespace model
             return TestExpression<Derived>(derived());
         }
         
+        /**********************************************************************/
+        size_t gSize() const
+        {
+            return derived().trial().fe.nodeSize()*derived().trial().dofPerNode;
+        }
+        
 //        /**********************************************************************/
 //        template <typename ElementType, typename BaryType>
 //        Eigen::Matrix<double,Eigen::Dynamic,1> operator()(const ElementType& ele, const BaryType& bary) const

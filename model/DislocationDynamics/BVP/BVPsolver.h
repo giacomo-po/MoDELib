@@ -123,15 +123,13 @@ namespace model
         void assembleAndSolve(const DislocationNetworkType& DN)
         {
             typedef DislocationNegativeStress<DislocationNetworkType> DislocationNegativeStressType;
-            
+
             const DislocationNegativeStressType ds(DN);
             
             //typedef LinearWeakForm<TrialFunctionType,DislocationNegativeStressType> LinearWeakFormType;
             
             //LinearWeakFormType lwf(u->test(),ds);
-            
             auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
-            
             
             // Create the LinearWeakForm lWF_u=int(test(u)^T*f)ndS
             auto lWF=(u->test(),ds)*ndA;

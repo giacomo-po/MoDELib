@@ -11,8 +11,7 @@
 
 #include <deque>
 #include <utility>      // std::pair, std::make_pair
-//#include <Eigen/Dense>
-//#include <model/Mesh/Simplex.h>
+#include <model/Quadrature/Quadrature.h>
 
 
 namespace model
@@ -21,36 +20,47 @@ namespace model
  
     /**************************************************************************/
 	/**************************************************************************/
-	template <int dim, int minusDim, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+	template <typename FiniteElementType, int dimMinusDomainDim, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	struct IntegrationDomain 
     {
-        typedef QuadratureRule<dim-minusDim,qOrder> QuadratureType;
         
+        /**********************************************************************/
         IntegrationDomain()
         {
             assert(0 && "IntegrationDomain not implemented");
         }
- //       static_assert(0,"IntegrationDomain not implemented");
-        
     };
 
     
-    template <int dim, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-	struct IntegrationDomain<dim,0,qOrder,QuadratureRule> : public std::deque<int>
+    /**************************************************************************/
+    template <typename FiniteElementType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+	struct IntegrationDomain<FiniteElementType,0,qOrder,QuadratureRule> : public std::deque<const typename FiniteElementType::ElementType*>
     {// Volume ntegration
-     
-        typedef QuadratureRule<dim,qOrder> QuadratureType;
-
+        constexpr static int dim=FiniteElementType::dim;
+        constexpr static int domainDim=dim;
+        typedef Quadrature<domainDim,qOrder,QuadratureRule> QuadratureType;
         
+        /**********************************************************************/
+        const typename FiniteElementType::ElementType& element(const size_t& k) const
+        {
+            return *(this->operator[](k));
+        }
     };
     
-    template <int dim, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-	struct IntegrationDomain<dim,1,qOrder,QuadratureRule> : public std::deque<std::pair<int,int> >
+    /**************************************************************************/
+    template <typename FiniteElementType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+	struct IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> : public std::deque<std::pair<const typename FiniteElementType::ElementType* const,int> >
     {// Boundary ntegration
+        constexpr static int dim=FiniteElementType::dim;
+        constexpr static int domainDim=dim-1;
+        typedef Quadrature<domainDim,qOrder,QuadratureRule> QuadratureType;
+        typedef typename QuadratureType::VectorDim AbscissaType;
         
-        typedef QuadratureRule<dim-1,qOrder> QuadratureType;
-        
-        
+        /**********************************************************************/
+        const typename FiniteElementType::ElementType& element(const size_t& k) const
+        {
+            return *(this->operator[](k).first);
+        }
     };
 
 

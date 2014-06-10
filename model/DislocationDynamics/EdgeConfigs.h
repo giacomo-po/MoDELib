@@ -72,27 +72,27 @@ namespace model {
 				case 8:
 					Ci=EdgeConfigs<8>::get_Ci();
 					break;
-				case 9:
-					Ci=EdgeConfigs<9>::get_Ci();
-					break;
-				case 10:
-					Ci=EdgeConfigs<10>::get_Ci();
-					break;
-				case 11:
-					Ci=EdgeConfigs<11>::get_Ci();
-					break;
-				case 12:
-					Ci=EdgeConfigs<12>::get_Ci();
-					break;
-                case 13:
-					Ci=EdgeConfigs<13>::get_Ci();
-					break;
-                case 14:
-					Ci=EdgeConfigs<14>::get_Ci();
-					break;
-                case 15:
-					Ci=EdgeConfigs<15>::get_Ci();
-					break;
+//				case 9:
+//					Ci=EdgeConfigs<9>::get_Ci();
+//					break;
+//				case 10:
+//					Ci=EdgeConfigs<10>::get_Ci();
+//					break;
+//				case 11:
+//					Ci=EdgeConfigs<11>::get_Ci();
+//					break;
+//				case 12:
+//					Ci=EdgeConfigs<12>::get_Ci();
+//					break;
+//                case 13:
+//					Ci=EdgeConfigs<13>::get_Ci();
+//					break;
+//                case 14:
+//					Ci=EdgeConfigs<14>::get_Ci();
+//					break;
+//                case 15:
+//					Ci=EdgeConfigs<15>::get_Ci();
+//					break;
 					
 					
 				default:

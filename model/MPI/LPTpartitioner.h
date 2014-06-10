@@ -23,8 +23,8 @@
 namespace model {
     
     
-    /*!\brief Temaplte implementation of the Longest Processing Time (LPT) algorithm for
-     * task partiotioning.
+    /*!\brief Template implementation of the Longest Processing Time (LPT) 
+     * algorithm for task partiotioning.
      */
     template <typename T>
     class LPTpartitioner :
@@ -32,8 +32,6 @@ namespace model {
     /* inheritance    */ private std::vector<std::deque<T*> >,
     /* inheritance    */ private std::vector<double>
     {
-        
-   
         
     public:
 

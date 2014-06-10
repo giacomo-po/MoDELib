@@ -6,6 +6,7 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
+#include <model/Utilities/EigenDataReader.h>
 #include <model/DislocationDynamics/Visualization/DDgl.h>
 #include <model/Geometry/Splines/SplineConsts.h>
 
@@ -140,8 +141,12 @@ namespace model {
 	/*************************************************************/
 	int DDglut(int argc, char** argv) {
         
+        int meshID(0);
+        EigenDataReader EDR;
+        EDR.readScalarInFile("./DDinput.txt","meshID",meshID);
+
         
-        p_mesh = new model::SimplicialMesh<3>(0);
+        p_mesh = new model::SimplicialMesh<3>(meshID);
         p_DDgl = new model::DDgl<centripetalf>(p_mesh);
 		//! \brief A Glut wrapper for model::DDviewer
 		
@@ -191,8 +196,6 @@ namespace model {
 		glutTimerFunc(25, update, 0); //Add a timer
 		
 		glutMainLoop();//Start the main loop. glutMainLoop doesn't return.
-        
-        //delete p_mesh;
         
 		return 0;//This line is never reached, its purpose is to avoid compilation error
 	}

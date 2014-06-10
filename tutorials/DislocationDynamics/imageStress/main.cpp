@@ -23,21 +23,24 @@ int main (int argc, char* argv[])
     typedef DislocationNetwork<3,1,CatmullRom,16,UniformOpen> DislocationNetworkType;
     DislocationNetworkType DN(argc,argv);
     
-    // Set up boundary conditions
-    const size_t id0=DN.shared.bvpSolver.finiteElement().createNodeList<OnMaxAxis<0>>();
-    DN.shared.bvpSolver.displacement().addDirechletCondition<Fix>(id0,1);
-    
-    const size_t id1=DN.shared.bvpSolver.finiteElement().createNodeList<OnMaxAxis<1>>();
-    DN.shared.bvpSolver.displacement().addDirechletCondition<Fix>(id1,2);
-    
-    const size_t id2=DN.shared.bvpSolver.finiteElement().createNodeList<OnMaxAxis<2>>();
-    DN.shared.bvpSolver.displacement().addDirechletCondition<Fix>(id2,0);
-    
-    const size_t id3=DN.shared.bvpSolver.finiteElement().createNodeList<LowerCorner>();
-    DN.shared.bvpSolver.displacement().addDirechletCondition<Fix>(id3,0);
-    DN.shared.bvpSolver.displacement().addDirechletCondition<Fix>(id3,1);
-    DN.shared.bvpSolver.displacement().addDirechletCondition<Fix>(id3,2);
-
+    if(DN.shared.use_bvp)
+    {
+        Fix fix;
+        // Set up boundary conditions
+        const size_t id0=DN.shared.bvpSolver.finiteElement().createNodeList<OnMaxAxis<0>>();
+        DN.shared.bvpSolver.displacement().addDirechletCondition(fix,id0,1);
+        
+        const size_t id1=DN.shared.bvpSolver.finiteElement().createNodeList<OnMaxAxis<1>>();
+        DN.shared.bvpSolver.displacement().addDirechletCondition(fix,id1,2);
+        
+        const size_t id2=DN.shared.bvpSolver.finiteElement().createNodeList<OnMaxAxis<2>>();
+        DN.shared.bvpSolver.displacement().addDirechletCondition(fix,id2,0);
+        
+        const size_t id3=DN.shared.bvpSolver.finiteElement().createNodeList<LowerCorner>();
+        DN.shared.bvpSolver.displacement().addDirechletCondition(fix,id3,0);
+        DN.shared.bvpSolver.displacement().addDirechletCondition(fix,id3,1);
+        DN.shared.bvpSolver.displacement().addDirechletCondition(fix,id3,2);
+    }
     // Run time steps
     DN.runSteps();
     
