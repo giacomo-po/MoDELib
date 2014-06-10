@@ -70,6 +70,12 @@ namespace model
         }
         
 #elif _MODEL_NON_SINGULAR_DD_ == 2 /* Lazar's non-singular theory */
+        
+//        static double f4(const double& x)
+//        {
+//            return (RL>0.0)? ((1.0+x)*exp(-x)-1.0)/std::pow(x,2) : -0.5;
+//        }
+        
         template <typename DislocationParticleType>
         static MatrixType compute(const DislocationParticleType& source,const DislocationParticleType& field)
         {/*!@param[in] source the DislocationParticle that is source of stress
@@ -85,22 +91,22 @@ namespace model
             {
                 const double R(sqrt(R2));
                 
-                double F1(1.0/R2);
-                double F2(F1);
-                double F3(F1);
+                double f4(1.0/R2);
+                double F2(f4);
+                double F3(f4);
                 
                 
-                const double RL(R/a);
-                const double LR(a/R);
-                const double eRL(exp(-RL));
-                F1*=(1.0-(1.0+RL)*eRL);
+                const double RL(R/a);       // this is R/L
+                const double LR(a/R);       // this is L/R
+                const double eRL(exp(-RL)); // this is exp(-R/L)
+                f4*=(1.0-(1.0+RL)*eRL);
                 F2*=(1.0-6.0*a2/R2*(1.0-eRL)+(2.0+6.0*LR)*eRL);
                 F3*=(1.0-10.0*a2/R2*(1.0-eRL)+(4.0+10.0*LR+2.0/3.0*RL)*eRL);
                 
                 r/=R; // normalize r
-                temp = Material<Isotropic>::C1*source.T*(source.B.cross(r)).transpose()*F1
+                temp = Material<Isotropic>::C1*source.T*(source.B.cross(r)).transpose()*f4
                 /*  */ +r*(source.T.cross(source.B)).transpose()*F2
-                /*  */ +0.5* r.cross(source.B).dot(source.T) * (I*(2.0*F1-F2) + 3.0*F3*r*r.transpose());
+                /*  */ +0.5* r.cross(source.B).dot(source.T) * (I*(2.0*f4-F2) + 3.0*F3*r*r.transpose());
             }
             
             return temp*source.quadWeight;

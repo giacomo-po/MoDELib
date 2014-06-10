@@ -35,7 +35,9 @@ namespace model {
         
         static SimplicialMesh<TypeTraits<LinkType>::dim> mesh;
         
-        static BVPsolver<TypeTraits<LinkType>::dim,2> bvpSolver;
+        typedef BVPsolver<TypeTraits<LinkType>::dim,2> BvpSolverType;
+        
+        static BvpSolverType bvpSolver;
 
 	};
 	

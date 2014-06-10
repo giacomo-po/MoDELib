@@ -14,6 +14,7 @@
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/BVP/DislocationNegativeStress.h>
 #include <model/Mesh/SimplicialMesh.h>
+#include <model/FEM/WeakForms/JGNselector.h>
 
 namespace model
 {
@@ -32,7 +33,7 @@ namespace model
         typedef TrialProd<CconstantType,TrialDefType> TrialStressType;
 //        typedef BilinearWeakForm<TrialDefType,TrialStressType> BilinearWeakFormType;
         typedef IntegrationDomain<FiniteElementType,0,4,GaussLegendre> IntegrationDomainType;
-
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
         
         //        SimplicialMesh<dim> mesh;
         
@@ -48,6 +49,20 @@ namespace model
         std::unique_ptr<TrialStressType> s;     // stress *s=[s11 s22 s33 s12 s23 s13]'
         IntegrationDomainType dV;
         
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dim+1,1> face2domainBary(const Eigen::Matrix<double,dim,1>& b1,
+                                                      /*                                         */ const int& boundaryFace) const
+        {
+            // Transform to barycentric coordinate on the volume, adding a zero on the boundaryFace-face
+            Eigen::Matrix<double,dim+1,1> bary;
+            for (int k=0;k<dim;++k)
+            {
+                bary((k<boundaryFace)? k : k+1)=b1(k);
+            }
+            bary(boundaryFace)=0.0;
+            return bary;
+        }
         
         /**********************************************************************/
         Eigen::Matrix<double,6,6> get_C() const
@@ -102,6 +117,12 @@ namespace model
         {
             return *u;
         }
+        
+//        /**********************************************************************/
+//        const TrialStressType& stress() const
+//        {
+//            return *s;
+//        }
         
         /**********************************************************************/
         void init()
@@ -174,8 +195,37 @@ namespace model
             
             return tempM;
         }
+
+        /**********************************************************************/
+        Eigen::Matrix<double,dim,dim> stress(const ElementType& ele,
+                                             const Eigen::Matrix<double,dim+1,1>& bary) const
+        {
+            
+            Eigen::Matrix<double,6,1> tempV((*s)(ele,bary));
+            Eigen::Matrix<double,dim,dim> tempM;
+            tempM(0,0)=tempV(0); // s11
+            tempM(1,1)=tempV(1); // s22
+            tempM(2,2)=tempV(2); // s33
+            tempM(1,0)=tempV(3); // s21
+            tempM(2,1)=tempV(4); // s32
+            tempM(2,0)=tempV(5); // s31
+            tempM(0,1)=tempM(1,0); //symm
+            tempM(1,2)=tempM(2,1); //symm
+            tempM(0,2)=tempM(2,0); //symm
+            
+            return tempM;
+        }
         
+        /**********************************************************************/
+		template <typename DislocationNetworkType>
+        VectorDim traction(const Eigen::Matrix<double,dim-1,1>& a1, const ElementType& ele, const int& boundaryFace, const DislocationNetworkType& DN) const
+        {
+            const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(a1));
+            const Eigen::Matrix<double,dim+1,1> bary(face2domainBary(b1,boundaryFace));
+            return (stress(ele,bary)+DN.stress(ele.position(bary)))*JGNselector<dim>::jGN(ele.jGN(bary,boundaryFace));
+		}
         
+
         
 	};
 	

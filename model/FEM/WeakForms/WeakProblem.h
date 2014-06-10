@@ -96,9 +96,6 @@ namespace model
             A.resize(gSize,gSize);
             A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
             
-            //            std::cout<<" (pruning: "<<A.nonZeros()<<"->";
-            //            A.prune(lhs.maxAbsValue);
-            //            std::cout<<A.nonZeros()<<" non-zeros)";
             
             // Resize b
             b=rhs.globalVector();
@@ -123,7 +120,7 @@ namespace model
             {
                 A.coeffRef(lhs.trialExpr.trial().dcContainer[c].first,lhs.trialExpr.trial().dcContainer[c].first) += K;
                 b(lhs.trialExpr.trial().dcContainer[c].first) += K*lhs.trialExpr.trial().dcContainer[c].second;
-                //          x(lhs.trialExpr.trial().dcContainer[c].first)=lhs.trialExpr.trial().dcContainer[c].second;
+                x(lhs.trialExpr.trial().dcContainer[c].first)=lhs.trialExpr.trial().dcContainer[c].second;
             }
             A.makeCompressed();
         }

@@ -121,7 +121,7 @@ namespace model
         typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
         typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
 		enum {NdofXnode=NodeType::NdofXnode};
-		
+		        
 //#ifdef UpdateBoundaryConditionsFile
 //#include UpdateBoundaryConditionsFile
 //#endif
@@ -364,7 +364,11 @@ namespace model
 	public:
         //		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
-		DislocationSharedObjects<LinkType> shared;
+        typedef DislocationSharedObjects<LinkType> DislocationSharedObjectsType;
+        
+        typedef typename DislocationSharedObjectsType::BvpSolverType BvpSolverType;
+        
+		DislocationSharedObjectsType shared;
 		
 		//! The number of simulation steps taken by the next call to runByStep()
 		int Nsteps;

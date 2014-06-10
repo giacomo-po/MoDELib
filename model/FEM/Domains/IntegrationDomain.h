@@ -55,12 +55,28 @@ namespace model
         constexpr static int domainDim=dim-1;
         typedef Quadrature<domainDim,qOrder,QuadratureRule> QuadratureType;
         typedef typename QuadratureType::VectorDim AbscissaType;
+        typedef typename FiniteElementType::ElementType ElementType;
         
         /**********************************************************************/
         const typename FiniteElementType::ElementType& element(const size_t& k) const
         {
             return *(this->operator[](k).first);
         }
+        
+        
+        /**********************************************************************/
+        template <typename AnyClass, typename IntegrandType, typename ...Args>
+        void integrate(const AnyClass* const C, IntegrandType &intgrl, IntegrandType (AnyClass::*mfp)(const AbscissaType&,const ElementType&, const int&, const Args&...) const, const Args&...args) const
+        {
+            std::cout<<"Integrating on boundary ("<<this->size()<<" faces) ..."<<std::flush;
+            const auto t0= std::chrono::system_clock::now();
+            for (int k=0;k<this->size();++k)
+            {
+                QuadratureType::integrate(C,intgrl,mfp,*(this->operator[](k)).first,this->operator[](k).second,args...);
+            }
+            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+        }
+        
     };
 
 

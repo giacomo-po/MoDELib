@@ -12,6 +12,8 @@
 #include <model/DislocationDynamics/DislocationNetwork.h>
 #include <model/FEM/Boundaries/LowerCorner.h>
 #include <model/FEM/Boundaries/OnMaxAxis.h>
+#include <model/FEM/Boundaries/AtXmax.h>
+
 #include <model/FEM/BoundaryConditions/Fix.h>
 
 
@@ -43,6 +45,17 @@ int main (int argc, char* argv[])
     }
     // Run time steps
     DN.runSteps();
+    
+    
+    auto topBnd=DN.shared.bvpSolver.finiteElement().boundary<AtXmax<2>,3,GaussLegendre>();
+    
+    Eigen::Matrix<double,3,1> temp(Eigen::Matrix<double,3,1>::Zero());
+    
+    typedef typename DislocationNetworkType::BvpSolverType BvpSolverType;
+    
+//    topBnd.integrate(&DN.shared.bvpSolver,temp,&BvpSolverType::traction);
+    topBnd.integrate(&DN.shared.bvpSolver,temp,&BvpSolverType::traction,DN);
+    
     
     return 0;
 }
