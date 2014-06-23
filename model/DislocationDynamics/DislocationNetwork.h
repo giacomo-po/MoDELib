@@ -121,7 +121,7 @@ namespace model
         typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
         typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
 		enum {NdofXnode=NodeType::NdofXnode};
-		        
+		      
 //#ifdef UpdateBoundaryConditionsFile
 //#include UpdateBoundaryConditionsFile
 //#endif
@@ -134,8 +134,8 @@ namespace model
         
 		short unsigned int use_redistribution;
 		bool use_junctions;
-		static bool useImplicitTimeIntegration;
-        static double equilibriumVelocity;
+        bool useImplicitTimeIntegration;
+        double equilibriumVelocity;
         
 		unsigned int runID;
         
@@ -378,7 +378,21 @@ namespace model
         
 		/**********************************************************************/
         DislocationNetwork(int& argc, char* argv[]) :
-        /* init list  */ plasticDistortion(MatrixDimD::Zero())
+        /* init list  */ use_redistribution(0),
+		/* init list  */ use_junctions(false),
+		/* init list  */ useImplicitTimeIntegration(false),
+        /* init list  */ equilibriumVelocity(0.01),
+		/* init list  */ runID(0),
+		/* init list  */ use_crossSlip(false),
+		/* init list  */ crossSlipDeg(45.0),
+		/* init list  */ crossSlipLength(100.0),
+		/* init list  */ totalTime(0.0),
+		/* init list  */ dx(0.0),
+        /* init list  */ dt(0.0),
+        /* init list  */ vmax(0.0),
+        /* init list  */ Nsteps(0),
+		/* init list  */ timeWindow(0.0),
+        /* init list  */ plasticDistortion(MatrixDimD::Zero()),
         {
             ParticleSystemType::initMPI(argc,argv);
             read("./","DDinput.txt");
@@ -783,23 +797,14 @@ namespace model
 			return temp;
 		}
         
-		/**********************************************************************/
-		MatrixDimD stressFromGlidePlane(const Eigen::Matrix<double,dim+1,1>& key, const VectorDimD& Rfield) const
-        {
-			//GlidePlaneObserver<dim,LinkType> gpObsever;
-			MatrixDimD temp(MatrixDimD::Zero());
-			typedef typename GlidePlaneObserver<LinkType>::GlidePlaneType GlidePlaneType;
-			std::pair<bool, const GlidePlaneType* const> isGp(this->isGlidePlane(key));
-			if (isGp.first)
-            {
-				temp=isGp.second->stress(Rfield);
-			}
-            if (shared.use_bvp && (shared.boundary_type==1))
-            {
-                temp+= shared.vbsc.stressFromGlidePlane(key,Rfield);
-            }
-			return temp;
-		}
+        
+//        /**********************************************************************/
+//        void getStress(std::deque<SimpleFieldPoint>& fieldPoints)
+//        {
+//            DN.updateQuadraturePoints();
+//            DN.computeField<SimpleFieldPoint,StressField>(fieldPoints);
+//        }
+        
 		
 		/**********************************************************************/
 		VectorDimD displacement(const VectorDimD & Rfield,const VectorDimD & S) const
@@ -892,14 +897,33 @@ namespace model
 		
 	};
     
-    // decalre static data
-    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    bool DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::useImplicitTimeIntegration=false;
-    
-    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    double DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::equilibriumVelocity=0.01;
+//    // decalre static data
+//    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+//	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//    bool DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::useImplicitTimeIntegration=false;
+//    
+//    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+//	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//    double DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::equilibriumVelocity=0.01;
     
 } // namespace model
 #endif
+
+//		/**********************************************************************/
+//		MatrixDimD stressFromGlidePlane(const Eigen::Matrix<double,dim+1,1>& key, const VectorDimD& Rfield) const
+//        {
+//			//GlidePlaneObserver<dim,LinkType> gpObsever;
+//			MatrixDimD temp(MatrixDimD::Zero());
+//			typedef typename GlidePlaneObserver<LinkType>::GlidePlaneType GlidePlaneType;
+//			std::pair<bool, const GlidePlaneType* const> isGp(this->isGlidePlane(key));
+//			if (isGp.first)
+//            {
+//				temp=isGp.second->stress(Rfield);
+//			}
+//            if (shared.use_bvp && (shared.boundary_type==1))
+//            {
+//                temp+= shared.vbsc.stressFromGlidePlane(key,Rfield);
+//            }
+//			return temp;
+//		}
+

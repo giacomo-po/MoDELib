@@ -6,16 +6,16 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_DislocationNegativeStress_H_
-#define model_DislocationNegativeStress_H_
+#ifndef model_DislocationNegativeFields_H_
+#define model_DislocationNegativeFields_H_
 
 
 
 namespace model
 {
 	template <typename DislocationNetworkType>
-    struct DislocationNegativeStress :
-    /* inheritance */ public EvalExpression<DislocationNegativeStress<DislocationNetworkType> >
+    struct DislocationNegativeFields :
+    /* inheritance */ public EvalExpression<DislocationNegativeFields<DislocationNetworkType> >
     {
         constexpr static int dim=DislocationNetworkType::dim;
         constexpr static int rows=dim;
@@ -24,8 +24,13 @@ namespace model
         const DislocationNetworkType& DN;
         
         /**********************************************************************/
-        DislocationNegativeStress(const DislocationNetworkType& DN_in) : DN(DN_in)
+        DislocationNegativeFields(const DislocationNetworkType& DN_in) : DN(DN_in)
         {
+            
+            // here I could create a deque of boundary gauss points and a deque
+            // of boundary nodes
+            
+            
             
         }
         
@@ -39,7 +44,7 @@ namespace model
             
             //Eigen::Matrix<double,dim,1> outNormal;
             
-            ///* inheritance */ public FieldPoint<DislocationNegativeStress,dim,DislocationStress<dim> >,
+            ///* inheritance */ public FieldPoint<DislocationNegativeFields,dim,DislocationStress<dim> >,
             // Let the DislocationNetwork compute the stress at the field points
             
             //    DN.computeField<SimpleFieldPoint,StressField>(fieldPoints);

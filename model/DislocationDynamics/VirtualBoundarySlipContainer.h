@@ -58,8 +58,8 @@ namespace model
         //=======================================================================
         // add a new entity to the container
         //======================================================================
-        //      template <typename DislocationSegmentType>
-        void add (const DislocationSegmentType& ds) {
+        void add (const DislocationSegmentType& ds)
+        {
 			
             std::auto_ptr<VirtualBoundarySlipSurfaceType > pVBSS (new VirtualBoundarySlipSurfaceType (ds) );
             this->push_back(pVBSS);
@@ -103,36 +103,40 @@ namespace model
         
         /* initializeVirtualSegments ********************************************/
         template<typename DislocationNetworkType>
-        void initializeVirtualSegments (DislocationNetworkType& DN) {
+        void initializeVirtualSegments (DislocationNetworkType& DN)
+        {
             
             VectorDim sourceP, sinkP, Burgers;
             
             std::stringstream filename;
             filename << "B/B_" << DN.runningID() << ".txt";
             
-            unsigned int sourceID, sinkID;
             unsigned int ii=0;
             
             FILE *fp =fopen(filename.str().c_str(), "r");
             
-            if (fp != NULL) {
-                while (!feof(fp)) {
-                    if(fscanf(fp, "%le%le%le%le%le%le%le%le%le", &sourceP(0),&sourceP(1),&sourceP(2),&sinkP(0),&sinkP(1),&sinkP(2),&Burgers(0),&Burgers(1),&Burgers(2))==9){
+            if (fp != NULL)
+            {
+                while (!feof(fp))
+                {
+                    if(fscanf(fp, "%le%le%le%le%le%le%le%le%le", &sourceP(0),&sourceP(1),&sourceP(2),&sinkP(0),&sinkP(1),&sinkP(2),&Burgers(0),&Burgers(1),&Burgers(2))==9)
+                    {
                         ii++;
                         
-                        sourceID = DN.insertVertex(sourceP);
-                        if (DN.node(sourceID).second->meshLocation()!=onMeshBoundary) {
+                        const size_t sourceID = DN.insertVertex(sourceP);
+                        if (DN.node(sourceID).second->meshLocation()!=onMeshBoundary)
+                        {
                             std::cout << "Error: Source node of Virtual dislocation no. " << ii << " was not recognized as boundary node. Check its coordinates" << std::endl;
                             assert(0);
                         }
                         
-                        sinkID   = DN.insertVertex(sinkP);
-                        
-                        if (DN.node(sinkID).second->meshLocation()!=onMeshBoundary) {
+                        const size_t sinkID   = DN.insertVertex(sinkP);
+                        if (DN.node(sinkID).second->meshLocation()!=onMeshBoundary)
+                        {
                             std::cout << "Error: Sink node of Virtual dislocation no. " << ii << " was not recognized as boundary node. Check its coordinates" << std::endl;
                             assert(0);
                         }
-                        if ((sinkP-sourceP).norm()>1.0e-5)
+                        if ((sinkP-sourceP).norm()>FLT_EPSILON)
                         {
                             DN.connect(sourceID,sinkID,Burgers); // create a dislocation segment
                             DN.template disconnect<true>(sourceID,sinkID); // destroy the dislocation segment in order to create the boundary segment. true=remove isolated nodes

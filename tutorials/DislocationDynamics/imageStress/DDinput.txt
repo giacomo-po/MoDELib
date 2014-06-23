@@ -79,7 +79,7 @@ collisionTol=10;
 # boundary_type = 1 for shearable confining boundary. The files N/N_meshID.txt, T/T_meshID.txt must be present in the working directory
 # boundary_type = 2 for unshearable confining boundary. The files N/N_meshID.txt, T/T_meshID.txt must be present in the working directory
 boundary_type =1;
-meshID=1;
+meshID=0;
 
 
 ######################################

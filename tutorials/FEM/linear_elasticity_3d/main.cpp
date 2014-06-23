@@ -3,10 +3,10 @@
 #include <model/Utilities/SequentialOutputFile.h>
 
 #include <model/FEM/FiniteElement.h>
-//#include <model/FEM/Boundary/TopBoundary.h>
 #include <model/FEM/Boundaries/AtXmin.h>
 #include <model/FEM/Boundaries/AtXmax.h>
 #include <model/FEM/BoundaryConditions/Fix.h>
+#include <model/FEM/BoundaryConditions/DirichletCondition.h>
 
 using namespace model;
 
@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     /**************************************************************************/
     // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndA
     Eigen::Matrix<double,3,1> f;
-    f<<0.0,0.0,0.1;
+    f<<0.0,0.0,0.0;
     auto ndA_1=fe.boundary<AtXmax<2>,3,GaussLegendre>();
     auto lWF_1=(u.test(),f)*ndA_1;
     
@@ -75,37 +75,51 @@ int main(int argc, char** argv)
 
     /**************************************************************************/
     // Create the WeakProblem
-    auto wp_u(bWF_u=lWF_1+lWF_2); //  weak problem
+    auto wp(bWF_u=lWF_2); //  weak problem
     
     /**************************************************************************/
     // Set up Dirichlet boundary conditions
     Fix fix;
     
-    // Create a list of nodes having x(0)=x0_min, where x0_min is the minimum value among the fe nodes
-    auto nodeList_0(fe.getNodeList<AtXmin<0>>());
-    // Fix the 0-th component of displacement for those nodes
-    u.addDirichletCondition(fix,nodeList_0,0);
+//    // Create a list of nodes having x(0)=x0_min, where x0_min is the minimum value among the fe nodes
+//    auto nodeList_0(fe.getNodeList<AtXmin<0>>());
+//    // Fix the 0-th component of displacement for those nodes
+//    u.addDirichletCondition(fix,nodeList_0,0);
+//
+//    // Create a list of nodes having x(1)=x1_min, where x1_min is the minimum value among the fe nodes
+//    auto nodeList_1(fe.getNodeList<AtXmin<1>>());
+//    // Fix the 1-st component of displacement for those nodes
+//    u.addDirichletCondition(fix,nodeList_1,1);
+//    
+//    // Create a list of nodes having x(2)=x2_min, where x2_min is the minimum value among the fe nodes
+//    auto nodeList_2(fe.getNodeList<AtXmin<2>>());
+//    // Fix the 2-nd component of displacement for those nodes
+//    u.addDirichletCondition(fix,nodeList_2,2);
 
-    // Create a list of nodes having x(1)=x1_min, where x1_min is the minimum value among the fe nodes
-    auto nodeList_1(fe.getNodeList<AtXmin<1>>());
-    // Fix the 1-st component of displacement for those nodes
-    u.addDirichletCondition(fix,nodeList_1,1);
-    
-    // Create a list of nodes having x(2)=x2_min, where x2_min is the minimum value among the fe nodes
-    auto nodeList_2(fe.getNodeList<AtXmin<2>>());
-    // Fix the 2-nd component of displacement for those nodes
-    u.addDirichletCondition(fix,nodeList_2,2);
-
-    
 
     /**************************************************************************/
+//    // Alternative  Dirichlet boundary conditions
+//    // Create a list of nodes having x(0)=x0_min, where x0_min is the minimum value among the fe nodes
+    auto nodeList_0(fe.getNodeList<AtXmin<2>>());
+    // Fix those those nodes
+    u.addDirichletCondition(fix,nodeList_0,0);
+    u.addDirichletCondition(fix,nodeList_0,1);
+    u.addDirichletCondition(fix,nodeList_0,2);
+
+    // Create a list of nodes having x(2)=x2_max, where x2_max is the minimum value among the fe nodes
+    auto nodeList_2(fe.getNodeList<AtXmax<2>>());
+    // Prescribe the first component of displacement for those nodes
+    DirichletCondition dc(3.0e-4);
+    u.addDirichletCondition(dc,nodeList_2,0);
+    
+    
+    /**************************************************************************/
     // Solve
-    
-//    wp_u.assembleWithLagrangeConstraints();
-    wp_u.assembleWithPenaltyConstraints(1000.0);
-    
-    wp_u.solve(0.0001);
-    u.dofContainer=wp_u.x.segment(0,u.dofContainer.size());
+    wp.assembleWithMasterSlaveConstraints();
+    //    wp.assembleWithLagrangeConstraints();
+    //    wp.assembleWithPenaltyConstraints(1000000.0);
+    const double tol=0.00001;
+    u=wp.solve(tol);
 
     /**************************************************************************/
     // Output displacement and stress on external mesh faces
@@ -117,7 +131,3 @@ int main(int argc, char** argv)
     
 	return 0;
 }
-
-
-
-

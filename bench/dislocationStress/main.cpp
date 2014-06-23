@@ -3,14 +3,18 @@
 
 
 #include <stdlib.h> // atoi
+#include <chrono>
 #include <model/DislocationDynamics/DislocationNetwork.h>
 #include <model/Utilities/SequentialOutputFile.h>
+#include <model/ParticleInteraction/FieldPoint.h>
 
 using namespace model;
 
 /******************************************************************************/
 Eigen::Matrix<double,3,3> stressStraightEdge(const Eigen::Matrix<double,3,1>& P)
-{
+{/*!@param[in] P the field point
+  * \returns the stress field of a straight edge dislocation at P
+  */
     Eigen::Matrix<double,3,3> stress(Eigen::Matrix<double,3,3>::Zero()); // 3x3 matrix of zeros
     
     // Assume unitary b and mu
@@ -67,7 +71,10 @@ int main(int argc, char * argv[])
         oldID=newID;
     }
     
+    /**************************************************************************/
     // Construct a grid of field points on the plane z=0
+    std::cout<<"Creating grid of FieldPoints..."<<std::flush;
+    const auto t0= std::chrono::system_clock::now();
     std::deque<SimpleFieldPoint> fieldPoints; // the container of field points
     
     int nx=500;              // the number of grid points in x is 2*nx+1
@@ -94,12 +101,21 @@ int main(int argc, char * argv[])
             fieldPoints.emplace_back(P);
         }
     }
+    std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+
     
+    /**************************************************************************/
     // Let the DislocationNetwork compute the stress at the field points
+    std::cout<<"Computing DislocationStress at field points..."<<std::flush;
+    const auto t1= std::chrono::system_clock::now();
     DN.updateQuadraturePoints();
     DN.computeField<SimpleFieldPoint,StressField>(fieldPoints);
+    std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
 
+    /**************************************************************************/
     // Ouput results to file
+    std::cout<<"Outputing to file..."<<std::flush;
+    const auto t2= std::chrono::system_clock::now();
     model::SequentialOutputFile<'S',1>  numericalFile; // this is file S/S_0.txt
 //    model::SequentialOutputFile<'S',1>  analyticalFile; // this is file S/S_1.txt
     
@@ -115,7 +131,8 @@ int main(int argc, char * argv[])
 //        /*                                        */ <<" "<<s.row(2)<<"\n";
         
     }
-    
+    std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]"<<std::endl;
+
     
     
     

@@ -129,20 +129,6 @@ namespace model {
             C4=1.0/(8.0*M_PI*C1);
         }
         
-        //        //=========================================================================
-        //        // function to set the elastic constants
-        //        //========================================================================
-        //        template <typename SharedType>
-        //        void setElasticConstants (const SharedType* sharedPtr) {
-        //            mu=sharedPtr->material.mu;
-        //            nu=sharedPtr->material.nu;
-        //
-        //            C1=1.0-nu;
-        //            C2=mu/(4.0*M_PI*C1);
-        //            C3=1.0-2.0*nu;
-        //            C4=1.0/(8.0*M_PI*C1);
-        //        }
-        
         //==========================================================================
         // function to add radial segments to the radialSegmentsVector
         // index =2: add at both source and sink

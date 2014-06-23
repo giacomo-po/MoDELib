@@ -53,7 +53,6 @@ int main (int argc, char* argv[])
     
     typedef typename DislocationNetworkType::BvpSolverType BvpSolverType;
     
-//    topBnd.integrate(&DN.shared.bvpSolver,temp,&BvpSolverType::traction);
     topBnd.integrate(&DN.shared.bvpSolver,temp,&BvpSolverType::traction,DN);
     
     

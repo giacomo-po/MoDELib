@@ -113,8 +113,8 @@ namespace model
             
             std::cout<<"   # elements: "<<elementSize()    <<"\n";
             std::cout<<"   # nodes: "   <<nodeSize()       <<"\n";
-            std::cout<<"   # xMin: "    <<_xMin.transpose()<<"\n";
-            std::cout<<"   # xMax: "    <<_xMax.transpose()<<std::endl;
+            std::cout<<"   xMin= "    <<_xMin.transpose()<<"\n";
+            std::cout<<"   xMax= "    <<_xMax.transpose()<<std::endl;
         }
         
         /**********************************************************************/

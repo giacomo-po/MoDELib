@@ -181,39 +181,3 @@ namespace model {
     
 }	// close namespace
 #endif
-
-
-//            std::ifstream ifs ( filename.c_str() , std::ifstream::in );
-//
-//            if (ifs.is_open())
-//            {
-//                std::cout<<"Reading mesh elements from file "<<filename<<"..."<<std::flush;
-//
-//
-//                std::string line;
-//
-//                while (std::getline(ifs, line))
-//                {
-//                    std::stringstream ss(line);
-//                    typename SimplexTraits<dim,dim>::SimplexIDType xID;
-//                    int i(0);
-//                    int temp;
-//
-//                    while (ss >> temp)
-//                    {
-//                        xID(i) =temp;
-//                        i++;
-//                    }
-//
-//                    insertSimplex(xID);
-//                }
-//
-//                std::cout<<" done."<<std::endl;
-//                MeshStats<dim,dim>::stats(true);
-//                Simplex<dim,0>::nodeReader.clear();
-//            }
-//            else
-//            {
-//                std::cout<<"Cannot read mesh file "<<filename<<". Mesh is empty."<<std::endl;
-//                //assert(0);
-//            }

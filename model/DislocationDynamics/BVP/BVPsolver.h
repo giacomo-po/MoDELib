@@ -12,7 +12,7 @@
 #include <memory> // unique_ptr
 #include <model/FEM/FiniteElement.h>
 #include <model/DislocationDynamics/Materials/Material.h>
-#include <model/DislocationDynamics/BVP/DislocationNegativeStress.h>
+#include <model/DislocationDynamics/BVP/DislocationNegativeFields.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/FEM/WeakForms/JGNselector.h>
 
@@ -134,13 +134,7 @@ namespace model
             C=get_C(); // Material<Isotropic>  may have changed
             s  = std::move(std::unique_ptr<TrialStressType>(new TrialStressType(C**e)));
 //            _bWF = std::move(std::unique_ptr<BilinearWeakFormType>(new BilinearWeakFormType(e->test(),*s)));
-            
             dV = fe->template domain<EntireDomain,4,GaussLegendre>();
-            
-//            auto dV=fe->domain<EntireDomain,4,GaussLegendre>();
-            
-//            (*_bWF)*dV;
-            
         }
         
         
@@ -148,11 +142,11 @@ namespace model
         template <typename DislocationNetworkType,int qOrder>
         void assembleAndSolve(const DislocationNetworkType& DN)
         {
-            typedef DislocationNegativeStress<DislocationNetworkType> DislocationNegativeStressType;
+            typedef DislocationNegativeFields<DislocationNetworkType> DislocationNegativeFieldsType;
 
-            const DislocationNegativeStressType ds(DN);
+            const DislocationNegativeFieldsType ds(DN);
             
-            //typedef LinearWeakForm<TrialFunctionType,DislocationNegativeStressType> LinearWeakFormType;
+            //typedef LinearWeakForm<TrialFunctionType,DislocationNegativeFieldsType> LinearWeakFormType;
 
             auto bWF=(e->test(),*s)*dV;
 
@@ -167,13 +161,18 @@ namespace model
             auto wp(bWF=lWF); //  weak problem
             
             //wp.assembleWithLagrangeConstraints();
-            wp.assembleWithPenaltyConstraints(1000.0);
+//            wp.assembleWithPenaltyConstraints(1000.0);
+  
+            wp.assembleWithMasterSlaveConstraints();
+
+//            wp.solve(0.0001);
+//            //wp_u.output();
+//            u->dofContainer=wp.x.segment(0,u->dofContainer.size());
             
-            wp.solve(0.0001);
+            const double tol(0.0001);
+            (*u)=wp.solve(tol);
             //wp_u.output();
-            u->dofContainer=wp.x.segment(0,u->dofContainer.size());
-            
-            
+            //u->dofContainer=wp.x.segment(0,u->dofContainer.size());
         }
         
         /**********************************************************************/

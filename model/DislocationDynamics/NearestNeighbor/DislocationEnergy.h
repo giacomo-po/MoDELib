@@ -32,6 +32,50 @@ namespace model
         typedef typename FieldBaseType::MatrixType MatrixType;
         
         
+        
+        
+#if _MODEL_NON_SINGULAR_DD_ == 0 // Note that if _MODEL_NON_SINGULAR_DD_ is not #defined, the preprocessor treats it as having the value 0.
+        
+        template <typename DislocationParticleType>
+        static MatrixType compute(const DislocationParticleType& source,const DislocationParticleType& field)
+        {/*!@param[in] source the DislocationParticle that is source of stress
+          * @param[in] field  the DislocationParticle on which stress is computed
+          *\returns the stress field produced by source on field
+          */
+            
+            assert(0 && "FINISH IMPLEMENTATION HERE"); // \todo Finish implementation here
+            
+
+            
+        }
+        
+#elif _MODEL_NON_SINGULAR_DD_ == 1 /* Cai's non-singular theory */
+        
+        
+        template <typename DislocationParticleType>
+        static MatrixType compute(const DislocationParticleType& source,const DislocationParticleType& field)
+        {/*!@param[in] source the DislocationParticle that is source of stress
+          * @param[in] field  the DislocationParticle on which stress is computed
+          *\returns the stress field produced by source on field
+          */
+
+            assert(0 && "FINISH IMPLEMENTATION HERE"); // \todo Finish implementation here
+            
+//            MatrixType temp(MatrixType::Zero());
+//            
+//            const Eigen::Matrix<double,_dim,1> r(field.P-source.P);
+//            
+//            
+//            
+//            return  (Material<Isotropic>::C1*(1.0+0.5*coreLsquared/RaSquared)*Burgers.dot(rugauss.col(k))*bf.dot(ruf)
+//                     +2.0*Material<Isotropic>::nu*(1.0+0.5*coreLsquared/RaSquared)*(bf.dot(rugauss.col(k))*Burgers.dot(ruf))
+//                     -(Burgers.dot(bf)*(1.0+coreLsquared/RaSquared)+ Burgers.dot(DR)*bf.dot(DR)*1.0/RaSquared )*ruf.dot(rugauss.col(k))
+//                     )/sqrt(RaSquared);
+            
+        }
+        
+#elif _MODEL_NON_SINGULAR_DD_ == 2 /* Lazar's non-singular theory */
+        
         template <typename DislocationParticleType>
         static MatrixType compute(const DislocationParticleType& source,const DislocationParticleType& field)
         {/*!@param[in] source the DislocationParticle that is source of stress
@@ -61,13 +105,12 @@ namespace model
             }
             
             
-            //            return  (Material<Isotropic>::C1*(1.0+0.5*coreLsquared/RaSquared)*Burgers.dot(rugauss.col(k))*bf.dot(ruf)
-            //					 +2.0*Material<Isotropic>::nu*(1.0+0.5*coreLsquared/RaSquared)*(bf.dot(rugauss.col(k))*Burgers.dot(ruf))
-            //					 -(Burgers.dot(bf)*(1.0+coreLsquared/RaSquared)+ Burgers.dot(DR)*bf.dot(DR)*1.0/RaSquared )*ruf.dot(rugauss.col(k))
-            //					 )/sqrt(RaSquared);
-            
             return -0.5*Material<Isotropic>::C2*temp*source.quadWeight*field.quadWeight; // C2=1/(4*pi*(1-nu))
         }
+        
+#else
+#error Unsupported choice of field regularization
+#endif
         
         
 	};
