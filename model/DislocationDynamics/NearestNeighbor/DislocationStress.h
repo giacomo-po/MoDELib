@@ -26,6 +26,7 @@ namespace model
     /* inheritance */ : public FieldBase<double,_dim,_dim>
     {
         
+        constexpr static int dim=_dim;
         typedef DislocationStress<_dim> DislocationStressType;
         typedef FieldBase<double,_dim,_dim> FieldBaseType;
         typedef typename FieldBaseType::MatrixType MatrixType;

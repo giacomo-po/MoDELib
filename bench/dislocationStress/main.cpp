@@ -6,7 +6,7 @@
 #include <chrono>
 #include <model/DislocationDynamics/DislocationNetwork.h>
 #include <model/Utilities/SequentialOutputFile.h>
-#include <model/ParticleInteraction/FieldPoint.h>
+#include <model/ParticleInteraction/SingleFieldPoint.h>
 
 using namespace model;
 
@@ -17,28 +17,23 @@ Eigen::Matrix<double,3,3> stressStraightEdge(const Eigen::Matrix<double,3,1>& P)
   */
     Eigen::Matrix<double,3,3> stress(Eigen::Matrix<double,3,3>::Zero()); // 3x3 matrix of zeros
     
+    // From Hirth and Lothe ch 3.4, p76.
     // Assume unitary b and mu
 
-    //  stress(0,0)=...; // sigma_xx
-    //  stress(0,1)=...; // sigma_xy
-    //  stress(1,1)=...; // sigma_yy
-
-    //  stress(1,0)=stress(0,1); // sigma_yx is same as sigma_xy
+    const double& x(P(0));
+    const double& y(P(1));
+    const double x2(x*x);
+    const double y2(y*y);
+    const double R4(std::pow(x2+y2,2));
     
-    return stress;
+    stress(0,0)=-y*(3.0*x2+y2)/R4;  // sigma_xx
+    stress(1,1)= y*(    x2-y2)/R4;  // sigma_yy
+    stress(2,2)=-2.0*Material<Isotropic>::nu*y/(x2+y2);  // sigma_zz
+    stress(0,1)= x*(    x2-y2)/R4;  // sigma_xy
+    stress(1,0)=stress(0,1);        // symmetry
+    
+    return stress/(2.0*M_PI*(1.0-Material<Isotropic>::nu));
 }
-
-
-/******************************************************************************/
-struct SimpleFieldPoint :
-/* inheritance */ public FieldPoint<SimpleFieldPoint,3,DislocationStress<3> >
-{    
-    const Eigen::Matrix<double,3,1> P;
-    
-    SimpleFieldPoint(const Eigen::Matrix<double,3,1>& Pin) : P(Pin){}
-    
-};
-
 
 /******************************************************************************/
 int main(int argc, char * argv[])
@@ -75,10 +70,11 @@ int main(int argc, char * argv[])
     // Construct a grid of field points on the plane z=0
     std::cout<<"Creating grid of FieldPoints..."<<std::flush;
     const auto t0= std::chrono::system_clock::now();
-    std::deque<SimpleFieldPoint> fieldPoints; // the container of field points
+    typedef SingleFieldPoint<StressField> FieldPointType;
+    std::deque<FieldPointType> fieldPoints; // the container of field points
     
-    int nx=500;              // the number of grid points in x is 2*nx+1
-    int ny=500;              // the number of grid points in y is 2*ny+1
+    int nx=100;              // the number of grid points in x is 2*nx+1
+    int ny=100;              // the number of grid points in y is 2*ny+1
 
     if (argc>1) // overwrite nx and ny using input arguments to program
     {
@@ -89,9 +85,9 @@ int main(int argc, char * argv[])
         }
     }
     
-    double Lx( 1.0e+02);    // grid extends in [-Lx,Lx] along x direction (units of b)
+    double Lx( 1.0e+01);    // grid extends in [-Lx,Lx] along x direction (units of b)
     
-    double Ly( 1.0e+02);    // grid extends in [-Ly,Ly] along y direction (units of b)
+    double Ly( 1.0e+01);    // grid extends in [-Ly,Ly] along y direction (units of b)
 
     for (int i=-nx;i<nx+1;++i)
     {
@@ -109,26 +105,29 @@ int main(int argc, char * argv[])
     std::cout<<"Computing DislocationStress at field points..."<<std::flush;
     const auto t1= std::chrono::system_clock::now();
     DN.updateQuadraturePoints();
-    DN.computeField<SimpleFieldPoint,StressField>(fieldPoints);
+    DN.computeField<FieldPointType,StressField>(fieldPoints);
     std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
 
     /**************************************************************************/
     // Ouput results to file
     std::cout<<"Outputing to file..."<<std::flush;
     const auto t2= std::chrono::system_clock::now();
-    model::SequentialOutputFile<'S',1>  numericalFile; // this is file S/S_0.txt
-//    model::SequentialOutputFile<'S',1>  analyticalFile; // this is file S/S_1.txt
+    model::SequentialOutputFile<'S',1>  numericalFile;  // this is file S/S_0.txt
+    model::SequentialOutputFile<'S',1>  analyticalFile; // this is file S/S_1.txt
     
     for (unsigned int k=0;k<fieldPoints.size();++k)
     {
-        numericalFile << fieldPoints[k].P.transpose()<<" "<<fieldPoints[k].field<StressField>().row(0)
-        /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(1)
-        /*                                        */ <<" "<<fieldPoints[k].field<StressField>().row(2)<<"\n";
+        Eigen::Matrix<double,3,3> temp(Material<Isotropic>::C2*(fieldPoints[k].field<StressField>()+fieldPoints[k].field<StressField>().transpose()));
         
-//        Eigen::Matrix<double,3,3> s(stressStraightEdge(fieldPoints[k].P));
-//        analyticalFile << fieldPoints[k].P.transpose()<<" "<<s.row(0)
-//        /*                                        */ <<" "<<s.row(1)
-//        /*                                        */ <<" "<<s.row(2)<<"\n";
+        
+        numericalFile << fieldPoints[k].P.transpose()<<" "<<temp.row(0)
+        /*                                        */ <<" "<<temp.row(1)
+        /*                                        */ <<" "<<temp.row(2)<<"\n";
+        
+        Eigen::Matrix<double,3,3> s(stressStraightEdge(fieldPoints[k].P));
+        analyticalFile << fieldPoints[k].P.transpose()<<" "<<s.row(0)
+        /*                                         */ <<" "<<s.row(1)
+        /*                                         */ <<" "<<s.row(2)<<"\n";
         
     }
     std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]"<<std::endl;
@@ -139,3 +138,14 @@ int main(int argc, char * argv[])
     
     return 0;
 }
+
+
+///******************************************************************************/
+//struct SimpleFieldPoint :
+///* inheritance */ public FieldPoint<SimpleFieldPoint,3,DislocationStress<3> >
+//{
+//    const Eigen::Matrix<double,3,1> P;
+//
+//    SimpleFieldPoint(const Eigen::Matrix<double,3,1>& Pin) : P(Pin){}
+//
+//};

@@ -392,7 +392,7 @@ namespace model
         /* init list  */ vmax(0.0),
         /* init list  */ Nsteps(0),
 		/* init list  */ timeWindow(0.0),
-        /* init list  */ plasticDistortion(MatrixDimD::Zero()),
+        /* init list  */ plasticDistortion(MatrixDimD::Zero())
         {
             ParticleSystemType::initMPI(argc,argv);
             read("./","DDinput.txt");
@@ -768,8 +768,8 @@ namespace model
 		}
 		
 		/**********************************************************************/
-		template <bool useFullField=true>
-		MatrixDimD stress(const VectorDimD & Rfield) const
+		//template <bool useFullField=true>
+		MatrixDimD stress(const VectorDimD& Rfield, const bool& useFullField=true) const
         {
 			MatrixDimD temp=MatrixDimD::Zero();
 			if(useFullField)
