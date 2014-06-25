@@ -67,7 +67,7 @@ CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 OBJS 	= DDomp
 
 $(OBJS): 
-	@echo ${greenColor}making omp version... ${normalColor}
+	@echo ${greenColor}making OpenMP code... ${normalColor}
 	$(CC) main.cpp -o  $(OBJS)  $(CFLAGS) $(IDIR)
 
 
@@ -109,7 +109,7 @@ mpiCFLAGS += -D _MODEL_DD_MPI_
 mpiOBJS = DDmpi
 
 $(mpiOBJS):
-	@echo ${blueColor}making mpi version... ${normalColor}
+	@echo ${blueColor}making MPI+OpenMP code... ${normalColor}
 	$(mpiCC) main.cpp -o $(mpiOBJS) $(mpiCFLAGS) $(IDIR) $(mpiLIBS)
 
 

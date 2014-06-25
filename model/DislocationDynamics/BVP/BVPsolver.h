@@ -34,25 +34,30 @@ namespace model
 //        typedef BilinearWeakForm<TrialDefType,TrialStressType> BilinearWeakFormType;
         typedef IntegrationDomain<FiniteElementType,0,4,GaussLegendre> IntegrationDomainType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-        
-        //        SimplicialMesh<dim> mesh;
-        
+                
         const SimplicialMesh<dim>& mesh;
         Eigen::Matrix<double,6,6> C;
         
         
         
-        std::unique_ptr<FiniteElementType> fe;
-        std::unique_ptr<TrialFunctionType>  u;  // displacement field *u=[u1 u2 u3]'
-        std::unique_ptr<TrialGradType>  b;      // displacement gradient *b=[u11 u12 u13 u21 u22 u23 u31 u32 u33]'
-        std::unique_ptr<TrialDefType>  e;       // strain *e=[e11 e22 e33 e12 e23 e13]'
-        std::unique_ptr<TrialStressType> s;     // stress *s=[s11 s22 s33 s12 s23 s13]'
+//        std::unique_ptr<FiniteElementType> fe;
+//        std::unique_ptr<TrialFunctionType>  u;  // displacement field *u=[u1 u2 u3]'
+//        std::unique_ptr<TrialGradType>  b;      // displacement gradient *b=[u11 u12 u13 u21 u22 u23 u31 u32 u33]'
+//        std::unique_ptr<TrialDefType>  e;       // strain *e=[e11 e22 e33 e12 e23 e13]'
+//        std::unique_ptr<TrialStressType> s;     // stress *s=[s11 s22 s33 s12 s23 s13]'
+        FiniteElementType* fe;
+        TrialFunctionType*  u;  // displacement field *u=[u1 u2 u3]'
+        TrialGradType*  b;      // displacement gradient *b=[u11 u12 u13 u21 u22 u23 u31 u32 u33]'
+        TrialDefType*  e;       // strain *e=[e11 e22 e33 e12 e23 e13]'
+        TrialStressType* s;     // stress *s=[s11 s22 s33 s12 s23 s13]'
+
+        
         IntegrationDomainType dV;
         
         
         /**********************************************************************/
         Eigen::Matrix<double,dim+1,1> face2domainBary(const Eigen::Matrix<double,dim,1>& b1,
-                                                      /*                                         */ const int& boundaryFace) const
+        /*                                         */ const int& boundaryFace) const
         {
             // Transform to barycentric coordinate on the volume, adding a zero on the boundaryFace-face
             Eigen::Matrix<double,dim+1,1> bary;
@@ -93,7 +98,6 @@ namespace model
             
         }
         
-        
         /**********************************************************************/
         const FiniteElementType& finiteElement() const
         {
@@ -127,13 +131,23 @@ namespace model
         /**********************************************************************/
         void init()
         {
-            fe = std::move(std::unique_ptr<FiniteElementType>(new FiniteElementType(mesh)));
-            u  = std::move(std::unique_ptr<TrialFunctionType>(new TrialFunctionType(fe->template trial<dim>())));
-            b  = std::move(std::unique_ptr<TrialGradType>(new TrialGradType(grad(*u))));
-            e  = std::move(std::unique_ptr<TrialDefType>(new TrialDefType(def(*u))));
+//            fe = std::move(std::unique_ptr<FiniteElementType>(new FiniteElementType(mesh)));
+//            u  = std::move(std::unique_ptr<TrialFunctionType>(new TrialFunctionType(fe->template trial<dim>())));
+//            b  = std::move(std::unique_ptr<TrialGradType>(new TrialGradType(grad(*u))));
+//            e  = std::move(std::unique_ptr<TrialDefType>(new TrialDefType(def(*u))));
+//            C=get_C(); // Material<Isotropic>  may have changed
+//            s  = std::move(std::unique_ptr<TrialStressType>(new TrialStressType(C**e)));
+
+            fe = new FiniteElementType(mesh);
+            u  = new TrialFunctionType(fe->template trial<dim>());
+            b  = new TrialGradType(grad(*u));
+            e  = new TrialDefType(def(*u));
             C=get_C(); // Material<Isotropic>  may have changed
-            s  = std::move(std::unique_ptr<TrialStressType>(new TrialStressType(C**e)));
-//            _bWF = std::move(std::unique_ptr<BilinearWeakFormType>(new BilinearWeakFormType(e->test(),*s)));
+            s  = new TrialStressType(C**e);
+
+            
+            
+            //            _bWF = std::move(std::unique_ptr<BilinearWeakFormType>(new BilinearWeakFormType(e->test(),*s)));
             dV = fe->template domain<EntireDomain,4,GaussLegendre>();
         }
         
@@ -160,19 +174,14 @@ namespace model
             // Create the WeakProblem
             auto wp(bWF=lWF); //  weak problem
             
-            //wp.assembleWithLagrangeConstraints();
-//            wp.assembleWithPenaltyConstraints(1000.0);
-  
+            // Assemble
             wp.assembleWithMasterSlaveConstraints();
+            //            wp.assembleWithLagrangeConstraints();
+            //            wp.assembleWithPenaltyConstraints(1000.0);
 
-//            wp.solve(0.0001);
-//            //wp_u.output();
-//            u->dofContainer=wp.x.segment(0,u->dofContainer.size());
-            
+            // Solve
             const double tol(0.0001);
             (*u)=wp.solve(tol);
-            //wp_u.output();
-            //u->dofContainer=wp.x.segment(0,u->dofContainer.size());
         }
         
         /**********************************************************************/

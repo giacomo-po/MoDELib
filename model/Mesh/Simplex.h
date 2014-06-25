@@ -245,14 +245,21 @@ namespace model {
         ~Simplex()
         {/*! Destructor performs the following operations:
           */
+//            std::cout<<"Destroying Simplex<dim,dim>..."<<std::flush; // problem with SegmentationFault is after this line
+
             //! -1 removes this in SimplexObserver
             SimplexObserver<dim,order>::removeSimplex(*this);
+            
+//            std::cout<<"I'm here"<<std::endl;
+
             
             //! -2 remove this fomr children parentContainers
             for (int k=0;k<nFaces;++k)
             {
                 this->child(k).removeFromParents(this);
             }
+//            std::cout<<"done"<<std::endl;
+
         }
         
         /**********************************************************************/
@@ -389,42 +396,3 @@ namespace model {
     
 }	// close namespace
 #endif
-
-
-
-
-//        /**********************************************************************/
-//        std::pair<Eigen::Matrix<double,dim+1,1>,int> baryFaceIntersection(const Eigen::Matrix<double,dim+1,1>& baryIn,
-//                                                           const Eigen::Matrix<double,dim+1,1>& baryOut) const
-//        {
-//
-////            std::cout<<"Simplex::baryFaceIntersection, baryIn="<<baryIn.transpose()<<std::endl;
-//
-//            // Check that baricentric coordinates sum to 1
-//            assert(std::fabs( baryIn.sum()-1.0)<=FLT_EPSILON && "baryIn must sum to 1");
-//            assert(std::fabs(baryOut.sum()-1.0)<=FLT_EPSILON && "baryOut must sum to 1");
-//
-//            // Check that baryIn is a point inside
-//            int kMin;
-//            const double baryMinIn(baryIn.minCoeff(&kMin));
-////            assert(baryMinIn>=0.0 && "min(baryIn) must be >=0");
-//            assert(baryMinIn >= -FLT_EPSILON && "min(baryIn) must be >=0");
-//
-//            const double baryMinOut(baryOut.minCoeff(&kMin)); // kMin is now the index of minimum baryOut
-//            assert(baryMinOut<=0.0 && "min(baryIn) must be <=0");
-//
-//
-//            double u(0.5);
-//            const double den(baryOut(kMin)-baryIn(kMin));
-//            if (den<0.0)
-//            {
-//                u=-baryIn(kMin)/den; // interpolate linearly
-//            }
-//
-//
-//            std::cout<<"Simplex::baryFaceIntersection bary="<<(baryIn*(1.0-u)+baryOut*u).transpose()<<std::endl;
-//
-//
-//            return std::make_pair(baryIn*(1.0-u)+baryOut*u,kMin);
-//
-//        }

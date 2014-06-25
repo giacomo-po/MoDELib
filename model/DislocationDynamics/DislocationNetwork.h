@@ -132,6 +132,7 @@ namespace model
         
 	private:
         
+        bool check_balance;
 		short unsigned int use_redistribution;
 		bool use_junctions;
         bool useImplicitTimeIntegration;
@@ -378,6 +379,7 @@ namespace model
         
 		/**********************************************************************/
         DislocationNetwork(int& argc, char* argv[]) :
+        /* init list  */ check_balance(true),
         /* init list  */ use_redistribution(0),
 		/* init list  */ use_junctions(false),
 		/* init list  */ useImplicitTimeIntegration(false),
@@ -447,6 +449,9 @@ namespace model
 			
             std::ostringstream fullName;
             fullName<<inputDirectoryName_in<<inputFileName;
+            
+            model::cout<<greenColor<<"Reading "<<fullName.str()<<"..."<<defaultColor<<std::endl;
+
             
             // Create a file-reader object
             EigenDataReader EDR;
@@ -537,7 +542,10 @@ namespace model
 			
 			EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
 			assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
-            
+
+            // Check balance
+            EDR.readScalarInFile(fullName.str(),"check_balance",check_balance);
+
             // JUNCTION FORMATION
             EDR.readScalarInFile(fullName.str(),"use_junctions",use_junctions);
             EDR.readScalarInFile(fullName.str(),"collisionTol",DislocationJunctionFormation<DislocationNetworkType>::collisionTol);
@@ -586,7 +594,7 @@ namespace model
             MPI_Barrier(MPI_COMM_WORLD);
 #endif
 			
-			// Initializing initial configuration
+			// Initializing configuration
 //			model::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
 			move(0.0,0.0);	// initial configuration
 //			output();	// initial configuration, this overwrites the input file
@@ -687,7 +695,7 @@ namespace model
         {/*! Moves all nodes in the DislocationNetwork using the stored velocity and current dt
           */
 			model::cout<<"		Moving DislocationNodes (dt="<<dt_in<< ")... "<<std::flush;
-			double t0=clock();
+            const auto t0= std::chrono::system_clock::now();
             //			typedef void (NodeType::*NodeMemberFunctionPointerType)(const double&); // define type of Link member function
             //			NodeMemberFunctionPointerType Nmfp(&NodeType::move); // Lmfp is a member function pointer to Link::assemble
             //			double t0=clock();
@@ -697,21 +705,21 @@ namespace model
             {
 				nodeIter->second->move(dt_in,dt_old);
 			}
-			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
 		}
 		
 		/**********************************************************************/
 		void runSteps()
         {/*! Runs Nsteps simulation steps
           */
-			double ts(clock());
+            const auto t0= std::chrono::system_clock::now();
 			for (int k=0;k<Nsteps;++k)
             {
 				model::cout<<std::endl; // leave a blank line
 				model::cout<<blueBoldColor<<"Step "<<k+1<<" of "<<Nsteps<<defaultColor<<std::endl;
 				singleStep();
 			}
-			model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(clock()-ts)/CLOCKS_PER_SEC<<" [sec]"<<defaultColor<<std::endl;
+			model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
 		}
 		
 		/**********************************************************************/
@@ -719,7 +727,7 @@ namespace model
         {/*! Runs a number simulation steps corresponding to a total
           * dimensionless time timeWindow
           */
-			double ts(clock());
+            const auto t0= std::chrono::system_clock::now();
 			double elapsedTime(0.0);
 			while (elapsedTime<timeWindow)
             {
@@ -728,7 +736,8 @@ namespace model
 				singleStep();
 				elapsedTime+=dt;
 			}
-			model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<timeWindow<< " simulation time completed in "<<(clock()-ts)/CLOCKS_PER_SEC<<" [sec]"<<defaultColor<<std::endl;
+//            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+			model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<timeWindow<< " simulation time completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
 		}
 		
 		/**********************************************************************/
@@ -737,22 +746,28 @@ namespace model
           * Exceptions are nodes with only one neighbors (FR source)
           * and nodes on the boundary.
           */
-			for (typename NetworkNodeContainerType::const_iterator nodeIter =this->nodeBegin();
-                 /*                                             */ nodeIter!=this->nodeEnd();
-                 /*                                             */ nodeIter++)
+            if(check_balance)
             {
-				if (nodeIter->second->neighborhood().size()>2)
+                model::cout<<"		Checking node balance..."<<std::flush;
+                const auto t0= std::chrono::system_clock::now();
+                for (typename NetworkNodeContainerType::const_iterator nodeIter =this->nodeBegin();
+                     /*                                             */ nodeIter!=this->nodeEnd();
+                     /*                                             */ nodeIter++)
                 {
-                    const bool nodeIsBalanced(nodeIter->second->is_balanced());
-                    if (!nodeIsBalanced && nodeIter->second->meshLocation()==insideMesh)
+                    if (nodeIter->second->neighborhood().size()>2)
                     {
-                        model::cout<<"Node "<<nodeIter->second->sID<<" is not balanced:"<<std::endl;
-                        model::cout<<"    outflow="<<nodeIter->second->outFlow().transpose()<<std::endl;
-                        model::cout<<"     inflow="<<nodeIter->second->inFlow().transpose()<<std::endl;
-                        assert(0 && "NODE IS NOT BALANCED");
+                        const bool nodeIsBalanced(nodeIter->second->is_balanced());
+                        if (!nodeIsBalanced && nodeIter->second->meshLocation()==insideMesh)
+                        {
+                            model::cout<<"Node "<<nodeIter->second->sID<<" is not balanced:"<<std::endl;
+                            model::cout<<"    outflow="<<nodeIter->second->outFlow().transpose()<<std::endl;
+                            model::cout<<"     inflow="<<nodeIter->second->inFlow().transpose()<<std::endl;
+                            assert(0 && "NODE IS NOT BALANCED");
+                        }
                     }
-				}
-			}
+                }
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            }
 		}
 				
 		/**********************************************************************/

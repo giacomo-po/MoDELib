@@ -46,13 +46,19 @@ namespace model {
         /*                                      */ SimplexTraits<dim,dim>::nVertices> // key compare
         /*            */ >  SimplexMapType;
         
-        
-        
-        
         /**********************************************************************/
         SimplicialMesh()
         {
         }
+        
+//        /**********************************************************************/
+//        ~SimplicialMesh()
+//        {
+//            std::cout<<"Destroying SimplicialMesh"<<std::flush;
+//            this->clear();
+//            std::cout<<"Done"<<std::endl;
+//        }
+        
         
         /**********************************************************************/
         SimplicialMesh(const int& meshID)
@@ -71,11 +77,6 @@ namespace model {
             Simplex<dim,0>::nodeReader.read(meshID,true);
             
             this->clear();
-            
-            //            std::stringstream filestream;
-            //            filestream << "T/T_" << meshID << ".txt";
-            //            std::string filename(filestream.str());
-            
             
             VertexReader<'T',dim+2,size_t> elementReader;
             const bool success=elementReader.read(meshID,true);
@@ -107,11 +108,13 @@ namespace model {
         
         /**********************************************************************/
         void insertSimplex(const typename SimplexTraits<dim,dim>::SimplexIDType& xIN)
-        {
+        {/*!@param[in] xIN the (unsorted) array of mesh node IDs defining a simplex
+          *\brief Inserts a Simplex<dim> into the mesh, with ID equal to the 
+          * sorted array xIN.
+          */
             const typename SimplexTraits<dim,dim>::SimplexIDType xID(SimplexTraits<dim,dim>::sortID(xIN));
             this->emplace(xID,xID); // requires gcc4.8 and above
         }
-        
         
         /**********************************************************************/
         std::pair<bool,const Simplex<dim,dim>*> search(const Eigen::Matrix<double,dim,1>& P) const

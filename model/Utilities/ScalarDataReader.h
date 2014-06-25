@@ -19,7 +19,8 @@
 namespace model  {
 	
 	
-	class ScalarDataReader : virtual public DataReader{
+	class ScalarDataReader : virtual public DataReader
+    {
 	
 	private:
 				

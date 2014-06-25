@@ -81,12 +81,15 @@ collisionTol=10;
 boundary_type =1;
 meshID=0;
 
+######################################
+# Impose that all dislocation nodes (but FR source/sink nodes) are balanced
+check_balance=1;
 
 ######################################
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
-use_bvp = 1;
+use_bvp = 0;
 
 ######################################
 # Enable/disable cross-slip

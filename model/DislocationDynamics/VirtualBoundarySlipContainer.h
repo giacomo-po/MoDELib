@@ -55,11 +55,11 @@ namespace model
         
     public:
         
-        //=======================================================================
-        // add a new entity to the container
-        //======================================================================
+        /**********************************************************************/
         void add (const DislocationSegmentType& ds)
-        {
+        {/*!@param[in] ds a const reference to a DislocationSegment
+          *
+          */
 			
             std::auto_ptr<VirtualBoundarySlipSurfaceType > pVBSS (new VirtualBoundarySlipSurfaceType (ds) );
             this->push_back(pVBSS);
@@ -105,11 +105,14 @@ namespace model
         template<typename DislocationNetworkType>
         void initializeVirtualSegments (DislocationNetworkType& DN)
         {
+
             
             VectorDim sourceP, sinkP, Burgers;
             
             std::stringstream filename;
             filename << "B/B_" << DN.runningID() << ".txt";
+            std::cout<<"Reading VirtualSegments from file "<< "B/B_" << DN.runningID() << ".txt ..."<<std::flush;
+
             
             unsigned int ii=0;
             
@@ -146,6 +149,9 @@ namespace model
                 
                 fclose(fp);
             }
+            
+            std::cout<<" done ("<< ii << "segments)."<<std::endl;
+
             
         }
         

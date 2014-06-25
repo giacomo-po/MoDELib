@@ -43,17 +43,18 @@ int main (int argc, char* argv[])
         DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,1);
         DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,2);
     }
+    
     // Run time steps
     DN.runSteps();
     
     
-    auto topBnd=DN.shared.bvpSolver.finiteElement().boundary<AtXmax<2>,3,GaussLegendre>();
-    
-    Eigen::Matrix<double,3,1> temp(Eigen::Matrix<double,3,1>::Zero());
-    
-    typedef typename DislocationNetworkType::BvpSolverType BvpSolverType;
-    
-    topBnd.integrate(&DN.shared.bvpSolver,temp,&BvpSolverType::traction,DN);
+    if(DN.shared.use_bvp)
+    {
+        auto topBnd=DN.shared.bvpSolver.finiteElement().boundary<AtXmax<2>,3,GaussLegendre>();
+        Eigen::Matrix<double,3,1> temp(Eigen::Matrix<double,3,1>::Zero());
+        typedef typename DislocationNetworkType::BvpSolverType BvpSolverType;
+        topBnd.integrate(&DN.shared.bvpSolver,temp,&BvpSolverType::traction,DN);
+    }
     
     
     return 0;
