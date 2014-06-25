@@ -51,7 +51,7 @@
 #include <model/DislocationDynamics/DislocationMobility.h>
 
 
-#include <model/DislocationDynamics/VirtualBoundarySlipContainer.h>
+#include <model/DislocationDynamics/BVP/VirtualBoundarySlipContainer.h>
 
 
 namespace model {

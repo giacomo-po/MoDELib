@@ -156,6 +156,12 @@ namespace model
         }
         
         /**********************************************************************/
+        const NodeContainerType& nodes() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
         size_t nodeSize() const
         {
             return NodeContainerType::size();

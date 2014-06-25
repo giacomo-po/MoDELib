@@ -17,8 +17,9 @@ namespace model {
 	/************************************************************/	
 	/************************************************************/
 	/*! \brief 
-	 *  A class template that implements a counter of the number of instances of Derived type that are created at runtime.
-	 *  It also provides a unique increasing static identifier for each instance.
+	 * A class template that implements a counter of the number of instances of
+     * Derived type that are created at runtime. It also provides a unique 
+     * increasing static identifier (sID) for each instance.
 	 *
 	 * \code
 	 * #include <model/Utilities/StaticID.h>
@@ -35,9 +36,9 @@ namespace model {
 	 * }
 	 * \endcode
 	 */
-	
 	template<typename Derived>
-	class StaticID {
+	class StaticID
+    {
 
 		// The increment
 		static int increment;
@@ -51,28 +52,37 @@ namespace model {
 		//! The static ID of this
 		const  size_t sID;
 		
-		/* Default Constructor *****************************/
-		StaticID() : sID(count) {
+        /**********************************************************************/
+		StaticID() : sID(count)
+        {
 			count=nextCount;
 			nextCount+=increment;
 		}
 		
-		/* Copy Constructor ********************************/
-		StaticID(const StaticID&) : sID(count) {
+        /**********************************************************************/
+		StaticID(const StaticID&) : sID(count)
+        {
 			count=nextCount;
 			nextCount+=increment;
 		}
+        
+        /**********************************************************************/
+        static size_t nextID()
+        {
+            return nextCount;
+        }
 		
-		/* set_count  **************************************/
-
-		static void set_count(const size_t& newCount){
+        /**********************************************************************/
+		static void set_count(const size_t& newCount)
+        {
 			model_checkInput(newCount>=count && "YOU ARE TRYING TO SET THE COUNTER TO A LOWER VALUE THAN THE CURRENT ONE.");
 			count =  newCount;
 			nextCount=count+increment;
 		}
 		
-		/* set_increment  **********************************/
-		static void set_increment(const int& newIncrement){
+        /**********************************************************************/
+		static void set_increment(const int& newIncrement)
+        {
 			model_checkInput(newIncrement>=1 && "newIncrement MUST BE >=1.");
 			nextCount+=(newIncrement-increment);	// now next time count will be used it will be correct
 			increment = newIncrement;

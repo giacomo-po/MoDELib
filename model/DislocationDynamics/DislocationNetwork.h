@@ -736,12 +736,11 @@ namespace model
 				singleStep();
 				elapsedTime+=dt;
 			}
-//            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 			model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<timeWindow<< " simulation time completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
 		}
 		
 		/**********************************************************************/
-		void checkBalance() const // TO DO: MOVE THIS TO NETWORK LAYER
+		void checkBalance() const
         {/*! Checks that each DislocationNode is balanced, and asserts otherwise
           * Exceptions are nodes with only one neighbors (FR source)
           * and nodes on the boundary.
@@ -783,7 +782,6 @@ namespace model
 		}
 		
 		/**********************************************************************/
-		//template <bool useFullField=true>
 		MatrixDimD stress(const VectorDimD& Rfield, const bool& useFullField=true) const
         {
 			MatrixDimD temp=MatrixDimD::Zero();
@@ -912,33 +910,5 @@ namespace model
 		
 	};
     
-//    // decalre static data
-//    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-//	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-//    bool DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::useImplicitTimeIntegration=false;
-//    
-//    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-//	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-//    double DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule>::equilibriumVelocity=0.01;
-    
 } // namespace model
 #endif
-
-//		/**********************************************************************/
-//		MatrixDimD stressFromGlidePlane(const Eigen::Matrix<double,dim+1,1>& key, const VectorDimD& Rfield) const
-//        {
-//			//GlidePlaneObserver<dim,LinkType> gpObsever;
-//			MatrixDimD temp(MatrixDimD::Zero());
-//			typedef typename GlidePlaneObserver<LinkType>::GlidePlaneType GlidePlaneType;
-//			std::pair<bool, const GlidePlaneType* const> isGp(this->isGlidePlane(key));
-//			if (isGp.first)
-//            {
-//				temp=isGp.second->stress(Rfield);
-//			}
-//            if (shared.use_bvp && (shared.boundary_type==1))
-//            {
-//                temp+= shared.vbsc.stressFromGlidePlane(key,Rfield);
-//            }
-//			return temp;
-//		}
-

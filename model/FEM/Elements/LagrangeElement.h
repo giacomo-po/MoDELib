@@ -226,7 +226,7 @@ namespace model
                     this->emplace_back(nIter->second);
                 }
                 else
-                {// No node exists at P. Create a new one.
+                {// No nodes exist at P. Create a new one.
                     nodeContainer.emplace_back(P,nodeContainer.size()); // insert in nodeContainer
                     const NodeType* const pN(&*nodeContainer.rbegin()); // grab Node pointer
                     const bool success(nodeFinder.insert(std::make_pair(P,pN)).second); // insert pointer in nodeFinder

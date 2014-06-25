@@ -12,13 +12,14 @@
 
 #include <stdio.h>
 #include <string>
+#include <deque>
 
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <Eigen/Dense>
 
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
-#include <model/DislocationDynamics/VirtualBoundarySlipSurface.h>
+#include <model/DislocationDynamics/BVP/VirtualBoundarySlipSurface.h>
 #include <model/Utilities/SequentialOutputFile.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 
@@ -28,7 +29,10 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template <typename DislocationSegmentType>
-    class VirtualBoundarySlipContainer : public boost::ptr_vector<VirtualBoundarySlipSurface<DislocationSegmentType> > {
+    class VirtualBoundarySlipContainer :
+    /* inherits */ public boost::ptr_vector<VirtualBoundarySlipSurface<DislocationSegmentType> >
+//    /* inherits */ public std::deque<Eigen::Matrix<double,TypeTraits<DislocationSegmentType>::dim,1> >
+    {
         
         enum{dim=TypeTraits<DislocationSegmentType>::dim};
         
@@ -50,10 +54,15 @@ namespace model
         typedef typename radialSegmentsContainerType::iterator radialSegmentsContainerIterator;
         typedef typename radialSegmentsContainerType::const_iterator radialSegmentsContainerConstIterator;
         
+        
+//        typedef std::deque<Eigen::Matrix<double,dim,1> > MeshDisplacementContainerType;
+        
+        
         //------------ map, with the key to be the glide-plane-key, that has pointers for the VirtualBoundarySlipSurface entities that has radial segments with non-zero Burgers (used for stress calculations)
         radialSegmentsContainerType  radialSegmentsContainer;
         
     public:
+        
         
         /**********************************************************************/
         void add (const DislocationSegmentType& ds)
@@ -105,14 +114,25 @@ namespace model
         template<typename DislocationNetworkType>
         void initializeVirtualSegments (DislocationNetworkType& DN)
         {
-
             
+            // Initialize boundary mesh displacement
+            
+            
+//            for(auto node : DN.shared.bvpSolver.finiteElement().nodes())
+//            {
+//                MeshDisplacementContainerType::emplace_back(VectorDim::Zero());
+//            }
+            
+            
+            
+            
+            // Now read virtual segments
             VectorDim sourceP, sinkP, Burgers;
             
             std::stringstream filename;
             filename << "B/B_" << DN.runningID() << ".txt";
             std::cout<<"Reading VirtualSegments from file "<< "B/B_" << DN.runningID() << ".txt ..."<<std::flush;
-
+            
             
             unsigned int ii=0;
             
@@ -142,7 +162,7 @@ namespace model
                         if ((sinkP-sourceP).norm()>FLT_EPSILON)
                         {
                             DN.connect(sourceID,sinkID,Burgers); // create a dislocation segment
-                            DN.template disconnect<true>(sourceID,sinkID); // destroy the dislocation segment in order to create the boundary segment. true=remove isolated nodes
+                            DN.template disconnect<true>(sourceID,sinkID); // destroy the dislocation segment in order trigger the creation of a virtual boundary segment. true=remove isolated nodes
                         }
                     }
                 }
@@ -151,7 +171,7 @@ namespace model
             }
             
             std::cout<<" done ("<< ii << "segments)."<<std::endl;
-
+            
             
         }
         
