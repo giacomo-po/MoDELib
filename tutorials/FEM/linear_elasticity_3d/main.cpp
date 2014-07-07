@@ -34,9 +34,9 @@ int main(int argc, char** argv)
     FiniteElementType fe(mesh);
     
     /**********************/
-    const double mu =75.6;  // GPa (for Cu)
-    const double lam=119.9; // GPa (for Cu)
-    const double C11(lam+2.0*mu);
+    const double mu =75.6;  // GPa (for Cu)  //*NATHANIEL Isn't the shear modulus for copper roughly 46 GPa? Where did you get 75.6 GPa from?
+    const double lam=119.9; // GPa (for Cu)  //*NATHANIEL This should be E=119.9 GPa?? Young's modulus??   IF this is the bulk modulus, it should be 140 GPa!?!
+    const double C11(lam+2.0*mu);  //*NATHANIEL Isn't C11 simply the Young's Modulus? i.e.: C11=lam;??
     const double C12(lam);
     const double C44(2.0*mu); // this multiplies a true strain, so 2 is necessary
     
