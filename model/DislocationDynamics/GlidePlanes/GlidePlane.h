@@ -22,7 +22,7 @@
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
-#include <model/DislocationDynamics/BVP/VirtualBoundarySlipSurface.h>
+//#include <model/DislocationDynamics/BVP/VirtualBoundarySlipSurface.h>
 #include <model/MPI/MPIcout.h>
 #include <model/Mesh/SimplexObserver.h>
 
@@ -35,7 +35,7 @@ namespace model {
 	class GlidePlane :
     /* base class   */ public  StaticID<GlidePlane<SegmentType> >,
 	/* base class   */ private std::set<const SegmentType*>,
-	/* base class   */ private std::set<const VirtualBoundarySlipSurface<SegmentType>*>,
+//	/* base class   */ private std::set<const VirtualBoundarySlipSurface<SegmentType>*>,
 	/* base class   */ private GlidePlaneObserver<SegmentType>
     {
 		
@@ -46,7 +46,7 @@ namespace model {
         enum{dim=TypeTraits<SegmentType>::dim};
         
 		typedef std::set<const SegmentType*> SegmentContainerType;
-		typedef std::set<const VirtualBoundarySlipSurface<SegmentType>*> BoundarySegmentContainerType;
+//		typedef std::set<const VirtualBoundarySlipSurface<SegmentType>*> BoundarySegmentContainerType;
         
 		typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
@@ -138,7 +138,7 @@ namespace model {
 			model::cout<<"Deleting GlidePlane "<<this->sID<<std::endl;
 			assert(this->glidePlaneMap.erase((VectorDimPlusOneD()<< planeNormal, height).finished())==1 && "CANNOT ERASE GLIDE PLANE  FROM STATIC glidePlaneMap.");
 			assert(        SegmentContainerType::empty() && "DELETING NON-EMPTY GLIDE PLANE.");
-			assert(BoundarySegmentContainerType::empty() && "DELETING NON-EMPTY GLIDE PLANE.");
+//			assert(BoundarySegmentContainerType::empty() && "DELETING NON-EMPTY GLIDE PLANE.");
 		}
         
         /**********************************************************************/
@@ -151,14 +151,16 @@ namespace model {
 			}
 			else
             { // no segments in the container
-				if (!BoundarySegmentContainerType::empty())
-                {
-					temp=(*BoundarySegmentContainerType::begin())->pGlidePlane;
-				}
-				else
-                {
-					assert(0 && "GLIDE PLANE CONTAINS NO SEGMENTS AND NO BOUNDARY SEGMENTS");
-				}
+                assert(0 && "GLIDE PLANE CONTAINS NO SEGMENTS");
+
+//				if (!BoundarySegmentContainerType::empty())
+//                {
+//					temp=(*BoundarySegmentContainerType::begin())->pGlidePlane;
+//				}
+//				else
+//                {
+//					assert(0 && "GLIDE PLANE CONTAINS NO SEGMENTS AND NO BOUNDARY SEGMENTS");
+//				}
 			}
             return temp;
 		}
@@ -175,17 +177,17 @@ namespace model {
 			assert(SegmentContainerType::erase(pS)==1 && "COULD NOT ERASE SEGMENT POINTER FROM SEGMENT CONTAINER.");
 		}
         
-        /**********************************************************************/
-		void addToGLidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS)
-        {
-			assert(BoundarySegmentContainerType::insert(pS).second && "COULD NOT INSERT BOUNDARY SEGMENT POINTER IN SEGMENT CONTAINER.");
-		}
-		
-        /**********************************************************************/
-		void removeFromGlidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS)
-        {
-			assert(BoundarySegmentContainerType::erase(pS)==1 && "COULD NOT ERASE BOUNDARY SEGMENT POINTER FROM SEGMENT CONTAINER.");
-		}
+//        /**********************************************************************/
+//		void addToGLidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS)
+//        {
+//			assert(BoundarySegmentContainerType::insert(pS).second && "COULD NOT INSERT BOUNDARY SEGMENT POINTER IN SEGMENT CONTAINER.");
+//		}
+//		
+//        /**********************************************************************/
+//		void removeFromGlidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS)
+//        {
+//			assert(BoundarySegmentContainerType::erase(pS)==1 && "COULD NOT ERASE BOUNDARY SEGMENT POINTER FROM SEGMENT CONTAINER.");
+//		}
 		
         /**********************************************************************/
 		typename std::set<const SegmentType*>::const_iterator begin() const

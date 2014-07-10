@@ -19,13 +19,9 @@ mesh.node
 syntax: glob
  
 # Executable
-DDcode
-DDserial
-DDparallel
 DDomp
 DDmpi
 DDviewer
-tetgen
 
 # Folders
 docs/HTML

@@ -12,7 +12,7 @@
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationConsts.h>
-#include <model/DislocationDynamics/BVP/VirtualBoundarySlipContainer.h>
+//#include <model/DislocationDynamics/BVP/VirtualBoundarySlipContainer.h>
 
 #include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
@@ -47,7 +47,7 @@ namespace model {
         
         static BvpSolverType bvpSolver;
         
-        static VirtualBoundarySlipContainer<LinkType> vbsc;
+//        static VirtualBoundarySlipContainer<LinkType> vbsc;
 
 	};
 	
@@ -71,8 +71,8 @@ namespace model {
     template <typename LinkType>
 	BVPsolver<TypeTraits<LinkType>::dim,2> DislocationSharedObjects<LinkType>::bvpSolver(DislocationSharedObjects<LinkType>::mesh);
     
-    template <typename LinkType>
-	VirtualBoundarySlipContainer<LinkType> DislocationSharedObjects<LinkType>::vbsc;
+//    template <typename LinkType>
+//	VirtualBoundarySlipContainer<LinkType> DislocationSharedObjects<LinkType>::vbsc;
 
     
 } // namespace model

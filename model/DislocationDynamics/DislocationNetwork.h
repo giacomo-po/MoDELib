@@ -578,11 +578,11 @@ namespace model
             DislocationNetworkIO<DislocationNetworkType>::readEdges(*this,runID);    // this requires mesh to be up-to-date
             
             
-            if (shared.use_bvp && (shared.boundary_type==softBoundary))
-            { // MOVE THIS WITH REST OB BVP STUFF
-                //                shared.vbsc.read(runID,&shared);
-                shared.vbsc.initializeVirtualSegments(*this);
-            }
+//            if (shared.use_bvp && (shared.boundary_type==softBoundary))
+//            { // MOVE THIS WITH REST OB BVP STUFF
+//                //                shared.vbsc.read(runID,&shared);
+//                shared.vbsc.initializeVirtualSegments(*this);
+//            }
             
             
             //#ifdef DislocationNucleationFile
@@ -787,10 +787,14 @@ namespace model
 			MatrixDimD temp=MatrixDimD::Zero();
 			if(useFullField)
             {
-				for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
-                {
-					temp+= linkIter->second->stress_source(Rfield);
-				}
+//				for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+//                {
+//					temp+= linkIter->second->stress_source(Rfield);
+//				}
+                
+                assert(0 && "RE-ENABLE THIS WITH NEW CELL CLASS");
+
+                
 			}
 			else
             {
@@ -803,11 +807,16 @@ namespace model
                 //					temp+=(*particleIter)->stress_at(Rfield);
                 //				}
 			}
-            if (shared.use_bvp && (shared.boundary_type==1))
+//            if (shared.use_bvp && (shared.boundary_type==1))
+//            {
+//                temp+= shared.vbsc.stress(Rfield);
+//            }
+            if (shared.use_bvp)
             {
-                temp+= shared.vbsc.stress(Rfield);
+                assert(0 && "HERE ADD THE RADIAL STRESS");
             }
-			return temp;
+			
+            return temp;
 		}
         
         

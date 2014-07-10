@@ -3,10 +3,11 @@
 #include <model/Utilities/SequentialOutputFile.h>
 
 #include <model/FEM/FiniteElement.h>
+//#include <model/FEM/Boundary/TopBoundary.h>
 #include <model/FEM/Boundaries/AtXmin.h>
 #include <model/FEM/Boundaries/AtXmax.h>
 #include <model/FEM/BoundaryConditions/Fix.h>
-#include <model/FEM/BoundaryConditions/DirichletCondition.h>
+#include <model/FEM/BoundaryConditions/PrescribedDisplacement.h>
 
 using namespace model;
 
@@ -75,7 +76,7 @@ int main(int argc, char** argv)
 
     /**************************************************************************/
     // Create the WeakProblem
-    auto wp(bWF_u=lWF_2); //  weak problem
+    auto wp_u(bWF_u=lWF_2); //  weak problem
     
     /**************************************************************************/
     // Set up Dirichlet boundary conditions
@@ -109,17 +110,19 @@ int main(int argc, char** argv)
     // Create a list of nodes having x(2)=x2_max, where x2_max is the minimum value among the fe nodes
     auto nodeList_2(fe.getNodeList<AtXmax<2>>());
     // Prescribe the first component of displacement for those nodes
-    DirichletCondition dc(3.0e-4);
-    u.addDirichletCondition(dc,nodeList_2,0);
+    PrescribedDisplacement disp(3.0e-4);
+    u.addDirichletCondition(disp,nodeList_2,0);
     
     
     /**************************************************************************/
     // Solve
-    wp.assembleWithMasterSlaveConstraints();
-    //    wp.assembleWithLagrangeConstraints();
-    //    wp.assembleWithPenaltyConstraints(1000000.0);
-    const double tol=0.00001;
-    u=wp.solve(tol);
+    
+//    wp_u.assembleWithLagrangeConstraints();
+//    wp_u.assembleWithPenaltyConstraints(1000000.0);
+    wp_u.assembleWithMasterSlaveConstraints();
+
+    wp_u.solve(0.00001);
+    u.dofContainer=wp_u.x.segment(0,u.dofContainer.size());
 
     /**************************************************************************/
     // Output displacement and stress on external mesh faces
@@ -131,3 +134,7 @@ int main(int argc, char** argv)
     
 	return 0;
 }
+
+
+
+

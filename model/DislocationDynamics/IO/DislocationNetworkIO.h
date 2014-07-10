@@ -12,6 +12,7 @@
 #include <string>
 #include <model/Network/Readers/VertexReader.h>
 #include <model/Network/Readers/EdgeReader.h>
+#include <model/Utilities/UniqueOutputFile.h>
 #include <model/Utilities/SequentialOutputFile.h>
 #include <model/Utilities/SequentialBinFile.h>
 
@@ -274,10 +275,10 @@ namespace model {
 //                    }
                     std::cout<<", D/D_"<<d_file.sID<<"(FINISH HERE)"<<std::flush;
                 }
-                if(DN.shared.boundary_type==1)
-                {
-                    DN.shared.vbsc.outputVirtualDislocations(outputFrequency,runID);
-                }
+//                if(DN.shared.boundary_type==1)
+//                {
+//                    DN.shared.vbsc.outputVirtualDislocations(outputFrequency,runID);
+//                }
             }
             
 			

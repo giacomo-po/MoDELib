@@ -51,7 +51,7 @@
 #include <model/DislocationDynamics/DislocationMobility.h>
 
 
-#include <model/DislocationDynamics/BVP/VirtualBoundarySlipContainer.h>
+//#include <model/DislocationDynamics/BVP/VirtualBoundarySlipContainer.h>
 
 
 namespace model {
@@ -121,15 +121,15 @@ namespace model {
 		VectorNdof Fq;
 		//! The identity matrix
 		static const Eigen::Matrix<double,_dim,_dim> I;
-		
+
+		//! A static vector of zeros
+        static const Eigen::Matrix<double,_dim,1> zeroDim;
+
 		
 		/******************************************************************/
 	public: //  data members
 		/******************************************************************/
 		
-        //	//	boost::ptr_vector<DislocationParticleType> quadratureParticleContainer;
-		
-        //        std::vector<std::pair<size_t,DislocationParticle<dim>* const> > quadratureParticleContainer;
         QuadratureParticleContainerType quadratureParticleContainer;
         
         
@@ -141,7 +141,7 @@ namespace model {
         
 		const VectorDim sessilePlaneNormal;
         
-		static double coreLsquared;
+		static double coreLsquared; //!todo remove this
 		
         DislocationSharedObjects<Derived> shared;
         
@@ -164,12 +164,9 @@ namespace model {
         //! PK force corrersponding to the quadrature points
         MatrixDimQorder pkGauss;
         
-		/******************************************************************/
-	private: //  member functions
-		/******************************************************************/
+	private:
 		
-        
-        
+
         /* stiffness_integrand ************************************************/
         MatrixNdof stiffness_integrand(const int& k) const
         { /*! @param[in] k the current quadrature point
@@ -288,13 +285,13 @@ namespace model {
         {/*! Destructor
           */
 			//! Add this to static VirtualBoundarySlipContainer
-			if (shared.boundary_type==softBoundary && shared.use_bvp)
-            {
-				if(is_boundarySegment() && this->chord().norm()>FLT_EPSILON)
-                {
-                    shared.vbsc.add(*this);
-				}
-			}
+//			if (shared.boundary_type==softBoundary && shared.use_bvp)
+//            {
+//				if(is_boundarySegment() && this->chord().norm()>FLT_EPSILON)
+//                {
+//                    shared.vbsc.add(*this);
+//				}
+//			}
 			//! Removes this from *pGlidePlane
 			pGlidePlane->removeFromGlidePlane(this);
             //            quadratureParticleContainer.clear();
@@ -313,16 +310,28 @@ namespace model {
             {
                 MatrixNcoeff  SFCH(this->get_SFCH());
                 MatrixNcoeffDim qH(this->get_qH());
-                //			QuadPowType::uPow.row(k)*SFCH;
-                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION????
-                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION????
-                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION????
+                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                 jgauss(k)=rugauss.col(k).norm();
                 rlgauss.col(k)=rugauss.col(k)/jgauss(k);
                 
-                quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),Burgers,
-                                                                                 Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
-                                                                                 Quadrature<1,qOrder,QuadratureRule>::weights(k)));
+                
+                // Add the quadrature particles
+                if (is_boundarySegment() && shared.use_bvp)
+                {
+                    // if bvp is used, add particles with zero Burgers for segments on the boundary
+                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),zeroDim,
+                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
+                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
+                }
+                else
+                {
+                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),Burgers,
+                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
+                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
+                }
+                
             }
             
 		}
@@ -341,7 +350,15 @@ namespace model {
         /**********************************************************************/
         MatrixDim bvpStress(const VectorDim& P) const
         {
-            return shared.vbsc.stress(P)+shared.bvpSolver.stress(P,this->source->includingSimplex());
+//            return shared.vbsc.stress(P)+shared.bvpSolver.stress(P,this->source->includingSimplex());
+            return shared.bvpSolver.stress(P,this->source->includingSimplex()) + radialStress(P);
+        }
+        
+        /**********************************************************************/
+        MatrixDim radialStress(const VectorDim& P) const
+        {
+            // FINISH HERE
+            return MatrixDim::Zero();
         }
 		
 		/**********************************************************************/
@@ -419,7 +436,8 @@ namespace model {
                 Msi.block(dim,0,dim,Msi.cols())*=-this->sinkTfactor;
                 
                 
-                for (int k=0;k<Mso.cols();++k){
+                for (int k=0;k<Mso.cols();++k)
+                {
                     const std::set<size_t>::const_iterator f(segmentDOFs.find(sourceDOFs(k)));
                     assert(f!=segmentDOFs.end());
                     unsigned int curCol(std::distance(segmentDOFs.begin(),f));
@@ -427,7 +445,8 @@ namespace model {
                 }
                 
                 
-                for (int k=0;k<Msi.cols();++k){
+                for (int k=0;k<Msi.cols();++k)
+                {
                     const std::set<size_t>::const_iterator f(segmentDOFs.find(sinkDOFs(k)));
                     assert(f!=segmentDOFs.end());
                     unsigned int curCol(std::distance(segmentDOFs.begin(),f));
@@ -449,7 +468,7 @@ namespace model {
         
         
         
-        /* addToGlobalAssembly ************************************************/
+        /**********************************************************************/
         void addToGlobalAssembly(std::vector<Eigen::Triplet<double> >& kqqT,  Eigen::VectorXd& FQ) const
         {/*!\param[in] kqqT the stiffness matrix of the network component
           * \param[in] FQ the force vector of the network component
@@ -674,47 +693,49 @@ namespace model {
 		
 		/*********************************************************************/
 		VectorDim integralPK() const
-        {
+        {/*!\returns The integral of the PK force over this segment.
+          *!\todo FINISH HERE
+          */
 			return pkGauss.col(qOrder/2)*this->chord().norm();
 		}
         
-        /* stress_source ******************************************************/
-		MatrixDim stress_source(const VectorDim & Rfield) const __attribute__ ((deprecated))
-        {/*! @param[in] Rfield the vector representing the filed point
-          *  The stress tensor generated by this dislocatio segment at Rfield
-          */
-			MatrixDim temp(MatrixDim::Zero());
-			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::stress_integrand,Rfield);
-			return Material<Isotropic>::C2*(temp+temp.transpose());		// extract SYMMETRIC part of stress
-		}
-        
-		/* stress_integrand ***************************************************/
-		MatrixDim stress_integrand(const int & k, const VectorDim& Rfield) const __attribute__ ((deprecated))
-        {/*! Returns the asymmetric (and dimensionless) part of the stress integrand generated by the current quadrature point.
-          * @param[in] k			the current quadrature point
-          * @param[in] Rfield	the vector connecting source point (corresponding to the current quadrature point) to field point
-          *
-          * The return value is calculated according to:
-          * Cai, W., Arsenlis, A., Weinberger, C., & Bulatov, V. (2006). A non-singular continuum theory of dislocations. Journal Of The Mechanics And Physics Of Solids, 54(3), 561–587.
-          *	\f[
-          *		d\mathbf{s} = (1-\nu) \left(1+\frac{3}{2}\frac{a^2}{R_a^2}\right)\frac{\partial \mathbf{r}}{\partial u}\otimes \left(\mathbf{b}\times \mathbf{R}\right)+
-          *		\mathbf{R}\otimes\left(\frac{\partial \mathbf{r}}{\partial u}\times\mathbf{b}\right)+
-          *		\frac{1}{2} \left[ \left(\mathbf{R}\times\mathbf{b}\right)\cdot \frac{\partial \mathbf{r}}{\partial u} \right]\left[\mathbf{I}\left(1+\frac{3a^2}{R_a^2}\right)+\frac{3}{R_a^2}\mathbf{R}\otimes\mathbf{R}\right]
-          *	\f]
-          *  where \f$R_a^2=|\mathbf{R}|^2+a^2\f$ is the modified squared norm of \f$\mathbf{R}\f$.
-          *
-          *	The return value is asymmetric and dimensionless in the sense that the actual stress integrand is:
-          *	\f[
-          *		d\mathbf{\sigma}=\frac{\mu}{4\pi (1-\nu)}\left(d\mathbf{s}+d\mathbf{s}^T\right)
-          *	\f]
-          */
-			VectorDim R(Rfield-rgauss.col(k));
-			double RaSquared(R.squaredNorm() + coreLsquared);
-			return   (Material<Isotropic>::C1*(1.0+1.5*coreLsquared/RaSquared)*rugauss.col(k)*(Burgers.cross(R)).transpose()
-					  + 	R*(rugauss.col(k).cross(Burgers)).transpose()
-					  +  0.5* R.cross(Burgers).dot(rugauss.col(k)) * (I*(1.0+3.0*coreLsquared/RaSquared) + 3.0/RaSquared*R*R.transpose())
-					  )/std::pow(sqrt(RaSquared),3);
-		}
+//        /* stress_source ******************************************************/
+//		MatrixDim stress_source(const VectorDim & Rfield) const __attribute__ ((deprecated))
+//        {/*! @param[in] Rfield the vector representing the filed point
+//          *  The stress tensor generated by this dislocatio segment at Rfield
+//          */
+//			MatrixDim temp(MatrixDim::Zero());
+//			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::stress_integrand,Rfield);
+//			return Material<Isotropic>::C2*(temp+temp.transpose());		// extract SYMMETRIC part of stress
+//		}
+//        
+//		/* stress_integrand ***************************************************/
+//		MatrixDim stress_integrand(const int & k, const VectorDim& Rfield) const __attribute__ ((deprecated))
+//        {/*! Returns the asymmetric (and dimensionless) part of the stress integrand generated by the current quadrature point.
+//          * @param[in] k			the current quadrature point
+//          * @param[in] Rfield	the vector connecting source point (corresponding to the current quadrature point) to field point
+//          *
+//          * The return value is calculated according to:
+//          * Cai, W., Arsenlis, A., Weinberger, C., & Bulatov, V. (2006). A non-singular continuum theory of dislocations. Journal Of The Mechanics And Physics Of Solids, 54(3), 561–587.
+//          *	\f[
+//          *		d\mathbf{s} = (1-\nu) \left(1+\frac{3}{2}\frac{a^2}{R_a^2}\right)\frac{\partial \mathbf{r}}{\partial u}\otimes \left(\mathbf{b}\times \mathbf{R}\right)+
+//          *		\mathbf{R}\otimes\left(\frac{\partial \mathbf{r}}{\partial u}\times\mathbf{b}\right)+
+//          *		\frac{1}{2} \left[ \left(\mathbf{R}\times\mathbf{b}\right)\cdot \frac{\partial \mathbf{r}}{\partial u} \right]\left[\mathbf{I}\left(1+\frac{3a^2}{R_a^2}\right)+\frac{3}{R_a^2}\mathbf{R}\otimes\mathbf{R}\right]
+//          *	\f]
+//          *  where \f$R_a^2=|\mathbf{R}|^2+a^2\f$ is the modified squared norm of \f$\mathbf{R}\f$.
+//          *
+//          *	The return value is asymmetric and dimensionless in the sense that the actual stress integrand is:
+//          *	\f[
+//          *		d\mathbf{\sigma}=\frac{\mu}{4\pi (1-\nu)}\left(d\mathbf{s}+d\mathbf{s}^T\right)
+//          *	\f]
+//          */
+//			VectorDim R(Rfield-rgauss.col(k));
+//			double RaSquared(R.squaredNorm() + coreLsquared);
+//			return   (Material<Isotropic>::C1*(1.0+1.5*coreLsquared/RaSquared)*rugauss.col(k)*(Burgers.cross(R)).transpose()
+//					  + 	R*(rugauss.col(k).cross(Burgers)).transpose()
+//					  +  0.5* R.cross(Burgers).dot(rugauss.col(k)) * (I*(1.0+3.0*coreLsquared/RaSquared) + 3.0/RaSquared*R*R.transpose())
+//					  )/std::pow(sqrt(RaSquared),3);
+//		}
 
 		
 		
@@ -743,6 +764,11 @@ namespace model {
     template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
     /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     double DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::coreLsquared=1.0;
+    
+    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    const Eigen::Matrix<double,dim,1> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::zeroDim=Eigen::Matrix<double,dim,1>::Zero();
+    
     
     
     //////////////////////////////////////////////////////////////s
