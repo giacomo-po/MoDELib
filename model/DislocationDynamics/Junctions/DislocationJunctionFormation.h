@@ -18,7 +18,6 @@
 
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 #include <model/DislocationDynamics/Remeshing/DislocationNetworkRemesh.h>
-//#include <model/BVP/SearchData.h>
 #include <model/MPI/MPIcout.h>
 
 //#include <model/Math/MatrixCompanion.h>
@@ -69,7 +68,7 @@ namespace model {
         {/*! @param[in]  avoidNodeIntersection
           *  Computes all the intersections between the edges of the DislocationNetwork
           */
-                        
+            
 			EdgeIntersectionPairContainerType intersectionContainer;
 			
 			
@@ -249,7 +248,7 @@ namespace model {
 			typedef std::pair<size_t,size_t> EdgeIDType;
 			typedef std::map<EdgeIDType,MultiExpandInputType> EdgeIntersectionContainerType;
             
-            const double dx2=std::pow(dx,2);
+            //            const double dx2=std::pow(dx,2);
 			
 			EdgeIntersectionContainerType edgeIntersectionContainer;
 			for (IntersectionIDType interID=0;interID!=intersectionContainer.size();++interID){
@@ -299,20 +298,16 @@ namespace model {
                         const double u2m(intersectionContainer[interID].second.second-dirVector[interID]*du2);
                         
                         bool firstIntersectionInsideMesh(true);
-                        if (DN.shared.boundary_type){
-//                            SearchData<dim> SD1(L1.second->get_r(u1m));
-//                            DN.shared.domain.findIncludingTet(SD1,L1.second->source->meshID());
-//                            firstIntersectionInsideMesh*=(SD1.nodeMeshLocation==insideMesh);
+                        if (DN.shared.use_boundary)
+                        {
                             firstIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L1.second->get_r(u1m),L1.second->source->includingSimplex(),FLT_EPSILON).first;
-                            if(firstIntersectionInsideMesh){
-//                                SearchData<dim> SD2(L2.second->get_r(u2m));
-//                                DN.shared.domain.findIncludingTet(SD2,L2.second->source->meshID());
-//                                firstIntersectionInsideMesh*=(SD2.nodeMeshLocation==insideMesh);
+                            if(firstIntersectionInsideMesh)
+                            {
                                 firstIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2m),L2.second->source->includingSimplex(),FLT_EPSILON).first;
-
                             }
                         }
-                        if(firstIntersectionInsideMesh){
+                        if(firstIntersectionInsideMesh)
+                        {
                             assert(edgeIntersectionContainer[key1].insert(std::make_pair(u1m,2*interID)).second);
                             assert(edgeIntersectionContainer[key2].insert(std::make_pair(u2m,2*interID)).second);
                         }
@@ -326,19 +321,12 @@ namespace model {
                         const double u2p(intersectionContainer[interID].second.second+dirVector[interID]*du2);
                         
                         bool secondIntersectionInsideMesh(true);
-                        if (DN.shared.boundary_type){
-//                            SearchData<dim> SD1(L1.second->get_r(u1p));
-//                            DN.shared.domain.findIncludingTet(SD1,L1.second->source->meshID());
-//                            secondIntersectionInsideMesh*=(SD1.nodeMeshLocation==insideMesh);
-
+                        if (DN.shared.use_boundary)
+                        {
                             secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L1.second->get_r(u1p),L1.second->source->includingSimplex(),FLT_EPSILON).first;
-                            
-                            if(secondIntersectionInsideMesh){
-//                                SearchData<dim> SD2(L2.second->get_r(u2p));
-//                                DN.shared.domain.findIncludingTet(SD2,L2.second->source->meshID());
-//                                secondIntersectionInsideMesh*=(SD2.nodeMeshLocation==insideMesh);
-                                
-                                                            secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2p),L2.second->source->includingSimplex(),FLT_EPSILON).first;
+                            if(secondIntersectionInsideMesh)
+                            {
+                                secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2p),L2.second->source->includingSimplex(),FLT_EPSILON).first;
                             }
                         }
                         if(secondIntersectionInsideMesh){
@@ -409,13 +397,14 @@ namespace model {
                     
                     
                     bool linePointInsideMesh(true);
-                    if (DN.shared.boundary_type){
-//                        SearchData<dim> SD(linePoint);
-//                        DN.shared.domain.findIncludingTet(SD,Ni.second->meshID());
-//                        linePointInsideMesh*=(SD.nodeMeshLocation==insideMesh);
+                    if (DN.shared.use_boundary)
+                    {
+                        //                        SearchData<dim> SD(linePoint);
+                        //                        DN.shared.domain.findIncludingTet(SD,Ni.second->meshID());
+                        //                        linePointInsideMesh*=(SD.nodeMeshLocation==insideMesh);
                         
                         linePointInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(linePoint,Ni.second->includingSimplex(),FLT_EPSILON).first;
-
+                        
                         
                     }
                     if(linePointInsideMesh){

@@ -104,7 +104,9 @@ namespace model {
         
         /* neighborCells ******************************************************/
         static CellMapType neighborCells(const VectorDimD& P)
-        {
+        {/*!@param[in] P the position vector
+          *\returns a map of the SpatialCell(s) neighboring P.
+          */
             const CellIdType cellID(getCellIDByPosition(P));
             const Eigen::Matrix<int,dim, CellShiftType::Nneighbors> neighborCellIDs(CellShiftType::neighborIDs(cellID));
             

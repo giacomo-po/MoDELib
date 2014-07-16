@@ -67,7 +67,7 @@ namespace model {
           *\returns a container of segments representing the intersection of *this GlidePLane with the SimplexMesh
           */
             SegmentMeshCollisionPairContainerType temp;
-            if (shared.boundary_type)
+            if (shared.use_boundary)
             {
                 for(typename SimplexObserver<dim,dim-1>::const_iterator fIter =SimplexObserver<dim,dim-1>::simplexBegin();
                     /*                                               */ fIter!=SimplexObserver<dim,dim-1>::simplexEnd();++fIter)

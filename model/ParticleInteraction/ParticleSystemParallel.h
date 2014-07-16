@@ -43,7 +43,7 @@ namespace model {
     
     /**************************************************************************/
     /**************************************************************************/
-    /*! \brief Parallel Version (MPI)
+    /*! \brief Parallel Version (openMPI + openMP)
      */
     template <typename _ParticleType>
     class ParticleSystemParallel :
@@ -109,7 +109,7 @@ namespace model {
         
         /**********************************************************************/
         template <typename FieldType>
-        size_t computeNeighborField()
+        void computeNeighborField()
         {/*! Compute nearest-neighbor particle interaction according to FieldType
           *\returns the number of interactions computed
           *
@@ -132,9 +132,6 @@ namespace model {
             //! -1.3 partition particles among MPI processes
             lpt.partition(this->mpiProcs());
             
-            
-            
-                
             // Resize FieldPointBase<ParticleType,FieldType>::resultVector
             FieldPointBase<ParticleType,FieldType>::resize(this->size(),0.0);
             
@@ -149,32 +146,6 @@ namespace model {
                 }
                 binOffset+=binSize;
             }
-            
-            
-            
-            
-            
-            size_t nInteractions(0);
-            //            // loop over field particles in the neighbor cell
-            //            for (typename PartitionerType::BaseDequeType::const_iterator fIter=lpt.bin(this->mpiRank()).begin();
-            //                 /*                                                  */ fIter!=lpt.bin(this->mpiRank()).end();
-            //                 /*                                                */ ++fIter)
-            //            {
-            //
-            //                static_cast<FieldPointBase<ParticleType,FieldType>* const>(*fIter) -> setZero();
-            //
-            //                // loop over neighbor cells of the current particle
-            //                for (typename SpatialCellType::CellMapType::const_iterator cIter=(*fIter)->neighborCellsBegin();cIter!=(*fIter)->neighborCellsEnd();++cIter)
-            //                {
-            //                    // loop over source particles in the neighbor cell
-            //                    for(typename SpatialCellType::ParticleContainerType::const_iterator sIter=cIter->second->particleBegin();sIter!=cIter->second->particleEnd();++sIter) // loop over neighbor particles
-            //                    {
-            //                        //                        FieldType(**fIter,**sIter);  // the constructor of FieldType actually computes the binary interaction between *iterI and *iterJ
-            //                        *static_cast<FieldPointBase<ParticleType,FieldType>* const>(*fIter) += FieldType::compute(**sIter,**fIter);
-            //                        ++nInteractions;
-            //                    }
-            //                }
-            //            }
             
             
 #ifdef _OPENMP
@@ -214,19 +185,15 @@ namespace model {
                            &FieldPointBase<ParticleType,FieldType>::resultVector[0],
                            &interactionSizeVector[0],&interactionRankOffsetVector[0],
                            MPI_DOUBLE,MPI_COMM_WORLD);
-            
-            return nInteractions;
         }
         
         
         /**********************************************************************/
         template <typename OtherParticleType, typename FieldType>
-        size_t computeField(std::deque<OtherParticleType>& fpDeq)
+        void computeField(std::deque<OtherParticleType>& fpDeq)
         {/*! Compute nearest-neighbor particle interaction according to FieldType
           *\returns the number of interactions computed
           */
-            
-            
             
             //            LPTpartitioner<ParticleType> lpt;
             typedef LPTpartitioner<OtherParticleType> PartitionerType;
@@ -265,40 +232,7 @@ namespace model {
                 }
                 binOffset+=binSize;
             }
-            
-            
-            
-            
-            
-            // loop over field particles in the neighbor cell
-            size_t nInteractions(0);
-            //            for (typename PartitionerType::BaseDequeType::const_iterator fIter=lpt.bin(this->mpiRank()).begin();
-            //                 /*                                                  */ fIter!=lpt.bin(this->mpiRank()).end();
-            //                 /*                                                */ ++fIter)
-            //            {
-            //
-            //                static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(*fIter) -> setZero();
-            //
-            //                typename SpatialCellType::CellMapType cellMap((*fIter)->template neighborCells<_ParticleType>());
-            //
-            //
-            //                // loop over neighbor cells of the current particle
-            //                for (typename SpatialCellType::CellMapType::const_iterator cIter =cellMap.begin();
-            //                     /*                                                 */ cIter!=cellMap.end();
-            //                     /*                                               */ ++cIter)
-            //                {
-            //                    // loop over source particles in the neighbor cell
-            //                    for(typename SpatialCellType::ParticleContainerType::const_iterator sIter=cIter->second->particleBegin();sIter!=cIter->second->particleEnd();++sIter) // loop over neighbor particles
-            //                    {
-            //                        //                        FieldType(**fIter,**sIter);  // the constructor of FieldType actually computes the binary interaction between *iterI and *iterJ
-            //                        //                        *static_cast<FieldPointBase<ParticleType,FieldType>* const>(*fIter) += FieldType::compute(**sIter,**fIter);
-            //                        (*fIter)->template field<FieldType>() += FieldType::compute(**sIter,**fIter);
-            //
-            //                        ++nInteractions;
-            //                    }
-            //                }
-            //            }
-            
+
             
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -323,7 +257,6 @@ namespace model {
             }
             
             
-            
             std::vector<int> interactionSizeVector(this->mpiProcs());
             std::vector<int> interactionRankOffsetVector(this->mpiProcs());
             
@@ -341,10 +274,6 @@ namespace model {
                            &FieldPointBase<OtherParticleType,FieldType>::resultVector[0],
                            &interactionSizeVector[0],&interactionRankOffsetVector[0],
                            MPI_DOUBLE,MPI_COMM_WORLD);
-            
-            
-            
-            return nInteractions;
         }
         
         

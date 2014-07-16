@@ -30,11 +30,10 @@ mpiCC = mpicxx
 # optimization level = fast
 #CFLAGS  += -O3
 CFLAGS  += -Ofast
-CFLAGS  += -msse4
-#CFLAGS  += -mavx
-#CFLAGS  += -march=native
+#CFLAGS  += -g
+CFLAGS  += -msse2
 # enable openMP
-CFLAGS += -fopenmp
+#CFLAGS += -fopenmp
 # enable C++0x
 CFLAGS += -std=c++0x
 endif

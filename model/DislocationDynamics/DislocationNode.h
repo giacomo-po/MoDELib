@@ -77,7 +77,7 @@ namespace model {
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
-            if (DislocationSharedObjects<LinkType>::boundary_type)
+            if (DislocationSharedObjects<LinkType>::use_boundary)
             {
                 if (guess==NULL)
                 {
@@ -105,7 +105,7 @@ namespace model {
 		VectorDim get_boundaryNormal() const
         {
             VectorDim temp(VectorDim::Zero());
-			if (shared.boundary_type)
+			if (shared.use_boundary)
             {
                 const Eigen::Matrix<double,dim+1,1> bary(p_Simplex->pos2bary(this->get_P()));
                 int faceID;
@@ -295,7 +295,7 @@ namespace model {
             
 			if (dX.squaredNorm()>0.0 && (meshLocation()!=onMeshBoundary || shared.use_bvp==0)) // move a node only if |v|!=0 and if not on mesh boundary
             {
-				if(shared.boundary_type) // using confining mesh
+				if(shared.use_boundary) // using confining mesh
                 {
                     // See if the new position is inside mesh
                     const std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<LinkType>::mesh.searchWithGuess(this->get_P()+dX,p_Simplex));

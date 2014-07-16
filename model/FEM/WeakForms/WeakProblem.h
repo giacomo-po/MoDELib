@@ -205,10 +205,10 @@ namespace model
         /**********************************************************************/
         Eigen::VectorXd solve(const double& tol)
         {
-//            std::cout<<"Pruning maxtrix: "<<A.nonZeros()<<"->";
-//            const auto t0= std::chrono::system_clock::now();
-//            A.prune(maxAbsValue);
-//            std::cout<<A.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            std::cout<<"Pruning maxtrix: "<<A.nonZeros()<<"->";
+            const auto t0= std::chrono::system_clock::now();
+            A.prune(A.norm(),FLT_EPSILON);
+            std::cout<<A.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             
             
             
@@ -284,10 +284,18 @@ namespace model
                         col++;
                     }
                     
+                    
+                    
                     SparseMatrixType T(gSize,tSize);
                     T.setFromTriplets(tTriplets.begin(),tTriplets.end());
                     
                     SparseMatrixType A1(T.transpose()*A*T);
+                    std::cout<<"Pruning maxtrix: "<<A1.nonZeros()<<"->";
+                    const auto t3= std::chrono::system_clock::now();
+                    A1.prune(A1.norm(),FLT_EPSILON);
+                    std::cout<<A1.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]"<<std::flush;
+
+                    
                     Eigen::VectorXd b1(T.transpose()*(b-A*g));
                     std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                     

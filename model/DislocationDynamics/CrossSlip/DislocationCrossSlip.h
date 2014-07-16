@@ -113,7 +113,7 @@ namespace model {
 				VectorDimD conjugatePoint(0.5*(crossPoints.first+crossPoints.second)+crossSlipDisplacement);
 				
 				bool crossSlipPointsInsideMesh(true);
-				if (dislocationNetwork.shared.boundary_type)
+				if (dislocationNetwork.shared.use_boundary)
                 {
 //					SearchData<dim> SD(conjugatePoint);
 //                    //                    dislocationNetwork.shared.domain.findIncludingTet(SD);

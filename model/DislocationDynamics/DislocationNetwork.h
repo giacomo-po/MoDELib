@@ -91,12 +91,13 @@
 #include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
+#include <model/ParticleInteraction/SingleFieldPoint.h>
 
 
 
 namespace model
 {
- 
+    
 	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	class DislocationNetwork :
@@ -121,10 +122,10 @@ namespace model
         typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
         typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
 		enum {NdofXnode=NodeType::NdofXnode};
-		      
-//#ifdef UpdateBoundaryConditionsFile
-//#include UpdateBoundaryConditionsFile
-//#endif
+        
+        //#ifdef UpdateBoundaryConditionsFile
+        //#include UpdateBoundaryConditionsFile
+        //#endif
         
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
@@ -148,7 +149,7 @@ namespace model
 		
 		double dx, dt;
         double vmax;
-
+        
         /**********************************************************************/
 		void formJunctions()
         {/*! Performs dislocation junction formation if use_junctions==true
@@ -216,11 +217,11 @@ namespace model
           */
 			if(use_crossSlip)
             {
-				double t0=clock();
+                const auto t0= std::chrono::system_clock::now();
 				model::cout<<"		Performing Cross Slip ... "<<std::flush;
 				size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip(crossSlipDeg,crossSlipLength));
 				model::cout<<crossSlipEvents<<" cross slip events found ";
-				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 			}
 		}
         
@@ -230,11 +231,10 @@ namespace model
             // enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
             if (shared.use_bvp && !(runID%shared.use_bvp))
             {
-                    double t0=clock();
-                    model::cout<<"		Updating bvp stress ... "<<std::flush;
-                    shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,4>(*this);
-                    std::cout<<"FINISH HERE";
-                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+                model::cout<<"		Updating bvp stress ... "<<std::endl;
+//                shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,4>(*this);
+                shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,37>(*this);
+                std::cout<<"FINISH HERE";
 			}
         }
         
@@ -253,7 +253,7 @@ namespace model
             if(shared.use_bvp && !(runID%shared.use_bvp))
             {
                 nucleateDislocations(); // needs to be called before updateQuadraturePoints()
-                removeBoundarySegments();
+//                removeBoundarySegments();
             }
 #endif
             
@@ -312,14 +312,14 @@ namespace model
             DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
 			
 			//! 7- If soft boundaries are used, remove DislocationSegment(s) that exited the boundary
-			removeBoundarySegments();
+//			removeBoundarySegments();
 			
 			//! 8- Form Junctions
 			formJunctions();
 			
 			//! 9- Node redistribution
 			remesh();
-			removeBoundarySegments();
+//			removeBoundarySegments();
             
 			//! 10- Cross Slip
 			crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
@@ -330,21 +330,21 @@ namespace model
 			++runID;     // increment the runID counter
 		}
 		
-		/**********************************************************************/
-		void removeBoundarySegments()
-        {/*! Removes DislocationSegment(s) on the mesh boundary
-          */
-			if (shared.boundary_type==softBoundary)
-            {
-				double t0=clock();
-				model::cout<<"		Removing DislocationSegments outside mesh boundary... ";
-				typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
-				link_member_function_pointer_type boundarySegment_Lmfp;
-				boundarySegment_Lmfp=&LinkType::is_boundarySegment;
-				this->template disconnect_if<1>(boundarySegment_Lmfp);
-				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
-			}
-		}
+//		/**********************************************************************/
+//		void removeBoundarySegments()
+//        {/*! Removes DislocationSegment(s) on the mesh boundary
+//          */
+//			if (shared.use_boundary==softBoundary)
+//            {
+//				double t0=clock();
+//				model::cout<<"		Removing DislocationSegments outside mesh boundary... ";
+//				typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
+//				link_member_function_pointer_type boundarySegment_Lmfp;
+//				boundarySegment_Lmfp=&LinkType::is_boundarySegment;
+//				this->template disconnect_if<1>(boundarySegment_Lmfp);
+//				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+//			}
+//		}
         
         /**********************************************************************/
 		void segmentMeshCollision()
@@ -451,7 +451,7 @@ namespace model
             fullName<<inputDirectoryName_in<<inputFileName;
             
             model::cout<<greenColor<<"Reading "<<fullName.str()<<"..."<<defaultColor<<std::endl;
-
+            
             
             // Create a file-reader object
             EigenDataReader EDR;
@@ -483,7 +483,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width
             assert((StressField::a)>0.0 && "coreSize MUST BE > 0.");
             StressField::a2=StressField::a*StressField::a;
-            LinkType::coreLsquared=StressField::a2;
+            //            LinkType::coreLsquared=StressField::a2;
             //            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
             
             // Multipole Expansion
@@ -512,8 +512,8 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
             
 			// Mesh and BVP
-			EDR.readScalarInFile(fullName.str(),"boundary_type",shared.boundary_type);
-			if (shared.boundary_type)
+			EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
+			if (shared.use_boundary)
             {
                 int meshID(0);
                 EDR.readScalarInFile(fullName.str(),"meshID",meshID);
@@ -542,10 +542,10 @@ namespace model
 			
 			EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
 			assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
-
+            
             // Check balance
             EDR.readScalarInFile(fullName.str(),"check_balance",check_balance);
-
+            
             // JUNCTION FORMATION
             EDR.readScalarInFile(fullName.str(),"use_junctions",use_junctions);
             EDR.readScalarInFile(fullName.str(),"collisionTol",DislocationJunctionFormation<DislocationNetworkType>::collisionTol);
@@ -578,11 +578,11 @@ namespace model
             DislocationNetworkIO<DislocationNetworkType>::readEdges(*this,runID);    // this requires mesh to be up-to-date
             
             
-//            if (shared.use_bvp && (shared.boundary_type==softBoundary))
-//            { // MOVE THIS WITH REST OB BVP STUFF
-//                //                shared.vbsc.read(runID,&shared);
-//                shared.vbsc.initializeVirtualSegments(*this);
-//            }
+            //            if (shared.use_bvp && (shared.use_boundary==softBoundary))
+            //            { // MOVE THIS WITH REST OB BVP STUFF
+            //                //                shared.vbsc.read(runID,&shared);
+            //                shared.vbsc.initializeVirtualSegments(*this);
+            //            }
             
             
             //#ifdef DislocationNucleationFile
@@ -595,15 +595,15 @@ namespace model
 #endif
 			
 			// Initializing configuration
-//			model::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
+            //			model::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
 			move(0.0,0.0);	// initial configuration
-//			output();	// initial configuration, this overwrites the input file
-//			if (runID==0) // not a restart
-//            {
-//				remesh();	// expand initial FR sources
-//			}
-//			updateQuadraturePoints();
-//			++runID;     // increment the runID counter
+            //			output();	// initial configuration, this overwrites the input file
+            //			if (runID==0) // not a restart
+            //            {
+            //				remesh();	// expand initial FR sources
+            //			}
+            //			updateQuadraturePoints();
+            //			++runID;     // increment the runID counter
         }
 		
 		/**********************************************************************/
@@ -611,21 +611,36 @@ namespace model
         {/*! Performs the following operatons:
           */
             
-            model::cout<<"		Assembling edge stiffness and force vectors..."<<std::flush;
-			double t0=clock();
             
             //! -1 Compute the interaction StressField between dislocation particles
+            model::cout<<"		Computing particle-particle interaction..."<<std::flush;
+            const auto t0= std::chrono::system_clock::now();
             this->template computeNeighborField<StressField>();
+			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+            
+            
+            
+            //! Update the BonudaryDislocationNetwork
+            if(shared.use_bvp)
+            {
+                const auto t1= std::chrono::system_clock::now();
+                model::cout<<"		Updating BoundaryDislocationNetwork..."<<std::flush;
+                shared.bdn.update(*this);
+                model::cout<<" ("<<shared.bdn.size()<<" boundary segments)"
+                /*       */<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
+            }
             
 			//! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
+            model::cout<<"		Assembling segment stiffness matrix and force vector..."<<std::flush;
+            const auto t2= std::chrono::system_clock::now();
 			typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
 			LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
 			this->parallelExecute(Lmfp);
-			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]."<<defaultColor<<std::endl;
             
 			//! -3 Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve
-			model::cout<<"		Solving..."<<std::flush;
-			t0=clock();
+			model::cout<<"		Assembling NetworkComponents and Solving..."<<std::flush;
+            const auto t3= std::chrono::system_clock::now();
             
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -647,7 +662,7 @@ namespace model
                 }
 			}
 #endif
-			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]."<<defaultColor<<std::endl;
 		}
 		
 		/**********************************************************************/
@@ -768,7 +783,7 @@ namespace model
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
 		}
-				
+        
 		/**********************************************************************/
 		double energy()
         {/*!\returns The total elastic energy of the dislocation network
@@ -784,16 +799,47 @@ namespace model
 		/**********************************************************************/
 		MatrixDimD stress(const VectorDimD& Rfield, const bool& useFullField=true) const
         {
-			MatrixDimD temp=MatrixDimD::Zero();
+            typedef SingleFieldPoint<StressField> FieldPointType;
+            //std::deque<FieldPointType> fieldPoints; // the container of field points
+            FieldPointType fieldPoint(Rfield);
+            
+//            fieldPoint.field<StressField>() +=
+            
+//			MatrixDimD temp=MatrixDimD::Zero();
 			if(useFullField)
             {
-//				for (typename NetworkLinkContainerType::const_iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
-//                {
-//					temp+= linkIter->second->stress_source(Rfield);
-//				}
                 
-                assert(0 && "RE-ENABLE THIS WITH NEW CELL CLASS");
+//#ifdef _MODEL_MPI_
+//#else
+//                
+//                
+//#endif
+                
+//                for (typename SpatialCellObserverType::const_iterator cIter =this->operator[](k).neighborCellsBegin();
+//                     /*                                            */ cIter!=this->operator[](k).neighborCellsEnd();
+//                     /*                                          */ ++cIter)
+//                {
+//                    //! -3 loop over particles in the current neighbor cell
+//                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
+//                        /*                                                           */ qIter!=cIter->second->particleEnd();
+//                        /*                                                         */ ++qIter)
+//                    {
+//                        *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::compute(**qIter,this->operator[](k));
+//                    }
+//                }
+                
+//#ifdef _OPENMP
+//#pragma omp parallel for private(x) reduction(+:pi)
+//#endif
+                for(int k=0;k<ParticleSystemType::size();++k)
+                {
+                    fieldPoint.template field<StressField>() += StressField::compute(ParticleSystemType::operator[](k),fieldPoint);
+                }
 
+                
+                
+//                assert(0 && "RE-ENABLE THIS WITH NEW CELL CLASS");
+                
                 
 			}
 			else
@@ -807,25 +853,22 @@ namespace model
                 //					temp+=(*particleIter)->stress_at(Rfield);
                 //				}
 			}
-//            if (shared.use_bvp && (shared.boundary_type==1))
-//            {
-//                temp+= shared.vbsc.stress(Rfield);
-//            }
+
             if (shared.use_bvp)
             {
-                assert(0 && "HERE ADD THE RADIAL STRESS");
+                fieldPoint.template field<StressField>() += shared.bdn.stress(Rfield);
             }
 			
-            return temp;
+            return fieldPoint.template field<StressField>();
 		}
         
         
-//        /**********************************************************************/
-//        void getStress(std::deque<SimpleFieldPoint>& fieldPoints)
-//        {
-//            DN.updateQuadraturePoints();
-//            DN.computeField<SimpleFieldPoint,StressField>(fieldPoints);
-//        }
+        //        /**********************************************************************/
+        //        void getStress(std::deque<SimpleFieldPoint>& fieldPoints)
+        //        {
+        //            DN.updateQuadraturePoints();
+        //            DN.computeField<SimpleFieldPoint,StressField>(fieldPoints);
+        //        }
         
 		
 		/**********************************************************************/

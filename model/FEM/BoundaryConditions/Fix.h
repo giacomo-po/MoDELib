@@ -15,14 +15,10 @@ namespace model
 {
 
     struct Fix
-    {
-        
-        
-        
-        
+    {        
         /**************************************/
         template <typename NodeType>
-        static double at(const NodeType& node)
+        static double at(const NodeType&)
         {
             return 0.0;
         }

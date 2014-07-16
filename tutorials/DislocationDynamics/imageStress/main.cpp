@@ -6,7 +6,12 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#define _MODEL_NON_SINGULAR_DD_ 1 /* 1 = Cai's non-singular theory, 2 = Lazar's non-singular gradient theory */
+/* Define the non-singluar method used for calculations
+ * _MODEL_NON_SINGULAR_DD_ = 0 classical theory
+ * _MODEL_NON_SINGULAR_DD_ = 1 Cai's regularization method
+ * _MODEL_NON_SINGULAR_DD_ = 2 Lazar's regularization method
+ */
+#define _MODEL_NON_SINGULAR_DD_ 0
 
 //#define customUserOutputs "./myOutputs.h" // declare the custom output file
 #include <model/DislocationDynamics/DislocationNetwork.h>

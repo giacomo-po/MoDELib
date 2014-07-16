@@ -31,15 +31,15 @@ clf
 hold on
 grid on
 id=find(Y==0);
-plot(X(id),s11n(id),'b')
-plot(X(id),s11a(id),'r')
+plot(X(id),s11n(id),'b--')
+plot(X(id),s11a(id),'r--')
 plot(X(id),s11s(id),'k--')
 %plot(X(id),s22n(id),'b')
 %plot(X(id),s22a(id),'b--')
 %plot(X(id),s22s(id),'b-.')
 axis([min(X(id)) max(X(id)) -0.2 0.2])
 xlabel('x_1 / b','Fontsize',fontsize)
-ylabel('\sigma_{11} / \mu','Fontsize',fontsize)
+ylabel('sigma_{11} / \mu','Fontsize',fontsize)
 legend('\sigma_{11} (numerical)','\sigma_{11} (analytical)','\sigma_{11} (straight)');
 %print(gcf, '-depsc', 'sigma_edge_x1_Cai')
 
@@ -48,8 +48,8 @@ clf
 hold on
 grid on
 id=find(Y==0);
-plot(X(id),s12n(id),'b')
-plot(X(id),s12a(id),'r')
+plot(X(id),s12n(id),'b--')
+plot(X(id),s12a(id),'r--')
 plot(X(id),s12s(id),'k--')
 axis([min(X(id)) max(X(id)) -0.2 0.2])
 xlabel('x_1 / b','Fontsize',fontsize)
@@ -57,27 +57,33 @@ ylabel('\sigma_{12} / \mu','Fontsize',fontsize)
 legend('\sigma_{12} (numerical)','\sigma_{12} (analytical)','\sigma_{12} (straight)')
 %print(gcf, '-depsc', 'sigma_edge_x1_Cai')
 
-figure(3)
+figure(1)
 clf
 hold on
 grid on
 id=find(Y==0);
-plot(X(id),s22n(id),'b')
-plot(X(id),s22a(id),'r')
+plot(X(id),s22n(id),'b--')
+plot(X(id),s22a(id),'r--')
 plot(X(id),s22s(id),'k--')
+%plot(X(id),s22n(id),'b')
+%plot(X(id),s22a(id),'b--')
+%plot(X(id),s22s(id),'b-.')
 axis([min(X(id)) max(X(id)) -0.2 0.2])
 xlabel('x_1 / b','Fontsize',fontsize)
-ylabel('\sigma_{22} / \mu','Fontsize',fontsize)
-legend('\sigma_{22} (numerical)','\sigma_{22} (analytical)','\sigma_{22} (straight)');
+ylabel('sigma_{11} / \mu','Fontsize',fontsize)
+legend('\sigma_{11} (numerical)','\sigma_{11} (analytical)','\sigma_{11} (straight)');
 %print(gcf, '-depsc', 'sigma_edge_x1_Cai')
 
-figure(4)
+
+return
+
+figure(2)
 clf
 hold on
 grid on
 id=find(X==0);
-plot(Y(id),s11n(id),'b')
-plot(Y(id),s11a(id),'r')
+plot(Y(id),s11n(id),'b--')
+plot(Y(id),s11a(id),'r--')
 plot(Y(id),s11s(id),'k--')
 axis([min(Y(id)) max(Y(id)) -0.2 0.2])
 xlabel('x_2 / b','Fontsize',fontsize)
@@ -85,27 +91,13 @@ ylabel('\sigma_{11} / \mu','Fontsize',fontsize)
 legend('\sigma_{11} (numerical)','\sigma_{11} (analytical)','\sigma_{11} (straight)');
 %print(gcf, '-depsc', 'sigma_edge_x2_Cai')
 
-figure(5)
+figure(3)
 clf
 hold on
 grid on
 id=find(X==0);
-plot(Y(id),s12n(id),'b')
-plot(Y(id),s12a(id),'r')
-plot(Y(id),s12s(id),'k--')
-axis([min(Y(id)) max(Y(id)) -0.2 0.2])
-xlabel('x_2 / b','Fontsize',fontsize)
-ylabel('\sigma_{12} / \mu','Fontsize',fontsize)
-legend('\sigma_{12} (numerical)','\sigma_{12} (analytical)','\sigma_{12} (straight)');
-%print(gcf, '-depsc', 'sigma_edge_x2_Cai')
-
-figure(6)
-clf
-hold on
-grid on
-id=find(X==0);
-plot(Y(id),s22n(id),'b')
-plot(Y(id),s22a(id),'r')
+plot(Y(id),s22n(id),'b--')
+plot(Y(id),s22a(id),'r--')
 plot(Y(id),s22s(id),'k--')
 axis([min(Y(id)) max(Y(id)) -0.2 0.2])
 xlabel('x_2 / b','Fontsize',fontsize)
@@ -114,7 +106,6 @@ legend('\sigma_{22} (numerical)','\sigma_{22} (analytical)','\sigma_{22} (straig
 %print(gcf, '-depsc', 'sigma_edge_x2_Cai')
 
 
-return
 
 %% Surf Plots
 figure(3)

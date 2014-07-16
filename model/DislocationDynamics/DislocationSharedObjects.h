@@ -17,8 +17,9 @@
 #include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
 
-#include <model/Mesh/SimplicialMesh.h> // defines mode::cout
+#include <model/Mesh/SimplicialMesh.h> // defines model::cout
 #include <model/DislocationDynamics/BVP/BVPsolver.h>
+#include <model/DislocationDynamics/BVP/BoundaryDislocationNetwork.h>
 
 
 namespace model {
@@ -31,7 +32,7 @@ namespace model {
 
 
         static size_t minSNorderForSolve;
-		static unsigned int boundary_type;
+		static bool use_boundary;
 		static unsigned int use_bvp;
 		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
 
@@ -44,6 +45,7 @@ namespace model {
          * order of destruction of the static mesh and the static map in SimplexObserver.
          */
         
+        static BoundaryDislocationNetwork<TypeTraits<LinkType>::dim> bdn;
         
         static BvpSolverType bvpSolver;
         
@@ -57,7 +59,7 @@ namespace model {
 	size_t DislocationSharedObjects<LinkType>::minSNorderForSolve=0;
     
 	template <typename LinkType>
-	unsigned int DislocationSharedObjects<LinkType>::boundary_type=0;
+	bool DislocationSharedObjects<LinkType>::use_boundary=false;
 	
 	template <typename LinkType>
 	unsigned int DislocationSharedObjects<LinkType>::use_bvp=0;
@@ -67,6 +69,9 @@ namespace model {
 
     template <typename LinkType>
 	SimplicialMesh<TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::mesh;
+    
+    template <typename LinkType>
+	BoundaryDislocationNetwork<TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::bdn;
     
     template <typename LinkType>
 	BVPsolver<TypeTraits<LinkType>::dim,2> DislocationSharedObjects<LinkType>::bvpSolver(DislocationSharedObjects<LinkType>::mesh);

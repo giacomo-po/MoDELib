@@ -77,11 +77,11 @@ collisionTol=10;
 check_balance=1;
 
 ######################################
-# Enable/disable the use of a confining boundary.
-# boundary_type = 0 for no confining boundary. This automatically sets use_bvp=0 (see below). the variable meshID is ignored.
-# boundary_type = 1 for shearable confining boundary. The files N/N_meshID.txt, T/T_meshID.txt must be present in the working directory
-# boundary_type = 2 for unshearable confining boundary. The files N/N_meshID.txt, T/T_meshID.txt must be present in the working directory
-boundary_type =1;
+# BOUNDARY MESH
+# use_boundary enables/disables the use of a confining boundary.
+# If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
+# T/T_meshID.txt must be present in the working directory.
+use_boundary =1;
 meshID=0;
 
 

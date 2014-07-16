@@ -148,7 +148,7 @@ namespace model {
         {
 //            bool temp(true);
             std::pair<bool,const Simplex<dim,dim>*> temp(true,NULL);
-            if (DN.shared.boundary_type)
+            if (DN.shared.use_boundary)
             {
                 temp=DN.shared.mesh.isStrictlyInsideMesh(P0,guess,FLT_EPSILON);
                 //SearchData<dim> SD(P0);
