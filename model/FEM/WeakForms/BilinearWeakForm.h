@@ -23,6 +23,7 @@
 #include <model/FEM/WeakForms/WeakProblem.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/FEM/WeakForms/BilinearForm.h>
+#include <model/MPI/MPIcout.h>
 
 
 
@@ -87,7 +88,7 @@ namespace model
 //        /* init list */ maxAbsValue(0.0)
         {
             
-            std::cout<<greenColor<<"Creating BilinearWeakForm: gSize="<<gSize<<defaultColor<<std::endl;
+             model::cout<<greenColor<<"Creating BilinearWeakForm: gSize="<<gSize<<defaultColor<<std::endl;
             
         }
         
@@ -106,7 +107,7 @@ namespace model
         std::vector<Eigen::Triplet<double> >  assembleOnDomain(double& maxAbsValue) const
         {
             
-            std::cout<<"Assembling BilinearWeakForm on domain..."<<std::flush;
+             model::cout<<"Assembling BilinearWeakForm on domain..."<<std::flush;
             
             std::vector<Eigen::Triplet<double> > globalTriplets;
             //            globalTriplets.clear();
@@ -148,7 +149,7 @@ namespace model
                 }
             }
             
-            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+             model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             return globalTriplets;
         }
         

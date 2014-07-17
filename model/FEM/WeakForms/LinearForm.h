@@ -52,7 +52,7 @@ namespace model
         /* init list */ evalExp(evalE.derived())
 //        /* init list */ gSize(testExp.nodeSize()*dofPerNode)
         {
-            std::cout<<greenColor<<"Creating LinearForm "<<defaultColor<<std::endl;
+//            std::cout<<greenColor<<"Creating LinearForm "<<defaultColor<<std::endl;
 //            _globalVector.resize(gSize);
         }
         

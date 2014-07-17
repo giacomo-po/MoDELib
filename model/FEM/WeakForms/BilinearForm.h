@@ -50,7 +50,7 @@ namespace model
         /* init list */ gSize(trialExpr.nodeSize()*dofPerNode)
         {
             
-            std::cout<<greenColor<<"Creating BilinearForm: gSize="<<gSize<<defaultColor<<std::endl;
+//            std::cout<<greenColor<<"Creating BilinearForm: gSize="<<gSize<<defaultColor<<std::endl;
             
         }
         

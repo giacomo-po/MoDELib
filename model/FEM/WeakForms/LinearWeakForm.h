@@ -23,6 +23,7 @@
 #include <model/FEM/WeakForms/LinearForm.h>
 #include <model/FEM/WeakForms/LinearWeakSum.h>
 #include <model/FEM/WeakForms/JGNselector.h>
+#include <model/MPI/MPIcout.h>
 
 
 namespace model
@@ -74,7 +75,7 @@ namespace model
         {
 
             assert(0 && "FINISH HERE, AbscissaType is the wrong type in this function in case of boundary integration (and viceversa).");
-//            std::cout<<"Assembling LinearWeakForm on domain..."<<std::flush;
+//             model::cout<<"Assembling LinearWeakForm on domain..."<<std::flush;
 //            const auto t0= std::chrono::system_clock::now();
 //            for (int k=0;k<domain.size();++k)
 //            {
@@ -91,13 +92,13 @@ namespace model
 //                    _globalVector(gI) += ve(i);
 //                }
 //            }
-//            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+//             model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         }
         
         /**********************************************************************/
         void assembleOnBoundary(Eigen::Matrix<double,Eigen::Dynamic,1>& _globalVector) const
         {
-            std::cout<<"Assembling LinearWeakForm on faces ("<<domain.size()<<" faces) ..."<<std::flush;
+             model::cout<<"Assembling LinearWeakForm on faces ("<<domain.size()<<" faces) ..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             for (int k=0;k<domain.size();++k)
             {
@@ -112,9 +113,8 @@ namespace model
                     const size_t gI= ele.node(nodeID_I).gID*dofPerNode+nodeDof_I;
                     _globalVector(gI) += ve(i);
                 }
-
             }
-            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+             model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         }
         
     public:
@@ -128,7 +128,7 @@ namespace model
         /* init list */ linearForm(lF),
         /* init list */ domain(dom)
         {
-            std::cout<<greenColor<<"Creating LinearWeakForm "<<defaultColor<<std::endl;
+             model::cout<<greenColor<<"Creating LinearWeakForm "<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/

@@ -809,7 +809,7 @@ namespace model
             
 //            fieldPoint.field<StressField>() +=
             
-//			MatrixDimD temp=MatrixDimD::Zero();
+			MatrixDimD temp=MatrixDimD::Zero();
 			if(useFullField)
             {
                 
@@ -835,12 +835,34 @@ namespace model
 //#ifdef _OPENMP
 //#pragma omp parallel for private(x) reduction(+:pi)
 //#endif
-                for(int k=0;k<ParticleSystemType::size();++k)
-                {
-                    fieldPoint.template field<StressField>() += StressField::compute(ParticleSystemType::operator[](k),fieldPoint);
-                }
+                
+//                std::cout<<"DislocationNetwork::stress"<<std::endl;
+                
+//                std::cout<<ParticleSystemType::size()<<std::endl;
+//                std::cout<<"I'm here 1"<<std::endl;
 
                 
+                for(int k=0;k<ParticleSystemType::size();++k)
+                {
+//                    std::cout<<"I'm here 1a"<<std::endl;
+//
+//                    ParticleSystemType::operator[](k);
+//                    
+//                    std::cout<<"I'm here 1b"<<std::endl;
+//
+//                    StressField::compute(ParticleSystemType::operator[](k),fieldPoint);
+//                    
+//                    std::cout<<"I'm here 1c"<<std::endl;
+                    temp += StressField::compute(ParticleSystemType::operator[](k),fieldPoint);
+
+//                    std::cout<<"I'm here 1d"<<std::endl;
+
+                    
+//                    fieldPoint.template field<StressField>() += StressField::compute(ParticleSystemType::operator[](k),fieldPoint);
+                }
+
+//                std::cout<<"I'm here 2"<<std::endl;
+
                 
 //                assert(0 && "RE-ENABLE THIS WITH NEW CELL CLASS");
                 
@@ -860,10 +882,19 @@ namespace model
 
             if (shared.use_bvp)
             {
-                fieldPoint.template field<StressField>() += shared.bdn.stress(Rfield);
+//                std::cout<<"I'm here 3"<<std::endl;
+
+//                fieldPoint.template field<StressField>() += shared.bdn.stress(Rfield);
+                temp += shared.bdn.stress(Rfield);
+
+                //                std::cout<<"I'm here 4"<<std::endl;
+
             }
 			
-            return fieldPoint.template field<StressField>();
+//            std::cout<<"I'm here 5"<<std::endl;
+            return temp;
+
+//            return fieldPoint.template field<StressField>();
 		}
         
         

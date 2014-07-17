@@ -23,6 +23,7 @@
 #include <model/FEM/TrialOperators/TrialDef.h>
 //#include <model/FEM/DirichletCondition.h>
 #include <model/FEM/Boundaries/NodeList.h>
+#include <model/MPI/MPIcout.h>
 
 
 
@@ -73,9 +74,9 @@ namespace model
         /* init list */ fe(fe_in)
         {
 //            dofContainer.setZero(fe.nodeSize()*dofPerNode);
-//            std::cout<<greenColor<<"Creating TrialFunction: "<<dofContainer.size()<<" #dof."<<defaultColor<<std::endl;
+//             model::cout<<greenColor<<"Creating TrialFunction: "<<dofContainer.size()<<" #dof."<<defaultColor<<std::endl;
             this->setZero(fe.nodeSize()*dofPerNode);
-            std::cout<<greenColor<<"Creating TrialFunction: "<<this->size()<<" #dof."<<defaultColor<<std::endl;
+             model::cout<<greenColor<<"Creating TrialFunction: "<<this->size()<<" #dof."<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/

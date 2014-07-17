@@ -115,7 +115,10 @@ namespace model {
           *
           * This member function performs the following operations:
           */
-                        
+            
+            MPI_Barrier(MPI_COMM_WORLD);
+
+            
             //! -1 Partitioning:
             //! -1.1 creates a LPTpartitioner
             typedef LPTpartitioner<ParticleType> PartitionerType;
@@ -194,6 +197,8 @@ namespace model {
         {/*! Compute nearest-neighbor particle interaction according to FieldType
           *\returns the number of interactions computed
           */
+            
+            MPI_Barrier(MPI_COMM_WORLD);
             
             //            LPTpartitioner<ParticleType> lpt;
             typedef LPTpartitioner<OtherParticleType> PartitionerType;

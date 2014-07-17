@@ -27,6 +27,7 @@
 #include <model/FEM/Domains/EntireDomain.h>
 #include <model/FEM/Boundaries/ExternalBoundary.h>
 #include <model/FEM/Boundaries/NodeList.h>
+#include <model/MPI/MPIcout.h>
 
 
 namespace model
@@ -81,10 +82,10 @@ namespace model
           * FiniteElement is constructed.
           */
             
-            std::cout<<greenColor<<"Creating FiniteElement:\n"<<defaultColor<<std::flush;
+             model::cout<<greenColor<<"Creating FiniteElement:\n"<<defaultColor<<std::flush;
             
             // THIS IS NECESSARY TO AVOID "STATIC INITIALIZATION FIASCO"
-            std::cout<<"Element barycentric coordinates:\n"<<ElementType::baryNodalCoordinates<<std::endl;
+             model::cout<<"Element barycentric coordinates:\n"<<ElementType::baryNodalCoordinates<<std::endl;
             
             
             // Insert elements
@@ -111,10 +112,10 @@ namespace model
                 
             }
             
-            std::cout<<"   # elements: "<<elementSize()    <<"\n";
-            std::cout<<"   # nodes: "   <<nodeSize()       <<"\n";
-            std::cout<<"   xMin= "    <<_xMin.transpose()<<"\n";
-            std::cout<<"   xMax= "    <<_xMax.transpose()<<std::endl;
+             model::cout<<"   # elements: "<<elementSize()    <<"\n";
+             model::cout<<"   # nodes: "   <<nodeSize()       <<"\n";
+             model::cout<<"   xMin= "    <<_xMin.transpose()<<"\n";
+             model::cout<<"   xMax= "    <<_xMax.transpose()<<std::endl;
         }
         
         /**********************************************************************/

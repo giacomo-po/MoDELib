@@ -18,8 +18,9 @@
 
 
 #include <model/Utilities/SequentialOutputFile.h>
-
 #include <model/Math/MINRES.h>
+#include <model/MPI/MPIcout.h>
+
 
 #ifdef _MODEL_PARDISO_SOLVER_
 #include <Eigen/PardisoSupport>
@@ -70,13 +71,13 @@ namespace model
         /* init list */ gSize(lhs.gSize)
         {
             
-            std::cout<<greenColor<<"Creating WeakProblem "<<defaultColor<<std::endl;
+             model::cout<<greenColor<<"Creating WeakProblem "<<defaultColor<<std::endl;
             
             
             
             //            if(lhs.gSize!=rhs.gSize())
             //            {
-            //                std::cout<<"LHS and RHS OF WEAKPROBLEM HAVE DIFERENT GLOBAL SIZE. Exiting."<<std::endl;
+            //                 model::cout<<"LHS and RHS OF WEAKPROBLEM HAVE DIFERENT GLOBAL SIZE. Exiting."<<std::endl;
             //                std::exit(EXIT_FAILURE);
             //            }
             
@@ -93,11 +94,11 @@ namespace model
             std::vector<Eigen::Triplet<double> > globalTriplets(lhs.assembleOnDomain(maxAbsValue));
             
             // Create sparse matrix from global triplets
-            std::cout<<"Creating matrix from triplets..."<<std::flush;
+             model::cout<<"Creating matrix from triplets..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             A.resize(gSize,gSize);
             A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
-            std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
             // Assemble b
             b=rhs.globalVector();
@@ -121,7 +122,7 @@ namespace model
             assemble(); // this sets assembleCase=NO_CONSTRAINTS;
             assembleCase=PENALTY;
             
-            std::cout<<"Assembling penalty constraints (maxAbsValue="<<maxAbsValue<<")..."<<std::flush;
+             model::cout<<"Assembling penalty constraints (maxAbsValue="<<maxAbsValue<<")..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             const double K(pf*maxAbsValue);
             const size_t cSize(lhs.trialExpr.trial().dcContainer.size());
@@ -138,7 +139,7 @@ namespace model
             }
             
             A.makeCompressed();
-            std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
         }
         
@@ -161,7 +162,7 @@ namespace model
                 b.segment(0,gSize)=rhs.globalVector();
                 x.setZero(gSize+cSize);
                 
-                std::cout<<"Assembling Lagrange constraints..."<<std::flush;
+                 model::cout<<"Assembling Lagrange constraints..."<<std::flush;
                 const auto t0= std::chrono::system_clock::now();
 //                for (int c=0;c<cSize;++c)
 //                {
@@ -184,19 +185,19 @@ namespace model
                     c++;
                 }
                 
-                std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                 model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
-                std::cout<<"Creating matrix from triplets..."<<std::flush;
+                 model::cout<<"Creating matrix from triplets..."<<std::flush;
                 const auto t1= std::chrono::system_clock::now();
                 // Resize A and pupulate it from tempTriplets
                 A.resize(gSize+cSize,gSize+cSize);
                 A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
-                std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
+                 model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
                 
             }
             else // no Dirichlet Boundary conditions
             {
-                std::cout<<"No constraints found"<<std::endl;
+                 model::cout<<"No constraints found"<<std::endl;
                 assemble();
             }
             
@@ -205,10 +206,10 @@ namespace model
         /**********************************************************************/
         Eigen::VectorXd solve(const double& tol)
         {
-            std::cout<<"pruning matrix: "<<A.nonZeros()<<"->";
+             model::cout<<"pruning matrix: "<<A.nonZeros()<<"->";
             const auto t0= std::chrono::system_clock::now();
             A.prune(A.norm()/A.nonZeros(),FLT_EPSILON);
-            std::cout<<A.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+             model::cout<<A.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             
             
             
@@ -218,11 +219,11 @@ namespace model
                 case LAGRANGE:
                 {// A is SPsD, so use MINRES sover
                     const auto t0= std::chrono::system_clock::now();
-                    std::cout<<"Solving (MINRES)..."<<std::flush;
+                     model::cout<<"Solving (MINRES)..."<<std::flush;
                     Eigen::MINRES<SparseMatrixType> solver(A);
                     solver.setTolerance(tol);
                     x=solver.solveWithGuess(b,x);
-                    std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                     model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                     assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
                     break;
                 }
@@ -232,16 +233,16 @@ namespace model
                 {// A is SPD, so use ConjugateGradient sover
                     const auto t0= std::chrono::system_clock::now();
 #ifdef _MODEL_PARDISO_SOLVER_
-                    std::cout<<"Solving (PardisoLLT)..."<<std::flush;
+                     model::cout<<"Solving (PardisoLLT)..."<<std::flush;
                     Eigen::PardisoLLT<SparseMatrixType> solver(A);
                     x=solver.solve(b);
 #else
-                    std::cout<<"Solving (ConjugateGradient)..."<<std::flush;
+                     model::cout<<"Solving (ConjugateGradient)..."<<std::flush;
                     Eigen::ConjugateGradient<SparseMatrixType> solver(A);
                     solver.setTolerance(tol);
                     x=solver.solveWithGuess(b,x);
 #endif
-                    std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                     model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                     assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
                     break;
                 }
@@ -250,7 +251,7 @@ namespace model
                 case MASTERSLAVE:
                 {// A1 is SPD, so use ConjugateGradient sover
                     
-                    std::cout<<"Setting up master-slave constraints..."<<std::flush;
+                     model::cout<<"Setting up master-slave constraints..."<<std::flush;
                     const auto t0= std::chrono::system_clock::now();
 
                     const size_t cSize(lhs.trialExpr.trial().dcContainer.size());
@@ -276,7 +277,7 @@ namespace model
                             col++;
                         }
                         startRow=endRow+1;
-                        const double& val(cIter->second);
+//                        const double& val(cIter->second); //! ??????????????
                     }
                     for (size_t row=startRow;row!=gSize;++row)
                     {
@@ -291,28 +292,28 @@ namespace model
                     
                     SparseMatrixType A1(T.transpose()*A*T);
                     Eigen::VectorXd b1(T.transpose()*(b-A*g));
-                    std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                     model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                     
-                    std::cout<<"pruning master-slave matrix: "<<A1.nonZeros()<<"->";
+                     model::cout<<"pruning master-slave matrix: "<<A1.nonZeros()<<"->";
                     const auto t3= std::chrono::system_clock::now();
                     A1.prune(A1.norm()/A1.nonZeros(),FLT_EPSILON);
-                    std::cout<<A1.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]"<<std::endl;
+                     model::cout<<A1.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]"<<std::endl;
                     
                     const auto t1= std::chrono::system_clock::now();
 #ifdef _MODEL_PARDISO_SOLVER_
-                    std::cout<<"Solving (PardisoLLT)..."<<std::flush;
+                     model::cout<<"Solving (PardisoLLT)..."<<std::flush;
                     Eigen::PardisoLLT<SparseMatrixType> solver(A1);
                     x=T*solver.solve(b1)+g;
 #else
-                    std::cout<<"Solving (ConjugateGradient)..."<<std::flush;
+                     model::cout<<"Solving (ConjugateGradient)..."<<std::flush;
                     Eigen::ConjugateGradient<SparseMatrixType> solver(A1);
 //                    Eigen::ConjugateGradient<SparseMatrixType> solver(T.transpose()*A*T); // this gives a segmentation fault
                     solver.setTolerance(tol);
 //                    x=T*solver.solve(T.transpose()*(b-A*g))+g;
                     x=T*solver.solve(b1)+g;
 #endif
-                    std::cout<<" (relative error ="<<solver.error()<<", tolerance="<<solver.tolerance();
-                    std::cout<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
+                     model::cout<<" (relative error ="<<solver.error()<<", tolerance="<<solver.tolerance();
+                     model::cout<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
                     assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
                     break;
                 }
