@@ -9,6 +9,7 @@ close all
 clear all
 addpath('../../../../matlab/');
 
+filename='cylinder'; % this creates file cylinder.stl
 
 R=2127/2; % radius of cylinder (units of Burgers vector)
 H=6*R;    % height of cylinder (units of Burgers vector)
@@ -50,4 +51,16 @@ end
 
 plotFacets(Facets)
 grid on
-writeSTL(Facets,'mesh') % creates file mesh.stl
+
+%% write stl file
+writeSTL(Facets,filename) % creates file mesh.stl
+
+%% Run Tetgen 
+averageElementVolume=1000000000;
+system(['../../../../scripts/tetgenSTL.sh ' filename ' ' num2str(averageElementVolume)]);
+
+%% Create T and N files and clean tetgent output
+meshID=0;
+system(['../../../../scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
+
+

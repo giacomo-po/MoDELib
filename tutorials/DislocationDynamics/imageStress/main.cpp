@@ -17,6 +17,7 @@
 #include <model/DislocationDynamics/DislocationNetwork.h>
 #include <model/FEM/Boundaries/LowerCorner.h>
 #include <model/FEM/Boundaries/OnMaxAxis.h>
+#include <model/FEM/Boundaries/AtXmin.h>
 #include <model/FEM/Boundaries/AtXmax.h>
 
 #include <model/FEM/BoundaryConditions/Fix.h>
@@ -34,19 +35,26 @@ int main (int argc, char* argv[])
     {
         Fix fix;
         // Set up boundary conditions
-        auto nodeList_0=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<0>>();
+        //        auto nodeList_0=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<0>>();
+        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_0,1);
+        //
+        //        auto nodeList_1=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<1>>();
+        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_1,2);
+        //
+        //        auto nodeList_2=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<2>>();
+        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_2,0);
+        //
+        //        auto nodeList_3=DN.shared.bvpSolver.finiteElement().getNodeList<LowerCorner>();
+        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,0);
+        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,1);
+        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,2);
+        
+        auto nodeList_0=DN.shared.bvpSolver.finiteElement().getNodeList<AtXmin<2>>();
+        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_0,0);
         DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_0,1);
+        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_0,2);
         
-        auto nodeList_1=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<1>>();
-        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_1,2);
         
-        auto nodeList_2=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<2>>();
-        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_2,0);
-        
-        auto nodeList_3=DN.shared.bvpSolver.finiteElement().getNodeList<LowerCorner>();
-        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,0);
-        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,1);
-        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,2);
     }
     
     // Run time steps

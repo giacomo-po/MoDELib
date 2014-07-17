@@ -183,7 +183,7 @@ namespace model {
 			
 			//Add positioned light
 			glEnable(GL_LIGHT0); //Enable light #0
-            GLfloat light0Pos[] =   {1.0f, 1.0f, 0.0f,1.0f};
+            GLfloat light0Pos[] =   {10000.0f, 10000.0f, 0.0f,10000.0f};
             glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
             GLfloat light0Amb[] =   {0.0f, 0.0f, 0.0f, 1.0f}; // ambient color for GL_LIGHT0
             glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
@@ -264,6 +264,8 @@ namespace model {
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "a: hide/show axis\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
+                sprintf (outString, "b: hide/show Burgers vector\n");
+                BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "c: hide/show cells\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "e: hide/show edges as tubes\n");
@@ -286,14 +288,17 @@ namespace model {
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "r (hold r and press -/+): decrese/increse edge and vertex radius\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
-//                sprintf (outString, "s: saves frames to tga folder\n");
-//                BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "v: hide/show vertices\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "x: auto-zoom\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "z (hold z and press -/+): zoom\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
+                sprintf (outString, "1-6: show boundary stress (components 11,22,33,12,23,13)\n");
+                BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
+//                sprintf (outString, "0: hide boundary stress\n");
+//                BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
+
             }
             
             glPopMatrix();
@@ -373,8 +378,9 @@ namespace model {
 		}
 		
 		
-		////////////////////////////////////////////////
-		void autoCenter(){
+        /**********************************************************************/
+		void autoCenter()
+        {
 			xMin=0.0f;
 			xMax=0.0f;
 			yMin=0.0f;
@@ -401,12 +407,8 @@ namespace model {
 			upVector   << 0.0,0.0,1.0;
 			transVector<< 0.0,0.0,0.0;
 		}
-		
-        
-        
-        
-        
-        /* drawScene *************************************************/
+
+        /**********************************************************************/
         void displayFunc()
         {
             
@@ -456,8 +458,7 @@ namespace model {
             
         }
         
-		/* drawScene *************************************************/
-		//template<short unsigned int dim, double & alpha>
+        /**********************************************************************/
 		void drawScene()
         {
 			
@@ -483,9 +484,11 @@ namespace model {
 			//VectorDimF eyePoint = centerPoint +  scale* center2eye;
 			gluLookAt(eyePoint(0),eyePoint(1),eyePoint(2), centerPoint(0), centerPoint(1), centerPoint(2), upVector(0), upVector(1), upVector(2)); //giacomo
 			
-			//GLfloat lightColor0[] = {1.0f, 1.0f, 1.0f, 1.0f}; //Color (0.5, 0.5, 0.5)
-			GLfloat lightPos0[] = {eyePoint(0)-centerPoint(0), eyePoint(1)-centerPoint(1), eyePoint(2)-centerPoint(2), 0.0f}; //Positioned at (4, 0, 8)
-			//glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor0);
+//			GLfloat lightColor0[] = {1.0f, 1.0f, 1.0f, 1.0f}; //Color (0.5, 0.5, 0.5)
+//			GLfloat lightPos0[] = {eyePoint(0)-centerPoint(0), eyePoint(1)-centerPoint(1), eyePoint(2)-centerPoint(2), 0.0f}; //Positioned at (4, 0, 8)
+			GLfloat lightPos0[] = {eyePoint(0), eyePoint(1), eyePoint(2), 0.0f};
+
+//			glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor0);
 			glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);
             
             
@@ -649,7 +652,7 @@ namespace model {
 					if (keyStates['q']){
 						meshPlotter.dispScale*=0.75f;;
 					}
-					if (keyStates['a']){
+					if (keyStates['p']){
 						splinePlotter.PKfactor*=0.75f;;
 					}
 					break;
@@ -669,7 +672,7 @@ namespace model {
 					if (keyStates['q']){
 						meshPlotter.dispScale*=1.5f;;
 					}
-					if (keyStates['a']){
+					if (keyStates['p']){
 						splinePlotter.PKfactor*=1.5f;;
 					}
 					break;
@@ -708,7 +711,7 @@ namespace model {
                 case 'i':
                     autoplay=false;
                     //if(splinePlotter.showSpecificVertex){
-                    std::cout<<"Enter a stepIncrement: ";
+                    std::cout<<"Enter a step increment and press Enter: ";
                     std::cin>>stepIncrement;
                     //}
 					break;
@@ -765,6 +768,82 @@ namespace model {
                     
 				case 't':
 					splinePlotter.showVertexID=!splinePlotter.showVertexID;
+					break;
+                    
+//                case '0':
+//					meshPlotter.plotBndStress=false;
+//					break;
+                    
+                case '1':
+                    if (meshPlotter.stressCol==0)
+                    {
+                        meshPlotter.plotBndStress=!meshPlotter.plotBndStress;
+                    }
+                    else
+                    {
+                        meshPlotter.stressCol=0;
+                        meshPlotter.plotBndStress=true;
+                    }
+					break;
+                    
+                case '2':
+                    if (meshPlotter.stressCol==1)
+                    {
+                        meshPlotter.plotBndStress=!meshPlotter.plotBndStress;
+                    }
+                    else
+                    {
+                        meshPlotter.stressCol=1;
+                        meshPlotter.plotBndStress=true;
+                    }
+					break;
+                    
+                case '3':
+                    if (meshPlotter.stressCol==2)
+                    {
+                        meshPlotter.plotBndStress=!meshPlotter.plotBndStress;
+                    }
+                    else
+                    {
+                        meshPlotter.stressCol=2;
+                        meshPlotter.plotBndStress=true;
+                    }
+					break;
+                    
+                case '4':
+                    if (meshPlotter.stressCol==3)
+                    {
+                        meshPlotter.plotBndStress=!meshPlotter.plotBndStress;
+                    }
+                    else
+                    {
+                        meshPlotter.stressCol=3;
+                        meshPlotter.plotBndStress=true;
+                    }
+					break;
+                    
+                case '5':
+                    if (meshPlotter.stressCol==4)
+                    {
+                        meshPlotter.plotBndStress=!meshPlotter.plotBndStress;
+                    }
+                    else
+                    {
+                        meshPlotter.stressCol=4;
+                        meshPlotter.plotBndStress=true;
+                    }
+					break;
+                    
+                case '6':
+                    if (meshPlotter.stressCol==5)
+                    {
+                        meshPlotter.plotBndStress=!meshPlotter.plotBndStress;
+                    }
+                    else
+                    {
+                        meshPlotter.stressCol=5;
+                        meshPlotter.plotBndStress=true;
+                    }
 					break;
                     
 //                case '0':

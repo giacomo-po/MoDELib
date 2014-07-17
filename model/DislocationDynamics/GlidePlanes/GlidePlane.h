@@ -128,6 +128,7 @@ namespace model {
 		/* init list */ height(height_in),
         /* init list */ segmentMeshCollisionPairContainer(getPlaneMeshIntersection(planeNormal*height,planeNormal))
         {
+            model::cout<<"Creating GlidePlane: planeNormal="<<planeNormal.transpose()<<", height="<<height<<std::endl;
 			assert(std::fabs(planeNormal.norm()-1.0)<=DBL_EPSILON && "GLIDE PLANE NORMAL IS NOT UNIT");
 			assert(this->glidePlaneMap.insert(std::make_pair((VectorDimPlusOneD()<< planeNormal, height).finished(),this)).second && "CANNOT INSERT GLIDE PLANE  IN STATIC glidePlaneMap.");
 		}

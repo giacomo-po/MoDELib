@@ -331,6 +331,11 @@ namespace model {
                                                                                      Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
                                                                                      Quadrature<1,qOrder,QuadratureRule>::weights(k)));
                 }
+
+//                quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),Burgers,
+//                                                                                 Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
+//                                                                                 Quadrature<1,qOrder,QuadratureRule>::weights(k)));
+
                 
             }
             
@@ -351,6 +356,8 @@ namespace model {
         MatrixDim boundaryStress(const VectorDim& P) const
         {
             return shared.bvpSolver.stress(P,this->source->includingSimplex()) + shared.bdn.stress(P);
+//            return shared.bvpSolver.stress(P,this->source->includingSimplex());
+
         }
         
 		/**********************************************************************/

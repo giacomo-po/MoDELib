@@ -90,10 +90,14 @@ namespace model
         }
         
     public:
+        
+        double tolerance;
+        
         /**********************************************************************/
         BVPsolver(const SimplicialMesh<dim>& mesh_in) :
         /* init  */ mesh(mesh_in),
-        /* init  */ C(get_C())
+        /* init  */ C(get_C()),
+        /* init  */ tolerance(0.0001)
         {
             
         }
@@ -122,11 +126,11 @@ namespace model
             return *u;
         }
         
-//        /**********************************************************************/
-//        const TrialStressType& stress() const
-//        {
-//            return *s;
-//        }
+        /**********************************************************************/
+        const TrialStressType& stress() const
+        {
+            return *s;
+        }
         
         /**********************************************************************/
         void init()
@@ -180,8 +184,8 @@ namespace model
             //            wp.assembleWithPenaltyConstraints(1000.0);
 
             // Solve
-            const double tol(0.0001);
-            (*u)=wp.solve(tol);
+//            const double tol(0.0001);
+            (*u)=wp.solve(tolerance);
         }
         
         /**********************************************************************/

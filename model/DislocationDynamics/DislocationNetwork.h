@@ -228,14 +228,27 @@ namespace model
         /**********************************************************************/
         void update_BVP_Solution()
         {
-            // enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
-            if (shared.use_bvp && !(runID%shared.use_bvp))
+            
+            //! Update the BonudaryDislocationNetwork
+            if(shared.use_bvp)
             {
-                model::cout<<"		Updating bvp stress ... "<<std::endl;
-//                shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,4>(*this);
-                shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,37>(*this);
-                std::cout<<"FINISH HERE";
-			}
+                const auto t1= std::chrono::system_clock::now();
+                model::cout<<"		Updating BoundaryDislocationNetwork..."<<std::flush;
+                shared.bdn.update(*this);
+                model::cout<<" ("<<shared.bdn.size()<<" boundary segments)"
+                /*       */<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
+
+                // enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
+                if (!(runID%shared.use_bvp))
+                {
+                    model::cout<<"		Updating bvp stress ... "<<std::endl;
+                    //                shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,4>(*this);
+                    shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,37>(*this);
+                    std::cout<<"FINISH HERE";
+                }
+            
+            }
+            
         }
         
         /**********************************************************************/
@@ -524,6 +537,9 @@ namespace model
 				if(shared.use_bvp)
                 {
                     shared.bvpSolver.init();
+                    
+                    EDR.readScalarInFile(fullName.str(),"solverTolerance",shared.bvpSolver.tolerance);
+                    
 				}
 			}
 			else{ // no boundary is used, DislocationNetwork is in inifinite medium
@@ -617,18 +633,6 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             this->template computeNeighborField<StressField>();
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-            
-            
-            
-            //! Update the BonudaryDislocationNetwork
-            if(shared.use_bvp)
-            {
-                const auto t1= std::chrono::system_clock::now();
-                model::cout<<"		Updating BoundaryDislocationNetwork..."<<std::flush;
-                shared.bdn.update(*this);
-                model::cout<<" ("<<shared.bdn.size()<<" boundary segments)"
-                /*       */<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
-            }
             
 			//! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
             model::cout<<"		Assembling segment stiffness matrix and force vector..."<<std::flush;

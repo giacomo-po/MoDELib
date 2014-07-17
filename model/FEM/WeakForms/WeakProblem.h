@@ -97,7 +97,7 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             A.resize(gSize,gSize);
             A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
-            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
             // Assemble b
             b=rhs.globalVector();
@@ -138,7 +138,7 @@ namespace model
             }
             
             A.makeCompressed();
-            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
         }
         
@@ -184,14 +184,14 @@ namespace model
                     c++;
                 }
                 
-                std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
                 std::cout<<"Creating matrix from triplets..."<<std::flush;
                 const auto t1= std::chrono::system_clock::now();
                 // Resize A and pupulate it from tempTriplets
                 A.resize(gSize+cSize,gSize+cSize);
                 A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
-                std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
+                std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
                 
             }
             else // no Dirichlet Boundary conditions
@@ -205,9 +205,9 @@ namespace model
         /**********************************************************************/
         Eigen::VectorXd solve(const double& tol)
         {
-            std::cout<<"Pruning maxtrix: "<<A.nonZeros()<<"->";
+            std::cout<<"pruning matrix: "<<A.nonZeros()<<"->";
             const auto t0= std::chrono::system_clock::now();
-            A.prune(A.norm(),FLT_EPSILON);
+            A.prune(A.norm()/A.nonZeros(),FLT_EPSILON);
             std::cout<<A.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             
             
@@ -222,7 +222,7 @@ namespace model
                     Eigen::MINRES<SparseMatrixType> solver(A);
                     solver.setTolerance(tol);
                     x=solver.solveWithGuess(b,x);
-                    std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                    std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                     assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
                     break;
                 }
@@ -241,7 +241,7 @@ namespace model
                     solver.setTolerance(tol);
                     x=solver.solveWithGuess(b,x);
 #endif
-                    std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                    std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                     assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
                     break;
                 }
@@ -290,18 +290,15 @@ namespace model
                     T.setFromTriplets(tTriplets.begin(),tTriplets.end());
                     
                     SparseMatrixType A1(T.transpose()*A*T);
-                    std::cout<<"Pruning maxtrix: "<<A1.nonZeros()<<"->";
-                    const auto t3= std::chrono::system_clock::now();
-                    A1.prune(A1.norm(),FLT_EPSILON);
-                    std::cout<<A1.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]"<<std::flush;
-
-                    
                     Eigen::VectorXd b1(T.transpose()*(b-A*g));
-                    std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                    std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                    
+                    std::cout<<"pruning master-slave matrix: "<<A1.nonZeros()<<"->";
+                    const auto t3= std::chrono::system_clock::now();
+                    A1.prune(A1.norm()/A1.nonZeros(),FLT_EPSILON);
+                    std::cout<<A1.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]"<<std::endl;
                     
                     const auto t1= std::chrono::system_clock::now();
-
-                    
 #ifdef _MODEL_PARDISO_SOLVER_
                     std::cout<<"Solving (PardisoLLT)..."<<std::flush;
                     Eigen::PardisoLLT<SparseMatrixType> solver(A1);
@@ -314,7 +311,8 @@ namespace model
 //                    x=T*solver.solve(T.transpose()*(b-A*g))+g;
                     x=T*solver.solve(b1)+g;
 #endif
-                    std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
+                    std::cout<<" (relative error ="<<solver.error()<<", tolerance="<<solver.tolerance();
+                    std::cout<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
                     assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
                     break;
                 }

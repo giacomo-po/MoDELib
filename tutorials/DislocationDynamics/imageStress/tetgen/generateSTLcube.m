@@ -10,6 +10,8 @@ close all
 clear all
 addpath('../../../../matlab/');
 
+
+filename='cube'; % this creates file cube.stl
 L=4000; % the side length of the cube, in units of Burgers vector
 
 % coordinates of the 8 vertices of the cube, centered at origin
@@ -42,11 +44,20 @@ Facets=addFacet(Facets,v7,v6,v2);
 Facets=addFacet(Facets,v1,v2,v6);
 Facets=addFacet(Facets,v1,v6,v5);
 
-% plot facets
+%% plot facets
 figure(1)
 clf
 plotFacets(Facets)
 grid on
 
-% write mesh.stl file
-writeSTL(Facets,'mesh')
+%% write stl file
+writeSTL(Facets,filename)
+
+%% Run Tetgen 
+averageElementVolume=10000000;
+system(['../../../../scripts/tetgenSTL.sh ' filename ' ' num2str(averageElementVolume)]);
+
+%% Create T and N files and clean tetgent output
+meshID=0;
+system(['../../../../scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
+

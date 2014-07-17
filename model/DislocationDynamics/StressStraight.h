@@ -11,6 +11,7 @@
 
 #include <Eigen/Core>
 #include <model/DislocationDynamics/Materials/Material.h>
+#include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
 
 namespace model
 {
@@ -36,10 +37,10 @@ namespace model
              * effects. Acta Metallurgica Et Materialia, 40(10), 2629–2637.
              */
             const double L(r.dot(t));
-            const double R(r.norm());
+            const double R(r.norm()+DislocationStress<dim>::a);
             const VectorDim rho(r-L*t);
             const VectorDim Y((L+R)*t+rho);
-            const double Y2(Y.squaredNorm());
+            const double Y2(Y.squaredNorm()+DislocationStress<dim>::a2);
             return (Material<Isotropic>::C1* b.cross(Y)*t.transpose()
             /*                 */ -b.cross(t)*Y.transpose()
             /*                 */ -b.dot(Y.cross(t))*(2.0/Y2*rho*Y.transpose()+0.5*(MatrixDim::Identity()+t*t.transpose()+2.0/Y2*L/R*Y*Y.transpose()))
