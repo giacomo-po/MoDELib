@@ -237,7 +237,7 @@ namespace model
 #ifdef userBVPfile
 #include userBVPfile
 #else
-            static_assert(0,"YOU MUST #defined THE userBVPfile.");
+            assert(0 &&"YOU MUST #defined THE userBVPfile.");
 #endif
             
             

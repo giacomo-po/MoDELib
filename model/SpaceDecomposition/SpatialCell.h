@@ -214,6 +214,13 @@ namespace model {
             return particleContainer.size();
         }
         
+//        /* size ***************************************************************/
+//        template <size_t N>
+//        ??? getProperty()
+//        {
+//            return FINISH HERE;
+//        }
+        
         /* neighborSize *******************************************************/
         size_t neighborSize() const
         {

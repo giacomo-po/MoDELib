@@ -58,6 +58,7 @@ namespace model {
         template <typename FieldType>
         void computeNeighborField(const bool& useMultipole)
         {
+            // Nearest-neighbor interaction
             //! -1 loop over all particles in the ParticleSystem (parallelized in OpenMP)
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -78,15 +79,13 @@ namespace model {
                     }
                 }
                 
+                // Non-nearest-neighbor interaction
                 if(useMultipole)
                 {
                     typename SpatialCellType::CellMapType farCells(this->operator[](k).template farCells<_ParticleType>());
-                    
                     *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::multipole(this->operator[](k),farCells);
                 }
-                
             }
-
         }
         
 //        /**********************************************************************/
@@ -126,7 +125,7 @@ namespace model {
 #endif
             for (unsigned int k=0; k<fpDeq.size();++k)
             {
-                
+                // Nearest-neighbor interaction
                 typename SpatialCellType::CellMapType neighborCells(fpDeq[k].template neighborCells<_ParticleType>());
                 
                 //! -2 loop over neighbor cells of current particle
@@ -143,8 +142,7 @@ namespace model {
                     }
                 }
                 
-                
-                // HERE ADD MULTIPOLE EFFECT
+                // Non-nearest-neighbor interaction
                 if(useMultipole)
                 {
                     typename SpatialCellType::CellMapType farCells(fpDeq[k].template farCells<_ParticleType>());

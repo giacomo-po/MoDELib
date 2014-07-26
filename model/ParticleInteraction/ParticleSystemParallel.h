@@ -111,7 +111,7 @@ namespace model {
         
         /**********************************************************************/
         template <typename FieldType>
-        void computeNeighborField()
+        void computeNeighborField(const bool& useMultipole)
         {/*! Compute nearest-neighbor particle interaction according to FieldType
           *\returns the number of interactions computed
           *
@@ -158,7 +158,7 @@ namespace model {
 #endif
             for (unsigned int k=0; k<lpt.bin(this->mpiRank()).size();++k)
             {
-                
+                // Nearest-neighbor interaction
                 static_cast<FieldPointBase<ParticleType,FieldType>* const>(lpt.bin(this->mpiRank())[k]) -> setZero();
                 
                 // loop over neighbor cells of the current particle
@@ -167,9 +167,15 @@ namespace model {
                     // loop over source particles in the neighbor cell
                     for(typename SpatialCellType::ParticleContainerType::const_iterator sIter=cIter->second->particleBegin();sIter!=cIter->second->particleEnd();++sIter) // loop over neighbor particles
                     {
-                        //*static_cast<FieldPointBase<ParticleType,FieldType>* const>(lpt.bin(this->mpiRank())[k]) += FieldType::compute(**sIter,*lpt.bin(this->mpiRank())[k]);
                         lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::compute(**sIter,*lpt.bin(this->mpiRank())[k]);
                     }
+                }
+                
+                // Non nearest-neighbor interaction
+                if(useMultipole)
+                {
+                    typename SpatialCellType::CellMapType farCells(lpt.bin(this->mpiRank())[k]->template farCells<_ParticleType>());
+                    lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::multipole(*lpt.bin(this->mpiRank())[k],farCells);
                 }
             }
             
@@ -195,7 +201,7 @@ namespace model {
         
         /**********************************************************************/
         template <typename OtherParticleType, typename FieldType>
-        void computeField(std::deque<OtherParticleType>& fpDeq) const
+        void computeField(std::deque<OtherParticleType>& fpDeq,const bool& useMultipole) const
         {/*! Compute nearest-neighbor particle interaction according to FieldType
           *\returns the number of interactions computed
           */
@@ -246,6 +252,7 @@ namespace model {
 #endif
             for (unsigned int k=0; k<lpt.bin(this->mpiRank()).size();++k)
             {
+                // Nearest-neighbor interaction
                 static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(lpt.bin(this->mpiRank())[k]) -> setZero();
                 
                 typename SpatialCellType::CellMapType cellMap((lpt.bin(this->mpiRank())[k])->template neighborCells<_ParticleType>());
@@ -260,6 +267,13 @@ namespace model {
                     {
                         lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::compute(**sIter,*lpt.bin(this->mpiRank())[k]);
                     }
+                }
+                
+                // Non nearest-neighbor interaction
+                if(useMultipole)
+                {
+                    typename SpatialCellType::CellMapType farCells(lpt.bin(this->mpiRank())[k]->template farCells<_ParticleType>());
+                    lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::multipole(*lpt.bin(this->mpiRank())[k],farCells);
                 }
             }
             

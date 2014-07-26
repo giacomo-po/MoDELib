@@ -143,8 +143,9 @@ namespace model {
         static void setCellSize(const double& newSize)
         {
             assert(newSize>0.0 && "cellSize MUST BE A POSITIVE double");
-            assert(cellMap.empty() && "YOU ARE TRYING TO CHENGE cellSize WHILE SOME CELLS EXIST.");
+            assert(cellMap.empty() && "YOU ARE TRYING TO CHANGE cellSize WHILE SOME CELLS EXIST.");
             _cellSize=newSize;
+            std::cout<<"cellSize="<<_cellSize<<std::endl;
         }
         
         /**********************************************************************/
