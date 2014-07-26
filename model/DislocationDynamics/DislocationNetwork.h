@@ -66,7 +66,7 @@
 
 #ifdef _OPENMP
 #include <omp.h>
-//#define EIGEN_DONT_PARALLELIZE // disable Eigen Internal openmp Parallelization
+#define EIGEN_DONT_PARALLELIZE // disable Eigen Internal openmp Parallelization
 #endif
 
 
@@ -119,8 +119,15 @@ namespace model
 		typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
         typedef DislocationParticle<_dim> DislocationParticleType;
         typedef typename DislocationParticleType::StressField StressField;
+        typedef typename DislocationParticleType::DisplacementField DisplacementField;
         typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
+        typedef typename ParticleSystemType::SpatialCellType SpatialCellType;
         typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
+        typedef DislocationSharedObjects<LinkType> DislocationSharedObjectsType;
+        typedef typename DislocationSharedObjectsType::BvpSolverType BvpSolverType;
+        typedef typename DislocationSharedObjectsType::BvpSolverType::FiniteElementType FiniteElementType;
+        typedef typename FiniteElementType::ElementType ElementType;
+        
 		enum {NdofXnode=NodeType::NdofXnode};
         
         //#ifdef UpdateBoundaryConditionsFile
@@ -232,21 +239,24 @@ namespace model
             //! Update the BonudaryDislocationNetwork
             if(shared.use_bvp)
             {
-                const auto t1= std::chrono::system_clock::now();
-                model::cout<<"		Updating BoundaryDislocationNetwork..."<<std::flush;
-                shared.bdn.update(*this);
-                model::cout<<" ("<<shared.bdn.size()<<" boundary segments)"
-                /*       */<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
-
+                if(shared.use_virtualSegments)
+                {
+                    const auto t1= std::chrono::system_clock::now();
+                    model::cout<<"		Updating virtual segments..."<<std::flush;
+                    shared.bdn.update(*this);
+                    model::cout<<" ("<<shared.bdn.size()<<" boundary segments)"
+                    /*       */<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
+                }
+                
                 // enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
                 if (!(runID%shared.use_bvp))
                 {
-                    model::cout<<"		Updating bvp stress ... "<<std::endl;
+                    model::cout<<"		Updating elastic bvp... "<<std::endl;
                     //                shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,4>(*this);
                     shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,37>(*this);
                     std::cout<<"FINISH HERE";
                 }
-            
+                
             }
             
         }
@@ -266,7 +276,7 @@ namespace model
             if(shared.use_bvp && !(runID%shared.use_bvp))
             {
                 nucleateDislocations(); // needs to be called before updateQuadraturePoints()
-//                removeBoundarySegments();
+                //                removeBoundarySegments();
             }
 #endif
             
@@ -292,7 +302,7 @@ namespace model
             if(DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy)
             {
                 typedef typename DislocationParticleType::ElasticEnergy ElasticEnergy;
-                this->template computeNeighborField<ElasticEnergy>();
+                this->template computeNeighborField<ElasticEnergy>(shared.use_EnergyMultipole);
             }
             
             //! 11- Output the current configuration before changing it
@@ -325,14 +335,14 @@ namespace model
             DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
 			
 			//! 7- If soft boundaries are used, remove DislocationSegment(s) that exited the boundary
-//			removeBoundarySegments();
+            //			removeBoundarySegments();
 			
 			//! 8- Form Junctions
 			formJunctions();
 			
 			//! 9- Node redistribution
 			remesh();
-//			removeBoundarySegments();
+            //			removeBoundarySegments();
             
 			//! 10- Cross Slip
 			crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
@@ -343,21 +353,21 @@ namespace model
 			++runID;     // increment the runID counter
 		}
 		
-//		/**********************************************************************/
-//		void removeBoundarySegments()
-//        {/*! Removes DislocationSegment(s) on the mesh boundary
-//          */
-//			if (shared.use_boundary==softBoundary)
-//            {
-//				double t0=clock();
-//				model::cout<<"		Removing DislocationSegments outside mesh boundary... ";
-//				typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
-//				link_member_function_pointer_type boundarySegment_Lmfp;
-//				boundarySegment_Lmfp=&LinkType::is_boundarySegment;
-//				this->template disconnect_if<1>(boundarySegment_Lmfp);
-//				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
-//			}
-//		}
+        //		/**********************************************************************/
+        //		void removeBoundarySegments()
+        //        {/*! Removes DislocationSegment(s) on the mesh boundary
+        //          */
+        //			if (shared.use_boundary==softBoundary)
+        //            {
+        //				double t0=clock();
+        //				model::cout<<"		Removing DislocationSegments outside mesh boundary... ";
+        //				typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
+        //				link_member_function_pointer_type boundarySegment_Lmfp;
+        //				boundarySegment_Lmfp=&LinkType::is_boundarySegment;
+        //				this->template disconnect_if<1>(boundarySegment_Lmfp);
+        //				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+        //			}
+        //		}
         
         /**********************************************************************/
 		void segmentMeshCollision()
@@ -378,9 +388,9 @@ namespace model
 	public:
         //		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
-        typedef DislocationSharedObjects<LinkType> DislocationSharedObjectsType;
-        
-        typedef typename DislocationSharedObjectsType::BvpSolverType BvpSolverType;
+//        typedef DislocationSharedObjects<LinkType> DislocationSharedObjectsType;
+//        
+//        typedef typename DislocationSharedObjectsType::BvpSolverType BvpSolverType;
         
 		DislocationSharedObjectsType shared;
 		
@@ -492,21 +502,21 @@ namespace model
             assert(minSNorderForSolve_temp>=0 && "minSNorderForSolve must be >=0");
             shared.minSNorderForSolve=(size_t)minSNorderForSolve_temp;
             
-            // QuadratureParticle
+            // core size
             EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width
             assert((StressField::a)>0.0 && "coreSize MUST BE > 0.");
             StressField::a2=StressField::a*StressField::a;
-            //            LinkType::coreLsquared=StressField::a2;
-            //            EDR.readScalarInFile(fullName.str(),"useMultipoleStress",DislocationQuadratureParticle<dim,cellSize>::useMultipoleStress); // useMultipoleStress
             
-            // Multipole Expansion
-            EDR.readScalarInFile(fullName.str(),"dislocationCellSize",SpatialCellObserverType::cellSize); // cellSize
+            // multipole expansion
+            double cellSize(0.0);
+            EDR.readScalarInFile(fullName.str(),"dislocationCellSize",cellSize); // cellSize
+            SpatialCellObserverType::setCellSize(cellSize);
+            EDR.readScalarInFile(fullName.str(),"use_DisplacementMultipole",shared.use_DisplacementMultipole); // cellSize
+            EDR.readScalarInFile(fullName.str(),"use_StressMultipole",shared.use_StressMultipole); // cellSize
+            EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",shared.use_EnergyMultipole); // cellSize
             
-            //            EDR.readScalarInFile(fullName.str(),"nearCellStressApproximation",DislocationParticleType::nearCellStressApproximation); // useMultipoleStress
-            //            EDR.readScalarInFile(fullName.str(),"farCellStressApproximation",DislocationParticleType::farCellStressApproximation); // useMultipoleStress
-            //            assert((DislocationParticleType::farCellStressApproximation >= DislocationParticleType::nearCellStressApproximation) && "NEAR-FIELD APPROXIMATION IS COARSER THAN FAR-FIELD APPROXIMATION");
             
-            
+            // Eternal Stress
             EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
 			
             // Implicit time integration
@@ -536,10 +546,9 @@ namespace model
 				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
 				if(shared.use_bvp)
                 {
-                    shared.bvpSolver.init();
-                    
+                    EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
                     EDR.readScalarInFile(fullName.str(),"solverTolerance",shared.bvpSolver.tolerance);
-                    
+                    shared.bvpSolver.init();
 				}
 			}
 			else{ // no boundary is used, DislocationNetwork is in inifinite medium
@@ -631,7 +640,7 @@ namespace model
             //! -1 Compute the interaction StressField between dislocation particles
             model::cout<<"		Computing particle-particle interaction..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
-            this->template computeNeighborField<StressField>();
+            this->template computeNeighborField<StressField>(shared.use_StressMultipole);
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             
 			//! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
@@ -696,12 +705,12 @@ namespace model
 			double t0=clock();
             
             // Clear DislocationParticles
-            this->clearParticles();
+            this->clearParticles(); // this also destroys all cells
             
             // Populate DislocationParticles
             for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
                  /*                                       */ linkIter!=this->linkEnd();
-                 /*                                     */ ++linkIter)
+                 /*                                       */ linkIter++)
             {
                 linkIter->second->updateQuadraturePoints(*this);
 			}
@@ -804,107 +813,55 @@ namespace model
 		MatrixDimD stress(const VectorDimD& Rfield, const bool& useFullField=true) const
         {
             typedef SingleFieldPoint<StressField> FieldPointType;
-            //std::deque<FieldPointType> fieldPoints; // the container of field points
             FieldPointType fieldPoint(Rfield);
-            
-//            fieldPoint.field<StressField>() +=
-            
 			MatrixDimD temp=MatrixDimD::Zero();
-			if(useFullField)
+            
+			if(useFullField) // full field stress calculation
             {
-                
-//#ifdef _MODEL_MPI_
-//#else
-//                
-//                
-//#endif
-                
-//                for (typename SpatialCellObserverType::const_iterator cIter =this->operator[](k).neighborCellsBegin();
-//                     /*                                            */ cIter!=this->operator[](k).neighborCellsEnd();
-//                     /*                                          */ ++cIter)
-//                {
-//                    //! -3 loop over particles in the current neighbor cell
-//                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
-//                        /*                                                           */ qIter!=cIter->second->particleEnd();
-//                        /*                                                         */ ++qIter)
-//                    {
-//                        *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::compute(**qIter,this->operator[](k));
-//                    }
-//                }
-                
-//#ifdef _OPENMP
-//#pragma omp parallel for private(x) reduction(+:pi)
-//#endif
-                
-//                std::cout<<"DislocationNetwork::stress"<<std::endl;
-                
-//                std::cout<<ParticleSystemType::size()<<std::endl;
-//                std::cout<<"I'm here 1"<<std::endl;
-
-                
+                // Loop over particle system and add contribution of each particle
                 for(int k=0;k<ParticleSystemType::size();++k)
                 {
-//                    std::cout<<"I'm here 1a"<<std::endl;
-//
-//                    ParticleSystemType::operator[](k);
-//                    
-//                    std::cout<<"I'm here 1b"<<std::endl;
-//
-//                    StressField::compute(ParticleSystemType::operator[](k),fieldPoint);
-//                    
-//                    std::cout<<"I'm here 1c"<<std::endl;
+                    // using fieldPoint.field<StressField>() is problematic in mpi because mpiID is not set
                     temp += StressField::compute(ParticleSystemType::operator[](k),fieldPoint);
-
-//                    std::cout<<"I'm here 1d"<<std::endl;
-
-                    
-//                    fieldPoint.template field<StressField>() += StressField::compute(ParticleSystemType::operator[](k),fieldPoint);
                 }
-
-//                std::cout<<"I'm here 2"<<std::endl;
-
+                temp = Material<Isotropic>::C2*(temp+temp.transpose()).eval();
                 
-//                assert(0 && "RE-ENABLE THIS WITH NEW CELL CLASS");
-                
-                
+                // Add stress of radial segments
+//                if (shared.use_bvp && shared.use_virtualSegments)
+//                {
+//                    temp += shared.bdn.stress(Rfield);
+//                }
 			}
-			else
+			else // nearest-neighbor stress calculation based on cells
             {
-                assert(0 && "RE-ENABLE THIS WITH NEW CELL CLASS");
-                //				SpatialCellObserverType sCO;
-                //				typename SpatialCellObserverType::SharedPtrType sharedCellPointer(sCO.getCellByPosition(Rfield));
-                //				for(typename SpatialCellType::ParticleContainerType::const_iterator particleIter =sharedCellPointer->neighborParticleContainer.begin();
-                //					/*                                                         */ particleIter!=sharedCellPointer->neighborParticleContainer.end();
-                //					/*                                                         */ ++particleIter){
-                //					temp+=(*particleIter)->stress_at(Rfield);
-                //				}
+                typename SpatialCellType::CellMapType cellMap(fieldPoint.template neighborCells<DislocationParticleType>());
+                
+                // loop over neighbor cells of the current particle
+                for (typename SpatialCellType::CellMapType::const_iterator cIter =cellMap.begin();
+                     /*                                                 */ cIter!=cellMap.end();
+                     /*                                                 */ cIter++)
+                {
+                    //  // loop over neighbor particles
+                    for(typename SpatialCellType::ParticleContainerType::const_iterator sIter =cIter->second->particleBegin();
+                        /*                                                           */ sIter!=cIter->second->particleEnd();
+                        /*                                                           */ sIter++)
+                    {
+                        temp += StressField::compute(**sIter,fieldPoint);
+                    }
+                }
+                temp = Material<Isotropic>::C2*(temp+temp.transpose()).eval();
+
+                
+//                if (shared.use_bvp && shared.use_virtualSegments)
+//                {
+//                    std::cout<<"NEED TO LIMIT RADIAL STRESS CALCULATION TO NEAREST SEGMENTS"<<std::endl;
+//                    temp += shared.bdn.stress(Rfield);
+//                }
 			}
-
-            if (shared.use_bvp)
-            {
-//                std::cout<<"I'm here 3"<<std::endl;
-
-//                fieldPoint.template field<StressField>() += shared.bdn.stress(Rfield);
-                temp += shared.bdn.stress(Rfield);
-
-                //                std::cout<<"I'm here 4"<<std::endl;
-
-            }
-			
-//            std::cout<<"I'm here 5"<<std::endl;
-            return temp;
-
-//            return fieldPoint.template field<StressField>();
+            
+            return (shared.use_bvp && shared.use_virtualSegments) ? temp+shared.bdn.stress(Rfield)
+            /*                                                 */ : temp;
 		}
-        
-        
-        //        /**********************************************************************/
-        //        void getStress(std::deque<SimpleFieldPoint>& fieldPoints)
-        //        {
-        //            DN.updateQuadraturePoints();
-        //            DN.computeField<SimpleFieldPoint,StressField>(fieldPoints);
-        //        }
-        
 		
 		/**********************************************************************/
 		VectorDimD displacement(const VectorDimD & Rfield,const VectorDimD & S) const

@@ -102,11 +102,20 @@ namespace model {
         }
 #endif
         
+        /**********************************************************************/
         template <typename SourcePointType>
         typename SpatialCellObserver<SourcePointType,_dim>::CellMapType neighborCells() const
         {/*!\returns a map of the SpatialCell(s) neighboring *this.
           */
             return SpatialCellObserver<SourcePointType,_dim>::neighborCells(static_cast<const Derived*>(this)->P);
+        }
+        
+        /**********************************************************************/
+        template <typename SourcePointType>
+        typename SpatialCellObserver<SourcePointType,_dim>::CellMapType farCells() const
+        {/*!\returns a map of the SpatialCell(s) neighboring *this.
+          */
+            return SpatialCellObserver<SourcePointType,_dim>::farCells(static_cast<const Derived*>(this)->P);
         }
         
         

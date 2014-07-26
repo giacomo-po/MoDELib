@@ -12,16 +12,15 @@
  * _MODEL_NON_SINGULAR_DD_ = 2 Lazar's regularization method
  */
 #define _MODEL_NON_SINGULAR_DD_ 0
+#define userBVPfile "./bvpFile.h"
 
 //#define customUserOutputs "./myOutputs.h" // declare the custom output file
-#include <model/DislocationDynamics/DislocationNetwork.h>
-#include <model/FEM/Boundaries/LowerCorner.h>
-#include <model/FEM/Boundaries/OnMaxAxis.h>
+//#include <model/FEM/Boundaries/LowerCorner.h>
+//#include <model/FEM/Boundaries/OnMaxAxis.h>
 #include <model/FEM/Boundaries/AtXmin.h>
 #include <model/FEM/Boundaries/AtXmax.h>
-
 #include <model/FEM/BoundaryConditions/Fix.h>
-
+#include <model/DislocationDynamics/DislocationNetwork.h>
 
 using namespace model;
 
@@ -31,31 +30,31 @@ int main (int argc, char* argv[])
     typedef DislocationNetwork<3,1,CatmullRom,16,UniformOpen> DislocationNetworkType;
     DislocationNetworkType DN(argc,argv);
     
-    if(DN.shared.use_bvp)
-    {
-        Fix fix;
-        // Set up boundary conditions
-        //        auto nodeList_0=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<0>>();
-        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_0,1);
-        //
-        //        auto nodeList_1=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<1>>();
-        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_1,2);
-        //
-        //        auto nodeList_2=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<2>>();
-        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_2,0);
-        //
-        //        auto nodeList_3=DN.shared.bvpSolver.finiteElement().getNodeList<LowerCorner>();
-        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,0);
-        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,1);
-        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,2);
-        
-        auto nodeList_0=DN.shared.bvpSolver.finiteElement().getNodeList<AtXmin<2>>();
-        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_0,0);
-        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_0,1);
-        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_0,2);
-        
-        
-    }
+//    if(DN.shared.use_bvp)
+//    {
+//        Fix fix;
+//        // Set up boundary conditions
+//        //        auto nodeList_0=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<0>>();
+//        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_0,1);
+//        //
+//        //        auto nodeList_1=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<1>>();
+//        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_1,2);
+//        //
+//        //        auto nodeList_2=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<2>>();
+//        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_2,0);
+//        //
+//        //        auto nodeList_3=DN.shared.bvpSolver.finiteElement().getNodeList<LowerCorner>();
+//        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,0);
+//        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,1);
+//        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,2);
+//        
+//        auto nodeList_0=DN.shared.bvpSolver.finiteElement().getNodeList<AtXmin<2>>();
+//        DN.shared.bvpSolver.addDirichletCondition(fix,nodeList_0,0); // fix x-component
+//        DN.shared.bvpSolver.addDirichletCondition(fix,nodeList_0,1); // fix y-component
+//        DN.shared.bvpSolver.addDirichletCondition(fix,nodeList_0,2); // fix z-component
+//        
+//        
+//    }
     
     // Run time steps
     DN.runSteps();

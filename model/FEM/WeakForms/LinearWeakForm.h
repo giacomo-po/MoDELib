@@ -56,19 +56,19 @@ namespace model
         typedef typename IntegrationDomainType::QuadratureType QuadratureType;
         typedef typename QuadratureType::VectorDim AbscissaType;
         
-        /**********************************************************************/
-        Eigen::Matrix<double,dim+1,1> face2domainBary(const Eigen::Matrix<double,dim,1>& b1,
-        /*                                         */ const int& boundaryFace) const
-        {
-            // Transform to barycentric coordinate on the volume, adding a zero on the boundaryFace-face
-            Eigen::Matrix<double,dim+1,1> bary;
-            for (int k=0;k<dim;++k)
-            {
-                bary((k<boundaryFace)? k : k+1)=b1(k);
-            }
-            bary(boundaryFace)=0.0;
-            return bary;
-        }
+//        /**********************************************************************/
+//        Eigen::Matrix<double,dim+1,1> face2domainBary(const Eigen::Matrix<double,dim,1>& b1,
+//        /*                                         */ const int& boundaryFace) const
+//        {
+//            // Transform to barycentric coordinate on the volume, adding a zero on the boundaryFace-face
+//            Eigen::Matrix<double,dim+1,1> bary;
+//            for (int k=0;k<dim;++k)
+//            {
+//                bary((k<boundaryFace)? k : k+1)=b1(k);
+//            }
+//            bary(boundaryFace)=0.0;
+//            return bary;
+//        }
 
         /**********************************************************************/
         void assembleOnDomain(Eigen::Matrix<double,Eigen::Dynamic,1>& _globalVector) const
@@ -172,7 +172,7 @@ namespace model
         ElementVectorType boundaryAssemblyKernel(const AbscissaType& a1, const ElementType& ele, const int& boundaryFace) const
         {
             const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(a1));
-            const Eigen::Matrix<double,dim+1,1> bary(face2domainBary(b1,boundaryFace));
+            const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::face2domainBary(b1,boundaryFace));
             return linearForm.testExp.sfm(ele,bary).transpose()*linearForm.evalExp(ele,bary)*JGNselector<evalCols>::jGN(ele.jGN(bary,boundaryFace));
 		}
         

@@ -30,8 +30,32 @@ namespace model
         typedef DislocationEnergy<_dim> DislocationEnergyType;
         typedef FieldBase<double,1,1> FieldBaseType;
         typedef typename FieldBaseType::MatrixType MatrixType;
-        
-        
+        typedef Eigen::Matrix<double,_dim,_dim> MatrixDim;
+        typedef Eigen::Matrix<double,_dim,1>   VectorDim;
+
+        /**********************************************************************/
+        template <typename ParticleType, typename CellContainerType>
+        static MatrixType multipole(const ParticleType& field,const CellContainerType& farCells)
+        {/*!@param[in] field  the FieldPoint at which stress is computed
+          * @param[in] farCells container of SpatialCell(s) that are not neighbors of field
+          *\returns the displacement contribution of the farCells on field.
+          *
+          */
+            MatrixType temp(MatrixType::Zero());
+            for(auto cell : farCells)
+            {
+                VectorDim R(field.P-cell.second->center);
+                const double R2(R.squaredNorm());
+                R/=sqrt(R2); // normalize R;
+                const MatrixDim& alpha(std::get<0>(*cell.second));
+                //                const VectorDim a(axialVector(alpha));
+                //                const MatrixDim S(skewMatrix(R));
+                //                temp += (Material<Isotropic>::C1*S.dot(alpha)-a*R.transpose()+0.5*R.dot(a)*(3.0*R*R.transpose()+I))/R2;
+                assert(0 && "Multiple expansion of energy not implemented yet"); // \todo Finish implementation here
+
+            }
+            return temp;
+        }
         
         
 #if _MODEL_NON_SINGULAR_DD_ == 0 // Note that if _MODEL_NON_SINGULAR_DD_ is not #defined, the preprocessor treats it as having the value 0.
@@ -44,9 +68,6 @@ namespace model
           */
             
             assert(0 && "FINISH IMPLEMENTATION HERE"); // \todo Finish implementation here
-            
-
-            
         }
         
 #elif _MODEL_NON_SINGULAR_DD_ == 1 /* Cai's non-singular theory */

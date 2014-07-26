@@ -9,12 +9,15 @@
 #ifndef model_BVPsolver_H_
 #define model_BVPsolver_H_
 
+#include <deque>
 #include <memory> // unique_ptr
 #include <model/FEM/FiniteElement.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/BVP/DislocationNegativeFields.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/FEM/WeakForms/JGNselector.h>
+#include <model/ParticleInteraction/SingleFieldPoint.h>
+#include <model/DislocationDynamics/BVP/BoundaryDisplacementPoint.h>
 
 namespace model
 {
@@ -22,6 +25,8 @@ namespace model
 	template <int dim, int sfOrder>
 	class BVPsolver
     {
+        
+    public:
         
         typedef LagrangeElement<dim,sfOrder> ElementType;
         typedef FiniteElement<ElementType> FiniteElementType;
@@ -32,10 +37,16 @@ namespace model
         typedef Constant<CmatrixType,6,6> CconstantType;
         typedef TrialProd<CconstantType,TrialDefType> TrialStressType;
 //        typedef BilinearWeakForm<TrialDefType,TrialStressType> BilinearWeakFormType;
+        typedef BilinearForm<TrialDefType,TrialStressType> BilinearFormType;
         typedef IntegrationDomain<FiniteElementType,0,4,GaussLegendre> IntegrationDomainType;
+        typedef BilinearWeakForm<BilinearFormType,IntegrationDomainType> BilinearWeakFormType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-                
+        
+
+        
         const SimplicialMesh<dim>& mesh;
+
+    private:
         Eigen::Matrix<double,6,6> C;
         
         
@@ -53,7 +64,7 @@ namespace model
 
         
         IntegrationDomainType dV;
-        
+        BilinearWeakFormType* bWF;
         
         /**********************************************************************/
         Eigen::Matrix<double,dim+1,1> face2domainBary(const Eigen::Matrix<double,dim,1>& b1,
@@ -120,11 +131,11 @@ namespace model
             return *u;
         }
         
-        /**********************************************************************/
-        TrialFunctionType& displacement()
-        {
-            return *u;
-        }
+//        /**********************************************************************/
+//        TrialFunctionType& displacement()
+//        {
+//            return *u;
+//        }
         
         /**********************************************************************/
         const TrialStressType& stress() const
@@ -153,6 +164,40 @@ namespace model
             
             //            _bWF = std::move(std::unique_ptr<BilinearWeakFormType>(new BilinearWeakFormType(e->test(),*s)));
             dV = fe->template domain<EntireDomain,4,GaussLegendre>();
+            bWF = new BilinearWeakFormType((e->test(),*s),dV);
+        }
+        
+        /**********************************************************************/
+        template<typename Condition,typename DislocationNetworkType>
+        void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList, const int& dof,
+                                   const DislocationNetworkType& DN)
+        {/*!@param[in] dc the Dirichlet condition
+          * @param[in] the nodal dof to be constrained
+          */
+            
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"adding DirichletCondition... "<<std::flush;
+            // Add the Dirichlet condition
+            u->addDirichletCondition(cond,nodeList,dof);
+            
+            // Compute ad subtract the DislocationNetwork displacement at nodeList
+            model::cout<<"subtracting DislocationDisplacement... "<<std::flush;
+            typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
+            typedef typename FieldPointType::DisplacementField DisplacementField;
+            
+            std::deque<FieldPointType> fieldPoints; // the container of field points
+            for (auto node : nodeList) // range-based for loop (C++11)
+            {
+                fieldPoints.emplace_back(*node);
+            }
+            
+            DN.template computeField<FieldPointType,DisplacementField>(fieldPoints,DN.shared.use_DisplacementMultipole);
+            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+
+            
+            
+            //DN.displacement();
+            
         }
         
         
@@ -162,21 +207,39 @@ namespace model
         {
             typedef DislocationNegativeFields<DislocationNetworkType> DislocationNegativeFieldsType;
 
+            typedef typename DislocationNetworkType::StressField StressField;
+            typedef SingleFieldPoint<StressField> FieldPointType;
+
+            
             const DislocationNegativeFieldsType ds(DN);
             
             //typedef LinearWeakForm<TrialFunctionType,DislocationNegativeFieldsType> LinearWeakFormType;
 
-            auto bWF=(e->test(),*s)*dV;
+            //auto bWF=(e->test(),*s)*dV;
 
             
             //LinearWeakFormType lwf(u->test(),ds);
             auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
             
+            std::deque<FieldPointType> fieldPoints; // the container of field points
+            ndA.getBoundaryQuadratureContainer(fieldPoints);
+            //ds.
+            std::cout<<"FINISH NEW BVPsolver::assembleAndSolve STRATEGY"<<std::endl;
+            
             // Create the LinearWeakForm lWF_u=int(test(u)^T*f)ndS
             auto lWF=(u->test(),ds)*ndA;
             
             // Create the WeakProblem
-            auto wp(bWF=lWF); //  weak problem
+            auto wp(*bWF=lWF); //  weak problem
+            
+            u->clearDirichletConditions();
+            
+#ifdef userBVPfile
+#include userBVPfile
+#else
+            static_assert(0,"YOU MUST #defined THE userBVPfile.");
+#endif
+            
             
             // Assemble
             wp.assembleWithMasterSlaveConstraints();
@@ -185,7 +248,7 @@ namespace model
 
             // Solve
 //            const double tol(0.0001);
-            (*u)=wp.solve(tolerance);
+            (*u)=wp.solveWithGuess(tolerance,*u);
         }
         
         /**********************************************************************/

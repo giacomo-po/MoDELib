@@ -1,8 +1,11 @@
 USE_ICC = 0
+usePARDISO = 0
 
-# MODEL LIBRARY #################################
- MODEL_INCLUDE =/Users/giacomo/Documents/MODEL
-# MODEL_INCLUDE = /home/giacomo/Dropbox/Model
+##########################################################
+# EDIT HERE
+##########################################################
+MODEL_INCLUDE =/Users/giacomo/Documents/MODEL
+MKL_PATH=/opt/intel/composer_xe_2013.3.171/mkl
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
@@ -48,6 +51,16 @@ CFLAGS += -D _MODEL_NO_DEBUG_
 #disable model-input-checks
 CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 
+# Settings for PARDISO solver
+ifeq ($(usePARDISO), 1)
+CFLAGS += -D _MODEL_PARDISO_SOLVER_
+IDIR += -I $(MKL_PATH)/include
+LIBS += -L $(MKL_PATH)/lib
+LIBS += -lmkl_intel_lp64 
+LIBS += -lmkl_intel_thread 
+LIBS += -lmkl_core
+endif
+
 ##########################################################
 # MAKE ALL
 ##########################################################
@@ -70,25 +83,23 @@ all:
 ##########################################################
 # MAKE DDOMP
 ##########################################################
-
 OBJS 	= DDomp
 
 $(OBJS): 
 	@echo ${greenColor}making omp version... ${normalColor}
-	$(CC) main.cpp -o  $(OBJS)  $(CFLAGS) $(IDIR)
+	$(CC) main.cpp -o  $(OBJS)  $(CFLAGS) $(LIBS) $(IDIR)
 
 
 ##########################################################
 # MAKE DDMPI
 ##########################################################
-# define _MODEL_DD_MPI_
 mpiCFLAGS += -D _MODEL_DD_MPI_
 
 mpiOBJS = DDmpi
 
 $(mpiOBJS):
 	@echo ${blueColor}making mpi version... ${normalColor}
-	$(mpiCC) main.cpp -o $(mpiOBJS) $(CFLAGS) $(mpiCFLAGS) $(IDIR) $(mpiLIBS)
+	$(mpiCC) main.cpp -o $(mpiOBJS) $(CFLAGS) $(mpiCFLAGS) $(IDIR) $(LIBS) $(mpiLIBS)
 
 
 ##########################################################

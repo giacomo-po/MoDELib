@@ -4,11 +4,11 @@ clear all
 
 filename='cube';
 
+%% Define nodes
 L=4000;     % side length of the cube
-t=400;       % tickness of the boundary layer
+t=75;       % tickness of the boundary layer
 L1=L-2*t;   % side length of the inner cube
 
-%% Define vertices
 % Coordinates of the outer cube
 P(1,:)=[0 0 0]*L-[1 1 1]*L/2;
 P(2,:)=[1 0 0]*L-[1 1 1]*L/2;
@@ -70,6 +70,7 @@ Fyz=[1 9 10 2;
     7 15 16 8;
     4 12 11 3];
 
+%Plot facets
 F=[Fx;Fy;Fz;Fxy;Fxz;Fyz];
 for f=1:size(F,1)
     vID=F(f,:);
@@ -79,9 +80,11 @@ for f=1:size(F,1)
 end
 %print(gcf,'-depsc','../dox/zFaces')
 
-%% Define Regions
-% Each row in the following matrix correponds to a region.
-% Each row contains the vertices that bound that region.
+%return
+
+
+
+%% Identify Regions
 RP=[9 10 11 12 13 14 15 16;
     1 2 6 5 9 10 14 13;
     2 6 7 3 10 11 14 15;
@@ -90,7 +93,6 @@ RP=[9 10 11 12 13 14 15 16;
    1 2 3 4 9 10 11 12;
    5 6 7 8 13 14 15 16];
 
-% The rows of the matrix Xm are the barycenters of each region
 for r=1:size(RP,1)
 Xm(r,:)=mean(P(RP(r,:),:));
 end
@@ -128,6 +130,7 @@ fprintf(polyFile,'%i \n',size(Xm,1));
 
 meshSize=ones(size(Xm,1),1)*10000000;
 meshSize(1)=meshSize(1);
+meshSize
 for r=1:size(Xm,1)
 fprintf(polyFile,'%i %d %d %d %d \n',[r Xm(r,:) meshSize(r)]);
 end

@@ -50,6 +50,8 @@ namespace model {
 	struct Quadrature
     {
         
+        constexpr static short unsigned int quadratureOrder=qOrder;
+
 		
 		typedef typename VectorDimTypeSelector<dim,qOrder>::VectorDim VectorDim;
 		

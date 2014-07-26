@@ -11,8 +11,10 @@
 
 #include <deque>
 #include <utility>      // std::pair, std::make_pair
+#include <chrono>
 #include <model/Quadrature/Quadrature.h>
 #include <model/MPI/MPIcout.h>
+#include <model/FEM/BarycentricTraits.h>
 
 
 namespace model
@@ -36,7 +38,7 @@ namespace model
     /**************************************************************************/
     template <typename FiniteElementType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	struct IntegrationDomain<FiniteElementType,0,qOrder,QuadratureRule> : public std::deque<const typename FiniteElementType::ElementType*>
-    {// Volume ntegration
+    {// Volume integration
         constexpr static int dim=FiniteElementType::dim;
         constexpr static int domainDim=dim;
         typedef Quadrature<domainDim,qOrder,QuadratureRule> QuadratureType;
@@ -52,7 +54,7 @@ namespace model
     /**************************************************************************/
     template <typename FiniteElementType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	struct IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> : public std::deque<std::pair<const typename FiniteElementType::ElementType* const,int> >
-    {// Boundary ntegration
+    {// Boundary integration
         constexpr static int dim=FiniteElementType::dim;
         constexpr static int domainDim=dim-1;
         typedef Quadrature<domainDim,qOrder,QuadratureRule> QuadratureType;
@@ -76,6 +78,30 @@ namespace model
                 QuadratureType::integrate(C,intgrl,mfp,*(this->operator[](k)).first,this->operator[](k).second,args...);
             }
             model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+        }
+        
+        /**********************************************************************/
+        template <typename PointType>
+        void getBoundaryQuadratureContainer(std::deque<PointType>& deq) const
+        {
+            model::cout<<"populating boundary quadrature container (size "<<deq.size()<<"->"<<std::flush;
+            const auto t0= std::chrono::system_clock::now();
+            for (int k=0;k<this->size();++k)
+            {
+                const ElementType& ele(*(this->operator[](k).first));  // element ID
+                const int f(this->operator[](k).second); //    face ID
+                //                ElementVectorType ve(ElementVectorType::Zero());
+                //                QuadratureType::integrate(this,ve,&LinearWeakFormType::boundaryAssemblyKernel<AbscissaType>,ele,f);
+                for(unsigned int q=0;q<qOrder;++q)
+                {
+                    const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(QuadratureType::abscissa(q)));
+                    const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::face2domainBary(b1,f));
+                    deq.emplace_back(ele.position(bary));
+                }
+                
+            }
+            model::cout<<deq.size()<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            
         }
         
     };

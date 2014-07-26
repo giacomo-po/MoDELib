@@ -36,21 +36,6 @@ namespace model
 	struct BilinearWeakForm
     {
         
-        //        static_assert(AreSameType<typename T1::TrialFunctionType,typename T2::TrialFunctionType>::value,"YOU ARE CREATING A BilinearWeakForm OF DIFFERENT TRIALFUNCTIONS.");
-        //        static_assert((T1::rows-T2::rows)==0,"YOU ARE CREATING A BilinearWeakForm BETWEEN A TRIALEXPRESSION AND A TESTEXPRESSION WITH DIFFERENT NUMBER OF ROWS");
-        
-        //        typedef typename T2::TrialFunctionType TF;
-        //        typedef BilinearWeakForm<T1,T2> BilinearWeakFormType;
-        //        typedef typename TypeTraits<TF>::ElementType ElementType;
-        //        typedef typename TypeTraits<TF>::FiniteElementType FiniteElementType;
-        //
-        //        /**********************************************************************/
-        //        BilinearWeakForm(const BilinearWeakFormType&) = default; // prevent copy (too expensive)
-        //
-        //        /**********************************************************************/
-        //        BilinearWeakForm& operator=(const BilinearWeakFormType&) = default; // prevent assignment (too expensive)
-        
-        
         typedef _BilinearFormType BilinearFormType;
         typedef _IntegrationDomainType IntegrationDomainType;
         typedef BilinearWeakForm<BilinearFormType,IntegrationDomainType> BilinearWeakFormType;
@@ -82,14 +67,11 @@ namespace model
         BilinearWeakForm(const BilinearFormType& bf, const IntegrationDomainType& dom) :
         /* init list */ bilinearForm(bf), // cast testE to its base T2 type
         /* init list */ domain(dom), // cast trialE to its derived T1 type
-        testExpr(bf.testExpr),
-        trialExpr(bf.trialExpr),
+        /* init list */ testExpr(bf.testExpr),
+        /* init list */ trialExpr(bf.trialExpr),
         /* init list */ gSize(bilinearForm.gSize)
-//        /* init list */ maxAbsValue(0.0)
         {
-            
              model::cout<<greenColor<<"Creating BilinearWeakForm: gSize="<<gSize<<defaultColor<<std::endl;
-            
         }
         
 //        const TrialFunctionType& trialExpr() const

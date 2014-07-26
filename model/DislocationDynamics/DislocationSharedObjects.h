@@ -31,9 +31,15 @@ namespace model {
         typedef BVPsolver<TypeTraits<LinkType>::dim,2> BvpSolverType;
 
 
+        static bool use_DisplacementMultipole;
+        static bool use_StressMultipole;
+        static bool use_EnergyMultipole;
+
+        
         static size_t minSNorderForSolve;
 		static bool use_boundary;
 		static unsigned int use_bvp;
+		static bool use_virtualSegments;
 		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
 
 
@@ -56,6 +62,16 @@ namespace model {
 	// Instantiate static data members
     
     template <typename LinkType>
+	bool DislocationSharedObjects<LinkType>::use_DisplacementMultipole=true;
+    
+    template <typename LinkType>
+	bool DislocationSharedObjects<LinkType>::use_StressMultipole=true;
+    
+    template <typename LinkType>
+	bool DislocationSharedObjects<LinkType>::use_EnergyMultipole=true;
+    
+    
+    template <typename LinkType>
 	size_t DislocationSharedObjects<LinkType>::minSNorderForSolve=0;
     
 	template <typename LinkType>
@@ -63,7 +79,11 @@ namespace model {
 	
 	template <typename LinkType>
 	unsigned int DislocationSharedObjects<LinkType>::use_bvp=0;
-	
+
+    template <typename LinkType>
+	bool DislocationSharedObjects<LinkType>::use_virtualSegments=true;
+
+    
 	template <typename LinkType>
 	Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::externalStress=Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim>::Zero();
 

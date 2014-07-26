@@ -21,7 +21,6 @@
 #include <model/FEM/TrialOperators/TrialProd.h>
 #include <model/FEM/TrialOperators/TrialGrad.h>
 #include <model/FEM/TrialOperators/TrialDef.h>
-//#include <model/FEM/DirichletCondition.h>
 #include <model/FEM/Boundaries/NodeList.h>
 #include <model/MPI/MPIcout.h>
 
@@ -32,7 +31,8 @@ namespace model
     
 	template<int _nComponents, typename _FiniteElementType>
 	class TrialFunction : public TrialExpressionBase<TrialFunction<_nComponents,_FiniteElementType> >,
-    /*                 */ private Eigen::Matrix<double,Eigen::Dynamic,1>
+    /*                 */ public Eigen::Matrix<double,Eigen::Dynamic,1>,
+    /*                 */ private std::map<size_t,double>
     {
         
     public:
@@ -61,31 +61,24 @@ namespace model
         
         const FiniteElementType& fe;
         
-//        private:
-//        Eigen::Matrix<double,Eigen::Dynamic,1> dofContainer; // \todo make this private inheritance
+        //        public:
+        // DirichletConditionContainerType dcContainer;
         
-        
-//        public:
-        DirichletConditionContainerType dcContainer;
-
         
         /**********************************************************************/
         TrialFunction(const FiniteElementType& fe_in) :
         /* init list */ fe(fe_in)
         {
-//            dofContainer.setZero(fe.nodeSize()*dofPerNode);
-//             model::cout<<greenColor<<"Creating TrialFunction: "<<dofContainer.size()<<" #dof."<<defaultColor<<std::endl;
+            model::cout<<greenColor<<"Creating TrialFunction..."<<std::flush;
             this->setZero(fe.nodeSize()*dofPerNode);
-             model::cout<<greenColor<<"Creating TrialFunction: "<<this->size()<<" #dof."<<defaultColor<<std::endl;
+            model::cout<<"("<<dofVector().size()<<" #dof)."<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/
         const TrialFunction& operator=(const Eigen::VectorXd& temp)
         {
-            assert(temp.size()==this->size() && "DOF SIZE MISMATCH");
-//            dofContainer=temp;
+            assert(temp.size()==dofVector().size() && "DOF SIZE MISMATCH");
             static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->operator=(temp);
-//            dofContainer=temp;
             return *this;
         }
         
@@ -159,7 +152,7 @@ namespace model
             
             for(typename NodeList<FiniteElementType>::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
             {
-                const auto temp=dcContainer.emplace(dofPerNode*(*nIter)->gID+dof,cond.at(**nIter));
+                const auto temp=this->emplace(dofPerNode*(*nIter)->gID+dof,cond.at(**nIter));
                 assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
             }
         }
@@ -178,9 +171,28 @@ namespace model
             
             for(typename NodeList<FiniteElementType>::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
             {
-                const auto temp=dcContainer.emplace(dofPerNode*(*nIter)->gID+dof,val);
+                const auto temp=this->emplace(dofPerNode*(*nIter)->gID+dof,val);
                 assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
             }
+        }
+        
+        /**********************************************************************/
+        void clearDirichletConditions()
+        {
+            this->clear();
+        }
+        
+        /**********************************************************************/
+        const DirichletConditionContainerType& dirichletConditions() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const Eigen::Matrix<double,Eigen::Dynamic,1>& dofVector() const
+        {/*!\returns A column vector of the DOFs of *this.
+          */
+            return *this;
         }
         
         /**********************************************************************/
@@ -222,29 +234,8 @@ namespace model
             }
             return val;
         }
-
+        
     };
     
 }	// close namespace
 #endif
-
-
-//        /**********************************************************************/
-//        ElementType& element(const size_t& n)
-//        {/*!@param[in] n the node ID
-//          * \returns a reference to the n-th node in the FiniteElement
-//          */
-//            return fe.element(n);
-//        }
-
-//        /**********************************************************************/
-//        typename NodeContainerType::const_iterator nodeBegin() const
-//        {
-//            return fe.nodeBegin();
-//        }
-//
-//        /**********************************************************************/
-//        typename NodeContainerType::const_iterator nodeEnd() const
-//        {
-//            return fe.nodeEnd();
-//        }

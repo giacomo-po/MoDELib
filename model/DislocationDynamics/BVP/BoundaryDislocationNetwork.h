@@ -11,12 +11,6 @@
 
 #include <model/DislocationDynamics/StressStraight.h>
 
-//#include <memory> // unique_ptr
-//#include <model/FEM/FiniteElement.h>
-//#include <model/DislocationDynamics/Materials/Material.h>
-//#include <model/DislocationDynamics/BVP/DislocationNegativeFields.h>
-//#include <model/Mesh/SimplicialMesh.h>
-//#include <model/FEM/WeakForms/JGNselector.h>
 
 namespace model
 {
@@ -28,13 +22,16 @@ namespace model
         typedef Eigen::Matrix<double,dim,1>     VectorDim;
         typedef Eigen::Matrix<double,dim,dim>   MatrixDim;
         
+        
+        static double L;
+
+        
     public:
         
         /**********************************************************************/
         template <typename DislocationNetworkType>
         void update(const DislocationNetworkType& DN)
         {
-            const double L=1000000;
             
             this->clear();
             
@@ -67,6 +64,10 @@ namespace model
         }
         
 	};
+    
+    // Static data
+    template <int dim>
+    double BoundaryDislocationNetwork<dim>::L=1.0e6;
 	
     
 } // namespace model

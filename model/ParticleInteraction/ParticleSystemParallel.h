@@ -53,11 +53,13 @@ namespace model {
         
         typedef ParticleSystemBase<_ParticleType> ParticleSystemBaseType;
         typedef _ParticleType ParticleType; // make ParticleType available outside the class
-        typedef typename ParticleSystemBaseType::SpatialCellType SpatialCellType;
-        typedef typename ParticleSystemBaseType::ParticleContainerType ParticleContainerType;
         typedef typename ParticleSystemBaseType::SpatialCellObserverType SpatialCellObserverType;
         
     public:
+        
+        typedef typename ParticleSystemBaseType::SpatialCellType SpatialCellType;
+        typedef typename ParticleSystemBaseType::ParticleContainerType ParticleContainerType;
+
         
         /**********************************************************************/
         ParticleSystemParallel(int argc, char* argv[]) :
@@ -193,7 +195,7 @@ namespace model {
         
         /**********************************************************************/
         template <typename OtherParticleType, typename FieldType>
-        void computeField(std::deque<OtherParticleType>& fpDeq)
+        void computeField(std::deque<OtherParticleType>& fpDeq) const
         {/*! Compute nearest-neighbor particle interaction according to FieldType
           *\returns the number of interactions computed
           */
