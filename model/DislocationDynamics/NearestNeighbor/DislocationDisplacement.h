@@ -167,17 +167,17 @@ namespace model
           *
           */
             MatrixType temp(MatrixType::Zero());
-            for(auto cell : farCells)
-            {
-                VectorDim R(field.P-cell.second->center);
-                const double R2(R.squaredNorm());
-                R/=sqrt(R2); // normalize R;
-                const MatrixDim& alpha(std::get<0>(*cell.second));
+//            for(auto cell : farCells)
+//            {
+//                VectorDim R(field.P-cell.second->center);
+//                const double R2(R.squaredNorm());
+//                R/=sqrt(R2); // normalize R;
+//                const MatrixDim& alpha(std::get<0>(*cell.second));
 //                const VectorDim a(axialVector(alpha));
 //                const MatrixDim S(skewMatrix(R));
 //                temp += (Material<Isotropic>::C1*S.dot(alpha)-a*R.transpose()+0.5*R.dot(a)*(3.0*R*R.transpose()+I))/R2;
-                assert(0 && "Multiple expansion of energy not implemented yet"); // \todo Finish implementation here
-            }
+//            }
+            assert(0 && "Multiple expansion of displacement not implemented yet"); // \todo Finish implementation here
             return temp;
         }
         

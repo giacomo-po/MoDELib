@@ -9,6 +9,7 @@
 #ifndef model_LagrangeNode_H_
 #define model_LagrangeNode_H_
 
+#include <set>
 #include <Eigen/Dense>
 
 namespace model
@@ -17,19 +18,41 @@ namespace model
 	
     /**************************************************************************/
 	/**************************************************************************/
-	template<int _dim>
-	struct LagrangeNode
+//	template<int _dim>
+	template<typename ElementType>
+	struct LagrangeNode : public std::set<const ElementType*>
+//	struct LagrangeNode : public std::vector<const ElementType*>
     {
-        static constexpr int dim=_dim;
+        static constexpr int dim=ElementType::dim;
+//        static constexpr int dim=_dim;
+
         typedef Eigen::Matrix<double,dim,1> PositionType;
         
         const PositionType p0;
         const size_t gID; // global ID
         
-        LagrangeNode(const PositionType& p, const size_t& gid) :
+        /**********************************************************************/
+        LagrangeNode(const PositionType& p,
+                     const size_t& gid) :
+//                     const ElementType* const pEle) :
         /* init list */ p0(p),
         /* init list */ gID(gid)
-        {}
+        {
+//            std::cout<<"Lagrange Node constructor..."<<this<<" ";
+////            auto success=this->insert(pEle);
+//            const bool success=this->emplace(pEle).second;
+//            assert(success && "COULD NOT INSERT ELEMENT IN LAGRANGE NODE.");
+//            std::cout<<this->size()<<std::endl;
+//            show();
+        }
+        
+//        void show() const
+//        {
+//            for (auto ele : *this)
+//            {
+//                std::cout<<"node "<<gID<<" ("<<this<< ") of element "<<ele<<std::endl;
+//            }
+//        }
         
     };
     

@@ -5,7 +5,7 @@ clear all
 filename='cube';
 
 L=4000;     % side length of the cube
-t=400;       % tickness of the boundary layer
+t=75;       % tickness of the boundary layer
 L1=L-2*t;   % side length of the inner cube
 
 %% Define vertices
@@ -138,5 +138,5 @@ fclose(polyFile);
 system(['../../../../scripts/tetgenPOLY.sh ' filename]);
 
 %% Create T and N files and clean tetgent output
-meshID=4;
+meshID=1;
 system(['../../../../scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);

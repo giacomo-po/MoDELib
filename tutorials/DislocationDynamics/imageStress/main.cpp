@@ -30,44 +30,18 @@ int main (int argc, char* argv[])
     typedef DislocationNetwork<3,1,CatmullRom,16,UniformOpen> DislocationNetworkType;
     DislocationNetworkType DN(argc,argv);
     
-//    if(DN.shared.use_bvp)
-//    {
-//        Fix fix;
-//        // Set up boundary conditions
-//        //        auto nodeList_0=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<0>>();
-//        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_0,1);
-//        //
-//        //        auto nodeList_1=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<1>>();
-//        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_1,2);
-//        //
-//        //        auto nodeList_2=DN.shared.bvpSolver.finiteElement().getNodeList<OnMaxAxis<2>>();
-//        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_2,0);
-//        //
-//        //        auto nodeList_3=DN.shared.bvpSolver.finiteElement().getNodeList<LowerCorner>();
-//        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,0);
-//        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,1);
-//        //        DN.shared.bvpSolver.displacement().addDirichletCondition(fix,nodeList_3,2);
-//        
-//        auto nodeList_0=DN.shared.bvpSolver.finiteElement().getNodeList<AtXmin<2>>();
-//        DN.shared.bvpSolver.addDirichletCondition(fix,nodeList_0,0); // fix x-component
-//        DN.shared.bvpSolver.addDirichletCondition(fix,nodeList_0,1); // fix y-component
-//        DN.shared.bvpSolver.addDirichletCondition(fix,nodeList_0,2); // fix z-component
-//        
-//        
-//    }
-    
     // Run time steps
     DN.runSteps();
     
-    
+    // Compute the total correction force on the top face
     if(DN.shared.use_bvp)
     {
         auto topBnd=DN.shared.bvpSolver.finiteElement().boundary<AtXmax<2>,3,GaussLegendre>();
         Eigen::Matrix<double,3,1> temp(Eigen::Matrix<double,3,1>::Zero());
         typedef typename DislocationNetworkType::BvpSolverType BvpSolverType;
-        topBnd.integrate(&DN.shared.bvpSolver,temp,&BvpSolverType::traction,DN);
+//        topBnd.integrate(&DN.shared.bvpSolver,temp,&BvpSolverType::bvpTraction,DN);
+        topBnd.integrate(&DN.shared.bvpSolver,temp,&BvpSolverType::bvpTraction);
     }
-    
     
     return 0;
 }

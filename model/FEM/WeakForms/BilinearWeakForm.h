@@ -86,7 +86,7 @@ namespace model
         
         /**********************************************************************/
         //template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-        std::vector<Eigen::Triplet<double> >  assembleOnDomain(double& maxAbsValue) const
+        std::vector<Eigen::Triplet<double> >  assembleOnDomain() const
         {
             
              model::cout<<"Assembling BilinearWeakForm on domain..."<<std::flush;
@@ -94,7 +94,7 @@ namespace model
             std::vector<Eigen::Triplet<double> > globalTriplets;
             //            globalTriplets.clear();
             globalTriplets.reserve(dofPerElement*dofPerElement*trialExpr.elementSize());
-            maxAbsValue=0.0;
+//            maxAbsValue=0.0;
             
             
             const auto t0= std::chrono::system_clock::now();
@@ -122,10 +122,10 @@ namespace model
                             
                             //                            A.coeffRef(gI,gJ) += ke(i,j);
                             
-                            if (std::fabs(ke(i,j))>maxAbsValue)
-                            {
-                                maxAbsValue=std::fabs(ke(i,j));
-                            }
+//                            if (std::fabs(ke(i,j))>maxAbsValue)
+//                            {
+//                                maxAbsValue=std::fabs(ke(i,j));
+//                            }
                         }
                     }
                 }

@@ -31,8 +31,8 @@ namespace model
     
 	template<int _nComponents, typename _FiniteElementType>
 	class TrialFunction : public TrialExpressionBase<TrialFunction<_nComponents,_FiniteElementType> >,
-    /*                 */ public Eigen::Matrix<double,Eigen::Dynamic,1>,
-    /*                 */ private std::map<size_t,double>
+    /*                 */ public Eigen::Matrix<double,Eigen::Dynamic,1>, // DofContainer
+    /*                 */ private std::map<size_t,double> // DirichletConditionContainer
     {
         
     public:
@@ -55,15 +55,11 @@ namespace model
         constexpr static int dofPerElement=TypeTraits<TrialFunctionType>::dofPerElement;
         
         typedef typename TypeTraits<TrialFunctionType>::BaryType BaryType;
-        typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionMatrixType ShapeFunctionMatrixType;
+        typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionMatrixType     ShapeFunctionMatrixType;
         typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionGradMatrixType ShapeFunctionGradMatrixType;
-        typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionDefMatrixType ShapeFunctionDefMatrixType;
+        typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionDefMatrixType  ShapeFunctionDefMatrixType;
         
         const FiniteElementType& fe;
-        
-        //        public:
-        // DirichletConditionContainerType dcContainer;
-        
         
         /**********************************************************************/
         TrialFunction(const FiniteElementType& fe_in) :
@@ -139,6 +135,26 @@ namespace model
         
         /**********************************************************************/
         template<typename Condition>
+        void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList)
+        {/*!@param[in] dc the Dirichlet condition
+          * @param[in] the nodal dof to be constrained
+          */
+            
+            assert((&this->fe)==(&nodeList.fe) && "USING NODE LIST CREATED FROM A DIFFERENT FINITE ELEMENT.");
+            
+            for(typename NodeList<FiniteElementType>::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
+            {
+                const Eigen::Matrix<double,dofPerNode,1> value(cond.at(**nIter));
+                for(int dof=0;dof<dofPerNode;++dof)
+                {
+                    const auto temp=this->emplace(dofPerNode*(*nIter)->gID+dof,value(dof));
+                    assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
+                }
+            }
+        }
+        
+        /**********************************************************************/
+        template<typename Condition>
         void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList, const int& dof)
         {/*!@param[in] dc the Dirichlet condition
           * @param[in] the nodal dof to be constrained
@@ -180,6 +196,12 @@ namespace model
         void clearDirichletConditions()
         {
             this->clear();
+        }
+        
+        /**********************************************************************/
+        DirichletConditionContainerType& dirichletConditions()
+        {
+            return *this;
         }
         
         /**********************************************************************/

@@ -22,3 +22,5 @@ addDirichletCondition(fix,nodeList_0,1,DN); // fix y-component
 addDirichletCondition(fix,nodeList_0,2,DN); // fix z-component
 
 
+// Call solver, passing the rhs vector and the guess
+displacement()=solve(-lwf.globalVector(),displacement());

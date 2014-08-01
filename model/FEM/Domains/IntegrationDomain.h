@@ -15,6 +15,7 @@
 #include <model/Quadrature/Quadrature.h>
 #include <model/MPI/MPIcout.h>
 #include <model/FEM/BarycentricTraits.h>
+#include <model/FEM/Domains/IntegrationList.h>
 
 
 namespace model
@@ -56,10 +57,12 @@ namespace model
 	struct IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> : public std::deque<std::pair<const typename FiniteElementType::ElementType* const,int> >
     {// Boundary integration
         constexpr static int dim=FiniteElementType::dim;
-        constexpr static int domainDim=dim-1;
+        constexpr static int dimMinusDomainDim=1;
+        constexpr static int domainDim=dim-dimMinusDomainDim;
         typedef Quadrature<domainDim,qOrder,QuadratureRule> QuadratureType;
         typedef typename QuadratureType::VectorDim AbscissaType;
         typedef typename FiniteElementType::ElementType ElementType;
+        typedef IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> IntegrationDomainType;
         
         /**********************************************************************/
         const typename FiniteElementType::ElementType& element(const size_t& k) const
@@ -80,28 +83,35 @@ namespace model
             model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         }
         
+//        /**********************************************************************/
+//        template <typename PointType>
+//        void integrationList(std::deque<PointType>& deq) const
+//        {
+//            model::cout<<"populating integration List (size "<<deq.size()<<"->"<<std::flush;
+//            const auto t0= std::chrono::system_clock::now();
+//            for (int k=0;k<this->size();++k)
+//            {
+//                const ElementType& ele(*(this->operator[](k).first));  // element ID
+//                const int f(this->operator[](k).second); //    face ID
+//                //                ElementVectorType ve(ElementVectorType::Zero());
+//                //                QuadratureType::integrate(this,ve,&LinearWeakFormType::boundaryAssemblyKernel<AbscissaType>,ele,f);
+//                for(unsigned int q=0;q<qOrder;++q)
+//                {
+//                    const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(QuadratureType::abscissa(q)));
+//                    const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::face2domainBary(b1,f));
+//                    deq.emplace_back(ele.position(bary));
+//                }
+//                
+//            }
+//            model::cout<<deq.size()<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+//            
+//        }
+        
         /**********************************************************************/
         template <typename PointType>
-        void getBoundaryQuadratureContainer(std::deque<PointType>& deq) const
+        IntegrationList<dimMinusDomainDim,PointType> integrationList() const
         {
-            model::cout<<"populating boundary quadrature container (size "<<deq.size()<<"->"<<std::flush;
-            const auto t0= std::chrono::system_clock::now();
-            for (int k=0;k<this->size();++k)
-            {
-                const ElementType& ele(*(this->operator[](k).first));  // element ID
-                const int f(this->operator[](k).second); //    face ID
-                //                ElementVectorType ve(ElementVectorType::Zero());
-                //                QuadratureType::integrate(this,ve,&LinearWeakFormType::boundaryAssemblyKernel<AbscissaType>,ele,f);
-                for(unsigned int q=0;q<qOrder;++q)
-                {
-                    const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(QuadratureType::abscissa(q)));
-                    const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::face2domainBary(b1,f));
-                    deq.emplace_back(ele.position(bary));
-                }
-                
-            }
-            model::cout<<deq.size()<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
-            
+            return IntegrationList<dimMinusDomainDim,PointType>(*this);
         }
         
     };

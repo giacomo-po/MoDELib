@@ -50,7 +50,7 @@ namespace model
         enum {NO_CONSTRAINTS,LAGRANGE,PENALTY,MASTERSLAVE};
         int assembleCase;
         
-        double maxAbsValue;
+//        double maxAbsValue;
         
         
     public:
@@ -67,7 +67,7 @@ namespace model
         /* init list */ lhs(lhs_in),
         /* init list */ rhs(rhs_in),
         /* init list */ assembleCase(NO_CONSTRAINTS),
-        /* init list */ maxAbsValue(0.0),
+//        /* init list */ maxAbsValue(0.0),
         /* init list */ gSize(lhs.gSize)
         {
             
@@ -90,8 +90,8 @@ namespace model
             assembleCase=NO_CONSTRAINTS;
             
             // Get global triplets
-            maxAbsValue=0.0;
-            std::vector<Eigen::Triplet<double> > globalTriplets(lhs.assembleOnDomain(maxAbsValue));
+//            maxAbsValue=0.0;
+            std::vector<Eigen::Triplet<double> > globalTriplets(lhs.assembleOnDomain());
             
             // Create sparse matrix from global triplets
             model::cout<<"Creating matrix from triplets..."<<std::flush;
@@ -122,9 +122,9 @@ namespace model
             assemble(); // this sets assembleCase=NO_CONSTRAINTS;
             assembleCase=PENALTY;
             
-            model::cout<<"Assembling penalty constraints (maxAbsValue="<<maxAbsValue<<")..."<<std::flush;
+            model::cout<<"Assembling penalty constraints..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
-            const double K(pf*maxAbsValue);
+            const double K(pf*A.norm()/A.nonZeros());
             const size_t cSize(lhs.trialExpr.trial().dirichletConditions().size());
             
             for (typename DirichletConditionContainerType::const_iterator cIter =lhs.trialExpr.trial().dirichletConditions().begin();
@@ -154,8 +154,8 @@ namespace model
             if(cSize>0)
             {
                 // Get globalTripletsreserve additional space
-                maxAbsValue=0.0;
-                std::vector<Eigen::Triplet<double> > globalTriplets(lhs.assembleOnDomain(maxAbsValue));
+//                maxAbsValue=0.0;
+                std::vector<Eigen::Triplet<double> > globalTriplets(lhs.assembleOnDomain());
                 globalTriplets.reserve(globalTriplets.size()+2*cSize);
                 // Resize b and x
                 b.setZero(gSize+cSize);

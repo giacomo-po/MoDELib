@@ -7,8 +7,6 @@ clc
 close all
 clear all
 
-
-
 L=4000;             % units of Burgers vector
 V=L^3;              % units of Burgers vector
 rhoMax=5e13;        % [m^-2]
@@ -21,7 +19,6 @@ lMax=L;
 N =[-0.5774    0.5774   -0.5774    0.5774;
      0.5774   -0.5774   -0.5774    0.5774;
     -0.5774   -0.5774    0.5774    0.5774];
-
 
 B=[0  1  1;
    0  1 -1;
@@ -111,7 +108,7 @@ grid on
 
 %% Run DD code
 N=10;   % number of subdivisions
-system(['./DDomp ' num2str(L) ' ' num2str(10)]);
+system(['./DDomp ' num2str(L/2) ' ' num2str(10)]);
 
 %% Plot PK for different cell sizes
 for n=1:N
@@ -120,8 +117,8 @@ size(P)
 pk_noMult{n}=P(:,[5:7]);
 end
 
-for n=N+1:2N
-P=load(['P/P_' num2str(n-1) '.txt']);
+for n=1:N
+P=load(['P/P_' num2str(n-1+N) '.txt']);
 size(P)
 pk_Mult{n}=P(:,[5:7]);
 end
@@ -131,15 +128,24 @@ for n=1:N
 pk_noMult_norm(n)=norm(pk_noMult{n}-pk_noMult{N})/norm(pk_noMult{N});
 pk_Mult_norm(n)=norm(pk_Mult{n}-pk_Mult{N})/norm(pk_Mult{N});
 end
-% make sure that for cell size=systemSize, then multipole expansion does
+% make sure that for cell size==systemSize, then multipole expansion does
 % nothing
-norm(pk_noMult_norm{N}-pk_Mult_norm{N})
+if(norm(pk_noMult{N}-pk_Mult{N})/norm(pk_noMult{N})>1.0e-7)
+error('at cellSize==systemSize, PK with and without multipole must be the same.')
+end
 
 
-
+%% Plot
+fontsize=14;
 figure(1)
 clf
 hold on
 grid on
-plot([1:N]/N*L,pk_noMult_norm,'b')
-plot([1:N]/N*L,pk_Mult_norm,'r')
+cellSizes=[1:N]/N*L/2;
+plot(cellSizes,pk_noMult_norm,'b')
+plot(cellSizes,pk_Mult_norm,'r')
+ylabel('error in PK force','FontSize',fontsize)
+xlabel('cell size / b','FontSize',fontsize)
+legend('nearest neighbor','nearest neighbor + multipole')
+set(gca,'FontSize',fontsize)
+print(gcf,'-depsc','error_PK')

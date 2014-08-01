@@ -73,20 +73,7 @@ namespace model {
 #endif
         
         
-//        /* isNearCell *********************************************************/
-//        bool isNearCell(const CellIdType& otherCellID) const
-//        {
-//            bool temp(false);
-//            for (int k=0;k<nearCellIDs.cols();++k)
-//            {
-//                if(nearCellIDs.col(k)==otherCellID)
-//                { // cell is a neighbor
-//                    temp=true;
-//                    break;
-//                }
-//            }
-//            return temp;
-//        }
+
         
         /* isNeighborCell *****************************************************/
         bool isNeighborCell(const CellIdType& otherCellID) const
@@ -112,22 +99,21 @@ namespace model {
         //! The ID of this cell, defining the dim-dimensional spatial region cellID<= x/cellSize < (cellID+1).
 		const CellIdType cellID;
         
+        //! The position vector of the center of this SpatialCell
         const VectorDimD center;
         
 		//! The cellID(s) of the neighboring SpatialCell(s) (in column)
 		const Eigen::Matrix<int,dim, CellShiftType::Nneighbors> neighborCellIDs;
-//		const Eigen::Matrix<int,dim,     NearShiftType::Nneighbors>     nearCellIDs;
         
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
-		/* Constructor ********************************************************/
+		/**********************************************************************/
 		SpatialCell(const CellIdType& cellID_in) :
         /* base init */ SpatialCellProperties(TypeTraits<ParticleType>::init()),
         /* init list */ assignedRank(0),
         /* init list */ cellID(cellID_in),
         /* init list */ center((cellID.template cast<double>().array()+0.5).matrix()*SpatialCellObserverType::cellSize()),
         /* init list */ neighborCellIDs(CellShiftType::neighborIDs(cellID))
-//        /* init list */     nearCellIDs(    NearShiftType::neighborIDs(cellID))
         {/*! @param[in] cellID_in The ID of the current cell.
           * The constructor initializes cellID, center, neighborCellIDs, and
           * nearCellIDs. It then populates neighborCells, nearCells, and
@@ -143,12 +129,9 @@ namespace model {
                 isCellType isC(SpatialCellObserverType::isCell(neighborCellIDs.col(c)));
                 if (isC.first)
                 {
-                    //                    model_execAssert(neighborCells.insert(std::make_pair(isC.second->cellID,isC.second)).second,"CANNOT INSERT CELL IN NEIGHBORCELLS");
                     model_execAssert(neighborCells.insert(std::make_pair(isC.second->cellID,isC.second)),.second,"CANNOT INSERT CELL IN NEIGHBORCELLS");
                     if(cellID!=isC.second->cellID)
                     {
-                        //                        model_execAssert(isC.second->neighborCells.insert(std::make_pair(cellID,this->p_derived())).second,"CANNOT INSERT THIS IN NEIGHBORCELLS");
-                        //                        model_execAssert(isC.second->neighborCells.insert(std::make_pair(cellID,this->p_derived())),.second,"CANNOT INSERT THIS IN NEIGHBORCELLS");
                         model_execAssert(isC.second->neighborCells.insert(std::make_pair(cellID,this)),.second,"CANNOT INSERT THIS IN NEIGHBORCELLS");
                     }
                 }
@@ -156,7 +139,7 @@ namespace model {
             
 		}
 		
-		/* Destructor *********************************************************/
+		/**********************************************************************/
 		~SpatialCell()
         {/*! Removes this from static SpatialCellObserver::cellMap
           */
@@ -170,86 +153,111 @@ namespace model {
             model_execAssert(SpatialCellObserverType::cellMap.erase(cellID),==1,"CANNOT ERASE SPATIALCELL FROM CELLMAP.");
 		}
 		
-		/* addParticle ********************************************************/
+		/**********************************************************************/
 		void addParticle(const ParticleType* const pP)
-        {/*! Adds pP to the particleContainer
+        {/*!@param[in] pP pointer to a ParticleType
+          * Adds pP to *this
           */
 			model_execAssert(particleContainer.insert(pP),.second,"CANNOT INSERT PARTICLE IN SpatialCELL");
 		}
 		
-		/* removeParticle *****************************************************/
+		/**********************************************************************/
 		void removeParticle(const ParticleType* const pP)
-        {/*! Removes pP from the particleContainer
+        {/*!@param[in] pP pointer to a ParticleType
+          * Removes pP to *this
           */
 			model_execAssert(particleContainer.erase(pP),==1,"CANNOT ERASE PARTICLE FROM particleContainer.");
 		}
         
-        /* neighborCellBegin **************************************************/
+		/**********************************************************************/
         typename CellMapType::const_iterator neighborCellsBegin() const
-        {
+        {/*!\returns A const iterator referring to the first neighbor cell 
+          * of *this.
+          */
             return neighborCells.begin();
         }
         
-        /* neighborCellEnd ****************************************************/
+		/**********************************************************************/
         typename CellMapType::const_iterator neighborCellsEnd() const
-        {
+        {/*!\returns A const iterator referring to the past-the-end neighbor 
+          * cell of *this.
+          */
             return neighborCells.end();
         }
         
-        /* particleBegin ******************************************************/
+		/**********************************************************************/
         typename ParticleContainerType::const_iterator particleBegin() const
         {
             return particleContainer.begin();
         }
         
-        /* particleEnd ********************************************************/
+		/**********************************************************************/
         typename ParticleContainerType::const_iterator particleEnd() const
         {
             return particleContainer.end();
         }
         
-        /* size ***************************************************************/
+		/**********************************************************************/
         size_t size() const
         {
             return particleContainer.size();
         }
         
-//        /* size ***************************************************************/
-//        template <size_t N>
-//        ??? getProperty()
-//        {
-//            return FINISH HERE;
-//        }
-        
-        /* neighborSize *******************************************************/
+		/**********************************************************************/
         size_t neighborSize() const
         {
             size_t temp(0);
-            for (typename CellMapType::const_iterator cIter=neighborCellsBegin(); cIter!=neighborCellsEnd(); ++cIter)
+            for (typename CellMapType::const_iterator cIter =neighborCellsBegin();
+                 /*                                */ cIter!=neighborCellsEnd();
+                 /*                                */ cIter++)
             {
                 temp+=cIter->second->size();
             }
             return temp;
         }
         
-        /* size ***************************************************************/
+		/**********************************************************************/
         size_t n2Weight() const
         {
             return size()*neighborSize();
         }
         
-        /* size ***************************************************************/
+		/**********************************************************************/
         template <typename T=double>
         T n2WeightD() const
         {
             return static_cast<T>(size())*neighborSize();
         }
         
+        //        /* size ***************************************************************/
+        //        template <size_t N>
+        //        ??? getProperty()
+        //        {
+        //            return FINISH HERE;
+        //        }
+        
 	};
     
 }	// close namespace model
 #endif
 
+
+
+
+//        /* isNearCell *********************************************************/
+//        bool isNearCell(const CellIdType& otherCellID) const
+//        {
+//            bool temp(false);
+//            for (int k=0;k<nearCellIDs.cols();++k)
+//            {
+//                if(nearCellIDs.col(k)==otherCellID)
+//                { // cell is a neighbor
+//                    temp=true;
+//                    break;
+//                }
+//            }
+//            return temp;
+//        }
 
 
 //            for (typename CellMapType::const_iterator cellIter=this->cellBegin();cellIter!=this->cellEnd();++cellIter)

@@ -9,13 +9,15 @@
 #ifndef model_NodeList_H_
 #define model_NodeList_H_
 
-#include <list>
+//#include <list>
+#include <deque>
 //#include <Eigen/Dense>
 
 namespace model
 {
     template <typename FiniteElementType>
-    struct NodeList : public std::list<const typename FiniteElementType::NodeType*>
+//    struct NodeList : public std::list<const typename FiniteElementType::NodeType*>
+    struct NodeList : public std::deque<const typename FiniteElementType::NodeType*>
     {
         
         typedef NodeList<FiniteElementType> NodeListType;
