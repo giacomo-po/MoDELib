@@ -54,27 +54,17 @@ namespace model
         size_t gSize;
         
     private:
-        Eigen::Matrix<double,6,6> C;
-        
-        
-        
-        //        std::unique_ptr<FiniteElementType> fe;
-        //        std::unique_ptr<TrialFunctionType>  u;  // displacement field *u=[u1 u2 u3]'
-        //        std::unique_ptr<TrialGradType>  b;      // displacement gradient *b=[u11 u12 u13 u21 u22 u23 u31 u32 u33]'
-        //        std::unique_ptr<TrialDefType>  e;       // strain *e=[e11 e22 e33 e12 e23 e13]'
-        //        std::unique_ptr<TrialStressType> s;     // stress *s=[s11 s22 s33 s12 s23 s13]'
+        Eigen::Matrix<double,6,6> C; // matrix of elastic moduli
         FiniteElementType* fe;
         TrialFunctionType*  u;  // displacement field *u=[u1 u2 u3]'
         TrialGradType*  b;      // displacement gradient *b=[u11 u12 u13 u21 u22 u23 u31 u32 u33]'
         TrialDefType*  e;       // strain *e=[e11 e22 e33 e12 e23 e13]'
         TrialStressType* s;     // stress *s=[s11 s22 s33 s12 s23 s13]'
         
-        
         IntegrationDomainType dV;
         BilinearWeakFormType* bWF;
         
         SparseMatrixType A;
-        
         
         /**********************************************************************/
         Eigen::Matrix<double,dim+1,1> face2domainBary(const Eigen::Matrix<double,dim,1>& b1,
@@ -144,7 +134,6 @@ namespace model
                     col++;
                 }
                 startRow=endRow+1;
-                //                        const double& val(cIter->second); //! ??????????????
             }
             for (size_t row=startRow;row!=gSize;++row)
             {
@@ -159,11 +148,6 @@ namespace model
             SparseMatrixType A1(T.transpose()*A*T);
             Eigen::VectorXd b1(T.transpose()*(b-A*g));
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
-            
-            //            model::cout<<"pruning master-slave matrix: "<<A1.nonZeros()<<"->";
-            //            const auto t3= std::chrono::system_clock::now();
-            //            A1.prune(A1.norm()/A1.nonZeros(),FLT_EPSILON);
-            //            model::cout<<A1.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]"<<std::endl;
             
             const auto t1= std::chrono::system_clock::now();
 #ifdef _MODEL_PARDISO_SOLVER_
@@ -193,9 +177,9 @@ namespace model
         /**********************************************************************/
         BVPsolver(const SimplicialMesh<dim>& mesh_in) :
         /* init  */ mesh(mesh_in),
+        /* init  */ gSize(0),
         /* init  */ C(get_C()),
-        /* init  */ tolerance(0.0001),
-        /* init  */ gSize(0)
+        /* init  */ tolerance(0.0001)
         {
             
         }
@@ -286,8 +270,6 @@ namespace model
                             s += ele->simplex.nda.col(k).normalized();
                         }
                     }
-                    
-                    
                 }
                 const double sNorm(s.norm());
                 assert(sNorm>0.0 && "s-vector has zero norm.");
@@ -318,7 +300,7 @@ namespace model
             typedef BoundaryStressPoint<DislocationNetworkType> FieldPointType;
             
             //LinearWeakFormType lwf(u->test(),ds);
-            const auto t0= std::chrono::system_clock::now();
+//            const auto t0= std::chrono::system_clock::now();
             
             auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
             auto eb_list = ndA.template integrationList<FieldPointType>();

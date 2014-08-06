@@ -208,11 +208,11 @@ namespace model
         }
         
         /**********************************************************************/
-        template <typename NodeSelectorType>
-        NodeList<FiniteElementType> getNodeList() const
+        template <typename NodeSelectorType, typename... NodeSelectorArgs>
+        NodeList<FiniteElementType> getNodeList(const NodeSelectorArgs&... args) const
         {
             NodeList<FiniteElementType> temp(*this);
-            const NodeSelectorType nodeSelector(*this);
+            const NodeSelectorType nodeSelector(*this,args...);
             for(typename NodeContainerType::const_iterator nIter=nodeBegin(); nIter!=nodeEnd();++nIter)
             {
                 if(nodeSelector(*nIter))

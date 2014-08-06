@@ -2,7 +2,7 @@ clc
 clear all
 close all
 
-step=20;
+step=0;
 U=load(['D/D_' num2str(step) '.txt']);
 S=load(['S/S_' num2str(step) '.txt']);
 

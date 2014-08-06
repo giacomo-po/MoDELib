@@ -85,7 +85,7 @@ namespace model {
 					if (linkIterA->second->sID!=linkIterB->second->sID) // don't intersect with itself
                     {
                         
-                        //                model::cout<<"intersecting "<<linkIterA->second->source->sID<<"->"<<linkIterA->second->sink->sID<<" and "<<linkIterB->second->source->sID<<"->"<<linkIterB->second->sink->sID<<std::endl;
+//                                        model::cout<<"intersecting "<<linkIterA->second->source->sID<<"->"<<linkIterA->second->sink->sID<<" and "<<linkIterB->second->source->sID<<"->"<<linkIterB->second->sink->sID<<std::endl;
                         
                         //                        const bool areIncidentAtNodes(   linkIterA->second->source->sID==linkIterB->second->source->sID
                         //                                                      || linkIterA->second->source->sID==linkIterB->second->sink->sID
@@ -110,13 +110,16 @@ namespace model {
                             const bool gnAgnB((linkIterA->second->glidePlaneNormal-linkIterB->second->glidePlaneNormal  ).squaredNorm()<FLT_EPSILON);
                             const bool gnAsnB((linkIterA->second->glidePlaneNormal-linkIterB->second->sessilePlaneNormal).squaredNorm()<FLT_EPSILON);
                             
-                            if (!gnAgnB && !gnAsnB){
+                            if (!gnAgnB && !gnAsnB)
+                            {
                                 // cannot intersect
                             }
-                            else if(gnAgnB && !gnAsnB){ // use planeNormal of A and planeNormal of B
+                            else if(gnAgnB && !gnAsnB)
+                            { // use planeNormal of A and planeNormal of B
                                 temp = dsi.intersectWith(linkIterB->second-> hermiteCoefficients(),linkIterB->second->glidePlaneNormal,collisionTol);
                             }
-                            else if (!gnAgnB && gnAsnB){ // use planeNormal of A and sessileNormal of B
+                            else if (!gnAgnB && gnAsnB)
+                            { // use planeNormal of A and sessileNormal of B
                                 temp = dsi.intersectWith(linkIterB->second-> hermiteCoefficients(),linkIterB->second->sessilePlaneNormal,collisionTol);
                             }
                             else{
@@ -128,7 +131,8 @@ namespace model {
                             const bool gnBgnA((linkIterB->second->glidePlaneNormal-linkIterA->second->glidePlaneNormal  ).squaredNorm()<FLT_EPSILON);
                             const bool gnBsnA((linkIterB->second->glidePlaneNormal-linkIterA->second->sessilePlaneNormal).squaredNorm()<FLT_EPSILON);
                             
-                            if (!gnBgnA && !gnBsnA){
+                            if (!gnBgnA && !gnBsnA)
+                            {
                                 // cannot intersect
                             }
                             else if(gnBgnA && !gnBsnA){ // use planeNormal of A and planeNormal of B
@@ -290,8 +294,8 @@ namespace model {
 					if(   edgeIntersectionContainer.find(key1)==edgeIntersectionContainer.end()
                        && edgeIntersectionContainer.find(key2)==edgeIntersectionContainer.end())
                     {
-                        //                        						model::cout<<"key1 is "<<key1.first<<" "<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-                        //                        						model::cout<<"key2 is "<<key2.first<<" "<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
+                        model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
+                        model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
 						
                         
                         const double u1m(intersectionContainer[interID]. first.second-du1);
@@ -329,7 +333,8 @@ namespace model {
                                 secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2p),L2.second->source->includingSimplex(),FLT_EPSILON).first;
                             }
                         }
-                        if(secondIntersectionInsideMesh){
+                        if(secondIntersectionInsideMesh)
+                        {
                             assert(edgeIntersectionContainer[key1].insert(std::make_pair(u1p,2*interID+1)).second);
                             assert(edgeIntersectionContainer[key2].insert(std::make_pair(u2p,2*interID+1)).second);
                         }

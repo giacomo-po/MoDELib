@@ -49,9 +49,9 @@ externalStress = 0.0 0.0 0.0
 ######################################
 # ELASTIC FIELDS
 # The dislocation core size
-coreSize=2.0;
+coreSize=10.0;
 # Use of multipole-expanded elastic fields for non-nearest neighbor cells
-dislocationCellSize=1000;
+dislocationCellSize=300;
 use_DisplacementMultipole=0;
 use_StressMultipole = 1;
 use_EnergyMultipole = 0;
@@ -86,7 +86,7 @@ meshID=1;
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
 use_bvp = 1;
-use_virtualSegments=0;
+use_virtualSegments=1;
 solverTolerance=0.001;
 
 ######################################

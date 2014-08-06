@@ -293,51 +293,51 @@ namespace model {
 			for (typename NetworkNodeContainerType::const_iterator nodeIter=nnC.begin();nodeIter!=nnC.end();++nodeIter)
             {
 				os << (*nodeIter->second) << "\n";
-                }
-                return os;
-                }
-
-                /*************************************************************/
-                // friend T& operator <<
-                template <class T>
-                friend T& operator << (T& os, const NetworkLinkContainerType& nlC)
-                {
-                    for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter)
-                    {
-                        os << (*linkIter->second) << "\n";
-                    }
-                    return os;
-                }
+            }
+            return os;
+        }
+        
+        /*************************************************************/
+        // friend T& operator <<
+        template <class T>
+        friend T& operator << (T& os, const NetworkLinkContainerType& nlC)
+        {
+            for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter)
+            {
+                os << (*linkIter->second) << "\n";
+            }
+            return os;
+        }
         
         
     };	// end Network
     
     
     
-		/*************************************************************/
-		// friend T& operator <<
-//		template <class T,typename key,typename value,typename compare,typename allocator>
-//     T& operator << (T& os, const boost::ptr_map<key,value,compare,allocator>& pMap)
-//        {
-//			for (typename boost::ptr_map<key,value>::const_iterator iter=pMap.begin();iter!=pMap.end();++iter)
-//            {
-//				os << (*iter->second) << "\n";
-//                }
-//                return os;
-//                }
-
-//                /*************************************************************/
-//                // friend T& operator <<
-//                template <class T>
-//                friend T& operator << (T& os, const NetworkLinkContainerType& nlC)
-//                {
-//                    for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter)
-//                    {
-//                        os << (*linkIter->second) << "\n";
-//                    }
-//                    return os;
-//                }
-
+    /*************************************************************/
+    // friend T& operator <<
+    //		template <class T,typename key,typename value,typename compare,typename allocator>
+    //     T& operator << (T& os, const boost::ptr_map<key,value,compare,allocator>& pMap)
+    //        {
+    //			for (typename boost::ptr_map<key,value>::const_iterator iter=pMap.begin();iter!=pMap.end();++iter)
+    //            {
+    //				os << (*iter->second) << "\n";
+    //                }
+    //                return os;
+    //                }
+    
+    //                /*************************************************************/
+    //                // friend T& operator <<
+    //                template <class T>
+    //                friend T& operator << (T& os, const NetworkLinkContainerType& nlC)
+    //                {
+    //                    for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter)
+    //                    {
+    //                        os << (*linkIter->second) << "\n";
+    //                    }
+    //                    return os;
+    //                }
+    
     
     /************************************************************/
     /************************************************************/
