@@ -149,8 +149,6 @@ namespace model
 		unsigned int runID;
         
 		bool use_crossSlip;
-		double crossSlipDeg;
-		double crossSlipLength;
 		
 		double totalTime;
 		
@@ -225,9 +223,9 @@ namespace model
 			if(use_crossSlip)
             {
                 const auto t0= std::chrono::system_clock::now();
-				model::cout<<"		Performing Cross Slip ... "<<std::flush;
-				size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip(crossSlipDeg,crossSlipLength));
-				model::cout<<crossSlipEvents<<" cross slip events found ";
+				model::cout<<"		performing cross-slip ... ("<<std::flush;
+				size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip());
+				model::cout<<crossSlipEvents<<" cross-slip events) ";
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 			}
 		}
@@ -408,8 +406,6 @@ namespace model
         /* init list  */ equilibriumVelocity(0.01),
 		/* init list  */ runID(0),
 		/* init list  */ use_crossSlip(false),
-		/* init list  */ crossSlipDeg(45.0),
-		/* init list  */ crossSlipLength(100.0),
 		/* init list  */ totalTime(0.0),
 		/* init list  */ dx(0.0),
         /* init list  */ dt(0.0),
@@ -590,24 +586,15 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_crossSlip",use_crossSlip);
             if(use_crossSlip)
             {
-                EDR.readScalarInFile(fullName.str(),"crossSlipDeg",crossSlipDeg);
-                assert(crossSlipDeg>=0.0 && crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
-                EDR.readScalarInFile(fullName.str(),"crossSlipLength",crossSlipLength);
-                assert(crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
-				//				assert(crossSlipLength<Lmin && "YOU MUST CHOOSE crossSlipLength<Lmin."); // Because otherwise cross-slip points would go outside segment
+                EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
+                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
+                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
+                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
             }
 			
             // Read Vertex and Edge information
             DislocationNetworkIO<DislocationNetworkType>::readVertices(*this,runID); // this requires mesh to be up-to-date
             DislocationNetworkIO<DislocationNetworkType>::readEdges(*this,runID);    // this requires mesh to be up-to-date
-            
-            
-            //            if (shared.use_bvp && (shared.use_boundary==softBoundary))
-            //            { // MOVE THIS WITH REST OB BVP STUFF
-            //                //                shared.vbsc.read(runID,&shared);
-            //                shared.vbsc.initializeVirtualSegments(*this);
-            //            }
-            
             
             //#ifdef DislocationNucleationFile
             //            EDR.readScalarInFile(fullName.str(),"nucleationFreq",nucleationFreq);

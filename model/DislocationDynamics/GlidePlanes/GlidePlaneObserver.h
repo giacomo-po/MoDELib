@@ -22,8 +22,8 @@ namespace model {
 	template <typename SegmentType>
 	class GlidePlane;
 		
-	/********************************************************************************************/
-	/********************************************************************************************/	
+	/**************************************************************************/
+	/**************************************************************************/
 	template<typename SegmentType>
 	struct GlidePlaneObserver
     {
@@ -40,14 +40,14 @@ namespace model {
 		typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
 		
 		/* begin() ***************************************************/
-		typename GlidePlaneMapType::const_iterator begin() const
+		static typename GlidePlaneMapType::const_iterator begin()
         {/*! A const iterator to the begin of the static map of GlidePlane(s)
 		  */
 			return glidePlaneMap.begin();
 		}
 		
 		/* end() *****************************************************/		
-		typename GlidePlaneMapType::const_iterator end() const
+		static typename GlidePlaneMapType::const_iterator end()
         {/*! A const iterator to the end of the static map of GlidePlane(s)
 		  */
 			return glidePlaneMap.end();
@@ -92,13 +92,10 @@ namespace model {
 		static  GlidePlaneMapType glidePlaneMap;		
 	};
 	
-	/**********************************************/
-	/* Declare static data member *****************/	
+	// Static data 
 	template<typename SegmentType>
 	std::map<Eigen::Matrix<double,TypeTraits<SegmentType>::dim+1,1>,GlidePlane<SegmentType>* const,CompareVectorsByComponent<double,TypeTraits<SegmentType>::dim+1,float>,Eigen::aligned_allocator<std::pair<const Eigen::Matrix<double,TypeTraits<SegmentType>::dim+1,1>,GlidePlane<SegmentType>* const> > > GlidePlaneObserver<SegmentType>::glidePlaneMap;
     
-	/********************************************************************************************/
-	/********************************************************************************************/	
 }	// close namespace
 #endif
 

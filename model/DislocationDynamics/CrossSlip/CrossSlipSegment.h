@@ -35,71 +35,41 @@ namespace model {
     {
 		
 		typedef typename DislocationSegmentType::VectorDim VectorDim;
-        typedef std::vector<Eigen::Matrix<double,3,1>> vector_VectorDim;
-        typedef std::pair<std::vector<double>,std::vector<double> > vector_pair;
-        typedef std::vector<vector_pair> vector_vector_pair;
+        typedef std::vector<Eigen::Matrix<double,3,1>> VectorVectorDim;
+        typedef std::pair<std::vector<double>,std::vector<double> > VectorPairType;
+        typedef std::vector<VectorPairType> vector_VectorPairType;
         
-        
-        VectorDim getConjugateNormal(const DislocationSegmentType& ds, const double& sinThetaCrossSlipCr,const double& crossSlipLength) const
-        {
+        /**********************************************************************/
+        VectorDim getConjugateNormalDeterministic(const DislocationSegmentType& ds,
+                                                  const double& sinThetaCrossSlipCr,
+                                                  const double& crossSlipLength) const
+        {/*!@param[in] ds const reference to a DislocationSegment
+          * @param[in] sinThetaCrossSlipCr sine (in rads) of the tolerance in the cross-slip angle
+          * @param[in] crossSlipLength minimum length of the segment required for cross-slip
+          *\returns the unit normal of the cross-slip plane. If this vector is the current
+          * plane normal of ds, cross-slip does not take place.
+          */
             VectorDim temp(normalPrimary);
+            
             if ( !sourceOnMeshBoundary && !sinkOnMeshBoundary 
                 && chord.normalized().cross(Burgers.normalized()).norm()<=sinThetaCrossSlipCr
                 && !isSessile
-                && chord.norm()>1.1*crossSlipLength
-                && Material<Isotropic>::kT > 0.0 )
+                && chord.norm()>1.1*crossSlipLength)
             {
-                std::set<double> probabilities;
-                double ptotal(0.0);
-                vector_VectorDim allNormals(ds.conjugatePlaneNormal());
+                VectorVectorDim allNormals(ds.conjugatePlaneNormal());
                 // add normalPrimary at the beginning of allNormals.
                 // This way, in case of duplicate keys, normalPrimary is inserted in argMap
                 allNormals.insert(allNormals.begin(),normalPrimary);
-//                allNormals.push_back(normalPrimary);
-//                std::cout<<std::endl;
                 std::map<double,int> argMap; // map automatically sorts keys
                 
                 for (unsigned int i=0; i< allNormals.size(); i++)
                 {
                     const double trss((pkForce-pkForce.dot(allNormals[i])*allNormals[i]).norm());
-                    const double arg(-Material<Isotropic>::vAct*(Material<Isotropic>::tauIII-trss)/( Material<Isotropic>::kT ));
-                    const double ptemp( exp(arg));
-                    if(!std::isfinite(ptemp)) // arg makes exp(arg) blow up, so store arg itself
-                    {
-                        argMap.insert(std::make_pair(arg,i)); // normalPrimary
-                    }
-                    
-                    ptotal+=ptemp;
-//                    std::cout<<" ptemp = "<<ptemp<<" conjugate normal = "<<allNormals[i]<<std::endl;
-                    probabilities.insert(ptotal);
+                    argMap.insert(std::make_pair(trss,i)); // normalPrimary
                 }
                 
-                if (argMap.size()>1) // at least one probability is inf
-                {
-                    // Pick the highest arg
-                    temp= allNormals[argMap.rbegin()->second];
-
-                }
-                else // none of the  probabilities are inf
-                {
-//                    double random_number(roll_die());
-//                    double r(0.1*random_number*ptotal);
-//                    double r(0.1*random_number*ptotal);
-
-                    double r(static_cast<double>(std::rand()) / RAND_MAX * ptotal);
-                    
-                    std::set<double>::iterator it(probabilities.lower_bound(r));
-                    int n(std::distance(probabilities.begin(),it));
-                    
-                    temp= allNormals[n];
-                }
-//                std::cout<<"r = "<<r<<std::endl;
-//                std::cout<<" random number = "<<random_number<<std::endl; 
-//                std::cout<<"ptotal = "<<ptotal<<std::endl;
-//                std::cout<<"primary normal " <<normalPrimary.transpose()<<std::endl;
-//                std::cout<<" conjugate normal final = "<<temp.transpose()<<std::endl; 
+                temp= allNormals[argMap.rbegin()->second];
             }
-            
             return temp;
         }
         
@@ -130,22 +100,83 @@ namespace model {
 		/*init list   */ pkForce(ds.integralPK()),
 		/*init list   */ normalPrimary(ds.glidePlaneNormal),
         /*init list   */ isSessile(std::fabs(Burgers.dot(normalPrimary))>FLT_EPSILON),
-        /*init list   */ normalConjugate(getConjugateNormal(ds,sinThetaCrossSlipCr,crossSlipLength)),
+        /*init list   */ normalConjugate(getConjugateNormalDeterministic(ds,sinThetaCrossSlipCr,crossSlipLength)),
 		/*init list   */ isCrossSlipSegment(normalConjugate != normalPrimary) 
         {
             
                         
         }
         
-//        /*-----------------------------------------------------------------------*/
-//        int roll_dice() const {
-//            boost::random::uniform_int_distribution<> dist(1,10);
-//            return dist(gen);
-//        }
-        
     };
     
     //////////////////////////////////////////////////////////////s
 } // namespace model
 #endif
+
+
+
+///**********************************************************************/
+//VectorDim getConjugateNormal(const DislocationSegmentType& ds, const double& sinThetaCrossSlipCr,const double& crossSlipLength) const
+//{
+//    VectorDim temp(normalPrimary);
+//    if ( !sourceOnMeshBoundary && !sinkOnMeshBoundary
+//        && chord.normalized().cross(Burgers.normalized()).norm()<=sinThetaCrossSlipCr
+//        && !isSessile
+//        && chord.norm()>1.1*crossSlipLength
+//        && Material<Isotropic>::kT > 0.0 )
+//    {
+//        std::set<double> probabilities;
+//        double ptotal(0.0);
+//        VectorVectorDim allNormals(ds.conjugatePlaneNormal());
+//        // add normalPrimary at the beginning of allNormals.
+//        // This way, in case of duplicate keys, normalPrimary is inserted in argMap
+//        allNormals.insert(allNormals.begin(),normalPrimary);
+//        //                allNormals.push_back(normalPrimary);
+//        //                std::cout<<std::endl;
+//        std::map<double,int> argMap; // map automatically sorts keys
+//        
+//        for (unsigned int i=0; i< allNormals.size(); i++)
+//        {
+//            const double trss((pkForce-pkForce.dot(allNormals[i])*allNormals[i]).norm());
+//            const double arg(-Material<Isotropic>::vAct*(Material<Isotropic>::tauIII-trss)/( Material<Isotropic>::kT ));
+//            const double ptemp( exp(arg));
+//            if(!std::isfinite(ptemp)) // arg makes exp(arg) blow up, so store arg itself
+//            {
+//                argMap.insert(std::make_pair(arg,i)); // normalPrimary
+//            }
+//            
+//            ptotal+=ptemp;
+//            //                    std::cout<<" ptemp = "<<ptemp<<" conjugate normal = "<<allNormals[i]<<std::endl;
+//            probabilities.insert(ptotal);
+//        }
+//        
+//        if (argMap.size()>1) // at least one probability is inf
+//        {
+//            // Pick the highest arg
+//            temp= allNormals[argMap.rbegin()->second];
+//            
+//        }
+//        else // none of the  probabilities are inf
+//        {
+//            //                    double random_number(roll_die());
+//            //                    double r(0.1*random_number*ptotal);
+//            //                    double r(0.1*random_number*ptotal);
+//            
+//            double r(static_cast<double>(std::rand()) / RAND_MAX * ptotal);
+//            
+//            std::set<double>::iterator it(probabilities.lower_bound(r));
+//            int n(std::distance(probabilities.begin(),it));
+//            
+//            temp= allNormals[n];
+//        }
+//        //                std::cout<<"r = "<<r<<std::endl;
+//        //                std::cout<<" random number = "<<random_number<<std::endl;
+//        //                std::cout<<"ptotal = "<<ptotal<<std::endl;
+//        //                std::cout<<"primary normal " <<normalPrimary.transpose()<<std::endl;
+//        //                std::cout<<" conjugate normal final = "<<temp.transpose()<<std::endl;
+//    }
+//    
+//    return temp;
+//}
+
 
