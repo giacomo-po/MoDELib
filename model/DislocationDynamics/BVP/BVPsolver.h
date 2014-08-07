@@ -281,10 +281,10 @@ namespace model
             for(int n=0;n<fieldPoints.size();++n)
             {
                 u->dirichletConditions().at(nodeList[n]->gID*dofPerNode+dof) -= fieldPoints[n].template field<DisplacementField>()(dof);
-                if(DN.shared.use_virtualSegments)
-                {
-                    std::cout<<"NEED TO COMPUTE DISPLACEMENT OF RADIAL SEGMENTS"<<std::endl;
-                }
+            }
+            if(DN.shared.use_virtualSegments)
+            {
+                std::cout<<"NEED TO COMPUTE DISPLACEMENT OF RADIAL SEGMENTS"<<std::endl;
             }
             
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -306,7 +306,7 @@ namespace model
             auto eb_list = ndA.template integrationList<FieldPointType>();
             DN.template computeField<FieldPointType,StressField>(eb_list,DN.shared.use_StressMultipole);
             
-            auto lwf=(u->test(),eb_list);
+            auto dislocationTraction=(u->test(),eb_list);
             
             u->clearDirichletConditions();
             

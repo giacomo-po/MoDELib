@@ -228,10 +228,11 @@ namespace model {
                 
 				//const bool frankRule(b1.dot(b2)*rl1.dot(rl2)<=0.0);
 				const bool frankRule(b1.dot(b2)*sgnrl1rl2<=0.0);
+				const bool isValidJunction(frankRule || iter->first.first->is_boundarySegment() || iter->second.first->is_boundarySegment());
                 
                 
-                //				const bool frankRule(true);
-				if (!frankRule)
+//				if (!frankRule)
+                    if (!isValidJunction)
                 {
 					iter=intersectionContainer.erase(iter);
 				}

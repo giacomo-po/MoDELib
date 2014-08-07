@@ -11,4 +11,4 @@ filename=$1;
 # -q = a boundary conforming quality tetrahedral mesh is generated
 # see also http://wias-berlin.de/software/tetgen/1.5/doc/manual/manual005.html#sec35
 #./tetgen -pzFq1.414a"$maxVolume" "$filename".stl;
-./tetgen -pzFq1.414a "$filename".poly
+./tetgen -pqzFa "$filename".poly

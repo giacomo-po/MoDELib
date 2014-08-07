@@ -11,7 +11,7 @@ maxVolume=$2;
 # -F = suppresses output of .face and .edge file
 # -q = a boundary conforming quality tetrahedral mesh is generated
 # see also http://wias-berlin.de/software/tetgen/1.5/doc/manual/manual005.html#sec35
-./tetgen -pzFq1.414a"$maxVolume" "$filename".stl;
+./tetgen -pqzFa"$maxVolume" "$filename".stl;
 
 # Move and rename files
 rm *.smesh;
