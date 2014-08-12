@@ -42,11 +42,17 @@ EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 
 /* isNeighborAt ***************************************************************/
-std::set<size_t> areNeighborsAt(const VectorDim& P0) const {
+std::set<size_t> areNeighborsAt(const VectorDim& P0) const
+{
     std::set<size_t> temp;
-    for (typename Derived::NeighborContainerType::const_iterator nIiter=this->neighborhood().begin();nIiter!=this->neighborhood().end();++nIiter){ // loop over neighborhood 
-        if (std::get<0>(nIiter->second)->sID!=this->sID){ // neighbor is not this
-            if((std::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON){ // a neighbor of I exists at P0
+    for (typename Derived::NeighborContainerType::const_iterator nIiter =this->neighborhood().begin();
+         /*                                                   */ nIiter!=this->neighborhood().end();
+         /*                                                   */ nIiter++)
+    { // loop over neighborhood
+        if (std::get<0>(nIiter->second)->sID!=this->sID)
+        { // neighbor is not this
+            if((std::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON)
+            { // a neighbor of I exists at P0
                 const bool ableToInsert(temp.insert(std::get<0>(nIiter->second)->sID).second);
                 assert(ableToInsert && "COULD NOT INSERT ID IN isNeighborAt");
             }

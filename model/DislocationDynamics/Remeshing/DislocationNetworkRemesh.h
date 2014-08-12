@@ -165,7 +165,7 @@ namespace model {
         
         /**********************************************************************/
         unsigned int contractSecondWithCommonNeighborCheck(const NodeType& Ni, const NodeType& Nj)
-        {/*! @param[in] i StaticID of the first node (vertex i remains)
+        {/*!@param[in] i StaticID of the first node (vertex i remains)
           * @param[in] j StaticID of the second node (vertex j is contracted)
           *
           * Contracts  vertex j onto vertex i, making sure no other neighbors of j (but i)
@@ -182,7 +182,8 @@ namespace model {
 //            assert(Nj.first && "NODE j DOES NOT EXIST");
             
             std::set<size_t> isCNj(Nj.areNeighborsAt(Ni.get_P()));
-            assert(isCNj.erase(i)==1 && "node i must be found at Pi"); // remove i from the set
+            isCNj.erase(i); // if i and j are neighbors, don;t list i itself as one of the neighbor nodes
+//            assert(isCNj.erase(i)==1 && "node i must be found at Pi"); // remove i from the set. THIS IS ONLY VALID IF i and j are neighbors!
             
             for (std::set<size_t>::const_iterator njIter=isCNj.begin(); njIter!=isCNj.end();++njIter)
             {

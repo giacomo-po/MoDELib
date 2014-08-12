@@ -267,9 +267,9 @@ namespace model {
             if (DN.shared.use_bvp && outputMeshDisplacement && !(DN.runningID()%DN.shared.use_bvp))
             {
                 
-                model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
-                model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
-                model::SequentialOutputFile<'D',true> d_file;
+                model::SequentialOutputFile<'S',1>::set_increment(outputFrequency); // Vertices_file;
+                model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
+                model::SequentialOutputFile<'S',true> d_file;
                 d_file<<DN.shared.bvpSolver.displacement();
                 
                 //                    for (unsigned int i = 0; i< DN.shared.domain.nodeContainer.size(); i++){
