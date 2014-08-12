@@ -65,14 +65,14 @@ namespace model
           * @param[in] field  the DislocationParticle on which stress is computed
           *\returns the stress field produced by source on field
           */
-            MatrixType R(field.P-source.P);
+            VectorDim R(field.P-source.P);
 			const double Ra=sqrt(R.squaredNorm()+DislocationStress<_dim>::a2);
             R/=Ra; // normalize R
-            return -Material<Isotropic>::C2*source.quadWeight*field.quadWeight/Ra*
+            return (MatrixType()<<-Material<Isotropic>::C2*source.quadWeight*field.quadWeight/Ra*
             (Material<Isotropic>::C1*source.B.dot(source.T)*field.B.dot(field.T)
              +2.0*Material<Isotropic>::nu*(field.B.dot(source.T)*source.B.dot(field.T))
              -(source.B.dot(field.B)+ source.B.dot(R)*field.B.dot(R))*field.T.dot(source.T)
-             );
+             )).finished();
         }
         
 #elif _MODEL_NON_SINGULAR_DD_ == 1 /* Cai's non-singular theory */
@@ -113,7 +113,7 @@ namespace model
             
             MatrixType temp(MatrixType::Zero());
             
-            const Eigen::Matrix<double,_dim,1> r(field.P-source.P);
+            const VectorDim r(field.P-source.P);
             const double R2(r.squaredNorm());
             if (R2>0.0)
             {

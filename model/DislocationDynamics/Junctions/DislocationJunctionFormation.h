@@ -111,10 +111,6 @@ namespace model {
         
         /**********************************************************************/
         size_t contractWithPlaneCheck(const size_t& i, const size_t& j)
-        //                            const VectorDimD& P1, const VectorDimD& P2,
-        //                            const VectorDimD& n1, const VectorDimD& n2,
-        //                            const bool& is1sessile, const bool& is2sessile,
-        //                            const Simplex<dim,dim>* guess)
         {
             
             size_t contracted(0);
@@ -263,43 +259,7 @@ namespace model {
             
             return contracted;
             
-            //            if (!is1sessile && !is2sessile)
-            //            {
-            //                VectorDimD linePoint((P1+P2)*0.5);
-            //                const double denom(1.0-std::pow(N1.dot(N2),2));
-            //                if(std::fabs(denom)>FLT_EPSILON)
-            //                { // planes are incident: make sure to place intersection on common line
-            //                    const double numer((P2-P1).dot(N2));
-            //                    const double u(numer/denom);
-            //                    linePoint = P1+(N2-N2.dot(N1)*N1)*u;
-            //                }
-            //
-            //                // If mesh is used, make cure that intersection point is inside mesh
-            //                bool linePointInsideMesh(true);
-            //                if (DN.shared.use_boundary)
-            //                {
-            //                    //                        linePointInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(linePoint,Ni.second->includingSimplex(),FLT_EPSILON).first;
-            //                    linePointInsideMesh*=DN.shared.mesh.searchWithGuess(linePoint,guess).first;
-            //                }
-            //                if(linePointInsideMesh)
-            //                {
-            //                    model::cout<<"Glissile Junction"<<std::endl;
-            //                    DN.contract(i,j,linePoint);
-            //                }
-            //
-            //            }
-            //            else if(is1sessile && !is2sessile){ // use P1 (which is on sessile segment) as the intersection point
-            //                model::cout<<"First-Sessile Junction"<<std::endl;
-            //                DN.contract(i,j,P1);
-            //            }
-            //            else if(!is1sessile && is2sessile){ // use P2 (which is on sessile segment) as the intersection point
-            //                model::cout<<"Second-Sessile Junction"<<std::endl;
-            //                DN.contract(i,j,P2);
-            //            }
-            //            else{
-            //                assert(0 && "CANNOT MAKE JUNCTION BETWEEN TWO SESSILE SEGMENTS.");
-            //
-            //            }
+
             
             
         }
@@ -965,6 +925,46 @@ namespace model {
 	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
+
+
+
+//            if (!is1sessile && !is2sessile)
+//            {
+//                VectorDimD linePoint((P1+P2)*0.5);
+//                const double denom(1.0-std::pow(N1.dot(N2),2));
+//                if(std::fabs(denom)>FLT_EPSILON)
+//                { // planes are incident: make sure to place intersection on common line
+//                    const double numer((P2-P1).dot(N2));
+//                    const double u(numer/denom);
+//                    linePoint = P1+(N2-N2.dot(N1)*N1)*u;
+//                }
+//
+//                // If mesh is used, make cure that intersection point is inside mesh
+//                bool linePointInsideMesh(true);
+//                if (DN.shared.use_boundary)
+//                {
+//                    //                        linePointInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(linePoint,Ni.second->includingSimplex(),FLT_EPSILON).first;
+//                    linePointInsideMesh*=DN.shared.mesh.searchWithGuess(linePoint,guess).first;
+//                }
+//                if(linePointInsideMesh)
+//                {
+//                    model::cout<<"Glissile Junction"<<std::endl;
+//                    DN.contract(i,j,linePoint);
+//                }
+//
+//            }
+//            else if(is1sessile && !is2sessile){ // use P1 (which is on sessile segment) as the intersection point
+//                model::cout<<"First-Sessile Junction"<<std::endl;
+//                DN.contract(i,j,P1);
+//            }
+//            else if(!is1sessile && is2sessile){ // use P2 (which is on sessile segment) as the intersection point
+//                model::cout<<"Second-Sessile Junction"<<std::endl;
+//                DN.contract(i,j,P2);
+//            }
+//            else{
+//                assert(0 && "CANNOT MAKE JUNCTION BETWEEN TWO SESSILE SEGMENTS.");
+//
+//            }
 
 
 //        /* formVertexEdgeJunctions ********************************************/

@@ -293,8 +293,8 @@ namespace model {
             }
             
 			
-#ifdef customUserOutputs
-#include customUserOutputs
+#ifdef userOutputFile
+#include userOutputFile
 #endif
 			
 		}
