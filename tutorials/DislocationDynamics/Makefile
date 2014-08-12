@@ -1,8 +1,11 @@
 USE_ICC = 0
+usePARDISO = 0
 
-# MODEL LIBRARY #################################
- MODEL_INCLUDE =/Users/giacomo/Documents/MODEL
-# MODEL_INCLUDE = /home/giacomo/Dropbox/Model
+##########################################################
+# EDIT HERE
+##########################################################
+MODEL_INCLUDE =/Users/giacomo/Documents/MODEL
+MKL_PATH=/opt/intel/composer_xe_2013.3.171/mkl
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
@@ -14,6 +17,54 @@ IDIR += -I$(MODEL_INCLUDE)
 ##########################################################
 # COMPILER SETTINGS - DO NOT EDIT-
 ##########################################################
+ifeq ($(USE_ICC), 1)
+CC= icpc
+mpiCC= icpc
+# optimization level
+CFLAGS	 = -O3
+CFLAGS	+= -fast
+# enable openMP
+CFLAGS	+= -openmp 
+#enable C++0x
+CFLAGS	+= -std=c++0x
+else
+CC= g++
+mpiCC = mpicxx
+# optimization level = fast
+#CFLAGS  += -O3
+CFLAGS  += -Ofast
+CFLAGS  += -msse4
+#CFLAGS  += -mavx
+#CFLAGS  += -march=native
+# enable openMP
+CFLAGS += -fopenmp
+# enable C++0x
+CFLAGS += -std=c++0x
+endif
+# enable common warnings… 
+CFLAGS += -Wall
+# … and more warnings       
+CFLAGS += -Wextra
+
+#disable model-assertions
+CFLAGS += -D _MODEL_NO_DEBUG_
+#disable model-input-checks
+CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
+
+# Settings for PARDISO solver
+ifeq ($(usePARDISO), 1)
+CFLAGS += -D _MODEL_PARDISO_SOLVER_
+IDIR += -I $(MKL_PATH)/include
+LIBS += -L $(MKL_PATH)/lib
+LIBS += -lmkl_intel_lp64 
+LIBS += -lmkl_intel_thread 
+LIBS += -lmkl_core
+endif
+
+##########################################################
+# MAKE ALL
+##########################################################
+
 esc=`echo "\033"`
 normalColor="${esc}[m\017"
 greenColor="${esc}[0;32m"
@@ -32,85 +83,23 @@ all:
 ##########################################################
 # MAKE DDOMP
 ##########################################################
-ifeq ($(USE_ICC), 1)
-CC= icpc
-# optimization level
-CFLAGS	 = -O3
-CFLAGS	+= -fast
-# enable openMP
-CFLAGS	+= -openmp 
-#enable C++0x
-CFLAGS	+= -std=c++0x
-else
-CC= g++
-# optimization level = fast
-CFLAGS  += -Ofast
-# enable openMP
-CFLAGS += -fopenmp
-# enable C++0x
-CFLAGS += -std=c++0x
-#CFLAGS  += -g
-#CFLAGS  += -msse2
-endif
-
-# enable common warnings… 
-CFLAGS += -Wall
-# … and more warnings       
-CFLAGS += -Wextra
-
-#disable model-assertions
-FLAGS += -D _MODEL_NO_DEBUG_
-#disable model-input-checks
-CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
-
-
 OBJS 	= DDomp
 
 $(OBJS): 
-	@echo ${greenColor}making OpenMP code... ${normalColor}
-	$(CC) main.cpp -o  $(OBJS)  $(CFLAGS) $(IDIR)
+	@echo ${greenColor}making omp version... ${normalColor}
+	$(CC) main.cpp -o  $(OBJS)  $(CFLAGS) $(LIBS) $(IDIR)
 
 
 ##########################################################
 # MAKE DDMPI
 ##########################################################
-ifeq ($(USE_ICC), 1)
-mpiCC= icpc
-# optimization level
-mpiCFLAGS += -O3
-mpiCFLAGS += -fast
-# enable openMP
-mpiCFLAGS += -openmp
-#enable C++0x
-mpiCFLAGS += -std=c++0x
-else
-mpiCC = mpicxx
-# optimization level
-mpiCFLAGS  += -O3
-# enable openMP   
-mpiCFLAGS += -fopenmp 
-# enable C++0x
-mpiCFLAGS += -std=c++0x
-endif
-
-# enable common warnings… 
-mpiCFLAGS += -Wall
-# … and more warnings       
-mpiCFLAGS += -Wextra
-
-#disable model-assertions
-mpiCFLAGS += -D _MODEL_NO_DEBUG_
-#disable model-input-checks
-mpiCFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
-
-# define _MODEL_DD_MPI_
 mpiCFLAGS += -D _MODEL_DD_MPI_
 
 mpiOBJS = DDmpi
 
 $(mpiOBJS):
-	@echo ${blueColor}making MPI+OpenMP code... ${normalColor}
-	$(mpiCC) main.cpp -o $(mpiOBJS) $(mpiCFLAGS) $(IDIR) $(mpiLIBS)
+	@echo ${blueColor}making mpi version... ${normalColor}
+	$(mpiCC) main.cpp -o $(mpiOBJS) $(CFLAGS) $(mpiCFLAGS) $(IDIR) $(LIBS) $(mpiLIBS)
 
 
 ##########################################################
@@ -138,7 +127,7 @@ ifeq ($(OS),Linux)
 endif	
 
 DDviewer: 
-	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -std=c++0x -O3 $(IDIR)  $(VIEWERLIBS) 
+	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -O3 -std=c++11 $(IDIR)  $(VIEWERLIBS) 
 
 ##########################################################
 # MAKE EMPTY
@@ -148,6 +137,8 @@ DDviewer:
 Gexists=$(shell test -d G && echo 1)
 Cexists=$(shell test -d C && echo 1)
 Pexists=$(shell test -d P && echo 1)
+#Nexists=$(shell test -d N && echo 1)
+#Texists=$(shell test -d T && echo 1)
 TGAexists=$(shell test -d tga && echo 1)
 JPGexists=$(shell test -d jpg && echo 1)
 
@@ -171,6 +162,16 @@ ifeq ($(Pexists),1)
 	@find P/ -name P_\*.txt -exec rm {} \;
 	@find P/ -name P_\*.bin -exec rm {} \;
 endif	
+#ifeq ($(Nexists),1)
+#	@echo ${blueColor}emptying folder N ${normalColor}
+#	@find N/ -name N_\*.txt -exec rm {} \;
+#	@find N/ -name N_\*.bin -exec rm {} \;
+#endif	
+#ifeq ($(Texists),1)
+#	@echo ${blueColor}emptying folder T ${normalColor}
+#	@find T/ -name T_\*.txt -exec rm {} \;
+#	@find T/ -name T_\*.bin -exec rm {} \;
+#endif	
 ifeq ($(TGAexists),1)
 	@echo ${blueColor}emptying folder tga ${normalColor}
 	@find tga/ -name image_\*.tga -exec rm {} \;

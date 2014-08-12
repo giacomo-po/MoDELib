@@ -23,6 +23,7 @@
 #include <model/FEM/WeakForms/WeakProblem.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/FEM/WeakForms/BilinearForm.h>
+#include <model/MPI/MPIcout.h>
 
 
 
@@ -34,21 +35,6 @@ namespace model
     template <typename _BilinearFormType,typename _IntegrationDomainType>
 	struct BilinearWeakForm
     {
-        
-        //        static_assert(AreSameType<typename T1::TrialFunctionType,typename T2::TrialFunctionType>::value,"YOU ARE CREATING A BilinearWeakForm OF DIFFERENT TRIALFUNCTIONS.");
-        //        static_assert((T1::rows-T2::rows)==0,"YOU ARE CREATING A BilinearWeakForm BETWEEN A TRIALEXPRESSION AND A TESTEXPRESSION WITH DIFFERENT NUMBER OF ROWS");
-        
-        //        typedef typename T2::TrialFunctionType TF;
-        //        typedef BilinearWeakForm<T1,T2> BilinearWeakFormType;
-        //        typedef typename TypeTraits<TF>::ElementType ElementType;
-        //        typedef typename TypeTraits<TF>::FiniteElementType FiniteElementType;
-        //
-        //        /**********************************************************************/
-        //        BilinearWeakForm(const BilinearWeakFormType&) = default; // prevent copy (too expensive)
-        //
-        //        /**********************************************************************/
-        //        BilinearWeakForm& operator=(const BilinearWeakFormType&) = default; // prevent assignment (too expensive)
-        
         
         typedef _BilinearFormType BilinearFormType;
         typedef _IntegrationDomainType IntegrationDomainType;
@@ -81,14 +67,11 @@ namespace model
         BilinearWeakForm(const BilinearFormType& bf, const IntegrationDomainType& dom) :
         /* init list */ bilinearForm(bf), // cast testE to its base T2 type
         /* init list */ domain(dom), // cast trialE to its derived T1 type
-        testExpr(bf.testExpr),
-        trialExpr(bf.trialExpr),
+        /* init list */ testExpr(bf.testExpr),
+        /* init list */ trialExpr(bf.trialExpr),
         /* init list */ gSize(bilinearForm.gSize)
-//        /* init list */ maxAbsValue(0.0)
         {
-            
-            std::cout<<greenColor<<"Creating BilinearWeakForm: gSize="<<gSize<<defaultColor<<std::endl;
-            
+             model::cout<<greenColor<<"Creating BilinearWeakForm: gSize="<<gSize<<defaultColor<<std::endl;
         }
         
 //        const TrialFunctionType& trialExpr() const
@@ -103,15 +86,15 @@ namespace model
         
         /**********************************************************************/
         //template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-        std::vector<Eigen::Triplet<double> >  assembleOnDomain(double& maxAbsValue) const
+        std::vector<Eigen::Triplet<double> >  assembleOnDomain() const
         {
             
-            std::cout<<"Assembling BilinearWeakForm on domain..."<<std::flush;
+             model::cout<<"Assembling BilinearWeakForm on domain..."<<std::flush;
             
             std::vector<Eigen::Triplet<double> > globalTriplets;
             //            globalTriplets.clear();
             globalTriplets.reserve(dofPerElement*dofPerElement*trialExpr.elementSize());
-            maxAbsValue=0.0;
+//            maxAbsValue=0.0;
             
             
             const auto t0= std::chrono::system_clock::now();
@@ -139,16 +122,16 @@ namespace model
                             
                             //                            A.coeffRef(gI,gJ) += ke(i,j);
                             
-                            if (std::fabs(ke(i,j))>maxAbsValue)
-                            {
-                                maxAbsValue=std::fabs(ke(i,j));
-                            }
+//                            if (std::fabs(ke(i,j))>maxAbsValue)
+//                            {
+//                                maxAbsValue=std::fabs(ke(i,j));
+//                            }
                         }
                     }
                 }
             }
             
-            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+             model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             return globalTriplets;
         }
         

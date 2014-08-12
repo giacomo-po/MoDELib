@@ -21,8 +21,8 @@
 #include <model/FEM/TrialOperators/TrialProd.h>
 #include <model/FEM/TrialOperators/TrialGrad.h>
 #include <model/FEM/TrialOperators/TrialDef.h>
-//#include <model/FEM/DirichletCondition.h>
 #include <model/FEM/Boundaries/NodeList.h>
+#include <model/MPI/MPIcout.h>
 
 
 
@@ -31,7 +31,8 @@ namespace model
     
 	template<int _nComponents, typename _FiniteElementType>
 	class TrialFunction : public TrialExpressionBase<TrialFunction<_nComponents,_FiniteElementType> >,
-    /*                 */ private Eigen::Matrix<double,Eigen::Dynamic,1>
+    /*                 */ public Eigen::Matrix<double,Eigen::Dynamic,1>, // DofContainer
+    /*                 */ private std::map<size_t,double> // DirichletConditionContainer
     {
         
     public:
@@ -54,37 +55,26 @@ namespace model
         constexpr static int dofPerElement=TypeTraits<TrialFunctionType>::dofPerElement;
         
         typedef typename TypeTraits<TrialFunctionType>::BaryType BaryType;
-        typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionMatrixType ShapeFunctionMatrixType;
+        typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionMatrixType     ShapeFunctionMatrixType;
         typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionGradMatrixType ShapeFunctionGradMatrixType;
-        typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionDefMatrixType ShapeFunctionDefMatrixType;
+        typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionDefMatrixType  ShapeFunctionDefMatrixType;
         
         const FiniteElementType& fe;
-        
-//        private:
-//        Eigen::Matrix<double,Eigen::Dynamic,1> dofContainer; // \todo make this private inheritance
-        
-        
-//        public:
-        DirichletConditionContainerType dcContainer;
-
         
         /**********************************************************************/
         TrialFunction(const FiniteElementType& fe_in) :
         /* init list */ fe(fe_in)
         {
-//            dofContainer.setZero(fe.nodeSize()*dofPerNode);
-//            std::cout<<greenColor<<"Creating TrialFunction: "<<dofContainer.size()<<" #dof."<<defaultColor<<std::endl;
+            model::cout<<greenColor<<"Creating TrialFunction..."<<std::flush;
             this->setZero(fe.nodeSize()*dofPerNode);
-            std::cout<<greenColor<<"Creating TrialFunction: "<<this->size()<<" #dof."<<defaultColor<<std::endl;
+            model::cout<<"("<<dofVector().size()<<" #dof)."<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/
         const TrialFunction& operator=(const Eigen::VectorXd& temp)
         {
-            assert(temp.size()==this->size() && "DOF SIZE MISMATCH");
-//            dofContainer=temp;
+            assert(temp.size()==dofVector().size() && "DOF SIZE MISMATCH");
             static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->operator=(temp);
-//            dofContainer=temp;
             return *this;
         }
         
@@ -145,6 +135,26 @@ namespace model
         
         /**********************************************************************/
         template<typename Condition>
+        void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList)
+        {/*!@param[in] dc the Dirichlet condition
+          * @param[in] the nodal dof to be constrained
+          */
+            
+            assert((&this->fe)==(&nodeList.fe) && "USING NODE LIST CREATED FROM A DIFFERENT FINITE ELEMENT.");
+            
+            for(typename NodeList<FiniteElementType>::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
+            {
+                const Eigen::Matrix<double,dofPerNode,1> value(cond.at(**nIter));
+                for(int dof=0;dof<dofPerNode;++dof)
+                {
+                    const auto temp=this->emplace(dofPerNode*(*nIter)->gID+dof,value(dof));
+                    assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
+                }
+            }
+        }
+        
+        /**********************************************************************/
+        template<typename Condition>
         void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList, const int& dof)
         {/*!@param[in] dc the Dirichlet condition
           * @param[in] the nodal dof to be constrained
@@ -158,7 +168,7 @@ namespace model
             
             for(typename NodeList<FiniteElementType>::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
             {
-                const auto temp=dcContainer.emplace(dofPerNode*(*nIter)->gID+dof,cond.at(**nIter));
+                const auto temp=this->emplace(dofPerNode*(*nIter)->gID+dof,cond.at(**nIter));
                 assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
             }
         }
@@ -177,9 +187,34 @@ namespace model
             
             for(typename NodeList<FiniteElementType>::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
             {
-                const auto temp=dcContainer.emplace(dofPerNode*(*nIter)->gID+dof,val);
+                const auto temp=this->emplace(dofPerNode*(*nIter)->gID+dof,val);
                 assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
             }
+        }
+        
+        /**********************************************************************/
+        void clearDirichletConditions()
+        {
+            this->clear();
+        }
+        
+        /**********************************************************************/
+        DirichletConditionContainerType& dirichletConditions()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const DirichletConditionContainerType& dirichletConditions() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const Eigen::Matrix<double,Eigen::Dynamic,1>& dofVector() const
+        {/*!\returns A column vector of the DOFs of *this.
+          */
+            return *this;
         }
         
         /**********************************************************************/
@@ -221,29 +256,8 @@ namespace model
             }
             return val;
         }
-
+        
     };
     
 }	// close namespace
 #endif
-
-
-//        /**********************************************************************/
-//        ElementType& element(const size_t& n)
-//        {/*!@param[in] n the node ID
-//          * \returns a reference to the n-th node in the FiniteElement
-//          */
-//            return fe.element(n);
-//        }
-
-//        /**********************************************************************/
-//        typename NodeContainerType::const_iterator nodeBegin() const
-//        {
-//            return fe.nodeBegin();
-//        }
-//
-//        /**********************************************************************/
-//        typename NodeContainerType::const_iterator nodeEnd() const
-//        {
-//            return fe.nodeEnd();
-//        }

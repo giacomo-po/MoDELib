@@ -209,7 +209,8 @@ namespace model {
 			
 			if (showTubes)
             {
-				for (int k=1;k<Np;++k){
+				for (int k=1;k<Np;++k)
+                {
 					//					tubeCircles[k]=getCircle(k);
 					glBegin(GL_TRIANGLE_STRIP);
 					//glColor4f(0.0f, 1.0f, 0.0f, 1.0f);

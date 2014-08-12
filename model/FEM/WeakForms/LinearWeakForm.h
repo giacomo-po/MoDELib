@@ -22,7 +22,9 @@
 #include <model/FEM/WeakForms/LinearWeakExpression.h>
 #include <model/FEM/WeakForms/LinearForm.h>
 #include <model/FEM/WeakForms/LinearWeakSum.h>
+#include <model/FEM/WeakForms/LinearWeakDiff.h>
 #include <model/FEM/WeakForms/JGNselector.h>
+#include <model/MPI/MPIcout.h>
 
 
 namespace model
@@ -56,25 +58,11 @@ namespace model
         typedef typename QuadratureType::VectorDim AbscissaType;
         
         /**********************************************************************/
-        Eigen::Matrix<double,dim+1,1> face2domainBary(const Eigen::Matrix<double,dim,1>& b1,
-        /*                                         */ const int& boundaryFace) const
-        {
-            // Transform to barycentric coordinate on the volume, adding a zero on the boundaryFace-face
-            Eigen::Matrix<double,dim+1,1> bary;
-            for (int k=0;k<dim;++k)
-            {
-                bary((k<boundaryFace)? k : k+1)=b1(k);
-            }
-            bary(boundaryFace)=0.0;
-            return bary;
-        }
-
-        /**********************************************************************/
         void assembleOnDomain(Eigen::Matrix<double,Eigen::Dynamic,1>& _globalVector) const
         {
 
             assert(0 && "FINISH HERE, AbscissaType is the wrong type in this function in case of boundary integration (and viceversa).");
-//            std::cout<<"Assembling LinearWeakForm on domain..."<<std::flush;
+//             model::cout<<"Assembling LinearWeakForm on domain..."<<std::flush;
 //            const auto t0= std::chrono::system_clock::now();
 //            for (int k=0;k<domain.size();++k)
 //            {
@@ -91,13 +79,13 @@ namespace model
 //                    _globalVector(gI) += ve(i);
 //                }
 //            }
-//            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+//             model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         }
         
         /**********************************************************************/
         void assembleOnBoundary(Eigen::Matrix<double,Eigen::Dynamic,1>& _globalVector) const
         {
-            std::cout<<"Assembling LinearWeakForm on faces ("<<domain.size()<<" faces) ..."<<std::flush;
+             model::cout<<"Assembling LinearWeakForm on faces ("<<domain.size()<<" faces) ..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             for (int k=0;k<domain.size();++k)
             {
@@ -112,9 +100,8 @@ namespace model
                     const size_t gI= ele.node(nodeID_I).gID*dofPerNode+nodeDof_I;
                     _globalVector(gI) += ve(i);
                 }
-
             }
-            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+             model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         }
         
     public:
@@ -125,10 +112,10 @@ namespace model
         /**********************************************************************/
         LinearWeakForm(const LinearFormType& lF,
                        const IntegrationDomainType& dom) :
-        /* init list */ linearForm(lF),
-        /* init list */ domain(dom)
+        /*init list */ linearForm(lF),
+        /*init list */ domain(dom)
         {
-            std::cout<<greenColor<<"Creating LinearWeakForm "<<defaultColor<<std::endl;
+             model::cout<<greenColor<<"Creating LinearWeakForm "<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/
@@ -164,7 +151,8 @@ namespace model
         ElementVectorType domainAssemblyKernel(const AbscissaType& a, const ElementType& ele) const
         {
             const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::x2l(a));
-            return linearForm.testExp.sfm(ele,bary).transpose()*linearForm.evalExp(ele,bary)*ele.absJ(bary);
+//            return linearForm.testExp.sfm(ele,bary).transpose()*linearForm.evalExp(ele,bary)*ele.absJ(bary);
+            return linearForm(ele,bary)*ele.absJ(bary);
 		}
         
         /**********************************************************************/
@@ -172,8 +160,10 @@ namespace model
         ElementVectorType boundaryAssemblyKernel(const AbscissaType& a1, const ElementType& ele, const int& boundaryFace) const
         {
             const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(a1));
-            const Eigen::Matrix<double,dim+1,1> bary(face2domainBary(b1,boundaryFace));
-            return linearForm.testExp.sfm(ele,bary).transpose()*linearForm.evalExp(ele,bary)*JGNselector<evalCols>::jGN(ele.jGN(bary,boundaryFace));
+            const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::face2domainBary(b1,boundaryFace));
+//            return linearForm.testExp.sfm(ele,bary).transpose()*linearForm.evalExp(ele,bary)*JGNselector<evalCols>::jGN(ele.jGN(bary,boundaryFace));
+            return linearForm(ele,bary)*JGNselector<evalCols>::jGN(ele.jGN(bary,boundaryFace));
+
 		}
         
     };

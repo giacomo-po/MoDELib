@@ -12,11 +12,13 @@
 #include <string>
 #include <model/Network/Readers/VertexReader.h>
 #include <model/Network/Readers/EdgeReader.h>
+#include <model/Utilities/UniqueOutputFile.h>
 #include <model/Utilities/SequentialOutputFile.h>
 #include <model/Utilities/SequentialBinFile.h>
 
 #include <model/Utilities/TerminalColors.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
+#include <model/MPI/MPIcout.h>
 
 namespace model {
     
@@ -79,12 +81,12 @@ namespace model {
             {
 				const size_t nodeIDinFile(vIter->first);
 				NodeType::set_count(nodeIDinFile);
-                std::cout << "\r \r" << "Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<vReader.size()<<")"<<std::flush;
+                model::cout << "\r \r" << "Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<vReader.size()<<")"<<std::flush;
 				const size_t nodeID(DN.insertVertex(vIter->second.template segment<NdofXnode>(0).transpose()));
 				assert(nodeID==nodeIDinFile);
                 kk++;
 			}
-            std::cout<<std::endl;
+            model::cout<<std::endl;
 		}
         
         /* readEdges **********************************************************/
@@ -119,11 +121,11 @@ namespace model {
 				VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
 				const size_t sourceID(eIter->first.first );
 				const size_t   sinkID(eIter->first.second);
-                std::cout << "\r \r" << "Creating DislocationSegment "<<sourceID<<"->"<<sinkID<<" ("<<kk<<" of "<<eReader.size()<<")              "<<std::flush;
+                model::cout << "\r \r" << "Creating DislocationSegment "<<sourceID<<"->"<<sinkID<<" ("<<kk<<" of "<<eReader.size()<<")              "<<std::flush;
 				assert(DN.connect(sourceID,sinkID,B) && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
                 kk++;
 			}
-            std::cout<<std::endl;
+            model::cout<<std::endl;
 		}
         
         /* outputTXT **********************************************************/
@@ -136,7 +138,7 @@ namespace model {
           * ./P/P_x.txt (PK force only if outputPKforce==true)
           * ./D/D_x.txt (mesh displacement only if outputMeshDisplacement==true)
           */
-			std::cout<<"		Writing to "<<std::flush;
+            model::cout<<"		Writing to "<<std::flush;
 			
 			//! 1- Outputs the Edge informations to file E_*.txt where * is the current simulation step
             if (outputBinary)
@@ -148,13 +150,13 @@ namespace model {
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
                 {
                     Eigen::Matrix<double,1,9> temp( (Eigen::Matrix<double,1,9>()<< linkIter->second->flow.transpose(),
-                    /*                                                          */ linkIter->second->glidePlaneNormal.transpose(),
-                    /*                                                          */ linkIter->second->sourceTfactor,
-                    /*                                                          */ linkIter->second->sinkTfactor,
-                    /*                                                          */ linkIter->second->pSN()->sID).finished());
+                                                     /*                                                          */ linkIter->second->glidePlaneNormal.transpose(),
+                                                     /*                                                          */ linkIter->second->sourceTfactor,
+                                                     /*                                                          */ linkIter->second->sinkTfactor,
+                                                     /*                                                          */ linkIter->second->pSN()->sID).finished());
                     binEdgeFile.write(std::make_pair(linkIter->first,temp));
                 }
-                std::cout<<" E/E_"<<binEdgeFile.sID<<".bin"<<std::flush;
+                model::cout<<" E/E_"<<binEdgeFile.sID<<".bin"<<std::flush;
             }
             else
             {
@@ -166,7 +168,7 @@ namespace model {
                 {
                     edgeFile<< *(linkIter->second)<<"\n";
                 }
-                std::cout<<" E/E_"<<edgeFile.sID<<".txt"<<std::flush;
+                model::cout<<" E/E_"<<edgeFile.sID<<".txt"<<std::flush;
             }
             
 			//! 2- Outputs the Vertex informations to file V_*.txt where * is the current simulation step
@@ -184,7 +186,7 @@ namespace model {
                                           /*                                    */ nodeIter->second->pSN()->sID).finished());
                     binVertexFile.write(std::make_pair(nodeIter->first,temp));
                 }
-                std::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;
+                model::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;
             }
             else
             {
@@ -196,7 +198,7 @@ namespace model {
                 {
                     vertexFile << *(nodeIter->second)<<"\n";
                 }
-                std::cout<<", V/V_"<<vertexFile.sID<<".txt"<<std::flush;
+                model::cout<<", V/V_"<<vertexFile.sID<<".txt"<<std::flush;
             }
 			
             if(outputSpatialCells)
@@ -209,10 +211,10 @@ namespace model {
                 int cID(0);
                 for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::cellBegin();cellIter!=SpatialCellObserverType::cellEnd();++cellIter)
                 {
-                    Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize<<"\n";
+                    Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize()<<"\n";
                     ++cID;
                 }
-                std::cout<<", C/C_"<<Cell_file.sID<<std::flush;
+                model::cout<<", C/C_"<<Cell_file.sID<<std::flush;
             }
 			
             if(outputGlidePlanes)
@@ -222,7 +224,7 @@ namespace model {
                 SequentialOutputFile<'G',1>::set_count(runID); // GlidePlanes_file;
                 SequentialOutputFile<'G',1> glide_file;
                 glide_file << *dynamic_cast<const GlidePlaneObserverType*>(&DN);
-                std::cout<<", G/G_"<<glide_file.sID<<std::flush;
+                model::cout<<", G/G_"<<glide_file.sID<<std::flush;
             }
             
             if(outputPKforce)
@@ -240,13 +242,13 @@ namespace model {
                     }
                     ll++;
                 }
-                std::cout<<", P/P_"<<p_file.sID<<std::flush;
+                model::cout<<", P/P_"<<p_file.sID<<std::flush;
             }
             
             if(outputElasticEnergy)
             {
                 typedef typename DislocationNetworkType::DislocationParticleType::ElasticEnergy ElasticEnergy;
-                SequentialOutputFile<'W',1>::set_increment(outputFrequency); 
+                SequentialOutputFile<'W',1>::set_increment(outputFrequency);
                 SequentialOutputFile<'W',1>::set_count(runID);
                 SequentialOutputFile<'W',1> w_file; //energy_file
                 int ll=0;
@@ -259,30 +261,40 @@ namespace model {
                     }
                     ll++;
                 }
-                std::cout<<", W/W_"<<w_file.sID<<std::flush;
+                model::cout<<", W/W_"<<w_file.sID<<std::flush;
             }
             
-            if (DN.shared.use_bvp)
+            if (DN.shared.use_bvp && outputMeshDisplacement && !(DN.runningID()%DN.shared.use_bvp))
             {
-                if(outputMeshDisplacement)
-                {
-                    model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
-                    model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
-                    model::SequentialOutputFile<'D',true> d_file;
-//                    for (unsigned int i = 0; i< DN.shared.domain.nodeContainer.size(); i++){
-//                        d_file<< DN.shared.domain.nodeContainer[i].sID<<"	" << (DN.shared.domain.nodeContainer[i].u+DN.shared.domain.nodeContainer[i].uInf).transpose()<<"\n";
-//                    }
-                    std::cout<<", D/D_"<<d_file.sID<<"(FINISH HERE)"<<std::flush;
-                }
-                if(DN.shared.boundary_type==1)
-                {
-                    DN.shared.vbsc.outputVirtualDislocations(outputFrequency,runID);
-                }
+                
+                model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
+                model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
+                model::SequentialOutputFile<'D',true> d_file;
+                d_file<<DN.shared.bvpSolver.displacement();
+                
+                //                    for (unsigned int i = 0; i< DN.shared.domain.nodeContainer.size(); i++){
+                //                        d_file<< DN.shared.domain.nodeContainer[i].sID<<"	" << (DN.shared.domain.nodeContainer[i].u+DN.shared.domain.nodeContainer[i].uInf).transpose()<<"\n";
+                //                    }
+                
+                /**************************************************************************/
+                // Output displacement and stress on external mesh faces
+                
+                model::SequentialOutputFile<'S',1>::set_increment(outputFrequency); // Vertices_file;
+                model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
+                model::SequentialOutputFile<'S',true> s_file;
+                s_file<<DN.shared.bvpSolver.stress();
+                
+                model::cout<<", D/D_"<<d_file.sID<<"(FINISH HERE)"<<std::flush;
+                
+                //                if(DN.shared.boundary_type==1)
+                //                {
+                //                    DN.shared.vbsc.outputVirtualDislocations(outputFrequency,runID);
+                //                }
             }
             
 			
-#ifdef customUserOutputs
-#include customUserOutputs
+#ifdef userOutputFile
+#include userOutputFile
 #endif
 			
 		}
@@ -305,10 +317,10 @@ namespace model {
     
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputPKforce=false;
-
+    
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy=true;
-
+    
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement=false;
     

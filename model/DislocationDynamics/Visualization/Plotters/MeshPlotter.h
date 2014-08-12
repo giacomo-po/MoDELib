@@ -26,6 +26,7 @@
 
 #include <float.h>
 #include <vector>
+#include <deque>
 
 #include <Eigen/Core>
 
@@ -60,14 +61,23 @@ namespace model
         //        SimplicialMesh<3> mesh;
         
         const SimplicialMesh<3>* const p_mesh;
+        
+        std::deque<std::pair<Eigen::Matrix<double,3,1>,Eigen::Matrix<double,6,1>>> deq;
+
 		
+        Eigen::Matrix<float,1,6> sMin;
+        Eigen::Matrix<float,1,6> sMax;
+
+        
 	public:
 		enum {showMeshStates=3};
 		short unsigned int showMesh;
 		
         //        bool showQuad;
         float dispScale;
-		
+        
+        static bool plotBndStress;
+		static unsigned int stressCol;
         //        SimplicialMesh<3> mesh;
         
 		/* Constructor ******************************************/
@@ -127,14 +137,15 @@ namespace model
             //				NodeContainerType::read(0,true);
             //			}
 			
-			dispFileIsGood=DispContainerType::isGood(frameN,true);
-			if (dispFileIsGood){
-				DispContainerType::read(frameN,true);
-				
-			}
-			else{
-				DispContainerType::read(0,true);
-			}
+//			dispFileIsGood=DispContainerType::isGood(frameN,true);
+//			if (dispFileIsGood)
+//            {
+//				DispContainerType::read(frameN,true);
+//			}
+//			else
+//            {
+//				DispContainerType::read(0,true);
+//			}
             
             //            quadFileIsGood=QuadContainerType::isGood(frameN,true);
             //            if (quadFileIsGood){
@@ -174,11 +185,91 @@ namespace model
             //					edgeVector.push_back(temp);
             //				}
             //			}
+            
+            
+            if (plotBndStress)
+            {
+                deq.clear();
+                float x,y,z,s11,s22,s33,s12,s23,s13;
+
+                std::ostringstream fullName;
+                fullName<<"S/S_"<<frameN<<".txt";
+                FILE *fp =fopen(fullName.str().c_str(), "r");
+                
+                Eigen::Matrix<double,3,1> P;
+                Eigen::Matrix<double,6,1> S;
+                
+                while (fscanf (fp, "%f%f%f%f%f%f%f%f%f", &x,&y,&z,&s11,&s22,&s33,&s12,&s23,&s13)==9)
+                {
+                    P<<x,y,z;
+                    S<<s11,s22,s33,s12,s23,s13;
+                    deq.emplace_back(P,S);
+                }
+                fclose(fp);
+                
+                std::cout<<fullName.str()<<" has "<<deq.size()<<"rows"<<std::endl;
+                
+//                float sMin=FLT_MAX;
+//                float sMax=FLT_MIN;
+                
+                sMin=Eigen::Matrix<float,1,6>::Constant(FLT_MAX);
+                sMax=Eigen::Matrix<float,1,6>::Constant(FLT_MIN);
+
+                
+                for (int k=0;k<deq.size();++k)
+                {
+                    for(int c=0;c<6;++c)
+                    {
+                    if(deq[k].second(c)>sMax(c))
+                    {
+                        sMax(c)=deq[k].second(c);
+                    }
+                    
+                    if(deq[k].second(c)<sMin(c))
+                    {
+                        sMin(c)=deq[k].second(c);
+                    }
+                    }
+                }
+                
+                std::cout<<"sigma_min="<<sMin<<std::endl;
+                std::cout<<"sigma_max="<<sMax<<std::endl;
+                
+            }
+            
 		}
 		
 		/* plot *************************************************/
 		void plot() const
         {
+            
+            if (plotBndStress)
+            {
+//                glEnable (GL_BLEND);
+//                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glEnable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
+                
+                for (int k=0;k<deq.size()/3;++k)
+                {
+                    RGBcolor clr0=RGBmap::getColor(deq[3*k+0].second(stressCol),sMin(stressCol),sMax(stressCol));
+                    RGBcolor clr1=RGBmap::getColor(deq[3*k+1].second(stressCol),sMin(stressCol),sMax(stressCol));
+                    RGBcolor clr2=RGBmap::getColor(deq[3*k+2].second(stressCol),sMin(stressCol),sMax(stressCol));
+                    
+                    //                    std::cout<<"k="<<k<<",P="<<deq[3*k].first.transpose()<<std::endl;
+                    glShadeModel(GL_SMOOTH);
+                    glBegin(GL_TRIANGLES);
+                    glColor4f(clr0.r, clr0.g, clr0.b,0.5);
+                    glVertex3f(deq[3*k+0].first(0),deq[3*k+0].first(1),deq[3*k+0].first(2));
+                    glColor4f(clr1.r, clr1.g, clr1.b,0.5);
+                    glVertex3f(deq[3*k+1].first(0),deq[3*k+1].first(1),deq[3*k+1].first(2));
+                    glColor4f(clr2.r, clr2.g, clr2.b,0.5);
+                    glVertex3f(deq[3*k+2].first(0),deq[3*k+2].first(1),deq[3*k+2].first(2));
+                    glEnd();
+                }
+                
+            }
+            
+            
 			if (showMesh>0)
             {
 				float dispCorr(dispScale*(showMesh>1));
@@ -223,12 +314,22 @@ namespace model
                 //                    gluDeleteQuadric(myQuad); // free myQuad pointer
                 //                }
                 
+
+                
 			}
+            
+
+            
 		}
+        
+        
 		
 	};
-    /*********************************************************************/
-    /*********************************************************************/	
+    
+    // Declare static data
+    bool MeshPlotter::plotBndStress=false;
+    unsigned int MeshPlotter::stressCol=0;
+
 } // namespace model
 #endif
 

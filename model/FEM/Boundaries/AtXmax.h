@@ -10,7 +10,10 @@
 #define model_AtXmax_H_
 
 #include <vector>
+#include <array>
+#include <cfloat>
 #include <Eigen/Dense>
+#include <model/Mesh/Simplex.h>
 #include <model/FEM/Domains/IntegrationDomain.h>
 
 namespace model

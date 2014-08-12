@@ -9,7 +9,6 @@
 #ifndef _model_FieldPoint_h
 #define _model_FieldPoint_h
 
-//#include <model/Utilities/CRTP.h>
 #include <model/SpaceDecomposition/SpatialCellObserver.h>
 #include <model/ParticleInteraction/FieldPointBase.h>
 
@@ -45,14 +44,6 @@ namespace model {
     {
         
         typedef typename FieldPoint<Derived,_dim,MoreFieldTypes...>::VectorDimD VectorDimD;
-        
-//        /**********************************************************************/
-//        FieldPoint(const VectorDimD& Pin) :
-//        /* base init */ FieldPoint<Derived,_dim,MoreFieldTypes...>(Pin)
-//        {/*! @param[in] Pin the position of this FieldPoint
-//          * Constructor initializes base class
-//          */
-//        }
         
         template <typename OtherFieldType>
         FieldPointBase<Derived,OtherFieldType>& field()
@@ -97,54 +88,34 @@ namespace model {
 
     public:
         
-        //! A const reference to the Derived position
-//        const VectorDimD& fieldP;
-        
-        
 #ifdef _MODEL_MPI_
-        
         /**********************************************************************/
         const size_t& mpiID() const
         {
             return _mpiID;
         }
         
+        /**********************************************************************/
         void set_mpiID(const size_t& k)
         {
             _mpiID=k;
         }
-        
-//        /**********************************************************************/
-//        FieldPoint(const VectorDimD& p) :
-//        /* init list */ fieldP(p),
-//        /* init list */ _mpiID(0)
-//        {/*
-//          */
-//        }
-#else
-//        const size_t mpiID;
-        
-//        /**********************************************************************/
-//        FieldPoint(const VectorDimD& p) :
-//        /* init list */ fieldP(p)
-//        {/*
-//          */
-//        }
 #endif
         
-        
-//        template <typename SourcePointType>
-//        SpatialCellObserver<SourcePointType,_dim> asObserver() const
-//        {
-////            return SpatialCellObserver<SourcePointType,_dim>(fieldP);
-//            return SpatialCellObserver<SourcePointType,_dim>(static_cast<const Derived*>(this)->P);
-//        }
-
+        /**********************************************************************/
         template <typename SourcePointType>
         typename SpatialCellObserver<SourcePointType,_dim>::CellMapType neighborCells() const
-        {
-            //            return SpatialCellObserver<SourcePointType,_dim>(fieldP);
+        {/*!\returns a map of the SpatialCell(s) neighboring *this.
+          */
             return SpatialCellObserver<SourcePointType,_dim>::neighborCells(static_cast<const Derived*>(this)->P);
+        }
+        
+        /**********************************************************************/
+        template <typename SourcePointType>
+        typename SpatialCellObserver<SourcePointType,_dim>::CellMapType farCells() const
+        {/*!\returns a map of the SpatialCell(s) neighboring *this.
+          */
+            return SpatialCellObserver<SourcePointType,_dim>::farCells(static_cast<const Derived*>(this)->P);
         }
         
         

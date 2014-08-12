@@ -11,17 +11,21 @@
 
 #include <deque>
 #include <utility>      // std::pair, std::make_pair
+#include <chrono>
 #include <model/Quadrature/Quadrature.h>
+#include <model/MPI/MPIcout.h>
+#include <model/FEM/BarycentricTraits.h>
+#include <model/FEM/Domains/IntegrationList.h>
 
 
 namespace model
 {
     
- 
+    
     /**************************************************************************/
 	/**************************************************************************/
 	template <typename FiniteElementType, int dimMinusDomainDim, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-	struct IntegrationDomain 
+	struct IntegrationDomain
     {
         
         /**********************************************************************/
@@ -30,12 +34,12 @@ namespace model
             assert(0 && "IntegrationDomain not implemented");
         }
     };
-
     
+    /**************************************************************************/
     /**************************************************************************/
     template <typename FiniteElementType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	struct IntegrationDomain<FiniteElementType,0,qOrder,QuadratureRule> : public std::deque<const typename FiniteElementType::ElementType*>
-    {// Volume ntegration
+    {// Volume integration
         constexpr static int dim=FiniteElementType::dim;
         constexpr static int domainDim=dim;
         typedef Quadrature<domainDim,qOrder,QuadratureRule> QuadratureType;
@@ -46,16 +50,19 @@ namespace model
             return *(this->operator[](k));
         }
     };
-    
+
+    /**************************************************************************/
     /**************************************************************************/
     template <typename FiniteElementType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 	struct IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> : public std::deque<std::pair<const typename FiniteElementType::ElementType* const,int> >
-    {// Boundary ntegration
+    {// Boundary integration
         constexpr static int dim=FiniteElementType::dim;
-        constexpr static int domainDim=dim-1;
+        constexpr static int dimMinusDomainDim=1;
+        constexpr static int domainDim=dim-dimMinusDomainDim;
         typedef Quadrature<domainDim,qOrder,QuadratureRule> QuadratureType;
         typedef typename QuadratureType::VectorDim AbscissaType;
         typedef typename FiniteElementType::ElementType ElementType;
+        typedef IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> IntegrationDomainType;
         
         /**********************************************************************/
         const typename FiniteElementType::ElementType& element(const size_t& k) const
@@ -63,23 +70,53 @@ namespace model
             return *(this->operator[](k).first);
         }
         
-        
         /**********************************************************************/
         template <typename AnyClass, typename IntegrandType, typename ...Args>
         void integrate(const AnyClass* const C, IntegrandType &intgrl, IntegrandType (AnyClass::*mfp)(const AbscissaType&,const ElementType&, const int&, const Args&...) const, const Args&...args) const
         {
-            std::cout<<"Integrating on boundary ("<<this->size()<<" faces) ..."<<std::flush;
+            model::cout<<"Integrating on boundary ("<<this->size()<<" faces) ..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             for (int k=0;k<this->size();++k)
             {
                 QuadratureType::integrate(C,intgrl,mfp,*(this->operator[](k)).first,this->operator[](k).second,args...);
             }
-            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+        }
+        
+//        /**********************************************************************/
+//        template <typename PointType>
+//        void integrationList(std::deque<PointType>& deq) const
+//        {
+//            model::cout<<"populating integration List (size "<<deq.size()<<"->"<<std::flush;
+//            const auto t0= std::chrono::system_clock::now();
+//            for (int k=0;k<this->size();++k)
+//            {
+//                const ElementType& ele(*(this->operator[](k).first));  // element ID
+//                const int f(this->operator[](k).second); //    face ID
+//                //                ElementVectorType ve(ElementVectorType::Zero());
+//                //                QuadratureType::integrate(this,ve,&LinearWeakFormType::boundaryAssemblyKernel<AbscissaType>,ele,f);
+//                for(unsigned int q=0;q<qOrder;++q)
+//                {
+//                    const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(QuadratureType::abscissa(q)));
+//                    const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::face2domainBary(b1,f));
+//                    deq.emplace_back(ele.position(bary));
+//                }
+//                
+//            }
+//            model::cout<<deq.size()<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+//            
+//        }
+        
+        /**********************************************************************/
+        template <typename PointType>
+        IntegrationList<dimMinusDomainDim,PointType> integrationList() const
+        {
+            return IntegrationList<dimMinusDomainDim,PointType>(*this);
         }
         
     };
-
-
+    
+    
     
     
 }	// close namespace

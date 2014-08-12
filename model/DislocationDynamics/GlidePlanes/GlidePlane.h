@@ -22,7 +22,7 @@
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
-#include <model/DislocationDynamics/BVP/VirtualBoundarySlipSurface.h>
+//#include <model/DislocationDynamics/BVP/VirtualBoundarySlipSurface.h>
 #include <model/MPI/MPIcout.h>
 #include <model/Mesh/SimplexObserver.h>
 
@@ -35,7 +35,7 @@ namespace model {
 	class GlidePlane :
     /* base class   */ public  StaticID<GlidePlane<SegmentType> >,
 	/* base class   */ private std::set<const SegmentType*>,
-	/* base class   */ private std::set<const VirtualBoundarySlipSurface<SegmentType>*>,
+//	/* base class   */ private std::set<const VirtualBoundarySlipSurface<SegmentType>*>,
 	/* base class   */ private GlidePlaneObserver<SegmentType>
     {
 		
@@ -46,7 +46,7 @@ namespace model {
         enum{dim=TypeTraits<SegmentType>::dim};
         
 		typedef std::set<const SegmentType*> SegmentContainerType;
-		typedef std::set<const VirtualBoundarySlipSurface<SegmentType>*> BoundarySegmentContainerType;
+//		typedef std::set<const VirtualBoundarySlipSurface<SegmentType>*> BoundarySegmentContainerType;
         
 		typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
@@ -67,7 +67,7 @@ namespace model {
           *\returns a container of segments representing the intersection of *this GlidePLane with the SimplexMesh
           */
             SegmentMeshCollisionPairContainerType temp;
-            if (shared.boundary_type)
+            if (shared.use_boundary)
             {
                 for(typename SimplexObserver<dim,dim-1>::const_iterator fIter =SimplexObserver<dim,dim-1>::simplexBegin();
                     /*                                               */ fIter!=SimplexObserver<dim,dim-1>::simplexEnd();++fIter)
@@ -119,7 +119,7 @@ namespace model {
         const double height;
         
 		
-		//! Make this const and initialize at constructor time
+		//! A container of the intersection lines between *this and the mesh boundary
 		const SegmentMeshCollisionPairContainerType segmentMeshCollisionPairContainer;
 
 		/**********************************************************************/
@@ -129,63 +129,81 @@ namespace model {
         /* init list */ segmentMeshCollisionPairContainer(getPlaneMeshIntersection(planeNormal*height,planeNormal))
         {
 			assert(std::fabs(planeNormal.norm()-1.0)<=DBL_EPSILON && "GLIDE PLANE NORMAL IS NOT UNIT");
-			assert(this->glidePlaneMap.insert(std::make_pair((VectorDimPlusOneD()<< planeNormal, height).finished(),this)).second && "CANNOT INSERT GLIDE PLANE  IN STATIC glidePlaneMap.");
+			const bool success(this->glidePlaneMap.insert(std::make_pair((VectorDimPlusOneD()<< planeNormal, height).finished(),this)).second);
+            assert(success && "CANNOT INSERT GLIDE PLANE  IN STATIC glidePlaneMap.");
 		}
 		
         /**********************************************************************/
 		~GlidePlane()
         {
 			model::cout<<"Deleting GlidePlane "<<this->sID<<std::endl;
-			assert(this->glidePlaneMap.erase((VectorDimPlusOneD()<< planeNormal, height).finished())==1 && "CANNOT ERASE GLIDE PLANE  FROM STATIC glidePlaneMap.");
-			assert(        SegmentContainerType::empty() && "DELETING NON-EMPTY GLIDE PLANE.");
-			assert(BoundarySegmentContainerType::empty() && "DELETING NON-EMPTY GLIDE PLANE.");
+            const bool success(this->glidePlaneMap.erase((VectorDimPlusOneD()<< planeNormal, height).finished())==1);
+			assert( success && "CANNOT ERASE GLIDE PLANE  FROM STATIC glidePlaneMap.");
+			assert( SegmentContainerType::empty() && "DELETING NON-EMPTY GLIDE PLANE.");
+//			assert(BoundarySegmentContainerType::empty() && "DELETING NON-EMPTY GLIDE PLANE.");
 		}
+        
+//        /**********************************************************************/
+//		GlidePlaneSharedPtrType getSharedPointer() const
+//        {
+//			GlidePlaneSharedPtrType temp;
+//			if (!SegmentContainerType::empty())
+//            {
+//				temp=(*SegmentContainerType::begin())->pGlidePlane;
+//			}
+//			else
+//            { // no segments in the container
+//                assert(0 && "GLIDE PLANE CONTAINS NO SEGMENTS");
+//
+////				if (!BoundarySegmentContainerType::empty())
+////                {
+////					temp=(*BoundarySegmentContainerType::begin())->pGlidePlane;
+////				}
+////				else
+////                {
+////					assert(0 && "GLIDE PLANE CONTAINS NO SEGMENTS AND NO BOUNDARY SEGMENTS");
+////				}
+//			}
+//            return temp;
+//		}
         
         /**********************************************************************/
 		GlidePlaneSharedPtrType getSharedPointer() const
-        {
-			GlidePlaneSharedPtrType temp;
-			if (!SegmentContainerType::empty())
-            {
-				temp=(*SegmentContainerType::begin())->pGlidePlane;
-			}
-			else
-            { // no segments in the container
-				if (!BoundarySegmentContainerType::empty())
-                {
-					temp=(*BoundarySegmentContainerType::begin())->pGlidePlane;
-				}
-				else
-                {
-					assert(0 && "GLIDE PLANE CONTAINS NO SEGMENTS AND NO BOUNDARY SEGMENTS");
-				}
-			}
-            return temp;
+        {/*!\returns a SharedPtr to this.
+          */
+            assert(!SegmentContainerType::empty() && "GLIDE PLANE CONTAINS NO SEGMENTS");
+            return (*SegmentContainerType::begin())->pGlidePlane;
 		}
 		
         /**********************************************************************/
 		void addToGLidePlane(SegmentType* const pS)
-        {
-			assert(SegmentContainerType::insert(pS).second && "COULD NOT INSERT SEGMENT POINTER IN SEGMENT CONTAINER.");
+        {/*!@\param[in] pS a row pointer to a DislocationSegment
+          * Adds pS to *this GLidePlane
+          */
+            const bool success(SegmentContainerType::insert(pS).second);
+			assert( success && "COULD NOT INSERT SEGMENT POINTER IN SEGMENT CONTAINER.");
 		}
 		
         /**********************************************************************/
 		void removeFromGlidePlane(SegmentType* const pS)
-        {
-			assert(SegmentContainerType::erase(pS)==1 && "COULD NOT ERASE SEGMENT POINTER FROM SEGMENT CONTAINER.");
+        {/*!@\param[in] pS a row pointer to a DislocationSegment
+          * Removes pS from *this GLidePlane
+          */
+            const bool success(SegmentContainerType::erase(pS)==1);
+			assert(success && "COULD NOT ERASE SEGMENT POINTER FROM SEGMENT CONTAINER.");
 		}
         
-        /**********************************************************************/
-		void addToGLidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS)
-        {
-			assert(BoundarySegmentContainerType::insert(pS).second && "COULD NOT INSERT BOUNDARY SEGMENT POINTER IN SEGMENT CONTAINER.");
-		}
-		
-        /**********************************************************************/
-		void removeFromGlidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS)
-        {
-			assert(BoundarySegmentContainerType::erase(pS)==1 && "COULD NOT ERASE BOUNDARY SEGMENT POINTER FROM SEGMENT CONTAINER.");
-		}
+//        /**********************************************************************/
+//		void addToGLidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS)
+//        {
+//			assert(BoundarySegmentContainerType::insert(pS).second && "COULD NOT INSERT BOUNDARY SEGMENT POINTER IN SEGMENT CONTAINER.");
+//		}
+//		
+//        /**********************************************************************/
+//		void removeFromGlidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS)
+//        {
+//			assert(BoundarySegmentContainerType::erase(pS)==1 && "COULD NOT ERASE BOUNDARY SEGMENT POINTER FROM SEGMENT CONTAINER.");
+//		}
 		
         /**********************************************************************/
 		typename std::set<const SegmentType*>::const_iterator begin() const
@@ -199,16 +217,16 @@ namespace model {
 			return SegmentContainerType::end();
 		}
 		
-        /**********************************************************************/
-        MatrixDimD stress(const VectorDimD& Rfield) const
-        {/*  stress from all segments on this glide plane
-          */
-            MatrixDimD temp(MatrixDimD::Zero());
-            for (typename std::set<const SegmentType*>::const_iterator sIter = SegmentContainerType::begin(); sIter != SegmentContainerType::end() ;++sIter){
-                temp+=(*sIter)->stress_source(Rfield);
-            }
-            return temp;
-        }
+//        /**********************************************************************/
+//        MatrixDimD stress(const VectorDimD& Rfield) const
+//        {/*  stress from all segments on this glide plane
+//          */
+//            MatrixDimD temp(MatrixDimD::Zero());
+//            for (typename std::set<const SegmentType*>::const_iterator sIter = SegmentContainerType::begin(); sIter != SegmentContainerType::end() ;++sIter){
+//                temp+=(*sIter)->stress_source(Rfield);
+//            }
+//            return temp;
+//        }
         
         /* friend T& operator << **********************************************/
 		template <class T>

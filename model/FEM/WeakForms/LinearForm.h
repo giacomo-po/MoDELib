@@ -9,11 +9,9 @@
 #ifndef model_LinearForm_H_
 #define model_LinearForm_H_
 
-
+#include <Eigen/Dense>
 #include <model/FEM/TrialOperators/EvalExpression.h>
 #include <model/FEM/TrialOperators/TestExpression.h>
-#include <model/Utilities/AreSameType.h>
-#include <model/Utilities/TerminalColors.h>
 
 namespace model
 {
@@ -34,8 +32,9 @@ namespace model
         
     private:
         typedef LinearForm<DerivedTest,DerivedEval> LinearFormType;
-        typedef typename TypeTraits< TrialFunctionType>::ElementType ElementType;
-        
+        typedef typename TypeTraits<TrialFunctionType>::ElementType ElementType;
+        typedef typename TypeTraits<TrialFunctionType>::BaryType BaryType;
+
         constexpr static int dim=TypeTraits< TrialFunctionType>::dim;
         constexpr static int dofPerNode=TypeTraits< TrialFunctionType>::dofPerNode;
         constexpr static int dofPerElement=TypeTraits< TrialFunctionType>::dofPerElement;
@@ -50,16 +49,15 @@ namespace model
         LinearForm(const TestExpression<DerivedTest>& testE, const EvalExpression<DerivedEval>& evalE) :
         /* init list */ testExp(testE.trial()),
         /* init list */ evalExp(evalE.derived())
-//        /* init list */ gSize(testExp.nodeSize()*dofPerNode)
         {
-            std::cout<<greenColor<<"Creating LinearForm "<<defaultColor<<std::endl;
-//            _globalVector.resize(gSize);
+            
         }
         
-
-        
-
-        
+        /**********************************************************************/
+        Eigen::Matrix<double,dofPerElement,evalCols> operator()(const ElementType& ele, const BaryType& bary) const
+        {
+            return testExp.sfm(ele,bary).transpose()*evalExp(ele,bary);
+        }
         
     };
     
@@ -88,23 +86,4 @@ namespace model
 }	// close namespace
 #endif
 
-
-
-
-//        /**********************************************************************/
-//        template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-//        const LinearFormType& operator*(const ElementaryDomain<dim,qOrder,QuadratureRule>& dV)
-//        {
-//            assembleOnDomain<qOrder,QuadratureRule>();
-//            return *this;
-//        }
-
-
-//        /**********************************************************************/
-//        template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-//        const LinearFormType& operator*(const IntegrationDomain<dim,0,qOrder,QuadratureRule>& bnd)
-//        {
-//            assembleOnDomain<qOrder,QuadratureRule>(bnd);
-//            return *this;
-//        }
 

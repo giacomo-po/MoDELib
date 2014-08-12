@@ -27,6 +27,7 @@
 #include <model/FEM/Domains/EntireDomain.h>
 #include <model/FEM/Boundaries/ExternalBoundary.h>
 #include <model/FEM/Boundaries/NodeList.h>
+#include <model/MPI/MPIcout.h>
 
 
 namespace model
@@ -38,11 +39,11 @@ namespace model
     /*                                  */ _ElementType, // value
     /*                                  */ CompareVectorsByComponent<size_t,_ElementType::dim+1> // key compare
     /*                                  */ >,
-    /* inherits        */ public std::deque<typename _ElementType::NodeType>,
+    /* inherits        */ public std::deque<typename _ElementType::NodeType>, // node container
     /* inherits        */ public std::map<Eigen::Matrix<double,_ElementType::dim,1>, // key
-    /*                                  */ const typename _ElementType::NodeType* const, // value
+    /*                                  */ typename _ElementType::NodeType* const, // value
     /*                                  */ CompareVectorsByComponent<double,_ElementType::dim,float> // key compare
-    /*                                  */ >
+    /*                                  */ > // nodefinder
     {
         
     private:
@@ -65,7 +66,7 @@ namespace model
         /*                                  */ > ElementContainerType;
         typedef std::deque<typename _ElementType::NodeType> NodeContainerType;
         typedef std::map<Eigen::Matrix<double,_ElementType::dim,1>, // key
-        /*                                  */ const typename _ElementType::NodeType* const, // value
+        /*                                  */ typename _ElementType::NodeType* const, // value
         /*                                  */ CompareVectorsByComponent<double,_ElementType::dim,float> // key compare
         /*                                  */ > NodeFinderType;
         
@@ -81,17 +82,23 @@ namespace model
           * FiniteElement is constructed.
           */
             
-            std::cout<<greenColor<<"Creating FiniteElement:\n"<<defaultColor<<std::flush;
+             model::cout<<greenColor<<"Creating FiniteElement:\n"<<defaultColor<<std::flush;
             
             // THIS IS NECESSARY TO AVOID "STATIC INITIALIZATION FIASCO"
-            std::cout<<"Element barycentric coordinates:\n"<<ElementType::baryNodalCoordinates<<std::endl;
-            
+             model::cout<<"Element barycentric coordinates:\n"<<ElementType::baryNodalCoordinates<<std::endl;
             
             // Insert elements
             for (typename SimplicialMesh<dim>::const_iterator eIter=mesh.begin();eIter!=mesh.end();++eIter)
             {
                 auto temp=ElementContainerType::emplace(eIter->first,ElementType(eIter->second,*this,*this));
-                assert(temp.second && "UNABLE TO INSERT ELEMENT.");
+                assert(temp.second && "UNABLE TO INSERT ELEMENT IN ELEMENT CONTAINER.");
+                
+                // Add element pointer to each of its nodes
+                for(int n=0;n<ElementType::nodesPerElement;++n)
+                {
+                    auto temp1=temp.first->second.node(n).emplace(&temp.first->second);
+                    assert(temp1.second && "UNABLE TO INSERT ELEMENT IN NODE.");
+                }
             }
             
             // Compute _xMin and _xMax
@@ -108,13 +115,12 @@ namespace model
                         _xMax(d)=node(n).p0(d);
                     }
                 }
-                
             }
             
-            std::cout<<"   # elements: "<<elementSize()    <<"\n";
-            std::cout<<"   # nodes: "   <<nodeSize()       <<"\n";
-            std::cout<<"   xMin= "    <<_xMin.transpose()<<"\n";
-            std::cout<<"   xMax= "    <<_xMax.transpose()<<std::endl;
+             model::cout<<"   # elements: "<<elementSize()    <<"\n";
+             model::cout<<"   # nodes: "   <<nodeSize()       <<"\n";
+             model::cout<<"   xMin= "    <<_xMin.transpose()<<"\n";
+             model::cout<<"   xMax= "    <<_xMax.transpose()<<std::endl;
         }
         
         /**********************************************************************/
@@ -202,11 +208,11 @@ namespace model
         }
         
         /**********************************************************************/
-        template <typename NodeSelectorType>
-        NodeList<FiniteElementType> getNodeList() const
+        template <typename NodeSelectorType, typename... NodeSelectorArgs>
+        NodeList<FiniteElementType> getNodeList(const NodeSelectorArgs&... args) const
         {
             NodeList<FiniteElementType> temp(*this);
-            const NodeSelectorType nodeSelector(*this);
+            const NodeSelectorType nodeSelector(*this,args...);
             for(typename NodeContainerType::const_iterator nIter=nodeBegin(); nIter!=nodeEnd();++nIter)
             {
                 if(nodeSelector(*nIter))

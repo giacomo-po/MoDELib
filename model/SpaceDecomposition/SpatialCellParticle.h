@@ -13,38 +13,27 @@
 #include <boost/utility.hpp>
 #include <Eigen/Dense>
 #include <model/SpaceDecomposition/SpatialCellObserver.h>
-//#include <model/SpaceDecomposition/SpatialCell.h>
-//#include <model/Utilities/TypeTraits.h>
 #include <model/Utilities/CRTP.h>
 #include <model/Utilities/StaticID.h>
 
 
-namespace model {
-	
-
-	
-	/********************************************************************************************/
-	/********************************************************************************************/
+namespace model
+{
+	/**************************************************************************/
+	/**************************************************************************/
 	template<typename Derived, short unsigned int _dim>
 	struct SpatialCellParticle :
     /*                      */ boost::noncopyable,
 	/*                      */ public  CRTP<Derived>,
-    /*                      */ public  StaticID<Derived>//,
-//    /*                      */ private SpatialCellObserver<Derived,_dim>
+    /*                      */ public  StaticID<Derived>
     {
 
         enum{dim=_dim};
-		//typedef SpatialCell<Derived,dim,cellSize> SpatialCellType;
-//        typedef typename TypeTraits<Derived>::CellType SpatialCellType;
-//        typedef SpatialCell<Derived,_dim> SpatialCellType;
-//		typedef typename SpatialCellType::ParticleContainerType ParticleContainerType;
 		typedef SpatialCellObserver<Derived,dim> SpatialCellObserverType;
-//		typedef SpatialCellObserverType::ParticleContainerType ParticleContainerType;
 		typedef typename SpatialCellObserverType::CellMapType  CellMapType;
         typedef typename SpatialCellObserverType::VectorDimD  PositionType;
 		typedef typename SpatialCellObserverType::VectorDimD  VectorDimD;
-//		typedef typename SpatialCellObserverType::VectorDimI  VectorDimI;
-		typedef typename SpatialCellObserverType::SharedPtrType  SharedPtrType;	
+		typedef typename SpatialCellObserverType::SharedPtrType  SharedPtrType;
 
         typedef  SpatialCell<Derived,_dim> SpatialCellType;
 
@@ -54,7 +43,6 @@ namespace model {
 	public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-        
         //! The position vector
         const VectorDimD P;
         
@@ -70,78 +58,73 @@ namespace model {
 			pCell->addParticle(this->p_derived());
 		}
 		
-        
         /**********************************************************************/
         ~SpatialCellParticle()
         {/*! Destructor removes this from SpatialCell
           */
 			pCell->removeParticle(this->p_derived());
 		}
-        
-        /**********************************************************************/
-        void moveTo(const VectorDimD& Pin)
-        {/*!
-          */
-            assert(0 && "NEED TO TEST");
-//            const SharedPtrType temp(SpatialCellObserverType::getCellByPosition(Pin));
-//            if (pCell!=temp)
-//            {
-//                pCell->removeParticle(this->p_derived());
-//                pCell=temp;
-//                pCell->addParticle(this->p_derived());
-//            }
-		}
 
-		
-        /* neighborCellsBegin ***************************************/
+        /* neighborCellsBegin *************************************************/
         typename CellMapType::const_iterator neighborCellsBegin() const
         {/*!\returns a const iterator to the first neighbor SpatialCell
           */
             return pCell->neighborCellsBegin();
         }
         
-        /* neighborCellsEnd ***************************************/
+        /* neighborCellsEnd ***************************************************/
         typename CellMapType::const_iterator neighborCellsEnd() const
         {/*!\returns a const iterator to the past-the-end neighbor SpatialCell
           */
             return pCell->neighborCellsEnd();
         }
         
+	};
+		
+}	// close namespace
+#endif
+
+
+
+
+
+
+//        /**********************************************************************/
+//        void moveTo(const VectorDimD& Pin)
+//        {/*!
+//          */
+//            assert(0 && "NEED TO TEST");
+//            //            const SharedPtrType temp(SpatialCellObserverType::getCellByPosition(Pin));
+//            //            if (pCell!=temp)
+//            //            {
+//            //                pCell->removeParticle(this->p_derived());
+//            //                pCell=temp;
+//            //                pCell->addParticle(this->p_derived());
+//            //            }
+//		}
 //        /* nearCellsBegin ***************************************/
 //        typename CellMapType::const_iterator nearCellsBegin() const
 //        {
 //            return pCell->nearCellsBegin();
 //        }
-//        
+//
 //        /* nearCellsEnd ***************************************/
 //        typename CellMapType::const_iterator nearCellsEnd() const
 //        {
 //            return pCell->nearCellsEnd();
 //        }
-//        
+//
 //        /* farCellsBegin ***************************************/
 //        typename CellMapType::const_iterator farCellsBegin() const
 //        {
 //            return pCell->farCellsBegin();
 //        }
-//        
+//
 //        /* farCellsEnd ***************************************/
 //        typename CellMapType::const_iterator farCellsEnd() const
 //        {
 //            return pCell->farCellsEnd();
 //        }
-        
-            
-        
-        
-	};
-		
-	/********************************************************************************************/
-	/********************************************************************************************/
-}	// close namespace
-#endif
-
-
 //		/* neighborBegin() ******************************************/
 //		typename ParticleContainerType::const_iterator neighborBegin() const {
 //			return pCell->neighborParticleContainer.begin();

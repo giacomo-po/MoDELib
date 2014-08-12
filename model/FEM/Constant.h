@@ -15,15 +15,13 @@
 
 namespace model
 {
-    
- 
+
     /**************************************************************************/
 	/**************************************************************************/
     template <typename T, int _rows, int _cols>
 	struct Constant : public EvalExpression<Constant<T,_rows,_cols> >
     {
-//        enum {rows=_rows};
-//        enum {cols=_cols};
+
         constexpr static int rows=_rows;
         constexpr static int cols=_cols;
 
@@ -38,7 +36,7 @@ namespace model
         
         /**********************************************************************/
         template<typename ElementType, typename BaryType>
-        const T& operator() (const ElementType& ele, const BaryType& bary) const
+        const T& operator() (const ElementType&, const BaryType&) const
         {/*!@param[in] elem the element
           * @param[in] bary the barycentric cooridinate
           *\returns the constant c.
@@ -48,20 +46,7 @@ namespace model
         
     };
     
-
-
-//    template <typename Derived>
-//    int make_constant(const Eigen::DenseBase<Derived>& c)
-//    {
-//        return 1;
-//    }
-    
-//    template <typename Derived>
-//    Constant<Derived,Derived::rows,2> make_constant(const Eigen::DenseBase<Derived>& c)
-//    {
-//        return Constant<Derived,Derived::rows,2>(c);
-//    }
-    
+    // Operators
     template <int rows, int cols>
     Constant<Eigen::Matrix<double,rows,cols>,rows,cols> make_constant(const Eigen::Matrix<double,rows,cols>& c)
     {
@@ -73,7 +58,18 @@ namespace model
         return Constant<double,1,1>(c);
     }
     
-    
-    
 }	// close namespace
 #endif
+
+
+//    template <typename Derived>
+//    int make_constant(const Eigen::DenseBase<Derived>& c)
+//    {
+//        return 1;
+//    }
+
+//    template <typename Derived>
+//    Constant<Derived,Derived::rows,2> make_constant(const Eigen::DenseBase<Derived>& c)
+//    {
+//        return Constant<Derived,Derived::rows,2>(c);
+//    }

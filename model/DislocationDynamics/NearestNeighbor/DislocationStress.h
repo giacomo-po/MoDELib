@@ -9,6 +9,7 @@
 #ifndef _model_DislocationStress_h_
 #define _model_DislocationStress_h_
 
+#include <tuple>
 #include <model/ParticleInteraction/FieldBase.h>
 #include <model/ParticleInteraction/FieldPoint.h>
 
@@ -30,6 +31,8 @@ namespace model
         typedef DislocationStress<_dim> DislocationStressType;
         typedef FieldBase<double,_dim,_dim> FieldBaseType;
         typedef typename FieldBaseType::MatrixType MatrixType;
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
+        typedef Eigen::Matrix<double,dim,1>   VectorDim;
         
         //! Dislocation core size
         static  double a;
@@ -41,8 +44,45 @@ namespace model
 		static const Eigen::Matrix<double,_dim,_dim> I;
         
         
+        /* axialVector ******************************************/
+        static VectorDim axialVector(const MatrixDim& M)
+        {
+            return (VectorDim()<< M(1,2)-M(2,1), M(2,0)-M(0,2), M(0,1)-M(1,0) ).finished();
+        }
+        
+        /* skewMatrix ******************************************/
+        static MatrixDim skewMatrix(const VectorDim& v)
+        {
+            return (MatrixDim()<<  0.0,  v(2), -v(1),
+            /*                */ -v(2),   0.0,  v(0),
+            /*                */  v(1), -v(0),   0.0).finished();
+        }
+        
+        /**********************************************************************/
+        template <typename ParticleType, typename CellContainerType>
+        static MatrixType multipole(const ParticleType& field,const CellContainerType& farCells)
+        {/*!@param[in] field  the FieldPoint at which stress is computed
+          * @param[in] farCells container of SpatialCell(s) that are not neighbors of field
+          *\returns the Cauchy stress contribution of the farCells on field.
+          *
+          */
+            MatrixType temp(MatrixType::Zero());
+            for(auto cell : farCells)
+            {
+                VectorDim R(field.P-cell.second->center);
+                const double R2(R.squaredNorm());
+                R/=sqrt(R2); // normalize R;
+                const MatrixDim& alpha(std::get<0>(*cell.second));
+                const VectorDim a(axialVector(alpha));
+                const MatrixDim S(skewMatrix(R));
+                temp += (Material<Isotropic>::C1*S*alpha-a*R.transpose()+0.5*R.dot(a)*(3.0*R*R.transpose()+I))/R2;
+            }
+            return temp;
+        }
+        
 #if _MODEL_NON_SINGULAR_DD_ == 0 // Note that if _MODEL_NON_SINGULAR_DD_ is not #defined, the preprocessor treats it as having the value 0.
         
+        /**********************************************************************/
         template <typename DislocationParticleType, typename OtherParticleType>
         static MatrixType compute(const DislocationParticleType& source,const OtherParticleType& field)
         {/*!@param[in] source the DislocationParticle that is the source of stress

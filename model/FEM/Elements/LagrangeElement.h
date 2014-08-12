@@ -54,7 +54,8 @@ namespace model
      * The matrix \f$c_{ij}\f$ is stored in the field sfCoeffs;
      */
     template<int _dim,int degree, template<typename T> class MappingType=IsoparametricMapping>
-	class LagrangeElement : private std::vector<const LagrangeNode<_dim>* >
+//	class LagrangeElement : private std::vector<const LagrangeNode<_dim>* >
+	class LagrangeElement : private std::vector<LagrangeNode<LagrangeElement<_dim,degree,MappingType>>*>
     {
         
         typedef LagrangeElement<_dim,degree,MappingType> ElementType;
@@ -65,7 +66,8 @@ namespace model
         constexpr static int nodesPerElement=CombinationWithRepetition<_dim+1,degree>::value;
         constexpr static int dofPerNode(int c) { return c; }
         
-        typedef LagrangeNode<dim> NodeType;
+//        typedef LagrangeNode<dim> NodeType;
+        typedef LagrangeNode<ElementType> NodeType;
         
     private:
         
@@ -203,14 +205,14 @@ namespace model
         /**********************************************************************/
         LagrangeElement(const Simplex<dim,dim>& s,
                         std::deque<NodeType>& nodeContainer,
-                        std::map<Eigen::Matrix<double,dim,1>, const NodeType* const, CompareVectorsByComponent<double,dim,float> >& nodeFinder) :
+                        std::map<Eigen::Matrix<double,dim,1>, NodeType* const, CompareVectorsByComponent<double,dim,float> >& nodeFinder) :
         /* init list */ simplex(s)
         {/*!@param[in] s A const reference to a Simplex<dim,dim>
           */
             
             typename SimplexObserver<dim,0>::SimplexIDType last;
             last<<s.xID(dim); // a 1x1 matrix
-            
+
             const Eigen::Matrix<double,dim,dim> FL(get_FL(simplex));
             
             
@@ -219,24 +221,39 @@ namespace model
                 // Place nodes linearly
                 const Eigen::Matrix<double,dim,1> P(FL*BarycentricTraits<dim>::l2x(baryNodalCoordinates.row(n))+(SimplexObserver<dim,0>::pSimplex(last))->P0);
                 
-                typename std::map<Eigen::Matrix<double,dim,1>, const NodeType* const, CompareVectorsByComponent<double,dim,float> >::const_iterator nIter(nodeFinder.find(P));
+                typename std::map<Eigen::Matrix<double,dim,1>, NodeType* const, CompareVectorsByComponent<double,dim,float> >::const_iterator nIter(nodeFinder.find(P));
+                
+                NodeType* pN;
                 
                 if (nIter!=nodeFinder.end())
-                {// A node already exists at P. Copy its pointer.
-                    this->emplace_back(nIter->second);
+                {// A node already exists at P.
+                    pN=nIter->second; // grab its pointer.
                 }
                 else
-                {// No nodes exist at P. Create a new one.
-                    nodeContainer.emplace_back(P,nodeContainer.size()); // insert in nodeContainer
-                    const NodeType* const pN(&*nodeContainer.rbegin()); // grab Node pointer
+                {// No nodes exist at P.
+                    nodeContainer.emplace_back(P,nodeContainer.size()); // create a new one in nodeContainer
+                    pN=&*nodeContainer.rbegin(); // grab node pointer
+
                     const bool success(nodeFinder.insert(std::make_pair(P,pN)).second); // insert pointer in nodeFinder
                     assert(success && "NODE NOT INSERTED");
-                    this->emplace_back(pN); // insert node pointer in this ELement
                 }
-                Xe.col(n)=P;
+                
+                this->emplace_back(pN); // add node to this
+                
+                Xe.col(n)=P; // insert node poision in matrix Xe
             }
             
         }
+        
+//        /**********************************************************************/
+//        ~LagrangeElement()
+//        {
+//            for(int n=0;n<this->size();++n)
+//            {
+//                int nErased=this->operator[](n)->erase(this);
+//                assert(nErased==1);
+//            }
+//        }
         
         /**********************************************************************/
         //template<typename TrialFunctionType>
@@ -335,6 +352,15 @@ namespace model
         
         /**********************************************************************/
         const NodeType& node(const size_t& n) const
+        {/*!@param[in] the local node ID in the element
+          *\returns a reference to the n-th LagrangeNode
+          */
+            assert(n<nodesPerElement && "NODE ID EXCEEDS nodesPerElement");
+            return *this->operator[](n);
+        }
+        
+        /**********************************************************************/
+        NodeType& node(const size_t& n)
         {/*!@param[in] the local node ID in the element
           *\returns a reference to the n-th LagrangeNode
           */

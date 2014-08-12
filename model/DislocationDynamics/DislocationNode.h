@@ -71,13 +71,13 @@ namespace model {
         
         //! The normal unit vector of the boundary on which *this DislocationNode is moving on
         VectorDim boundaryNormal;
-
+        
         
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
-            if (DislocationSharedObjects<LinkType>::boundary_type)
+            if (DislocationSharedObjects<LinkType>::use_boundary)
             {
                 if (guess==NULL)
                 {
@@ -105,7 +105,7 @@ namespace model {
 		VectorDim get_boundaryNormal() const
         {
             VectorDim temp(VectorDim::Zero());
-			if (shared.boundary_type)
+			if (shared.use_boundary)
             {
                 const Eigen::Matrix<double,dim+1,1> bary(p_Simplex->pos2bary(this->get_P()));
                 int faceID;
@@ -164,7 +164,7 @@ namespace model {
 		/* init list        */ vOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ boundaryNormal(get_boundaryNormal())
         {
-
+            
 		}
         
         
@@ -293,9 +293,10 @@ namespace model {
 			
 			VectorDim dX=velocity.template segment<dim>(0)*dt - vOld.template segment<dim>(0)*dt_old;
             
-			if (dX.squaredNorm()>0.0 && (meshLocation()!=onMeshBoundary || shared.use_bvp==0)) // move a node only if |v|!=0 and if not on mesh boundary
+            //			if (dX.squaredNorm()>0.0 && (meshLocation()!=onMeshBoundary || shared.use_bvp==0)) // move a node only if |v|!=0 and if not on mesh boundary
+            if (dX.squaredNorm()>0.0) // move a node only if |v|!=0 
             {
-				if(shared.boundary_type) // using confining mesh
+				if(shared.use_boundary) // using confining mesh
                 {
                     // See if the new position is inside mesh
                     const std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<LinkType>::mesh.searchWithGuess(this->get_P()+dX,p_Simplex));
@@ -313,7 +314,7 @@ namespace model {
                         const Eigen::Matrix<double,dim+1,1> baryNew(p_Simplex->pos2bary(this->get_P()+dX));
                         const double baryMin(baryNew.minCoeff(&faceID)); // this also finds faceID
                         assert(p_Simplex->child(faceID).isBoundarySimplex() && "FACE MUST BE A BOUNDARY FACE");
-
+                        
                         if(baryMin>-FLT_EPSILON) // DislocationNode is sligtly outside the boundary
                         {
                             this->set(this->get_P()+dX); // move node
@@ -325,14 +326,14 @@ namespace model {
                             const Eigen::Matrix<double,dim+1,1> faceInt(p_Simplex->faceLineIntersection(baryOld,baryNew,faceID));
                             dX=p_Simplex->bary2pos(faceInt)-this->get_P();
                             this->set(this->get_P()+dX);
-                                boundaryNormal=p_Simplex->nda.col(faceID).normalized();
+                            boundaryNormal=p_Simplex->nda.col(faceID).normalized();
                             velocity=dX/dt; // correct stored velocity
                         }
                         
                         assert(meshLocation()==onMeshBoundary && "NODE MUST NOW BE ON MESH BOUNDARY.");
                     }
                     
-                        make_projectionMatrix();
+                    make_projectionMatrix();
                     
 				}
 				else // move node freely

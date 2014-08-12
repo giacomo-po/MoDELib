@@ -64,6 +64,20 @@ namespace model {
             return (L2X* L).template segment<dim>(0);
         }
 
+        /**********************************************************************/
+        static Eigen::Matrix<double,dim+1,1> face2domainBary(const Eigen::Matrix<double,dim,1>& b1,
+                                                             /*                                                */ const int& boundaryFace)
+        {
+            // Transform to barycentric coordinate on the volume, adding a zero on the boundaryFace-face
+            Eigen::Matrix<double,dim+1,1> bary;
+            for (int k=0;k<dim;++k)
+            {
+                bary((k<boundaryFace)? k : k+1)=b1(k);
+            }
+            bary(boundaryFace)=0.0;
+            return bary;
+        }
+        
     private:
         
         /**********************************************************************/

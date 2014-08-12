@@ -143,8 +143,12 @@ namespace model {
         
         int meshID(0);
         EigenDataReader EDR;
-        EDR.readScalarInFile("./DDinput.txt","meshID",meshID);
-
+        bool use_boundary=false;
+        EDR.readScalarInFile("./DDinput.txt","use_boundary",use_boundary);
+        if (use_boundary)
+        {
+            EDR.readScalarInFile("./DDinput.txt","meshID",meshID);
+        }
         
         p_mesh = new model::SimplicialMesh<3>(meshID);
         p_DDgl = new model::DDgl<centripetalf>(p_mesh);

@@ -12,13 +12,14 @@
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationConsts.h>
-#include <model/DislocationDynamics/BVP/VirtualBoundarySlipContainer.h>
+//#include <model/DislocationDynamics/BVP/VirtualBoundarySlipContainer.h>
 
 #include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
 
-#include <model/Mesh/SimplicialMesh.h> // defines mode::cout
+#include <model/Mesh/SimplicialMesh.h> // defines model::cout
 #include <model/DislocationDynamics/BVP/BVPsolver.h>
+#include <model/DislocationDynamics/BVP/BoundaryDislocationNetwork.h>
 
 
 namespace model {
@@ -30,9 +31,15 @@ namespace model {
         typedef BVPsolver<TypeTraits<LinkType>::dim,2> BvpSolverType;
 
 
+        static bool use_DisplacementMultipole;
+        static bool use_StressMultipole;
+        static bool use_EnergyMultipole;
+
+        
         static size_t minSNorderForSolve;
-		static unsigned int boundary_type;
+		static bool use_boundary;
 		static unsigned int use_bvp;
+		static bool use_virtualSegments;
 		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
 
 
@@ -44,24 +51,39 @@ namespace model {
          * order of destruction of the static mesh and the static map in SimplexObserver.
          */
         
+        static BoundaryDislocationNetwork<TypeTraits<LinkType>::dim> bdn;
         
         static BvpSolverType bvpSolver;
         
-        static VirtualBoundarySlipContainer<LinkType> vbsc;
+//        static VirtualBoundarySlipContainer<LinkType> vbsc;
 
 	};
 	
 	// Instantiate static data members
     
     template <typename LinkType>
+	bool DislocationSharedObjects<LinkType>::use_DisplacementMultipole=true;
+    
+    template <typename LinkType>
+	bool DislocationSharedObjects<LinkType>::use_StressMultipole=true;
+    
+    template <typename LinkType>
+	bool DislocationSharedObjects<LinkType>::use_EnergyMultipole=true;
+    
+    
+    template <typename LinkType>
 	size_t DislocationSharedObjects<LinkType>::minSNorderForSolve=0;
     
 	template <typename LinkType>
-	unsigned int DislocationSharedObjects<LinkType>::boundary_type=0;
+	bool DislocationSharedObjects<LinkType>::use_boundary=false;
 	
 	template <typename LinkType>
 	unsigned int DislocationSharedObjects<LinkType>::use_bvp=0;
-	
+
+    template <typename LinkType>
+	bool DislocationSharedObjects<LinkType>::use_virtualSegments=true;
+
+    
 	template <typename LinkType>
 	Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::externalStress=Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim>::Zero();
 
@@ -69,10 +91,13 @@ namespace model {
 	SimplicialMesh<TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::mesh;
     
     template <typename LinkType>
-	BVPsolver<TypeTraits<LinkType>::dim,2> DislocationSharedObjects<LinkType>::bvpSolver(DislocationSharedObjects<LinkType>::mesh);
+	BoundaryDislocationNetwork<TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::bdn;
     
     template <typename LinkType>
-	VirtualBoundarySlipContainer<LinkType> DislocationSharedObjects<LinkType>::vbsc;
+	BVPsolver<TypeTraits<LinkType>::dim,2> DislocationSharedObjects<LinkType>::bvpSolver(DislocationSharedObjects<LinkType>::mesh);
+    
+//    template <typename LinkType>
+//	VirtualBoundarySlipContainer<LinkType> DislocationSharedObjects<LinkType>::vbsc;
 
     
 } // namespace model

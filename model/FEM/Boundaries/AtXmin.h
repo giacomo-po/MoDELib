@@ -9,7 +9,12 @@
 #ifndef model_AtxMin_H_
 #define model_AtxMin_H_
 
+#include <vector>
+#include <array>
+#include <cfloat>
 #include <Eigen/Dense>
+#include <model/Mesh/Simplex.h>
+#include <model/FEM/Domains/IntegrationDomain.h>
 
 namespace model
 {
@@ -23,8 +28,7 @@ namespace model
         
         /**************************************/
         template <typename FiniteElementType>
-        AtXmin(const FiniteElementType& fe) :
-        min(fe.xMin()(i))
+        AtXmin(const FiniteElementType& fe) : min(fe.xMin()(i))
         {
 
         }

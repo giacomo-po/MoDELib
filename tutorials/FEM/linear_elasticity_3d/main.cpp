@@ -3,10 +3,11 @@
 #include <model/Utilities/SequentialOutputFile.h>
 
 #include <model/FEM/FiniteElement.h>
+//#include <model/FEM/Boundary/TopBoundary.h>
 #include <model/FEM/Boundaries/AtXmin.h>
 #include <model/FEM/Boundaries/AtXmax.h>
 #include <model/FEM/BoundaryConditions/Fix.h>
-#include <model/FEM/BoundaryConditions/DirichletCondition.h>
+#include <./FlatPunch.h>
 
 using namespace model;
 
@@ -34,9 +35,9 @@ int main(int argc, char** argv)
     FiniteElementType fe(mesh);
     
     /**********************/
-    const double mu =75.6;  // GPa (for Cu)  //*NATHANIEL Isn't the shear modulus for copper roughly 46 GPa? Where did you get 75.6 GPa from?
-    const double lam=119.9; // GPa (for Cu)  //*NATHANIEL This should be E=119.9 GPa?? Young's modulus??   IF this is the bulk modulus, it should be 140 GPa!?!
-    const double C11(lam+2.0*mu);  //*NATHANIEL Isn't C11 simply the Young's Modulus? i.e.: C11=lam;??
+    const double mu =75.6;  // GPa (for Cu)
+    const double lam=119.9; // GPa (for Cu)
+    const double C11(lam+2.0*mu);
     const double C12(lam);
     const double C44(2.0*mu); // this multiplies a true strain, so 2 is necessary
     
@@ -75,7 +76,7 @@ int main(int argc, char** argv)
 
     /**************************************************************************/
     // Create the WeakProblem
-    auto wp(bWF_u=lWF_2); //  weak problem
+    auto wp_u(bWF_u=lWF_2); //  weak problem
     
     /**************************************************************************/
     // Set up Dirichlet boundary conditions
@@ -107,19 +108,22 @@ int main(int argc, char** argv)
     u.addDirichletCondition(fix,nodeList_0,2);
 
     // Create a list of nodes having x(2)=x2_max, where x2_max is the minimum value among the fe nodes
-    auto nodeList_2(fe.getNodeList<AtXmax<2>>());
+    auto nodeList_2(fe.getNodeList<FlatPunch>());
     // Prescribe the first component of displacement for those nodes
-    DirichletCondition dc(3.0e-4);
-    u.addDirichletCondition(dc,nodeList_2,0);
+//    PrescribedDisplacement disp(3.0e-4);
+    FlatPunch punch(fe);
+    
+    u.addDirichletCondition(punch,nodeList_2,2);
     
     
     /**************************************************************************/
     // Solve
-    wp.assembleWithMasterSlaveConstraints();
-    //    wp.assembleWithLagrangeConstraints();
-    //    wp.assembleWithPenaltyConstraints(1000000.0);
-    const double tol=0.00001;
-    u=wp.solve(tol);
+    
+//    wp_u.assembleWithLagrangeConstraints();
+//    wp_u.assembleWithPenaltyConstraints(1000000.0);
+    wp_u.assembleWithMasterSlaveConstraints();
+
+    u=wp_u.solveWithGuess(1.0e-4,u);
 
     /**************************************************************************/
     // Output displacement and stress on external mesh faces
@@ -131,3 +135,7 @@ int main(int argc, char** argv)
     
 	return 0;
 }
+
+
+
+

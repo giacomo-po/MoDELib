@@ -9,11 +9,8 @@
 #ifndef model_EvalExpression_H_
 #define model_EvalExpression_H_
 
-
-
 namespace model
 {
-    
     
     /**************************************************************************/
 	/**************************************************************************/
@@ -28,11 +25,7 @@ namespace model
             return *static_cast<const Derived*>(this);
         }
         
-        
     };
-	
-    
-
     
 }	// close namespace
 #endif
