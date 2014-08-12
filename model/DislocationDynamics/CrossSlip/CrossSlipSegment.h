@@ -56,6 +56,7 @@ namespace model {
                 && !isSessile
                 && chord.norm()>1.1*crossSlipLength)
             {
+                
                 VectorVectorDim allNormals(ds.conjugatePlaneNormal());
                 // add normalPrimary at the beginning of allNormals.
                 // This way, in case of duplicate keys, normalPrimary is inserted in argMap
@@ -89,7 +90,9 @@ namespace model {
 		/*const*/  bool isCrossSlipSegment;
         
 		/* Constructor *******************************************************/		
-		CrossSlipSegment(const DislocationSegmentType& ds, const double& sinThetaCrossSlipCr,const double& crossSlipLength) : 
+		CrossSlipSegment(const DislocationSegmentType& ds,
+                         const double& sinThetaCrossSlipCr,
+                         const double& crossSlipLength) :
 		/*init list   */ sourceID(ds.source->sID),
 		/*init list   */ sinkID(ds.sink->sID),
 		/*init list   */ chord(ds.chord()),
@@ -104,12 +107,12 @@ namespace model {
 		/*init list   */ isCrossSlipSegment(normalConjugate != normalPrimary) 
         {
             
+            
                         
         }
         
     };
     
-    //////////////////////////////////////////////////////////////s
 } // namespace model
 #endif
 

@@ -56,7 +56,7 @@ grid on
 writeSTL(Facets,filename) % creates file mesh.stl
 
 %% Run Tetgen 
-averageElementVolume=1000000000;
+averageElementVolume=1000000;
 system(['../../../../scripts/tetgenSTL.sh ' filename ' ' num2str(averageElementVolume)]);
 
 %% Create T and N files and clean tetgent output

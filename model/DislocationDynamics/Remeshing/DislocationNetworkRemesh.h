@@ -35,12 +35,43 @@ namespace model {
 		
         typedef typename DislocationNetworkType::LinkType LinkType;
 		typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
-		
+		typedef typename DislocationNetworkType::NodeType NodeType;
+        
 		DislocationNetworkType& DN;
         
         
+        
+        /**********************************************************************/
+        bool pointIsInsideMesh(const VectorDimD& P0, const Simplex<dim,dim>* const guess)
+        {/*!\param[in] P0 position vector
+          * \param[in] guess pointer of the Simplex where the search starts
+          * \returns true if P0 is inside the mesh
+          */
+            std::pair<bool,const Simplex<dim,dim>*> temp(true,NULL);
+            if (DN.shared.use_boundary)
+            {
+//                temp=DN.shared.mesh.isStrictlyInsideMesh(P0,guess,FLT_EPSILON);
+                temp=DN.shared.mesh.searchWithGuess(P0,guess);
+            }
+            return temp.first;
+        }
+		
+	public:
+		
+        static double Lmax;
+        static double Lmin;
+        static double thetaDeg;
+        
 		/**********************************************************************/
-        unsigned int contractWithCommonNeighborCheck(const typename EdgeFinder<LinkType>::isNetworkEdgeType& Lij, const VectorDimD& P0)
+		DislocationNetworkRemesh(DislocationNetworkType& DN_in) :
+        /* init list */ DN(DN_in)
+        {/*! Initializes the reference to the DislocationNetwork
+          */
+        }
+        
+        /**********************************************************************/
+//        unsigned int contractWithCommonNeighborCheck(const typename EdgeFinder<LinkType>::isNetworkEdgeType& Lij, const VectorDimD& P0)
+        unsigned int contractWithCommonNeighborCheck(const NodeType& Ni, const NodeType& Nj, const VectorDimD& P0)
         {/*! @param[in] Lij the edge i->j
           * @param[in] P0 the position of the vertex resulting from contracting Lij
           *
@@ -49,10 +80,10 @@ namespace model {
           * overlapping nodes are created.
           */
             unsigned int temp(0);
-            const size_t i(Lij.second->source->sID); // StaticID of the source node
-            const size_t j(Lij.second->  sink->sID); // StaticID of the sink   node
-            const std::pair<bool,size_t> isCNi(Lij.second->source->isNeighborAt(P0));
-            const std::pair<bool,size_t> isCNj(Lij.second->  sink->isNeighborAt(P0));
+            const size_t i(Ni.sID); // StaticID of the source node
+            const size_t j(Nj.sID); // StaticID of the sink   node
+            const std::pair<bool,size_t> isCNi(Ni.isNeighborAt(P0));
+            const std::pair<bool,size_t> isCNj(Nj.isNeighborAt(P0));
             if(isCNi.first && isCNj.first) // both have a neighbor at P0
             {
                 assert(isCNi.second==isCNj.second && "THERE ARE TWO DISTINCT NEIGHBORS AT THE SAME POSITION.");
@@ -84,7 +115,7 @@ namespace model {
             else // neither i nor j has a neighbor at P0
             {
                 //                if(pointIsInsideMesh(P0,Lij.second->source->meshID())) // check that P0 is inside mesh
-                if(pointIsInsideMesh(P0,Lij.second->source->includingSimplex())) // check that P0 is inside mesh
+                if(pointIsInsideMesh(P0,Ni.includingSimplex())) // check that P0 is inside mesh
                 {
                     //                    std::cout<<"DislocationRemesh: contracting "<<i<<"->"<<j<<std::endl;
                     DN.contract(i,j,P0);
@@ -94,8 +125,46 @@ namespace model {
             return temp;
         }
         
-		/**********************************************************************/
-        unsigned int contractSecondWithCommonNeighborCheck(const int& i, const int& j)
+//		/**********************************************************************/
+//        unsigned int contractSecondWithCommonNeighborCheck(const int& i, const int& j)
+//        {/*! @param[in] i StaticID of the first node (vertex i remains)
+//          * @param[in] j StaticID of the second node (vertex j is contracted)
+//          *
+//          * Contracts  vertex j onto vertex i, making sure no other neighbors of j (but i)
+//          * occupies the position of i.
+//          */
+//            unsigned int temp(0);
+//            
+//            const typename DislocationNetworkType::isNetworkNodeType Ni(DN.node(i));
+//            assert(Ni.first && "NODE i DOES NOT EXIST");
+//            
+//            const typename DislocationNetworkType::isNetworkNodeType Nj(DN.node(j));
+//            assert(Nj.first && "NODE j DOES NOT EXIST");
+//            
+//            std::set<size_t> isCNj(Nj.second->areNeighborsAt(Ni.second->get_P()));
+//            assert(isCNj.erase(i)==1 && "node i must be found at Pi"); // remove i from the set
+//            
+//            for (std::set<size_t>::const_iterator njIter=isCNj.begin(); njIter!=isCNj.end();++njIter)
+//            {
+//                const size_t k(*njIter);
+//                if (DN.node(k).first)
+//                {
+//                    DN.contractSecond(i,k); // this could destroy j
+//                    temp++;
+//                }
+//            }
+//            if (DN.node(j).first) // j still exists
+//            {
+//                DN.contractSecond(i,j);
+//                temp++;
+//            }
+//            
+//            return temp;
+//        }
+
+        
+        /**********************************************************************/
+        unsigned int contractSecondWithCommonNeighborCheck(const NodeType& Ni, const NodeType& Nj)
         {/*! @param[in] i StaticID of the first node (vertex i remains)
           * @param[in] j StaticID of the second node (vertex j is contracted)
           *
@@ -103,25 +172,28 @@ namespace model {
           * occupies the position of i.
           */
             unsigned int temp(0);
+            const int i(Ni.sID);
+            const int j(Nj.sID);
             
-            const typename DislocationNetworkType::isNetworkNodeType Ni(DN.node(i));
-            assert(Ni.first && "NODE i DOES NOT EXIST");
+//            const typename DislocationNetworkType::isNetworkNodeType Ni(DN.node(i));
+//            assert(Ni.first && "NODE i DOES NOT EXIST");
+//            
+//            const typename DislocationNetworkType::isNetworkNodeType Nj(DN.node(j));
+//            assert(Nj.first && "NODE j DOES NOT EXIST");
             
-            const typename DislocationNetworkType::isNetworkNodeType Nj(DN.node(j));
-            assert(Nj.first && "NODE j DOES NOT EXIST");
-            
-            std::set<size_t> isCNj(Nj.second->areNeighborsAt(Ni.second->get_P()));
+            std::set<size_t> isCNj(Nj.areNeighborsAt(Ni.get_P()));
             assert(isCNj.erase(i)==1 && "node i must be found at Pi"); // remove i from the set
             
             for (std::set<size_t>::const_iterator njIter=isCNj.begin(); njIter!=isCNj.end();++njIter)
             {
                 const size_t k(*njIter);
-                if (DN.node(k).first){
+                if (DN.node(k).first)
+                {
                     DN.contractSecond(i,k); // this could destroy j
                     temp++;
                 }
             }
-            if (DN.node(j).first) // j still exists
+            if (DN.node(j).first) // Nj still exists
             {
                 DN.contractSecond(i,j);
                 temp++;
@@ -131,32 +203,25 @@ namespace model {
         }
         
         /**********************************************************************/
-        bool pointIsInsideMesh(const VectorDimD& P0, const Simplex<dim,dim>* const guess)
-        {/*!\param[in] P0 position vector
-          * \param[in] guess pointer of the Simplex where the search starts
-          * \returns true if P0 is inside the mesh
+        unsigned int contractSecondWithCommonNeighborCheck(const int& i, const int& j)
+        {/*! @param[in] i StaticID of the first node (vertex i remains)
+          * @param[in] j StaticID of the second node (vertex j is contracted)
+          *
+          * Contracts  vertex j onto vertex i, making sure no other neighbors of j (but i)
+          * occupies the position of i.
           */
-            std::pair<bool,const Simplex<dim,dim>*> temp(true,NULL);
-            if (DN.shared.use_boundary)
-            {
-//                temp=DN.shared.mesh.isStrictlyInsideMesh(P0,guess,FLT_EPSILON);
-                temp=DN.shared.mesh.searchWithGuess(P0,guess);
-            }
-            return temp.first;
+            
+            const typename DislocationNetworkType::isNetworkNodeType Ni(DN.node(i));
+            assert(Ni.first && "NODE i DOES NOT EXIST");
+            
+            const typename DislocationNetworkType::isNetworkNodeType Nj(DN.node(j));
+            assert(Nj.first && "NODE j DOES NOT EXIST");
+            
+            
+            
+            return contractSecondWithCommonNeighborCheck(*Ni.second,*Nj.second);
         }
-		
-	public:
-		
-        static double Lmax;
-        static double Lmin;
-        static double thetaDeg;
-        
-		/**********************************************************************/
-		DislocationNetworkRemesh(DislocationNetworkType& DN_in) :
-        /* init list */ DN(DN_in)
-        {/*! Initializes the reference to the DislocationNetwork
-          */
-        }
+
 		
 		/**********************************************************************/
 		void remesh()
@@ -341,7 +406,8 @@ namespace model {
         unsigned int singleEdgeContract(const typename EdgeFinder<LinkType>::isNetworkEdgeType& Lij)
         {
             unsigned int Ncontracted(0);
-            if (Lij.first ){
+            if (Lij.first )
+            {
                 const size_t i(Lij.second->source->sID);
                 const size_t j(Lij.second->  sink->sID);
                 const typename DislocationNetworkType::NodeType::VectorOfNormalsType sourcePN(GramSchmidt<dim>(Lij.second->source->constraintNormals()));
@@ -355,7 +421,8 @@ namespace model {
                     assert(  sinkPNsize>0 && "  sink->planeNormals() CANNOT HAVE SIZE 0.");
                     if(sourcePNsize==1 && sinkPNsize==1)
                     {
-                        Ncontracted+=contractWithCommonNeighborCheck(Lij,Lij.second->get_r(0.5)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+//                        Ncontracted+=contractWithCommonNeighborCheck(Lij,Lij.second->get_r(0.5)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+                        Ncontracted+=contractWithCommonNeighborCheck(*Lij.second->source,*Lij.second->sink,Lij.second->get_r(0.5)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
                     }
                     else if(sourcePNsize==1 && sinkPNsize>1)
                     { // contract source
@@ -373,7 +440,9 @@ namespace model {
                         const double cNorm(C.norm());
                         if (cNorm<FLT_EPSILON)
                         { // nodes are on top of each other
-                            Ncontracted+=contractWithCommonNeighborCheck(Lij,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+//                            Ncontracted+=contractWithCommonNeighborCheck(Lij,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+                            Ncontracted+=contractWithCommonNeighborCheck(*Lij.second->source,*Lij.second->sink,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+
                         }
                         else
                         {  // cNorm>=FLT_EPSILON
@@ -395,7 +464,8 @@ namespace model {
                                 { // colinear or parallel
                                     if (d1.cross(C/cNorm).norm()<FLT_EPSILON)
                                     { // colinear
-                                        Ncontracted+=contractWithCommonNeighborCheck(Lij,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+//                                        Ncontracted+=contractWithCommonNeighborCheck(Lij,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+                                        Ncontracted+=contractWithCommonNeighborCheck(*Lij.second->source,*Lij.second->sink,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
                                     }
                                 }
                                 else
@@ -405,7 +475,8 @@ namespace model {
                                         const double u1=C.cross(d2).dot(d3)/d3Norm2;
                                         if(std::fabs(u1<Lmin))
                                         {
-                                            Ncontracted+=contractWithCommonNeighborCheck(Lij,P1+d1*u1); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+//                                            Ncontracted+=contractWithCommonNeighborCheck(Lij,P1+d1*u1); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
+                                            Ncontracted+=contractWithCommonNeighborCheck(*Lij.second->source,*Lij.second->sink,P1+d1*u1); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
                                         }
                                     }
                                 }

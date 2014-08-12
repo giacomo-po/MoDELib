@@ -32,26 +32,26 @@ namespace model
         typedef typename FieldBaseType::MatrixType MatrixType;
         typedef Eigen::Matrix<double,_dim,_dim> MatrixDim;
         typedef Eigen::Matrix<double,_dim,1>   VectorDim;
-
+        
         /**********************************************************************/
         template <typename ParticleType, typename CellContainerType>
-        static MatrixType multipole(const ParticleType& field,const CellContainerType& farCells)
+        static MatrixType multipole(const ParticleType& ,const CellContainerType&)
         {/*!@param[in] field  the FieldPoint at which stress is computed
           * @param[in] farCells container of SpatialCell(s) that are not neighbors of field
           *\returns the displacement contribution of the farCells on field.
           *
           */
             MatrixType temp(MatrixType::Zero());
-//            for(auto cell : farCells)
-//            {
-//                VectorDim R(field.P-cell.second->center);
-//                const double R2(R.squaredNorm());
-//                R/=sqrt(R2); // normalize R;
-//                const MatrixDim& alpha(std::get<0>(*cell.second));
-//                const VectorDim a(axialVector(alpha));
-//                const MatrixDim S(skewMatrix(R));
-//                temp += (Material<Isotropic>::C1*S.dot(alpha)-a*R.transpose()+0.5*R.dot(a)*(3.0*R*R.transpose()+I))/R2;
-//            }
+            //            for(auto cell : farCells)
+            //            {
+            //                VectorDim R(field.P-cell.second->center);
+            //                const double R2(R.squaredNorm());
+            //                R/=sqrt(R2); // normalize R;
+            //                const MatrixDim& alpha(std::get<0>(*cell.second));
+            //                const VectorDim a(axialVector(alpha));
+            //                const MatrixDim S(skewMatrix(R));
+            //                temp += (Material<Isotropic>::C1*S.dot(alpha)-a*R.transpose()+0.5*R.dot(a)*(3.0*R*R.transpose()+I))/R2;
+            //            }
             assert(0 && "Multiple expansion of energy not implemented yet"); // \todo Finish implementation here
             return temp;
         }
@@ -65,32 +65,40 @@ namespace model
           * @param[in] field  the DislocationParticle on which stress is computed
           *\returns the stress field produced by source on field
           */
-            
-            assert(0 && "FINISH IMPLEMENTATION HERE"); // \todo Finish implementation here
+            MatrixType R(field.P-source.P);
+			const double Ra=sqrt(R.squaredNorm()+DislocationStress<_dim>::a2);
+            R/=Ra; // normalize R
+            return -Material<Isotropic>::C2*source.quadWeight*field.quadWeight/Ra*
+            (Material<Isotropic>::C1*source.B.dot(source.T)*field.B.dot(field.T)
+             +2.0*Material<Isotropic>::nu*(field.B.dot(source.T)*source.B.dot(field.T))
+             -(source.B.dot(field.B)+ source.B.dot(R)*field.B.dot(R))*field.T.dot(source.T)
+             );
         }
         
 #elif _MODEL_NON_SINGULAR_DD_ == 1 /* Cai's non-singular theory */
         
-        
         template <typename DislocationParticleType>
-        static MatrixType compute(const DislocationParticleType& source,const DislocationParticleType& field)
+//        static MatrixType compute(const DislocationParticleType& source,const DislocationParticleType& field)
+        static MatrixType compute(const DislocationParticleType& ,const DislocationParticleType& )
         {/*!@param[in] source the DislocationParticle that is source of stress
           * @param[in] field  the DislocationParticle on which stress is computed
           *\returns the stress field produced by source on field
           */
-
+            
             assert(0 && "FINISH IMPLEMENTATION HERE"); // \todo Finish implementation here
             
-//            MatrixType temp(MatrixType::Zero());
-//            
-//            const Eigen::Matrix<double,_dim,1> r(field.P-source.P);
-//            
-//            
-//            
-//            return  (Material<Isotropic>::C1*(1.0+0.5*coreLsquared/RaSquared)*Burgers.dot(rugauss.col(k))*bf.dot(ruf)
-//                     +2.0*Material<Isotropic>::nu*(1.0+0.5*coreLsquared/RaSquared)*(bf.dot(rugauss.col(k))*Burgers.dot(ruf))
-//                     -(Burgers.dot(bf)*(1.0+coreLsquared/RaSquared)+ Burgers.dot(DR)*bf.dot(DR)*1.0/RaSquared )*ruf.dot(rugauss.col(k))
-//                     )/sqrt(RaSquared);
+            //            MatrixType temp(MatrixType::Zero());
+            //
+            //            const Eigen::Matrix<double,_dim,1> r(field.P-source.P);
+            //
+            //
+            //
+            
+            //            return -0.5*Material<Isotropic>::C2*source.quadWeight*field.quadWeight*
+            //            (Material<Isotropic>::C1*(1.0+0.5*coreLsquared/RaSquared)*source.B.dot(source.T)*field.B.dot(field.T)
+            //                     +2.0*Material<Isotropic>::nu*(1.0+0.5*coreLsquared/RaSquared)*(field.B.dot(source.T)*source.B.dot(field.T))
+            //                     -(source.B.dot(field.B)*(1.0+coreLsquared/RaSquared)+ source.B.dot(DR)*field.B.dot(DR)*1.0/RaSquared )*field.T.dot(source.T)
+            //                     )/sqrt(RaSquared);
             
         }
         

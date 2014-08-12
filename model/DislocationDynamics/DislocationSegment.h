@@ -152,7 +152,7 @@ namespace model {
         
 //        const Eigen::Matrix<double,1,2> dH0;
         
-        const DislocationMobility<dim> dm;
+//        const DislocationMobility<dim> dm;
 
         
 //        const double& DHs;
@@ -230,8 +230,8 @@ namespace model {
 		/* init list       */ Burgers(this->flow * Material<Isotropic>::b),
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
-		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), // change this
-        /* init list       */ dm(glidePlaneNormal,Burgers)
+		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))) // change this
+//        /* init list       */ dm(glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
@@ -258,8 +258,8 @@ namespace model {
 		/* init list       */ Burgers(this->flow * Material<Isotropic>::b),
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
-		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), 			// change this
-        /* init list       */ dm(glidePlaneNormal,Burgers)
+		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))) 			// change this
+//        /* init list       */ dm(glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and ExpandingEdge
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] ee the expanding edge

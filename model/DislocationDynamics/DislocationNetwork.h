@@ -189,21 +189,26 @@ namespace model
 			
             //			double vmax(0.0);
             vmax=0.0;
-			
+			double vmean=0.0;
+            double dt_mean=0.0;
+            
 			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
             {
 				const double vNorm(nodeIter->second->get_V().norm());
+                vmean +=vNorm;
 				if (vNorm>vmax)
                 {
 					vmax=vNorm;
 				}
 			}
+            vmean/=NetworkNodeContainerType::size();
 			
             //double equilibriumVelocity(0.01);
 			//short unsigned int shearWaveExp=1;
 			if (vmax > Material<Isotropic>::cs*equilibriumVelocity)
             {
 				dt=dx/vmax;
+
 			}
 			else
             {
@@ -211,8 +216,19 @@ namespace model
 				//dt=dx/(shared.material.cs*equilibriumVelocity)*std::pow(vmax/(shared.material.cs*equilibriumVelocity),1);
 				dt=dx/(Material<Isotropic>::cs*equilibriumVelocity);
 			}
+            
+            if (vmean > Material<Isotropic>::cs*equilibriumVelocity)
+            {
+                dt_mean=dx/vmean;
+            }
+            else
+            {
+                dt_mean=dx/(Material<Isotropic>::cs*equilibriumVelocity);
+            }
+            
 			model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
 			model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<dt;
+			model::cout<<std::setprecision(3)<<std::scientific<<" eta_dt="<<dt/dt_mean;
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
         
@@ -326,6 +342,9 @@ namespace model
                 move(dt,dt_old); // move again (internally this subtracts DislocationNode::vOld*dt_old)
             }
             
+            //! 10- Cross Slip (needs upated PK force)
+			crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
+            
 			DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
 			
 			//! 6- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
@@ -340,11 +359,6 @@ namespace model
 			//! 9- Node redistribution
 			remesh();
             //			removeBoundarySegments();
-            
-			//! 10- Cross Slip
-			crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
-            
-            updateQuadraturePoints(); // necessary if quadrature data are necessary in main
             
 			//! 12 - Increment runID counter
 			++runID;     // increment the runID counter
@@ -733,6 +747,7 @@ namespace model
 				model::cout<<blueBoldColor<<"Step "<<k+1<<" of "<<Nsteps<<defaultColor<<std::endl;
 				singleStep();
 			}
+            updateQuadraturePoints(); // necessary if quadrature data are necessary in main
 			model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
 		}
 		
@@ -750,6 +765,7 @@ namespace model
 				singleStep();
 				elapsedTime+=dt;
 			}
+            updateQuadraturePoints(); // necessary if quadrature data are necessary in main
 			model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<timeWindow<< " simulation time completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
 		}
 		

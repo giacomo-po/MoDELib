@@ -295,7 +295,8 @@ namespace model
         template <typename DislocationNetworkType,int qOrder>
         void assembleAndSolve(const DislocationNetworkType& DN)
         {
-            
+#ifdef userBVPfile
+
             typedef typename DislocationNetworkType::StressField StressField;
             typedef BoundaryStressPoint<DislocationNetworkType> FieldPointType;
             
@@ -310,11 +311,9 @@ namespace model
             
             u->clearDirichletConditions();
             
-#ifdef userBVPfile
-#include userBVPfile
+#include userBVPfile // userBVPfile defines additional loads, boundary conditions, and calls solver
 #else
-            // User files defines constraints, loads and calls solver
-            assert(0 &&"YOU MUST #defined THE userBVPfile.");
+            assert(0 &&"YOU MUST #defined THE userBVPfile to use the BVP solver.");
 #endif
         }
         

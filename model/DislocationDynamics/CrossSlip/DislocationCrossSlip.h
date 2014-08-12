@@ -77,7 +77,7 @@ namespace model
         {
             
             const double planeTol(5.0);
-            const double conjugatePointDistance(0.01*crossSlipLength);
+            const double conjugatePointDistance(0.1*crossSlipLength);
 			
 
             size_t n_nrossSlips(0);
@@ -152,7 +152,7 @@ namespace model
                         std::pair<bool,size_t> expand2(dislocationNetwork.expand(expand1.second,iterCS->sinkID,crossPoints.second));  // place second point on common line
                         assert(expand2.first && "COULD NOT DO SECOND EXPANSION IN CROSS SLIP");
                         
-                        std::pair<bool,size_t> expand3(dislocationNetwork.expand(expand1.second,expand2.second,conjugatePoint,crossSlipVelocity)); 
+                        std::pair<bool,size_t> expand3(dislocationNetwork.expand(expand1.second,expand2.second,conjugatePoint,crossSlipVelocity));
                         assert(expand3.first && "COULD NOT DO THIRD EXPANSION IN CROSS SLIP");
                         
                         n_nrossSlips++;

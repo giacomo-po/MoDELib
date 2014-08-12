@@ -44,7 +44,7 @@ temperature = 300.0;
 # Set the remote external stress (a uniform stress felt by dislocations)
 externalStress = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.01;
+		 0.0 0.0 0.0;
 
 ######################################
 # STRESS FIELD
@@ -63,7 +63,7 @@ use_EnergyMultipole = 0;
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
 Lmax=500;
-Lmin=100;
+Lmin=50;
 thetaDeg=45.0;
 
 ######################################
@@ -94,8 +94,8 @@ use_bvp = 0;
 
 ######################################
 # Enable/disable cross-slip
-use_crossSlip=0;
-crossSlipDeg=2.0;
+use_crossSlip=1;
+crossSlipDeg=5.0;
 crossSlipLength=110.0;
 
 ######################################

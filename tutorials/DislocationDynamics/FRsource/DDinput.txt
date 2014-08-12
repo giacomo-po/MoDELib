@@ -52,8 +52,9 @@ externalStress = 0.0 0.0 0.01
 coreSize=1.0;
 # Use of multipole-expanded stress field for non-nearest neighbor cells
 dislocationCellSize=1000;
-nearCellStressApproximation=10;
-farCellStressApproximation=10;
+use_DisplacementMultipole=0;
+use_StressMultipole = 1;
+use_EnergyMultipole = 0;
 
 ######################################
 # NETWORK REMESHING
@@ -62,7 +63,7 @@ farCellStressApproximation=10;
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
 Lmax=500;
-Lmin=100;
+Lmin=50;
 thetaDeg=45.0;
 
 ######################################
@@ -93,7 +94,7 @@ use_bvp = 0;
 
 ######################################
 # Enable/disable cross-slip
-use_crossSlip=0;
+use_crossSlip=1;
 crossSlipDeg=5.0;
 crossSlipLength=110.0;
 
