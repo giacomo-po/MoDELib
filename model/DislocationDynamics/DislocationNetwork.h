@@ -523,11 +523,11 @@ namespace model
             
             // multipole expansion
             double cellSize(0.0);
-            EDR.readScalarInFile(fullName.str(),"dislocationCellSize",cellSize); // cellSize
+            EDR.readScalarInFile(fullName.str(),"dislocationCellSize",cellSize);
             SpatialCellObserverType::setCellSize(cellSize);
-            EDR.readScalarInFile(fullName.str(),"use_DisplacementMultipole",shared.use_DisplacementMultipole); // cellSize
-            EDR.readScalarInFile(fullName.str(),"use_StressMultipole",shared.use_StressMultipole); // cellSize
-            EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",shared.use_EnergyMultipole); // cellSize
+            EDR.readScalarInFile(fullName.str(),"use_DisplacementMultipole",shared.use_DisplacementMultipole);
+            EDR.readScalarInFile(fullName.str(),"use_StressMultipole",shared.use_StressMultipole);
+            EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",shared.use_EnergyMultipole);
             
             
             // Eternal Stress
@@ -548,26 +548,26 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
             EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
             
-			// Mesh and BVP
-			EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
-			if (shared.use_boundary)
-            {
-                int meshID(0);
-                EDR.readScalarInFile(fullName.str(),"meshID",meshID);
-                shared.mesh.readMesh(meshID);
-                assert(shared.mesh.size() && "MESH IS EMPTY.");
-                
-				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
-				if(shared.use_bvp)
-                {
-                    EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
-                    EDR.readScalarInFile(fullName.str(),"solverTolerance",shared.bvpSolver.tolerance);
-                    shared.bvpSolver.init();
-				}
-			}
-			else{ // no boundary is used, DislocationNetwork is in inifinite medium
-				shared.use_bvp=0;	// never comupute boundary correction
-			}
+//			// Mesh and BVP
+//			EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
+//			if (shared.use_boundary)
+//            {
+//                int meshID(0);
+//                EDR.readScalarInFile(fullName.str(),"meshID",meshID);
+//                shared.mesh.readMesh(meshID);
+//                assert(shared.mesh.size() && "MESH IS EMPTY.");
+//                
+//				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
+//				if(shared.use_bvp)
+//                {
+//                    EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
+//                    EDR.readScalarInFile(fullName.str(),"solverTolerance",shared.bvpSolver.tolerance);
+//                    shared.bvpSolver.init();
+//				}
+//			}
+//			else{ // no boundary is used, DislocationNetwork is in inifinite medium
+//				shared.use_bvp=0;	// never comupute boundary correction
+//			}
 			
 			dt=0.0;
 			EDR.readScalarInFile(fullName.str(),"dx",dx);
@@ -610,6 +610,27 @@ namespace model
                 EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
                 assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
             }
+            
+            // Mesh and BVP
+			EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
+			if (shared.use_boundary)
+            {
+                int meshID(0);
+                EDR.readScalarInFile(fullName.str(),"meshID",meshID);
+                shared.mesh.readMesh(meshID);
+                assert(shared.mesh.size() && "MESH IS EMPTY.");
+                
+				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
+				if(shared.use_bvp)
+                {
+                    EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
+                    EDR.readScalarInFile(fullName.str(),"solverTolerance",shared.bvpSolver.tolerance);
+                    shared.bvpSolver.init();
+				}
+			}
+			else{ // no boundary is used, DislocationNetwork is in inifinite medium
+				shared.use_bvp=0;	// never comupute boundary correction
+			}
 			
             // Read Vertex and Edge information
             DislocationNetworkIO<DislocationNetworkType>::readVertices(*this,runID); // this requires mesh to be up-to-date

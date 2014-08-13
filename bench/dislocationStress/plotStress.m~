@@ -85,7 +85,7 @@ axis([min(Y(id)) max(Y(id)) -0.2 0.2])
 xlabel('x_2 / b','Fontsize',fontsize)
 ylabel('\sigma_{11} / \mu','Fontsize',fontsize)
 legend('\sigma_{11} (numerical)','\sigma_{11} (analytical)','\sigma_{11} (straight)');
-print(gcf, '-depsc', ['sigma_11_edge_x2_' nonSingularCase])
+%print(gcf, '-depsc', 'sigma_edge_x2_Cai')
 
 figure(5)
 clf
@@ -99,7 +99,7 @@ axis([min(Y(id)) max(Y(id)) -0.2 0.2])
 xlabel('x_2 / b','Fontsize',fontsize)
 ylabel('\sigma_{12} / \mu','Fontsize',fontsize)
 legend('\sigma_{12} (numerical)','\sigma_{12} (analytical)','\sigma_{12} (straight)');
-print(gcf, '-depsc', ['sigma_12_edge_x2_' nonSingularCase])
+%print(gcf, '-depsc', 'sigma_edge_x2_Cai')
 
 figure(6)
 clf

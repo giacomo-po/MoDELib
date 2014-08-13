@@ -16,7 +16,7 @@ MODEL contains the following modules:
 MODEL is a header-only library, therefore you just need to have MODEL in your include path.
 
 MODEL is written in C++ and is heavily object-oriented. In particular, some of the latest features of the C++11 standard are used. Therefore MODEL can only be compiled with C++11-capable compilers. The following compilers should do the job:
-- GNU g++ version 4.7 or above (available at http://gcc.gnu.org)
+- GNU g++ version 4.8 or above (available at http://gcc.gnu.org)
 - INTEL icc version 13.0.1 or above
 
 Are you testing MODEL on <a href="http://www.apple.com/osx/">Mac OsX</a>? Then make sure you read the dedicated \ref macosx page.
