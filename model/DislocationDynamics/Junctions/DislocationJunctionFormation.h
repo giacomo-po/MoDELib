@@ -294,8 +294,7 @@ namespace model {
 		/* findIntersections **************************************************/
         //		EdgeIntersectionPairContainerType findIntersections(const double& avoidNodeIntersection) const
 		void findIntersections(EdgeIntersectionPairContainerType& intersectionContainer,
-                               std::deque<int>& dirVector,
-                               const double& avoidNodeIntersection) const
+                               std::deque<int>& dirVector) const
         
         {/*! @param[in]  avoidNodeIntersection
           *  Computes all the intersections between the edges of the DislocationNetwork
@@ -426,7 +425,7 @@ namespace model {
             //			EdgeIntersectionPairContainerType intersectionContainer(findIntersections(avoidNodeIntersection));
 			EdgeIntersectionPairContainerType intersectionContainer;
 			std::deque<int> dirVector;
-            findIntersections(intersectionContainer,dirVector,avoidNodeIntersection);
+            findIntersections(intersectionContainer,dirVector);
 			assert(intersectionContainer.size()==dirVector.size());
             //			model::cout<<intersectionContainer.size()<<" geometric) ";
             model::cout<<intersectionContainer.size()<<" physical intersections. ";

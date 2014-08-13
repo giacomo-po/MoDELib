@@ -99,7 +99,4 @@ crossSlipDeg=5.0;
 crossSlipLength=110.0;
 
 ######################################
-# Don't assemble and solve SubNetworks with less than "minSNorderForSolve" nodes:
-minSNorderForSolve=0;
-
 parametrizationExponent=0.5;

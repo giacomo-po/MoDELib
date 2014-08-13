@@ -121,10 +121,10 @@ namespace model {
 		VectorNdof Fq;
 		//! The identity matrix
 		static const Eigen::Matrix<double,_dim,_dim> I;
-
+        
 		//! A static vector of zeros
         static const Eigen::Matrix<double,_dim,1> zeroDim;
-
+        
 		
 		/******************************************************************/
 	public: //  data members
@@ -141,7 +141,7 @@ namespace model {
         
 		const VectorDim sessilePlaneNormal;
         
-//		static double coreLsquared; //!todo remove this
+        //		static double coreLsquared; //!todo remove this
 		
         DislocationSharedObjects<Derived> shared;
         
@@ -149,14 +149,7 @@ namespace model {
 		//! A shared pointer to the GlidePlane of this segment
 		const GlidePlaneSharedPtrType pGlidePlane;
         
-        
-//        const Eigen::Matrix<double,1,2> dH0;
-        
-//        const DislocationMobility<dim> dm;
-
-        
-//        const double& DHs;
-//        const double& DHe;
+        //        const DislocationMobility<dim> dm;
         
         //! Positions corrersponding to the quadrature points
 		MatrixDimQorder rgauss;
@@ -166,7 +159,7 @@ namespace model {
         
 	private:
 		
-
+        
         /* stiffness_integrand ************************************************/
         MatrixNdof stiffness_integrand(const int& k) const
         { /*! @param[in] k the current quadrature point
@@ -197,12 +190,10 @@ namespace model {
            */
 			MatrixDimNdof temp(SFgaussEx(k));
             //			return temp.transpose()*pkGauss.col(k)*jgauss(k);
-////			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
-
-			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
-//            return temp.transpose()*dm.getVelocity(pkGauss.col(k),rlgauss.col(k))*jgauss(k); // inverse mobility law
-
+            ////			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
             
+			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
+            //            return temp.transpose()*dm.getVelocity(pkGauss.col(k),rlgauss.col(k))*jgauss(k); // inverse mobility law
 		}
 		
 		/**********************************************************************/
@@ -231,7 +222,7 @@ namespace model {
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
 		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))) // change this
-//        /* init list       */ dm(glidePlaneNormal,Burgers)
+        //        /* init list       */ dm(glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
@@ -248,8 +239,6 @@ namespace model {
 			assert(this->flow.squaredNorm()>0.0);
 			pGlidePlane->addToGLidePlane(this);
             pkGauss.setZero(); // necessary if this is not assembled
-            
-            
 		}
 		
 		/* Constructor from EdgeExpansion) ************************************/
@@ -259,7 +248,7 @@ namespace model {
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
 		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))) 			// change this
-//        /* init list       */ dm(glidePlaneNormal,Burgers)
+        //        /* init list       */ dm(glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and ExpandingEdge
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] ee the expanding edge
@@ -276,8 +265,6 @@ namespace model {
 			assert(this->flow.squaredNorm()>0.0);
 			pGlidePlane->addToGLidePlane(this);
             pkGauss.setZero(); // necessary if this is not assembled
-            
-            
 		}
 		
 		/* Destructor *********************************************************/
@@ -285,13 +272,13 @@ namespace model {
         {/*! Destructor
           */
 			//! Add this to static VirtualBoundarySlipContainer
-//			if (shared.boundary_type==softBoundary && shared.use_bvp)
-//            {
-//				if(is_boundarySegment() && this->chord().norm()>FLT_EPSILON)
-//                {
-//                    shared.vbsc.add(*this);
-//				}
-//			}
+            //			if (shared.boundary_type==softBoundary && shared.use_bvp)
+            //            {
+            //				if(is_boundarySegment() && this->chord().norm()>FLT_EPSILON)
+            //                {
+            //                    shared.vbsc.add(*this);
+            //				}
+            //			}
 			//! Removes this from *pGlidePlane
 			pGlidePlane->removeFromGlidePlane(this);
             //            quadratureParticleContainer.clear();
@@ -340,18 +327,11 @@ namespace model {
         {/*!@param[in] k the k-th quandrature point
           *\returns the PK force at the k-th quandrature point
           */
-//            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
+            //            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
             return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress()+shared.externalStress+shared.bvpSolver.stress(quadratureParticleContainer[k]->P,this->source->includingSimplex()))*Burgers).cross(rlgauss.col(k))
 			/*                   */ : ((quadratureParticleContainer[k]->stress()+shared.externalStress)*Burgers).cross(rlgauss.col(k));
             
         }
-        
-//        /**********************************************************************/
-//        MatrixDim boundaryStress(const VectorDim& P) const
-//        {
-//            return(shared.use_virtualSegments) ? shared.bvpSolver.stress(P,this->source->includingSimplex()) + shared.bdn.stress(P)
-//            /*                              */ : shared.bvpSolver.stress(P,this->source->includingSimplex());
-//        }
         
 		/**********************************************************************/
 		MatrixDimQorder get_pkGauss() const
@@ -368,86 +348,80 @@ namespace model {
           * - edge-to-component matrix Mseg
           */
             
-            if (this->pSN()->nodeOrder()>=shared.minSNorderForSolve) // check that SubNetwork has at least shared.minSNorderForSolve nodes
-            {                
-                /*! 1- Assembles the force vector of this segment.
-                 *	\f[
-                 *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
-                 *	\f]
-                 */
-                //                pkGauss.setZero(); // not strictly necessary
-                for (int k=0;k<qOrder;++k){
-                    pkGauss.col(k)=pkForce(k);
-                }
-                Fq.setZero();
-                Quadrature<1,qOrder,QuadratureRule>::integrate(this,Fq,&LinkType::PKintegrand);
-                
-                /*! 2- Assembles the stiffness matrix of this segment.
-                 *	\f[
-                 *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
-                 *	\f]
-                 */
-                Kqq.setZero();
-                Quadrature<1,qOrder,QuadratureRule>::integrate(this,Kqq,&LinkType::stiffness_integrand);
-                
-                
-                
-                //            //! 3-
-                //            ortC.setZero();
-                //
-                //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,ortC,&LinkType::ortC_integrand);
-                
-                
-                
-                //! 4-
-                
-                //            std::set<size_t> segmentDOFs;
-                segmentDOFs.clear();
-                
-                const Eigen::VectorXi sourceDOFs(this->source->dofID());
-                for(int k=0;k<sourceDOFs.rows();++k){
-                    segmentDOFs.insert(sourceDOFs(k));
-                }
-                
-                const Eigen::VectorXi   sinkDOFs(this->sink->dofID());
-                for(int k=0;k<sinkDOFs.rows();++k){
-                    segmentDOFs.insert(sinkDOFs(k));
-                }
-                
-                //const size_t N(segmentDOFs.size());
-                
-                // Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,N));
-                Mseg.setZero(Ndof,segmentDOFs.size());
-                
-                Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2H());
-                //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2Ht());
-                Mso.block(dim,0,dim,Mso.cols())*=this->sourceTfactor;
-                
-                Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2H());
-                //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2Ht());
-                Msi.block(dim,0,dim,Msi.cols())*=-this->sinkTfactor;
-                
-                
-                for (int k=0;k<Mso.cols();++k)
-                {
-                    const std::set<size_t>::const_iterator f(segmentDOFs.find(sourceDOFs(k)));
-                    assert(f!=segmentDOFs.end());
-                    unsigned int curCol(std::distance(segmentDOFs.begin(),f));
-                    Mseg.template block<Ndof/2,1>(0,curCol)=Mso.col(k);
-                }
-                
-                
-                for (int k=0;k<Msi.cols();++k)
-                {
-                    const std::set<size_t>::const_iterator f(segmentDOFs.find(sinkDOFs(k)));
-                    assert(f!=segmentDOFs.end());
-                    unsigned int curCol(std::distance(segmentDOFs.begin(),f));
-                    Mseg.template block<Ndof/2,1>(Ndof/2,curCol)=Msi.col(k);
-                }
-                
+            /*! 1- Assembles the force vector of this segment.
+             *	\f[
+             *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
+             *	\f]
+             */
+            //                pkGauss.setZero(); // not strictly necessary
+            for (int k=0;k<qOrder;++k){
+                pkGauss.col(k)=pkForce(k);
+            }
+            Fq.setZero();
+            Quadrature<1,qOrder,QuadratureRule>::integrate(this,Fq,&LinkType::PKintegrand);
+            
+            /*! 2- Assembles the stiffness matrix of this segment.
+             *	\f[
+             *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
+             *	\f]
+             */
+            Kqq.setZero();
+            Quadrature<1,qOrder,QuadratureRule>::integrate(this,Kqq,&LinkType::stiffness_integrand);
+            
+            
+            
+            //            //! 3-
+            //            ortC.setZero();
+            //
+            //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,ortC,&LinkType::ortC_integrand);
+            
+            
+            
+            //! 4-
+            
+            //            std::set<size_t> segmentDOFs;
+            segmentDOFs.clear();
+            
+            const Eigen::VectorXi sourceDOFs(this->source->dofID());
+            for(int k=0;k<sourceDOFs.rows();++k){
+                segmentDOFs.insert(sourceDOFs(k));
+            }
+            
+            const Eigen::VectorXi   sinkDOFs(this->sink->dofID());
+            for(int k=0;k<sinkDOFs.rows();++k){
+                segmentDOFs.insert(sinkDOFs(k));
+            }
+            
+            //const size_t N(segmentDOFs.size());
+            
+            // Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,N));
+            Mseg.setZero(Ndof,segmentDOFs.size());
+            
+            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2H());
+            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2Ht());
+            Mso.block(dim,0,dim,Mso.cols())*=this->sourceTfactor;
+            
+            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2H());
+            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2Ht());
+            Msi.block(dim,0,dim,Msi.cols())*=-this->sinkTfactor;
+            
+            
+            for (int k=0;k<Mso.cols();++k)
+            {
+                const std::set<size_t>::const_iterator f(segmentDOFs.find(sourceDOFs(k)));
+                assert(f!=segmentDOFs.end());
+                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
+                Mseg.template block<Ndof/2,1>(0,curCol)=Mso.col(k);
             }
             
             
+            for (int k=0;k<Msi.cols();++k)
+            {
+                const std::set<size_t>::const_iterator f(segmentDOFs.find(sinkDOFs(k)));
+                assert(f!=segmentDOFs.end());
+                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
+                Mseg.template block<Ndof/2,1>(Ndof/2,curCol)=Msi.col(k);
+            }
             
 		}
         
@@ -506,7 +480,6 @@ namespace model {
 			return Fq;
 		}
 		
-        
 		/**********************************************************************/
 		MatrixDim plasticDistortionRate() const
         {/*!\returns the plastic strain rate generated by *this segment:
@@ -522,9 +495,7 @@ namespace model {
 			const VectorDim V((this->source->get_V().template segment<dim>(0)+this->sink->get_V().template segment<dim>(0))*0.5);
             return -Burgers*V.cross(this->chord()).transpose();
 		}
-        
 
-        
 		/**********************************************************************/
 		MatrixDim plasticStrainRate() const
         {
@@ -537,90 +508,6 @@ namespace model {
         {
 			return (this->source->meshLocation() == onMeshBoundary && this->sink->meshLocation() == onMeshBoundary);
 		}
-		
-		
-//		/**********************************************************************/
-//		VectorDim displacement(const VectorDim & Rfield, const VectorDim& S) const __attribute__ ((deprecated))
-//        {/*!@param[in] Rfield the field point
-//          * @param[in] S the unit vector necessary to compute displacement as line integral
-//          * \returns the infinitesimal dispacement field generated by this segment at Rfield
-//          *
-//          * The return value is calculated according to:
-//          *	\f[
-//          *		\mathbf{u}(\mathbf{r}_f)=\frac{1}{8\pi(1-\nu)}\int_0^1 \mathbf{u}^*(\alpha) d\alpha
-//          *	\f]
-//          */
-//			VectorDim u_source = VectorDim::Zero();
-//			Quadrature<1,qOrder,QuadratureRule>::integrate(this,u_source,&LinkType::displacement_integrand,Rfield,S);
-//			return Material<Isotropic>::C4*u_source;
-//		}
-		
-//		/**********************************************************************/
-//		VectorDim displacement_integrand(const int & k, const VectorDim & Rfield, const VectorDim& S) const __attribute__ ((deprecated))
-//        {/*!@param[in] k			the current quadrature point
-//          * @param[in] Rfield	the field point
-//          * @param[in] S the unit vector necessary to compute displacement as line integral
-//          * \returns The infinitesimal dispacement field generated by this segment at a field point
-//          *
-//          * The return value is calculated according to:
-//          *	\f[
-//          *		\mathbf{u}^*(\alpha_k,\mathbf{r}_f) = \frac{1}{R}\left\{ \frac{2(1-\nu)}{R+\mathbf{R}\cdot\mathbf{S}}\mathbf{b} \left[\left(\mathbf{S}\times\mathbf{R}\right)\cdot\frac{d\mathbf{r}_s}{d\alpha}\right]
-//          *                                          + (1-2\nu)\left( \mathbf{b}\times \frac{d\mathbf{r}_s}{d\alpha}\right)
-//          *                                          +\frac{1}{R^2}\left[\left(\frac{d\mathbf{r}_s}{d\alpha}\times\mathbf{b}\right)\cdot\mathbf{R}\right]\mathbf{R} \right\}
-//          *	\f]
-//          *	where:
-//          *  - \f$\mathbf{r}(\alpha)\f$ is the parametrized source line segment;
-//          *  - \f$\mathbf{R}(\mathbf{r}_f,\alpha) = \mathbf{r}_f-\mathbf{r}_s(\alpha)\f$ is vector connecting the source point to the field point.
-//          *
-//          *  The calculation of the solid angle is performed transforming the surface integral into a line integral. From Stokes theorem:
-//          *	\f[
-//          *  \oint\frac{\hat{\mathbf{S}}\times\mathbf{R}}{R(R-\mathbf{S}\cdot\mathbf{R})}\cdot d\mathbf{l}
-//          *  \underbrace{=}_{\mbox{Stokes Th.}}\int\left(\nabla\times\frac{\hat{\mathbf{S}}\times\mathbf{R}}{R(R-\mathbf{S}\cdot\mathbf{R})}\right)\cdot\hat{\mathbf{n}}dA
-//          *  \underbrace{=}_{\mbox{identity}}
-//          * -\int\frac{\mathbf{R}}{R^3}\cdot\mathbf{n}dA
-//          *	\f]
-//          * References:
-//          * [1] Asvestas, J. Line integrals and physical optics. Part I. The transformation of the solid-angle surface integral to a line integral. J. Opt. Soc. Am. A, 2(6), 891–895.
-//          */
-//			
-//			const VectorDim R(Rfield-rgauss.col(k));
-////            const double RaSquared(R.squaredNorm()+coreLsquared);
-//            const double RaSquared(R.squaredNorm()+DislocationStress<dim>::a2);
-//			const double Ra=sqrt(RaSquared);
-//			return 1.0/Ra * (+ 2.0*Material<Isotropic>::C1/(Ra+R.dot(S))*Burgers*(S.cross(R)).dot(rugauss.col(k))
-//                             /*            */ + Material<Isotropic>::C3*rugauss.col(k).cross(Burgers)
-//                             /*            */ + 1.0/RaSquared*(rugauss.col(k).cross(Burgers)).dot(R)*R
-//                             /*            */ );
-//		}
-//		
-//		/**********************************************************************/
-//		MatrixDim lattice_rotation_source(const VectorDim & Rfield) const __attribute__ ((deprecated))
-//        {/*! The lattice rotation tensor generated by this dislocatio segment at
-//          * @param[in] Rfield the vector representing the filed point
-//          */
-//			MatrixDim dg(elasticDistortion(Rfield));
-//			return 0.5*(dg.transpose()-dg);
-//		}
-		
-//		/**********************************************************************/
-//		MatrixDim elasticDistortion(const VectorDim & Rfield) const __attribute__ ((deprecated))
-//        {/*! The elasticDistortion tensor generated by this dislocatio segment at
-//          * @param[in] Rfield the vector representing the filed point
-//          */
-//			MatrixDim temp(MatrixDim::Zero());
-//			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::elasticDistortion_integrand,Rfield);
-//			return (Material<Isotropic>::C4 * temp);
-//		}
-//		
-//		/**********************************************************************/
-//		MatrixDim elasticDistortion_integrand(const int & k, const VectorDim& Rfield) const __attribute__ ((deprecated))
-//        {
-//			const VectorDim R(Rfield-rgauss.col(k));
-//			const double RaSquared ( R.squaredNorm() + DislocationStress<dim>::a2);
-//			return  ( Material<Isotropic>::C1*( 2.0 + (3.0*DislocationStress<dim>::a2/RaSquared) ) * (Burgers*(rugauss.col(k).cross(R)).transpose() + (Burgers.cross(rugauss.col(k)))*R.transpose())
-//					 + (rugauss.col(k).cross(Burgers))*R.transpose() + R * (rugauss.col(k).cross(Burgers)).transpose()
-//					 + R.cross(Burgers).dot(rugauss.col(k)) * (3.0/RaSquared*R*R.transpose() - I) ) / std::pow(sqrt(RaSquared),3);
-//		}
 		
 		/**********************************************************************/
 		Eigen::Matrix<double,dim-1,Ncoeff> hermiteLocalCoefficient() const
@@ -665,7 +552,7 @@ namespace model {
 					}
 				}
 			}
-			
+            
 			return temp;
 		}
 		
@@ -718,6 +605,91 @@ namespace model {
 } // namespace model
 #endif
 
+
+
+
+//		/**********************************************************************/
+//		VectorDim displacement(const VectorDim & Rfield, const VectorDim& S) const __attribute__ ((deprecated))
+//        {/*!@param[in] Rfield the field point
+//          * @param[in] S the unit vector necessary to compute displacement as line integral
+//          * \returns the infinitesimal dispacement field generated by this segment at Rfield
+//          *
+//          * The return value is calculated according to:
+//          *	\f[
+//          *		\mathbf{u}(\mathbf{r}_f)=\frac{1}{8\pi(1-\nu)}\int_0^1 \mathbf{u}^*(\alpha) d\alpha
+//          *	\f]
+//          */
+//			VectorDim u_source = VectorDim::Zero();
+//			Quadrature<1,qOrder,QuadratureRule>::integrate(this,u_source,&LinkType::displacement_integrand,Rfield,S);
+//			return Material<Isotropic>::C4*u_source;
+//		}
+
+//		/**********************************************************************/
+//		VectorDim displacement_integrand(const int & k, const VectorDim & Rfield, const VectorDim& S) const __attribute__ ((deprecated))
+//        {/*!@param[in] k			the current quadrature point
+//          * @param[in] Rfield	the field point
+//          * @param[in] S the unit vector necessary to compute displacement as line integral
+//          * \returns The infinitesimal dispacement field generated by this segment at a field point
+//          *
+//          * The return value is calculated according to:
+//          *	\f[
+//          *		\mathbf{u}^*(\alpha_k,\mathbf{r}_f) = \frac{1}{R}\left\{ \frac{2(1-\nu)}{R+\mathbf{R}\cdot\mathbf{S}}\mathbf{b} \left[\left(\mathbf{S}\times\mathbf{R}\right)\cdot\frac{d\mathbf{r}_s}{d\alpha}\right]
+//          *                                          + (1-2\nu)\left( \mathbf{b}\times \frac{d\mathbf{r}_s}{d\alpha}\right)
+//          *                                          +\frac{1}{R^2}\left[\left(\frac{d\mathbf{r}_s}{d\alpha}\times\mathbf{b}\right)\cdot\mathbf{R}\right]\mathbf{R} \right\}
+//          *	\f]
+//          *	where:
+//          *  - \f$\mathbf{r}(\alpha)\f$ is the parametrized source line segment;
+//          *  - \f$\mathbf{R}(\mathbf{r}_f,\alpha) = \mathbf{r}_f-\mathbf{r}_s(\alpha)\f$ is vector connecting the source point to the field point.
+//          *
+//          *  The calculation of the solid angle is performed transforming the surface integral into a line integral. From Stokes theorem:
+//          *	\f[
+//          *  \oint\frac{\hat{\mathbf{S}}\times\mathbf{R}}{R(R-\mathbf{S}\cdot\mathbf{R})}\cdot d\mathbf{l}
+//          *  \underbrace{=}_{\mbox{Stokes Th.}}\int\left(\nabla\times\frac{\hat{\mathbf{S}}\times\mathbf{R}}{R(R-\mathbf{S}\cdot\mathbf{R})}\right)\cdot\hat{\mathbf{n}}dA
+//          *  \underbrace{=}_{\mbox{identity}}
+//          * -\int\frac{\mathbf{R}}{R^3}\cdot\mathbf{n}dA
+//          *	\f]
+//          * References:
+//          * [1] Asvestas, J. Line integrals and physical optics. Part I. The transformation of the solid-angle surface integral to a line integral. J. Opt. Soc. Am. A, 2(6), 891–895.
+//          */
+//
+//			const VectorDim R(Rfield-rgauss.col(k));
+////            const double RaSquared(R.squaredNorm()+coreLsquared);
+//            const double RaSquared(R.squaredNorm()+DislocationStress<dim>::a2);
+//			const double Ra=sqrt(RaSquared);
+//			return 1.0/Ra * (+ 2.0*Material<Isotropic>::C1/(Ra+R.dot(S))*Burgers*(S.cross(R)).dot(rugauss.col(k))
+//                             /*            */ + Material<Isotropic>::C3*rugauss.col(k).cross(Burgers)
+//                             /*            */ + 1.0/RaSquared*(rugauss.col(k).cross(Burgers)).dot(R)*R
+//                             /*            */ );
+//		}
+//
+//		/**********************************************************************/
+//		MatrixDim lattice_rotation_source(const VectorDim & Rfield) const __attribute__ ((deprecated))
+//        {/*! The lattice rotation tensor generated by this dislocatio segment at
+//          * @param[in] Rfield the vector representing the filed point
+//          */
+//			MatrixDim dg(elasticDistortion(Rfield));
+//			return 0.5*(dg.transpose()-dg);
+//		}
+
+//		/**********************************************************************/
+//		MatrixDim elasticDistortion(const VectorDim & Rfield) const __attribute__ ((deprecated))
+//        {/*! The elasticDistortion tensor generated by this dislocatio segment at
+//          * @param[in] Rfield the vector representing the filed point
+//          */
+//			MatrixDim temp(MatrixDim::Zero());
+//			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&LinkType::elasticDistortion_integrand,Rfield);
+//			return (Material<Isotropic>::C4 * temp);
+//		}
+//
+//		/**********************************************************************/
+//		MatrixDim elasticDistortion_integrand(const int & k, const VectorDim& Rfield) const __attribute__ ((deprecated))
+//        {
+//			const VectorDim R(Rfield-rgauss.col(k));
+//			const double RaSquared ( R.squaredNorm() + DislocationStress<dim>::a2);
+//			return  ( Material<Isotropic>::C1*( 2.0 + (3.0*DislocationStress<dim>::a2/RaSquared) ) * (Burgers*(rugauss.col(k).cross(R)).transpose() + (Burgers.cross(rugauss.col(k)))*R.transpose())
+//					 + (rugauss.col(k).cross(Burgers))*R.transpose() + R * (rugauss.col(k).cross(Burgers)).transpose()
+//					 + R.cross(Burgers).dot(rugauss.col(k)) * (3.0/RaSquared*R*R.transpose() - I) ) / std::pow(sqrt(RaSquared),3);
+//		}
 
 
 //        /* stress_source ******************************************************/

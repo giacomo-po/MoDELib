@@ -510,10 +510,10 @@ namespace model
             
             
             // Min SubNetwork::nodeOrder for Assemble and solve
-            int minSNorderForSolve_temp(0);
-            EDR.readScalarInFile(fullName.str(),"minSNorderForSolve",minSNorderForSolve_temp); // material by atomic number Z
-            assert(minSNorderForSolve_temp>=0 && "minSNorderForSolve must be >=0");
-            shared.minSNorderForSolve=(size_t)minSNorderForSolve_temp;
+            //            int minSNorderForSolve_temp(0);
+            //            EDR.readScalarInFile(fullName.str(),"minSNorderForSolve",minSNorderForSolve_temp); // material by atomic number Z
+            //            assert(minSNorderForSolve_temp>=0 && "minSNorderForSolve must be >=0");
+            //            shared.minSNorderForSolve=(size_t)minSNorderForSolve_temp;
             
             // core size
             EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width
@@ -533,9 +533,6 @@ namespace model
             
             // Eternal Stress
             EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
-			
-            // Implicit time integration
-            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
             
 			// Restart
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
@@ -548,33 +545,14 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
             EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
-            
-            //			// Mesh and BVP
-            //			EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
-            //			if (shared.use_boundary)
-            //            {
-            //                int meshID(0);
-            //                EDR.readScalarInFile(fullName.str(),"meshID",meshID);
-            //                shared.mesh.readMesh(meshID);
-            //                assert(shared.mesh.size() && "MESH IS EMPTY.");
-            //
-            //				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
-            //				if(shared.use_bvp)
-            //                {
-            //                    EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
-            //                    EDR.readScalarInFile(fullName.str(),"solverTolerance",shared.bvpSolver.tolerance);
-            //                    shared.bvpSolver.init();
-            //				}
-            //			}
-            //			else{ // no boundary is used, DislocationNetwork is in inifinite medium
-            //				shared.use_bvp=0;	// never comupute boundary correction
-            //			}
 			
+            // time-stepping
 			dt=0.0;
 			EDR.readScalarInFile(fullName.str(),"dx",dx);
 			assert(dx>0.0);
             EDR.readScalarInFile(fullName.str(),"equilibriumVelocity",equilibriumVelocity);
 			assert(equilibriumVelocity>=0.0);
+            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
             
 			
 			EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
@@ -695,18 +673,12 @@ namespace model
             {
                 typename NetworkComponentContainerType::iterator snIter(this->ABbegin()); //  data within a parallel region is private to each thread
                 std::advance(snIter,k);
-                if (snIter->second->nodeOrder()>=shared.minSNorderForSolve)
-                {
-                    DislocationNetworkComponentType(*snIter->second).sparseSolve();
-                }
+                DislocationNetworkComponentType(*snIter->second).sparseSolve();
             }
 #else
 			for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
             {
-                if (snIter->second->nodeOrder()>=shared.minSNorderForSolve)
-                {
-                    DislocationNetworkComponentType(*snIter->second).sparseSolve();
-                }
+                DislocationNetworkComponentType(*snIter->second).sparseSolve();
 			}
 #endif
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]."<<defaultColor<<std::endl;
@@ -833,99 +805,6 @@ namespace model
             }
 		}
         
-        //		/**********************************************************************/
-        //		double energy()
-        //        {/*!\returns The total elastic energy of the dislocation network
-        //          */
-        //			double temp(0.0);
-        //			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
-        //            {
-        //				temp+= linkIter->second->energy();
-        //			}
-        //			return 0.5*temp;
-        //		}
-        
-		
-//        /**********************************************************************/
-//        void stress(std::deque<SingleFieldPoint<StressField>>& fieldPoints) const
-//        {
-//            this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoints,shared.use_StressMultipole);
-//            
-//            ////                if (shared.use_bvp && shared.use_virtualSegments)
-//            ////                {
-//            ////                    temp += shared.bdn.stress(Rfield);
-//            ////                }
-//            
-//            
-//        }
-        
-        
-        //		/**********************************************************************/
-        //		MatrixDimD stress(const VectorDimD& Rfield, const bool& useFullField=true) const
-        //        {
-        //            typedef SingleFieldPoint<StressField> FieldPointType;
-        //            FieldPointType fieldPoint(Rfield);
-        //			MatrixDimD temp=MatrixDimD::Zero();
-        //
-        //			if(useFullField) // full field stress calculation
-        //            {
-        //                // Loop over particle system and add contribution of each particle
-        //                for(int k=0;k<ParticleSystemType::size();++k)
-        //                {
-        //                    // using fieldPoint.field<StressField>() is problematic in mpi because mpiID is not set
-        //                    temp += StressField::compute(ParticleSystemType::operator[](k),fieldPoint);
-        //                }
-        //                temp = Material<Isotropic>::C2*(temp+temp.transpose()).eval();
-        //
-        //                // Add stress of radial segments
-        ////                if (shared.use_bvp && shared.use_virtualSegments)
-        ////                {
-        ////                    temp += shared.bdn.stress(Rfield);
-        ////                }
-        //			}
-        //			else // nearest-neighbor stress calculation based on cells
-        //            {
-        //                typename SpatialCellType::CellMapType cellMap(fieldPoint.template neighborCells<DislocationParticleType>());
-        //
-        //                // loop over neighbor cells of the current particle
-        //                for (typename SpatialCellType::CellMapType::const_iterator cIter =cellMap.begin();
-        //                     /*                                                 */ cIter!=cellMap.end();
-        //                     /*                                                 */ cIter++)
-        //                {
-        //                    //  // loop over neighbor particles
-        //                    for(typename SpatialCellType::ParticleContainerType::const_iterator sIter =cIter->second->particleBegin();
-        //                        /*                                                           */ sIter!=cIter->second->particleEnd();
-        //                        /*                                                           */ sIter++)
-        //                    {
-        //                        temp += StressField::compute(**sIter,fieldPoint);
-        //                    }
-        //                }
-        //                temp = Material<Isotropic>::C2*(temp+temp.transpose()).eval();
-        //
-        //
-        ////                if (shared.use_bvp && shared.use_virtualSegments)
-        ////                {
-        ////                    std::cout<<"NEED TO LIMIT RADIAL STRESS CALCULATION TO NEAREST SEGMENTS"<<std::endl;
-        ////                    temp += shared.bdn.stress(Rfield);
-        ////                }
-        //			}
-        //
-        //            return (shared.use_bvp && shared.use_virtualSegments) ? temp+shared.bdn.stress(Rfield)
-        //            /*                                                 */ : temp;
-        //		}
-		
-        //		/**********************************************************************/
-        //		VectorDimD displacement(const VectorDimD & Rfield,const VectorDimD & S) const
-        //        {
-        //			VectorDimD temp(VectorDimD::Zero());
-        //			for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
-        //                 /*                                             */ linkIter!=this->linkEnd();
-        //                 /*                                             */ linkIter++)
-        //            {
-        //				temp+= linkIter->second->displacement(Rfield,S);
-        //			}
-        //			return temp;
-        //		}
 		
         /**********************************************************************/
 		MatrixDimD plasticDistortionRate() const
@@ -948,33 +827,7 @@ namespace model
             const MatrixDimD temp(plasticDistortionRate());
 			return (temp+temp.transpose())*0.5;
 		}
-		
-        //        /**********************************************************************/
-        //		MatrixDimD latticeRotation(const VectorDimD & Rfield) const
-        //        {
-        //			MatrixDimD temp(MatrixDimD::Zero());
-        //			for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
-        //                 /*                                             */ linkIter!=this->linkEnd();
-        //                 /*                                             */ linkIter++)
-        //            {
-        //				temp+= linkIter->second->lattice_rotation_source(Rfield);
-        //			}
-        //			return temp;
-        //		}
-		
-        //        /**********************************************************************/
-        //		MatrixDimD elasticDistortion(const VectorDimD & Rfield) const
-        //        {
-        //			MatrixDimD temp(MatrixDimD::Zero());
-        //			for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
-        //                 /*                                             */ linkIter!=this->linkEnd();
-        //                 /*                                             */ linkIter++)
-        //            {
-        //				temp+= linkIter->second->displacement_gradient_source(Rfield);
-        //			}
-        //			return temp;
-        //		}
-		
+        
         /**********************************************************************/
 		double networkLength() const
         {/*!\returns the line length of *this DislocationNetwork.
@@ -1007,3 +860,126 @@ namespace model
     
 } // namespace model
 #endif
+
+
+//		/**********************************************************************/
+//		double energy()
+//        {/*!\returns The total elastic energy of the dislocation network
+//          */
+//			double temp(0.0);
+//			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+//            {
+//				temp+= linkIter->second->energy();
+//			}
+//			return 0.5*temp;
+//		}
+
+
+//        /**********************************************************************/
+//        void stress(std::deque<SingleFieldPoint<StressField>>& fieldPoints) const
+//        {
+//            this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoints,shared.use_StressMultipole);
+//
+//            ////                if (shared.use_bvp && shared.use_virtualSegments)
+//            ////                {
+//            ////                    temp += shared.bdn.stress(Rfield);
+//            ////                }
+//
+//
+//        }
+
+
+//		/**********************************************************************/
+//		MatrixDimD stress(const VectorDimD& Rfield, const bool& useFullField=true) const
+//        {
+//            typedef SingleFieldPoint<StressField> FieldPointType;
+//            FieldPointType fieldPoint(Rfield);
+//			MatrixDimD temp=MatrixDimD::Zero();
+//
+//			if(useFullField) // full field stress calculation
+//            {
+//                // Loop over particle system and add contribution of each particle
+//                for(int k=0;k<ParticleSystemType::size();++k)
+//                {
+//                    // using fieldPoint.field<StressField>() is problematic in mpi because mpiID is not set
+//                    temp += StressField::compute(ParticleSystemType::operator[](k),fieldPoint);
+//                }
+//                temp = Material<Isotropic>::C2*(temp+temp.transpose()).eval();
+//
+//                // Add stress of radial segments
+////                if (shared.use_bvp && shared.use_virtualSegments)
+////                {
+////                    temp += shared.bdn.stress(Rfield);
+////                }
+//			}
+//			else // nearest-neighbor stress calculation based on cells
+//            {
+//                typename SpatialCellType::CellMapType cellMap(fieldPoint.template neighborCells<DislocationParticleType>());
+//
+//                // loop over neighbor cells of the current particle
+//                for (typename SpatialCellType::CellMapType::const_iterator cIter =cellMap.begin();
+//                     /*                                                 */ cIter!=cellMap.end();
+//                     /*                                                 */ cIter++)
+//                {
+//                    //  // loop over neighbor particles
+//                    for(typename SpatialCellType::ParticleContainerType::const_iterator sIter =cIter->second->particleBegin();
+//                        /*                                                           */ sIter!=cIter->second->particleEnd();
+//                        /*                                                           */ sIter++)
+//                    {
+//                        temp += StressField::compute(**sIter,fieldPoint);
+//                    }
+//                }
+//                temp = Material<Isotropic>::C2*(temp+temp.transpose()).eval();
+//
+//
+////                if (shared.use_bvp && shared.use_virtualSegments)
+////                {
+////                    std::cout<<"NEED TO LIMIT RADIAL STRESS CALCULATION TO NEAREST SEGMENTS"<<std::endl;
+////                    temp += shared.bdn.stress(Rfield);
+////                }
+//			}
+//
+//            return (shared.use_bvp && shared.use_virtualSegments) ? temp+shared.bdn.stress(Rfield)
+//            /*                                                 */ : temp;
+//		}
+
+//		/**********************************************************************/
+//		VectorDimD displacement(const VectorDimD & Rfield,const VectorDimD & S) const
+//        {
+//			VectorDimD temp(VectorDimD::Zero());
+//			for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
+//                 /*                                             */ linkIter!=this->linkEnd();
+//                 /*                                             */ linkIter++)
+//            {
+//				temp+= linkIter->second->displacement(Rfield,S);
+//			}
+//			return temp;
+//		}
+
+
+
+//        /**********************************************************************/
+//		MatrixDimD latticeRotation(const VectorDimD & Rfield) const
+//        {
+//			MatrixDimD temp(MatrixDimD::Zero());
+//			for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
+//                 /*                                             */ linkIter!=this->linkEnd();
+//                 /*                                             */ linkIter++)
+//            {
+//				temp+= linkIter->second->lattice_rotation_source(Rfield);
+//			}
+//			return temp;
+//		}
+
+//        /**********************************************************************/
+//		MatrixDimD elasticDistortion(const VectorDimD & Rfield) const
+//        {
+//			MatrixDimD temp(MatrixDimD::Zero());
+//			for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
+//                 /*                                             */ linkIter!=this->linkEnd();
+//                 /*                                             */ linkIter++)
+//            {
+//				temp+= linkIter->second->displacement_gradient_source(Rfield);
+//			}
+//			return temp;
+//		}
