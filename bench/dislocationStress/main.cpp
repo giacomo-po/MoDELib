@@ -114,7 +114,7 @@ int main(int argc, char * argv[])
     std::cout<<"Computing DislocationStress at field points..."<<std::flush;
     const auto t1= std::chrono::system_clock::now();
     DN.updateQuadraturePoints();
-    DN.computeField<FieldPointType,StressField>(fieldPoints);
+    DN.computeField<FieldPointType,StressField>(fieldPoints, DN.shared.use_StressMultipole);
     std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
     
     /**************************************************************************/
@@ -134,7 +134,8 @@ int main(int argc, char * argv[])
         
         for (unsigned int k=0;k<fieldPoints.size();++k)
         {
-            Eigen::Matrix<double,3,3> temp(Material<Isotropic>::C2*(fieldPoints[k].field<StressField>()+fieldPoints[k].field<StressField>().transpose()));
+//            Eigen::Matrix<double,3,3> temp(Material<Isotropic>::C2*(fieldPoints[k].field<StressField>()+fieldPoints[k].field<StressField>().transpose()));
+            Eigen::Matrix<double,3,3> temp(fieldPoints[k].field<StressField>());
             
             
             numericalFile << fieldPoints[k].P.transpose()<<" "<<temp.row(0)

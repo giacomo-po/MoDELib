@@ -72,7 +72,7 @@ namespace model {
                 _processorName=tempName;
                 
                 std::cout<<greenBoldColor<<"MPI process "<<_mpiRank<<" of "<<_mpiProcs
-                /*     */<<" (on node"<<_processorName<<"), mpiInitialized="<<_mpiInitialized<<defaultColor<<std::endl;
+                /*     */<<" (on node "<<_processorName<<"), mpiInitialized="<<_mpiInitialized<<defaultColor<<std::endl;
 
                 MPI_Barrier(MPI_COMM_WORLD);
 

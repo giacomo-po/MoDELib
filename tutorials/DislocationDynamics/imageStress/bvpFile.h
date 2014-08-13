@@ -23,4 +23,4 @@ addDirichletCondition(fix,nodeList_0,2,DN); // fix z-component
 
 
 // Call solver, passing the rhs vector and the guess
-displacement()=solve(-lwf.globalVector(),displacement());
+displacement()=solve(-dislocationTraction.globalVector(),displacement());

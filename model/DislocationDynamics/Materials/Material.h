@@ -13,6 +13,7 @@
 #include <cmath>
 #include <model/DislocationDynamics/Materials/PeriodicElement.h>
 #include <model/DislocationDynamics/Materials/CrystalOrientation.h>
+#include <model/MPI/MPIcout.h> // defines mode::cout
 
 
 
@@ -63,7 +64,7 @@ namespace model {
             
             std::string magentaColor    = "\033[0;35m";   // a magenta color
             std::string defaultColor    = "\033[0m";	   // the default color for the console
-            std::cout<<magentaColor<<"Material is now: "<<IM::name<<defaultColor<<std::endl;
+            model::cout<<magentaColor<<"Material is now: "<<IM::name<<defaultColor<<std::endl;
             
         }
         

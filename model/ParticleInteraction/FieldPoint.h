@@ -45,16 +45,25 @@ namespace model {
         
         typedef typename FieldPoint<Derived,_dim,MoreFieldTypes...>::VectorDimD VectorDimD;
         
-        template <typename OtherFieldType>
-        FieldPointBase<Derived,OtherFieldType>& field()
-        {
-            return *static_cast<FieldPointBase<Derived,OtherFieldType>* const>(this);
-        }
+//        /**********************************************************************/
+//        template <typename OtherFieldType>
+//        FieldPointBase<Derived,OtherFieldType>& field()
+//        {
+//            return *static_cast<FieldPointBase<Derived,OtherFieldType>* const>(this);
+//        }
         
+//        /**********************************************************************/
+//        template <typename OtherFieldType>
+//        const FieldPointBase<Derived,OtherFieldType>& field() const
+//        {
+//            return *static_cast<const FieldPointBase<Derived,OtherFieldType>* const>(this);
+//        }
+        
+        /**********************************************************************/
         template <typename OtherFieldType>
-        const FieldPointBase<Derived,OtherFieldType>& field() const
+        typename OtherFieldType::MatrixType field() const
         {
-            return *static_cast<const FieldPointBase<Derived,OtherFieldType>* const>(this);
+            return OtherFieldType::get(*static_cast<const FieldPointBase<Derived,OtherFieldType>* const>(this));
         }
         
 #ifdef _MODEL_MPI_

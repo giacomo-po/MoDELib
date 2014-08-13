@@ -134,7 +134,8 @@ namespace model
             //			temp+=userStress(k);
 #endif
             
-            return Material<Isotropic>::C2*(temp+temp.transpose());
+//            return Material<Isotropic>::C2*(temp+temp.transpose());
+            return temp;
             
 		}
         

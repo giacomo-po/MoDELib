@@ -158,6 +158,13 @@ namespace model
         //! The identity matrix
 		static const Eigen::Matrix<double,_dim,_dim> I;
         
+        
+        /**********************************************************************/
+        static const MatrixType& get(const MatrixType& temp)
+        {
+            return temp;
+        }
+        
         /**********************************************************************/
         template <typename ParticleType, typename CellContainerType>
         static MatrixType multipole(const ParticleType& field,const CellContainerType& farCells)

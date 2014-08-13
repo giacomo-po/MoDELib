@@ -59,6 +59,12 @@ namespace model
         }
         
         /**********************************************************************/
+        static MatrixType get(const MatrixType& temp)
+        {
+            return Material<Isotropic>::C2 * (temp+temp.transpose());
+        }
+        
+        /**********************************************************************/
         template <typename ParticleType, typename CellContainerType>
         static MatrixType multipole(const ParticleType& field,const CellContainerType& farCells)
         {/*!@param[in] field  the FieldPoint at which stress is computed

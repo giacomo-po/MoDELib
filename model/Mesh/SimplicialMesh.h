@@ -22,6 +22,7 @@
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Mesh/Simplex.h>
 #include <model/Mesh/MeshStats.h>
+#include <model/MPI/MPIcout.h> // defines mode::cout
 
 
 namespace model {
@@ -54,9 +55,9 @@ namespace model {
 //        /**********************************************************************/
 //        ~SimplicialMesh()
 //        {
-//            std::cout<<"Destroying SimplicialMesh"<<std::flush;
+//            model::cout<<"Destroying SimplicialMesh"<<std::flush;
 //            this->clear();
-//            std::cout<<"Done"<<std::endl;
+//            model::cout<<"Done"<<std::endl;
 //        }
         
         
@@ -71,7 +72,7 @@ namespace model {
         {/*!
           */
             
-            std::cout<<greenColor<<"Reading mesh "<<meshID<<defaultColor<<std::endl;
+            model::cout<<greenColor<<"Reading mesh "<<meshID<<defaultColor<<std::endl;
             this->clear();
             
             Simplex<dim,0>::nodeReader.read(meshID,true);
@@ -86,7 +87,7 @@ namespace model {
             if (success)
             {
                 double t0(clock());
-                std::cout<<"Creating mesh..."<<std::flush;
+                model::cout<<"Creating mesh..."<<std::flush;
                 for (typename VertexReader<'T',dim+2,size_t>::const_iterator eIter =elementReader.begin();
                      /*                                       */ eIter!=elementReader.end();++eIter)
                 {
@@ -95,13 +96,13 @@ namespace model {
                     //                    binFile.write(std::make_pair(eIter->first,eIter->second));
                     
                 }
-                std::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
+                model::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
                 MeshStats<dim,dim>::stats(true);
                 Simplex<dim,0>::nodeReader.clear();
             }
             else
             {
-                std::cout<<"Cannot read mesh file T/T_"<<meshID<<".txt . Mesh is empty."<<std::endl;
+                model::cout<<"Cannot read mesh file T/T_"<<meshID<<".txt . Mesh is empty."<<std::endl;
             }
             
         }

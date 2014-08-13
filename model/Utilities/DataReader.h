@@ -13,6 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <model/MPI/MPIcout.h> // defines mode::cout
 
 
 namespace model {
@@ -93,35 +94,39 @@ namespace model {
 				
 				//! 2- check if the line contains the variable name and eventually increment counter
 				count+=check_name_equal();
-				//	std::cout<<"count="<<count<<std::endl;
+				//	model::cout<<"count="<<count<<std::endl;
 				
 				
 				//! 3- if "count" reaches "occurrence" read the variable and exit
-				if (count==int(occurrence)){
-					std::cout<<"Reading "<<occurrence<<"-th occurrence of "<<varName<< " in "<<fileName<<std::endl;
+				if (count==int(occurrence))
+                {
+//					model::cout<<"Reading "<<occurrence<<"-th occurrence of "<<varName<< " in "<<fileName<<std::endl;
 					readLines();
 					success=1;
-					break;}
+					break;
+                }
 				
 				//! 4- if end of file is reached exit
-				if (inputFile.eof()){
-					std::cout<<"Warning. In reading the "<<occurrence<<"-th occurrence of "<<varName << " in "<<fileName;
-					std::cout<<": found only "<<count<<" occurrences."<<std::endl;
+				if (inputFile.eof())
+                {
+					model::cout<<"Warning. In reading the "<<occurrence<<"-th occurrence of "<<varName << " in "<<fileName;
+					model::cout<<": found only "<<count<<" occurrences."<<std::endl;
 					
-					std::cout<<line<<std::endl;
+					model::cout<<line<<std::endl;
 					
 					//		exit (1);
-					break;}
+					break;
+                }
 				
 			}
 		}
 		else{
-			std::cout<<"Cannot read file "<<fileName<<std::endl;
+			model::cout<<"Cannot read file "<<fileName<<std::endl;
 			assert(success);
 		}
 		
 		inputFile.close();
-		//	std::cout<<"success="<<success<<std::endl;
+		//	model::cout<<"success="<<success<<std::endl;
 		
 		
 		return success;
@@ -151,8 +156,8 @@ namespace model {
 			line2row();
 			
 			if (inputFile.eof()){
-				//std::cout<<"Error in reading the "<<occurrence<<"-th occurrence of "<<varName << " in "<<fileName;
-				std::cout<<"Error: file ended before ';'."<<std::endl;
+				//model::cout<<"Error in reading the "<<occurrence<<"-th occurrence of "<<varName << " in "<<fileName;
+				model::cout<<"Error: file ended before ';'."<<std::endl;
 				exit (1);
 				break;}
 		}
@@ -160,8 +165,8 @@ namespace model {
 		
 //		for (unsigned int r=0; r<table.size(); ++r){
 //			for (unsigned int c=0; c<table[r].size(); ++c){
-//				std::cout<<table[r][c]<<" ";}
-//			std::cout<<std::endl;
+//				model::cout<<table[r][c]<<" ";}
+//			model::cout<<std::endl;
 //        }
 		
 	}

@@ -167,7 +167,8 @@ namespace model {
                     // loop over source particles in the neighbor cell
                     for(typename SpatialCellType::ParticleContainerType::const_iterator sIter=cIter->second->particleBegin();sIter!=cIter->second->particleEnd();++sIter) // loop over neighbor particles
                     {
-                        lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::compute(**sIter,*lpt.bin(this->mpiRank())[k]);
+//                        lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::compute(**sIter,*lpt.bin(this->mpiRank())[k]);
+                        *static_cast<FieldPointBase<ParticleType,FieldType>* const>(lpt.bin(this->mpiRank())[k]) += FieldType::compute(**sIter,*lpt.bin(this->mpiRank())[k]);
                     }
                 }
                 
@@ -175,7 +176,8 @@ namespace model {
                 if(useMultipole)
                 {
                     typename SpatialCellType::CellMapType farCells(lpt.bin(this->mpiRank())[k]->template farCells<_ParticleType>());
-                    lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::multipole(*lpt.bin(this->mpiRank())[k],farCells);
+//                    lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::multipole(*lpt.bin(this->mpiRank())[k],farCells);
+                    *static_cast<FieldPointBase<ParticleType,FieldType>* const>(lpt.bin(this->mpiRank())[k]) += FieldType::multipole(*lpt.bin(this->mpiRank())[k],farCells);
                 }
             }
             
@@ -265,7 +267,9 @@ namespace model {
                     // loop over source particles in the neighbor cell
                     for(typename SpatialCellType::ParticleContainerType::const_iterator sIter=cIter->second->particleBegin();sIter!=cIter->second->particleEnd();++sIter) // loop over neighbor particles
                     {
-                        lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::compute(**sIter,*lpt.bin(this->mpiRank())[k]);
+//                        lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::compute(**sIter,*lpt.bin(this->mpiRank())[k]);
+                        *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(lpt.bin(this->mpiRank())[k]) += FieldType::compute(**sIter,*lpt.bin(this->mpiRank())[k]);
+
                     }
                 }
                 
@@ -273,7 +277,9 @@ namespace model {
                 if(useMultipole)
                 {
                     typename SpatialCellType::CellMapType farCells(lpt.bin(this->mpiRank())[k]->template farCells<_ParticleType>());
-                    lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::multipole(*lpt.bin(this->mpiRank())[k],farCells);
+//                    lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::multipole(*lpt.bin(this->mpiRank())[k],farCells);
+                    *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(lpt.bin(this->mpiRank())[k]) += FieldType::multipole(*lpt.bin(this->mpiRank())[k],farCells);
+
                 }
             }
             

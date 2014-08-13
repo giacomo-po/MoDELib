@@ -59,6 +59,7 @@ namespace model
         typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionGradMatrixType ShapeFunctionGradMatrixType;
         typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionDefMatrixType  ShapeFunctionDefMatrixType;
         
+        //! A const reference of the FiniteElement over which *this is constructed.
         const FiniteElementType& fe;
         
         /**********************************************************************/

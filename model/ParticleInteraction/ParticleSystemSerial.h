@@ -88,6 +88,65 @@ namespace model {
             }
         }
         
+
+        
+        /**********************************************************************/
+        template <typename OtherParticleType, typename FieldType>
+        void computeField(std::deque<OtherParticleType>& fpDeq, const bool& useMultipole) const
+        {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+            for (unsigned int k=0; k<fpDeq.size();++k)
+            {
+                // Nearest-neighbor interaction
+                typename SpatialCellType::CellMapType neighborCells(fpDeq[k].template neighborCells<_ParticleType>());
+                
+                //! -2 loop over neighbor cells of current particle
+                for (typename SpatialCellType::CellMapType::const_iterator cIter =neighborCells.begin();
+                     /*                                                 */ cIter!=neighborCells.end();
+                     /*                                               */ ++cIter)
+                {
+                    //! -3 loop over particles in the current neighbor cell
+                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
+                        /*                                                           */ qIter!=cIter->second->particleEnd();
+                        /*                                                         */ ++qIter)
+                    {
+                        //fpDeq[k].template field<FieldType>() += FieldType::compute(**qIter,fpDeq[k]);
+                        *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::compute(**qIter,fpDeq[k]);
+                    }
+                }
+                
+                // Non-nearest-neighbor interaction
+                if(useMultipole)
+                {
+                    typename SpatialCellType::CellMapType farCells(fpDeq[k].template farCells<_ParticleType>());
+//
+//                    fpDeq[k].template field<FieldType>() += FieldType::multipole(fpDeq[k],farCells);
+                    *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::multipole(fpDeq[k],farCells);
+                }
+                
+            }
+        }
+        
+        /**********************************************************************/
+        template <class T>
+        friend T& operator<< (T& os, const ParticleContainerType& pS)
+        {/*! Operator<< use ParticleType-specific operator<<
+          */
+            for (typename ParticleContainerType::const_iterator pIter=pS.begin();pIter!=pS.end();++pIter)
+            {
+                os<<(*pIter);
+            }
+            return os;
+        }
+        
+    };
+
+} // end namespace
+#endif
+
+
 //        /**********************************************************************/
 //        template <typename OtherParticleType, typename FieldType>
 //        void computeField(std::deque<OtherParticleType* const>& fpDeq) const
@@ -113,63 +172,8 @@ namespace model {
 //                    }
 //                }
 //            }
-//            
+//
 //        }
-        
-        /**********************************************************************/
-        template <typename OtherParticleType, typename FieldType>
-        void computeField(std::deque<OtherParticleType>& fpDeq, const bool& useMultipole) const
-        {
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-            for (unsigned int k=0; k<fpDeq.size();++k)
-            {
-                // Nearest-neighbor interaction
-                typename SpatialCellType::CellMapType neighborCells(fpDeq[k].template neighborCells<_ParticleType>());
-                
-                //! -2 loop over neighbor cells of current particle
-                for (typename SpatialCellType::CellMapType::const_iterator cIter =neighborCells.begin();
-                     /*                                                 */ cIter!=neighborCells.end();
-                     /*                                               */ ++cIter)
-                {
-                    //! -3 loop over particles in the current neighbor cell
-                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
-                        /*                                                           */ qIter!=cIter->second->particleEnd();
-                        /*                                                         */ ++qIter)
-                    {
-                        fpDeq[k].template field<FieldType>() += FieldType::compute(**qIter,fpDeq[k]);
-                    }
-                }
-                
-                // Non-nearest-neighbor interaction
-                if(useMultipole)
-                {
-                    typename SpatialCellType::CellMapType farCells(fpDeq[k].template farCells<_ParticleType>());
-
-                    fpDeq[k].template field<FieldType>() += FieldType::multipole(fpDeq[k],farCells);
-                }
-                
-            }
-        }
-        
-        /**********************************************************************/
-        template <class T>
-        friend T& operator<< (T& os, const ParticleContainerType& pS)
-        {/*! Operator<< use ParticleType-specific operator<<
-          */
-            for (typename ParticleContainerType::const_iterator pIter=pS.begin();pIter!=pS.end();++pIter)
-            {
-                os<<(*pIter);
-            }
-            return os;
-        }
-        
-    };
-
-} // end namespace
-#endif
-
 
 
 

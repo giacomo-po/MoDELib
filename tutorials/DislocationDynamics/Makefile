@@ -93,7 +93,8 @@ $(OBJS):
 ##########################################################
 # MAKE DDMPI
 ##########################################################
-mpiCFLAGS += -D _MODEL_DD_MPI_
+#mpiCFLAGS += -D _MODEL_DD_MPI_
+mpiCFLAGS += -D _MODEL_MPI_
 
 mpiOBJS = DDmpi
 

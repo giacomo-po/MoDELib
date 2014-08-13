@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <model/Mesh/SimplexObserver.h>
+#include <model/MPI/MPIcout.h> // defines mode::cout
 
 namespace model {
     
@@ -29,7 +30,7 @@ namespace model {
         {
             MeshStats<dim,k-1>::stats(countBoundarySimplices);
             
-            std::cout<<"    Simplex<"<<dim<<","<<k  <<">: "<<SimplexObserverType::size();
+            model::cout<<"    Simplex<"<<dim<<","<<k  <<">: "<<SimplexObserverType::size();
             if (countBoundarySimplices)
             {
                 size_t nB(0);
@@ -37,9 +38,9 @@ namespace model {
                 {
                     nB+=sIter->second->isBoundarySimplex();
                 }
-                std::cout<<" ("<<nB<<" boundary)";
+                model::cout<<" ("<<nB<<" boundary)";
             }
-            std::cout<<"\n";
+            model::cout<<"\n";
             
         }
 
@@ -57,7 +58,7 @@ namespace model {
         /**********************************************************************/
         static void stats(const bool& countBoundarySimplices)
         {
-            std::cout<<"    Simplex<"<<dim<<","<<k  <<">: "<<SimplexObserverType::size();
+            model::cout<<"    Simplex<"<<dim<<","<<k  <<">: "<<SimplexObserverType::size();
             if (countBoundarySimplices)
             {
                 size_t nB(0);
@@ -65,9 +66,9 @@ namespace model {
                 {
                     nB+=sIter->second->isBoundarySimplex();
                 }
-                                std::cout<<" ("<<nB<<" boundary)";
+                                model::cout<<" ("<<nB<<" boundary)";
             }
-            std::cout<<"\n";
+            model::cout<<"\n";
         }
         
 	};

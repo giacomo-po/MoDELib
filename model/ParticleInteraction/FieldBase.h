@@ -16,7 +16,8 @@
 #include <model/SpaceDecomposition/SpatialCellObserver.h>
 
 
-namespace model {
+namespace model
+{
     
 
     template<typename _Scalar, int _rows, int _cols>

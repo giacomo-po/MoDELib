@@ -10,6 +10,7 @@
 #define model_EIGENDATAREADER_H_
 
 #include <Eigen/Dense>
+#include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/Utilities/ScalarDataReader.h>
 
 
@@ -60,25 +61,33 @@ namespace model {
 		bool success=0;
 		ScalarDataReader::readInFile(fileName_in, varName_in, occurrence_in);
 		
-		if(get_table().size()==1){
+		if(get_table().size()==1)
+        {
 			size_t Ncols=get_table()[0].size();
 			value.derived().resize(Ncols);
-			for (size_t k=0;k<Ncols;++k){
-				value.derived()(k)=get_table()[0][k];}
+			for (size_t k=0;k<Ncols;++k)
+            {
+				value.derived()(k)=get_table()[0][k];
+            }
 			//&& >1
 			
 			//value.derived()=Derived::Map(&get_table()[0][0], get_table()[0].size());
-			
-			//std::cout<<"(vector "<< typeid(value.derived()).name()<<") "<<varName_in<<"="<<std::endl<<value<<std::endl;
-			success=1;}
-		else{
-			std::cout<<"Error in reading the "<<occurrence_in<<"-th occurrence of "<<varName_in << " in "<<fileName_in;
-			std::cout<<": not a vector."<<std::endl;
+			if(value.derived().cols()==1)
+            {
+			model::cout<<varName_in<<"="<<std::endl<<value.derived().transpose()<<std::endl;
+            }
+            else
+            {
+                model::cout<<varName_in<<"="<<std::endl<<value.derived()<<std::endl;
+            }
+			success=1;
+        }
+		else
+        {
+			model::cout<<"Error in reading the "<<occurrence_in<<"-th occurrence of "<<varName_in << " in "<<fileName_in;
+			model::cout<<": not a vector."<<std::endl;
 			//exit (1);
 		}
-		
-		
-		//std::cout<<"successeigen="<<success<<std::endl;
 		
 		return success;
 	}
@@ -101,32 +110,40 @@ namespace model {
 		
 		size_t Nrows=get_table().size();
 		size_t Ncols=get_table()[0].size();
-		for (size_t k=0; k<Nrows;++k){
-			if(get_table()[k].size()!=Ncols){
-				std::cout<<"Number of rows mismatch"<<std::endl;
-				exit(1);}
+		for (size_t k=0; k<Nrows;++k)
+        {
+			if(get_table()[k].size()!=Ncols)
+            {
+				model::cout<<"Number of rows mismatch"<<std::endl;
+				exit(1);
+            }
 		};
 		
 		
 		
-		if(Nrows>=1 ){
+		if(Nrows>=1 )
+        {
 			
 			value.derived().resize(Nrows,Ncols);
 			
 			
-			for (size_t r=0;r<Nrows;++r){
-				for (size_t c=0;c<Ncols;++c){
+			for (size_t r=0;r<Nrows;++r)
+            {
+				for (size_t c=0;c<Ncols;++c)
+                {
 					value.derived()(r,c)=get_table()[r][c];
 					
-				}}
+				}
+            }
 			
 			
-			//std::cout<<"(Matrix "<< typeid(value.derived()).name()<<") "<<varName_in<<"="<<std::endl<<value<<std::endl;
+			model::cout<<varName_in<<"="<<std::endl<<value<<std::endl;
 			success=1;
 		}
-		else{
-			std::cout<<"Error in reading the "<<occurrence_in<<"-th occurrence of "<<varName_in << " in "<<fileName_in;
-			std::cout<<": not a matrix."<<std::endl;
+		else
+        {
+			model::cout<<"Error in reading the "<<occurrence_in<<"-th occurrence of "<<varName_in << " in "<<fileName_in;
+			model::cout<<": not a matrix."<<std::endl;
 			exit (1);
 			
 		}

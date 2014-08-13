@@ -33,6 +33,13 @@ namespace model
         typedef Eigen::Matrix<double,_dim,_dim> MatrixDim;
         typedef Eigen::Matrix<double,_dim,1>   VectorDim;
         
+        
+        /**********************************************************************/
+        static const MatrixType& get(const MatrixType& temp)
+        {
+            return temp;
+        }
+        
         /**********************************************************************/
         template <typename ParticleType, typename CellContainerType>
         static MatrixType multipole(const ParticleType& ,const CellContainerType&)

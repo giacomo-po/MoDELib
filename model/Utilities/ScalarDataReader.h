@@ -13,7 +13,7 @@
 #include <typeinfo>
 //#include <sstream>
 //#include <fstream>
-
+#include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/Utilities/DataReader.h>
 
 namespace model  {
@@ -54,12 +54,13 @@ namespace model  {
 		
 		if(get_table().size()==1 && get_table()[0].size()==1){
 			value=get_table()[0][0];
-			std::cout<<varName_in<<"="<<value<<" (scalar "<< typeid(value).name()<<")"<<std::endl;
+//			model::cout<<varName_in<<"="<<value<<" (scalar "<< typeid(value).name()<<")"<<std::endl;
+			model::cout<<varName_in<<"="<<value<<std::endl;
 			success=1;
 		}
 		else{
-			std::cout<<"Error in reading the "<<occurrence_in<<"-th occurrence of "<<varName_in << " in "<<fileName_in;
-			std::cout<<": not a scalar."<<std::endl;
+			model::cout<<"Error in reading the "<<occurrence_in<<"-th occurrence of "<<varName_in << " in "<<fileName_in;
+			model::cout<<": not a scalar."<<std::endl;
 			exit (1);
 		
 		}

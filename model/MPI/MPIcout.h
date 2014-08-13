@@ -16,9 +16,11 @@
 
 #ifdef _MODEL_MPI_
 #include <mpi.h>
+#include <model/MPI/ModelMPIbase.h>
 #endif
 
-namespace model {
+namespace model
+{
     
     struct MPIcout
     {

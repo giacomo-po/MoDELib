@@ -307,6 +307,13 @@ namespace model
             auto eb_list = ndA.template integrationList<FieldPointType>();
             DN.template computeField<FieldPointType,StressField>(eb_list,DN.shared.use_StressMultipole);
             
+            
+            if(DN.shared.use_virtualSegments)
+            {
+                std::cout<<"HERE NEED TO ADD STRESS OF RADIAL BOUNDARY SEGMENTS!!"<<std::endl;
+            }
+
+            
             auto dislocationTraction=(u->test(),eb_list);
             
             u->clearDirichletConditions();
