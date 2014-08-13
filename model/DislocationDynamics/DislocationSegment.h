@@ -341,17 +341,17 @@ namespace model {
           *\returns the PK force at the k-th quandrature point
           */
 //            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
-            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress()+shared.externalStress+boundaryStress(quadratureParticleContainer[k]->P))*Burgers).cross(rlgauss.col(k))
+            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress()+shared.externalStress+shared.bvpSolver.stress(quadratureParticleContainer[k]->P,this->source->includingSimplex()))*Burgers).cross(rlgauss.col(k))
 			/*                   */ : ((quadratureParticleContainer[k]->stress()+shared.externalStress)*Burgers).cross(rlgauss.col(k));
             
         }
         
-        /**********************************************************************/
-        MatrixDim boundaryStress(const VectorDim& P) const
-        {
-            return(shared.use_virtualSegments) ? shared.bvpSolver.stress(P,this->source->includingSimplex()) + shared.bdn.stress(P)
-            /*                              */ : shared.bvpSolver.stress(P,this->source->includingSimplex());
-        }
+//        /**********************************************************************/
+//        MatrixDim boundaryStress(const VectorDim& P) const
+//        {
+//            return(shared.use_virtualSegments) ? shared.bvpSolver.stress(P,this->source->includingSimplex()) + shared.bdn.stress(P)
+//            /*                              */ : shared.bvpSolver.stress(P,this->source->includingSimplex());
+//        }
         
 		/**********************************************************************/
 		MatrixDimQorder get_pkGauss() const

@@ -275,7 +275,7 @@ namespace model
                 assert(sNorm>0.0 && "s-vector has zero norm.");
                 fieldPoints.emplace_back(*node,s/sNorm);
             }
-            DN.template computeField<FieldPointType,DisplacementField>(fieldPoints,DN.shared.use_DisplacementMultipole);
+            DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
             
             // Subtract the DislocationNetwork displacement from the Dirichlet conditions
             for(int n=0;n<fieldPoints.size();++n)
@@ -305,13 +305,19 @@ namespace model
             
             auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
             auto eb_list = ndA.template integrationList<FieldPointType>();
-            DN.template computeField<FieldPointType,StressField>(eb_list,DN.shared.use_StressMultipole);
-            
-            
-            if(DN.shared.use_virtualSegments)
+            if (DN.shared.use_virtualSegments)
             {
-                std::cout<<"HERE NEED TO ADD STRESS OF RADIAL BOUNDARY SEGMENTS!!"<<std::endl;
+                DN.template computeField<FieldPointType,StressField>(eb_list,DN.shared.bdn);
             }
+            else
+            {
+                DN.template computeField<FieldPointType,StressField>(eb_list);
+            }
+//            
+//            if(DN.shared.use_virtualSegments)
+//            {
+//                std::cout<<"HERE NEED TO ADD STRESS OF RADIAL BOUNDARY SEGMENTS!!"<<std::endl;
+//            }
 
             
             auto dislocationTraction=(u->test(),eb_list);

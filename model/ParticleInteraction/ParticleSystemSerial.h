@@ -55,8 +55,8 @@ namespace model {
 
         
         /**********************************************************************/
-        template <typename FieldType>
-        void computeNeighborField(const bool& useMultipole)
+        template <typename FieldType,typename... OtherSourceTypes>
+        void computeNeighborField(const OtherSourceTypes&... otherSources)
         {
             // Nearest-neighbor interaction
             //! -1 loop over all particles in the ParticleSystem (parallelized in OpenMP)
@@ -80,10 +80,16 @@ namespace model {
                 }
                 
                 // Non-nearest-neighbor interaction
-                if(useMultipole)
+                if(FieldType::use_multipole)
                 {
                     typename SpatialCellType::CellMapType farCells(this->operator[](k).template farCells<_ParticleType>());
                     *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::multipole(this->operator[](k),farCells);
+                }
+                
+                // Add contribution of other sources
+                if(sizeof...(OtherSourceTypes))
+                {
+                    *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::addSourceContribution(this->operator[](k),otherSources...);
                 }
             }
         }
@@ -91,8 +97,8 @@ namespace model {
 
         
         /**********************************************************************/
-        template <typename OtherParticleType, typename FieldType>
-        void computeField(std::deque<OtherParticleType>& fpDeq, const bool& useMultipole) const
+        template <typename OtherParticleType, typename FieldType,typename... OtherSourceTypes>
+        void computeField(std::deque<OtherParticleType>& fpDeq, const OtherSourceTypes&... otherSources) const
         {
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -118,12 +124,18 @@ namespace model {
                 }
                 
                 // Non-nearest-neighbor interaction
-                if(useMultipole)
+                if(FieldType::use_multipole)
                 {
                     typename SpatialCellType::CellMapType farCells(fpDeq[k].template farCells<_ParticleType>());
 //
 //                    fpDeq[k].template field<FieldType>() += FieldType::multipole(fpDeq[k],farCells);
                     *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::multipole(fpDeq[k],farCells);
+                }
+                
+                // Add contribution of other sources
+                if(sizeof...(OtherSourceTypes))
+                {
+                    *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::addSourceContribution(fpDeq[k],otherSources...);
                 }
                 
             }

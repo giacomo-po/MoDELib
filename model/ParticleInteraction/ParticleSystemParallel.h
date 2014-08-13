@@ -110,8 +110,8 @@ namespace model {
         //        }
         
         /**********************************************************************/
-        template <typename FieldType>
-        void computeNeighborField(const bool& useMultipole)
+        template <typename FieldType,typename... OtherSourceTypes>
+        void computeNeighborField(const OtherSourceTypes&... otherSources)
         {/*! Compute nearest-neighbor particle interaction according to FieldType
           *\returns the number of interactions computed
           *
@@ -173,11 +173,17 @@ namespace model {
                 }
                 
                 // Non nearest-neighbor interaction
-                if(useMultipole)
+                if(FieldType::use_multipole)
                 {
                     typename SpatialCellType::CellMapType farCells(lpt.bin(this->mpiRank())[k]->template farCells<_ParticleType>());
 //                    lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::multipole(*lpt.bin(this->mpiRank())[k],farCells);
                     *static_cast<FieldPointBase<ParticleType,FieldType>* const>(lpt.bin(this->mpiRank())[k]) += FieldType::multipole(*lpt.bin(this->mpiRank())[k],farCells);
+                }
+                
+                // Add contribution of other sources
+                if(sizeof...(OtherSourceTypes))
+                {
+                    *static_cast<FieldPointBase<ParticleType,FieldType>* const>(lpt.bin(this->mpiRank())[k]) += FieldType::addSourceContribution(*lpt.bin(this->mpiRank())[k],otherSources...);
                 }
             }
             
@@ -202,8 +208,8 @@ namespace model {
         
         
         /**********************************************************************/
-        template <typename OtherParticleType, typename FieldType>
-        void computeField(std::deque<OtherParticleType>& fpDeq,const bool& useMultipole) const
+        template <typename OtherParticleType, typename FieldType,typename... OtherSourceTypes>
+        void computeField(std::deque<OtherParticleType>& fpDeq,const OtherSourceTypes&... otherSources) const
         {/*! Compute nearest-neighbor particle interaction according to FieldType
           *\returns the number of interactions computed
           */
@@ -274,13 +280,20 @@ namespace model {
                 }
                 
                 // Non nearest-neighbor interaction
-                if(useMultipole)
+                if(FieldType::use_multipole)
                 {
                     typename SpatialCellType::CellMapType farCells(lpt.bin(this->mpiRank())[k]->template farCells<_ParticleType>());
 //                    lpt.bin(this->mpiRank())[k]->template field<FieldType>() += FieldType::multipole(*lpt.bin(this->mpiRank())[k],farCells);
                     *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(lpt.bin(this->mpiRank())[k]) += FieldType::multipole(*lpt.bin(this->mpiRank())[k],farCells);
 
                 }
+                
+                // Add contribution of other sources
+                if(sizeof...(OtherSourceTypes))
+                {
+                    *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(lpt.bin(this->mpiRank())[k]) += FieldType::addSourceContribution(*lpt.bin(this->mpiRank())[k],otherSources...);
+                }
+                
             }
             
             

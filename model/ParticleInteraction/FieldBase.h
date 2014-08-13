@@ -29,6 +29,14 @@ namespace model
         
         typedef Eigen::Matrix<Scalar,rows,cols> MatrixType;
 
+        
+        template <typename ParticleType>
+        static MatrixType addSourceContribution(const ParticleType&)
+        {
+            return MatrixType::Zero();
+        }
+        
+        
     };
 } // end namespace
 #endif

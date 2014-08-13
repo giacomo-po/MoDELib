@@ -33,6 +33,7 @@ namespace model
         typedef Eigen::Matrix<double,_dim,_dim> MatrixDim;
         typedef Eigen::Matrix<double,_dim,1>   VectorDim;
         
+        static bool use_multipole;
         
         /**********************************************************************/
         static const MatrixType& get(const MatrixType& temp)
@@ -150,7 +151,9 @@ namespace model
         
 	};
     
-    
+    template<short unsigned int _dim>
+	bool DislocationEnergy<_dim>::use_multipole=true;
+
     
     /**************************************************************************/
     /**************************************************************************/

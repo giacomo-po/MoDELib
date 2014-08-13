@@ -52,13 +52,24 @@ namespace model
             }
         }
         
+//        /**********************************************************************/
+//        MatrixDim stress(const VectorDim& x) const
+//        {
+//            MatrixDim temp(MatrixDim::Zero());
+//            for(int k=0;k<this->size();++k)
+//            {
+//                temp += this->operator[](k).stress(x);
+//            }
+//            return temp;
+//        }
+
         /**********************************************************************/
-        MatrixDim stress(const VectorDim& x) const
+        MatrixDim nonSymmStress(const VectorDim& x) const
         {
             MatrixDim temp(MatrixDim::Zero());
             for(int k=0;k<this->size();++k)
             {
-                temp += this->operator[](k).stress(x);
+                temp += this->operator[](k).nonSymmStress(x);
             }
             return temp;
         }

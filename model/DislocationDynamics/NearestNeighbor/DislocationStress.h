@@ -12,6 +12,7 @@
 #include <tuple>
 #include <model/ParticleInteraction/FieldBase.h>
 #include <model/ParticleInteraction/FieldPoint.h>
+#include <model/DislocationDynamics/BVP/BoundaryDislocationNetwork.h>
 
 
 namespace model
@@ -33,6 +34,9 @@ namespace model
         typedef typename FieldBaseType::MatrixType MatrixType;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
+        
+        
+        static bool use_multipole;
         
         //! Dislocation core size
         static  double a;
@@ -62,6 +66,20 @@ namespace model
         static MatrixType get(const MatrixType& temp)
         {
             return Material<Isotropic>::C2 * (temp+temp.transpose());
+        }
+        
+        /**********************************************************************/
+        template <typename ParticleType>
+        static MatrixType addSourceContribution(const ParticleType& field,
+                                                const BoundaryDislocationNetwork<dim>& bd)
+        {
+            return bd.nonSymmStress(field.P);
+        }
+        
+        template <typename ParticleType>
+        static MatrixType addSourceContribution(const ParticleType&)
+        {
+            return MatrixType::Zero();
         }
         
         /**********************************************************************/
@@ -274,6 +292,9 @@ namespace model
     /**************************************************************************/
     // Static data members
     
+    template<short unsigned int _dim>
+	bool DislocationStress<_dim>::use_multipole=true;
+        
     //! Dislocation core size
     template<short unsigned int _dim>
     double DislocationStress<_dim>::a=1.0;

@@ -11,10 +11,13 @@
 
 #include <Eigen/Core>
 #include <model/DislocationDynamics/Materials/Material.h>
-#include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
+//#include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
 
 namespace model
 {
+    
+    template<short unsigned int _dim>
+	struct DislocationStress; // class predeclaration
     
     template <int dim>
     class StressStraight
@@ -44,7 +47,7 @@ namespace model
             return (Material<Isotropic>::C1* b.cross(Y)*t.transpose()
             /*                 */ -b.cross(t)*Y.transpose()
             /*                 */ -b.dot(Y.cross(t))*(2.0/Y2*rho*Y.transpose()+0.5*(MatrixDim::Identity()+t*t.transpose()+2.0/Y2*L/R*Y*Y.transpose()))
-                    )/Y2;
+                    )*2.0/Y2;
             
 #elif _MODEL_NON_SINGULAR_DD_ == 1 /* Cai's non-singular theory */
             assert(0 && "NOT IMPLEMENTED YET");
@@ -65,14 +68,21 @@ namespace model
         {
         
         }
+
+        /**********************************************************************/
+        MatrixDim nonSymmStress(const VectorDim& x) const
+        {
+            return stress_kernel(x-P1)-stress_kernel(x-P0);
+            
+        }
         
         /**********************************************************************/
         MatrixDim stress(const VectorDim& x) const
         {
             
-            const MatrixDim temp = stress_kernel(x-P1)-stress_kernel(x-P0);
+            const MatrixDim temp = nonSymmStress(x);
 
-            return 2.0*Material<Isotropic>::C2*(temp+temp.transpose());
+            return Material<Isotropic>::C2*(temp+temp.transpose());
             
         }
         

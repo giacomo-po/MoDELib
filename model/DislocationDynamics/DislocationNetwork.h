@@ -24,7 +24,6 @@
 
 // BEING MODIFIED
 // 3 crossSlip
-// Motion of BoundarySubnetworks
 
 // TO DO
 // -5 use modelMacros instead of assert
@@ -320,7 +319,7 @@ namespace model
             if(DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy)
             {
                 typedef typename DislocationParticleType::ElasticEnergy ElasticEnergy;
-                this->template computeNeighborField<ElasticEnergy>(shared.use_EnergyMultipole);
+                this->template computeNeighborField<ElasticEnergy>();
             }
             
             //! 11- Output the current configuration before changing it
@@ -525,9 +524,11 @@ namespace model
             double cellSize(0.0);
             EDR.readScalarInFile(fullName.str(),"dislocationCellSize",cellSize);
             SpatialCellObserverType::setCellSize(cellSize);
-            EDR.readScalarInFile(fullName.str(),"use_DisplacementMultipole",shared.use_DisplacementMultipole);
-            EDR.readScalarInFile(fullName.str(),"use_StressMultipole",shared.use_StressMultipole);
-            EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",shared.use_EnergyMultipole);
+            EDR.readScalarInFile(fullName.str(),"use_DisplacementMultipole",DislocationDisplacement<dim>::use_multipole);
+            EDR.readScalarInFile(fullName.str(),"use_StressMultipole",DislocationStress<dim>::use_multipole);
+            EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",DislocationEnergy<dim>::use_multipole);
+            
+            
             
             
             // Eternal Stress
@@ -548,26 +549,26 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
             EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
             
-//			// Mesh and BVP
-//			EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
-//			if (shared.use_boundary)
-//            {
-//                int meshID(0);
-//                EDR.readScalarInFile(fullName.str(),"meshID",meshID);
-//                shared.mesh.readMesh(meshID);
-//                assert(shared.mesh.size() && "MESH IS EMPTY.");
-//                
-//				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
-//				if(shared.use_bvp)
-//                {
-//                    EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
-//                    EDR.readScalarInFile(fullName.str(),"solverTolerance",shared.bvpSolver.tolerance);
-//                    shared.bvpSolver.init();
-//				}
-//			}
-//			else{ // no boundary is used, DislocationNetwork is in inifinite medium
-//				shared.use_bvp=0;	// never comupute boundary correction
-//			}
+            //			// Mesh and BVP
+            //			EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
+            //			if (shared.use_boundary)
+            //            {
+            //                int meshID(0);
+            //                EDR.readScalarInFile(fullName.str(),"meshID",meshID);
+            //                shared.mesh.readMesh(meshID);
+            //                assert(shared.mesh.size() && "MESH IS EMPTY.");
+            //
+            //				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
+            //				if(shared.use_bvp)
+            //                {
+            //                    EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
+            //                    EDR.readScalarInFile(fullName.str(),"solverTolerance",shared.bvpSolver.tolerance);
+            //                    shared.bvpSolver.init();
+            //				}
+            //			}
+            //			else{ // no boundary is used, DislocationNetwork is in inifinite medium
+            //				shared.use_bvp=0;	// never comupute boundary correction
+            //			}
 			
 			dt=0.0;
 			EDR.readScalarInFile(fullName.str(),"dx",dx);
@@ -666,7 +667,14 @@ namespace model
             //! -1 Compute the interaction StressField between dislocation particles
             model::cout<<"		Computing particle-particle interaction..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
-            this->template computeNeighborField<StressField>(shared.use_StressMultipole);
+            if (shared.use_bvp && shared.use_virtualSegments)
+            {
+                this->template computeNeighborField<StressField>(shared.bdn);
+            }
+            else
+            {
+                this->template computeNeighborField<StressField>();
+            }
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             
 			//! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
@@ -838,22 +846,18 @@ namespace model
         //		}
         
 		
-        /**********************************************************************/
-        void stress(std::deque<SingleFieldPoint<StressField>>& fieldPoints) const
-        {
-            this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoints,shared.use_StressMultipole);
-            
-            ////                if (shared.use_bvp && shared.use_virtualSegments)
-            ////                {
-            ////                    temp += shared.bdn.stress(Rfield);
-            ////                }
-            
-            if(shared.use_virtualSegments)
-            {
-                std::cout<<"HERE NEED TO ADD STRESS OF RADIAL BOUNDARY SEGMENTS!!"<<std::endl;
-            }
-            
-        }
+//        /**********************************************************************/
+//        void stress(std::deque<SingleFieldPoint<StressField>>& fieldPoints) const
+//        {
+//            this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoints,shared.use_StressMultipole);
+//            
+//            ////                if (shared.use_bvp && shared.use_virtualSegments)
+//            ////                {
+//            ////                    temp += shared.bdn.stress(Rfield);
+//            ////                }
+//            
+//            
+//        }
         
         
         //		/**********************************************************************/

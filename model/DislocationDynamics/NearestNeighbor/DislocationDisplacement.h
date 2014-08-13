@@ -155,6 +155,8 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
 
+        static bool use_multipole;
+        
         //! The identity matrix
 		static const Eigen::Matrix<double,_dim,_dim> I;
         
@@ -239,6 +241,9 @@ namespace model
         
 		
 	};
+    
+    template<short unsigned int _dim>
+	bool DislocationDisplacement<_dim>::use_multipole=true;
     
     // Static data
 	template<short unsigned int _dim>
