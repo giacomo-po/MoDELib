@@ -106,13 +106,13 @@ namespace model
             {
                 for(int d=0;d<dim;++d)
                 {
-                    if (node(n).p0(d)<_xMin(d))
+                    if (node(n).P0(d)<_xMin(d))
                     {
-                        _xMin(d)=node(n).p0(d);
+                        _xMin(d)=node(n).P0(d);
                     }
-                    if (node(n).p0(d)>_xMax(d))
+                    if (node(n).P0(d)>_xMax(d))
                     {
-                        _xMax(d)=node(n).p0(d);
+                        _xMax(d)=node(n).P0(d);
                     }
                 }
             }

@@ -29,7 +29,7 @@ namespace model
         const Eigen::Matrix<double,dim,1> S;
         
         BoundaryDisplacementPoint(const NodeType& node, const Eigen::Matrix<double,dim,1>& s_in) :
-        /*   */ P(node.p0),
+        /*   */ P(node.P0),
         /*   */ S(s_in)
         {
             

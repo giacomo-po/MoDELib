@@ -41,7 +41,7 @@ namespace model
         template <typename NodeType>
         bool operator()(const NodeType& node) const
         {
-            return (node.p0-axisPoint).norm()<FLT_EPSILON;
+            return (node.P0-axisPoint).norm()<FLT_EPSILON;
             
         }
         

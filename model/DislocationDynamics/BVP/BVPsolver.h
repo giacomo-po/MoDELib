@@ -261,7 +261,7 @@ namespace model
                 Eigen::Matrix<double,dim,1> s(Eigen::Matrix<double,dim,1>::Zero());
                 for(auto ele : *node)
                 {
-                    const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(node->p0));
+                    const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(node->P0));
                     //std::map<double,int> baryIDmap;
                     for(int k=0;k<dim+1;++k)
                     {

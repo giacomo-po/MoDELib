@@ -7,7 +7,6 @@
 #include <model/FEM/Boundaries/AtXmin.h>
 #include <model/FEM/Boundaries/AtXmax.h>
 #include <model/FEM/BoundaryConditions/Fix.h>
-#include <./FlatPunch.h>
 
 using namespace model;
 
@@ -108,12 +107,12 @@ int main(int argc, char** argv)
     u.addDirichletCondition(fix,nodeList_0,2);
 
     // Create a list of nodes having x(2)=x2_max, where x2_max is the minimum value among the fe nodes
-    auto nodeList_2(fe.getNodeList<FlatPunch>());
+    auto nodeList_2(fe.getNodeList<AtXmin<2>>());
     // Prescribe the first component of displacement for those nodes
 //    PrescribedDisplacement disp(3.0e-4);
     FlatPunch punch(fe);
     
-    u.addDirichletCondition(punch,nodeList_2,2);
+    u.addDirichletCondition(3.0e-4,nodeList_2,2);
     
     
     /**************************************************************************/

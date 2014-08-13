@@ -28,14 +28,14 @@ namespace model
 
         typedef Eigen::Matrix<double,dim,1> PositionType;
         
-        const PositionType p0;
+        const PositionType P0;
         const size_t gID; // global ID
         
         /**********************************************************************/
         LagrangeNode(const PositionType& p,
                      const size_t& gid) :
 //                     const ElementType* const pEle) :
-        /* init list */ p0(p),
+        /* init list */ P0(p),
         /* init list */ gID(gid)
         {
 //            std::cout<<"Lagrange Node constructor..."<<this<<" ";

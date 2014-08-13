@@ -37,15 +37,15 @@ namespace model
         template <typename NodeType>
         bool operator()(const NodeType& node) const
         {
-            return std::abs(node.p0(i)-min)<FLT_EPSILON;
+            return std::abs(node.P0(i)-min)<FLT_EPSILON;
             
         }
         
         /**************************************/
         template <int dim>
-        bool operator()(const Eigen::Matrix<double,dim,1>& p0) const
+        bool operator()(const Eigen::Matrix<double,dim,1>& P0) const
         {
-            return std::abs(p0(i)-min)<FLT_EPSILON;
+            return std::abs(P0(i)-min)<FLT_EPSILON;
             
         }
         
