@@ -71,7 +71,8 @@ namespace model {
 //				dN.edgeConfiguration.setZero(nN);
 				edgeConfiguration.setZero(nN);
 
-                if (nN<=15){
+                if (nN<=EdgeDynamicConfigs::maxEdge)
+                {
                 
                     // 2- Get all the possible edge configurations
                     Eigen::MatrixXi Ci(EdgeDynamicConfigs::getCi(BsV.size()));

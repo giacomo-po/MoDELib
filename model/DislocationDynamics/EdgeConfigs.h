@@ -43,11 +43,15 @@ namespace model {
 
 	/**********************************************************************/
 	/**********************************************************************/
-	struct EdgeDynamicConfigs{
+	struct EdgeDynamicConfigs
+    {
+        
+        static const size_t maxEdge;
 		
 		static Eigen::MatrixXi getCi(const unsigned int& n){
 			Eigen::MatrixXi Ci;
-			switch (n) {
+			switch (n)
+            {
 				case 1:
 					Ci=EdgeConfigs<1>::get_Ci();
 					break;
@@ -102,7 +106,9 @@ namespace model {
 			return Ci;
 		}
 		
-	};	
+	};
+    
+    const size_t EdgeDynamicConfigs::maxEdge=8;
 	
 	/*********************************************************************/
 	/*********************************************************************/

@@ -132,12 +132,12 @@ namespace model {
             
             if(sizePN1==1 && sizePN2==1) // nodes constrained to move on planes
             {
-//                const VectorDimD d(PN1[0].cross(PN2[0])); // direction of common line
-
+                //                const VectorDimD d(PN1[0].cross(PN2[0])); // direction of common line
+                
                 std::cout<<"contractWithPlaneCheck, case 1"<<std::endl;
                 const double denom(1.0-std::pow(PN1[0].dot(PN2[0]),2));
                 const double numer((P2-P1).dot(PN2[0]));
-
+                
                 if(denom<FLT_EPSILON)
                 {
                     if(std::fabs(denom)<FLT_EPSILON) // planes are coincident
@@ -170,10 +170,10 @@ namespace model {
                     {
                         contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
                     }
-//                    else
-//                    {
-//                        assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
-//                    }
+                    //                    else
+                    //                    {
+                    //                        assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
+                    //                    }
                 }
             }
             else if(sizePN1==2 && sizePN2==1) // N1 moves on a line, N2 moves on a plane
@@ -192,10 +192,10 @@ namespace model {
                     {
                         contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
                     }
-//                    else
-//                    {
-//                        assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
-//                    }
+                    //                    else
+                    //                    {
+                    //                        assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
+                    //                    }
                 }
             }
             else if(sizePN1==2 && sizePN2==2) // both N1 and N2 move on lines
@@ -211,22 +211,32 @@ namespace model {
                 {
                     const VectorDimD d1(PN1[0].cross(PN1[1]));
                     const VectorDimD d2(PN2[0].cross(PN2[1]));
-                    if(std::fabs(d1.cross(d2).dot((P1-P2)/P12norm))<FLT_EPSILON) // planarity condition
+                    const VectorDimD d1xd2(d1.cross(d2));
+                    if(d1xd2.norm()>FLT_EPSILON) // d1 and d2 are not aligned
                     {
-                        const VectorDimD dOrth=d2-d2.dot(d1)*d1;
-                        const double den=d2.dot(dOrth);
-                        if(std::fabs(den)>FLT_EPSILON)
+                        if(std::fabs(d1.cross(d2).dot((P1-P2)/P12norm))<FLT_EPSILON) // planarity condition
                         {
+                            const VectorDimD dOrth=d2-d2.dot(d1)*d1; // component of d2 orthogonal to d1
+                            const double den=d2.dot(dOrth);
+                            assert(std::fabs(den)>FLT_EPSILON && "YOU SHOULD HAVE FOUND THIS ABOVE.");
                             contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+(P1-P2).dot(dOrth)/den*d2);
                         }
                         else
                         {
-                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
+                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. PLANARITY CONDITION FAILED.");
                         }
                     }
                     else
                     {
-                        assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
+                        if(d1.cross((P1-P2).normalized()).norm()<FLT_EPSILON) // P2-P1 is also aligned to d1 and d2
+                        {
+                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
+                        }
+                        else
+                        {
+                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. ALIGNMENT CONDITION FAILED.");
+                            
+                        }
                     }
                 }
             }
@@ -259,7 +269,7 @@ namespace model {
             
             return contracted;
             
-
+            
             
             
         }
@@ -284,8 +294,8 @@ namespace model {
 		/* findIntersections **************************************************/
         //		EdgeIntersectionPairContainerType findIntersections(const double& avoidNodeIntersection) const
 		void findIntersections(EdgeIntersectionPairContainerType& intersectionContainer,
-                                       std::deque<int>& dirVector,
-                                       const double& avoidNodeIntersection) const
+                               std::deque<int>& dirVector,
+                               const double& avoidNodeIntersection) const
         
         {/*! @param[in]  avoidNodeIntersection
           *  Computes all the intersections between the edges of the DislocationNetwork
@@ -371,23 +381,23 @@ namespace model {
                             //                            {
                             
                             const bool intersectionIsSourceSource(   paramIter->first  <0.5
-                                                                   && paramIter->second <0.5
-                                                                   &&
+                                                                  && paramIter->second <0.5
+                                                                  &&
                                                                   linkIterA->second->source->sID==linkIterB->second->source->sID);
                             
                             const bool   intersectionIsSourceSink(   paramIter->first  <0.5
-                                                                   && paramIter->second >1.0-0.5
-                                                                   &&
+                                                                  && paramIter->second >1.0-0.5
+                                                                  &&
                                                                   linkIterA->second->source->sID==linkIterB->second->sink->sID);
                             
                             const bool   intersectionIsSinkSource(   paramIter->first  > 1.0-0.5
-                                                                   && paramIter->second <0.5
-                                                                   &&
+                                                                  && paramIter->second <0.5
+                                                                  &&
                                                                   linkIterA->second->sink->sID==linkIterB->second->source->sID);
                             
                             const bool     intersectionIsSinkSink(   paramIter->first  > 1.0-0.5
-                                                                   && paramIter->second > 1.0-0.5
-                                                                   &&
+                                                                  && paramIter->second > 1.0-0.5
+                                                                  &&
                                                                   linkIterA->second->sink->sID==linkIterB->second->sink->sID);
                             
                             
@@ -443,8 +453,8 @@ namespace model {
                     const double du2(dx/L2.second->chordLength());
                     const VectorDimD N1(L1.second->glidePlaneNormal);
                     const VectorDimD N2(L2.second->glidePlaneNormal);
-//                    const bool is1sessile(L1.second->sessilePlaneNormal.norm()>FLT_EPSILON);
-//                    const bool is2sessile(L2.second->sessilePlaneNormal.norm()>FLT_EPSILON);
+                    //                    const bool is1sessile(L1.second->sessilePlaneNormal.norm()>FLT_EPSILON);
+                    //                    const bool is2sessile(L2.second->sessilePlaneNormal.norm()>FLT_EPSILON);
                     const Simplex<dim,dim>* S1(source1.includingSimplex());
                     const Simplex<dim,dim>* S2(source2.includingSimplex());
                     
@@ -499,7 +509,7 @@ namespace model {
                             model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
                             model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
                             std::cout<<"Junction case 1"<<std::endl;
-
+                            
                             const std::pair<bool,size_t> success1m=DN.expand(source1.sID,sink1.sID,P1m); // now L1.second is invalid
                             assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
                             const size_t& im=success1m.second; // id of the node obtained expanding L1

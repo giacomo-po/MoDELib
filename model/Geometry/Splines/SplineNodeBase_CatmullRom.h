@@ -61,7 +61,8 @@ namespace model {
         
         //////////////////////////////////////////////////
         // set
-        void set(const VectorDim& P_in){
+        void set(const VectorDim& P_in)
+        {
             /*! Because of the CatmullRom rule for parametric tangents, changing the position of this
              *  CatmullRom node must also change its parametric tangent and the
              *  parametric tangents of its first-neighboring nodes. This in turn affects the shape
