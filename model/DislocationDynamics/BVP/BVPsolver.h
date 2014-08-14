@@ -305,6 +305,7 @@ namespace model
             
             auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
             auto eb_list = ndA.template integrationList<FieldPointType>();
+            model::cout<<"Computing DD boundary traction"<<std::endl;
             if (DN.shared.use_virtualSegments)
             {
                 DN.template computeField<FieldPointType,StressField>(eb_list,DN.shared.bdn);
@@ -376,14 +377,14 @@ namespace model
             return stress(ele,bary)*JGNselector<dim>::jGN(ele.jGN(bary,boundaryFace));
 		}
         
-//        /**********************************************************************/
-//		template <typename DislocationNetworkType>
-//        VectorDim traction(const Eigen::Matrix<double,dim-1,1>& a1, const ElementType& ele, const int& boundaryFace, const DislocationNetworkType& DN) const
-//        {
-//            const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(a1));
-//            const Eigen::Matrix<double,dim+1,1> bary(face2domainBary(b1,boundaryFace));
-//            return (stress(ele,bary)+DN.stress(ele.position(bary)))*JGNselector<dim>::jGN(ele.jGN(bary,boundaryFace));
-//		}
+        /**********************************************************************/
+		template <typename DislocationNetworkType>
+        VectorDim ddTraction(const Eigen::Matrix<double,dim-1,1>& a1, const ElementType& ele, const int& boundaryFace, const DislocationNetworkType& DN) const
+        {
+            const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(a1));
+            const Eigen::Matrix<double,dim+1,1> bary(face2domainBary(b1,boundaryFace));
+            return DN.stress(ele.position(bary))*JGNselector<dim>::jGN(ele.jGN(bary,boundaryFace));
+		}
         
 	};
 	

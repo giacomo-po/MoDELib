@@ -855,6 +855,15 @@ namespace model
           */
             return vmax;
         }
+        
+        /**********************************************************************/
+        MatrixDimD stress(const VectorDimD& P) const
+        {
+            std::deque<SingleFieldPoint<StressField>> fieldPoints;
+            fieldPoints.emplace_back(P);
+            this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoints);
+            return fieldPoints[0].template field<StressField>();
+        }
 		
 	};
     
@@ -875,18 +884,7 @@ namespace model
 //		}
 
 
-//        /**********************************************************************/
-//        void stress(std::deque<SingleFieldPoint<StressField>>& fieldPoints) const
-//        {
-//            this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoints,shared.use_StressMultipole);
-//
-//            ////                if (shared.use_bvp && shared.use_virtualSegments)
-//            ////                {
-//            ////                    temp += shared.bdn.stress(Rfield);
-//            ////                }
-//
-//
-//        }
+
 
 
 //		/**********************************************************************/
