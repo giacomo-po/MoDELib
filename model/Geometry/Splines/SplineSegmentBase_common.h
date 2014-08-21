@@ -76,34 +76,9 @@ VectorDim sinkT() const {
 	//return this->sink->get_T()*sinkTfactor;
 }
 
-//////////////////////////////////////////////////////////////
-protected:
-//////////////////////////////////////////////////////////////
-//model::SplineIntersection<dim,corder> SI;
-
-// Eigen::Matrix<double, Ndof, Eigen::Dynamic> G2H;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 public:
-//typedef typename TypeTraits<Derived>::FlowType FlowType;
 
-/////////////////////////////////////////////////////////////////////////////////
-// Constructor with Subnetwork* pair of Nodes*
-//template <typename FlowType>
+/******************************************************************************/
 SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in,
 /*             */ const FlowType& Fin) : NetworkLink<Derived>::NetworkLink(nodePair_in, Fin)
 {/*! Constructor with Nodes and flow
@@ -111,10 +86,7 @@ SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in,
     
 }
 
-///*                                    */ sourceTfactor(1),
-///*                                    */ sinkTfactor(1){}
-
-
+/******************************************************************************/
 SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in,
 /*             */ const ExpandingEdge<LinkType>& ee) :
 /* init list */ NetworkLink<Derived>::NetworkLink(nodePair_in, ee)
@@ -145,53 +117,39 @@ SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in,
     
 }
 
-
-
-//////////////////////////////////////////////////////////////
-//! Returns the chord vector (source -> sink)
-VectorDim chord() const {
+/******************************************************************************/
+VectorDim chord() const
+{/*!\returns the chord vector (source -> sink)
+  */
 	return this->sink->get_P()-this->source->get_P();
 }
 
-//////////////////////////////////////////////////////////////
-//! Returns the length of the chord vector
-double chordLength() const {
+/******************************************************************************/
+double chordLength() const
+{/*!\returns the length of the chord vector
+  */
 	return chord().norm();
 }
 
-////////////////////////////////////////////////////////////////
-////! Returns the length of the chord vector to the power alpha
-//double chordParametricLength() const
-//{
-//	return std::pow(chordLength(),alpha);;
-//}
-
-
-/////////////////////////////////////////////////////////////////////////////////
-// SF, SFu, SFuu
-RowNcoeff get_SF(const double & uin) const {
-	//make_UPOW(uin);
-	//	std::cout<<"SplineSegmentBase::make_SF"<<std::endl;
+/******************************************************************************/
+RowNcoeff get_SF(const double & uin) const
+{
 	return get_UPOW(uin)*get_SFCH();
 }
 
-RowNcoeff get_SFu(const double & uin) const {
-	
-	//make_UPOWu(uin);
-	
-	//	std::cout<<"SplineSegmentBase::make_SF"<<std::endl;
+/******************************************************************************/
+RowNcoeff get_SFu(const double & uin) const
+{
 	return get_UPOWu(uin)*get_SFCH().template block<Ncoeff-1,Ncoeff>(1,0);
-	
 }
 
-RowNcoeff get_SFuu(const double & uin) const {
-	//make_UPOWuu(uin);
-	//	std::cout<<"SplineSegmentBase::make_SF"<<std::endl;
+/******************************************************************************/
+RowNcoeff get_SFuu(const double & uin) const
+{
 	return  get_UPOWuu(uin)*get_SFCH().template block<Ncoeff-2,Ncoeff>(2,0);
 }
 
-//////////////////////////////////////////////////////////////
-//! SF*qH
+/******************************************************************************/
 VectorDim get_r(const double & u) const {
 	/*! The position vector at parameter u
 	 *  @param[in] u the parametrization variable in [0:1]
@@ -204,11 +162,6 @@ VectorDim get_r(const double & u) const {
 	 */
 	return get_SF(u)*get_qH();
 }
-
-//void make_r(const int & k){
-//	make_r(this->abscissa(k));
-//	SFgauss.row(k)=SF;
-//}
 
 //////////////////////////////////////////////////////////////
 //! ru=SFu*qH
@@ -270,14 +223,20 @@ Eigen::Matrix<double, Ndof, Eigen::Dynamic>  get_G2H() const {
 
 
 /* isCommonNeighborAt *************************************************/
-std::pair<bool,size_t> isCommonNeighborAt(const VectorDim& P0) const {
+std::pair<bool,size_t> isCommonNeighborAt(const VectorDim& P0) const
+{
     std::pair<bool,size_t> temp(false,0);
-    for (typename Derived::NeighborContainerType::const_iterator nIiter=this->source->neighborhood().begin();nIiter!=this->source->neighborhood().end();++nIiter){ // loop over neighborhood of source
-        if (std::get<0>(nIiter->second)->sID!=this->source->sID && std::get<0>(nIiter->second)->sID!=this->sink->sID){ // neighbor is neither source nor sink
-            if((std::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON){ // a neighbor of I exists at P0
+    for (typename Derived::NeighborContainerType::const_iterator nIiter=this->source->neighborhood().begin();nIiter!=this->source->neighborhood().end();++nIiter)
+    { // loop over neighborhood of source
+        if (std::get<0>(nIiter->second)->sID!=this->source->sID && std::get<0>(nIiter->second)->sID!=this->sink->sID)
+        { // neighbor is neither source nor sink
+            if((std::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON)
+            { // a neighbor of I exists at P0
                 const size_t p0ID(std::get<0>(nIiter->second)->sID); // the sID of the neighbor at P0
-                for (typename Derived::NeighborContainerType::const_iterator nJiter=this->sink->neighborhood().begin();nJiter!=this->sink->neighborhood().end();++nJiter){ // loop over neighborhood of sink
-                    if(std::get<0>(nJiter->second)->sID==p0ID){
+                for (typename Derived::NeighborContainerType::const_iterator nJiter=this->sink->neighborhood().begin();nJiter!=this->sink->neighborhood().end();++nJiter)
+                { // loop over neighborhood of sink
+                    if(std::get<0>(nJiter->second)->sID==p0ID)
+                    {
                         temp=std::pair<bool,size_t>(true,p0ID);
                     }
                 }

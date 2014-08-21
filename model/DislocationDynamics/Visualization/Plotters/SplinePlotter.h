@@ -42,12 +42,17 @@
 namespace model {
 	
 	
+    class DDgl;
+    
 	/*********************************************************************/
 	/*********************************************************************/
-	template <int dim, int Np, int Nc, float & alpha>
+	template <int dim, int Np, int Nc>
 	class SingleSplinePlotter{
 		
 	public:
+        
+        static float alpha;
+        
 		typedef float scalarType;
 		typedef Eigen::Matrix<scalarType,dim,Np> MatrixDimNp;
 		typedef Eigen::Matrix<scalarType,dim,Nc> MatrixDimNc;
@@ -58,8 +63,6 @@ namespace model {
         
 		
 	private:
-		//using HermiteCubicSplineAxis<dim,Np,alpha>::tubeAxis;
-		//using HermiteCubicSplineAxis<dim,Np,alpha>::tubeTangents;
 		
 		MatrixDimNp tubeAxis;
 		MatrixDimNp tubeTangents;
@@ -269,24 +272,26 @@ namespace model {
 		}
         
 	};
+    
+    template <int dim, int Np, int Nc>
+	float SingleSplinePlotter<dim,Np,Nc>::alpha=0.5;
 	
 	
 	
 	/*************************************************************/
 	/*************************************************************/
-	template <int dim, int Np, int Nc, float & alpha>
+	template <int dim, int Np, int Nc>
 	class SplinePlotter :
-	/* inherits from   */ public VertexReader<'V',8,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
+	/* inherits from   */ public VertexReader<'V',9,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ public EdgeReader  <'E',11,double>,
 	/*                 */ public VertexReader<'P',7,double>,
-	//	/* inherits from   */ private std::vector<SingleSplinePlotter<dim,Np,Nc,alpha> >{ // CHANGE THIS DOUBLE TO SCALARTYPE
-	/* inherits from   */ private boost::ptr_vector<SingleSplinePlotter<dim,Np,Nc,alpha> >{ // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
+	/* inherits from   */ private boost::ptr_vector<SingleSplinePlotter<dim,Np,Nc> >{ // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
 		
 		typedef float scalarType;
-		typedef VertexReader<'V',8,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
+		typedef VertexReader<'V',9,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
 		typedef EdgeReader  <'E',11,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
         typedef VertexReader<'P',7,double> PKContainerType;
-		typedef SingleSplinePlotter<dim,Np,Nc,alpha> SingleSplinePlotterType;
+		typedef SingleSplinePlotter<dim,Np,Nc> SingleSplinePlotterType;
         //		typedef std::vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
 		typedef boost::ptr_vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
 		typedef typename SingleSplinePlotterType::VectorDim VectorDim;
@@ -361,16 +366,21 @@ namespace model {
 				const int sourceTfactor(itEdge->second(2*dim));
 				const int   sinkTfactor(itEdge->second(2*dim+1));
 				const int   snID(itEdge->second(2*dim+2));
-				
+                const bool sourceOnBoundary(itSource->second(2*dim+1));
+                const bool   sinkOnBoundary(  itSink->second(2*dim+1));
                 
-                P0T0P1T1BN.col(0) = itSource->second.segment<dim>(0*dim).transpose().template cast<float>();	// source position
-                P0T0P1T1BN.col(2) =   itSink->second.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
-				P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
-				P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
-				P0T0P1T1BN.col(4) = itEdge->second.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
-				P0T0P1T1BN.col(5) = itEdge->second.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
-				
-				SingleSplinePlotterVectorType::push_back(new SingleSplinePlotterType(P0T0P1T1BN,snID));
+                if(!(sourceOnBoundary && sinkOnBoundary))
+                {
+                    
+                    P0T0P1T1BN.col(0) = itSource->second.segment<dim>(0*dim).transpose().template cast<float>();	// source position
+                    P0T0P1T1BN.col(2) =   itSink->second.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
+                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
+                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
+                    P0T0P1T1BN.col(4) = itEdge->second.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
+                    P0T0P1T1BN.col(5) = itEdge->second.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
+                    
+                    SingleSplinePlotterVectorType::push_back(new SingleSplinePlotterType(P0T0P1T1BN,snID));
+                }
 			}
 		}
 		
@@ -421,13 +431,15 @@ namespace model {
                     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor);      // ambient color for the material
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor);      // diffuse color for the material
                     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor);  // specular color for the material
+                    const bool vertexOnBoundary(vIter->second(2*dim+1));
                     
-					glTranslatef(  vIter->second(0),  vIter->second(1),  vIter->second(2) );
-					gluSphere( myQuad , radius*1.2 , 10 , 10 );
-					glTranslatef( -vIter->second(0), -vIter->second(1), -vIter->second(2) );
-                    //					renderBitmapString(vIter->second.template cast<float>().template segment<dim>(0),
-                    //               /*              */ GLUT_BITMAP_HELVETICA_18,
-                    //					/*              */ static_cast<std::ostringstream*>( &(std::ostringstream() << vIter->first) )->str());
+                    if(!vertexOnBoundary)
+                    {
+                        glTranslatef(  vIter->second(0),  vIter->second(1),  vIter->second(2) );
+                        gluSphere( myQuad , radius*1.2 , 10 , 10 );
+                        glTranslatef( -vIter->second(0), -vIter->second(1), -vIter->second(2) );
+                    }
+                    
                     if (showVertexID || (showSpecificVertex && specificVertexID==vIter->first))
                     {
                         VectorDim PT(vIter->second.template cast<float>().template segment<dim>(0));
@@ -496,8 +508,8 @@ namespace model {
 	
     
     //static data
-    template <int dim, int Np, int Nc, float & alpha>
-	int SplinePlotter<dim,Np,Nc,alpha>::colorScheme=0;
+    template <int dim, int Np, int Nc>
+	int SplinePlotter<dim,Np,Nc>::colorScheme=0;
 }
 #endif
 /*********************************************************************/

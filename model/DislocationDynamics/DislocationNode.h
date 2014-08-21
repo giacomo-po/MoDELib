@@ -26,8 +26,10 @@
 #include <model/Math/GramSchmidt.h>
 #include <model/DislocationDynamics/DislocationEnergyRules.h>
 #include <model/Mesh/Simplex.h>
+#include <model/DislocationDynamics/Junctions/EdgePermutation.h>
 
-namespace model {
+namespace model
+{
 	
 	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
@@ -37,7 +39,8 @@ namespace model {
 	public:
 		
         // make dim available outside class
-        enum{dim=_dim};
+        constexpr static int dim=_dim;
+        
         
         // define Derived to use NetworkTypedefs.h
 		typedef DislocationNode       <dim,corder,InterpolationType,qOrder,QuadratureRule> Derived;
@@ -173,14 +176,18 @@ namespace model {
         {
             //! 1- Clear and re-builds the std::vector planenormals
 			planenormals.clear();
-			for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter){
-				if (std::get<2>(neighborIter->second)){
+			for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
+            {
+				if (std::get<2>(neighborIter->second))
+                {
 					LinkType* pL(std::get<1>(neighborIter->second));
 					if (std::find(planenormals.begin(),planenormals.end(), pL->glidePlaneNormal )==planenormals.end() &&
-						std::find(planenormals.begin(),planenormals.end(),-pL->glidePlaneNormal )==planenormals.end()   ){
+						std::find(planenormals.begin(),planenormals.end(),-pL->glidePlaneNormal )==planenormals.end()   )
+                    {
 						planenormals.push_back(pL->glidePlaneNormal );
 					}
-					if(pL->sessilePlaneNormal.norm()>FLT_EPSILON){
+					if(pL->sessilePlaneNormal.norm()>FLT_EPSILON)
+                    {
 						planenormals.push_back(pL->sessilePlaneNormal);
 					}
 					
@@ -193,11 +200,27 @@ namespace model {
         
         /**********************************************************************/
         void removeFromNeighborhood(LinkType* const pL)
-        {/*! @param[in] pL A pointer to the DislocationSegment being disconnected
+        {/*!@param[in] pL A pointer to the DislocationSegment being disconnected
+          * from this node.
+          *
           *  Overwrites NetworkNode::removeFromNeighborhood in order to modify
           *  planeNormals and tangent after the DislocationSegment is disconnected
           */
             NodeBaseType::removeFromNeighborhood(pL);
+            make_planeNormals();
+            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
+            NodeBaseType::make_T();
+        }
+        
+        /**********************************************************************/
+        void addToNeighborhood(LinkType* const pL)
+        {/*!@param[in] pL A pointer to the DislocationSegment being connected
+          * to this node.
+          *
+          *  Overwrites NetworkNode::addToNeighborhood in order to modify
+          *  planeNormals and tangent after the DislocationSegment is disconnected
+          */
+            NodeBaseType::addToNeighborhood(pL);
             make_planeNormals();
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
             NodeBaseType::make_T();
@@ -294,7 +317,7 @@ namespace model {
 			VectorDim dX=velocity.template segment<dim>(0)*dt - vOld.template segment<dim>(0)*dt_old;
             
             //			if (dX.squaredNorm()>0.0 && (meshLocation()!=onMeshBoundary || shared.use_bvp==0)) // move a node only if |v|!=0 and if not on mesh boundary
-            if (dX.squaredNorm()>0.0) // move a node only if |v|!=0 
+            if (dX.squaredNorm()>0.0) // move a node only if |v|!=0
             {
 				if(shared.use_boundary) // using confining mesh
                 {
@@ -365,51 +388,73 @@ namespace model {
             return (boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh);
         }
         
-        /* operator<< *********************************************************/
+        /**********************************************************************/
         template <class T>
 		friend T& operator << (T& os, const NodeType& ds)
         {
 			os  << ds.sID<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<"\t"
 			/**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<"\t"
-            /**/<< ds.pSN()->sID;
-            //			if (ds.shared.use_bvp)
-            //            { //output in deformed configuration
-            //					os << std::setprecision(15)<<std::scientific<<ds.deformedPosition().transpose()<<" ";
-            //				}
-            //				else{
-            //					os<< VectorDim::Zero().transpose();
-            //				}
-            //os << "\n";
+            /**/<< ds.pSN()->sID<<"\t"
+            /**/<< (ds.meshLocation()==onMeshBoundary);
 			return os;
         }
 		
-	};
-	
+        /**********************************************************************/
+        std::deque<std::pair<size_t,size_t> > edgeDecomposition() const
+        {
+            
+            std::deque<std::pair<size_t,size_t> > firstLinkDeq;
+            
+            if(this->Neighborhood.size()>2 && meshLocation()==insideMesh)
+            {
+                std::deque<std::pair<int,int> > linkDeq;
+                
+                
+                const size_t neighSize=this->Neighborhood.size()-1;
+                
+                Eigen::MatrixXd temp(neighSize,dim);
+                
+                int k=0;
+                for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
+                {
+                    if (std::get<2>(neighborIter->second)) // not self
+                    {
+                        LinkType* pL(std::get<1>(neighborIter->second));
+                        temp.row(k)=pL->Burgers;
+                        linkDeq.emplace_back(pL->source->sID,pL->sink->sID);
+                        k++;
+                    }
+                }
+                
+                auto vecVec=EdgePermutations::edgeStats(temp);
+                if(vecVec.size()==2)
+                {
+                    if((vecVec[0].array()*vecVec[1].array()).matrix().squaredNorm()<FLT_EPSILON) // decompisition is unique
+                    {
+//                        std::cout<<"DislocationNode "<<this->sID<<std::endl;
+//                        std::cout<<"Matrix of Burgers= "<<std::endl<<temp<<std::endl;
+//                        std::cout<<"null configurations= "<<std::endl;
+//                        for(auto v : vecVec)
+//                        {
+//                            std::cout<<v<<std::endl;
+//                        }
+                        for(int n=0;n<neighSize;++n)
+                        {
+                            if(vecVec[0](n)!=0)
+                            {
+                                firstLinkDeq.push_back(linkDeq[n]);
+                            }
+                        }
+                        
+                    }
+                }
+            }
+            
+            return firstLinkDeq;
+        }
+        
+    };
+    
 } // close namespace
 #endif
-
-
-//        /**********************************************************************/
-//		const int& meshID() const
-//        {
-//            return currentMeshID;
-//        }
-
-//        /**********************************************************************/
-//		void updateBvpStress() __attribute__ ((deprecated))
-//        {
-//			bvpStress=shared.domain.tetContainer[currentMeshID].getStress(); // stress is constant in the element because of Linear Shape Functions
-//		}
-
-
-//        /**********************************************************************/
-//		VectorDim deformedPosition() const __attribute__ ((deprecated))
-//        {
-//			VectorDim temp(this->get_P());
-//			Eigen::Matrix<double,4,1> barycoord(shared.domain.tetContainer[currentMeshID].getBarycentric(this->get_P()));
-//			for(int k=0;k<4;++k){
-//				temp+=shared.domain.tetContainer[currentMeshID].eleNodes[0]->u*barycoord(k);
-//			}
-//			return temp;
-//		}

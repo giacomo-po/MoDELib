@@ -26,7 +26,9 @@ namespace model {
 	public:
 
 		/* Constructor ******************************/
-		VertexInsertion(NetworkVertexMapType& networkVertexMapRef_in) : networkVertexMapRef(networkVertexMapRef_in) {}
+		VertexInsertion(NetworkVertexMapType& networkVertexMapRef_in) :
+        /* init */ networkVertexMapRef(networkVertexMapRef_in)
+        {}
 		
 		/* insert ***********************************/
 		template <typename ...NodeArgTypes>

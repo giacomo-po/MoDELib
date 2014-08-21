@@ -74,9 +74,11 @@ namespace model {
 	/*************************************************************/
 	/* DDgl **************************************************/
 	/*************************************************************/
-	template <float & alpha>
+//	template <float & alpha>
 	struct DDgl
     {
+        
+        static float alpha;
 		
         const SimplicialMesh<3>* const p_mesh; // declaring mesh as pointer is necessary
 
@@ -151,8 +153,8 @@ namespace model {
 		VectorDimF transVector;
 		
 		// The plotters
-		typedef SplinePlotter<dim,50,10,alpha> SplinePlotterType;
-		typedef SingleSplinePlotter<dim,50,10,alpha> SingleSplinePlotterType;
+		typedef SplinePlotter<dim,50,10> SplinePlotterType;
+		typedef SingleSplinePlotter<dim,50,10> SingleSplinePlotterType;
 
         SplinePlotterType splinePlotter;
 		CellPlotter  cellPlotter;
@@ -427,11 +429,11 @@ namespace model {
                 }
                 
                 // pdf files
-                if (GL2pdf< DDgl<alpha> >::savePDF)
+                if (GL2pdf<DDgl>::savePDF)
                 {
                     std::stringstream filenameStream;
                     filenameStream << "pdf/image_" << frameN;
-                    GL2pdf< DDgl<alpha> >(*this).saveAs(filenameStream.str());
+                    GL2pdf<DDgl>(*this).saveAs(filenameStream.str());
                 }
                 savedframeN=frameN; // update savedframeN
             }
@@ -542,6 +544,9 @@ namespace model {
         {
 			
  //               mesh.readMesh(0);
+            
+            EigenDataReader EDR;
+            EDR.readScalarInFile("./DDinput.txt","parametrizationExponent",SingleSplinePlotterType::alpha);
 
 
             
@@ -580,7 +585,7 @@ namespace model {
 			
 			//saveTga=false;
 			GL2tga::saveTGA=false;
-			GL2pdf< DDgl<alpha> >::savePDF=false;
+			GL2pdf<DDgl>::savePDF=false;
             
 			savedframeN=-1;
 			
@@ -1049,6 +1054,8 @@ namespace model {
         
 		
 	};
+    
+    	float DDgl::alpha=0.5;
 	
 	/********************************************************************/
 	/********************************************************************/

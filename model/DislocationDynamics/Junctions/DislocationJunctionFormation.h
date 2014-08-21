@@ -917,518 +917,87 @@ namespace model {
 			
         }
         
+        
+        /**********************************************************************/
+        void breakZeroLengthJunctions()
+        {
+            std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecomp;
+            
+            for (typename NetworkNodeContainerType::const_iterator nodeIter =DN.nodeBegin();
+                 /*                                             */ nodeIter!=DN.nodeEnd();
+                 /*                                             */ nodeIter++)
+            {
+                std::deque<std::pair<size_t,size_t> > temp=nodeIter->second->edgeDecomposition();
+                if(temp.size())
+                {
+                    nodeDecomp.emplace_back(nodeIter->second->sID,temp);
+                }
+            }
+            
+            for(int n=0;n<nodeDecomp.size();++n)
+            {
+                const size_t& i=nodeDecomp[n].first;
+                auto Ni=DN.node(i);
+                assert(Ni.first);
+                size_t m=DN.insertVertex(Ni.second->get_P());
+                
+                // Check that Links still exist
+                bool linksexist=true;
+                for(size_t d=0;d<nodeDecomp[n].second.size();++d)
+                {
+                    const size_t& j=nodeDecomp[n].second[d].first;
+                    const size_t& k=nodeDecomp[n].second[d].second;
+                    if(i==j)
+                    {
+                        auto Lik=DN.link(i,k);
+                        linksexist*=Lik.first;
+                    }
+                    else if(i==k)
+                    {
+                        auto Lji=DN.link(j,i);
+                        linksexist*=Lji.first;
+                    }
+                    else
+                    {
+                        assert(0 && "i must be equal to either j or k.");
+                    }
+                }
+                
+                if(linksexist)
+                {
+                    for(size_t d=0;d<nodeDecomp[n].second.size();++d)
+                    {
+                        const size_t& j=nodeDecomp[n].second[d].first;
+                        const size_t& k=nodeDecomp[n].second[d].second;
+                        if(i==j)
+                        {
+                            auto Lik=DN.link(i,k);
+                            assert(Lik.first);
+                            DN.connect(m,k,Lik.second->Burgers);
+                            DN.template disconnect<0>(i,k);
+                        }
+                        else if(i==k)
+                        {
+                            auto Lji=DN.link(j,i);
+                            assert(Lji.first);
+                            DN.connect(j,m,Lji.second->Burgers);
+                            DN.template disconnect<0>(j,i);
+                        }
+                        else
+                        {
+                            assert(0 && "i must be equal to either j or k.");
+                        }
+                    }
+                }
+            }
+        }
+        
+        
 	};
-    
-    
     
     // Declare Static Data
     template <typename DislocationNetworkType>
     double DislocationJunctionFormation<DislocationNetworkType>::collisionTol=10.0;
-    
-    
-    // Declare Static Data
-    //    template <typename DislocationNetworkType>
-    //    bool DislocationJunctionFormation<DislocationNetworkType>::useVertexEdgeJunctions=true;
-    
 	
-	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
-
-
-
-//            if (!is1sessile && !is2sessile)
-//            {
-//                VectorDimD linePoint((P1+P2)*0.5);
-//                const double denom(1.0-std::pow(N1.dot(N2),2));
-//                if(std::fabs(denom)>FLT_EPSILON)
-//                { // planes are incident: make sure to place intersection on common line
-//                    const double numer((P2-P1).dot(N2));
-//                    const double u(numer/denom);
-//                    linePoint = P1+(N2-N2.dot(N1)*N1)*u;
-//                }
-//
-//                // If mesh is used, make cure that intersection point is inside mesh
-//                bool linePointInsideMesh(true);
-//                if (DN.shared.use_boundary)
-//                {
-//                    //                        linePointInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(linePoint,Ni.second->includingSimplex(),FLT_EPSILON).first;
-//                    linePointInsideMesh*=DN.shared.mesh.searchWithGuess(linePoint,guess).first;
-//                }
-//                if(linePointInsideMesh)
-//                {
-//                    model::cout<<"Glissile Junction"<<std::endl;
-//                    DN.contract(i,j,linePoint);
-//                }
-//
-//            }
-//            else if(is1sessile && !is2sessile){ // use P1 (which is on sessile segment) as the intersection point
-//                model::cout<<"First-Sessile Junction"<<std::endl;
-//                DN.contract(i,j,P1);
-//            }
-//            else if(!is1sessile && is2sessile){ // use P2 (which is on sessile segment) as the intersection point
-//                model::cout<<"Second-Sessile Junction"<<std::endl;
-//                DN.contract(i,j,P2);
-//            }
-//            else{
-//                assert(0 && "CANNOT MAKE JUNCTION BETWEEN TWO SESSILE SEGMENTS.");
-//
-//            }
-
-
-//        /* formVertexEdgeJunctions ********************************************/
-//        size_t formVertexEdgeJunctions(const double& dx)
-//        {
-//
-//
-//            // Direct Node contraction
-//            std::vector<std::pair<size_t,std::pair<size_t,size_t> > > nodeContractVector;
-//            //            typename EdgeFinder<LinkType>::isNetworkEdgeType
-//
-//
-//            std::map<size_t,std::pair<std::pair<size_t,size_t>,VectorDimD> > vertexEdgeIntersectionContainer;
-//
-//            for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
-//            {
-//                if(nodeIter->second->invertedMotion())
-//                {
-//                    if(nodeIter->second->outOrder()==1 && nodeIter->second->inOrder()==1 && nodeIter->second->is_balanced() ) // has one inflow and one outflow, therefore it makes sense to talk about B of that node
-//                    {
-//                        VectorDimD B(std::get<1>(nodeIter->second->outNeighborhood().begin()->second)->flow);
-//                        VectorDimD T(std::get<1>(nodeIter->second->outNeighborhood().begin()->second)->sourceT());
-//
-//                        const typename DislocationNetworkType::NodeType::VectorOfNormalsType vertexPN(GramSchmidt<dim>(nodeIter->second->constraintNormals()));
-//
-//                        if(vertexPN.size()==1) //node is not constrained, and a unique plane normal si associated with that node
-//                        {
-//                            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
-//                            {
-//
-//
-//
-//                                if (nodeIter->first != linkIter->first.first && nodeIter->first != linkIter->first.second)
-//                                {
-//
-//                                    const double chord2(linkIter->second->chord().squaredNorm());
-//                                    if (  (linkIter->second->source->get_P()-nodeIter->second->get_P()).squaredNorm()<chord2    // vertex is not too far from edge source
-//                                        ||(linkIter->second->  sink->get_P()-nodeIter->second->get_P()).squaredNorm()<chord2 )  // vertex is not too far from edge sink
-//                                    {
-//                                        std::map<double,std::pair<double,VectorDimD> > rootMap( linkIter->second->closestPoint(nodeIter->second->get_P() ) );
-//
-//                                        if (rootMap.size())
-//                                        {
-//
-//                                            const double d(rootMap.begin()->first);
-//                                            const double u(rootMap.begin()->second.first);
-//
-//                                            if (d<dx)
-//                                            {
-//
-//                                                const bool frankRule(B.dot(linkIter->second->flow)*T.dot(linkIter->second->get_ru(u))<=0.0);
-//
-//                                                if (frankRule)
-//                                                {
-//
-//                                                    //                                            vertexEdgeIntersectionContainer.insert(std::make_pair(nodeIter->second->sID,std::make_pair(,)));
-//
-//
-//                                                    const VectorDimD N1(vertexPN[0]);
-//                                                    const VectorDimD N2(linkIter->second->glidePlaneNormal);
-//                                                    const VectorDimD P1(nodeIter->second->get_P());
-//                                                    const VectorDimD P2(linkIter->second->source->get_P());
-//
-//                                                    const int ppt(PlanePlaneIntersection<dim>::planePlaneType(N1,N2,P1,P2));
-//
-//
-//                                                    switch (ppt)
-//                                                    {
-//                                                        case 0: // paralle planes
-//                                                            // do nothing, no intersection possile
-//                                                            break;
-//
-//                                                        case 1: // coincident planes
-//                                                        {
-//
-//                                                            break;
-//                                                        }
-//
-//                                                        default: // incident planes
-//                                                        {
-//                                                            const double denom(1.0-std::pow(N1.dot(N2),2));
-//                                                            if(std::fabs(denom)>FLT_EPSILON)
-//                                                            {
-//                                                                const double numer((P2-P1).dot(N2));
-//                                                                const double u(numer/denom);
-//                                                                const VectorDimD dP=(N2-N2.dot(N1)*N1)*u;
-//                                                                if (dP.norm()<dx)
-//                                                                {
-//                                                                    const VectorDimD linePoint = P1+dP;
-//
-//                                                                    std::cout<<"formVertexEdgeJunctions: vertex "<<nodeIter->second->sID <<
-//                                                                    ", link "<<linkIter->second->source->sID<<"->"<<linkIter->second->sink->sID<<" @ "<< u <<std::endl;
-//                                                                }
-//                                                            }
-//                                                            break;
-//                                                        }
-//
-//                                                    }
-//                                                } // frank-rule appies
-//                                            } // root is closer than dx
-//                                        } // there is at least one root
-//                                    } // vertex is not too far from edge end points
-//                                } // vertex is not one of the edge end points
-//                            } // loop on edges
-//                        } // vertex has only one normal
-//                    } // vertex has one edge in, one edge out, and it is balanced
-//                } // vertex has inverted its motion
-//            } // loop on vertices
-//
-//            return 1;
-//        }
-
-
-//		/* formJunctions ******************************************************/
-//		void formJunctions(const double& dx, const double& avoidNodeIntersection)
-//        {
-//            formEdgeEdgeJunctions(dx,avoidNodeIntersection);
-//
-//		} // end formJunctions
-
-
-//            //			model::cout<<"Using "<< edgeIntersectionContainer.size()/2<<" intersections. ";
-//
-//			// Call Multiexpand on segments in edgeIntersectionContainer. Store correspoinding new nodes in nodeIntersectionMap
-//			std::map<IntersectionIDType, std::set<size_t> > nodeIntersectionMap;
-//			for (typename EdgeIntersectionContainerType::const_iterator edgeIter=edgeIntersectionContainer.begin();
-//                 /*                                                  */ edgeIter!=edgeIntersectionContainer.end();
-//                 /*                                                */ ++edgeIter)
-//            {
-//				const size_t i(edgeIter->first. first);
-//				const size_t j(edgeIter->first.second);
-//				std::map<IntersectionIDType,size_t> multiExpandOut=DN.multiExpand(i,j,edgeIter->second);
-//				for (std::map<IntersectionIDType,size_t>::const_iterator iter=multiExpandOut.begin();iter!=multiExpandOut.end();++iter)
-//                {
-//					nodeIntersectionMap[iter->first].insert(iter->second);
-//				}
-//			}
-//
-//            // Call Contract on nodes in nodeIntersectionMap
-//			for (std::map<IntersectionIDType, std::set<size_t> >::const_iterator mapIter=nodeIntersectionMap.begin();
-//                 /*                                                           */ mapIter!=nodeIntersectionMap.end();
-//                 /*                                                         */ ++mapIter)
-//            {
-//				assert(mapIter->second.size()==2 && "THERE SHOULD BE TWO NODES IN EACH INTERSECTION");
-//				const size_t i(*(mapIter->second.begin()));
-//				const size_t j(*(mapIter->second.rbegin()));
-//
-//
-//				const isNetworkNodeType Ni(DN.node(i));
-//				assert(Ni.first);
-//				assert(Ni.second->is_simple());
-//				const isNetworkNodeType Nj(DN.node(j));
-//				assert(Nj.first);
-//				assert(Nj.second->is_simple());
-//
-//				const VectorDimD P1(Ni.second->get_P());
-//				const VectorDimD P2(Nj.second->get_P());
-//				const VectorDimD N1(Ni.second->openNeighborLink(0)->glidePlaneNormal); // CHANGE THIS
-//				const VectorDimD N2(Nj.second->openNeighborLink(0)->glidePlaneNormal); // CHANGE THIS
-//                const bool is1sessile(Ni.second->openNeighborLink(0)->sessilePlaneNormal.norm()>FLT_EPSILON);
-//                const bool is2sessile(Nj.second->openNeighborLink(0)->sessilePlaneNormal.norm()>FLT_EPSILON);
-//
-//
-//
-//                if (!is1sessile && !is2sessile)
-//                {
-//                    VectorDimD linePoint((P1+P2)*0.5);
-//                    const double denom(1.0-std::pow(N1.dot(N2),2));
-//                    if(std::fabs(denom)>FLT_EPSILON)
-//                    { // planes are incident: make sure to place intersection on common line
-//                        const double numer((P2-P1).dot(N2));
-//                        const double u(numer/denom);
-//                        linePoint = P1+(N2-N2.dot(N1)*N1)*u;
-//                    }
-//
-//                    // If mesh is used, make cure that intersection point is inside mesh
-//                    bool linePointInsideMesh(true);
-//                    if (DN.shared.use_boundary)
-//                    {
-//                        //                        linePointInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(linePoint,Ni.second->includingSimplex(),FLT_EPSILON).first;
-//                        linePointInsideMesh*=DN.shared.mesh.searchWithGuess(linePoint,Ni.second->includingSimplex()).first;
-//                    }
-//                    if(linePointInsideMesh)
-//                    {
-//                        model::cout<<"Glissile Junction"<<std::endl;
-//                        DN.contract(i,j,linePoint);
-//                    }
-//
-//                }
-//                else if(is1sessile && !is2sessile){ // use P1 (which is on sessile segment) as the intersection point
-//                    model::cout<<"First-Sessile Junction"<<std::endl;
-//                    DN.contract(i,j,P1);
-//                }
-//                else if(!is1sessile && is2sessile){ // use P2 (which is on sessile segment) as the intersection point
-//                    model::cout<<"Second-Sessile Junction"<<std::endl;
-//                    DN.contract(i,j,P2);
-//                }
-//                else{
-//                    assert(0 && "CANNOT MAKE JUNCTION BETWEEN TWO SESSILE SEGMENTS.");
-//
-//                }
-//
-//
-//
-//
-//			}
-
-
-
-//			//! 2- Remove from intersectionContainer all intersections that don't satisfy Frank's rule
-//			for (typename EdgeIntersectionPairContainerType::iterator iter=intersectionContainer.begin();iter!=intersectionContainer.end();)
-//            {
-//				const double u1(iter-> first.second);
-//				const double u2(iter->second.second);
-//				const VectorDimD b1(iter-> first.first->flow);
-//				const VectorDimD b2(iter->second.first->flow);
-//				const VectorDimD rl1(iter-> first.first->get_rl(u1));
-//				const VectorDimD rl2(iter->second.first->get_rl(u2));
-//
-//
-//                const bool is1sessile(iter-> first.first->sessilePlaneNormal.norm()>FLT_EPSILON);
-//                const bool is2sessile(iter->second.first->sessilePlaneNormal.norm()>FLT_EPSILON);
-//
-//                VectorDimD prjDir(VectorDimD::Zero());
-//                if (!is1sessile && !is2sessile){
-//                    const VectorDimD commonLine(iter-> first.first->glidePlaneNormal.cross(iter->second.first->glidePlaneNormal));
-//                    if(commonLine.norm()>FLT_EPSILON)
-//                    { // planes are not parallel, intersection will be on common line
-//                        prjDir=commonLine.normalized();
-//                    }
-//                    else
-//                    {
-//                        const double rl1Norm(rl1.norm());
-//                        assert(rl1Norm>FLT_EPSILON && "TANGENT HAS ZERO NORM");
-//                        prjDir=rl1/rl1Norm;
-//                    }
-//                }
-//                else if(is1sessile && !is2sessile)
-//                { // use chord of I
-//                    prjDir=iter-> first.first->chord().normalized();
-//                }
-//                else if(!is1sessile && is2sessile)
-//                { // use chord of J
-//                    prjDir=iter->second.first->chord().normalized();
-//                }
-//                else
-//                {
-//                    assert(0 && "CANNOT DETERMINE COMMON LINE BETWEEN TWO SESSILE SEGMENTS.");
-//                }
-//
-//
-//                const double sgnrl1rl2(rl1.dot(prjDir)*rl2.dot(prjDir));
-//
-//
-//				//const bool frankRule(b1.dot(b2)*rl1.dot(rl2)<=0.0);
-//				const bool frankRule(b1.dot(b2)*sgnrl1rl2<=0.0);
-//				const bool isValidJunction(frankRule || iter->first.first->is_boundarySegment() || iter->second.first->is_boundarySegment());
-//
-//
-////				if (!frankRule)
-//                    if (!isValidJunction)
-//                {
-//					iter=intersectionContainer.erase(iter);
-//				}
-//				else
-//                { // determine the relative orientation of the links
-//                    //					const int dir((rl1.dot(rl2) > 0.0) ? 1 : ((rl1.dot(rl2) < 0.0) ? -1 : 0));
-//					const int dir(( sgnrl1rl2 > 0.0) ? 1 : ((sgnrl1rl2 < 0.0) ? -1 : 0));
-////					dirVector.push_back(dir);
-//					dirVector.emplace_back(dir);
-//					++iter; // increment iterator only if didn't erase
-//				}
-//			}
-//			model::cout<<intersectionContainer.size()<<" physical intersections. ";
-//			assert(intersectionContainer.size()==dirVector.size());
-
-
-
-
-//! 3- Organize intersections by segments to use multiexpand
-//			typedef size_t IntersectionIDType;
-//			typedef std::map<double, IntersectionIDType> MultiExpandInputType;
-//			typedef std::pair<size_t,size_t> EdgeIDType;
-//			typedef std::map<EdgeIDType,MultiExpandInputType> EdgeIntersectionContainerType;
-
-//            const double dx2=std::pow(dx,2);
-
-
-//                    {
-//                        for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
-//                        {
-//
-//                            if (nodeIter->first != linkIter->first.first && nodeIter->first != linkIter->first.second) // avoid intersectio with ajecent edges
-//                            {
-//
-//                                const VectorDimD N1(vertexPN[0]);
-//                                const VectorDimD N2(linkIter->second->glidePlaneNormal);
-//                                const VectorDimD P1(nodeIter->second->get_P());
-//                                const VectorDimD P2(linkIter->second->source->get_P());
-//
-//                               const int ppt(PlanePlaneIntersection<dim>::planePlaneType(N1,N2,P1,P2));
-//
-//
-//                                switch (ppt)
-//                                {
-//                                    case 0: // paralle planes
-//                                        // do nothing, no intersection possile
-//                                        break;
-//
-//                                    case 1: // coincident planes
-//                                    {
-//
-//                                        break;
-//                                    }
-//
-//                                    default: // =2 incident planes
-//                                    {
-//                                        const double denom(1.0-std::pow(N1.dot(N2),2));
-//                                        if(std::fabs(denom)>FLT_EPSILON)
-//                                        {
-//                                            const double numer((P2-P1).dot(N2));
-//                                            const double u(numer/denom);
-//                                            const VectorDimD dP=(N2-N2.dot(N1)*N1)*u;
-//                                            if (dP.norm()<dx)
-//                                            {
-//                                                const VectorDimD V = P1+dP; // the vertex point projected to the common line
-//                                                const VectorDimD lineDir(N1.cross(N2).normalized());
-//                                                double segNorm(linkIter->second->chord().norm());
-////                                                VectorDimD V1(V+lineDir*2.0*segNorm);
-////                                                VectorDimD V2(V-lineDir*2.0*segNorm);
-//                                                VectorDimD V1(V+lineDir*2.0*dx);
-//                                                VectorDimD V2(V-lineDir*2.0*dx);
-//
-//                                                enum {polyDegree=3};
-//
-//                                                const Eigen::Matrix<double,dim,dim> R(DislocationLocalReference<dim>::global2local(linkIter->second->chord(),N2));
-//                                                PlanarSplineImplicitization<polyDegree> sli(linkIter->second->polynomialLocalCoeff());
-////                                                PlanarSplineImplicitization<polyDegree>::physTol=physTol;
-//
-//
-//                                                Eigen::Matrix<double,dim-1,2> H2L;
-//                                                H2L.col(0)=(R*(V1-P2)).template segment<dim-1>(0); // coordinate of V1 in the local ref. system of the spline
-//                                                H2L.col(1)=(R*(V2-P2)).template segment<dim-1>(0); // coordinate of V2 in the local ref. system of the spline
-//
-//
-//                                                std::set<std::pair<double,double> > lineIntersectionParameters=sli.template intersectWith<1>(Coeff2Hermite<1>::h2c<dim-1>(H2L));
-//
-//                                                std::set<std::pair<double,double> > sortedDistance;
-//
-//                                                for (std::set<std::pair<double,double> >::const_iterator sIter=lineIntersectionParameters.begin(); sIter!=lineIntersectionParameters.end();++sIter)
-//                                                {
-//                                                    VectorDimD temp(V1*(1.0-sIter->second)+V2*sIter->second);
-//
-//                                                    const double tempNorm((V-temp).norm());
-//                                                    if (tempNorm<dx)
-//                                                    {
-//                                                        sortedDistance.insert(std::make_pair(tempNorm,sIter->first));
-//                                                    }
-//
-//                                                }
-//
-//                                                if (sortedDistance.size()>0)
-//                                                {
-//                                                    std::cout<<"Vertex-Edge intersection: node "<< nodeIter->second->sID
-//                                                    <<", edge "<<linkIter->second->source->sID<<"->"<<linkIter->second->sink->sID<<" @ "<<sortedDistance.begin()->second<<std::endl;
-//                                                }
-//                                                else
-//                                                {
-//
-//                                                }
-//
-//                                            }
-//                                        }
-//
-//
-//                                        break;
-//                                    }
-//                                }
-//
-//                            }
-//
-//
-//                            //if (linkIterA->second->sID!=linkIterB->second->sID)
-//                        }
-//
-//
-//                    }
-
-
-
-
-//            // Direct Node contraction
-//            std::vector<std::pair<size_t,std::pair<size_t,size_t> > > nodeContractVector;
-//            //            typename EdgeFinder<LinkType>::isNetworkEdgeType
-//            for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
-//            {
-//                bool isSimple(nodeIter->second->is_simple());
-//                if(isSimple) // has two neighbors
-//                {
-//                    const NodeType* const pNi(nodeIter->second->openNeighborNode(0));
-//                    const NodeType* const pNj(nodeIter->second->openNeighborNode(1));
-//                    if(pNi->openOrder()>2 && pNj->openOrder()>2)
-//                    {
-//                        nodeContractVector.push_back(std::make_pair(nodeIter->second->sID,std::make_pair(pNi->sID,pNj->sID)));
-//                    }
-//                }
-//
-//            }
-//
-//
-//            for (unsigned int m=0;m<nodeContractVector.size();++m)
-//            {
-//                const size_t k(nodeContractVector[m].first);
-//                const size_t i(nodeContractVector[m].second.first);
-//                const size_t j(nodeContractVector[m].second.second);
-//
-//
-//
-//                const isNetworkLinkType Lki(DN.link(k,i));
-//                if(Lki.first)
-//                {
-//                    DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(Lki);
-//                    //                    nodeContractVector.push_back(Lki);
-//                }
-//                else
-//                {
-//                    DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(DN.link(i,k));
-//                    //nodeContractVector.push_back(DN.link(i,k));
-//                }
-//
-//                const isNetworkLinkType Lkj(DN.link(k,j));
-//                if(Lkj.first)
-//                {
-//                    DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(Lkj);
-//                    //nodeContractVector.push_back(Lkj);
-//                }
-//                else
-//                {
-//                    DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(DN.link(j,k));
-//                    //                    nodeContractVector.push_back(DN.link(j,k));
-//                }
-//
-//                const isNetworkLinkType Lij(DN.link(i,j));
-//                if(Lij.first)
-//                {
-//                    DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(Lij);
-//                    //                    nodeContractVector.push_back(Lij);
-//                }
-//                else
-//                {
-//                    DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(DN.link(j,i));
-//                    //                    nodeContractVector.push_back(DN.link(j,i));
-//                }
-//
-//
-//                //                DislocationNetworkRemesh<DislocationNetworkType>(DN).singleEdgeContract(nodeContractVector[k]);
-//                //DN.contractSecond(nodeContractVector[k].first,nodeContractVector[k].second);
-//            }

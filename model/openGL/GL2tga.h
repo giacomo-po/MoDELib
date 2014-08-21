@@ -42,23 +42,23 @@ namespace model {
             
             if (saveTGA)
             {
-                int x=glutGet(GLUT_WINDOW_WIDTH);  // must be < GL_MAX_RENDERBUFFER_SIZE
-                int y=glutGet(GLUT_WINDOW_HEIGHT); // must be < GL_MAX_RENDERBUFFER_SIZE
+                unsigned int x=glutGet(GLUT_WINDOW_WIDTH);  // must be < GL_MAX_RENDERBUFFER_SIZE
+                unsigned int y=glutGet(GLUT_WINDOW_HEIGHT); // must be < GL_MAX_RENDERBUFFER_SIZE
                 
                 // get the image data
-                long imageSize = x * y * 3;
+                unsigned long imageSize = x * y * 3;
                 unsigned char* data = new unsigned char[imageSize];
                 glReadPixels(0,0,x,y, GL_BGR,GL_UNSIGNED_BYTE,data);
                 
                 // split x and y sizes into bytes
-                int xa= x % 256;
-                int xb= (x-xa)/256;
+                unsigned int xa= x % 256;
+                unsigned int xb= (x-xa)/256;
                 
-                int ya= y % 256;
-                int yb= (y-ya)/256;
+                unsigned int ya= y % 256;
+                unsigned int yb= (y-ya)/256;
                 
                 //assemble the header
-                unsigned char header[18]={0,0,2,0,0,0,0,0,0,0,0,0,(char)xa,(char)xb,(char)ya,(char)yb,24,0};
+                unsigned char header[18]={0,0,2,0,0,0,0,0,0,0,0,0,(unsigned char)xa,(unsigned char)xb,(unsigned char)ya,(unsigned char)yb,24,0};
                 
                 
                 std::stringstream filenameStream;

@@ -16,15 +16,15 @@
 #include <GL/glut.h>
 #endif
 
-float centripetalf=model::centripetal;
-
-float chordalf=model::chordal;
-
-typedef model::DDgl<centripetalf> DDglType;
+//float centripetalf=model::centripetal;
+//
+//float chordalf=model::chordal;
+//
+//typedef model::DDgl<centripetalf> DDgl;
 
 
 model::SimplicialMesh<3>* p_mesh;  // declaring as pointer is necessary for glut
-model::DDgl<centripetalf>* p_DDgl; // declaring as pointer is necessary for glut
+model::DDgl* p_DDgl; // declaring as pointer is necessary for glut
 
 
 namespace model {
@@ -100,7 +100,7 @@ namespace model {
                 break;
                 
             case 1:
-                GL2pdf<DDglType>::savePDF=!GL2pdf<DDglType>::savePDF;
+                GL2pdf<DDgl>::savePDF=!GL2pdf<DDgl>::savePDF;
                 break;
                 
             default:
@@ -111,24 +111,24 @@ namespace model {
     void DDglut_menu2(int item)
     {
         switch (item) {
-            case DDglType::SingleSplinePlotterType::colorBurgers:
-                DDglType::SplinePlotterType::colorScheme=DDglType::SingleSplinePlotterType::colorBurgers;
+            case DDgl::SingleSplinePlotterType::colorBurgers:
+                DDgl::SplinePlotterType::colorScheme=DDgl::SingleSplinePlotterType::colorBurgers;
                 break;
                 
-            case DDglType::SingleSplinePlotterType::colorSessile:
-                DDglType::SplinePlotterType::colorScheme=DDglType::SingleSplinePlotterType::colorSessile;
+            case DDgl::SingleSplinePlotterType::colorSessile:
+                DDgl::SplinePlotterType::colorScheme=DDgl::SingleSplinePlotterType::colorSessile;
                 break;
                 
-            case DDglType::SingleSplinePlotterType::colorNormal:
-                DDglType::SplinePlotterType::colorScheme=DDglType::SingleSplinePlotterType::colorNormal;
+            case DDgl::SingleSplinePlotterType::colorNormal:
+                DDgl::SplinePlotterType::colorScheme=DDgl::SingleSplinePlotterType::colorNormal;
                 break;
                 
-            case DDglType::SingleSplinePlotterType::colorComponent:
-                DDglType::SplinePlotterType::colorScheme=DDglType::SingleSplinePlotterType::colorComponent;
+            case DDgl::SingleSplinePlotterType::colorComponent:
+                DDgl::SplinePlotterType::colorScheme=DDgl::SingleSplinePlotterType::colorComponent;
                 break;
                 
             default:
-                DDglType::SplinePlotterType::colorScheme=DDglType::SingleSplinePlotterType::colorBurgers;
+                DDgl::SplinePlotterType::colorScheme=DDgl::SingleSplinePlotterType::colorBurgers;
                 break;
         }
 	}
@@ -150,8 +150,10 @@ namespace model {
             EDR.readScalarInFile("./DDinput.txt","meshID",meshID);
         }
         
+
+        
         p_mesh = new model::SimplicialMesh<3>(meshID);
-        p_DDgl = new model::DDgl<centripetalf>(p_mesh);
+        p_DDgl = new model::DDgl(p_mesh);
 		//! \brief A Glut wrapper for model::DDviewer
 		
 		//Initialize GLUT
@@ -182,10 +184,10 @@ namespace model {
 
         
         GLint m2_choice=glutCreateMenu(DDglut_menu2);
-        glutAddMenuEntry("Burgers vector", DDglType::SingleSplinePlotterType::colorBurgers);
-        glutAddMenuEntry("Glissile-Sessile", DDglType::SingleSplinePlotterType::colorSessile);
-        glutAddMenuEntry("Plane normal", DDglType::SingleSplinePlotterType::colorNormal);
-        glutAddMenuEntry("Network Component", DDglType::SingleSplinePlotterType::colorComponent);
+        glutAddMenuEntry("Burgers vector", DDgl::SingleSplinePlotterType::colorBurgers);
+        glutAddMenuEntry("Glissile-Sessile", DDgl::SingleSplinePlotterType::colorSessile);
+        glutAddMenuEntry("Plane normal", DDgl::SingleSplinePlotterType::colorNormal);
+        glutAddMenuEntry("Network Component", DDgl::SingleSplinePlotterType::colorComponent);
 
 //        glutAddMenuEntry("Network Component", 3);
         

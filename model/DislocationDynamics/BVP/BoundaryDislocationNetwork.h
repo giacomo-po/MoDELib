@@ -9,6 +9,7 @@
 #ifndef model_BoundaryDislocationNetwork_H_
 #define model_BoundaryDislocationNetwork_H_
 
+#include <deque>
 #include <model/DislocationDynamics/StressStraight.h>
 
 

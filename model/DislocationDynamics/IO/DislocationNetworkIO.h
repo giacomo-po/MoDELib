@@ -55,7 +55,7 @@ namespace model {
         static void readVertices(DislocationNetworkType& DN, const unsigned int& fileID)
         {/*! Reads file V/V_0.txt and creates DislocationNodes
           */
-			typedef VertexReader<'V',8,double> VertexReaderType;
+			typedef VertexReader<'V',9,double> VertexReaderType;
 			VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
             if (vReader.isGood(fileID,false)) // bin file exists
             {
@@ -174,7 +174,7 @@ namespace model {
 			//! 2- Outputs the Vertex informations to file V_*.txt where * is the current simulation step
             if (outputBinary)
             {
-                typedef Eigen::Matrix<double,1,7> VertexDataType;
+                typedef Eigen::Matrix<double,1,8> VertexDataType;
                 typedef std::pair<int, VertexDataType> BinVertexType;
                 SequentialBinFile<'V',BinVertexType>::set_increment(outputFrequency);
                 SequentialBinFile<'V',BinVertexType>::set_count(runID);
@@ -183,7 +183,8 @@ namespace model {
                 {
                     VertexDataType temp( (VertexDataType()<< nodeIter->second->get_P().transpose(),
                                           /*                                    */ nodeIter->second->get_T().transpose(),
-                                          /*                                    */ nodeIter->second->pSN()->sID).finished());
+                                          /*                                    */ nodeIter->second->pSN()->sID,
+                                          /*                                    */ (nodeIter->second->meshLocation()==onMeshBoundary)).finished());
                     binVertexFile.write(std::make_pair(nodeIter->first,temp));
                 }
                 model::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;
@@ -285,11 +286,6 @@ namespace model {
                 s_file<<DN.shared.bvpSolver.stress();
                 
                 model::cout<<", D/D_"<<d_file.sID<<"(FINISH HERE)"<<std::flush;
-                
-                //                if(DN.shared.boundary_type==1)
-                //                {
-                //                    DN.shared.vbsc.outputVirtualDislocations(outputFrequency,runID);
-                //                }
             }
             
 			

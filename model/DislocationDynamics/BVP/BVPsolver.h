@@ -305,7 +305,9 @@ namespace model
             
             auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
             auto eb_list = ndA.template integrationList<FieldPointType>();
-            model::cout<<"Computing DD boundary traction"<<std::endl;
+            
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"Computing DD boundary traction..."<<std::flush;
             if (DN.shared.use_virtualSegments)
             {
                 DN.template computeField<FieldPointType,StressField>(eb_list,DN.shared.bdn);
@@ -314,7 +316,9 @@ namespace model
             {
                 DN.template computeField<FieldPointType,StressField>(eb_list);
             }
-//            
+            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+
+//
 //            if(DN.shared.use_virtualSegments)
 //            {
 //                std::cout<<"HERE NEED TO ADD STRESS OF RADIAL BOUNDARY SEGMENTS!!"<<std::endl;

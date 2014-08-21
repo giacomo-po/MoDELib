@@ -15,7 +15,7 @@
 namespace model {
 	
 	//////////////////////////////////////////////////////////////////////////
-	template<const int x, const int n>
+	template<int x, int n>
 	struct Pow {
 //		BOOST_STATIC_ASSERT(n>0);
         static_assert (n>0, "n MUST BE > 0.");

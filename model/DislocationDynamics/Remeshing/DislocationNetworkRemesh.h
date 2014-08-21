@@ -238,17 +238,22 @@ namespace model {
         {/*! Contract edges according to two criteria.
           */
 			
-			const double vTolcont=0.0;
+			const double vTolcont=0.1;
 			
+            // Store segments to be contracted
 			std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
 			for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
             {
 				const VectorDimD chord(linkIter->second->chord()); // this is sink->get_P() - source->get_P()
 				const double chordLength(chord.norm());
 				const VectorDimD dv(linkIter->second->sink->get_V()-linkIter->second->source->get_V());
-				bool endsAreApproaching( chord.dot(dv) < -vTolcont*chordLength*dv.norm() );
-                if (endsAreApproaching && chordLength<Lmin)
-                {// toBeContracted part
+//				bool endsAreApproaching( chord.dot(dv) < -vTolcont*chordLength*dv.norm() );
+				bool endsAreApproaching( chord.dot(dv) < 0.0 );
+//				bool endsAreApproaching( chord.dot(dv) + dv.squaredNorm()*dt < 0.0 );
+                if (endsAreApproaching // ends are approaching
+                    && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
+                    && chordLength<Lmin)
+                {
 					assert(toBeContracted.insert(std::make_pair(chordLength,linkIter->second->nodeIDPair)).second && "COULD NOT INSERT IN SET.");
 				}
 			}

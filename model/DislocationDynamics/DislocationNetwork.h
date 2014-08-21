@@ -297,7 +297,7 @@ namespace model
             }
 #endif
             
-			//! 1- Check that all nodes are balanced
+			//! 1- Che;ck that all nodes are balanced
 			checkBalance();
 			
 			//! 1 - Update quadrature points
@@ -362,6 +362,9 @@ namespace model
 			
 			//! 9- Node redistribution
 			remesh();
+            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
+            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
+
             //			removeBoundarySegments();
             
 			//! 12 - Increment runID counter
@@ -688,9 +691,9 @@ namespace model
 		void output() const
         {/*! Outputs DislocationNetwork data
           */
-            double t0=clock();
             if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency))
             {
+                double t0=clock();
 #ifdef _MODEL_DD_MPI_
 				if(ModelMPIbase::mpiRank()==0)
                 {
@@ -699,8 +702,8 @@ namespace model
 #else
                 DislocationNetworkIO<DislocationNetworkType>::output(*this,runID);
 #endif
+                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
-			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
 		
 		

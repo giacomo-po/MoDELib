@@ -16,10 +16,12 @@
 
 #include <model/DislocationDynamics/EdgeConfigs.h>
 
-namespace model {	
+namespace model
+{
 	
 	template<short unsigned int dim>
-	class DislocationEnergyRules {
+	class DislocationEnergyRules
+    {
 		
 		typedef Eigen::Matrix<double,dim,1> VectorDimD;
 		
@@ -35,7 +37,8 @@ namespace model {
 		
 		/* findEdgeConfiguration *********************************************/
 		template <typename DislocationNodeType>
-		static void findEdgeConfiguration(DislocationNodeType& dN){
+		static void findEdgeConfiguration(DislocationNodeType& dN)
+        {
 //            static void findEdgeConfiguration(DislocationNodeType& dN, const double& nu){
 			
             	Eigen::VectorXi edgeConfiguration;

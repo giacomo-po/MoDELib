@@ -36,7 +36,8 @@ namespace model {
     //	/*          */  protected std::map<size_t,std::auto_ptr<typename TypeTraits<Derived>::NodeType> >,
     //	/*          */  protected std::map<std::pair<size_t,size_t>,std::auto_ptr<typename TypeTraits<Derived>::LinkType> >,
 	/*          */  public  CRTP<Derived>,
-	/*          */  public  AddressBook<NetworkComponent<typename TypeTraits<Derived>::NodeType,typename TypeTraits<Derived>::LinkType>,0>{
+	/*          */  public  AddressBook<NetworkComponent<typename TypeTraits<Derived>::NodeType,typename TypeTraits<Derived>::LinkType>,0>
+    {
 		
 		/*!
 		 *		\code
@@ -87,7 +88,8 @@ namespace model {
 		
 		/************************************************************/
 		// link
-		isNetworkLinkType link(const size_t& i, const size_t& j){
+		isNetworkLinkType link(const size_t& i, const size_t& j)
+        {
 			return EdgeFinder<LinkType>(*this).link(i,j);
 		}
 		
@@ -95,7 +97,8 @@ namespace model {
         //			return EdgeFinder<LinkType>(*this).link(i,j);
         //		}
         
-		isConstNetworkLinkType link(const size_t& i, const size_t& j) const {
+		isConstNetworkLinkType link(const size_t& i, const size_t& j) const
+        {
 			return EdgeFinder<LinkType,true>(*this).link(i,j);
 		}
 		

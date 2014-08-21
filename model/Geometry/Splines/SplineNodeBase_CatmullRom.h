@@ -6,7 +6,8 @@
  * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
-namespace model {
+namespace model
+{
     
     
     template <typename Derived, short unsigned int dim>
@@ -82,36 +83,7 @@ namespace model {
         
         
         
-        //	//////////////////////////////////////////////////
-        //	// topologyChangeActions
-        //	void topologyChangeActions(){
-        //		/*! Because of the CatmullRom rule for parametric tangents, changing the connectivity of this
-        //		 *  CatmullRom node must also change its parametric tangent. This in turn affects the shape
-        //		 *  of all SplineSegments attached to it. The update strategy is as follows:
-        //		 */
-        //
-        //
-        //        //		energyRule();
-        //		this->p_derived()->findEdgeConfiguration();
-        //		make_T();
-        //
-        //
-        //		//		//! 1- Recalculates tangent
-        //		//		typedef void (Derived::*node_member_function_pointer_type)(void);
-        //		//		node_member_function_pointer_type Nmfp;
-        //		//		//	Nmfp=&Derived::update;
-        //		//		Nmfp=&Derived::make_T;
-        //		//		this->nodeTransmit(Nmfp,corder+2);
-        //
-        //		// MAKE_CRNEIGHNORS AND MAKE_T SHOULD BE SEPARATED SO THAT HERE ONE TRANSMITS MAKE_CRNEIGHNORS AND MAKE_T,
-        //		// WHILE IN SET ONLY MAKE_T IS TRANSMITTED
-        //
-        //		//		//! 2- Transmits 'update' on the neighbor links of level (corder=1), that is the first neighbor links
-        //		//		typedef void (LinkType::*link_member_function_pointer_type)(void);
-        //		//		link_member_function_pointer_type Lmfp;
-        //		//		Lmfp=&LinkType::update;
-        //		//		this->linkTransmit(Lmfp,corder+2);
-        //	}
+
         
         //////////////////////////////////////////////////
         // make_T
@@ -230,25 +202,6 @@ namespace model {
                     }
                     
                     
-                    //                switch ( dir )
-                    //                {
-                    //                    case  0:	// self
-                    //                        break;
-                    //                    default:	// neighbor
-                    //                        const double CPL=std::get<1>(neighborIter->second)->chordParametricLength();	// chord parametric length
-                    //                        CPLT+=CPL;
-                    //                        sjT+=edgeConfiguration(sgnID);
-                    //                        sjOverGjT+=edgeConfiguration(sgnID)/CPL;
-                    //
-                    //                        const VectorDim ci( (std::get<0>(neighborIter->second)->get_P()-this->get_P())/CPL );
-                    //                        cP02+= alpha * edgeConfiguration(sgnID) * ci*ci.transpose() / CPL;
-                    //                        cP03a+= edgeConfiguration(sgnID)*ci;
-                    //                        cP03b+= ci*alpha/CPL;
-                    //
-                    //
-                    //                        sgnID++;
-                    //                        break;
-                    //                }
                 }
                 
                 //          assert(sgnID==edgeConfiguration.size());
@@ -405,7 +358,8 @@ namespace model {
         
         //////////////////////////////////////////////////
         // make_CR2H_central
-        void make_CR2H_central(){
+        void make_CR2H_central()
+        {
             
             //	double CPL;
             //	double CPLDPinv=0.0;
@@ -526,4 +480,36 @@ namespace model {
     };
     
 }
+
+
+//	//////////////////////////////////////////////////
+//	// topologyChangeActions
+//	void topologyChangeActions(){
+//		/*! Because of the CatmullRom rule for parametric tangents, changing the connectivity of this
+//		 *  CatmullRom node must also change its parametric tangent. This in turn affects the shape
+//		 *  of all SplineSegments attached to it. The update strategy is as follows:
+//		 */
+//
+//
+//        //		energyRule();
+//		this->p_derived()->findEdgeConfiguration();
+//		make_T();
+//
+//
+//		//		//! 1- Recalculates tangent
+//		//		typedef void (Derived::*node_member_function_pointer_type)(void);
+//		//		node_member_function_pointer_type Nmfp;
+//		//		//	Nmfp=&Derived::update;
+//		//		Nmfp=&Derived::make_T;
+//		//		this->nodeTransmit(Nmfp,corder+2);
+//
+//		// MAKE_CRNEIGHNORS AND MAKE_T SHOULD BE SEPARATED SO THAT HERE ONE TRANSMITS MAKE_CRNEIGHNORS AND MAKE_T,
+//		// WHILE IN SET ONLY MAKE_T IS TRANSMITTED
+//
+//		//		//! 2- Transmits 'update' on the neighbor links of level (corder=1), that is the first neighbor links
+//		//		typedef void (LinkType::*link_member_function_pointer_type)(void);
+//		//		link_member_function_pointer_type Lmfp;
+//		//		Lmfp=&LinkType::update;
+//		//		this->linkTransmit(Lmfp,corder+2);
+//	}
 
