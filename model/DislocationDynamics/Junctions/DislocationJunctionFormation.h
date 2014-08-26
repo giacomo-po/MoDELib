@@ -134,7 +134,7 @@ namespace model {
             {
                 //                const VectorDimD d(PN1[0].cross(PN2[0])); // direction of common line
                 
-                std::cout<<"contractWithPlaneCheck, case 1"<<std::endl;
+                //std::cout<<"contractWithPlaneCheck, case 1"<<std::endl;
                 const double denom(1.0-std::pow(PN1[0].dot(PN2[0]),2));
                 const double numer((P2-P1).dot(PN2[0]));
                 
@@ -156,7 +156,7 @@ namespace model {
             }
             else if(sizePN1==1 && sizePN2==2) // N1 moves on a plane, N2 moves on a line
             {
-                std::cout<<"contractWithPlaneCheck, case 2"<<std::endl;
+                //std::cout<<"contractWithPlaneCheck, case 2"<<std::endl;
                 const VectorDimD d2(PN2[0].cross(PN2[1]));
                 const double den(d2.dot(PN1[0]));
                 const double num((P1-P2).dot(PN1[0]));
@@ -178,7 +178,7 @@ namespace model {
             }
             else if(sizePN1==2 && sizePN2==1) // N1 moves on a line, N2 moves on a plane
             {
-                std::cout<<"contractWithPlaneCheck, case 3"<<std::endl;
+                //std::cout<<"contractWithPlaneCheck, case 3"<<std::endl;
                 const VectorDimD d1(PN1[0].cross(PN1[1]));
                 const double den(d1.dot(PN2[0]));
                 const double num((P2-P1).dot(PN2[0]));
@@ -200,7 +200,7 @@ namespace model {
             }
             else if(sizePN1==2 && sizePN2==2) // both N1 and N2 move on lines
             {
-                std::cout<<"contractWithPlaneCheck, case 4"<<std::endl;
+                //std::cout<<"contractWithPlaneCheck, case 4"<<std::endl;
                 
                 const double P12norm((P1-P2).norm());
                 if(P12norm<FLT_EPSILON)
@@ -505,9 +505,9 @@ namespace model {
                         if(firstIntersectionInsideMesh && secondIntersectionInsideMesh)
                         {
                             
-                            model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-                            model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-                            std::cout<<"Junction case 1"<<std::endl;
+                            //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
+                            //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
+                            //std::cout<<"Junction case 1"<<std::endl;
                             
                             const std::pair<bool,size_t> success1m=DN.expand(source1.sID,sink1.sID,P1m); // now L1.second is invalid
                             assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
@@ -590,9 +590,9 @@ namespace model {
                             //                            assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
                             const size_t& im=source1.sID; // id of the node obtained expanding L1
                             
-                            model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-                            model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-                            std::cout<<"Junction case 2: node "<<im<<" survives"<<std::endl;
+                            //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
+                            //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
+                            //std::cout<<"Junction case 2: node "<<im<<" survives"<<std::endl;
                             
                             const std::pair<bool,size_t> success2m=DN.expand(source2.sID,sink2.sID,P2m); // now L2.second is invalid
                             assert(success2m.first && "COULD NOT EXPLAND LINK2 AT LOWER INTERSECTION");
@@ -637,8 +637,8 @@ namespace model {
                              //                        && dirVector[interID]!=0
                              )
                     {
-                        //                        model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-                        //                        model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
+                        //                        //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
+                        //                        //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
                         
                         const double u1m(intersectionContainer[interID]. first.second-du1);
                         const double u2m(intersectionContainer[interID].second.second-du2);
@@ -690,9 +690,9 @@ namespace model {
                             //                            assert(success1p.first && "COULD NOT EXPLAND LINK1 AT UPPER INTERSECTION");
                             const size_t& ip=sink1.sID; // id of the node obtained expanding L1
                             
-                            model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-                            model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-                            std::cout<<"Junction case 3: node "<<ip<<" survives"<<std::endl;
+                            //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
+                            //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
+                            //std::cout<<"Junction case 3: node "<<ip<<" survives"<<std::endl;
                             
                             const std::pair<bool,size_t> success2p=DN.expand(jm,sink2.sID,P2p); // now L2.second is invalid
                             assert(success2p.first && "COULD NOT EXPLAND LINK2 AT UPPER INTERSECTION");
@@ -729,8 +729,8 @@ namespace model {
                              //                        && dirVector[interID]!=0
                              )
                     {
-                        //                        model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-                        //                        model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
+                        //                        //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
+                        //                        //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
                         
                         const double u1m(intersectionContainer[interID]. first.second-du1);
                         //                        const double u2m(intersectionContainer[interID].second.second-du2);
@@ -778,9 +778,9 @@ namespace model {
                             //                            assert(success2m.first && "COULD NOT EXPLAND LINK2 AT LOWER INTERSECTION");
                             const size_t& jm=source2.sID; // id of the node obtained expanding L2
                             
-                            model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-                            model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-                            std::cout<<"Junction case 4: node "<<jm<<" survives"<<std::endl;
+                            //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
+                            //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
+                            //std::cout<<"Junction case 4: node "<<jm<<" survives"<<std::endl;
                             
                             
                             const std::pair<bool,size_t> success1p=DN.expand(im,sink1.sID,P1p); // now L1.second is invalid
@@ -822,8 +822,8 @@ namespace model {
                              //                        && dirVector[interID]!=0
                              )
                     {
-                        //                        model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-                        //                        model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
+                        //                        //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
+                        //                        //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
                         
                         const double u1m(intersectionContainer[interID]. first.second-du1);
                         const double u2m(intersectionContainer[interID].second.second-du2);
@@ -880,9 +880,9 @@ namespace model {
                             const size_t& jp=sink2.sID; // id of the node obtained expanding L2
                             
                             
-                            model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-                            model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-                            std::cout<<"Junction case 5: node "<<jp<<" survives"<<std::endl;
+                            //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
+                            //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
+                            //std::cout<<"Junction case 5: node "<<jp<<" survives"<<std::endl;
                             
                             
                             

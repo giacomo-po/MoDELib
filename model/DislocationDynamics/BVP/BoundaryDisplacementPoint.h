@@ -25,11 +25,18 @@ namespace model
 
         constexpr static int dim=DisplacementField::dim;
         
-        const Eigen::Matrix<double,dim,1>& P;
+        const Eigen::Matrix<double,dim,1> P;
         const Eigen::Matrix<double,dim,1> S;
         
         BoundaryDisplacementPoint(const NodeType& node, const Eigen::Matrix<double,dim,1>& s_in) :
         /*   */ P(node.P0),
+        /*   */ S(s_in)
+        {
+            
+        }
+        
+        BoundaryDisplacementPoint(const Eigen::Matrix<double,dim,1>& P0, const Eigen::Matrix<double,dim,1>& s_in) :
+        /*   */ P(P0),
         /*   */ S(s_in)
         {
             
