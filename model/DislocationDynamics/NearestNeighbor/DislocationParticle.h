@@ -40,7 +40,7 @@ namespace model
     template<short unsigned int _dim>
 	struct TypeTraits<DislocationParticle<_dim>>
     {
-    
+        
         typedef Eigen::Matrix<double,_dim,_dim> MatrixDim;
         typedef typename CellPropertiesBase<MatrixDim>::SpatialCellProperties SpatialCellProperties;
         
@@ -130,11 +130,11 @@ namespace model
             const double dig(1.0e+08);
             temp = ((temp*dig).template cast<long int>().template cast<double>()/dig);
             
-#ifdef UserStressFile
-            			temp+=userStress(*this);
+#ifdef userStressFile
+            temp+=userStress(*this);
 #endif
             
-//            return Material<Isotropic>::C2*(temp+temp.transpose());
+            //            return Material<Isotropic>::C2*(temp+temp.transpose());
             return temp;
             
 		}
