@@ -354,8 +354,8 @@ namespace model
 			//! 6- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
             DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
 			
-			//! 7- If soft boundaries are used, remove DislocationSegment(s) that exited the boundary
-            //			removeBoundarySegments();
+			//! 7- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
+            removeBoundarySegments();
 			
 			//! 8- Form Junctions
 			formJunctions();
@@ -371,21 +371,21 @@ namespace model
 			++runID;     // increment the runID counter
 		}
 		
-        //		/**********************************************************************/
-        //		void removeBoundarySegments()
-        //        {/*! Removes DislocationSegment(s) on the mesh boundary
-        //          */
-        //			if (shared.use_boundary==softBoundary)
-        //            {
-        //				double t0=clock();
-        //				model::cout<<"		Removing DislocationSegments outside mesh boundary... ";
-        //				typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
-        //				link_member_function_pointer_type boundarySegment_Lmfp;
-        //				boundarySegment_Lmfp=&LinkType::is_boundarySegment;
-        //				this->template disconnect_if<1>(boundarySegment_Lmfp);
-        //				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
-        //			}
-        //		}
+		/**********************************************************************/
+		void removeBoundarySegments()
+        {/*! Removes DislocationSegment(s) on the mesh boundary
+          */
+			if (shared.use_boundary && !shared.use_bvp)
+            {
+                const auto t0= std::chrono::system_clock::now();
+				model::cout<<"		Removing DislocationSegments outside mesh boundary... ";
+				typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
+				link_member_function_pointer_type boundarySegment_Lmfp;
+				boundarySegment_Lmfp=&LinkType::is_boundarySegment;
+				this->template disconnect_if<1>(boundarySegment_Lmfp);
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+			}
+		}
         
         /**********************************************************************/
 		void segmentMeshCollision()
@@ -602,10 +602,11 @@ namespace model
                 shared.mesh.readMesh(meshID);
                 assert(shared.mesh.size() && "MESH IS EMPTY.");
                 
+                EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
+                
 				EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
 				if(shared.use_bvp)
                 {
-                    EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
                     EDR.readScalarInFile(fullName.str(),"solverTolerance",shared.bvpSolver.tolerance);
                     shared.bvpSolver.init();
 				}

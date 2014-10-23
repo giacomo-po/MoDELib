@@ -19,7 +19,8 @@ namespace model {
     
     /**************************************************************************/
     /**************************************************************************/
-    struct FCC {
+    struct FCC
+    {
         
         template <int dim>
         static std::vector<Eigen::Matrix<double,dim,1> > getPlaneNormals()
@@ -97,7 +98,8 @@ namespace model {
     };
     /**************************************************************************/
     
-    struct BCC {
+    struct BCC
+    {
         
         template <int dim>
         static std::vector<Eigen::Matrix<double,dim,1> > getPlaneNormals()

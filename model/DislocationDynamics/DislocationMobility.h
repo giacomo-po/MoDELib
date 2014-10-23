@@ -16,6 +16,7 @@
 #include <assert.h>
 #include <vector>
 #include <Eigen/Dense>
+#include <Eigen/Geometry>
 #include <model/DislocationDynamics/Materials/PeriodicElement.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 
@@ -34,7 +35,7 @@ namespace model {
     public:
         
         typedef Eigen::Matrix<double, dim, 1> VectorDim;
-//        typedef Eigen::Matrix<double, dim, dim> MatrixDim;
+        typedef Eigen::Matrix<double, dim, dim> MatrixDim;
         
 //        const double& dH0;
         const VectorDim& glidePlaneNormal;
@@ -44,7 +45,9 @@ namespace model {
 //        const double& Ta;
         const double& p;
         const double& q;
-        const double& A;
+        const double Ae;
+        const double As;
+        const double& Ta; // Peierls stress [Pa]
         
         
         /**********************************************************************/
@@ -58,7 +61,9 @@ namespace model {
 //        /* init list */ Ta(Material<Isotropic>::Ta),
         /* init list */ p(Material<Isotropic>::p),
         /* init list */ q(Material<Isotropic>::q),
-        /* init list */ A(Material<Isotropic>::A)
+        /* init list */ Ae(Material<Isotropic>::A),
+        /* init list */ As(Material<Isotropic>::A),
+        /* init list */ Ta(Material<Isotropic>::Ta)
         {/*! Contructor initializes data members.
           */
             
@@ -70,8 +75,9 @@ namespace model {
         }
         
         /**********************************************************************/
-        VectorDim getVelocity(const VectorDim& pK,
-//                           const MatrixDim& sigma,
+        VectorDim getVelocity(
+                              //const VectorDim& pK,
+                           const MatrixDim& sigma,
 //                           const VectorDim& b,
                            const VectorDim& t
 //                           const VectorDim& n,
@@ -87,96 +93,84 @@ namespace model {
             
             VectorDim v(VectorDim::Zero()); // initialize velocity to 0-vector
             
-            const double pKn(pK.norm()); // norm of pK
+//            const double pKn(pK.norm()); // norm of pK
             
-            if(pKn>0.0 && Material<Isotropic>::T>0.0)
+            const VectorDim pK=(sigma*Burgers).cross(t);
+            const double pKnorm(pK.norm());
+            
+            if(pKnorm>0.0 && Material<Isotropic>::T>0.0)
             {
-                v = pK/pKn; // unit vector in the direction of pK
+                v = pK/pKnorm; // unit vector in the direction of pK
                 
                 // 1- multiply by pre-exponential factor
-                v *= 1.0-exp(-sqrt(pKn/(A*Material<Isotropic>::T)));
+                //v *= 1.0-exp(-sqrt(pKn/(A*Material<Isotropic>::T)));
+                
+                const double cos2Theta=std::pow(t.dot(Burgers.normalized()),2);
+                
+                const double vE=pKnorm/(Ae*Material<Isotropic>::T);
+                      double vS=pKnorm/(As*Material<Isotropic>::T);
+
+
+                
                 // v *= pKn/(A*Material<Isotropic>::T);
                 // 2- multiply by exponential factor
                 // 2.1- compute activation energy
-                const double aE(activationEnergy(pKn));
-                if (aE>0.0)
+                const double dG(deltaG(sigma,t));
+                if (dG>0.0)
                 {
-//                    if (T>0.0)
-//                    {
-                        v *= exp(-aE/(Material<Isotropic>::kT*Material<Isotropic>::T));
-//                    }
-//                    else // T==0
-//                    {
-//                        v *= 0.0;
-//                    }
+                        vS *= exp(-dG/(Material<Isotropic>::kb*Material<Isotropic>::T));
                 }
-//                else
-//                {
-//                    v *= 0.0;
-//                }
+                
+                v *= vS*cos2Theta+vE*(1.0-cos2Theta);
 
                 
-//                const double v0(1.0-exp(pKn/(A*Material<Isotropic>::T)));
-                
-                
-//                const double trss(std::fabs((sigma*b.normalized()).dot(n.normalized()))); //resolved shear stress
-//                const double tau_star = transitionStress(T);
-                //            assert(tau_star >= tau_o && "tau_star must be >= tau_o"); // will make sure transition stress is always greater than unlocking stress, just an internal check
-                
-                
-//                const double v0(trss*PeriodicElement<Z,Isotropic>::b/(A*Material<Isotropic>::T));
-                
-                
-//                const double cs(sqrt(PeriodicElement<Z,Isotropic>::mu/PeriodicElement<Z,Isotropic>::rho));
-                
-//                double v(cs*(1.0-exp(-v0/cs)));
-                
-                //            if(trss < tau_star)
-                //            {
-                
             }
+            
 
             return v;
         }
         
         
         /**********************************************************************/
-        double activationEnergy(const double& trss) const
+        double deltaG(const MatrixDim& sigma, const VectorDim& t) const
         {/*!
           */
-//            const double tau0(transitionStress(Material<Isotropic>::T));
+
+//            const double trss = (sigma*Burgers.normalized()).dot(glidePlaneNormal);
+            const double trss = std::fabs((sigma*Burgers.normalized()).dot(glidePlaneNormal));
+
+            const VectorDim m = glidePlaneNormal.cross(Burgers.normalized());
+            const double s=(sigma*Burgers.normalized()).dot(m);
             
-            const double T0(1000.0);
-            const double tauS(tauP*std::pow(1.0-Material<Isotropic>::T/T0,2));
             
-            const double DH(dH0(0));
+            double thetaTwin=M_PI/3.0;
             
-//            return (trss>Material<Isotropic>::tauS)? 0.0 : dH0(0)*std::pow(1.0 - std::pow(trss/Material<Isotropic>::tauS,1.0/q),1.0/p);
-            return (trss>tauS)? 0.0 : DH*std::pow(1.0 - std::pow(trss/tauS,1.0/q),1.0/p);
+            const double BdotT = Burgers.dot(t);
+            
+            if(BdotT<0.0)
+            {// A "negative" dislocation
+                thetaTwin*=-1.0;
+            }
+            
+            //const MatrixDim R = ;
+            const VectorDim n1 = Eigen::AngleAxisd(thetaTwin, Burgers.normalized())*glidePlaneNormal;
+            const double trss1 = (sigma*Burgers.normalized()).dot(n1);
+
+            
+            const VectorDim m1 = n1.cross(Burgers.normalized());
+            const double s1=(sigma*Burgers.normalized()).dot(m1);
+
+            
+            const double a1=0.0;
+            const double a2=0.56;
+            const double a3=0.75;
+            
+            const double tauS = std::fabs(trss+a1*trss1+a2*s+a3*s1)/tauP;
+            
+            return dH0(0)*(std::pow(1.0-std::pow(tauS,p),q)-Material<Isotropic>::T/Ta);
+            
         }
         
-//        /**********************************************************************/
-//        double transitionStress(const double& T) const
-//        {/*!@param[in] T input temperature
-//          *\returns the thermal transition stress at temperature T, in units of
-//          * tauP.
-//          *
-//          * The transition stress is computed according to:
-//          *	\f[
-//          *		\sigma(T)=\left[1-\left(\frac{T}{T_a}\right)^p\right]^q
-//          *	\f]
-//          */
-//            return (T>Ta)? 0.0 : tauP*std::pow(1.0 - std::pow(T/Ta,p),q);
-//        }
-        
-        //        /**********************************************************************/
-        //        double getPreFactor(const MatrixDim& sigma, const double& T)
-        //        {// returns the pre-factor as function of current stress tensor "sigma" and temp T
-        //
-        //            double preFac = 1.0;
-        //            
-        //            return preFac;
-        //        }
         
         
         

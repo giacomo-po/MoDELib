@@ -163,7 +163,7 @@ int main(int argc, char * argv[])
     DN.updateQuadraturePoints();
     std::cout<<"Computing DislocationDisplacement at field points..."<<std::flush;
     const auto t1= std::chrono::system_clock::now();
-    DN.computeField<FieldPointType,DisplacementField>(fieldPoints,DN.shared.use_DisplacementMultipole);
+    DN.computeField<FieldPointType,DisplacementField>(fieldPoints);
     std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
     
     /**************************************************************************/

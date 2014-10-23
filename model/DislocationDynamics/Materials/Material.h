@@ -17,7 +17,8 @@
 
 
 
-namespace model {
+namespace model
+{
 
     /**************************************************************************/
     /**************************************************************************/
@@ -27,7 +28,8 @@ namespace model {
     /**************************************************************************/
     /**************************************************************************/
     template<>
-    class Material<Isotropic> {
+    class Material<Isotropic>
+    {
         
         
         static int selectedMaterial;
@@ -54,13 +56,15 @@ namespace model {
             C2=1.0/(4.0*M_PI*C1);
             C3=1.0-2.0*nu;
             C4=0.5*C2;
-            kT=1.38e-23/IM::mu/std::pow(IM::b,3)*T; // [-]
+//            kT=1.38e-23/IM::mu/std::pow(IM::b,3)*T; // [-]
+            kb=1.38e-23/IM::mu/std::pow(IM::b,3); // [-]
             
             dH0=PeriodicElement<Z,Isotropic>::dH0/IM::mu/std::pow(IM::b,3); // [-]
             p=PeriodicElement<Z,Isotropic>::p; // [-]
             q=PeriodicElement<Z,Isotropic>::q; // [-]
             A=PeriodicElement<Z,Isotropic>::A / IM::mu / (IM::b/sqrt(IM::mu/IM::rho));   // [1/K]
             tauP=PeriodicElement<Z,Isotropic>::tauP / IM::mu ;  // [-]
+            Ta=PeriodicElement<Z,Isotropic>::Ta;  // [K]
             
             std::string magentaColor    = "\033[0;35m";   // a magenta color
             std::string defaultColor    = "\033[0m";	   // the default color for the console
@@ -86,8 +90,8 @@ namespace model {
         static double C3;
         static double C4;
         static double T;
-        static double kT;
-//        static double kb;
+//        static double kT;
+        static double kb;
         static double tauIII;
         static double vAct;
         
@@ -96,6 +100,8 @@ namespace model {
         static double A;
 //        static double Ta;
         static double tauP;
+        static double Ta;
+
 
         static Eigen::Matrix<double,Eigen::Dynamic,2> dH0;
 
@@ -106,8 +112,8 @@ namespace model {
           * Selects the element Z as the current material. All material properties
           * are updated accordingly.
           */
-        
-            switch (Z) {
+            switch (Z)
+            {
                 case Al:
                     selectedMaterial=Al;
                     select<Al>();
@@ -187,8 +193,8 @@ namespace model {
     double Material<Isotropic>::C3=1.0-2.0*0.34; // 1-2*nu
     double Material<Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
 	double Material<Isotropic>::T=300.0;  // Temperature [K]
-	//double Material<Isotropic>::kb=1.38e-23/48.0e9/pow(0.2556e-9,3);  // boltzmann constant
-	double Material<Isotropic>::kT=1.38e-23/48.0e9/pow(0.2556e-9,3)*300.0;  // boltzmann constant * Temperature
+	double Material<Isotropic>::kb=1.38e-23/48.0e9/pow(0.2556e-9,3);  // boltzmann constant
+//	double Material<Isotropic>::kT=1.38e-23/48.0e9/pow(0.2556e-9,3)*300.0;  // boltzmann constant * Temperature
 	double Material<Isotropic>::tauIII=0.667e-3;  // critical resovled shear stress in stage III
 	double Material<Isotropic>::vAct=300.0;  // Activation volume [b^3]
 
@@ -196,6 +202,7 @@ namespace model {
     double Material<Isotropic>::q=PeriodicElement<29,Isotropic>::q;
     double Material<Isotropic>::A=PeriodicElement<29,Isotropic>::A;
     double Material<Isotropic>::tauP=PeriodicElement<29,Isotropic>::tauP;
+    double Material<Isotropic>::Ta=PeriodicElement<29,Isotropic>::Ta;
     
     Eigen::Matrix<double,Eigen::Dynamic,2> Material<Isotropic>::dH0=PeriodicElement<29,Isotropic>::dH0;
 

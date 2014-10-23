@@ -37,13 +37,14 @@ namespace model {
 
         static constexpr double mu=26.0e9;              // Shear modulus [Pa]
         static constexpr double b=0.2851e-9;            // Burgers vector[m]
-//        static constexpr double B=1.0e-4;               // Dislocation drag coefficient [Pa*sec]
         static constexpr double rho=2700.0;             // Mass density [kg/m^3]
         
         static constexpr double tauP=0.0;               // Peierls stress [Pa]
         static constexpr double p=1.0;                  // exponent in (1-(T/Ta)^p)^q [-]
         static constexpr double q=1.69;                 // exponent in (1-(T/Ta)^p)^q [-]
         static constexpr double A=3.3333e-07;           // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double Ta=0.0;  // Athermal transition temperature [K]
+
         static const Eigen::Matrix<double,4,2> dH0;     // activation energy prefactor for kink nucleation [J]
     };
     
@@ -67,13 +68,14 @@ namespace model {
         static constexpr double nu=0.31;                // Poisson ratio [-]
         static constexpr double mu=76e9;                // Shear modulus [Pa]
         static constexpr double b=0.2489e-9;            // Burgers vector[m]
-//        static constexpr double B=1.0e-4;             // Dislocation drag coefficient [Pa*sec]
         static constexpr double rho=8908.0;             // Mass density [kg/m^3]
         
         static constexpr double tauP=0.0;               // Peierls stress [Pa]
         static constexpr double p=1.0;                  // exponent in (1-(T/Ta)^p)^q [-]
         static constexpr double q=1.69;                 // exponent in (1-(T/Ta)^p)^q [-]
         static constexpr double A=3.3333e-07;           // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double Ta=0.0;  // Athermal transition temperature [K]
+
         static const Eigen::Matrix<double,4,2> dH0;     // activation energy prefactor for kink nucleation [J]
     };
     
@@ -97,14 +99,15 @@ namespace model {
         static constexpr double nu=0.34;                // Poisson ratio [-]
         static constexpr double mu=48e9;                // Shear modulus [Pa]
         static constexpr double b=0.2556e-9;            // Burgers vector[m]
-//        static constexpr double B=1.0e-4;               // Dislocation drag coefficient [Pa*sec]
         static constexpr double rho=8940.0;             // Mass density [kg/m^3]
         
         
         static constexpr double tauP=0.0; // Peierls stress [Pa]
         static constexpr double p=1.0;  // exponent in (1-(T/Ta)^p)^q [-]
         static constexpr double q=1.69;  // exponent in (1-(T/Ta)^p)^q [-]
-        static constexpr double A=3.3333e-07;  // coefficient of v0=tau*b/(A*T) [Pa*s/K] 
+        static constexpr double A=3.3333e-07;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double Ta=0.0;  // Athermal transition temperature [K]
+
         static const Eigen::Matrix<double,4,2> dH0; // activation energy prefactor for kink nucleation [J]
     };
     
@@ -128,13 +131,14 @@ namespace model {
         static constexpr double nu=0.29;                // Poisson ratio [-]
         static constexpr double mu=82e9;                // Shear modulus [Pa]
         static constexpr double b=0.2482e-9;            // Burgers vector[m]
-//        static constexpr double B=1.0e-4;               // Dislocation drag coefficient [Pa*sec]
         static constexpr double rho=7874.0;             // Mass density [kg/m^3]
         
         static constexpr double tauP=420.0e6; // Peierls stress [Pa]
         static constexpr double p=1.0;  // exponent in (1-(T/Ta)^p)^q [-]
         static constexpr double q=1.69;  // exponent in (1-(T/Ta)^p)^q [-]
-        static constexpr double A=1.0e-6;  // coefficient of v0=tau*b/(A*T) [Pa*s/K] 
+        static constexpr double A=1.0e-6;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double Ta=400.0;  // Athermal transition temperature [K]
+
         static const Eigen::Matrix<double,18,2> dH0; // activation energy prefactor for kink nucleation [J]
     };
     
@@ -172,26 +176,26 @@ namespace model {
         static constexpr double nu=0.28;                // Poisson ratio [-]
         static constexpr double mu=161e9;                // Shear modulus [Pa]
         static constexpr double b=0.2722e-9;            // Burgers vector[m]
-//        static constexpr double B=1.0e-4;               // Dislocation drag coefficient [Pa*sec]
-        static constexpr double rho=19250.0;             // Mass density [kg/m^3]
+        static constexpr double rho=19250.0;    // Mass density [kg/m^3]
         
-        static constexpr double tauP=910.0e6; // Peierls stress [Pa]
-        static constexpr double p=1.0;  // exponent in (1-(T/Ta)^p)^q [-]
-        static constexpr double q=1.69;  // exponent in (1-(T/Ta)^p)^q [-]
-//        static constexpr double A=1.0e-6;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
-        static constexpr double A=3.3333e-07;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double tauP=910.0e6;   // Peierls stress [Pa]
+        static constexpr double p=0.86;          //
+        static constexpr double q=1.69;         //
+//        static constexpr double A=1.0e-6;     // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double A=3.3333e-07;   // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double Ta=800.0;       // Athermal transition temperature [K]
 
         static const Eigen::Matrix<double,18,2> dH0; // activation energy prefactor for kink nucleation [J]
     };
     
     const std::string PeriodicElement<74,Isotropic>::name="Tungsten";
     const Eigen::Matrix<double,18,2> PeriodicElement<74,Isotropic>::dH0=(Eigen::Matrix<double,18,2>()<<
-                                                                         1.89,0.19, // (0,1,1)
-                                                                         1.89,0.19, // (1,0,1)
-                                                                         1.89,0.19, // (1,-1,0)
-                                                                         1.89,0.19, // (0,1,-1)
-                                                                         1.89,0.19, // (1,1,0)
-                                                                         1.89,0.19, // (1,0,-1)
+                                                                         1.63,0.0, // (0,1,1)
+                                                                         1.63,0.0, // (0,1,1)
+                                                                         1.63,0.0, // (0,1,1)
+                                                                         1.63,0.0, // (0,1,1)
+                                                                         1.63,0.0, // (0,1,1)
+                                                                         1.63,0.0, // (0,1,1)
                                                                          2.8,2.8, // (2,-1,1)
                                                                          2.8,2.8, // (2,-1,1)
                                                                          2.8,2.8, // (2,-1,1)

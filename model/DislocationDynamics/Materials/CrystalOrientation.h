@@ -57,7 +57,8 @@ namespace model {
             const PlaneNormalContainerType tempPN(CrystalStructure::template getPlaneNormals<dim>());
             planeNormalContainer.clear();
             
-            for (unsigned int k=0; k<tempPN.size();++k){
+            for (unsigned int k=0; k<tempPN.size();++k)
+            {
                 VectorDim temp(C2G*tempPN[k]);
                 double tempNorm(temp.norm());
                 assert(tempNorm > FLT_EPSILON && "PLANE NORMAL HAS ZERO NORM.");
@@ -68,7 +69,8 @@ namespace model {
             std::string defaultColor    = "\033[0m";	   // the default color for the console
             
             std::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
-            for (unsigned int k=0; k<planeNormalContainer.size();++k){
+            for (unsigned int k=0; k<planeNormalContainer.size();++k)
+            {
                 std::cout<<"    "<<planeNormalContainer[k].transpose()<<std::endl;
             }
             std::cout<<defaultColor<<std::endl;
@@ -220,9 +222,21 @@ namespace model {
         /**********************************************************************/
         static size_t planeID(const VectorDim& planeNormal)
         {
-            typename PlaneNormalContainerType::iterator pIter(std::find(planeNormalContainer.begin(),planeNormalContainer.end(),planeNormal));
-            assert(pIter!=planeNormalContainer.end() && "PLANE NORMAL NOT FOUND");
-            return std::distance(planeNormalContainer.begin(),pIter);
+            size_t temp=planeNormalContainer.size();
+            
+            for (int n=0;n<planeNormalContainer.size();++n)
+            {
+            if ((planeNormalContainer[n]-planeNormal).norm()<FLT_EPSILON)
+            {
+                temp=n;
+            }
+            }
+                        assert(temp!=planeNormalContainer.size() && "PLANE NORMAL NOT FOUND");
+            return temp;
+            
+//            typename PlaneNormalContainerType::iterator pIter(std::find(planeNormalContainer.begin(),planeNormalContainer.end(),planeNormal));
+//            assert(pIter!=planeNormalContainer.end() && "PLANE NORMAL NOT FOUND");
+//            return std::distance(planeNormalContainer.begin(),pIter);
         }
         
     };

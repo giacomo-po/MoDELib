@@ -236,8 +236,6 @@ namespace model
         {/*!@param[in] ele the element
           * @param[in] bary the vector of barycentric coordinates
           * \returns the value of the Derived expression at bary.
-          *
-          * \todo: in order to be optimized, this function should be Derived-specific
           */
             return sfm(ele,bary)*dofs(ele);
         }

@@ -31,12 +31,17 @@ namespace model {
     /**************************************************************************/
 	/**************************************************************************/
 	template<int _dim>
-	struct SimplicialMesh : public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
+	class SimplicialMesh : public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
     /*                                */ const Simplex<_dim,_dim>, // value
     /*                                */ CompareVectorsByComponent<typename SimplexTraits<_dim,_dim>::ScalarIDType,
     /*                                */ SimplexTraits<_dim,_dim>::nVertices> // key compare
     /*                                */ >
     {
+        
+        Eigen::Matrix<double,_dim,1> _xMin;
+        Eigen::Matrix<double,_dim,1> _xMax;
+        
+    public:
         
         enum {dim=_dim};
         
@@ -48,18 +53,12 @@ namespace model {
         /*            */ >  SimplexMapType;
         
         /**********************************************************************/
-        SimplicialMesh()
+        SimplicialMesh() :
+        /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Constant( DBL_MAX)),
+        /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Constant(-DBL_MAX))
+
         {
         }
-        
-//        /**********************************************************************/
-//        ~SimplicialMesh()
-//        {
-//            model::cout<<"Destroying SimplicialMesh"<<std::flush;
-//            this->clear();
-//            model::cout<<"Done"<<std::endl;
-//        }
-        
         
         /**********************************************************************/
         SimplicialMesh(const int& meshID)
@@ -104,6 +103,24 @@ namespace model {
             {
                 model::cout<<"Cannot read mesh file T/T_"<<meshID<<".txt . Mesh is empty."<<std::endl;
             }
+            
+            for (typename SimplexObserver<dim,0>::const_iterator nIter = SimplexObserver<dim,0>::simplexBegin();
+                 /*                                           */ nIter!= SimplexObserver<dim,0>::simplexEnd();
+                 /*                                           */ nIter++)
+            {
+                for(int d=0;d<dim;++d)
+                {
+                    if (nIter->second->P0(d)<_xMin(d))
+                    {
+                        _xMin(d)=nIter->second->P0(d);
+                    }
+                    if (nIter->second->P0(d)>_xMax(d))
+                    {
+                        _xMax(d)=nIter->second->P0(d);
+                    }
+                }
+            }
+            
             
         }
         
@@ -179,6 +196,18 @@ namespace model {
                 }
             }
             return temp;
+        }
+        
+        /**********************************************************************/
+        const Eigen::Matrix<double,dim,1>& xMin() const
+        {
+            return _xMin;
+        }
+        
+        /**********************************************************************/
+        const Eigen::Matrix<double,dim,1>& xMax() const
+        {
+            return _xMax;
         }
         
 	};

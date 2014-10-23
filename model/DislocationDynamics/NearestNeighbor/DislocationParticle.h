@@ -131,7 +131,7 @@ namespace model
             temp = ((temp*dig).template cast<long int>().template cast<double>()/dig);
             
 #ifdef UserStressFile
-            //			temp+=userStress(k);
+            			temp+=userStress(*this);
 #endif
             
 //            return Material<Isotropic>::C2*(temp+temp.transpose());

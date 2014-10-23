@@ -45,7 +45,8 @@ namespace model {
         void storeNodeSolution(const Eigen::VectorXd& X)
         {
             size_t k=0;
-			for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter){
+			for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)
+            {
 				nodeIter->second->set_V(X.segment(NdofXnode*k,NdofXnode));
 				++k;
 			}
@@ -54,11 +55,13 @@ namespace model {
         
         /************************************************************/
         template <bool symmetricConstraint>
-        void assembleConstraints(std::vector<Eigen::Triplet<double> >& vT, size_t& KPQ_row) const {
+        void assembleConstraints(std::vector<Eigen::Triplet<double> >& vT, size_t& KPQ_row) const
+        {
             
             // Collect contraints
             std::vector<typename NodeType::VectorOfNormalsType> NNV; // DON'T NEED THIS ANYMORE WITH TRIPLETS
-			for (typename NodeContainerType::const_iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter){
+			for (typename NodeContainerType::const_iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)
+            {
 				NNV.push_back(nodeIter->second->constraintNormals());
 			}
             
@@ -72,7 +75,8 @@ namespace model {
                     if (normT>FLT_EPSILON)
                     {
                         T/=normT;
-                        for(size_t d=0;d<dim;++d){
+                        for(size_t d=0;d<dim;++d)
+                        {
                             vT.push_back(Eigen::Triplet<double>(KPQ_row,node_dofID(d),T(d)));
                             vT.push_back(Eigen::Triplet<double>(node_dofID(d),KPQ_row,T(d)));
                         }
@@ -97,11 +101,15 @@ namespace model {
             
             //size_t KPQ_row=0;
             
-            for (size_t n=0 ;n<NNV.size();++n){
-                for (size_t c=0;c<NNV[n].size();++c){
-                    for(size_t d=0;d<dim;++d){
+            for (size_t n=0 ;n<NNV.size();++n)
+            {
+                for (size_t c=0;c<NNV[n].size();++c)
+                {
+                    for(size_t d=0;d<dim;++d)
+                    {
                         vT.push_back(Eigen::Triplet<double>(KPQ_row,n*dim+d,NNV[n][c](d)));
-                        if (symmetricConstraint){
+                        if (symmetricConstraint)
+                        {
                             vT.push_back(Eigen::Triplet<double>(n*dim+d,KPQ_row,NNV[n][c](d)));
                         }
                     }
@@ -142,20 +150,24 @@ namespace model {
 				typename NodeContainerType::const_iterator nodeIter2(nodeIter1);
 				nodeIter2++;
 				if (nodeIter1->second->constraintNormals().size()>2 && nodeIter2->second->constraintNormals().size()>2){
-					assert(0 && "DislocationSubNetework has only 2 fixed Nodes.");
+//					assert(0 && "DislocationSubNetework has only 2 fixed Nodes.");
+                    std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
+					std::cout<<"WARNING: DislocationSubNetework has only 2 fixed Nodes"<<std::endl;
 				}
 			}
             
             // Assembly of Stiffness Matrix and force vector
             const size_t Ndof(NC.nodeOrder()*NdofXnode); // the total number of dof in the subnetwork
             size_t reserveSize(0);
-            for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter){
+            for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)
+            {
                 reserveSize+=nodeIter->second->closedOrder();
             }
             std::vector<Eigen::Triplet<double> > kqqT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
             kqqT.reserve(reserveSize); // assume some fill percentage
             Eigen::VectorXd Fq(Eigen::VectorXd::Zero(Ndof));
-            for (typename LinkContainerType::const_iterator linkIter=NC.linkBegin();linkIter!=NC.linkEnd();++linkIter){
+            for (typename LinkContainerType::const_iterator linkIter=NC.linkBegin();linkIter!=NC.linkEnd();++linkIter)
+            {
                 linkIter->second->addToGlobalAssembly(kqqT,Fq); // loop over each segment and add segment contributions to kqqT and Fq
 			}
             
@@ -333,106 +345,5 @@ namespace model {
 		
 	};
 	
-	//////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
-
-
-
-//		/************************************************************/
-//		void solve() {
-//
-//
-//
-//            //#ifdef _OPENMP
-//            //            std::cout<<"Thread "<<omp_get_thread_num()<<" of "<<omp_get_num_threads()<<" solving SubNetwork "<<NC.sID<<std::endl;
-//            //#endif
-//
-//
-//			const size_t nodeOrdr(NC.nodeOrder());
-//
-//			if (nodeOrdr==0 || nodeOrdr==1){
-//                std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
-//                assert(0 && "DislocationSubNetework has less than 2 Nodes.");
-//			}
-//
-//			if (nodeOrdr==2){
-//				typename NodeContainerType::const_iterator nodeIter1=NC.nodeBegin();
-//				typename NodeContainerType::const_iterator nodeIter2(nodeIter1);
-//				nodeIter2++;
-//				if (nodeIter1->second->constraintNormals().size()>2 && nodeIter2->second->constraintNormals().size()>2){
-//					assert(0 && "DislocationSubNetework has only 2 fixed Nodes.");
-//				}
-//			}
-//
-//
-//
-//
-//
-//
-//
-//			//! 1- Assemble KQQ and Fq
-//			const size_t NDOF = NC.nodeOrder()*NdofXnode;
-//
-//
-//
-//			Eigen::MatrixXd KQQ = Eigen::MatrixXd::Zero(NDOF,NDOF);
-//			Eigen::VectorXd Fq  = Eigen::VectorXd::Zero(NDOF);
-//
-//
-//			for (typename LinkContainerType::const_iterator linkIter=NC.linkBegin();linkIter!=NC.linkEnd();++linkIter){
-//
-//                //		linkIter->second->assemble(); // moved to DislocationNetwork::solve
-//
-//				Eigen::MatrixXd G2H(linkIter->second->get_G2H());
-//				KQQ+=G2H.transpose() * linkIter->second->get_Kqq() * G2H;
-//				Fq +=G2H.transpose() * linkIter->second->get_Fq();
-//			}
-//
-//
-//
-//
-//			//! 1- Assemble KPQ and Fp
-//			std::vector<typename NodeType::VectorOfNormalsType> NNV;
-//
-//			for (typename NodeContainerType::const_iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter){
-//				NNV.push_back(nodeIter->second->constraintNormals());
-//			}
-//
-//			size_t count=0;
-//			for (size_t k=0;k<NNV.size();++k){
-//				count+=NNV[k].size();
-//			}
-//
-//			//assert(count<KQQ.rows() && "SUBNETWORK IS FULLY CONSTRAINED");
-//
-//			Eigen::MatrixXd KPQ = Eigen::MatrixXd::Zero(count,KQQ.cols());
-//            //			Eigen::VectorXd Fp  = Eigen::VectorXd::Zero(count);
-//
-//			size_t KPQ_row=0;
-//
-//			for (size_t n=0 ;n<NNV.size();++n){
-//				for (size_t c=0;c<NNV[n].size();++c){
-//					KPQ.block(KPQ_row,n*dim,1,dim)=NNV[n][c].transpose();
-//                    //					Fp(KPQ_row)=0.0;
-//					++KPQ_row;
-//				}
-//			}
-//
-//
-//
-//			//! Solve the system of equations
-//            //			const SchurComplementSolver LS(KQQ,KPQ,Fq,Fp);
-//			const SchurComplementSolver LS(KQQ,KPQ,Fq);
-//
-//			//! Store velocities in DislocationNodes
-//            size_t k=0;
-//			for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter){
-//				nodeIter->second->set_V(LS.X.segment(NdofXnode*k,NdofXnode));
-//				++k;
-//			}
-//
-//
-//
-//		}

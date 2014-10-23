@@ -149,10 +149,13 @@ namespace model {
 		//! A shared pointer to the GlidePlane of this segment
 		const GlidePlaneSharedPtrType pGlidePlane;
         
-        //        const DislocationMobility<dim> dm;
+                const DislocationMobility<dim> dm;
         
         //! Positions corrersponding to the quadrature points
 		MatrixDimQorder rgauss;
+        
+        
+        std::array<MatrixDim, qOrder> stressGauss;
         
         //! PK force corrersponding to the quadrature points
         MatrixDimQorder pkGauss;
@@ -193,7 +196,7 @@ namespace model {
             ////			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
             
 			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
-            //            return temp.transpose()*dm.getVelocity(pkGauss.col(k),rlgauss.col(k))*jgauss(k); // inverse mobility law
+//            return temp.transpose()*dm.getVelocity(stressGauss[k],rlgauss.col(k))*jgauss(k); // inverse mobility law
 		}
 		
 		/**********************************************************************/
@@ -206,9 +209,9 @@ namespace model {
 		}
 		
 		
-#ifdef UserStressFile
-#include UserStressFile
-#endif
+//#ifdef UserStressFile
+//#include UserStressFile
+//#endif
         
 		/******************************************************************/
 	public: // member functions
@@ -221,8 +224,8 @@ namespace model {
 		/* init list       */ Burgers(this->flow * Material<Isotropic>::b),
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
-		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))) // change this
-        //        /* init list       */ dm(glidePlaneNormal,Burgers)
+		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), // change this
+        /* init list       */ dm(glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
@@ -247,8 +250,8 @@ namespace model {
 		/* init list       */ Burgers(this->flow * Material<Isotropic>::b),
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
-		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))) 			// change this
-        //        /* init list       */ dm(glidePlaneNormal,Burgers)
+		/* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), 			// change this
+        /* init list       */ dm(glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and ExpandingEdge
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] ee the expanding edge
@@ -322,14 +325,32 @@ namespace model {
             
 		}
 		
-		/**********************************************************************/
-		VectorDim pkForce(const size_t & k)
+//		/**********************************************************************/
+//		VectorDim pkForce(const size_t & k)
+//        {/*!@param[in] k the k-th quandrature point
+//          *\returns the PK force at the k-th quandrature point
+//          */
+//            //            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
+//            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress()+shared.externalStress+shared.bvpSolver.stress(quadratureParticleContainer[k]->P,this->source->includingSimplex()))*Burgers).cross(rlgauss.col(k))
+//			/*                   */ : ((quadratureParticleContainer[k]->stress()+shared.externalStress)*Burgers).cross(rlgauss.col(k));
+//            
+//        }
+        
+        /**********************************************************************/
+		MatrixDim stressAtQuadrature(const size_t & k)
         {/*!@param[in] k the k-th quandrature point
           *\returns the PK force at the k-th quandrature point
           */
-            //            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
-            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress()+shared.externalStress+shared.bvpSolver.stress(quadratureParticleContainer[k]->P,this->source->includingSimplex()))*Burgers).cross(rlgauss.col(k))
-			/*                   */ : ((quadratureParticleContainer[k]->stress()+shared.externalStress)*Burgers).cross(rlgauss.col(k));
+            
+            MatrixDim temp(quadratureParticleContainer[k]->stress()+shared.externalStress);
+            if(shared.use_bvp)
+            {
+                temp += shared.bvpSolver.stress(quadratureParticleContainer[k]->P,this->source->includingSimplex());
+            }
+            return temp;
+//            //            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
+//            return (shared.use_bvp) ? (quadratureParticleContainer[k]->stress()+shared.externalStress+shared.bvpSolver.stress(quadratureParticleContainer[k]->P,this->source->includingSimplex()))
+//			/*                   */ : (quadratureParticleContainer[k]->stress()+shared.externalStress);
             
         }
         
@@ -354,8 +375,11 @@ namespace model {
              *	\f]
              */
             //                pkGauss.setZero(); // not strictly necessary
-            for (int k=0;k<qOrder;++k){
-                pkGauss.col(k)=pkForce(k);
+            for (int k=0;k<qOrder;++k)
+            {
+                stressGauss[k]=stressAtQuadrature(k);
+//                pkGauss.col(k)=pkForce(k);
+                pkGauss.col(k)=(stressGauss[k]*Burgers).cross(rlgauss.col(k));
             }
             Fq.setZero();
             Quadrature<1,qOrder,QuadratureRule>::integrate(this,Fq,&LinkType::PKintegrand);
