@@ -69,8 +69,8 @@ namespace model
         
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
-#ifdef UserStressFile
-#include UserStressFile
+#ifdef userStressFile
+#include userStressFile
 #endif
         
         enum{dim=_dim};
