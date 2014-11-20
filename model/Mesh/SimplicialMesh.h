@@ -29,9 +29,9 @@ namespace model {
     
     
     /**************************************************************************/
-	/**************************************************************************/
-	template<int _dim>
-	class SimplicialMesh : public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
+    /**************************************************************************/
+    template<int _dim>
+    class SimplicialMesh : public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
     /*                                */ const Simplex<_dim,_dim>, // value
     /*                                */ CompareVectorsByComponent<typename SimplexTraits<_dim,_dim>::ScalarIDType,
     /*                                */ SimplexTraits<_dim,_dim>::nVertices> // key compare
@@ -56,7 +56,7 @@ namespace model {
         SimplicialMesh() :
         /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Constant( DBL_MAX)),
         /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Constant(-DBL_MAX))
-
+        
         {
         }
         
@@ -127,7 +127,7 @@ namespace model {
         /**********************************************************************/
         void insertSimplex(const typename SimplexTraits<dim,dim>::SimplexIDType& xIN)
         {/*!@param[in] xIN the (unsorted) array of mesh node IDs defining a simplex
-          *\brief Inserts a Simplex<dim> into the mesh, with ID equal to the 
+          *\brief Inserts a Simplex<dim> into the mesh, with ID equal to the
           * sorted array xIN.
           */
             const typename SimplexTraits<dim,dim>::SimplexIDType xID(SimplexTraits<dim,dim>::sortID(xIN));
@@ -159,6 +159,29 @@ namespace model {
             std::set<int> searchSet;
             std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,NULL);
             guess->convexDelaunaynSearch(P,lastSearched,searchSet);
+            
+            if(!lastSearched.first) // search not successful. Force search neighbors of last searched Simplex
+            {
+                const std::pair<bool,const Simplex<dim,dim>*> temp(lastSearched);
+                const Eigen::Matrix<double,dim+1,1> bary=temp.second->pos2bary(P);
+                for(int k=0;k<dim+1;++k)
+                {
+                    if(bary(k)<=0.0)
+                    {
+                        for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=temp.second->child(k).parentBegin();
+                            /*                                                            */ pIter!=temp.second->child(k).parentEnd();++pIter)
+                        {
+                            (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
+                            if (lastSearched.first)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    
+                }
+            }
+            
             return lastSearched;
         }
         
@@ -210,7 +233,7 @@ namespace model {
             return _xMax;
         }
         
-	};
+    };
     
 }	// close namespace
 #endif

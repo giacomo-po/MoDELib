@@ -26,7 +26,8 @@
 namespace model {
 	
 	template <typename DislocationNetworkType>
-	class DislocationJunctionFormation{
+	class DislocationJunctionFormation
+    {
 		
 		typedef typename DislocationNetworkType::LinkType LinkType;
 		typedef typename DislocationNetworkType::NodeType NodeType;
