@@ -21,6 +21,7 @@
 #include <model/Utilities/SequentialBinFile.h>
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Mesh/Simplex.h>
+#include <model/Mesh/SimplexReader.h>
 #include <model/Mesh/MeshStats.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 
@@ -31,7 +32,8 @@ namespace model {
     /**************************************************************************/
     /**************************************************************************/
     template<int _dim>
-    class SimplicialMesh : public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
+    class SimplicialMesh : public SimplexReader<_dim>,
+    /*                  */ public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
     /*                                */ const Simplex<_dim,_dim>, // value
     /*                                */ CompareVectorsByComponent<typename SimplexTraits<_dim,_dim>::ScalarIDType,
     /*                                */ SimplexTraits<_dim,_dim>::nVertices> // key compare
@@ -74,7 +76,8 @@ namespace model {
             model::cout<<greenColor<<"Reading mesh "<<meshID<<defaultColor<<std::endl;
             this->clear();
             
-            Simplex<dim,0>::nodeReader.read(meshID,true);
+//            Simplex<dim,0>::nodeReader.read(meshID,true);
+            SimplexReader<dim>::nodeReader.read(meshID,true);
             
             this->clear();
             
@@ -97,7 +100,7 @@ namespace model {
                 }
                 model::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
                 MeshStats<dim,dim>::stats(true);
-                Simplex<dim,0>::nodeReader.clear();
+                SimplexReader<dim>::nodeReader.clear();
             }
             else
             {

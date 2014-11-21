@@ -79,6 +79,13 @@ namespace model {
 			count =  newCount;
 			nextCount=count+increment;
 		}
+        
+        /**********************************************************************/
+        static void force_count(const size_t& newCount)
+        {
+            count =  newCount;
+            nextCount=count+increment;
+        }
 		
         /**********************************************************************/
 		static void set_increment(const int& newIncrement)

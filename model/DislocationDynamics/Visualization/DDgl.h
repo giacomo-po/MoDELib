@@ -775,9 +775,9 @@ namespace model {
 					splinePlotter.showVertexID=!splinePlotter.showVertexID;
 					break;
                     
-//                case '0':
-//					meshPlotter.plotBndStress=false;
-//					break;
+                case '0':
+					splinePlotter.plotBoundarySegments=!splinePlotter.plotBoundarySegments;
+					break;
                     
                 case '1':
                     if (meshPlotter.stressCol==0)

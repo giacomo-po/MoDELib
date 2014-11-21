@@ -310,6 +310,8 @@ namespace model {
 		bool showBurgers;
         bool showVertexID;
         static int colorScheme;
+        static bool plotBoundarySegments;
+
         bool showSpecificVertex;
         int specificVertexID;
         bool showPK;
@@ -369,7 +371,7 @@ namespace model {
                 const bool sourceOnBoundary(itSource->second(2*dim+1));
                 const bool   sinkOnBoundary(  itSink->second(2*dim+1));
                 
-                if(!(sourceOnBoundary && sinkOnBoundary))
+                if(!(sourceOnBoundary && sinkOnBoundary) || plotBoundarySegments)
                 {
                     
                     P0T0P1T1BN.col(0) = itSource->second.segment<dim>(0*dim).transpose().template cast<float>();	// source position
@@ -433,19 +435,23 @@ namespace model {
                     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor);  // specular color for the material
                     const bool vertexOnBoundary(vIter->second(2*dim+1));
                     
-                    if(!vertexOnBoundary)
+                    if(!vertexOnBoundary || plotBoundarySegments)
                     {
                         glTranslatef(  vIter->second(0),  vIter->second(1),  vIter->second(2) );
                         gluSphere( myQuad , radius*1.2 , 10 , 10 );
                         glTranslatef( -vIter->second(0), -vIter->second(1), -vIter->second(2) );
+                        
+                        
+                        if (showVertexID || (showSpecificVertex && specificVertexID==vIter->first))
+                        {
+                            VectorDim PT(vIter->second.template cast<float>().template segment<dim>(0));
+                            BitmapPlotter::renderString(PT,
+                                                        /*                       */ static_cast<std::ostringstream*>( &(std::ostringstream() << vIter->first) )->str());
+                        }
+                        
                     }
                     
-                    if (showVertexID || (showSpecificVertex && specificVertexID==vIter->first))
-                    {
-                        VectorDim PT(vIter->second.template cast<float>().template segment<dim>(0));
-                        BitmapPlotter::renderString(PT,
-                                                    /*                       */ static_cast<std::ostringstream*>( &(std::ostringstream() << vIter->first) )->str());
-                    }
+
                     
                     
 				}
@@ -510,6 +516,11 @@ namespace model {
     //static data
     template <int dim, int Np, int Nc>
 	int SplinePlotter<dim,Np,Nc>::colorScheme=0;
+
+    //static data
+    template <int dim, int Np, int Nc>
+    bool SplinePlotter<dim,Np,Nc>::plotBoundarySegments=false;
+
 }
 #endif
 /*********************************************************************/

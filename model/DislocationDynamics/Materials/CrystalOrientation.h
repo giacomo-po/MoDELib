@@ -15,6 +15,7 @@
 #include <vector>
 #include <iterator>     // std::distance
 #include <Eigen/Dense>
+#include <model/Utilities/TerminalColors.h>
 #include <model/DislocationDynamics/Materials/CrystalStructures.h>
 
 
@@ -65,8 +66,8 @@ namespace model {
                 planeNormalContainer.push_back(temp/tempNorm);
             }
             
-            std::string magentaColor    = "\033[0;35m";   // a magenta color
-            std::string defaultColor    = "\033[0m";	   // the default color for the console
+//            std::string magentaColor    = "\033[0;35m";   // a magenta color
+//            std::string defaultColor    = "\033[0m";	   // the default color for the console
             
             std::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
             for (unsigned int k=0; k<planeNormalContainer.size();++k)
@@ -88,6 +89,7 @@ namespace model {
 			
 			
 			const VectorDim normalizedChord(chord.normalized());
+            const VectorDim normalizedBurgers(Burgers.normalized());
             
 			allowedSlipSystems.clear();
             
@@ -95,7 +97,8 @@ namespace model {
             //			for (typename std::set<SlipSystem<dim,Nslips> >::iterator iter=slipSystemContainer.begin();iter!=slipSystemContainer.end();++iter){
             for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter)
             {
-				if(	  std::fabs( iter->dot(normalizedChord))<tol && std::fabs( iter->dot(Burgers.normalized()))<tol)
+				if(std::fabs(iter->dot(  normalizedChord))<tol &&
+                   std::fabs(iter->dot(normalizedBurgers))<tol)
                 {
 					//allowedSlipSystems.insert( *iter );
 					allowedSlipSystems.push_back( iter );
@@ -105,7 +108,6 @@ namespace model {
 			const unsigned int N(allowedSlipSystems.size());
 			switch (N) {
 				case 0: // CHECK FOR SESSILE
-                    //					for (typename PlaneNormalContainerType::const_iterator iter=slipSystemContainer.begin();iter!=slipSystemContainer.end();++iter){
                     for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter)
                     {
                         //						std::cout<<"c*n="<< std::fabs( iter->normal.dot(normalizedChord)) << " tol is "<<tol<<std::endl;
@@ -115,17 +117,16 @@ namespace model {
 							allowedSlipSystems.push_back( iter );
 						}
 					}
-                    //					if (allowedSlipSystems.size()==0){
-                    if (allowedSlipSystems.size()<2){
-						std::cout<<" chord is"<<chord.transpose()<<std::endl;
-                        //						for (typename SlipSystemContainerType::const_iterator iter=slipSystemContainer.begin();iter!=slipSystemContainer.end();++iter){
+                    if (allowedSlipSystems.size()<2)
+                    {
+						std::cout<<"chord="<<chord.transpose()<<std::endl;
+                        std::cout<<"Burgers="<<Burgers.transpose()<<std::endl;
                         for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter){
                             
 							std::cout<<"n="<<iter->transpose()<<" |c*n|="<< std::fabs( iter->dot(normalizedChord)) << " tol is "<<tol<<std::endl;
 						}
 						assert(allowedSlipSystems.size()>=2 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO CRYSTALLOGRAPHIC PLANES.");
 					}
-                    //std::cout<<"CRYSTAL.h: FOUND SESSILE SEGMENT"<<std::endl;
 					break;
                     
 				case 1: // OK

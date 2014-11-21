@@ -13,6 +13,7 @@
 #include <map>
 #include <float.h>
 #include <Eigen/Dense>
+#include <model/Mesh/SimplexReader.h>
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Mesh/SimplexObserver.h>
 #include <model/Mesh/SimplexBase.h>
@@ -38,24 +39,25 @@ namespace model {
         const Eigen::Matrix<double,dim,1> P0;
         
         
-        /**********************************************************************/
-        Eigen::Matrix<double,dim,1> get_P0() const
-        {
-            const typename VertexReader<'N',dim+1,double>::const_iterator nIter(nodeReader.find((this->xID)(0)));
-            assert((nIter!=nodeReader.end()) && "MESH VERTEX NOT FOUND IN N/N_x.txt.");
-            return nIter->second;
-        }
+//        /**********************************************************************/
+//        Eigen::Matrix<double,dim,1> get_P0() const
+//        {
+//            const typename VertexReader<'N',dim+1,double>::const_iterator nIter(SimplexReader<dim>::nodeReader.find((this->xID)(0)));
+//            assert((nIter!=SimplexReader<dim>::nodeReader.end()) && "MESH VERTEX NOT FOUND IN N/N_x.txt.");
+//            return nIter->second;
+//        }
         
         
     public:
         
-        static VertexReader<'N',dim+1,double> nodeReader;
+//        static VertexReader<'N',dim+1,double> nodeReader;
         
         
 		/**********************************************************************/
         Simplex(const SimplexIDType& vIN) :
         /* init list */ SimplexBase<dim,order>(vIN),
-        /* init list */ P0(get_P0())
+//        /* init list */ P0(get_P0())
+        /* init list */ P0(SimplexReader<dim>::get_P0(this->xID))
         {/*!@param[in] vIN the (possibly unsorted) ID of this Simplex
           *
           * Constructur performs the following operations:
@@ -73,8 +75,8 @@ namespace model {
         
 	};
     
-    template<short int dim>
-    VertexReader<'N',dim+1,double> Simplex<dim,0>::nodeReader;
+//    template<short int dim>
+//    VertexReader<'N',dim+1,double> Simplex<dim,0>::nodeReader;
     
     
     /**************************************************************************/
