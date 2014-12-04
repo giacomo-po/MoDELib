@@ -9,6 +9,7 @@
 #ifndef model_SimplicialMesh_H_
 #define model_SimplicialMesh_H_
 
+#include <chrono>
 #include <sstream>
 #include <fstream>
 #include <assert.h>
@@ -88,7 +89,9 @@ namespace model {
             
             if (success)
             {
-                double t0(clock());
+//                double t0(clock());
+                const auto t0= std::chrono::system_clock::now();
+
                 model::cout<<"Creating mesh..."<<std::flush;
                 for (typename VertexReader<'T',dim+2,size_t>::const_iterator eIter =elementReader.begin();
                      /*                                       */ eIter!=elementReader.end();++eIter)
@@ -98,7 +101,9 @@ namespace model {
                     //                    binFile.write(std::make_pair(eIter->first,eIter->second));
                     
                 }
-                model::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
+//                model::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
+                model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+
                 MeshStats<dim,dim>::stats(true);
                 SimplexReader<dim>::nodeReader.clear();
             }

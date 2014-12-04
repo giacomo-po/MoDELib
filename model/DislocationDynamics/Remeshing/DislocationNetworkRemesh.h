@@ -452,7 +452,8 @@ namespace model {
                         }
                         else
                         {  // cNorm>=FLT_EPSILON
-                            if(sourcePNsize==2 && sinkPNsize==2){ // both sink and source move on a line, check if lines intersect
+                            if(sourcePNsize==2 && sinkPNsize==2)
+                            { // both sink and source move on a line, check if lines intersect
                                 // Compute first direction
                                 VectorDimD d1(sourcePN[0].cross(sourcePN[1]));
                                 const double d1norm(d1.norm());

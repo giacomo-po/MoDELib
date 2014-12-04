@@ -19,7 +19,8 @@
 #include <Eigen/Dense>
 #include <model/Utilities/BinaryFileReader.h>
 
-namespace model {
+namespace model
+{
 
     /*!	\brief A class template to read Vertex data from file.
      *	\param[c]    the data files are c/c_x.txt or c/c_x.bin
@@ -148,7 +149,7 @@ namespace model {
 		bool read(const int& frameN, const bool& useTXT)
         {
 			assert(frameN>=0);
-			if (frameN!=currentFrame)
+			if (frameN!=currentFrame || this->empty())
             {
 				currentFrame=frameN;
 				
@@ -162,6 +163,11 @@ namespace model {
 					readBIN(getFilename(frameN,false));
 				}
 			}
+            else
+            {
+                success=true;
+                std::cout<<getFilename(frameN,useTXT)<<" already read."<<std::endl;
+            }
 			return success;
 			
 		}

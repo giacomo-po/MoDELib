@@ -161,7 +161,8 @@ namespace model {
           */
 			assert(frameN>=0 && "frameN MUST BE >= 0");
 			bool success(false);
-            if (frameN!=currentFrame){
+            if (frameN!=currentFrame || this->empty())
+            {
 				currentFrame=frameN;
 				
 				// clear the content of the map
@@ -173,7 +174,12 @@ namespace model {
 				else{
 					success=readBIN(getFilename(frameN,false));
 				}
-			} 
+			}
+            else
+            {
+                success=true;
+                std::cout<<getFilename(frameN,useTXT)<<" already read."<<std::endl;
+            }
 			return success;
 			
 		}
