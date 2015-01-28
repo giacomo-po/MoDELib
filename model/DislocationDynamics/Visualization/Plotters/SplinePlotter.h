@@ -24,7 +24,7 @@
 #include <set>
 #include <iterator> // std::distance
 
-#include <boost/ptr_container/ptr_vector.hpp>
+//#include <boost/ptr_container/ptr_vector.hpp>
 
 
 #include <Eigen/Core>
@@ -39,7 +39,8 @@
 
 
 
-namespace model {
+namespace model
+{
 	
 	
     class DDgl;
@@ -47,7 +48,8 @@ namespace model {
 	/*********************************************************************/
 	/*********************************************************************/
 	template <int dim, int Np, int Nc>
-	class SingleSplinePlotter{
+	class SingleSplinePlotter
+    {
 		
 	public:
         
@@ -285,7 +287,9 @@ namespace model {
 	/* inherits from   */ public VertexReader<'V',9,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ public EdgeReader  <'E',11,double>,
 	/*                 */ public VertexReader<'P',7,double>,
-	/* inherits from   */ private boost::ptr_vector<SingleSplinePlotter<dim,Np,Nc> >{ // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
+//	/* inherits from   */ private boost::ptr_vector<SingleSplinePlotter<dim,Np,Nc> >{ // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
+    /* inherits from   */ private std::vector<SingleSplinePlotter<dim,Np,Nc> >
+    { // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
 		
 		typedef float scalarType;
 		typedef VertexReader<'V',9,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
@@ -293,8 +297,10 @@ namespace model {
         typedef VertexReader<'P',7,double> PKContainerType;
 		typedef SingleSplinePlotter<dim,Np,Nc> SingleSplinePlotterType;
         //		typedef std::vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
-		typedef boost::ptr_vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
-		typedef typename SingleSplinePlotterType::VectorDim VectorDim;
+//		typedef boost::ptr_vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
+        typedef std::vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
+
+        typedef typename SingleSplinePlotterType::VectorDim VectorDim;
         
         
         std::set<int> SIDs; // use std::set to automatically sort sID's
@@ -328,7 +334,10 @@ namespace model {
         /* init list   */ showSpecificVertex(false),
         /* init list   */ specificVertexID(0),
         /* init list   */ showPK(false),
-        /* init list   */ PKfactor(1000.0){}
+        /* init list   */ PKfactor(1000.0)
+        {
+        
+        }
 		
 		/* isGood *************************************************************/
 		static bool isGood(const int& frameN, const bool& useTXT)
@@ -380,8 +389,10 @@ namespace model {
                     P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
                     P0T0P1T1BN.col(4) = itEdge->second.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
                     P0T0P1T1BN.col(5) = itEdge->second.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
-                    
-                    SingleSplinePlotterVectorType::push_back(new SingleSplinePlotterType(P0T0P1T1BN,snID));
+
+                    SingleSplinePlotterVectorType::emplace_back(P0T0P1T1BN,snID);
+
+//                    SingleSplinePlotterVectorType::push_back(new SingleSplinePlotterType(P0T0P1T1BN,snID));
                 }
 			}
 		}
@@ -517,18 +528,8 @@ namespace model {
     template <int dim, int Np, int Nc>
 	int SplinePlotter<dim,Np,Nc>::colorScheme=0;
 
-    //static data
     template <int dim, int Np, int Nc>
     bool SplinePlotter<dim,Np,Nc>::plotBoundarySegments=false;
 
 }
 #endif
-/*********************************************************************/
-/*********************************************************************/
-
-
-
-
-
-
-

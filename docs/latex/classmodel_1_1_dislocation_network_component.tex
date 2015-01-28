@@ -1,0 +1,141 @@
+\hypertarget{classmodel_1_1_dislocation_network_component}{}\section{model\+:\+:Dislocation\+Network\+Component$<$ Node\+Type, Link\+Type $>$ Class Template Reference}
+\label{classmodel_1_1_dislocation_network_component}\index{model\+::\+Dislocation\+Network\+Component$<$ Node\+Type, Link\+Type $>$@{model\+::\+Dislocation\+Network\+Component$<$ Node\+Type, Link\+Type $>$}}
+
+
+{\ttfamily \#include $<$Dislocation\+Network\+Component.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{classmodel_1_1_dislocation_network_component_ae887ec550c152d1b4ec9b04679b73435a8cb6343a8da1d071229f68db375665a3}{Ndof\+Xnode} =Node\+Type\+:\+:Ndof\+Xnode
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_dislocation_network_component_a74ce7162192bfd30a20dd1d3e1e0054c}{Dislocation\+Network\+Component} (\hyperlink{classmodel_1_1_network_component}{Network\+Component\+Type} \&N\+Cin)
+\item 
+void \hyperlink{classmodel_1_1_dislocation_network_component_a2a43b2b0ea16b264a6319b4c62e278e3}{sparse\+Solve} ()
+\item 
+bool \hyperlink{classmodel_1_1_dislocation_network_component_a8d4f6e98a4ea4888c93795f7780ef787}{is\+Boundary\+Sub\+Network} () const 
+\item 
+bool \hyperlink{classmodel_1_1_dislocation_network_component_ac26d36e38c20cfbcaf9654bd374b92a6}{is\+Loop} () const 
+\item 
+bool \hyperlink{classmodel_1_1_dislocation_network_component_a6c2994b3ef837ede1ad900fb30994955}{is\+Planar} () const 
+\item 
+int \hyperlink{classmodel_1_1_dislocation_network_component_afae7871f053b0c4c462e421fb110415b}{find\+Line\+Points} (std\+::vector$<$ typename Node\+Container\+Type\+::const\+\_\+iterator $>$ \&pos\+Vector) const 
+\item 
+bool \hyperlink{classmodel_1_1_dislocation_network_component_a58c5f3e1f553a563e35e18eb16c794c6}{loop\+Inversion} (const double \&\hyperlink{plot_stress_strain_8m_a770f288d3048ff6cbee9faa0969fd6b0}{dt}) const 
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Node\+Type, typename Link\+Type$>$class model\+::\+Dislocation\+Network\+Component$<$ Node\+Type, Link\+Type $>$}
+
+
+
+Definition at line 27 of file Dislocation\+Network\+Component.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classmodel_1_1_dislocation_network_component_ae887ec550c152d1b4ec9b04679b73435}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ anonymous enum}\label{classmodel_1_1_dislocation_network_component_ae887ec550c152d1b4ec9b04679b73435}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{Ndof\+Xnode@{Ndof\+Xnode}!model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}}\index{model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}!Ndof\+Xnode@{Ndof\+Xnode}}\item[{\em 
+\hypertarget{classmodel_1_1_dislocation_network_component_ae887ec550c152d1b4ec9b04679b73435a8cb6343a8da1d071229f68db375665a3}{}Ndof\+Xnode\label{classmodel_1_1_dislocation_network_component_ae887ec550c152d1b4ec9b04679b73435a8cb6343a8da1d071229f68db375665a3}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 125 of file Dislocation\+Network\+Component.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_dislocation_network_component_a74ce7162192bfd30a20dd1d3e1e0054c}{}\index{model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}!Dislocation\+Network\+Component@{Dislocation\+Network\+Component}}
+\index{Dislocation\+Network\+Component@{Dislocation\+Network\+Component}!model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}}
+\subsubsection[{Dislocation\+Network\+Component}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ {\bf model\+::\+Dislocation\+Network\+Component}$<$ {\bf Node\+Type}, {\bf Link\+Type} $>$\+::{\bf Dislocation\+Network\+Component} (
+\begin{DoxyParamCaption}
+\item[{{\bf Network\+Component\+Type} \&}]{N\+Cin}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_component_a74ce7162192bfd30a20dd1d3e1e0054c}
+Constructor initializes the reterence the \hyperlink{classmodel_1_1_network_component}{Network\+Component}
+
+Definition at line 131 of file Dislocation\+Network\+Component.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_dislocation_network_component_afae7871f053b0c4c462e421fb110415b}{}\index{model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}!find\+Line\+Points@{find\+Line\+Points}}
+\index{find\+Line\+Points@{find\+Line\+Points}!model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}}
+\subsubsection[{find\+Line\+Points}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ int {\bf model\+::\+Dislocation\+Network\+Component}$<$ {\bf Node\+Type}, {\bf Link\+Type} $>$\+::find\+Line\+Points (
+\begin{DoxyParamCaption}
+\item[{std\+::vector$<$ typename Node\+Container\+Type\+::const\+\_\+iterator $>$ \&}]{pos\+Vector}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_component_afae7871f053b0c4c462e421fb110415b}
+
+
+Definition at line 290 of file Dislocation\+Network\+Component.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_component_a8d4f6e98a4ea4888c93795f7780ef787}{}\index{model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}!is\+Boundary\+Sub\+Network@{is\+Boundary\+Sub\+Network}}
+\index{is\+Boundary\+Sub\+Network@{is\+Boundary\+Sub\+Network}!model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}}
+\subsubsection[{is\+Boundary\+Sub\+Network}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ bool {\bf model\+::\+Dislocation\+Network\+Component}$<$ {\bf Node\+Type}, {\bf Link\+Type} $>$\+::is\+Boundary\+Sub\+Network (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_component_a8d4f6e98a4ea4888c93795f7780ef787}
+
+
+Definition at line 258 of file Dislocation\+Network\+Component.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_component_ac26d36e38c20cfbcaf9654bd374b92a6}{}\index{model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}!is\+Loop@{is\+Loop}}
+\index{is\+Loop@{is\+Loop}!model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}}
+\subsubsection[{is\+Loop}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ bool {\bf model\+::\+Dislocation\+Network\+Component}$<$ {\bf Node\+Type}, {\bf Link\+Type} $>$\+::is\+Loop (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_component_ac26d36e38c20cfbcaf9654bd374b92a6}
+
+
+Definition at line 270 of file Dislocation\+Network\+Component.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_component_a6c2994b3ef837ede1ad900fb30994955}{}\index{model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}!is\+Planar@{is\+Planar}}
+\index{is\+Planar@{is\+Planar}!model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}}
+\subsubsection[{is\+Planar}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ bool {\bf model\+::\+Dislocation\+Network\+Component}$<$ {\bf Node\+Type}, {\bf Link\+Type} $>$\+::is\+Planar (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_component_a6c2994b3ef837ede1ad900fb30994955}
+
+
+Definition at line 279 of file Dislocation\+Network\+Component.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_component_a58c5f3e1f553a563e35e18eb16c794c6}{}\index{model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}!loop\+Inversion@{loop\+Inversion}}
+\index{loop\+Inversion@{loop\+Inversion}!model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}}
+\subsubsection[{loop\+Inversion}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ bool {\bf model\+::\+Dislocation\+Network\+Component}$<$ {\bf Node\+Type}, {\bf Link\+Type} $>$\+::loop\+Inversion (
+\begin{DoxyParamCaption}
+\item[{const double \&}]{dt}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_component_a58c5f3e1f553a563e35e18eb16c794c6}
+
+
+Definition at line 314 of file Dislocation\+Network\+Component.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_component_a2a43b2b0ea16b264a6319b4c62e278e3}{}\index{model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}!sparse\+Solve@{sparse\+Solve}}
+\index{sparse\+Solve@{sparse\+Solve}!model\+::\+Dislocation\+Network\+Component@{model\+::\+Dislocation\+Network\+Component}}
+\subsubsection[{sparse\+Solve}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ void {\bf model\+::\+Dislocation\+Network\+Component}$<$ {\bf Node\+Type}, {\bf Link\+Type} $>$\+::sparse\+Solve (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_component_a2a43b2b0ea16b264a6319b4c62e278e3}
+
+
+Definition at line 137 of file Dislocation\+Network\+Component.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_dislocation_network_component_8h}{Dislocation\+Network\+Component.\+h}\end{DoxyCompactItemize}

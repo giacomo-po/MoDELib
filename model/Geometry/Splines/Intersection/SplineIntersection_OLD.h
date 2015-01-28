@@ -253,8 +253,10 @@ namespace model {
 			
 			Eigen::Matrix<double,3,3> R1=rotMatrix(chord1,N1);
 			
-			switch (planesType) {
-				case 1:{ // coplanar planes
+			switch (planesType)
+            {
+				case 1:
+                { // coplanar planes
 					
 //					std::cout<<"Coplanar case"<<std::endl;
 					
@@ -276,7 +278,8 @@ namespace model {
 					break;
 				}
 					
-				case 2:{ // incident planes
+				case 2:
+                { // incident planes
 					
 //					std::cout<<"Incident case"<<std::endl;
 //					std::cout<<"N1 is"<<N1.transpose()<<std::endl;
@@ -383,7 +386,8 @@ namespace model {
 							
 							std::map<double,std::set<std::pair<double,double> >::const_iterator> compareTo1;
 							
-							for (std::set<std::pair<double,double> >::const_iterator iter2=lineIntersectionParameters2.begin();iter2!=lineIntersectionParameters2.end();++iter2){
+							for (std::set<std::pair<double,double> >::const_iterator iter2=lineIntersectionParameters2.begin();iter2!=lineIntersectionParameters2.end();++iter2)
+                            {
 								compareTo1.insert(std::make_pair(std::fabs(iter1->second-iter2->second),iter2));								
 							}
 							

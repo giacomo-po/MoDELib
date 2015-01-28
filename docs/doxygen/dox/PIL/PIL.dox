@@ -1,4 +1,4 @@
-namespace pil {
+namespace model {
 
 
 /*! \page PIL Particle Interaction Library (PIL)

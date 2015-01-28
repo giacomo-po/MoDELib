@@ -1,0 +1,64 @@
+\hypertarget{classmodel_1_1_colinear_lines_intersection}{}\section{model\+:\+:Colinear\+Lines\+Intersection$<$ dim $>$ Class Template Reference}
+\label{classmodel_1_1_colinear_lines_intersection}\index{model\+::\+Colinear\+Lines\+Intersection$<$ dim $>$@{model\+::\+Colinear\+Lines\+Intersection$<$ dim $>$}}
+
+
+{\ttfamily \#include $<$Colinear\+Lines\+Intersection.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_colinear_lines_intersection_a482614a227a0d6a776aa376eef1ea253}{Colinear\+Lines\+Intersection} (const Vector\+Dim \&P0, const Vector\+Dim \&\hyperlink{run_multipole_8m_af93dd7f73e57b8b17d34efa33f0f948e}{P1}, const Vector\+Dim \&P2, const Vector\+Dim \&P3, const double \&tol=F\+L\+T\+\_\+\+E\+P\+S\+I\+L\+O\+N)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{plot_cells_8m_a03623d69001c34fc77654be29bdc3d8a}{std\+::set}$<$ std\+::pair$<$ double, double $>$ $>$ \hyperlink{classmodel_1_1_colinear_lines_intersection_a5a5456972981a546e59d45aba059480d}{intersection\+Parameters}
+\begin{DoxyCompactList}\small\item\em The container of intersection points. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$short unsigned int dim$>$class model\+::\+Colinear\+Lines\+Intersection$<$ dim $>$}
+
+/brief Class template for determining the intersection points between two clinear line segments in two dimensions.
+
+The first line segment is assumed to be prescribed in the form\+: \[ \mathbf{x}=\mathbf{P0}+\left(\mathbf{P1}-\mathbf{P0}\right)u \] with $u\in [0,1]$. Analogously the second line segments is assumed to be in the form\+: \[ \mathbf{x}=\mathbf{P2}+\left(\mathbf{P3}-\mathbf{P2}\right)v \] with $v\in [0,1]$. Intersection points are the values \[ \left[\mathbf{P1}-\mathbf{P0} \mathbf{P2}-\mathbf{P3}\right]v \] 
+
+Definition at line 44 of file Colinear\+Lines\+Intersection.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_colinear_lines_intersection_a482614a227a0d6a776aa376eef1ea253}{}\index{model\+::\+Colinear\+Lines\+Intersection@{model\+::\+Colinear\+Lines\+Intersection}!Colinear\+Lines\+Intersection@{Colinear\+Lines\+Intersection}}
+\index{Colinear\+Lines\+Intersection@{Colinear\+Lines\+Intersection}!model\+::\+Colinear\+Lines\+Intersection@{model\+::\+Colinear\+Lines\+Intersection}}
+\subsubsection[{Colinear\+Lines\+Intersection}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim$>$ {\bf model\+::\+Colinear\+Lines\+Intersection}$<$ {\bf dim} $>$\+::{\bf Colinear\+Lines\+Intersection} (
+\begin{DoxyParamCaption}
+\item[{const Vector\+Dim \&}]{P0, }
+\item[{const Vector\+Dim \&}]{P1, }
+\item[{const Vector\+Dim \&}]{P2, }
+\item[{const Vector\+Dim \&}]{P3, }
+\item[{const double \&}]{tol = {\ttfamily FLT\+\_\+EPSILON}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_colinear_lines_intersection_a482614a227a0d6a776aa376eef1ea253}
+
+
+Definition at line 59 of file Colinear\+Lines\+Intersection.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_colinear_lines_intersection_a5a5456972981a546e59d45aba059480d}{}\index{model\+::\+Colinear\+Lines\+Intersection@{model\+::\+Colinear\+Lines\+Intersection}!intersection\+Parameters@{intersection\+Parameters}}
+\index{intersection\+Parameters@{intersection\+Parameters}!model\+::\+Colinear\+Lines\+Intersection@{model\+::\+Colinear\+Lines\+Intersection}}
+\subsubsection[{intersection\+Parameters}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim$>$ {\bf std\+::set}$<$std\+::pair$<$double,double$>$ $>$ {\bf model\+::\+Colinear\+Lines\+Intersection}$<$ {\bf dim} $>$\+::intersection\+Parameters}\label{classmodel_1_1_colinear_lines_intersection_a5a5456972981a546e59d45aba059480d}
+
+
+The container of intersection points. 
+
+
+
+Definition at line 56 of file Colinear\+Lines\+Intersection.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_colinear_lines_intersection_8h}{Colinear\+Lines\+Intersection.\+h}\end{DoxyCompactItemize}

@@ -1,0 +1,468 @@
+\hypertarget{classmodel_1_1_lagrange_element}{}\section{model\+:\+:Lagrange\+Element$<$ \+\_\+dim, degree, Mapping\+Type $>$ Class Template Reference}
+\label{classmodel_1_1_lagrange_element}\index{model\+::\+Lagrange\+Element$<$ \+\_\+dim, degree, Mapping\+Type $>$@{model\+::\+Lagrange\+Element$<$ \+\_\+dim, degree, Mapping\+Type $>$}}
+
+
+{\ttfamily \#include $<$Lagrange\+Element.\+h$>$}
+
+Inheritance diagram for model\+:\+:Lagrange\+Element$<$ \+\_\+dim, degree, Mapping\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classmodel_1_1_lagrange_element}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{structmodel_1_1_lagrange_node}{Lagrange\+Node}$<$ \hyperlink{classmodel_1_1_lagrange_element}{Element\+Type} $>$ \hyperlink{classmodel_1_1_lagrange_element_a112bda9c061442a6c52f06c61e3ab123}{Node\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_lagrange_element_ab8c379ee777448b1a27ff30b970a5feb}{Lagrange\+Element} (const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim} $>$ \&\hyperlink{_cubic_spline_intersection_8m_aec5b2c7fb98ca9f11d2c624f6d8ae9d9}{s}, std\+::deque$<$ \hyperlink{classmodel_1_1_lagrange_element_a112bda9c061442a6c52f06c61e3ab123}{Node\+Type} $>$ \&node\+Container, std\+::map$<$ Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}, 1 $>$, \hyperlink{classmodel_1_1_lagrange_element_a112bda9c061442a6c52f06c61e3ab123}{Node\+Type} $\ast$const, \hyperlink{structmodel_1_1_compare_vectors_by_component}{Compare\+Vectors\+By\+Component}$<$ double, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}, float $>$ $>$ \&node\+Finder)
+\item 
+{\footnotesize template$<$typename Trial\+Function\+Type $>$ }\\\hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ Trial\+Function\+Type $>$\+::Shape\+Function\+Grad\+Matrix\+Type \hyperlink{classmodel_1_1_lagrange_element_a64ad510877bf6c0dfc915a2bcc78f4a0}{sfm\+Grad} (const Eigen\+::\+Matrix$<$ double, 1, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1 $>$ \&bary) const 
+\item 
+{\footnotesize template$<$typename Trial\+Function\+Type $>$ }\\\hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ Trial\+Function\+Type $>$\+::Shape\+Function\+Def\+Matrix\+Type \hyperlink{classmodel_1_1_lagrange_element_ac7536aee4cf79929b76a305ede35582e}{sfm\+Def} (const Eigen\+::\+Matrix$<$ double, 1, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1 $>$ \&bary) const 
+\item 
+const \hyperlink{classmodel_1_1_lagrange_element_a112bda9c061442a6c52f06c61e3ab123}{Node\+Type} \& \hyperlink{classmodel_1_1_lagrange_element_a7f53d6f433eb593f9ca55c1ab5d04e72}{node} (const size\+\_\+t \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n}) const 
+\item 
+\hyperlink{classmodel_1_1_lagrange_element_a112bda9c061442a6c52f06c61e3ab123}{Node\+Type} \& \hyperlink{classmodel_1_1_lagrange_element_a7d0790fcb34db157b12d254ba7773b0e}{node} (const size\+\_\+t \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n})
+\item 
+Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}, 1 $>$ \hyperlink{classmodel_1_1_lagrange_element_ac74d4ee2e02d39a3a1ebf90ade37d6f5}{position} (const Eigen\+::\+Matrix$<$ double, 1, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1 $>$ \&bary) const 
+\item 
+Eigen\+::\+Matrix$<$ double, \+\_\+dim, \+\_\+dim $>$ \hyperlink{classmodel_1_1_lagrange_element_a46e9f92d805638076f15764d8324812e}{Fs} (const Eigen\+::\+Matrix$<$ double, 1, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1 $>$ \&bary) const 
+\item 
+double \hyperlink{classmodel_1_1_lagrange_element_a9d27e9c9bcdd99d7ac8ca51158abe603}{abs\+J} (const Eigen\+::\+Matrix$<$ double, 1, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1 $>$ \&bary) const 
+\item 
+Eigen\+::\+Matrix$<$ double, \+\_\+dim, \+\_\+dim $>$ \hyperlink{classmodel_1_1_lagrange_element_a8bd65ca1795731e9237f56b2a2dd7796}{Gs} (const Eigen\+::\+Matrix$<$ double, 1, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1 $>$ \&bary) const 
+\item 
+Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}, 1 $>$ \hyperlink{classmodel_1_1_lagrange_element_a67a839fe3fc39d9dc5e21affda92cada}{j\+G\+N} (const Eigen\+::\+Matrix$<$ double, 1, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1 $>$ \&bary, const int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n}) const 
+\item 
+bool \hyperlink{classmodel_1_1_lagrange_element_a27ad29c39eb1d44b9f28b90ddf0a9756}{is\+Boundary\+Element} () const 
+\item 
+std\+::vector$<$ int $>$ \hyperlink{classmodel_1_1_lagrange_element_abc241a9820db83910df48b5fae885217}{boundary\+Faces} () const 
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static constexpr int \hyperlink{classmodel_1_1_lagrange_element_a9cf5defd048fbfad9e456fa19051808e}{dof\+Per\+Node} (int \hyperlink{plot_cells_8m_aa49cfdd4fa4d74d71f78a001a1b635d0}{c})
+\item 
+static Eigen\+::\+Matrix$<$ double, 1, \hyperlink{classmodel_1_1_lagrange_element_a8f86452dcb9f1cc89fdbc0219c397d05}{nodes\+Per\+Element} $>$ \hyperlink{classmodel_1_1_lagrange_element_ae9d6d4b2f57c20ca5aabd7ebed09816b}{sf} (const Eigen\+::\+Matrix$<$ double, 1, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1 $>$ \&bary)
+\item 
+{\footnotesize template$<$typename Trial\+Function\+Type $>$ }\\static \hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ Trial\+Function\+Type $>$\+::Shape\+Function\+Matrix\+Type \hyperlink{classmodel_1_1_lagrange_element_a78dc254d79c124ec6584183351742ba3}{sfm} (const Eigen\+::\+Matrix$<$ double, 1, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1 $>$ \&bary)
+\item 
+static Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1, \hyperlink{classmodel_1_1_lagrange_element_a8f86452dcb9f1cc89fdbc0219c397d05}{nodes\+Per\+Element} $>$ \hyperlink{classmodel_1_1_lagrange_element_a50b74111dcfc1c6f40ec9db08c7a764b}{diff} (const Eigen\+::\+Matrix$<$ double, 1, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1 $>$ \&bary)
+\item 
+static Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}, \hyperlink{classmodel_1_1_lagrange_element_a8f86452dcb9f1cc89fdbc0219c397d05}{nodes\+Per\+Element} $>$ \hyperlink{classmodel_1_1_lagrange_element_a15d65f1427ddb71895d3880600950a07}{grad\+S} (const Eigen\+::\+Matrix$<$ double, 1, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1 $>$ \&bary)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}, \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim} $>$ \& \hyperlink{classmodel_1_1_lagrange_element_add9757431ae75842eabec77a4bf0c525}{simplex}
+\begin{DoxyCompactList}\small\item\em A const reference to the \hyperlink{classmodel_1_1_simplex}{Simplex} that this element refers to. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ double, \+\_\+dim, \hyperlink{classmodel_1_1_lagrange_element_a8f86452dcb9f1cc89fdbc0219c397d05}{nodes\+Per\+Element} $>$ \hyperlink{classmodel_1_1_lagrange_element_a498bb72f5edf6e52c95515c8ad1b6f85}{Xe}
+\begin{DoxyCompactList}\small\item\em The matrix of nodal coordinates. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static constexpr int \hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim} =\+\_\+dim
+\item 
+static constexpr int \hyperlink{classmodel_1_1_lagrange_element_a8f86452dcb9f1cc89fdbc0219c397d05}{nodes\+Per\+Element} =\hyperlink{structmodel_1_1_combination_with_repetition}{Combination\+With\+Repetition}$<$\+\_\+dim+1,degree$>$\+::value
+\item 
+static const Eigen\+::\+Matrix$<$ int,\hyperlink{classmodel_1_1_lagrange_element_a8f86452dcb9f1cc89fdbc0219c397d05}{nodes\+Per\+Element}, \+\_\+dim+1 $>$ \hyperlink{classmodel_1_1_lagrange_element_a99b14264b248306297ffb7b1ac87cf24}{bary\+Stars\+And\+Bars} =\hyperlink{structmodel_1_1_stars_and_bars}{Stars\+And\+Bars}$<$\hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim}+1,degree$>$\+::s\+Ab()
+\item 
+static const Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_lagrange_element_a8f86452dcb9f1cc89fdbc0219c397d05}{nodes\+Per\+Element}, \+\_\+dim+1 $>$ \hyperlink{classmodel_1_1_lagrange_element_a1477bef208a4816faa1416ebcce1f975}{bary\+Nodal\+Coordinates} =\hyperlink{classmodel_1_1_lagrange_element}{Lagrange\+Element}$<$\hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim},degree$>$\+::bary\+Stars\+And\+Bars.\+template cast$<$double$>$()/degree
+\item 
+static const std\+::vector$<$ Eigen\+::\+Matrix$<$ double, \+\_\+dim+1, degree+1 $>$ $>$ \hyperlink{classmodel_1_1_lagrange_element_a7f69e38490f0b6ab5c94835146a860f6}{sf\+Coeffs\+Vector} =\hyperlink{classmodel_1_1_lagrange_element}{Lagrange\+Element}$<$\hyperlink{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{dim},degree,Mapping\+Type$>$\+::get\+\_\+sf\+Coeffs\+Vector()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$class model\+::\+Lagrange\+Element$<$ \+\_\+dim, degree, Mapping\+Type $>$}
+
+Class template that represents a \hyperlink{classmodel_1_1_lagrange_element}{Lagrange\+Element} degree p, on a d-\/dimensional simplex.
+
+Each \hyperlink{classmodel_1_1_lagrange_element}{Lagrange\+Element} in a d-\/simplex is identified by a set of (d+1) integers $I_k$ which satisfy\+: \[ \sum_{k=0}^{d+1}I_k=p \] The baricentric (area) coordinate of node $\{I_k\}$ are obtained as $A_k=I_k/p$.
+
+The shape function of node $\{I_k\}$ are\+: \[ N_{\{I_k\}}(A_0,\ldot A_{d})=\prod_{k=0}^{d+1}\frac{1}{I_k!}\prod_{i=0}^{I_k-1}\left(pA_k-i\right) \] This can also be written as\+: \[ N_{\{I_k\}}(A_0,\ldot A_{d})=\prod_{i=0}^{d+1}\left([c_{i0},\ldots,c_{ip}]\cdot[A_i^0,\ldots,A_i^p]\right) \] The matrix $c_{ij}$ is stored in the field sf\+Coeffs; 
+
+Definition at line 58 of file Lagrange\+Element.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_lagrange_element_a112bda9c061442a6c52f06c61e3ab123}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!Node\+Type@{Node\+Type}}
+\index{Node\+Type@{Node\+Type}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{Node\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ typedef {\bf Lagrange\+Node}$<${\bf Element\+Type}$>$ {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::{\bf Node\+Type}}\label{classmodel_1_1_lagrange_element_a112bda9c061442a6c52f06c61e3ab123}
+
+
+Definition at line 70 of file Lagrange\+Element.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_lagrange_element_ab8c379ee777448b1a27ff30b970a5feb}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!Lagrange\+Element@{Lagrange\+Element}}
+\index{Lagrange\+Element@{Lagrange\+Element}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{Lagrange\+Element}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::{\bf Lagrange\+Element} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Simplex}$<$ {\bf dim}, {\bf dim} $>$ \&}]{s, }
+\item[{std\+::deque$<$ {\bf Node\+Type} $>$ \&}]{node\+Container, }
+\item[{std\+::map$<$ Eigen\+::\+Matrix$<$ double, {\bf dim}, 1 $>$, {\bf Node\+Type} $\ast$const, {\bf Compare\+Vectors\+By\+Component}$<$ double, {\bf dim}, float $>$ $>$ \&}]{node\+Finder}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_lagrange_element_ab8c379ee777448b1a27ff30b970a5feb}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em s} & A const reference to a \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4}{Simplex$<$dim,dim$>$}\\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 206 of file Lagrange\+Element.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_lagrange_element_a9d27e9c9bcdd99d7ac8ca51158abe603}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!abs\+J@{abs\+J}}
+\index{abs\+J@{abs\+J}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{abs\+J}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ double {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::abs\+J (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, 1, {\bf dim}+1 $>$ \&}]{bary}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_lagrange_element_a9d27e9c9bcdd99d7ac8ca51158abe603}
+
+\begin{DoxyParams}{Parameters}
+{\em bary} & the vector of baricentric coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the absolute value of the determinant of the Jacobian matrix dx\+\_\+i / ds\+\_\+j, evaulated at bary.
+\end{DoxyReturn}
+
+
+Definition at line 388 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_abc241a9820db83910df48b5fae885217}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!boundary\+Faces@{boundary\+Faces}}
+\index{boundary\+Faces@{boundary\+Faces}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{boundary\+Faces}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ std\+::vector$<$int$>$ {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::boundary\+Faces (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_lagrange_element_abc241a9820db83910df48b5fae885217}
+\begin{DoxyReturn}{Returns}
+a vector of I\+Ds of the faces of $\ast$this that are on the boundary
+\end{DoxyReturn}
+
+
+Definition at line 418 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a50b74111dcfc1c6f40ec9db08c7a764b}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!diff@{diff}}
+\index{diff@{diff}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{diff}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ static Eigen\+::\+Matrix$<$double,{\bf dim}+1,{\bf nodes\+Per\+Element}$>$ {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::diff (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, 1, {\bf dim}+1 $>$ \&}]{bary}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_lagrange_element_a50b74111dcfc1c6f40ec9db08c7a764b}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bary} & the barycentric coordinate \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the value of the derivatives of this shape-\/function with respect to the baricentric coordinates, computed at bary. This is\+: \[ dN_{\{I_k\}}/dA_j(A_0,\ldot A_{d}) \]
+\end{DoxyReturn}
+
+
+Definition at line 290 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a9cf5defd048fbfad9e456fa19051808e}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!dof\+Per\+Node@{dof\+Per\+Node}}
+\index{dof\+Per\+Node@{dof\+Per\+Node}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{dof\+Per\+Node}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ static constexpr int {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::dof\+Per\+Node (
+\begin{DoxyParamCaption}
+\item[{int}]{c}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_lagrange_element_a9cf5defd048fbfad9e456fa19051808e}
+
+
+Definition at line 67 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a46e9f92d805638076f15764d8324812e}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!Fs@{Fs}}
+\index{Fs@{Fs}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{Fs}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ Eigen\+::\+Matrix$<$double,\+\_\+dim,\+\_\+dim$>$ {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::Fs (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, 1, {\bf dim}+1 $>$ \&}]{bary}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_lagrange_element_a46e9f92d805638076f15764d8324812e}
+
+\begin{DoxyParams}{Parameters}
+{\em bary} & the vector of baricentric coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the Jacobian matrix dx\+\_\+i / ds\+\_\+j, evaulated at bary.
+\end{DoxyReturn}
+
+
+Definition at line 380 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a15d65f1427ddb71895d3880600950a07}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!grad\+S@{grad\+S}}
+\index{grad\+S@{grad\+S}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{grad\+S}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ static Eigen\+::\+Matrix$<$double,{\bf dim},{\bf nodes\+Per\+Element}$>$ {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::grad\+S (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, 1, {\bf dim}+1 $>$ \&}]{bary}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_lagrange_element_a15d65f1427ddb71895d3880600950a07}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bary} & the barycentric coordinate \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the gradient of this shape-\/function with respect to the standard coordinates, computed at bary. This is\+: \[ dN_{\{I_k\}}/dS_j(A_0,\ldot A_{d}) \]
+\end{DoxyReturn}
+
+
+Definition at line 315 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a8bd65ca1795731e9237f56b2a2dd7796}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!Gs@{Gs}}
+\index{Gs@{Gs}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{Gs}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ Eigen\+::\+Matrix$<$double,\+\_\+dim,\+\_\+dim$>$ {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::Gs (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, 1, {\bf dim}+1 $>$ \&}]{bary}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_lagrange_element_a8bd65ca1795731e9237f56b2a2dd7796}
+
+\begin{DoxyParams}{Parameters}
+{\em bary} & the vector of baricentric coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the inverse Jacobian matrix ds\+\_\+i / dx\+\_\+j, evaulated at bary.
+\end{DoxyReturn}
+
+
+Definition at line 397 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a27ad29c39eb1d44b9f28b90ddf0a9756}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!is\+Boundary\+Element@{is\+Boundary\+Element}}
+\index{is\+Boundary\+Element@{is\+Boundary\+Element}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{is\+Boundary\+Element}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ bool {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::is\+Boundary\+Element (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_lagrange_element_a27ad29c39eb1d44b9f28b90ddf0a9756}
+\begin{DoxyReturn}{Returns}
+true if $\ast$this is a boundary element
+\end{DoxyReturn}
+
+
+Definition at line 411 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a67a839fe3fc39d9dc5e21affda92cada}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!j\+G\+N@{j\+G\+N}}
+\index{j\+G\+N@{j\+G\+N}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{j\+G\+N}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ Eigen\+::\+Matrix$<$double,{\bf dim},1$>$ {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::j\+G\+N (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, 1, {\bf dim}+1 $>$ \&}]{bary, }
+\item[{const int \&}]{n}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_lagrange_element_a67a839fe3fc39d9dc5e21affda92cada}
+
+
+Definition at line 405 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a7f53d6f433eb593f9ca55c1ab5d04e72}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!node@{node}}
+\index{node@{node}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{node}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ const {\bf Node\+Type}\& {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::node (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{n}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_lagrange_element_a7f53d6f433eb593f9ca55c1ab5d04e72}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em the} & local node I\+D in the element \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a reference to the n-\/th \hyperlink{structmodel_1_1_lagrange_node}{Lagrange\+Node}
+\end{DoxyReturn}
+
+
+Definition at line 354 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a7d0790fcb34db157b12d254ba7773b0e}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!node@{node}}
+\index{node@{node}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{node}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ {\bf Node\+Type}\& {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::node (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{n}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_lagrange_element_a7d0790fcb34db157b12d254ba7773b0e}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em the} & local node I\+D in the element \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a reference to the n-\/th \hyperlink{structmodel_1_1_lagrange_node}{Lagrange\+Node}
+\end{DoxyReturn}
+
+
+Definition at line 363 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_ac74d4ee2e02d39a3a1ebf90ade37d6f5}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!position@{position}}
+\index{position@{position}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{position}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ Eigen\+::\+Matrix$<$double,{\bf dim},1$>$ {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::position (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, 1, {\bf dim}+1 $>$ \&}]{bary}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_lagrange_element_ac74d4ee2e02d39a3a1ebf90ade37d6f5}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bary} & the vector of barycentric coordinate \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the position vector corresponding to bary
+\end{DoxyReturn}
+
+
+Definition at line 372 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_ae9d6d4b2f57c20ca5aabd7ebed09816b}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!sf@{sf}}
+\index{sf@{sf}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{sf}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ static Eigen\+::\+Matrix$<$double,1,{\bf nodes\+Per\+Element}$>$ {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::sf (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, 1, {\bf dim}+1 $>$ \&}]{bary}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_lagrange_element_ae9d6d4b2f57c20ca5aabd7ebed09816b}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bary} & the vector of barycentric coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a row vector of the the shape-\/functions, evaluated at bary. This is\+: \[ N_{\{I_k\}}(A_0,\ldot A_{d})=\prod_{i=0}^{d+1}\left([c_{i0},\ldots,c_{ip}]\cdot[A_i^0,\ldots,A_i^p]\right) \]
+\end{DoxyReturn}
+
+
+Definition at line 260 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a78dc254d79c124ec6584183351742ba3}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!sfm@{sfm}}
+\index{sfm@{sfm}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{sfm}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ template$<$typename Trial\+Function\+Type $>$ static {\bf Type\+Traits}$<$Trial\+Function\+Type$>$\+::Shape\+Function\+Matrix\+Type {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::sfm (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, 1, {\bf dim}+1 $>$ \&}]{bary}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_lagrange_element_a78dc254d79c124ec6584183351742ba3}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bary} & the vector of barycentric coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a row vector of the the shape-\/functions, evaluated at bary. This is\+: \[ N_{\{I_k\}}(A_0,\ldot A_{d})=\prod_{i=0}^{d+1}\left([c_{i0},\ldots,c_{ip}]\cdot[A_i^0,\ldots,A_i^p]\right) \]
+\end{DoxyReturn}
+
+
+Definition at line 278 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_ac7536aee4cf79929b76a305ede35582e}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!sfm\+Def@{sfm\+Def}}
+\index{sfm\+Def@{sfm\+Def}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{sfm\+Def}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ template$<$typename Trial\+Function\+Type $>$ {\bf Type\+Traits}$<$Trial\+Function\+Type$>$\+::Shape\+Function\+Def\+Matrix\+Type {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::sfm\+Def (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, 1, {\bf dim}+1 $>$ \&}]{bary}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_lagrange_element_ac7536aee4cf79929b76a305ede35582e}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bary} & the vector of barycentric coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A matrix of the symmetric gradient of the shape-\/functions, evaluated at bary.
+\end{DoxyReturn}
+
+
+Definition at line 343 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a64ad510877bf6c0dfc915a2bcc78f4a0}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!sfm\+Grad@{sfm\+Grad}}
+\index{sfm\+Grad@{sfm\+Grad}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{sfm\+Grad}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ template$<$typename Trial\+Function\+Type $>$ {\bf Type\+Traits}$<$Trial\+Function\+Type$>$\+::Shape\+Function\+Grad\+Matrix\+Type {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::sfm\+Grad (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, 1, {\bf dim}+1 $>$ \&}]{bary}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_lagrange_element_a64ad510877bf6c0dfc915a2bcc78f4a0}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bary} & the vector of barycentric coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the gradient of the shape-\/functions, evaluated at bary. This is the matrix \+: \[ M_{ij}=\frac{\partial N_j}{\partial x_i} \]
+\end{DoxyReturn}
+
+
+Definition at line 328 of file Lagrange\+Element.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_lagrange_element_a1477bef208a4816faa1416ebcce1f975}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!bary\+Nodal\+Coordinates@{bary\+Nodal\+Coordinates}}
+\index{bary\+Nodal\+Coordinates@{bary\+Nodal\+Coordinates}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{bary\+Nodal\+Coordinates}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ const Eigen\+::\+Matrix$<$ double, {\bf Lagrange\+Element}$<$ {\bf dim}, degree, Mapping\+Type $>$\+::{\bf nodes\+Per\+Element}, {\bf dim}+1 $>$ {\bf model\+::\+Lagrange\+Element}$<$ {\bf dim}, degree, Mapping\+Type $>$\+::bary\+Nodal\+Coordinates ={\bf Lagrange\+Element}$<${\bf dim},degree$>$\+::bary\+Stars\+And\+Bars.\+template cast$<$double$>$()/degree\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_lagrange_element_a1477bef208a4816faa1416ebcce1f975}
+
+
+Definition at line 195 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a99b14264b248306297ffb7b1ac87cf24}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!bary\+Stars\+And\+Bars@{bary\+Stars\+And\+Bars}}
+\index{bary\+Stars\+And\+Bars@{bary\+Stars\+And\+Bars}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{bary\+Stars\+And\+Bars}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ const Eigen\+::\+Matrix$<$ int,{\bf Lagrange\+Element}$<$ {\bf dim}, degree, Mapping\+Type $>$\+::{\bf nodes\+Per\+Element}, {\bf dim}+1 $>$ {\bf model\+::\+Lagrange\+Element}$<$ {\bf dim}, degree, Mapping\+Type $>$\+::bary\+Stars\+And\+Bars ={\bf Stars\+And\+Bars}$<${\bf dim}+1,degree$>$\+::s\+Ab()\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_lagrange_element_a99b14264b248306297ffb7b1ac87cf24}
+
+
+Definition at line 194 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!dim@{dim}}
+\index{dim@{dim}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ constexpr int {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::dim =\+\_\+dim\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_lagrange_element_a56d161032b73c07c77326cfba73d731d}
+
+
+Definition at line 65 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a8f86452dcb9f1cc89fdbc0219c397d05}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!nodes\+Per\+Element@{nodes\+Per\+Element}}
+\index{nodes\+Per\+Element@{nodes\+Per\+Element}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{nodes\+Per\+Element}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ constexpr int {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::nodes\+Per\+Element ={\bf Combination\+With\+Repetition}$<$\+\_\+dim+1,degree$>$\+::value\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_lagrange_element_a8f86452dcb9f1cc89fdbc0219c397d05}
+
+
+Definition at line 66 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a7f69e38490f0b6ab5c94835146a860f6}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!sf\+Coeffs\+Vector@{sf\+Coeffs\+Vector}}
+\index{sf\+Coeffs\+Vector@{sf\+Coeffs\+Vector}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{sf\+Coeffs\+Vector}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ const std\+::vector$<$ Eigen\+::\+Matrix$<$ double, {\bf dim}+1, degree+1 $>$ $>$ {\bf model\+::\+Lagrange\+Element}$<$ {\bf dim}, degree, Mapping\+Type $>$\+::sf\+Coeffs\+Vector ={\bf Lagrange\+Element}$<${\bf dim},degree,Mapping\+Type$>$\+::get\+\_\+sf\+Coeffs\+Vector()\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_lagrange_element_a7f69e38490f0b6ab5c94835146a860f6}
+
+
+Definition at line 196 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_add9757431ae75842eabec77a4bf0c525}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!simplex@{simplex}}
+\index{simplex@{simplex}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{simplex}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ const {\bf Simplex}$<${\bf dim},{\bf dim}$>$\& {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::simplex}\label{classmodel_1_1_lagrange_element_add9757431ae75842eabec77a4bf0c525}
+
+
+A const reference to the \hyperlink{classmodel_1_1_simplex}{Simplex} that this element refers to. 
+
+
+
+Definition at line 199 of file Lagrange\+Element.\+h.
+
+\hypertarget{classmodel_1_1_lagrange_element_a498bb72f5edf6e52c95515c8ad1b6f85}{}\index{model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}!Xe@{Xe}}
+\index{Xe@{Xe}!model\+::\+Lagrange\+Element@{model\+::\+Lagrange\+Element}}
+\subsubsection[{Xe}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim, int degree, template$<$ typename T $>$ class Mapping\+Type = Isoparametric\+Mapping$>$ Eigen\+::\+Matrix$<$double,\+\_\+dim,{\bf nodes\+Per\+Element}$>$ {\bf model\+::\+Lagrange\+Element}$<$ \+\_\+dim, degree, Mapping\+Type $>$\+::Xe}\label{classmodel_1_1_lagrange_element_a498bb72f5edf6e52c95515c8ad1b6f85}
+
+
+The matrix of nodal coordinates. 
+
+
+
+Definition at line 202 of file Lagrange\+Element.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_lagrange_element_8h}{Lagrange\+Element.\+h}\end{DoxyCompactItemize}

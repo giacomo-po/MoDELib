@@ -1,0 +1,218 @@
+\hypertarget{structmodel_1_1_spatial_cell_particle}{}\section{model\+:\+:Spatial\+Cell\+Particle$<$ Derived, \+\_\+dim $>$ Struct Template Reference}
+\label{structmodel_1_1_spatial_cell_particle}\index{model\+::\+Spatial\+Cell\+Particle$<$ Derived, \+\_\+dim $>$@{model\+::\+Spatial\+Cell\+Particle$<$ Derived, \+\_\+dim $>$}}
+
+
+{\ttfamily \#include $<$Spatial\+Cell\+Particle.\+h$>$}
+
+Inheritance diagram for model\+:\+:Spatial\+Cell\+Particle$<$ Derived, \+\_\+dim $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.105263cm]{structmodel_1_1_spatial_cell_particle}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{structmodel_1_1_spatial_cell_particle_af4baeffc63c7bfeec00f3f55e5ec69c0a5276346c81c3a25b32d005af29bb7a94}{dim} =\+\_\+dim
+ \}
+\item 
+typedef \hyperlink{structmodel_1_1_spatial_cell_observer}{Spatial\+Cell\+Observer}$<$ Derived, \hyperlink{structmodel_1_1_spatial_cell_particle_af4baeffc63c7bfeec00f3f55e5ec69c0a5276346c81c3a25b32d005af29bb7a94}{dim} $>$ \hyperlink{structmodel_1_1_spatial_cell_particle_ad819afaadf1701d46001ccf094a2f677}{Spatial\+Cell\+Observer\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_spatial_cell_observer_a3ee3ac7a68725cbe49ef4ae951ce2231}{Spatial\+Cell\+Observer\+Type\+::\+Cell\+Map\+Type} \hyperlink{structmodel_1_1_spatial_cell_particle_ac41f685263028c4965edfcc89470e5f4}{Cell\+Map\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_spatial_cell_observer_a9b73220477f451fa7981e2597f23614b}{Spatial\+Cell\+Observer\+Type\+::\+Vector\+Dim\+D} \hyperlink{structmodel_1_1_spatial_cell_particle_a7ab8ba2de07a16fc3ec86b77c84581ab}{Position\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_spatial_cell_observer_a9b73220477f451fa7981e2597f23614b}{Spatial\+Cell\+Observer\+Type\+::\+Vector\+Dim\+D} \hyperlink{structmodel_1_1_spatial_cell_particle_a924d94d0c762c92744fae31f43b920e4}{Vector\+Dim\+D}
+\item 
+typedef \hyperlink{structmodel_1_1_spatial_cell_observer_ae879e58433ae1725fa700b08b790b2cd}{Spatial\+Cell\+Observer\+Type\+::\+Shared\+Ptr\+Type} \hyperlink{structmodel_1_1_spatial_cell_particle_af80891fc642ed8010429583dfb1b1009}{Shared\+Ptr\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_spatial_cell}{Spatial\+Cell}$<$ Derived, \+\_\+dim $>$ \hyperlink{structmodel_1_1_spatial_cell_particle_adddb2dcfb73964f57e72392f16346484}{Spatial\+Cell\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_spatial_cell_af69747431f1a63b915132ca461175826}{Spatial\+Cell\+Type\+::\+Particle\+Container\+Type} \hyperlink{structmodel_1_1_spatial_cell_particle_a80a6bdd90fd793b044a49fc6886480d0}{Particle\+Container\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structmodel_1_1_spatial_cell_particle_ab070237869255577baf6fcd801849975}{Spatial\+Cell\+Particle} (const \hyperlink{structmodel_1_1_spatial_cell_particle_a924d94d0c762c92744fae31f43b920e4}{Vector\+Dim\+D} \&Pin)
+\item 
+\hyperlink{structmodel_1_1_spatial_cell_particle_a873c45cc666b5f49b77d79141ac69976}{$\sim$\+Spatial\+Cell\+Particle} ()
+\item 
+Cell\+Map\+Type\+::const\+\_\+iterator \hyperlink{structmodel_1_1_spatial_cell_particle_ade114de79d6256d0fb7858a00a386860}{neighbor\+Cells\+Begin} () const 
+\item 
+Cell\+Map\+Type\+::const\+\_\+iterator \hyperlink{structmodel_1_1_spatial_cell_particle_ad8e49b166996f046293acd5e6509db53}{neighbor\+Cells\+End} () const 
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+E\+I\+G\+E\+N\+\_\+\+M\+A\+K\+E\+\_\+\+A\+L\+I\+G\+N\+E\+D\+\_\+\+O\+P\+E\+R\+A\+T\+O\+R\+\_\+\+N\+E\+W const \hyperlink{structmodel_1_1_spatial_cell_particle_a924d94d0c762c92744fae31f43b920e4}{Vector\+Dim\+D} \hyperlink{structmodel_1_1_spatial_cell_particle_a10501e9ca7269c96bd94374c72400cda}{P}
+\begin{DoxyCompactList}\small\item\em The position vector. \end{DoxyCompactList}\item 
+const \hyperlink{structmodel_1_1_spatial_cell_particle_af80891fc642ed8010429583dfb1b1009}{Shared\+Ptr\+Type} \hyperlink{structmodel_1_1_spatial_cell_particle_aeb09c09a5ce9ce6d4d849dd1d7232aa4}{p\+Cell}
+\begin{DoxyCompactList}\small\item\em The pointer to the Cell. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Derived, short unsigned int \+\_\+dim$>$struct model\+::\+Spatial\+Cell\+Particle$<$ Derived, \+\_\+dim $>$}
+
+
+
+Definition at line 25 of file Spatial\+Cell\+Particle.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_spatial_cell_particle_ac41f685263028c4965edfcc89470e5f4}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!Cell\+Map\+Type@{Cell\+Map\+Type}}
+\index{Cell\+Map\+Type@{Cell\+Map\+Type}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{Cell\+Map\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ typedef {\bf Spatial\+Cell\+Observer\+Type\+::\+Cell\+Map\+Type} {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::{\bf Cell\+Map\+Type}}\label{structmodel_1_1_spatial_cell_particle_ac41f685263028c4965edfcc89470e5f4}
+
+
+Definition at line 33 of file Spatial\+Cell\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_particle_a80a6bdd90fd793b044a49fc6886480d0}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!Particle\+Container\+Type@{Particle\+Container\+Type}}
+\index{Particle\+Container\+Type@{Particle\+Container\+Type}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{Particle\+Container\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ typedef {\bf Spatial\+Cell\+Type\+::\+Particle\+Container\+Type} {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::{\bf Particle\+Container\+Type}}\label{structmodel_1_1_spatial_cell_particle_a80a6bdd90fd793b044a49fc6886480d0}
+
+
+Definition at line 40 of file Spatial\+Cell\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_particle_a7ab8ba2de07a16fc3ec86b77c84581ab}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!Position\+Type@{Position\+Type}}
+\index{Position\+Type@{Position\+Type}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{Position\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ typedef {\bf Spatial\+Cell\+Observer\+Type\+::\+Vector\+Dim\+D} {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::{\bf Position\+Type}}\label{structmodel_1_1_spatial_cell_particle_a7ab8ba2de07a16fc3ec86b77c84581ab}
+
+
+Definition at line 34 of file Spatial\+Cell\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_particle_af80891fc642ed8010429583dfb1b1009}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!Shared\+Ptr\+Type@{Shared\+Ptr\+Type}}
+\index{Shared\+Ptr\+Type@{Shared\+Ptr\+Type}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{Shared\+Ptr\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ typedef {\bf Spatial\+Cell\+Observer\+Type\+::\+Shared\+Ptr\+Type} {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::{\bf Shared\+Ptr\+Type}}\label{structmodel_1_1_spatial_cell_particle_af80891fc642ed8010429583dfb1b1009}
+
+
+Definition at line 36 of file Spatial\+Cell\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_particle_ad819afaadf1701d46001ccf094a2f677}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!Spatial\+Cell\+Observer\+Type@{Spatial\+Cell\+Observer\+Type}}
+\index{Spatial\+Cell\+Observer\+Type@{Spatial\+Cell\+Observer\+Type}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{Spatial\+Cell\+Observer\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ typedef {\bf Spatial\+Cell\+Observer}$<$Derived,{\bf dim}$>$ {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::{\bf Spatial\+Cell\+Observer\+Type}}\label{structmodel_1_1_spatial_cell_particle_ad819afaadf1701d46001ccf094a2f677}
+
+
+Definition at line 32 of file Spatial\+Cell\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_particle_adddb2dcfb73964f57e72392f16346484}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!Spatial\+Cell\+Type@{Spatial\+Cell\+Type}}
+\index{Spatial\+Cell\+Type@{Spatial\+Cell\+Type}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{Spatial\+Cell\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ typedef {\bf Spatial\+Cell}$<$Derived,\+\_\+dim$>$ {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::{\bf Spatial\+Cell\+Type}}\label{structmodel_1_1_spatial_cell_particle_adddb2dcfb73964f57e72392f16346484}
+
+
+Definition at line 38 of file Spatial\+Cell\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_particle_a924d94d0c762c92744fae31f43b920e4}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!Vector\+Dim\+D@{Vector\+Dim\+D}}
+\index{Vector\+Dim\+D@{Vector\+Dim\+D}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{Vector\+Dim\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ typedef {\bf Spatial\+Cell\+Observer\+Type\+::\+Vector\+Dim\+D} {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::{\bf Vector\+Dim\+D}}\label{structmodel_1_1_spatial_cell_particle_a924d94d0c762c92744fae31f43b920e4}
+
+
+Definition at line 35 of file Spatial\+Cell\+Particle.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{structmodel_1_1_spatial_cell_particle_af4baeffc63c7bfeec00f3f55e5ec69c0}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ anonymous enum}\label{structmodel_1_1_spatial_cell_particle_af4baeffc63c7bfeec00f3f55e5ec69c0}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{dim@{dim}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!dim@{dim}}\item[{\em 
+\hypertarget{structmodel_1_1_spatial_cell_particle_af4baeffc63c7bfeec00f3f55e5ec69c0a5276346c81c3a25b32d005af29bb7a94}{}dim\label{structmodel_1_1_spatial_cell_particle_af4baeffc63c7bfeec00f3f55e5ec69c0a5276346c81c3a25b32d005af29bb7a94}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 31 of file Spatial\+Cell\+Particle.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{structmodel_1_1_spatial_cell_particle_ab070237869255577baf6fcd801849975}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!Spatial\+Cell\+Particle@{Spatial\+Cell\+Particle}}
+\index{Spatial\+Cell\+Particle@{Spatial\+Cell\+Particle}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{Spatial\+Cell\+Particle}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::{\bf Spatial\+Cell\+Particle} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim\+D} \&}]{Pin}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_spatial_cell_particle_ab070237869255577baf6fcd801849975}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em P} & the position of this \hyperlink{structmodel_1_1_spatial_cell_particle}{Spatial\+Cell\+Particle}\\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 53 of file Spatial\+Cell\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_particle_a873c45cc666b5f49b77d79141ac69976}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!````~Spatial\+Cell\+Particle@{$\sim$\+Spatial\+Cell\+Particle}}
+\index{````~Spatial\+Cell\+Particle@{$\sim$\+Spatial\+Cell\+Particle}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{$\sim$\+Spatial\+Cell\+Particle}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::$\sim${\bf Spatial\+Cell\+Particle} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_spatial_cell_particle_a873c45cc666b5f49b77d79141ac69976}
+Destructor removes this from \hyperlink{structmodel_1_1_spatial_cell}{Spatial\+Cell}
+
+Definition at line 62 of file Spatial\+Cell\+Particle.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_spatial_cell_particle_ade114de79d6256d0fb7858a00a386860}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!neighbor\+Cells\+Begin@{neighbor\+Cells\+Begin}}
+\index{neighbor\+Cells\+Begin@{neighbor\+Cells\+Begin}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{neighbor\+Cells\+Begin}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ Cell\+Map\+Type\+::const\+\_\+iterator {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::neighbor\+Cells\+Begin (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_spatial_cell_particle_ade114de79d6256d0fb7858a00a386860}
+\begin{DoxyReturn}{Returns}
+a const iterator to the first neighbor \hyperlink{structmodel_1_1_spatial_cell}{Spatial\+Cell}
+\end{DoxyReturn}
+
+
+Definition at line 69 of file Spatial\+Cell\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_particle_ad8e49b166996f046293acd5e6509db53}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!neighbor\+Cells\+End@{neighbor\+Cells\+End}}
+\index{neighbor\+Cells\+End@{neighbor\+Cells\+End}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{neighbor\+Cells\+End}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ Cell\+Map\+Type\+::const\+\_\+iterator {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::neighbor\+Cells\+End (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_spatial_cell_particle_ad8e49b166996f046293acd5e6509db53}
+\begin{DoxyReturn}{Returns}
+a const iterator to the past-\/the-\/end neighbor \hyperlink{structmodel_1_1_spatial_cell}{Spatial\+Cell}
+\end{DoxyReturn}
+
+
+Definition at line 76 of file Spatial\+Cell\+Particle.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{structmodel_1_1_spatial_cell_particle_a10501e9ca7269c96bd94374c72400cda}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!P@{P}}
+\index{P@{P}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{P}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ E\+I\+G\+E\+N\+\_\+\+M\+A\+K\+E\+\_\+\+A\+L\+I\+G\+N\+E\+D\+\_\+\+O\+P\+E\+R\+A\+T\+O\+R\+\_\+\+N\+E\+W const {\bf Vector\+Dim\+D} {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::P}\label{structmodel_1_1_spatial_cell_particle_a10501e9ca7269c96bd94374c72400cda}
+
+
+The position vector. 
+
+
+
+Definition at line 47 of file Spatial\+Cell\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_particle_aeb09c09a5ce9ce6d4d849dd1d7232aa4}{}\index{model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}!p\+Cell@{p\+Cell}}
+\index{p\+Cell@{p\+Cell}!model\+::\+Spatial\+Cell\+Particle@{model\+::\+Spatial\+Cell\+Particle}}
+\subsubsection[{p\+Cell}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int \+\_\+dim$>$ const {\bf Shared\+Ptr\+Type} {\bf model\+::\+Spatial\+Cell\+Particle}$<$ Derived, \+\_\+dim $>$\+::p\+Cell}\label{structmodel_1_1_spatial_cell_particle_aeb09c09a5ce9ce6d4d849dd1d7232aa4}
+
+
+The pointer to the Cell. 
+
+
+
+Definition at line 50 of file Spatial\+Cell\+Particle.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_spatial_cell_particle_8h}{Spatial\+Cell\+Particle.\+h}\end{DoxyCompactItemize}

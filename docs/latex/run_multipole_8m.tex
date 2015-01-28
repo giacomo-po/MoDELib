@@ -1,0 +1,531 @@
+\hypertarget{run_multipole_8m}{}\section{run\+Multipole.\+m File Reference}
+\label{run_multipole_8m}\index{run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{run_multipole_8m_a31ea567f0db2b5cc325267d1b1db6974}{figure} (1) hold on while \hyperlink{run_multipole_8m_a1e4556ca64e20936a8d96dbcff9ab73c}{density}$<$ \hyperlink{run_multipole_8m_a4dc927c31157b84425f50afdf2e9b34d}{rho\+Max} \hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a1e0e2eb903c69285388440da0f0c63d0}{r}
+\item 
+end end \hyperlink{run_multipole_8m_a2c20420bbb6e17f61d9d2c41fc489e31}{if} \hyperlink{run_multipole_8m_a17e7235ddb78bd9e86580a1176b92bf0}{size} (\hyperlink{run_multipole_8m_a8de17588e86659e4d31ccdbd2a9aa387}{Nc}, 2)$\sim$
+\item 
+\hyperlink{run_multipole_8m_a2c20420bbb6e17f61d9d2c41fc489e31}{if} \hyperlink{run_multipole_8m_ac7419b2c6cf5dd3a865f4d042e9e7778}{dot} (\hyperlink{run_multipole_8m_af93dd7f73e57b8b17d34efa33f0f948e}{P1}, d1)$<$ 0 d1
+\item 
+end \hyperlink{run_multipole_8m_a2c20420bbb6e17f61d9d2c41fc489e31}{if} \hyperlink{run_multipole_8m_ac47c4c050972197e549869617c7551ed}{dot} (\hyperlink{run_multipole_8m_af93dd7f73e57b8b17d34efa33f0f948e}{P1}, \hyperlink{run_multipole_8m_a479b78c01efbe4664b402a300da492f7}{d2})$<$ 0 \hyperlink{run_multipole_8m_a479b78c01efbe4664b402a300da492f7}{d2}
+\item 
+end \hyperlink{run_multipole_8m_a23f341201d24ef99ace0eed6bd966728}{P} (\+:, 1)
+\item 
+\hyperlink{run_multipole_8m_aab01408083c4188ed43af97b53f5a205}{P} (\+:, 2)
+\item 
+\hyperlink{run_multipole_8m_a8132a9b5e24101379c3225b2e8f3323b}{P} (\+:, 3)
+\item 
+\hyperlink{run_multipole_8m_ab5917239d3c8854496b5e0b99776bf61}{P} (\+:, 4)
+\item 
+\hyperlink{run_multipole_8m_afb839e011800eaba1f0615b679f5d1fa}{if} (length(find(\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}$<$ 0))==0 \&\&length(find(\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P} $>$\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_s_t_lcube_8m_a6dd34dfb831e5311952faa8c6e2bdab0}{L}))==0) \hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_s_t_lcube_8m_a6d436d8ba367e4becb54285cded5b65e}{figure}(1) hold on \hyperlink{tube_plotter_8m_a2e6ccb550ed279bf6ab3d7b5ccf4bd59}{plot3}(\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}(1
+\item 
+\hyperlink{run_multipole_8m_a7ac19c67e16b4196ba2f303ce5b61f6a}{P} (2,\+:)
+\item 
+\hyperlink{run_multipole_8m_a47672ee7127830c62beefad66a9fae28}{P} (3,\+:)
+\item 
+id \hyperlink{run_multipole_8m_ab1b678759c2ea64155ff060eccb2e0f5}{dipolar\+Loops} ()
+\item 
+\hyperlink{run_multipole_8m_a7acc803cd2d0d0feafa14f093b2b3d60}{fprintf} (\hyperlink{generate_loop_8m_a299bc2d7571e27a1154ebaaa1e2544bf}{file\+\_\+\+V}, \hyperlink{generate_loop_8m_a59613833231f72e00a457c95c84b816b}{nodeformat}, \mbox{[}\hyperlink{run_multipole_8m_a8648bfa015cb1c03542e29951cb5503f}{node\+I\+D}+1 \hyperlink{run_multipole_8m_ab1b678759c2ea64155ff060eccb2e0f5}{dipolar\+Loops}\{\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k}\}.\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}(\+:, 2)\textquotesingle{}\hyperlink{generate_loop_8m_ae5e8c203be4ac655481e8ac20e5b5d6e}{zeros}(1, 3) 0\mbox{]})
+\item 
+\hyperlink{run_multipole_8m_a562c851ea906ab8ce93a3e1d3fb9f828}{fprintf} (\hyperlink{generate_loop_8m_a2791ea80f1ac292ff1c1aa8325540bba}{file\+\_\+\+E}, \hyperlink{generate_loop_8m_a9f8f01b98d60c7a06c0dc3bd6383523c}{linkformat}, \mbox{[}\hyperlink{run_multipole_8m_a8648bfa015cb1c03542e29951cb5503f}{node\+I\+D} \hyperlink{run_multipole_8m_a8648bfa015cb1c03542e29951cb5503f}{node\+I\+D}+1 \hyperlink{run_multipole_8m_ab1b678759c2ea64155ff060eccb2e0f5}{dipolar\+Loops}\{\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k}\}.\hyperlink{generate_loop_8m_a8628bb51afad38fac21e20697927b6cb}{b} \hyperlink{generate_loop_8m_ae5e8c203be4ac655481e8ac20e5b5d6e}{zeros}(1, 3) 0\mbox{]})
+\item 
+end \hyperlink{run_multipole_8m_a8b4a3e65531f29f9d5230b150ead5698}{fclose} (\hyperlink{generate_loop_8m_a299bc2d7571e27a1154ebaaa1e2544bf}{file\+\_\+\+V})
+\item 
+\hyperlink{run_multipole_8m_a7f372baa7d5cddd91873c47a4a2b4217}{fclose} (\hyperlink{generate_loop_8m_a2791ea80f1ac292ff1c1aa8325540bba}{file\+\_\+\+E})
+\item 
+number of subdivisions \hyperlink{run_multipole_8m_a7d41eb9326efb68ee53185afb2285270}{system} (\mbox{[}\textquotesingle{}./D\+Domp \textquotesingle{}\hyperlink{plot_network_8m_a8d888b29158a69b052782d50f7e75fe7}{num2str}(\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_s_t_lcube_8m_a6dd34dfb831e5311952faa8c6e2bdab0}{L}/2) \textquotesingle{} \textquotesingle{}\hyperlink{plot_network_8m_a8d888b29158a69b052782d50f7e75fe7}{num2str}(10)\mbox{]})
+\item 
+\hyperlink{run_multipole_8m_a25db8f5d47a32ac23377f1e33cabbfa3}{size} (\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}) pk\+\_\+no\+Mult
+\item 
+\hyperlink{run_multipole_8m_a4a2fab82eac15986fc50e0947c777336}{pk\+\_\+\+Mult\+\_\+norm} (\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n})
+\item 
+end make sure that for cell then multipole expansion does nothing \hyperlink{run_multipole_8m_a2c20420bbb6e17f61d9d2c41fc489e31}{if} (norm(pk\+\_\+no\+Mult\{\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}\}-\/pk\+\_\+\+Mult\{\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}\})/norm(pk\+\_\+no\+Mult\{\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}\})$>$1.\+0e-\/7) error(\textquotesingle{}at cell\+Size
+\item 
+\hyperlink{run_multipole_8m_a1d91746d85621e73b85801974faa8e28}{plot} (cell\+Sizes, pk\+\_\+no\+Mult\+\_\+norm,\textquotesingle{}\hyperlink{generate_loop_8m_a8628bb51afad38fac21e20697927b6cb}{b}\textquotesingle{}) plot(cell\+Sizes
+\item 
+\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a1e0e2eb903c69285388440da0f0c63d0}{r} \hyperlink{run_multipole_8m_ad8aba885d2529266bed2e94488ed01a0}{ylabel} (\textquotesingle{}error in P\+K force\textquotesingle{},\textquotesingle{}\hyperlink{plot_stress_strain_8m_a5b1f4c3ab406c6e5ade86cb86fa1503a}{Font\+Size}\textquotesingle{}, \hyperlink{bench_2dislocation_stress_2plot_stress_8m_ad8f6e98ffab76e670f0f28fd175bd363}{fontsize}) xlabel(\textquotesingle{}cell \hyperlink{tube_plotter_8m_a28d27d05f2a1790454a053a603af2bb2}{size}/\hyperlink{generate_loop_8m_a8628bb51afad38fac21e20697927b6cb}{b}\textquotesingle{}
+\item 
+\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a1e0e2eb903c69285388440da0f0c63d0}{r} \hyperlink{bench_2dislocation_stress_2plot_stress_8m_ad8f6e98ffab76e670f0f28fd175bd363}{fontsize} \hyperlink{run_multipole_8m_afa506afdfb4678578b9d5cd39a86f4ab}{legend} (\textquotesingle{}nearest neighbor\textquotesingle{},\textquotesingle{}nearest neighbor+multipole\textquotesingle{}) \hyperlink{plot_cells_8m_a03623d69001c34fc77654be29bdc3d8a}{set}(gca
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+This file is part of \hyperlink{run_multipole_8m_a24761b2a0a1ce10e27c26bd04ff6eade}{M\+O\+D\+E\+L}
+\item 
+This file is part of the Mechanics Of Defect Evolution Library Copyright(\hyperlink{plot_cells_8m_aaa53ca0b650dfd85c4f59fa156f7a2cc}{C}) 2011 by Giacomo Po$<$ gpo @ucla.\+edu $>$.\%model is distributed without any warranty under the\%G\+N\+U General Public License(G\+P\+L) \hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_s_t_lcube_8m_ab67228b8fa7f3169c3dc47e49373c570}{v2}$<$ http units of \hyperlink{plot_stress_strain_8m_a36fbb0705e1171e0c60fcc8f4927daef}{Burgers} vector \hyperlink{run_multipole_8m_ac0055fa4cdc19a2690bfee3643413a7d}{V} =\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_s_t_lcube_8m_a6dd34dfb831e5311952faa8c6e2bdab0}{L}$^\wedge$3
+\item 
+units of \hyperlink{plot_stress_strain_8m_a36fbb0705e1171e0c60fcc8f4927daef}{Burgers} vector \hyperlink{run_multipole_8m_a4dc927c31157b84425f50afdf2e9b34d}{rho\+Max} =5e13
+\item 
+\hyperlink{run_multipole_8m_a36fbb0705e1171e0c60fcc8f4927daef}{Burgers} =0.\+2556e-\/9
+\item 
+Generate dipoles in \hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_s_t_lcube_8m_aaf70aa6495651ad7d79dd706df9805cb}{cube} with \hyperlink{run_multipole_8m_a1e4556ca64e20936a8d96dbcff9ab73c}{density} \hyperlink{run_multipole_8m_a4dc927c31157b84425f50afdf2e9b34d}{rho\+Max} \hyperlink{run_multipole_8m_a673882e3279bc7080be22f06f84bc4d7}{l\+Min} =\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_s_t_lcube_8m_a6dd34dfb831e5311952faa8c6e2bdab0}{L}/20
+\item 
+\hyperlink{run_multipole_8m_a8f93a5652751302e93a034e711fa6096}{l\+Max} =\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_s_t_lcube_8m_a6dd34dfb831e5311952faa8c6e2bdab0}{L}
+\item 
+\hyperlink{run_multipole_8m_a59aa6b1a437dfb9ad13a3dd22f7dc46a}{N} =\mbox{[}-\/0.\+5774 0.\+5774 -\/0.\+5774 0.\+5774
+\item 
+\hyperlink{run_multipole_8m_a4c33430e8bb38be799076a5f90244f59}{B} =\mbox{[}0 1 1
+\item 
+\hyperlink{run_multipole_8m_a9be334cf35a5787f786e42c1642fefb3}{total\+Length} =0
+\item 
+\hyperlink{run_multipole_8m_a1e4556ca64e20936a8d96dbcff9ab73c}{density} =\hyperlink{run_multipole_8m_a9be334cf35a5787f786e42c1642fefb3}{total\+Length}/\hyperlink{thompson__tetrahedron_8m_a3c16bdb822a79fddfc751f995be80063}{V}/\hyperlink{plot_stress_strain_8m_a36fbb0705e1171e0c60fcc8f4927daef}{Burgers}$^\wedge$2
+\item 
+\hyperlink{run_multipole_8m_a1c73327b2882639bc9f5e416bb3cc7ac}{k} =1
+\item 
+a random row into \hyperlink{plot_stress_strain_8m_a9d3d9048db16a7eee539e93e3618cbe7}{B} \hyperlink{run_multipole_8m_a21ad0bd836b90d08f4cf640b4c298e7c}{b} =\hyperlink{plot_stress_strain_8m_a9d3d9048db16a7eee539e93e3618cbe7}{B}(\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a1e0e2eb903c69285388440da0f0c63d0}{r},\+:)/norm(\hyperlink{plot_stress_strain_8m_a9d3d9048db16a7eee539e93e3618cbe7}{B}(\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a1e0e2eb903c69285388440da0f0c63d0}{r},\+:))
+\item 
+\hyperlink{run_multipole_8m_a8de17588e86659e4d31ccdbd2a9aa387}{Nc} =\mbox{[}$\,$\mbox{]}
+\item 
+for \hyperlink{run_multipole_8m_a4c2d80ab32fc3a598413ae25e9f2bdce}{n}
+\item 
+\hyperlink{run_multipole_8m_a479b78c01efbe4664b402a300da492f7}{d2} =cross(\hyperlink{generate_loop_8m_a8628bb51afad38fac21e20697927b6cb}{b},\hyperlink{run_multipole_8m_a8de17588e86659e4d31ccdbd2a9aa387}{Nc}(\+:,2))\textquotesingle{}
+\item 
+\hyperlink{run_multipole_8m_af93dd7f73e57b8b17d34efa33f0f948e}{P1} =\hyperlink{_longest_processing_time_8m_afbc848e2075d7de831c5ab494c14a63b}{rand}(3,1)$\ast$\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_s_t_lcube_8m_a6dd34dfb831e5311952faa8c6e2bdab0}{L}
+\item 
+\hyperlink{run_multipole_8m_a6277e2a7446059985dc9bcf0a4ac1a8f}{u} =\hyperlink{_longest_processing_time_8m_afbc848e2075d7de831c5ab494c14a63b}{rand}(1)
+\item 
+\hyperlink{run_multipole_8m_a8dbb40f7f7bb5a67b98c95563ac0f086}{a1} =\hyperlink{generate_dipolar_microstructure_8m_aa46f48a76d648eb946f4cdeba9c792b5}{l\+Min}$\ast$(1-\/\hyperlink{angle_axis_8m_a52688d77a393e5a594a1e82658e634b6}{u})+\hyperlink{generate_dipolar_microstructure_8m_aa04ec83bd1b77fc3b0c1be7617de977d}{l\+Max}$\ast$\hyperlink{angle_axis_8m_a52688d77a393e5a594a1e82658e634b6}{u}
+\item 
+\hyperlink{run_multipole_8m_adbcaa199c8f4e499f2c3d049ff926d74}{a2} =\hyperlink{generate_dipolar_microstructure_8m_aa46f48a76d648eb946f4cdeba9c792b5}{l\+Min}$\ast$(1-\/\hyperlink{angle_axis_8m_a52688d77a393e5a594a1e82658e634b6}{u})+\hyperlink{generate_dipolar_microstructure_8m_aa04ec83bd1b77fc3b0c1be7617de977d}{l\+Max}$\ast$\hyperlink{angle_axis_8m_a52688d77a393e5a594a1e82658e634b6}{u}
+\item 
+\hyperlink{run_multipole_8m_ab6f3c269fc46c9c1c0f81b3431240138}{\+\_\+\+\_\+pad0\+\_\+\+\_\+}
+\item 
+\hyperlink{run_multipole_8m_a37dbdc30935031c05304482e1be89d8f}{color}
+\item 
+\hyperlink{run_multipole_8m_a9f197156d91620b1343d1783267de684}{dipolar\+Loops} \{\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k}\}.\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}=\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}
+\item 
+end end \hyperlink{run_multipole_8m_a1e4556ca64e20936a8d96dbcff9ab73c}{density} Write \hyperlink{plot_network_8m_aa57b8491d1d8fc1014dd54bcf83b130a}{E} and \hyperlink{thompson__tetrahedron_8m_a3c16bdb822a79fddfc751f995be80063}{V} files \hyperlink{run_multipole_8m_a423f9b5e7ba0dcd4b8e7621819f645f7}{file\+\_\+\+V} = fopen(\textquotesingle{}\hyperlink{thompson__tetrahedron_8m_a3c16bdb822a79fddfc751f995be80063}{V}/V\+\_\+0.\+txt\textquotesingle{},\textquotesingle{}\hyperlink{plot_cells_8m_aad57484016654da87125db86f4227ea3}{w}\textquotesingle{})
+\item 
+\hyperlink{run_multipole_8m_a2791ea80f1ac292ff1c1aa8325540bba}{file\+\_\+\+E} = fopen(\textquotesingle{}\hyperlink{plot_network_8m_aa57b8491d1d8fc1014dd54bcf83b130a}{E}/E\+\_\+0.\+txt\textquotesingle{},\textquotesingle{}\hyperlink{plot_cells_8m_aad57484016654da87125db86f4227ea3}{w}\textquotesingle{})
+\item 
+\hyperlink{run_multipole_8m_a8648bfa015cb1c03542e29951cb5503f}{node\+I\+D} =0
+\item 
+\hyperlink{run_multipole_8m_a59613833231f72e00a457c95c84b816b}{nodeformat} =\textquotesingle{}\%\hyperlink{_cubic_spline_intersection_8m_a6f6ccfcf58b31cb6412107d9d5281426}{i} \%1.\+15e \%1.\+15e \%1.\+15e \%1.\+15e \%1.\+15e \%1.\+15e \%i \textbackslash{}n\textquotesingle{}
+\item 
+\hyperlink{run_multipole_8m_ad54fecd8a7e66f3f0082318788263478}{linkformat} =\textquotesingle{}\%\hyperlink{_cubic_spline_intersection_8m_a6f6ccfcf58b31cb6412107d9d5281426}{i} \%\hyperlink{_cubic_spline_intersection_8m_a6f6ccfcf58b31cb6412107d9d5281426}{i} \%1.\+15e \%1.\+15e \%1.\+15e \%1.\+15e \%1.\+15e \%1.\+15e \%i \textbackslash{}n\textquotesingle{}
+\item 
+end make sure that for cell \hyperlink{run_multipole_8m_a4464b4e1852d41b284531eb37af9e4ef}{size} ==system\+Size
+\item 
+end make sure that for cell then multipole expansion does nothing P\+K with and without multipole must be the same end Plot \hyperlink{run_multipole_8m_a9c10ebd1e7694ac60ef699b48c06bcf5}{fontsize} =14
+\item 
+\hyperlink{run_multipole_8m_a6fc7ad027aff0d580070ea8124da4e2a}{pk\+\_\+\+Mult\+\_\+norm}
+\item 
+\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a1e0e2eb903c69285388440da0f0c63d0}{r} \hyperlink{run_multipole_8m_a3f63c9fd3bf70f3a13a813f9a25de2b8}{Font\+Size}
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{run_multipole_8m_ab1b678759c2ea64155ff060eccb2e0f5}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!dipolar\+Loops@{dipolar\+Loops}}
+\index{dipolar\+Loops@{dipolar\+Loops}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{dipolar\+Loops}]{\setlength{\rightskip}{0pt plus 5cm}id dipolar\+Loops (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}, {\ttfamily [virtual]}}\label{run_multipole_8m_ab1b678759c2ea64155ff060eccb2e0f5}
+
+
+Definition at line 70 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_ac7419b2c6cf5dd3a865f4d042e9e7778}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!dot@{dot}}
+\index{dot@{dot}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{dot}]{\setlength{\rightskip}{0pt plus 5cm}{\bf if} dot (
+\begin{DoxyParamCaption}
+\item[{{\bf P1}}]{, }
+\item[{d1}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_ac7419b2c6cf5dd3a865f4d042e9e7778}
+\hypertarget{run_multipole_8m_ac47c4c050972197e549869617c7551ed}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!dot@{dot}}
+\index{dot@{dot}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{dot}]{\setlength{\rightskip}{0pt plus 5cm}end {\bf if} dot (
+\begin{DoxyParamCaption}
+\item[{{\bf P1}}]{, }
+\item[{{\bf d2}}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_ac47c4c050972197e549869617c7551ed}
+\hypertarget{run_multipole_8m_a8b4a3e65531f29f9d5230b150ead5698}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!fclose@{fclose}}
+\index{fclose@{fclose}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{fclose}]{\setlength{\rightskip}{0pt plus 5cm}end fclose (
+\begin{DoxyParamCaption}
+\item[{{\bf file\+\_\+\+V}}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a8b4a3e65531f29f9d5230b150ead5698}
+\hypertarget{run_multipole_8m_a7f372baa7d5cddd91873c47a4a2b4217}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!fclose@{fclose}}
+\index{fclose@{fclose}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{fclose}]{\setlength{\rightskip}{0pt plus 5cm}fclose (
+\begin{DoxyParamCaption}
+\item[{{\bf file\+\_\+\+E}}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a7f372baa7d5cddd91873c47a4a2b4217}
+\hypertarget{run_multipole_8m_a31ea567f0db2b5cc325267d1b1db6974}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!figure@{figure}}
+\index{figure@{figure}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{figure}]{\setlength{\rightskip}{0pt plus 5cm}figure (
+\begin{DoxyParamCaption}
+\item[{1}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a31ea567f0db2b5cc325267d1b1db6974}
+\hypertarget{run_multipole_8m_a7acc803cd2d0d0feafa14f093b2b3d60}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!fprintf@{fprintf}}
+\index{fprintf@{fprintf}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{fprintf}]{\setlength{\rightskip}{0pt plus 5cm}fprintf (
+\begin{DoxyParamCaption}
+\item[{{\bf file\+\_\+\+V}}]{, }
+\item[{{\bf nodeformat}}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a7acc803cd2d0d0feafa14f093b2b3d60}
+\hypertarget{run_multipole_8m_a562c851ea906ab8ce93a3e1d3fb9f828}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!fprintf@{fprintf}}
+\index{fprintf@{fprintf}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{fprintf}]{\setlength{\rightskip}{0pt plus 5cm}fprintf (
+\begin{DoxyParamCaption}
+\item[{{\bf file\+\_\+\+E}}]{, }
+\item[{{\bf linkformat}}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a562c851ea906ab8ce93a3e1d3fb9f828}
+\hypertarget{run_multipole_8m_afb839e011800eaba1f0615b679f5d1fa}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!if@{if}}
+\index{if@{if}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{if}]{\setlength{\rightskip}{0pt plus 5cm}if (
+\begin{DoxyParamCaption}
+\item[{length(find({\bf P}$<$ 0))}]{ = {\ttfamily =0~\&\&~length(find({\bf P}$>${\bf L}))==0}}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_afb839e011800eaba1f0615b679f5d1fa}
+\hypertarget{run_multipole_8m_a2c20420bbb6e17f61d9d2c41fc489e31}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!if@{if}}
+\index{if@{if}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{if}]{\setlength{\rightskip}{0pt plus 5cm}end make sure that for cell then multipole expansion does nothing if (
+\begin{DoxyParamCaption}
+\item[{norm(pk\+\_\+no\+Mult\{{\bf N}\}-\/pk\+\_\+\+Mult\{{\bf N}\})/norm(pk\+\_\+no\+Mult\{{\bf N}\})}]{, }
+\item[{1.\+0e-\/}]{7}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a2c20420bbb6e17f61d9d2c41fc489e31}
+\hypertarget{run_multipole_8m_afa506afdfb4678578b9d5cd39a86f4ab}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!legend@{legend}}
+\index{legend@{legend}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{legend}]{\setlength{\rightskip}{0pt plus 5cm}{\bf r} {\bf fontsize} legend (
+\begin{DoxyParamCaption}
+\item[{\textquotesingle{}nearest neighbor\textquotesingle{}}]{, }
+\item[{\textquotesingle{}nearest neighbor+multipole\textquotesingle{}}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_afa506afdfb4678578b9d5cd39a86f4ab}
+\hypertarget{run_multipole_8m_a23f341201d24ef99ace0eed6bd966728}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!P@{P}}
+\index{P@{P}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{P}]{\setlength{\rightskip}{0pt plus 5cm}end P (
+\begin{DoxyParamCaption}
+\item[{\+:}]{, }
+\item[{1}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a23f341201d24ef99ace0eed6bd966728}
+\hypertarget{run_multipole_8m_aab01408083c4188ed43af97b53f5a205}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!P@{P}}
+\index{P@{P}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{P}]{\setlength{\rightskip}{0pt plus 5cm}P (
+\begin{DoxyParamCaption}
+\item[{\+:}]{, }
+\item[{2}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_aab01408083c4188ed43af97b53f5a205}
+\hypertarget{run_multipole_8m_a8132a9b5e24101379c3225b2e8f3323b}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!P@{P}}
+\index{P@{P}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{P}]{\setlength{\rightskip}{0pt plus 5cm}P (
+\begin{DoxyParamCaption}
+\item[{\+:}]{, }
+\item[{3}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a8132a9b5e24101379c3225b2e8f3323b}
+\hypertarget{run_multipole_8m_ab5917239d3c8854496b5e0b99776bf61}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!P@{P}}
+\index{P@{P}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{P}]{\setlength{\rightskip}{0pt plus 5cm}P (
+\begin{DoxyParamCaption}
+\item[{\+:}]{, }
+\item[{4}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_ab5917239d3c8854496b5e0b99776bf61}
+\hypertarget{run_multipole_8m_a7ac19c67e16b4196ba2f303ce5b61f6a}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!P@{P}}
+\index{P@{P}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{P}]{\setlength{\rightskip}{0pt plus 5cm}P (
+\begin{DoxyParamCaption}
+\item[{2}]{, }
+\item[{\+:}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a7ac19c67e16b4196ba2f303ce5b61f6a}
+\hypertarget{run_multipole_8m_a47672ee7127830c62beefad66a9fae28}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!P@{P}}
+\index{P@{P}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{P}]{\setlength{\rightskip}{0pt plus 5cm}P (
+\begin{DoxyParamCaption}
+\item[{3}]{, }
+\item[{\+:}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a47672ee7127830c62beefad66a9fae28}
+\hypertarget{run_multipole_8m_a4a2fab82eac15986fc50e0947c777336}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!pk\+\_\+\+Mult\+\_\+norm@{pk\+\_\+\+Mult\+\_\+norm}}
+\index{pk\+\_\+\+Mult\+\_\+norm@{pk\+\_\+\+Mult\+\_\+norm}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{pk\+\_\+\+Mult\+\_\+norm}]{\setlength{\rightskip}{0pt plus 5cm}pk\+\_\+\+Mult\+\_\+norm (
+\begin{DoxyParamCaption}
+\item[{{\bf n}}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a4a2fab82eac15986fc50e0947c777336}
+\hypertarget{run_multipole_8m_a1d91746d85621e73b85801974faa8e28}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!plot@{plot}}
+\index{plot@{plot}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{plot}]{\setlength{\rightskip}{0pt plus 5cm}plot (
+\begin{DoxyParamCaption}
+\item[{cell\+Sizes}]{, }
+\item[{pk\+\_\+no\+Mult\+\_\+norm}]{, }
+\item[{\textquotesingle{}{\bf b}\textquotesingle{}}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a1d91746d85621e73b85801974faa8e28}
+\hypertarget{run_multipole_8m_a17e7235ddb78bd9e86580a1176b92bf0}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!size@{size}}
+\index{size@{size}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{size}]{\setlength{\rightskip}{0pt plus 5cm}end end {\bf if} size (
+\begin{DoxyParamCaption}
+\item[{{\bf Nc}}]{, }
+\item[{2}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a17e7235ddb78bd9e86580a1176b92bf0}
+\hypertarget{run_multipole_8m_a25db8f5d47a32ac23377f1e33cabbfa3}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!size@{size}}
+\index{size@{size}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{size}]{\setlength{\rightskip}{0pt plus 5cm}size (
+\begin{DoxyParamCaption}
+\item[{{\bf P}}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a25db8f5d47a32ac23377f1e33cabbfa3}
+
+
+Definition at line 116 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a7d41eb9326efb68ee53185afb2285270}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!system@{system}}
+\index{system@{system}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{system}]{\setlength{\rightskip}{0pt plus 5cm}system (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_a7d41eb9326efb68ee53185afb2285270}
+\hypertarget{run_multipole_8m_ad8aba885d2529266bed2e94488ed01a0}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!ylabel@{ylabel}}
+\index{ylabel@{ylabel}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{ylabel}]{\setlength{\rightskip}{0pt plus 5cm}{\bf r} ylabel (
+\begin{DoxyParamCaption}
+\item[{\textquotesingle{}error in P\+K force\textquotesingle{}}]{, }
+\item[{\textquotesingle{}{\bf Font\+Size}\textquotesingle{}}]{, }
+\item[{{\bf fontsize}}]{}
+\end{DoxyParamCaption}
+)}\label{run_multipole_8m_ad8aba885d2529266bed2e94488ed01a0}
+
+
+\subsection{Variable Documentation}
+\hypertarget{run_multipole_8m_ab6f3c269fc46c9c1c0f81b3431240138}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!\+\_\+\+\_\+pad0\+\_\+\+\_\+@{\+\_\+\+\_\+pad0\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+pad0\+\_\+\+\_\+@{\+\_\+\+\_\+pad0\+\_\+\+\_\+}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{\+\_\+\+\_\+pad0\+\_\+\+\_\+}]{\setlength{\rightskip}{0pt plus 5cm}\+\_\+\+\_\+pad0\+\_\+\+\_\+}\label{run_multipole_8m_ab6f3c269fc46c9c1c0f81b3431240138}
+
+
+Definition at line 70 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a8dbb40f7f7bb5a67b98c95563ac0f086}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!a1@{a1}}
+\index{a1@{a1}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{a1}]{\setlength{\rightskip}{0pt plus 5cm}a1 ={\bf l\+Min}$\ast$(1-\/{\bf u})+{\bf l\+Max}$\ast${\bf u}}\label{run_multipole_8m_a8dbb40f7f7bb5a67b98c95563ac0f086}
+
+
+Definition at line 60 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_adbcaa199c8f4e499f2c3d049ff926d74}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!a2@{a2}}
+\index{a2@{a2}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{a2}]{\setlength{\rightskip}{0pt plus 5cm}a2 ={\bf l\+Min}$\ast$(1-\/{\bf u})+{\bf l\+Max}$\ast${\bf u}}\label{run_multipole_8m_adbcaa199c8f4e499f2c3d049ff926d74}
+
+
+Definition at line 62 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a4c33430e8bb38be799076a5f90244f59}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!B@{B}}
+\index{B@{B}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{B}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Burgers} vectors for {\bf F\+C\+C}(unsigned B =\mbox{[}0 1 1}\label{run_multipole_8m_a4c33430e8bb38be799076a5f90244f59}
+
+
+Definition at line 23 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a21ad0bd836b90d08f4cf640b4c298e7c}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!b@{b}}
+\index{b@{b}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{b}]{\setlength{\rightskip}{0pt plus 5cm}b ={\bf B}({\bf r},\+:)/norm({\bf B}({\bf r},\+:))}\label{run_multipole_8m_a21ad0bd836b90d08f4cf640b4c298e7c}
+
+
+Definition at line 39 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a36fbb0705e1171e0c60fcc8f4927daef}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!Burgers@{Burgers}}
+\index{Burgers@{Burgers}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{Burgers}]{\setlength{\rightskip}{0pt plus 5cm}{\bf n\+Length} {\bf V} Burgers =0.\+2556e-\/9}\label{run_multipole_8m_a36fbb0705e1171e0c60fcc8f4927daef}
+
+
+Definition at line 13 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a37dbdc30935031c05304482e1be89d8f}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!color@{color}}
+\index{color@{color}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{color}]{\setlength{\rightskip}{0pt plus 5cm}color}\label{run_multipole_8m_a37dbdc30935031c05304482e1be89d8f}
+
+
+Definition at line 70 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a479b78c01efbe4664b402a300da492f7}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!d2@{d2}}
+\index{d2@{d2}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{d2}]{\setlength{\rightskip}{0pt plus 5cm}d2 =cross({\bf b},{\bf Nc}(\+:,2))\textquotesingle{}}\label{run_multipole_8m_a479b78c01efbe4664b402a300da492f7}
+
+
+Definition at line 50 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a1e4556ca64e20936a8d96dbcff9ab73c}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!density@{density}}
+\index{density@{density}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{density}]{\setlength{\rightskip}{0pt plus 5cm}density ={\bf total\+Length}/{\bf V}/{\bf Burgers}$^\wedge$2}\label{run_multipole_8m_a1e4556ca64e20936a8d96dbcff9ab73c}
+
+
+Definition at line 31 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a9f197156d91620b1343d1783267de684}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!dipolar\+Loops@{dipolar\+Loops}}
+\index{dipolar\+Loops@{dipolar\+Loops}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{dipolar\+Loops}]{\setlength{\rightskip}{0pt plus 5cm}dipolar\+Loops \{{\bf k}\}.{\bf P}={\bf P}}\label{run_multipole_8m_a9f197156d91620b1343d1783267de684}
+
+
+Definition at line 73 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a2791ea80f1ac292ff1c1aa8325540bba}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!file\+\_\+\+E@{file\+\_\+\+E}}
+\index{file\+\_\+\+E@{file\+\_\+\+E}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{file\+\_\+\+E}]{\setlength{\rightskip}{0pt plus 5cm}file\+\_\+\+E = fopen(\textquotesingle{}{\bf E}/E\+\_\+0.\+txt\textquotesingle{},\textquotesingle{}{\bf w}\textquotesingle{})}\label{run_multipole_8m_a2791ea80f1ac292ff1c1aa8325540bba}
+
+
+Definition at line 86 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a423f9b5e7ba0dcd4b8e7621819f645f7}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!file\+\_\+\+V@{file\+\_\+\+V}}
+\index{file\+\_\+\+V@{file\+\_\+\+V}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{file\+\_\+\+V}]{\setlength{\rightskip}{0pt plus 5cm}end end {\bf density} Write {\bf E} and {\bf V} files file\+\_\+\+V = fopen(\textquotesingle{}{\bf V}/V\+\_\+0.\+txt\textquotesingle{},\textquotesingle{}{\bf w}\textquotesingle{})}\label{run_multipole_8m_a423f9b5e7ba0dcd4b8e7621819f645f7}
+
+
+Definition at line 85 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a9c10ebd1e7694ac60ef699b48c06bcf5}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!fontsize@{fontsize}}
+\index{fontsize@{fontsize}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{fontsize}]{\setlength{\rightskip}{0pt plus 5cm}end make sure that for cell then multipole expansion does nothing P\+K with and without multipole must be the same end Plot fontsize =14}\label{run_multipole_8m_a9c10ebd1e7694ac60ef699b48c06bcf5}
+
+
+Definition at line 139 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a3f63c9fd3bf70f3a13a813f9a25de2b8}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!Font\+Size@{Font\+Size}}
+\index{Font\+Size@{Font\+Size}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{Font\+Size}]{\setlength{\rightskip}{0pt plus 5cm}{\bf r} {\bf fontsize} Font\+Size}\label{run_multipole_8m_a3f63c9fd3bf70f3a13a813f9a25de2b8}
+
+
+Definition at line 148 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a1c73327b2882639bc9f5e416bb3cc7ac}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!k@{k}}
+\index{k@{k}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{k}]{\setlength{\rightskip}{0pt plus 5cm}for k =1}\label{run_multipole_8m_a1c73327b2882639bc9f5e416bb3cc7ac}
+
+
+Definition at line 32 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_ad54fecd8a7e66f3f0082318788263478}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!linkformat@{linkformat}}
+\index{linkformat@{linkformat}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{linkformat}]{\setlength{\rightskip}{0pt plus 5cm}linkformat =\textquotesingle{}\%{\bf i} \%{\bf i} \%1.\+15e \%1.\+15e \%1.\+15e \%1.\+15e \%1.\+15e \%1.\+15e \%i \textbackslash{}n\textquotesingle{}}\label{run_multipole_8m_ad54fecd8a7e66f3f0082318788263478}
+
+
+Definition at line 90 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a8f93a5652751302e93a034e711fa6096}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!l\+Max@{l\+Max}}
+\index{l\+Max@{l\+Max}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{l\+Max}]{\setlength{\rightskip}{0pt plus 5cm}l\+Max ={\bf L}}\label{run_multipole_8m_a8f93a5652751302e93a034e711fa6096}
+
+
+Definition at line 17 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a673882e3279bc7080be22f06f84bc4d7}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!l\+Min@{l\+Min}}
+\index{l\+Min@{l\+Min}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{l\+Min}]{\setlength{\rightskip}{0pt plus 5cm}Generate dipoles in {\bf cube} with {\bf density} {\bf rho\+Max} l\+Min ={\bf L}/20}\label{run_multipole_8m_a673882e3279bc7080be22f06f84bc4d7}
+
+
+Definition at line 16 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a24761b2a0a1ce10e27c26bd04ff6eade}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!M\+O\+D\+E\+L@{M\+O\+D\+E\+L}}
+\index{M\+O\+D\+E\+L@{M\+O\+D\+E\+L}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{M\+O\+D\+E\+L}]{\setlength{\rightskip}{0pt plus 5cm}This file is part of M\+O\+D\+E\+L}\label{run_multipole_8m_a24761b2a0a1ce10e27c26bd04ff6eade}
+
+
+Definition at line 1 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a59aa6b1a437dfb9ad13a3dd22f7dc46a}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!N@{N}}
+\index{N@{N}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{N}]{\setlength{\rightskip}{0pt plus 5cm}grid on Run D\+D code N =\mbox{[}-\/0.\+5774 0.\+5774 -\/0.\+5774 0.\+5774}\label{run_multipole_8m_a59aa6b1a437dfb9ad13a3dd22f7dc46a}
+
+
+Definition at line 19 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a4c2d80ab32fc3a598413ae25e9f2bdce}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!n@{n}}
+\index{n@{n}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{n}]{\setlength{\rightskip}{0pt plus 5cm}for n}\label{run_multipole_8m_a4c2d80ab32fc3a598413ae25e9f2bdce}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+=1:\hyperlink{run_multipole_8m_a4464b4e1852d41b284531eb37af9e4ef}{size}(\hyperlink{run_multipole_8m_a59aa6b1a437dfb9ad13a3dd22f7dc46a}{N},2)
+\hyperlink{run_multipole_8m_afb839e011800eaba1f0615b679f5d1fa}{if} abs(\hyperlink{run_multipole_8m_ac7419b2c6cf5dd3a865f4d042e9e7778}{dot}(\hyperlink{run_multipole_8m_a21ad0bd836b90d08f4cf640b4c298e7c}{b},\hyperlink{run_multipole_8m_a59aa6b1a437dfb9ad13a3dd22f7dc46a}{N}(:,\hyperlink{run_multipole_8m_a4c2d80ab32fc3a598413ae25e9f2bdce}{n})))<0.001
+\hyperlink{run_multipole_8m_a8de17588e86659e4d31ccdbd2a9aa387}{Nc}=[\hyperlink{run_multipole_8m_a8de17588e86659e4d31ccdbd2a9aa387}{Nc} N(:,\hyperlink{run_multipole_8m_a4c2d80ab32fc3a598413ae25e9f2bdce}{n})]
+\end{DoxyCode}
+
+
+Definition at line 41 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a8de17588e86659e4d31ccdbd2a9aa387}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!Nc@{Nc}}
+\index{Nc@{Nc}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{Nc}]{\setlength{\rightskip}{0pt plus 5cm}Nc =\mbox{[}$\,$\mbox{]}}\label{run_multipole_8m_a8de17588e86659e4d31ccdbd2a9aa387}
+
+
+Definition at line 40 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a59613833231f72e00a457c95c84b816b}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!nodeformat@{nodeformat}}
+\index{nodeformat@{nodeformat}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{nodeformat}]{\setlength{\rightskip}{0pt plus 5cm}nodeformat =\textquotesingle{}\%{\bf i} \%1.\+15e \%1.\+15e \%1.\+15e \%1.\+15e \%1.\+15e \%1.\+15e \%i \textbackslash{}n\textquotesingle{}}\label{run_multipole_8m_a59613833231f72e00a457c95c84b816b}
+
+
+Definition at line 89 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a8648bfa015cb1c03542e29951cb5503f}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!node\+I\+D@{node\+I\+D}}
+\index{node\+I\+D@{node\+I\+D}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{node\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}node\+I\+D =0}\label{run_multipole_8m_a8648bfa015cb1c03542e29951cb5503f}
+
+
+Definition at line 88 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_af93dd7f73e57b8b17d34efa33f0f948e}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!P1@{P1}}
+\index{P1@{P1}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{P1}]{\setlength{\rightskip}{0pt plus 5cm}P1 ={\bf rand}(3,1)$\ast${\bf L}}\label{run_multipole_8m_af93dd7f73e57b8b17d34efa33f0f948e}
+
+
+Definition at line 51 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a6fc7ad027aff0d580070ea8124da4e2a}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!pk\+\_\+\+Mult\+\_\+norm@{pk\+\_\+\+Mult\+\_\+norm}}
+\index{pk\+\_\+\+Mult\+\_\+norm@{pk\+\_\+\+Mult\+\_\+norm}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{pk\+\_\+\+Mult\+\_\+norm}]{\setlength{\rightskip}{0pt plus 5cm}pk\+\_\+\+Mult\+\_\+norm}\label{run_multipole_8m_a6fc7ad027aff0d580070ea8124da4e2a}
+
+
+Definition at line 146 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a4dc927c31157b84425f50afdf2e9b34d}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!rho\+Max@{rho\+Max}}
+\index{rho\+Max@{rho\+Max}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{rho\+Max}]{\setlength{\rightskip}{0pt plus 5cm}units of {\bf Burgers} vector rho\+Max =5e13}\label{run_multipole_8m_a4dc927c31157b84425f50afdf2e9b34d}
+
+
+Definition at line 12 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a4464b4e1852d41b284531eb37af9e4ef}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!size@{size}}
+\index{size@{size}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{size}]{\setlength{\rightskip}{0pt plus 5cm}end make sure that for cell size ==system\+Size}\label{run_multipole_8m_a4464b4e1852d41b284531eb37af9e4ef}
+
+
+Definition at line 131 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a9be334cf35a5787f786e42c1642fefb3}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!total\+Length@{total\+Length}}
+\index{total\+Length@{total\+Length}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{total\+Length}]{\setlength{\rightskip}{0pt plus 5cm}total\+Length =0}\label{run_multipole_8m_a9be334cf35a5787f786e42c1642fefb3}
+
+
+Definition at line 30 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_a6277e2a7446059985dc9bcf0a4ac1a8f}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!u@{u}}
+\index{u@{u}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{u}]{\setlength{\rightskip}{0pt plus 5cm}u ={\bf rand}(1)}\label{run_multipole_8m_a6277e2a7446059985dc9bcf0a4ac1a8f}
+
+
+Definition at line 59 of file run\+Multipole.\+m.
+
+\hypertarget{run_multipole_8m_ac0055fa4cdc19a2690bfee3643413a7d}{}\index{run\+Multipole.\+m@{run\+Multipole.\+m}!V@{V}}
+\index{V@{V}!run\+Multipole.\+m@{run\+Multipole.\+m}}
+\subsubsection[{V}]{\setlength{\rightskip}{0pt plus 5cm}V ={\bf L}$^\wedge$3}\label{run_multipole_8m_ac0055fa4cdc19a2690bfee3643413a7d}
+
+
+Definition at line 11 of file run\+Multipole.\+m.
+

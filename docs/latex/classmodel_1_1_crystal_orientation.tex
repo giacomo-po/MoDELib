@@ -1,0 +1,167 @@
+\hypertarget{classmodel_1_1_crystal_orientation}{}\section{model\+:\+:Crystal\+Orientation$<$ dim $>$ Class Template Reference}
+\label{classmodel_1_1_crystal_orientation}\index{model\+::\+Crystal\+Orientation$<$ dim $>$@{model\+::\+Crystal\+Orientation$<$ dim $>$}}
+
+
+{\ttfamily \#include $<$Crystal\+Orientation.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim}
+\item 
+typedef std\+::vector$<$ \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim} $>$ \hyperlink{classmodel_1_1_crystal_orientation_a55ae599a60a13e109c1445889b42f87b}{Plane\+Normal\+Container\+Type}
+\item 
+typedef std\+::vector$<$ typename Plane\+Normal\+Container\+Type\+::const\+\_\+iterator $>$ \hyperlink{classmodel_1_1_crystal_orientation_a48e93a01771bebe12e6f6be1f728cd39}{Plane\+Normal\+Iterator\+Container\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename Crystal\+Structure $>$ }\\static void \hyperlink{classmodel_1_1_crystal_orientation_a0f0d28abaae7ebb3ae1444a16ac2e61d}{rotate} (const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $>$ \&C2\+G\+\_\+in)
+\item 
+static void \hyperlink{classmodel_1_1_crystal_orientation_ace2ff43ad7650f46e6cfaa516a558b79}{find\+\_\+slip\+System} (const \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim} \&\hyperlink{_spline_segment_base__common_8h_a556bf76f1989429dc61af440056d6b1f}{chord}, const \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim} \&\hyperlink{plot_stress_strain_8m_a36fbb0705e1171e0c60fcc8f4927daef}{Burgers}, \hyperlink{classmodel_1_1_crystal_orientation_a48e93a01771bebe12e6f6be1f728cd39}{Plane\+Normal\+Iterator\+Container\+Type} \&allowed\+Slip\+Systems, const double \&tol=F\+L\+T\+\_\+\+E\+P\+S\+I\+L\+O\+N)
+\item 
+static const \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim} \& \hyperlink{classmodel_1_1_crystal_orientation_a3fed3bd80ad4a42478e4889a7c445773}{find\+\_\+plane\+Normal} (const \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim} \&\hyperlink{_spline_segment_base__common_8h_a556bf76f1989429dc61af440056d6b1f}{chord}, const \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim} \&\hyperlink{plot_stress_strain_8m_a36fbb0705e1171e0c60fcc8f4927daef}{Burgers})
+\item 
+static \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim} \hyperlink{classmodel_1_1_crystal_orientation_a44b43fb6eb877ae22050e29d1070ccda}{get\+\_\+sessile\+Normal} (const \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim} \&\hyperlink{_spline_segment_base__common_8h_a556bf76f1989429dc61af440056d6b1f}{chord}, const \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim} \&\hyperlink{plot_stress_strain_8m_a36fbb0705e1171e0c60fcc8f4927daef}{Burgers})
+\item 
+static \hyperlink{classmodel_1_1_crystal_orientation_a55ae599a60a13e109c1445889b42f87b}{Plane\+Normal\+Container\+Type} \hyperlink{classmodel_1_1_crystal_orientation_aeea7c7029ad0d508168a26c61351f59f}{conjugate\+Plane\+Normal} (const \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim} \&\hyperlink{plot_stress_strain_8m_a9d3d9048db16a7eee539e93e3618cbe7}{B}, const \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim} \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}, const double \&tol=F\+L\+T\+\_\+\+E\+P\+S\+I\+L\+O\+N)
+\item 
+static const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $>$ \& \hyperlink{classmodel_1_1_crystal_orientation_ad8a34d262aad0ad07a251dd9fc9f6e8b}{c2g} ()
+\item 
+static size\+\_\+t \hyperlink{classmodel_1_1_crystal_orientation_a7b5fff0ecbcbdd0da9b930e09ed072f0}{plane\+I\+D} (const \hyperlink{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{Vector\+Dim} \&plane\+Normal)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int dim$>$class model\+::\+Crystal\+Orientation$<$ dim $>$}
+
+
+
+Definition at line 28 of file Crystal\+Orientation.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_crystal_orientation_a55ae599a60a13e109c1445889b42f87b}{}\index{model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}!Plane\+Normal\+Container\+Type@{Plane\+Normal\+Container\+Type}}
+\index{Plane\+Normal\+Container\+Type@{Plane\+Normal\+Container\+Type}!model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}}
+\subsubsection[{Plane\+Normal\+Container\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim$>$ typedef std\+::vector$<${\bf Vector\+Dim}$>$ {\bf model\+::\+Crystal\+Orientation}$<$ {\bf dim} $>$\+::{\bf Plane\+Normal\+Container\+Type}}\label{classmodel_1_1_crystal_orientation_a55ae599a60a13e109c1445889b42f87b}
+
+
+Definition at line 34 of file Crystal\+Orientation.\+h.
+
+\hypertarget{classmodel_1_1_crystal_orientation_a48e93a01771bebe12e6f6be1f728cd39}{}\index{model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}!Plane\+Normal\+Iterator\+Container\+Type@{Plane\+Normal\+Iterator\+Container\+Type}}
+\index{Plane\+Normal\+Iterator\+Container\+Type@{Plane\+Normal\+Iterator\+Container\+Type}!model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}}
+\subsubsection[{Plane\+Normal\+Iterator\+Container\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim$>$ typedef std\+::vector$<$typename Plane\+Normal\+Container\+Type\+::const\+\_\+iterator$>$ {\bf model\+::\+Crystal\+Orientation}$<$ {\bf dim} $>$\+::{\bf Plane\+Normal\+Iterator\+Container\+Type}}\label{classmodel_1_1_crystal_orientation_a48e93a01771bebe12e6f6be1f728cd39}
+
+
+Definition at line 35 of file Crystal\+Orientation.\+h.
+
+\hypertarget{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}{}\index{model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}!Vector\+Dim@{Vector\+Dim}}
+\index{Vector\+Dim@{Vector\+Dim}!model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}}
+\subsubsection[{Vector\+Dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim$>$ typedef Eigen\+::\+Matrix$<$double,{\bf dim},1$>$ {\bf model\+::\+Crystal\+Orientation}$<$ {\bf dim} $>$\+::{\bf Vector\+Dim}}\label{classmodel_1_1_crystal_orientation_a32108cd454d481e0e57a0d2801d2adaa}
+
+
+Definition at line 32 of file Crystal\+Orientation.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_crystal_orientation_ad8a34d262aad0ad07a251dd9fc9f6e8b}{}\index{model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}!c2g@{c2g}}
+\index{c2g@{c2g}!model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}}
+\subsubsection[{c2g}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim$>$ static const Eigen\+::\+Matrix$<$double,{\bf dim},{\bf dim}$>$\& {\bf model\+::\+Crystal\+Orientation}$<$ {\bf dim} $>$\+::c2g (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_crystal_orientation_ad8a34d262aad0ad07a251dd9fc9f6e8b}
+
+
+Definition at line 217 of file Crystal\+Orientation.\+h.
+
+\hypertarget{classmodel_1_1_crystal_orientation_aeea7c7029ad0d508168a26c61351f59f}{}\index{model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}!conjugate\+Plane\+Normal@{conjugate\+Plane\+Normal}}
+\index{conjugate\+Plane\+Normal@{conjugate\+Plane\+Normal}!model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}}
+\subsubsection[{conjugate\+Plane\+Normal}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim$>$ static {\bf Plane\+Normal\+Container\+Type} {\bf model\+::\+Crystal\+Orientation}$<$ {\bf dim} $>$\+::conjugate\+Plane\+Normal (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim} \&}]{B, }
+\item[{const {\bf Vector\+Dim} \&}]{N, }
+\item[{const double \&}]{tol = {\ttfamily FLT\+\_\+EPSILON}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_crystal_orientation_aeea7c7029ad0d508168a26c61351f59f}
+
+
+Definition at line 197 of file Crystal\+Orientation.\+h.
+
+\hypertarget{classmodel_1_1_crystal_orientation_a3fed3bd80ad4a42478e4889a7c445773}{}\index{model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}!find\+\_\+plane\+Normal@{find\+\_\+plane\+Normal}}
+\index{find\+\_\+plane\+Normal@{find\+\_\+plane\+Normal}!model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}}
+\subsubsection[{find\+\_\+plane\+Normal}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim$>$ static const {\bf Vector\+Dim}\& {\bf model\+::\+Crystal\+Orientation}$<$ {\bf dim} $>$\+::find\+\_\+plane\+Normal (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim} \&}]{chord, }
+\item[{const {\bf Vector\+Dim} \&}]{Burgers}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_crystal_orientation_a3fed3bd80ad4a42478e4889a7c445773}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em chord} & the chord of a \hyperlink{classmodel_1_1_dislocation_segment}{Dislocation\+Segment} \\
+\hline
+\mbox{\tt in}  & {\em Burgers} & the Burgers vector of a \hyperlink{classmodel_1_1_dislocation_segment}{Dislocation\+Segment} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A const reference to the first vector in plane\+Normal\+Container which is orthogonal to both chord and Burgers.
+\end{DoxyReturn}
+
+
+Definition at line 142 of file Crystal\+Orientation.\+h.
+
+\hypertarget{classmodel_1_1_crystal_orientation_ace2ff43ad7650f46e6cfaa516a558b79}{}\index{model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}!find\+\_\+slip\+System@{find\+\_\+slip\+System}}
+\index{find\+\_\+slip\+System@{find\+\_\+slip\+System}!model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}}
+\subsubsection[{find\+\_\+slip\+System}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim$>$ static void {\bf model\+::\+Crystal\+Orientation}$<$ {\bf dim} $>$\+::find\+\_\+slip\+System (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim} \&}]{chord, }
+\item[{const {\bf Vector\+Dim} \&}]{Burgers, }
+\item[{{\bf Plane\+Normal\+Iterator\+Container\+Type} \&}]{allowed\+Slip\+Systems, }
+\item[{const double \&}]{tol = {\ttfamily FLT\+\_\+EPSILON}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_crystal_orientation_ace2ff43ad7650f46e6cfaa516a558b79}
+
+
+Definition at line 82 of file Crystal\+Orientation.\+h.
+
+\hypertarget{classmodel_1_1_crystal_orientation_a44b43fb6eb877ae22050e29d1070ccda}{}\index{model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}!get\+\_\+sessile\+Normal@{get\+\_\+sessile\+Normal}}
+\index{get\+\_\+sessile\+Normal@{get\+\_\+sessile\+Normal}!model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}}
+\subsubsection[{get\+\_\+sessile\+Normal}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim$>$ static {\bf Vector\+Dim} {\bf model\+::\+Crystal\+Orientation}$<$ {\bf dim} $>$\+::get\+\_\+sessile\+Normal (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim} \&}]{chord, }
+\item[{const {\bf Vector\+Dim} \&}]{Burgers}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_crystal_orientation_a44b43fb6eb877ae22050e29d1070ccda}
+
+
+Definition at line 158 of file Crystal\+Orientation.\+h.
+
+\hypertarget{classmodel_1_1_crystal_orientation_a7b5fff0ecbcbdd0da9b930e09ed072f0}{}\index{model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}!plane\+I\+D@{plane\+I\+D}}
+\index{plane\+I\+D@{plane\+I\+D}!model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}}
+\subsubsection[{plane\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim$>$ static size\+\_\+t {\bf model\+::\+Crystal\+Orientation}$<$ {\bf dim} $>$\+::plane\+I\+D (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim} \&}]{plane\+Normal}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_crystal_orientation_a7b5fff0ecbcbdd0da9b930e09ed072f0}
+
+
+Definition at line 224 of file Crystal\+Orientation.\+h.
+
+\hypertarget{classmodel_1_1_crystal_orientation_a0f0d28abaae7ebb3ae1444a16ac2e61d}{}\index{model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}!rotate@{rotate}}
+\index{rotate@{rotate}!model\+::\+Crystal\+Orientation@{model\+::\+Crystal\+Orientation}}
+\subsubsection[{rotate}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim$>$ template$<$typename Crystal\+Structure $>$ static void {\bf model\+::\+Crystal\+Orientation}$<$ {\bf dim} $>$\+::rotate (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}, {\bf dim} $>$ \&}]{C2\+G\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_crystal_orientation_a0f0d28abaae7ebb3ae1444a16ac2e61d}
+
+
+Definition at line 48 of file Crystal\+Orientation.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_crystal_orientation_8h}{Crystal\+Orientation.\+h}\end{DoxyCompactItemize}

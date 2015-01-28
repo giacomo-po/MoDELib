@@ -23,6 +23,8 @@
 #include <model/Network/NetworkComponent.h>
 #include <model/Utilities/StaticID.h>
 #include <model/Utilities/CRTP.h>
+#include <model/Utilities/NonCopyable.h>
+
 //#include "model/Network/NetworkLink.h"
 #include <model/Network/Operations/includeNetworkOperations.h>
 
@@ -33,7 +35,7 @@ namespace model {
 	class NetworkLink; // class predeclaration
 	
 	template <typename Derived>
-	class NetworkNode : boost::noncopyable,
+	class NetworkNode : public::NonCopyable,
 	/*               */ public CRTP<Derived>,
 	/*               */ public StaticID<Derived>{
 		
@@ -196,7 +198,8 @@ namespace model {
 		
 		/*****************************************************************************************/
 		/* outFlow *******************************************************************************/
-        FlowType outFlow() const {
+        FlowType outFlow() const
+        {
             //            FlowType Fout;
             FlowType Fout(FlowType::Zero()); // generalize
 			Fout*=0.0;
@@ -208,7 +211,8 @@ namespace model {
         
 		/*****************************************************************************************/
 		/* inFlow ********************************************************************************/
-        FlowType inFlow() const {
+        FlowType inFlow() const
+        {
             //            FlowType Fin;
             FlowType Fin(FlowType::Zero());
 			Fin*=0.0;

@@ -1,0 +1,168 @@
+\hypertarget{structmodel_1_1_simplex_observer}{}\section{model\+:\+:Simplex\+Observer$<$ dim, order $>$ Struct Template Reference}
+\label{structmodel_1_1_simplex_observer}\index{model\+::\+Simplex\+Observer$<$ dim, order $>$@{model\+::\+Simplex\+Observer$<$ dim, order $>$}}
+
+
+{\ttfamily \#include $<$Simplex\+Observer.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order $>$ \hyperlink{structmodel_1_1_simplex_observer_a9cfe0e538763ae3802d2a9c011b3c061}{Simplex\+Type}
+\item 
+typedef std\+::map$<$ typename \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order $>$\+::\hyperlink{structmodel_1_1_simplex_observer_a270d41a2f2b7393f03651f9900b62c0b}{Simplex\+I\+D\+Type}, const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order $>$ $\ast$const, \hyperlink{structmodel_1_1_compare_vectors_by_component}{Compare\+Vectors\+By\+Component}$<$ typename \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order $>$\+::Scalar\+I\+D\+Type, \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order $>$\+::n\+Vertices $>$ $>$ \hyperlink{structmodel_1_1_simplex_observer_a220336a365d54235796aef669aebbf45}{Simplex\+Map\+Type}
+\item 
+typedef Simplex\+Map\+Type\+::const\+\_\+iterator \hyperlink{structmodel_1_1_simplex_observer_ad8c54de1bc215fcd2e8ac226fd69fe5c}{const\+\_\+iterator}
+\item 
+typedef \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order $>$\+::\hyperlink{structmodel_1_1_simplex_observer_a270d41a2f2b7393f03651f9900b62c0b}{Simplex\+I\+D\+Type} \hyperlink{structmodel_1_1_simplex_observer_a270d41a2f2b7393f03651f9900b62c0b}{Simplex\+I\+D\+Type}
+\item 
+typedef std\+::shared\+\_\+ptr$<$ \hyperlink{structmodel_1_1_simplex_observer_a9cfe0e538763ae3802d2a9c011b3c061}{Simplex\+Type} $>$ \hyperlink{structmodel_1_1_simplex_observer_a8e2b7dce7a23bc6c4cdf87b7d606ca2b}{Shared\+Ptr\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static size\+\_\+t \hyperlink{structmodel_1_1_simplex_observer_a11e24ec9ed0d891bf0e95f4bd74927c7}{size} ()
+\item 
+static Simplex\+Map\+Type\+::const\+\_\+iterator \hyperlink{structmodel_1_1_simplex_observer_a8238aadd21964e2ea7972a6f294ed8d5}{simplex\+Begin} ()
+\item 
+static Simplex\+Map\+Type\+::const\+\_\+iterator \hyperlink{structmodel_1_1_simplex_observer_a70e2f925e9d10d0dfdb8f1ecbbff554d}{simplex\+End} ()
+\item 
+static \hyperlink{structmodel_1_1_simplex_observer_a8e2b7dce7a23bc6c4cdf87b7d606ca2b}{Shared\+Ptr\+Type} \hyperlink{structmodel_1_1_simplex_observer_a791a8f4507d2fb9cf9e2904fb55f258b}{p\+Simplex} (const \hyperlink{structmodel_1_1_simplex_observer_a270d41a2f2b7393f03651f9900b62c0b}{Simplex\+I\+D\+Type} \&x\+I\+D)
+\item 
+static std\+::array$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order-\/1 $>$ $>$, \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order $>$\+::n\+Faces $>$ \hyperlink{structmodel_1_1_simplex_observer_a4eaec5365e40cb1f1d98846bb5a42a9e}{faces} (const \hyperlink{structmodel_1_1_simplex_observer_a270d41a2f2b7393f03651f9900b62c0b}{Simplex\+I\+D\+Type} \&x\+I\+D)
+\item 
+static void \hyperlink{structmodel_1_1_simplex_observer_a85591ec7a8c08f8a303dc03f6405990a}{insert\+Simplex} (const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order $>$ \&\hyperlink{_cubic_spline_intersection_8m_aec5b2c7fb98ca9f11d2c624f6d8ae9d9}{s})
+\item 
+static void \hyperlink{structmodel_1_1_simplex_observer_acd3b33890ad0aa0cee424cb8cc6d56fe}{remove\+Simplex} (const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order $>$ \&\hyperlink{_cubic_spline_intersection_8m_aec5b2c7fb98ca9f11d2c624f6d8ae9d9}{s})
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$short int dim, short int order$>$struct model\+::\+Simplex\+Observer$<$ dim, order $>$}
+
+
+
+Definition at line 23 of file Simplex\+Observer.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_simplex_observer_ad8c54de1bc215fcd2e8ac226fd69fe5c}{}\index{model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}!const\+\_\+iterator@{const\+\_\+iterator}}
+\index{const\+\_\+iterator@{const\+\_\+iterator}!model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}}
+\subsubsection[{const\+\_\+iterator}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ typedef Simplex\+Map\+Type\+::const\+\_\+iterator {\bf model\+::\+Simplex\+Observer}$<$ {\bf dim}, order $>$\+::{\bf const\+\_\+iterator}}\label{structmodel_1_1_simplex_observer_ad8c54de1bc215fcd2e8ac226fd69fe5c}
+
+
+Definition at line 33 of file Simplex\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_simplex_observer_a8e2b7dce7a23bc6c4cdf87b7d606ca2b}{}\index{model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}!Shared\+Ptr\+Type@{Shared\+Ptr\+Type}}
+\index{Shared\+Ptr\+Type@{Shared\+Ptr\+Type}!model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}}
+\subsubsection[{Shared\+Ptr\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ typedef std\+::shared\+\_\+ptr$<${\bf Simplex\+Type}$>$ {\bf model\+::\+Simplex\+Observer}$<$ {\bf dim}, order $>$\+::{\bf Shared\+Ptr\+Type}}\label{structmodel_1_1_simplex_observer_a8e2b7dce7a23bc6c4cdf87b7d606ca2b}
+
+
+Definition at line 36 of file Simplex\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_simplex_observer_a270d41a2f2b7393f03651f9900b62c0b}{}\index{model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}!Simplex\+I\+D\+Type@{Simplex\+I\+D\+Type}}
+\index{Simplex\+I\+D\+Type@{Simplex\+I\+D\+Type}!model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}}
+\subsubsection[{Simplex\+I\+D\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ typedef {\bf Simplex\+Traits}$<${\bf dim},order$>$\+::{\bf Simplex\+I\+D\+Type} {\bf model\+::\+Simplex\+Observer}$<$ {\bf dim}, order $>$\+::{\bf Simplex\+I\+D\+Type}}\label{structmodel_1_1_simplex_observer_a270d41a2f2b7393f03651f9900b62c0b}
+
+
+Definition at line 35 of file Simplex\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_simplex_observer_a220336a365d54235796aef669aebbf45}{}\index{model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}!Simplex\+Map\+Type@{Simplex\+Map\+Type}}
+\index{Simplex\+Map\+Type@{Simplex\+Map\+Type}!model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}}
+\subsubsection[{Simplex\+Map\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ typedef std\+::map$<$typename {\bf Simplex\+Traits}$<${\bf dim},order$>$\+::{\bf Simplex\+I\+D\+Type}, const {\bf Simplex}$<${\bf dim},order$>$$\ast$ const, {\bf Compare\+Vectors\+By\+Component}$<$typename {\bf Simplex\+Traits}$<${\bf dim},order$>$\+::Scalar\+I\+D\+Type, {\bf Simplex\+Traits}$<${\bf dim},order$>$\+::n\+Vertices$>$ $>$ {\bf model\+::\+Simplex\+Observer}$<$ {\bf dim}, order $>$\+::{\bf Simplex\+Map\+Type}}\label{structmodel_1_1_simplex_observer_a220336a365d54235796aef669aebbf45}
+
+
+Definition at line 31 of file Simplex\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_simplex_observer_a9cfe0e538763ae3802d2a9c011b3c061}{}\index{model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}!Simplex\+Type@{Simplex\+Type}}
+\index{Simplex\+Type@{Simplex\+Type}!model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}}
+\subsubsection[{Simplex\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ typedef {\bf Simplex}$<${\bf dim},order$>$ {\bf model\+::\+Simplex\+Observer}$<$ {\bf dim}, order $>$\+::{\bf Simplex\+Type}}\label{structmodel_1_1_simplex_observer_a9cfe0e538763ae3802d2a9c011b3c061}
+
+
+Definition at line 26 of file Simplex\+Observer.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_simplex_observer_a4eaec5365e40cb1f1d98846bb5a42a9e}{}\index{model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}!faces@{faces}}
+\index{faces@{faces}!model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}}
+\subsubsection[{faces}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ static std\+::array$<$std\+::shared\+\_\+ptr$<${\bf Simplex}$<${\bf dim},order-\/1$>$ $>$,{\bf Simplex\+Traits}$<${\bf dim},order$>$\+::n\+Faces$>$ {\bf model\+::\+Simplex\+Observer}$<$ {\bf dim}, order $>$\+::faces (
+\begin{DoxyParamCaption}
+\item[{const {\bf Simplex\+I\+D\+Type} \&}]{x\+I\+D}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_simplex_observer_a4eaec5365e40cb1f1d98846bb5a42a9e}
+
+
+Definition at line 66 of file Simplex\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_simplex_observer_a85591ec7a8c08f8a303dc03f6405990a}{}\index{model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}!insert\+Simplex@{insert\+Simplex}}
+\index{insert\+Simplex@{insert\+Simplex}!model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}}
+\subsubsection[{insert\+Simplex}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ static void {\bf model\+::\+Simplex\+Observer}$<$ {\bf dim}, order $>$\+::insert\+Simplex (
+\begin{DoxyParamCaption}
+\item[{const {\bf Simplex}$<$ {\bf dim}, order $>$ \&}]{s}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_simplex_observer_a85591ec7a8c08f8a303dc03f6405990a}
+
+
+Definition at line 77 of file Simplex\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_simplex_observer_a791a8f4507d2fb9cf9e2904fb55f258b}{}\index{model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}!p\+Simplex@{p\+Simplex}}
+\index{p\+Simplex@{p\+Simplex}!model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}}
+\subsubsection[{p\+Simplex}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ static {\bf Shared\+Ptr\+Type} {\bf model\+::\+Simplex\+Observer}$<$ {\bf dim}, order $>$\+::p\+Simplex (
+\begin{DoxyParamCaption}
+\item[{const {\bf Simplex\+I\+D\+Type} \&}]{x\+I\+D}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_simplex_observer_a791a8f4507d2fb9cf9e2904fb55f258b}
+
+
+Definition at line 58 of file Simplex\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_simplex_observer_acd3b33890ad0aa0cee424cb8cc6d56fe}{}\index{model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}!remove\+Simplex@{remove\+Simplex}}
+\index{remove\+Simplex@{remove\+Simplex}!model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}}
+\subsubsection[{remove\+Simplex}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ static void {\bf model\+::\+Simplex\+Observer}$<$ {\bf dim}, order $>$\+::remove\+Simplex (
+\begin{DoxyParamCaption}
+\item[{const {\bf Simplex}$<$ {\bf dim}, order $>$ \&}]{s}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_simplex_observer_acd3b33890ad0aa0cee424cb8cc6d56fe}
+
+
+Definition at line 84 of file Simplex\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_simplex_observer_a8238aadd21964e2ea7972a6f294ed8d5}{}\index{model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}!simplex\+Begin@{simplex\+Begin}}
+\index{simplex\+Begin@{simplex\+Begin}!model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}}
+\subsubsection[{simplex\+Begin}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ static Simplex\+Map\+Type\+::const\+\_\+iterator {\bf model\+::\+Simplex\+Observer}$<$ {\bf dim}, order $>$\+::simplex\+Begin (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_simplex_observer_a8238aadd21964e2ea7972a6f294ed8d5}
+
+
+Definition at line 46 of file Simplex\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_simplex_observer_a70e2f925e9d10d0dfdb8f1ecbbff554d}{}\index{model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}!simplex\+End@{simplex\+End}}
+\index{simplex\+End@{simplex\+End}!model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}}
+\subsubsection[{simplex\+End}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ static Simplex\+Map\+Type\+::const\+\_\+iterator {\bf model\+::\+Simplex\+Observer}$<$ {\bf dim}, order $>$\+::simplex\+End (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_simplex_observer_a70e2f925e9d10d0dfdb8f1ecbbff554d}
+
+
+Definition at line 52 of file Simplex\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_simplex_observer_a11e24ec9ed0d891bf0e95f4bd74927c7}{}\index{model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}!size@{size}}
+\index{size@{size}!model\+::\+Simplex\+Observer@{model\+::\+Simplex\+Observer}}
+\subsubsection[{size}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ static size\+\_\+t {\bf model\+::\+Simplex\+Observer}$<$ {\bf dim}, order $>$\+::size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_simplex_observer_a11e24ec9ed0d891bf0e95f4bd74927c7}
+
+
+Definition at line 40 of file Simplex\+Observer.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_simplex_observer_8h}{Simplex\+Observer.\+h}\end{DoxyCompactItemize}

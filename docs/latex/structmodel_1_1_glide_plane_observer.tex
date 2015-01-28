@@ -1,0 +1,203 @@
+\hypertarget{structmodel_1_1_glide_plane_observer}{}\section{model\+:\+:Glide\+Plane\+Observer$<$ Segment\+Type $>$ Struct Template Reference}
+\label{structmodel_1_1_glide_plane_observer}\index{model\+::\+Glide\+Plane\+Observer$<$ Segment\+Type $>$@{model\+::\+Glide\+Plane\+Observer$<$ Segment\+Type $>$}}
+
+
+{\ttfamily \#include $<$Glide\+Plane\+Observer.\+h$>$}
+
+Inheritance diagram for model\+:\+:Glide\+Plane\+Observer$<$ Segment\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{structmodel_1_1_glide_plane_observer}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{structmodel_1_1_glide_plane_observer}{Glide\+Plane\+Observer}$<$ Segment\+Type $>$ \hyperlink{structmodel_1_1_glide_plane_observer_a008ca4c47f513aff15d4d3b3603707f8}{Glide\+Plane\+Observer\+Type}
+\item 
+typedef \hyperlink{classmodel_1_1_glide_plane}{Glide\+Plane}$<$ Segment\+Type $>$ \hyperlink{structmodel_1_1_glide_plane_observer_afb0ef99e698d5e00236daf826f0ccfb0}{Glide\+Plane\+Type}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ Segment\+Type $>$\+::\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \hyperlink{structmodel_1_1_glide_plane_observer_a3ac9c571b18b2bf2043a7e74cb73fc80}{Vector\+Dim\+D}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ Segment\+Type $>$\+::\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, 1 $>$ \hyperlink{structmodel_1_1_glide_plane_observer_af9001f8c11da2a2812813d2a53c14c46}{Vector\+Dim\+Plus\+One\+D}
+\item 
+typedef std\+::map$<$ \hyperlink{structmodel_1_1_glide_plane_observer_af9001f8c11da2a2812813d2a53c14c46}{Vector\+Dim\+Plus\+One\+D}, \hyperlink{structmodel_1_1_glide_plane_observer_afb0ef99e698d5e00236daf826f0ccfb0}{Glide\+Plane\+Type} $\ast$const, \hyperlink{structmodel_1_1_compare_vectors_by_component}{Compare\+Vectors\+By\+Component}$<$ double, \hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ Segment\+Type $>$\+::\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, float $>$, Eigen\+::aligned\+\_\+allocator$<$ std\+::pair$<$ const \hyperlink{structmodel_1_1_glide_plane_observer_af9001f8c11da2a2812813d2a53c14c46}{Vector\+Dim\+Plus\+One\+D}, \hyperlink{structmodel_1_1_glide_plane_observer_afb0ef99e698d5e00236daf826f0ccfb0}{Glide\+Plane\+Type} $\ast$const  $>$ $>$ $>$ \hyperlink{structmodel_1_1_glide_plane_observer_ad84427bd16fe79b950b870adfbb89dbe}{Glide\+Plane\+Map\+Type}
+\item 
+typedef Glide\+Plane\+Map\+Type\+::const\+\_\+iterator \hyperlink{structmodel_1_1_glide_plane_observer_afcc36252a3e72359768cef30011a9af6}{const\+\_\+iterator}
+\item 
+typedef std\+::shared\+\_\+ptr$<$ \hyperlink{structmodel_1_1_glide_plane_observer_afb0ef99e698d5e00236daf826f0ccfb0}{Glide\+Plane\+Type} $>$ \hyperlink{structmodel_1_1_glide_plane_observer_a1db5edc59e298b9504e29de2081973c4}{Glide\+Plane\+Shared\+Ptr\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static Glide\+Plane\+Map\+Type\+::const\+\_\+iterator \hyperlink{structmodel_1_1_glide_plane_observer_a3346f4fa01c173c110e348a7f40d0ef8}{begin} ()
+\item 
+static Glide\+Plane\+Map\+Type\+::const\+\_\+iterator \hyperlink{structmodel_1_1_glide_plane_observer_a8333a82590816b9c7d83430e86b7746b}{end} ()
+\item 
+static \hyperlink{structmodel_1_1_glide_plane_observer_a1db5edc59e298b9504e29de2081973c4}{Glide\+Plane\+Shared\+Ptr\+Type} \hyperlink{structmodel_1_1_glide_plane_observer_a374732855fa19bce8b31f97a4322b57b}{find\+Existing\+Glide\+Plane} (const \hyperlink{structmodel_1_1_glide_plane_observer_a3ac9c571b18b2bf2043a7e74cb73fc80}{Vector\+Dim\+D} \&plane\+Normal, const double \&height)
+\item 
+static std\+::pair$<$ bool, const \hyperlink{structmodel_1_1_glide_plane_observer_afb0ef99e698d5e00236daf826f0ccfb0}{Glide\+Plane\+Type} $\ast$const  $>$ \hyperlink{structmodel_1_1_glide_plane_observer_a6ed81d38e093053d6fb0dafe1211ab72}{is\+Glide\+Plane} (const \hyperlink{structmodel_1_1_glide_plane_observer_a3ac9c571b18b2bf2043a7e74cb73fc80}{Vector\+Dim\+D} \&plane\+Normal, const double \&height)
+\item 
+static std\+::pair$<$ bool, const \hyperlink{structmodel_1_1_glide_plane_observer_afb0ef99e698d5e00236daf826f0ccfb0}{Glide\+Plane\+Type} $\ast$const  $>$ \hyperlink{structmodel_1_1_glide_plane_observer_a34f72c439a2f1311555cf5f7da3cddfd}{is\+Glide\+Plane} (const \hyperlink{structmodel_1_1_glide_plane_observer_af9001f8c11da2a2812813d2a53c14c46}{Vector\+Dim\+Plus\+One\+D} \&key)
+\end{DoxyCompactItemize}
+\subsection*{Static Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{structmodel_1_1_glide_plane_observer_ad84427bd16fe79b950b870adfbb89dbe}{Glide\+Plane\+Map\+Type} \hyperlink{structmodel_1_1_glide_plane_observer_a7ed557e3e1e5c77b9804d20b868b48e0}{glide\+Plane\+Map}
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$class T $>$ }\\\hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \& \hyperlink{structmodel_1_1_glide_plane_observer_a45ee80f9e9315c3b5ddd61193dacd6a0}{operator$<$$<$} (\hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&os, const \hyperlink{structmodel_1_1_glide_plane_observer_a008ca4c47f513aff15d4d3b3603707f8}{Glide\+Plane\+Observer\+Type} \&gpo)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Segment\+Type$>$struct model\+::\+Glide\+Plane\+Observer$<$ Segment\+Type $>$}
+
+
+
+Definition at line 28 of file Glide\+Plane\+Observer.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_glide_plane_observer_afcc36252a3e72359768cef30011a9af6}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!const\+\_\+iterator@{const\+\_\+iterator}}
+\index{const\+\_\+iterator@{const\+\_\+iterator}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{const\+\_\+iterator}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ typedef Glide\+Plane\+Map\+Type\+::const\+\_\+iterator {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::{\bf const\+\_\+iterator}}\label{structmodel_1_1_glide_plane_observer_afcc36252a3e72359768cef30011a9af6}
+
+
+Definition at line 39 of file Glide\+Plane\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_glide_plane_observer_ad84427bd16fe79b950b870adfbb89dbe}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!Glide\+Plane\+Map\+Type@{Glide\+Plane\+Map\+Type}}
+\index{Glide\+Plane\+Map\+Type@{Glide\+Plane\+Map\+Type}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{Glide\+Plane\+Map\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ typedef std\+::map$<${\bf Vector\+Dim\+Plus\+One\+D},{\bf Glide\+Plane\+Type}$\ast$ const,{\bf Compare\+Vectors\+By\+Component}$<$double,{\bf Type\+Traits}$<$Segment\+Type$>$\+::{\bf dim}+1,float$>$, Eigen\+::aligned\+\_\+allocator$<$std\+::pair$<$const {\bf Vector\+Dim\+Plus\+One\+D},{\bf Glide\+Plane\+Type}$\ast$ const$>$ $>$ $>$ {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::{\bf Glide\+Plane\+Map\+Type}}\label{structmodel_1_1_glide_plane_observer_ad84427bd16fe79b950b870adfbb89dbe}
+
+
+Definition at line 37 of file Glide\+Plane\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_glide_plane_observer_a008ca4c47f513aff15d4d3b3603707f8}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!Glide\+Plane\+Observer\+Type@{Glide\+Plane\+Observer\+Type}}
+\index{Glide\+Plane\+Observer\+Type@{Glide\+Plane\+Observer\+Type}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{Glide\+Plane\+Observer\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ typedef {\bf Glide\+Plane\+Observer}$<$Segment\+Type$>$ {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::{\bf Glide\+Plane\+Observer\+Type}}\label{structmodel_1_1_glide_plane_observer_a008ca4c47f513aff15d4d3b3603707f8}
+
+
+Definition at line 31 of file Glide\+Plane\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_glide_plane_observer_a1db5edc59e298b9504e29de2081973c4}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!Glide\+Plane\+Shared\+Ptr\+Type@{Glide\+Plane\+Shared\+Ptr\+Type}}
+\index{Glide\+Plane\+Shared\+Ptr\+Type@{Glide\+Plane\+Shared\+Ptr\+Type}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{Glide\+Plane\+Shared\+Ptr\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ typedef std\+::shared\+\_\+ptr$<${\bf Glide\+Plane\+Type}$>$ {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::{\bf Glide\+Plane\+Shared\+Ptr\+Type}}\label{structmodel_1_1_glide_plane_observer_a1db5edc59e298b9504e29de2081973c4}
+
+
+Definition at line 40 of file Glide\+Plane\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_glide_plane_observer_afb0ef99e698d5e00236daf826f0ccfb0}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!Glide\+Plane\+Type@{Glide\+Plane\+Type}}
+\index{Glide\+Plane\+Type@{Glide\+Plane\+Type}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{Glide\+Plane\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ typedef {\bf Glide\+Plane}$<$Segment\+Type$>$ {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::{\bf Glide\+Plane\+Type}}\label{structmodel_1_1_glide_plane_observer_afb0ef99e698d5e00236daf826f0ccfb0}
+
+
+Definition at line 32 of file Glide\+Plane\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_glide_plane_observer_a3ac9c571b18b2bf2043a7e74cb73fc80}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!Vector\+Dim\+D@{Vector\+Dim\+D}}
+\index{Vector\+Dim\+D@{Vector\+Dim\+D}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{Vector\+Dim\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ typedef Eigen\+::\+Matrix$<$double,{\bf Type\+Traits}$<$Segment\+Type$>$\+::{\bf dim},1$>$ {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::{\bf Vector\+Dim\+D}}\label{structmodel_1_1_glide_plane_observer_a3ac9c571b18b2bf2043a7e74cb73fc80}
+
+
+Definition at line 33 of file Glide\+Plane\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_glide_plane_observer_af9001f8c11da2a2812813d2a53c14c46}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!Vector\+Dim\+Plus\+One\+D@{Vector\+Dim\+Plus\+One\+D}}
+\index{Vector\+Dim\+Plus\+One\+D@{Vector\+Dim\+Plus\+One\+D}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{Vector\+Dim\+Plus\+One\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ typedef Eigen\+::\+Matrix$<$double,{\bf Type\+Traits}$<$Segment\+Type$>$\+::{\bf dim}+1,1$>$ {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::{\bf Vector\+Dim\+Plus\+One\+D}}\label{structmodel_1_1_glide_plane_observer_af9001f8c11da2a2812813d2a53c14c46}
+
+
+Definition at line 34 of file Glide\+Plane\+Observer.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_glide_plane_observer_a3346f4fa01c173c110e348a7f40d0ef8}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!begin@{begin}}
+\index{begin@{begin}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{begin}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ static Glide\+Plane\+Map\+Type\+::const\+\_\+iterator {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::begin (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_glide_plane_observer_a3346f4fa01c173c110e348a7f40d0ef8}
+A const iterator to the begin of the static map of Glide\+Plane(s)
+
+Definition at line 43 of file Glide\+Plane\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_glide_plane_observer_a8333a82590816b9c7d83430e86b7746b}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!end@{end}}
+\index{end@{end}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{end}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ static Glide\+Plane\+Map\+Type\+::const\+\_\+iterator {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::end (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_glide_plane_observer_a8333a82590816b9c7d83430e86b7746b}
+A const iterator to the end of the static map of Glide\+Plane(s)
+
+Definition at line 50 of file Glide\+Plane\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_glide_plane_observer_a374732855fa19bce8b31f97a4322b57b}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!find\+Existing\+Glide\+Plane@{find\+Existing\+Glide\+Plane}}
+\index{find\+Existing\+Glide\+Plane@{find\+Existing\+Glide\+Plane}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{find\+Existing\+Glide\+Plane}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ static {\bf Glide\+Plane\+Shared\+Ptr\+Type} {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::find\+Existing\+Glide\+Plane (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim\+D} \&}]{plane\+Normal, }
+\item[{const double \&}]{height}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_glide_plane_observer_a374732855fa19bce8b31f97a4322b57b}
+A shared pointer to an existing \hyperlink{classmodel_1_1_glide_plane}{Glide\+Plane} defined by plane\+Normal and height. If no \hyperlink{classmodel_1_1_glide_plane}{Glide\+Plane} exists, a shared pointer to a new \hyperlink{classmodel_1_1_glide_plane}{Glide\+Plane} is returned.
+
+Definition at line 57 of file Glide\+Plane\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_glide_plane_observer_a6ed81d38e093053d6fb0dafe1211ab72}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!is\+Glide\+Plane@{is\+Glide\+Plane}}
+\index{is\+Glide\+Plane@{is\+Glide\+Plane}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{is\+Glide\+Plane}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ static std\+::pair$<$bool, const {\bf Glide\+Plane\+Type}$\ast$ const$>$ {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::is\+Glide\+Plane (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim\+D} \&}]{plane\+Normal, }
+\item[{const double \&}]{height}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_glide_plane_observer_a6ed81d38e093053d6fb0dafe1211ab72}
+
+
+Definition at line 66 of file Glide\+Plane\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_glide_plane_observer_a34f72c439a2f1311555cf5f7da3cddfd}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!is\+Glide\+Plane@{is\+Glide\+Plane}}
+\index{is\+Glide\+Plane@{is\+Glide\+Plane}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{is\+Glide\+Plane}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ static std\+::pair$<$bool, const {\bf Glide\+Plane\+Type}$\ast$ const$>$ {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::is\+Glide\+Plane (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim\+Plus\+One\+D} \&}]{key}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_glide_plane_observer_a34f72c439a2f1311555cf5f7da3cddfd}
+
+
+Definition at line 73 of file Glide\+Plane\+Observer.\+h.
+
+
+
+\subsection{Friends And Related Function Documentation}
+\hypertarget{structmodel_1_1_glide_plane_observer_a45ee80f9e9315c3b5ddd61193dacd6a0}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{operator$<$$<$}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ template$<$class T $>$ {\bf T}\& operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{{\bf T} \&}]{os, }
+\item[{const {\bf Glide\+Plane\+Observer\+Type} \&}]{gpo}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [friend]}}\label{structmodel_1_1_glide_plane_observer_a45ee80f9e9315c3b5ddd61193dacd6a0}
+
+
+Definition at line 81 of file Glide\+Plane\+Observer.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{structmodel_1_1_glide_plane_observer_a7ed557e3e1e5c77b9804d20b868b48e0}{}\index{model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}!glide\+Plane\+Map@{glide\+Plane\+Map}}
+\index{glide\+Plane\+Map@{glide\+Plane\+Map}!model\+::\+Glide\+Plane\+Observer@{model\+::\+Glide\+Plane\+Observer}}
+\subsubsection[{glide\+Plane\+Map}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Segment\+Type$>$ std\+::map$<$ Eigen\+::\+Matrix$<$ double, {\bf Type\+Traits}$<$ Segment\+Type $>$\+::{\bf dim}+1, 1 $>$, {\bf Glide\+Plane}$<$ Segment\+Type $>$ $\ast$const, {\bf Compare\+Vectors\+By\+Component}$<$ double, {\bf Type\+Traits}$<$ Segment\+Type $>$\+::{\bf dim}+1, float $>$, Eigen\+::aligned\+\_\+allocator$<$ std\+::pair$<$ const Eigen\+::\+Matrix$<$ double, {\bf Type\+Traits}$<$ Segment\+Type $>$\+::{\bf dim}+1, 1 $>$, {\bf Glide\+Plane}$<$ Segment\+Type $>$ $\ast$const  $>$ $>$ $>$ {\bf model\+::\+Glide\+Plane\+Observer}$<$ Segment\+Type $>$\+::glide\+Plane\+Map\hspace{0.3cm}{\ttfamily [static]}, {\ttfamily [protected]}}\label{structmodel_1_1_glide_plane_observer_a7ed557e3e1e5c77b9804d20b868b48e0}
+
+
+Definition at line 92 of file Glide\+Plane\+Observer.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_glide_plane_observer_8h}{Glide\+Plane\+Observer.\+h}\end{DoxyCompactItemize}

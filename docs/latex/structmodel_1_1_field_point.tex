@@ -1,0 +1,29 @@
+\hypertarget{structmodel_1_1_field_point}{}\section{model\+:\+:Field\+Point$<$ Derived, \+\_\+dim, Field\+Types $>$ Struct Template Reference}
+\label{structmodel_1_1_field_point}\index{model\+::\+Field\+Point$<$ Derived, \+\_\+dim, Field\+Types $>$@{model\+::\+Field\+Point$<$ Derived, \+\_\+dim, Field\+Types $>$}}
+
+
+A class template that contains the underlying Field\+Type data of the Derived particle.  
+
+
+
+
+{\ttfamily \#include $<$Field\+Point.\+h$>$}
+
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Derived, short unsigned int \+\_\+dim, typename... Field\+Types$>$struct model\+::\+Field\+Point$<$ Derived, \+\_\+dim, Field\+Types $>$}
+
+A class template that contains the underlying Field\+Type data of the Derived particle. 
+
+If M\+P\+I is not used, the data is stored locally in the based class Eigen\+::\+Matrix$<$scalar,rows,cols$>$.
+
+In case that M\+P\+I is used, the underlying data is not stored with the object but is deallocated to a static vector that can efficiently be syncronized using M\+P\+I\+\_\+\+Allgatherv, and conveniently used as an \hyperlink{namespace_eigen}{Eigen} object via the Eigen\+::\+Map class. 
+
+Definition at line 32 of file Field\+Point.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_field_point_8h}{Field\+Point.\+h}\end{DoxyCompactItemize}

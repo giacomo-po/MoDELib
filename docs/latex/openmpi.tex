@@ -1,0 +1,24 @@
+
+\begin{DoxyItemize}
+\item Open\+M\+P\+I
+
+download \href{http://www.open-mpi.org/software/ompi/v1.6/downloads/openmpi-1.6.3.tar.gz}{\tt http\+://www.\+open-\/mpi.\+org/software/ompi/v1.\+6/downloads/openmpi-\/1.\+6.\+3.\+tar.\+gz} (or whatever the latest stable release).
+
+install Open\+M\+P\+I into \$\+H\+O\+M\+E/local/openmpi
+
+Put openmpi-\/1.\+6.\+3.\+tar.\+gz under /tmp/$<$some directory$>$=\char`\"{}\char`\"{}$>$
+
+Run the following commands\+:
+
+\$ tar xvfz openmpi-\/1.\+6.\+3.\+tar.\+gz
+
+\$ cd openmpi-\/1.\+6.\+3
+\end{DoxyItemize}
+
+\$ make sure that the configure/make/make install process is done with a c++0x compiler. In os X you can use \char`\"{}gcc select\char`\"{} to select the right gcc compiler
+
+\$ ./configure --prefix=\$\+H\+O\+M\+E/local/openmpi --with-\/openib=/usr --with-\/sge C\+C=icc C\+X\+X=icpc F77=ifort F\+C=ifort
+
+\$ make
+
+\$ make install 

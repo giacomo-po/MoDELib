@@ -275,10 +275,24 @@ namespace model
         {
 			Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
 			VectorOfNormalsType  CN = planenormals;
-			CN.push_back(boundaryNormal);
+            
+            if(meshLocation()==onMeshBoundary)
+            {
+                const Eigen::Matrix<double,dim+1,1> bary(p_Simplex->pos2bary(this->get_P()));
+                for (int i=0;i<dim+1;++i)
+                {
+                    if(std::fabs(bary(i))<FLT_EPSILON && p_Simplex->child(i).isBoundarySimplex())
+                    {
+                        CN.push_back(p_Simplex->nda.col(i));
+                    }
+                }
+            }
+            
+			//CN.push_back(boundaryNormal);
 			GramSchmidt<dim> GS(CN);
 			this->prjM.setIdentity();
-			for (size_t k=0;k<GS.size();++k){
+			for (size_t k=0;k<GS.size();++k)
+            {
 				this->prjM*=( I-GS[k]*GS[k].transpose() );
 			}
 		}

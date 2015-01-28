@@ -11,17 +11,18 @@
 
 #include <model/Math/CompileTimeMath/Factorial.h>
 
-namespace model {
-	
-	//////////////////////////////////////////////////////////////////////////
+namespace model
+{
+	/*\brief A compile-time class template for computation of binomial coefficients
+     */
 	template< int N, int k>
 	struct Binomial
     {
-		enum { value = Factorial<N>::value / (Factorial<N-k>::value * Factorial<k>::value)};
+//		enum { value = Factorial<N>::value / (Factorial<N-k>::value * Factorial<k>::value)};
+        static constexpr int value = Factorial<N>::value / (Factorial<N-k>::value * Factorial<k>::value);
 		
 	};
-		
-	//////////////////////////////////////////////////////////////////////////
+
 } // end namespace model
 
 #endif

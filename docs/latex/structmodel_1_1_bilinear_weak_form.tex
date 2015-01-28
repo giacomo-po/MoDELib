@@ -1,0 +1,269 @@
+\hypertarget{structmodel_1_1_bilinear_weak_form}{}\section{model\+:\+:Bilinear\+Weak\+Form$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$ Struct Template Reference}
+\label{structmodel_1_1_bilinear_weak_form}\index{model\+::\+Bilinear\+Weak\+Form$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$@{model\+::\+Bilinear\+Weak\+Form$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$}}
+
+
+{\ttfamily \#include $<$Bilinear\+Weak\+Form.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \+\_\+\+Bilinear\+Form\+Type \hyperlink{structmodel_1_1_bilinear_weak_form_a13052aab9ae19efbffa3d881ceb184f9}{Bilinear\+Form\+Type}
+\item 
+typedef \+\_\+\+Integration\+Domain\+Type \hyperlink{structmodel_1_1_bilinear_weak_form_a537e7d0cf8fa78efb38cfe017e56196b}{Integration\+Domain\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_bilinear_weak_form}{Bilinear\+Weak\+Form}$<$ \hyperlink{structmodel_1_1_bilinear_weak_form_a13052aab9ae19efbffa3d881ceb184f9}{Bilinear\+Form\+Type}, \hyperlink{structmodel_1_1_bilinear_weak_form_a537e7d0cf8fa78efb38cfe017e56196b}{Integration\+Domain\+Type} $>$ \hyperlink{structmodel_1_1_bilinear_weak_form_aa34216f35460fbae1533245b653038de}{Bilinear\+Weak\+Form\+Type}
+\item 
+typedef Bilinear\+Form\+Type\+::\+Trial\+Function\+Type \hyperlink{structmodel_1_1_bilinear_weak_form_a3c646b6d23c1e5dc29480fc04b6c9587}{Trial\+Function\+Type}
+\item 
+typedef Bilinear\+Form\+Type\+::\+Test\+Expression\+Type \hyperlink{structmodel_1_1_bilinear_weak_form_acdfc10bd49650e2c484d222172834edd}{Test\+Expression\+Type}
+\item 
+typedef Bilinear\+Form\+Type\+::\+Trial\+Expression\+Type \hyperlink{structmodel_1_1_bilinear_weak_form_a259b56acf743f646cc86607685f70791}{Trial\+Expression\+Type}
+\item 
+typedef Trial\+Function\+Type\+::\+Element\+Type \hyperlink{structmodel_1_1_bilinear_weak_form_a43a6e034f88493f8a1e5af511c16378b}{Element\+Type}
+\item 
+typedef Integration\+Domain\+Type\+::\+Quadrature\+Type \hyperlink{structmodel_1_1_bilinear_weak_form_a6d85c6150981888154a9939589f188d4}{Quadrature\+Type}
+\item 
+typedef \hyperlink{_spline_node_base__corder0_8h_a8e8184546c79e74baa6057b3881e572b}{Quadrature\+Type\+::\+Vector\+Dim} \hyperlink{structmodel_1_1_bilinear_weak_form_ad1e097cb2bb06eaa186ff66db5e8932e}{Abscissa\+Type}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{structmodel_1_1_bilinear_weak_form_a4897458848db3e0288687935e991b3e5}{dof\+Per\+Element}, \hyperlink{structmodel_1_1_bilinear_weak_form_a4897458848db3e0288687935e991b3e5}{dof\+Per\+Element} $>$ \hyperlink{structmodel_1_1_bilinear_weak_form_a690ee10521b3f2330a0648fab59a2aff}{Element\+Matrix\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structmodel_1_1_bilinear_weak_form_ad85473f68a5f03754748bfed6363839e}{Bilinear\+Weak\+Form} (const \hyperlink{structmodel_1_1_bilinear_weak_form_a13052aab9ae19efbffa3d881ceb184f9}{Bilinear\+Form\+Type} \&bf, const \hyperlink{structmodel_1_1_bilinear_weak_form_a537e7d0cf8fa78efb38cfe017e56196b}{Integration\+Domain\+Type} \&dom)
+\item 
+std\+::vector$<$ Eigen\+::\+Triplet$<$ double $>$ $>$ \hyperlink{structmodel_1_1_bilinear_weak_form_ac9f20a54e02b79fbbd7e5807749df982}{assemble\+On\+Domain} () const 
+\item 
+{\footnotesize template$<$typename Abscissa\+Type $>$ }\\\hyperlink{structmodel_1_1_bilinear_weak_form_a690ee10521b3f2330a0648fab59a2aff}{Element\+Matrix\+Type} \hyperlink{structmodel_1_1_bilinear_weak_form_af3286385919d927eb406d2eb9e03da51}{element\+Assembly\+Kernel} (const \hyperlink{structmodel_1_1_bilinear_weak_form_ad1e097cb2bb06eaa186ff66db5e8932e}{Abscissa\+Type} \&a, const \hyperlink{structmodel_1_1_bilinear_weak_form_a43a6e034f88493f8a1e5af511c16378b}{Element\+Type} \&ele) const 
+\item 
+{\footnotesize template$<$typename T3 $>$ }\\\hyperlink{classmodel_1_1_weak_problem}{Weak\+Problem}$<$ \hyperlink{structmodel_1_1_bilinear_weak_form_aa34216f35460fbae1533245b653038de}{Bilinear\+Weak\+Form\+Type}, T3 $>$ \hyperlink{structmodel_1_1_bilinear_weak_form_ada9c73895c8014902e42ad72173a107e}{operator=} (const \hyperlink{structmodel_1_1_linear_weak_expression}{Linear\+Weak\+Expression}$<$ T3 $>$ \&lwf) const 
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const \hyperlink{structmodel_1_1_bilinear_weak_form_a13052aab9ae19efbffa3d881ceb184f9}{Bilinear\+Form\+Type} \hyperlink{structmodel_1_1_bilinear_weak_form_aa5ea33a6280c36cdb36beef41e7cc3f1}{bilinear\+Form}
+\item 
+const \hyperlink{structmodel_1_1_bilinear_weak_form_a537e7d0cf8fa78efb38cfe017e56196b}{Integration\+Domain\+Type} \& \hyperlink{structmodel_1_1_bilinear_weak_form_acc22ce08d028763977a7d0427f0117b3}{domain}
+\item 
+const \hyperlink{structmodel_1_1_bilinear_weak_form_acdfc10bd49650e2c484d222172834edd}{Test\+Expression\+Type} \hyperlink{structmodel_1_1_bilinear_weak_form_a98885bcd66d794307c7abfb3ce543838}{test\+Expr}
+\item 
+const \hyperlink{structmodel_1_1_bilinear_weak_form_a259b56acf743f646cc86607685f70791}{Trial\+Expression\+Type} \hyperlink{structmodel_1_1_bilinear_weak_form_a324cf51d42de687de79e445da265bab4}{trial\+Expr}
+\item 
+const size\+\_\+t \hyperlink{structmodel_1_1_bilinear_weak_form_a3c7dfa85132b98e728462f7cae7f87e0}{g\+Size}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static constexpr int \hyperlink{structmodel_1_1_bilinear_weak_form_acd483ad54ba6cad041b458036f50154c}{dim} =\hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$\hyperlink{structmodel_1_1_bilinear_weak_form_a3c646b6d23c1e5dc29480fc04b6c9587}{Trial\+Function\+Type}$>$\+::dim
+\item 
+static constexpr int \hyperlink{structmodel_1_1_bilinear_weak_form_a60eb39717dce6d992709e212544c3450}{nodes\+Per\+Element} =\hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$\hyperlink{structmodel_1_1_bilinear_weak_form_a3c646b6d23c1e5dc29480fc04b6c9587}{Trial\+Function\+Type}$>$\+::nodes\+Per\+Element
+\item 
+static constexpr int \hyperlink{structmodel_1_1_bilinear_weak_form_a1033a799da488ed074d9c49c78bf83be}{dof\+Per\+Node} =\hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$\hyperlink{structmodel_1_1_bilinear_weak_form_a3c646b6d23c1e5dc29480fc04b6c9587}{Trial\+Function\+Type}$>$\+::dof\+Per\+Node
+\item 
+static constexpr int \hyperlink{structmodel_1_1_bilinear_weak_form_a4897458848db3e0288687935e991b3e5}{dof\+Per\+Element} =\hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$\hyperlink{structmodel_1_1_bilinear_weak_form_a3c646b6d23c1e5dc29480fc04b6c9587}{Trial\+Function\+Type}$>$\+::dof\+Per\+Element
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$struct model\+::\+Bilinear\+Weak\+Form$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$}
+
+
+
+Definition at line 36 of file Bilinear\+Weak\+Form.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_bilinear_weak_form_ad1e097cb2bb06eaa186ff66db5e8932e}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!Abscissa\+Type@{Abscissa\+Type}}
+\index{Abscissa\+Type@{Abscissa\+Type}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{Abscissa\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ typedef {\bf Quadrature\+Type\+::\+Vector\+Dim} {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::{\bf Abscissa\+Type}}\label{structmodel_1_1_bilinear_weak_form_ad1e097cb2bb06eaa186ff66db5e8932e}
+
+
+Definition at line 47 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a13052aab9ae19efbffa3d881ceb184f9}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!Bilinear\+Form\+Type@{Bilinear\+Form\+Type}}
+\index{Bilinear\+Form\+Type@{Bilinear\+Form\+Type}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{Bilinear\+Form\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ typedef \+\_\+\+Bilinear\+Form\+Type {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::{\bf Bilinear\+Form\+Type}}\label{structmodel_1_1_bilinear_weak_form_a13052aab9ae19efbffa3d881ceb184f9}
+
+
+Definition at line 39 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_aa34216f35460fbae1533245b653038de}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!Bilinear\+Weak\+Form\+Type@{Bilinear\+Weak\+Form\+Type}}
+\index{Bilinear\+Weak\+Form\+Type@{Bilinear\+Weak\+Form\+Type}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{Bilinear\+Weak\+Form\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ typedef {\bf Bilinear\+Weak\+Form}$<${\bf Bilinear\+Form\+Type},{\bf Integration\+Domain\+Type}$>$ {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::{\bf Bilinear\+Weak\+Form\+Type}}\label{structmodel_1_1_bilinear_weak_form_aa34216f35460fbae1533245b653038de}
+
+
+Definition at line 41 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a690ee10521b3f2330a0648fab59a2aff}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!Element\+Matrix\+Type@{Element\+Matrix\+Type}}
+\index{Element\+Matrix\+Type@{Element\+Matrix\+Type}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{Element\+Matrix\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ typedef Eigen\+::\+Matrix$<$double,{\bf dof\+Per\+Element},{\bf dof\+Per\+Element}$>$ {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::{\bf Element\+Matrix\+Type}}\label{structmodel_1_1_bilinear_weak_form_a690ee10521b3f2330a0648fab59a2aff}
+
+
+Definition at line 56 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a43a6e034f88493f8a1e5af511c16378b}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!Element\+Type@{Element\+Type}}
+\index{Element\+Type@{Element\+Type}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{Element\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ typedef Trial\+Function\+Type\+::\+Element\+Type {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::{\bf Element\+Type}}\label{structmodel_1_1_bilinear_weak_form_a43a6e034f88493f8a1e5af511c16378b}
+
+
+Definition at line 45 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a537e7d0cf8fa78efb38cfe017e56196b}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!Integration\+Domain\+Type@{Integration\+Domain\+Type}}
+\index{Integration\+Domain\+Type@{Integration\+Domain\+Type}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{Integration\+Domain\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ typedef \+\_\+\+Integration\+Domain\+Type {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::{\bf Integration\+Domain\+Type}}\label{structmodel_1_1_bilinear_weak_form_a537e7d0cf8fa78efb38cfe017e56196b}
+
+
+Definition at line 40 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a6d85c6150981888154a9939589f188d4}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!Quadrature\+Type@{Quadrature\+Type}}
+\index{Quadrature\+Type@{Quadrature\+Type}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{Quadrature\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ typedef Integration\+Domain\+Type\+::\+Quadrature\+Type {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::{\bf Quadrature\+Type}}\label{structmodel_1_1_bilinear_weak_form_a6d85c6150981888154a9939589f188d4}
+
+
+Definition at line 46 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_acdfc10bd49650e2c484d222172834edd}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!Test\+Expression\+Type@{Test\+Expression\+Type}}
+\index{Test\+Expression\+Type@{Test\+Expression\+Type}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{Test\+Expression\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ typedef Bilinear\+Form\+Type\+::\+Test\+Expression\+Type {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::{\bf Test\+Expression\+Type}}\label{structmodel_1_1_bilinear_weak_form_acdfc10bd49650e2c484d222172834edd}
+
+
+Definition at line 43 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a259b56acf743f646cc86607685f70791}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!Trial\+Expression\+Type@{Trial\+Expression\+Type}}
+\index{Trial\+Expression\+Type@{Trial\+Expression\+Type}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{Trial\+Expression\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ typedef Bilinear\+Form\+Type\+::\+Trial\+Expression\+Type {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::{\bf Trial\+Expression\+Type}}\label{structmodel_1_1_bilinear_weak_form_a259b56acf743f646cc86607685f70791}
+
+
+Definition at line 44 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a3c646b6d23c1e5dc29480fc04b6c9587}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!Trial\+Function\+Type@{Trial\+Function\+Type}}
+\index{Trial\+Function\+Type@{Trial\+Function\+Type}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{Trial\+Function\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ typedef Bilinear\+Form\+Type\+::\+Trial\+Function\+Type {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::{\bf Trial\+Function\+Type}}\label{structmodel_1_1_bilinear_weak_form_a3c646b6d23c1e5dc29480fc04b6c9587}
+
+
+Definition at line 42 of file Bilinear\+Weak\+Form.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{structmodel_1_1_bilinear_weak_form_ad85473f68a5f03754748bfed6363839e}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!Bilinear\+Weak\+Form@{Bilinear\+Weak\+Form}}
+\index{Bilinear\+Weak\+Form@{Bilinear\+Weak\+Form}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{Bilinear\+Weak\+Form}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::{\bf Bilinear\+Weak\+Form} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Bilinear\+Form\+Type} \&}]{bf, }
+\item[{const {\bf Integration\+Domain\+Type} \&}]{dom}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_bilinear_weak_form_ad85473f68a5f03754748bfed6363839e}
+
+
+Definition at line 67 of file Bilinear\+Weak\+Form.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_bilinear_weak_form_ac9f20a54e02b79fbbd7e5807749df982}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!assemble\+On\+Domain@{assemble\+On\+Domain}}
+\index{assemble\+On\+Domain@{assemble\+On\+Domain}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{assemble\+On\+Domain}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ std\+::vector$<$Eigen\+::\+Triplet$<$double$>$ $>$ {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::assemble\+On\+Domain (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_bilinear_weak_form_ac9f20a54e02b79fbbd7e5807749df982}
+
+
+Definition at line 89 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_af3286385919d927eb406d2eb9e03da51}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!element\+Assembly\+Kernel@{element\+Assembly\+Kernel}}
+\index{element\+Assembly\+Kernel@{element\+Assembly\+Kernel}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{element\+Assembly\+Kernel}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ template$<$typename Abscissa\+Type $>$ {\bf Element\+Matrix\+Type} {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::element\+Assembly\+Kernel (
+\begin{DoxyParamCaption}
+\item[{const {\bf Abscissa\+Type} \&}]{a, }
+\item[{const {\bf Element\+Type} \&}]{ele}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_bilinear_weak_form_af3286385919d927eb406d2eb9e03da51}
+
+
+Definition at line 140 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_ada9c73895c8014902e42ad72173a107e}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!operator=@{operator=}}
+\index{operator=@{operator=}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{operator=}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ template$<$typename T3 $>$ {\bf Weak\+Problem}$<${\bf Bilinear\+Weak\+Form\+Type},T3$>$ {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::operator= (
+\begin{DoxyParamCaption}
+\item[{const {\bf Linear\+Weak\+Expression}$<$ T3 $>$ \&}]{lwf}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_bilinear_weak_form_ada9c73895c8014902e42ad72173a107e}
+
+
+Definition at line 148 of file Bilinear\+Weak\+Form.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{structmodel_1_1_bilinear_weak_form_aa5ea33a6280c36cdb36beef41e7cc3f1}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!bilinear\+Form@{bilinear\+Form}}
+\index{bilinear\+Form@{bilinear\+Form}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{bilinear\+Form}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ const {\bf Bilinear\+Form\+Type} {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::bilinear\+Form}\label{structmodel_1_1_bilinear_weak_form_aa5ea33a6280c36cdb36beef41e7cc3f1}
+
+
+Definition at line 58 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_acd483ad54ba6cad041b458036f50154c}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!dim@{dim}}
+\index{dim@{dim}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ constexpr int {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::dim ={\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::dim\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_bilinear_weak_form_acd483ad54ba6cad041b458036f50154c}
+
+
+Definition at line 50 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a4897458848db3e0288687935e991b3e5}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!dof\+Per\+Element@{dof\+Per\+Element}}
+\index{dof\+Per\+Element@{dof\+Per\+Element}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{dof\+Per\+Element}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ constexpr int {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::dof\+Per\+Element ={\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::dof\+Per\+Element\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_bilinear_weak_form_a4897458848db3e0288687935e991b3e5}
+
+
+Definition at line 53 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a1033a799da488ed074d9c49c78bf83be}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!dof\+Per\+Node@{dof\+Per\+Node}}
+\index{dof\+Per\+Node@{dof\+Per\+Node}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{dof\+Per\+Node}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ constexpr int {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::dof\+Per\+Node ={\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::dof\+Per\+Node\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_bilinear_weak_form_a1033a799da488ed074d9c49c78bf83be}
+
+
+Definition at line 52 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_acc22ce08d028763977a7d0427f0117b3}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!domain@{domain}}
+\index{domain@{domain}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{domain}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ const {\bf Integration\+Domain\+Type}\& {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::domain}\label{structmodel_1_1_bilinear_weak_form_acc22ce08d028763977a7d0427f0117b3}
+
+
+Definition at line 59 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a3c7dfa85132b98e728462f7cae7f87e0}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!g\+Size@{g\+Size}}
+\index{g\+Size@{g\+Size}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{g\+Size}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ const size\+\_\+t {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::g\+Size}\label{structmodel_1_1_bilinear_weak_form_a3c7dfa85132b98e728462f7cae7f87e0}
+
+
+Definition at line 62 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a60eb39717dce6d992709e212544c3450}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!nodes\+Per\+Element@{nodes\+Per\+Element}}
+\index{nodes\+Per\+Element@{nodes\+Per\+Element}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{nodes\+Per\+Element}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ constexpr int {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::nodes\+Per\+Element ={\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::nodes\+Per\+Element\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_bilinear_weak_form_a60eb39717dce6d992709e212544c3450}
+
+
+Definition at line 51 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a98885bcd66d794307c7abfb3ce543838}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!test\+Expr@{test\+Expr}}
+\index{test\+Expr@{test\+Expr}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{test\+Expr}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ const {\bf Test\+Expression\+Type} {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::test\+Expr}\label{structmodel_1_1_bilinear_weak_form_a98885bcd66d794307c7abfb3ce543838}
+
+
+Definition at line 60 of file Bilinear\+Weak\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_weak_form_a324cf51d42de687de79e445da265bab4}{}\index{model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}!trial\+Expr@{trial\+Expr}}
+\index{trial\+Expr@{trial\+Expr}!model\+::\+Bilinear\+Weak\+Form@{model\+::\+Bilinear\+Weak\+Form}}
+\subsubsection[{trial\+Expr}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Bilinear\+Form\+Type, typename \+\_\+\+Integration\+Domain\+Type$>$ const {\bf Trial\+Expression\+Type} {\bf model\+::\+Bilinear\+Weak\+Form}$<$ \+\_\+\+Bilinear\+Form\+Type, \+\_\+\+Integration\+Domain\+Type $>$\+::trial\+Expr}\label{structmodel_1_1_bilinear_weak_form_a324cf51d42de687de79e445da265bab4}
+
+
+Definition at line 61 of file Bilinear\+Weak\+Form.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_bilinear_weak_form_8h}{Bilinear\+Weak\+Form.\+h}\end{DoxyCompactItemize}

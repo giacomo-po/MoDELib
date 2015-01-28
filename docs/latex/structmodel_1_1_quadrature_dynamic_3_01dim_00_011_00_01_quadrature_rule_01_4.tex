@@ -1,0 +1,175 @@
+\hypertarget{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4}{}\section{model\+:\+:Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$ Struct Template Reference}
+\label{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4}\index{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}}
+
+
+{\ttfamily \#include $<$Quadrature\+Dynamic.\+h$>$}
+
+Inheritance diagram for model\+:\+:Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a28357d85137133761eefc7f06b6e7117ab0a5313cd23ea4952db4c8843dc43ab0}{q\+Order\+Max} =1
+ \}
+\item 
+typedef \hyperlink{structmodel_1_1_vector_dim_type_selector}{Vector\+Dim\+Type\+Selector}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a28357d85137133761eefc7f06b6e7117ab0a5313cd23ea4952db4c8843dc43ab0}{q\+Order\+Max} $>$\+::\hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a3efc5051d8d4eeceef8619ddd379ec2f}{Vector\+Dim} \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a3efc5051d8d4eeceef8619ddd379ec2f}{Vector\+Dim}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static const double \& \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_aafaea0c9c43a45fc961e60843371b50f}{weight} (const short unsigned int \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}, const short unsigned int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k})
+\item 
+static const \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a3efc5051d8d4eeceef8619ddd379ec2f}{Vector\+Dim} \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a586b6e354ac6ecf431ffe4277a0a628a}{abscissa} (const short unsigned int \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}, const short unsigned int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k})
+\item 
+{\footnotesize template$<$typename Integrand\+Type $>$ }\\static void \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_af3a82faa20c19ec844126e97029eeee2}{integrate} (const short unsigned int \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}, Integrand\+Type($\ast$fp)(const double \&), Integrand\+Type \&intgrl)
+\item 
+{\footnotesize template$<$typename Any\+Class , typename Integrand\+Type , typename... Args$>$ }\\static void \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_afbe0b107e4417975ab78a43141ca66b8}{integrate} (const short unsigned int \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}, const Any\+Class $\ast$const \hyperlink{plot_cells_8m_aaa53ca0b650dfd85c4f59fa156f7a2cc}{C}, Integrand\+Type \&intgrl, Integrand\+Type(Any\+Class\+::$\ast$mfp)(const \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a3efc5051d8d4eeceef8619ddd379ec2f}{Vector\+Dim} \&, const Args \&...) const, const Args \&...args)
+\item 
+{\footnotesize template$<$typename Any\+Class , typename Integrand\+Type , typename... Args$>$ }\\static void \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a30712afdce2537931f596a027faa8e95}{integrate} (const short unsigned int \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}, const Any\+Class $\ast$const \hyperlink{plot_cells_8m_aaa53ca0b650dfd85c4f59fa156f7a2cc}{C}, Integrand\+Type \&intgrl, Integrand\+Type(Any\+Class\+::$\ast$mfp)(const int \&, const Args \&...) const, const Args \&...args)
+\item 
+{\footnotesize template$<$typename Any\+Class , typename... Args$>$ }\\static void \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a889a989c277896264674a8a1827e5d61}{execute} (const short unsigned int \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}, Any\+Class $\ast$const \hyperlink{plot_cells_8m_aaa53ca0b650dfd85c4f59fa156f7a2cc}{C}, void(Any\+Class\+::$\ast$mfp)(const \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a3efc5051d8d4eeceef8619ddd379ec2f}{Vector\+Dim} \&, const Args \&...), const Args \&...args)
+\item 
+{\footnotesize template$<$typename Any\+Class , typename... Args$>$ }\\static void \hyperlink{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a91854eb914b82435271a9a52b196e623}{execute} (const short unsigned int \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}, Any\+Class $\ast$const \hyperlink{plot_cells_8m_aaa53ca0b650dfd85c4f59fa156f7a2cc}{C}, void(Any\+Class\+::$\ast$mfp)(const int \&, const Args \&...), const Args \&...args)
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$short unsigned int dim, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$struct model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}
+
+
+
+Definition at line 148 of file Quadrature\+Dynamic.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a3efc5051d8d4eeceef8619ddd379ec2f}{}\index{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}!Vector\+Dim@{Vector\+Dim}}
+\index{Vector\+Dim@{Vector\+Dim}!model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}}
+\subsubsection[{Vector\+Dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ typedef {\bf Vector\+Dim\+Type\+Selector}$<${\bf dim},{\bf q\+Order\+Max}$>$\+::{\bf Vector\+Dim} {\bf model\+::\+Quadrature\+Dynamic}$<$ {\bf dim}, 1, Quadrature\+Rule $>$\+::{\bf Vector\+Dim}}\label{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a3efc5051d8d4eeceef8619ddd379ec2f}
+
+
+Definition at line 152 of file Quadrature\+Dynamic.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a28357d85137133761eefc7f06b6e7117}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ anonymous enum}\label{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a28357d85137133761eefc7f06b6e7117}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{q\+Order\+Max@{q\+Order\+Max}!model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}}\index{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}!q\+Order\+Max@{q\+Order\+Max}}\item[{\em 
+\hypertarget{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a28357d85137133761eefc7f06b6e7117ab0a5313cd23ea4952db4c8843dc43ab0}{}q\+Order\+Max\label{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a28357d85137133761eefc7f06b6e7117ab0a5313cd23ea4952db4c8843dc43ab0}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 151 of file Quadrature\+Dynamic.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a586b6e354ac6ecf431ffe4277a0a628a}{}\index{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}!abscissa@{abscissa}}
+\index{abscissa@{abscissa}!model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}}
+\subsubsection[{abscissa}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ static const {\bf Vector\+Dim} {\bf model\+::\+Quadrature\+Dynamic}$<$ {\bf dim}, 1, Quadrature\+Rule $>$\+::abscissa (
+\begin{DoxyParamCaption}
+\item[{const short unsigned int \&}]{N, }
+\item[{const short unsigned int \&}]{k}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a586b6e354ac6ecf431ffe4277a0a628a}
+
+
+Definition at line 165 of file Quadrature\+Dynamic.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a889a989c277896264674a8a1827e5d61}{}\index{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}!execute@{execute}}
+\index{execute@{execute}!model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}}
+\subsubsection[{execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ template$<$typename Any\+Class , typename... Args$>$ static void {\bf model\+::\+Quadrature\+Dynamic}$<$ {\bf dim}, 1, Quadrature\+Rule $>$\+::execute (
+\begin{DoxyParamCaption}
+\item[{const short unsigned int \&}]{N, }
+\item[{Any\+Class $\ast$const}]{C, }
+\item[{void(Any\+Class\+::$\ast$)(const {\bf Vector\+Dim} \&, const Args \&...)}]{mfp, }
+\item[{const Args \&...}]{args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a889a989c277896264674a8a1827e5d61}
+
+
+Definition at line 209 of file Quadrature\+Dynamic.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a91854eb914b82435271a9a52b196e623}{}\index{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}!execute@{execute}}
+\index{execute@{execute}!model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}}
+\subsubsection[{execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ template$<$typename Any\+Class , typename... Args$>$ static void {\bf model\+::\+Quadrature\+Dynamic}$<$ {\bf dim}, 1, Quadrature\+Rule $>$\+::execute (
+\begin{DoxyParamCaption}
+\item[{const short unsigned int \&}]{N, }
+\item[{Any\+Class $\ast$const}]{C, }
+\item[{void(Any\+Class\+::$\ast$)(const int \&, const Args \&...)}]{mfp, }
+\item[{const Args \&...}]{args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a91854eb914b82435271a9a52b196e623}
+
+
+Definition at line 220 of file Quadrature\+Dynamic.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_af3a82faa20c19ec844126e97029eeee2}{}\index{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}!integrate@{integrate}}
+\index{integrate@{integrate}!model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}}
+\subsubsection[{integrate}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ template$<$typename Integrand\+Type $>$ static void {\bf model\+::\+Quadrature\+Dynamic}$<$ {\bf dim}, 1, Quadrature\+Rule $>$\+::integrate (
+\begin{DoxyParamCaption}
+\item[{const short unsigned int \&}]{N, }
+\item[{Integrand\+Type($\ast$)(const double \&)}]{fp, }
+\item[{Integrand\+Type \&}]{intgrl}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_af3a82faa20c19ec844126e97029eeee2}
+
+
+Definition at line 176 of file Quadrature\+Dynamic.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_afbe0b107e4417975ab78a43141ca66b8}{}\index{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}!integrate@{integrate}}
+\index{integrate@{integrate}!model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}}
+\subsubsection[{integrate}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ template$<$typename Any\+Class , typename Integrand\+Type , typename... Args$>$ static void {\bf model\+::\+Quadrature\+Dynamic}$<$ {\bf dim}, 1, Quadrature\+Rule $>$\+::integrate (
+\begin{DoxyParamCaption}
+\item[{const short unsigned int \&}]{N, }
+\item[{const Any\+Class $\ast$const}]{C, }
+\item[{Integrand\+Type \&}]{intgrl, }
+\item[{Integrand\+Type(Any\+Class\+::$\ast$)(const {\bf Vector\+Dim} \&, const Args \&...) const}]{mfp, }
+\item[{const Args \&...}]{args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_afbe0b107e4417975ab78a43141ca66b8}
+
+
+Definition at line 186 of file Quadrature\+Dynamic.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a30712afdce2537931f596a027faa8e95}{}\index{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}!integrate@{integrate}}
+\index{integrate@{integrate}!model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}}
+\subsubsection[{integrate}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ template$<$typename Any\+Class , typename Integrand\+Type , typename... Args$>$ static void {\bf model\+::\+Quadrature\+Dynamic}$<$ {\bf dim}, 1, Quadrature\+Rule $>$\+::integrate (
+\begin{DoxyParamCaption}
+\item[{const short unsigned int \&}]{N, }
+\item[{const Any\+Class $\ast$const}]{C, }
+\item[{Integrand\+Type \&}]{intgrl, }
+\item[{Integrand\+Type(Any\+Class\+::$\ast$)(const int \&, const Args \&...) const}]{mfp, }
+\item[{const Args \&...}]{args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_a30712afdce2537931f596a027faa8e95}
+
+
+Definition at line 197 of file Quadrature\+Dynamic.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_aafaea0c9c43a45fc961e60843371b50f}{}\index{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}!weight@{weight}}
+\index{weight@{weight}!model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$@{model\+::\+Quadrature\+Dynamic$<$ dim, 1, Quadrature\+Rule $>$}}
+\subsubsection[{weight}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ static const double\& {\bf model\+::\+Quadrature\+Dynamic}$<$ {\bf dim}, 1, Quadrature\+Rule $>$\+::weight (
+\begin{DoxyParamCaption}
+\item[{const short unsigned int \&}]{N, }
+\item[{const short unsigned int \&}]{k}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_dynamic_3_01dim_00_011_00_01_quadrature_rule_01_4_aafaea0c9c43a45fc961e60843371b50f}
+
+
+Definition at line 156 of file Quadrature\+Dynamic.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_quadrature_dynamic_8h}{Quadrature\+Dynamic.\+h}\end{DoxyCompactItemize}

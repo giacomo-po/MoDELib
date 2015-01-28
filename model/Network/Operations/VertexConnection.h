@@ -18,7 +18,8 @@
 namespace model {
 	
 	template <typename VertexType, typename EdgeType>
-	class VertexConnection{
+	class VertexConnection
+    {
 		
 		
 		typedef boost::ptr_map<size_t,VertexType> NetworkVertexMapType;

@@ -1,0 +1,291 @@
+\hypertarget{structmodel_1_1_quadrature}{}\section{model\+:\+:Quadrature$<$ dim, q\+Order, Quadrature\+Rule $>$ Struct Template Reference}
+\label{structmodel_1_1_quadrature}\index{model\+::\+Quadrature$<$ dim, q\+Order, Quadrature\+Rule $>$@{model\+::\+Quadrature$<$ dim, q\+Order, Quadrature\+Rule $>$}}
+
+
+A static class template for generating quadrature abcsissas and weights for arbitrary-\/order and Quadrature\+Rule and dimension.  
+
+
+
+
+{\ttfamily \#include $<$Quadrature.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{structmodel_1_1_vector_dim_type_selector}{Vector\+Dim\+Type\+Selector}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, q\+Order $>$\+::\hyperlink{structmodel_1_1_quadrature_af457aed3f503be1010dee155c33f7ec1}{Vector\+Dim} \hyperlink{structmodel_1_1_quadrature_af457aed3f503be1010dee155c33f7ec1}{Vector\+Dim}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static const double \& \hyperlink{structmodel_1_1_quadrature_a3f2af629e2685213b887788b54530255}{weight} (const short unsigned int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k})
+\item 
+static const \hyperlink{structmodel_1_1_quadrature_af457aed3f503be1010dee155c33f7ec1}{Vector\+Dim} \hyperlink{structmodel_1_1_quadrature_a49f409b9ee29aa206cbe316f707d4acb}{abscissa} (const short unsigned int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k})
+\item 
+{\footnotesize template$<$typename Integrand\+Type $>$ }\\static void \hyperlink{structmodel_1_1_quadrature_a8820266eebe25109afe7e4cab4eda438}{integrate} (Integrand\+Type($\ast$fp)(const double \&), Integrand\+Type \&intgrl)
+\item 
+{\footnotesize template$<$typename Any\+Class , typename Integrand\+Type , typename... Args$>$ }\\static void \hyperlink{structmodel_1_1_quadrature_aa80b4c0d760e59a4351c470e9ccf738c}{integrate} (const Any\+Class $\ast$const \hyperlink{plot_cells_8m_aaa53ca0b650dfd85c4f59fa156f7a2cc}{C}, Integrand\+Type \&intgrl, Integrand\+Type(Any\+Class\+::$\ast$mfp)(const \hyperlink{structmodel_1_1_quadrature_af457aed3f503be1010dee155c33f7ec1}{Vector\+Dim} \&, const Args \&...) const, const Args \&...args)
+\item 
+{\footnotesize template$<$typename Any\+Class , typename Integrand\+Type , typename... Args$>$ }\\static void \hyperlink{structmodel_1_1_quadrature_a8017fe27223310ab200e78b9f8b9b7e5}{integrate} (const Any\+Class $\ast$const \hyperlink{plot_cells_8m_aaa53ca0b650dfd85c4f59fa156f7a2cc}{C}, Integrand\+Type \&intgrl, Integrand\+Type(Any\+Class\+::$\ast$mfp)(const int \&, const Args \&...) const, const Args \&...args)
+\item 
+{\footnotesize template$<$typename Any\+Class , typename... Args$>$ }\\static void \hyperlink{structmodel_1_1_quadrature_aa3bba314906243153409fc6056375d4c}{execute} (Any\+Class $\ast$const \hyperlink{plot_cells_8m_aaa53ca0b650dfd85c4f59fa156f7a2cc}{C}, void(Any\+Class\+::$\ast$mfp)(const \hyperlink{structmodel_1_1_quadrature_af457aed3f503be1010dee155c33f7ec1}{Vector\+Dim} \&, const Args \&...), const Args \&...args)
+\item 
+{\footnotesize template$<$typename Any\+Class , typename... Args$>$ }\\static void \hyperlink{structmodel_1_1_quadrature_ab96947496c79a63095e52e70b2cce24b}{execute} (Any\+Class $\ast$const \hyperlink{plot_cells_8m_aaa53ca0b650dfd85c4f59fa156f7a2cc}{C}, void(Any\+Class\+::$\ast$mfp)(const int \&, const Args \&...), const Args \&...args)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static constexpr short unsigned int \hyperlink{structmodel_1_1_quadrature_a9cd62ae38e0cc707065ff7b1f57785da}{quadrature\+Order} =q\+Order
+\item 
+static const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, q\+Order $>$ \hyperlink{structmodel_1_1_quadrature_a39bde8b8646999b05a493eedc7202299}{abscissas} =Quadrature\+Rule$<$\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim},q\+Order$>$\+::abcsissas\+And\+Weights().template block$<$\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim},q\+Order$>$(0,0)
+\begin{DoxyCompactList}\small\item\em The static const member data abscissas is initialized only once when Quadrature$<$1,q\+Order,\+Quadrature\+Rule$>$ is first encountered. \end{DoxyCompactList}\item 
+static const Eigen\+::\+Matrix$<$ double, 1, q\+Order $>$ \hyperlink{structmodel_1_1_quadrature_aad89450c9a6dd8f1f39eb219d13b2cd6}{weights} =Quadrature\+Rule$<$\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim},q\+Order$>$\+::abcsissas\+And\+Weights().template block$<$1,q\+Order$>$(\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim},0)
+\begin{DoxyCompactList}\small\item\em The static const member data abscissas is initialized only once when Quadrature$<$1,q\+Order,\+Quadrature\+Rule$>$ is first encountered. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$short unsigned int dim, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule = Gauss\+Legendre$>$struct model\+::\+Quadrature$<$ dim, q\+Order, Quadrature\+Rule $>$}
+
+A static class template for generating quadrature abcsissas and weights for arbitrary-\/order and Quadrature\+Rule and dimension. 
+
+Definition at line 50 of file Quadrature.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_quadrature_af457aed3f503be1010dee155c33f7ec1}{}\index{model\+::\+Quadrature@{model\+::\+Quadrature}!Vector\+Dim@{Vector\+Dim}}
+\index{Vector\+Dim@{Vector\+Dim}!model\+::\+Quadrature@{model\+::\+Quadrature}}
+\subsubsection[{Vector\+Dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule = Gauss\+Legendre$>$ typedef {\bf Vector\+Dim\+Type\+Selector}$<${\bf dim},q\+Order$>$\+::{\bf Vector\+Dim} {\bf model\+::\+Quadrature}$<$ {\bf dim}, q\+Order, Quadrature\+Rule $>$\+::{\bf Vector\+Dim}}\label{structmodel_1_1_quadrature_af457aed3f503be1010dee155c33f7ec1}
+
+
+Definition at line 56 of file Quadrature.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_quadrature_a49f409b9ee29aa206cbe316f707d4acb}{}\index{model\+::\+Quadrature@{model\+::\+Quadrature}!abscissa@{abscissa}}
+\index{abscissa@{abscissa}!model\+::\+Quadrature@{model\+::\+Quadrature}}
+\subsubsection[{abscissa}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule = Gauss\+Legendre$>$ static const {\bf Vector\+Dim} {\bf model\+::\+Quadrature}$<$ {\bf dim}, q\+Order, Quadrature\+Rule $>$\+::abscissa (
+\begin{DoxyParamCaption}
+\item[{const short unsigned int \&}]{k}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_a49f409b9ee29aa206cbe316f707d4acb}
+
+
+Definition at line 73 of file Quadrature.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_aa3bba314906243153409fc6056375d4c}{}\index{model\+::\+Quadrature@{model\+::\+Quadrature}!execute@{execute}}
+\index{execute@{execute}!model\+::\+Quadrature@{model\+::\+Quadrature}}
+\subsubsection[{execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule = Gauss\+Legendre$>$ template$<$typename Any\+Class , typename... Args$>$ static void {\bf model\+::\+Quadrature}$<$ {\bf dim}, q\+Order, Quadrature\+Rule $>$\+::execute (
+\begin{DoxyParamCaption}
+\item[{Any\+Class $\ast$const}]{C, }
+\item[{void(Any\+Class\+::$\ast$)(const {\bf Vector\+Dim} \&, const Args \&...)}]{mfp, }
+\item[{const Args \&...}]{args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_aa3bba314906243153409fc6056375d4c}
+Execute non-\/static member function of arbitrary class, at quadrature points in range \mbox{[}0,1\mbox{]}
+
+Definition at line 197 of file Quadrature.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_ab96947496c79a63095e52e70b2cce24b}{}\index{model\+::\+Quadrature@{model\+::\+Quadrature}!execute@{execute}}
+\index{execute@{execute}!model\+::\+Quadrature@{model\+::\+Quadrature}}
+\subsubsection[{execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule = Gauss\+Legendre$>$ template$<$typename Any\+Class , typename... Args$>$ static void {\bf model\+::\+Quadrature}$<$ {\bf dim}, q\+Order, Quadrature\+Rule $>$\+::execute (
+\begin{DoxyParamCaption}
+\item[{Any\+Class $\ast$const}]{C, }
+\item[{void(Any\+Class\+::$\ast$)(const int \&, const Args \&...)}]{mfp, }
+\item[{const Args \&...}]{args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_ab96947496c79a63095e52e70b2cce24b}
+Execute non-\/static member function of arbitrary class, at quadrature points in range \mbox{[}0,1\mbox{]}
+
+Definition at line 208 of file Quadrature.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_a8820266eebe25109afe7e4cab4eda438}{}\index{model\+::\+Quadrature@{model\+::\+Quadrature}!integrate@{integrate}}
+\index{integrate@{integrate}!model\+::\+Quadrature@{model\+::\+Quadrature}}
+\subsubsection[{integrate}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule = Gauss\+Legendre$>$ template$<$typename Integrand\+Type $>$ static void {\bf model\+::\+Quadrature}$<$ {\bf dim}, q\+Order, Quadrature\+Rule $>$\+::integrate (
+\begin{DoxyParamCaption}
+\item[{Integrand\+Type($\ast$)(const double \&)}]{fp, }
+\item[{Integrand\+Type \&}]{intgrl}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_a8820266eebe25109afe7e4cab4eda438}
+Integrates function in range \mbox{[}0,1\mbox{]} 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em fp} & the function pointer. \\
+\hline
+\mbox{\tt out}  & {\em intgrl} & the integral to be returned.\\
+\hline
+\end{DoxyParams}
+Sample code\+:
+\begin{DoxyCode}
+\textcolor{preprocessor}{#include <iostream>}
+\textcolor{preprocessor}{#include <Eigen/Dense>}
+\textcolor{preprocessor}{#include <\hyperlink{_quadrature_8h}{model/Quadrature/Quadrature.h}>}
+
+Eigen::Matrix<double,3,3> integrand(\textcolor{keyword}{const} \textcolor{keywordtype}{double}& \hyperlink{run_multipole_8m_a6277e2a7446059985dc9bcf0a4ac1a8f}{u}) \{
+    \textcolor{keywordflow}{return} Eigen::Matrix<double,3,3>::Ones()*u*\hyperlink{run_multipole_8m_a6277e2a7446059985dc9bcf0a4ac1a8f}{u};
+\}
+
+\textcolor{keywordtype}{int} \hyperlink{bench_2bary_search_2main_8cpp_a0ddf1224851353fc92bfbff6f499fa97}{main}()\{
+    Eigen::Matrix<double,3,3> I=Eigen::Matrix<double,3,3>::Zero();
+    \hyperlink{tube_plotter_8m_a7e56035a736d269ad670f312496a0846}{Q}.integrate(\textcolor{keyword}{this},&integrand,I);
+        \hyperlink{namespacemodel_a0ce25fef078a7d9d9cb7cfbabcfbc289}{std::cout}<< I <<std::endl;
+        \textcolor{keywordflow}{return} 0;
+\}
+\end{DoxyCode}
+
+
+Definition at line 81 of file Quadrature.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_aa80b4c0d760e59a4351c470e9ccf738c}{}\index{model\+::\+Quadrature@{model\+::\+Quadrature}!integrate@{integrate}}
+\index{integrate@{integrate}!model\+::\+Quadrature@{model\+::\+Quadrature}}
+\subsubsection[{integrate}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule = Gauss\+Legendre$>$ template$<$typename Any\+Class , typename Integrand\+Type , typename... Args$>$ static void {\bf model\+::\+Quadrature}$<$ {\bf dim}, q\+Order, Quadrature\+Rule $>$\+::integrate (
+\begin{DoxyParamCaption}
+\item[{const Any\+Class $\ast$const}]{C, }
+\item[{Integrand\+Type \&}]{intgrl, }
+\item[{Integrand\+Type(Any\+Class\+::$\ast$)(const {\bf Vector\+Dim} \&, const Args \&...) const}]{mfp, }
+\item[{const Args \&...}]{args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_aa80b4c0d760e59a4351c470e9ccf738c}
+Integrates non-\/static member function of arbitrary class in range \mbox{[}0,1\mbox{]} 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em intgrl} & The memory area to copy to. \\
+\hline
+\mbox{\tt in}  & {\em mfp} & The member function pointer. \\
+\hline
+\mbox{\tt in}  & {\em C} & The pointer to ...\\
+\hline
+\end{DoxyParams}
+Sample code\+:
+\begin{DoxyCode}
+\textcolor{preprocessor}{#include <iostream>}
+\textcolor{preprocessor}{#include <Eigen/Dense>}
+\textcolor{preprocessor}{#include <\hyperlink{_quadrature_8h}{model/Quadrature/Quadrature.h}>}
+
+\textcolor{keyword}{class }SomeClass\{
+
+    Eigen::Matrix<double,3,3> integrand(\textcolor{keyword}{const} \textcolor{keywordtype}{double}& \hyperlink{run_multipole_8m_a6277e2a7446059985dc9bcf0a4ac1a8f}{u})\textcolor{keyword}{ const }\{
+        \textcolor{keywordflow}{return} Eigen::Matrix<double,3,3>::Ones()*u*\hyperlink{run_multipole_8m_a6277e2a7446059985dc9bcf0a4ac1a8f}{u};
+    \}
+
+    \textcolor{keyword}{public}:
+
+    \textcolor{keyword}{template} <\textcolor{keywordtype}{short} \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} qOrder>
+    \textcolor{keywordtype}{void} compute\_integral()\{
+        Eigen::Matrix<double,3,3> I=Eigen::Matrix<double,3,3>::Zero();
+        \hyperlink{structmodel_1_1_quadrature_a8820266eebe25109afe7e4cab4eda438}{model::Quadrature<1,qOrder,model::GaussLegendre>::integrate}
+      (\textcolor{keyword}{this},&SomeClass::integrand,I);
+        \hyperlink{namespacemodel_a0ce25fef078a7d9d9cb7cfbabcfbc289}{std::cout}<< I <<std::endl;
+    \}
+
+\};
+
+\textcolor{keywordtype}{int} \hyperlink{bench_2bary_search_2main_8cpp_a0ddf1224851353fc92bfbff6f499fa97}{main}()\{
+        SomeClass sc;
+ sc.compute\_integral<16>();
+        \textcolor{keywordflow}{return} 0;
+\}
+\end{DoxyCode}
+
+
+Definition at line 110 of file Quadrature.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_a8017fe27223310ab200e78b9f8b9b7e5}{}\index{model\+::\+Quadrature@{model\+::\+Quadrature}!integrate@{integrate}}
+\index{integrate@{integrate}!model\+::\+Quadrature@{model\+::\+Quadrature}}
+\subsubsection[{integrate}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule = Gauss\+Legendre$>$ template$<$typename Any\+Class , typename Integrand\+Type , typename... Args$>$ static void {\bf model\+::\+Quadrature}$<$ {\bf dim}, q\+Order, Quadrature\+Rule $>$\+::integrate (
+\begin{DoxyParamCaption}
+\item[{const Any\+Class $\ast$const}]{C, }
+\item[{Integrand\+Type \&}]{intgrl, }
+\item[{Integrand\+Type(Any\+Class\+::$\ast$)(const int \&, const Args \&...) const}]{mfp, }
+\item[{const Args \&...}]{args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_a8017fe27223310ab200e78b9f8b9b7e5}
+Integrates non-\/static member function of arbitrary class in range \mbox{[}0,1\mbox{]} 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em intgrl} & The memory area to copy to. \\
+\hline
+\mbox{\tt in}  & {\em mfp} & The member function pointer. \\
+\hline
+\mbox{\tt in}  & {\em C} & The pointer to ...\\
+\hline
+\end{DoxyParams}
+Sample code\+:
+\begin{DoxyCode}
+\textcolor{preprocessor}{#include <iostream>}
+\textcolor{preprocessor}{#include <Eigen/Dense>}
+\textcolor{preprocessor}{#include <\hyperlink{_quadrature_8h}{model/Quadrature/Quadrature.h}>}
+
+\textcolor{keyword}{class }SomeClass\{
+
+    Eigen::Matrix<double,3,3> integrand(\textcolor{keyword}{const} \textcolor{keywordtype}{double}& \hyperlink{run_multipole_8m_a6277e2a7446059985dc9bcf0a4ac1a8f}{u})\textcolor{keyword}{ const }\{
+        \textcolor{keywordflow}{return} Eigen::Matrix<double,3,3>::Ones()*u*\hyperlink{run_multipole_8m_a6277e2a7446059985dc9bcf0a4ac1a8f}{u};
+    \}
+
+    \textcolor{keyword}{public}:
+
+    \textcolor{keyword}{template} <\textcolor{keywordtype}{short} \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} qOrder>
+    \textcolor{keywordtype}{void} compute\_integral()\{
+        Eigen::Matrix<double,3,3> I=Eigen::Matrix<double,3,3>::Zero();
+        \hyperlink{structmodel_1_1_quadrature_a8820266eebe25109afe7e4cab4eda438}{model::Quadrature<1,qOrder,model::GaussLegendre>::integrate}
+      (\textcolor{keyword}{this},&SomeClass::integrand,I);
+        \hyperlink{namespacemodel_a0ce25fef078a7d9d9cb7cfbabcfbc289}{std::cout}<< I <<std::endl;
+    \}
+
+\};
+
+\textcolor{keywordtype}{int} \hyperlink{bench_2bary_search_2main_8cpp_a0ddf1224851353fc92bfbff6f499fa97}{main}()\{
+        SomeClass sc;
+ sc.compute\_integral<16>();
+        \textcolor{keywordflow}{return} 0;
+\}
+\end{DoxyCode}
+
+
+Definition at line 154 of file Quadrature.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_a3f2af629e2685213b887788b54530255}{}\index{model\+::\+Quadrature@{model\+::\+Quadrature}!weight@{weight}}
+\index{weight@{weight}!model\+::\+Quadrature@{model\+::\+Quadrature}}
+\subsubsection[{weight}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule = Gauss\+Legendre$>$ static const double\& {\bf model\+::\+Quadrature}$<$ {\bf dim}, q\+Order, Quadrature\+Rule $>$\+::weight (
+\begin{DoxyParamCaption}
+\item[{const short unsigned int \&}]{k}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_quadrature_a3f2af629e2685213b887788b54530255}
+
+
+Definition at line 67 of file Quadrature.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{structmodel_1_1_quadrature_a39bde8b8646999b05a493eedc7202299}{}\index{model\+::\+Quadrature@{model\+::\+Quadrature}!abscissas@{abscissas}}
+\index{abscissas@{abscissas}!model\+::\+Quadrature@{model\+::\+Quadrature}}
+\subsubsection[{abscissas}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule = Gauss\+Legendre$>$ const Eigen\+::\+Matrix$<$ double, {\bf dim}, q\+Order $>$ {\bf model\+::\+Quadrature}$<$ {\bf dim}, q\+Order, Quadrature\+Rule $>$\+::abscissas =Quadrature\+Rule$<${\bf dim},q\+Order$>$\+::abcsissas\+And\+Weights().template block$<${\bf dim},q\+Order$>$(0,0)\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_quadrature_a39bde8b8646999b05a493eedc7202299}
+
+
+The static const member data abscissas is initialized only once when Quadrature$<$1,q\+Order,\+Quadrature\+Rule$>$ is first encountered. 
+
+
+
+Definition at line 61 of file Quadrature.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_a9cd62ae38e0cc707065ff7b1f57785da}{}\index{model\+::\+Quadrature@{model\+::\+Quadrature}!quadrature\+Order@{quadrature\+Order}}
+\index{quadrature\+Order@{quadrature\+Order}!model\+::\+Quadrature@{model\+::\+Quadrature}}
+\subsubsection[{quadrature\+Order}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule = Gauss\+Legendre$>$ constexpr short unsigned int {\bf model\+::\+Quadrature}$<$ {\bf dim}, q\+Order, Quadrature\+Rule $>$\+::quadrature\+Order =q\+Order\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_quadrature_a9cd62ae38e0cc707065ff7b1f57785da}
+
+
+Definition at line 53 of file Quadrature.\+h.
+
+\hypertarget{structmodel_1_1_quadrature_aad89450c9a6dd8f1f39eb219d13b2cd6}{}\index{model\+::\+Quadrature@{model\+::\+Quadrature}!weights@{weights}}
+\index{weights@{weights}!model\+::\+Quadrature@{model\+::\+Quadrature}}
+\subsubsection[{weights}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int dim, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule = Gauss\+Legendre$>$ const Eigen\+::\+Matrix$<$ double, 1, q\+Order $>$ {\bf model\+::\+Quadrature}$<$ {\bf dim}, q\+Order, Quadrature\+Rule $>$\+::weights =Quadrature\+Rule$<${\bf dim},q\+Order$>$\+::abcsissas\+And\+Weights().template block$<$1,q\+Order$>$({\bf dim},0)\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_quadrature_aad89450c9a6dd8f1f39eb219d13b2cd6}
+
+
+The static const member data abscissas is initialized only once when Quadrature$<$1,q\+Order,\+Quadrature\+Rule$>$ is first encountered. 
+
+
+
+Definition at line 64 of file Quadrature.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_quadrature_8h}{Quadrature.\+h}\end{DoxyCompactItemize}

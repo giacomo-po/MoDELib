@@ -1,0 +1,170 @@
+\hypertarget{_network_typedefs_8h}{}\section{Network\+Typedefs.\+h File Reference}
+\label{_network_typedefs_8h}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef Type\+Traits$<$ Derived $>$\+::\hyperlink{_network_typedefs_8h_a9a0352d17eb7507fcd54f127feccc92e}{Network\+Type} \hyperlink{_network_typedefs_8h_a9a0352d17eb7507fcd54f127feccc92e}{Network\+Type}
+\item 
+typedef Type\+Traits$<$ Derived $>$\+::\hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type}
+\item 
+typedef Type\+Traits$<$ Derived $>$\+::\hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} \hyperlink{_network_typedefs_8h_aaa989b0c182d456e46e0468a24f5fa05}{Link\+Type}
+\item 
+typedef Type\+Traits$<$ Derived $>$\+::\hyperlink{_spline_segment_base__common_8h_aec2b17f3c09c54f93636cbedceffde56}{Flow\+Type} \hyperlink{_network_typedefs_8h_afe295816c658f24a42fd74d432e96f65}{Flow\+Type}
+\item 
+typedef Network\+Component$<$ \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type}, \hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $>$ \hyperlink{_network_typedefs_8h_ace62a87e27b01659142c49a8712f3dc9}{Network\+Component\+Type}
+\item 
+typedef boost\+::ptr\+\_\+map$<$ size\+\_\+t, \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $>$ \hyperlink{_network_typedefs_8h_a40e460ba3daf60653243011fc1229d3f}{Network\+Node\+Container\+Type}
+\item 
+typedef Vertex\+Finder$<$ \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $>$\+::is\+Network\+Vertex\+Type \hyperlink{_network_typedefs_8h_a848fa987d3bfa490dafc75045cac55b4}{is\+Network\+Node\+Type}
+\item 
+typedef Vertex\+Finder$<$ \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $>$\+::is\+Const\+Network\+Vertex\+Type \hyperlink{_network_typedefs_8h_ab42a099dc90a5f2f5b1fd93f8d11ce30}{is\+Const\+Network\+Node\+Type}
+\item 
+typedef Edge\+Finder$<$ \hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $>$\+::is\+Network\+Edge\+Type \hyperlink{_network_typedefs_8h_a08032ab00b715014cdc1d56544b8a855}{is\+Network\+Link\+Type}
+\item 
+typedef Edge\+Finder$<$ \hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $>$\+::is\+Const\+Network\+Edge\+Type \hyperlink{_network_typedefs_8h_a28fb3dd37a7a0c539a9990c7fe363458}{is\+Const\+Network\+Link\+Type}
+\item 
+typedef std\+::pair$<$ \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $\ast$const, \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $\ast$const  $>$ \hyperlink{_network_typedefs_8h_a0388836fd952c0be2fcca084728dbd36}{Node\+Pair\+Type}
+\item 
+typedef std\+::pair$<$ size\+\_\+t, size\+\_\+t $>$ \hyperlink{_network_typedefs_8h_a1e1f498d323e6051c25c5645b7877658}{Link\+I\+D\+Type}
+\item 
+typedef boost\+::ptr\+\_\+map$<$ \hyperlink{_network_typedefs_8h_a1e1f498d323e6051c25c5645b7877658}{Link\+I\+D\+Type}, \hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $>$ \hyperlink{_network_typedefs_8h_af4cdb44a5a1a723dcf8f4350cf689565}{Network\+Link\+Container\+Type}
+\item 
+typedef std\+::map$<$ size\+\_\+t, \hyperlink{_network_typedefs_8h_ace62a87e27b01659142c49a8712f3dc9}{Network\+Component\+Type} $\ast$const  $>$ \hyperlink{_network_typedefs_8h_a374627f2bf4f36ec9ce3a27f21df7beb}{Network\+Component\+Container\+Type}
+\item 
+typedef Network\+Component$<$ \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type}, \hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $>$\+::Network\+Component\+Node\+Container\+Type \hyperlink{_network_typedefs_8h_a93a55c9d0ea7e7feb463d26407d4b0a2}{Sub\+Network\+Node\+Container\+Type}
+\item 
+typedef Network\+Component$<$ \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type}, \hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $>$\+::Network\+Component\+Link\+Container\+Type \hyperlink{_network_typedefs_8h_a0676d4e9abf1d6ca1090cd4359dd439f}{Sub\+Network\+Link\+Container\+Type}
+\item 
+typedef std\+::tuple$<$ \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $\ast$const ,\hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $\ast$const, short int $>$ \hyperlink{_network_typedefs_8h_abf5db3437df02b834a9601cd51889866}{Neighbor\+Type}
+\item 
+typedef std\+::map$<$ size\+\_\+t, \hyperlink{_spline_node_base__corder0_8h_a0f98675e8db19b8d06d21e09c44d1d7b}{Neighbor\+Type} $>$ \hyperlink{_network_typedefs_8h_aa02a3a17f011fad87737dc9ad89a4ea6}{Neighbor\+Container\+Type}
+\end{DoxyCompactItemize}
+
+
+\subsection{Typedef Documentation}
+\hypertarget{_network_typedefs_8h_afe295816c658f24a42fd74d432e96f65}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Flow\+Type@{Flow\+Type}}
+\index{Flow\+Type@{Flow\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Flow\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef Type\+Traits$<$Derived$>$\+::{\bf Flow\+Type} {\bf Flow\+Type}}\label{_network_typedefs_8h_afe295816c658f24a42fd74d432e96f65}
+
+
+Definition at line 15 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_a28fb3dd37a7a0c539a9990c7fe363458}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!is\+Const\+Network\+Link\+Type@{is\+Const\+Network\+Link\+Type}}
+\index{is\+Const\+Network\+Link\+Type@{is\+Const\+Network\+Link\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{is\+Const\+Network\+Link\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef Edge\+Finder$<${\bf Link\+Type}$>$\+::is\+Const\+Network\+Edge\+Type {\bf is\+Const\+Network\+Link\+Type}}\label{_network_typedefs_8h_a28fb3dd37a7a0c539a9990c7fe363458}
+
+
+Definition at line 24 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_ab42a099dc90a5f2f5b1fd93f8d11ce30}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!is\+Const\+Network\+Node\+Type@{is\+Const\+Network\+Node\+Type}}
+\index{is\+Const\+Network\+Node\+Type@{is\+Const\+Network\+Node\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{is\+Const\+Network\+Node\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef Vertex\+Finder$<${\bf Node\+Type}$>$\+::is\+Const\+Network\+Vertex\+Type {\bf is\+Const\+Network\+Node\+Type}}\label{_network_typedefs_8h_ab42a099dc90a5f2f5b1fd93f8d11ce30}
+
+
+Definition at line 22 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_a08032ab00b715014cdc1d56544b8a855}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!is\+Network\+Link\+Type@{is\+Network\+Link\+Type}}
+\index{is\+Network\+Link\+Type@{is\+Network\+Link\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{is\+Network\+Link\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef Edge\+Finder$<${\bf Link\+Type}$>$\+::is\+Network\+Edge\+Type {\bf is\+Network\+Link\+Type}}\label{_network_typedefs_8h_a08032ab00b715014cdc1d56544b8a855}
+
+
+Definition at line 23 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_a848fa987d3bfa490dafc75045cac55b4}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!is\+Network\+Node\+Type@{is\+Network\+Node\+Type}}
+\index{is\+Network\+Node\+Type@{is\+Network\+Node\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{is\+Network\+Node\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef Vertex\+Finder$<${\bf Node\+Type}$>$\+::is\+Network\+Vertex\+Type {\bf is\+Network\+Node\+Type}}\label{_network_typedefs_8h_a848fa987d3bfa490dafc75045cac55b4}
+
+
+Definition at line 21 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_a1e1f498d323e6051c25c5645b7877658}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Link\+I\+D\+Type@{Link\+I\+D\+Type}}
+\index{Link\+I\+D\+Type@{Link\+I\+D\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Link\+I\+D\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef std\+::pair$<$size\+\_\+t,size\+\_\+t$>$ {\bf Link\+I\+D\+Type}}\label{_network_typedefs_8h_a1e1f498d323e6051c25c5645b7877658}
+
+
+Definition at line 29 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_aaa989b0c182d456e46e0468a24f5fa05}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Link\+Type@{Link\+Type}}
+\index{Link\+Type@{Link\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Link\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef Type\+Traits$<$Derived$>$\+::{\bf Link\+Type} {\bf Link\+Type}}\label{_network_typedefs_8h_aaa989b0c182d456e46e0468a24f5fa05}
+
+
+Definition at line 14 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_aa02a3a17f011fad87737dc9ad89a4ea6}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Neighbor\+Container\+Type@{Neighbor\+Container\+Type}}
+\index{Neighbor\+Container\+Type@{Neighbor\+Container\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Neighbor\+Container\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef std\+::map$<$size\+\_\+t,{\bf Neighbor\+Type}$>$ {\bf Neighbor\+Container\+Type}}\label{_network_typedefs_8h_aa02a3a17f011fad87737dc9ad89a4ea6}
+
+
+Definition at line 41 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_abf5db3437df02b834a9601cd51889866}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Neighbor\+Type@{Neighbor\+Type}}
+\index{Neighbor\+Type@{Neighbor\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Neighbor\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef std\+::tuple$<${\bf Node\+Type}$\ast$ const ,{\bf Link\+Type}$\ast$ const,short int$>$ {\bf Neighbor\+Type}}\label{_network_typedefs_8h_abf5db3437df02b834a9601cd51889866}
+
+
+Definition at line 40 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_a374627f2bf4f36ec9ce3a27f21df7beb}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Network\+Component\+Container\+Type@{Network\+Component\+Container\+Type}}
+\index{Network\+Component\+Container\+Type@{Network\+Component\+Container\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Network\+Component\+Container\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef std\+::map$<$size\+\_\+t,{\bf Network\+Component\+Type}$\ast$ const$>$ {\bf Network\+Component\+Container\+Type}}\label{_network_typedefs_8h_a374627f2bf4f36ec9ce3a27f21df7beb}
+
+
+Definition at line 34 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_ace62a87e27b01659142c49a8712f3dc9}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Network\+Component\+Type@{Network\+Component\+Type}}
+\index{Network\+Component\+Type@{Network\+Component\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Network\+Component\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef Network\+Component$<${\bf Node\+Type},{\bf Link\+Type}$>$ {\bf Network\+Component\+Type}}\label{_network_typedefs_8h_ace62a87e27b01659142c49a8712f3dc9}
+
+
+Definition at line 16 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_af4cdb44a5a1a723dcf8f4350cf689565}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Network\+Link\+Container\+Type@{Network\+Link\+Container\+Type}}
+\index{Network\+Link\+Container\+Type@{Network\+Link\+Container\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Network\+Link\+Container\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef boost\+::ptr\+\_\+map$<${\bf Link\+I\+D\+Type},{\bf Link\+Type}$>$ {\bf Network\+Link\+Container\+Type}}\label{_network_typedefs_8h_af4cdb44a5a1a723dcf8f4350cf689565}
+
+
+Definition at line 30 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_a40e460ba3daf60653243011fc1229d3f}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Network\+Node\+Container\+Type@{Network\+Node\+Container\+Type}}
+\index{Network\+Node\+Container\+Type@{Network\+Node\+Container\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Network\+Node\+Container\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef boost\+::ptr\+\_\+map$<$size\+\_\+t,{\bf Node\+Type}$>$ {\bf Network\+Node\+Container\+Type}}\label{_network_typedefs_8h_a40e460ba3daf60653243011fc1229d3f}
+
+
+Definition at line 20 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_a9a0352d17eb7507fcd54f127feccc92e}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Network\+Type@{Network\+Type}}
+\index{Network\+Type@{Network\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Network\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef Type\+Traits$<$Derived$>$\+::{\bf Network\+Type} {\bf Network\+Type}}\label{_network_typedefs_8h_a9a0352d17eb7507fcd54f127feccc92e}
+
+
+Definition at line 12 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_a0388836fd952c0be2fcca084728dbd36}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Node\+Pair\+Type@{Node\+Pair\+Type}}
+\index{Node\+Pair\+Type@{Node\+Pair\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Node\+Pair\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef std\+::pair$<${\bf Node\+Type}$\ast$ const,{\bf Node\+Type}$\ast$ const$>$ {\bf Node\+Pair\+Type}}\label{_network_typedefs_8h_a0388836fd952c0be2fcca084728dbd36}
+
+
+Definition at line 28 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Node\+Type@{Node\+Type}}
+\index{Node\+Type@{Node\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Node\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef Type\+Traits$<$Derived$>$\+::{\bf Node\+Type} {\bf Node\+Type}}\label{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}
+
+
+Definition at line 13 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_a0676d4e9abf1d6ca1090cd4359dd439f}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Sub\+Network\+Link\+Container\+Type@{Sub\+Network\+Link\+Container\+Type}}
+\index{Sub\+Network\+Link\+Container\+Type@{Sub\+Network\+Link\+Container\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Sub\+Network\+Link\+Container\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef Network\+Component$<${\bf Node\+Type},{\bf Link\+Type}$>$\+::Network\+Component\+Link\+Container\+Type {\bf Sub\+Network\+Link\+Container\+Type}}\label{_network_typedefs_8h_a0676d4e9abf1d6ca1090cd4359dd439f}
+
+
+Definition at line 36 of file Network\+Typedefs.\+h.
+
+\hypertarget{_network_typedefs_8h_a93a55c9d0ea7e7feb463d26407d4b0a2}{}\index{Network\+Typedefs.\+h@{Network\+Typedefs.\+h}!Sub\+Network\+Node\+Container\+Type@{Sub\+Network\+Node\+Container\+Type}}
+\index{Sub\+Network\+Node\+Container\+Type@{Sub\+Network\+Node\+Container\+Type}!Network\+Typedefs.\+h@{Network\+Typedefs.\+h}}
+\subsubsection[{Sub\+Network\+Node\+Container\+Type}]{\setlength{\rightskip}{0pt plus 5cm}typedef Network\+Component$<${\bf Node\+Type},{\bf Link\+Type}$>$\+::Network\+Component\+Node\+Container\+Type {\bf Sub\+Network\+Node\+Container\+Type}}\label{_network_typedefs_8h_a93a55c9d0ea7e7feb463d26407d4b0a2}
+
+
+Definition at line 35 of file Network\+Typedefs.\+h.
+

@@ -1,0 +1,33 @@
+\hypertarget{_p_i_l_Introduction}{}\section{Introduction}\label{_p_i_l_Introduction}
+\hypertarget{metis_Download}{}\section{Download}\label{metis_Download}
+M\+E\+T\+I\+S is available at \href{http://glaros.dtc.umn.edu/gkhome/metis/metis/overview}{\tt http\+://glaros.\+dtc.\+umn.\+edu/gkhome/metis/metis/overview}.\hypertarget{_p_i_l_Installation}{}\section{Installation}\label{_p_i_l_Installation}
+Before installing Metis, load new version of cmake
+
+
+\begin{DoxyItemize}
+\item module load cmake
+\end{DoxyItemize}
+
+Download \href{http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-5.0.2.tar.gz}{\tt http\+://glaros.\+dtc.\+umn.\+edu/gkhome/fetch/sw/metis/metis-\/5.\+0.\+2.\+tar.\+gz} (or whatever the latest stable release)
+
+
+\begin{DoxyItemize}
+\item Install Metis to \$\+H\+O\+M\+E/local/metis
+\item Put metis-\/5.\+0.\+2.\+tar.\+gz in /tmp/$<$some directory$>$=\char`\"{}\char`\"{}$>$, run\+:
+\begin{DoxyItemize}
+\item tar xvfz metis-\/5.\+0.\+2.\+tar.\+gz
+\item cd metis-\/5.\+0.\+2
+\end{DoxyItemize}
+\item (Optional) To build Metis with 64-\/bit integers (to avoid integer overflow when using large number of particles), in include/metis.\+h change
+\item 
+\item \#define I\+D\+X\+T\+Y\+P\+E\+W\+I\+D\+T\+H 32
+\item 
+\item to
+\item 
+\item \#define I\+D\+X\+T\+Y\+P\+E\+W\+I\+D\+T\+H 64
+\item 
+\begin{DoxyItemize}
+\item make config prefix=\$\+H\+O\+M\+E/local/metis
+\item make install 
+\end{DoxyItemize}
+\end{DoxyItemize}

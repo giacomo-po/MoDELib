@@ -1,0 +1,540 @@
+\hypertarget{classmodel_1_1_trial_function}{}\section{model\+:\+:Trial\+Function$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$ Class Template Reference}
+\label{classmodel_1_1_trial_function}\index{model\+::\+Trial\+Function$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$@{model\+::\+Trial\+Function$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$}}
+
+
+{\ttfamily \#include $<$Trial\+Function.\+h$>$}
+
+Inheritance diagram for model\+:\+:Trial\+Function$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.749665cm]{classmodel_1_1_trial_function}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Finite\+Element\+Type\+::\+Element\+Type \hyperlink{classmodel_1_1_trial_function_a72000c5b5030b4738f1d54f149519a78}{Element\+Type}
+\item 
+typedef Finite\+Element\+Type\+::\+Node\+Type \hyperlink{classmodel_1_1_trial_function_abfb27d5003b203df9a1a34f81efb49c1}{Node\+Type}
+\item 
+typedef \hyperlink{classmodel_1_1_trial_function}{Trial\+Function}$<$ \+\_\+n\+Components, \hyperlink{classmodel_1_1_trial_function_affdabe3315d0208c9b2210c3cbee6d42}{Finite\+Element\+Type} $>$ \hyperlink{classmodel_1_1_trial_function_a7f044ad0cacd2e9026ea7a3861e0df9a}{Trial\+Function\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ \hyperlink{classmodel_1_1_trial_function_a7f044ad0cacd2e9026ea7a3861e0df9a}{Trial\+Function\+Type} $>$\+::\hyperlink{classmodel_1_1_trial_function_a830ac33c6efd0f2022269cfc2c522388}{Node\+Container\+Type} \hyperlink{classmodel_1_1_trial_function_a830ac33c6efd0f2022269cfc2c522388}{Node\+Container\+Type}
+\item 
+typedef std\+::map$<$ size\+\_\+t, double $>$ \hyperlink{classmodel_1_1_trial_function_ae83a85333510ff0e0823e6cb748774ed}{Dirichlet\+Condition\+Container\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ \hyperlink{classmodel_1_1_trial_function_a7f044ad0cacd2e9026ea7a3861e0df9a}{Trial\+Function\+Type} $>$\+::\hyperlink{classmodel_1_1_trial_function_af4bd713419cc83660594065c9392bf2c}{Bary\+Type} \hyperlink{classmodel_1_1_trial_function_af4bd713419cc83660594065c9392bf2c}{Bary\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ \hyperlink{classmodel_1_1_trial_function_a7f044ad0cacd2e9026ea7a3861e0df9a}{Trial\+Function\+Type} $>$\+::\hyperlink{classmodel_1_1_trial_function_aab74b7f4994594a049e4a0201ecd0770}{Shape\+Function\+Matrix\+Type} \hyperlink{classmodel_1_1_trial_function_aab74b7f4994594a049e4a0201ecd0770}{Shape\+Function\+Matrix\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ \hyperlink{classmodel_1_1_trial_function_a7f044ad0cacd2e9026ea7a3861e0df9a}{Trial\+Function\+Type} $>$\+::\hyperlink{classmodel_1_1_trial_function_adf8d15a6967d142e4b5807db94294f66}{Shape\+Function\+Grad\+Matrix\+Type} \hyperlink{classmodel_1_1_trial_function_adf8d15a6967d142e4b5807db94294f66}{Shape\+Function\+Grad\+Matrix\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ \hyperlink{classmodel_1_1_trial_function_a7f044ad0cacd2e9026ea7a3861e0df9a}{Trial\+Function\+Type} $>$\+::\hyperlink{classmodel_1_1_trial_function_a91023734ad775d5608a8672e9fe00f5c}{Shape\+Function\+Def\+Matrix\+Type} \hyperlink{classmodel_1_1_trial_function_a91023734ad775d5608a8672e9fe00f5c}{Shape\+Function\+Def\+Matrix\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_trial_function_ae27e9c128c6fca2c9a7e89b7b8e4849f}{Trial\+Function} (const \hyperlink{classmodel_1_1_trial_function_affdabe3315d0208c9b2210c3cbee6d42}{Finite\+Element\+Type} \&fe\+\_\+in)
+\item 
+const \hyperlink{classmodel_1_1_trial_function}{Trial\+Function} \& \hyperlink{classmodel_1_1_trial_function_abf1af5b4cf7edf2e9f1b054b6b196bdf}{operator=} (const Eigen\+::\+Vector\+Xd \&\hyperlink{tube_plotter_8m_a905c521e05ec8042631a912b71d0454e}{temp})
+\item 
+const \hyperlink{classmodel_1_1_trial_function_a7f044ad0cacd2e9026ea7a3861e0df9a}{Trial\+Function\+Type} \& \hyperlink{classmodel_1_1_trial_function_a08abf5dcf358fd9c2bd3539de7b08bb0}{trial} () const 
+\item 
+size\+\_\+t \hyperlink{classmodel_1_1_trial_function_af0da9e8374638daecd7cab1cc17ef35c}{element\+Size} () const 
+\item 
+size\+\_\+t \hyperlink{classmodel_1_1_trial_function_a19eaf6d59b64cde03e99d955a006483c}{node\+Size} () const 
+\item 
+const \hyperlink{classmodel_1_1_trial_function_abfb27d5003b203df9a1a34f81efb49c1}{Node\+Type} \& \hyperlink{classmodel_1_1_trial_function_ab3883213ccd18d9a11a285dfa80866c8}{node} (const size\+\_\+t \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n}) const 
+\item 
+\hyperlink{classmodel_1_1_trial_function_aab74b7f4994594a049e4a0201ecd0770}{Shape\+Function\+Matrix\+Type} \hyperlink{classmodel_1_1_trial_function_a4b6a8fb90432c764dba5ebc45c4f0695}{sfm} (const \hyperlink{classmodel_1_1_trial_function_a72000c5b5030b4738f1d54f149519a78}{Element\+Type} \&ele, const \hyperlink{classmodel_1_1_trial_function_af4bd713419cc83660594065c9392bf2c}{Bary\+Type} \&bary) const 
+\item 
+\hyperlink{classmodel_1_1_trial_function_adf8d15a6967d142e4b5807db94294f66}{Shape\+Function\+Grad\+Matrix\+Type} \hyperlink{classmodel_1_1_trial_function_af4019d0b9c484b56b5572721f8581899}{sfm\+Grad} (const \hyperlink{classmodel_1_1_trial_function_a72000c5b5030b4738f1d54f149519a78}{Element\+Type} \&ele, const \hyperlink{classmodel_1_1_trial_function_af4bd713419cc83660594065c9392bf2c}{Bary\+Type} \&bary) const 
+\item 
+\hyperlink{classmodel_1_1_trial_function_a91023734ad775d5608a8672e9fe00f5c}{Shape\+Function\+Def\+Matrix\+Type} \hyperlink{classmodel_1_1_trial_function_af721b91de8f83770471816cabe86f8dc}{sfm\+Def} (const \hyperlink{classmodel_1_1_trial_function_a72000c5b5030b4738f1d54f149519a78}{Element\+Type} \&ele, const \hyperlink{classmodel_1_1_trial_function_af4bd713419cc83660594065c9392bf2c}{Bary\+Type} \&bary) const 
+\item 
+{\footnotesize template$<$typename Condition $>$ }\\void \hyperlink{classmodel_1_1_trial_function_a88905f263222a71a39550e16b491764f}{add\+Dirichlet\+Condition} (const Condition \&cond, const \hyperlink{structmodel_1_1_node_list}{Node\+List}$<$ \hyperlink{classmodel_1_1_trial_function_affdabe3315d0208c9b2210c3cbee6d42}{Finite\+Element\+Type} $>$ \&node\+List)
+\item 
+{\footnotesize template$<$typename Condition $>$ }\\void \hyperlink{classmodel_1_1_trial_function_af3f003bde72d04367fca04898c50546b}{add\+Dirichlet\+Condition} (const Condition \&cond, const \hyperlink{structmodel_1_1_node_list}{Node\+List}$<$ \hyperlink{classmodel_1_1_trial_function_affdabe3315d0208c9b2210c3cbee6d42}{Finite\+Element\+Type} $>$ \&node\+List, const int \&dof)
+\item 
+void \hyperlink{classmodel_1_1_trial_function_a7756c68f422979e2123d3eff9baadfad}{add\+Dirichlet\+Condition} (const double \&val, const \hyperlink{structmodel_1_1_node_list}{Node\+List}$<$ \hyperlink{classmodel_1_1_trial_function_affdabe3315d0208c9b2210c3cbee6d42}{Finite\+Element\+Type} $>$ \&node\+List, const int \&dof)
+\item 
+void \hyperlink{classmodel_1_1_trial_function_a59298a9f8016e1a20d466cebac09bebf}{clear\+Dirichlet\+Conditions} ()
+\item 
+\hyperlink{classmodel_1_1_trial_function_ae83a85333510ff0e0823e6cb748774ed}{Dirichlet\+Condition\+Container\+Type} \& \hyperlink{classmodel_1_1_trial_function_a8cb248e12ec072e4edaf7c43610926ea}{dirichlet\+Conditions} ()
+\item 
+const \hyperlink{classmodel_1_1_trial_function_ae83a85333510ff0e0823e6cb748774ed}{Dirichlet\+Condition\+Container\+Type} \& \hyperlink{classmodel_1_1_trial_function_ad9215ddbadde33a8393e55d371d51b1a}{dirichlet\+Conditions} () const 
+\item 
+const Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, 1 $>$ \& \hyperlink{classmodel_1_1_trial_function_a84bca00103b11310f2b15c906f566670}{dof\+Vector} () const 
+\item 
+Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_trial_function_a2c8f1a6d813250a57c722223f5d1fcab}{dof\+Per\+Element}, 1 $>$ \hyperlink{classmodel_1_1_trial_function_a60bf99b5e600595ec2f25713fb934251}{dofs} (const \hyperlink{classmodel_1_1_trial_function_a72000c5b5030b4738f1d54f149519a78}{Element\+Type} \&ele) const 
+\item 
+Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_trial_function_a1d4b756e358d5dbf7cc9464bc6bb37a8}{rows}, 1 $>$ \hyperlink{classmodel_1_1_trial_function_ac60deffff50e04e50742554e68f1ca9e}{operator()} (const \hyperlink{classmodel_1_1_trial_function_a72000c5b5030b4738f1d54f149519a78}{Element\+Type} \&ele, const \hyperlink{classmodel_1_1_trial_function_af4bd713419cc83660594065c9392bf2c}{Bary\+Type} \&bary) const 
+\item 
+Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_trial_function_a1d4b756e358d5dbf7cc9464bc6bb37a8}{rows}, 1 $>$ \hyperlink{classmodel_1_1_trial_function_a8859212fbdd705529fcb0b5124f8c576}{operator()} (const Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_trial_function_a52ad09fcd425a06951e5c917eda26a7f}{dim}, 1 $>$ \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}, const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{classmodel_1_1_trial_function_a52ad09fcd425a06951e5c917eda26a7f}{dim}, \hyperlink{classmodel_1_1_trial_function_a52ad09fcd425a06951e5c917eda26a7f}{dim} $>$ $\ast$guess) const 
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+E\+I\+G\+E\+N\+\_\+\+M\+A\+K\+E\+\_\+\+A\+L\+I\+G\+N\+E\+D\+\_\+\+O\+P\+E\+R\+A\+T\+O\+R\+\_\+\+N\+E\+W typedef \+\_\+\+Finite\+Element\+Type \hyperlink{classmodel_1_1_trial_function_affdabe3315d0208c9b2210c3cbee6d42}{Finite\+Element\+Type}
+\item 
+const \hyperlink{classmodel_1_1_trial_function_affdabe3315d0208c9b2210c3cbee6d42}{Finite\+Element\+Type} \& \hyperlink{classmodel_1_1_trial_function_a808f99f04cba2e6c93d030771538861d}{fe}
+\begin{DoxyCompactList}\small\item\em A const reference of the \hyperlink{classmodel_1_1_finite_element}{Finite\+Element} over which $\ast$this is constructed. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static constexpr int \hyperlink{classmodel_1_1_trial_function_a1d4b756e358d5dbf7cc9464bc6bb37a8}{rows} =\+\_\+n\+Components
+\item 
+static constexpr int \hyperlink{classmodel_1_1_trial_function_a52ad09fcd425a06951e5c917eda26a7f}{dim} =Element\+Type\+::dim
+\item 
+static constexpr int \hyperlink{classmodel_1_1_trial_function_a88ce10c7d07ae2ce3d8f3c7342f55c26}{nodes\+Per\+Element} =Element\+Type\+::nodes\+Per\+Element
+\item 
+static constexpr int \hyperlink{classmodel_1_1_trial_function_ad23735e6005fbc863c2f722f343c15e4}{dof\+Per\+Node} =\hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$\hyperlink{classmodel_1_1_trial_function_a7f044ad0cacd2e9026ea7a3861e0df9a}{Trial\+Function\+Type}$>$\+::dof\+Per\+Node
+\item 
+static constexpr int \hyperlink{classmodel_1_1_trial_function_a2c8f1a6d813250a57c722223f5d1fcab}{dof\+Per\+Element} =\hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$\hyperlink{classmodel_1_1_trial_function_a7f044ad0cacd2e9026ea7a3861e0df9a}{Trial\+Function\+Type}$>$\+::dof\+Per\+Element
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$class model\+::\+Trial\+Function$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$}
+
+
+
+Definition at line 33 of file Trial\+Function.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_trial_function_af4bd713419cc83660594065c9392bf2c}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!Bary\+Type@{Bary\+Type}}
+\index{Bary\+Type@{Bary\+Type}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{Bary\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ typedef {\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::{\bf Bary\+Type} {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::{\bf Bary\+Type}}\label{classmodel_1_1_trial_function_af4bd713419cc83660594065c9392bf2c}
+
+
+Definition at line 57 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_ae83a85333510ff0e0823e6cb748774ed}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!Dirichlet\+Condition\+Container\+Type@{Dirichlet\+Condition\+Container\+Type}}
+\index{Dirichlet\+Condition\+Container\+Type@{Dirichlet\+Condition\+Container\+Type}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{Dirichlet\+Condition\+Container\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ typedef std\+::map$<$size\+\_\+t,double$>$ {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::{\bf Dirichlet\+Condition\+Container\+Type}}\label{classmodel_1_1_trial_function_ae83a85333510ff0e0823e6cb748774ed}
+
+
+Definition at line 50 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a72000c5b5030b4738f1d54f149519a78}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!Element\+Type@{Element\+Type}}
+\index{Element\+Type@{Element\+Type}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{Element\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ typedef Finite\+Element\+Type\+::\+Element\+Type {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::{\bf Element\+Type}}\label{classmodel_1_1_trial_function_a72000c5b5030b4738f1d54f149519a78}
+
+
+Definition at line 43 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a830ac33c6efd0f2022269cfc2c522388}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!Node\+Container\+Type@{Node\+Container\+Type}}
+\index{Node\+Container\+Type@{Node\+Container\+Type}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{Node\+Container\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ typedef {\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::{\bf Node\+Container\+Type} {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::{\bf Node\+Container\+Type}}\label{classmodel_1_1_trial_function_a830ac33c6efd0f2022269cfc2c522388}
+
+
+Definition at line 49 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_abfb27d5003b203df9a1a34f81efb49c1}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!Node\+Type@{Node\+Type}}
+\index{Node\+Type@{Node\+Type}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{Node\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ typedef Finite\+Element\+Type\+::\+Node\+Type {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::{\bf Node\+Type}}\label{classmodel_1_1_trial_function_abfb27d5003b203df9a1a34f81efb49c1}
+
+
+Definition at line 44 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a91023734ad775d5608a8672e9fe00f5c}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!Shape\+Function\+Def\+Matrix\+Type@{Shape\+Function\+Def\+Matrix\+Type}}
+\index{Shape\+Function\+Def\+Matrix\+Type@{Shape\+Function\+Def\+Matrix\+Type}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{Shape\+Function\+Def\+Matrix\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ typedef {\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::{\bf Shape\+Function\+Def\+Matrix\+Type} {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::{\bf Shape\+Function\+Def\+Matrix\+Type}}\label{classmodel_1_1_trial_function_a91023734ad775d5608a8672e9fe00f5c}
+
+
+Definition at line 60 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_adf8d15a6967d142e4b5807db94294f66}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!Shape\+Function\+Grad\+Matrix\+Type@{Shape\+Function\+Grad\+Matrix\+Type}}
+\index{Shape\+Function\+Grad\+Matrix\+Type@{Shape\+Function\+Grad\+Matrix\+Type}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{Shape\+Function\+Grad\+Matrix\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ typedef {\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::{\bf Shape\+Function\+Grad\+Matrix\+Type} {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::{\bf Shape\+Function\+Grad\+Matrix\+Type}}\label{classmodel_1_1_trial_function_adf8d15a6967d142e4b5807db94294f66}
+
+
+Definition at line 59 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_aab74b7f4994594a049e4a0201ecd0770}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!Shape\+Function\+Matrix\+Type@{Shape\+Function\+Matrix\+Type}}
+\index{Shape\+Function\+Matrix\+Type@{Shape\+Function\+Matrix\+Type}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{Shape\+Function\+Matrix\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ typedef {\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::{\bf Shape\+Function\+Matrix\+Type} {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::{\bf Shape\+Function\+Matrix\+Type}}\label{classmodel_1_1_trial_function_aab74b7f4994594a049e4a0201ecd0770}
+
+
+Definition at line 58 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a7f044ad0cacd2e9026ea7a3861e0df9a}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!Trial\+Function\+Type@{Trial\+Function\+Type}}
+\index{Trial\+Function\+Type@{Trial\+Function\+Type}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{Trial\+Function\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ typedef {\bf Trial\+Function}$<$\+\_\+n\+Components,{\bf Finite\+Element\+Type}$>$ {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::{\bf Trial\+Function\+Type}}\label{classmodel_1_1_trial_function_a7f044ad0cacd2e9026ea7a3861e0df9a}
+
+
+Definition at line 46 of file Trial\+Function.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_trial_function_ae27e9c128c6fca2c9a7e89b7b8e4849f}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!Trial\+Function@{Trial\+Function}}
+\index{Trial\+Function@{Trial\+Function}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{Trial\+Function}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::{\bf Trial\+Function} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Finite\+Element\+Type} \&}]{fe\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_ae27e9c128c6fca2c9a7e89b7b8e4849f}
+
+
+Definition at line 66 of file Trial\+Function.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_trial_function_a88905f263222a71a39550e16b491764f}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!add\+Dirichlet\+Condition@{add\+Dirichlet\+Condition}}
+\index{add\+Dirichlet\+Condition@{add\+Dirichlet\+Condition}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{add\+Dirichlet\+Condition}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ template$<$typename Condition $>$ void {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::add\+Dirichlet\+Condition (
+\begin{DoxyParamCaption}
+\item[{const Condition \&}]{cond, }
+\item[{const {\bf Node\+List}$<$ {\bf Finite\+Element\+Type} $>$ \&}]{node\+List}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_a88905f263222a71a39550e16b491764f}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dc} & the Dirichlet condition \\
+\hline
+\mbox{\tt in}  & {\em the} & nodal dof to be constrained\\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 139 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_af3f003bde72d04367fca04898c50546b}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!add\+Dirichlet\+Condition@{add\+Dirichlet\+Condition}}
+\index{add\+Dirichlet\+Condition@{add\+Dirichlet\+Condition}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{add\+Dirichlet\+Condition}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ template$<$typename Condition $>$ void {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::add\+Dirichlet\+Condition (
+\begin{DoxyParamCaption}
+\item[{const Condition \&}]{cond, }
+\item[{const {\bf Node\+List}$<$ {\bf Finite\+Element\+Type} $>$ \&}]{node\+List, }
+\item[{const int \&}]{dof}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_af3f003bde72d04367fca04898c50546b}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dc} & the Dirichlet condition \\
+\hline
+\mbox{\tt in}  & {\em the} & nodal dof to be constrained\\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 159 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a7756c68f422979e2123d3eff9baadfad}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!add\+Dirichlet\+Condition@{add\+Dirichlet\+Condition}}
+\index{add\+Dirichlet\+Condition@{add\+Dirichlet\+Condition}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{add\+Dirichlet\+Condition}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ void {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::add\+Dirichlet\+Condition (
+\begin{DoxyParamCaption}
+\item[{const double \&}]{val, }
+\item[{const {\bf Node\+List}$<$ {\bf Finite\+Element\+Type} $>$ \&}]{node\+List, }
+\item[{const int \&}]{dof}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_a7756c68f422979e2123d3eff9baadfad}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dc} & the Dirichlet condition \\
+\hline
+\mbox{\tt in}  & {\em the} & nodal dof to be constrained\\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 178 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a59298a9f8016e1a20d466cebac09bebf}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!clear\+Dirichlet\+Conditions@{clear\+Dirichlet\+Conditions}}
+\index{clear\+Dirichlet\+Conditions@{clear\+Dirichlet\+Conditions}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{clear\+Dirichlet\+Conditions}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ void {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::clear\+Dirichlet\+Conditions (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_a59298a9f8016e1a20d466cebac09bebf}
+
+
+Definition at line 197 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a8cb248e12ec072e4edaf7c43610926ea}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!dirichlet\+Conditions@{dirichlet\+Conditions}}
+\index{dirichlet\+Conditions@{dirichlet\+Conditions}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{dirichlet\+Conditions}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ {\bf Dirichlet\+Condition\+Container\+Type}\& {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::dirichlet\+Conditions (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_a8cb248e12ec072e4edaf7c43610926ea}
+
+
+Definition at line 203 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_ad9215ddbadde33a8393e55d371d51b1a}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!dirichlet\+Conditions@{dirichlet\+Conditions}}
+\index{dirichlet\+Conditions@{dirichlet\+Conditions}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{dirichlet\+Conditions}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ const {\bf Dirichlet\+Condition\+Container\+Type}\& {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::dirichlet\+Conditions (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_ad9215ddbadde33a8393e55d371d51b1a}
+
+
+Definition at line 209 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a60bf99b5e600595ec2f25713fb934251}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!dofs@{dofs}}
+\index{dofs@{dofs}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{dofs}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ Eigen\+::\+Matrix$<$double,{\bf dof\+Per\+Element},1$>$ {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::dofs (
+\begin{DoxyParamCaption}
+\item[{const {\bf Element\+Type} \&}]{ele}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_a60bf99b5e600595ec2f25713fb934251}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em ele} & the element \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A vector of the degrees of freedom of $\ast$this on ele
+\end{DoxyReturn}
+
+
+Definition at line 222 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a84bca00103b11310f2b15c906f566670}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!dof\+Vector@{dof\+Vector}}
+\index{dof\+Vector@{dof\+Vector}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{dof\+Vector}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ const Eigen\+::\+Matrix$<$double,Eigen\+::\+Dynamic,1$>$\& {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::dof\+Vector (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_a84bca00103b11310f2b15c906f566670}
+\begin{DoxyReturn}{Returns}
+A column vector of the D\+O\+Fs of $\ast$this.
+\end{DoxyReturn}
+
+
+Definition at line 215 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_af0da9e8374638daecd7cab1cc17ef35c}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!element\+Size@{element\+Size}}
+\index{element\+Size@{element\+Size}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{element\+Size}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ size\+\_\+t {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::element\+Size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_af0da9e8374638daecd7cab1cc17ef35c}
+\begin{DoxyReturn}{Returns}
+the number of elements in the \hyperlink{classmodel_1_1_finite_element}{Finite\+Element}
+\end{DoxyReturn}
+
+
+Definition at line 89 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_ab3883213ccd18d9a11a285dfa80866c8}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!node@{node}}
+\index{node@{node}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{node}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ const {\bf Node\+Type}\& {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::node (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{n}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_ab3883213ccd18d9a11a285dfa80866c8}
+
+
+Definition at line 102 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a19eaf6d59b64cde03e99d955a006483c}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!node\+Size@{node\+Size}}
+\index{node\+Size@{node\+Size}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{node\+Size}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ size\+\_\+t {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::node\+Size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_a19eaf6d59b64cde03e99d955a006483c}
+
+
+Definition at line 96 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_ac60deffff50e04e50742554e68f1ca9e}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!operator()@{operator()}}
+\index{operator()@{operator()}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{operator()}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ Eigen\+::\+Matrix$<$double,{\bf rows},1$>$ {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::operator() (
+\begin{DoxyParamCaption}
+\item[{const {\bf Element\+Type} \&}]{ele, }
+\item[{const {\bf Bary\+Type} \&}]{bary}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_ac60deffff50e04e50742554e68f1ca9e}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em ele} & the element \\
+\hline
+\mbox{\tt in}  & {\em bary} & the vector of barycentric coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the value of the Derived expression at bary.
+\end{DoxyReturn}
+
+
+Definition at line 235 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a8859212fbdd705529fcb0b5124f8c576}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!operator()@{operator()}}
+\index{operator()@{operator()}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{operator()}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ Eigen\+::\+Matrix$<$double,{\bf rows},1$>$ {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::operator() (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}, 1 $>$ \&}]{P, }
+\item[{const {\bf Simplex}$<$ {\bf dim}, {\bf dim} $>$ $\ast$}]{guess}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_a8859212fbdd705529fcb0b5124f8c576}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em P} & the position vector \\
+\hline
+\mbox{\tt in}  & {\em guess} & the \hyperlink{classmodel_1_1_simplex}{Simplex} where the search starts \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the value of the Derived expression at P.
+\end{DoxyReturn}
+
+
+Definition at line 244 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_abf1af5b4cf7edf2e9f1b054b6b196bdf}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!operator=@{operator=}}
+\index{operator=@{operator=}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{operator=}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ const {\bf Trial\+Function}\& {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::operator= (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Vector\+Xd \&}]{temp}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_abf1af5b4cf7edf2e9f1b054b6b196bdf}
+
+
+Definition at line 75 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a4b6a8fb90432c764dba5ebc45c4f0695}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!sfm@{sfm}}
+\index{sfm@{sfm}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{sfm}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ {\bf Shape\+Function\+Matrix\+Type} {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::sfm (
+\begin{DoxyParamCaption}
+\item[{const {\bf Element\+Type} \&}]{ele, }
+\item[{const {\bf Bary\+Type} \&}]{bary}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_a4b6a8fb90432c764dba5ebc45c4f0695}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em ele} & a finite element \\
+\hline
+\mbox{\tt in}  & {\em bary} & the vector of barycentric coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The matrix of shape functions for the element, evaluated at bary.
+\end{DoxyReturn}
+
+
+Definition at line 108 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_af721b91de8f83770471816cabe86f8dc}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!sfm\+Def@{sfm\+Def}}
+\index{sfm\+Def@{sfm\+Def}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{sfm\+Def}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ {\bf Shape\+Function\+Def\+Matrix\+Type} {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::sfm\+Def (
+\begin{DoxyParamCaption}
+\item[{const {\bf Element\+Type} \&}]{ele, }
+\item[{const {\bf Bary\+Type} \&}]{bary}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_af721b91de8f83770471816cabe86f8dc}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em ele} & a finite element \\
+\hline
+\mbox{\tt in}  & {\em bary} & the vector of barycentric coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The matrix of symmetric shape functions derivatives for the element, evaluated at bary.
+\end{DoxyReturn}
+
+
+Definition at line 128 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_af4019d0b9c484b56b5572721f8581899}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!sfm\+Grad@{sfm\+Grad}}
+\index{sfm\+Grad@{sfm\+Grad}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{sfm\+Grad}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ {\bf Shape\+Function\+Grad\+Matrix\+Type} {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::sfm\+Grad (
+\begin{DoxyParamCaption}
+\item[{const {\bf Element\+Type} \&}]{ele, }
+\item[{const {\bf Bary\+Type} \&}]{bary}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_af4019d0b9c484b56b5572721f8581899}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em ele} & a finite element \\
+\hline
+\mbox{\tt in}  & {\em bary} & the vector of barycentric coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The matrix of shape functions derivatives for the element, evaluated at bary.
+\end{DoxyReturn}
+
+
+Definition at line 118 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a08abf5dcf358fd9c2bd3539de7b08bb0}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!trial@{trial}}
+\index{trial@{trial}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{trial}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ const {\bf Trial\+Function\+Type}\& {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::trial (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_trial_function_a08abf5dcf358fd9c2bd3539de7b08bb0}
+
+
+Definition at line 83 of file Trial\+Function.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_trial_function_a52ad09fcd425a06951e5c917eda26a7f}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!dim@{dim}}
+\index{dim@{dim}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ constexpr int {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::dim =Element\+Type\+::dim\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_trial_function_a52ad09fcd425a06951e5c917eda26a7f}
+
+
+Definition at line 52 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a2c8f1a6d813250a57c722223f5d1fcab}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!dof\+Per\+Element@{dof\+Per\+Element}}
+\index{dof\+Per\+Element@{dof\+Per\+Element}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{dof\+Per\+Element}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ constexpr int {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::dof\+Per\+Element ={\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::dof\+Per\+Element\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_trial_function_a2c8f1a6d813250a57c722223f5d1fcab}
+
+
+Definition at line 55 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_ad23735e6005fbc863c2f722f343c15e4}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!dof\+Per\+Node@{dof\+Per\+Node}}
+\index{dof\+Per\+Node@{dof\+Per\+Node}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{dof\+Per\+Node}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ constexpr int {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::dof\+Per\+Node ={\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::dof\+Per\+Node\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_trial_function_ad23735e6005fbc863c2f722f343c15e4}
+
+
+Definition at line 54 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a808f99f04cba2e6c93d030771538861d}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!fe@{fe}}
+\index{fe@{fe}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{fe}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ const {\bf Finite\+Element\+Type}\& {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::fe}\label{classmodel_1_1_trial_function_a808f99f04cba2e6c93d030771538861d}
+
+
+A const reference of the \hyperlink{classmodel_1_1_finite_element}{Finite\+Element} over which $\ast$this is constructed. 
+
+
+
+Definition at line 63 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_affdabe3315d0208c9b2210c3cbee6d42}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!Finite\+Element\+Type@{Finite\+Element\+Type}}
+\index{Finite\+Element\+Type@{Finite\+Element\+Type}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{Finite\+Element\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ E\+I\+G\+E\+N\+\_\+\+M\+A\+K\+E\+\_\+\+A\+L\+I\+G\+N\+E\+D\+\_\+\+O\+P\+E\+R\+A\+T\+O\+R\+\_\+\+N\+E\+W typedef \+\_\+\+Finite\+Element\+Type {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::Finite\+Element\+Type}\label{classmodel_1_1_trial_function_affdabe3315d0208c9b2210c3cbee6d42}
+
+
+Definition at line 42 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a88ce10c7d07ae2ce3d8f3c7342f55c26}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!nodes\+Per\+Element@{nodes\+Per\+Element}}
+\index{nodes\+Per\+Element@{nodes\+Per\+Element}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{nodes\+Per\+Element}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ constexpr int {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::nodes\+Per\+Element =Element\+Type\+::nodes\+Per\+Element\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_trial_function_a88ce10c7d07ae2ce3d8f3c7342f55c26}
+
+
+Definition at line 53 of file Trial\+Function.\+h.
+
+\hypertarget{classmodel_1_1_trial_function_a1d4b756e358d5dbf7cc9464bc6bb37a8}{}\index{model\+::\+Trial\+Function@{model\+::\+Trial\+Function}!rows@{rows}}
+\index{rows@{rows}!model\+::\+Trial\+Function@{model\+::\+Trial\+Function}}
+\subsubsection[{rows}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+n\+Components, typename \+\_\+\+Finite\+Element\+Type$>$ constexpr int {\bf model\+::\+Trial\+Function}$<$ \+\_\+n\+Components, \+\_\+\+Finite\+Element\+Type $>$\+::rows =\+\_\+n\+Components\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_trial_function_a1d4b756e358d5dbf7cc9464bc6bb37a8}
+
+
+Definition at line 47 of file Trial\+Function.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_trial_function_8h}{Trial\+Function.\+h}\end{DoxyCompactItemize}

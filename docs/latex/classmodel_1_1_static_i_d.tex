@@ -1,0 +1,161 @@
+\hypertarget{classmodel_1_1_static_i_d}{}\section{model\+:\+:Static\+I\+D$<$ Derived $>$ Class Template Reference}
+\label{classmodel_1_1_static_i_d}\index{model\+::\+Static\+I\+D$<$ Derived $>$@{model\+::\+Static\+I\+D$<$ Derived $>$}}
+
+
+\begin{DoxyVerb}A class template that implements a counter of the number of instances of
+\end{DoxyVerb}
+ Derived type that are created at runtime. It also provides a unique increasing static identifier (s\+I\+D) for each instance.  
+
+
+
+
+{\ttfamily \#include $<$Static\+I\+D.\+h$>$}
+
+Inheritance diagram for model\+:\+:Static\+I\+D$<$ Derived $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.651917cm]{classmodel_1_1_static_i_d}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_static_i_d_a83e561b72deb7bf1bb81454144fc073c}{Static\+I\+D} ()
+\item 
+\hyperlink{classmodel_1_1_static_i_d_a1be28bcd4fbd54cde8c9d3acdd347baf}{Static\+I\+D} (const \hyperlink{classmodel_1_1_static_i_d}{Static\+I\+D} \&)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static size\+\_\+t \hyperlink{classmodel_1_1_static_i_d_a4d63d18dff46b56e3fd0b4dcff231a96}{next\+I\+D} ()
+\item 
+static void \hyperlink{classmodel_1_1_static_i_d_a3427e075194820a3993d2dc50675f561}{set\+\_\+count} (const size\+\_\+t \&new\+Count)
+\item 
+static void \hyperlink{classmodel_1_1_static_i_d_a66e898ed15bccf39ee69629b06d1b477}{force\+\_\+count} (const size\+\_\+t \&new\+Count)
+\item 
+static void \hyperlink{classmodel_1_1_static_i_d_a0653c60b44016dfc26bfa551c779c2af}{set\+\_\+increment} (const int \&new\+Increment)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const size\+\_\+t \hyperlink{classmodel_1_1_static_i_d_a91e91a4c43dc2cb6259f58bdceb686a5}{s\+I\+D}
+\begin{DoxyCompactList}\small\item\em The static I\+D of this. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Derived$>$class model\+::\+Static\+I\+D$<$ Derived $>$}
+
+\begin{DoxyVerb}A class template that implements a counter of the number of instances of
+\end{DoxyVerb}
+ Derived type that are created at runtime. It also provides a unique increasing static identifier (s\+I\+D) for each instance. 
+
+
+\begin{DoxyCode}
+\textcolor{preprocessor}{#include <\hyperlink{_static_i_d_8h}{model/Utilities/StaticID.h}>}
+
+\textcolor{keyword}{class }MyClass : \textcolor{keyword}{public} \hyperlink{classmodel_1_1_static_i_d}{model::StaticID}<MyClass>\{\};
+
+\textcolor{keywordtype}{int} \hyperlink{bench_2bary_search_2main_8cpp_a0ddf1224851353fc92bfbff6f499fa97}{main}()\{
+
+MyClass a;          \textcolor{comment}{// with default constructor}
+MyClass \hyperlink{run_multipole_8m_a21ad0bd836b90d08f4cf640b4c298e7c}{b}(a);       \textcolor{comment}{// with copy constructor}
+
+\hyperlink{namespacemodel_a0ce25fef078a7d9d9cb7cfbabcfbc289}{std::cout}<<a.sID<<std::endl;
+\hyperlink{namespacemodel_a0ce25fef078a7d9d9cb7cfbabcfbc289}{std::cout}<<\hyperlink{run_multipole_8m_a21ad0bd836b90d08f4cf640b4c298e7c}{b}.sID<<std::endl;
+\}
+\end{DoxyCode}
+ 
+
+Definition at line 40 of file Static\+I\+D.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_static_i_d_a83e561b72deb7bf1bb81454144fc073c}{}\index{model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}!Static\+I\+D@{Static\+I\+D}}
+\index{Static\+I\+D@{Static\+I\+D}!model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}}
+\subsubsection[{Static\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived$>$ {\bf model\+::\+Static\+I\+D}$<$ Derived $>$\+::{\bf Static\+I\+D} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_static_i_d_a83e561b72deb7bf1bb81454144fc073c}
+
+
+Definition at line 56 of file Static\+I\+D.\+h.
+
+\hypertarget{classmodel_1_1_static_i_d_a1be28bcd4fbd54cde8c9d3acdd347baf}{}\index{model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}!Static\+I\+D@{Static\+I\+D}}
+\index{Static\+I\+D@{Static\+I\+D}!model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}}
+\subsubsection[{Static\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived$>$ {\bf model\+::\+Static\+I\+D}$<$ Derived $>$\+::{\bf Static\+I\+D} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Static\+I\+D}$<$ Derived $>$ \&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_static_i_d_a1be28bcd4fbd54cde8c9d3acdd347baf}
+
+
+Definition at line 63 of file Static\+I\+D.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_static_i_d_a66e898ed15bccf39ee69629b06d1b477}{}\index{model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}!force\+\_\+count@{force\+\_\+count}}
+\index{force\+\_\+count@{force\+\_\+count}!model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}}
+\subsubsection[{force\+\_\+count}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived$>$ static void {\bf model\+::\+Static\+I\+D}$<$ Derived $>$\+::force\+\_\+count (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{new\+Count}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_static_i_d_a66e898ed15bccf39ee69629b06d1b477}
+
+
+Definition at line 84 of file Static\+I\+D.\+h.
+
+\hypertarget{classmodel_1_1_static_i_d_a4d63d18dff46b56e3fd0b4dcff231a96}{}\index{model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}!next\+I\+D@{next\+I\+D}}
+\index{next\+I\+D@{next\+I\+D}!model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}}
+\subsubsection[{next\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived$>$ static size\+\_\+t {\bf model\+::\+Static\+I\+D}$<$ Derived $>$\+::next\+I\+D (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_static_i_d_a4d63d18dff46b56e3fd0b4dcff231a96}
+
+
+Definition at line 70 of file Static\+I\+D.\+h.
+
+\hypertarget{classmodel_1_1_static_i_d_a3427e075194820a3993d2dc50675f561}{}\index{model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}!set\+\_\+count@{set\+\_\+count}}
+\index{set\+\_\+count@{set\+\_\+count}!model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}}
+\subsubsection[{set\+\_\+count}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived$>$ static void {\bf model\+::\+Static\+I\+D}$<$ Derived $>$\+::set\+\_\+count (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{new\+Count}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_static_i_d_a3427e075194820a3993d2dc50675f561}
+
+
+Definition at line 76 of file Static\+I\+D.\+h.
+
+\hypertarget{classmodel_1_1_static_i_d_a0653c60b44016dfc26bfa551c779c2af}{}\index{model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}!set\+\_\+increment@{set\+\_\+increment}}
+\index{set\+\_\+increment@{set\+\_\+increment}!model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}}
+\subsubsection[{set\+\_\+increment}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived$>$ static void {\bf model\+::\+Static\+I\+D}$<$ Derived $>$\+::set\+\_\+increment (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{new\+Increment}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_static_i_d_a0653c60b44016dfc26bfa551c779c2af}
+
+
+Definition at line 91 of file Static\+I\+D.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_static_i_d_a91e91a4c43dc2cb6259f58bdceb686a5}{}\index{model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}!s\+I\+D@{s\+I\+D}}
+\index{s\+I\+D@{s\+I\+D}!model\+::\+Static\+I\+D@{model\+::\+Static\+I\+D}}
+\subsubsection[{s\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived$>$ const size\+\_\+t {\bf model\+::\+Static\+I\+D}$<$ Derived $>$\+::s\+I\+D}\label{classmodel_1_1_static_i_d_a91e91a4c43dc2cb6259f58bdceb686a5}
+
+
+The static I\+D of this. 
+
+
+
+Definition at line 53 of file Static\+I\+D.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_static_i_d_8h}{Static\+I\+D.\+h}\end{DoxyCompactItemize}

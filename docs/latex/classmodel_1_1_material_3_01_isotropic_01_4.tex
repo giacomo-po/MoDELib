@@ -1,0 +1,301 @@
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4}{}\section{model\+:\+:Material$<$ Isotropic $>$ Class Template Reference}
+\label{classmodel_1_1_material_3_01_isotropic_01_4}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+
+
+{\ttfamily \#include $<$Material.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \\*
+\hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451ae1b923e3af2da53677cf425c61658113}{Al} =13, 
+\hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451a658f5a9e6001015b645516c62a50d049}{Ni} =28, 
+\hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451a5df74092d798757cbece688906116025}{Cu} =29, 
+\hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451aab5f2e9cb07a9747a51eaee2886fa259}{W} =74, 
+\\*
+\hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451a4ee21b4f0f37a966071db717c45b0a6e}{Fe} =26
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a4e67432ed5296e6b5961c7bc91ae8b31}{select} (const unsigned int \&\hyperlink{_cubic_spline_intersection_8m_a9e2500f549c7bc281d7cb9aa8f883282}{Z})
+\item 
+{\footnotesize template$<$int dim$>$ }\\static void \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a819ed813841020ee67efdcda2c4c859f}{rotate\+Crystal} (const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $>$ \&\hyperlink{crystal_rotation_8m_a91d1e9da78391186478a7911c79460ad}{C2\+G})
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a299c77803eceaa3ce1d6c7f931028da3}{mu} =1.\+0
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a8d27809d336e9e463000877b5af8cba2}{b} =1.\+0
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_abff932e0b33c9e4b8d58f7bb9b1c5672}{B} =1.\+0
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a8cafb424a37398ed2466c9231e6dfe3d}{Binv} =1.\+0
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_ae892574680a428d133451e44a23aad41}{rho} =1.\+0
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a5042b3bcd496c68eab5430543476d70e}{cs} =1.\+0
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_af4ba0bae69cdb10d6a198e51c0dd5ee2}{nu} =0.\+34
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_adb6540f3999b1001c5525f395cabd635}{lambda} =2.\+0$\ast$1.\+0$\ast$0.\+34/(1.\+0-\/2.\+0$\ast$0.\+34)
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a058681aa4f39d02334efb83c1eab8652}{C1} =1.\+0-\/0.\+34
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_afbbc126d8ae1ba39a918cd2e1d5dd507}{C2} =1.\+0/(4.\+0$\ast$M\+\_\+\+P\+I$\ast$(1.\+0-\/0.\+34))
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a43f9ad024d3b9b4a03b52e2ffe02566c}{C3} =1.\+0-\/2.\+0$\ast$0.\+34
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a6a8832be4971bb5d8c099ace3b96b7e7}{C4} =1.\+0/(8.\+0$\ast$M\+\_\+\+P\+I$\ast$(1.\+0-\/0.\+34))
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_ac8253463339421c8137b2aa195488a8c}{T} =300.\+0
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a8968e8a2f8c20c96b10892a937b1db08}{kb} =1.\+38e-\/23/48.\+0e9/pow(0.\+2556e-\/9,3)
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a3b332d99cc4ba74ddc5c400ff43cbec2}{tau\+I\+I\+I} =0.\+667e-\/3
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_afd8e7f004fd95d56ac69dcfd11e740be}{v\+Act} =300.\+0
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a1da96a1b988a82ccc9e82570818f136b}{p} =\hyperlink{structmodel_1_1_periodic_element}{Periodic\+Element}$<$29,\hyperlink{classmodel_1_1_isotropic}{Isotropic}$>$\+::p
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_af860539daa43d347fcf1ac2624fb1e06}{q} =\hyperlink{structmodel_1_1_periodic_element}{Periodic\+Element}$<$29,\hyperlink{classmodel_1_1_isotropic}{Isotropic}$>$\+::q
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_aba51bbf78aadc68ac1f25252cea45392}{A} =\hyperlink{structmodel_1_1_periodic_element}{Periodic\+Element}$<$29,\hyperlink{classmodel_1_1_isotropic}{Isotropic}$>$\+::A
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_acc8ff01baf092b274787d9b46b37dbab}{tau\+P} =\hyperlink{structmodel_1_1_periodic_element}{Periodic\+Element}$<$29,\hyperlink{classmodel_1_1_isotropic}{Isotropic}$>$\+::tau\+P
+\item 
+static double \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a607cee4e5a3a8df415708dd1dd90c678}{Ta} =\hyperlink{structmodel_1_1_periodic_element}{Periodic\+Element}$<$29,\hyperlink{classmodel_1_1_isotropic}{Isotropic}$>$\+::Ta
+\item 
+static Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, 2 $>$ \hyperlink{classmodel_1_1_material_3_01_isotropic_01_4_a0b5ba4de6e8bc6b8303ad3b95ae19dd6}{d\+H0} =\hyperlink{structmodel_1_1_periodic_element}{Periodic\+Element}$<$29,\hyperlink{classmodel_1_1_isotropic}{Isotropic}$>$\+::d\+H0
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$$>$class model\+::\+Material$<$ Isotropic $>$}
+
+
+
+Definition at line 31 of file Material.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}anonymous enum}\label{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{Al@{Al}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!Al@{Al}}\item[{\em 
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451ae1b923e3af2da53677cf425c61658113}{}Al\label{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451ae1b923e3af2da53677cf425c61658113}
+}]\index{Ni@{Ni}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!Ni@{Ni}}\item[{\em 
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451a658f5a9e6001015b645516c62a50d049}{}Ni\label{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451a658f5a9e6001015b645516c62a50d049}
+}]\index{Cu@{Cu}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!Cu@{Cu}}\item[{\em 
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451a5df74092d798757cbece688906116025}{}Cu\label{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451a5df74092d798757cbece688906116025}
+}]\index{W@{W}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!W@{W}}\item[{\em 
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451aab5f2e9cb07a9747a51eaee2886fa259}{}W\label{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451aab5f2e9cb07a9747a51eaee2886fa259}
+}]\index{Fe@{Fe}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!Fe@{Fe}}\item[{\em 
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451a4ee21b4f0f37a966071db717c45b0a6e}{}Fe\label{classmodel_1_1_material_3_01_isotropic_01_4_acff07335ca01cc67f3774f9adaa7c451a4ee21b4f0f37a966071db717c45b0a6e}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 78 of file Material.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a819ed813841020ee67efdcda2c4c859f}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!rotate\+Crystal@{rotate\+Crystal}}
+\index{rotate\+Crystal@{rotate\+Crystal}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{rotate\+Crystal}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim$>$ static void {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::rotate\+Crystal (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}, {\bf dim} $>$ \&}]{C2\+G}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a819ed813841020ee67efdcda2c4c859f}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em C2\+G} & the crystal-\/to-\/global rotation matrix\\
+\hline
+\end{DoxyParams}
+Rotates the default plane normals in Periodic\+Element$<$\+Z,\+Isotropic$>$\+::\+Crystal\+Structure, where Z is the current selected material.
+
+Definition at line 147 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a4e67432ed5296e6b5961c7bc91ae8b31}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!select@{select}}
+\index{select@{select}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{select}]{\setlength{\rightskip}{0pt plus 5cm}static void {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::select (
+\begin{DoxyParamCaption}
+\item[{const unsigned int \&}]{Z}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a4e67432ed5296e6b5961c7bc91ae8b31}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em Z} & the atomic number of the element to be selected\\
+\hline
+\end{DoxyParams}
+Selects the element Z as the current material. All material properties are updated accordingly.
+
+Definition at line 109 of file Material.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_aba51bbf78aadc68ac1f25252cea45392}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!A@{A}}
+\index{A@{A}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{A}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::A ={\bf Periodic\+Element}$<$29,{\bf Isotropic}$>$\+::A\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_aba51bbf78aadc68ac1f25252cea45392}
+
+
+Definition at line 100 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a8d27809d336e9e463000877b5af8cba2}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!b@{b}}
+\index{b@{b}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{b}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::b =1.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a8d27809d336e9e463000877b5af8cba2}
+
+
+Definition at line 81 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_abff932e0b33c9e4b8d58f7bb9b1c5672}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!B@{B}}
+\index{B@{B}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{B}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::B =1.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_abff932e0b33c9e4b8d58f7bb9b1c5672}
+
+
+Definition at line 82 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a8cafb424a37398ed2466c9231e6dfe3d}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!Binv@{Binv}}
+\index{Binv@{Binv}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{Binv}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::Binv =1.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a8cafb424a37398ed2466c9231e6dfe3d}
+
+
+Definition at line 83 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a058681aa4f39d02334efb83c1eab8652}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!C1@{C1}}
+\index{C1@{C1}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{C1}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::C1 =1.\+0-\/0.\+34\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a058681aa4f39d02334efb83c1eab8652}
+
+
+Definition at line 88 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_afbbc126d8ae1ba39a918cd2e1d5dd507}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!C2@{C2}}
+\index{C2@{C2}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{C2}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::C2 =1.\+0/(4.\+0$\ast$M\+\_\+\+P\+I$\ast$(1.\+0-\/0.\+34))\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_afbbc126d8ae1ba39a918cd2e1d5dd507}
+
+
+Definition at line 89 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a43f9ad024d3b9b4a03b52e2ffe02566c}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!C3@{C3}}
+\index{C3@{C3}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{C3}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::C3 =1.\+0-\/2.\+0$\ast$0.\+34\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a43f9ad024d3b9b4a03b52e2ffe02566c}
+
+
+Definition at line 90 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a6a8832be4971bb5d8c099ace3b96b7e7}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!C4@{C4}}
+\index{C4@{C4}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{C4}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::C4 =1.\+0/(8.\+0$\ast$M\+\_\+\+P\+I$\ast$(1.\+0-\/0.\+34))\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a6a8832be4971bb5d8c099ace3b96b7e7}
+
+
+Definition at line 91 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a5042b3bcd496c68eab5430543476d70e}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!cs@{cs}}
+\index{cs@{cs}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{cs}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::cs =1.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a5042b3bcd496c68eab5430543476d70e}
+
+
+Definition at line 85 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a0b5ba4de6e8bc6b8303ad3b95ae19dd6}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!d\+H0@{d\+H0}}
+\index{d\+H0@{d\+H0}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{d\+H0}]{\setlength{\rightskip}{0pt plus 5cm}Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, 2 $>$ {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::d\+H0 ={\bf Periodic\+Element}$<$29,{\bf Isotropic}$>$\+::d\+H0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a0b5ba4de6e8bc6b8303ad3b95ae19dd6}
+
+
+Definition at line 106 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a8968e8a2f8c20c96b10892a937b1db08}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!kb@{kb}}
+\index{kb@{kb}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{kb}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::kb =1.\+38e-\/23/48.\+0e9/pow(0.\+2556e-\/9,3)\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a8968e8a2f8c20c96b10892a937b1db08}
+
+
+Definition at line 94 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_adb6540f3999b1001c5525f395cabd635}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!lambda@{lambda}}
+\index{lambda@{lambda}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{lambda}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::lambda =2.\+0$\ast$1.\+0$\ast$0.\+34/(1.\+0-\/2.\+0$\ast$0.\+34)\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_adb6540f3999b1001c5525f395cabd635}
+
+
+Definition at line 87 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a299c77803eceaa3ce1d6c7f931028da3}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!mu@{mu}}
+\index{mu@{mu}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{mu}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::mu =1.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a299c77803eceaa3ce1d6c7f931028da3}
+
+
+Definition at line 80 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_af4ba0bae69cdb10d6a198e51c0dd5ee2}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!nu@{nu}}
+\index{nu@{nu}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{nu}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::nu =0.\+34\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_af4ba0bae69cdb10d6a198e51c0dd5ee2}
+
+
+Definition at line 86 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a1da96a1b988a82ccc9e82570818f136b}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!p@{p}}
+\index{p@{p}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{p}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::p ={\bf Periodic\+Element}$<$29,{\bf Isotropic}$>$\+::p\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a1da96a1b988a82ccc9e82570818f136b}
+
+
+Definition at line 98 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_af860539daa43d347fcf1ac2624fb1e06}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!q@{q}}
+\index{q@{q}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{q}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::q ={\bf Periodic\+Element}$<$29,{\bf Isotropic}$>$\+::q\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_af860539daa43d347fcf1ac2624fb1e06}
+
+
+Definition at line 99 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_ae892574680a428d133451e44a23aad41}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!rho@{rho}}
+\index{rho@{rho}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{rho}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::rho =1.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_ae892574680a428d133451e44a23aad41}
+
+
+Definition at line 84 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_ac8253463339421c8137b2aa195488a8c}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!T@{T}}
+\index{T@{T}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{T}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::T =300.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_ac8253463339421c8137b2aa195488a8c}
+
+
+Definition at line 92 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a607cee4e5a3a8df415708dd1dd90c678}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!Ta@{Ta}}
+\index{Ta@{Ta}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{Ta}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::Ta ={\bf Periodic\+Element}$<$29,{\bf Isotropic}$>$\+::Ta\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a607cee4e5a3a8df415708dd1dd90c678}
+
+
+Definition at line 103 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_a3b332d99cc4ba74ddc5c400ff43cbec2}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!tau\+I\+I\+I@{tau\+I\+I\+I}}
+\index{tau\+I\+I\+I@{tau\+I\+I\+I}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{tau\+I\+I\+I}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::tau\+I\+I\+I =0.\+667e-\/3\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_a3b332d99cc4ba74ddc5c400ff43cbec2}
+
+
+Definition at line 95 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_acc8ff01baf092b274787d9b46b37dbab}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!tau\+P@{tau\+P}}
+\index{tau\+P@{tau\+P}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{tau\+P}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::tau\+P ={\bf Periodic\+Element}$<$29,{\bf Isotropic}$>$\+::tau\+P\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_acc8ff01baf092b274787d9b46b37dbab}
+
+
+Definition at line 102 of file Material.\+h.
+
+\hypertarget{classmodel_1_1_material_3_01_isotropic_01_4_afd8e7f004fd95d56ac69dcfd11e740be}{}\index{model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}!v\+Act@{v\+Act}}
+\index{v\+Act@{v\+Act}!model\+::\+Material$<$ Isotropic $>$@{model\+::\+Material$<$ Isotropic $>$}}
+\subsubsection[{v\+Act}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf model\+::\+Material}$<$ {\bf Isotropic} $>$\+::v\+Act =300.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_material_3_01_isotropic_01_4_afd8e7f004fd95d56ac69dcfd11e740be}
+
+
+Definition at line 96 of file Material.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_material_8h}{Material.\+h}\end{DoxyCompactItemize}

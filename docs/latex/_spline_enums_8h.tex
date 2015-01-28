@@ -1,0 +1,164 @@
+\hypertarget{_spline_enums_8h}{}\section{Spline\+Enums.\+h File Reference}
+\label{_spline_enums_8h}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, 1, \hyperlink{_spline_enums_8h_a7cc2e4244ca368f68e5746185eda6c4aa247e9ee4cf5980e4b82b85daddd8f437}{Ncoeff} $>$ \hyperlink{_spline_enums_8h_a5a92526eb02d4d15fb803231f2cefe6d}{Row\+Ncoeff}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, 1, \hyperlink{_spline_enums_8h_a7cc2e4244ca368f68e5746185eda6c4aa247e9ee4cf5980e4b82b85daddd8f437}{Ncoeff}-\/1 $>$ \hyperlink{_spline_enums_8h_a1d55d9eae696394fe669c29c2b10b48d}{Row\+Ncoeffu}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, 1, \hyperlink{_spline_enums_8h_a7cc2e4244ca368f68e5746185eda6c4aa247e9ee4cf5980e4b82b85daddd8f437}{Ncoeff}-\/2 $>$ \hyperlink{_spline_enums_8h_a442d520d229fc9d7ccfcc1f21d289230}{Row\+Ncoeffuu}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{_spline_enums_8h_a7cc2e4244ca368f68e5746185eda6c4aa247e9ee4cf5980e4b82b85daddd8f437}{Ncoeff}, \hyperlink{_spline_enums_8h_a7cc2e4244ca368f68e5746185eda6c4aa247e9ee4cf5980e4b82b85daddd8f437}{Ncoeff} $>$ \hyperlink{_spline_enums_8h_ab371c7f03c86d5953dc3b76e33bc4032}{Matrix\+Ncoeff}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{_spline_enums_8h_a7cc2e4244ca368f68e5746185eda6c4aa247e9ee4cf5980e4b82b85daddd8f437}{Ncoeff}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $>$ \hyperlink{_spline_enums_8h_afafac8412b0453751e060d8170f20bec}{Matrix\+Ncoeff\+Dim}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{_spline_enums_8h_a900dca9b26de42491763226e12dcd47ba1f25e3ceffb4c6d7049a7836ab347ee8}{Ndof}, 1 $>$ \hyperlink{_spline_enums_8h_a09d36860a47a4388f6d8a77c48733f21}{Vector\+Ndof}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $>$ \hyperlink{_spline_enums_8h_ab727134c60058354c77e11b738a0891d}{Matrix\+Dim}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \hyperlink{_spline_enums_8h_ad5cfc23fc5c8569885db746e503c2e14}{Vector\+Dim}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{_spline_enums_8h_a900dca9b26de42491763226e12dcd47ba1f25e3ceffb4c6d7049a7836ab347ee8}{Ndof} $>$ \hyperlink{_spline_enums_8h_ab943610998c267b47f02a41fcb22aab3}{Matrix\+Dim\+Ndof}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{_spline_enums_8h_a900dca9b26de42491763226e12dcd47ba1f25e3ceffb4c6d7049a7836ab347ee8}{Ndof}, \hyperlink{_spline_enums_8h_a900dca9b26de42491763226e12dcd47ba1f25e3ceffb4c6d7049a7836ab347ee8}{Ndof} $>$ \hyperlink{_spline_enums_8h_a3fee992106170b6edbbaf29e908c8f11}{Matrix\+Ndof}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{_spline_enums_8h_a7cc2e4244ca368f68e5746185eda6c4aa247e9ee4cf5980e4b82b85daddd8f437}{Ncoeff} = 2$\ast$(corder+1)
+ \}
+\item 
+enum \{ \hyperlink{_spline_enums_8h_aedcf2109f459315e1a7f2af73ec9b603af272f135877a9453abc217f6592feca7}{p\+Order} = 2$\ast$corder+1
+ \}
+\item 
+enum \{ \hyperlink{_spline_enums_8h_a900dca9b26de42491763226e12dcd47ba1f25e3ceffb4c6d7049a7836ab347ee8}{Ndof} = dim$\ast$\+Ncoeff
+ \}
+\item 
+enum \{ \hyperlink{_spline_enums_8h_a1be3860693af99a6c1da72580097294caccffedee508bc3e5aca7d200e9ba6fd6}{eigen\+Size} =p\+Order$\ast$p\+Order
+ \}
+\end{DoxyCompactItemize}
+
+
+\subsection{Typedef Documentation}
+\hypertarget{_spline_enums_8h_ab727134c60058354c77e11b738a0891d}{}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!Matrix\+Dim@{Matrix\+Dim}}
+\index{Matrix\+Dim@{Matrix\+Dim}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}
+\subsubsection[{Matrix\+Dim}]{\setlength{\rightskip}{0pt plus 5cm}typedef Eigen\+::\+Matrix$<$double,{\bf dim},{\bf dim}$>$ {\bf Matrix\+Dim}}\label{_spline_enums_8h_ab727134c60058354c77e11b738a0891d}
+
+
+Definition at line 30 of file Spline\+Enums.\+h.
+
+\hypertarget{_spline_enums_8h_ab943610998c267b47f02a41fcb22aab3}{}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!Matrix\+Dim\+Ndof@{Matrix\+Dim\+Ndof}}
+\index{Matrix\+Dim\+Ndof@{Matrix\+Dim\+Ndof}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}
+\subsubsection[{Matrix\+Dim\+Ndof}]{\setlength{\rightskip}{0pt plus 5cm}typedef Eigen\+::\+Matrix$<$double, {\bf dim}, {\bf Ndof}$>$ {\bf Matrix\+Dim\+Ndof}}\label{_spline_enums_8h_ab943610998c267b47f02a41fcb22aab3}
+
+
+Definition at line 32 of file Spline\+Enums.\+h.
+
+\hypertarget{_spline_enums_8h_ab371c7f03c86d5953dc3b76e33bc4032}{}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!Matrix\+Ncoeff@{Matrix\+Ncoeff}}
+\index{Matrix\+Ncoeff@{Matrix\+Ncoeff}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}
+\subsubsection[{Matrix\+Ncoeff}]{\setlength{\rightskip}{0pt plus 5cm}typedef Eigen\+::\+Matrix$<$double, {\bf Ncoeff}, {\bf Ncoeff}$>$ {\bf Matrix\+Ncoeff}}\label{_spline_enums_8h_ab371c7f03c86d5953dc3b76e33bc4032}
+
+
+Definition at line 27 of file Spline\+Enums.\+h.
+
+\hypertarget{_spline_enums_8h_afafac8412b0453751e060d8170f20bec}{}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!Matrix\+Ncoeff\+Dim@{Matrix\+Ncoeff\+Dim}}
+\index{Matrix\+Ncoeff\+Dim@{Matrix\+Ncoeff\+Dim}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}
+\subsubsection[{Matrix\+Ncoeff\+Dim}]{\setlength{\rightskip}{0pt plus 5cm}typedef Eigen\+::\+Matrix$<$double, {\bf Ncoeff}, {\bf dim}$>$ {\bf Matrix\+Ncoeff\+Dim}}\label{_spline_enums_8h_afafac8412b0453751e060d8170f20bec}
+
+
+Definition at line 28 of file Spline\+Enums.\+h.
+
+\hypertarget{_spline_enums_8h_a3fee992106170b6edbbaf29e908c8f11}{}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!Matrix\+Ndof@{Matrix\+Ndof}}
+\index{Matrix\+Ndof@{Matrix\+Ndof}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}
+\subsubsection[{Matrix\+Ndof}]{\setlength{\rightskip}{0pt plus 5cm}typedef Eigen\+::\+Matrix$<$double,{\bf Ndof},{\bf Ndof}$>$ {\bf Matrix\+Ndof}}\label{_spline_enums_8h_a3fee992106170b6edbbaf29e908c8f11}
+
+
+Definition at line 34 of file Spline\+Enums.\+h.
+
+\hypertarget{_spline_enums_8h_a5a92526eb02d4d15fb803231f2cefe6d}{}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!Row\+Ncoeff@{Row\+Ncoeff}}
+\index{Row\+Ncoeff@{Row\+Ncoeff}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}
+\subsubsection[{Row\+Ncoeff}]{\setlength{\rightskip}{0pt plus 5cm}typedef Eigen\+::\+Matrix$<$double, 1, {\bf Ncoeff}$>$ {\bf Row\+Ncoeff}}\label{_spline_enums_8h_a5a92526eb02d4d15fb803231f2cefe6d}
+
+
+Definition at line 24 of file Spline\+Enums.\+h.
+
+\hypertarget{_spline_enums_8h_a1d55d9eae696394fe669c29c2b10b48d}{}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!Row\+Ncoeffu@{Row\+Ncoeffu}}
+\index{Row\+Ncoeffu@{Row\+Ncoeffu}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}
+\subsubsection[{Row\+Ncoeffu}]{\setlength{\rightskip}{0pt plus 5cm}typedef Eigen\+::\+Matrix$<$double, 1, {\bf Ncoeff}-\/1$>$ {\bf Row\+Ncoeffu}}\label{_spline_enums_8h_a1d55d9eae696394fe669c29c2b10b48d}
+
+
+Definition at line 25 of file Spline\+Enums.\+h.
+
+\hypertarget{_spline_enums_8h_a442d520d229fc9d7ccfcc1f21d289230}{}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!Row\+Ncoeffuu@{Row\+Ncoeffuu}}
+\index{Row\+Ncoeffuu@{Row\+Ncoeffuu}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}
+\subsubsection[{Row\+Ncoeffuu}]{\setlength{\rightskip}{0pt plus 5cm}typedef Eigen\+::\+Matrix$<$double, 1, {\bf Ncoeff}-\/2$>$ {\bf Row\+Ncoeffuu}}\label{_spline_enums_8h_a442d520d229fc9d7ccfcc1f21d289230}
+
+
+Definition at line 26 of file Spline\+Enums.\+h.
+
+\hypertarget{_spline_enums_8h_ad5cfc23fc5c8569885db746e503c2e14}{}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!Vector\+Dim@{Vector\+Dim}}
+\index{Vector\+Dim@{Vector\+Dim}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}
+\subsubsection[{Vector\+Dim}]{\setlength{\rightskip}{0pt plus 5cm}typedef Eigen\+::\+Matrix$<$double,{\bf dim},1$>$ {\bf Vector\+Dim}}\label{_spline_enums_8h_ad5cfc23fc5c8569885db746e503c2e14}
+
+
+Definition at line 31 of file Spline\+Enums.\+h.
+
+\hypertarget{_spline_enums_8h_a09d36860a47a4388f6d8a77c48733f21}{}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!Vector\+Ndof@{Vector\+Ndof}}
+\index{Vector\+Ndof@{Vector\+Ndof}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}
+\subsubsection[{Vector\+Ndof}]{\setlength{\rightskip}{0pt plus 5cm}typedef Eigen\+::\+Matrix$<$double, {\bf Ndof},1$>$ {\bf Vector\+Ndof}}\label{_spline_enums_8h_a09d36860a47a4388f6d8a77c48733f21}
+
+
+Definition at line 29 of file Spline\+Enums.\+h.
+
+
+
+\subsection{Enumeration Type Documentation}
+\hypertarget{_spline_enums_8h_a7cc2e4244ca368f68e5746185eda6c4a}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}anonymous enum}\label{_spline_enums_8h_a7cc2e4244ca368f68e5746185eda6c4a}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{Ncoeff@{Ncoeff}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!Ncoeff@{Ncoeff}}\item[{\em 
+\hypertarget{_spline_enums_8h_a7cc2e4244ca368f68e5746185eda6c4aa247e9ee4cf5980e4b82b85daddd8f437}{}Ncoeff\label{_spline_enums_8h_a7cc2e4244ca368f68e5746185eda6c4aa247e9ee4cf5980e4b82b85daddd8f437}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 19 of file Spline\+Enums.\+h.
+
+\hypertarget{_spline_enums_8h_aedcf2109f459315e1a7f2af73ec9b603}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}anonymous enum}\label{_spline_enums_8h_aedcf2109f459315e1a7f2af73ec9b603}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{p\+Order@{p\+Order}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!p\+Order@{p\+Order}}\item[{\em 
+\hypertarget{_spline_enums_8h_aedcf2109f459315e1a7f2af73ec9b603af272f135877a9453abc217f6592feca7}{}p\+Order\label{_spline_enums_8h_aedcf2109f459315e1a7f2af73ec9b603af272f135877a9453abc217f6592feca7}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 20 of file Spline\+Enums.\+h.
+
+\hypertarget{_spline_enums_8h_a900dca9b26de42491763226e12dcd47b}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}anonymous enum}\label{_spline_enums_8h_a900dca9b26de42491763226e12dcd47b}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{Ndof@{Ndof}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!Ndof@{Ndof}}\item[{\em 
+\hypertarget{_spline_enums_8h_a900dca9b26de42491763226e12dcd47ba1f25e3ceffb4c6d7049a7836ab347ee8}{}Ndof\label{_spline_enums_8h_a900dca9b26de42491763226e12dcd47ba1f25e3ceffb4c6d7049a7836ab347ee8}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 21 of file Spline\+Enums.\+h.
+
+\hypertarget{_spline_enums_8h_a1be3860693af99a6c1da72580097294c}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}anonymous enum}\label{_spline_enums_8h_a1be3860693af99a6c1da72580097294c}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{eigen\+Size@{eigen\+Size}!Spline\+Enums.\+h@{Spline\+Enums.\+h}}\index{Spline\+Enums.\+h@{Spline\+Enums.\+h}!eigen\+Size@{eigen\+Size}}\item[{\em 
+\hypertarget{_spline_enums_8h_a1be3860693af99a6c1da72580097294caccffedee508bc3e5aca7d200e9ba6fd6}{}eigen\+Size\label{_spline_enums_8h_a1be3860693af99a6c1da72580097294caccffedee508bc3e5aca7d200e9ba6fd6}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 22 of file Spline\+Enums.\+h.
+

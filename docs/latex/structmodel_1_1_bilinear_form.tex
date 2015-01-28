@@ -1,0 +1,145 @@
+\hypertarget{structmodel_1_1_bilinear_form}{}\section{model\+:\+:Bilinear\+Form$<$ T1, T2 $>$ Struct Template Reference}
+\label{structmodel_1_1_bilinear_form}\index{model\+::\+Bilinear\+Form$<$ T1, T2 $>$@{model\+::\+Bilinear\+Form$<$ T1, T2 $>$}}
+
+
+{\ttfamily \#include $<$Bilinear\+Form.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{structmodel_1_1_test_expression}{Test\+Expression}$<$ T1 $>$\+::\hyperlink{structmodel_1_1_bilinear_form_a9283d1ee67b9315a45ee36453e74f1e2}{Test\+Expression\+Type} \hyperlink{structmodel_1_1_bilinear_form_a9283d1ee67b9315a45ee36453e74f1e2}{Test\+Expression\+Type}
+\item 
+typedef T2 \hyperlink{structmodel_1_1_bilinear_form_a21b1c21cf69ff157ef055fdd51754523}{Trial\+Expression\+Type}
+\item 
+typedef T2\+::\+Trial\+Function\+Type \hyperlink{structmodel_1_1_bilinear_form_acdc65f00a3d62200e21387bdbbb6eedd}{Trial\+Function\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ \hyperlink{structmodel_1_1_bilinear_form_acdc65f00a3d62200e21387bdbbb6eedd}{Trial\+Function\+Type} $>$\+::\hyperlink{structmodel_1_1_bilinear_form_a913af0f41b1e5dc3de899a221d0351c4}{Element\+Type} \hyperlink{structmodel_1_1_bilinear_form_a913af0f41b1e5dc3de899a221d0351c4}{Element\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$ \hyperlink{structmodel_1_1_bilinear_form_acdc65f00a3d62200e21387bdbbb6eedd}{Trial\+Function\+Type} $>$\+::\hyperlink{structmodel_1_1_bilinear_form_a65a70814fa4b79b108aa83563c825408}{Finite\+Element\+Type} \hyperlink{structmodel_1_1_bilinear_form_a65a70814fa4b79b108aa83563c825408}{Finite\+Element\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structmodel_1_1_bilinear_form_ae92ea354040da1bdf5286528ec52411b}{Bilinear\+Form} (const \hyperlink{structmodel_1_1_test_expression}{Test\+Expression}$<$ T1 $>$ \&test\+E, const \hyperlink{structmodel_1_1_trial_expression_base}{Trial\+Expression\+Base}$<$ T2 $>$ \&trial\+E)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const \hyperlink{structmodel_1_1_bilinear_form_a9283d1ee67b9315a45ee36453e74f1e2}{Test\+Expression\+Type} \hyperlink{structmodel_1_1_bilinear_form_ae2986c81a6969d33947a1513c4047172}{test\+Expr}
+\item 
+const T2 \hyperlink{structmodel_1_1_bilinear_form_a91346cbd893511a5fe75ef0198e757f1}{trial\+Expr}
+\item 
+const size\+\_\+t \hyperlink{structmodel_1_1_bilinear_form_aa8655c3e338a766139318d3b408620c9}{g\+Size}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static constexpr int \hyperlink{structmodel_1_1_bilinear_form_aee5498daed34f6d94709b6593b1ca695}{nodes\+Per\+Element} =\hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$\hyperlink{structmodel_1_1_bilinear_form_acdc65f00a3d62200e21387bdbbb6eedd}{Trial\+Function\+Type}$>$\+::nodes\+Per\+Element
+\item 
+static constexpr int \hyperlink{structmodel_1_1_bilinear_form_a7bcebed645c29aaac2af31f6cd473f7c}{dof\+Per\+Node} =\hyperlink{structmodel_1_1_type_traits}{Type\+Traits}$<$\hyperlink{structmodel_1_1_bilinear_form_acdc65f00a3d62200e21387bdbbb6eedd}{Trial\+Function\+Type}$>$\+::dof\+Per\+Node
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename T1, typename T2$>$struct model\+::\+Bilinear\+Form$<$ T1, T2 $>$}
+
+A class template representing the product between a \hyperlink{structmodel_1_1_test_expression}{Test\+Expression} and a Trial\+Expression. 
+
+Definition at line 25 of file Bilinear\+Form.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_bilinear_form_a913af0f41b1e5dc3de899a221d0351c4}{}\index{model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}!Element\+Type@{Element\+Type}}
+\index{Element\+Type@{Element\+Type}!model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}}
+\subsubsection[{Element\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T1, typename T2$>$ typedef {\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::{\bf Element\+Type} {\bf model\+::\+Bilinear\+Form}$<$ T1, T2 $>$\+::{\bf Element\+Type}}\label{structmodel_1_1_bilinear_form_a913af0f41b1e5dc3de899a221d0351c4}
+
+
+Definition at line 34 of file Bilinear\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_form_a65a70814fa4b79b108aa83563c825408}{}\index{model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}!Finite\+Element\+Type@{Finite\+Element\+Type}}
+\index{Finite\+Element\+Type@{Finite\+Element\+Type}!model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}}
+\subsubsection[{Finite\+Element\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T1, typename T2$>$ typedef {\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::{\bf Finite\+Element\+Type} {\bf model\+::\+Bilinear\+Form}$<$ T1, T2 $>$\+::{\bf Finite\+Element\+Type}}\label{structmodel_1_1_bilinear_form_a65a70814fa4b79b108aa83563c825408}
+
+
+Definition at line 35 of file Bilinear\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_form_a9283d1ee67b9315a45ee36453e74f1e2}{}\index{model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}!Test\+Expression\+Type@{Test\+Expression\+Type}}
+\index{Test\+Expression\+Type@{Test\+Expression\+Type}!model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}}
+\subsubsection[{Test\+Expression\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T1, typename T2$>$ typedef {\bf Test\+Expression}$<$T1$>$\+::{\bf Test\+Expression\+Type} {\bf model\+::\+Bilinear\+Form}$<$ T1, T2 $>$\+::{\bf Test\+Expression\+Type}}\label{structmodel_1_1_bilinear_form_a9283d1ee67b9315a45ee36453e74f1e2}
+
+
+Definition at line 28 of file Bilinear\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_form_a21b1c21cf69ff157ef055fdd51754523}{}\index{model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}!Trial\+Expression\+Type@{Trial\+Expression\+Type}}
+\index{Trial\+Expression\+Type@{Trial\+Expression\+Type}!model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}}
+\subsubsection[{Trial\+Expression\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T1, typename T2$>$ typedef T2 {\bf model\+::\+Bilinear\+Form}$<$ T1, T2 $>$\+::{\bf Trial\+Expression\+Type}}\label{structmodel_1_1_bilinear_form_a21b1c21cf69ff157ef055fdd51754523}
+
+
+Definition at line 32 of file Bilinear\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_form_acdc65f00a3d62200e21387bdbbb6eedd}{}\index{model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}!Trial\+Function\+Type@{Trial\+Function\+Type}}
+\index{Trial\+Function\+Type@{Trial\+Function\+Type}!model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}}
+\subsubsection[{Trial\+Function\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T1, typename T2$>$ typedef T2\+::\+Trial\+Function\+Type {\bf model\+::\+Bilinear\+Form}$<$ T1, T2 $>$\+::{\bf Trial\+Function\+Type}}\label{structmodel_1_1_bilinear_form_acdc65f00a3d62200e21387bdbbb6eedd}
+
+
+Definition at line 33 of file Bilinear\+Form.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{structmodel_1_1_bilinear_form_ae92ea354040da1bdf5286528ec52411b}{}\index{model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}!Bilinear\+Form@{Bilinear\+Form}}
+\index{Bilinear\+Form@{Bilinear\+Form}!model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}}
+\subsubsection[{Bilinear\+Form}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T1, typename T2$>$ {\bf model\+::\+Bilinear\+Form}$<$ T1, T2 $>$\+::{\bf Bilinear\+Form} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Test\+Expression}$<$ T1 $>$ \&}]{test\+E, }
+\item[{const {\bf Trial\+Expression\+Base}$<$ T2 $>$ \&}]{trial\+E}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_bilinear_form_ae92ea354040da1bdf5286528ec52411b}
+
+
+Definition at line 47 of file Bilinear\+Form.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{structmodel_1_1_bilinear_form_a7bcebed645c29aaac2af31f6cd473f7c}{}\index{model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}!dof\+Per\+Node@{dof\+Per\+Node}}
+\index{dof\+Per\+Node@{dof\+Per\+Node}!model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}}
+\subsubsection[{dof\+Per\+Node}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T1, typename T2$>$ constexpr int {\bf model\+::\+Bilinear\+Form}$<$ T1, T2 $>$\+::dof\+Per\+Node ={\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::dof\+Per\+Node\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_bilinear_form_a7bcebed645c29aaac2af31f6cd473f7c}
+
+
+Definition at line 39 of file Bilinear\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_form_aa8655c3e338a766139318d3b408620c9}{}\index{model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}!g\+Size@{g\+Size}}
+\index{g\+Size@{g\+Size}!model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}}
+\subsubsection[{g\+Size}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T1, typename T2$>$ const size\+\_\+t {\bf model\+::\+Bilinear\+Form}$<$ T1, T2 $>$\+::g\+Size}\label{structmodel_1_1_bilinear_form_aa8655c3e338a766139318d3b408620c9}
+
+
+Definition at line 43 of file Bilinear\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_form_aee5498daed34f6d94709b6593b1ca695}{}\index{model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}!nodes\+Per\+Element@{nodes\+Per\+Element}}
+\index{nodes\+Per\+Element@{nodes\+Per\+Element}!model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}}
+\subsubsection[{nodes\+Per\+Element}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T1, typename T2$>$ constexpr int {\bf model\+::\+Bilinear\+Form}$<$ T1, T2 $>$\+::nodes\+Per\+Element ={\bf Type\+Traits}$<${\bf Trial\+Function\+Type}$>$\+::nodes\+Per\+Element\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_bilinear_form_aee5498daed34f6d94709b6593b1ca695}
+
+
+Definition at line 38 of file Bilinear\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_form_ae2986c81a6969d33947a1513c4047172}{}\index{model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}!test\+Expr@{test\+Expr}}
+\index{test\+Expr@{test\+Expr}!model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}}
+\subsubsection[{test\+Expr}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T1, typename T2$>$ const {\bf Test\+Expression\+Type} {\bf model\+::\+Bilinear\+Form}$<$ T1, T2 $>$\+::test\+Expr}\label{structmodel_1_1_bilinear_form_ae2986c81a6969d33947a1513c4047172}
+
+
+Definition at line 41 of file Bilinear\+Form.\+h.
+
+\hypertarget{structmodel_1_1_bilinear_form_a91346cbd893511a5fe75ef0198e757f1}{}\index{model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}!trial\+Expr@{trial\+Expr}}
+\index{trial\+Expr@{trial\+Expr}!model\+::\+Bilinear\+Form@{model\+::\+Bilinear\+Form}}
+\subsubsection[{trial\+Expr}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T1, typename T2$>$ const T2 {\bf model\+::\+Bilinear\+Form}$<$ T1, T2 $>$\+::trial\+Expr}\label{structmodel_1_1_bilinear_form_a91346cbd893511a5fe75ef0198e757f1}
+
+
+Definition at line 42 of file Bilinear\+Form.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_bilinear_form_8h}{Bilinear\+Form.\+h}\end{DoxyCompactItemize}

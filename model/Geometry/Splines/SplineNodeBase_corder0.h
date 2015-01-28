@@ -61,17 +61,34 @@ std::set<size_t> areNeighborsAt(const VectorDim& P0) const
     return temp;
 }
 
-
-
 /* isNeighborAt ***************************************************************/
-std::pair<bool,size_t> isNeighborAt(const VectorDim& P0) const {
-    std::pair<bool,size_t> temp(false,0);
-    for (typename Derived::NeighborContainerType::const_iterator nIiter=this->neighborhood().begin();nIiter!=this->neighborhood().end();++nIiter){ // loop over neighborhood 
-        if (std::get<0>(nIiter->second)->sID!=this->sID){ // neighbor is not this
-            if((std::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON){ // a neighbor of I exists at P0
-                temp=std::pair<bool,size_t>(true,std::get<0>(nIiter->second)->sID);
+void neighborsAt(const VectorDim& P0, std::set<size_t>& temp) const
+{
+//    std::pair<bool,size_t> temp(false,0);
+    for (typename Derived::NeighborContainerType::const_iterator nIiter=this->neighborhood().begin();
+         nIiter!=this->neighborhood().end();++nIiter)
+    { // loop over neighborhood
+        if (std::get<0>(nIiter->second)->sID!=this->sID)
+        { // neighbor is not this
+            if((std::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON)
+            { // a neighbor of I exists at P0
+//                temp=std::pair<bool,size_t>(true,std::get<0>(nIiter->second)->sID);
+                temp.insert(std::get<0>(nIiter->second)->sID);
             }
         }
     }
-    return temp;
+//    return temp;
 }
+
+///* isNeighborAt ***************************************************************/
+//std::pair<bool,size_t> isNeighborAt(const VectorDim& P0) const {
+//    std::pair<bool,size_t> temp(false,0);
+//    for (typename Derived::NeighborContainerType::const_iterator nIiter=this->neighborhood().begin();nIiter!=this->neighborhood().end();++nIiter){ // loop over neighborhood 
+//        if (std::get<0>(nIiter->second)->sID!=this->sID){ // neighbor is not this
+//            if((std::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON){ // a neighbor of I exists at P0
+//                temp=std::pair<bool,size_t>(true,std::get<0>(nIiter->second)->sID);
+//            }
+//        }
+//    }
+//    return temp;
+//}

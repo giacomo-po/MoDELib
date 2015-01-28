@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     /**************************************************************************/
     // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndA
     Eigen::Matrix<double,3,1> f;
-    f<<0.0,0.0,0.0;
+    f<<0.0,0.0,-0.001;
     auto ndA_1=fe.boundary<AtXmax<2>,3,GaussLegendre>();
     auto lWF_1=(u.test(),f)*ndA_1;
     
@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 
     /**************************************************************************/
     // Create the WeakProblem
-    auto wp_u(bWF_u=lWF_2); //  weak problem
+    auto wp_u(bWF_u=lWF_1+lWF_2); //  weak problem
     
     /**************************************************************************/
     // Set up Dirichlet boundary conditions
@@ -107,12 +107,12 @@ int main(int argc, char** argv)
     u.addDirichletCondition(fix,nodeList_0,2);
 
     // Create a list of nodes having x(2)=x2_max, where x2_max is the minimum value among the fe nodes
-    auto nodeList_2(fe.getNodeList<AtXmin<2>>());
+//    auto nodeList_2(fe.getNodeList<AtXmin<2>>());
     // Prescribe the first component of displacement for those nodes
 //    PrescribedDisplacement disp(3.0e-4);
-    FlatPunch punch(fe);
+//    FlatPunch punch(fe);
     
-    u.addDirichletCondition(3.0e-4,nodeList_2,2);
+//    u.addDirichletCondition(3.0e-4,nodeList_2,2);
     
     
     /**************************************************************************/
@@ -131,6 +131,14 @@ int main(int argc, char** argv)
     
     SequentialOutputFile<'S',1> sFile;
     sFile<<s;
+    
+    Eigen::Matrix<double,3,1> p0;
+    p0<<0.5,0.5,0.5;
+    
+    std::cout<<u(p0)<<std::endl;
+
+//    std::cout<<b(p0)<<std::endl;
+
     
 	return 0;
 }

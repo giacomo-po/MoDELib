@@ -1,0 +1,48 @@
+\hypertarget{classmodel_1_1_address_book}{}\section{model\+:\+:Address\+Book$<$ Derived, active $>$ Class Template Reference}
+\label{classmodel_1_1_address_book}\index{model\+::\+Address\+Book$<$ Derived, active $>$@{model\+::\+Address\+Book$<$ Derived, active $>$}}
+
+
+\hyperlink{classmodel_1_1_address_book}{Address\+Book} is a class template that stores a static map of pointers to Derived class objects using the \hyperlink{classmodel_1_1_c_r_t_p}{C\+R\+T\+P} pattern. The key in the map is the static\+I\+D. The derived object gains access to the pointers of all the other objects of derived type that are instatiated. The static map is automatically and dynamically updated during construction/destruction of derived objects. A dynamic I\+D into the static vector is also provided. The typical implementation is\+:  
+
+
+
+
+{\ttfamily \#include $<$Address\+Book.\+h$>$}
+
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Derived, bool active = 1$>$class model\+::\+Address\+Book$<$ Derived, active $>$}
+
+\hyperlink{classmodel_1_1_address_book}{Address\+Book} is a class template that stores a static map of pointers to Derived class objects using the \hyperlink{classmodel_1_1_c_r_t_p}{C\+R\+T\+P} pattern. The key in the map is the static\+I\+D. The derived object gains access to the pointers of all the other objects of derived type that are instatiated. The static map is automatically and dynamically updated during construction/destruction of derived objects. A dynamic I\+D into the static vector is also provided. The typical implementation is\+: 
+
+
+\begin{DoxyCode}
+\textcolor{keyword}{class }Derived : \textcolor{keyword}{public} AddressBook<Derived>\{
+...
+\};
+\end{DoxyCode}
+
+
+For multiple inheritance it\textquotesingle{}s usefulto use the following pattern\+:
+
+
+\begin{DoxyCode}
+\textcolor{keyword}{template} <\textcolor{keyword}{typename} Derived2>
+\textcolor{keyword}{class }Derived1 : \textcolor{keyword}{public} AddressBook<Derived2>\{
+...
+\};
+ 
+\textcolor{keyword}{class }Derived2 : \textcolor{keyword}{public} Derived1<Derived2>\{
+...
+\};
+\end{DoxyCode}
+ 
+
+Definition at line 83 of file Address\+Book.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_address_book_8h}{Address\+Book.\+h}\end{DoxyCompactItemize}

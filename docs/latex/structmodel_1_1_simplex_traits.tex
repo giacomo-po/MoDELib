@@ -1,0 +1,157 @@
+\hypertarget{structmodel_1_1_simplex_traits}{}\section{model\+:\+:Simplex\+Traits$<$ dim, order $>$ Struct Template Reference}
+\label{structmodel_1_1_simplex_traits}\index{model\+::\+Simplex\+Traits$<$ dim, order $>$@{model\+::\+Simplex\+Traits$<$ dim, order $>$}}
+
+
+{\ttfamily \#include $<$Simplex\+Traits.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{structmodel_1_1_simplex_traits_adeb0679d9699101e030e5d94844fab73a4e2dd425af75e4abeaa495c82bf5456b}{n\+Vertices} =Simplex\+Traits$<$dim,order-\/1$>$\+:\+:n\+Vertices+1
+ \}
+\item 
+enum \{ \hyperlink{structmodel_1_1_simplex_traits_a05512c4debd6223f44111cbfb0956ffda7eb369326a8fa17f33eea1abd374caa7}{n\+Edges} =Simplex\+Traits$<$dim,order-\/1$>$\+:\+:n\+Edges+\+Simplex\+Traits$<$dim,order-\/1$>$\+:\+:n\+Vertices
+ \}
+\item 
+enum \{ \hyperlink{structmodel_1_1_simplex_traits_a0541ec22e17956e27bc75269ef60572aa19cf4b3aa42d86206e9999725cb5b1ee}{n\+Faces} =n\+Vertices
+ \}
+\item 
+typedef std\+::array$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order-\/1 $>$ $>$, \hyperlink{structmodel_1_1_simplex_traits_a0541ec22e17956e27bc75269ef60572aa19cf4b3aa42d86206e9999725cb5b1ee}{n\+Faces} $>$ \hyperlink{structmodel_1_1_simplex_traits_a57cfde9abd77073f1512baf404bbb328}{Base\+Array\+Type}
+\item 
+typedef size\+\_\+t \hyperlink{structmodel_1_1_simplex_traits_ab229f3d4d4f2bf8205fa73777b4412a9}{Scalar\+I\+D\+Type}
+\item 
+typedef Eigen\+::\+Matrix$<$ \hyperlink{structmodel_1_1_simplex_traits_ab229f3d4d4f2bf8205fa73777b4412a9}{Scalar\+I\+D\+Type}, 1, \hyperlink{structmodel_1_1_simplex_traits_adeb0679d9699101e030e5d94844fab73a4e2dd425af75e4abeaa495c82bf5456b}{n\+Vertices} $>$ \hyperlink{structmodel_1_1_simplex_traits_aea38aba3da1babde2d5f0c62f7862eae}{Simplex\+I\+D\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{structmodel_1_1_simplex_traits_aea38aba3da1babde2d5f0c62f7862eae}{Simplex\+I\+D\+Type} \hyperlink{structmodel_1_1_simplex_traits_a3a935ebea43fc2785a95bb46acb56a00}{sort\+I\+D} (const \hyperlink{structmodel_1_1_simplex_traits_aea38aba3da1babde2d5f0c62f7862eae}{Simplex\+I\+D\+Type} \&v\+I\+N)
+\item 
+static \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order-\/1 $>$\+::\hyperlink{structmodel_1_1_simplex_traits_aea38aba3da1babde2d5f0c62f7862eae}{Simplex\+I\+D\+Type} \hyperlink{structmodel_1_1_simplex_traits_a674908eea645453eb8938081b9de0c7b}{face\+I\+D} (const \hyperlink{structmodel_1_1_simplex_traits_aea38aba3da1babde2d5f0c62f7862eae}{Simplex\+I\+D\+Type} \&x\+I\+D, const size\+\_\+t \&j)
+\item 
+static std\+::array$<$ typename \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order-\/1 $>$\+::\hyperlink{structmodel_1_1_simplex_traits_aea38aba3da1babde2d5f0c62f7862eae}{Simplex\+I\+D\+Type}, \hyperlink{structmodel_1_1_simplex_traits_a0541ec22e17956e27bc75269ef60572aa19cf4b3aa42d86206e9999725cb5b1ee}{n\+Faces} $>$ \hyperlink{structmodel_1_1_simplex_traits_a8f2a4d724069b1db5538e183508dd003}{face\+I\+Ds} (const \hyperlink{structmodel_1_1_simplex_traits_aea38aba3da1babde2d5f0c62f7862eae}{Simplex\+I\+D\+Type} \&x\+I\+D)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$short int dim, short int order$>$struct model\+::\+Simplex\+Traits$<$ dim, order $>$}
+
+
+
+Definition at line 27 of file Simplex\+Traits.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_simplex_traits_a57cfde9abd77073f1512baf404bbb328}{}\index{model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}!Base\+Array\+Type@{Base\+Array\+Type}}
+\index{Base\+Array\+Type@{Base\+Array\+Type}!model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}}
+\subsubsection[{Base\+Array\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ typedef std\+::array$<$std\+::shared\+\_\+ptr$<${\bf Simplex}$<${\bf dim},order-\/1$>$ $>$,{\bf n\+Faces}$>$ {\bf model\+::\+Simplex\+Traits}$<$ {\bf dim}, order $>$\+::{\bf Base\+Array\+Type}}\label{structmodel_1_1_simplex_traits_a57cfde9abd77073f1512baf404bbb328}
+
+
+Definition at line 39 of file Simplex\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_simplex_traits_ab229f3d4d4f2bf8205fa73777b4412a9}{}\index{model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}!Scalar\+I\+D\+Type@{Scalar\+I\+D\+Type}}
+\index{Scalar\+I\+D\+Type@{Scalar\+I\+D\+Type}!model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}}
+\subsubsection[{Scalar\+I\+D\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ typedef size\+\_\+t {\bf model\+::\+Simplex\+Traits}$<$ {\bf dim}, order $>$\+::{\bf Scalar\+I\+D\+Type}}\label{structmodel_1_1_simplex_traits_ab229f3d4d4f2bf8205fa73777b4412a9}
+
+
+Definition at line 41 of file Simplex\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_simplex_traits_aea38aba3da1babde2d5f0c62f7862eae}{}\index{model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}!Simplex\+I\+D\+Type@{Simplex\+I\+D\+Type}}
+\index{Simplex\+I\+D\+Type@{Simplex\+I\+D\+Type}!model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}}
+\subsubsection[{Simplex\+I\+D\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ typedef Eigen\+::\+Matrix$<${\bf Scalar\+I\+D\+Type},1,{\bf n\+Vertices}$>$ {\bf model\+::\+Simplex\+Traits}$<$ {\bf dim}, order $>$\+::{\bf Simplex\+I\+D\+Type}}\label{structmodel_1_1_simplex_traits_aea38aba3da1babde2d5f0c62f7862eae}
+
+
+Definition at line 43 of file Simplex\+Traits.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{structmodel_1_1_simplex_traits_adeb0679d9699101e030e5d94844fab73}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ anonymous enum}\label{structmodel_1_1_simplex_traits_adeb0679d9699101e030e5d94844fab73}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{n\+Vertices@{n\+Vertices}!model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}}\index{model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}!n\+Vertices@{n\+Vertices}}\item[{\em 
+\hypertarget{structmodel_1_1_simplex_traits_adeb0679d9699101e030e5d94844fab73a4e2dd425af75e4abeaa495c82bf5456b}{}n\+Vertices\label{structmodel_1_1_simplex_traits_adeb0679d9699101e030e5d94844fab73a4e2dd425af75e4abeaa495c82bf5456b}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 35 of file Simplex\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_simplex_traits_a05512c4debd6223f44111cbfb0956ffd}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ anonymous enum}\label{structmodel_1_1_simplex_traits_a05512c4debd6223f44111cbfb0956ffd}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{n\+Edges@{n\+Edges}!model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}}\index{model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}!n\+Edges@{n\+Edges}}\item[{\em 
+\hypertarget{structmodel_1_1_simplex_traits_a05512c4debd6223f44111cbfb0956ffda7eb369326a8fa17f33eea1abd374caa7}{}n\+Edges\label{structmodel_1_1_simplex_traits_a05512c4debd6223f44111cbfb0956ffda7eb369326a8fa17f33eea1abd374caa7}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 36 of file Simplex\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_simplex_traits_a0541ec22e17956e27bc75269ef60572a}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ anonymous enum}\label{structmodel_1_1_simplex_traits_a0541ec22e17956e27bc75269ef60572a}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{n\+Faces@{n\+Faces}!model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}}\index{model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}!n\+Faces@{n\+Faces}}\item[{\em 
+\hypertarget{structmodel_1_1_simplex_traits_a0541ec22e17956e27bc75269ef60572aa19cf4b3aa42d86206e9999725cb5b1ee}{}n\+Faces\label{structmodel_1_1_simplex_traits_a0541ec22e17956e27bc75269ef60572aa19cf4b3aa42d86206e9999725cb5b1ee}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 37 of file Simplex\+Traits.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_simplex_traits_a674908eea645453eb8938081b9de0c7b}{}\index{model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}!face\+I\+D@{face\+I\+D}}
+\index{face\+I\+D@{face\+I\+D}!model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}}
+\subsubsection[{face\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ static {\bf Simplex\+Traits}$<${\bf dim},order-\/1$>$\+::{\bf Simplex\+I\+D\+Type} {\bf model\+::\+Simplex\+Traits}$<$ {\bf dim}, order $>$\+::face\+I\+D (
+\begin{DoxyParamCaption}
+\item[{const {\bf Simplex\+I\+D\+Type} \&}]{x\+I\+D, }
+\item[{const size\+\_\+t \&}]{j}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_simplex_traits_a674908eea645453eb8938081b9de0c7b}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em x\+I\+D} & the I\+D of the parent \hyperlink{classmodel_1_1_simplex}{Simplex} \\
+\hline
+\mbox{\tt in}  & {\em j} & the j-\/th face of the parent \hyperlink{classmodel_1_1_simplex}{Simplex} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the I\+D of the \hyperlink{classmodel_1_1_simplex}{Simplex} which is the j-\/th face of x\+I\+D
+\end{DoxyReturn}
+
+
+Definition at line 66 of file Simplex\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_simplex_traits_a8f2a4d724069b1db5538e183508dd003}{}\index{model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}!face\+I\+Ds@{face\+I\+Ds}}
+\index{face\+I\+Ds@{face\+I\+Ds}!model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}}
+\subsubsection[{face\+I\+Ds}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ static std\+::array$<$typename {\bf Simplex\+Traits}$<${\bf dim},order-\/1$>$\+::{\bf Simplex\+I\+D\+Type},{\bf n\+Faces}$>$ {\bf model\+::\+Simplex\+Traits}$<$ {\bf dim}, order $>$\+::face\+I\+Ds (
+\begin{DoxyParamCaption}
+\item[{const {\bf Simplex\+I\+D\+Type} \&}]{x\+I\+D}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_simplex_traits_a8f2a4d724069b1db5538e183508dd003}
+
+
+Definition at line 88 of file Simplex\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_simplex_traits_a3a935ebea43fc2785a95bb46acb56a00}{}\index{model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}!sort\+I\+D@{sort\+I\+D}}
+\index{sort\+I\+D@{sort\+I\+D}!model\+::\+Simplex\+Traits@{model\+::\+Simplex\+Traits}}
+\subsubsection[{sort\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ static {\bf Simplex\+I\+D\+Type} {\bf model\+::\+Simplex\+Traits}$<$ {\bf dim}, order $>$\+::sort\+I\+D (
+\begin{DoxyParamCaption}
+\item[{const {\bf Simplex\+I\+D\+Type} \&}]{v\+I\+N}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_simplex_traits_a3a935ebea43fc2785a95bb46acb56a00}
+
+
+Definition at line 46 of file Simplex\+Traits.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_simplex_traits_8h}{Simplex\+Traits.\+h}\end{DoxyCompactItemize}

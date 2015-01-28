@@ -1,0 +1,266 @@
+\hypertarget{structmodel_1_1_dislocation_particle}{}\section{model\+:\+:Dislocation\+Particle$<$ \+\_\+dim $>$ Struct Template Reference}
+\label{structmodel_1_1_dislocation_particle}\index{model\+::\+Dislocation\+Particle$<$ \+\_\+dim $>$@{model\+::\+Dislocation\+Particle$<$ \+\_\+dim $>$}}
+
+
+{\ttfamily \#include $<$Dislocation\+Particle.\+h$>$}
+
+Inheritance diagram for model\+:\+:Dislocation\+Particle$<$ \+\_\+dim $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.654206cm]{structmodel_1_1_dislocation_particle}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{structmodel_1_1_dislocation_particle_a4bd5db323619f407d2eaa5a87db2037eafe66120ebb7ec585463b43b9b7b9be22}{dim} =\+\_\+dim
+ \}
+\item 
+typedef \hyperlink{structmodel_1_1_dislocation_particle}{Dislocation\+Particle}$<$ \+\_\+dim $>$ \hyperlink{structmodel_1_1_dislocation_particle_a707bb7bef0eeac9a9281626d2b30fdc6}{Dislocation\+Particle\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_dislocation_stress}{Dislocation\+Stress}$<$ \+\_\+dim $>$ \hyperlink{structmodel_1_1_dislocation_particle_a11c4d91265aef10567dc83b869e06fd5}{Stress\+Field}
+\item 
+typedef \hyperlink{structmodel_1_1_dislocation_displacement}{Dislocation\+Displacement}$<$ \+\_\+dim $>$ \hyperlink{structmodel_1_1_dislocation_particle_a3c35f30e393557a4bcb372f270403c31}{Displacement\+Field}
+\item 
+typedef \hyperlink{classmodel_1_1_dislocation_energy}{Dislocation\+Energy}$<$ \+\_\+dim $>$ \hyperlink{structmodel_1_1_dislocation_particle_acb452e4510d2079aa300effcf6829e6f}{Elastic\+Energy}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \+\_\+dim, \+\_\+dim $>$ \hyperlink{structmodel_1_1_dislocation_particle_a4fb98d6dbd350e248452f5bbcb3078f3}{Matrix\+Dim}
+\item 
+typedef \hyperlink{structmodel_1_1_cell_properties_base}{Cell\+Properties\+Base}$<$ \hyperlink{structmodel_1_1_dislocation_particle_a4fb98d6dbd350e248452f5bbcb3078f3}{Matrix\+Dim} $>$ \hyperlink{structmodel_1_1_dislocation_particle_ae19c66fb92f6fcdf3796257f48fdfb36}{Cell\+Properties\+Base\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_cell_properties_base_a78639859408d4df5b219a09356a39fa8}{Cell\+Properties\+Base\+Type\+::\+Spatial\+Cell\+Properties} \hyperlink{structmodel_1_1_dislocation_particle_aff639d1f8cef2fdfe9fd8b69619544d7}{Spatial\+Cell\+Properties}
+\item 
+typedef \hyperlink{structmodel_1_1_point_source}{Point\+Source}$<$ \hyperlink{structmodel_1_1_dislocation_particle_a707bb7bef0eeac9a9281626d2b30fdc6}{Dislocation\+Particle\+Type}, \+\_\+dim, \hyperlink{structmodel_1_1_dislocation_particle_a11c4d91265aef10567dc83b869e06fd5}{Stress\+Field}, \hyperlink{structmodel_1_1_dislocation_particle_a3c35f30e393557a4bcb372f270403c31}{Displacement\+Field}, \hyperlink{structmodel_1_1_dislocation_particle_acb452e4510d2079aa300effcf6829e6f}{Elastic\+Energy} $>$ \hyperlink{structmodel_1_1_dislocation_particle_ad7cb10ddeebde76213ecd273bf323bf0}{Point\+Source\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_field_point}{Field\+Point}$<$ \hyperlink{structmodel_1_1_dislocation_particle_a707bb7bef0eeac9a9281626d2b30fdc6}{Dislocation\+Particle\+Type}, \+\_\+dim, \hyperlink{structmodel_1_1_dislocation_particle_a11c4d91265aef10567dc83b869e06fd5}{Stress\+Field}, \hyperlink{structmodel_1_1_dislocation_particle_acb452e4510d2079aa300effcf6829e6f}{Elastic\+Energy} $>$ \hyperlink{structmodel_1_1_dislocation_particle_a89a31e2be848e9b3d236eaf3334ffe49}{Field\+Point\+Type}
+\item 
+typedef Point\+Source\+Type\+::\+Vector\+Dim\+D \hyperlink{structmodel_1_1_dislocation_particle_ac31483dc9c0a9aef3dde10fa00583b39}{Vector\+Dim\+D}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structmodel_1_1_dislocation_particle_a7bda5f6949e68877ec1825dad5543d90}{Dislocation\+Particle} (const \hyperlink{structmodel_1_1_dislocation_particle_ac31483dc9c0a9aef3dde10fa00583b39}{Vector\+Dim\+D} \&Pin, const \hyperlink{structmodel_1_1_dislocation_particle_ac31483dc9c0a9aef3dde10fa00583b39}{Vector\+Dim\+D} \&Tin, const \hyperlink{structmodel_1_1_dislocation_particle_ac31483dc9c0a9aef3dde10fa00583b39}{Vector\+Dim\+D} \&Bin, const double \&q\+A, const double \&q\+W)
+\item 
+\hyperlink{structmodel_1_1_dislocation_stress_a58cfb5429639657d58da42d9c3854505}{Stress\+Field\+::\+Matrix\+Type} \hyperlink{structmodel_1_1_dislocation_particle_a5f0c9d9e7bb1674ec607f55c2bd1df8d}{stress} () const 
+\item 
+Eigen\+::\+Matrix$<$ double, \+\_\+dim, \+\_\+dim $>$ \& \hyperlink{structmodel_1_1_dislocation_particle_aa33b23cfd4fa2b8d55bb308e61a6cc83}{cell\+Alpha\+Tensor} ()
+\item 
+const Eigen\+::\+Matrix$<$ double, \+\_\+dim, \+\_\+dim $>$ \& \hyperlink{structmodel_1_1_dislocation_particle_a9e49571d98ce752d314520926dea5fa8}{cell\+Alpha\+Tensor} () const 
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const \hyperlink{structmodel_1_1_dislocation_particle_ac31483dc9c0a9aef3dde10fa00583b39}{Vector\+Dim\+D} \hyperlink{structmodel_1_1_dislocation_particle_a2e4c468c20b98459256a746dca56701d}{T}
+\begin{DoxyCompactList}\small\item\em The tangent vector of the parent \hyperlink{classmodel_1_1_dislocation_segment}{Dislocation\+Segment} at this point. \end{DoxyCompactList}\item 
+const \hyperlink{structmodel_1_1_dislocation_particle_ac31483dc9c0a9aef3dde10fa00583b39}{Vector\+Dim\+D} \& \hyperlink{structmodel_1_1_dislocation_particle_a3a8d05e9d1d7a9925be1a20dece52310}{B}
+\begin{DoxyCompactList}\small\item\em A const reference to the Burgers vector of the parent \hyperlink{classmodel_1_1_dislocation_segment}{Dislocation\+Segment}. \end{DoxyCompactList}\item 
+const double \& \hyperlink{structmodel_1_1_dislocation_particle_a8c6fc5a8adbbfd82309b87e1f69d246b}{quad\+Abscissa}
+\begin{DoxyCompactList}\small\item\em A const reference to \hyperlink{structmodel_1_1_quadrature}{Quadrature} abscissa corresponding to this particle. \end{DoxyCompactList}\item 
+const double \& \hyperlink{structmodel_1_1_dislocation_particle_a1973a8355d41b8d97ab4dd7f2b08ad8f}{quad\+Weight}
+\begin{DoxyCompactList}\small\item\em A const reference to \hyperlink{structmodel_1_1_quadrature}{Quadrature} weight corresponding to this particle. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$short unsigned int \+\_\+dim$>$struct model\+::\+Dislocation\+Particle$<$ \+\_\+dim $>$}
+
+
+
+Definition at line 32 of file Dislocation\+Particle.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_dislocation_particle_ae19c66fb92f6fcdf3796257f48fdfb36}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!Cell\+Properties\+Base\+Type@{Cell\+Properties\+Base\+Type}}
+\index{Cell\+Properties\+Base\+Type@{Cell\+Properties\+Base\+Type}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{Cell\+Properties\+Base\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Cell\+Properties\+Base}$<${\bf Matrix\+Dim}$>$ {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::{\bf Cell\+Properties\+Base\+Type}}\label{structmodel_1_1_dislocation_particle_ae19c66fb92f6fcdf3796257f48fdfb36}
+
+
+Definition at line 85 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_a707bb7bef0eeac9a9281626d2b30fdc6}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!Dislocation\+Particle\+Type@{Dislocation\+Particle\+Type}}
+\index{Dislocation\+Particle\+Type@{Dislocation\+Particle\+Type}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{Dislocation\+Particle\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Dislocation\+Particle}$<$\+\_\+dim$>$ {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::{\bf Dislocation\+Particle\+Type}}\label{structmodel_1_1_dislocation_particle_a707bb7bef0eeac9a9281626d2b30fdc6}
+
+
+Definition at line 78 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_a3c35f30e393557a4bcb372f270403c31}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!Displacement\+Field@{Displacement\+Field}}
+\index{Displacement\+Field@{Displacement\+Field}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{Displacement\+Field}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Dislocation\+Displacement}$<$\+\_\+dim$>$ {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::{\bf Displacement\+Field}}\label{structmodel_1_1_dislocation_particle_a3c35f30e393557a4bcb372f270403c31}
+
+
+Definition at line 80 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_acb452e4510d2079aa300effcf6829e6f}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!Elastic\+Energy@{Elastic\+Energy}}
+\index{Elastic\+Energy@{Elastic\+Energy}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{Elastic\+Energy}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Dislocation\+Energy}$<$\+\_\+dim$>$ {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::{\bf Elastic\+Energy}}\label{structmodel_1_1_dislocation_particle_acb452e4510d2079aa300effcf6829e6f}
+
+
+Definition at line 81 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_a89a31e2be848e9b3d236eaf3334ffe49}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!Field\+Point\+Type@{Field\+Point\+Type}}
+\index{Field\+Point\+Type@{Field\+Point\+Type}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{Field\+Point\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Field\+Point}$<${\bf Dislocation\+Particle\+Type},\+\_\+dim,{\bf Stress\+Field},{\bf Elastic\+Energy}$>$ {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::{\bf Field\+Point\+Type}}\label{structmodel_1_1_dislocation_particle_a89a31e2be848e9b3d236eaf3334ffe49}
+
+
+Definition at line 89 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_a4fb98d6dbd350e248452f5bbcb3078f3}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!Matrix\+Dim@{Matrix\+Dim}}
+\index{Matrix\+Dim@{Matrix\+Dim}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{Matrix\+Dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef Eigen\+::\+Matrix$<$double,\+\_\+dim,\+\_\+dim$>$ {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::{\bf Matrix\+Dim}}\label{structmodel_1_1_dislocation_particle_a4fb98d6dbd350e248452f5bbcb3078f3}
+
+
+Definition at line 84 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_ad7cb10ddeebde76213ecd273bf323bf0}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!Point\+Source\+Type@{Point\+Source\+Type}}
+\index{Point\+Source\+Type@{Point\+Source\+Type}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{Point\+Source\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Point\+Source}$<${\bf Dislocation\+Particle\+Type},\+\_\+dim,{\bf Stress\+Field},{\bf Displacement\+Field},{\bf Elastic\+Energy}$>$ {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::{\bf Point\+Source\+Type}}\label{structmodel_1_1_dislocation_particle_ad7cb10ddeebde76213ecd273bf323bf0}
+
+
+Definition at line 88 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_aff639d1f8cef2fdfe9fd8b69619544d7}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!Spatial\+Cell\+Properties@{Spatial\+Cell\+Properties}}
+\index{Spatial\+Cell\+Properties@{Spatial\+Cell\+Properties}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{Spatial\+Cell\+Properties}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Cell\+Properties\+Base\+Type\+::\+Spatial\+Cell\+Properties} {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::{\bf Spatial\+Cell\+Properties}}\label{structmodel_1_1_dislocation_particle_aff639d1f8cef2fdfe9fd8b69619544d7}
+
+
+Definition at line 86 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_a11c4d91265aef10567dc83b869e06fd5}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!Stress\+Field@{Stress\+Field}}
+\index{Stress\+Field@{Stress\+Field}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{Stress\+Field}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Dislocation\+Stress}$<$\+\_\+dim$>$ {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::{\bf Stress\+Field}}\label{structmodel_1_1_dislocation_particle_a11c4d91265aef10567dc83b869e06fd5}
+
+
+Definition at line 79 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_ac31483dc9c0a9aef3dde10fa00583b39}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!Vector\+Dim\+D@{Vector\+Dim\+D}}
+\index{Vector\+Dim\+D@{Vector\+Dim\+D}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{Vector\+Dim\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef Point\+Source\+Type\+::\+Vector\+Dim\+D {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::{\bf Vector\+Dim\+D}}\label{structmodel_1_1_dislocation_particle_ac31483dc9c0a9aef3dde10fa00583b39}
+
+
+Definition at line 90 of file Dislocation\+Particle.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{structmodel_1_1_dislocation_particle_a4bd5db323619f407d2eaa5a87db2037e}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ anonymous enum}\label{structmodel_1_1_dislocation_particle_a4bd5db323619f407d2eaa5a87db2037e}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{dim@{dim}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!dim@{dim}}\item[{\em 
+\hypertarget{structmodel_1_1_dislocation_particle_a4bd5db323619f407d2eaa5a87db2037eafe66120ebb7ec585463b43b9b7b9be22}{}dim\label{structmodel_1_1_dislocation_particle_a4bd5db323619f407d2eaa5a87db2037eafe66120ebb7ec585463b43b9b7b9be22}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 76 of file Dislocation\+Particle.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{structmodel_1_1_dislocation_particle_a7bda5f6949e68877ec1825dad5543d90}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!Dislocation\+Particle@{Dislocation\+Particle}}
+\index{Dislocation\+Particle@{Dislocation\+Particle}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{Dislocation\+Particle}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::{\bf Dislocation\+Particle} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim\+D} \&}]{Pin, }
+\item[{const {\bf Vector\+Dim\+D} \&}]{Tin, }
+\item[{const {\bf Vector\+Dim\+D} \&}]{Bin, }
+\item[{const double \&}]{q\+A, }
+\item[{const double \&}]{q\+W}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_dislocation_particle_a7bda5f6949e68877ec1825dad5543d90}
+Constructor updates the alpha-\/tensor of the cell containing $\ast$this
+
+Definition at line 106 of file Dislocation\+Particle.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_dislocation_particle_aa33b23cfd4fa2b8d55bb308e61a6cc83}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!cell\+Alpha\+Tensor@{cell\+Alpha\+Tensor}}
+\index{cell\+Alpha\+Tensor@{cell\+Alpha\+Tensor}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{cell\+Alpha\+Tensor}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ Eigen\+::\+Matrix$<$double,\+\_\+dim,\+\_\+dim$>$\& {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::cell\+Alpha\+Tensor (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_dislocation_particle_aa33b23cfd4fa2b8d55bb308e61a6cc83}
+
+
+Definition at line 143 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_a9e49571d98ce752d314520926dea5fa8}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!cell\+Alpha\+Tensor@{cell\+Alpha\+Tensor}}
+\index{cell\+Alpha\+Tensor@{cell\+Alpha\+Tensor}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{cell\+Alpha\+Tensor}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ const Eigen\+::\+Matrix$<$double,\+\_\+dim,\+\_\+dim$>$\& {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::cell\+Alpha\+Tensor (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_dislocation_particle_a9e49571d98ce752d314520926dea5fa8}
+
+
+Definition at line 149 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_a5f0c9d9e7bb1674ec607f55c2bd1df8d}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!stress@{stress}}
+\index{stress@{stress}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{stress}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ {\bf Stress\+Field\+::\+Matrix\+Type} {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::stress (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_dislocation_particle_a5f0c9d9e7bb1674ec607f55c2bd1df8d}
+\begin{DoxyReturn}{Returns}
+the total stress field on this Dislocation\+Quadrature\+Particle
+\end{DoxyReturn}
+
+
+Definition at line 124 of file Dislocation\+Particle.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{structmodel_1_1_dislocation_particle_a3a8d05e9d1d7a9925be1a20dece52310}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!B@{B}}
+\index{B@{B}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{B}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ const {\bf Vector\+Dim\+D}\& {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::B}\label{structmodel_1_1_dislocation_particle_a3a8d05e9d1d7a9925be1a20dece52310}
+
+
+A const reference to the Burgers vector of the parent \hyperlink{classmodel_1_1_dislocation_segment}{Dislocation\+Segment}. 
+
+
+
+Definition at line 96 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_a8c6fc5a8adbbfd82309b87e1f69d246b}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!quad\+Abscissa@{quad\+Abscissa}}
+\index{quad\+Abscissa@{quad\+Abscissa}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{quad\+Abscissa}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ const double\& {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::quad\+Abscissa}\label{structmodel_1_1_dislocation_particle_a8c6fc5a8adbbfd82309b87e1f69d246b}
+
+
+A const reference to \hyperlink{structmodel_1_1_quadrature}{Quadrature} abscissa corresponding to this particle. 
+
+
+
+Definition at line 99 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_a1973a8355d41b8d97ab4dd7f2b08ad8f}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!quad\+Weight@{quad\+Weight}}
+\index{quad\+Weight@{quad\+Weight}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{quad\+Weight}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ const double\& {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::quad\+Weight}\label{structmodel_1_1_dislocation_particle_a1973a8355d41b8d97ab4dd7f2b08ad8f}
+
+
+A const reference to \hyperlink{structmodel_1_1_quadrature}{Quadrature} weight corresponding to this particle. 
+
+
+
+Definition at line 102 of file Dislocation\+Particle.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_particle_a2e4c468c20b98459256a746dca56701d}{}\index{model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}!T@{T}}
+\index{T@{T}!model\+::\+Dislocation\+Particle@{model\+::\+Dislocation\+Particle}}
+\subsubsection[{T}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ const {\bf Vector\+Dim\+D} {\bf model\+::\+Dislocation\+Particle}$<$ \+\_\+dim $>$\+::T}\label{structmodel_1_1_dislocation_particle_a2e4c468c20b98459256a746dca56701d}
+
+
+The tangent vector of the parent \hyperlink{classmodel_1_1_dislocation_segment}{Dislocation\+Segment} at this point. 
+
+
+
+Definition at line 93 of file Dislocation\+Particle.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_dislocation_particle_8h}{Dislocation\+Particle.\+h}\end{DoxyCompactItemize}

@@ -1,0 +1,124 @@
+\hypertarget{structmodel_1_1_boundary_stress_point}{}\section{model\+:\+:Boundary\+Stress\+Point$<$ Dislocation\+Network\+Type $>$ Struct Template Reference}
+\label{structmodel_1_1_boundary_stress_point}\index{model\+::\+Boundary\+Stress\+Point$<$ Dislocation\+Network\+Type $>$@{model\+::\+Boundary\+Stress\+Point$<$ Dislocation\+Network\+Type $>$}}
+
+
+{\ttfamily \#include $<$Boundary\+Stress\+Point.\+h$>$}
+
+Inheritance diagram for model\+:\+:Boundary\+Stress\+Point$<$ Dislocation\+Network\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.643678cm]{structmodel_1_1_boundary_stress_point}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Dislocation\+Network\+Type\+::\+Element\+Type \hyperlink{structmodel_1_1_boundary_stress_point_abbe62ae453e93d99f80b043f4de9bf04}{Element\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_boundary_integration_point}{Boundary\+Integration\+Point}$<$ \hyperlink{structmodel_1_1_boundary_stress_point_abbe62ae453e93d99f80b043f4de9bf04}{Element\+Type} $>$ \hyperlink{structmodel_1_1_boundary_stress_point_a8e4470be4cf3e1bf6b903a300a9d5734}{Boundary\+Integration\+Point\+Type}
+\item 
+typedef Dislocation\+Network\+Type\+::\+Stress\+Field \hyperlink{structmodel_1_1_boundary_stress_point_a0a32689c2130c3a3729817e775a96751}{Stress\+Field}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structmodel_1_1_boundary_stress_point_af83b6c42b55e80c97e3ff6d135bdaf7c}{Boundary\+Stress\+Point} (const \hyperlink{structmodel_1_1_boundary_stress_point_abbe62ae453e93d99f80b043f4de9bf04}{Element\+Type} \&\+\_\+ele, const Eigen\+::\+Matrix$<$ double, \hyperlink{structmodel_1_1_boundary_stress_point_a129a979e1b40752a4075d2e4ff084e6e}{dim}+1, 1 $>$ \&\+\_\+domain\+Bary, const int \&\+\_\+boundary\+Face, const double \&\+\_\+weight)
+\item 
+Eigen\+::\+Matrix$<$ double, \hyperlink{structmodel_1_1_boundary_stress_point_a129a979e1b40752a4075d2e4ff084e6e}{dim}, \hyperlink{structmodel_1_1_boundary_stress_point_a129a979e1b40752a4075d2e4ff084e6e}{dim} $>$ \hyperlink{structmodel_1_1_boundary_stress_point_a36676d74955eb460af2505105a9ef597}{operator()} () const 
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const Eigen\+::\+Matrix$<$ double, \hyperlink{structmodel_1_1_boundary_stress_point_a129a979e1b40752a4075d2e4ff084e6e}{dim}, 1 $>$ \hyperlink{structmodel_1_1_boundary_stress_point_a7b022843a28dc60431e4c7a473e2122c}{P}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static constexpr int \hyperlink{structmodel_1_1_boundary_stress_point_a129a979e1b40752a4075d2e4ff084e6e}{dim} =Stress\+Field\+::dim
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Dislocation\+Network\+Type$>$struct model\+::\+Boundary\+Stress\+Point$<$ Dislocation\+Network\+Type $>$}
+
+
+
+Definition at line 22 of file Boundary\+Stress\+Point.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_boundary_stress_point_a8e4470be4cf3e1bf6b903a300a9d5734}{}\index{model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}!Boundary\+Integration\+Point\+Type@{Boundary\+Integration\+Point\+Type}}
+\index{Boundary\+Integration\+Point\+Type@{Boundary\+Integration\+Point\+Type}!model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}}
+\subsubsection[{Boundary\+Integration\+Point\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ typedef {\bf Boundary\+Integration\+Point}$<${\bf Element\+Type}$>$ {\bf model\+::\+Boundary\+Stress\+Point}$<$ Dislocation\+Network\+Type $>$\+::{\bf Boundary\+Integration\+Point\+Type}}\label{structmodel_1_1_boundary_stress_point_a8e4470be4cf3e1bf6b903a300a9d5734}
+
+
+Definition at line 28 of file Boundary\+Stress\+Point.\+h.
+
+\hypertarget{structmodel_1_1_boundary_stress_point_abbe62ae453e93d99f80b043f4de9bf04}{}\index{model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}!Element\+Type@{Element\+Type}}
+\index{Element\+Type@{Element\+Type}!model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}}
+\subsubsection[{Element\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ typedef Dislocation\+Network\+Type\+::\+Element\+Type {\bf model\+::\+Boundary\+Stress\+Point}$<$ Dislocation\+Network\+Type $>$\+::{\bf Element\+Type}}\label{structmodel_1_1_boundary_stress_point_abbe62ae453e93d99f80b043f4de9bf04}
+
+
+Definition at line 27 of file Boundary\+Stress\+Point.\+h.
+
+\hypertarget{structmodel_1_1_boundary_stress_point_a0a32689c2130c3a3729817e775a96751}{}\index{model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}!Stress\+Field@{Stress\+Field}}
+\index{Stress\+Field@{Stress\+Field}!model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}}
+\subsubsection[{Stress\+Field}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ typedef Dislocation\+Network\+Type\+::\+Stress\+Field {\bf model\+::\+Boundary\+Stress\+Point}$<$ Dislocation\+Network\+Type $>$\+::{\bf Stress\+Field}}\label{structmodel_1_1_boundary_stress_point_a0a32689c2130c3a3729817e775a96751}
+
+
+Definition at line 29 of file Boundary\+Stress\+Point.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{structmodel_1_1_boundary_stress_point_af83b6c42b55e80c97e3ff6d135bdaf7c}{}\index{model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}!Boundary\+Stress\+Point@{Boundary\+Stress\+Point}}
+\index{Boundary\+Stress\+Point@{Boundary\+Stress\+Point}!model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}}
+\subsubsection[{Boundary\+Stress\+Point}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ {\bf model\+::\+Boundary\+Stress\+Point}$<$ Dislocation\+Network\+Type $>$\+::{\bf Boundary\+Stress\+Point} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Element\+Type} \&}]{\+\_\+ele, }
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}+1, 1 $>$ \&}]{\+\_\+domain\+Bary, }
+\item[{const int \&}]{\+\_\+boundary\+Face, }
+\item[{const double \&}]{\+\_\+weight}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_boundary_stress_point_af83b6c42b55e80c97e3ff6d135bdaf7c}
+
+
+Definition at line 35 of file Boundary\+Stress\+Point.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_boundary_stress_point_a36676d74955eb460af2505105a9ef597}{}\index{model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}!operator()@{operator()}}
+\index{operator()@{operator()}!model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}}
+\subsubsection[{operator()}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ Eigen\+::\+Matrix$<$double,{\bf dim},{\bf dim}$>$ {\bf model\+::\+Boundary\+Stress\+Point}$<$ Dislocation\+Network\+Type $>$\+::operator() (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_boundary_stress_point_a36676d74955eb460af2505105a9ef597}
+
+
+Definition at line 46 of file Boundary\+Stress\+Point.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{structmodel_1_1_boundary_stress_point_a129a979e1b40752a4075d2e4ff084e6e}{}\index{model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}!dim@{dim}}
+\index{dim@{dim}!model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}}
+\subsubsection[{dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ constexpr int {\bf model\+::\+Boundary\+Stress\+Point}$<$ Dislocation\+Network\+Type $>$\+::dim =Stress\+Field\+::dim\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_boundary_stress_point_a129a979e1b40752a4075d2e4ff084e6e}
+
+
+Definition at line 30 of file Boundary\+Stress\+Point.\+h.
+
+\hypertarget{structmodel_1_1_boundary_stress_point_a7b022843a28dc60431e4c7a473e2122c}{}\index{model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}!P@{P}}
+\index{P@{P}!model\+::\+Boundary\+Stress\+Point@{model\+::\+Boundary\+Stress\+Point}}
+\subsubsection[{P}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ const Eigen\+::\+Matrix$<$double,{\bf dim},1$>$ {\bf model\+::\+Boundary\+Stress\+Point}$<$ Dislocation\+Network\+Type $>$\+::P}\label{structmodel_1_1_boundary_stress_point_a7b022843a28dc60431e4c7a473e2122c}
+
+
+Definition at line 32 of file Boundary\+Stress\+Point.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_boundary_stress_point_8h}{Boundary\+Stress\+Point.\+h}\end{DoxyCompactItemize}

@@ -9,20 +9,24 @@
 #ifndef model_FACTORIAL_H_
 #define model_FACTORIAL_H_
 
-namespace model {
+namespace model
+{
 	
-	//////////////////////////////////////////////////////////////////////////
-	template< int N >
-	struct Factorial {
-		enum { value = Factorial<(N>0)?(N-1):0>::value * ((N>0)? N:1)};
-	};
+    /*!\brief A class template for compile-time computation of factorials */
+    template< int N >
+	struct Factorial
+    {
+//		enum { value = Factorial<(N>0)?(N-1):0>::value * ((N>0)? N:1)};
+        static constexpr int value = Factorial<(N>0)?(N-1):0>::value * ((N>0)? N:1);
+
+    };
 	
 	template<>
-	struct Factorial<0> {
-		enum { value = 1 };
+	struct Factorial<0>
+    {
+//		enum { value = 1 };
+        static constexpr int value = 1;
 	};
 	
-	//////////////////////////////////////////////////////////////////////////
-} // end namespace model
-
+}
 #endif

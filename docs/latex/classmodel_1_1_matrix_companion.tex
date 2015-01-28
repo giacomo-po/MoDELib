@@ -1,0 +1,117 @@
+\hypertarget{classmodel_1_1_matrix_companion}{}\section{model\+:\+:Matrix\+Companion$<$ p\+Order $>$ Class Template Reference}
+\label{classmodel_1_1_matrix_companion}\index{model\+::\+Matrix\+Companion$<$ p\+Order $>$@{model\+::\+Matrix\+Companion$<$ p\+Order $>$}}
+
+
+{\ttfamily \#include $<$Matrix\+Companion.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_matrix_companion_a3659c4e4dd36c75ad8c66c3d9e94cee4}{Matrix\+Companion} (const Vector\+Ncoeff \&coeffs\+I\+N)
+\item 
+Eigen\+Solver\+Type\+::\+Complex\+Scalar \hyperlink{classmodel_1_1_matrix_companion_ae46738e6215e35ea400df020daed860c}{root} (const int \&\hyperlink{_cubic_spline_intersection_8m_a6f6ccfcf58b31cb6412107d9d5281426}{i}) const 
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static Eigen\+::\+Matrix\+Xd \hyperlink{classmodel_1_1_matrix_companion_ae1915046bc576dd0f9a62b658db4ca8c}{get\+C\+M} (const Vector\+Ncoeff \&coeffs\+I\+N)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const Vector\+Ncoeff \hyperlink{classmodel_1_1_matrix_companion_a5f15838a7b111f1ba19ee2d16106236d}{coeffs}
+\item 
+const Matrix\+Porder \hyperlink{classmodel_1_1_matrix_companion_a8b6814bc0e757bb44d315c86a39afc73}{c\+M}
+\item 
+const Eigen\+Solver\+Type \hyperlink{classmodel_1_1_matrix_companion_a43bdf2e1a6a86e491dbcf7b2c50e45c9}{es}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int p\+Order$>$class model\+::\+Matrix\+Companion$<$ p\+Order $>$}
+
+
+
+Definition at line 20 of file Matrix\+Companion.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_matrix_companion_a3659c4e4dd36c75ad8c66c3d9e94cee4}{}\index{model\+::\+Matrix\+Companion@{model\+::\+Matrix\+Companion}!Matrix\+Companion@{Matrix\+Companion}}
+\index{Matrix\+Companion@{Matrix\+Companion}!model\+::\+Matrix\+Companion@{model\+::\+Matrix\+Companion}}
+\subsubsection[{Matrix\+Companion}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int p\+Order$>$ {\bf model\+::\+Matrix\+Companion}$<$ {\bf p\+Order} $>$\+::{\bf Matrix\+Companion} (
+\begin{DoxyParamCaption}
+\item[{const Vector\+Ncoeff \&}]{coeffs\+I\+N}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_matrix_companion_a3659c4e4dd36c75ad8c66c3d9e94cee4}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em coeffs\+I\+N} & the coefficients of the polynomial, from highest to lowest.\\
+\hline
+\end{DoxyParams}
+The constructor initializes the companion matrix c\+M, and the eigensolver es.
+
+Definition at line 36 of file Matrix\+Companion.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_matrix_companion_ae1915046bc576dd0f9a62b658db4ca8c}{}\index{model\+::\+Matrix\+Companion@{model\+::\+Matrix\+Companion}!get\+C\+M@{get\+C\+M}}
+\index{get\+C\+M@{get\+C\+M}!model\+::\+Matrix\+Companion@{model\+::\+Matrix\+Companion}}
+\subsubsection[{get\+C\+M}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int p\+Order$>$ static Eigen\+::\+Matrix\+Xd {\bf model\+::\+Matrix\+Companion}$<$ {\bf p\+Order} $>$\+::get\+C\+M (
+\begin{DoxyParamCaption}
+\item[{const Vector\+Ncoeff \&}]{coeffs\+I\+N}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_matrix_companion_ae1915046bc576dd0f9a62b658db4ca8c}
+
+
+Definition at line 58 of file Matrix\+Companion.\+h.
+
+\hypertarget{classmodel_1_1_matrix_companion_ae46738e6215e35ea400df020daed860c}{}\index{model\+::\+Matrix\+Companion@{model\+::\+Matrix\+Companion}!root@{root}}
+\index{root@{root}!model\+::\+Matrix\+Companion@{model\+::\+Matrix\+Companion}}
+\subsubsection[{root}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int p\+Order$>$ Eigen\+Solver\+Type\+::\+Complex\+Scalar {\bf model\+::\+Matrix\+Companion}$<$ {\bf p\+Order} $>$\+::root (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{i}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_matrix_companion_ae46738e6215e35ea400df020daed860c}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em i} & an integer in 0$<$i$<$=p\+Order \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the i-\/th root of the polynomial.
+\end{DoxyReturn}
+
+
+Definition at line 49 of file Matrix\+Companion.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_matrix_companion_a8b6814bc0e757bb44d315c86a39afc73}{}\index{model\+::\+Matrix\+Companion@{model\+::\+Matrix\+Companion}!c\+M@{c\+M}}
+\index{c\+M@{c\+M}!model\+::\+Matrix\+Companion@{model\+::\+Matrix\+Companion}}
+\subsubsection[{c\+M}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int p\+Order$>$ const Matrix\+Porder {\bf model\+::\+Matrix\+Companion}$<$ {\bf p\+Order} $>$\+::c\+M}\label{classmodel_1_1_matrix_companion_a8b6814bc0e757bb44d315c86a39afc73}
+
+
+Definition at line 32 of file Matrix\+Companion.\+h.
+
+\hypertarget{classmodel_1_1_matrix_companion_a5f15838a7b111f1ba19ee2d16106236d}{}\index{model\+::\+Matrix\+Companion@{model\+::\+Matrix\+Companion}!coeffs@{coeffs}}
+\index{coeffs@{coeffs}!model\+::\+Matrix\+Companion@{model\+::\+Matrix\+Companion}}
+\subsubsection[{coeffs}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int p\+Order$>$ const Vector\+Ncoeff {\bf model\+::\+Matrix\+Companion}$<$ {\bf p\+Order} $>$\+::coeffs}\label{classmodel_1_1_matrix_companion_a5f15838a7b111f1ba19ee2d16106236d}
+
+
+Definition at line 31 of file Matrix\+Companion.\+h.
+
+\hypertarget{classmodel_1_1_matrix_companion_a43bdf2e1a6a86e491dbcf7b2c50e45c9}{}\index{model\+::\+Matrix\+Companion@{model\+::\+Matrix\+Companion}!es@{es}}
+\index{es@{es}!model\+::\+Matrix\+Companion@{model\+::\+Matrix\+Companion}}
+\subsubsection[{es}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int p\+Order$>$ const Eigen\+Solver\+Type {\bf model\+::\+Matrix\+Companion}$<$ {\bf p\+Order} $>$\+::es}\label{classmodel_1_1_matrix_companion_a43bdf2e1a6a86e491dbcf7b2c50e45c9}
+
+
+Definition at line 33 of file Matrix\+Companion.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_matrix_companion_8h}{Matrix\+Companion.\+h}\end{DoxyCompactItemize}

@@ -1,0 +1,205 @@
+\hypertarget{structmodel_1_1_barycentric_traits}{}\section{model\+:\+:Barycentric\+Traits$<$ dim $>$ Struct Template Reference}
+\label{structmodel_1_1_barycentric_traits}\index{model\+::\+Barycentric\+Traits$<$ dim $>$@{model\+::\+Barycentric\+Traits$<$ dim $>$}}
+
+
+{\ttfamily \#include $<$Barycentric\+Traits.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $>$ \hyperlink{structmodel_1_1_barycentric_traits_a40fdf63235669f5a7697b19130782975}{Matrix\+Dim\+D}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1 $>$ \hyperlink{structmodel_1_1_barycentric_traits_a90e0d5eb84d856af28e250bbb11f2ced}{Matrix\+Higher\+Dim\+D}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $>$ \hyperlink{structmodel_1_1_barycentric_traits_afe45a5057be0ecbe991df26efe84ce2e}{Matrix\+Higher\+Dim\+Dim\+D}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1 $>$ \hyperlink{structmodel_1_1_barycentric_traits_a2c6fbdc726cddd2ee8e5e10695aeeb58}{Matrix\+Dim\+Higher\+Dim\+D}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim},1 $>$ \hyperlink{structmodel_1_1_barycentric_traits_a05149349d869b7dfa9c40be51dce1472}{Vector\+Dim\+D}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, 1 $>$ \hyperlink{structmodel_1_1_barycentric_traits_acf017f73aa445c84be0b91d5cdf3d5de}{Vector\+Higher\+Dim\+D}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{structmodel_1_1_barycentric_traits_acf017f73aa445c84be0b91d5cdf3d5de}{Vector\+Higher\+Dim\+D} \hyperlink{structmodel_1_1_barycentric_traits_a3ad702ac8741c47470b787c7b5f80b85}{x2l} (const \hyperlink{structmodel_1_1_barycentric_traits_a05149349d869b7dfa9c40be51dce1472}{Vector\+Dim\+D} \&\hyperlink{bench_2dislocation_stress_2plot_stress_8m_ac51b57a703ba1c5869228690c93e1701}{X})
+\item 
+static \hyperlink{structmodel_1_1_barycentric_traits_acf017f73aa445c84be0b91d5cdf3d5de}{Vector\+Higher\+Dim\+D} \hyperlink{structmodel_1_1_barycentric_traits_abb8632e8cf6a7352945c2c2a3901e444}{x2l} (const double \&\hyperlink{bench_2dislocation_stress_2plot_stress_8m_ac51b57a703ba1c5869228690c93e1701}{X})
+\item 
+static \hyperlink{structmodel_1_1_barycentric_traits_a05149349d869b7dfa9c40be51dce1472}{Vector\+Dim\+D} \hyperlink{structmodel_1_1_barycentric_traits_a4e1d8f52288fa3ceb5572f283fdf9f6c}{l2x} (const \hyperlink{structmodel_1_1_barycentric_traits_acf017f73aa445c84be0b91d5cdf3d5de}{Vector\+Higher\+Dim\+D} \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_s_t_lcube_8m_a6dd34dfb831e5311952faa8c6e2bdab0}{L})
+\item 
+static Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, 1 $>$ \hyperlink{structmodel_1_1_barycentric_traits_a70c33373901606c6e63f730b4a26b54e}{face2domain\+Bary} (const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \&b1, const int \&boundary\+Face)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const \hyperlink{structmodel_1_1_barycentric_traits_a90e0d5eb84d856af28e250bbb11f2ced}{Matrix\+Higher\+Dim\+D} \hyperlink{structmodel_1_1_barycentric_traits_a727288fed435429e007ae74a250f1027}{L2\+X} =\hyperlink{structmodel_1_1_barycentric_traits}{Barycentric\+Traits}$<$\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}$>$\+::get\+\_\+\+L2\+X()
+\item 
+static const \hyperlink{structmodel_1_1_barycentric_traits_a90e0d5eb84d856af28e250bbb11f2ced}{Matrix\+Higher\+Dim\+D} \hyperlink{structmodel_1_1_barycentric_traits_a9db9e597447070e334d9ed4f2c12902d}{X2\+L} =\hyperlink{structmodel_1_1_barycentric_traits}{Barycentric\+Traits}$<$\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}$>$\+::get\+\_\+\+X2\+L()
+\item 
+static const \hyperlink{structmodel_1_1_barycentric_traits_afe45a5057be0ecbe991df26efe84ce2e}{Matrix\+Higher\+Dim\+Dim\+D} \hyperlink{structmodel_1_1_barycentric_traits_a06b0741d3bc86d30dd13e92250e86fc2}{d\+Ld\+X} =\hyperlink{structmodel_1_1_barycentric_traits}{Barycentric\+Traits}$<$\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}$>$\+::X2\+L. template block$<$\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1,\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}$>$(0,0)
+\item 
+static const \hyperlink{structmodel_1_1_barycentric_traits_a2c6fbdc726cddd2ee8e5e10695aeeb58}{Matrix\+Dim\+Higher\+Dim\+D} \hyperlink{structmodel_1_1_barycentric_traits_acb15b3ea4de71974eed1dc5285b0e5c9}{Nd\+A} =\hyperlink{structmodel_1_1_barycentric_traits}{Barycentric\+Traits}$<$\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}$>$\+::get\+\_\+\+Nd\+A()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$short int dim$>$struct model\+::\+Barycentric\+Traits$<$ dim $>$}
+
+Class template that performs auxiliary barycentric-\/to-\/standard coordinate transformation in a \hyperlink{classmodel_1_1_simplex}{Simplex}. 
+
+Definition at line 24 of file Barycentric\+Traits.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_barycentric_traits_a40fdf63235669f5a7697b19130782975}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!Matrix\+Dim\+D@{Matrix\+Dim\+D}}
+\index{Matrix\+Dim\+D@{Matrix\+Dim\+D}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{Matrix\+Dim\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ typedef Eigen\+::\+Matrix$<$double,{\bf dim},{\bf dim}$>$ {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::{\bf Matrix\+Dim\+D}}\label{structmodel_1_1_barycentric_traits_a40fdf63235669f5a7697b19130782975}
+
+
+Definition at line 26 of file Barycentric\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_barycentric_traits_a2c6fbdc726cddd2ee8e5e10695aeeb58}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!Matrix\+Dim\+Higher\+Dim\+D@{Matrix\+Dim\+Higher\+Dim\+D}}
+\index{Matrix\+Dim\+Higher\+Dim\+D@{Matrix\+Dim\+Higher\+Dim\+D}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{Matrix\+Dim\+Higher\+Dim\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ typedef Eigen\+::\+Matrix$<$double,{\bf dim},{\bf dim}+1$>$ {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::{\bf Matrix\+Dim\+Higher\+Dim\+D}}\label{structmodel_1_1_barycentric_traits_a2c6fbdc726cddd2ee8e5e10695aeeb58}
+
+
+Definition at line 32 of file Barycentric\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_barycentric_traits_a90e0d5eb84d856af28e250bbb11f2ced}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!Matrix\+Higher\+Dim\+D@{Matrix\+Higher\+Dim\+D}}
+\index{Matrix\+Higher\+Dim\+D@{Matrix\+Higher\+Dim\+D}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{Matrix\+Higher\+Dim\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ typedef Eigen\+::\+Matrix$<$double,{\bf dim}+1,{\bf dim}+1$>$ {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::{\bf Matrix\+Higher\+Dim\+D}}\label{structmodel_1_1_barycentric_traits_a90e0d5eb84d856af28e250bbb11f2ced}
+
+
+Definition at line 30 of file Barycentric\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_barycentric_traits_afe45a5057be0ecbe991df26efe84ce2e}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!Matrix\+Higher\+Dim\+Dim\+D@{Matrix\+Higher\+Dim\+Dim\+D}}
+\index{Matrix\+Higher\+Dim\+Dim\+D@{Matrix\+Higher\+Dim\+Dim\+D}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{Matrix\+Higher\+Dim\+Dim\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ typedef Eigen\+::\+Matrix$<$double,{\bf dim}+1,{\bf dim}$>$ {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::{\bf Matrix\+Higher\+Dim\+Dim\+D}}\label{structmodel_1_1_barycentric_traits_afe45a5057be0ecbe991df26efe84ce2e}
+
+
+Definition at line 31 of file Barycentric\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_barycentric_traits_a05149349d869b7dfa9c40be51dce1472}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!Vector\+Dim\+D@{Vector\+Dim\+D}}
+\index{Vector\+Dim\+D@{Vector\+Dim\+D}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{Vector\+Dim\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ typedef Eigen\+::\+Matrix$<$double,{\bf dim} ,1$>$ {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::{\bf Vector\+Dim\+D}}\label{structmodel_1_1_barycentric_traits_a05149349d869b7dfa9c40be51dce1472}
+
+
+Definition at line 34 of file Barycentric\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_barycentric_traits_acf017f73aa445c84be0b91d5cdf3d5de}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!Vector\+Higher\+Dim\+D@{Vector\+Higher\+Dim\+D}}
+\index{Vector\+Higher\+Dim\+D@{Vector\+Higher\+Dim\+D}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{Vector\+Higher\+Dim\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ typedef Eigen\+::\+Matrix$<$double,{\bf dim}+1,1$>$ {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::{\bf Vector\+Higher\+Dim\+D}}\label{structmodel_1_1_barycentric_traits_acf017f73aa445c84be0b91d5cdf3d5de}
+
+
+Definition at line 35 of file Barycentric\+Traits.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_barycentric_traits_a70c33373901606c6e63f730b4a26b54e}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!face2domain\+Bary@{face2domain\+Bary}}
+\index{face2domain\+Bary@{face2domain\+Bary}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{face2domain\+Bary}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ static Eigen\+::\+Matrix$<$double,{\bf dim}+1,1$>$ {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::face2domain\+Bary (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}, 1 $>$ \&}]{b1, }
+\item[{const int \&}]{boundary\+Face}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_barycentric_traits_a70c33373901606c6e63f730b4a26b54e}
+
+
+Definition at line 68 of file Barycentric\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_barycentric_traits_a4e1d8f52288fa3ceb5572f283fdf9f6c}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!l2x@{l2x}}
+\index{l2x@{l2x}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{l2x}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ static {\bf Vector\+Dim\+D} {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::l2x (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Higher\+Dim\+D} \&}]{L}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_barycentric_traits_a4e1d8f52288fa3ceb5572f283fdf9f6c}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em L} & vector of barycentric coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the vector of standard coordinates corresponding to L
+\end{DoxyReturn}
+
+
+Definition at line 60 of file Barycentric\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_barycentric_traits_a3ad702ac8741c47470b787c7b5f80b85}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!x2l@{x2l}}
+\index{x2l@{x2l}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{x2l}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ static {\bf Vector\+Higher\+Dim\+D} {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::x2l (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim\+D} \&}]{X}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_barycentric_traits_a3ad702ac8741c47470b787c7b5f80b85}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em X} & vector of standard coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the barycentric coordinates corresponding to X
+\end{DoxyReturn}
+
+
+Definition at line 43 of file Barycentric\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_barycentric_traits_abb8632e8cf6a7352945c2c2a3901e444}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!x2l@{x2l}}
+\index{x2l@{x2l}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{x2l}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ static {\bf Vector\+Higher\+Dim\+D} {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::x2l (
+\begin{DoxyParamCaption}
+\item[{const double \&}]{X}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_barycentric_traits_abb8632e8cf6a7352945c2c2a3901e444}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em X} & vector of standard coordinates \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the barycentric coordinates corresponding to X
+\end{DoxyReturn}
+
+
+Definition at line 51 of file Barycentric\+Traits.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{structmodel_1_1_barycentric_traits_a06b0741d3bc86d30dd13e92250e86fc2}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!d\+Ld\+X@{d\+Ld\+X}}
+\index{d\+Ld\+X@{d\+Ld\+X}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{d\+Ld\+X}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ const {\bf Barycentric\+Traits}$<$ {\bf dim} $>$\+::{\bf Matrix\+Higher\+Dim\+Dim\+D} {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::d\+Ld\+X ={\bf Barycentric\+Traits}$<${\bf dim}$>$\+::X2\+L. template block$<${\bf dim}+1,{\bf dim}$>$(0,0)\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_barycentric_traits_a06b0741d3bc86d30dd13e92250e86fc2}
+
+
+Definition at line 39 of file Barycentric\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_barycentric_traits_a727288fed435429e007ae74a250f1027}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!L2\+X@{L2\+X}}
+\index{L2\+X@{L2\+X}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{L2\+X}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ const {\bf Barycentric\+Traits}$<$ {\bf dim} $>$\+::{\bf Matrix\+Higher\+Dim\+D} {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::L2\+X ={\bf Barycentric\+Traits}$<${\bf dim}$>$\+::get\+\_\+\+L2\+X()\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_barycentric_traits_a727288fed435429e007ae74a250f1027}
+
+
+Definition at line 37 of file Barycentric\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_barycentric_traits_acb15b3ea4de71974eed1dc5285b0e5c9}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!Nd\+A@{Nd\+A}}
+\index{Nd\+A@{Nd\+A}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{Nd\+A}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ const {\bf Barycentric\+Traits}$<$ {\bf dim} $>$\+::{\bf Matrix\+Dim\+Higher\+Dim\+D} {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::Nd\+A ={\bf Barycentric\+Traits}$<${\bf dim}$>$\+::get\+\_\+\+Nd\+A()\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_barycentric_traits_acb15b3ea4de71974eed1dc5285b0e5c9}
+
+
+Definition at line 40 of file Barycentric\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_barycentric_traits_a9db9e597447070e334d9ed4f2c12902d}{}\index{model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}!X2\+L@{X2\+L}}
+\index{X2\+L@{X2\+L}!model\+::\+Barycentric\+Traits@{model\+::\+Barycentric\+Traits}}
+\subsubsection[{X2\+L}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ const {\bf Barycentric\+Traits}$<$ {\bf dim} $>$\+::{\bf Matrix\+Higher\+Dim\+D} {\bf model\+::\+Barycentric\+Traits}$<$ {\bf dim} $>$\+::X2\+L ={\bf Barycentric\+Traits}$<${\bf dim}$>$\+::get\+\_\+\+X2\+L()\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_barycentric_traits_a9db9e597447070e334d9ed4f2c12902d}
+
+
+Definition at line 38 of file Barycentric\+Traits.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_barycentric_traits_8h}{Barycentric\+Traits.\+h}\end{DoxyCompactItemize}

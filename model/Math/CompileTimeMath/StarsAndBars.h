@@ -12,7 +12,8 @@
 #include <Eigen/Dense>
 #include <model/Math/CompileTimeMath/CombinationWithRepetition.h>
 
-namespace model {
+namespace model
+{
     
     
     /**************************************************************************/
@@ -30,11 +31,17 @@ namespace model {
         static_assert(_j>=0,"j MUST BE >0.");
         static_assert(_j<_k,"j MUST BE <k.");
         
-        enum{N=_N}; // number of positive integers
-        enum{k=_k}; // value of the sum of the N integers
-        enum{j=_j}; // value of the sum of the N integers
-        enum{r1=CombinationWithRepetition<N,k-j-1>::value};
-        enum{r2=CombinationWithRepetition<N-1,k-j>::value};
+//        enum{N=_N}; // number of positive integers
+//        enum{k=_k}; // value of the sum of the N integers
+//        enum{j=_j}; // value of the sum of the N integers
+//        enum{r1=CombinationWithRepetition<N,k-j-1>::value};
+//        enum{r2=CombinationWithRepetition<N-1,k-j>::value};
+
+        static constexpr int N=_N; // number of positive integers
+        static constexpr int k=_k; // value of the sum of the N integers
+        static constexpr int j=_j; // value of the sum of the N integers
+        static constexpr int r1=CombinationWithRepetition<N,k-j-1>::value;
+        static constexpr int r2=CombinationWithRepetition<N-1,k-j>::value;
         
         static Eigen::Matrix<int,r1+r2,N> sAb()
         {/*!@param[in] pool a row vector of N values

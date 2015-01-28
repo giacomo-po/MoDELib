@@ -1,0 +1,103 @@
+\hypertarget{classmodel_1_1_edge_reader}{}\section{model\+:\+:Edge\+Reader$<$ c, cols, scalar $>$ Class Template Reference}
+\label{classmodel_1_1_edge_reader}\index{model\+::\+Edge\+Reader$<$ c, cols, scalar $>$@{model\+::\+Edge\+Reader$<$ c, cols, scalar $>$}}
+
+
+{\ttfamily \#include $<$Edge\+Reader.\+h$>$}
+
+Inheritance diagram for model\+:\+:Edge\+Reader$<$ c, cols, scalar $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.972222cm]{classmodel_1_1_edge_reader}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+E\+I\+G\+E\+N\+\_\+\+M\+A\+K\+E\+\_\+\+A\+L\+I\+G\+N\+E\+D\+\_\+\+O\+P\+E\+R\+A\+T\+O\+R\+\_\+\+N\+E\+W \hyperlink{classmodel_1_1_edge_reader_a1e84a22bffaf453d6a91c78ed03c2d3d}{Edge\+Reader} ()
+\item 
+bool \hyperlink{classmodel_1_1_edge_reader_a0695aa23393e064eadb1c98a6bd51e42}{read} (const int \&frame\+N, const bool \&use\+T\+X\+T)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static std\+::string \hyperlink{classmodel_1_1_edge_reader_a8115edf1929ff8035eab7f7bdcbab739}{get\+Filename} (const int \&frame\+N, const bool \&use\+T\+X\+T)
+\item 
+static bool \hyperlink{classmodel_1_1_edge_reader_a6b04c6ded4bbcc4184ad711ee98d4050}{is\+Good} (const int \&frame\+N, const bool \&use\+T\+X\+T)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$char c, int cols, typename scalar$>$class model\+::\+Edge\+Reader$<$ c, cols, scalar $>$}
+
+
+
+Definition at line 29 of file Edge\+Reader.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_edge_reader_a1e84a22bffaf453d6a91c78ed03c2d3d}{}\index{model\+::\+Edge\+Reader@{model\+::\+Edge\+Reader}!Edge\+Reader@{Edge\+Reader}}
+\index{Edge\+Reader@{Edge\+Reader}!model\+::\+Edge\+Reader@{model\+::\+Edge\+Reader}}
+\subsubsection[{Edge\+Reader}]{\setlength{\rightskip}{0pt plus 5cm}template$<$char c, int cols, typename scalar$>$ E\+I\+G\+E\+N\+\_\+\+M\+A\+K\+E\+\_\+\+A\+L\+I\+G\+N\+E\+D\+\_\+\+O\+P\+E\+R\+A\+T\+O\+R\+\_\+\+N\+E\+W {\bf model\+::\+Edge\+Reader}$<$ {\bf c}, cols, scalar $>$\+::{\bf Edge\+Reader} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_edge_reader_a1e84a22bffaf453d6a91c78ed03c2d3d}
+Constructor initializes current\+Frame to -\/1 so that the statement frame\+N!=current\+Frame will initially return false
+
+Definition at line 123 of file Edge\+Reader.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_edge_reader_a8115edf1929ff8035eab7f7bdcbab739}{}\index{model\+::\+Edge\+Reader@{model\+::\+Edge\+Reader}!get\+Filename@{get\+Filename}}
+\index{get\+Filename@{get\+Filename}!model\+::\+Edge\+Reader@{model\+::\+Edge\+Reader}}
+\subsubsection[{get\+Filename}]{\setlength{\rightskip}{0pt plus 5cm}template$<$char c, int cols, typename scalar$>$ static std\+::string {\bf model\+::\+Edge\+Reader}$<$ {\bf c}, cols, scalar $>$\+::get\+Filename (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{frame\+N, }
+\item[{const bool \&}]{use\+T\+X\+T}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_edge_reader_a8115edf1929ff8035eab7f7bdcbab739}
+
+
+Definition at line 133 of file Edge\+Reader.\+h.
+
+\hypertarget{classmodel_1_1_edge_reader_a6b04c6ded4bbcc4184ad711ee98d4050}{}\index{model\+::\+Edge\+Reader@{model\+::\+Edge\+Reader}!is\+Good@{is\+Good}}
+\index{is\+Good@{is\+Good}!model\+::\+Edge\+Reader@{model\+::\+Edge\+Reader}}
+\subsubsection[{is\+Good}]{\setlength{\rightskip}{0pt plus 5cm}template$<$char c, int cols, typename scalar$>$ static bool {\bf model\+::\+Edge\+Reader}$<$ {\bf c}, cols, scalar $>$\+::is\+Good (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{frame\+N, }
+\item[{const bool \&}]{use\+T\+X\+T}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_edge_reader_a6b04c6ded4bbcc4184ad711ee98d4050}
+Checks whether the file named \char`\"{}\+E/\+E\+\_\+ \textbackslash{}param\mbox{[}frame\+N\mbox{]} .\+txt\char`\"{} is good for reading.
+
+Definition at line 146 of file Edge\+Reader.\+h.
+
+\hypertarget{classmodel_1_1_edge_reader_a0695aa23393e064eadb1c98a6bd51e42}{}\index{model\+::\+Edge\+Reader@{model\+::\+Edge\+Reader}!read@{read}}
+\index{read@{read}!model\+::\+Edge\+Reader@{model\+::\+Edge\+Reader}}
+\subsubsection[{read}]{\setlength{\rightskip}{0pt plus 5cm}template$<$char c, int cols, typename scalar$>$ bool {\bf model\+::\+Edge\+Reader}$<$ {\bf c}, cols, scalar $>$\+::read (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{frame\+N, }
+\item[{const bool \&}]{use\+T\+X\+T}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_edge_reader_a0695aa23393e064eadb1c98a6bd51e42}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em frame\+N} & the frame number to be read \\
+\hline
+\mbox{\tt in}  & {\em use\+T\+X\+T} & if true text files (.txt) are read, otherwise binary files (.bin) are read \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the file has been read correctly
+\end{DoxyReturn}
+
+
+Definition at line 156 of file Edge\+Reader.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_edge_reader_8h}{Edge\+Reader.\+h}\end{DoxyCompactItemize}

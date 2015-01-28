@@ -1,0 +1,256 @@
+\hypertarget{classmodel_1_1_spline_plotter}{}\section{model\+:\+:Spline\+Plotter$<$ dim, Np, Nc $>$ Class Template Reference}
+\label{classmodel_1_1_spline_plotter}\index{model\+::\+Spline\+Plotter$<$ dim, Np, Nc $>$@{model\+::\+Spline\+Plotter$<$ dim, Np, Nc $>$}}
+
+
+{\ttfamily \#include $<$Spline\+Plotter.\+h$>$}
+
+Inheritance diagram for model\+:\+:Spline\+Plotter$<$ dim, Np, Nc $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.362694cm]{classmodel_1_1_spline_plotter}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_spline_plotter_a9114dc09c842df0471020d6f11857d80}{Spline\+Plotter} ()
+\item 
+void \hyperlink{classmodel_1_1_spline_plotter_a6c1fdbfd3c9f8f1afb0ff6d77f3e1f9f}{read} (const int \&frame\+N)
+\item 
+void \hyperlink{classmodel_1_1_spline_plotter_a524ecb05f0ef5def0fd6a16baeaf27cf}{plot} (const scalar\+Type \&\hyperlink{tube_plotter_8m_acc620a89e606f875661525fd6365a421}{radius})
+\item 
+void \hyperlink{classmodel_1_1_spline_plotter_ad803c629fb4f1b2cd3aa94795b8fedb1}{bounding\+Box} (float \&x\+Min, float \&x\+Max, float \&y\+Min, float \&y\+Max, float \&z\+Min, float \&z\+Max) const 
+\item 
+unsigned int \hyperlink{classmodel_1_1_spline_plotter_ab9936bc8d5593103e5f0b2db0bf1d216}{vertex\+Order} () const 
+\item 
+unsigned int \hyperlink{classmodel_1_1_spline_plotter_ae0c13a847e280c8af2a26b1a7a367e18}{edge\+Order} () const 
+\item 
+unsigned int \hyperlink{classmodel_1_1_spline_plotter_a5e160da60cdb089ce70f6152575a2124}{components} () const 
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static bool \hyperlink{classmodel_1_1_spline_plotter_a11808edd367993243286cefaf785b2d5}{is\+Good} (const int \&frame\+N, const bool \&use\+T\+X\+T)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+bool \hyperlink{classmodel_1_1_spline_plotter_aba9675d91bed88b0186cbf729a74451d}{show\+Tubes}
+\item 
+bool \hyperlink{classmodel_1_1_spline_plotter_a1f44c143939ff209d75a0b5c8d977887}{show\+Vertices}
+\item 
+bool \hyperlink{classmodel_1_1_spline_plotter_a2601b9ddd2092997aef3eda955f9ccc5}{show\+Plane\+Normal}
+\item 
+bool \hyperlink{classmodel_1_1_spline_plotter_a0140de0e383162a573a03617855270dc}{show\+Burgers}
+\item 
+bool \hyperlink{classmodel_1_1_spline_plotter_a8d9c7b535dd59ae45dc245475a8d2cab}{show\+Vertex\+I\+D}
+\item 
+bool \hyperlink{classmodel_1_1_spline_plotter_a5c32c4bebd33e41d46fa36a2d0418476}{show\+Specific\+Vertex}
+\item 
+int \hyperlink{classmodel_1_1_spline_plotter_aa8b770cfb4242e3b8b3660c90306e535}{specific\+Vertex\+I\+D}
+\item 
+bool \hyperlink{classmodel_1_1_spline_plotter_af18e54b835b0983b17f8c599156d3d34}{show\+P\+K}
+\item 
+double \hyperlink{classmodel_1_1_spline_plotter_ae429f7f5a86cae4e202766034cbbbeef}{P\+Kfactor}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static int \hyperlink{classmodel_1_1_spline_plotter_a6c2c63eb67d6a385237f647fb4743b23}{color\+Scheme} =0
+\item 
+static bool \hyperlink{classmodel_1_1_spline_plotter_a8ed220be6d2afa539f9fe39e172213e0}{plot\+Boundary\+Segments} =false
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int dim, int Np, int Nc$>$class model\+::\+Spline\+Plotter$<$ dim, Np, Nc $>$}
+
+
+
+Definition at line 284 of file Spline\+Plotter.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_spline_plotter_a9114dc09c842df0471020d6f11857d80}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!Spline\+Plotter@{Spline\+Plotter}}
+\index{Spline\+Plotter@{Spline\+Plotter}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{Spline\+Plotter}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::{\bf Spline\+Plotter} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_plotter_a9114dc09c842df0471020d6f11857d80}
+
+
+Definition at line 321 of file Spline\+Plotter.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_spline_plotter_ad803c629fb4f1b2cd3aa94795b8fedb1}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!bounding\+Box@{bounding\+Box}}
+\index{bounding\+Box@{bounding\+Box}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{bounding\+Box}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ void {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::bounding\+Box (
+\begin{DoxyParamCaption}
+\item[{float \&}]{x\+Min, }
+\item[{float \&}]{x\+Max, }
+\item[{float \&}]{y\+Min, }
+\item[{float \&}]{y\+Max, }
+\item[{float \&}]{z\+Min, }
+\item[{float \&}]{z\+Max}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_plotter_ad803c629fb4f1b2cd3aa94795b8fedb1}
+
+
+Definition at line 475 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_a5e160da60cdb089ce70f6152575a2124}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!components@{components}}
+\index{components@{components}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{components}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ unsigned int {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::components (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_plotter_a5e160da60cdb089ce70f6152575a2124}
+
+
+Definition at line 508 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_ae0c13a847e280c8af2a26b1a7a367e18}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!edge\+Order@{edge\+Order}}
+\index{edge\+Order@{edge\+Order}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{edge\+Order}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ unsigned int {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::edge\+Order (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_plotter_ae0c13a847e280c8af2a26b1a7a367e18}
+
+
+Definition at line 502 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_a11808edd367993243286cefaf785b2d5}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!is\+Good@{is\+Good}}
+\index{is\+Good@{is\+Good}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{is\+Good}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ static bool {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::is\+Good (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{frame\+N, }
+\item[{const bool \&}]{use\+T\+X\+T}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_spline_plotter_a11808edd367993243286cefaf785b2d5}
+
+
+Definition at line 334 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_a524ecb05f0ef5def0fd6a16baeaf27cf}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!plot@{plot}}
+\index{plot@{plot}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{plot}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ void {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::plot (
+\begin{DoxyParamCaption}
+\item[{const scalar\+Type \&}]{radius}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_plotter_a524ecb05f0ef5def0fd6a16baeaf27cf}
+
+
+Definition at line 391 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_a6c1fdbfd3c9f8f1afb0ff6d77f3e1f9f}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!read@{read}}
+\index{read@{read}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{read}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ void {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::read (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{frame\+N}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_plotter_a6c1fdbfd3c9f8f1afb0ff6d77f3e1f9f}
+
+
+Definition at line 340 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_ab9936bc8d5593103e5f0b2db0bf1d216}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!vertex\+Order@{vertex\+Order}}
+\index{vertex\+Order@{vertex\+Order}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{vertex\+Order}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ unsigned int {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::vertex\+Order (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_plotter_ab9936bc8d5593103e5f0b2db0bf1d216}
+
+
+Definition at line 496 of file Spline\+Plotter.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_spline_plotter_a6c2c63eb67d6a385237f647fb4743b23}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!color\+Scheme@{color\+Scheme}}
+\index{color\+Scheme@{color\+Scheme}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{color\+Scheme}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ int {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::color\+Scheme =0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_spline_plotter_a6c2c63eb67d6a385237f647fb4743b23}
+
+
+Definition at line 312 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_ae429f7f5a86cae4e202766034cbbbeef}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!P\+Kfactor@{P\+Kfactor}}
+\index{P\+Kfactor@{P\+Kfactor}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{P\+Kfactor}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ double {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::P\+Kfactor}\label{classmodel_1_1_spline_plotter_ae429f7f5a86cae4e202766034cbbbeef}
+
+
+Definition at line 318 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_a8ed220be6d2afa539f9fe39e172213e0}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!plot\+Boundary\+Segments@{plot\+Boundary\+Segments}}
+\index{plot\+Boundary\+Segments@{plot\+Boundary\+Segments}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{plot\+Boundary\+Segments}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ bool {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::plot\+Boundary\+Segments =false\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_spline_plotter_a8ed220be6d2afa539f9fe39e172213e0}
+
+
+Definition at line 313 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_a0140de0e383162a573a03617855270dc}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!show\+Burgers@{show\+Burgers}}
+\index{show\+Burgers@{show\+Burgers}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{show\+Burgers}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ bool {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::show\+Burgers}\label{classmodel_1_1_spline_plotter_a0140de0e383162a573a03617855270dc}
+
+
+Definition at line 310 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_af18e54b835b0983b17f8c599156d3d34}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!show\+P\+K@{show\+P\+K}}
+\index{show\+P\+K@{show\+P\+K}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{show\+P\+K}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ bool {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::show\+P\+K}\label{classmodel_1_1_spline_plotter_af18e54b835b0983b17f8c599156d3d34}
+
+
+Definition at line 317 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_a2601b9ddd2092997aef3eda955f9ccc5}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!show\+Plane\+Normal@{show\+Plane\+Normal}}
+\index{show\+Plane\+Normal@{show\+Plane\+Normal}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{show\+Plane\+Normal}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ bool {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::show\+Plane\+Normal}\label{classmodel_1_1_spline_plotter_a2601b9ddd2092997aef3eda955f9ccc5}
+
+
+Definition at line 309 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_a5c32c4bebd33e41d46fa36a2d0418476}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!show\+Specific\+Vertex@{show\+Specific\+Vertex}}
+\index{show\+Specific\+Vertex@{show\+Specific\+Vertex}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{show\+Specific\+Vertex}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ bool {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::show\+Specific\+Vertex}\label{classmodel_1_1_spline_plotter_a5c32c4bebd33e41d46fa36a2d0418476}
+
+
+Definition at line 315 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_aba9675d91bed88b0186cbf729a74451d}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!show\+Tubes@{show\+Tubes}}
+\index{show\+Tubes@{show\+Tubes}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{show\+Tubes}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ bool {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::show\+Tubes}\label{classmodel_1_1_spline_plotter_aba9675d91bed88b0186cbf729a74451d}
+
+
+Definition at line 306 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_a8d9c7b535dd59ae45dc245475a8d2cab}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!show\+Vertex\+I\+D@{show\+Vertex\+I\+D}}
+\index{show\+Vertex\+I\+D@{show\+Vertex\+I\+D}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{show\+Vertex\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ bool {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::show\+Vertex\+I\+D}\label{classmodel_1_1_spline_plotter_a8d9c7b535dd59ae45dc245475a8d2cab}
+
+
+Definition at line 311 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_a1f44c143939ff209d75a0b5c8d977887}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!show\+Vertices@{show\+Vertices}}
+\index{show\+Vertices@{show\+Vertices}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{show\+Vertices}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ bool {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::show\+Vertices}\label{classmodel_1_1_spline_plotter_a1f44c143939ff209d75a0b5c8d977887}
+
+
+Definition at line 307 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_spline_plotter_aa8b770cfb4242e3b8b3660c90306e535}{}\index{model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}!specific\+Vertex\+I\+D@{specific\+Vertex\+I\+D}}
+\index{specific\+Vertex\+I\+D@{specific\+Vertex\+I\+D}!model\+::\+Spline\+Plotter@{model\+::\+Spline\+Plotter}}
+\subsubsection[{specific\+Vertex\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ int {\bf model\+::\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::specific\+Vertex\+I\+D}\label{classmodel_1_1_spline_plotter_aa8b770cfb4242e3b8b3660c90306e535}
+
+
+Definition at line 316 of file Spline\+Plotter.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_spline_plotter_8h}{Spline\+Plotter.\+h}\end{DoxyCompactItemize}

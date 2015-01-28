@@ -25,6 +25,7 @@
 #include <model/Utilities/StaticID.h>
 #include <model/Network/NetworkNode.h>
 #include <model/Utilities/TypeTraits.h>
+#include <model/Utilities/NonCopyable.h>
 
 namespace model
 {
@@ -32,7 +33,7 @@ namespace model
 	/**************************************************************************/
 	/**************************************************************************/
 	template <typename  Derived>
-	class NetworkLink : boost::noncopyable,
+	class NetworkLink : public NonCopyable,
     /*               */ public CRTP<Derived>,
 	/*               */ public StaticID<Derived>
     {
@@ -73,8 +74,10 @@ namespace model
         }
         
 		/**********************************************************************/
-		void topologyChangeActions()
+		void makeTopologyChange()
         {
+            
+            std::cout<<"NetworkLink "<<source->sID<<"->"<<sink->sID<<" makeTopologyChange"<<std::endl;
 		
 			//! 1- Adds this to the source node neighborood and to the sink node neighborood
 			source->addToNeighborhood(this->p_derived());
@@ -134,7 +137,7 @@ namespace model
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
           */
-			topologyChangeActions();
+			makeTopologyChange();
 		}
 		
 		/* Constructor from ExpandingEdge *************************************/
@@ -156,9 +159,9 @@ namespace model
 //                assert(source!=ee.E.source && "SECOND LINK IN EXPANSION FINDS WRONG SOURCE");
 //            }
 //            
-//			topologyChangeActions(ee);
+//			makeTopologyChange(ee);
             
-            topologyChangeActions();
+            makeTopologyChange();
 
 		}
 		

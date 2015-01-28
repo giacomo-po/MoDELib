@@ -1,0 +1,80 @@
+\hypertarget{structmodel_1_1_dislocation_network_traits_base}{}\section{model\+:\+:Dislocation\+Network\+Traits\+Base$<$ \+\_\+dim, corder, Interpolation\+Type, q\+Order, Quadrature\+Rule $>$ Struct Template Reference}
+\label{structmodel_1_1_dislocation_network_traits_base}\index{model\+::\+Dislocation\+Network\+Traits\+Base$<$ \+\_\+dim, corder, Interpolation\+Type, q\+Order, Quadrature\+Rule $>$@{model\+::\+Dislocation\+Network\+Traits\+Base$<$ \+\_\+dim, corder, Interpolation\+Type, q\+Order, Quadrature\+Rule $>$}}
+
+
+{\ttfamily \#include $<$Dislocation\+Network\+Traits.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{structmodel_1_1_dislocation_network_traits_base_a4fc6af2f3f7c090b878e886427b3cdeea70440340d2141c79ba221e3464826940}{dim} =\+\_\+dim
+ \}
+\item 
+typedef \hyperlink{classmodel_1_1_dislocation_network}{Dislocation\+Network}$<$ \hyperlink{structmodel_1_1_dislocation_network_traits_base_a4fc6af2f3f7c090b878e886427b3cdeea70440340d2141c79ba221e3464826940}{dim}, corder, Interpolation\+Type, q\+Order, Quadrature\+Rule $>$ \hyperlink{structmodel_1_1_dislocation_network_traits_base_ad1c4fef95e4639548d6371751f1ada53}{Network\+Type}
+\item 
+typedef \hyperlink{classmodel_1_1_dislocation_node}{Dislocation\+Node}$<$ \hyperlink{structmodel_1_1_dislocation_network_traits_base_a4fc6af2f3f7c090b878e886427b3cdeea70440340d2141c79ba221e3464826940}{dim}, corder, Interpolation\+Type, q\+Order, Quadrature\+Rule $>$ \hyperlink{structmodel_1_1_dislocation_network_traits_base_a7e0bbc0b2e0f806678b7a1970cb85ec4}{Node\+Type}
+\item 
+typedef \hyperlink{classmodel_1_1_dislocation_segment}{Dislocation\+Segment}$<$ \hyperlink{structmodel_1_1_dislocation_network_traits_base_a4fc6af2f3f7c090b878e886427b3cdeea70440340d2141c79ba221e3464826940}{dim}, corder, Interpolation\+Type, q\+Order, Quadrature\+Rule $>$ \hyperlink{structmodel_1_1_dislocation_network_traits_base_abf174d97083b39a2071a69f1dc5d079c}{Link\+Type}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{structmodel_1_1_dislocation_network_traits_base_a4fc6af2f3f7c090b878e886427b3cdeea70440340d2141c79ba221e3464826940}{dim}, 1 $>$ \hyperlink{structmodel_1_1_dislocation_network_traits_base_ac676e7afc348be370687f06de004e062}{Flow\+Type}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$short unsigned int \+\_\+dim, short unsigned int corder, typename Interpolation\+Type, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$struct model\+::\+Dislocation\+Network\+Traits\+Base$<$ \+\_\+dim, corder, Interpolation\+Type, q\+Order, Quadrature\+Rule $>$}
+
+
+
+Definition at line 40 of file Dislocation\+Network\+Traits.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_dislocation_network_traits_base_ac676e7afc348be370687f06de004e062}{}\index{model\+::\+Dislocation\+Network\+Traits\+Base@{model\+::\+Dislocation\+Network\+Traits\+Base}!Flow\+Type@{Flow\+Type}}
+\index{Flow\+Type@{Flow\+Type}!model\+::\+Dislocation\+Network\+Traits\+Base@{model\+::\+Dislocation\+Network\+Traits\+Base}}
+\subsubsection[{Flow\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim, short unsigned int corder, typename Interpolation\+Type, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ typedef Eigen\+::\+Matrix$<$double,{\bf dim},1$>$ {\bf model\+::\+Dislocation\+Network\+Traits\+Base}$<$ \+\_\+dim, corder, Interpolation\+Type, q\+Order, Quadrature\+Rule $>$\+::{\bf Flow\+Type}}\label{structmodel_1_1_dislocation_network_traits_base_ac676e7afc348be370687f06de004e062}
+
+
+Definition at line 46 of file Dislocation\+Network\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_network_traits_base_abf174d97083b39a2071a69f1dc5d079c}{}\index{model\+::\+Dislocation\+Network\+Traits\+Base@{model\+::\+Dislocation\+Network\+Traits\+Base}!Link\+Type@{Link\+Type}}
+\index{Link\+Type@{Link\+Type}!model\+::\+Dislocation\+Network\+Traits\+Base@{model\+::\+Dislocation\+Network\+Traits\+Base}}
+\subsubsection[{Link\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim, short unsigned int corder, typename Interpolation\+Type, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ typedef {\bf Dislocation\+Segment}$<${\bf dim},corder,Interpolation\+Type,q\+Order,Quadrature\+Rule$>$ {\bf model\+::\+Dislocation\+Network\+Traits\+Base}$<$ \+\_\+dim, corder, Interpolation\+Type, q\+Order, Quadrature\+Rule $>$\+::{\bf Link\+Type}}\label{structmodel_1_1_dislocation_network_traits_base_abf174d97083b39a2071a69f1dc5d079c}
+
+
+Definition at line 45 of file Dislocation\+Network\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_network_traits_base_ad1c4fef95e4639548d6371751f1ada53}{}\index{model\+::\+Dislocation\+Network\+Traits\+Base@{model\+::\+Dislocation\+Network\+Traits\+Base}!Network\+Type@{Network\+Type}}
+\index{Network\+Type@{Network\+Type}!model\+::\+Dislocation\+Network\+Traits\+Base@{model\+::\+Dislocation\+Network\+Traits\+Base}}
+\subsubsection[{Network\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim, short unsigned int corder, typename Interpolation\+Type, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ typedef {\bf Dislocation\+Network}$<${\bf dim},corder,Interpolation\+Type,q\+Order,Quadrature\+Rule$>$ {\bf model\+::\+Dislocation\+Network\+Traits\+Base}$<$ \+\_\+dim, corder, Interpolation\+Type, q\+Order, Quadrature\+Rule $>$\+::{\bf Network\+Type}}\label{structmodel_1_1_dislocation_network_traits_base_ad1c4fef95e4639548d6371751f1ada53}
+
+
+Definition at line 43 of file Dislocation\+Network\+Traits.\+h.
+
+\hypertarget{structmodel_1_1_dislocation_network_traits_base_a7e0bbc0b2e0f806678b7a1970cb85ec4}{}\index{model\+::\+Dislocation\+Network\+Traits\+Base@{model\+::\+Dislocation\+Network\+Traits\+Base}!Node\+Type@{Node\+Type}}
+\index{Node\+Type@{Node\+Type}!model\+::\+Dislocation\+Network\+Traits\+Base@{model\+::\+Dislocation\+Network\+Traits\+Base}}
+\subsubsection[{Node\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim, short unsigned int corder, typename Interpolation\+Type, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ typedef {\bf Dislocation\+Node}$<${\bf dim},corder,Interpolation\+Type,q\+Order,Quadrature\+Rule$>$ {\bf model\+::\+Dislocation\+Network\+Traits\+Base}$<$ \+\_\+dim, corder, Interpolation\+Type, q\+Order, Quadrature\+Rule $>$\+::{\bf Node\+Type}}\label{structmodel_1_1_dislocation_network_traits_base_a7e0bbc0b2e0f806678b7a1970cb85ec4}
+
+
+Definition at line 44 of file Dislocation\+Network\+Traits.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{structmodel_1_1_dislocation_network_traits_base_a4fc6af2f3f7c090b878e886427b3cdee}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim, short unsigned int corder, typename Interpolation\+Type, short unsigned int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ anonymous enum}\label{structmodel_1_1_dislocation_network_traits_base_a4fc6af2f3f7c090b878e886427b3cdee}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{dim@{dim}!model\+::\+Dislocation\+Network\+Traits\+Base@{model\+::\+Dislocation\+Network\+Traits\+Base}}\index{model\+::\+Dislocation\+Network\+Traits\+Base@{model\+::\+Dislocation\+Network\+Traits\+Base}!dim@{dim}}\item[{\em 
+\hypertarget{structmodel_1_1_dislocation_network_traits_base_a4fc6af2f3f7c090b878e886427b3cdeea70440340d2141c79ba221e3464826940}{}dim\label{structmodel_1_1_dislocation_network_traits_base_a4fc6af2f3f7c090b878e886427b3cdeea70440340d2141c79ba221e3464826940}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 42 of file Dislocation\+Network\+Traits.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_dislocation_network_traits_8h}{Dislocation\+Network\+Traits.\+h}\end{DoxyCompactItemize}

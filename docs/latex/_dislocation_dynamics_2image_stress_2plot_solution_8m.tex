@@ -1,0 +1,133 @@
+\hypertarget{_dislocation_dynamics_2image_stress_2plot_solution_8m}{}\section{plot\+Solution.\+m File Reference}
+\label{_dislocation_dynamics_2image_stress_2plot_solution_8m}\index{plot\+Solution.\+m@{plot\+Solution.\+m}}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_ae332b6c06501c356848d1014bb899bfe}{figure} (1) hold on \hyperlink{_cubic_spline_intersection_8m_ab544bafc3ddf3e29a17d7aac7084255e}{axis} equal clr\+Col
+\item 
+\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a272ffbb3f894ce234b2fba5213571e17}{figure} (2) hold on \hyperlink{_cubic_spline_intersection_8m_ab544bafc3ddf3e29a17d7aac7084255e}{axis} equal clr\+Col
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+clc clear all close all \hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a7f0d3ab2e12c89a0523e72a70072ef5e}{step} =0
+\item 
+\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{U} =load(\mbox{[}\textquotesingle{}\hyperlink{thompson__tetrahedron_8m_a350bfcb1e3cfb28ddff48ce525d4f139}{D}/D\+\_\+\textquotesingle{} \hyperlink{plot_network_8m_a8d888b29158a69b052782d50f7e75fe7}{num2str}(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a7f0d3ab2e12c89a0523e72a70072ef5e}{step}) \textquotesingle{}.txt\textquotesingle{}\mbox{]})
+\item 
+\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_ad53aeb78abc83a52ab8982f5c82a3d5b}{S} =load(\mbox{[}\textquotesingle{}S/S\+\_\+\textquotesingle{} \hyperlink{plot_network_8m_a8d888b29158a69b052782d50f7e75fe7}{num2str}(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a7f0d3ab2e12c89a0523e72a70072ef5e}{step}) \textquotesingle{}.txt\textquotesingle{}\mbox{]})
+\item 
+Plot \hyperlink{bvp_file_8h_adac0ec0c70f49745fb8ef966e317c1bd}{displacement} \hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_ac7725c8785ba4239bfd1a47e449ba598}{comp} =\{\textquotesingle{}x\+\_\+1\textquotesingle{},\textquotesingle{}x\+\_\+2\textquotesingle{},\textquotesingle{}x\+\_\+3\textquotesingle{},\textquotesingle{}u\+\_\+1\textquotesingle{},\textquotesingle{}u\+\_\+2\textquotesingle{},\textquotesingle{}u\+\_\+3\textquotesingle{}\}
+\item 
+\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a2fd65e5872c60002c23f3eb6aad3962d}{u\+Max}
+\item 
+\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a77bd7ea3b0a76184dde27211c641f70d}{def} =100
+\item 
+for \hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_aeeaa64cc5eea020d7146207f8f8d3959}{f}
+\item 
+\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a35c092bfa3057a3e91706d54fa8813b4}{s\+Max}
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{_dislocation_dynamics_2image_stress_2plot_solution_8m_ae332b6c06501c356848d1014bb899bfe}{}\index{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}!figure@{figure}}
+\index{figure@{figure}!Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}}
+\subsubsection[{figure}]{\setlength{\rightskip}{0pt plus 5cm}figure (
+\begin{DoxyParamCaption}
+\item[{1}]{}
+\end{DoxyParamCaption}
+)}\label{_dislocation_dynamics_2image_stress_2plot_solution_8m_ae332b6c06501c356848d1014bb899bfe}
+\hypertarget{_dislocation_dynamics_2image_stress_2plot_solution_8m_a272ffbb3f894ce234b2fba5213571e17}{}\index{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}!figure@{figure}}
+\index{figure@{figure}!Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}}
+\subsubsection[{figure}]{\setlength{\rightskip}{0pt plus 5cm}figure (
+\begin{DoxyParamCaption}
+\item[{2}]{}
+\end{DoxyParamCaption}
+)}\label{_dislocation_dynamics_2image_stress_2plot_solution_8m_a272ffbb3f894ce234b2fba5213571e17}
+
+
+\subsection{Variable Documentation}
+\hypertarget{_dislocation_dynamics_2image_stress_2plot_solution_8m_ac7725c8785ba4239bfd1a47e449ba598}{}\index{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}!comp@{comp}}
+\index{comp@{comp}!Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}}
+\subsubsection[{comp}]{\setlength{\rightskip}{0pt plus 5cm}Plot {\bf displacement} comp =\{\textquotesingle{}x\+\_\+1\textquotesingle{},\textquotesingle{}x\+\_\+2\textquotesingle{},\textquotesingle{}x\+\_\+3\textquotesingle{},\textquotesingle{}u\+\_\+1\textquotesingle{},\textquotesingle{}u\+\_\+2\textquotesingle{},\textquotesingle{}u\+\_\+3\textquotesingle{}\}}\label{_dislocation_dynamics_2image_stress_2plot_solution_8m_ac7725c8785ba4239bfd1a47e449ba598}
+
+
+Definition at line 10 of file Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m.
+
+\hypertarget{_dislocation_dynamics_2image_stress_2plot_solution_8m_a77bd7ea3b0a76184dde27211c641f70d}{}\index{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}!def@{def}}
+\index{def@{def}!Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}}
+\subsubsection[{def}]{\setlength{\rightskip}{0pt plus 5cm}def =100}\label{_dislocation_dynamics_2image_stress_2plot_solution_8m_a77bd7ea3b0a76184dde27211c641f70d}
+
+
+Definition at line 20 of file Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m.
+
+\hypertarget{_dislocation_dynamics_2image_stress_2plot_solution_8m_aeeaa64cc5eea020d7146207f8f8d3959}{}\index{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}!f@{f}}
+\index{f@{f}!Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}}
+\subsubsection[{f}]{\setlength{\rightskip}{0pt plus 5cm}for f}\label{_dislocation_dynamics_2image_stress_2plot_solution_8m_aeeaa64cc5eea020d7146207f8f8d3959}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+=1:3:\hyperlink{run_multipole_8m_a4464b4e1852d41b284531eb37af9e4ef}{size}(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_ad53aeb78abc83a52ab8982f5c82a3d5b}{S},1)
+\hyperlink{_dislocation_dynamics_2image_stress_2tetgen_2generate_p_o_l_ycube_8m_a7737034b0da58da96f16e5bdc9d94247}{fill3}(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{U}(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_aeeaa64cc5eea020d7146207f8f8d3959}{f}:\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_aeeaa64cc5eea020d7146207f8f8d3959}{f}+2,1)+\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a77bd7ea3b0a76184dde27211c641f70d}{def}*\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{U}(f:f+2,4),\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{U}(f:f+2,2)+\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a77bd7ea3b0a76184dde27211c641f70d}{def}*\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{U}(f:f+2,5),\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{U}(f:f+2,3)+
+      \hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a77bd7ea3b0a76184dde27211c641f70d}{def}*\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{U}(f:f+2,6),clrID(f:f+2))
+\hyperlink{plot_nd_a_8m_a73d060973270aab13dc3ae4d1667d5d2}{plot3}(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{U}(f:f+2,1),\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{U}(f:f+2,2),\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{U}(f:f+2,3),'\hyperlink{run_multipole_8m_a1c73327b2882639bc9f5e416bb3cc7ac}{k}')
+end
+grid on
+xlabel('X\_1','\hyperlink{run_multipole_8m_a3f63c9fd3bf70f3a13a813f9a25de2b8}{FontSize}',14)
+\hyperlink{run_multipole_8m_ad8aba885d2529266bed2e94488ed01a0}{ylabel}('X\_2','FontSize',14)
+zlabel('X\_3','FontSize',14)
+title(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_ac7725c8785ba4239bfd1a47e449ba598}{comp}\{clrCol\},\textcolor{stringliteral}{'FontSize'},14)
+
+%% Plot stress 
+\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_ac7725c8785ba4239bfd1a47e449ba598}{comp}=\{\textcolor{stringliteral}{'x\_1'},\textcolor{stringliteral}{'x\_2'},\textcolor{stringliteral}{'x\_3'},\textcolor{stringliteral}{'\(\backslash\)sigma\_\{11\}'},\textcolor{stringliteral}{'\(\backslash\)sigma\_\{22\}'},\textcolor{stringliteral}{'\(\backslash\)sigma\_\{33\}'},\textcolor{stringliteral}{'\(\backslash\)sigma\_\{12\}'},\textcolor{stringliteral}{'\(\backslash\)sigma\_\{23\}'},\textcolor{stringliteral}{'\(\backslash\)s
+      igma\_\{13\}'}\}
+\end{DoxyCode}
+
+
+Definition at line 22 of file Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m.
+
+\hypertarget{_dislocation_dynamics_2image_stress_2plot_solution_8m_ad53aeb78abc83a52ab8982f5c82a3d5b}{}\index{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}!S@{S}}
+\index{S@{S}!Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}}
+\subsubsection[{S}]{\setlength{\rightskip}{0pt plus 5cm}S =load(\mbox{[}\textquotesingle{}S/S\+\_\+\textquotesingle{} {\bf num2str}({\bf step}) \textquotesingle{}.txt\textquotesingle{}\mbox{]})}\label{_dislocation_dynamics_2image_stress_2plot_solution_8m_ad53aeb78abc83a52ab8982f5c82a3d5b}
+
+
+Definition at line 7 of file Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m.
+
+\hypertarget{_dislocation_dynamics_2image_stress_2plot_solution_8m_a35c092bfa3057a3e91706d54fa8813b4}{}\index{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}!s\+Max@{s\+Max}}
+\index{s\+Max@{s\+Max}!Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}}
+\subsubsection[{s\+Max}]{\setlength{\rightskip}{0pt plus 5cm}s\+Max}\label{_dislocation_dynamics_2image_stress_2plot_solution_8m_a35c092bfa3057a3e91706d54fa8813b4}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+=max(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_ad53aeb78abc83a52ab8982f5c82a3d5b}{S}(:,clrCol))
+sMin=min(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_ad53aeb78abc83a52ab8982f5c82a3d5b}{S}(:,clrCol))
+clrID=round((S(:,clrCol)-sMin)/(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a35c092bfa3057a3e91706d54fa8813b4}{sMax}-sMin)*\hyperlink{run_multipole_8m_a4464b4e1852d41b284531eb37af9e4ef}{size}(colormap,1))
+\end{DoxyCode}
+
+
+Definition at line 39 of file Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m.
+
+\hypertarget{_dislocation_dynamics_2image_stress_2plot_solution_8m_a7f0d3ab2e12c89a0523e72a70072ef5e}{}\index{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}!step@{step}}
+\index{step@{step}!Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}}
+\subsubsection[{step}]{\setlength{\rightskip}{0pt plus 5cm}clc clear all close all step =0}\label{_dislocation_dynamics_2image_stress_2plot_solution_8m_a7f0d3ab2e12c89a0523e72a70072ef5e}
+
+
+Definition at line 5 of file Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m.
+
+\hypertarget{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{}\index{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}!U@{U}}
+\index{U@{U}!Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}}
+\subsubsection[{U}]{\setlength{\rightskip}{0pt plus 5cm}U =load(\mbox{[}\textquotesingle{}{\bf D}/D\+\_\+\textquotesingle{} {\bf num2str}({\bf step}) \textquotesingle{}.txt\textquotesingle{}\mbox{]})}\label{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}
+
+
+Definition at line 6 of file Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m.
+
+\hypertarget{_dislocation_dynamics_2image_stress_2plot_solution_8m_a2fd65e5872c60002c23f3eb6aad3962d}{}\index{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}!u\+Max@{u\+Max}}
+\index{u\+Max@{u\+Max}!Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m@{Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m}}
+\subsubsection[{u\+Max}]{\setlength{\rightskip}{0pt plus 5cm}u\+Max}\label{_dislocation_dynamics_2image_stress_2plot_solution_8m_a2fd65e5872c60002c23f3eb6aad3962d}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+=max(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{U}(:,clrCol))
+uMin=min(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a81cf6107131a3583e2b0b762cb9c2862}{U}(:,clrCol))
+clrID=round((U(:,clrCol)-uMin)/(\hyperlink{_dislocation_dynamics_2image_stress_2plot_solution_8m_a2fd65e5872c60002c23f3eb6aad3962d}{uMax}-uMin)*\hyperlink{run_multipole_8m_a4464b4e1852d41b284531eb37af9e4ef}{size}(colormap,1))
+\end{DoxyCode}
+
+
+Definition at line 16 of file Dislocation\+Dynamics/image\+Stress/plot\+Solution.\+m.
+

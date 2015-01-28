@@ -1,0 +1,2976 @@
+\hypertarget{gl2ps_8c}{}\section{gl2ps.\+c File Reference}
+\label{gl2ps_8c}\index{gl2ps.\+c@{gl2ps.\+c}}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{struct___g_l2_p_sbsptree2d}{\+\_\+\+G\+L2\+P\+Sbsptree2d}
+\item 
+struct \hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist}
+\item 
+struct \hyperlink{struct___g_l2_p_sbsptree}{\+\_\+\+G\+L2\+P\+Sbsptree}
+\item 
+struct \hyperlink{struct_g_l2_p_svertex}{G\+L2\+P\+Svertex}
+\item 
+struct \hyperlink{struct_g_l2_p_striangle}{G\+L2\+P\+Striangle}
+\item 
+struct \hyperlink{struct_g_l2_p_sstring}{G\+L2\+P\+Sstring}
+\item 
+struct \hyperlink{struct_g_l2_p_simage}{G\+L2\+P\+Simage}
+\item 
+struct \hyperlink{struct___g_l2_p_simagemap}{\+\_\+\+G\+L2\+P\+Simagemap}
+\item 
+struct \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive}
+\item 
+struct \hyperlink{struct_g_l2_p_scompress}{G\+L2\+P\+Scompress}
+\item 
+struct \hyperlink{struct_g_l2_p_spdfgroup}{G\+L2\+P\+Spdfgroup}
+\item 
+struct \hyperlink{struct_g_l2_p_scontext}{G\+L2\+P\+Scontext}
+\item 
+struct \hyperlink{struct_g_l2_p_sbackend}{G\+L2\+P\+Sbackend}
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef G\+Lfloat \hyperlink{gl2ps_8c_ac84fdfdcca7fbd2c8a63f1a2294cb4ec}{G\+L2\+P\+Sxyz}\mbox{[}3\mbox{]}
+\item 
+typedef G\+Lfloat \hyperlink{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}{G\+L2\+P\+Splane}\mbox{[}4\mbox{]}
+\item 
+typedef struct \hyperlink{struct___g_l2_p_sbsptree2d}{\+\_\+\+G\+L2\+P\+Sbsptree2d} \hyperlink{gl2ps_8c_a5b053abb28288f41261327d47a298bea}{G\+L2\+P\+Sbsptree2d}
+\item 
+typedef struct \hyperlink{struct___g_l2_p_sbsptree}{\+\_\+\+G\+L2\+P\+Sbsptree} \hyperlink{gl2ps_8c_a70dafc1a0d6da08fe9eb18b641ac22b0}{G\+L2\+P\+Sbsptree}
+\item 
+typedef struct \hyperlink{struct___g_l2_p_simagemap}{\+\_\+\+G\+L2\+P\+Simagemap} \hyperlink{gl2ps_8c_a12e221903db330081b8f4f9f193f3bd4}{G\+L2\+P\+Simagemap}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbf}{G\+L2\+P\+S\+\_\+\+T\+R\+I\+A\+N\+G\+L\+E\+\_\+\+P\+R\+O\+P\+E\+R\+T\+Y} \{ \\*
+\hyperlink{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfa70d13b7dc63331cc4562bcf794f21fdf}{T\+\_\+\+U\+N\+D\+E\+F\+I\+N\+E\+D} = -\/1, 
+\hyperlink{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfa287a6f225b0019b863740b726c030f66}{T\+\_\+\+C\+O\+N\+S\+T\+\_\+\+C\+O\+L\+O\+R} = 1, 
+\hyperlink{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfaada88eddda29b458a583099c89ee84ae}{T\+\_\+\+V\+A\+R\+\_\+\+C\+O\+L\+O\+R} = 1$<$$<$1, 
+\hyperlink{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfa76e07138c7907bce023b53846bde2813}{T\+\_\+\+A\+L\+P\+H\+A\+\_\+1} = 1$<$$<$2, 
+\\*
+\hyperlink{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfaf21425de4d33db7d442bf23014ed3ed0}{T\+\_\+\+A\+L\+P\+H\+A\+\_\+\+L\+E\+S\+S\+\_\+1} = 1$<$$<$3, 
+\hyperlink{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfa6c799b0923d41282eb8333efa2340541}{T\+\_\+\+V\+A\+R\+\_\+\+A\+L\+P\+H\+A} = 1$<$$<$4
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_a2a8f02c7a6eab001539f77b01f6d1941}{gl2ps\+Print\+Primitives} (void)
+\item 
+static void \hyperlink{gl2ps_8c_ab2b05dc9c0ad9b295309ef903218908c}{gl2ps\+Msg} (G\+Lint level, const char $\ast$fmt,...)
+\item 
+static void $\ast$ \hyperlink{gl2ps_8c_ae8687abe691957a70d1b0456015e2a4f}{gl2ps\+Malloc} (size\+\_\+t \hyperlink{tube_plotter_8m_a28d27d05f2a1790454a053a603af2bb2}{size})
+\item 
+static void $\ast$ \hyperlink{gl2ps_8c_ad97a3884fd09ae984f539e0ebc59b9ed}{gl2ps\+Realloc} (void $\ast$ptr, size\+\_\+t \hyperlink{tube_plotter_8m_a28d27d05f2a1790454a053a603af2bb2}{size})
+\item 
+static void \hyperlink{gl2ps_8c_a9da21cb65c24c911efd2d82c988287bc}{gl2ps\+Free} (void $\ast$ptr)
+\item 
+static int \hyperlink{gl2ps_8c_aefca5f75c3f66e3f8af4e186a6b9554d}{gl2ps\+Write\+Big\+Endian} (unsigned long data, int bytes)
+\item 
+static void \hyperlink{gl2ps_8c_adb8c15edd0a9ddc822bfc7b14dee7359}{gl2ps\+Setup\+Compress} (void)
+\item 
+static void \hyperlink{gl2ps_8c_abc5f1e284a79aae7cce343949744d230}{gl2ps\+Free\+Compress} (void)
+\item 
+static int \hyperlink{gl2ps_8c_a465f118c17c6ff653aefa16b43689c79}{gl2ps\+Alloc\+Compress} (unsigned int srcsize)
+\item 
+static void $\ast$ \hyperlink{gl2ps_8c_af2f235665899473712e5a264ef826966}{gl2ps\+Realloc\+Compress} (unsigned int srcsize)
+\item 
+static int \hyperlink{gl2ps_8c_acd9b0b231bd70ba7af3ba33e4904962c}{gl2ps\+Write\+Big\+Endian\+Compress} (unsigned long data, int bytes)
+\item 
+static int \hyperlink{gl2ps_8c_a284e9c59afc105a48462d0cfb8f770dc}{gl2ps\+Deflate} (void)
+\item 
+static int \hyperlink{gl2ps_8c_ac9f550ea1c4dfd5a1d89a75c80d5ba77}{gl2ps\+Printf} (const char $\ast$fmt,...)
+\item 
+static void \hyperlink{gl2ps_8c_a6dcf184964ae335b35de15db50442901}{gl2ps\+Print\+Gzip\+Header} (void)
+\item 
+static void \hyperlink{gl2ps_8c_ae8498348113c71d763e99992737893b0}{gl2ps\+Print\+Gzip\+Footer} (void)
+\item 
+static void \hyperlink{gl2ps_8c_ad60529307a4f9f99386e892d4a0879ed}{gl2ps\+List\+Realloc} (\hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list, G\+Lint \hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n})
+\item 
+static \hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$ \hyperlink{gl2ps_8c_ab361e8cdc565ddf47117405c7a3923fb}{gl2ps\+List\+Create} (G\+Lint \hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n}, G\+Lint incr, G\+Lint \hyperlink{tube_plotter_8m_a28d27d05f2a1790454a053a603af2bb2}{size})
+\item 
+static void \hyperlink{gl2ps_8c_af18920ab626a240eeea7eff070706fe7}{gl2ps\+List\+Reset} (\hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list)
+\item 
+static void \hyperlink{gl2ps_8c_a68be16bf8eebaacde59eac878cd23f33}{gl2ps\+List\+Delete} (\hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list)
+\item 
+static void \hyperlink{gl2ps_8c_ac6854212b14c712b8866abe23ff3e329}{gl2ps\+List\+Add} (\hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list, void $\ast$data)
+\item 
+static int \hyperlink{gl2ps_8c_a2465a92c54cf5b9492d2300086f522eb}{gl2ps\+List\+Nbr} (\hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list)
+\item 
+static void $\ast$ \hyperlink{gl2ps_8c_af67ad40f61fddd9b042081c96b1be98b}{gl2ps\+List\+Pointer} (\hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list, G\+Lint index)
+\item 
+static void \hyperlink{gl2ps_8c_a026b19175df092eeef2e9573815f0953}{gl2ps\+List\+Sort} (\hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list, int($\ast$fcmp)(const void $\ast$a, const void $\ast$\hyperlink{generate_loop_8m_a8628bb51afad38fac21e20697927b6cb}{b}))
+\item 
+static void \hyperlink{gl2ps_8c_aa3a5289709697297ed880250e717b4d6}{gl2ps\+List\+Action} (\hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list, void($\ast$action)(void $\ast$data))
+\item 
+static void \hyperlink{gl2ps_8c_ae02a605fa2013b5fa1ae66a5bd1f6665}{gl2ps\+List\+Action\+Inverse} (\hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list, void($\ast$action)(void $\ast$data))
+\item 
+static void \hyperlink{gl2ps_8c_ac2482156cec225aa90d65a94f91d9319}{gl2ps\+List\+Read} (\hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list, int index, void $\ast$data)
+\item 
+static void \hyperlink{gl2ps_8c_adc4a21d1b810b27dfa01fd8bb87fa2fe}{gl2ps\+Encode\+Base64\+Block} (unsigned char in\mbox{[}3\mbox{]}, unsigned char out\mbox{[}4\mbox{]}, int len)
+\item 
+static void \hyperlink{gl2ps_8c_a65ae8805cc22a0c62513c796dcd5c7d7}{gl2ps\+List\+Encode\+Base64} (\hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list)
+\item 
+static G\+Lboolean \hyperlink{gl2ps_8c_a1de2a0f53b7234b7b668a0114de03719}{gl2ps\+Same\+Color} (\hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} rgba1, \hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} rgba2)
+\item 
+static G\+Lboolean \hyperlink{gl2ps_8c_a3cd2aaf579752ad150cd2127890a30f4}{gl2ps\+Verts\+Same\+Color} (const \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$prim)
+\item 
+static G\+Lboolean \hyperlink{gl2ps_8c_a0bc6c2f33b8989755b5cfe1b82f86276}{gl2ps\+Same\+Color\+Threshold} (int \hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n}, \hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} rgba\mbox{[}$\,$\mbox{]}, \hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} threshold)
+\item 
+static void \hyperlink{gl2ps_8c_a4fdba08f6a02ee62a3afbade8f740adf}{gl2ps\+Set\+Last\+Color} (\hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} rgba)
+\item 
+static G\+Lfloat \hyperlink{gl2ps_8c_ae1f8cf918cc9333099941399a2d20ef5}{gl2ps\+Get\+R\+G\+B} (\hyperlink{struct_g_l2_p_simage}{G\+L2\+P\+Simage} $\ast$im, G\+Luint \hyperlink{generate_s_t_lcyl_8m_a9336ebf25087d91c818ee6e9ec29f8c1}{x}, G\+Luint \hyperlink{generate_s_t_lcyl_8m_a2fb1c5cf58867b5bbc9a1b145a86f3a0}{y}, G\+Lfloat $\ast$red, G\+Lfloat $\ast$green, G\+Lfloat $\ast$blue)
+\item 
+static \hyperlink{struct_g_l2_p_simage}{G\+L2\+P\+Simage} $\ast$ \hyperlink{gl2ps_8c_a89e40d0eb0bcb4dc7b3497838af5eef2}{gl2ps\+Copy\+Pixmap} (\hyperlink{struct_g_l2_p_simage}{G\+L2\+P\+Simage} $\ast$im)
+\item 
+static void \hyperlink{gl2ps_8c_a676a71038ca841eb8845224bd43b879f}{gl2ps\+Free\+Pixmap} (\hyperlink{struct_g_l2_p_simage}{G\+L2\+P\+Simage} $\ast$im)
+\item 
+static void \hyperlink{gl2ps_8c_ae6ab3fe8f2030b7c1b1f317e66753fb0}{gl2ps\+User\+Write\+P\+N\+G} (png\+\_\+structp png\+\_\+ptr, png\+\_\+bytep data, png\+\_\+size\+\_\+t length)
+\item 
+static void \hyperlink{gl2ps_8c_a6bdcb129cb95f41104d9df802b978680}{gl2ps\+User\+Flush\+P\+N\+G} (png\+\_\+structp png\+\_\+ptr)
+\item 
+static void \hyperlink{gl2ps_8c_ae2fde3756fd2301df02326b4630f9372}{gl2ps\+Convert\+Pixmap\+To\+P\+N\+G} (\hyperlink{struct_g_l2_p_simage}{G\+L2\+P\+Simage} $\ast$pixmap, \hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$png)
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_abb9b52784a3a7589261ed61fff736889}{gl2ps\+Add\+Text} (G\+Lint type, const char $\ast$str, const char $\ast$fontname, G\+Lshort \hyperlink{bench_2dislocation_stress_2plot_stress_8m_ad8f6e98ffab76e670f0f28fd175bd363}{fontsize}, G\+Lint alignment, G\+Lfloat angle)
+\item 
+static \hyperlink{struct_g_l2_p_sstring}{G\+L2\+P\+Sstring} $\ast$ \hyperlink{gl2ps_8c_a933f7519e26e36351e1012977cedde1e}{gl2ps\+Copy\+Text} (\hyperlink{struct_g_l2_p_sstring}{G\+L2\+P\+Sstring} $\ast$\hyperlink{_cubic_spline_intersection_8m_a83f7cd78c84d2604d0862bd818b9ac29}{t})
+\item 
+static void \hyperlink{gl2ps_8c_ad2d77be172e23794091201f555307cac}{gl2ps\+Free\+Text} (\hyperlink{struct_g_l2_p_sstring}{G\+L2\+P\+Sstring} $\ast$\hyperlink{plot_network_8m_acf87eaf2e2a4a1ed6f05b8ad1ac5d748}{text})
+\item 
+static G\+Lboolean \hyperlink{gl2ps_8c_ae16f75ce580e42a5bc90e31182bbf61b}{gl2ps\+Supported\+Blend\+Mode} (G\+Lenum sfactor, G\+Lenum dfactor)
+\item 
+static void \hyperlink{gl2ps_8c_a390a2c3b1277a311c3e8809c50a85136}{gl2ps\+Adapt\+Vertex\+For\+Blending} (\hyperlink{struct_g_l2_p_svertex}{G\+L2\+P\+Svertex} $\ast$\hyperlink{_cubic_spline_intersection_8m_a0a73e3284aebbe8bc1ba30f3efb9561a}{v})
+\item 
+static void \hyperlink{gl2ps_8c_a11b4dc6eb70208dd196be79e4c8b8c2c}{gl2ps\+Assign\+Triangle\+Properties} (\hyperlink{struct_g_l2_p_striangle}{G\+L2\+P\+Striangle} $\ast$\hyperlink{_cubic_spline_intersection_8m_a83f7cd78c84d2604d0862bd818b9ac29}{t})
+\item 
+static void \hyperlink{gl2ps_8c_afcf3c1ad52b5e7bc56dbfd47413b0195}{gl2ps\+Fill\+Triangle\+From\+Primitive} (\hyperlink{struct_g_l2_p_striangle}{G\+L2\+P\+Striangle} $\ast$\hyperlink{_cubic_spline_intersection_8m_a83f7cd78c84d2604d0862bd818b9ac29}{t}, \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$\hyperlink{plot_cells_8m_ac483f6ce851c9ecd9fb835ff7551737c}{p}, G\+Lboolean assignprops)
+\item 
+static void \hyperlink{gl2ps_8c_a3327e4e72c171944aec2bb02ebd06063}{gl2ps\+Init\+Triangle} (\hyperlink{struct_g_l2_p_striangle}{G\+L2\+P\+Striangle} $\ast$\hyperlink{_cubic_spline_intersection_8m_a83f7cd78c84d2604d0862bd818b9ac29}{t})
+\item 
+static \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$ \hyperlink{gl2ps_8c_a7082408f29ec0c1cf4d71669fc68db6a}{gl2ps\+Copy\+Primitive} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$\hyperlink{plot_cells_8m_ac483f6ce851c9ecd9fb835ff7551737c}{p})
+\item 
+static G\+Lboolean \hyperlink{gl2ps_8c_a25e9d5425881a43c99ad4c9cb9e8e5db}{gl2ps\+Same\+Position} (\hyperlink{gl2ps_8c_ac84fdfdcca7fbd2c8a63f1a2294cb4ec}{G\+L2\+P\+Sxyz} p1, \hyperlink{gl2ps_8c_ac84fdfdcca7fbd2c8a63f1a2294cb4ec}{G\+L2\+P\+Sxyz} p2)
+\item 
+static G\+Lfloat \hyperlink{gl2ps_8c_afb01acbb2a9493e62c981d63d079bbe4}{gl2ps\+Compare\+Point\+Plane} (\hyperlink{gl2ps_8c_ac84fdfdcca7fbd2c8a63f1a2294cb4ec}{G\+L2\+P\+Sxyz} point, \hyperlink{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}{G\+L2\+P\+Splane} plane)
+\item 
+static G\+Lfloat \hyperlink{gl2ps_8c_a2a96426d3a596a5bad18e2818b258922}{gl2ps\+Psca} (G\+Lfloat $\ast$a, G\+Lfloat $\ast$\hyperlink{generate_loop_8m_a8628bb51afad38fac21e20697927b6cb}{b})
+\item 
+static void \hyperlink{gl2ps_8c_a7adfc9a8b4b546045a9c2f999a3360f7}{gl2ps\+Pvec} (G\+Lfloat $\ast$a, G\+Lfloat $\ast$\hyperlink{generate_loop_8m_a8628bb51afad38fac21e20697927b6cb}{b}, G\+Lfloat $\ast$\hyperlink{plot_cells_8m_aa49cfdd4fa4d74d71f78a001a1b635d0}{c})
+\item 
+static G\+Lfloat \hyperlink{gl2ps_8c_a079f096474f22f8c9a4fb3475c9d2019}{gl2ps\+Norm} (G\+Lfloat $\ast$a)
+\item 
+static void \hyperlink{gl2ps_8c_ae8ff064e9a2a6c0c561b2b0e2c04ad8d}{gl2ps\+Get\+Normal} (G\+Lfloat $\ast$a, G\+Lfloat $\ast$\hyperlink{generate_loop_8m_a8628bb51afad38fac21e20697927b6cb}{b}, G\+Lfloat $\ast$\hyperlink{plot_cells_8m_aa49cfdd4fa4d74d71f78a001a1b635d0}{c})
+\item 
+static void \hyperlink{gl2ps_8c_a0759e8a0b318592fbf30d8dfb396da31}{gl2ps\+Get\+Plane} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$prim, \hyperlink{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}{G\+L2\+P\+Splane} plane)
+\item 
+static void \hyperlink{gl2ps_8c_a72275dd1e4a87589d2e6ab424c464307}{gl2ps\+Cut\+Edge} (\hyperlink{struct_g_l2_p_svertex}{G\+L2\+P\+Svertex} $\ast$a, \hyperlink{struct_g_l2_p_svertex}{G\+L2\+P\+Svertex} $\ast$\hyperlink{generate_loop_8m_a8628bb51afad38fac21e20697927b6cb}{b}, \hyperlink{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}{G\+L2\+P\+Splane} plane, \hyperlink{struct_g_l2_p_svertex}{G\+L2\+P\+Svertex} $\ast$\hyperlink{plot_cells_8m_aa49cfdd4fa4d74d71f78a001a1b635d0}{c})
+\item 
+static void \hyperlink{gl2ps_8c_ae0c8d6892060b9a81944f0e0f7d3ab23}{gl2ps\+Create\+Split\+Primitive} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$parent, \hyperlink{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}{G\+L2\+P\+Splane} plane, \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$child, G\+Lshort numverts, G\+Lshort $\ast$index0, G\+Lshort $\ast$index1)
+\item 
+static void \hyperlink{gl2ps_8c_a3b89bd2881318d6ecf81141434ef1907}{gl2ps\+Add\+Index} (G\+Lshort $\ast$index0, G\+Lshort $\ast$index1, G\+Lshort $\ast$nb, G\+Lshort \hyperlink{_cubic_spline_intersection_8m_a6f6ccfcf58b31cb6412107d9d5281426}{i}, G\+Lshort j)
+\item 
+static G\+Lshort \hyperlink{gl2ps_8c_a326a914653875491d674f53aaa8be357}{gl2ps\+Get\+Index} (G\+Lshort \hyperlink{_cubic_spline_intersection_8m_a6f6ccfcf58b31cb6412107d9d5281426}{i}, G\+Lshort num)
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_ae6622f11ee2f7fdd7cad437e699f83c1}{gl2ps\+Test\+Split\+Primitive} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$prim, \hyperlink{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}{G\+L2\+P\+Splane} plane)
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_a2f3ca806a66e2e9cd31e12b1a0b60eda}{gl2ps\+Split\+Primitive} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$prim, \hyperlink{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}{G\+L2\+P\+Splane} plane, \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$$\ast$front, \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$$\ast$back)
+\item 
+static void \hyperlink{gl2ps_8c_a19aeb49d886359842b68c5698fd174f4}{gl2ps\+Divide\+Quad} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$quad, \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$$\ast$t1, \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$$\ast$t2)
+\item 
+static int \hyperlink{gl2ps_8c_a4e6a4b2daad6822b388b86c723807022}{gl2ps\+Compare\+Depth} (const void $\ast$a, const void $\ast$\hyperlink{generate_loop_8m_a8628bb51afad38fac21e20697927b6cb}{b})
+\item 
+static int \hyperlink{gl2ps_8c_a900a108215d84abf759dbcd3737bb0f6}{gl2ps\+Triangles\+First} (const void $\ast$a, const void $\ast$\hyperlink{generate_loop_8m_a8628bb51afad38fac21e20697927b6cb}{b})
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_aa2270fe27da791f6d818ee4ad3f26ae1}{gl2ps\+Find\+Root} (\hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$primitives, \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$$\ast$root)
+\item 
+static void \hyperlink{gl2ps_8c_ae60ccb277db249048f86ad208dc43986}{gl2ps\+Free\+Imagemap} (\hyperlink{gl2ps_8c_a12e221903db330081b8f4f9f193f3bd4}{G\+L2\+P\+Simagemap} $\ast$list)
+\item 
+static void \hyperlink{gl2ps_8c_a2e6682ec07dc244fd1ee99a07bbe0245}{gl2ps\+Free\+Primitive} (void $\ast$data)
+\item 
+static void \hyperlink{gl2ps_8c_a3822cd56d4103e478934e1d5d42d4ed5}{gl2ps\+Add\+Primitive\+In\+List} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$prim, \hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list)
+\item 
+static void \hyperlink{gl2ps_8c_a93a3c64ab419a0b3d0babf1ddc1a9bdd}{gl2ps\+Free\+Bsp\+Tree} (\hyperlink{gl2ps_8c_a70dafc1a0d6da08fe9eb18b641ac22b0}{G\+L2\+P\+Sbsptree} $\ast$$\ast$tree)
+\item 
+static G\+Lboolean \hyperlink{gl2ps_8c_a4c6e845c094b24df817b6e53c627f587}{gl2ps\+Greater} (G\+Lfloat f1, G\+Lfloat f2)
+\item 
+static G\+Lboolean \hyperlink{gl2ps_8c_a73e893c37bbb30c73f3310bc13c051a3}{gl2ps\+Less} (G\+Lfloat f1, G\+Lfloat f2)
+\item 
+static void \hyperlink{gl2ps_8c_a6d021d33e03c36bb2b662ce633913019}{gl2ps\+Build\+Bsp\+Tree} (\hyperlink{gl2ps_8c_a70dafc1a0d6da08fe9eb18b641ac22b0}{G\+L2\+P\+Sbsptree} $\ast$tree, \hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$primitives)
+\item 
+static void \hyperlink{gl2ps_8c_a5f67fc7db4d0c77a098286dc232222e1}{gl2ps\+Traverse\+Bsp\+Tree} (\hyperlink{gl2ps_8c_a70dafc1a0d6da08fe9eb18b641ac22b0}{G\+L2\+P\+Sbsptree} $\ast$tree, \hyperlink{gl2ps_8c_ac84fdfdcca7fbd2c8a63f1a2294cb4ec}{G\+L2\+P\+Sxyz} eye, G\+Lfloat \hyperlink{_cubic_spline_intersection_8m_aa571c8173dde514963e974e8c1da1945}{epsilon}, G\+Lboolean($\ast$compare)(G\+Lfloat f1, G\+Lfloat f2), void($\ast$action)(void $\ast$data), int inverse)
+\item 
+static void \hyperlink{gl2ps_8c_a3a36dcbea14cb357e5036bf3baf32ab9}{gl2ps\+Rescale\+And\+Offset} (void)
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_affeaa8a50b7482e74263a8bc59a25878}{gl2ps\+Get\+Plane\+From\+Points} (\hyperlink{gl2ps_8c_ac84fdfdcca7fbd2c8a63f1a2294cb4ec}{G\+L2\+P\+Sxyz} a, \hyperlink{gl2ps_8c_ac84fdfdcca7fbd2c8a63f1a2294cb4ec}{G\+L2\+P\+Sxyz} \hyperlink{generate_loop_8m_a8628bb51afad38fac21e20697927b6cb}{b}, \hyperlink{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}{G\+L2\+P\+Splane} plane)
+\item 
+static void \hyperlink{gl2ps_8c_a3c2f4f57c2cb6188fa629b7c8ea7375f}{gl2ps\+Free\+Bsp\+Image\+Tree} (\hyperlink{gl2ps_8c_a5b053abb28288f41261327d47a298bea}{G\+L2\+P\+Sbsptree2d} $\ast$$\ast$tree)
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_a7597e03e230c3931ec83aed4c31af6e7}{gl2ps\+Check\+Point} (\hyperlink{gl2ps_8c_ac84fdfdcca7fbd2c8a63f1a2294cb4ec}{G\+L2\+P\+Sxyz} point, \hyperlink{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}{G\+L2\+P\+Splane} plane)
+\item 
+static void \hyperlink{gl2ps_8c_ab1064d859ab48e175347ec218c1a6da2}{gl2ps\+Add\+Planes\+In\+Bsp\+Tree\+Image} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$prim, \hyperlink{gl2ps_8c_a5b053abb28288f41261327d47a298bea}{G\+L2\+P\+Sbsptree2d} $\ast$$\ast$tree)
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_a9209bdc608c6bf1973266e072465c7ba}{gl2ps\+Check\+Primitive} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$prim, \hyperlink{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}{G\+L2\+P\+Splane} plane)
+\item 
+static \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$ \hyperlink{gl2ps_8c_a6e494c70d6e19c3a619c14104aa18e89}{gl2ps\+Create\+Split\+Primitive2\+D} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$parent, G\+Lshort numverts, \hyperlink{struct_g_l2_p_svertex}{G\+L2\+P\+Svertex} $\ast$vertx)
+\item 
+static void \hyperlink{gl2ps_8c_a27b55ebcdb7d29677eb7985e1cd437d4}{gl2ps\+Split\+Primitive2\+D} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$prim, \hyperlink{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}{G\+L2\+P\+Splane} plane, \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$$\ast$front, \hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$$\ast$back)
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_aa32bfee41ede700e6f4ddd3feed55cb7}{gl2ps\+Add\+In\+Bsp\+Image\+Tree} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$prim, \hyperlink{gl2ps_8c_a5b053abb28288f41261327d47a298bea}{G\+L2\+P\+Sbsptree2d} $\ast$$\ast$tree)
+\item 
+static void \hyperlink{gl2ps_8c_ac922753ff2ccd48beec9c2376f271258}{gl2ps\+Add\+In\+Image\+Tree} (void $\ast$data)
+\item 
+static void \hyperlink{gl2ps_8c_aafaebf51a9a4b0e596ad4d0dc6e7019f}{gl2ps\+Add\+Boundary\+In\+List} (\hyperlink{struct_g_l2_p_sprimitive}{G\+L2\+P\+Sprimitive} $\ast$prim, \hyperlink{struct_g_l2_p_slist}{G\+L2\+P\+Slist} $\ast$list)
+\item 
+static void \hyperlink{gl2ps_8c_a91a7c9e544fedaedc2fe8352cb1914e9}{gl2ps\+Build\+Polygon\+Boundary} (\hyperlink{gl2ps_8c_a70dafc1a0d6da08fe9eb18b641ac22b0}{G\+L2\+P\+Sbsptree} $\ast$tree)
+\item 
+static void \hyperlink{gl2ps_8c_a9f3831913473ab9758aba08c62e4a420}{gl2ps\+Add\+Poly\+Primitive} (G\+Lshort type, G\+Lshort numverts, \hyperlink{struct_g_l2_p_svertex}{G\+L2\+P\+Svertex} $\ast$verts, G\+Lint offset, G\+Lushort pattern, G\+Lint factor, G\+Lfloat width, char boundary)
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_a74986b47e282685f848dee98c59569fc}{gl2ps\+Get\+Vertex} (\hyperlink{struct_g_l2_p_svertex}{G\+L2\+P\+Svertex} $\ast$\hyperlink{_cubic_spline_intersection_8m_a0a73e3284aebbe8bc1ba30f3efb9561a}{v}, G\+Lfloat $\ast$\hyperlink{plot_cells_8m_ac483f6ce851c9ecd9fb835ff7551737c}{p})
+\item 
+static void \hyperlink{gl2ps_8c_aec88075909ff34e16c56bf6c05c33b67}{gl2ps\+Parse\+Feedback\+Buffer} (G\+Lint used)
+\item 
+static void \hyperlink{gl2ps_8c_af8e15628246869757015c75298c16f66}{gl2ps\+Write\+Byte} (unsigned char byte)
+\item 
+static void \hyperlink{gl2ps_8c_a58b08ec55ba7ade7a09fba06a5b226f9}{gl2ps\+Print\+Post\+Script\+Pixmap} (G\+Lfloat \hyperlink{generate_s_t_lcyl_8m_a9336ebf25087d91c818ee6e9ec29f8c1}{x}, G\+Lfloat \hyperlink{generate_s_t_lcyl_8m_a2fb1c5cf58867b5bbc9a1b145a86f3a0}{y}, \hyperlink{struct_g_l2_p_simage}{G\+L2\+P\+Simage} $\ast$im)
+\item 
+static void \hyperlink{gl2ps_8c_ab01abca5bb6431efafe696154cda2b3b}{gl2ps\+Print\+Post\+Script\+Imagemap} (G\+Lfloat \hyperlink{generate_s_t_lcyl_8m_a9336ebf25087d91c818ee6e9ec29f8c1}{x}, G\+Lfloat \hyperlink{generate_s_t_lcyl_8m_a2fb1c5cf58867b5bbc9a1b145a86f3a0}{y}, G\+Lsizei width, G\+Lsizei height, const unsigned char $\ast$imagemap)
+\item 
+static void \hyperlink{gl2ps_8c_ac82d1102e7f44a1f37e54f46583b437e}{gl2ps\+Print\+Post\+Script\+Header} (void)
+\item 
+static void \hyperlink{gl2ps_8c_adf21caf9f5bedd368544012a26204148}{gl2ps\+Print\+Post\+Script\+Color} (\hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} rgba)
+\item 
+static void \hyperlink{gl2ps_8c_af954c525f5436dd883a29247ed6f744c}{gl2ps\+Reset\+Post\+Script\+Color} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a2da1c832968b191e2e514c77fb831871}{gl2ps\+End\+Post\+Script\+Line} (void)
+\item 
+static void \hyperlink{gl2ps_8c_aef0124d8742e2a3a4fe2878eaa9e9302}{gl2ps\+Parse\+Stipple\+Pattern} (G\+Lushort pattern, G\+Lint factor, int $\ast$nb, int array\mbox{[}10\mbox{]})
+\item 
+static int \hyperlink{gl2ps_8c_a69af36ae7821eab763aa415b4bd49bca}{gl2ps\+Print\+Post\+Script\+Dash} (G\+Lushort pattern, G\+Lint factor, const char $\ast$str)
+\item 
+static void \hyperlink{gl2ps_8c_a639440c25980482eca0710ac1fafd3ce}{gl2ps\+Print\+Post\+Script\+Primitive} (void $\ast$data)
+\item 
+static void \hyperlink{gl2ps_8c_a1978e1159db9fd50ec96d269a692f05c}{gl2ps\+Print\+Post\+Script\+Footer} (void)
+\item 
+static void \hyperlink{gl2ps_8c_ad57be7e00863f3e06aa4c90e098d2925}{gl2ps\+Print\+Post\+Script\+Begin\+Viewport} (G\+Lint viewport\mbox{[}4\mbox{]})
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_a3b0407153bd204bbcd617bf5a58ccd1c}{gl2ps\+Print\+Post\+Script\+End\+Viewport} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a2b109889366ae3d544c11452b1967053}{gl2ps\+Print\+Post\+Script\+Final\+Primitive} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a340b331424d9c2aaf2e457d871ee549f}{gl2ps\+Print\+Te\+X\+Header} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a1444271074e377e30490aef8867c14bb}{gl2ps\+Print\+Te\+X\+Primitive} (void $\ast$data)
+\item 
+static void \hyperlink{gl2ps_8c_a00b31477b458324d0713dd941bc16108}{gl2ps\+Print\+Te\+X\+Footer} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a1f4d795efbc7c2737574e0b06302ece7}{gl2ps\+Print\+Te\+X\+Begin\+Viewport} (G\+Lint viewport\mbox{[}4\mbox{]})
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_aa6c5bfc1045d8ad7b804164a3dc5fba8}{gl2ps\+Print\+Te\+X\+End\+Viewport} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a94c73008399bf0ea71cba90f8e1a86fc}{gl2ps\+Print\+Te\+X\+Final\+Primitive} (void)
+\item 
+static int \hyperlink{gl2ps_8c_a3aaeb02c13723795687b66724c6f11b0}{gl2ps\+Print\+P\+D\+F\+Compressor\+Type} (void)
+\item 
+static int \hyperlink{gl2ps_8c_ac7fa05dad7611f59dd5655a07ec8899c}{gl2ps\+Print\+P\+D\+F\+Stroke\+Color} (\hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} rgba)
+\item 
+static int \hyperlink{gl2ps_8c_aee6e584e883862a0776d79c8e4fcf384}{gl2ps\+Print\+P\+D\+F\+Fill\+Color} (\hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} rgba)
+\item 
+static int \hyperlink{gl2ps_8c_acc281cf15a46d68efd6376accd519571}{gl2ps\+Print\+P\+D\+F\+Line\+Width} (G\+Lfloat lw)
+\item 
+static void \hyperlink{gl2ps_8c_ad162a260069e2c3c296a6ffbba2e53ae}{gl2ps\+Put\+P\+D\+F\+Text} (\hyperlink{struct_g_l2_p_sstring}{G\+L2\+P\+Sstring} $\ast$\hyperlink{plot_network_8m_acf87eaf2e2a4a1ed6f05b8ad1ac5d748}{text}, int cnt, G\+Lfloat \hyperlink{generate_s_t_lcyl_8m_a9336ebf25087d91c818ee6e9ec29f8c1}{x}, G\+Lfloat \hyperlink{generate_s_t_lcyl_8m_a2fb1c5cf58867b5bbc9a1b145a86f3a0}{y})
+\item 
+static void \hyperlink{gl2ps_8c_af81bf33b083705cef97987780756bbda}{gl2ps\+Put\+P\+D\+F\+Image} (\hyperlink{struct_g_l2_p_simage}{G\+L2\+P\+Simage} $\ast$image, int cnt, G\+Lfloat \hyperlink{generate_s_t_lcyl_8m_a9336ebf25087d91c818ee6e9ec29f8c1}{x}, G\+Lfloat \hyperlink{generate_s_t_lcyl_8m_a2fb1c5cf58867b5bbc9a1b145a86f3a0}{y})
+\item 
+static void \hyperlink{gl2ps_8c_ae60b28279207d4b021b01bb4818b8cdf}{gl2ps\+P\+D\+Fstacks\+Init} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a005163d83b80f5d62e90a00f86cf4d19}{gl2ps\+P\+D\+Fgroup\+Object\+Init} (\hyperlink{struct_g_l2_p_spdfgroup}{G\+L2\+P\+Spdfgroup} $\ast$gro)
+\item 
+static void \hyperlink{gl2ps_8c_ab457d25e4822ea736c783f579aa95637}{gl2ps\+P\+D\+Fgroup\+List\+Init} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a93eaba1646465c27c2bedb2a8dc52438}{gl2ps\+Sort\+Out\+Triangle\+P\+D\+Fgroup} (\hyperlink{struct_g_l2_p_spdfgroup}{G\+L2\+P\+Spdfgroup} $\ast$gro)
+\item 
+static void \hyperlink{gl2ps_8c_a35139168f094ebdf9a521777d62f8ae8}{gl2ps\+P\+D\+Fgroup\+List\+Write\+Main\+Stream} (void)
+\item 
+static int \hyperlink{gl2ps_8c_a6db19291a24c3d092622bd32db7ed63a}{gl2ps\+P\+D\+Fgroup\+List\+Write\+G\+State\+Resources} (void)
+\item 
+static int \hyperlink{gl2ps_8c_a42fd421566c79faed5b51aef1084f0d5}{gl2ps\+P\+D\+Fgroup\+List\+Write\+Shader\+Resources} (void)
+\item 
+static int \hyperlink{gl2ps_8c_a2e55ef84345a576ea85029a8bfef7fcd}{gl2ps\+P\+D\+Fgroup\+List\+Write\+X\+Object\+Resources} (void)
+\item 
+static int \hyperlink{gl2ps_8c_a38d966194d2f9024d3c46eaf95aacc95}{gl2ps\+P\+D\+Fgroup\+List\+Write\+Font\+Resources} (void)
+\item 
+static void \hyperlink{gl2ps_8c_acc118a21a43d568176c82370e7891b0e}{gl2ps\+P\+D\+Fgroup\+List\+Delete} (void)
+\item 
+static int \hyperlink{gl2ps_8c_a8d75bff4867006f291b2d2bc62f6bb22}{gl2ps\+Print\+P\+D\+F\+Info} (void)
+\item 
+static int \hyperlink{gl2ps_8c_ace77317e17e5537bb1e19efd3ee85cea}{gl2ps\+Print\+P\+D\+F\+Catalog} (void)
+\item 
+static int \hyperlink{gl2ps_8c_a283d56c8a25a4c891513ed8cb3329bf7}{gl2ps\+Print\+P\+D\+F\+Pages} (void)
+\item 
+static int \hyperlink{gl2ps_8c_ae9a152d37603fee652abf0504fc48e36}{gl2ps\+Open\+P\+D\+F\+Data\+Stream} (void)
+\item 
+static int \hyperlink{gl2ps_8c_a3fbf1cffe3452bba06df3ce30fece6e6}{gl2ps\+Open\+P\+D\+F\+Data\+Stream\+Write\+Preface} (void)
+\item 
+static void \hyperlink{gl2ps_8c_ac0b89319d12d34468a1e6216ba468a27}{gl2ps\+Print\+P\+D\+F\+Header} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a4dae2d9467bc9f054fbf7e03540ac38b}{gl2ps\+Print\+P\+D\+F\+Primitive} (void $\ast$data)
+\item 
+static int \hyperlink{gl2ps_8c_aca17c25afda9e0f89745683cec9e160a}{gl2ps\+Close\+P\+D\+F\+Data\+Stream} (void)
+\item 
+static int \hyperlink{gl2ps_8c_a9b4e58c3c95982279bf7a18a1cb29b09}{gl2ps\+Print\+P\+D\+F\+Data\+Stream\+Length} (int val)
+\item 
+static int \hyperlink{gl2ps_8c_a1dabf3a630c2e5871346737d946c53fe}{gl2ps\+Print\+P\+D\+F\+Open\+Page} (void)
+\item 
+static int \hyperlink{gl2ps_8c_afcf1dd13967428e50fd9560342417ec5}{gl2ps\+P\+D\+Fgroup\+List\+Write\+Variable\+Resources} (void)
+\item 
+static int \hyperlink{gl2ps_8c_af70ff37360607f8cc8ad1eb55fd3c1b6}{gl2ps\+Print\+P\+D\+F\+G\+S\+Object} (void)
+\item 
+static int \hyperlink{gl2ps_8c_a31be74029c79dedff21196aa83be4323}{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Coord} (\hyperlink{struct_g_l2_p_svertex}{G\+L2\+P\+Svertex} $\ast$vertex, int($\ast$action)(unsigned long data, int \hyperlink{tube_plotter_8m_a28d27d05f2a1790454a053a603af2bb2}{size}), G\+Lfloat \hyperlink{plot_stress_strain_8m_ab96839a247dbd3da79b8919833960d34}{dx}, G\+Lfloat dy, G\+Lfloat xmin, G\+Lfloat ymin)
+\item 
+static int \hyperlink{gl2ps_8c_a385da379ba496c2cd27211493e8885aa}{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+R\+G\+B} (\hyperlink{struct_g_l2_p_svertex}{G\+L2\+P\+Svertex} $\ast$vertex, int($\ast$action)(unsigned long data, int \hyperlink{tube_plotter_8m_a28d27d05f2a1790454a053a603af2bb2}{size}))
+\item 
+static int \hyperlink{gl2ps_8c_ae9c9bead685e18805a9814289f87bd78}{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Alpha} (\hyperlink{struct_g_l2_p_svertex}{G\+L2\+P\+Svertex} $\ast$vertex, int($\ast$action)(unsigned long data, int \hyperlink{tube_plotter_8m_a28d27d05f2a1790454a053a603af2bb2}{size}), int sigbyte)
+\item 
+static int \hyperlink{gl2ps_8c_a222cb8212485c6b7f3dc511d555e0b8e}{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data} (\hyperlink{struct_g_l2_p_striangle}{G\+L2\+P\+Striangle} $\ast$triangle, G\+Lfloat \hyperlink{plot_stress_strain_8m_ab96839a247dbd3da79b8919833960d34}{dx}, G\+Lfloat dy, G\+Lfloat xmin, G\+Lfloat ymin, int($\ast$action)(unsigned long data, int \hyperlink{tube_plotter_8m_a28d27d05f2a1790454a053a603af2bb2}{size}), int gray)
+\item 
+static void \hyperlink{gl2ps_8c_a7c567436ebdf68003f6008e33eec3e5a}{gl2ps\+P\+D\+F\+Rect\+Hull} (G\+Lfloat $\ast$xmin, G\+Lfloat $\ast$xmax, G\+Lfloat $\ast$ymin, G\+Lfloat $\ast$ymax, \hyperlink{struct_g_l2_p_striangle}{G\+L2\+P\+Striangle} $\ast$triangles, int cnt)
+\item 
+static int \hyperlink{gl2ps_8c_a245df81b439b62f352efc3b3ab225975}{gl2ps\+Print\+P\+D\+F\+Shader} (int obj, \hyperlink{struct_g_l2_p_striangle}{G\+L2\+P\+Striangle} $\ast$triangles, int \hyperlink{tube_plotter_8m_a28d27d05f2a1790454a053a603af2bb2}{size}, int gray)
+\item 
+static int \hyperlink{gl2ps_8c_aedfac9e5fc0a4dc04ebfeaf22791b621}{gl2ps\+Print\+P\+D\+F\+Shader\+Mask} (int obj, int childobj)
+\item 
+static int \hyperlink{gl2ps_8c_ae89e8ec7b50800af216ce14fea1ac7e6}{gl2ps\+Print\+P\+D\+F\+Shader\+Ext\+G\+S} (int obj, int childobj)
+\item 
+static int \hyperlink{gl2ps_8c_a5045b363dcb883124f28b1ecda056cf9}{gl2ps\+Print\+P\+D\+F\+Shader\+Simple\+Ext\+G\+S} (int obj, G\+Lfloat \hyperlink{plot_network_8m_a62197192f0fbf4e0675eb37be1c4c175}{alpha})
+\item 
+static int \hyperlink{gl2ps_8c_aee6a68762fcbc5b10e88036b311e6b09}{gl2ps\+Print\+P\+D\+F\+Pixmap\+Stream\+Data} (\hyperlink{struct_g_l2_p_simage}{G\+L2\+P\+Simage} $\ast$im, int($\ast$action)(unsigned long data, int \hyperlink{tube_plotter_8m_a28d27d05f2a1790454a053a603af2bb2}{size}), int gray)
+\item 
+static int \hyperlink{gl2ps_8c_ad43bb8af9d10ec93560a7434cde7a201}{gl2ps\+Print\+P\+D\+F\+Pixmap} (int obj, int childobj, \hyperlink{struct_g_l2_p_simage}{G\+L2\+P\+Simage} $\ast$im, int gray)
+\item 
+static int \hyperlink{gl2ps_8c_a7583ee259343e597e3fa53b41d92829a}{gl2ps\+Print\+P\+D\+F\+Text} (int obj, \hyperlink{struct_g_l2_p_sstring}{G\+L2\+P\+Sstring} $\ast$\hyperlink{_cubic_spline_intersection_8m_aec5b2c7fb98ca9f11d2c624f6d8ae9d9}{s}, int fontnumber)
+\item 
+static int \hyperlink{gl2ps_8c_aaabeac9e752b9df747c77df07e417a9f}{gl2ps\+P\+D\+Fgroup\+List\+Write\+Objects} (int entryoffs)
+\item 
+static void \hyperlink{gl2ps_8c_a9c59e0e0b768cf1f16d50b0c6be1863a}{gl2ps\+Print\+P\+D\+F\+Footer} (void)
+\item 
+static void \hyperlink{gl2ps_8c_ae230afe5ece4d51fea81238c5adc1e3d}{gl2ps\+Print\+P\+D\+F\+Begin\+Viewport} (G\+Lint viewport\mbox{[}4\mbox{]})
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_ab5bab8e233f1b7764e4747e3d8417d77}{gl2ps\+Print\+P\+D\+F\+End\+Viewport} (void)
+\item 
+static void \hyperlink{gl2ps_8c_ae04024f62e9508dca4e9f9c4004846d6}{gl2ps\+Print\+P\+D\+F\+Final\+Primitive} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a8153f93b9a49063bcc3d483911c304d1}{gl2ps\+S\+V\+G\+Get\+Coords\+And\+Colors} (int \hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n}, \hyperlink{struct_g_l2_p_svertex}{G\+L2\+P\+Svertex} $\ast$verts, \hyperlink{gl2ps_8c_ac84fdfdcca7fbd2c8a63f1a2294cb4ec}{G\+L2\+P\+Sxyz} $\ast$xyz, \hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} $\ast$rgba)
+\item 
+static void \hyperlink{gl2ps_8c_a8b923df843ddbb731b9c014682fd5ee3}{gl2ps\+S\+V\+G\+Get\+Color\+String} (\hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} rgba, char str\mbox{[}32\mbox{]})
+\item 
+static void \hyperlink{gl2ps_8c_a92231fdbe5f4048f34e49a85de26002b}{gl2ps\+Print\+S\+V\+G\+Header} (void)
+\item 
+static void \hyperlink{gl2ps_8c_abb1088ab065cd1d533174c1e86981756}{gl2ps\+Print\+S\+V\+G\+Smooth\+Triangle} (\hyperlink{gl2ps_8c_ac84fdfdcca7fbd2c8a63f1a2294cb4ec}{G\+L2\+P\+Sxyz} xyz\mbox{[}3\mbox{]}, \hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} rgba\mbox{[}3\mbox{]})
+\item 
+static void \hyperlink{gl2ps_8c_ae9d8bcce3d30d36b26591fdc434e100a}{gl2ps\+Print\+S\+V\+G\+Dash} (G\+Lushort pattern, G\+Lint factor)
+\item 
+static void \hyperlink{gl2ps_8c_aaf388d28be2749a4cb439cde2822b5e3}{gl2ps\+End\+S\+V\+G\+Line} (void)
+\item 
+static void \hyperlink{gl2ps_8c_acc80ccf09f8407ddcfa3a5debf1b365c}{gl2ps\+Print\+S\+V\+G\+Pixmap} (G\+Lfloat \hyperlink{generate_s_t_lcyl_8m_a9336ebf25087d91c818ee6e9ec29f8c1}{x}, G\+Lfloat \hyperlink{generate_s_t_lcyl_8m_a2fb1c5cf58867b5bbc9a1b145a86f3a0}{y}, \hyperlink{struct_g_l2_p_simage}{G\+L2\+P\+Simage} $\ast$pixmap)
+\item 
+static void \hyperlink{gl2ps_8c_a7ea286bc4043e99b36634edd77d2a042}{gl2ps\+Print\+S\+V\+G\+Primitive} (void $\ast$data)
+\item 
+static void \hyperlink{gl2ps_8c_a3b9a0477119aa3ba14a8a50cbebed354}{gl2ps\+Print\+S\+V\+G\+Footer} (void)
+\item 
+static void \hyperlink{gl2ps_8c_ae963bf54d0f96d32bb5d1826a17d5907}{gl2ps\+Print\+S\+V\+G\+Begin\+Viewport} (G\+Lint viewport\mbox{[}4\mbox{]})
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_a87f0c591d086c9139c5ea40cdb3bf64b}{gl2ps\+Print\+S\+V\+G\+End\+Viewport} (void)
+\item 
+static void \hyperlink{gl2ps_8c_ac896aa21b4865dcadc81c358918ce4b8}{gl2ps\+Print\+S\+V\+G\+Final\+Primitive} (void)
+\item 
+static void \hyperlink{gl2ps_8c_aeca83ecb33a1b027ca70af91a5e99953}{gl2ps\+Print\+P\+G\+F\+Color} (\hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} rgba)
+\item 
+static void \hyperlink{gl2ps_8c_a05c8ea10741ea1cf48830112846a6a57}{gl2ps\+Print\+P\+G\+F\+Header} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a5cd129b3ee9229e2275a6b3eca035781}{gl2ps\+Print\+P\+G\+F\+Dash} (G\+Lushort pattern, G\+Lint factor)
+\item 
+static const char $\ast$ \hyperlink{gl2ps_8c_a0bed9ab02f1ca0d6a7941bfc1bfdf6d4}{gl2ps\+P\+G\+F\+Text\+Alignment} (int align)
+\item 
+static void \hyperlink{gl2ps_8c_a2d67ade717897c3177e50fc818c157df}{gl2ps\+Print\+P\+G\+F\+Primitive} (void $\ast$data)
+\item 
+static void \hyperlink{gl2ps_8c_affcdba933b4310cfd4dcd48addf7ed23}{gl2ps\+Print\+P\+G\+F\+Footer} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a612af920b979bb976c48a64ba2dcf93e}{gl2ps\+Print\+P\+G\+F\+Begin\+Viewport} (G\+Lint viewport\mbox{[}4\mbox{]})
+\item 
+static G\+Lint \hyperlink{gl2ps_8c_ad1fb2099f1148001f84b7fe92f91089c}{gl2ps\+Print\+P\+G\+F\+End\+Viewport} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a9a1ec8cedabc912ae9b1c5f5b76110fc}{gl2ps\+Print\+P\+G\+F\+Final\+Primitive} (void)
+\item 
+static void \hyperlink{gl2ps_8c_a6c08990728b10077d0920f86e8f563c0}{gl2ps\+Compute\+Tight\+Bounding\+Box} (void $\ast$data)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_a4890e21e66dbad401a0090f79ec3e6fc}{gl2ps\+Begin\+Page} (const char $\ast$title, const char $\ast$producer, G\+Lint viewport\mbox{[}4\mbox{]}, G\+Lint format, G\+Lint sort, G\+Lint options, G\+Lint colormode, G\+Lint colorsize, \hyperlink{gl2ps_8h_a8e362d2f509289c8a074fa745816df9d}{G\+L2\+P\+Srgba} $\ast$colormap, G\+Lint nr, G\+Lint ng, G\+Lint nb, G\+Lint buffersize, F\+I\+L\+E $\ast$stream, const char $\ast$\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a221163590ee33005cb379c7bec93f1ec}{filename})
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_aaf866dd47c48600f1a724ddc49961a87}{gl2ps\+End\+Page} (void)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_a8fb608355cdcc2eee8332b25fe778b43}{gl2ps\+Begin\+Viewport} (G\+Lint viewport\mbox{[}4\mbox{]})
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_a1717651e6bef23a02ceac278599143c0}{gl2ps\+End\+Viewport} (void)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_aa69c1d8018b88bcd555226da00377d45}{gl2ps\+Text\+Opt} (const char $\ast$str, const char $\ast$fontname, G\+Lshort \hyperlink{bench_2dislocation_stress_2plot_stress_8m_ad8f6e98ffab76e670f0f28fd175bd363}{fontsize}, G\+Lint alignment, G\+Lfloat angle)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_ab69115218d57654fffab3be4d89ece37}{gl2ps\+Text} (const char $\ast$str, const char $\ast$fontname, G\+Lshort \hyperlink{bench_2dislocation_stress_2plot_stress_8m_ad8f6e98ffab76e670f0f28fd175bd363}{fontsize})
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_a3ddb0675936d9819c6a59a45727e97a0}{gl2ps\+Special} (G\+Lint format, const char $\ast$str)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_a1e5dcebc13f0e6841e06fa9384dee79c}{gl2ps\+Draw\+Pixels} (G\+Lsizei width, G\+Lsizei height, G\+Lint xorig, G\+Lint yorig, G\+Lenum format, G\+Lenum type, const void $\ast$pixels)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_a6920877777a53fc1b57047ef45e4bc4a}{gl2ps\+Draw\+Image\+Map} (G\+Lsizei width, G\+Lsizei height, const G\+Lfloat position\mbox{[}3\mbox{]}, const unsigned char $\ast$imagemap)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_ac10fadfa58659d60ecc188c41156d011}{gl2ps\+Enable} (G\+Lint mode)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_a88852227ed8ea27790a87f9081db05d8}{gl2ps\+Disable} (G\+Lint mode)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_a3bfc969eaef00a29175e20f776e61db6}{gl2ps\+Point\+Size} (G\+Lfloat value)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_ae09dd8ad36b56429b719f10b1d974e7a}{gl2ps\+Line\+Width} (G\+Lfloat value)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_a6141b1599542a3d9e31fa988499e66a7}{gl2ps\+Blend\+Func} (G\+Lenum sfactor, G\+Lenum dfactor)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_a7086eafd4560913994e3c62463ec533b}{gl2ps\+Set\+Options} (G\+Lint options)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint \hyperlink{gl2ps_8c_afbb5bc8397de05b734cbb2c1f7d67e30}{gl2ps\+Get\+Options} (G\+Lint $\ast$options)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I const char $\ast$ \hyperlink{gl2ps_8c_aae58811228196b4a3a6cf2db0ae40711}{gl2ps\+Get\+File\+Extension} (G\+Lint format)
+\item 
+G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I const char $\ast$ \hyperlink{gl2ps_8c_adc26237678765fa1f207c000c371a4c9}{gl2ps\+Get\+Format\+Description} (G\+Lint format)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{struct_g_l2_p_scontext}{G\+L2\+P\+Scontext} $\ast$ \hyperlink{gl2ps_8c_a177046af13ce04d9707868d85047abb7}{gl2ps} = N\+U\+L\+L
+\item 
+static \hyperlink{struct_g_l2_p_sbackend}{G\+L2\+P\+Sbackend} \hyperlink{gl2ps_8c_a133f434a2febfbf9a4bc0bc733a637d2}{gl2ps\+P\+S}
+\item 
+static \hyperlink{struct_g_l2_p_sbackend}{G\+L2\+P\+Sbackend} \hyperlink{gl2ps_8c_afcddca4736e88236fdf5b838758d9e91}{gl2ps\+E\+P\+S}
+\item 
+static \hyperlink{struct_g_l2_p_sbackend}{G\+L2\+P\+Sbackend} \hyperlink{gl2ps_8c_a155d2bcf188cf2c7142360bff5561ee0}{gl2ps\+T\+E\+X}
+\item 
+static \hyperlink{struct_g_l2_p_sbackend}{G\+L2\+P\+Sbackend} \hyperlink{gl2ps_8c_aef50eb34b200c722d4e7abe7389e48ee}{gl2ps\+P\+D\+F}
+\item 
+static \hyperlink{struct_g_l2_p_sbackend}{G\+L2\+P\+Sbackend} \hyperlink{gl2ps_8c_af0a3c5b674a03edac715a07922f7dbb3}{gl2ps\+S\+V\+G}
+\item 
+static \hyperlink{struct_g_l2_p_sbackend}{G\+L2\+P\+Sbackend} \hyperlink{gl2ps_8c_ad537bb2b2a8f755627e8fb3791d0c711}{gl2ps\+P\+G\+F}
+\item 
+static \hyperlink{struct_g_l2_p_sbackend}{G\+L2\+P\+Sbackend} $\ast$ \hyperlink{gl2ps_8c_a0881dabac4a58a448619fc9b3b494c69}{gl2psbackends} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\subsection{Typedef Documentation}
+\hypertarget{gl2ps_8c_a70dafc1a0d6da08fe9eb18b641ac22b0}{}\index{gl2ps.\+c@{gl2ps.\+c}!G\+L2\+P\+Sbsptree@{G\+L2\+P\+Sbsptree}}
+\index{G\+L2\+P\+Sbsptree@{G\+L2\+P\+Sbsptree}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{G\+L2\+P\+Sbsptree}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf \+\_\+\+G\+L2\+P\+Sbsptree} {\bf G\+L2\+P\+Sbsptree}}\label{gl2ps_8c_a70dafc1a0d6da08fe9eb18b641ac22b0}
+
+
+Definition at line 139 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a5b053abb28288f41261327d47a298bea}{}\index{gl2ps.\+c@{gl2ps.\+c}!G\+L2\+P\+Sbsptree2d@{G\+L2\+P\+Sbsptree2d}}
+\index{G\+L2\+P\+Sbsptree2d@{G\+L2\+P\+Sbsptree2d}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{G\+L2\+P\+Sbsptree2d}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf \+\_\+\+G\+L2\+P\+Sbsptree2d} {\bf G\+L2\+P\+Sbsptree2d}}\label{gl2ps_8c_a5b053abb28288f41261327d47a298bea}
+
+
+Definition at line 127 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a12e221903db330081b8f4f9f193f3bd4}{}\index{gl2ps.\+c@{gl2ps.\+c}!G\+L2\+P\+Simagemap@{G\+L2\+P\+Simagemap}}
+\index{G\+L2\+P\+Simagemap@{G\+L2\+P\+Simagemap}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{G\+L2\+P\+Simagemap}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf \+\_\+\+G\+L2\+P\+Simagemap} {\bf G\+L2\+P\+Simagemap}}\label{gl2ps_8c_a12e221903db330081b8f4f9f193f3bd4}
+
+
+Definition at line 176 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}{}\index{gl2ps.\+c@{gl2ps.\+c}!G\+L2\+P\+Splane@{G\+L2\+P\+Splane}}
+\index{G\+L2\+P\+Splane@{G\+L2\+P\+Splane}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{G\+L2\+P\+Splane}]{\setlength{\rightskip}{0pt plus 5cm}typedef G\+Lfloat G\+L2\+P\+Splane\mbox{[}4\mbox{]}}\label{gl2ps_8c_ad999e09482788b5c0f9b7c6197a32e0d}
+
+
+Definition at line 125 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ac84fdfdcca7fbd2c8a63f1a2294cb4ec}{}\index{gl2ps.\+c@{gl2ps.\+c}!G\+L2\+P\+Sxyz@{G\+L2\+P\+Sxyz}}
+\index{G\+L2\+P\+Sxyz@{G\+L2\+P\+Sxyz}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{G\+L2\+P\+Sxyz}]{\setlength{\rightskip}{0pt plus 5cm}typedef G\+Lfloat G\+L2\+P\+Sxyz\mbox{[}3\mbox{]}}\label{gl2ps_8c_ac84fdfdcca7fbd2c8a63f1a2294cb4ec}
+
+
+Definition at line 124 of file gl2ps.\+c.
+
+
+
+\subsection{Enumeration Type Documentation}
+\hypertarget{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbf}{}\index{gl2ps.\+c@{gl2ps.\+c}!G\+L2\+P\+S\+\_\+\+T\+R\+I\+A\+N\+G\+L\+E\+\_\+\+P\+R\+O\+P\+E\+R\+T\+Y@{G\+L2\+P\+S\+\_\+\+T\+R\+I\+A\+N\+G\+L\+E\+\_\+\+P\+R\+O\+P\+E\+R\+T\+Y}}
+\index{G\+L2\+P\+S\+\_\+\+T\+R\+I\+A\+N\+G\+L\+E\+\_\+\+P\+R\+O\+P\+E\+R\+T\+Y@{G\+L2\+P\+S\+\_\+\+T\+R\+I\+A\+N\+G\+L\+E\+\_\+\+P\+R\+O\+P\+E\+R\+T\+Y}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{G\+L2\+P\+S\+\_\+\+T\+R\+I\+A\+N\+G\+L\+E\+\_\+\+P\+R\+O\+P\+E\+R\+T\+Y}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf G\+L2\+P\+S\+\_\+\+T\+R\+I\+A\+N\+G\+L\+E\+\_\+\+P\+R\+O\+P\+E\+R\+T\+Y}}\label{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbf}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{T\+\_\+\+U\+N\+D\+E\+F\+I\+N\+E\+D@{T\+\_\+\+U\+N\+D\+E\+F\+I\+N\+E\+D}!gl2ps.\+c@{gl2ps.\+c}}\index{gl2ps.\+c@{gl2ps.\+c}!T\+\_\+\+U\+N\+D\+E\+F\+I\+N\+E\+D@{T\+\_\+\+U\+N\+D\+E\+F\+I\+N\+E\+D}}\item[{\em 
+\hypertarget{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfa70d13b7dc63331cc4562bcf794f21fdf}{}T\+\_\+\+U\+N\+D\+E\+F\+I\+N\+E\+D\label{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfa70d13b7dc63331cc4562bcf794f21fdf}
+}]\index{T\+\_\+\+C\+O\+N\+S\+T\+\_\+\+C\+O\+L\+O\+R@{T\+\_\+\+C\+O\+N\+S\+T\+\_\+\+C\+O\+L\+O\+R}!gl2ps.\+c@{gl2ps.\+c}}\index{gl2ps.\+c@{gl2ps.\+c}!T\+\_\+\+C\+O\+N\+S\+T\+\_\+\+C\+O\+L\+O\+R@{T\+\_\+\+C\+O\+N\+S\+T\+\_\+\+C\+O\+L\+O\+R}}\item[{\em 
+\hypertarget{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfa287a6f225b0019b863740b726c030f66}{}T\+\_\+\+C\+O\+N\+S\+T\+\_\+\+C\+O\+L\+O\+R\label{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfa287a6f225b0019b863740b726c030f66}
+}]\index{T\+\_\+\+V\+A\+R\+\_\+\+C\+O\+L\+O\+R@{T\+\_\+\+V\+A\+R\+\_\+\+C\+O\+L\+O\+R}!gl2ps.\+c@{gl2ps.\+c}}\index{gl2ps.\+c@{gl2ps.\+c}!T\+\_\+\+V\+A\+R\+\_\+\+C\+O\+L\+O\+R@{T\+\_\+\+V\+A\+R\+\_\+\+C\+O\+L\+O\+R}}\item[{\em 
+\hypertarget{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfaada88eddda29b458a583099c89ee84ae}{}T\+\_\+\+V\+A\+R\+\_\+\+C\+O\+L\+O\+R\label{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfaada88eddda29b458a583099c89ee84ae}
+}]\index{T\+\_\+\+A\+L\+P\+H\+A\+\_\+1@{T\+\_\+\+A\+L\+P\+H\+A\+\_\+1}!gl2ps.\+c@{gl2ps.\+c}}\index{gl2ps.\+c@{gl2ps.\+c}!T\+\_\+\+A\+L\+P\+H\+A\+\_\+1@{T\+\_\+\+A\+L\+P\+H\+A\+\_\+1}}\item[{\em 
+\hypertarget{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfa76e07138c7907bce023b53846bde2813}{}T\+\_\+\+A\+L\+P\+H\+A\+\_\+1\label{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfa76e07138c7907bce023b53846bde2813}
+}]\index{T\+\_\+\+A\+L\+P\+H\+A\+\_\+\+L\+E\+S\+S\+\_\+1@{T\+\_\+\+A\+L\+P\+H\+A\+\_\+\+L\+E\+S\+S\+\_\+1}!gl2ps.\+c@{gl2ps.\+c}}\index{gl2ps.\+c@{gl2ps.\+c}!T\+\_\+\+A\+L\+P\+H\+A\+\_\+\+L\+E\+S\+S\+\_\+1@{T\+\_\+\+A\+L\+P\+H\+A\+\_\+\+L\+E\+S\+S\+\_\+1}}\item[{\em 
+\hypertarget{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfaf21425de4d33db7d442bf23014ed3ed0}{}T\+\_\+\+A\+L\+P\+H\+A\+\_\+\+L\+E\+S\+S\+\_\+1\label{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfaf21425de4d33db7d442bf23014ed3ed0}
+}]\index{T\+\_\+\+V\+A\+R\+\_\+\+A\+L\+P\+H\+A@{T\+\_\+\+V\+A\+R\+\_\+\+A\+L\+P\+H\+A}!gl2ps.\+c@{gl2ps.\+c}}\index{gl2ps.\+c@{gl2ps.\+c}!T\+\_\+\+V\+A\+R\+\_\+\+A\+L\+P\+H\+A@{T\+\_\+\+V\+A\+R\+\_\+\+A\+L\+P\+H\+A}}\item[{\em 
+\hypertarget{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfa6c799b0923d41282eb8333efa2340541}{}T\+\_\+\+V\+A\+R\+\_\+\+A\+L\+P\+H\+A\label{gl2ps_8c_ab35eefa3437521b8e853ae3c50faadbfa6c799b0923d41282eb8333efa2340541}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 115 of file gl2ps.\+c.
+
+
+
+\subsection{Function Documentation}
+\hypertarget{gl2ps_8c_a390a2c3b1277a311c3e8809c50a85136}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Adapt\+Vertex\+For\+Blending@{gl2ps\+Adapt\+Vertex\+For\+Blending}}
+\index{gl2ps\+Adapt\+Vertex\+For\+Blending@{gl2ps\+Adapt\+Vertex\+For\+Blending}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Adapt\+Vertex\+For\+Blending}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Adapt\+Vertex\+For\+Blending (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Svertex} $\ast$}]{v}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a390a2c3b1277a311c3e8809c50a85136}
+
+
+Definition at line 928 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aafaebf51a9a4b0e596ad4d0dc6e7019f}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Add\+Boundary\+In\+List@{gl2ps\+Add\+Boundary\+In\+List}}
+\index{gl2ps\+Add\+Boundary\+In\+List@{gl2ps\+Add\+Boundary\+In\+List}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Add\+Boundary\+In\+List}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Add\+Boundary\+In\+List (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{prim, }
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aafaebf51a9a4b0e596ad4d0dc6e7019f}
+
+
+Definition at line 2062 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aa32bfee41ede700e6f4ddd3feed55cb7}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Add\+In\+Bsp\+Image\+Tree@{gl2ps\+Add\+In\+Bsp\+Image\+Tree}}
+\index{gl2ps\+Add\+In\+Bsp\+Image\+Tree@{gl2ps\+Add\+In\+Bsp\+Image\+Tree}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Add\+In\+Bsp\+Image\+Tree}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Add\+In\+Bsp\+Image\+Tree (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{prim, }
+\item[{{\bf G\+L2\+P\+Sbsptree2d} $\ast$$\ast$}]{tree}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aa32bfee41ede700e6f4ddd3feed55cb7}
+
+
+Definition at line 1986 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a3b89bd2881318d6ecf81141434ef1907}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Add\+Index@{gl2ps\+Add\+Index}}
+\index{gl2ps\+Add\+Index@{gl2ps\+Add\+Index}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Add\+Index}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Add\+Index (
+\begin{DoxyParamCaption}
+\item[{G\+Lshort $\ast$}]{index0, }
+\item[{G\+Lshort $\ast$}]{index1, }
+\item[{G\+Lshort $\ast$}]{nb, }
+\item[{G\+Lshort}]{i, }
+\item[{G\+Lshort}]{j}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a3b89bd2881318d6ecf81141434ef1907}
+
+
+Definition at line 1235 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ac922753ff2ccd48beec9c2376f271258}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Add\+In\+Image\+Tree@{gl2ps\+Add\+In\+Image\+Tree}}
+\index{gl2ps\+Add\+In\+Image\+Tree@{gl2ps\+Add\+In\+Image\+Tree}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Add\+In\+Image\+Tree}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Add\+In\+Image\+Tree (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ac922753ff2ccd48beec9c2376f271258}
+
+
+Definition at line 2045 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ab1064d859ab48e175347ec218c1a6da2}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Add\+Planes\+In\+Bsp\+Tree\+Image@{gl2ps\+Add\+Planes\+In\+Bsp\+Tree\+Image}}
+\index{gl2ps\+Add\+Planes\+In\+Bsp\+Tree\+Image@{gl2ps\+Add\+Planes\+In\+Bsp\+Tree\+Image}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Add\+Planes\+In\+Bsp\+Tree\+Image}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Add\+Planes\+In\+Bsp\+Tree\+Image (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{prim, }
+\item[{{\bf G\+L2\+P\+Sbsptree2d} $\ast$$\ast$}]{tree}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ab1064d859ab48e175347ec218c1a6da2}
+
+
+Definition at line 1751 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a9f3831913473ab9758aba08c62e4a420}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Add\+Poly\+Primitive@{gl2ps\+Add\+Poly\+Primitive}}
+\index{gl2ps\+Add\+Poly\+Primitive@{gl2ps\+Add\+Poly\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Add\+Poly\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Add\+Poly\+Primitive (
+\begin{DoxyParamCaption}
+\item[{G\+Lshort}]{type, }
+\item[{G\+Lshort}]{numverts, }
+\item[{{\bf G\+L2\+P\+Svertex} $\ast$}]{verts, }
+\item[{G\+Lint}]{offset, }
+\item[{G\+Lushort}]{pattern, }
+\item[{G\+Lint}]{factor, }
+\item[{G\+Lfloat}]{width, }
+\item[{char}]{boundary}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a9f3831913473ab9758aba08c62e4a420}
+
+
+Definition at line 2150 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a3822cd56d4103e478934e1d5d42d4ed5}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Add\+Primitive\+In\+List@{gl2ps\+Add\+Primitive\+In\+List}}
+\index{gl2ps\+Add\+Primitive\+In\+List@{gl2ps\+Add\+Primitive\+In\+List}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Add\+Primitive\+In\+List}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Add\+Primitive\+In\+List (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{prim, }
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a3822cd56d4103e478934e1d5d42d4ed5}
+
+
+Definition at line 1481 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_abb9b52784a3a7589261ed61fff736889}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Add\+Text@{gl2ps\+Add\+Text}}
+\index{gl2ps\+Add\+Text@{gl2ps\+Add\+Text}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Add\+Text}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Add\+Text (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{type, }
+\item[{const char $\ast$}]{str, }
+\item[{const char $\ast$}]{fontname, }
+\item[{G\+Lshort}]{fontsize, }
+\item[{G\+Lint}]{alignment, }
+\item[{G\+Lfloat}]{angle}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_abb9b52784a3a7589261ed61fff736889}
+
+
+Definition at line 847 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a465f118c17c6ff653aefa16b43689c79}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Alloc\+Compress@{gl2ps\+Alloc\+Compress}}
+\index{gl2ps\+Alloc\+Compress@{gl2ps\+Alloc\+Compress}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Alloc\+Compress}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Alloc\+Compress (
+\begin{DoxyParamCaption}
+\item[{unsigned int}]{srcsize}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a465f118c17c6ff653aefa16b43689c79}
+
+
+Definition at line 364 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a11b4dc6eb70208dd196be79e4c8b8c2c}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Assign\+Triangle\+Properties@{gl2ps\+Assign\+Triangle\+Properties}}
+\index{gl2ps\+Assign\+Triangle\+Properties@{gl2ps\+Assign\+Triangle\+Properties}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Assign\+Triangle\+Properties}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Assign\+Triangle\+Properties (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Striangle} $\ast$}]{t}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a11b4dc6eb70208dd196be79e4c8b8c2c}
+
+
+Definition at line 952 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a4890e21e66dbad401a0090f79ec3e6fc}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Begin\+Page@{gl2ps\+Begin\+Page}}
+\index{gl2ps\+Begin\+Page@{gl2ps\+Begin\+Page}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Begin\+Page}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Begin\+Page (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{title, }
+\item[{const char $\ast$}]{producer, }
+\item[{G\+Lint}]{viewport\mbox{[}4\mbox{]}, }
+\item[{G\+Lint}]{format, }
+\item[{G\+Lint}]{sort, }
+\item[{G\+Lint}]{options, }
+\item[{G\+Lint}]{colormode, }
+\item[{G\+Lint}]{colorsize, }
+\item[{{\bf G\+L2\+P\+Srgba} $\ast$}]{colormap, }
+\item[{G\+Lint}]{nr, }
+\item[{G\+Lint}]{ng, }
+\item[{G\+Lint}]{nb, }
+\item[{G\+Lint}]{buffersize, }
+\item[{F\+I\+L\+E $\ast$}]{stream, }
+\item[{const char $\ast$}]{filename}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_a4890e21e66dbad401a0090f79ec3e6fc}
+
+
+Definition at line 5608 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a8fb608355cdcc2eee8332b25fe778b43}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Begin\+Viewport@{gl2ps\+Begin\+Viewport}}
+\index{gl2ps\+Begin\+Viewport@{gl2ps\+Begin\+Viewport}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Begin\+Viewport}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Begin\+Viewport (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{viewport\mbox{[}4\mbox{]}}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_a8fb608355cdcc2eee8332b25fe778b43}
+
+
+Definition at line 5802 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a6141b1599542a3d9e31fa988499e66a7}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Blend\+Func@{gl2ps\+Blend\+Func}}
+\index{gl2ps\+Blend\+Func@{gl2ps\+Blend\+Func}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Blend\+Func}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Blend\+Func (
+\begin{DoxyParamCaption}
+\item[{G\+Lenum}]{sfactor, }
+\item[{G\+Lenum}]{dfactor}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_a6141b1599542a3d9e31fa988499e66a7}
+
+
+Definition at line 6030 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a6d021d33e03c36bb2b662ce633913019}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Build\+Bsp\+Tree@{gl2ps\+Build\+Bsp\+Tree}}
+\index{gl2ps\+Build\+Bsp\+Tree@{gl2ps\+Build\+Bsp\+Tree}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Build\+Bsp\+Tree}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Build\+Bsp\+Tree (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sbsptree} $\ast$}]{tree, }
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{primitives}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a6d021d33e03c36bb2b662ce633913019}
+
+
+Definition at line 1523 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a91a7c9e544fedaedc2fe8352cb1914e9}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Build\+Polygon\+Boundary@{gl2ps\+Build\+Polygon\+Boundary}}
+\index{gl2ps\+Build\+Polygon\+Boundary@{gl2ps\+Build\+Polygon\+Boundary}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Build\+Polygon\+Boundary}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Build\+Polygon\+Boundary (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sbsptree} $\ast$}]{tree}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a91a7c9e544fedaedc2fe8352cb1914e9}
+
+
+Definition at line 2130 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a7597e03e230c3931ec83aed4c31af6e7}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Check\+Point@{gl2ps\+Check\+Point}}
+\index{gl2ps\+Check\+Point@{gl2ps\+Check\+Point}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Check\+Point}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Check\+Point (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sxyz}}]{point, }
+\item[{{\bf G\+L2\+P\+Splane}}]{plane}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a7597e03e230c3931ec83aed4c31af6e7}
+
+
+Definition at line 1741 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a9209bdc608c6bf1973266e072465c7ba}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Check\+Primitive@{gl2ps\+Check\+Primitive}}
+\index{gl2ps\+Check\+Primitive@{gl2ps\+Check\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Check\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Check\+Primitive (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{prim, }
+\item[{{\bf G\+L2\+P\+Splane}}]{plane}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a9209bdc608c6bf1973266e072465c7ba}
+
+
+Definition at line 1855 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aca17c25afda9e0f89745683cec9e160a}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Close\+P\+D\+F\+Data\+Stream@{gl2ps\+Close\+P\+D\+F\+Data\+Stream}}
+\index{gl2ps\+Close\+P\+D\+F\+Data\+Stream@{gl2ps\+Close\+P\+D\+F\+Data\+Stream}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Close\+P\+D\+F\+Data\+Stream}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Close\+P\+D\+F\+Data\+Stream (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aca17c25afda9e0f89745683cec9e160a}
+
+
+Definition at line 4068 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a4e6a4b2daad6822b388b86c723807022}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Compare\+Depth@{gl2ps\+Compare\+Depth}}
+\index{gl2ps\+Compare\+Depth@{gl2ps\+Compare\+Depth}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Compare\+Depth}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Compare\+Depth (
+\begin{DoxyParamCaption}
+\item[{const void $\ast$}]{a, }
+\item[{const void $\ast$}]{b}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a4e6a4b2daad6822b388b86c723807022}
+
+
+Definition at line 1369 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_afb01acbb2a9493e62c981d63d079bbe4}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Compare\+Point\+Plane@{gl2ps\+Compare\+Point\+Plane}}
+\index{gl2ps\+Compare\+Point\+Plane@{gl2ps\+Compare\+Point\+Plane}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Compare\+Point\+Plane}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lfloat gl2ps\+Compare\+Point\+Plane (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sxyz}}]{point, }
+\item[{{\bf G\+L2\+P\+Splane}}]{plane}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_afb01acbb2a9493e62c981d63d079bbe4}
+
+
+Definition at line 1058 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a6c08990728b10077d0920f86e8f563c0}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Compute\+Tight\+Bounding\+Box@{gl2ps\+Compute\+Tight\+Bounding\+Box}}
+\index{gl2ps\+Compute\+Tight\+Bounding\+Box@{gl2ps\+Compute\+Tight\+Bounding\+Box}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Compute\+Tight\+Bounding\+Box}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Compute\+Tight\+Bounding\+Box (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a6c08990728b10077d0920f86e8f563c0}
+
+
+Definition at line 5509 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae2fde3756fd2301df02326b4630f9372}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Convert\+Pixmap\+To\+P\+N\+G@{gl2ps\+Convert\+Pixmap\+To\+P\+N\+G}}
+\index{gl2ps\+Convert\+Pixmap\+To\+P\+N\+G@{gl2ps\+Convert\+Pixmap\+To\+P\+N\+G}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Convert\+Pixmap\+To\+P\+N\+G}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Convert\+Pixmap\+To\+P\+N\+G (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Simage} $\ast$}]{pixmap, }
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{png}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae2fde3756fd2301df02326b4630f9372}
+
+
+Definition at line 799 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a89e40d0eb0bcb4dc7b3497838af5eef2}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Copy\+Pixmap@{gl2ps\+Copy\+Pixmap}}
+\index{gl2ps\+Copy\+Pixmap@{gl2ps\+Copy\+Pixmap}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Copy\+Pixmap}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf G\+L2\+P\+Simage}$\ast$ gl2ps\+Copy\+Pixmap (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Simage} $\ast$}]{im}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a89e40d0eb0bcb4dc7b3497838af5eef2}
+
+
+Definition at line 744 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a7082408f29ec0c1cf4d71669fc68db6a}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Copy\+Primitive@{gl2ps\+Copy\+Primitive}}
+\index{gl2ps\+Copy\+Primitive@{gl2ps\+Copy\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Copy\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf G\+L2\+P\+Sprimitive}$\ast$ gl2ps\+Copy\+Primitive (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{p}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a7082408f29ec0c1cf4d71669fc68db6a}
+
+
+Definition at line 1006 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a933f7519e26e36351e1012977cedde1e}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Copy\+Text@{gl2ps\+Copy\+Text}}
+\index{gl2ps\+Copy\+Text@{gl2ps\+Copy\+Text}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Copy\+Text}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf G\+L2\+P\+Sstring}$\ast$ gl2ps\+Copy\+Text (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sstring} $\ast$}]{t}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a933f7519e26e36351e1012977cedde1e}
+
+
+Definition at line 892 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae0c8d6892060b9a81944f0e0f7d3ab23}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Create\+Split\+Primitive@{gl2ps\+Create\+Split\+Primitive}}
+\index{gl2ps\+Create\+Split\+Primitive@{gl2ps\+Create\+Split\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Create\+Split\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Create\+Split\+Primitive (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{parent, }
+\item[{{\bf G\+L2\+P\+Splane}}]{plane, }
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{child, }
+\item[{G\+Lshort}]{numverts, }
+\item[{G\+Lshort $\ast$}]{index0, }
+\item[{G\+Lshort $\ast$}]{index1}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae0c8d6892060b9a81944f0e0f7d3ab23}
+
+
+Definition at line 1191 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a6e494c70d6e19c3a619c14104aa18e89}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Create\+Split\+Primitive2\+D@{gl2ps\+Create\+Split\+Primitive2\+D}}
+\index{gl2ps\+Create\+Split\+Primitive2\+D@{gl2ps\+Create\+Split\+Primitive2\+D}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Create\+Split\+Primitive2\+D}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf G\+L2\+P\+Sprimitive}$\ast$ gl2ps\+Create\+Split\+Primitive2\+D (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{parent, }
+\item[{G\+Lshort}]{numverts, }
+\item[{{\bf G\+L2\+P\+Svertex} $\ast$}]{vertx}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a6e494c70d6e19c3a619c14104aa18e89}
+
+
+Definition at line 1870 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a72275dd1e4a87589d2e6ab424c464307}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Cut\+Edge@{gl2ps\+Cut\+Edge}}
+\index{gl2ps\+Cut\+Edge@{gl2ps\+Cut\+Edge}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Cut\+Edge}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Cut\+Edge (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Svertex} $\ast$}]{a, }
+\item[{{\bf G\+L2\+P\+Svertex} $\ast$}]{b, }
+\item[{{\bf G\+L2\+P\+Splane}}]{plane, }
+\item[{{\bf G\+L2\+P\+Svertex} $\ast$}]{c}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a72275dd1e4a87589d2e6ab424c464307}
+
+
+Definition at line 1166 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a284e9c59afc105a48462d0cfb8f770dc}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Deflate@{gl2ps\+Deflate}}
+\index{gl2ps\+Deflate@{gl2ps\+Deflate}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Deflate}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Deflate (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a284e9c59afc105a48462d0cfb8f770dc}
+
+
+Definition at line 410 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a88852227ed8ea27790a87f9081db05d8}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Disable@{gl2ps\+Disable}}
+\index{gl2ps\+Disable@{gl2ps\+Disable}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Disable}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Disable (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{mode}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_a88852227ed8ea27790a87f9081db05d8}
+
+
+Definition at line 5985 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a19aeb49d886359842b68c5698fd174f4}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Divide\+Quad@{gl2ps\+Divide\+Quad}}
+\index{gl2ps\+Divide\+Quad@{gl2ps\+Divide\+Quad}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Divide\+Quad}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Divide\+Quad (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{quad, }
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$$\ast$}]{t1, }
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$$\ast$}]{t2}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a19aeb49d886359842b68c5698fd174f4}
+
+
+Definition at line 1345 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a6920877777a53fc1b57047ef45e4bc4a}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Draw\+Image\+Map@{gl2ps\+Draw\+Image\+Map}}
+\index{gl2ps\+Draw\+Image\+Map@{gl2ps\+Draw\+Image\+Map}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Draw\+Image\+Map}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Draw\+Image\+Map (
+\begin{DoxyParamCaption}
+\item[{G\+Lsizei}]{width, }
+\item[{G\+Lsizei}]{height, }
+\item[{const G\+Lfloat}]{position\mbox{[}3\mbox{]}, }
+\item[{const unsigned char $\ast$}]{imagemap}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_a6920877777a53fc1b57047ef45e4bc4a}
+
+
+Definition at line 5927 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a1e5dcebc13f0e6841e06fa9384dee79c}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Draw\+Pixels@{gl2ps\+Draw\+Pixels}}
+\index{gl2ps\+Draw\+Pixels@{gl2ps\+Draw\+Pixels}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Draw\+Pixels}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Draw\+Pixels (
+\begin{DoxyParamCaption}
+\item[{G\+Lsizei}]{width, }
+\item[{G\+Lsizei}]{height, }
+\item[{G\+Lint}]{xorig, }
+\item[{G\+Lint}]{yorig, }
+\item[{G\+Lenum}]{format, }
+\item[{G\+Lenum}]{type, }
+\item[{const void $\ast$}]{pixels}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_a1e5dcebc13f0e6841e06fa9384dee79c}
+
+
+Definition at line 5841 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ac10fadfa58659d60ecc188c41156d011}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Enable@{gl2ps\+Enable}}
+\index{gl2ps\+Enable@{gl2ps\+Enable}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Enable}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Enable (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{mode}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_ac10fadfa58659d60ecc188c41156d011}
+
+
+Definition at line 5952 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_adc4a21d1b810b27dfa01fd8bb87fa2fe}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Encode\+Base64\+Block@{gl2ps\+Encode\+Base64\+Block}}
+\index{gl2ps\+Encode\+Base64\+Block@{gl2ps\+Encode\+Base64\+Block}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Encode\+Base64\+Block}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Encode\+Base64\+Block (
+\begin{DoxyParamCaption}
+\item[{unsigned char}]{in\mbox{[}3\mbox{]}, }
+\item[{unsigned char}]{out\mbox{[}4\mbox{]}, }
+\item[{int}]{len}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_adc4a21d1b810b27dfa01fd8bb87fa2fe}
+
+
+Definition at line 623 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aaf866dd47c48600f1a724ddc49961a87}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+End\+Page@{gl2ps\+End\+Page}}
+\index{gl2ps\+End\+Page@{gl2ps\+End\+Page}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+End\+Page}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+End\+Page (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_aaf866dd47c48600f1a724ddc49961a87}
+
+
+Definition at line 5775 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a2da1c832968b191e2e514c77fb831871}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+End\+Post\+Script\+Line@{gl2ps\+End\+Post\+Script\+Line}}
+\index{gl2ps\+End\+Post\+Script\+Line@{gl2ps\+End\+Post\+Script\+Line}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+End\+Post\+Script\+Line}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+End\+Post\+Script\+Line (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a2da1c832968b191e2e514c77fb831871}
+
+
+Definition at line 2892 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aaf388d28be2749a4cb439cde2822b5e3}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+End\+S\+V\+G\+Line@{gl2ps\+End\+S\+V\+G\+Line}}
+\index{gl2ps\+End\+S\+V\+G\+Line@{gl2ps\+End\+S\+V\+G\+Line}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+End\+S\+V\+G\+Line}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+End\+S\+V\+G\+Line (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aaf388d28be2749a4cb439cde2822b5e3}
+
+
+Definition at line 4995 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a1717651e6bef23a02ceac278599143c0}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+End\+Viewport@{gl2ps\+End\+Viewport}}
+\index{gl2ps\+End\+Viewport@{gl2ps\+End\+Viewport}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+End\+Viewport}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+End\+Viewport (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_a1717651e6bef23a02ceac278599143c0}
+
+
+Definition at line 5811 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_afcf3c1ad52b5e7bc56dbfd47413b0195}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Fill\+Triangle\+From\+Primitive@{gl2ps\+Fill\+Triangle\+From\+Primitive}}
+\index{gl2ps\+Fill\+Triangle\+From\+Primitive@{gl2ps\+Fill\+Triangle\+From\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Fill\+Triangle\+From\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Fill\+Triangle\+From\+Primitive (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Striangle} $\ast$}]{t, }
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{p, }
+\item[{G\+Lboolean}]{assignprops}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_afcf3c1ad52b5e7bc56dbfd47413b0195}
+
+
+Definition at line 985 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aa2270fe27da791f6d818ee4ad3f26ae1}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Find\+Root@{gl2ps\+Find\+Root}}
+\index{gl2ps\+Find\+Root@{gl2ps\+Find\+Root}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Find\+Root}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Find\+Root (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{primitives, }
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$$\ast$}]{root}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aa2270fe27da791f6d818ee4ad3f26ae1}
+
+
+Definition at line 1409 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a9da21cb65c24c911efd2d82c988287bc}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Free@{gl2ps\+Free}}
+\index{gl2ps\+Free@{gl2ps\+Free}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Free}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Free (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{ptr}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a9da21cb65c24c911efd2d82c988287bc}
+
+
+Definition at line 321 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a3c2f4f57c2cb6188fa629b7c8ea7375f}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Free\+Bsp\+Image\+Tree@{gl2ps\+Free\+Bsp\+Image\+Tree}}
+\index{gl2ps\+Free\+Bsp\+Image\+Tree@{gl2ps\+Free\+Bsp\+Image\+Tree}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Free\+Bsp\+Image\+Tree}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Free\+Bsp\+Image\+Tree (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sbsptree2d} $\ast$$\ast$}]{tree}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a3c2f4f57c2cb6188fa629b7c8ea7375f}
+
+
+Definition at line 1731 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a93a3c64ab419a0b3d0babf1ddc1a9bdd}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Free\+Bsp\+Tree@{gl2ps\+Free\+Bsp\+Tree}}
+\index{gl2ps\+Free\+Bsp\+Tree@{gl2ps\+Free\+Bsp\+Tree}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Free\+Bsp\+Tree}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Free\+Bsp\+Tree (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sbsptree} $\ast$$\ast$}]{tree}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a93a3c64ab419a0b3d0babf1ddc1a9bdd}
+
+
+Definition at line 1497 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_abc5f1e284a79aae7cce343949744d230}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Free\+Compress@{gl2ps\+Free\+Compress}}
+\index{gl2ps\+Free\+Compress@{gl2ps\+Free\+Compress}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Free\+Compress}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Free\+Compress (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_abc5f1e284a79aae7cce343949744d230}
+
+
+Definition at line 351 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae60ccb277db249048f86ad208dc43986}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Free\+Imagemap@{gl2ps\+Free\+Imagemap}}
+\index{gl2ps\+Free\+Imagemap@{gl2ps\+Free\+Imagemap}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Free\+Imagemap}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Free\+Imagemap (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Simagemap} $\ast$}]{list}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae60ccb277db249048f86ad208dc43986}
+
+
+Definition at line 1454 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a676a71038ca841eb8845224bd43b879f}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Free\+Pixmap@{gl2ps\+Free\+Pixmap}}
+\index{gl2ps\+Free\+Pixmap@{gl2ps\+Free\+Pixmap}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Free\+Pixmap}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Free\+Pixmap (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Simage} $\ast$}]{im}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a676a71038ca841eb8845224bd43b879f}
+
+
+Definition at line 772 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a2e6682ec07dc244fd1ee99a07bbe0245}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Free\+Primitive@{gl2ps\+Free\+Primitive}}
+\index{gl2ps\+Free\+Primitive@{gl2ps\+Free\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Free\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Free\+Primitive (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a2e6682ec07dc244fd1ee99a07bbe0245}
+
+
+Definition at line 1466 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ad2d77be172e23794091201f555307cac}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Free\+Text@{gl2ps\+Free\+Text}}
+\index{gl2ps\+Free\+Text@{gl2ps\+Free\+Text}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Free\+Text}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Free\+Text (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sstring} $\ast$}]{text}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ad2d77be172e23794091201f555307cac}
+
+
+Definition at line 906 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aae58811228196b4a3a6cf2db0ae40711}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Get\+File\+Extension@{gl2ps\+Get\+File\+Extension}}
+\index{gl2ps\+Get\+File\+Extension@{gl2ps\+Get\+File\+Extension}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Get\+File\+Extension}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I const char$\ast$ gl2ps\+Get\+File\+Extension (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{format}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_aae58811228196b4a3a6cf2db0ae40711}
+
+
+Definition at line 6066 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_adc26237678765fa1f207c000c371a4c9}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Get\+Format\+Description@{gl2ps\+Get\+Format\+Description}}
+\index{gl2ps\+Get\+Format\+Description@{gl2ps\+Get\+Format\+Description}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Get\+Format\+Description}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I const char$\ast$ gl2ps\+Get\+Format\+Description (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{format}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_adc26237678765fa1f207c000c371a4c9}
+
+
+Definition at line 6074 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a326a914653875491d674f53aaa8be357}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Get\+Index@{gl2ps\+Get\+Index}}
+\index{gl2ps\+Get\+Index@{gl2ps\+Get\+Index}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Get\+Index}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lshort gl2ps\+Get\+Index (
+\begin{DoxyParamCaption}
+\item[{G\+Lshort}]{i, }
+\item[{G\+Lshort}]{num}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a326a914653875491d674f53aaa8be357}
+
+
+Definition at line 1249 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae8ff064e9a2a6c0c561b2b0e2c04ad8d}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Get\+Normal@{gl2ps\+Get\+Normal}}
+\index{gl2ps\+Get\+Normal@{gl2ps\+Get\+Normal}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Get\+Normal}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Get\+Normal (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat $\ast$}]{a, }
+\item[{G\+Lfloat $\ast$}]{b, }
+\item[{G\+Lfloat $\ast$}]{c}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae8ff064e9a2a6c0c561b2b0e2c04ad8d}
+
+
+Definition at line 1083 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_afbb5bc8397de05b734cbb2c1f7d67e30}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Get\+Options@{gl2ps\+Get\+Options}}
+\index{gl2ps\+Get\+Options@{gl2ps\+Get\+Options}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Get\+Options}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Get\+Options (
+\begin{DoxyParamCaption}
+\item[{G\+Lint $\ast$}]{options}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_afbb5bc8397de05b734cbb2c1f7d67e30}
+
+
+Definition at line 6054 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a0759e8a0b318592fbf30d8dfb396da31}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Get\+Plane@{gl2ps\+Get\+Plane}}
+\index{gl2ps\+Get\+Plane@{gl2ps\+Get\+Plane}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Get\+Plane}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Get\+Plane (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{prim, }
+\item[{{\bf G\+L2\+P\+Splane}}]{plane}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a0759e8a0b318592fbf30d8dfb396da31}
+
+
+Definition at line 1102 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_affeaa8a50b7482e74263a8bc59a25878}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Get\+Plane\+From\+Points@{gl2ps\+Get\+Plane\+From\+Points}}
+\index{gl2ps\+Get\+Plane\+From\+Points@{gl2ps\+Get\+Plane\+From\+Points}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Get\+Plane\+From\+Points}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Get\+Plane\+From\+Points (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sxyz}}]{a, }
+\item[{{\bf G\+L2\+P\+Sxyz}}]{b, }
+\item[{{\bf G\+L2\+P\+Splane}}]{plane}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_affeaa8a50b7482e74263a8bc59a25878}
+
+
+Definition at line 1709 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae1f8cf918cc9333099941399a2d20ef5}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Get\+R\+G\+B@{gl2ps\+Get\+R\+G\+B}}
+\index{gl2ps\+Get\+R\+G\+B@{gl2ps\+Get\+R\+G\+B}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Get\+R\+G\+B}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lfloat gl2ps\+Get\+R\+G\+B (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Simage} $\ast$}]{im, }
+\item[{G\+Luint}]{x, }
+\item[{G\+Luint}]{y, }
+\item[{G\+Lfloat $\ast$}]{red, }
+\item[{G\+Lfloat $\ast$}]{green, }
+\item[{G\+Lfloat $\ast$}]{blue}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae1f8cf918cc9333099941399a2d20ef5}
+
+
+Definition at line 716 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a74986b47e282685f848dee98c59569fc}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Get\+Vertex@{gl2ps\+Get\+Vertex}}
+\index{gl2ps\+Get\+Vertex@{gl2ps\+Get\+Vertex}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Get\+Vertex}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Get\+Vertex (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Svertex} $\ast$}]{v, }
+\item[{G\+Lfloat $\ast$}]{p}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a74986b47e282685f848dee98c59569fc}
+
+
+Definition at line 2175 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a4c6e845c094b24df817b6e53c627f587}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Greater@{gl2ps\+Greater}}
+\index{gl2ps\+Greater@{gl2ps\+Greater}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Greater}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lboolean gl2ps\+Greater (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat}]{f1, }
+\item[{G\+Lfloat}]{f2}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a4c6e845c094b24df817b6e53c627f587}
+
+
+Definition at line 1511 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a3327e4e72c171944aec2bb02ebd06063}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Init\+Triangle@{gl2ps\+Init\+Triangle}}
+\index{gl2ps\+Init\+Triangle@{gl2ps\+Init\+Triangle}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Init\+Triangle}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Init\+Triangle (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Striangle} $\ast$}]{t}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a3327e4e72c171944aec2bb02ebd06063}
+
+
+Definition at line 995 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a73e893c37bbb30c73f3310bc13c051a3}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Less@{gl2ps\+Less}}
+\index{gl2ps\+Less@{gl2ps\+Less}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Less}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lboolean gl2ps\+Less (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat}]{f1, }
+\item[{G\+Lfloat}]{f2}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a73e893c37bbb30c73f3310bc13c051a3}
+
+
+Definition at line 1517 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae09dd8ad36b56429b719f10b1d974e7a}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Line\+Width@{gl2ps\+Line\+Width}}
+\index{gl2ps\+Line\+Width@{gl2ps\+Line\+Width}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Line\+Width}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Line\+Width (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat}]{value}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_ae09dd8ad36b56429b719f10b1d974e7a}
+
+
+Definition at line 6020 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aa3a5289709697297ed880250e717b4d6}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+List\+Action@{gl2ps\+List\+Action}}
+\index{gl2ps\+List\+Action@{gl2ps\+List\+Action}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+List\+Action}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+List\+Action (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list, }
+\item[{void($\ast$)(void $\ast$data)}]{action}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aa3a5289709697297ed880250e717b4d6}
+
+
+Definition at line 596 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae02a605fa2013b5fa1ae66a5bd1f6665}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+List\+Action\+Inverse@{gl2ps\+List\+Action\+Inverse}}
+\index{gl2ps\+List\+Action\+Inverse@{gl2ps\+List\+Action\+Inverse}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+List\+Action\+Inverse}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+List\+Action\+Inverse (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list, }
+\item[{void($\ast$)(void $\ast$data)}]{action}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae02a605fa2013b5fa1ae66a5bd1f6665}
+
+
+Definition at line 605 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ac6854212b14c712b8866abe23ff3e329}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+List\+Add@{gl2ps\+List\+Add}}
+\index{gl2ps\+List\+Add@{gl2ps\+List\+Add}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+List\+Add}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+List\+Add (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list, }
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ac6854212b14c712b8866abe23ff3e329}
+
+
+Definition at line 557 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ab361e8cdc565ddf47117405c7a3923fb}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+List\+Create@{gl2ps\+List\+Create}}
+\index{gl2ps\+List\+Create@{gl2ps\+List\+Create}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+List\+Create}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf G\+L2\+P\+Slist}$\ast$ gl2ps\+List\+Create (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{n, }
+\item[{G\+Lint}]{incr, }
+\item[{G\+Lint}]{size}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ab361e8cdc565ddf47117405c7a3923fb}
+
+
+Definition at line 528 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a68be16bf8eebaacde59eac878cd23f33}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+List\+Delete@{gl2ps\+List\+Delete}}
+\index{gl2ps\+List\+Delete@{gl2ps\+List\+Delete}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+List\+Delete}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+List\+Delete (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a68be16bf8eebaacde59eac878cd23f33}
+
+
+Definition at line 550 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a65ae8805cc22a0c62513c796dcd5c7d7}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+List\+Encode\+Base64@{gl2ps\+List\+Encode\+Base64}}
+\index{gl2ps\+List\+Encode\+Base64@{gl2ps\+List\+Encode\+Base64}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+List\+Encode\+Base64}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+List\+Encode\+Base64 (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a65ae8805cc22a0c62513c796dcd5c7d7}
+
+
+Definition at line 634 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a2465a92c54cf5b9492d2300086f522eb}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+List\+Nbr@{gl2ps\+List\+Nbr}}
+\index{gl2ps\+List\+Nbr@{gl2ps\+List\+Nbr}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+List\+Nbr}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+List\+Nbr (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a2465a92c54cf5b9492d2300086f522eb}
+
+
+Definition at line 568 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_af67ad40f61fddd9b042081c96b1be98b}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+List\+Pointer@{gl2ps\+List\+Pointer}}
+\index{gl2ps\+List\+Pointer@{gl2ps\+List\+Pointer}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+List\+Pointer}]{\setlength{\rightskip}{0pt plus 5cm}static void$\ast$ gl2ps\+List\+Pointer (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list, }
+\item[{G\+Lint}]{index}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_af67ad40f61fddd9b042081c96b1be98b}
+
+
+Definition at line 575 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ac2482156cec225aa90d65a94f91d9319}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+List\+Read@{gl2ps\+List\+Read}}
+\index{gl2ps\+List\+Read@{gl2ps\+List\+Read}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+List\+Read}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+List\+Read (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list, }
+\item[{int}]{index, }
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ac2482156cec225aa90d65a94f91d9319}
+
+
+Definition at line 616 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ad60529307a4f9f99386e892d4a0879ed}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+List\+Realloc@{gl2ps\+List\+Realloc}}
+\index{gl2ps\+List\+Realloc@{gl2ps\+List\+Realloc}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+List\+Realloc}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+List\+Realloc (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list, }
+\item[{G\+Lint}]{n}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ad60529307a4f9f99386e892d4a0879ed}
+
+
+Definition at line 508 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_af18920ab626a240eeea7eff070706fe7}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+List\+Reset@{gl2ps\+List\+Reset}}
+\index{gl2ps\+List\+Reset@{gl2ps\+List\+Reset}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+List\+Reset}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+List\+Reset (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_af18920ab626a240eeea7eff070706fe7}
+
+
+Definition at line 544 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a026b19175df092eeef2e9573815f0953}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+List\+Sort@{gl2ps\+List\+Sort}}
+\index{gl2ps\+List\+Sort@{gl2ps\+List\+Sort}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+List\+Sort}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+List\+Sort (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Slist} $\ast$}]{list, }
+\item[{int($\ast$)(const void $\ast$a, const void $\ast${\bf b})}]{fcmp}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a026b19175df092eeef2e9573815f0953}
+
+
+Definition at line 588 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae8687abe691957a70d1b0456015e2a4f}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Malloc@{gl2ps\+Malloc}}
+\index{gl2ps\+Malloc@{gl2ps\+Malloc}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Malloc}]{\setlength{\rightskip}{0pt plus 5cm}static void$\ast$ gl2ps\+Malloc (
+\begin{DoxyParamCaption}
+\item[{size\+\_\+t}]{size}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae8687abe691957a70d1b0456015e2a4f}
+
+
+Definition at line 295 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ab2b05dc9c0ad9b295309ef903218908c}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Msg@{gl2ps\+Msg}}
+\index{gl2ps\+Msg@{gl2ps\+Msg}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Msg}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Msg (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{level, }
+\item[{const char $\ast$}]{fmt, }
+\item[{}]{...}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ab2b05dc9c0ad9b295309ef903218908c}
+
+
+Definition at line 277 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a079f096474f22f8c9a4fb3475c9d2019}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Norm@{gl2ps\+Norm}}
+\index{gl2ps\+Norm@{gl2ps\+Norm}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Norm}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lfloat gl2ps\+Norm (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat $\ast$}]{a}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a079f096474f22f8c9a4fb3475c9d2019}
+
+
+Definition at line 1078 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae9a152d37603fee652abf0504fc48e36}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Open\+P\+D\+F\+Data\+Stream@{gl2ps\+Open\+P\+D\+F\+Data\+Stream}}
+\index{gl2ps\+Open\+P\+D\+F\+Data\+Stream@{gl2ps\+Open\+P\+D\+F\+Data\+Stream}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Open\+P\+D\+F\+Data\+Stream}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Open\+P\+D\+F\+Data\+Stream (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae9a152d37603fee652abf0504fc48e36}
+
+
+Definition at line 3987 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a3fbf1cffe3452bba06df3ce30fece6e6}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Open\+P\+D\+F\+Data\+Stream\+Write\+Preface@{gl2ps\+Open\+P\+D\+F\+Data\+Stream\+Write\+Preface}}
+\index{gl2ps\+Open\+P\+D\+F\+Data\+Stream\+Write\+Preface@{gl2ps\+Open\+P\+D\+F\+Data\+Stream\+Write\+Preface}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Open\+P\+D\+F\+Data\+Stream\+Write\+Preface}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Open\+P\+D\+F\+Data\+Stream\+Write\+Preface (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a3fbf1cffe3452bba06df3ce30fece6e6}
+
+
+Definition at line 4004 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aec88075909ff34e16c56bf6c05c33b67}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Parse\+Feedback\+Buffer@{gl2ps\+Parse\+Feedback\+Buffer}}
+\index{gl2ps\+Parse\+Feedback\+Buffer@{gl2ps\+Parse\+Feedback\+Buffer}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Parse\+Feedback\+Buffer}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Parse\+Feedback\+Buffer (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{used}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aec88075909ff34e16c56bf6c05c33b67}
+
+
+Definition at line 2200 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aef0124d8742e2a3a4fe2878eaa9e9302}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Parse\+Stipple\+Pattern@{gl2ps\+Parse\+Stipple\+Pattern}}
+\index{gl2ps\+Parse\+Stipple\+Pattern@{gl2ps\+Parse\+Stipple\+Pattern}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Parse\+Stipple\+Pattern}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Parse\+Stipple\+Pattern (
+\begin{DoxyParamCaption}
+\item[{G\+Lushort}]{pattern, }
+\item[{G\+Lint}]{factor, }
+\item[{int $\ast$}]{nb, }
+\item[{int}]{array\mbox{[}10\mbox{]}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aef0124d8742e2a3a4fe2878eaa9e9302}
+
+
+Definition at line 2904 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_acc118a21a43d568176c82370e7891b0e}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+Fgroup\+List\+Delete@{gl2ps\+P\+D\+Fgroup\+List\+Delete}}
+\index{gl2ps\+P\+D\+Fgroup\+List\+Delete@{gl2ps\+P\+D\+Fgroup\+List\+Delete}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+Fgroup\+List\+Delete}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+P\+D\+Fgroup\+List\+Delete (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_acc118a21a43d568176c82370e7891b0e}
+
+
+Definition at line 3902 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ab457d25e4822ea736c783f579aa95637}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+Fgroup\+List\+Init@{gl2ps\+P\+D\+Fgroup\+List\+Init}}
+\index{gl2ps\+P\+D\+Fgroup\+List\+Init@{gl2ps\+P\+D\+Fgroup\+List\+Init}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+Fgroup\+List\+Init}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+P\+D\+Fgroup\+List\+Init (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ab457d25e4822ea736c783f579aa95637}
+
+
+Definition at line 3465 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a38d966194d2f9024d3c46eaf95aacc95}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+Fgroup\+List\+Write\+Font\+Resources@{gl2ps\+P\+D\+Fgroup\+List\+Write\+Font\+Resources}}
+\index{gl2ps\+P\+D\+Fgroup\+List\+Write\+Font\+Resources@{gl2ps\+P\+D\+Fgroup\+List\+Write\+Font\+Resources}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+Fgroup\+List\+Write\+Font\+Resources}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+P\+D\+Fgroup\+List\+Write\+Font\+Resources (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a38d966194d2f9024d3c46eaf95aacc95}
+
+
+Definition at line 3882 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a6db19291a24c3d092622bd32db7ed63a}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+Fgroup\+List\+Write\+G\+State\+Resources@{gl2ps\+P\+D\+Fgroup\+List\+Write\+G\+State\+Resources}}
+\index{gl2ps\+P\+D\+Fgroup\+List\+Write\+G\+State\+Resources@{gl2ps\+P\+D\+Fgroup\+List\+Write\+G\+State\+Resources}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+Fgroup\+List\+Write\+G\+State\+Resources}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+P\+D\+Fgroup\+List\+Write\+G\+State\+Resources (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a6db19291a24c3d092622bd32db7ed63a}
+
+
+Definition at line 3803 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a35139168f094ebdf9a521777d62f8ae8}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+Fgroup\+List\+Write\+Main\+Stream@{gl2ps\+P\+D\+Fgroup\+List\+Write\+Main\+Stream}}
+\index{gl2ps\+P\+D\+Fgroup\+List\+Write\+Main\+Stream@{gl2ps\+P\+D\+Fgroup\+List\+Write\+Main\+Stream}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+Fgroup\+List\+Write\+Main\+Stream}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+P\+D\+Fgroup\+List\+Write\+Main\+Stream (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a35139168f094ebdf9a521777d62f8ae8}
+
+
+Definition at line 3615 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aaabeac9e752b9df747c77df07e417a9f}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+Fgroup\+List\+Write\+Objects@{gl2ps\+P\+D\+Fgroup\+List\+Write\+Objects}}
+\index{gl2ps\+P\+D\+Fgroup\+List\+Write\+Objects@{gl2ps\+P\+D\+Fgroup\+List\+Write\+Objects}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+Fgroup\+List\+Write\+Objects}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+P\+D\+Fgroup\+List\+Write\+Objects (
+\begin{DoxyParamCaption}
+\item[{int}]{entryoffs}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aaabeac9e752b9df747c77df07e417a9f}
+
+
+Definition at line 4619 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a42fd421566c79faed5b51aef1084f0d5}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+Fgroup\+List\+Write\+Shader\+Resources@{gl2ps\+P\+D\+Fgroup\+List\+Write\+Shader\+Resources}}
+\index{gl2ps\+P\+D\+Fgroup\+List\+Write\+Shader\+Resources@{gl2ps\+P\+D\+Fgroup\+List\+Write\+Shader\+Resources}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+Fgroup\+List\+Write\+Shader\+Resources}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+P\+D\+Fgroup\+List\+Write\+Shader\+Resources (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a42fd421566c79faed5b51aef1084f0d5}
+
+
+Definition at line 3824 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_afcf1dd13967428e50fd9560342417ec5}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+Fgroup\+List\+Write\+Variable\+Resources@{gl2ps\+P\+D\+Fgroup\+List\+Write\+Variable\+Resources}}
+\index{gl2ps\+P\+D\+Fgroup\+List\+Write\+Variable\+Resources@{gl2ps\+P\+D\+Fgroup\+List\+Write\+Variable\+Resources}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+Fgroup\+List\+Write\+Variable\+Resources}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+P\+D\+Fgroup\+List\+Write\+Variable\+Resources (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_afcf1dd13967428e50fd9560342417ec5}
+
+
+Definition at line 4132 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a2e55ef84345a576ea85029a8bfef7fcd}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+Fgroup\+List\+Write\+X\+Object\+Resources@{gl2ps\+P\+D\+Fgroup\+List\+Write\+X\+Object\+Resources}}
+\index{gl2ps\+P\+D\+Fgroup\+List\+Write\+X\+Object\+Resources@{gl2ps\+P\+D\+Fgroup\+List\+Write\+X\+Object\+Resources}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+Fgroup\+List\+Write\+X\+Object\+Resources}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+P\+D\+Fgroup\+List\+Write\+X\+Object\+Resources (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a2e55ef84345a576ea85029a8bfef7fcd}
+
+
+Definition at line 3846 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a005163d83b80f5d62e90a00f86cf4d19}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+Fgroup\+Object\+Init@{gl2ps\+P\+D\+Fgroup\+Object\+Init}}
+\index{gl2ps\+P\+D\+Fgroup\+Object\+Init@{gl2ps\+P\+D\+Fgroup\+Object\+Init}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+Fgroup\+Object\+Init}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+P\+D\+Fgroup\+Object\+Init (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Spdfgroup} $\ast$}]{gro}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a005163d83b80f5d62e90a00f86cf4d19}
+
+
+Definition at line 3452 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a7c567436ebdf68003f6008e33eec3e5a}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+F\+Rect\+Hull@{gl2ps\+P\+D\+F\+Rect\+Hull}}
+\index{gl2ps\+P\+D\+F\+Rect\+Hull@{gl2ps\+P\+D\+F\+Rect\+Hull}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+F\+Rect\+Hull}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+P\+D\+F\+Rect\+Hull (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat $\ast$}]{xmin, }
+\item[{G\+Lfloat $\ast$}]{xmax, }
+\item[{G\+Lfloat $\ast$}]{ymin, }
+\item[{G\+Lfloat $\ast$}]{ymax, }
+\item[{{\bf G\+L2\+P\+Striangle} $\ast$}]{triangles, }
+\item[{int}]{cnt}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a7c567436ebdf68003f6008e33eec3e5a}
+
+
+Definition at line 4300 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae60b28279207d4b021b01bb4818b8cdf}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+Fstacks\+Init@{gl2ps\+P\+D\+Fstacks\+Init}}
+\index{gl2ps\+P\+D\+Fstacks\+Init@{gl2ps\+P\+D\+Fstacks\+Init}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+Fstacks\+Init}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+P\+D\+Fstacks\+Init (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae60b28279207d4b021b01bb4818b8cdf}
+
+
+Definition at line 3441 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a0bed9ab02f1ca0d6a7941bfc1bfdf6d4}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+G\+F\+Text\+Alignment@{gl2ps\+P\+G\+F\+Text\+Alignment}}
+\index{gl2ps\+P\+G\+F\+Text\+Alignment@{gl2ps\+P\+G\+F\+Text\+Alignment}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+G\+F\+Text\+Alignment}]{\setlength{\rightskip}{0pt plus 5cm}static const char$\ast$ gl2ps\+P\+G\+F\+Text\+Alignment (
+\begin{DoxyParamCaption}
+\item[{int}]{align}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a0bed9ab02f1ca0d6a7941bfc1bfdf6d4}
+
+
+Definition at line 5330 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a3bfc969eaef00a29175e20f776e61db6}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Point\+Size@{gl2ps\+Point\+Size}}
+\index{gl2ps\+Point\+Size@{gl2ps\+Point\+Size}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Point\+Size}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Point\+Size (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat}]{value}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_a3bfc969eaef00a29175e20f776e61db6}
+
+
+Definition at line 6010 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ac9f550ea1c4dfd5a1d89a75c80d5ba77}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Printf@{gl2ps\+Printf}}
+\index{gl2ps\+Printf@{gl2ps\+Printf}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Printf}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Printf (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{fmt, }
+\item[{}]{...}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ac9f550ea1c4dfd5a1d89a75c80d5ba77}
+
+
+Definition at line 420 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae8498348113c71d763e99992737893b0}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Gzip\+Footer@{gl2ps\+Print\+Gzip\+Footer}}
+\index{gl2ps\+Print\+Gzip\+Footer@{gl2ps\+Print\+Gzip\+Footer}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Gzip\+Footer}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Gzip\+Footer (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae8498348113c71d763e99992737893b0}
+
+
+Definition at line 466 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a6dcf184964ae335b35de15db50442901}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Gzip\+Header@{gl2ps\+Print\+Gzip\+Header}}
+\index{gl2ps\+Print\+Gzip\+Header@{gl2ps\+Print\+Gzip\+Header}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Gzip\+Header}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Gzip\+Header (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a6dcf184964ae335b35de15db50442901}
+
+
+Definition at line 448 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae230afe5ece4d51fea81238c5adc1e3d}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Begin\+Viewport@{gl2ps\+Print\+P\+D\+F\+Begin\+Viewport}}
+\index{gl2ps\+Print\+P\+D\+F\+Begin\+Viewport@{gl2ps\+Print\+P\+D\+F\+Begin\+Viewport}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Begin\+Viewport}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+P\+D\+F\+Begin\+Viewport (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{viewport\mbox{[}4\mbox{]}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae230afe5ece4d51fea81238c5adc1e3d}
+
+
+Definition at line 4760 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ace77317e17e5537bb1e19efd3ee85cea}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Catalog@{gl2ps\+Print\+P\+D\+F\+Catalog}}
+\index{gl2ps\+Print\+P\+D\+F\+Catalog@{gl2ps\+Print\+P\+D\+F\+Catalog}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Catalog}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Catalog (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ace77317e17e5537bb1e19efd3ee85cea}
+
+
+Definition at line 3962 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a3aaeb02c13723795687b66724c6f11b0}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Compressor\+Type@{gl2ps\+Print\+P\+D\+F\+Compressor\+Type}}
+\index{gl2ps\+Print\+P\+D\+F\+Compressor\+Type@{gl2ps\+Print\+P\+D\+F\+Compressor\+Type}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Compressor\+Type}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Compressor\+Type (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a3aaeb02c13723795687b66724c6f11b0}
+
+
+Definition at line 3351 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a9b4e58c3c95982279bf7a18a1cb29b09}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Data\+Stream\+Length@{gl2ps\+Print\+P\+D\+F\+Data\+Stream\+Length}}
+\index{gl2ps\+Print\+P\+D\+F\+Data\+Stream\+Length@{gl2ps\+Print\+P\+D\+F\+Data\+Stream\+Length}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Data\+Stream\+Length}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Data\+Stream\+Length (
+\begin{DoxyParamCaption}
+\item[{int}]{val}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a9b4e58c3c95982279bf7a18a1cb29b09}
+
+
+Definition at line 4093 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ab5bab8e233f1b7764e4747e3d8417d77}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+End\+Viewport@{gl2ps\+Print\+P\+D\+F\+End\+Viewport}}
+\index{gl2ps\+Print\+P\+D\+F\+End\+Viewport@{gl2ps\+Print\+P\+D\+F\+End\+Viewport}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+End\+Viewport}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Print\+P\+D\+F\+End\+Viewport (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ab5bab8e233f1b7764e4747e3d8417d77}
+
+
+Definition at line 4803 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aee6e584e883862a0776d79c8e4fcf384}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Fill\+Color@{gl2ps\+Print\+P\+D\+F\+Fill\+Color}}
+\index{gl2ps\+Print\+P\+D\+F\+Fill\+Color@{gl2ps\+Print\+P\+D\+F\+Fill\+Color}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Fill\+Color}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Fill\+Color (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Srgba}}]{rgba}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aee6e584e883862a0776d79c8e4fcf384}
+
+
+Definition at line 3378 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae04024f62e9508dca4e9f9c4004846d6}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Final\+Primitive@{gl2ps\+Print\+P\+D\+F\+Final\+Primitive}}
+\index{gl2ps\+Print\+P\+D\+F\+Final\+Primitive@{gl2ps\+Print\+P\+D\+F\+Final\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Final\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+P\+D\+F\+Final\+Primitive (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae04024f62e9508dca4e9f9c4004846d6}
+
+
+Definition at line 4812 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a9c59e0e0b768cf1f16d50b0c6be1863a}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Footer@{gl2ps\+Print\+P\+D\+F\+Footer}}
+\index{gl2ps\+Print\+P\+D\+F\+Footer@{gl2ps\+Print\+P\+D\+F\+Footer}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Footer}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+P\+D\+F\+Footer (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a9c59e0e0b768cf1f16d50b0c6be1863a}
+
+
+Definition at line 4695 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_af70ff37360607f8cc8ad1eb55fd3c1b6}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+G\+S\+Object@{gl2ps\+Print\+P\+D\+F\+G\+S\+Object}}
+\index{gl2ps\+Print\+P\+D\+F\+G\+S\+Object@{gl2ps\+Print\+P\+D\+F\+G\+S\+Object}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+G\+S\+Object}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+G\+S\+Object (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_af70ff37360607f8cc8ad1eb55fd3c1b6}
+
+
+Definition at line 4158 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ac0b89319d12d34468a1e6216ba468a27}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Header@{gl2ps\+Print\+P\+D\+F\+Header}}
+\index{gl2ps\+Print\+P\+D\+F\+Header@{gl2ps\+Print\+P\+D\+F\+Header}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Header}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+P\+D\+F\+Header (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ac0b89319d12d34468a1e6216ba468a27}
+
+
+Definition at line 4022 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a8d75bff4867006f291b2d2bc62f6bb22}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Info@{gl2ps\+Print\+P\+D\+F\+Info}}
+\index{gl2ps\+Print\+P\+D\+F\+Info@{gl2ps\+Print\+P\+D\+F\+Info}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Info}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Info (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a8d75bff4867006f291b2d2bc62f6bb22}
+
+
+Definition at line 3921 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_acc281cf15a46d68efd6376accd519571}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Line\+Width@{gl2ps\+Print\+P\+D\+F\+Line\+Width}}
+\index{gl2ps\+Print\+P\+D\+F\+Line\+Width@{gl2ps\+Print\+P\+D\+F\+Line\+Width}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Line\+Width}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Line\+Width (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat}]{lw}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_acc281cf15a46d68efd6376accd519571}
+
+
+Definition at line 3394 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a1dabf3a630c2e5871346737d946c53fe}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Open\+Page@{gl2ps\+Print\+P\+D\+F\+Open\+Page}}
+\index{gl2ps\+Print\+P\+D\+F\+Open\+Page@{gl2ps\+Print\+P\+D\+F\+Open\+Page}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Open\+Page}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Open\+Page (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a1dabf3a630c2e5871346737d946c53fe}
+
+
+Definition at line 4103 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a283d56c8a25a4c891513ed8cb3329bf7}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Pages@{gl2ps\+Print\+P\+D\+F\+Pages}}
+\index{gl2ps\+Print\+P\+D\+F\+Pages@{gl2ps\+Print\+P\+D\+F\+Pages}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Pages}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Pages (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a283d56c8a25a4c891513ed8cb3329bf7}
+
+
+Definition at line 3973 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ad43bb8af9d10ec93560a7434cde7a201}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Pixmap@{gl2ps\+Print\+P\+D\+F\+Pixmap}}
+\index{gl2ps\+Print\+P\+D\+F\+Pixmap@{gl2ps\+Print\+P\+D\+F\+Pixmap}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Pixmap}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Pixmap (
+\begin{DoxyParamCaption}
+\item[{int}]{obj, }
+\item[{int}]{childobj, }
+\item[{{\bf G\+L2\+P\+Simage} $\ast$}]{im, }
+\item[{int}]{gray}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ad43bb8af9d10ec93560a7434cde7a201}
+
+
+Definition at line 4532 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aee6a68762fcbc5b10e88036b311e6b09}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Pixmap\+Stream\+Data@{gl2ps\+Print\+P\+D\+F\+Pixmap\+Stream\+Data}}
+\index{gl2ps\+Print\+P\+D\+F\+Pixmap\+Stream\+Data@{gl2ps\+Print\+P\+D\+F\+Pixmap\+Stream\+Data}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Pixmap\+Stream\+Data}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Pixmap\+Stream\+Data (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Simage} $\ast$}]{im, }
+\item[{int($\ast$)(unsigned long data, int {\bf size})}]{action, }
+\item[{int}]{gray}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aee6a68762fcbc5b10e88036b311e6b09}
+
+
+Definition at line 4493 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a4dae2d9467bc9f054fbf7e03540ac38b}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Primitive@{gl2ps\+Print\+P\+D\+F\+Primitive}}
+\index{gl2ps\+Print\+P\+D\+F\+Primitive@{gl2ps\+Print\+P\+D\+F\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+P\+D\+F\+Primitive (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a4dae2d9467bc9f054fbf7e03540ac38b}
+
+
+Definition at line 4055 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a245df81b439b62f352efc3b3ab225975}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Shader@{gl2ps\+Print\+P\+D\+F\+Shader}}
+\index{gl2ps\+Print\+P\+D\+F\+Shader@{gl2ps\+Print\+P\+D\+F\+Shader}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Shader}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Shader (
+\begin{DoxyParamCaption}
+\item[{int}]{obj, }
+\item[{{\bf G\+L2\+P\+Striangle} $\ast$}]{triangles, }
+\item[{int}]{size, }
+\item[{int}]{gray}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a245df81b439b62f352efc3b3ab225975}
+
+
+Definition at line 4330 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae89e8ec7b50800af216ce14fea1ac7e6}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Shader\+Ext\+G\+S@{gl2ps\+Print\+P\+D\+F\+Shader\+Ext\+G\+S}}
+\index{gl2ps\+Print\+P\+D\+F\+Shader\+Ext\+G\+S@{gl2ps\+Print\+P\+D\+F\+Shader\+Ext\+G\+S}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Shader\+Ext\+G\+S}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Shader\+Ext\+G\+S (
+\begin{DoxyParamCaption}
+\item[{int}]{obj, }
+\item[{int}]{childobj}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae89e8ec7b50800af216ce14fea1ac7e6}
+
+
+Definition at line 4456 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aedfac9e5fc0a4dc04ebfeaf22791b621}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Shader\+Mask@{gl2ps\+Print\+P\+D\+F\+Shader\+Mask}}
+\index{gl2ps\+Print\+P\+D\+F\+Shader\+Mask@{gl2ps\+Print\+P\+D\+F\+Shader\+Mask}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Shader\+Mask}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Shader\+Mask (
+\begin{DoxyParamCaption}
+\item[{int}]{obj, }
+\item[{int}]{childobj}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aedfac9e5fc0a4dc04ebfeaf22791b621}
+
+
+Definition at line 4417 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a5045b363dcb883124f28b1ecda056cf9}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Shader\+Simple\+Ext\+G\+S@{gl2ps\+Print\+P\+D\+F\+Shader\+Simple\+Ext\+G\+S}}
+\index{gl2ps\+Print\+P\+D\+F\+Shader\+Simple\+Ext\+G\+S@{gl2ps\+Print\+P\+D\+F\+Shader\+Simple\+Ext\+G\+S}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Shader\+Simple\+Ext\+G\+S}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Shader\+Simple\+Ext\+G\+S (
+\begin{DoxyParamCaption}
+\item[{int}]{obj, }
+\item[{G\+Lfloat}]{alpha}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a5045b363dcb883124f28b1ecda056cf9}
+
+
+Definition at line 4477 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a222cb8212485c6b7f3dc511d555e0b8e}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data@{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data}}
+\index{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data@{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Striangle} $\ast$}]{triangle, }
+\item[{G\+Lfloat}]{dx, }
+\item[{G\+Lfloat}]{dy, }
+\item[{G\+Lfloat}]{xmin, }
+\item[{G\+Lfloat}]{ymin, }
+\item[{int($\ast$)(unsigned long data, int {\bf size})}]{action, }
+\item[{int}]{gray}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a222cb8212485c6b7f3dc511d555e0b8e}
+
+
+Definition at line 4273 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae9c9bead685e18805a9814289f87bd78}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Alpha@{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Alpha}}
+\index{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Alpha@{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Alpha}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Alpha}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Alpha (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Svertex} $\ast$}]{vertex, }
+\item[{int($\ast$)(unsigned long data, int {\bf size})}]{action, }
+\item[{int}]{sigbyte}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae9c9bead685e18805a9814289f87bd78}
+
+
+Definition at line 4248 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a31be74029c79dedff21196aa83be4323}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Coord@{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Coord}}
+\index{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Coord@{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Coord}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Coord}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+Coord (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Svertex} $\ast$}]{vertex, }
+\item[{int($\ast$)(unsigned long data, int {\bf size})}]{action, }
+\item[{G\+Lfloat}]{dx, }
+\item[{G\+Lfloat}]{dy, }
+\item[{G\+Lfloat}]{xmin, }
+\item[{G\+Lfloat}]{ymin}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a31be74029c79dedff21196aa83be4323}
+
+
+Definition at line 4178 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a385da379ba496c2cd27211493e8885aa}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+R\+G\+B@{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+R\+G\+B}}
+\index{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+R\+G\+B@{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+R\+G\+B}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+R\+G\+B}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Shader\+Stream\+Data\+R\+G\+B (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Svertex} $\ast$}]{vertex, }
+\item[{int($\ast$)(unsigned long data, int {\bf size})}]{action}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a385da379ba496c2cd27211493e8885aa}
+
+
+Definition at line 4224 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ac7fa05dad7611f59dd5655a07ec8899c}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Stroke\+Color@{gl2ps\+Print\+P\+D\+F\+Stroke\+Color}}
+\index{gl2ps\+Print\+P\+D\+F\+Stroke\+Color@{gl2ps\+Print\+P\+D\+F\+Stroke\+Color}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Stroke\+Color}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Stroke\+Color (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Srgba}}]{rgba}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ac7fa05dad7611f59dd5655a07ec8899c}
+
+
+Definition at line 3361 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a7583ee259343e597e3fa53b41d92829a}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+D\+F\+Text@{gl2ps\+Print\+P\+D\+F\+Text}}
+\index{gl2ps\+Print\+P\+D\+F\+Text@{gl2ps\+Print\+P\+D\+F\+Text}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+D\+F\+Text}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+P\+D\+F\+Text (
+\begin{DoxyParamCaption}
+\item[{int}]{obj, }
+\item[{{\bf G\+L2\+P\+Sstring} $\ast$}]{s, }
+\item[{int}]{fontnumber}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a7583ee259343e597e3fa53b41d92829a}
+
+
+Definition at line 4599 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a612af920b979bb976c48a64ba2dcf93e}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+G\+F\+Begin\+Viewport@{gl2ps\+Print\+P\+G\+F\+Begin\+Viewport}}
+\index{gl2ps\+Print\+P\+G\+F\+Begin\+Viewport@{gl2ps\+Print\+P\+G\+F\+Begin\+Viewport}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+G\+F\+Begin\+Viewport}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+P\+G\+F\+Begin\+Viewport (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{viewport\mbox{[}4\mbox{]}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a612af920b979bb976c48a64ba2dcf93e}
+
+
+Definition at line 5426 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aeca83ecb33a1b027ca70af91a5e99953}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+G\+F\+Color@{gl2ps\+Print\+P\+G\+F\+Color}}
+\index{gl2ps\+Print\+P\+G\+F\+Color@{gl2ps\+Print\+P\+G\+F\+Color}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+G\+F\+Color}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+P\+G\+F\+Color (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Srgba}}]{rgba}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aeca83ecb33a1b027ca70af91a5e99953}
+
+
+Definition at line 5273 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a5cd129b3ee9229e2275a6b3eca035781}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+G\+F\+Dash@{gl2ps\+Print\+P\+G\+F\+Dash}}
+\index{gl2ps\+Print\+P\+G\+F\+Dash@{gl2ps\+Print\+P\+G\+F\+Dash}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+G\+F\+Dash}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+P\+G\+F\+Dash (
+\begin{DoxyParamCaption}
+\item[{G\+Lushort}]{pattern, }
+\item[{G\+Lint}]{factor}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a5cd129b3ee9229e2275a6b3eca035781}
+
+
+Definition at line 5308 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ad1fb2099f1148001f84b7fe92f91089c}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+G\+F\+End\+Viewport@{gl2ps\+Print\+P\+G\+F\+End\+Viewport}}
+\index{gl2ps\+Print\+P\+G\+F\+End\+Viewport@{gl2ps\+Print\+P\+G\+F\+End\+Viewport}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+G\+F\+End\+Viewport}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Print\+P\+G\+F\+End\+Viewport (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ad1fb2099f1148001f84b7fe92f91089c}
+
+
+Definition at line 5466 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a9a1ec8cedabc912ae9b1c5f5b76110fc}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+G\+F\+Final\+Primitive@{gl2ps\+Print\+P\+G\+F\+Final\+Primitive}}
+\index{gl2ps\+Print\+P\+G\+F\+Final\+Primitive@{gl2ps\+Print\+P\+G\+F\+Final\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+G\+F\+Final\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+P\+G\+F\+Final\+Primitive (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a9a1ec8cedabc912ae9b1c5f5b76110fc}
+
+
+Definition at line 5474 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_affcdba933b4310cfd4dcd48addf7ed23}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+G\+F\+Footer@{gl2ps\+Print\+P\+G\+F\+Footer}}
+\index{gl2ps\+Print\+P\+G\+F\+Footer@{gl2ps\+Print\+P\+G\+F\+Footer}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+G\+F\+Footer}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+P\+G\+F\+Footer (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_affcdba933b4310cfd4dcd48addf7ed23}
+
+
+Definition at line 5421 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a05c8ea10741ea1cf48830112846a6a57}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+G\+F\+Header@{gl2ps\+Print\+P\+G\+F\+Header}}
+\index{gl2ps\+Print\+P\+G\+F\+Header@{gl2ps\+Print\+P\+G\+F\+Header}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+G\+F\+Header}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+P\+G\+F\+Header (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a05c8ea10741ea1cf48830112846a6a57}
+
+
+Definition at line 5281 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a2d67ade717897c3177e50fc818c157df}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+P\+G\+F\+Primitive@{gl2ps\+Print\+P\+G\+F\+Primitive}}
+\index{gl2ps\+Print\+P\+G\+F\+Primitive@{gl2ps\+Print\+P\+G\+F\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+P\+G\+F\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+P\+G\+F\+Primitive (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a2d67ade717897c3177e50fc818c157df}
+
+
+Definition at line 5346 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ad57be7e00863f3e06aa4c90e098d2925}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Post\+Script\+Begin\+Viewport@{gl2ps\+Print\+Post\+Script\+Begin\+Viewport}}
+\index{gl2ps\+Print\+Post\+Script\+Begin\+Viewport@{gl2ps\+Print\+Post\+Script\+Begin\+Viewport}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Post\+Script\+Begin\+Viewport}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Post\+Script\+Begin\+Viewport (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{viewport\mbox{[}4\mbox{]}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ad57be7e00863f3e06aa4c90e098d2925}
+
+
+Definition at line 3117 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_adf21caf9f5bedd368544012a26204148}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Post\+Script\+Color@{gl2ps\+Print\+Post\+Script\+Color}}
+\index{gl2ps\+Print\+Post\+Script\+Color@{gl2ps\+Print\+Post\+Script\+Color}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Post\+Script\+Color}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Post\+Script\+Color (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Srgba}}]{rgba}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_adf21caf9f5bedd368544012a26204148}
+
+
+Definition at line 2879 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a69af36ae7821eab763aa415b4bd49bca}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Post\+Script\+Dash@{gl2ps\+Print\+Post\+Script\+Dash}}
+\index{gl2ps\+Print\+Post\+Script\+Dash@{gl2ps\+Print\+Post\+Script\+Dash}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Post\+Script\+Dash}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Print\+Post\+Script\+Dash (
+\begin{DoxyParamCaption}
+\item[{G\+Lushort}]{pattern, }
+\item[{G\+Lint}]{factor, }
+\item[{const char $\ast$}]{str}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a69af36ae7821eab763aa415b4bd49bca}
+
+
+Definition at line 2938 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a3b0407153bd204bbcd617bf5a58ccd1c}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Post\+Script\+End\+Viewport@{gl2ps\+Print\+Post\+Script\+End\+Viewport}}
+\index{gl2ps\+Print\+Post\+Script\+End\+Viewport@{gl2ps\+Print\+Post\+Script\+End\+Viewport}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Post\+Script\+End\+Viewport}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Print\+Post\+Script\+End\+Viewport (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a3b0407153bd204bbcd617bf5a58ccd1c}
+
+
+Definition at line 3157 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a2b109889366ae3d544c11452b1967053}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Post\+Script\+Final\+Primitive@{gl2ps\+Print\+Post\+Script\+Final\+Primitive}}
+\index{gl2ps\+Print\+Post\+Script\+Final\+Primitive@{gl2ps\+Print\+Post\+Script\+Final\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Post\+Script\+Final\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Post\+Script\+Final\+Primitive (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a2b109889366ae3d544c11452b1967053}
+
+
+Definition at line 3166 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a1978e1159db9fd50ec96d269a692f05c}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Post\+Script\+Footer@{gl2ps\+Print\+Post\+Script\+Footer}}
+\index{gl2ps\+Print\+Post\+Script\+Footer@{gl2ps\+Print\+Post\+Script\+Footer}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Post\+Script\+Footer}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Post\+Script\+Footer (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a1978e1159db9fd50ec96d269a692f05c}
+
+
+Definition at line 3104 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ac82d1102e7f44a1f37e54f46583b437e}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Post\+Script\+Header@{gl2ps\+Print\+Post\+Script\+Header}}
+\index{gl2ps\+Print\+Post\+Script\+Header@{gl2ps\+Print\+Post\+Script\+Header}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Post\+Script\+Header}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Post\+Script\+Header (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ac82d1102e7f44a1f37e54f46583b437e}
+
+
+Definition at line 2640 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ab01abca5bb6431efafe696154cda2b3b}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Post\+Script\+Imagemap@{gl2ps\+Print\+Post\+Script\+Imagemap}}
+\index{gl2ps\+Print\+Post\+Script\+Imagemap@{gl2ps\+Print\+Post\+Script\+Imagemap}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Post\+Script\+Imagemap}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Post\+Script\+Imagemap (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat}]{x, }
+\item[{G\+Lfloat}]{y, }
+\item[{G\+Lsizei}]{width, }
+\item[{G\+Lsizei}]{height, }
+\item[{const unsigned char $\ast$}]{imagemap}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ab01abca5bb6431efafe696154cda2b3b}
+
+
+Definition at line 2620 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a58b08ec55ba7ade7a09fba06a5b226f9}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Post\+Script\+Pixmap@{gl2ps\+Print\+Post\+Script\+Pixmap}}
+\index{gl2ps\+Print\+Post\+Script\+Pixmap@{gl2ps\+Print\+Post\+Script\+Pixmap}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Post\+Script\+Pixmap}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Post\+Script\+Pixmap (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat}]{x, }
+\item[{G\+Lfloat}]{y, }
+\item[{{\bf G\+L2\+P\+Simage} $\ast$}]{im}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a58b08ec55ba7ade7a09fba06a5b226f9}
+
+
+Definition at line 2419 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a639440c25980482eca0710ac1fafd3ce}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Post\+Script\+Primitive@{gl2ps\+Print\+Post\+Script\+Primitive}}
+\index{gl2ps\+Print\+Post\+Script\+Primitive@{gl2ps\+Print\+Post\+Script\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Post\+Script\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Post\+Script\+Primitive (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a639440c25980482eca0710ac1fafd3ce}
+
+
+Definition at line 2965 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a2a8f02c7a6eab001539f77b01f6d1941}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Primitives@{gl2ps\+Print\+Primitives}}
+\index{gl2ps\+Print\+Primitives@{gl2ps\+Print\+Primitives}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Primitives}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Print\+Primitives (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a2a8f02c7a6eab001539f77b01f6d1941}
+
+
+Definition at line 5528 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae963bf54d0f96d32bb5d1826a17d5907}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+S\+V\+G\+Begin\+Viewport@{gl2ps\+Print\+S\+V\+G\+Begin\+Viewport}}
+\index{gl2ps\+Print\+S\+V\+G\+Begin\+Viewport@{gl2ps\+Print\+S\+V\+G\+Begin\+Viewport}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+S\+V\+G\+Begin\+Viewport}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+S\+V\+G\+Begin\+Viewport (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{viewport\mbox{[}4\mbox{]}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae963bf54d0f96d32bb5d1826a17d5907}
+
+
+Definition at line 5196 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae9d8bcce3d30d36b26591fdc434e100a}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+S\+V\+G\+Dash@{gl2ps\+Print\+S\+V\+G\+Dash}}
+\index{gl2ps\+Print\+S\+V\+G\+Dash@{gl2ps\+Print\+S\+V\+G\+Dash}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+S\+V\+G\+Dash}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+S\+V\+G\+Dash (
+\begin{DoxyParamCaption}
+\item[{G\+Lushort}]{pattern, }
+\item[{G\+Lint}]{factor}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae9d8bcce3d30d36b26591fdc434e100a}
+
+
+Definition at line 4980 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a87f0c591d086c9139c5ea40cdb3bf64b}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+S\+V\+G\+End\+Viewport@{gl2ps\+Print\+S\+V\+G\+End\+Viewport}}
+\index{gl2ps\+Print\+S\+V\+G\+End\+Viewport@{gl2ps\+Print\+S\+V\+G\+End\+Viewport}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+S\+V\+G\+End\+Viewport}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Print\+S\+V\+G\+End\+Viewport (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a87f0c591d086c9139c5ea40cdb3bf64b}
+
+
+Definition at line 5239 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ac896aa21b4865dcadc81c358918ce4b8}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+S\+V\+G\+Final\+Primitive@{gl2ps\+Print\+S\+V\+G\+Final\+Primitive}}
+\index{gl2ps\+Print\+S\+V\+G\+Final\+Primitive@{gl2ps\+Print\+S\+V\+G\+Final\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+S\+V\+G\+Final\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+S\+V\+G\+Final\+Primitive (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ac896aa21b4865dcadc81c358918ce4b8}
+
+
+Definition at line 5248 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a3b9a0477119aa3ba14a8a50cbebed354}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+S\+V\+G\+Footer@{gl2ps\+Print\+S\+V\+G\+Footer}}
+\index{gl2ps\+Print\+S\+V\+G\+Footer@{gl2ps\+Print\+S\+V\+G\+Footer}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+S\+V\+G\+Footer}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+S\+V\+G\+Footer (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a3b9a0477119aa3ba14a8a50cbebed354}
+
+
+Definition at line 5188 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a92231fdbe5f4048f34e49a85de26002b}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+S\+V\+G\+Header@{gl2ps\+Print\+S\+V\+G\+Header}}
+\index{gl2ps\+Print\+S\+V\+G\+Header@{gl2ps\+Print\+S\+V\+G\+Header}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+S\+V\+G\+Header}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+S\+V\+G\+Header (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a92231fdbe5f4048f34e49a85de26002b}
+
+
+Definition at line 4860 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_acc80ccf09f8407ddcfa3a5debf1b365c}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+S\+V\+G\+Pixmap@{gl2ps\+Print\+S\+V\+G\+Pixmap}}
+\index{gl2ps\+Print\+S\+V\+G\+Pixmap@{gl2ps\+Print\+S\+V\+G\+Pixmap}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+S\+V\+G\+Pixmap}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+S\+V\+G\+Pixmap (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat}]{x, }
+\item[{G\+Lfloat}]{y, }
+\item[{{\bf G\+L2\+P\+Simage} $\ast$}]{pixmap}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_acc80ccf09f8407ddcfa3a5debf1b365c}
+
+
+Definition at line 5008 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a7ea286bc4043e99b36634edd77d2a042}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+S\+V\+G\+Primitive@{gl2ps\+Print\+S\+V\+G\+Primitive}}
+\index{gl2ps\+Print\+S\+V\+G\+Primitive@{gl2ps\+Print\+S\+V\+G\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+S\+V\+G\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+S\+V\+G\+Primitive (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a7ea286bc4043e99b36634edd77d2a042}
+
+
+Definition at line 5041 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_abb1088ab065cd1d533174c1e86981756}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+S\+V\+G\+Smooth\+Triangle@{gl2ps\+Print\+S\+V\+G\+Smooth\+Triangle}}
+\index{gl2ps\+Print\+S\+V\+G\+Smooth\+Triangle@{gl2ps\+Print\+S\+V\+G\+Smooth\+Triangle}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+S\+V\+G\+Smooth\+Triangle}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+S\+V\+G\+Smooth\+Triangle (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sxyz}}]{xyz\mbox{[}3\mbox{]}, }
+\item[{{\bf G\+L2\+P\+Srgba}}]{rgba\mbox{[}3\mbox{]}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_abb1088ab065cd1d533174c1e86981756}
+
+
+Definition at line 4913 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a1f4d795efbc7c2737574e0b06302ece7}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Te\+X\+Begin\+Viewport@{gl2ps\+Print\+Te\+X\+Begin\+Viewport}}
+\index{gl2ps\+Print\+Te\+X\+Begin\+Viewport@{gl2ps\+Print\+Te\+X\+Begin\+Viewport}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Te\+X\+Begin\+Viewport}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Te\+X\+Begin\+Viewport (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{viewport\mbox{[}4\mbox{]}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a1f4d795efbc7c2737574e0b06302ece7}
+
+
+Definition at line 3312 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aa6c5bfc1045d8ad7b804164a3dc5fba8}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Te\+X\+End\+Viewport@{gl2ps\+Print\+Te\+X\+End\+Viewport}}
+\index{gl2ps\+Print\+Te\+X\+End\+Viewport@{gl2ps\+Print\+Te\+X\+End\+Viewport}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Te\+X\+End\+Viewport}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Print\+Te\+X\+End\+Viewport (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aa6c5bfc1045d8ad7b804164a3dc5fba8}
+
+
+Definition at line 3323 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a94c73008399bf0ea71cba90f8e1a86fc}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Te\+X\+Final\+Primitive@{gl2ps\+Print\+Te\+X\+Final\+Primitive}}
+\index{gl2ps\+Print\+Te\+X\+Final\+Primitive@{gl2ps\+Print\+Te\+X\+Final\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Te\+X\+Final\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Te\+X\+Final\+Primitive (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a94c73008399bf0ea71cba90f8e1a86fc}
+
+
+Definition at line 3328 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a00b31477b458324d0713dd941bc16108}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Te\+X\+Footer@{gl2ps\+Print\+Te\+X\+Footer}}
+\index{gl2ps\+Print\+Te\+X\+Footer@{gl2ps\+Print\+Te\+X\+Footer}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Te\+X\+Footer}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Te\+X\+Footer (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a00b31477b458324d0713dd941bc16108}
+
+
+Definition at line 3306 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a340b331424d9c2aaf2e457d871ee549f}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Te\+X\+Header@{gl2ps\+Print\+Te\+X\+Header}}
+\index{gl2ps\+Print\+Te\+X\+Header@{gl2ps\+Print\+Te\+X\+Header}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Te\+X\+Header}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Te\+X\+Header (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a340b331424d9c2aaf2e457d871ee549f}
+
+
+Definition at line 3202 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a1444271074e377e30490aef8867c14bb}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Print\+Te\+X\+Primitive@{gl2ps\+Print\+Te\+X\+Primitive}}
+\index{gl2ps\+Print\+Te\+X\+Primitive@{gl2ps\+Print\+Te\+X\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Print\+Te\+X\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Print\+Te\+X\+Primitive (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a1444271074e377e30490aef8867c14bb}
+
+
+Definition at line 3243 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a2a96426d3a596a5bad18e2818b258922}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Psca@{gl2ps\+Psca}}
+\index{gl2ps\+Psca@{gl2ps\+Psca}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Psca}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lfloat gl2ps\+Psca (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat $\ast$}]{a, }
+\item[{G\+Lfloat $\ast$}]{b}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a2a96426d3a596a5bad18e2818b258922}
+
+
+Definition at line 1066 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_af81bf33b083705cef97987780756bbda}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Put\+P\+D\+F\+Image@{gl2ps\+Put\+P\+D\+F\+Image}}
+\index{gl2ps\+Put\+P\+D\+F\+Image@{gl2ps\+Put\+P\+D\+F\+Image}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Put\+P\+D\+F\+Image}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Put\+P\+D\+F\+Image (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Simage} $\ast$}]{image, }
+\item[{int}]{cnt, }
+\item[{G\+Lfloat}]{x, }
+\item[{G\+Lfloat}]{y}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_af81bf33b083705cef97987780756bbda}
+
+
+Definition at line 3431 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ad162a260069e2c3c296a6ffbba2e53ae}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Put\+P\+D\+F\+Text@{gl2ps\+Put\+P\+D\+F\+Text}}
+\index{gl2ps\+Put\+P\+D\+F\+Text@{gl2ps\+Put\+P\+D\+F\+Text}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Put\+P\+D\+F\+Text}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Put\+P\+D\+F\+Text (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sstring} $\ast$}]{text, }
+\item[{int}]{cnt, }
+\item[{G\+Lfloat}]{x, }
+\item[{G\+Lfloat}]{y}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ad162a260069e2c3c296a6ffbba2e53ae}
+
+
+Definition at line 3404 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a7adfc9a8b4b546045a9c2f999a3360f7}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Pvec@{gl2ps\+Pvec}}
+\index{gl2ps\+Pvec@{gl2ps\+Pvec}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Pvec}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Pvec (
+\begin{DoxyParamCaption}
+\item[{G\+Lfloat $\ast$}]{a, }
+\item[{G\+Lfloat $\ast$}]{b, }
+\item[{G\+Lfloat $\ast$}]{c}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a7adfc9a8b4b546045a9c2f999a3360f7}
+
+
+Definition at line 1071 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ad97a3884fd09ae984f539e0ebc59b9ed}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Realloc@{gl2ps\+Realloc}}
+\index{gl2ps\+Realloc@{gl2ps\+Realloc}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Realloc}]{\setlength{\rightskip}{0pt plus 5cm}static void$\ast$ gl2ps\+Realloc (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{ptr, }
+\item[{size\+\_\+t}]{size}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ad97a3884fd09ae984f539e0ebc59b9ed}
+
+
+Definition at line 308 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_af2f235665899473712e5a264ef826966}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Realloc\+Compress@{gl2ps\+Realloc\+Compress}}
+\index{gl2ps\+Realloc\+Compress@{gl2ps\+Realloc\+Compress}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Realloc\+Compress}]{\setlength{\rightskip}{0pt plus 5cm}static void$\ast$ gl2ps\+Realloc\+Compress (
+\begin{DoxyParamCaption}
+\item[{unsigned int}]{srcsize}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_af2f235665899473712e5a264ef826966}
+
+
+Definition at line 380 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a3a36dcbea14cb357e5036bf3baf32ab9}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Rescale\+And\+Offset@{gl2ps\+Rescale\+And\+Offset}}
+\index{gl2ps\+Rescale\+And\+Offset@{gl2ps\+Rescale\+And\+Offset}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Rescale\+And\+Offset}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Rescale\+And\+Offset (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a3a36dcbea14cb357e5036bf3baf32ab9}
+
+
+Definition at line 1622 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_af954c525f5436dd883a29247ed6f744c}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Reset\+Post\+Script\+Color@{gl2ps\+Reset\+Post\+Script\+Color}}
+\index{gl2ps\+Reset\+Post\+Script\+Color@{gl2ps\+Reset\+Post\+Script\+Color}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Reset\+Post\+Script\+Color}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Reset\+Post\+Script\+Color (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_af954c525f5436dd883a29247ed6f744c}
+
+
+Definition at line 2887 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a1de2a0f53b7234b7b668a0114de03719}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Same\+Color@{gl2ps\+Same\+Color}}
+\index{gl2ps\+Same\+Color@{gl2ps\+Same\+Color}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Same\+Color}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lboolean gl2ps\+Same\+Color (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Srgba}}]{rgba1, }
+\item[{{\bf G\+L2\+P\+Srgba}}]{rgba2}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a1de2a0f53b7234b7b668a0114de03719}
+
+
+Definition at line 670 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a0bc6c2f33b8989755b5cfe1b82f86276}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Same\+Color\+Threshold@{gl2ps\+Same\+Color\+Threshold}}
+\index{gl2ps\+Same\+Color\+Threshold@{gl2ps\+Same\+Color\+Threshold}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Same\+Color\+Threshold}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lboolean gl2ps\+Same\+Color\+Threshold (
+\begin{DoxyParamCaption}
+\item[{int}]{n, }
+\item[{{\bf G\+L2\+P\+Srgba}}]{rgba\mbox{[}$\,$\mbox{]}, }
+\item[{{\bf G\+L2\+P\+Srgba}}]{threshold}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a0bc6c2f33b8989755b5cfe1b82f86276}
+
+
+Definition at line 691 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a25e9d5425881a43c99ad4c9cb9e8e5db}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Same\+Position@{gl2ps\+Same\+Position}}
+\index{gl2ps\+Same\+Position@{gl2ps\+Same\+Position}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Same\+Position}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lboolean gl2ps\+Same\+Position (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sxyz}}]{p1, }
+\item[{{\bf G\+L2\+P\+Sxyz}}]{p2}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a25e9d5425881a43c99ad4c9cb9e8e5db}
+
+
+Definition at line 1043 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a4fdba08f6a02ee62a3afbade8f740adf}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Set\+Last\+Color@{gl2ps\+Set\+Last\+Color}}
+\index{gl2ps\+Set\+Last\+Color@{gl2ps\+Set\+Last\+Color}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Set\+Last\+Color}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Set\+Last\+Color (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Srgba}}]{rgba}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a4fdba08f6a02ee62a3afbade8f740adf}
+
+
+Definition at line 708 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a7086eafd4560913994e3c62463ec533b}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Set\+Options@{gl2ps\+Set\+Options}}
+\index{gl2ps\+Set\+Options@{gl2ps\+Set\+Options}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Set\+Options}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Set\+Options (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{options}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_a7086eafd4560913994e3c62463ec533b}
+
+
+Definition at line 6045 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_adb8c15edd0a9ddc822bfc7b14dee7359}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Setup\+Compress@{gl2ps\+Setup\+Compress}}
+\index{gl2ps\+Setup\+Compress@{gl2ps\+Setup\+Compress}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Setup\+Compress}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Setup\+Compress (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_adb8c15edd0a9ddc822bfc7b14dee7359}
+
+
+Definition at line 341 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a93eaba1646465c27c2bedb2a8dc52438}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Sort\+Out\+Triangle\+P\+D\+Fgroup@{gl2ps\+Sort\+Out\+Triangle\+P\+D\+Fgroup}}
+\index{gl2ps\+Sort\+Out\+Triangle\+P\+D\+Fgroup@{gl2ps\+Sort\+Out\+Triangle\+P\+D\+Fgroup}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Sort\+Out\+Triangle\+P\+D\+Fgroup}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Sort\+Out\+Triangle\+P\+D\+Fgroup (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Spdfgroup} $\ast$}]{gro}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a93eaba1646465c27c2bedb2a8dc52438}
+
+
+Definition at line 3561 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a3ddb0675936d9819c6a59a45727e97a0}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Special@{gl2ps\+Special}}
+\index{gl2ps\+Special@{gl2ps\+Special}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Special}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Special (
+\begin{DoxyParamCaption}
+\item[{G\+Lint}]{format, }
+\item[{const char $\ast$}]{str}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_a3ddb0675936d9819c6a59a45727e97a0}
+
+
+Definition at line 5836 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a2f3ca806a66e2e9cd31e12b1a0b60eda}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Split\+Primitive@{gl2ps\+Split\+Primitive}}
+\index{gl2ps\+Split\+Primitive@{gl2ps\+Split\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Split\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Split\+Primitive (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{prim, }
+\item[{{\bf G\+L2\+P\+Splane}}]{plane, }
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$$\ast$}]{front, }
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$$\ast$}]{back}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a2f3ca806a66e2e9cd31e12b1a0b60eda}
+
+
+Definition at line 1285 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a27b55ebcdb7d29677eb7985e1cd437d4}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Split\+Primitive2\+D@{gl2ps\+Split\+Primitive2\+D}}
+\index{gl2ps\+Split\+Primitive2\+D@{gl2ps\+Split\+Primitive2\+D}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Split\+Primitive2\+D}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Split\+Primitive2\+D (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{prim, }
+\item[{{\bf G\+L2\+P\+Splane}}]{plane, }
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$$\ast$}]{front, }
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$$\ast$}]{back}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a27b55ebcdb7d29677eb7985e1cd437d4}
+
+
+Definition at line 1904 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae16f75ce580e42a5bc90e31182bbf61b}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Supported\+Blend\+Mode@{gl2ps\+Supported\+Blend\+Mode}}
+\index{gl2ps\+Supported\+Blend\+Mode@{gl2ps\+Supported\+Blend\+Mode}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Supported\+Blend\+Mode}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lboolean gl2ps\+Supported\+Blend\+Mode (
+\begin{DoxyParamCaption}
+\item[{G\+Lenum}]{sfactor, }
+\item[{G\+Lenum}]{dfactor}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae16f75ce580e42a5bc90e31182bbf61b}
+
+
+Definition at line 917 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a8b923df843ddbb731b9c014682fd5ee3}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+S\+V\+G\+Get\+Color\+String@{gl2ps\+S\+V\+G\+Get\+Color\+String}}
+\index{gl2ps\+S\+V\+G\+Get\+Color\+String@{gl2ps\+S\+V\+G\+Get\+Color\+String}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+S\+V\+G\+Get\+Color\+String}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+S\+V\+G\+Get\+Color\+String (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Srgba}}]{rgba, }
+\item[{char}]{str\mbox{[}32\mbox{]}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a8b923df843ddbb731b9c014682fd5ee3}
+
+
+Definition at line 4849 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a8153f93b9a49063bcc3d483911c304d1}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+S\+V\+G\+Get\+Coords\+And\+Colors@{gl2ps\+S\+V\+G\+Get\+Coords\+And\+Colors}}
+\index{gl2ps\+S\+V\+G\+Get\+Coords\+And\+Colors@{gl2ps\+S\+V\+G\+Get\+Coords\+And\+Colors}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+S\+V\+G\+Get\+Coords\+And\+Colors}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+S\+V\+G\+Get\+Coords\+And\+Colors (
+\begin{DoxyParamCaption}
+\item[{int}]{n, }
+\item[{{\bf G\+L2\+P\+Svertex} $\ast$}]{verts, }
+\item[{{\bf G\+L2\+P\+Sxyz} $\ast$}]{xyz, }
+\item[{{\bf G\+L2\+P\+Srgba} $\ast$}]{rgba}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a8153f93b9a49063bcc3d483911c304d1}
+
+
+Definition at line 4835 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae6622f11ee2f7fdd7cad437e699f83c1}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Test\+Split\+Primitive@{gl2ps\+Test\+Split\+Primitive}}
+\index{gl2ps\+Test\+Split\+Primitive@{gl2ps\+Test\+Split\+Primitive}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Test\+Split\+Primitive}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lint gl2ps\+Test\+Split\+Primitive (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sprimitive} $\ast$}]{prim, }
+\item[{{\bf G\+L2\+P\+Splane}}]{plane}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae6622f11ee2f7fdd7cad437e699f83c1}
+
+
+Definition at line 1254 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ab69115218d57654fffab3be4d89ece37}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Text@{gl2ps\+Text}}
+\index{gl2ps\+Text@{gl2ps\+Text}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Text}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Text (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{str, }
+\item[{const char $\ast$}]{fontname, }
+\item[{G\+Lshort}]{fontsize}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_ab69115218d57654fffab3be4d89ece37}
+
+
+Definition at line 5831 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aa69c1d8018b88bcd555226da00377d45}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Text\+Opt@{gl2ps\+Text\+Opt}}
+\index{gl2ps\+Text\+Opt@{gl2ps\+Text\+Opt}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Text\+Opt}]{\setlength{\rightskip}{0pt plus 5cm}G\+L2\+P\+S\+D\+L\+L\+\_\+\+A\+P\+I G\+Lint gl2ps\+Text\+Opt (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{str, }
+\item[{const char $\ast$}]{fontname, }
+\item[{G\+Lshort}]{fontsize, }
+\item[{G\+Lint}]{alignment, }
+\item[{G\+Lfloat}]{angle}
+\end{DoxyParamCaption}
+)}\label{gl2ps_8c_aa69c1d8018b88bcd555226da00377d45}
+
+
+Definition at line 5825 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a5f67fc7db4d0c77a098286dc232222e1}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Traverse\+Bsp\+Tree@{gl2ps\+Traverse\+Bsp\+Tree}}
+\index{gl2ps\+Traverse\+Bsp\+Tree@{gl2ps\+Traverse\+Bsp\+Tree}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Traverse\+Bsp\+Tree}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Traverse\+Bsp\+Tree (
+\begin{DoxyParamCaption}
+\item[{{\bf G\+L2\+P\+Sbsptree} $\ast$}]{tree, }
+\item[{{\bf G\+L2\+P\+Sxyz}}]{eye, }
+\item[{G\+Lfloat}]{epsilon, }
+\item[{G\+Lboolean($\ast$)(G\+Lfloat f1, G\+Lfloat f2)}]{compare, }
+\item[{void($\ast$)(void $\ast$data)}]{action, }
+\item[{int}]{inverse}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a5f67fc7db4d0c77a098286dc232222e1}
+
+
+Definition at line 1586 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a900a108215d84abf759dbcd3737bb0f6}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Triangles\+First@{gl2ps\+Triangles\+First}}
+\index{gl2ps\+Triangles\+First@{gl2ps\+Triangles\+First}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Triangles\+First}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Triangles\+First (
+\begin{DoxyParamCaption}
+\item[{const void $\ast$}]{a, }
+\item[{const void $\ast$}]{b}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a900a108215d84abf759dbcd3737bb0f6}
+
+
+Definition at line 1400 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a6bdcb129cb95f41104d9df802b978680}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+User\+Flush\+P\+N\+G@{gl2ps\+User\+Flush\+P\+N\+G}}
+\index{gl2ps\+User\+Flush\+P\+N\+G@{gl2ps\+User\+Flush\+P\+N\+G}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+User\+Flush\+P\+N\+G}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+User\+Flush\+P\+N\+G (
+\begin{DoxyParamCaption}
+\item[{png\+\_\+structp}]{png\+\_\+ptr}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a6bdcb129cb95f41104d9df802b978680}
+
+
+Definition at line 794 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ae6ab3fe8f2030b7c1b1f317e66753fb0}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+User\+Write\+P\+N\+G@{gl2ps\+User\+Write\+P\+N\+G}}
+\index{gl2ps\+User\+Write\+P\+N\+G@{gl2ps\+User\+Write\+P\+N\+G}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+User\+Write\+P\+N\+G}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+User\+Write\+P\+N\+G (
+\begin{DoxyParamCaption}
+\item[{png\+\_\+structp}]{png\+\_\+ptr, }
+\item[{png\+\_\+bytep}]{data, }
+\item[{png\+\_\+size\+\_\+t}]{length}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ae6ab3fe8f2030b7c1b1f317e66753fb0}
+
+
+Definition at line 786 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a3cd2aaf579752ad150cd2127890a30f4}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Verts\+Same\+Color@{gl2ps\+Verts\+Same\+Color}}
+\index{gl2ps\+Verts\+Same\+Color@{gl2ps\+Verts\+Same\+Color}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Verts\+Same\+Color}]{\setlength{\rightskip}{0pt plus 5cm}static G\+Lboolean gl2ps\+Verts\+Same\+Color (
+\begin{DoxyParamCaption}
+\item[{const {\bf G\+L2\+P\+Sprimitive} $\ast$}]{prim}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a3cd2aaf579752ad150cd2127890a30f4}
+
+
+Definition at line 679 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aefca5f75c3f66e3f8af4e186a6b9554d}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Write\+Big\+Endian@{gl2ps\+Write\+Big\+Endian}}
+\index{gl2ps\+Write\+Big\+Endian@{gl2ps\+Write\+Big\+Endian}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Write\+Big\+Endian}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Write\+Big\+Endian (
+\begin{DoxyParamCaption}
+\item[{unsigned long}]{data, }
+\item[{int}]{bytes}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aefca5f75c3f66e3f8af4e186a6b9554d}
+
+
+Definition at line 327 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_acd9b0b231bd70ba7af3ba33e4904962c}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Write\+Big\+Endian\+Compress@{gl2ps\+Write\+Big\+Endian\+Compress}}
+\index{gl2ps\+Write\+Big\+Endian\+Compress@{gl2ps\+Write\+Big\+Endian\+Compress}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Write\+Big\+Endian\+Compress}]{\setlength{\rightskip}{0pt plus 5cm}static int gl2ps\+Write\+Big\+Endian\+Compress (
+\begin{DoxyParamCaption}
+\item[{unsigned long}]{data, }
+\item[{int}]{bytes}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_acd9b0b231bd70ba7af3ba33e4904962c}
+
+
+Definition at line 399 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_af8e15628246869757015c75298c16f66}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+Write\+Byte@{gl2ps\+Write\+Byte}}
+\index{gl2ps\+Write\+Byte@{gl2ps\+Write\+Byte}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+Write\+Byte}]{\setlength{\rightskip}{0pt plus 5cm}static void gl2ps\+Write\+Byte (
+\begin{DoxyParamCaption}
+\item[{unsigned char}]{byte}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_af8e15628246869757015c75298c16f66}
+
+
+Definition at line 2412 of file gl2ps.\+c.
+
+
+
+\subsection{Variable Documentation}
+\hypertarget{gl2ps_8c_a177046af13ce04d9707868d85047abb7}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps@{gl2ps}}
+\index{gl2ps@{gl2ps}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps}]{\setlength{\rightskip}{0pt plus 5cm}{\bf G\+L2\+P\+Scontext}$\ast$ gl2ps = N\+U\+L\+L\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a177046af13ce04d9707868d85047abb7}
+
+
+Definition at line 265 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a0881dabac4a58a448619fc9b3b494c69}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2psbackends@{gl2psbackends}}
+\index{gl2psbackends@{gl2psbackends}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2psbackends}]{\setlength{\rightskip}{0pt plus 5cm}{\bf G\+L2\+P\+Sbackend}$\ast$ gl2psbackends\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a0881dabac4a58a448619fc9b3b494c69}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+  &\hyperlink{gl2ps_8c_a133f434a2febfbf9a4bc0bc733a637d2}{gl2psPS},  
+  &\hyperlink{gl2ps_8c_afcddca4736e88236fdf5b838758d9e91}{gl2psEPS}, 
+  &\hyperlink{gl2ps_8c_a155d2bcf188cf2c7142360bff5561ee0}{gl2psTEX}, 
+  &\hyperlink{gl2ps_8c_aef50eb34b200c722d4e7abe7389e48ee}{gl2psPDF}, 
+  &\hyperlink{gl2ps_8c_af0a3c5b674a03edac715a07922f7dbb3}{gl2psSVG}, 
+  &\hyperlink{gl2ps_8c_ad537bb2b2a8f755627e8fb3791d0c711}{gl2psPGF}  
+\}
+\end{DoxyCode}
+
+
+Definition at line 5500 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_afcddca4736e88236fdf5b838758d9e91}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+E\+P\+S@{gl2ps\+E\+P\+S}}
+\index{gl2ps\+E\+P\+S@{gl2ps\+E\+P\+S}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+E\+P\+S}]{\setlength{\rightskip}{0pt plus 5cm}{\bf G\+L2\+P\+Sbackend} gl2ps\+E\+P\+S\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_afcddca4736e88236fdf5b838758d9e91}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+  \hyperlink{gl2ps_8c_ac82d1102e7f44a1f37e54f46583b437e}{gl2psPrintPostScriptHeader},
+  \hyperlink{gl2ps_8c_a1978e1159db9fd50ec96d269a692f05c}{gl2psPrintPostScriptFooter},
+  \hyperlink{gl2ps_8c_ad57be7e00863f3e06aa4c90e098d2925}{gl2psPrintPostScriptBeginViewport},
+  \hyperlink{gl2ps_8c_a3b0407153bd204bbcd617bf5a58ccd1c}{gl2psPrintPostScriptEndViewport},
+  \hyperlink{gl2ps_8c_a639440c25980482eca0710ac1fafd3ce}{gl2psPrintPostScriptPrimitive},
+  \hyperlink{gl2ps_8c_a2b109889366ae3d544c11452b1967053}{gl2psPrintPostScriptFinalPrimitive},
+  \textcolor{stringliteral}{"eps"},
+  \textcolor{stringliteral}{"Encapsulated Postscript"}
+\}
+\end{DoxyCode}
+
+
+Definition at line 3185 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_aef50eb34b200c722d4e7abe7389e48ee}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+D\+F@{gl2ps\+P\+D\+F}}
+\index{gl2ps\+P\+D\+F@{gl2ps\+P\+D\+F}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+D\+F}]{\setlength{\rightskip}{0pt plus 5cm}{\bf G\+L2\+P\+Sbackend} gl2ps\+P\+D\+F\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_aef50eb34b200c722d4e7abe7389e48ee}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+  \hyperlink{gl2ps_8c_ac0b89319d12d34468a1e6216ba468a27}{gl2psPrintPDFHeader},
+  \hyperlink{gl2ps_8c_a9c59e0e0b768cf1f16d50b0c6be1863a}{gl2psPrintPDFFooter},
+  \hyperlink{gl2ps_8c_ae230afe5ece4d51fea81238c5adc1e3d}{gl2psPrintPDFBeginViewport},
+  \hyperlink{gl2ps_8c_ab5bab8e233f1b7764e4747e3d8417d77}{gl2psPrintPDFEndViewport},
+  \hyperlink{gl2ps_8c_a4dae2d9467bc9f054fbf7e03540ac38b}{gl2psPrintPDFPrimitive},
+  \hyperlink{gl2ps_8c_ae04024f62e9508dca4e9f9c4004846d6}{gl2psPrintPDFFinalPrimitive},
+  \textcolor{stringliteral}{"pdf"},
+  \textcolor{stringliteral}{"Portable Document Format"}
+\}
+\end{DoxyCode}
+
+
+Definition at line 4818 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_ad537bb2b2a8f755627e8fb3791d0c711}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+G\+F@{gl2ps\+P\+G\+F}}
+\index{gl2ps\+P\+G\+F@{gl2ps\+P\+G\+F}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+G\+F}]{\setlength{\rightskip}{0pt plus 5cm}{\bf G\+L2\+P\+Sbackend} gl2ps\+P\+G\+F\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_ad537bb2b2a8f755627e8fb3791d0c711}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+  \hyperlink{gl2ps_8c_a05c8ea10741ea1cf48830112846a6a57}{gl2psPrintPGFHeader},
+  \hyperlink{gl2ps_8c_affcdba933b4310cfd4dcd48addf7ed23}{gl2psPrintPGFFooter},
+  \hyperlink{gl2ps_8c_a612af920b979bb976c48a64ba2dcf93e}{gl2psPrintPGFBeginViewport},
+  \hyperlink{gl2ps_8c_ad1fb2099f1148001f84b7fe92f91089c}{gl2psPrintPGFEndViewport},
+  \hyperlink{gl2ps_8c_a2d67ade717897c3177e50fc818c157df}{gl2psPrintPGFPrimitive},
+  \hyperlink{gl2ps_8c_a9a1ec8cedabc912ae9b1c5f5b76110fc}{gl2psPrintPGFFinalPrimitive},
+  \textcolor{stringliteral}{"tex"},
+  \textcolor{stringliteral}{"PGF Latex Graphics"}
+\}
+\end{DoxyCode}
+
+
+Definition at line 5480 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a133f434a2febfbf9a4bc0bc733a637d2}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+P\+S@{gl2ps\+P\+S}}
+\index{gl2ps\+P\+S@{gl2ps\+P\+S}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+P\+S}]{\setlength{\rightskip}{0pt plus 5cm}{\bf G\+L2\+P\+Sbackend} gl2ps\+P\+S\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a133f434a2febfbf9a4bc0bc733a637d2}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+  \hyperlink{gl2ps_8c_ac82d1102e7f44a1f37e54f46583b437e}{gl2psPrintPostScriptHeader},
+  \hyperlink{gl2ps_8c_a1978e1159db9fd50ec96d269a692f05c}{gl2psPrintPostScriptFooter},
+  \hyperlink{gl2ps_8c_ad57be7e00863f3e06aa4c90e098d2925}{gl2psPrintPostScriptBeginViewport},
+  \hyperlink{gl2ps_8c_a3b0407153bd204bbcd617bf5a58ccd1c}{gl2psPrintPostScriptEndViewport},
+  \hyperlink{gl2ps_8c_a639440c25980482eca0710ac1fafd3ce}{gl2psPrintPostScriptPrimitive},
+  \hyperlink{gl2ps_8c_a2b109889366ae3d544c11452b1967053}{gl2psPrintPostScriptFinalPrimitive},
+  \textcolor{stringliteral}{"ps"},
+  \textcolor{stringliteral}{"Postscript"}
+\}
+\end{DoxyCode}
+
+
+Definition at line 3174 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_af0a3c5b674a03edac715a07922f7dbb3}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+S\+V\+G@{gl2ps\+S\+V\+G}}
+\index{gl2ps\+S\+V\+G@{gl2ps\+S\+V\+G}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+S\+V\+G}]{\setlength{\rightskip}{0pt plus 5cm}{\bf G\+L2\+P\+Sbackend} gl2ps\+S\+V\+G\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_af0a3c5b674a03edac715a07922f7dbb3}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+  \hyperlink{gl2ps_8c_a92231fdbe5f4048f34e49a85de26002b}{gl2psPrintSVGHeader},
+  \hyperlink{gl2ps_8c_a3b9a0477119aa3ba14a8a50cbebed354}{gl2psPrintSVGFooter},
+  \hyperlink{gl2ps_8c_ae963bf54d0f96d32bb5d1826a17d5907}{gl2psPrintSVGBeginViewport},
+  \hyperlink{gl2ps_8c_a87f0c591d086c9139c5ea40cdb3bf64b}{gl2psPrintSVGEndViewport},
+  \hyperlink{gl2ps_8c_a7ea286bc4043e99b36634edd77d2a042}{gl2psPrintSVGPrimitive},
+  \hyperlink{gl2ps_8c_ac896aa21b4865dcadc81c358918ce4b8}{gl2psPrintSVGFinalPrimitive},
+  \textcolor{stringliteral}{"svg"},
+  \textcolor{stringliteral}{"Scalable Vector Graphics"}
+\}
+\end{DoxyCode}
+
+
+Definition at line 5256 of file gl2ps.\+c.
+
+\hypertarget{gl2ps_8c_a155d2bcf188cf2c7142360bff5561ee0}{}\index{gl2ps.\+c@{gl2ps.\+c}!gl2ps\+T\+E\+X@{gl2ps\+T\+E\+X}}
+\index{gl2ps\+T\+E\+X@{gl2ps\+T\+E\+X}!gl2ps.\+c@{gl2ps.\+c}}
+\subsubsection[{gl2ps\+T\+E\+X}]{\setlength{\rightskip}{0pt plus 5cm}{\bf G\+L2\+P\+Sbackend} gl2ps\+T\+E\+X\hspace{0.3cm}{\ttfamily [static]}}\label{gl2ps_8c_a155d2bcf188cf2c7142360bff5561ee0}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+  \hyperlink{gl2ps_8c_a340b331424d9c2aaf2e457d871ee549f}{gl2psPrintTeXHeader},
+  \hyperlink{gl2ps_8c_a00b31477b458324d0713dd941bc16108}{gl2psPrintTeXFooter},
+  \hyperlink{gl2ps_8c_a1f4d795efbc7c2737574e0b06302ece7}{gl2psPrintTeXBeginViewport},
+  \hyperlink{gl2ps_8c_aa6c5bfc1045d8ad7b804164a3dc5fba8}{gl2psPrintTeXEndViewport},
+  \hyperlink{gl2ps_8c_a1444271074e377e30490aef8867c14bb}{gl2psPrintTeXPrimitive},
+  \hyperlink{gl2ps_8c_a94c73008399bf0ea71cba90f8e1a86fc}{gl2psPrintTeXFinalPrimitive},
+  \textcolor{stringliteral}{"tex"},
+  \textcolor{stringliteral}{"LaTeX text"}
+\}
+\end{DoxyCode}
+
+
+Definition at line 3334 of file gl2ps.\+c.
+

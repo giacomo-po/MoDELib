@@ -11,22 +11,22 @@
 
 #include <math.h>
 #include <set>
-#include <boost/utility.hpp>
+//#include <boost/utility.hpp>
 #include <utility>      // std::pair, std::make_pair
 #include <memory> // std::shared_ptr (c++11)
 #include <map>
 #include <Eigen/Dense>
 #include <model/Utilities/CompareVectorsByComponent.h>
-
-
 #include <model/Utilities/modelMacros.h> // model_execAssert(
 #include <model/Utilities/CRTP.h>
 #include <model/SpaceDecomposition/CellShift.h>
 #include <model/Utilities/TypeTraits.h>
+#include <model/Utilities/NonCopyable.h>
 //#include <stdexcept>      // std::out_of_range
 
 
-namespace model {
+namespace model
+{
 	
     //class pre-declaration
     template<typename ParticleType, short unsigned int dim>
@@ -39,8 +39,8 @@ namespace model {
      * ParticleType objects present inside it.
 	 */
 	template<typename ParticleType, short unsigned int dim>
-	struct SpatialCell :
-    /* inheritance    */ boost::noncopyable,
+	struct SpatialCell : public NonCopyable,
+//    /* inheritance    */ boost::noncopyable,
     /* inheritance    */ public TypeTraits<ParticleType>::SpatialCellProperties
     {
         
@@ -71,9 +71,6 @@ namespace model {
 #else
         const int assignedRank;
 #endif
-        
-        
-
         
         /* isNeighborCell *****************************************************/
         bool isNeighborCell(const CellIdType& otherCellID) const

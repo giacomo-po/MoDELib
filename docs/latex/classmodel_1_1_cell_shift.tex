@@ -1,0 +1,90 @@
+\hypertarget{classmodel_1_1_cell_shift}{}\section{model\+:\+:Cell\+Shift$<$ dim, neighbor\+Order $>$ Class Template Reference}
+\label{classmodel_1_1_cell_shift}\index{model\+::\+Cell\+Shift$<$ dim, neighbor\+Order $>$@{model\+::\+Cell\+Shift$<$ dim, neighbor\+Order $>$}}
+
+
+{\ttfamily \#include $<$Cell\+Shift.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{classmodel_1_1_cell_shift_ab1590de7ef0bb9642434e2950f5771b2aee4134d6cbf2ecb50b24a8d678fed79f}{Nneighbors} =Cell\+Shift\+Traits$<$dim,neighbor\+Order$>$\+:\+:Nneighbors
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{structmodel_1_1_cell_shift_traits}{Cell\+Shift\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, neighbor\+Order $>$\+::Matrix\+Type \hyperlink{classmodel_1_1_cell_shift_a6903e761b1706d5601dbc643038dec3b}{neighbor\+I\+Ds} (const Eigen\+::\+Matrix$<$ int, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \&cell\+I\+D)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const \hyperlink{structmodel_1_1_cell_shift_traits}{Cell\+Shift\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, neighbor\+Order $>$\+::Matrix\+Type \hyperlink{classmodel_1_1_cell_shift_a433e1eeaa68989c6c916af2623c3f2ab}{shifts} =\hyperlink{classmodel_1_1_cell_shift}{Cell\+Shift}$<$\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim},neighbor\+Order$>$\+::get\+Shifts()
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$int any\+Dim, int any\+Neighbor\+Order$>$ }\\class \hyperlink{classmodel_1_1_cell_shift_a710c956f234de98c0962a73bf402c186}{Cell\+Shift}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int dim, int neighbor\+Order$>$class model\+::\+Cell\+Shift$<$ dim, neighbor\+Order $>$}
+
+A class to compute the neighbors (or shifts) of order neighbor\+Order for a \hyperlink{structmodel_1_1_spatial_cell}{Spatial\+Cell} in dim dimensions. 
+
+Definition at line 40 of file Cell\+Shift.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classmodel_1_1_cell_shift_ab1590de7ef0bb9642434e2950f5771b2}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int neighbor\+Order$>$ anonymous enum}\label{classmodel_1_1_cell_shift_ab1590de7ef0bb9642434e2950f5771b2}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{Nneighbors@{Nneighbors}!model\+::\+Cell\+Shift@{model\+::\+Cell\+Shift}}\index{model\+::\+Cell\+Shift@{model\+::\+Cell\+Shift}!Nneighbors@{Nneighbors}}\item[{\em 
+\hypertarget{classmodel_1_1_cell_shift_ab1590de7ef0bb9642434e2950f5771b2aee4134d6cbf2ecb50b24a8d678fed79f}{}Nneighbors\label{classmodel_1_1_cell_shift_ab1590de7ef0bb9642434e2950f5771b2aee4134d6cbf2ecb50b24a8d678fed79f}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 50 of file Cell\+Shift.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_cell_shift_a6903e761b1706d5601dbc643038dec3b}{}\index{model\+::\+Cell\+Shift@{model\+::\+Cell\+Shift}!neighbor\+I\+Ds@{neighbor\+I\+Ds}}
+\index{neighbor\+I\+Ds@{neighbor\+I\+Ds}!model\+::\+Cell\+Shift@{model\+::\+Cell\+Shift}}
+\subsubsection[{neighbor\+I\+Ds}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int neighbor\+Order$>$ static {\bf Cell\+Shift\+Traits}$<${\bf dim},neighbor\+Order$>$\+::Matrix\+Type {\bf model\+::\+Cell\+Shift}$<$ {\bf dim}, neighbor\+Order $>$\+::neighbor\+I\+Ds (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ int, {\bf dim}, 1 $>$ \&}]{cell\+I\+D}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_cell_shift_a6903e761b1706d5601dbc643038dec3b}
+
+
+Definition at line 71 of file Cell\+Shift.\+h.
+
+
+
+\subsection{Friends And Related Function Documentation}
+\hypertarget{classmodel_1_1_cell_shift_a710c956f234de98c0962a73bf402c186}{}\index{model\+::\+Cell\+Shift@{model\+::\+Cell\+Shift}!Cell\+Shift@{Cell\+Shift}}
+\index{Cell\+Shift@{Cell\+Shift}!model\+::\+Cell\+Shift@{model\+::\+Cell\+Shift}}
+\subsubsection[{Cell\+Shift}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int neighbor\+Order$>$ template$<$int any\+Dim, int any\+Neighbor\+Order$>$ friend class {\bf Cell\+Shift}\hspace{0.3cm}{\ttfamily [friend]}}\label{classmodel_1_1_cell_shift_a710c956f234de98c0962a73bf402c186}
+
+
+Definition at line 43 of file Cell\+Shift.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_cell_shift_a433e1eeaa68989c6c916af2623c3f2ab}{}\index{model\+::\+Cell\+Shift@{model\+::\+Cell\+Shift}!shifts@{shifts}}
+\index{shifts@{shifts}!model\+::\+Cell\+Shift@{model\+::\+Cell\+Shift}}
+\subsubsection[{shifts}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int neighbor\+Order$>$ const {\bf Cell\+Shift\+Traits}$<$ {\bf dim}, neighbor\+Order $>$\+::Matrix\+Type {\bf model\+::\+Cell\+Shift}$<$ {\bf dim}, neighbor\+Order $>$\+::shifts ={\bf Cell\+Shift}$<${\bf dim},neighbor\+Order$>$\+::get\+Shifts()\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_cell_shift_a433e1eeaa68989c6c916af2623c3f2ab}
+
+
+Definition at line 51 of file Cell\+Shift.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_cell_shift_8h}{Cell\+Shift.\+h}\end{DoxyCompactItemize}

@@ -1,0 +1,164 @@
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4}{}\section{model\+:\+:Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$ Class Template Reference}
+\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}}
+
+
+{\ttfamily \#include $<$Spline\+Node\+Base\+\_\+\+Hermite.\+h$>$}
+
+Inheritance diagram for model\+:\+:Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.766562cm]{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_ae1513c5d17dffb4fea771491defe54b3a73ccbf6d7c0ee29fe0f0bf2a841cd6c6}{corder} =1, 
+\hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_ae1513c5d17dffb4fea771491defe54b3a7e4855d0979c5e82620f72ba87e61a26}{Ndof\+Xnode} =dim$\ast$(corder+1)
+ \}
+\begin{DoxyCompactList}\small\item\em Implementation of \hyperlink{classmodel_1_1_hermite}{Hermite} Spline\+Node for the case of C1 continuity. Degrees of freedom are the nodal position vector and nodal tangent vector. (tangent continuity at each node). \end{DoxyCompactList}\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_ae1513c5d17dffb4fea771491defe54b3a7e4855d0979c5e82620f72ba87e61a26}{Ndof\+Xnode}, 1 $>$ \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_aca76e4dc4ac650d8fc7ae0b4c2bfa115}{Vector\+Dof\+Type}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_ae1513c5d17dffb4fea771491defe54b3a7e4855d0979c5e82620f72ba87e61a26}{Ndof\+Xnode}, \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_ae1513c5d17dffb4fea771491defe54b3a7e4855d0979c5e82620f72ba87e61a26}{Ndof\+Xnode} $>$ \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a6ff56666ddaf60f664205a307851c12a}{Matrix\+Dof\+Type}
+\item 
+typedef Eigen\+::\+Matrix$<$ int, \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_ae1513c5d17dffb4fea771491defe54b3a7e4855d0979c5e82620f72ba87e61a26}{Ndof\+Xnode}, 1 $>$ \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a3b6d0c33098f2d713c2ac7327a714190}{Vector\+Dof\+I\+D\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a48fc093a1362fc1362b29bfa6d1bcdaa}{Spline\+Node\+Base} (\hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_aca76e4dc4ac650d8fc7ae0b4c2bfa115}{Vector\+Dof\+Type} Q\+\_\+in)
+\item 
+void \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a37a05a253c7c4ab3ff7ffeb61bd518cb}{set} (\hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_aca76e4dc4ac650d8fc7ae0b4c2bfa115}{Vector\+Dof\+Type} Q\+\_\+in)
+\item 
+\hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_aca76e4dc4ac650d8fc7ae0b4c2bfa115}{Vector\+Dof\+Type} \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_af2fe221e697cb5582a691f1b1a3a4023}{get\+\_\+node\+Dof} () const 
+\item 
+\hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a3b6d0c33098f2d713c2ac7327a714190}{Vector\+Dof\+I\+D\+Type} \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_adb37788437ab05d528567e3c1ecd8d44}{dof\+I\+D} () const 
+\item 
+\hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a6ff56666ddaf60f664205a307851c12a}{Matrix\+Dof\+Type} \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a90eb832f971aa3d68abfd1210a50dd1d}{W2\+H} () const 
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Derived, short unsigned int dim$>$class model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}
+
+
+
+Definition at line 80 of file Spline\+Node\+Base\+\_\+\+Hermite.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a6ff56666ddaf60f664205a307851c12a}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}!Matrix\+Dof\+Type@{Matrix\+Dof\+Type}}
+\index{Matrix\+Dof\+Type@{Matrix\+Dof\+Type}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}}
+\subsubsection[{Matrix\+Dof\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ typedef Eigen\+::\+Matrix$<$double, {\bf Ndof\+Xnode}, {\bf Ndof\+Xnode}$>$ {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Hermite} $>$\+::{\bf Matrix\+Dof\+Type}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a6ff56666ddaf60f664205a307851c12a}
+
+
+Definition at line 101 of file Spline\+Node\+Base\+\_\+\+Hermite.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a3b6d0c33098f2d713c2ac7327a714190}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}!Vector\+Dof\+I\+D\+Type@{Vector\+Dof\+I\+D\+Type}}
+\index{Vector\+Dof\+I\+D\+Type@{Vector\+Dof\+I\+D\+Type}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}}
+\subsubsection[{Vector\+Dof\+I\+D\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ typedef Eigen\+::\+Matrix$<$int, {\bf Ndof\+Xnode}, 1$>$ {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Hermite} $>$\+::{\bf Vector\+Dof\+I\+D\+Type}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a3b6d0c33098f2d713c2ac7327a714190}
+
+
+Definition at line 102 of file Spline\+Node\+Base\+\_\+\+Hermite.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_aca76e4dc4ac650d8fc7ae0b4c2bfa115}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}!Vector\+Dof\+Type@{Vector\+Dof\+Type}}
+\index{Vector\+Dof\+Type@{Vector\+Dof\+Type}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}}
+\subsubsection[{Vector\+Dof\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ typedef Eigen\+::\+Matrix$<$double, {\bf Ndof\+Xnode}, 1$>$ {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Hermite} $>$\+::{\bf Vector\+Dof\+Type}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_aca76e4dc4ac650d8fc7ae0b4c2bfa115}
+
+
+Definition at line 100 of file Spline\+Node\+Base\+\_\+\+Hermite.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_ae1513c5d17dffb4fea771491defe54b3}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ anonymous enum}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_ae1513c5d17dffb4fea771491defe54b3}
+
+
+Implementation of \hyperlink{classmodel_1_1_hermite}{Hermite} Spline\+Node for the case of C1 continuity. Degrees of freedom are the nodal position vector and nodal tangent vector. (tangent continuity at each node). 
+
+Spline Nodes of type \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4}{Spline\+Node\+Base$<$\+Derived,dim,1,\+Hermite$>$} guarantee that spline segments in the spline network meet at each node with continuity of both position and parametric tangent. Each node is defined by a position and a tangent vector which are passed together in Vector\+Dof\+Type using the \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a37a05a253c7c4ab3ff7ffeb61bd518cb}{set(\+Vector\+Dof\+Type Q\+\_\+in)} member function. \begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{corder@{corder}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}!corder@{corder}}\item[{\em 
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_ae1513c5d17dffb4fea771491defe54b3a73ccbf6d7c0ee29fe0f0bf2a841cd6c6}{}corder\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_ae1513c5d17dffb4fea771491defe54b3a73ccbf6d7c0ee29fe0f0bf2a841cd6c6}
+}]\index{Ndof\+Xnode@{Ndof\+Xnode}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}!Ndof\+Xnode@{Ndof\+Xnode}}\item[{\em 
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_ae1513c5d17dffb4fea771491defe54b3a7e4855d0979c5e82620f72ba87e61a26}{}Ndof\+Xnode\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_ae1513c5d17dffb4fea771491defe54b3a7e4855d0979c5e82620f72ba87e61a26}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 96 of file Spline\+Node\+Base\+\_\+\+Hermite.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a48fc093a1362fc1362b29bfa6d1bcdaa}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}!Spline\+Node\+Base@{Spline\+Node\+Base}}
+\index{Spline\+Node\+Base@{Spline\+Node\+Base}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}}
+\subsubsection[{Spline\+Node\+Base}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Hermite} $>$\+::{\bf Spline\+Node\+Base} (
+\begin{DoxyParamCaption}
+\item[{{\bf Vector\+Dof\+Type}}]{Q\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a48fc093a1362fc1362b29bfa6d1bcdaa}
+
+
+Definition at line 108 of file Spline\+Node\+Base\+\_\+\+Hermite.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_adb37788437ab05d528567e3c1ecd8d44}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}!dof\+I\+D@{dof\+I\+D}}
+\index{dof\+I\+D@{dof\+I\+D}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}}
+\subsubsection[{dof\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ {\bf Vector\+Dof\+I\+D\+Type} {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Hermite} $>$\+::dof\+I\+D (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_adb37788437ab05d528567e3c1ecd8d44}
+
+
+Definition at line 142 of file Spline\+Node\+Base\+\_\+\+Hermite.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_af2fe221e697cb5582a691f1b1a3a4023}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}!get\+\_\+node\+Dof@{get\+\_\+node\+Dof}}
+\index{get\+\_\+node\+Dof@{get\+\_\+node\+Dof}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}}
+\subsubsection[{get\+\_\+node\+Dof}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ {\bf Vector\+Dof\+Type} {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Hermite} $>$\+::get\+\_\+node\+Dof (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_af2fe221e697cb5582a691f1b1a3a4023}
+
+
+Definition at line 136 of file Spline\+Node\+Base\+\_\+\+Hermite.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a37a05a253c7c4ab3ff7ffeb61bd518cb}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}!set@{set}}
+\index{set@{set}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}}
+\subsubsection[{set}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ void {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Hermite} $>$\+::set (
+\begin{DoxyParamCaption}
+\item[{{\bf Vector\+Dof\+Type}}]{Q\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a37a05a253c7c4ab3ff7ffeb61bd518cb}
+1-\/ Update of the nodal degrees of freedom (position and tangent). 
+\begin{DoxyParams}{Parameters}
+{\em } & \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 115 of file Spline\+Node\+Base\+\_\+\+Hermite.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a90eb832f971aa3d68abfd1210a50dd1d}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}!W2\+H@{W2\+H}}
+\index{W2\+H@{W2\+H}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Hermite $>$}}
+\subsubsection[{W2\+H}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ {\bf Matrix\+Dof\+Type} {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Hermite} $>$\+::W2\+H (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_hermite_01_4_a90eb832f971aa3d68abfd1210a50dd1d}
+
+
+Definition at line 152 of file Spline\+Node\+Base\+\_\+\+Hermite.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_spline_node_base___hermite_8h}{Spline\+Node\+Base\+\_\+\+Hermite.\+h}\end{DoxyCompactItemize}

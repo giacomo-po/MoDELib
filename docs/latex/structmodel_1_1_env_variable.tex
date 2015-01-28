@@ -1,0 +1,80 @@
+\hypertarget{structmodel_1_1_env_variable}{}\section{model\+:\+:Env\+Variable Struct Reference}
+\label{structmodel_1_1_env_variable}\index{model\+::\+Env\+Variable@{model\+::\+Env\+Variable}}
+
+
+A simple class used to extract environment variables.  
+
+
+
+
+{\ttfamily \#include $<$Env\+Variable.\+h$>$}
+
+Inheritance diagram for model\+:\+:Env\+Variable\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{structmodel_1_1_env_variable}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structmodel_1_1_env_variable_a898f7ea03a84ac11ac53c62594d60aba}{Env\+Variable} (const std\+::string \&varname)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static std\+::string \hyperlink{structmodel_1_1_env_variable_a6b5e6e3d485d2542f3df973be3c8d445}{get\+Variable} (const std\+::string \&varname)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A simple class used to extract environment variables. 
+
+Sample usage\+: 
+\begin{DoxyCode}
+\textcolor{preprocessor}{#include <iostream>}
+\textcolor{preprocessor}{#include <\hyperlink{_env_variable_8h}{model/Utilities/EnvVariable.h}>}
+
+\textcolor{keywordtype}{int} \hyperlink{bench_2bary_search_2main_8cpp_a0ddf1224851353fc92bfbff6f499fa97}{main}()\{
+ \hyperlink{structmodel_1_1_env_variable}{model::EnvVariable} ev(\textcolor{stringliteral}{"PATH"});
+ \hyperlink{namespacemodel_a0ce25fef078a7d9d9cb7cfbabcfbc289}{std::cout}<<\textcolor{stringliteral}{"PATH is "}<<ev<<std::endl;
+ \textcolor{keywordflow}{return} 0;
+\}
+\end{DoxyCode}
+ 
+
+Definition at line 35 of file Env\+Variable.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{structmodel_1_1_env_variable_a898f7ea03a84ac11ac53c62594d60aba}{}\index{model\+::\+Env\+Variable@{model\+::\+Env\+Variable}!Env\+Variable@{Env\+Variable}}
+\index{Env\+Variable@{Env\+Variable}!model\+::\+Env\+Variable@{model\+::\+Env\+Variable}}
+\subsubsection[{Env\+Variable}]{\setlength{\rightskip}{0pt plus 5cm}model\+::\+Env\+Variable\+::\+Env\+Variable (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{varname}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_env_variable_a898f7ea03a84ac11ac53c62594d60aba}
+
+
+Definition at line 46 of file Env\+Variable.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_env_variable_a6b5e6e3d485d2542f3df973be3c8d445}{}\index{model\+::\+Env\+Variable@{model\+::\+Env\+Variable}!get\+Variable@{get\+Variable}}
+\index{get\+Variable@{get\+Variable}!model\+::\+Env\+Variable@{model\+::\+Env\+Variable}}
+\subsubsection[{get\+Variable}]{\setlength{\rightskip}{0pt plus 5cm}static std\+::string model\+::\+Env\+Variable\+::get\+Variable (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{varname}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_env_variable_a6b5e6e3d485d2542f3df973be3c8d445}
+
+
+Definition at line 38 of file Env\+Variable.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_env_variable_8h}{Env\+Variable.\+h}\end{DoxyCompactItemize}

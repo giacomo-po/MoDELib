@@ -1,0 +1,205 @@
+\hypertarget{classmodel_1_1_network_link}{}\section{model\+:\+:Network\+Link$<$ Derived $>$ Class Template Reference}
+\label{classmodel_1_1_network_link}\index{model\+::\+Network\+Link$<$ Derived $>$@{model\+::\+Network\+Link$<$ Derived $>$}}
+
+
+{\ttfamily \#include $<$Network\+Component.\+h$>$}
+
+Inheritance diagram for model\+:\+:Network\+Link$<$ Derived $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.978799cm]{classmodel_1_1_network_link}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_network_link_a5c6b29e7b842d4c07f998098c2dfa1d3}{Network\+Link} (const std\+::pair$<$ \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $\ast$const, \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $\ast$const  $>$ \&Node\+Pair\+\_\+in, const \hyperlink{_spline_segment_base__common_8h_aec2b17f3c09c54f93636cbedceffde56}{Flow\+Type} \&Flow\+\_\+in)
+\item 
+\hyperlink{classmodel_1_1_network_link_aec5157cd0bd40ad5264f4e6080b44f2b}{Network\+Link} (const std\+::pair$<$ \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $\ast$const, \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $\ast$const  $>$ \&Node\+Pair\+\_\+in, const \hyperlink{structmodel_1_1_expanding_edge}{Expanding\+Edge}$<$ \hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $>$ \&ee)
+\item 
+\hyperlink{classmodel_1_1_network_link_a4e5aad41de186df2d4f9bfbc03c14060}{$\sim$\+Network\+Link} ()
+\item 
+size\+\_\+t \hyperlink{classmodel_1_1_network_link_af78d2c702efb5cc6afff6b0ae6d95b74}{sn\+I\+D} () const 
+\item 
+const std\+::shared\+\_\+ptr$<$ \hyperlink{_network_typedefs_8h_ace62a87e27b01659142c49a8712f3dc9}{Network\+Component\+Type} $>$ \& \hyperlink{classmodel_1_1_network_link_a9c6794cda822e287e1e2222558a2f74e}{p\+S\+N} () const 
+\item 
+bool \hyperlink{classmodel_1_1_network_link_a916e66c681349482cde1c02006ff7311}{is\+Incident} (const size\+\_\+t \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k}) const 
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $\ast$const \hyperlink{classmodel_1_1_network_link_abd4d47e500d0fafe994f2663ce571faf}{source}
+\item 
+\hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $\ast$const \hyperlink{classmodel_1_1_network_link_ab30d55b16fb714b9ea6c8d30a6d5a1c6}{sink}
+\item 
+const std\+::pair$<$ size\+\_\+t, size\+\_\+t $>$ \hyperlink{classmodel_1_1_network_link_a2eed0e5b229d53fd9f69b33df5187275}{node\+I\+D\+Pair}
+\item 
+const \hyperlink{_spline_segment_base__common_8h_aec2b17f3c09c54f93636cbedceffde56}{Flow\+Type} \hyperlink{classmodel_1_1_network_link_a8c4ac993a9be36610bfac925143bc032}{flow}
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classmodel_1_1_network_link_a7abf7cf19735a05b8e12bd8f57d2bc70}{Network\+Node$<$ Node\+Type $>$}
+\item 
+{\footnotesize template$<$class T , typename Other\+Segment $>$ }\\\hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \& \hyperlink{classmodel_1_1_network_link_a697470482b401379bdd240715d2681cf}{operator$<$$<$} (\hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&os, const \hyperlink{classmodel_1_1_network_link}{Network\+Link}$<$ Other\+Segment $>$ \&N\+L)
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Derived$>$class model\+::\+Network\+Link$<$ Derived $>$}
+
+
+
+Definition at line 32 of file Network\+Component.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_network_link_a5c6b29e7b842d4c07f998098c2dfa1d3}{}\index{model\+::\+Network\+Link@{model\+::\+Network\+Link}!Network\+Link@{Network\+Link}}
+\index{Network\+Link@{Network\+Link}!model\+::\+Network\+Link@{model\+::\+Network\+Link}}
+\subsubsection[{Network\+Link}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf model\+::\+Network\+Link}$<$ Derived $>$\+::{\bf Network\+Link} (
+\begin{DoxyParamCaption}
+\item[{const std\+::pair$<$ {\bf Node\+Type} $\ast$const, {\bf Node\+Type} $\ast$const  $>$ \&}]{Node\+Pair\+\_\+in, }
+\item[{const {\bf Flow\+Type} \&}]{Flow\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_link_a5c6b29e7b842d4c07f998098c2dfa1d3}
+Constructor with pointers to source and sink, and flow 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em Node\+Pair\+\_\+in} & the pair of source and sink pointers \\
+\hline
+\mbox{\tt in}  & {\em Flow\+\_\+in} & the input flow\\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 127 of file Network\+Link.\+h.
+
+\hypertarget{classmodel_1_1_network_link_aec5157cd0bd40ad5264f4e6080b44f2b}{}\index{model\+::\+Network\+Link@{model\+::\+Network\+Link}!Network\+Link@{Network\+Link}}
+\index{Network\+Link@{Network\+Link}!model\+::\+Network\+Link@{model\+::\+Network\+Link}}
+\subsubsection[{Network\+Link}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf model\+::\+Network\+Link}$<$ Derived $>$\+::{\bf Network\+Link} (
+\begin{DoxyParamCaption}
+\item[{const std\+::pair$<$ {\bf Node\+Type} $\ast$const, {\bf Node\+Type} $\ast$const  $>$ \&}]{Node\+Pair\+\_\+in, }
+\item[{const {\bf Expanding\+Edge}$<$ {\bf Link\+Type} $>$ \&}]{ee}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_link_aec5157cd0bd40ad5264f4e6080b44f2b}
+
+
+Definition at line 141 of file Network\+Link.\+h.
+
+\hypertarget{classmodel_1_1_network_link_a4e5aad41de186df2d4f9bfbc03c14060}{}\index{model\+::\+Network\+Link@{model\+::\+Network\+Link}!````~Network\+Link@{$\sim$\+Network\+Link}}
+\index{````~Network\+Link@{$\sim$\+Network\+Link}!model\+::\+Network\+Link@{model\+::\+Network\+Link}}
+\subsubsection[{$\sim$\+Network\+Link}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf model\+::\+Network\+Link}$<$ Derived $>$\+::$\sim${\bf Network\+Link} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_link_a4e5aad41de186df2d4f9bfbc03c14060}
+1-\/ Remove this from the Neighborood of Source and Sink nodes
+
+2-\/ Remove this from the \hyperlink{classmodel_1_1_network_component}{Network\+Component}
+
+3-\/ If Now Source and Sink are disconnected then reset the \hyperlink{classmodel_1_1_network_component}{Network\+Component} in the sink 
+
+Definition at line 166 of file Network\+Link.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_network_link_a916e66c681349482cde1c02006ff7311}{}\index{model\+::\+Network\+Link@{model\+::\+Network\+Link}!is\+Incident@{is\+Incident}}
+\index{is\+Incident@{is\+Incident}!model\+::\+Network\+Link@{model\+::\+Network\+Link}}
+\subsubsection[{is\+Incident}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ bool {\bf model\+::\+Network\+Link}$<$ Derived $>$\+::is\+Incident (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{k}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_link_a916e66c681349482cde1c02006ff7311}
+
+
+Definition at line 199 of file Network\+Link.\+h.
+
+\hypertarget{classmodel_1_1_network_link_a9c6794cda822e287e1e2222558a2f74e}{}\index{model\+::\+Network\+Link@{model\+::\+Network\+Link}!p\+S\+N@{p\+S\+N}}
+\index{p\+S\+N@{p\+S\+N}!model\+::\+Network\+Link@{model\+::\+Network\+Link}}
+\subsubsection[{p\+S\+N}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ const std\+::shared\+\_\+ptr$<${\bf Network\+Component\+Type}$>$\& {\bf model\+::\+Network\+Link}$<$ Derived $>$\+::p\+S\+N (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_link_a9c6794cda822e287e1e2222558a2f74e}
+\begin{DoxyReturn}{Returns}
+The shared\+\_\+ptr to the \hyperlink{classmodel_1_1_network_component}{Network\+Component} containing this
+\end{DoxyReturn}
+
+
+Definition at line 192 of file Network\+Link.\+h.
+
+\hypertarget{classmodel_1_1_network_link_af78d2c702efb5cc6afff6b0ae6d95b74}{}\index{model\+::\+Network\+Link@{model\+::\+Network\+Link}!sn\+I\+D@{sn\+I\+D}}
+\index{sn\+I\+D@{sn\+I\+D}!model\+::\+Network\+Link@{model\+::\+Network\+Link}}
+\subsubsection[{sn\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ size\+\_\+t {\bf model\+::\+Network\+Link}$<$ Derived $>$\+::sn\+I\+D (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_link_af78d2c702efb5cc6afff6b0ae6d95b74}
+\begin{DoxyReturn}{Returns}
+The \hyperlink{classmodel_1_1_static_i_d}{Static\+I\+D} of the \hyperlink{classmodel_1_1_network_component}{Network\+Component} containing this
+\end{DoxyReturn}
+
+
+Definition at line 185 of file Network\+Link.\+h.
+
+
+
+\subsection{Friends And Related Function Documentation}
+\hypertarget{classmodel_1_1_network_link_a7abf7cf19735a05b8e12bd8f57d2bc70}{}\index{model\+::\+Network\+Link@{model\+::\+Network\+Link}!Network\+Node$<$ Node\+Type $>$@{Network\+Node$<$ Node\+Type $>$}}
+\index{Network\+Node$<$ Node\+Type $>$@{Network\+Node$<$ Node\+Type $>$}!model\+::\+Network\+Link@{model\+::\+Network\+Link}}
+\subsubsection[{Network\+Node$<$ Node\+Type $>$}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ friend class {\bf Network\+Node}$<$ {\bf Node\+Type} $>$\hspace{0.3cm}{\ttfamily [friend]}}\label{classmodel_1_1_network_link_a7abf7cf19735a05b8e12bd8f57d2bc70}
+
+
+Definition at line 41 of file Network\+Link.\+h.
+
+\hypertarget{classmodel_1_1_network_link_a697470482b401379bdd240715d2681cf}{}\index{model\+::\+Network\+Link@{model\+::\+Network\+Link}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!model\+::\+Network\+Link@{model\+::\+Network\+Link}}
+\subsubsection[{operator$<$$<$}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ template$<$class T , typename Other\+Segment $>$ {\bf T}\& operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{{\bf T} \&}]{os, }
+\item[{const {\bf Network\+Link}$<$ Other\+Segment $>$ \&}]{N\+L}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [friend]}}\label{classmodel_1_1_network_link_a697470482b401379bdd240715d2681cf}
+
+
+Definition at line 206 of file Network\+Link.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_network_link_a8c4ac993a9be36610bfac925143bc032}{}\index{model\+::\+Network\+Link@{model\+::\+Network\+Link}!flow@{flow}}
+\index{flow@{flow}!model\+::\+Network\+Link@{model\+::\+Network\+Link}}
+\subsubsection[{flow}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ const {\bf Flow\+Type} {\bf model\+::\+Network\+Link}$<$ Derived $>$\+::flow}\label{classmodel_1_1_network_link_a8c4ac993a9be36610bfac925143bc032}
+
+
+Definition at line 52 of file Network\+Link.\+h.
+
+\hypertarget{classmodel_1_1_network_link_a2eed0e5b229d53fd9f69b33df5187275}{}\index{model\+::\+Network\+Link@{model\+::\+Network\+Link}!node\+I\+D\+Pair@{node\+I\+D\+Pair}}
+\index{node\+I\+D\+Pair@{node\+I\+D\+Pair}!model\+::\+Network\+Link@{model\+::\+Network\+Link}}
+\subsubsection[{node\+I\+D\+Pair}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ const std\+::pair$<$size\+\_\+t,size\+\_\+t$>$ {\bf model\+::\+Network\+Link}$<$ Derived $>$\+::node\+I\+D\+Pair}\label{classmodel_1_1_network_link_a2eed0e5b229d53fd9f69b33df5187275}
+
+
+Definition at line 51 of file Network\+Link.\+h.
+
+\hypertarget{classmodel_1_1_network_link_ab30d55b16fb714b9ea6c8d30a6d5a1c6}{}\index{model\+::\+Network\+Link@{model\+::\+Network\+Link}!sink@{sink}}
+\index{sink@{sink}!model\+::\+Network\+Link@{model\+::\+Network\+Link}}
+\subsubsection[{sink}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf Node\+Type}$\ast$ const {\bf model\+::\+Network\+Link}$<$ Derived $>$\+::sink}\label{classmodel_1_1_network_link_ab30d55b16fb714b9ea6c8d30a6d5a1c6}
+
+
+Definition at line 50 of file Network\+Link.\+h.
+
+\hypertarget{classmodel_1_1_network_link_abd4d47e500d0fafe994f2663ce571faf}{}\index{model\+::\+Network\+Link@{model\+::\+Network\+Link}!source@{source}}
+\index{source@{source}!model\+::\+Network\+Link@{model\+::\+Network\+Link}}
+\subsubsection[{source}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf Node\+Type}$\ast$ const {\bf model\+::\+Network\+Link}$<$ Derived $>$\+::source}\label{classmodel_1_1_network_link_abd4d47e500d0fafe994f2663ce571faf}
+
+
+Definition at line 49 of file Network\+Link.\+h.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_network_component_8h}{Network\+Component.\+h}\item 
+\hyperlink{_network_link_8h}{Network\+Link.\+h}\end{DoxyCompactItemize}

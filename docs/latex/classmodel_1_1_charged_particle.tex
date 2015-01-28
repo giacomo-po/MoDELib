@@ -1,0 +1,200 @@
+\hypertarget{classmodel_1_1_charged_particle}{}\section{model\+:\+:Charged\+Particle$<$ \+\_\+dim $>$ Class Template Reference}
+\label{classmodel_1_1_charged_particle}\index{model\+::\+Charged\+Particle$<$ \+\_\+dim $>$@{model\+::\+Charged\+Particle$<$ \+\_\+dim $>$}}
+
+
+{\ttfamily \#include $<$Charged\+Particle.\+h$>$}
+
+Inheritance diagram for model\+:\+:Charged\+Particle$<$ \+\_\+dim $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.936455cm]{classmodel_1_1_charged_particle}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{classmodel_1_1_charged_particle_a846076bee7d323a23c742e13b93a5d85a883743e7ebeeeeaa68048df207959118}{dim} =\+\_\+dim
+ \}
+\item 
+typedef \hyperlink{structmodel_1_1_electric_field}{Electric\+Field}$<$ \+\_\+dim $>$ \hyperlink{classmodel_1_1_charged_particle_a2b7dfa8b171bbc5d473730136c484161}{Efield}
+\item 
+typedef \hyperlink{structmodel_1_1_magnetic_field}{Magnetic\+Field}$<$ \+\_\+dim $>$ \hyperlink{classmodel_1_1_charged_particle_ae20fd0eb3401c71ca0f4e48b89aae709}{Bfield}
+\item 
+typedef \hyperlink{structmodel_1_1_point_source}{Point\+Source}$<$ \hyperlink{classmodel_1_1_charged_particle}{Charged\+Particle}$<$ \+\_\+dim $>$, \+\_\+dim, \hyperlink{classmodel_1_1_charged_particle_a2b7dfa8b171bbc5d473730136c484161}{Efield}, \hyperlink{classmodel_1_1_charged_particle_ae20fd0eb3401c71ca0f4e48b89aae709}{Bfield} $>$ \hyperlink{classmodel_1_1_charged_particle_ab17dac856176be5f7d8394283d087783}{Point\+Source\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_field_point}{Field\+Point}$<$ \hyperlink{classmodel_1_1_charged_particle}{Charged\+Particle}$<$ \+\_\+dim $>$, \+\_\+dim, \hyperlink{classmodel_1_1_charged_particle_a2b7dfa8b171bbc5d473730136c484161}{Efield}, \hyperlink{classmodel_1_1_charged_particle_ae20fd0eb3401c71ca0f4e48b89aae709}{Bfield} $>$ \hyperlink{classmodel_1_1_charged_particle_a0a40d2605cb1ace9a6277c5b61cb5733}{Field\+Point\+Type}
+\item 
+typedef Point\+Source\+Type\+::\+Vector\+Dim\+D \hyperlink{classmodel_1_1_charged_particle_a31a77e0315958d087309087da65b422d}{Vector\+Dim\+D}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_charged_particle_a15f9d1f6eaff7808e665e3bb4d959d1f}{Charged\+Particle} (const \hyperlink{classmodel_1_1_charged_particle_a31a77e0315958d087309087da65b422d}{Vector\+Dim\+D} \&p\+I\+N, const \hyperlink{classmodel_1_1_charged_particle_a31a77e0315958d087309087da65b422d}{Vector\+Dim\+D} \&v\+I\+N, const double \&q\+I\+N)
+\item 
+const \hyperlink{classmodel_1_1_charged_particle_a31a77e0315958d087309087da65b422d}{Vector\+Dim\+D} \& \hyperlink{classmodel_1_1_charged_particle_ac4fb5067e8eade7d858fc9fc2c489cac}{P} () const 
+\item 
+const \hyperlink{classmodel_1_1_charged_particle_a31a77e0315958d087309087da65b422d}{Vector\+Dim\+D} \& \hyperlink{classmodel_1_1_charged_particle_a19024b973779c10d45a9525aa142816f}{V} () const 
+\item 
+\hyperlink{classmodel_1_1_charged_particle_a31a77e0315958d087309087da65b422d}{Vector\+Dim\+D} \hyperlink{classmodel_1_1_charged_particle_a96b537a1c0a0a9d36622f0050063bf5a}{force} () const 
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const double \hyperlink{classmodel_1_1_charged_particle_a28db4e3ad1c803a36dca08d36bbaae21}{q}
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$class T $>$ }\\\hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \& \hyperlink{classmodel_1_1_charged_particle_ae7ca94567c666191a97e56ce5ec6b7bf}{operator$<$$<$} (\hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&os, const \hyperlink{classmodel_1_1_charged_particle}{Charged\+Particle} \&c\+P)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$short unsigned int \+\_\+dim$>$class model\+::\+Charged\+Particle$<$ \+\_\+dim $>$}
+
+
+
+Definition at line 27 of file Charged\+Particle.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_charged_particle_ae20fd0eb3401c71ca0f4e48b89aae709}{}\index{model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}!Bfield@{Bfield}}
+\index{Bfield@{Bfield}!model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}}
+\subsubsection[{Bfield}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Magnetic\+Field}$<$\+\_\+dim$>$ {\bf model\+::\+Charged\+Particle}$<$ \+\_\+dim $>$\+::{\bf Bfield}}\label{classmodel_1_1_charged_particle_ae20fd0eb3401c71ca0f4e48b89aae709}
+
+
+Definition at line 42 of file Charged\+Particle.\+h.
+
+\hypertarget{classmodel_1_1_charged_particle_a2b7dfa8b171bbc5d473730136c484161}{}\index{model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}!Efield@{Efield}}
+\index{Efield@{Efield}!model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}}
+\subsubsection[{Efield}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Electric\+Field}$<$\+\_\+dim$>$ {\bf model\+::\+Charged\+Particle}$<$ \+\_\+dim $>$\+::{\bf Efield}}\label{classmodel_1_1_charged_particle_a2b7dfa8b171bbc5d473730136c484161}
+
+
+Definition at line 41 of file Charged\+Particle.\+h.
+
+\hypertarget{classmodel_1_1_charged_particle_a0a40d2605cb1ace9a6277c5b61cb5733}{}\index{model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}!Field\+Point\+Type@{Field\+Point\+Type}}
+\index{Field\+Point\+Type@{Field\+Point\+Type}!model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}}
+\subsubsection[{Field\+Point\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Field\+Point}$<${\bf Charged\+Particle}$<$\+\_\+dim$>$,\+\_\+dim,{\bf Efield},{\bf Bfield}$>$ {\bf model\+::\+Charged\+Particle}$<$ \+\_\+dim $>$\+::{\bf Field\+Point\+Type}}\label{classmodel_1_1_charged_particle_a0a40d2605cb1ace9a6277c5b61cb5733}
+
+
+Definition at line 46 of file Charged\+Particle.\+h.
+
+\hypertarget{classmodel_1_1_charged_particle_ab17dac856176be5f7d8394283d087783}{}\index{model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}!Point\+Source\+Type@{Point\+Source\+Type}}
+\index{Point\+Source\+Type@{Point\+Source\+Type}!model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}}
+\subsubsection[{Point\+Source\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Point\+Source}$<${\bf Charged\+Particle}$<$\+\_\+dim$>$,\+\_\+dim,{\bf Efield},{\bf Bfield}$>$ {\bf model\+::\+Charged\+Particle}$<$ \+\_\+dim $>$\+::{\bf Point\+Source\+Type}}\label{classmodel_1_1_charged_particle_ab17dac856176be5f7d8394283d087783}
+
+
+Definition at line 45 of file Charged\+Particle.\+h.
+
+\hypertarget{classmodel_1_1_charged_particle_a31a77e0315958d087309087da65b422d}{}\index{model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}!Vector\+Dim\+D@{Vector\+Dim\+D}}
+\index{Vector\+Dim\+D@{Vector\+Dim\+D}!model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}}
+\subsubsection[{Vector\+Dim\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef Point\+Source\+Type\+::\+Vector\+Dim\+D {\bf model\+::\+Charged\+Particle}$<$ \+\_\+dim $>$\+::{\bf Vector\+Dim\+D}}\label{classmodel_1_1_charged_particle_a31a77e0315958d087309087da65b422d}
+
+
+Definition at line 48 of file Charged\+Particle.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classmodel_1_1_charged_particle_a846076bee7d323a23c742e13b93a5d85}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ anonymous enum}\label{classmodel_1_1_charged_particle_a846076bee7d323a23c742e13b93a5d85}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{dim@{dim}!model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}}\index{model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}!dim@{dim}}\item[{\em 
+\hypertarget{classmodel_1_1_charged_particle_a846076bee7d323a23c742e13b93a5d85a883743e7ebeeeeaa68048df207959118}{}dim\label{classmodel_1_1_charged_particle_a846076bee7d323a23c742e13b93a5d85a883743e7ebeeeeaa68048df207959118}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 39 of file Charged\+Particle.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_charged_particle_a15f9d1f6eaff7808e665e3bb4d959d1f}{}\index{model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}!Charged\+Particle@{Charged\+Particle}}
+\index{Charged\+Particle@{Charged\+Particle}!model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}}
+\subsubsection[{Charged\+Particle}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ {\bf model\+::\+Charged\+Particle}$<$ \+\_\+dim $>$\+::{\bf Charged\+Particle} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim\+D} \&}]{p\+I\+N, }
+\item[{const {\bf Vector\+Dim\+D} \&}]{v\+I\+N, }
+\item[{const double \&}]{q\+I\+N}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_charged_particle_a15f9d1f6eaff7808e665e3bb4d959d1f}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em p\+I\+N} & position of this \hyperlink{classmodel_1_1_charged_particle}{Charged\+Particle} \\
+\hline
+\mbox{\tt in}  & {\em q\+I\+N} & charge of this \hyperlink{classmodel_1_1_charged_particle}{Charged\+Particle}\\
+\hline
+\end{DoxyParams}
+Constructor with input position and charge
+
+Definition at line 60 of file Charged\+Particle.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_charged_particle_a96b537a1c0a0a9d36622f0050063bf5a}{}\index{model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}!force@{force}}
+\index{force@{force}!model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}}
+\subsubsection[{force}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ {\bf Vector\+Dim\+D} {\bf model\+::\+Charged\+Particle}$<$ \+\_\+dim $>$\+::force (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_charged_particle_a96b537a1c0a0a9d36622f0050063bf5a}
+The charge of this \hyperlink{classmodel_1_1_charged_particle}{Charged\+Particle}
+
+Definition at line 88 of file Charged\+Particle.\+h.
+
+\hypertarget{classmodel_1_1_charged_particle_ac4fb5067e8eade7d858fc9fc2c489cac}{}\index{model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}!P@{P}}
+\index{P@{P}!model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}}
+\subsubsection[{P}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ const {\bf Vector\+Dim\+D}\& {\bf model\+::\+Charged\+Particle}$<$ \+\_\+dim $>$\+::P (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_charged_particle_ac4fb5067e8eade7d858fc9fc2c489cac}
+The position of this \hyperlink{classmodel_1_1_charged_particle}{Charged\+Particle}
+
+Definition at line 74 of file Charged\+Particle.\+h.
+
+\hypertarget{classmodel_1_1_charged_particle_a19024b973779c10d45a9525aa142816f}{}\index{model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}!V@{V}}
+\index{V@{V}!model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}}
+\subsubsection[{V}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ const {\bf Vector\+Dim\+D}\& {\bf model\+::\+Charged\+Particle}$<$ \+\_\+dim $>$\+::V (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_charged_particle_a19024b973779c10d45a9525aa142816f}
+The velocity of this \hyperlink{classmodel_1_1_charged_particle}{Charged\+Particle}
+
+Definition at line 81 of file Charged\+Particle.\+h.
+
+
+
+\subsection{Friends And Related Function Documentation}
+\hypertarget{classmodel_1_1_charged_particle_ae7ca94567c666191a97e56ce5ec6b7bf}{}\index{model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}}
+\subsubsection[{operator$<$$<$}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ template$<$class T $>$ {\bf T}\& operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{{\bf T} \&}]{os, }
+\item[{const {\bf Charged\+Particle}$<$ \+\_\+dim $>$ \&}]{c\+P}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [friend]}}\label{classmodel_1_1_charged_particle_ae7ca94567c666191a97e56ce5ec6b7bf}
+operator $<$$<$ is used to output \hyperlink{classmodel_1_1_charged_particle}{Charged\+Particle} info Example\+: \hyperlink{classmodel_1_1_charged_particle}{Charged\+Particle} p; std\+::cout$<$$<$p;
+
+Definition at line 96 of file Charged\+Particle.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_charged_particle_a28db4e3ad1c803a36dca08d36bbaae21}{}\index{model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}!q@{q}}
+\index{q@{q}!model\+::\+Charged\+Particle@{model\+::\+Charged\+Particle}}
+\subsubsection[{q}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ const double {\bf model\+::\+Charged\+Particle}$<$ \+\_\+dim $>$\+::q}\label{classmodel_1_1_charged_particle_a28db4e3ad1c803a36dca08d36bbaae21}
+
+
+Definition at line 57 of file Charged\+Particle.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_charged_particle_8h}{Charged\+Particle.\+h}\end{DoxyCompactItemize}

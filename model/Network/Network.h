@@ -33,8 +33,8 @@ namespace model {
 	class Network : boost::noncopyable,
 	/*          */  protected boost::ptr_map<size_t,typename TypeTraits<Derived>::NodeType>,
 	/*          */  protected boost::ptr_map<std::pair<size_t,size_t>,typename TypeTraits<Derived>::LinkType>,
-    //	/*          */  protected std::map<size_t,std::auto_ptr<typename TypeTraits<Derived>::NodeType> >,
-    //	/*          */  protected std::map<std::pair<size_t,size_t>,std::auto_ptr<typename TypeTraits<Derived>::LinkType> >,
+//	/*          */  protected std::map<size_t,std::auto_ptr<typename TypeTraits<Derived>::NodeType> >,
+//	/*          */  protected std::map<std::pair<size_t,size_t>,std::auto_ptr<typename TypeTraits<Derived>::LinkType> >,
 	/*          */  public  CRTP<Derived>,
 	/*          */  public  AddressBook<NetworkComponent<typename TypeTraits<Derived>::NodeType,typename TypeTraits<Derived>::LinkType>,0>
     {
@@ -104,19 +104,17 @@ namespace model {
 		
 		
 		/************************************************************/
-		// nodeBegin
-		typename NetworkNodeContainerType::iterator nodeBegin() {
-			//! An iterator to the first node in the network.
+		typename NetworkNodeContainerType::iterator nodeBegin()
+        {//!\returns An iterator to the first node in the network.
 			return NetworkNodeContainerType::begin();
 		}
 		
-		typename NetworkNodeContainerType::const_iterator nodeBegin() const {
-			//! A const iterator to the first node in the network.
+		typename NetworkNodeContainerType::const_iterator nodeBegin() const
+        {//!\returns A const iterator to the first node in the network.
 			return NetworkNodeContainerType::begin();
 		}
 		
 		/************************************************************/
-		// nodeEnd
 		typename NetworkNodeContainerType::iterator nodeEnd()
         {/*! @param[out] An iterator referring to the past-the-end vertex in
           *  the network.
@@ -132,12 +130,13 @@ namespace model {
 		}
 		
 		/************************************************************/
-		// linkBegin
-		typename NetworkLinkContainerType::iterator linkBegin()  {
+		typename NetworkLinkContainerType::iterator linkBegin()
+        {
 			return NetworkLinkContainerType::begin();
 		}
 		
-		typename NetworkLinkContainerType::const_iterator linkBegin() const {
+		typename NetworkLinkContainerType::const_iterator linkBegin() const
+        {
 			return NetworkLinkContainerType::begin();
 		}
 		
@@ -152,6 +151,20 @@ namespace model {
         {
 			return NetworkLinkContainerType::end();
 		}
+        
+        
+        /************************************************************/
+        typename NetworkComponentContainerType::iterator componentBegin()
+        {
+            return this->ABbegin();
+        }
+        
+        /************************************************************/
+        typename NetworkComponentContainerType::iterator componentEnd()
+        {
+            return this->ABend();
+        }
+
         
 		/* insert (a new vertex) **************************************/
 		template <typename ...NodeArgTypes>

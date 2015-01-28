@@ -1,0 +1,15 @@
+
+\begin{DoxyRefList}
+\item[\label{todo__todo000001}%
+\hypertarget{todo__todo000001}{}%
+Member \hyperlink{classmodel_1_1_dislocation_segment_af269e6766aadff3f174a8ea4b724e471}{model\+:\+:Dislocation\+Segment$<$ \+\_\+dim, corder, Interpolation\+Type, q\+Order, Quadrature\+Rule $>$\+:\+:integral\+P\+K} () const ]F\+I\+N\+I\+S\+H H\+E\+R\+E  
+\item[\label{todo__todo000002}%
+\hypertarget{todo__todo000002}{}%
+Member \hyperlink{structmodel_1_1_dislocation_shared_objects_a1ebde927216271979599e324ce29e65a}{model\+:\+:Dislocation\+Shared\+Objects$<$ Link\+Type $>$\+:\+:bdn} ]\hyperlink{structmodel_1_1_fix}{Fix} the Segmentation fault that takes place when mesh is destroyed. When mesh is destroyed, the first \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4}{Simplex$<$dim,dim$>$} is destroyed, and the call to \hyperlink{structmodel_1_1_simplex_observer_acd3b33890ad0aa0cee424cb8cc6d56fe}{Simplex\+Observer$<$dim,dim$>$\+::remove\+Simplex()} fails. This only happens if mesh is declared static. There must be some conflict in the order of destruction of the static mesh and the static map in \hyperlink{structmodel_1_1_simplex_observer}{Simplex\+Observer}.  
+\item[\label{todo__todo000003}%
+\hypertarget{todo__todo000003}{}%
+Member \hyperlink{classmodel_1_1_trial_def_a2dc33c3a2c421b30831d0e0bfd97ce04}{model\+:\+:Trial\+Def$<$ T $>$\+:\+:operator()} (const \+\_\+\+Element\+Type \&ele, const \+\_\+\+Bary\+Type \&bary) const ]\+: in order to be optimized, this function should be Derived-\/specific  
+\item[\label{todo__todo000004}%
+\hypertarget{todo__todo000004}{}%
+Member \hyperlink{classmodel_1_1_trial_grad_ae55d665cc1cfffd222c2abdd04d4b502}{model\+:\+:Trial\+Grad$<$ T $>$\+:\+:operator()} (const \+\_\+\+Element\+Type \&ele, const \+\_\+\+Bary\+Type \&bary) const ]\+: in order to be optimized, this function should be Derived-\/specific 
+\end{DoxyRefList}

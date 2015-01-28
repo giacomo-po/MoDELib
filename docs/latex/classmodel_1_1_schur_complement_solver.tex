@@ -1,0 +1,129 @@
+\hypertarget{classmodel_1_1_schur_complement_solver}{}\section{model\+:\+:Schur\+Complement\+Solver Class Reference}
+\label{classmodel_1_1_schur_complement_solver}\index{model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}}
+
+
+Solves the system of equations in block-\/form\+: \[ \left[ \begin{array}{ll} K_{qq} & K_{pq}^T\\ K_{pq} & 0\\ \end{array} \right] \left[ \begin{array}{l} X_q\\ L_p \end{array} \right] = \left[ \begin{array}{l} F_q\\ F_p \end{array} \right] \] where the matrix $K_{qq}$ is a symmetric positive definite matrix and $K_{pq}$ is a full row-\/rank matrix.  
+
+
+
+
+{\ttfamily \#include $<$Schur\+Complement\+Solver.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_schur_complement_solver_abc909e0d7af7a69a33b5f6457c2f8017}{Schur\+Complement\+Solver} (const Eigen\+::\+Matrix\+Xd \&K\+Q\+Q, const Eigen\+::\+Matrix\+Xd \&K\+P\+Q, const Eigen\+::\+Vector\+Xd \&Fq, const Eigen\+::\+Vector\+Xd \&Fp)
+\item 
+\hyperlink{classmodel_1_1_schur_complement_solver_a3935db703cedca7977adb39ce149d0e6}{Schur\+Complement\+Solver} (const Eigen\+::\+Matrix\+Xd \&K\+Q\+Q, const Eigen\+::\+Matrix\+Xd \&K\+P\+Q, const Eigen\+::\+Vector\+Xd \&Fq)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const Eigen\+::\+L\+L\+T$<$ Eigen\+::\+Matrix\+Xd $>$ \hyperlink{classmodel_1_1_schur_complement_solver_a34b95f56894b2e52a9bc2e690ce7da28}{llt}
+\begin{DoxyCompactList}\small\item\em The L\+L\+T decomposition of K\+Q\+Q. \end{DoxyCompactList}\item 
+const Eigen\+::\+Partial\+Piv\+L\+U$<$ Eigen\+::\+Matrix\+Xd $>$ \hyperlink{classmodel_1_1_schur_complement_solver_a49a021c28be0230019e32c2d58b172d3}{pplu}
+\begin{DoxyCompactList}\small\item\em the partial-\/pivot L\+U decomposition of K\+P\+Q$\ast$inv(K\+Q\+Q)$\ast$\+K\+P\+Q$^\wedge$\+T \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \hyperlink{classmodel_1_1_schur_complement_solver_af911959dab6c88ef36abb723c15ec4f4}{L}
+\begin{DoxyCompactList}\small\item\em The vector of Lagrange multipliers. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \hyperlink{classmodel_1_1_schur_complement_solver_a9f003385888ebea2f2d52df7bb7dffe7}{X}
+\begin{DoxyCompactList}\small\item\em The solution vector. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Solves the system of equations in block-\/form\+: \[ \left[ \begin{array}{ll} K_{qq} & K_{pq}^T\\ K_{pq} & 0\\ \end{array} \right] \left[ \begin{array}{l} X_q\\ L_p \end{array} \right] = \left[ \begin{array}{l} F_q\\ F_p \end{array} \right] \] where the matrix $K_{qq}$ is a symmetric positive definite matrix and $K_{pq}$ is a full row-\/rank matrix. 
+
+The full system is symmetric but not necessarely poisitive-\/definite, therefore Cholesky decomposition (L\+L\+T) cannot be used. However, since $K_{qq}$ is symmetric and positive-\/definite, L\+L\+T can be used for the decomposition of $K_{qq}$. In order to take advantage of L\+L\+T and reduce the size of the overall matrix decomposition, the solution is found in the form\+: \[ \left\{ \begin{array}{l} L_p=\left(K_{pq}K_{qq}^{-1}K_{pq}^T\right)^{-1}\left(K_{pq}K_{qq}^{-1}F_q-F_p\right)\\ X_q=K_{qq}^{-1}\left(F_q-K_{pq}^TL_p\right) \end{array} \right. \]
+
+Numerically this is implemented as\+: 
+\begin{DoxyCode}
+Eigen::LLT<Eigen::MatrixXd> \hyperlink{classmodel_1_1_schur_complement_solver_a34b95f56894b2e52a9bc2e690ce7da28}{llt}(KQQ);
+Eigen::PartialPivLU<Eigen::MatrixXd> \hyperlink{classmodel_1_1_schur_complement_solver_a49a021c28be0230019e32c2d58b172d3}{pplu}(KPQ*\hyperlink{classmodel_1_1_schur_complement_solver_a34b95f56894b2e52a9bc2e690ce7da28}{llt}.solve(KPQ.transpose()));
+Eigen::VectorXd Lp = \hyperlink{classmodel_1_1_schur_complement_solver_a49a021c28be0230019e32c2d58b172d3}{pplu}.solve(KPQ*\hyperlink{classmodel_1_1_schur_complement_solver_a34b95f56894b2e52a9bc2e690ce7da28}{llt}.solve(Fq)-Fp);
+Xq  = \hyperlink{classmodel_1_1_schur_complement_solver_a34b95f56894b2e52a9bc2e690ce7da28}{llt}.solve(Fq-KPQ.transpose()*Lp);
+\end{DoxyCode}
+ 
+
+Definition at line 61 of file Schur\+Complement\+Solver.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_schur_complement_solver_abc909e0d7af7a69a33b5f6457c2f8017}{}\index{model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}!Schur\+Complement\+Solver@{Schur\+Complement\+Solver}}
+\index{Schur\+Complement\+Solver@{Schur\+Complement\+Solver}!model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}}
+\subsubsection[{Schur\+Complement\+Solver}]{\setlength{\rightskip}{0pt plus 5cm}model\+::\+Schur\+Complement\+Solver\+::\+Schur\+Complement\+Solver (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix\+Xd \&}]{K\+Q\+Q, }
+\item[{const Eigen\+::\+Matrix\+Xd \&}]{K\+P\+Q, }
+\item[{const Eigen\+::\+Vector\+Xd \&}]{Fq, }
+\item[{const Eigen\+::\+Vector\+Xd \&}]{Fp}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_schur_complement_solver_abc909e0d7af7a69a33b5f6457c2f8017}
+
+
+Definition at line 102 of file Schur\+Complement\+Solver.\+h.
+
+\hypertarget{classmodel_1_1_schur_complement_solver_a3935db703cedca7977adb39ce149d0e6}{}\index{model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}!Schur\+Complement\+Solver@{Schur\+Complement\+Solver}}
+\index{Schur\+Complement\+Solver@{Schur\+Complement\+Solver}!model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}}
+\subsubsection[{Schur\+Complement\+Solver}]{\setlength{\rightskip}{0pt plus 5cm}model\+::\+Schur\+Complement\+Solver\+::\+Schur\+Complement\+Solver (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix\+Xd \&}]{K\+Q\+Q, }
+\item[{const Eigen\+::\+Matrix\+Xd \&}]{K\+P\+Q, }
+\item[{const Eigen\+::\+Vector\+Xd \&}]{Fq}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_schur_complement_solver_a3935db703cedca7977adb39ce149d0e6}
+
+
+Definition at line 115 of file Schur\+Complement\+Solver.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_schur_complement_solver_af911959dab6c88ef36abb723c15ec4f4}{}\index{model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}!L@{L}}
+\index{L@{L}!model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}}
+\subsubsection[{L}]{\setlength{\rightskip}{0pt plus 5cm}Eigen\+::\+Vector\+Xd model\+::\+Schur\+Complement\+Solver\+::\+L}\label{classmodel_1_1_schur_complement_solver_af911959dab6c88ef36abb723c15ec4f4}
+
+
+The vector of Lagrange multipliers. 
+
+
+
+Definition at line 96 of file Schur\+Complement\+Solver.\+h.
+
+\hypertarget{classmodel_1_1_schur_complement_solver_a34b95f56894b2e52a9bc2e690ce7da28}{}\index{model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}!llt@{llt}}
+\index{llt@{llt}!model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}}
+\subsubsection[{llt}]{\setlength{\rightskip}{0pt plus 5cm}const Eigen\+::\+L\+L\+T$<$Eigen\+::\+Matrix\+Xd$>$ model\+::\+Schur\+Complement\+Solver\+::llt}\label{classmodel_1_1_schur_complement_solver_a34b95f56894b2e52a9bc2e690ce7da28}
+
+
+The L\+L\+T decomposition of K\+Q\+Q. 
+
+
+
+Definition at line 90 of file Schur\+Complement\+Solver.\+h.
+
+\hypertarget{classmodel_1_1_schur_complement_solver_a49a021c28be0230019e32c2d58b172d3}{}\index{model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}!pplu@{pplu}}
+\index{pplu@{pplu}!model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}}
+\subsubsection[{pplu}]{\setlength{\rightskip}{0pt plus 5cm}const Eigen\+::\+Partial\+Piv\+L\+U$<$Eigen\+::\+Matrix\+Xd$>$ model\+::\+Schur\+Complement\+Solver\+::pplu}\label{classmodel_1_1_schur_complement_solver_a49a021c28be0230019e32c2d58b172d3}
+
+
+the partial-\/pivot L\+U decomposition of K\+P\+Q$\ast$inv(K\+Q\+Q)$\ast$\+K\+P\+Q$^\wedge$\+T 
+
+
+
+Definition at line 93 of file Schur\+Complement\+Solver.\+h.
+
+\hypertarget{classmodel_1_1_schur_complement_solver_a9f003385888ebea2f2d52df7bb7dffe7}{}\index{model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}!X@{X}}
+\index{X@{X}!model\+::\+Schur\+Complement\+Solver@{model\+::\+Schur\+Complement\+Solver}}
+\subsubsection[{X}]{\setlength{\rightskip}{0pt plus 5cm}Eigen\+::\+Vector\+Xd model\+::\+Schur\+Complement\+Solver\+::\+X}\label{classmodel_1_1_schur_complement_solver_a9f003385888ebea2f2d52df7bb7dffe7}
+
+
+The solution vector. 
+
+
+
+Definition at line 99 of file Schur\+Complement\+Solver.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_schur_complement_solver_8h}{Schur\+Complement\+Solver.\+h}\end{DoxyCompactItemize}

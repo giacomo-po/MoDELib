@@ -1,0 +1,625 @@
+\hypertarget{classmodel_1_1_network_node}{}\section{model\+:\+:Network\+Node$<$ Derived $>$ Class Template Reference}
+\label{classmodel_1_1_network_node}\index{model\+::\+Network\+Node$<$ Derived $>$@{model\+::\+Network\+Node$<$ Derived $>$}}
+
+
+{\ttfamily \#include $<$Network\+Node.\+h$>$}
+
+Inheritance diagram for model\+:\+:Network\+Node$<$ Derived $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.238938cm]{classmodel_1_1_network_node}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_network_node_a8070b3d096b3f54bbfb3fb7ed5ab3249}{Network\+Node} ()
+\item 
+\hyperlink{classmodel_1_1_network_node_ac2ff4cb3296df4e081d43c72a6d41756}{Network\+Node} (const \hyperlink{structmodel_1_1_expanding_edge}{Expanding\+Edge}$<$ \hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $>$ \&ee)
+\item 
+\hyperlink{classmodel_1_1_network_node_affb13503558b52702e518a484bff4768}{$\sim$\+Network\+Node} ()
+\item 
+size\+\_\+t \hyperlink{classmodel_1_1_network_node_aee1b47fc77e071441069dbb4ed5221ab}{sn\+I\+D} () const 
+\item 
+const std\+::shared\+\_\+ptr$<$ \hyperlink{_network_typedefs_8h_ace62a87e27b01659142c49a8712f3dc9}{Network\+Component\+Type} $>$ \& \hyperlink{classmodel_1_1_network_node_afc87b48ebe689415b2c78fc6c922e727}{p\+S\+N} () const 
+\item 
+\hyperlink{_spline_segment_base__common_8h_aec2b17f3c09c54f93636cbedceffde56}{Flow\+Type} \hyperlink{classmodel_1_1_network_node_a0023d0583b09a66e7a66c508b3291dd6}{out\+Flow} () const 
+\item 
+\hyperlink{_spline_segment_base__common_8h_aec2b17f3c09c54f93636cbedceffde56}{Flow\+Type} \hyperlink{classmodel_1_1_network_node_aa2e2e9828d4c71390737313bc69a5086}{in\+Flow} () const 
+\item 
+bool \hyperlink{classmodel_1_1_network_node_a2abfe4106e1a958ba98cadc0bdd2ad1b}{depth\+First\+Search} (const size\+\_\+t \&I\+D, const size\+\_\+t \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}=U\+L\+O\+N\+G\+\_\+\+M\+A\+X) const 
+\item 
+bool \hyperlink{classmodel_1_1_network_node_adcd220a078c4d183e6bd416f0bfcabd3}{depth\+First\+Search} (\hyperlink{plot_cells_8m_a03623d69001c34fc77654be29bdc3d8a}{std\+::set}$<$ size\+\_\+t $>$ \&searched\+Nodes, const size\+\_\+t \&I\+D, const size\+\_\+t \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}=U\+L\+O\+N\+G\+\_\+\+M\+A\+X) const 
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \hyperlink{classmodel_1_1_network_node_ad972a3023298cd2f9163dcac252bdaac}{depth\+First\+Execute} (void(Derived\+::$\ast$Nfptr)(const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&), void(Link\+Type\+::$\ast$Lfptr)(const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&), const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&input, const size\+\_\+t \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}=U\+L\+O\+N\+G\+\_\+\+M\+A\+X)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \hyperlink{classmodel_1_1_network_node_a4cf1575fc466e64950703fdcd04732eb}{depth\+First\+Execute} (\hyperlink{plot_cells_8m_a03623d69001c34fc77654be29bdc3d8a}{std\+::set}$<$ size\+\_\+t $>$ \&searched\+Nodes, \hyperlink{plot_cells_8m_a03623d69001c34fc77654be29bdc3d8a}{std\+::set}$<$ std\+::pair$<$ size\+\_\+t, size\+\_\+t $>$ $>$ \&searched\+Links, void(Derived\+::$\ast$Nfptr)(const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&), void(Link\+Type\+::$\ast$Lfptr)(const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&), const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&input, const size\+\_\+t \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}=U\+L\+O\+N\+G\+\_\+\+M\+A\+X)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \hyperlink{classmodel_1_1_network_node_abbef6f66c7c6bdb7c29eba5975d19376}{depth\+First\+Node\+Execute} (void(Derived\+::$\ast$Nfptr)(const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&), const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&input, const size\+\_\+t \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}=U\+L\+O\+N\+G\+\_\+\+M\+A\+X)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \hyperlink{classmodel_1_1_network_node_a25e46eecff5e7b9a45f6e48a3495d918}{depth\+First\+Node\+Execute} (\hyperlink{plot_cells_8m_a03623d69001c34fc77654be29bdc3d8a}{std\+::set}$<$ size\+\_\+t $>$ \&searched\+Nodes, void(Derived\+::$\ast$Nfptr)(const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&), const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&input, const size\+\_\+t \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}=U\+L\+O\+N\+G\+\_\+\+M\+A\+X)
+\item 
+void \hyperlink{classmodel_1_1_network_node_a79f724ce14249cfca32cbf67f6af9dcb}{depth\+First\+Node\+Execute} (void(Derived\+::$\ast$Nfptr)(void), const size\+\_\+t \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}=U\+L\+O\+N\+G\+\_\+\+M\+A\+X)
+\item 
+void \hyperlink{classmodel_1_1_network_node_a9e54b3692574a0a2e6159aa2a4ae8beb}{depth\+First\+Node\+Execute} (\hyperlink{plot_cells_8m_a03623d69001c34fc77654be29bdc3d8a}{std\+::set}$<$ size\+\_\+t $>$ \&searched\+Nodes, void(Derived\+::$\ast$Nfptr)(void), const size\+\_\+t \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}=U\+L\+O\+N\+G\+\_\+\+M\+A\+X)
+\item 
+const \hyperlink{_spline_node_base__corder0_8h_a94e235f1dcb14194e28f14a3075d3296}{Neighbor\+Container\+Type} \& \hyperlink{classmodel_1_1_network_node_ae403c2b2c9442ba6e14b6e7092992199}{neighborhood} () const 
+\item 
+\hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $\ast$ \hyperlink{classmodel_1_1_network_node_aa71fb7f822a0c1d69cf0aaa721a1cf34}{closed\+Neighbor\+Node} (const unsigned int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k}) const 
+\item 
+\hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} $\ast$ \hyperlink{classmodel_1_1_network_node_a2ead61c00f7399fdb031a365d8e90640}{open\+Neighbor\+Node} (const unsigned int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k}) const 
+\item 
+\hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $\ast$ \hyperlink{classmodel_1_1_network_node_aca8185ab536250ecd6098fb174d0077d}{closed\+Neighbor\+Link} (const unsigned int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k}) const 
+\item 
+\hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $\ast$ \hyperlink{classmodel_1_1_network_node_aba0255b74913885f5a47ffbda4f4f4f9}{open\+Neighbor\+Link} (const unsigned int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k}) const 
+\item 
+const \hyperlink{_spline_node_base__corder0_8h_a94e235f1dcb14194e28f14a3075d3296}{Neighbor\+Container\+Type} \& \hyperlink{classmodel_1_1_network_node_a85472b31cb879974a8bb5368580af7ea}{out\+Neighborhood} () const 
+\item 
+const \hyperlink{_spline_node_base__corder0_8h_a94e235f1dcb14194e28f14a3075d3296}{Neighbor\+Container\+Type} \& \hyperlink{classmodel_1_1_network_node_acf12ed87476c917332ca6d2e8d962998}{in\+Neighborhood} () const 
+\item 
+size\+\_\+t \hyperlink{classmodel_1_1_network_node_a2f1579701f53b030c88c3a9f6ba4ccfd}{neighbor\+I\+D} (const size\+\_\+t \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k}) const 
+\item 
+size\+\_\+t \hyperlink{classmodel_1_1_network_node_a91626fb23950622caf5b97a0d402533b}{out\+Order} () const 
+\item 
+size\+\_\+t \hyperlink{classmodel_1_1_network_node_ac07000ec45e136633b30a9d1561bca1a}{in\+Order} () const 
+\item 
+size\+\_\+t \hyperlink{classmodel_1_1_network_node_a32bf0d97408f6483fd8afcfee93251a9}{open\+Order} () const 
+\item 
+size\+\_\+t \hyperlink{classmodel_1_1_network_node_a4241f925b69fd36d20b8f4a5c826480a}{closed\+Order} () const 
+\item 
+bool \hyperlink{classmodel_1_1_network_node_a706d423eb2e10d8ddd1caab8b2b308d3}{is\+\_\+source} () const 
+\item 
+bool \hyperlink{classmodel_1_1_network_node_a307669e46339d2d156a82bf330899f0f}{is\+\_\+sink} () const 
+\item 
+bool \hyperlink{classmodel_1_1_network_node_a2c9f5ce0757d33a51bae68c8490b7b84}{is\+\_\+isolated} () const 
+\item 
+bool \hyperlink{classmodel_1_1_network_node_a3a970f03607881437832c27a666755fa}{is\+\_\+central} () const 
+\item 
+bool \hyperlink{classmodel_1_1_network_node_ae2a7f2cc7358b5f763e0b55128f486b7}{is\+\_\+balanced} () const 
+\item 
+bool \hyperlink{classmodel_1_1_network_node_a3e282e435cfdbed567c90c8c74130c53}{is\+\_\+simple} () const 
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classmodel_1_1_network_node_aa660fedde9425a4b0544c1a85768dffb}{reset\+P\+S\+N} ()
+\item 
+void \hyperlink{classmodel_1_1_network_node_a9c35a8b43fa682e0e86665c8910882cc}{form\+Network\+Component} (const std\+::shared\+\_\+ptr$<$ \hyperlink{_network_typedefs_8h_ace62a87e27b01659142c49a8712f3dc9}{Network\+Component\+Type} $>$ \&psn\+Other)
+\item 
+void \hyperlink{classmodel_1_1_network_node_a09198bd726f5cb978fe6934ddc872ea2}{add\+To\+Neighborhood} (\hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $\ast$const p\+L)
+\item 
+void \hyperlink{classmodel_1_1_network_node_a3d3e04ec0df0049a15cff19f4d2da5f3}{remove\+From\+Neighborhood} (\hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $\ast$const p\+L)
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_spline_node_base__corder0_8h_a94e235f1dcb14194e28f14a3075d3296}{Neighbor\+Container\+Type} \hyperlink{classmodel_1_1_network_node_ac52cc261428091e6962d5522b6763669}{Neighborhood}
+\item 
+\hyperlink{_spline_node_base__corder0_8h_a94e235f1dcb14194e28f14a3075d3296}{Neighbor\+Container\+Type} \hyperlink{classmodel_1_1_network_node_a9a24def8118a94f9fd189357c03312e4}{Out\+Neighborhood}
+\item 
+\hyperlink{_spline_node_base__corder0_8h_a94e235f1dcb14194e28f14a3075d3296}{Neighbor\+Container\+Type} \hyperlink{classmodel_1_1_network_node_a73b39677473ad06b4af1df138be07ddb}{In\+Neighborhood}
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classmodel_1_1_network_node_adabe2abbcc416a859b6d2afa22480684}{Network\+Link$<$ Link\+Type $>$}
+\item 
+{\footnotesize template$<$class T , typename Other\+Derived $>$ }\\\hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \& \hyperlink{classmodel_1_1_network_node_ac0ea917f0e3b428440ae53041a8ebf8d}{operator$<$$<$} (\hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&os, const \hyperlink{classmodel_1_1_network_node}{Network\+Node}$<$ Other\+Derived $>$ \&N\+N)
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Derived$>$class model\+::\+Network\+Node$<$ Derived $>$}
+
+
+
+Definition at line 36 of file Network\+Node.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_network_node_a8070b3d096b3f54bbfb3fb7ed5ab3249}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!Network\+Node@{Network\+Node}}
+\index{Network\+Node@{Network\+Node}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{Network\+Node}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::{\bf Network\+Node} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a8070b3d096b3f54bbfb3fb7ed5ab3249}
+Costructor with node arguments
+
+Definition at line 144 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_ac2ff4cb3296df4e081d43c72a6d41756}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!Network\+Node@{Network\+Node}}
+\index{Network\+Node@{Network\+Node}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{Network\+Node}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::{\bf Network\+Node} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Expanding\+Edge}$<$ {\bf Link\+Type} $>$ \&}]{ee}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_ac2ff4cb3296df4e081d43c72a6d41756}
+Costructor from \hyperlink{classmodel_1_1_edge_expansion}{Edge\+Expansion}
+
+Definition at line 155 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_affb13503558b52702e518a484bff4768}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!````~Network\+Node@{$\sim$\+Network\+Node}}
+\index{````~Network\+Node@{$\sim$\+Network\+Node}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{$\sim$\+Network\+Node}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::$\sim${\bf Network\+Node} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_affb13503558b52702e518a484bff4768}
+The \hyperlink{classmodel_1_1_network_node}{Network\+Node} destructor performs two actions\+:
+
+-\/1 Removes this from Neighborhood
+
+-\/2 Removes this from the \hyperlink{classmodel_1_1_network_component}{Network\+Component} 
+
+Definition at line 168 of file Network\+Node.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_network_node_a09198bd726f5cb978fe6934ddc872ea2}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!add\+To\+Neighborhood@{add\+To\+Neighborhood}}
+\index{add\+To\+Neighborhood@{add\+To\+Neighborhood}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{add\+To\+Neighborhood}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ void {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::add\+To\+Neighborhood (
+\begin{DoxyParamCaption}
+\item[{{\bf Link\+Type} $\ast$const}]{p\+L}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}\label{classmodel_1_1_network_node_a09198bd726f5cb978fe6934ddc872ea2}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em p\+L} & a pointer to a Link\+Type edge\\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 89 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_aca8185ab536250ecd6098fb174d0077d}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!closed\+Neighbor\+Link@{closed\+Neighbor\+Link}}
+\index{closed\+Neighbor\+Link@{closed\+Neighbor\+Link}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{closed\+Neighbor\+Link}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf Link\+Type}$\ast$ {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::closed\+Neighbor\+Link (
+\begin{DoxyParamCaption}
+\item[{const unsigned int \&}]{k}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_aca8185ab536250ecd6098fb174d0077d}
+
+
+Definition at line 357 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_aa71fb7f822a0c1d69cf0aaa721a1cf34}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!closed\+Neighbor\+Node@{closed\+Neighbor\+Node}}
+\index{closed\+Neighbor\+Node@{closed\+Neighbor\+Node}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{closed\+Neighbor\+Node}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf Node\+Type}$\ast$ {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::closed\+Neighbor\+Node (
+\begin{DoxyParamCaption}
+\item[{const unsigned int \&}]{k}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_aa71fb7f822a0c1d69cf0aaa721a1cf34}
+
+
+Definition at line 326 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a4241f925b69fd36d20b8f4a5c826480a}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!closed\+Order@{closed\+Order}}
+\index{closed\+Order@{closed\+Order}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{closed\+Order}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ size\+\_\+t {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::closed\+Order (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a4241f925b69fd36d20b8f4a5c826480a}
+
+
+Definition at line 424 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_ad972a3023298cd2f9163dcac252bdaac}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!depth\+First\+Execute@{depth\+First\+Execute}}
+\index{depth\+First\+Execute@{depth\+First\+Execute}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{depth\+First\+Execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ template$<$typename T $>$ void {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::depth\+First\+Execute (
+\begin{DoxyParamCaption}
+\item[{void(Derived\+::$\ast$)(const {\bf T} \&)}]{Nfptr, }
+\item[{void(Link\+Type\+::$\ast$)(const {\bf T} \&)}]{Lfptr, }
+\item[{const {\bf T} \&}]{input, }
+\item[{const size\+\_\+t \&}]{N = {\ttfamily ULONG\+\_\+MAX}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_ad972a3023298cd2f9163dcac252bdaac}
+
+
+Definition at line 249 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a4cf1575fc466e64950703fdcd04732eb}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!depth\+First\+Execute@{depth\+First\+Execute}}
+\index{depth\+First\+Execute@{depth\+First\+Execute}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{depth\+First\+Execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ template$<$typename T $>$ void {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::depth\+First\+Execute (
+\begin{DoxyParamCaption}
+\item[{{\bf std\+::set}$<$ size\+\_\+t $>$ \&}]{searched\+Nodes, }
+\item[{{\bf std\+::set}$<$ std\+::pair$<$ size\+\_\+t, size\+\_\+t $>$ $>$ \&}]{searched\+Links, }
+\item[{void(Derived\+::$\ast$)(const {\bf T} \&)}]{Nfptr, }
+\item[{void(Link\+Type\+::$\ast$)(const {\bf T} \&)}]{Lfptr, }
+\item[{const {\bf T} \&}]{input, }
+\item[{const size\+\_\+t \&}]{N = {\ttfamily ULONG\+\_\+MAX}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a4cf1575fc466e64950703fdcd04732eb}
+
+
+Definition at line 257 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_abbef6f66c7c6bdb7c29eba5975d19376}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!depth\+First\+Node\+Execute@{depth\+First\+Node\+Execute}}
+\index{depth\+First\+Node\+Execute@{depth\+First\+Node\+Execute}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{depth\+First\+Node\+Execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ template$<$typename T $>$ void {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::depth\+First\+Node\+Execute (
+\begin{DoxyParamCaption}
+\item[{void(Derived\+::$\ast$)(const {\bf T} \&)}]{Nfptr, }
+\item[{const {\bf T} \&}]{input, }
+\item[{const size\+\_\+t \&}]{N = {\ttfamily ULONG\+\_\+MAX}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_abbef6f66c7c6bdb7c29eba5975d19376}
+
+
+Definition at line 278 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a25e46eecff5e7b9a45f6e48a3495d918}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!depth\+First\+Node\+Execute@{depth\+First\+Node\+Execute}}
+\index{depth\+First\+Node\+Execute@{depth\+First\+Node\+Execute}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{depth\+First\+Node\+Execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ template$<$typename T $>$ void {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::depth\+First\+Node\+Execute (
+\begin{DoxyParamCaption}
+\item[{{\bf std\+::set}$<$ size\+\_\+t $>$ \&}]{searched\+Nodes, }
+\item[{void(Derived\+::$\ast$)(const {\bf T} \&)}]{Nfptr, }
+\item[{const {\bf T} \&}]{input, }
+\item[{const size\+\_\+t \&}]{N = {\ttfamily ULONG\+\_\+MAX}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a25e46eecff5e7b9a45f6e48a3495d918}
+
+
+Definition at line 284 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a79f724ce14249cfca32cbf67f6af9dcb}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!depth\+First\+Node\+Execute@{depth\+First\+Node\+Execute}}
+\index{depth\+First\+Node\+Execute@{depth\+First\+Node\+Execute}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{depth\+First\+Node\+Execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ void {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::depth\+First\+Node\+Execute (
+\begin{DoxyParamCaption}
+\item[{void(Derived\+::$\ast$)(void)}]{Nfptr, }
+\item[{const size\+\_\+t \&}]{N = {\ttfamily ULONG\+\_\+MAX}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a79f724ce14249cfca32cbf67f6af9dcb}
+
+
+Definition at line 296 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a9e54b3692574a0a2e6159aa2a4ae8beb}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!depth\+First\+Node\+Execute@{depth\+First\+Node\+Execute}}
+\index{depth\+First\+Node\+Execute@{depth\+First\+Node\+Execute}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{depth\+First\+Node\+Execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ void {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::depth\+First\+Node\+Execute (
+\begin{DoxyParamCaption}
+\item[{{\bf std\+::set}$<$ size\+\_\+t $>$ \&}]{searched\+Nodes, }
+\item[{void(Derived\+::$\ast$)(void)}]{Nfptr, }
+\item[{const size\+\_\+t \&}]{N = {\ttfamily ULONG\+\_\+MAX}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a9e54b3692574a0a2e6159aa2a4ae8beb}
+
+
+Definition at line 301 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a2abfe4106e1a958ba98cadc0bdd2ad1b}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!depth\+First\+Search@{depth\+First\+Search}}
+\index{depth\+First\+Search@{depth\+First\+Search}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{depth\+First\+Search}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ bool {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::depth\+First\+Search (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{I\+D, }
+\item[{const size\+\_\+t \&}]{N = {\ttfamily ULONG\+\_\+MAX}}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a2abfe4106e1a958ba98cadc0bdd2ad1b}
+
+
+Definition at line 223 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_adcd220a078c4d183e6bd416f0bfcabd3}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!depth\+First\+Search@{depth\+First\+Search}}
+\index{depth\+First\+Search@{depth\+First\+Search}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{depth\+First\+Search}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ bool {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::depth\+First\+Search (
+\begin{DoxyParamCaption}
+\item[{{\bf std\+::set}$<$ size\+\_\+t $>$ \&}]{searched\+Nodes, }
+\item[{const size\+\_\+t \&}]{I\+D, }
+\item[{const size\+\_\+t \&}]{N = {\ttfamily ULONG\+\_\+MAX}}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_adcd220a078c4d183e6bd416f0bfcabd3}
+
+
+Definition at line 229 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a9c35a8b43fa682e0e86665c8910882cc}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!form\+Network\+Component@{form\+Network\+Component}}
+\index{form\+Network\+Component@{form\+Network\+Component}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{form\+Network\+Component}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ void {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::form\+Network\+Component (
+\begin{DoxyParamCaption}
+\item[{const std\+::shared\+\_\+ptr$<$ {\bf Network\+Component\+Type} $>$ \&}]{psn\+Other}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}\label{classmodel_1_1_network_node_a9c35a8b43fa682e0e86665c8910882cc}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em psn\+Other} & a shared\+\_\+ptr to another \hyperlink{classmodel_1_1_network_component}{Network\+Component}\\
+\hline
+\end{DoxyParams}
+If the shared\+\_\+ptr to the \hyperlink{classmodel_1_1_network_component}{Network\+Component} of $\ast$this is different from psn\+Other, the former is reset (this may destroy the \hyperlink{classmodel_1_1_network_component}{Network\+Component}) and reassigned to psn\+Other.
+
+Definition at line 73 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_aa2e2e9828d4c71390737313bc69a5086}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!in\+Flow@{in\+Flow}}
+\index{in\+Flow@{in\+Flow}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{in\+Flow}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf Flow\+Type} {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::in\+Flow (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_aa2e2e9828d4c71390737313bc69a5086}
+
+
+Definition at line 211 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_acf12ed87476c917332ca6d2e8d962998}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!in\+Neighborhood@{in\+Neighborhood}}
+\index{in\+Neighborhood@{in\+Neighborhood}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{in\+Neighborhood}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ const {\bf Neighbor\+Container\+Type}\& {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::in\+Neighborhood (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_acf12ed87476c917332ca6d2e8d962998}
+
+
+Definition at line 394 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_ac07000ec45e136633b30a9d1561bca1a}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!in\+Order@{in\+Order}}
+\index{in\+Order@{in\+Order}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{in\+Order}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ size\+\_\+t {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::in\+Order (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_ac07000ec45e136633b30a9d1561bca1a}
+
+
+Definition at line 412 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_ae2a7f2cc7358b5f763e0b55128f486b7}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!is\+\_\+balanced@{is\+\_\+balanced}}
+\index{is\+\_\+balanced@{is\+\_\+balanced}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{is\+\_\+balanced}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ bool {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::is\+\_\+balanced (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_ae2a7f2cc7358b5f763e0b55128f486b7}
+
+
+Definition at line 454 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a3a970f03607881437832c27a666755fa}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!is\+\_\+central@{is\+\_\+central}}
+\index{is\+\_\+central@{is\+\_\+central}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{is\+\_\+central}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ bool {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::is\+\_\+central (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a3a970f03607881437832c27a666755fa}
+
+
+Definition at line 448 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a2c9f5ce0757d33a51bae68c8490b7b84}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!is\+\_\+isolated@{is\+\_\+isolated}}
+\index{is\+\_\+isolated@{is\+\_\+isolated}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{is\+\_\+isolated}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ bool {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::is\+\_\+isolated (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a2c9f5ce0757d33a51bae68c8490b7b84}
+
+
+Definition at line 442 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a3e282e435cfdbed567c90c8c74130c53}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!is\+\_\+simple@{is\+\_\+simple}}
+\index{is\+\_\+simple@{is\+\_\+simple}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{is\+\_\+simple}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ bool {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::is\+\_\+simple (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a3e282e435cfdbed567c90c8c74130c53}
+
+
+Definition at line 461 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a307669e46339d2d156a82bf330899f0f}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!is\+\_\+sink@{is\+\_\+sink}}
+\index{is\+\_\+sink@{is\+\_\+sink}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{is\+\_\+sink}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ bool {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::is\+\_\+sink (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a307669e46339d2d156a82bf330899f0f}
+
+
+Definition at line 436 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a706d423eb2e10d8ddd1caab8b2b308d3}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!is\+\_\+source@{is\+\_\+source}}
+\index{is\+\_\+source@{is\+\_\+source}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{is\+\_\+source}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ bool {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::is\+\_\+source (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a706d423eb2e10d8ddd1caab8b2b308d3}
+
+
+Definition at line 430 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_ae403c2b2c9442ba6e14b6e7092992199}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!neighborhood@{neighborhood}}
+\index{neighborhood@{neighborhood}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{neighborhood}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ const {\bf Neighbor\+Container\+Type}\& {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::neighborhood (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_ae403c2b2c9442ba6e14b6e7092992199}
+
+
+Definition at line 320 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a2f1579701f53b030c88c3a9f6ba4ccfd}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!neighbor\+I\+D@{neighbor\+I\+D}}
+\index{neighbor\+I\+D@{neighbor\+I\+D}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{neighbor\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ size\+\_\+t {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::neighbor\+I\+D (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{k}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a2f1579701f53b030c88c3a9f6ba4ccfd}
+
+
+Definition at line 400 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_aba0255b74913885f5a47ffbda4f4f4f9}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!open\+Neighbor\+Link@{open\+Neighbor\+Link}}
+\index{open\+Neighbor\+Link@{open\+Neighbor\+Link}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{open\+Neighbor\+Link}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf Link\+Type}$\ast$ {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::open\+Neighbor\+Link (
+\begin{DoxyParamCaption}
+\item[{const unsigned int \&}]{k}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_aba0255b74913885f5a47ffbda4f4f4f9}
+
+
+Definition at line 368 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a2ead61c00f7399fdb031a365d8e90640}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!open\+Neighbor\+Node@{open\+Neighbor\+Node}}
+\index{open\+Neighbor\+Node@{open\+Neighbor\+Node}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{open\+Neighbor\+Node}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf Node\+Type}$\ast$ {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::open\+Neighbor\+Node (
+\begin{DoxyParamCaption}
+\item[{const unsigned int \&}]{k}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a2ead61c00f7399fdb031a365d8e90640}
+
+
+Definition at line 337 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a32bf0d97408f6483fd8afcfee93251a9}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!open\+Order@{open\+Order}}
+\index{open\+Order@{open\+Order}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{open\+Order}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ size\+\_\+t {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::open\+Order (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a32bf0d97408f6483fd8afcfee93251a9}
+
+
+Definition at line 418 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a0023d0583b09a66e7a66c508b3291dd6}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!out\+Flow@{out\+Flow}}
+\index{out\+Flow@{out\+Flow}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{out\+Flow}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf Flow\+Type} {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::out\+Flow (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a0023d0583b09a66e7a66c508b3291dd6}
+
+
+Definition at line 199 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a85472b31cb879974a8bb5368580af7ea}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!out\+Neighborhood@{out\+Neighborhood}}
+\index{out\+Neighborhood@{out\+Neighborhood}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{out\+Neighborhood}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ const {\bf Neighbor\+Container\+Type}\& {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::out\+Neighborhood (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a85472b31cb879974a8bb5368580af7ea}
+
+
+Definition at line 388 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a91626fb23950622caf5b97a0d402533b}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!out\+Order@{out\+Order}}
+\index{out\+Order@{out\+Order}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{out\+Order}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ size\+\_\+t {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::out\+Order (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_a91626fb23950622caf5b97a0d402533b}
+
+
+Definition at line 406 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_afc87b48ebe689415b2c78fc6c922e727}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!p\+S\+N@{p\+S\+N}}
+\index{p\+S\+N@{p\+S\+N}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{p\+S\+N}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ const std\+::shared\+\_\+ptr$<${\bf Network\+Component\+Type}$>$\& {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::p\+S\+N (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_afc87b48ebe689415b2c78fc6c922e727}
+\begin{DoxyReturn}{Returns}
+A const reference to the shared-\/pointer to the \hyperlink{classmodel_1_1_network_component}{Network\+Component} containing this.
+\end{DoxyReturn}
+
+
+Definition at line 187 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a3d3e04ec0df0049a15cff19f4d2da5f3}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!remove\+From\+Neighborhood@{remove\+From\+Neighborhood}}
+\index{remove\+From\+Neighborhood@{remove\+From\+Neighborhood}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{remove\+From\+Neighborhood}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ void {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::remove\+From\+Neighborhood (
+\begin{DoxyParamCaption}
+\item[{{\bf Link\+Type} $\ast$const}]{p\+L}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}\label{classmodel_1_1_network_node_a3d3e04ec0df0049a15cff19f4d2da5f3}
+
+
+Definition at line 113 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_aa660fedde9425a4b0544c1a85768dffb}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!reset\+P\+S\+N@{reset\+P\+S\+N}}
+\index{reset\+P\+S\+N@{reset\+P\+S\+N}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{reset\+P\+S\+N}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ void {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::reset\+P\+S\+N (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}\label{classmodel_1_1_network_node_aa660fedde9425a4b0544c1a85768dffb}
+1-\/ Removes this from the current \hyperlink{classmodel_1_1_network_component}{Network\+Component}
+
+2-\/ Creates a new \hyperlink{classmodel_1_1_network_component}{Network\+Component} containing this
+
+3-\/ Transmits \textquotesingle{}form\+Network\+Component\textquotesingle{} to the neighbors 
+
+Definition at line 56 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_aee1b47fc77e071441069dbb4ed5221ab}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!sn\+I\+D@{sn\+I\+D}}
+\index{sn\+I\+D@{sn\+I\+D}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{sn\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ size\+\_\+t {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::sn\+I\+D (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_network_node_aee1b47fc77e071441069dbb4ed5221ab}
+\begin{DoxyReturn}{Returns}
+The \hyperlink{classmodel_1_1_network_component_a29d5eedd8c6c98229bdda60911aaffe9}{Network\+Component\+::sn\+I\+D()} of the component containing this.
+\end{DoxyReturn}
+
+
+Definition at line 179 of file Network\+Node.\+h.
+
+
+
+\subsection{Friends And Related Function Documentation}
+\hypertarget{classmodel_1_1_network_node_adabe2abbcc416a859b6d2afa22480684}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!Network\+Link$<$ Link\+Type $>$@{Network\+Link$<$ Link\+Type $>$}}
+\index{Network\+Link$<$ Link\+Type $>$@{Network\+Link$<$ Link\+Type $>$}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{Network\+Link$<$ Link\+Type $>$}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ friend class {\bf Network\+Link}$<$ {\bf Link\+Type} $>$\hspace{0.3cm}{\ttfamily [friend]}}\label{classmodel_1_1_network_node_adabe2abbcc416a859b6d2afa22480684}
+
+
+Definition at line 42 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_ac0ea917f0e3b428440ae53041a8ebf8d}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{operator$<$$<$}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ template$<$class T , typename Other\+Derived $>$ {\bf T}\& operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{{\bf T} \&}]{os, }
+\item[{const {\bf Network\+Node}$<$ Other\+Derived $>$ \&}]{N\+N}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [friend]}}\label{classmodel_1_1_network_node_ac0ea917f0e3b428440ae53041a8ebf8d}
+
+
+Definition at line 468 of file Network\+Node.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_network_node_a73b39677473ad06b4af1df138be07ddb}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!In\+Neighborhood@{In\+Neighborhood}}
+\index{In\+Neighborhood@{In\+Neighborhood}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{In\+Neighborhood}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf Neighbor\+Container\+Type} {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::In\+Neighborhood\hspace{0.3cm}{\ttfamily [protected]}}\label{classmodel_1_1_network_node_a73b39677473ad06b4af1df138be07ddb}
+
+
+Definition at line 139 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_ac52cc261428091e6962d5522b6763669}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!Neighborhood@{Neighborhood}}
+\index{Neighborhood@{Neighborhood}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{Neighborhood}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf Neighbor\+Container\+Type} {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::Neighborhood\hspace{0.3cm}{\ttfamily [protected]}}\label{classmodel_1_1_network_node_ac52cc261428091e6962d5522b6763669}
+
+
+Definition at line 137 of file Network\+Node.\+h.
+
+\hypertarget{classmodel_1_1_network_node_a9a24def8118a94f9fd189357c03312e4}{}\index{model\+::\+Network\+Node@{model\+::\+Network\+Node}!Out\+Neighborhood@{Out\+Neighborhood}}
+\index{Out\+Neighborhood@{Out\+Neighborhood}!model\+::\+Network\+Node@{model\+::\+Network\+Node}}
+\subsubsection[{Out\+Neighborhood}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived $>$ {\bf Neighbor\+Container\+Type} {\bf model\+::\+Network\+Node}$<$ Derived $>$\+::Out\+Neighborhood\hspace{0.3cm}{\ttfamily [protected]}}\label{classmodel_1_1_network_node_a9a24def8118a94f9fd189357c03312e4}
+
+
+Definition at line 138 of file Network\+Node.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_network_node_8h}{Network\+Node.\+h}\end{DoxyCompactItemize}

@@ -1,0 +1,207 @@
+\hypertarget{classmodel_1_1_dislocation_energy}{}\section{model\+:\+:Dislocation\+Energy$<$ \+\_\+dim $>$ Class Template Reference}
+\label{classmodel_1_1_dislocation_energy}\index{model\+::\+Dislocation\+Energy$<$ \+\_\+dim $>$@{model\+::\+Dislocation\+Energy$<$ \+\_\+dim $>$}}
+
+
+{\ttfamily \#include $<$Dislocation\+Energy.\+h$>$}
+
+Inheritance diagram for model\+:\+:Dislocation\+Energy$<$ \+\_\+dim $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classmodel_1_1_dislocation_energy}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{classmodel_1_1_dislocation_energy}{Dislocation\+Energy}$<$ \+\_\+dim $>$ \hyperlink{classmodel_1_1_dislocation_energy_a8216800b4c91c557e11de7978015d1d8}{Dislocation\+Energy\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_field_base}{Field\+Base}$<$ double, 1, 1 $>$ \hyperlink{classmodel_1_1_dislocation_energy_accde9d41283a093975013ee9b144fced}{Field\+Base\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_field_base_a2a46afe1dafac6e3d1c95d32fc9a58a3}{Field\+Base\+Type\+::\+Matrix\+Type} \hyperlink{classmodel_1_1_dislocation_energy_a3cb7da857732ef0ffe2ed45d06737097}{Matrix\+Type}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \+\_\+dim, \+\_\+dim $>$ \hyperlink{classmodel_1_1_dislocation_energy_ab88bf490cc2bac987ef0da961a7c9762}{Matrix\+Dim}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \+\_\+dim, 1 $>$ \hyperlink{classmodel_1_1_dislocation_energy_a8489d465a19e782a7d74db70c6bcde18}{Vector\+Dim}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static const \hyperlink{classmodel_1_1_dislocation_energy_a3cb7da857732ef0ffe2ed45d06737097}{Matrix\+Type} \& \hyperlink{classmodel_1_1_dislocation_energy_a1700e54fc53aaf89489e1d1c19738a20}{get} (const \hyperlink{classmodel_1_1_dislocation_energy_a3cb7da857732ef0ffe2ed45d06737097}{Matrix\+Type} \&\hyperlink{tube_plotter_8m_a905c521e05ec8042631a912b71d0454e}{temp})
+\item 
+{\footnotesize template$<$typename Particle\+Type , typename Cell\+Container\+Type $>$ }\\static \hyperlink{classmodel_1_1_dislocation_energy_a3cb7da857732ef0ffe2ed45d06737097}{Matrix\+Type} \hyperlink{classmodel_1_1_dislocation_energy_a91479d9718ff68dd9479cbc5ff1d6680}{multipole} (const Particle\+Type \&, const Cell\+Container\+Type \&)
+\item 
+{\footnotesize template$<$typename Dislocation\+Particle\+Type $>$ }\\static \hyperlink{classmodel_1_1_dislocation_energy_a3cb7da857732ef0ffe2ed45d06737097}{Matrix\+Type} \hyperlink{classmodel_1_1_dislocation_energy_ad1ff2b0500d5342a7b4251cf9b6fbf1d}{compute} (const Dislocation\+Particle\+Type \&\hyperlink{plot_network_8m_a6f3223812eea666f1fee426db5c8c563}{source}, const Dislocation\+Particle\+Type \&field)
+\item 
+{\footnotesize template$<$typename Dislocation\+Particle\+Type $>$ }\\static \hyperlink{classmodel_1_1_dislocation_energy_a3cb7da857732ef0ffe2ed45d06737097}{Matrix\+Type} \hyperlink{classmodel_1_1_dislocation_energy_a91e24624b4507cbb31f94f30ed8dac35}{compute} (const Dislocation\+Particle\+Type \&, const Dislocation\+Particle\+Type \&)
+\item 
+{\footnotesize template$<$typename Dislocation\+Particle\+Type $>$ }\\static \hyperlink{classmodel_1_1_dislocation_energy_a3cb7da857732ef0ffe2ed45d06737097}{Matrix\+Type} \hyperlink{classmodel_1_1_dislocation_energy_ad1ff2b0500d5342a7b4251cf9b6fbf1d}{compute} (const Dislocation\+Particle\+Type \&\hyperlink{plot_network_8m_a6f3223812eea666f1fee426db5c8c563}{source}, const Dislocation\+Particle\+Type \&field)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static bool \hyperlink{classmodel_1_1_dislocation_energy_a69e79b7fbb8a90bae1676a05eddb5d1f}{use\+\_\+multipole} =true
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$short unsigned int \+\_\+dim$>$class model\+::\+Dislocation\+Energy$<$ \+\_\+dim $>$}
+
+
+
+Definition at line 22 of file Dislocation\+Energy.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_dislocation_energy_a8216800b4c91c557e11de7978015d1d8}{}\index{model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}!Dislocation\+Energy\+Type@{Dislocation\+Energy\+Type}}
+\index{Dislocation\+Energy\+Type@{Dislocation\+Energy\+Type}!model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}}
+\subsubsection[{Dislocation\+Energy\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Dislocation\+Energy}$<$\+\_\+dim$>$ {\bf model\+::\+Dislocation\+Energy}$<$ \+\_\+dim $>$\+::{\bf Dislocation\+Energy\+Type}}\label{classmodel_1_1_dislocation_energy_a8216800b4c91c557e11de7978015d1d8}
+
+
+Definition at line 30 of file Dislocation\+Energy.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_energy_accde9d41283a093975013ee9b144fced}{}\index{model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}!Field\+Base\+Type@{Field\+Base\+Type}}
+\index{Field\+Base\+Type@{Field\+Base\+Type}!model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}}
+\subsubsection[{Field\+Base\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Field\+Base}$<$double,1,1$>$ {\bf model\+::\+Dislocation\+Energy}$<$ \+\_\+dim $>$\+::{\bf Field\+Base\+Type}}\label{classmodel_1_1_dislocation_energy_accde9d41283a093975013ee9b144fced}
+
+
+Definition at line 31 of file Dislocation\+Energy.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_energy_ab88bf490cc2bac987ef0da961a7c9762}{}\index{model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}!Matrix\+Dim@{Matrix\+Dim}}
+\index{Matrix\+Dim@{Matrix\+Dim}!model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}}
+\subsubsection[{Matrix\+Dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef Eigen\+::\+Matrix$<$double,\+\_\+dim,\+\_\+dim$>$ {\bf model\+::\+Dislocation\+Energy}$<$ \+\_\+dim $>$\+::{\bf Matrix\+Dim}}\label{classmodel_1_1_dislocation_energy_ab88bf490cc2bac987ef0da961a7c9762}
+
+
+Definition at line 33 of file Dislocation\+Energy.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_energy_a3cb7da857732ef0ffe2ed45d06737097}{}\index{model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}!Matrix\+Type@{Matrix\+Type}}
+\index{Matrix\+Type@{Matrix\+Type}!model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}}
+\subsubsection[{Matrix\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef {\bf Field\+Base\+Type\+::\+Matrix\+Type} {\bf model\+::\+Dislocation\+Energy}$<$ \+\_\+dim $>$\+::{\bf Matrix\+Type}}\label{classmodel_1_1_dislocation_energy_a3cb7da857732ef0ffe2ed45d06737097}
+
+
+Definition at line 32 of file Dislocation\+Energy.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_energy_a8489d465a19e782a7d74db70c6bcde18}{}\index{model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}!Vector\+Dim@{Vector\+Dim}}
+\index{Vector\+Dim@{Vector\+Dim}!model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}}
+\subsubsection[{Vector\+Dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ typedef Eigen\+::\+Matrix$<$double,\+\_\+dim,1$>$ {\bf model\+::\+Dislocation\+Energy}$<$ \+\_\+dim $>$\+::{\bf Vector\+Dim}}\label{classmodel_1_1_dislocation_energy_a8489d465a19e782a7d74db70c6bcde18}
+
+
+Definition at line 34 of file Dislocation\+Energy.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_dislocation_energy_ad1ff2b0500d5342a7b4251cf9b6fbf1d}{}\index{model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}!compute@{compute}}
+\index{compute@{compute}!model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}}
+\subsubsection[{compute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ template$<$typename Dislocation\+Particle\+Type $>$ static {\bf Matrix\+Type} {\bf model\+::\+Dislocation\+Energy}$<$ \+\_\+dim $>$\+::compute (
+\begin{DoxyParamCaption}
+\item[{const Dislocation\+Particle\+Type \&}]{source, }
+\item[{const Dislocation\+Particle\+Type \&}]{field}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_dislocation_energy_ad1ff2b0500d5342a7b4251cf9b6fbf1d}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em source} & the \hyperlink{structmodel_1_1_dislocation_particle}{Dislocation\+Particle} that is source of stress \\
+\hline
+\mbox{\tt in}  & {\em field} & the \hyperlink{structmodel_1_1_dislocation_particle}{Dislocation\+Particle} on which stress is computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the stress field produced by source on field
+\end{DoxyReturn}
+
+
+Definition at line 71 of file Dislocation\+Energy.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_energy_a91e24624b4507cbb31f94f30ed8dac35}{}\index{model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}!compute@{compute}}
+\index{compute@{compute}!model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}}
+\subsubsection[{compute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ template$<$typename Dislocation\+Particle\+Type $>$ static {\bf Matrix\+Type} {\bf model\+::\+Dislocation\+Energy}$<$ \+\_\+dim $>$\+::compute (
+\begin{DoxyParamCaption}
+\item[{const Dislocation\+Particle\+Type \&}]{, }
+\item[{const Dislocation\+Particle\+Type \&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_dislocation_energy_a91e24624b4507cbb31f94f30ed8dac35}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em source} & the \hyperlink{structmodel_1_1_dislocation_particle}{Dislocation\+Particle} that is source of stress \\
+\hline
+\mbox{\tt in}  & {\em field} & the \hyperlink{structmodel_1_1_dislocation_particle}{Dislocation\+Particle} on which stress is computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the stress field produced by source on field
+\end{DoxyReturn}
+
+
+Definition at line 90 of file Dislocation\+Energy.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_energy_ad1ff2b0500d5342a7b4251cf9b6fbf1d}{}\index{model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}!compute@{compute}}
+\index{compute@{compute}!model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}}
+\subsubsection[{compute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ template$<$typename Dislocation\+Particle\+Type $>$ static {\bf Matrix\+Type} {\bf model\+::\+Dislocation\+Energy}$<$ \+\_\+dim $>$\+::compute (
+\begin{DoxyParamCaption}
+\item[{const Dislocation\+Particle\+Type \&}]{source, }
+\item[{const Dislocation\+Particle\+Type \&}]{field}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_dislocation_energy_ad1ff2b0500d5342a7b4251cf9b6fbf1d}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em source} & the \hyperlink{structmodel_1_1_dislocation_particle}{Dislocation\+Particle} that is source of stress \\
+\hline
+\mbox{\tt in}  & {\em field} & the \hyperlink{structmodel_1_1_dislocation_particle}{Dislocation\+Particle} on which stress is computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the stress field produced by source on field
+\end{DoxyReturn}
+
+
+Definition at line 116 of file Dislocation\+Energy.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_energy_a1700e54fc53aaf89489e1d1c19738a20}{}\index{model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}!get@{get}}
+\index{get@{get}!model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}}
+\subsubsection[{get}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ static const {\bf Matrix\+Type}\& {\bf model\+::\+Dislocation\+Energy}$<$ \+\_\+dim $>$\+::get (
+\begin{DoxyParamCaption}
+\item[{const {\bf Matrix\+Type} \&}]{temp}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_dislocation_energy_a1700e54fc53aaf89489e1d1c19738a20}
+
+
+Definition at line 39 of file Dislocation\+Energy.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_energy_a91479d9718ff68dd9479cbc5ff1d6680}{}\index{model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}!multipole@{multipole}}
+\index{multipole@{multipole}!model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}}
+\subsubsection[{multipole}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ template$<$typename Particle\+Type , typename Cell\+Container\+Type $>$ static {\bf Matrix\+Type} {\bf model\+::\+Dislocation\+Energy}$<$ \+\_\+dim $>$\+::multipole (
+\begin{DoxyParamCaption}
+\item[{const Particle\+Type \&}]{, }
+\item[{const Cell\+Container\+Type \&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_dislocation_energy_a91479d9718ff68dd9479cbc5ff1d6680}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em field} & the \hyperlink{structmodel_1_1_field_point}{Field\+Point} at which stress is computed \\
+\hline
+\mbox{\tt in}  & {\em far\+Cells} & container of Spatial\+Cell(s) that are not neighbors of field \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the displacement contribution of the far\+Cells on field.
+\end{DoxyReturn}
+
+
+Definition at line 46 of file Dislocation\+Energy.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_dislocation_energy_a69e79b7fbb8a90bae1676a05eddb5d1f}{}\index{model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}!use\+\_\+multipole@{use\+\_\+multipole}}
+\index{use\+\_\+multipole@{use\+\_\+multipole}!model\+::\+Dislocation\+Energy@{model\+::\+Dislocation\+Energy}}
+\subsubsection[{use\+\_\+multipole}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short unsigned int \+\_\+dim$>$ bool {\bf model\+::\+Dislocation\+Energy}$<$ \+\_\+dim $>$\+::use\+\_\+multipole =true\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_dislocation_energy_a69e79b7fbb8a90bae1676a05eddb5d1f}
+
+
+Definition at line 36 of file Dislocation\+Energy.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_dislocation_energy_8h}{Dislocation\+Energy.\+h}\end{DoxyCompactItemize}

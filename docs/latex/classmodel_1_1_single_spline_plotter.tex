@@ -1,0 +1,172 @@
+\hypertarget{classmodel_1_1_single_spline_plotter}{}\section{model\+:\+:Single\+Spline\+Plotter$<$ dim, Np, Nc $>$ Class Template Reference}
+\label{classmodel_1_1_single_spline_plotter}\index{model\+::\+Single\+Spline\+Plotter$<$ dim, Np, Nc $>$@{model\+::\+Single\+Spline\+Plotter$<$ dim, Np, Nc $>$}}
+
+
+{\ttfamily \#include $<$Spline\+Plotter.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613a9411d6fc67fe8675630d1de6b8bcd2c9}{color\+Burgers} =0, 
+\hyperlink{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613ae8649b0a27fea7a9d042b7cb407ac1d3}{color\+Sessile} =1, 
+\hyperlink{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613a2e9de7e502f85ead8eb007c953531c28}{color\+Normal} =2, 
+\hyperlink{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613ac431f520d5e156dad5150cb9a253799e}{color\+Component} =3
+ \}
+\item 
+typedef float \hyperlink{classmodel_1_1_single_spline_plotter_aa7a9de72b38d4d60ca52a5b62570e45a}{scalar\+Type}
+\item 
+typedef Eigen\+::\+Matrix$<$ \hyperlink{classmodel_1_1_single_spline_plotter_aa7a9de72b38d4d60ca52a5b62570e45a}{scalar\+Type}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, Np $>$ \hyperlink{classmodel_1_1_single_spline_plotter_a32dbbb243ef2981d79a67a22a19f4d17}{Matrix\+Dim\+Np}
+\item 
+typedef Eigen\+::\+Matrix$<$ \hyperlink{classmodel_1_1_single_spline_plotter_aa7a9de72b38d4d60ca52a5b62570e45a}{scalar\+Type}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{run_multipole_8m_a8de17588e86659e4d31ccdbd2a9aa387}{Nc} $>$ \hyperlink{classmodel_1_1_single_spline_plotter_a6dae49d6511813e2ff0f2c3bd1f5c200}{Matrix\+Dim\+Nc}
+\item 
+typedef Eigen\+::\+Matrix$<$ \hyperlink{classmodel_1_1_single_spline_plotter_aa7a9de72b38d4d60ca52a5b62570e45a}{scalar\+Type}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \hyperlink{classmodel_1_1_single_spline_plotter_aac0dc9b9bcd8a574fab46652cc669602}{Vector\+Dim}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_single_spline_plotter_ab443242a355214a5abe4326dd766ed52}{Single\+Spline\+Plotter} (const Eigen\+::\+Matrix$<$ \hyperlink{classmodel_1_1_single_spline_plotter_aa7a9de72b38d4d60ca52a5b62570e45a}{scalar\+Type}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 6 $>$ \&P0\+T0\+P1\+T1\+B\+N, const int \&sn\+I\+D\+\_\+in)
+\item 
+void \hyperlink{classmodel_1_1_single_spline_plotter_a190d0b2ab7be3c902af6464f5c510a34}{flip\+Color} (\hyperlink{classmodel_1_1_single_spline_plotter_aac0dc9b9bcd8a574fab46652cc669602}{Vector\+Dim} \&color\+Vector) const 
+\item 
+void \hyperlink{classmodel_1_1_single_spline_plotter_a709bf94ceabfd5cbfd090b89d0ce1f71}{plot} (const \hyperlink{classmodel_1_1_single_spline_plotter_aa7a9de72b38d4d60ca52a5b62570e45a}{scalar\+Type} \&\hyperlink{tube_plotter_8m_acc620a89e606f875661525fd6365a421}{radius}, const bool \&show\+Tubes, const bool \&show\+Plane\+Normal, const bool \&show\+Burgers, const int \&color\+Scheme, const int \&ids, const int \&s\+I\+Dmin, const int \&s\+I\+Dmax) const 
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const int \hyperlink{classmodel_1_1_single_spline_plotter_ae255b98f097fad73ff25f224c491b6fc}{sn\+I\+D}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static float \hyperlink{classmodel_1_1_single_spline_plotter_a67ef7174e0b12283c38573a8c49e2ef3}{alpha} =0.\+5
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int dim, int Np, int Nc$>$class model\+::\+Single\+Spline\+Plotter$<$ dim, Np, Nc $>$}
+
+
+
+Definition at line 50 of file Spline\+Plotter.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_single_spline_plotter_a6dae49d6511813e2ff0f2c3bd1f5c200}{}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!Matrix\+Dim\+Nc@{Matrix\+Dim\+Nc}}
+\index{Matrix\+Dim\+Nc@{Matrix\+Dim\+Nc}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}
+\subsubsection[{Matrix\+Dim\+Nc}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ typedef Eigen\+::\+Matrix$<${\bf scalar\+Type},{\bf dim},{\bf Nc}$>$ {\bf model\+::\+Single\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::{\bf Matrix\+Dim\+Nc}}\label{classmodel_1_1_single_spline_plotter_a6dae49d6511813e2ff0f2c3bd1f5c200}
+
+
+Definition at line 58 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_single_spline_plotter_a32dbbb243ef2981d79a67a22a19f4d17}{}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!Matrix\+Dim\+Np@{Matrix\+Dim\+Np}}
+\index{Matrix\+Dim\+Np@{Matrix\+Dim\+Np}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}
+\subsubsection[{Matrix\+Dim\+Np}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ typedef Eigen\+::\+Matrix$<${\bf scalar\+Type},{\bf dim},Np$>$ {\bf model\+::\+Single\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::{\bf Matrix\+Dim\+Np}}\label{classmodel_1_1_single_spline_plotter_a32dbbb243ef2981d79a67a22a19f4d17}
+
+
+Definition at line 57 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_single_spline_plotter_aa7a9de72b38d4d60ca52a5b62570e45a}{}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!scalar\+Type@{scalar\+Type}}
+\index{scalar\+Type@{scalar\+Type}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}
+\subsubsection[{scalar\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ typedef float {\bf model\+::\+Single\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::{\bf scalar\+Type}}\label{classmodel_1_1_single_spline_plotter_aa7a9de72b38d4d60ca52a5b62570e45a}
+
+
+Definition at line 56 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_single_spline_plotter_aac0dc9b9bcd8a574fab46652cc669602}{}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!Vector\+Dim@{Vector\+Dim}}
+\index{Vector\+Dim@{Vector\+Dim}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}
+\subsubsection[{Vector\+Dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ typedef Eigen\+::\+Matrix$<${\bf scalar\+Type},{\bf dim},1$>$ {\bf model\+::\+Single\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::{\bf Vector\+Dim}}\label{classmodel_1_1_single_spline_plotter_aac0dc9b9bcd8a574fab46652cc669602}
+
+
+Definition at line 59 of file Spline\+Plotter.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ anonymous enum}\label{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{color\+Burgers@{color\+Burgers}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!color\+Burgers@{color\+Burgers}}\item[{\em 
+\hypertarget{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613a9411d6fc67fe8675630d1de6b8bcd2c9}{}color\+Burgers\label{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613a9411d6fc67fe8675630d1de6b8bcd2c9}
+}]\index{color\+Sessile@{color\+Sessile}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!color\+Sessile@{color\+Sessile}}\item[{\em 
+\hypertarget{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613ae8649b0a27fea7a9d042b7cb407ac1d3}{}color\+Sessile\label{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613ae8649b0a27fea7a9d042b7cb407ac1d3}
+}]\index{color\+Normal@{color\+Normal}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!color\+Normal@{color\+Normal}}\item[{\em 
+\hypertarget{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613a2e9de7e502f85ead8eb007c953531c28}{}color\+Normal\label{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613a2e9de7e502f85ead8eb007c953531c28}
+}]\index{color\+Component@{color\+Component}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!color\+Component@{color\+Component}}\item[{\em 
+\hypertarget{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613ac431f520d5e156dad5150cb9a253799e}{}color\+Component\label{classmodel_1_1_single_spline_plotter_af369241d2576127a458664938dd31613ac431f520d5e156dad5150cb9a253799e}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 104 of file Spline\+Plotter.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_single_spline_plotter_ab443242a355214a5abe4326dd766ed52}{}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!Single\+Spline\+Plotter@{Single\+Spline\+Plotter}}
+\index{Single\+Spline\+Plotter@{Single\+Spline\+Plotter}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}
+\subsubsection[{Single\+Spline\+Plotter}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ {\bf model\+::\+Single\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::{\bf Single\+Spline\+Plotter} (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ {\bf scalar\+Type}, {\bf dim}, 6 $>$ \&}]{P0\+T0\+P1\+T1\+B\+N, }
+\item[{const int \&}]{sn\+I\+D\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_single_spline_plotter_ab443242a355214a5abe4326dd766ed52}
+
+
+Definition at line 108 of file Spline\+Plotter.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_single_spline_plotter_a190d0b2ab7be3c902af6464f5c510a34}{}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!flip\+Color@{flip\+Color}}
+\index{flip\+Color@{flip\+Color}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}
+\subsubsection[{flip\+Color}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ void {\bf model\+::\+Single\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::flip\+Color (
+\begin{DoxyParamCaption}
+\item[{{\bf Vector\+Dim} \&}]{color\+Vector}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_single_spline_plotter_a190d0b2ab7be3c902af6464f5c510a34}
+
+
+Definition at line 146 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_single_spline_plotter_a709bf94ceabfd5cbfd090b89d0ce1f71}{}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!plot@{plot}}
+\index{plot@{plot}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}
+\subsubsection[{plot}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ void {\bf model\+::\+Single\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::plot (
+\begin{DoxyParamCaption}
+\item[{const {\bf scalar\+Type} \&}]{radius, }
+\item[{const bool \&}]{show\+Tubes, }
+\item[{const bool \&}]{show\+Plane\+Normal, }
+\item[{const bool \&}]{show\+Burgers, }
+\item[{const int \&}]{color\+Scheme, }
+\item[{const int \&}]{ids, }
+\item[{const int \&}]{s\+I\+Dmin, }
+\item[{const int \&}]{s\+I\+Dmax}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_single_spline_plotter_a709bf94ceabfd5cbfd090b89d0ce1f71}
+
+
+Definition at line 172 of file Spline\+Plotter.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_single_spline_plotter_a67ef7174e0b12283c38573a8c49e2ef3}{}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!alpha@{alpha}}
+\index{alpha@{alpha}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}
+\subsubsection[{alpha}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ float {\bf model\+::\+Single\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::alpha =0.\+5\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_single_spline_plotter_a67ef7174e0b12283c38573a8c49e2ef3}
+
+
+Definition at line 54 of file Spline\+Plotter.\+h.
+
+\hypertarget{classmodel_1_1_single_spline_plotter_ae255b98f097fad73ff25f224c491b6fc}{}\index{model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}!sn\+I\+D@{sn\+I\+D}}
+\index{sn\+I\+D@{sn\+I\+D}!model\+::\+Single\+Spline\+Plotter@{model\+::\+Single\+Spline\+Plotter}}
+\subsubsection[{sn\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int dim, int Np, int Nc$>$ const int {\bf model\+::\+Single\+Spline\+Plotter}$<$ {\bf dim}, Np, {\bf Nc} $>$\+::sn\+I\+D}\label{classmodel_1_1_single_spline_plotter_ae255b98f097fad73ff25f224c491b6fc}
+
+
+Definition at line 62 of file Spline\+Plotter.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_spline_plotter_8h}{Spline\+Plotter.\+h}\end{DoxyCompactItemize}

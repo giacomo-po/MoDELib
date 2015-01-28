@@ -29,8 +29,9 @@ namespace model {
         enum{k=_k};
         static_assert(N>0,"N MUST BE >0.");
         static_assert(k>0,"k MUST BE >0.");
-		enum{value=Binomial<N+k-1,k>::value};
-        
+//		enum{value=Binomial<N+k-1,k>::value};
+        static constexpr int value=Binomial<N+k-1,k>::value;
+      
         
         template <typename T>
         static Eigen::Matrix<T,value,k> combine(const Eigen::Matrix<T,1,N>& pool)

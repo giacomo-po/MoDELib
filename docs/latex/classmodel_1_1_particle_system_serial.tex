@@ -1,0 +1,115 @@
+\hypertarget{classmodel_1_1_particle_system_serial}{}\section{model\+:\+:Particle\+System\+Serial$<$ \+\_\+\+Particle\+Type $>$ Class Template Reference}
+\label{classmodel_1_1_particle_system_serial}\index{model\+::\+Particle\+System\+Serial$<$ \+\_\+\+Particle\+Type $>$@{model\+::\+Particle\+System\+Serial$<$ \+\_\+\+Particle\+Type $>$}}
+
+
+Serial Version (open\+M\+P only)  
+
+
+
+
+{\ttfamily \#include $<$Particle\+System\+Serial.\+h$>$}
+
+Inheritance diagram for model\+:\+:Particle\+System\+Serial$<$ \+\_\+\+Particle\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classmodel_1_1_particle_system_serial}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{classmodel_1_1_particle_system_base_a8de0382d851a8968d757f91bad3a408e}{Particle\+System\+Base\+Type\+::\+Spatial\+Cell\+Type} \hyperlink{classmodel_1_1_particle_system_serial_ad5979cd0b17a34b3731e4fe505dc86df}{Spatial\+Cell\+Type}
+\item 
+typedef \hyperlink{classmodel_1_1_particle_system_base_ac95d9a819d1da5e86f726494bf6df504}{Particle\+System\+Base\+Type\+::\+Particle\+Container\+Type} \hyperlink{classmodel_1_1_particle_system_serial_a9f62b7a84c09fb9b7a6297630c3a5e6d}{Particle\+Container\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename Field\+Type , typename... Other\+Source\+Types$>$ }\\void \hyperlink{classmodel_1_1_particle_system_serial_a6d635a8e5e510bce8781f38bce53a9fe}{compute\+Neighbor\+Field} (const Other\+Source\+Types \&...other\+Sources)
+\item 
+{\footnotesize template$<$typename Other\+Particle\+Type , typename Field\+Type , typename... Other\+Source\+Types$>$ }\\void \hyperlink{classmodel_1_1_particle_system_serial_a8c7100247eaa48f31863d0902fd3d526}{compute\+Field} (std\+::deque$<$ Other\+Particle\+Type $>$ \&fp\+Deq, const Other\+Source\+Types \&...other\+Sources) const 
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$class T $>$ }\\\hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \& \hyperlink{classmodel_1_1_particle_system_serial_ab12e91f48bb9a19e54a866d70c9ff9db}{operator$<$$<$} (\hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&os, const \hyperlink{classmodel_1_1_particle_system_base_ac95d9a819d1da5e86f726494bf6df504}{Particle\+Container\+Type} \&p\+S)
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename \+\_\+\+Particle\+Type$>$class model\+::\+Particle\+System\+Serial$<$ \+\_\+\+Particle\+Type $>$}
+
+Serial Version (open\+M\+P only) 
+
+Definition at line 45 of file Particle\+System\+Serial.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_particle_system_serial_a9f62b7a84c09fb9b7a6297630c3a5e6d}{}\index{model\+::\+Particle\+System\+Serial@{model\+::\+Particle\+System\+Serial}!Particle\+Container\+Type@{Particle\+Container\+Type}}
+\index{Particle\+Container\+Type@{Particle\+Container\+Type}!model\+::\+Particle\+System\+Serial@{model\+::\+Particle\+System\+Serial}}
+\subsubsection[{Particle\+Container\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Particle\+Type $>$ typedef {\bf Particle\+System\+Base\+Type\+::\+Particle\+Container\+Type} {\bf model\+::\+Particle\+System\+Serial}$<$ \+\_\+\+Particle\+Type $>$\+::{\bf Particle\+Container\+Type}}\label{classmodel_1_1_particle_system_serial_a9f62b7a84c09fb9b7a6297630c3a5e6d}
+
+
+Definition at line 54 of file Particle\+System\+Serial.\+h.
+
+\hypertarget{classmodel_1_1_particle_system_serial_ad5979cd0b17a34b3731e4fe505dc86df}{}\index{model\+::\+Particle\+System\+Serial@{model\+::\+Particle\+System\+Serial}!Spatial\+Cell\+Type@{Spatial\+Cell\+Type}}
+\index{Spatial\+Cell\+Type@{Spatial\+Cell\+Type}!model\+::\+Particle\+System\+Serial@{model\+::\+Particle\+System\+Serial}}
+\subsubsection[{Spatial\+Cell\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Particle\+Type $>$ typedef {\bf Particle\+System\+Base\+Type\+::\+Spatial\+Cell\+Type} {\bf model\+::\+Particle\+System\+Serial}$<$ \+\_\+\+Particle\+Type $>$\+::{\bf Spatial\+Cell\+Type}}\label{classmodel_1_1_particle_system_serial_ad5979cd0b17a34b3731e4fe505dc86df}
+
+
+Definition at line 53 of file Particle\+System\+Serial.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_particle_system_serial_a8c7100247eaa48f31863d0902fd3d526}{}\index{model\+::\+Particle\+System\+Serial@{model\+::\+Particle\+System\+Serial}!compute\+Field@{compute\+Field}}
+\index{compute\+Field@{compute\+Field}!model\+::\+Particle\+System\+Serial@{model\+::\+Particle\+System\+Serial}}
+\subsubsection[{compute\+Field}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Particle\+Type $>$ template$<$typename Other\+Particle\+Type , typename Field\+Type , typename... Other\+Source\+Types$>$ void {\bf model\+::\+Particle\+System\+Serial}$<$ \+\_\+\+Particle\+Type $>$\+::compute\+Field (
+\begin{DoxyParamCaption}
+\item[{std\+::deque$<$ Other\+Particle\+Type $>$ \&}]{fp\+Deq, }
+\item[{const Other\+Source\+Types \&...}]{other\+Sources}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_particle_system_serial_a8c7100247eaa48f31863d0902fd3d526}
+-\/2 loop over neighbor cells of current particle
+
+-\/3 loop over particles in the current neighbor cell 
+
+Definition at line 101 of file Particle\+System\+Serial.\+h.
+
+\hypertarget{classmodel_1_1_particle_system_serial_a6d635a8e5e510bce8781f38bce53a9fe}{}\index{model\+::\+Particle\+System\+Serial@{model\+::\+Particle\+System\+Serial}!compute\+Neighbor\+Field@{compute\+Neighbor\+Field}}
+\index{compute\+Neighbor\+Field@{compute\+Neighbor\+Field}!model\+::\+Particle\+System\+Serial@{model\+::\+Particle\+System\+Serial}}
+\subsubsection[{compute\+Neighbor\+Field}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Particle\+Type $>$ template$<$typename Field\+Type , typename... Other\+Source\+Types$>$ void {\bf model\+::\+Particle\+System\+Serial}$<$ \+\_\+\+Particle\+Type $>$\+::compute\+Neighbor\+Field (
+\begin{DoxyParamCaption}
+\item[{const Other\+Source\+Types \&...}]{other\+Sources}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_particle_system_serial_a6d635a8e5e510bce8781f38bce53a9fe}
+-\/1 loop over all particles in the \hyperlink{structmodel_1_1_particle_system}{Particle\+System} (parallelized in Open\+M\+P)
+
+-\/2 loop over neighbor cells of current particle
+
+-\/3 loop over particles in the current neighbor cell 
+
+Definition at line 59 of file Particle\+System\+Serial.\+h.
+
+
+
+\subsection{Friends And Related Function Documentation}
+\hypertarget{classmodel_1_1_particle_system_serial_ab12e91f48bb9a19e54a866d70c9ff9db}{}\index{model\+::\+Particle\+System\+Serial@{model\+::\+Particle\+System\+Serial}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!model\+::\+Particle\+System\+Serial@{model\+::\+Particle\+System\+Serial}}
+\subsubsection[{operator$<$$<$}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename \+\_\+\+Particle\+Type $>$ template$<$class T $>$ {\bf T}\& operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{{\bf T} \&}]{os, }
+\item[{const {\bf Particle\+Container\+Type} \&}]{p\+S}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [friend]}}\label{classmodel_1_1_particle_system_serial_ab12e91f48bb9a19e54a866d70c9ff9db}
+Operator$<$$<$ use Particle\+Type-\/specific operator$<$$<$
+
+Definition at line 146 of file Particle\+System\+Serial.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_particle_system_serial_8h}{Particle\+System\+Serial.\+h}\end{DoxyCompactItemize}

@@ -1,0 +1,149 @@
+\hypertarget{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4}{}\section{model\+:\+:Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$ Struct Template Reference}
+\label{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4}\index{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}}
+
+
+{\ttfamily \#include $<$Integration\+Domain.\+h$>$}
+
+Inheritance diagram for model\+:\+:Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{structmodel_1_1_quadrature}{Quadrature}$<$ \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a4794e96f792f2344e4ac5842f50f3fa3}{domain\+Dim}, q\+Order, Quadrature\+Rule $>$ \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a057154318f491aae67780b638d79e0b6}{Quadrature\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_quadrature_af457aed3f503be1010dee155c33f7ec1}{Quadrature\+Type\+::\+Vector\+Dim} \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a7e1987441ecbe7f224f67657f97d115e}{Abscissa\+Type}
+\item 
+typedef Finite\+Element\+Type\+::\+Element\+Type \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a0c38472ef1c1f37f1c32e49a5cdc2f71}{Element\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_integration_domain}{Integration\+Domain}$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$ \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a7873d1cffeaa8a8dde260fefa1827dbd}{Integration\+Domain\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+const Finite\+Element\+Type\+::\+Element\+Type \& \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a74fb0fe8cdd3332d16dfd9e9d603642e}{element} (const size\+\_\+t \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k}) const 
+\item 
+{\footnotesize template$<$typename Any\+Class , typename Integrand\+Type , typename... Args$>$ }\\void \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_aca6ac5a79c44c7b7ec0c102417c98298}{integrate} (const Any\+Class $\ast$const \hyperlink{plot_cells_8m_aaa53ca0b650dfd85c4f59fa156f7a2cc}{C}, Integrand\+Type \&intgrl, Integrand\+Type(Any\+Class\+::$\ast$mfp)(const \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a7e1987441ecbe7f224f67657f97d115e}{Abscissa\+Type} \&, const \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a0c38472ef1c1f37f1c32e49a5cdc2f71}{Element\+Type} \&, const int \&, const Args \&...) const, const Args \&...args) const 
+\item 
+{\footnotesize template$<$typename Point\+Type $>$ }\\\hyperlink{structmodel_1_1_integration_list}{Integration\+List}$<$ \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a6e8e93aabff3aad5399c80ef79ed616d}{dim\+Minus\+Domain\+Dim}, Point\+Type $>$ \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a4c76eb5046c036bc59d0f6d05421a47f}{integration\+List} () const 
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static constexpr int \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_ac6b2db0e39e49028b80c918a7450b815}{dim} =Finite\+Element\+Type\+::dim
+\item 
+static constexpr int \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a6e8e93aabff3aad5399c80ef79ed616d}{dim\+Minus\+Domain\+Dim} =1
+\item 
+static constexpr int \hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a4794e96f792f2344e4ac5842f50f3fa3}{domain\+Dim} =\hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_ac6b2db0e39e49028b80c918a7450b815}{dim}-\/\hyperlink{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a6e8e93aabff3aad5399c80ef79ed616d}{dim\+Minus\+Domain\+Dim}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Finite\+Element\+Type, int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$struct model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}
+
+
+
+Definition at line 57 of file Integration\+Domain.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a7e1987441ecbe7f224f67657f97d115e}{}\index{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}!Abscissa\+Type@{Abscissa\+Type}}
+\index{Abscissa\+Type@{Abscissa\+Type}!model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}}
+\subsubsection[{Abscissa\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Finite\+Element\+Type , int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ typedef {\bf Quadrature\+Type\+::\+Vector\+Dim} {\bf model\+::\+Integration\+Domain}$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$\+::{\bf Abscissa\+Type}}\label{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a7e1987441ecbe7f224f67657f97d115e}
+
+
+Definition at line 63 of file Integration\+Domain.\+h.
+
+\hypertarget{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a0c38472ef1c1f37f1c32e49a5cdc2f71}{}\index{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}!Element\+Type@{Element\+Type}}
+\index{Element\+Type@{Element\+Type}!model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}}
+\subsubsection[{Element\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Finite\+Element\+Type , int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ typedef Finite\+Element\+Type\+::\+Element\+Type {\bf model\+::\+Integration\+Domain}$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$\+::{\bf Element\+Type}}\label{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a0c38472ef1c1f37f1c32e49a5cdc2f71}
+
+
+Definition at line 64 of file Integration\+Domain.\+h.
+
+\hypertarget{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a7873d1cffeaa8a8dde260fefa1827dbd}{}\index{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}!Integration\+Domain\+Type@{Integration\+Domain\+Type}}
+\index{Integration\+Domain\+Type@{Integration\+Domain\+Type}!model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}}
+\subsubsection[{Integration\+Domain\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Finite\+Element\+Type , int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ typedef {\bf Integration\+Domain}$<$Finite\+Element\+Type,1,q\+Order,Quadrature\+Rule$>$ {\bf model\+::\+Integration\+Domain}$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$\+::{\bf Integration\+Domain\+Type}}\label{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a7873d1cffeaa8a8dde260fefa1827dbd}
+
+
+Definition at line 65 of file Integration\+Domain.\+h.
+
+\hypertarget{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a057154318f491aae67780b638d79e0b6}{}\index{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}!Quadrature\+Type@{Quadrature\+Type}}
+\index{Quadrature\+Type@{Quadrature\+Type}!model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}}
+\subsubsection[{Quadrature\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Finite\+Element\+Type , int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ typedef {\bf Quadrature}$<${\bf domain\+Dim},q\+Order,Quadrature\+Rule$>$ {\bf model\+::\+Integration\+Domain}$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$\+::{\bf Quadrature\+Type}}\label{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a057154318f491aae67780b638d79e0b6}
+
+
+Definition at line 62 of file Integration\+Domain.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a74fb0fe8cdd3332d16dfd9e9d603642e}{}\index{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}!element@{element}}
+\index{element@{element}!model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}}
+\subsubsection[{element}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Finite\+Element\+Type , int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ const Finite\+Element\+Type\+::\+Element\+Type\& {\bf model\+::\+Integration\+Domain}$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$\+::element (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{k}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a74fb0fe8cdd3332d16dfd9e9d603642e}
+
+
+Definition at line 68 of file Integration\+Domain.\+h.
+
+\hypertarget{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_aca6ac5a79c44c7b7ec0c102417c98298}{}\index{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}!integrate@{integrate}}
+\index{integrate@{integrate}!model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}}
+\subsubsection[{integrate}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Finite\+Element\+Type , int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ template$<$typename Any\+Class , typename Integrand\+Type , typename... Args$>$ void {\bf model\+::\+Integration\+Domain}$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$\+::integrate (
+\begin{DoxyParamCaption}
+\item[{const Any\+Class $\ast$const}]{C, }
+\item[{Integrand\+Type \&}]{intgrl, }
+\item[{Integrand\+Type(Any\+Class\+::$\ast$)(const {\bf Abscissa\+Type} \&, const {\bf Element\+Type} \&, const int \&, const Args \&...) const}]{mfp, }
+\item[{const Args \&...}]{args}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_aca6ac5a79c44c7b7ec0c102417c98298}
+
+
+Definition at line 75 of file Integration\+Domain.\+h.
+
+\hypertarget{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a4c76eb5046c036bc59d0f6d05421a47f}{}\index{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}!integration\+List@{integration\+List}}
+\index{integration\+List@{integration\+List}!model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}}
+\subsubsection[{integration\+List}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Finite\+Element\+Type , int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ template$<$typename Point\+Type $>$ {\bf Integration\+List}$<${\bf dim\+Minus\+Domain\+Dim},Point\+Type$>$ {\bf model\+::\+Integration\+Domain}$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$\+::integration\+List (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a4c76eb5046c036bc59d0f6d05421a47f}
+
+
+Definition at line 112 of file Integration\+Domain.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_ac6b2db0e39e49028b80c918a7450b815}{}\index{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}!dim@{dim}}
+\index{dim@{dim}!model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}}
+\subsubsection[{dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Finite\+Element\+Type , int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ constexpr int {\bf model\+::\+Integration\+Domain}$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$\+::dim =Finite\+Element\+Type\+::dim\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_ac6b2db0e39e49028b80c918a7450b815}
+
+
+Definition at line 59 of file Integration\+Domain.\+h.
+
+\hypertarget{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a6e8e93aabff3aad5399c80ef79ed616d}{}\index{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}!dim\+Minus\+Domain\+Dim@{dim\+Minus\+Domain\+Dim}}
+\index{dim\+Minus\+Domain\+Dim@{dim\+Minus\+Domain\+Dim}!model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}}
+\subsubsection[{dim\+Minus\+Domain\+Dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Finite\+Element\+Type , int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ constexpr int {\bf model\+::\+Integration\+Domain}$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$\+::dim\+Minus\+Domain\+Dim =1\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a6e8e93aabff3aad5399c80ef79ed616d}
+
+
+Definition at line 60 of file Integration\+Domain.\+h.
+
+\hypertarget{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a4794e96f792f2344e4ac5842f50f3fa3}{}\index{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}!domain\+Dim@{domain\+Dim}}
+\index{domain\+Dim@{domain\+Dim}!model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$@{model\+::\+Integration\+Domain$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$}}
+\subsubsection[{domain\+Dim}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Finite\+Element\+Type , int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ constexpr int {\bf model\+::\+Integration\+Domain}$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$\+::domain\+Dim ={\bf dim}-\/{\bf dim\+Minus\+Domain\+Dim}\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_integration_domain_3_01_finite_element_type_00_011_00_01q_order_00_01_quadrature_rule_01_4_a4794e96f792f2344e4ac5842f50f3fa3}
+
+
+Definition at line 61 of file Integration\+Domain.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_integration_domain_8h}{Integration\+Domain.\+h}\end{DoxyCompactItemize}

@@ -109,6 +109,15 @@ namespace model
             return val;
         }
         
+        /**********************************************************************/
+        Eigen::Matrix<double,rows,1> operator()(const Eigen::Matrix<double,dim,1>& P) const
+        {/*!@param[in] P the position vector
+          * @param[in] guess the Simplex where the search starts
+          * \returns the value of the Derived expression at P.
+          */
+            return operator()(P,&(op1.trial.fe.mesh.begin()->second));
+        }
+        
     };
     
     

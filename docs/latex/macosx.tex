@@ -1,0 +1,19 @@
+\hypertarget{macosx_macosxGCC}{}\section{Updating gcc}\label{macosx_macosxGCC}
+At the time of writing this guide (May 2013), the version of gcc that ships with \href{https://developer.apple.com/xcode/}{\tt Xcode} is 4.\+2. You need version 4.\+7 or higher to compile the c++11 features used in M\+O\+D\+E\+L. Therefore you need to install a more recent version of gcc in your \href{http://www.apple.com/osx/}{\tt Mac Os\+X}.
+
+You can install the most recent gcc using \href{http://www.macports.org}{\tt Mac\+Ports}.
+
+After you have successfully installed the current version of gcc, make sure to select that version as the default gcc compiler. You can select a particular version of gcc by first installing gcc\+\_\+select, again via \href{http://www.macports.org}{\tt Mac\+Ports}\+: \begin{DoxyVerb}sudo port install gcc_select
+\end{DoxyVerb}
+ Then, list the available gcc versions in your system\+: \begin{DoxyVerb}port select --list gcc
+\end{DoxyVerb}
+ And finally select the most current version, say mp-\/gcc47\+: \begin{DoxyVerb}sudo port select --set gcc mp-gcc47
+\end{DoxyVerb}
+
+
+Make sure to complete these steps before installing \hyperlink{openmpi}{open-\/\+M\+P\+I} and \hyperlink{metis}{M\+E\+T\+I\+S}.\hypertarget{macosx_macosxPorting}{}\section{Porting other Unix/\+Linux packages}\label{macosx_macosxPorting}
+\href{http://www.macports.org}{\tt Mac\+Ports} can also be used to port the following packages to \href{http://www.apple.com/osx/}{\tt Mac Os\+X}\+:
+\begin{DoxyItemize}
+\item \href{http://www.imagemagick.org}{\tt Image\+Magick}
+\item \href{http://www.ffmpeg.org}{\tt F\+Fmpeg} 
+\end{DoxyItemize}

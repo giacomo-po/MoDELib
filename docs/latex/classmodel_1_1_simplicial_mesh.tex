@@ -1,0 +1,227 @@
+\hypertarget{classmodel_1_1_simplicial_mesh}{}\section{model\+:\+:Simplicial\+Mesh$<$ \+\_\+dim $>$ Class Template Reference}
+\label{classmodel_1_1_simplicial_mesh}\index{model\+::\+Simplicial\+Mesh$<$ \+\_\+dim $>$@{model\+::\+Simplicial\+Mesh$<$ \+\_\+dim $>$}}
+
+
+{\ttfamily \#include $<$Simplicial\+Mesh.\+h$>$}
+
+Inheritance diagram for model\+:\+:Simplicial\+Mesh$<$ \+\_\+dim $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.472574cm]{classmodel_1_1_simplicial_mesh}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} =\+\_\+dim
+ \}
+\item 
+typedef std\+::map$<$ typename \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} $>$\+::Simplex\+I\+D\+Type, const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} $>$, \hyperlink{structmodel_1_1_compare_vectors_by_component}{Compare\+Vectors\+By\+Component}$<$ typename \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} $>$\+::Scalar\+I\+D\+Type, \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} $>$\+::n\+Vertices $>$ $>$ \hyperlink{classmodel_1_1_simplicial_mesh_aa65b22398919503e2183a0cbe5e0f2e7}{Simplex\+Map\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_simplicial_mesh_af84ab44ecf01c06410af0e7f3197f55d}{Simplicial\+Mesh} ()
+\item 
+\hyperlink{classmodel_1_1_simplicial_mesh_ad6e3f7fa2244f9225ab9c1f3e2dbeea8}{Simplicial\+Mesh} (const int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a08458a039e09e0161694c4dc402b9732}{mesh\+I\+D})
+\item 
+void \hyperlink{classmodel_1_1_simplicial_mesh_a3aa461ba7e48b0f6f2712b7d3080468d}{read\+Mesh} (const int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a08458a039e09e0161694c4dc402b9732}{mesh\+I\+D})
+\item 
+void \hyperlink{classmodel_1_1_simplicial_mesh_a009ee6831738dcd9deacb996c4c68c96}{insert\+Simplex} (const typename \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} $>$\+::Simplex\+I\+D\+Type \&x\+I\+N)
+\item 
+std\+::pair$<$ bool, const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} $>$ $\ast$ $>$ \hyperlink{classmodel_1_1_simplicial_mesh_a86c678632fb205d1da7960c2cb5bc1e5}{search} (const Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, 1 $>$ \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}) const 
+\item 
+std\+::pair$<$ bool, const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} $>$ $\ast$ $>$ \hyperlink{classmodel_1_1_simplicial_mesh_ad4d516ca3f17572bd9f3fc44bcddaac6}{search\+With\+Guess} (const Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, 1 $>$ \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}, const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} $>$ $\ast$const guess) const 
+\item 
+std\+::pair$<$ bool, const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} $>$ $\ast$ $>$ \hyperlink{classmodel_1_1_simplicial_mesh_a7c0ef45df0ca368b6e113350abda1034}{is\+Strictly\+Inside\+Mesh} (const Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, 1 $>$ \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}, const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} $>$ $\ast$const guess, const double \&tol) const 
+\item 
+std\+::pair$<$ bool, const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} $>$ $\ast$ $>$ \hyperlink{classmodel_1_1_simplicial_mesh_a16fa0578899cd58e1e8244df83a986b1}{is\+On\+Mesh\+Boundary} (const Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, 1 $>$ \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}, const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim} $>$ $\ast$const guess, const double \&tol) const 
+\item 
+const Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, 1 $>$ \& \hyperlink{classmodel_1_1_simplicial_mesh_a43e732d25256834a45e922b73242fe23}{x\+Min} () const 
+\item 
+const Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{dim}, 1 $>$ \& \hyperlink{classmodel_1_1_simplicial_mesh_a84fe0b6c4f9cab2878c326ad543c4ef0}{x\+Max} () const 
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int \+\_\+dim$>$class model\+::\+Simplicial\+Mesh$<$ \+\_\+dim $>$}
+
+
+
+Definition at line 36 of file Simplicial\+Mesh.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_simplicial_mesh_aa65b22398919503e2183a0cbe5e0f2e7}{}\index{model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}!Simplex\+Map\+Type@{Simplex\+Map\+Type}}
+\index{Simplex\+Map\+Type@{Simplex\+Map\+Type}!model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}}
+\subsubsection[{Simplex\+Map\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim$>$ typedef std\+::map$<$typename {\bf Simplex\+Traits}$<${\bf dim},{\bf dim}$>$\+::Simplex\+I\+D\+Type, const {\bf Simplex}$<${\bf dim},{\bf dim}$>$, {\bf Compare\+Vectors\+By\+Component}$<$typename {\bf Simplex\+Traits}$<${\bf dim},{\bf dim}$>$\+::Scalar\+I\+D\+Type, {\bf Simplex\+Traits}$<${\bf dim},{\bf dim}$>$\+::n\+Vertices$>$ $>$ {\bf model\+::\+Simplicial\+Mesh}$<$ \+\_\+dim $>$\+::{\bf Simplex\+Map\+Type}}\label{classmodel_1_1_simplicial_mesh_aa65b22398919503e2183a0cbe5e0f2e7}
+
+
+Definition at line 56 of file Simplicial\+Mesh.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356e}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim$>$ anonymous enum}\label{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356e}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{dim@{dim}!model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}}\index{model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}!dim@{dim}}\item[{\em 
+\hypertarget{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}{}dim\label{classmodel_1_1_simplicial_mesh_ad468b9bb3c67ec696a104445990d356ea29115db50a11d5e61cc38bf2db030e66}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 49 of file Simplicial\+Mesh.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_simplicial_mesh_af84ab44ecf01c06410af0e7f3197f55d}{}\index{model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}!Simplicial\+Mesh@{Simplicial\+Mesh}}
+\index{Simplicial\+Mesh@{Simplicial\+Mesh}!model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}}
+\subsubsection[{Simplicial\+Mesh}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim$>$ {\bf model\+::\+Simplicial\+Mesh}$<$ \+\_\+dim $>$\+::{\bf Simplicial\+Mesh} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplicial_mesh_af84ab44ecf01c06410af0e7f3197f55d}
+
+
+Definition at line 59 of file Simplicial\+Mesh.\+h.
+
+\hypertarget{classmodel_1_1_simplicial_mesh_ad6e3f7fa2244f9225ab9c1f3e2dbeea8}{}\index{model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}!Simplicial\+Mesh@{Simplicial\+Mesh}}
+\index{Simplicial\+Mesh@{Simplicial\+Mesh}!model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}}
+\subsubsection[{Simplicial\+Mesh}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim$>$ {\bf model\+::\+Simplicial\+Mesh}$<$ \+\_\+dim $>$\+::{\bf Simplicial\+Mesh} (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{mesh\+I\+D}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplicial_mesh_ad6e3f7fa2244f9225ab9c1f3e2dbeea8}
+
+
+Definition at line 67 of file Simplicial\+Mesh.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_simplicial_mesh_a009ee6831738dcd9deacb996c4c68c96}{}\index{model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}!insert\+Simplex@{insert\+Simplex}}
+\index{insert\+Simplex@{insert\+Simplex}!model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}}
+\subsubsection[{insert\+Simplex}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim$>$ void {\bf model\+::\+Simplicial\+Mesh}$<$ \+\_\+dim $>$\+::insert\+Simplex (
+\begin{DoxyParamCaption}
+\item[{const typename {\bf Simplex\+Traits}$<$ {\bf dim}, {\bf dim} $>$\+::Simplex\+I\+D\+Type \&}]{x\+I\+N}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplicial_mesh_a009ee6831738dcd9deacb996c4c68c96}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em x\+I\+N} & the (unsorted) array of mesh node I\+Ds defining a simplex Inserts a Simplex$<$dim$>$ into the mesh, with I\+D equal to the sorted array x\+I\+N.\\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 136 of file Simplicial\+Mesh.\+h.
+
+\hypertarget{classmodel_1_1_simplicial_mesh_a16fa0578899cd58e1e8244df83a986b1}{}\index{model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}!is\+On\+Mesh\+Boundary@{is\+On\+Mesh\+Boundary}}
+\index{is\+On\+Mesh\+Boundary@{is\+On\+Mesh\+Boundary}!model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}}
+\subsubsection[{is\+On\+Mesh\+Boundary}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim$>$ std\+::pair$<$bool,const {\bf Simplex}$<${\bf dim},{\bf dim}$>$$\ast$$>$ {\bf model\+::\+Simplicial\+Mesh}$<$ \+\_\+dim $>$\+::is\+On\+Mesh\+Boundary (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}, 1 $>$ \&}]{P, }
+\item[{const {\bf Simplex}$<$ {\bf dim}, {\bf dim} $>$ $\ast$const}]{guess, }
+\item[{const double \&}]{tol}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplicial_mesh_a16fa0578899cd58e1e8244df83a986b1}
+
+
+Definition at line 216 of file Simplicial\+Mesh.\+h.
+
+\hypertarget{classmodel_1_1_simplicial_mesh_a7c0ef45df0ca368b6e113350abda1034}{}\index{model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}!is\+Strictly\+Inside\+Mesh@{is\+Strictly\+Inside\+Mesh}}
+\index{is\+Strictly\+Inside\+Mesh@{is\+Strictly\+Inside\+Mesh}!model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}}
+\subsubsection[{is\+Strictly\+Inside\+Mesh}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim$>$ std\+::pair$<$bool,const {\bf Simplex}$<${\bf dim},{\bf dim}$>$$\ast$$>$ {\bf model\+::\+Simplicial\+Mesh}$<$ \+\_\+dim $>$\+::is\+Strictly\+Inside\+Mesh (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}, 1 $>$ \&}]{P, }
+\item[{const {\bf Simplex}$<$ {\bf dim}, {\bf dim} $>$ $\ast$const}]{guess, }
+\item[{const double \&}]{tol}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplicial_mesh_a7c0ef45df0ca368b6e113350abda1034}
+
+
+Definition at line 197 of file Simplicial\+Mesh.\+h.
+
+\hypertarget{classmodel_1_1_simplicial_mesh_a3aa461ba7e48b0f6f2712b7d3080468d}{}\index{model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}!read\+Mesh@{read\+Mesh}}
+\index{read\+Mesh@{read\+Mesh}!model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}}
+\subsubsection[{read\+Mesh}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim$>$ void {\bf model\+::\+Simplicial\+Mesh}$<$ \+\_\+dim $>$\+::read\+Mesh (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{mesh\+I\+D}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplicial_mesh_a3aa461ba7e48b0f6f2712b7d3080468d}
+
+
+Definition at line 73 of file Simplicial\+Mesh.\+h.
+
+\hypertarget{classmodel_1_1_simplicial_mesh_a86c678632fb205d1da7960c2cb5bc1e5}{}\index{model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}!search@{search}}
+\index{search@{search}!model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}}
+\subsubsection[{search}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim$>$ std\+::pair$<$bool,const {\bf Simplex}$<${\bf dim},{\bf dim}$>$$\ast$$>$ {\bf model\+::\+Simplicial\+Mesh}$<$ \+\_\+dim $>$\+::search (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}, 1 $>$ \&}]{P}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplicial_mesh_a86c678632fb205d1da7960c2cb5bc1e5}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em P} & position to search for \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a pair, where\+: -\/pair.\+first is a boolean indicating whether the search succesfully found a \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4}{Simplex$<$dim,dim$>$} which includes P. -\/pair.\+second is a pointer to the last \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4}{Simplex$<$dim,dim$>$} searched.
+\end{DoxyReturn}
+By default the search starts at this-\/$>$begin()-\/$>$second
+
+Definition at line 146 of file Simplicial\+Mesh.\+h.
+
+\hypertarget{classmodel_1_1_simplicial_mesh_ad4d516ca3f17572bd9f3fc44bcddaac6}{}\index{model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}!search\+With\+Guess@{search\+With\+Guess}}
+\index{search\+With\+Guess@{search\+With\+Guess}!model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}}
+\subsubsection[{search\+With\+Guess}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim$>$ std\+::pair$<$bool,const {\bf Simplex}$<${\bf dim},{\bf dim}$>$$\ast$$>$ {\bf model\+::\+Simplicial\+Mesh}$<$ \+\_\+dim $>$\+::search\+With\+Guess (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}, 1 $>$ \&}]{P, }
+\item[{const {\bf Simplex}$<$ {\bf dim}, {\bf dim} $>$ $\ast$const}]{guess}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplicial_mesh_ad4d516ca3f17572bd9f3fc44bcddaac6}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em P} & position to search for \\
+\hline
+\mbox{\tt in}  & {\em guess} & Simplex$\ast$ where the search starts \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a pair, where\+: -\/pair.\+first is a boolean indicating whether the search succesfully found a \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4}{Simplex$<$dim,dim$>$} which includes P. -\/pair.\+second is a pointer to the last \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4}{Simplex$<$dim,dim$>$} searched.
+\end{DoxyReturn}
+
+
+Definition at line 159 of file Simplicial\+Mesh.\+h.
+
+\hypertarget{classmodel_1_1_simplicial_mesh_a84fe0b6c4f9cab2878c326ad543c4ef0}{}\index{model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}!x\+Max@{x\+Max}}
+\index{x\+Max@{x\+Max}!model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}}
+\subsubsection[{x\+Max}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim$>$ const Eigen\+::\+Matrix$<$double,{\bf dim},1$>$\& {\bf model\+::\+Simplicial\+Mesh}$<$ \+\_\+dim $>$\+::x\+Max (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplicial_mesh_a84fe0b6c4f9cab2878c326ad543c4ef0}
+
+
+Definition at line 239 of file Simplicial\+Mesh.\+h.
+
+\hypertarget{classmodel_1_1_simplicial_mesh_a43e732d25256834a45e922b73242fe23}{}\index{model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}!x\+Min@{x\+Min}}
+\index{x\+Min@{x\+Min}!model\+::\+Simplicial\+Mesh@{model\+::\+Simplicial\+Mesh}}
+\subsubsection[{x\+Min}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+dim$>$ const Eigen\+::\+Matrix$<$double,{\bf dim},1$>$\& {\bf model\+::\+Simplicial\+Mesh}$<$ \+\_\+dim $>$\+::x\+Min (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplicial_mesh_a43e732d25256834a45e922b73242fe23}
+
+
+Definition at line 233 of file Simplicial\+Mesh.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_simplicial_mesh_8h}{Simplicial\+Mesh.\+h}\end{DoxyCompactItemize}

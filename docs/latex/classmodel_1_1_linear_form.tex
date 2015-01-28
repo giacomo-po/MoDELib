@@ -1,0 +1,114 @@
+\hypertarget{classmodel_1_1_linear_form}{}\section{model\+:\+:Linear\+Form$<$ Derived\+Test, Derived\+Eval $>$ Class Template Reference}
+\label{classmodel_1_1_linear_form}\index{model\+::\+Linear\+Form$<$ Derived\+Test, Derived\+Eval $>$@{model\+::\+Linear\+Form$<$ Derived\+Test, Derived\+Eval $>$}}
+
+
+{\ttfamily \#include $<$Linear\+Form.\+h$>$}
+
+Inheritance diagram for model\+:\+:Linear\+Form$<$ Derived\+Test, Derived\+Eval $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classmodel_1_1_linear_form}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Derived\+Test\+::\+Trial\+Function\+Type \hyperlink{classmodel_1_1_linear_form_a3b9ee10b33ce5fc4c69b3370704934b8}{Trial\+Function\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_linear_form_a385dbe2849490243c8054063c18d1d3a}{Linear\+Form} (const \hyperlink{structmodel_1_1_test_expression}{Test\+Expression}$<$ Derived\+Test $>$ \&test\+E, const \hyperlink{structmodel_1_1_eval_expression}{Eval\+Expression}$<$ Derived\+Eval $>$ \&eval\+E)
+\item 
+Eigen\+::\+Matrix$<$ double, dof\+Per\+Element, \hyperlink{classmodel_1_1_linear_form_a0e22c8a17afa5808bdb5b24d439bc098}{eval\+Cols} $>$ \hyperlink{classmodel_1_1_linear_form_afa08d2500a07d13cec6b03562a9af486}{operator()} (const Element\+Type \&ele, const Bary\+Type \&bary) const 
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const Derived\+Test \hyperlink{classmodel_1_1_linear_form_aeeaabdba14b8723c7bd158c7c14e7ce5}{test\+Exp}
+\item 
+const Derived\+Eval \hyperlink{classmodel_1_1_linear_form_a06d51fa5037e2f3859d6669e14de8ede}{eval\+Exp}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static constexpr int \hyperlink{classmodel_1_1_linear_form_a0e22c8a17afa5808bdb5b24d439bc098}{eval\+Cols} =Derived\+Eval\+::cols
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Derived\+Test, typename Derived\+Eval$>$class model\+::\+Linear\+Form$<$ Derived\+Test, Derived\+Eval $>$}
+
+
+
+Definition at line 22 of file Linear\+Form.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_linear_form_a3b9ee10b33ce5fc4c69b3370704934b8}{}\index{model\+::\+Linear\+Form@{model\+::\+Linear\+Form}!Trial\+Function\+Type@{Trial\+Function\+Type}}
+\index{Trial\+Function\+Type@{Trial\+Function\+Type}!model\+::\+Linear\+Form@{model\+::\+Linear\+Form}}
+\subsubsection[{Trial\+Function\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived\+Test, typename Derived\+Eval$>$ typedef Derived\+Test\+::\+Trial\+Function\+Type {\bf model\+::\+Linear\+Form}$<$ Derived\+Test, Derived\+Eval $>$\+::{\bf Trial\+Function\+Type}}\label{classmodel_1_1_linear_form_a3b9ee10b33ce5fc4c69b3370704934b8}
+
+
+Definition at line 25 of file Linear\+Form.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_linear_form_a385dbe2849490243c8054063c18d1d3a}{}\index{model\+::\+Linear\+Form@{model\+::\+Linear\+Form}!Linear\+Form@{Linear\+Form}}
+\index{Linear\+Form@{Linear\+Form}!model\+::\+Linear\+Form@{model\+::\+Linear\+Form}}
+\subsubsection[{Linear\+Form}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived\+Test, typename Derived\+Eval$>$ {\bf model\+::\+Linear\+Form}$<$ Derived\+Test, Derived\+Eval $>$\+::{\bf Linear\+Form} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Test\+Expression}$<$ Derived\+Test $>$ \&}]{test\+E, }
+\item[{const {\bf Eval\+Expression}$<$ Derived\+Eval $>$ \&}]{eval\+E}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_linear_form_a385dbe2849490243c8054063c18d1d3a}
+
+
+Definition at line 49 of file Linear\+Form.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_linear_form_afa08d2500a07d13cec6b03562a9af486}{}\index{model\+::\+Linear\+Form@{model\+::\+Linear\+Form}!operator()@{operator()}}
+\index{operator()@{operator()}!model\+::\+Linear\+Form@{model\+::\+Linear\+Form}}
+\subsubsection[{operator()}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived\+Test, typename Derived\+Eval$>$ Eigen\+::\+Matrix$<$double,dof\+Per\+Element,{\bf eval\+Cols}$>$ {\bf model\+::\+Linear\+Form}$<$ Derived\+Test, Derived\+Eval $>$\+::operator() (
+\begin{DoxyParamCaption}
+\item[{const Element\+Type \&}]{ele, }
+\item[{const Bary\+Type \&}]{bary}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_linear_form_afa08d2500a07d13cec6b03562a9af486}
+
+
+Definition at line 57 of file Linear\+Form.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_linear_form_a0e22c8a17afa5808bdb5b24d439bc098}{}\index{model\+::\+Linear\+Form@{model\+::\+Linear\+Form}!eval\+Cols@{eval\+Cols}}
+\index{eval\+Cols@{eval\+Cols}!model\+::\+Linear\+Form@{model\+::\+Linear\+Form}}
+\subsubsection[{eval\+Cols}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived\+Test, typename Derived\+Eval$>$ constexpr int {\bf model\+::\+Linear\+Form}$<$ Derived\+Test, Derived\+Eval $>$\+::eval\+Cols =Derived\+Eval\+::cols\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_linear_form_a0e22c8a17afa5808bdb5b24d439bc098}
+
+
+Definition at line 30 of file Linear\+Form.\+h.
+
+\hypertarget{classmodel_1_1_linear_form_a06d51fa5037e2f3859d6669e14de8ede}{}\index{model\+::\+Linear\+Form@{model\+::\+Linear\+Form}!eval\+Exp@{eval\+Exp}}
+\index{eval\+Exp@{eval\+Exp}!model\+::\+Linear\+Form@{model\+::\+Linear\+Form}}
+\subsubsection[{eval\+Exp}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived\+Test, typename Derived\+Eval$>$ const Derived\+Eval {\bf model\+::\+Linear\+Form}$<$ Derived\+Test, Derived\+Eval $>$\+::eval\+Exp}\label{classmodel_1_1_linear_form_a06d51fa5037e2f3859d6669e14de8ede}
+
+
+Definition at line 46 of file Linear\+Form.\+h.
+
+\hypertarget{classmodel_1_1_linear_form_aeeaabdba14b8723c7bd158c7c14e7ce5}{}\index{model\+::\+Linear\+Form@{model\+::\+Linear\+Form}!test\+Exp@{test\+Exp}}
+\index{test\+Exp@{test\+Exp}!model\+::\+Linear\+Form@{model\+::\+Linear\+Form}}
+\subsubsection[{test\+Exp}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived\+Test, typename Derived\+Eval$>$ const Derived\+Test {\bf model\+::\+Linear\+Form}$<$ Derived\+Test, Derived\+Eval $>$\+::test\+Exp}\label{classmodel_1_1_linear_form_aeeaabdba14b8723c7bd158c7c14e7ce5}
+
+
+Definition at line 45 of file Linear\+Form.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_linear_form_8h}{Linear\+Form.\+h}\end{DoxyCompactItemize}

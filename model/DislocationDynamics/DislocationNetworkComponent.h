@@ -123,12 +123,14 @@ namespace model {
         //		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
 		enum {NdofXnode=NodeType::NdofXnode};
-        
+        bool solvable;
         //       static bool useSchurComplementSolver;
         
 		
 		/************************************************************/
-        DislocationNetworkComponent(NetworkComponentType& NCin) : NC(NCin)
+        DislocationNetworkComponent(NetworkComponentType& NCin) :
+        /* init list */ NC(NCin),
+        /* init list */ solvable(true)
         {/*! Constructor initializes the reterence the NetworkComponent
           */
         }
@@ -136,121 +138,124 @@ namespace model {
         /************************************************************/
         void sparseSolve()
         {
-            
-            // Make some initial checks
-            const size_t nodeOrdr(NC.nodeOrder());
-			if (nodeOrdr==0 || nodeOrdr==1)
+            if(solvable)
             {
-                std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
-                assert(0 && "DislocationSubNetework has less than 2 Nodes.");
-			}
-			if (nodeOrdr==2)
-            {
-				typename NodeContainerType::const_iterator nodeIter1=NC.nodeBegin();
-				typename NodeContainerType::const_iterator nodeIter2(nodeIter1);
-				nodeIter2++;
-				if (nodeIter1->second->constraintNormals().size()>2 && nodeIter2->second->constraintNormals().size()>2){
-//					assert(0 && "DislocationSubNetework has only 2 fixed Nodes.");
+                // Make some initial checks
+                const size_t nodeOrdr(NC.nodeOrder());
+                if (nodeOrdr==0 || nodeOrdr==1)
+                {
                     std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
-					std::cout<<"WARNING: DislocationSubNetework has only 2 fixed Nodes"<<std::endl;
-				}
-			}
-            
-            // Assembly of Stiffness Matrix and force vector
-            const size_t Ndof(NC.nodeOrder()*NdofXnode); // the total number of dof in the subnetwork
-            size_t reserveSize(0);
-            for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)
-            {
-                reserveSize+=nodeIter->second->closedOrder();
-            }
-            std::vector<Eigen::Triplet<double> > kqqT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
-            kqqT.reserve(reserveSize); // assume some fill percentage
-            Eigen::VectorXd Fq(Eigen::VectorXd::Zero(Ndof));
-            for (typename LinkContainerType::const_iterator linkIter=NC.linkBegin();linkIter!=NC.linkEnd();++linkIter)
-            {
-                linkIter->second->addToGlobalAssembly(kqqT,Fq); // loop over each segment and add segment contributions to kqqT and Fq
-			}
-            
-            // Find guess solution
-            Eigen::VectorXd x0(Ndof);
-            size_t k=0;
-            for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter){
-                x0.segment(NdofXnode*k,NdofXnode)=nodeIter->second->get_V();
-                ++k;
-            }
-            
-            bool usePreSolver=true;
-            if (usePreSolver)
-            {
-                // Find the unconstrained solution with ConjugateGradient (faster)
-                SparseMatrixType kqq(Ndof,Ndof);
-                kqq.setFromTriplets(kqqT.begin(),kqqT.end());
-                Eigen::ConjugateGradient<SparseMatrixType> cg(kqq);
+                    assert(0 && "DislocationSubNetework has less than 2 Nodes.");
+                }
+                if (nodeOrdr==2)
+                {
+                    typename NodeContainerType::const_iterator nodeIter1=NC.nodeBegin();
+                    typename NodeContainerType::const_iterator nodeIter2(nodeIter1);
+                    nodeIter2++;
+                    if (nodeIter1->second->constraintNormals().size()>2 && nodeIter2->second->constraintNormals().size()>2){
+                        //					assert(0 && "DislocationSubNetework has only 2 fixed Nodes.");
+                        std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
+                        std::cout<<"WARNING: DislocationSubNetework has only 2 fixed Nodes"<<std::endl;
+                    }
+                }
                 
-                if(cg.maxIterations()<10000)
+                // Assembly of Stiffness Matrix and force vector
+                const size_t Ndof(NC.nodeOrder()*NdofXnode); // the total number of dof in the subnetwork
+                size_t reserveSize(0);
+                for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)
                 {
-                    cg.setMaxIterations(10000);
+                    reserveSize+=nodeIter->second->closedOrder();
                 }
-                x0=cg.solveWithGuess(Fq,x0);
-            }
-            
-            // Assemble constraints
-            size_t KPQ_row=Ndof; // start placing constraints at row Ndof
-            assembleConstraints<true>(kqqT,KPQ_row); // kqqT and KPQ_row are overwritten
-            SparseMatrixType KQQ(KPQ_row,KPQ_row);
-            KQQ.setFromTriplets(kqqT.begin(),kqqT.end()); // now KQQ is idefinite (NOT SPD) therefore conjugate-gradient cannot be used
-            
-            Eigen::VectorXd F(Eigen::VectorXd::Zero(KPQ_row));
-            F.segment(0,Ndof)=Fq;
-            Eigen::VectorXd x1(Eigen::VectorXd::Zero(KPQ_row));
-            x1.segment(0,Ndof)=x0;
-            
-            bool useMINRES=true;
-            if (useMINRES)
-            {
-                //MINRES<double> mRS(KQQ,F,x1,DBL_EPSILON);
-//                storeNodeSolution(mRS.xMR.segment(0,Ndof)); // solution is checked inside
-                Eigen::MINRES<SparseMatrixType> solver(KQQ);
-                solver.setTolerance(DBL_EPSILON);
-                solver.setMaxIterations(10*F.rows());
-                x1=solver.solveWithGuess(F,x1);
-                if(solver.info()==Eigen::Success)
+                std::vector<Eigen::Triplet<double> > kqqT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
+                kqqT.reserve(reserveSize); // assume some fill percentage
+                Eigen::VectorXd Fq(Eigen::VectorXd::Zero(Ndof));
+                for (typename LinkContainerType::const_iterator linkIter=NC.linkBegin();linkIter!=NC.linkEnd();++linkIter)
                 {
-                    storeNodeSolution(x1.segment(0,Ndof));
+                    linkIter->second->addToGlobalAssembly(kqqT,Fq); // loop over each segment and add segment contributions to kqqT and Fq
                 }
-                else
-                {
-                    std::cout<<"Solver did not converge\n";
-                    std::cout<<"iterations="<<solver.iterations()<<"\n";
-                    std::cout<<"maxIterations="<<solver.maxIterations()<<"\n";
-                    std::cout<<"error="<<solver.error()<<"\n";
-                    std::cout<<"tolerance="<<solver.tolerance()<<"\n";
-                    assert(0 && "SOLVER DID NOT CONVERGE.");
+                
+                // Find guess solution
+                Eigen::VectorXd x0(Ndof);
+                size_t k=0;
+                for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter){
+                    x0.segment(NdofXnode*k,NdofXnode)=nodeIter->second->get_V();
+                    ++k;
                 }
-            }
-            else
-            {
-                Eigen::BiCGSTAB<SparseMatrixType,Eigen::IdentityPreconditioner> bcs(KQQ);
-                if(bcs.maxIterations()<10000)
+                
+                bool usePreSolver=true;
+                if (usePreSolver)
                 {
-                    bcs.setMaxIterations(10000);
-                }
-                x1=bcs.solveWithGuess(F,x1);
-                if(bcs.info()==Eigen::Success)
-                {
-                    storeNodeSolution(x1.segment(0,Ndof));
+                    // Find the unconstrained solution with ConjugateGradient (faster)
+                    SparseMatrixType kqq(Ndof,Ndof);
+                    kqq.setFromTriplets(kqqT.begin(),kqqT.end());
+                    Eigen::ConjugateGradient<SparseMatrixType> cg(kqq);
                     
+                    if(cg.maxIterations()<10000)
+                    {
+                        cg.setMaxIterations(10000);
+                    }
+                    x0=cg.solveWithGuess(Fq,x0);
+                }
+                
+                // Assemble constraints
+                size_t KPQ_row=Ndof; // start placing constraints at row Ndof
+                assembleConstraints<true>(kqqT,KPQ_row); // kqqT and KPQ_row are overwritten
+                SparseMatrixType KQQ(KPQ_row,KPQ_row);
+                KQQ.setFromTriplets(kqqT.begin(),kqqT.end()); // now KQQ is idefinite (NOT SPD) therefore conjugate-gradient cannot be used
+                
+                Eigen::VectorXd F(Eigen::VectorXd::Zero(KPQ_row));
+                F.segment(0,Ndof)=Fq;
+                Eigen::VectorXd x1(Eigen::VectorXd::Zero(KPQ_row));
+                x1.segment(0,Ndof)=x0;
+                
+                bool useMINRES=true;
+                if (useMINRES)
+                {
+                    //MINRES<double> mRS(KQQ,F,x1,DBL_EPSILON);
+                    //                storeNodeSolution(mRS.xMR.segment(0,Ndof)); // solution is checked inside
+                    Eigen::MINRES<SparseMatrixType> solver(KQQ);
+                    solver.setTolerance(DBL_EPSILON);
+                    solver.setMaxIterations(10*F.rows());
+                    x1=solver.solveWithGuess(F,x1);
+                    if(solver.info()==Eigen::Success)
+                    {
+                        storeNodeSolution(x1.segment(0,Ndof));
+                    }
+                    else
+                    {
+                        std::cout<<"Solver did not converge\n";
+                        std::cout<<"iterations="<<solver.iterations()<<"\n";
+                        std::cout<<"maxIterations="<<solver.maxIterations()<<"\n";
+                        std::cout<<"error="<<solver.error()<<"\n";
+                        std::cout<<"tolerance="<<solver.tolerance()<<"\n";
+                        assert(0 && "SOLVER DID NOT CONVERGE.");
+                    }
                 }
                 else
                 {
-                    std::cout<<"Solver did not converge\n";
-                    std::cout<<"iterations="<<bcs.iterations()<<"\n";
-                    std::cout<<"maxIterations="<<bcs.maxIterations()<<"\n";
-                    std::cout<<"error="<<bcs.error()<<"\n";
-                    std::cout<<"tolerance="<<bcs.tolerance()<<"\n";
-                    assert(0 && "SOLVER DID NOT CONVERGE.");
+                    Eigen::BiCGSTAB<SparseMatrixType,Eigen::IdentityPreconditioner> bcs(KQQ);
+                    if(bcs.maxIterations()<10000)
+                    {
+                        bcs.setMaxIterations(10000);
+                    }
+                    x1=bcs.solveWithGuess(F,x1);
+                    if(bcs.info()==Eigen::Success)
+                    {
+                        storeNodeSolution(x1.segment(0,Ndof));
+                        
+                    }
+                    else
+                    {
+                        std::cout<<"Solver did not converge\n";
+                        std::cout<<"iterations="<<bcs.iterations()<<"\n";
+                        std::cout<<"maxIterations="<<bcs.maxIterations()<<"\n";
+                        std::cout<<"error="<<bcs.error()<<"\n";
+                        std::cout<<"tolerance="<<bcs.tolerance()<<"\n";
+                        assert(0 && "SOLVER DID NOT CONVERGE.");
+                    }
                 }
             }
+
             
         }
         

@@ -10,11 +10,12 @@
 #define _model_SpatialCellParticle_h_
 
 #include <math.h>
-#include <boost/utility.hpp>
+//#include <boost/utility.hpp>
 #include <Eigen/Dense>
 #include <model/SpaceDecomposition/SpatialCellObserver.h>
 #include <model/Utilities/CRTP.h>
 #include <model/Utilities/StaticID.h>
+#include <model/Utilities/NonCopyable.h>
 
 
 namespace model
@@ -22,10 +23,10 @@ namespace model
 	/**************************************************************************/
 	/**************************************************************************/
 	template<typename Derived, short unsigned int _dim>
-	struct SpatialCellParticle :
-    /*                      */ boost::noncopyable,
-	/*                      */ public  CRTP<Derived>,
-    /*                      */ public  StaticID<Derived>
+	struct SpatialCellParticle : public NonCopyable,
+//    /*                      */ boost::noncopyable,
+	/*                        */ public  CRTP<Derived>,
+    /*                        */ public  StaticID<Derived>
     {
 
         enum{dim=_dim};

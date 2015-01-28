@@ -1,0 +1,193 @@
+\hypertarget{classmodel_1_1_simplex}{}\section{model\+:\+:Simplex$<$ dim, order $>$ Class Template Reference}
+\label{classmodel_1_1_simplex}\index{model\+::\+Simplex$<$ dim, order $>$@{model\+::\+Simplex$<$ dim, order $>$}}
+
+
+{\ttfamily \#include $<$Simplex.\+h$>$}
+
+Inheritance diagram for model\+:\+:Simplex$<$ dim, order $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classmodel_1_1_simplex}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{classmodel_1_1_simplex_a7286fd954404dc7a5db4e651ca79f98ca92a060ca173e4145b92edcbdca5f0b97}{n\+Vertices} =Simplex\+Traits$<$dim,order$>$\+:\+:n\+Vertices
+ \}
+\item 
+enum \{ \hyperlink{classmodel_1_1_simplex_a2b1d678a5e859ed6ba64f7b92f48d8faa6946a68a30619094b8c50c275212e598}{n\+Faces} =Simplex\+Traits$<$dim,order$>$\+:\+:n\+Faces
+ \}
+\item 
+typedef \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order $>$\+::\hyperlink{classmodel_1_1_simplex_a77f355697a218f3f31a38676ad6ff31d}{Simplex\+I\+D\+Type} \hyperlink{classmodel_1_1_simplex_a77f355697a218f3f31a38676ad6ff31d}{Simplex\+I\+D\+Type}
+\item 
+typedef \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order-\/1 $>$ \hyperlink{classmodel_1_1_simplex_a46dfe21eca46643d60dca2f44f1a80fa}{Child\+Simplex\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, order-\/1 $>$\+::\hyperlink{classmodel_1_1_simplex_a77f355697a218f3f31a38676ad6ff31d}{Simplex\+I\+D\+Type} \hyperlink{classmodel_1_1_simplex_a7b81b988588a5b1aa9d568d0ce2b1702}{Child\+I\+D\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_simplex_a1365175ee8f02c0eacc99e87a4e52b04}{Simplex} (const \hyperlink{classmodel_1_1_simplex_a77f355697a218f3f31a38676ad6ff31d}{Simplex\+I\+D\+Type} \&v\+I\+N)
+\item 
+\hyperlink{classmodel_1_1_simplex_a740eeb81809d058bb35454e818fe5aca}{$\sim$\+Simplex} ()
+\item 
+\hyperlink{classmodel_1_1_simplex_a46dfe21eca46643d60dca2f44f1a80fa}{Child\+Simplex\+Type} \& \hyperlink{classmodel_1_1_simplex_a297f2664aea8cf838ddcfd2e89b63859}{child} (const int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n})
+\item 
+const \hyperlink{classmodel_1_1_simplex_a46dfe21eca46643d60dca2f44f1a80fa}{Child\+Simplex\+Type} \& \hyperlink{classmodel_1_1_simplex_a22aff7f8339b079fd48ebfb59e27b37a}{child} (const int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n}) const 
+\item 
+const std\+::shared\+\_\+ptr$<$ \hyperlink{classmodel_1_1_simplex_a46dfe21eca46643d60dca2f44f1a80fa}{Child\+Simplex\+Type} $>$ \& \hyperlink{classmodel_1_1_simplex_a44a4ad5f8fa04c762bdb9e42d0bc7ad5}{child} (const \hyperlink{classmodel_1_1_simplex_a7b81b988588a5b1aa9d568d0ce2b1702}{Child\+I\+D\+Type} \&\hyperlink{structmodel_1_1_simplex_base_a477508d711a1cb001ccd895f88665a59}{x\+I\+D}) const 
+\item 
+std\+::vector$<$ int $>$ \hyperlink{classmodel_1_1_simplex_a8660cf410904e02a362a95a69c01f00c}{boundary\+Faces} () const 
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$short int dim, short int order$>$class model\+::\+Simplex$<$ dim, order $>$}
+
+
+
+Definition at line 85 of file Simplex.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_simplex_a7b81b988588a5b1aa9d568d0ce2b1702}{}\index{model\+::\+Simplex@{model\+::\+Simplex}!Child\+I\+D\+Type@{Child\+I\+D\+Type}}
+\index{Child\+I\+D\+Type@{Child\+I\+D\+Type}!model\+::\+Simplex@{model\+::\+Simplex}}
+\subsubsection[{Child\+I\+D\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ typedef {\bf Simplex\+Traits}$<${\bf dim},order-\/1$>$\+::{\bf Simplex\+I\+D\+Type} {\bf model\+::\+Simplex}$<$ {\bf dim}, order $>$\+::{\bf Child\+I\+D\+Type}}\label{classmodel_1_1_simplex_a7b81b988588a5b1aa9d568d0ce2b1702}
+
+
+Definition at line 100 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_a46dfe21eca46643d60dca2f44f1a80fa}{}\index{model\+::\+Simplex@{model\+::\+Simplex}!Child\+Simplex\+Type@{Child\+Simplex\+Type}}
+\index{Child\+Simplex\+Type@{Child\+Simplex\+Type}!model\+::\+Simplex@{model\+::\+Simplex}}
+\subsubsection[{Child\+Simplex\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ typedef {\bf Simplex}$<${\bf dim},order-\/1$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, order $>$\+::{\bf Child\+Simplex\+Type}}\label{classmodel_1_1_simplex_a46dfe21eca46643d60dca2f44f1a80fa}
+
+
+Definition at line 99 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_a77f355697a218f3f31a38676ad6ff31d}{}\index{model\+::\+Simplex@{model\+::\+Simplex}!Simplex\+I\+D\+Type@{Simplex\+I\+D\+Type}}
+\index{Simplex\+I\+D\+Type@{Simplex\+I\+D\+Type}!model\+::\+Simplex@{model\+::\+Simplex}}
+\subsubsection[{Simplex\+I\+D\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ typedef {\bf Simplex\+Traits}$<${\bf dim},order$>$\+::{\bf Simplex\+I\+D\+Type} {\bf model\+::\+Simplex}$<$ {\bf dim}, order $>$\+::{\bf Simplex\+I\+D\+Type}}\label{classmodel_1_1_simplex_a77f355697a218f3f31a38676ad6ff31d}
+
+
+Definition at line 97 of file Simplex.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classmodel_1_1_simplex_a7286fd954404dc7a5db4e651ca79f98c}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ anonymous enum}\label{classmodel_1_1_simplex_a7286fd954404dc7a5db4e651ca79f98c}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{n\+Vertices@{n\+Vertices}!model\+::\+Simplex@{model\+::\+Simplex}}\index{model\+::\+Simplex@{model\+::\+Simplex}!n\+Vertices@{n\+Vertices}}\item[{\em 
+\hypertarget{classmodel_1_1_simplex_a7286fd954404dc7a5db4e651ca79f98ca92a060ca173e4145b92edcbdca5f0b97}{}n\+Vertices\label{classmodel_1_1_simplex_a7286fd954404dc7a5db4e651ca79f98ca92a060ca173e4145b92edcbdca5f0b97}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 95 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_a2b1d678a5e859ed6ba64f7b92f48d8fa}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ anonymous enum}\label{classmodel_1_1_simplex_a2b1d678a5e859ed6ba64f7b92f48d8fa}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{n\+Faces@{n\+Faces}!model\+::\+Simplex@{model\+::\+Simplex}}\index{model\+::\+Simplex@{model\+::\+Simplex}!n\+Faces@{n\+Faces}}\item[{\em 
+\hypertarget{classmodel_1_1_simplex_a2b1d678a5e859ed6ba64f7b92f48d8faa6946a68a30619094b8c50c275212e598}{}n\+Faces\label{classmodel_1_1_simplex_a2b1d678a5e859ed6ba64f7b92f48d8faa6946a68a30619094b8c50c275212e598}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 96 of file Simplex.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_simplex_a1365175ee8f02c0eacc99e87a4e52b04}{}\index{model\+::\+Simplex@{model\+::\+Simplex}!Simplex@{Simplex}}
+\index{Simplex@{Simplex}!model\+::\+Simplex@{model\+::\+Simplex}}
+\subsubsection[{Simplex}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, order $>$\+::{\bf Simplex} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Simplex\+I\+D\+Type} \&}]{v\+I\+N}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_a1365175ee8f02c0eacc99e87a4e52b04}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em v\+I\+N} & the (possibly unsorted) I\+D of this \begin{DoxyVerb}     Constructur performs the following operations:
+\end{DoxyVerb}
+\\
+\hline
+\end{DoxyParams}
+-\/1 inserts $\ast$this into the \hyperlink{structmodel_1_1_simplex_observer}{Simplex\+Observer}
+
+-\/2 inserts this into children Simplices 
+
+Definition at line 105 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_a740eeb81809d058bb35454e818fe5aca}{}\index{model\+::\+Simplex@{model\+::\+Simplex}!````~Simplex@{$\sim$\+Simplex}}
+\index{````~Simplex@{$\sim$\+Simplex}!model\+::\+Simplex@{model\+::\+Simplex}}
+\subsubsection[{$\sim$\+Simplex}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, order $>$\+::$\sim${\bf Simplex} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_a740eeb81809d058bb35454e818fe5aca}
+Destructor performs the following operations\+:
+
+-\/1 removes this in \hyperlink{structmodel_1_1_simplex_observer}{Simplex\+Observer}
+
+-\/2 remove this fomr children parent\+Containers 
+
+Definition at line 123 of file Simplex.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_simplex_a8660cf410904e02a362a95a69c01f00c}{}\index{model\+::\+Simplex@{model\+::\+Simplex}!boundary\+Faces@{boundary\+Faces}}
+\index{boundary\+Faces@{boundary\+Faces}!model\+::\+Simplex@{model\+::\+Simplex}}
+\subsubsection[{boundary\+Faces}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ std\+::vector$<$int$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, order $>$\+::boundary\+Faces (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_a8660cf410904e02a362a95a69c01f00c}
+
+
+Definition at line 165 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_a297f2664aea8cf838ddcfd2e89b63859}{}\index{model\+::\+Simplex@{model\+::\+Simplex}!child@{child}}
+\index{child@{child}!model\+::\+Simplex@{model\+::\+Simplex}}
+\subsubsection[{child}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ {\bf Child\+Simplex\+Type}\& {\bf model\+::\+Simplex}$<$ {\bf dim}, order $>$\+::child (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{n}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_a297f2664aea8cf838ddcfd2e89b63859}
+
+
+Definition at line 137 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_a22aff7f8339b079fd48ebfb59e27b37a}{}\index{model\+::\+Simplex@{model\+::\+Simplex}!child@{child}}
+\index{child@{child}!model\+::\+Simplex@{model\+::\+Simplex}}
+\subsubsection[{child}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ const {\bf Child\+Simplex\+Type}\& {\bf model\+::\+Simplex}$<$ {\bf dim}, order $>$\+::child (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{n}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_a22aff7f8339b079fd48ebfb59e27b37a}
+
+
+Definition at line 143 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_a44a4ad5f8fa04c762bdb9e42d0bc7ad5}{}\index{model\+::\+Simplex@{model\+::\+Simplex}!child@{child}}
+\index{child@{child}!model\+::\+Simplex@{model\+::\+Simplex}}
+\subsubsection[{child}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim, short int order$>$ const std\+::shared\+\_\+ptr$<${\bf Child\+Simplex\+Type}$>$\& {\bf model\+::\+Simplex}$<$ {\bf dim}, order $>$\+::child (
+\begin{DoxyParamCaption}
+\item[{const {\bf Child\+I\+D\+Type} \&}]{x\+I\+D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_a44a4ad5f8fa04c762bdb9e42d0bc7ad5}
+
+
+Definition at line 149 of file Simplex.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_simplex_8h}{Simplex.\+h}\end{DoxyCompactItemize}

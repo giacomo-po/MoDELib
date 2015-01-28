@@ -243,7 +243,7 @@ namespace model
 			if(use_crossSlip)
             {
                 const auto t0= std::chrono::system_clock::now();
-				model::cout<<"		performing cross-slip ... ("<<std::flush;
+				model::cout<<"FIX CROSS-SLIP LENGHT PROBLEM		performing cross-slip ... ("<<std::flush;
 				size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip());
 				model::cout<<crossSlipEvents<<" cross-slip events) ";
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;

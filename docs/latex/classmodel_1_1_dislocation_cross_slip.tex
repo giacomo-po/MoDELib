@@ -1,0 +1,118 @@
+\hypertarget{classmodel_1_1_dislocation_cross_slip}{}\section{model\+:\+:Dislocation\+Cross\+Slip$<$ Dislocation\+Network\+Type $>$ Class Template Reference}
+\label{classmodel_1_1_dislocation_cross_slip}\index{model\+::\+Dislocation\+Cross\+Slip$<$ Dislocation\+Network\+Type $>$@{model\+::\+Dislocation\+Cross\+Slip$<$ Dislocation\+Network\+Type $>$}}
+
+
+Class template which performs topological operations on a \hyperlink{classmodel_1_1_dislocation_network}{Dislocation\+Network} as a consequence of cross-\/slip events.  
+
+
+
+
+{\ttfamily \#include $<$Dislocation\+Cross\+Slip.\+h$>$}
+
+Inheritance diagram for model\+:\+:Dislocation\+Cross\+Slip$<$ Dislocation\+Network\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classmodel_1_1_dislocation_cross_slip}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{classmodel_1_1_dislocation_cross_slip_ae34568d976bb0bcd6f4e7ab83ed49493a7c1725df0c0c79734d9a3450d831df84}{dim} =3
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_dislocation_cross_slip_ad3d1f1ab05202e56be6c732fa738c4bc}{Dislocation\+Cross\+Slip} (Dislocation\+Network\+Type \&dislocation\+Network\+\_\+in)
+\item 
+size\+\_\+t \hyperlink{classmodel_1_1_dislocation_cross_slip_a42081551269efea0b280d566da1c4dc4}{cross\+Slip} ()
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static double \hyperlink{classmodel_1_1_dislocation_cross_slip_a279d98860e855377267c3e9ab3c963d3}{cross\+Slip\+Deg} =2.\+0
+\item 
+static double \hyperlink{classmodel_1_1_dislocation_cross_slip_aff2bffb9ba2b71f6bcefebfd84057b3f}{cross\+Slip\+Length} =100.\+0
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Dislocation\+Network\+Type$>$class model\+::\+Dislocation\+Cross\+Slip$<$ Dislocation\+Network\+Type $>$}
+
+Class template which performs topological operations on a \hyperlink{classmodel_1_1_dislocation_network}{Dislocation\+Network} as a consequence of cross-\/slip events. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Dislocation\+Network\+Type} & the type of \hyperlink{classmodel_1_1_dislocation_network}{Dislocation\+Network} \\
+\hline
+\end{DoxyTemplParams}
+
+
+Definition at line 32 of file Dislocation\+Cross\+Slip.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classmodel_1_1_dislocation_cross_slip_ae34568d976bb0bcd6f4e7ab83ed49493}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ anonymous enum}\label{classmodel_1_1_dislocation_cross_slip_ae34568d976bb0bcd6f4e7ab83ed49493}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{dim@{dim}!model\+::\+Dislocation\+Cross\+Slip@{model\+::\+Dislocation\+Cross\+Slip}}\index{model\+::\+Dislocation\+Cross\+Slip@{model\+::\+Dislocation\+Cross\+Slip}!dim@{dim}}\item[{\em 
+\hypertarget{classmodel_1_1_dislocation_cross_slip_ae34568d976bb0bcd6f4e7ab83ed49493a7c1725df0c0c79734d9a3450d831df84}{}dim\label{classmodel_1_1_dislocation_cross_slip_ae34568d976bb0bcd6f4e7ab83ed49493a7c1725df0c0c79734d9a3450d831df84}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 52 of file Dislocation\+Cross\+Slip.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_dislocation_cross_slip_ad3d1f1ab05202e56be6c732fa738c4bc}{}\index{model\+::\+Dislocation\+Cross\+Slip@{model\+::\+Dislocation\+Cross\+Slip}!Dislocation\+Cross\+Slip@{Dislocation\+Cross\+Slip}}
+\index{Dislocation\+Cross\+Slip@{Dislocation\+Cross\+Slip}!model\+::\+Dislocation\+Cross\+Slip@{model\+::\+Dislocation\+Cross\+Slip}}
+\subsubsection[{Dislocation\+Cross\+Slip}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ {\bf model\+::\+Dislocation\+Cross\+Slip}$<$ Dislocation\+Network\+Type $>$\+::{\bf Dislocation\+Cross\+Slip} (
+\begin{DoxyParamCaption}
+\item[{Dislocation\+Network\+Type \&}]{dislocation\+Network\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_cross_slip_ad3d1f1ab05202e56be6c732fa738c4bc}
+1-\/\+Loop over Dislocation\+Segment(s), check cross-\/slip criterion and store Cross\+Slip\+Segment(s) 
+
+Definition at line 59 of file Dislocation\+Cross\+Slip.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_dislocation_cross_slip_a42081551269efea0b280d566da1c4dc4}{}\index{model\+::\+Dislocation\+Cross\+Slip@{model\+::\+Dislocation\+Cross\+Slip}!cross\+Slip@{cross\+Slip}}
+\index{cross\+Slip@{cross\+Slip}!model\+::\+Dislocation\+Cross\+Slip@{model\+::\+Dislocation\+Cross\+Slip}}
+\subsubsection[{cross\+Slip}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ size\+\_\+t {\bf model\+::\+Dislocation\+Cross\+Slip}$<$ Dislocation\+Network\+Type $>$\+::cross\+Slip (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_cross_slip_a42081551269efea0b280d566da1c4dc4}
+2-\/ Loop over container of Cross\+Slip\+Segment(s) and perform cross-\/slip 
+
+Definition at line 76 of file Dislocation\+Cross\+Slip.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_dislocation_cross_slip_a279d98860e855377267c3e9ab3c963d3}{}\index{model\+::\+Dislocation\+Cross\+Slip@{model\+::\+Dislocation\+Cross\+Slip}!cross\+Slip\+Deg@{cross\+Slip\+Deg}}
+\index{cross\+Slip\+Deg@{cross\+Slip\+Deg}!model\+::\+Dislocation\+Cross\+Slip@{model\+::\+Dislocation\+Cross\+Slip}}
+\subsubsection[{cross\+Slip\+Deg}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ double {\bf model\+::\+Dislocation\+Cross\+Slip}$<$ Dislocation\+Network\+Type $>$\+::cross\+Slip\+Deg =2.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_dislocation_cross_slip_a279d98860e855377267c3e9ab3c963d3}
+
+
+Definition at line 55 of file Dislocation\+Cross\+Slip.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_cross_slip_aff2bffb9ba2b71f6bcefebfd84057b3f}{}\index{model\+::\+Dislocation\+Cross\+Slip@{model\+::\+Dislocation\+Cross\+Slip}!cross\+Slip\+Length@{cross\+Slip\+Length}}
+\index{cross\+Slip\+Length@{cross\+Slip\+Length}!model\+::\+Dislocation\+Cross\+Slip@{model\+::\+Dislocation\+Cross\+Slip}}
+\subsubsection[{cross\+Slip\+Length}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ double {\bf model\+::\+Dislocation\+Cross\+Slip}$<$ Dislocation\+Network\+Type $>$\+::cross\+Slip\+Length =100.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_dislocation_cross_slip_aff2bffb9ba2b71f6bcefebfd84057b3f}
+
+
+Definition at line 56 of file Dislocation\+Cross\+Slip.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_dislocation_cross_slip_8h}{Dislocation\+Cross\+Slip.\+h}\end{DoxyCompactItemize}

@@ -1,0 +1,222 @@
+\hypertarget{classmodel_1_1_dislocation_network_remesh}{}\section{model\+:\+:Dislocation\+Network\+Remesh$<$ Dislocation\+Network\+Type $>$ Class Template Reference}
+\label{classmodel_1_1_dislocation_network_remesh}\index{model\+::\+Dislocation\+Network\+Remesh$<$ Dislocation\+Network\+Type $>$@{model\+::\+Dislocation\+Network\+Remesh$<$ Dislocation\+Network\+Type $>$}}
+
+
+Class template that handles the nodal remesh of the \hyperlink{classmodel_1_1_dislocation_network}{Dislocation\+Network}.  
+
+
+
+
+{\ttfamily \#include $<$Dislocation\+Network\+Remesh.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_dislocation_network_remesh_ab18c74ac073df72e92b46eee4490d2b6}{Dislocation\+Network\+Remesh} (Dislocation\+Network\+Type \&D\+N\+\_\+in)
+\item 
+unsigned int \hyperlink{classmodel_1_1_dislocation_network_remesh_a6750f6933420a6112b77e0be3cd4eb92}{contract\+With\+Common\+Neighbor\+Check} (const Node\+Type \&Ni, const Node\+Type \&Nj, const Vector\+Dim\+D \&P0)
+\item 
+unsigned int \hyperlink{classmodel_1_1_dislocation_network_remesh_a8f28edc7028efa797853e3b3f7bf2c89}{contract\+Second\+With\+Common\+Neighbor\+Check} (const Node\+Type \&Ni, const Node\+Type \&Nj)
+\item 
+unsigned int \hyperlink{classmodel_1_1_dislocation_network_remesh_a162d868a535898709daec84c8ea416e2}{contract\+Second\+With\+Common\+Neighbor\+Check} (const int \&\hyperlink{_cubic_spline_intersection_8m_a6f6ccfcf58b31cb6412107d9d5281426}{i}, const int \&j)
+\item 
+void \hyperlink{classmodel_1_1_dislocation_network_remesh_abc298ae5a87f810e7039cc2bf9074c12}{remesh} ()
+\item 
+void \hyperlink{classmodel_1_1_dislocation_network_remesh_a89cd924dc2ccb812d5d4ac053fb43053}{remesh\+By\+Contraction} ()
+\item 
+void \hyperlink{classmodel_1_1_dislocation_network_remesh_ad21032a70cbbf3e46f6171a75c0c30ac}{remesh\+By\+Expansion} ()
+\item 
+void \hyperlink{classmodel_1_1_dislocation_network_remesh_ab982057e92a89078ab3769977c7610fa}{contract0chord\+Segments} ()
+\item 
+unsigned int \hyperlink{classmodel_1_1_dislocation_network_remesh_a72c09e50e43381a00a7fb117da86a8f6}{single\+Edge\+Contract} (const typename \hyperlink{classmodel_1_1_edge_finder}{Edge\+Finder}$<$ Link\+Type $>$\+::is\+Network\+Edge\+Type \&Lij)
+\item 
+void \hyperlink{classmodel_1_1_dislocation_network_remesh_ae3e82966f04e6a2f4eab71244a523117}{loop\+Inversion} (const double \&\hyperlink{plot_stress_strain_8m_a770f288d3048ff6cbee9faa0969fd6b0}{dt})
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static double \hyperlink{classmodel_1_1_dislocation_network_remesh_a3910c36b3b1e9e6cfa221a690bb718ff}{Lmax} =100.\+0
+\item 
+static double \hyperlink{classmodel_1_1_dislocation_network_remesh_a213548900347aaa2714e30ea01560ae5}{Lmin} =10.\+0
+\item 
+static double \hyperlink{classmodel_1_1_dislocation_network_remesh_a34e7e6e6f0b15cd2befe6fc9a858cbe5}{theta\+Deg} =45.\+0
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Dislocation\+Network\+Type$>$class model\+::\+Dislocation\+Network\+Remesh$<$ Dislocation\+Network\+Type $>$}
+
+Class template that handles the nodal remesh of the \hyperlink{classmodel_1_1_dislocation_network}{Dislocation\+Network}. 
+
+Definition at line 30 of file Dislocation\+Network\+Remesh.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_dislocation_network_remesh_ab18c74ac073df72e92b46eee4490d2b6}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!Dislocation\+Network\+Remesh@{Dislocation\+Network\+Remesh}}
+\index{Dislocation\+Network\+Remesh@{Dislocation\+Network\+Remesh}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{Dislocation\+Network\+Remesh}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::{\bf Dislocation\+Network\+Remesh} (
+\begin{DoxyParamCaption}
+\item[{Dislocation\+Network\+Type \&}]{D\+N\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_remesh_ab18c74ac073df72e92b46eee4490d2b6}
+Initializes the reference to the \hyperlink{classmodel_1_1_dislocation_network}{Dislocation\+Network}
+
+Definition at line 66 of file Dislocation\+Network\+Remesh.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_dislocation_network_remesh_ab982057e92a89078ab3769977c7610fa}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!contract0chord\+Segments@{contract0chord\+Segments}}
+\index{contract0chord\+Segments@{contract0chord\+Segments}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{contract0chord\+Segments}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ void {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::contract0chord\+Segments (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_remesh_ab982057e92a89078ab3769977c7610fa}
+
+
+Definition at line 384 of file Dislocation\+Network\+Remesh.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_remesh_a8f28edc7028efa797853e3b3f7bf2c89}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!contract\+Second\+With\+Common\+Neighbor\+Check@{contract\+Second\+With\+Common\+Neighbor\+Check}}
+\index{contract\+Second\+With\+Common\+Neighbor\+Check@{contract\+Second\+With\+Common\+Neighbor\+Check}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{contract\+Second\+With\+Common\+Neighbor\+Check}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ unsigned int {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::contract\+Second\+With\+Common\+Neighbor\+Check (
+\begin{DoxyParamCaption}
+\item[{const Node\+Type \&}]{Ni, }
+\item[{const Node\+Type \&}]{Nj}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_remesh_a8f28edc7028efa797853e3b3f7bf2c89}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em i} & \hyperlink{classmodel_1_1_static_i_d}{Static\+I\+D} of the first node (vertex i remains) \\
+\hline
+\mbox{\tt in}  & {\em j} & \hyperlink{classmodel_1_1_static_i_d}{Static\+I\+D} of the second node (vertex j is contracted)\\
+\hline
+\end{DoxyParams}
+Contracts vertex j onto vertex i, making sure no other neighbors of j (but i) occupies the position of i.
+
+Definition at line 167 of file Dislocation\+Network\+Remesh.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_remesh_a162d868a535898709daec84c8ea416e2}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!contract\+Second\+With\+Common\+Neighbor\+Check@{contract\+Second\+With\+Common\+Neighbor\+Check}}
+\index{contract\+Second\+With\+Common\+Neighbor\+Check@{contract\+Second\+With\+Common\+Neighbor\+Check}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{contract\+Second\+With\+Common\+Neighbor\+Check}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ unsigned int {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::contract\+Second\+With\+Common\+Neighbor\+Check (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{i, }
+\item[{const int \&}]{j}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_remesh_a162d868a535898709daec84c8ea416e2}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em i} & \hyperlink{classmodel_1_1_static_i_d}{Static\+I\+D} of the first node (vertex i remains) \\
+\hline
+\mbox{\tt in}  & {\em j} & \hyperlink{classmodel_1_1_static_i_d}{Static\+I\+D} of the second node (vertex j is contracted)\\
+\hline
+\end{DoxyParams}
+Contracts vertex j onto vertex i, making sure no other neighbors of j (but i) occupies the position of i.
+
+Definition at line 207 of file Dislocation\+Network\+Remesh.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_remesh_a6750f6933420a6112b77e0be3cd4eb92}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!contract\+With\+Common\+Neighbor\+Check@{contract\+With\+Common\+Neighbor\+Check}}
+\index{contract\+With\+Common\+Neighbor\+Check@{contract\+With\+Common\+Neighbor\+Check}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{contract\+With\+Common\+Neighbor\+Check}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ unsigned int {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::contract\+With\+Common\+Neighbor\+Check (
+\begin{DoxyParamCaption}
+\item[{const Node\+Type \&}]{Ni, }
+\item[{const Node\+Type \&}]{Nj, }
+\item[{const Vector\+Dim\+D \&}]{P0}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_remesh_a6750f6933420a6112b77e0be3cd4eb92}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em Lij} & the edge i-\/$>$j \\
+\hline
+\mbox{\tt in}  & {\em P0} & the position of the vertex resulting from contracting Lij\\
+\hline
+\end{DoxyParams}
+Contracts the edge i-\/$>$j into a new node located at P0, making sure that if P0 is occupied by a neighbor of either i or j, then no overlapping nodes are created.
+
+Definition at line 74 of file Dislocation\+Network\+Remesh.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_remesh_ae3e82966f04e6a2f4eab71244a523117}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!loop\+Inversion@{loop\+Inversion}}
+\index{loop\+Inversion@{loop\+Inversion}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{loop\+Inversion}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ void {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::loop\+Inversion (
+\begin{DoxyParamCaption}
+\item[{const double \&}]{dt}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_remesh_ae3e82966f04e6a2f4eab71244a523117}
+3-\/ Check and remove loop inversions 
+
+Definition at line 566 of file Dislocation\+Network\+Remesh.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_remesh_abc298ae5a87f810e7039cc2bf9074c12}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!remesh@{remesh}}
+\index{remesh@{remesh}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{remesh}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ void {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::remesh (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_remesh_abc298ae5a87f810e7039cc2bf9074c12}
+Performs remesh\+By\+Contraction and then remesh\+By\+Expansion. This order guarantees that 2-\/vertex Network\+Components are expanded.
+
+Definition at line 228 of file Dislocation\+Network\+Remesh.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_remesh_a89cd924dc2ccb812d5d4ac053fb43053}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!remesh\+By\+Contraction@{remesh\+By\+Contraction}}
+\index{remesh\+By\+Contraction@{remesh\+By\+Contraction}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{remesh\+By\+Contraction}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ void {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::remesh\+By\+Contraction (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_remesh_a89cd924dc2ccb812d5d4ac053fb43053}
+Contract edges according to two criteria.
+
+Definition at line 237 of file Dislocation\+Network\+Remesh.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_remesh_ad21032a70cbbf3e46f6171a75c0c30ac}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!remesh\+By\+Expansion@{remesh\+By\+Expansion}}
+\index{remesh\+By\+Expansion@{remesh\+By\+Expansion}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{remesh\+By\+Expansion}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ void {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::remesh\+By\+Expansion (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_remesh_ad21032a70cbbf3e46f6171a75c0c30ac}
+
+
+Definition at line 279 of file Dislocation\+Network\+Remesh.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_remesh_a72c09e50e43381a00a7fb117da86a8f6}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!single\+Edge\+Contract@{single\+Edge\+Contract}}
+\index{single\+Edge\+Contract@{single\+Edge\+Contract}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{single\+Edge\+Contract}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ unsigned int {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::single\+Edge\+Contract (
+\begin{DoxyParamCaption}
+\item[{const typename {\bf Edge\+Finder}$<$ Link\+Type $>$\+::is\+Network\+Edge\+Type \&}]{Lij}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_dislocation_network_remesh_a72c09e50e43381a00a7fb117da86a8f6}
+
+
+Definition at line 412 of file Dislocation\+Network\+Remesh.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_dislocation_network_remesh_a3910c36b3b1e9e6cfa221a690bb718ff}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!Lmax@{Lmax}}
+\index{Lmax@{Lmax}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{Lmax}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ double {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::Lmax =100.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_dislocation_network_remesh_a3910c36b3b1e9e6cfa221a690bb718ff}
+
+
+Definition at line 61 of file Dislocation\+Network\+Remesh.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_remesh_a213548900347aaa2714e30ea01560ae5}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!Lmin@{Lmin}}
+\index{Lmin@{Lmin}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{Lmin}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ double {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::Lmin =10.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_dislocation_network_remesh_a213548900347aaa2714e30ea01560ae5}
+
+
+Definition at line 62 of file Dislocation\+Network\+Remesh.\+h.
+
+\hypertarget{classmodel_1_1_dislocation_network_remesh_a34e7e6e6f0b15cd2befe6fc9a858cbe5}{}\index{model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}!theta\+Deg@{theta\+Deg}}
+\index{theta\+Deg@{theta\+Deg}!model\+::\+Dislocation\+Network\+Remesh@{model\+::\+Dislocation\+Network\+Remesh}}
+\subsubsection[{theta\+Deg}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Dislocation\+Network\+Type $>$ double {\bf model\+::\+Dislocation\+Network\+Remesh}$<$ Dislocation\+Network\+Type $>$\+::theta\+Deg =45.\+0\hspace{0.3cm}{\ttfamily [static]}}\label{classmodel_1_1_dislocation_network_remesh_a34e7e6e6f0b15cd2befe6fc9a858cbe5}
+
+
+Definition at line 63 of file Dislocation\+Network\+Remesh.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_dislocation_network_remesh_8h}{Dislocation\+Network\+Remesh.\+h}\end{DoxyCompactItemize}

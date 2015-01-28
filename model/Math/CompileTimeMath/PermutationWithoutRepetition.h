@@ -9,18 +9,18 @@
 #ifndef model_PERMUTATIONWITHOUTREPETITION_H_
 #define model_PERMUTATIONWITHOUTREPETITION_H_
 
-
 #include <model/Math/CompileTimeMath/Factorial.h>
 
-namespace model {
-	
-	
-	template <int N, int k>
-	struct PermutationWithoutRepetition{
-		enum{value=Factorial<N>::value / Factorial<(k>=0 && k<=N && N>=0)?(N-k):0>::value * (k>=0 && k<=N && N>=0)};
-	};
-	
-	//////////////////////////////////////////////////////////////////////////
-} // end namespace ctmath
+namespace model
+{
 
+    template <int N, int k>
+	struct PermutationWithoutRepetition
+    {
+//		enum{value=Factorial<N>::value / Factorial<(k>=0 && k<=N && N>=0)?(N-k):0>::value * (k>=0 && k<=N && N>=0)};
+        static constexpr int value=Factorial<N>::value / Factorial<(k>=0 && k<=N && N>=0)?(N-k):0>::value * (k>=0 && k<=N && N>=0);
+
+    };
+
+}
 #endif

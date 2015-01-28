@@ -1,0 +1,325 @@
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4}{}\section{model\+:\+:Simplex$<$ dim, dim $>$ Class Template Reference}
+\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+
+
+{\ttfamily \#include $<$Simplex.\+h$>$}
+
+Inheritance diagram for model\+:\+:Simplex$<$ dim, dim $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classmodel_1_1_simplex_3_01dim_00_01dim_01_4}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a672eb92ce92b8eba0dfbef5e759d3872abba4b0c668ec5635b83f2131e9d1bbbb}{order} =dim
+ \}
+\item 
+enum \{ \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ac075172a9e7d0ecaafb3cf4dff467e18ac3e906d1cd7d7182daeb0db8102287b7}{n\+Vertices} =Simplex\+Traits$<$dim,order$>$\+:\+:n\+Vertices
+ \}
+\item 
+enum \{ \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a7a6632ff31493d2d8ade44f51f3128cda886854b5f289a9619e5e3c0bd936178f}{n\+Faces} =Simplex\+Traits$<$dim,order$>$\+:\+:n\+Faces
+ \}
+\item 
+typedef \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a672eb92ce92b8eba0dfbef5e759d3872abba4b0c668ec5635b83f2131e9d1bbbb}{order} $>$\+::\hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a8d7186530898fce37d1bce8480342a36}{Simplex\+I\+D\+Type} \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a8d7186530898fce37d1bce8480342a36}{Simplex\+I\+D\+Type}
+\item 
+typedef \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a672eb92ce92b8eba0dfbef5e759d3872abba4b0c668ec5635b83f2131e9d1bbbb}{order}-\/1 $>$ \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a98484d69325ced6e24564af07c180261}{Child\+Simplex\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_simplex_traits}{Simplex\+Traits}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a672eb92ce92b8eba0dfbef5e759d3872abba4b0c668ec5635b83f2131e9d1bbbb}{order}-\/1 $>$\+::\hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a8d7186530898fce37d1bce8480342a36}{Simplex\+I\+D\+Type} \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ab1ada569e89e2332e245a1ab0cb8a4f9}{Child\+I\+D\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_acad9db3ba37ea0e86f9b078be256f306}{Simplex} (const \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a8d7186530898fce37d1bce8480342a36}{Simplex\+I\+D\+Type} \&v\+I\+N)
+\item 
+\hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a4088c67e3755b1a5872ac00b7d4dac64}{$\sim$\+Simplex} ()
+\item 
+\hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a98484d69325ced6e24564af07c180261}{Child\+Simplex\+Type} \& \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a708a63e87abd3fb2989125f6dc8fdf15}{child} (const int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n})
+\item 
+const \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a98484d69325ced6e24564af07c180261}{Child\+Simplex\+Type} \& \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ab546e1cff7bbe9069b59f2fb17e039ce}{child} (const int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a74637fc31d6aedd6d61cdc0c8154bc13}{n}) const 
+\item 
+const std\+::shared\+\_\+ptr$<$ \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a98484d69325ced6e24564af07c180261}{Child\+Simplex\+Type} $>$ \& \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a59aec9cc63692e8bfde3efc15ae0d35c}{child} (const \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ab1ada569e89e2332e245a1ab0cb8a4f9}{Child\+I\+D\+Type} \&\hyperlink{structmodel_1_1_simplex_base_a477508d711a1cb001ccd895f88665a59}{x\+I\+D}) const 
+\item 
+std\+::vector$<$ int $>$ \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_afaa4b347ef0fd80ed78c2b1370e98cc8}{boundary\+Faces} () const 
+\item 
+bool \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_af3f8e6638f5b528ca084ea0864817544}{is\+Boundary\+Simplex} () const 
+\item 
+Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, 1 $>$ \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a676370ab2d53d8604336840457c789ab}{pos2bary} (const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}) const 
+\item 
+Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a6cc8385077a85f6349214b1e3ac64b02}{bary2pos} (const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, 1 $>$ \&bary) const 
+\item 
+void \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a423162318e2713934a779ed1e55c1fbd}{convex\+Delaunayn\+Search} (const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}, std\+::pair$<$ bool, const \hyperlink{classmodel_1_1_simplex}{Simplex}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $>$ $\ast$ $>$ \&last\+Searched, \hyperlink{plot_cells_8m_a03623d69001c34fc77654be29bdc3d8a}{std\+::set}$<$ int $>$ \&search\+Set) const 
+\item 
+Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, 1 $>$ \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a17f89209afe58a98c02c871caeafb5fe}{face\+Line\+Intersection} (const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, 1 $>$ \&bary0, const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, 1 $>$ \&bary1, const int \&face\+I\+D) const 
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1 $>$ \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_afd104749bc0e9df7c6fd969ad4548fa1}{b2p}
+\begin{DoxyCompactList}\small\item\em The barycentric-\/coordinate to position transformation matrix. \end{DoxyCompactList}\item 
+const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1 $>$ \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ad48b9fd57ece3ea832b3a354a62bfbf2}{p2b}
+\begin{DoxyCompactList}\small\item\em The position to barycentric-\/coordinate transformation matrix. \end{DoxyCompactList}\item 
+const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1 $>$ \hyperlink{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_abffa018e3a93369d19afa43217aa8cba}{nda}
+\begin{DoxyCompactList}\small\item\em The column matrix of face normals. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$short int dim$>$class model\+::\+Simplex$<$ dim, dim $>$}
+
+
+
+Definition at line 184 of file Simplex.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ab1ada569e89e2332e245a1ab0cb8a4f9}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!Child\+I\+D\+Type@{Child\+I\+D\+Type}}
+\index{Child\+I\+D\+Type@{Child\+I\+D\+Type}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{Child\+I\+D\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ typedef {\bf Simplex\+Traits}$<${\bf dim},{\bf order}-\/1$>$\+::{\bf Simplex\+I\+D\+Type} {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::{\bf Child\+I\+D\+Type}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ab1ada569e89e2332e245a1ab0cb8a4f9}
+
+
+Definition at line 217 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a98484d69325ced6e24564af07c180261}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!Child\+Simplex\+Type@{Child\+Simplex\+Type}}
+\index{Child\+Simplex\+Type@{Child\+Simplex\+Type}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{Child\+Simplex\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ typedef {\bf Simplex}$<${\bf dim},{\bf order}-\/1$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::{\bf Child\+Simplex\+Type}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a98484d69325ced6e24564af07c180261}
+
+
+Definition at line 216 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a8d7186530898fce37d1bce8480342a36}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!Simplex\+I\+D\+Type@{Simplex\+I\+D\+Type}}
+\index{Simplex\+I\+D\+Type@{Simplex\+I\+D\+Type}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{Simplex\+I\+D\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ typedef {\bf Simplex\+Traits}$<${\bf dim},{\bf order}$>$\+::{\bf Simplex\+I\+D\+Type} {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::{\bf Simplex\+I\+D\+Type}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a8d7186530898fce37d1bce8480342a36}
+
+
+Definition at line 214 of file Simplex.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a672eb92ce92b8eba0dfbef5e759d3872}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ anonymous enum}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a672eb92ce92b8eba0dfbef5e759d3872}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{order@{order}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!order@{order}}\item[{\em 
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a672eb92ce92b8eba0dfbef5e759d3872abba4b0c668ec5635b83f2131e9d1bbbb}{}order\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a672eb92ce92b8eba0dfbef5e759d3872abba4b0c668ec5635b83f2131e9d1bbbb}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 211 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ac075172a9e7d0ecaafb3cf4dff467e18}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ anonymous enum}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ac075172a9e7d0ecaafb3cf4dff467e18}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{n\+Vertices@{n\+Vertices}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!n\+Vertices@{n\+Vertices}}\item[{\em 
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ac075172a9e7d0ecaafb3cf4dff467e18ac3e906d1cd7d7182daeb0db8102287b7}{}n\+Vertices\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ac075172a9e7d0ecaafb3cf4dff467e18ac3e906d1cd7d7182daeb0db8102287b7}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 212 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a7a6632ff31493d2d8ade44f51f3128cd}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ anonymous enum}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a7a6632ff31493d2d8ade44f51f3128cd}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{n\+Faces@{n\+Faces}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!n\+Faces@{n\+Faces}}\item[{\em 
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a7a6632ff31493d2d8ade44f51f3128cda886854b5f289a9619e5e3c0bd936178f}{}n\+Faces\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a7a6632ff31493d2d8ade44f51f3128cda886854b5f289a9619e5e3c0bd936178f}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 213 of file Simplex.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_acad9db3ba37ea0e86f9b078be256f306}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!Simplex@{Simplex}}
+\index{Simplex@{Simplex}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{Simplex}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::{\bf Simplex} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Simplex\+I\+D\+Type} \&}]{v\+I\+N}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_acad9db3ba37ea0e86f9b078be256f306}
+
+
+Definition at line 229 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a4088c67e3755b1a5872ac00b7d4dac64}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!````~Simplex@{$\sim$\+Simplex}}
+\index{````~Simplex@{$\sim$\+Simplex}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{$\sim$\+Simplex}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::$\sim${\bf Simplex} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a4088c67e3755b1a5872ac00b7d4dac64}
+Destructor performs the following operations\+:
+
+-\/1 removes this in \hyperlink{structmodel_1_1_simplex_observer}{Simplex\+Observer}
+
+-\/2 remove this fomr children parent\+Containers 
+
+Definition at line 247 of file Simplex.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a6cc8385077a85f6349214b1e3ac64b02}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!bary2pos@{bary2pos}}
+\index{bary2pos@{bary2pos}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{bary2pos}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ Eigen\+::\+Matrix$<$double,{\bf dim},1$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::bary2pos (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}+1, 1 $>$ \&}]{bary}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a6cc8385077a85f6349214b1e3ac64b02}
+
+
+Definition at line 324 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_afaa4b347ef0fd80ed78c2b1370e98cc8}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!boundary\+Faces@{boundary\+Faces}}
+\index{boundary\+Faces@{boundary\+Faces}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{boundary\+Faces}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ std\+::vector$<$int$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::boundary\+Faces (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_afaa4b347ef0fd80ed78c2b1370e98cc8}
+
+
+Definition at line 296 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a708a63e87abd3fb2989125f6dc8fdf15}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!child@{child}}
+\index{child@{child}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{child}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ {\bf Child\+Simplex\+Type}\& {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::child (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{n}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a708a63e87abd3fb2989125f6dc8fdf15}
+
+
+Definition at line 268 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ab546e1cff7bbe9069b59f2fb17e039ce}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!child@{child}}
+\index{child@{child}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{child}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ const {\bf Child\+Simplex\+Type}\& {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::child (
+\begin{DoxyParamCaption}
+\item[{const int \&}]{n}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ab546e1cff7bbe9069b59f2fb17e039ce}
+
+
+Definition at line 274 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a59aec9cc63692e8bfde3efc15ae0d35c}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!child@{child}}
+\index{child@{child}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{child}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ const std\+::shared\+\_\+ptr$<${\bf Child\+Simplex\+Type}$>$\& {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::child (
+\begin{DoxyParamCaption}
+\item[{const {\bf Child\+I\+D\+Type} \&}]{x\+I\+D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a59aec9cc63692e8bfde3efc15ae0d35c}
+
+
+Definition at line 280 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a423162318e2713934a779ed1e55c1fbd}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!convex\+Delaunayn\+Search@{convex\+Delaunayn\+Search}}
+\index{convex\+Delaunayn\+Search@{convex\+Delaunayn\+Search}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{convex\+Delaunayn\+Search}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ void {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::convex\+Delaunayn\+Search (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}, 1 $>$ \&}]{P, }
+\item[{std\+::pair$<$ bool, const {\bf Simplex}$<$ {\bf dim}, {\bf dim} $>$ $\ast$ $>$ \&}]{last\+Searched, }
+\item[{{\bf std\+::set}$<$ int $>$ \&}]{search\+Set}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a423162318e2713934a779ed1e55c1fbd}
+
+
+Definition at line 330 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a17f89209afe58a98c02c871caeafb5fe}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!face\+Line\+Intersection@{face\+Line\+Intersection}}
+\index{face\+Line\+Intersection@{face\+Line\+Intersection}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{face\+Line\+Intersection}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ Eigen\+::\+Matrix$<$double,{\bf dim}+1,1$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::face\+Line\+Intersection (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}+1, 1 $>$ \&}]{bary0, }
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}+1, 1 $>$ \&}]{bary1, }
+\item[{const int \&}]{face\+I\+D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a17f89209afe58a98c02c871caeafb5fe}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bary0} & barycentric coordinate of the initial point on the line \\
+\hline
+\mbox{\tt in}  & {\em P1} & barycentric coordinate of the final point on the line \\
+\hline
+\mbox{\tt in}  & {\em face\+I\+D} & the I\+D of the face \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The barycentric cooridinate of the point on the line bary0-\/$>$bary1 that intersects the faced\+I\+D-\/face. If the line bary0-\/$>$bary1 in on the face, the mean point between bary0 and bary1 is returned.
+\end{DoxyReturn}
+
+
+Definition at line 364 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_af3f8e6638f5b528ca084ea0864817544}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!is\+Boundary\+Simplex@{is\+Boundary\+Simplex}}
+\index{is\+Boundary\+Simplex@{is\+Boundary\+Simplex}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{is\+Boundary\+Simplex}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ bool {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::is\+Boundary\+Simplex (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_af3f8e6638f5b528ca084ea0864817544}
+
+
+Definition at line 311 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a676370ab2d53d8604336840457c789ab}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!pos2bary@{pos2bary}}
+\index{pos2bary@{pos2bary}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{pos2bary}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ Eigen\+::\+Matrix$<$double,{\bf dim}+1,1$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::pos2bary (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}, 1 $>$ \&}]{P}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_a676370ab2d53d8604336840457c789ab}
+
+
+Definition at line 318 of file Simplex.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_afd104749bc0e9df7c6fd969ad4548fa1}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!b2p@{b2p}}
+\index{b2p@{b2p}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{b2p}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ const Eigen\+::\+Matrix$<$double,{\bf dim}+1,{\bf dim}+1$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::b2p}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_afd104749bc0e9df7c6fd969ad4548fa1}
+
+
+The barycentric-\/coordinate to position transformation matrix. 
+
+
+
+Definition at line 220 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_abffa018e3a93369d19afa43217aa8cba}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!nda@{nda}}
+\index{nda@{nda}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{nda}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ const Eigen\+::\+Matrix$<$double,{\bf dim},{\bf dim}+1$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::nda}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_abffa018e3a93369d19afa43217aa8cba}
+
+
+The column matrix of face normals. 
+
+
+
+Definition at line 226 of file Simplex.\+h.
+
+\hypertarget{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ad48b9fd57ece3ea832b3a354a62bfbf2}{}\index{model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}!p2b@{p2b}}
+\index{p2b@{p2b}!model\+::\+Simplex$<$ dim, dim $>$@{model\+::\+Simplex$<$ dim, dim $>$}}
+\subsubsection[{p2b}]{\setlength{\rightskip}{0pt plus 5cm}template$<$short int dim$>$ const Eigen\+::\+Matrix$<$double,{\bf dim}+1,{\bf dim}+1$>$ {\bf model\+::\+Simplex}$<$ {\bf dim}, {\bf dim} $>$\+::p2b}\label{classmodel_1_1_simplex_3_01dim_00_01dim_01_4_ad48b9fd57ece3ea832b3a354a62bfbf2}
+
+
+The position to barycentric-\/coordinate transformation matrix. 
+
+
+
+Definition at line 223 of file Simplex.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_simplex_8h}{Simplex.\+h}\end{DoxyCompactItemize}

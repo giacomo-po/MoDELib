@@ -9,20 +9,25 @@
 #ifndef model_GCD_H_
 #define model_GCD_H_
 
-namespace model {
+namespace model
+{
 	
-	//////////////////////////////////////////////////////////////////////////
-	template< size_t A, size_t B >
-	struct GCD {
-		enum { value = GCD< B, A % B >::value };
-	};
+    /*!\bief A class template for compile-time calculation of Greater Common 
+     * Divisors (GCD).
+     */
+    template< size_t A, size_t B >
+	struct GCD
+    {
+//		enum { value = GCD< B, A % B >::value };
+        static constexpr int value = GCD< B, A % B >::value;
+    };
 	
 	template< size_t A >
-	struct GCD<A,0> {
-		enum { value = A };
+	struct GCD<A,0>
+    {
+//		enum { value = A };
+        static constexpr int value = A;
 	};
 	
-	//////////////////////////////////////////////////////////////////////////
-} // end namespace model
-
+}
 #endif

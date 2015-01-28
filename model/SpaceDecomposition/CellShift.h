@@ -15,7 +15,8 @@
 #include <Eigen/Dense>
 #include <model/Math/CompileTimeMath/Pow.h>
 
-namespace model {
+namespace model
+{
 	
     /*! A trait class defining how many neighbors of order neighborOrder a
      *  SpatialCell has in dim dimensions.
@@ -118,10 +119,7 @@ namespace model {
     // static data members
     template <int dim, int neighborOrder>
     const typename CellShiftTraits<dim,neighborOrder>::MatrixType CellShift<dim,neighborOrder>::shifts=CellShift<dim,neighborOrder>::getShifts();
-    
-    
-	
-	////////////////////////////////////////////////////////////////////////////////
-}	// close namespace pil
+
+}
 #endif
 

@@ -1,0 +1,100 @@
+\hypertarget{structmodel_1_1_combination_with_repetition}{}\section{model\+:\+:Combination\+With\+Repetition$<$ \+\_\+\+N, \+\_\+k $>$ Struct Template Reference}
+\label{structmodel_1_1_combination_with_repetition}\index{model\+::\+Combination\+With\+Repetition$<$ \+\_\+\+N, \+\_\+k $>$@{model\+::\+Combination\+With\+Repetition$<$ \+\_\+\+N, \+\_\+k $>$}}
+
+
+{\ttfamily \#include $<$Combination\+With\+Repetition.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{structmodel_1_1_combination_with_repetition_a5aa11104ddc03bc31178591d5f907d63a4e5bdab5c740f9c3a381f08dd5c42dd2}{N} =\+\_\+\+N
+ \}
+\item 
+enum \{ \hyperlink{structmodel_1_1_combination_with_repetition_a57e5423d393bfe4a16dfea78d8088588aea9858e06629d75314369096c8cd48bb}{k} =\+\_\+k
+ \}
+\item 
+enum \{ \hyperlink{structmodel_1_1_combination_with_repetition_a66d1fbf7230e4ffd026698fc78f9d6c8a6fcdec545756da61f535c39cc215e575}{value} =Binomial$<$N+k-\/1,k$>$\+:\+:value
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename T $>$ }\\static Eigen\+::\+Matrix$<$ \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T}, \hyperlink{structmodel_1_1_combination_with_repetition_a66d1fbf7230e4ffd026698fc78f9d6c8a6fcdec545756da61f535c39cc215e575}{value}, \hyperlink{structmodel_1_1_combination_with_repetition_a57e5423d393bfe4a16dfea78d8088588aea9858e06629d75314369096c8cd48bb}{k} $>$ \hyperlink{structmodel_1_1_combination_with_repetition_a4b09bcd5af0648192dc877a8cd3398f9}{combine} (const Eigen\+::\+Matrix$<$ \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T}, 1, \hyperlink{structmodel_1_1_combination_with_repetition_a5aa11104ddc03bc31178591d5f907d63a4e5bdab5c740f9c3a381f08dd5c42dd2}{N} $>$ \&pool)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int \+\_\+\+N, int \+\_\+k$>$struct model\+::\+Combination\+With\+Repetition$<$ \+\_\+\+N, \+\_\+k $>$}
+
+Class template that computes C(\+N,k), the combination without repetition of k values taken from a pool of N values.
+
+C(\+N,k) represents the number of ways to form un-\/ordered sets of k objects taken from a pool of N objects if repetition is not allowed. 
+
+Definition at line 26 of file Combination\+With\+Repetition.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{structmodel_1_1_combination_with_repetition_a5aa11104ddc03bc31178591d5f907d63}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+\+N, int \+\_\+k$>$ anonymous enum}\label{structmodel_1_1_combination_with_repetition_a5aa11104ddc03bc31178591d5f907d63}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{N@{N}!model\+::\+Combination\+With\+Repetition@{model\+::\+Combination\+With\+Repetition}}\index{model\+::\+Combination\+With\+Repetition@{model\+::\+Combination\+With\+Repetition}!N@{N}}\item[{\em 
+\hypertarget{structmodel_1_1_combination_with_repetition_a5aa11104ddc03bc31178591d5f907d63a4e5bdab5c740f9c3a381f08dd5c42dd2}{}N\label{structmodel_1_1_combination_with_repetition_a5aa11104ddc03bc31178591d5f907d63a4e5bdab5c740f9c3a381f08dd5c42dd2}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 28 of file Combination\+With\+Repetition.\+h.
+
+\hypertarget{structmodel_1_1_combination_with_repetition_a57e5423d393bfe4a16dfea78d8088588}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+\+N, int \+\_\+k$>$ anonymous enum}\label{structmodel_1_1_combination_with_repetition_a57e5423d393bfe4a16dfea78d8088588}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{k@{k}!model\+::\+Combination\+With\+Repetition@{model\+::\+Combination\+With\+Repetition}}\index{model\+::\+Combination\+With\+Repetition@{model\+::\+Combination\+With\+Repetition}!k@{k}}\item[{\em 
+\hypertarget{structmodel_1_1_combination_with_repetition_a57e5423d393bfe4a16dfea78d8088588aea9858e06629d75314369096c8cd48bb}{}k\label{structmodel_1_1_combination_with_repetition_a57e5423d393bfe4a16dfea78d8088588aea9858e06629d75314369096c8cd48bb}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 29 of file Combination\+With\+Repetition.\+h.
+
+\hypertarget{structmodel_1_1_combination_with_repetition_a66d1fbf7230e4ffd026698fc78f9d6c8}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+\+N, int \+\_\+k$>$ anonymous enum}\label{structmodel_1_1_combination_with_repetition_a66d1fbf7230e4ffd026698fc78f9d6c8}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{value@{value}!model\+::\+Combination\+With\+Repetition@{model\+::\+Combination\+With\+Repetition}}\index{model\+::\+Combination\+With\+Repetition@{model\+::\+Combination\+With\+Repetition}!value@{value}}\item[{\em 
+\hypertarget{structmodel_1_1_combination_with_repetition_a66d1fbf7230e4ffd026698fc78f9d6c8a6fcdec545756da61f535c39cc215e575}{}value\label{structmodel_1_1_combination_with_repetition_a66d1fbf7230e4ffd026698fc78f9d6c8a6fcdec545756da61f535c39cc215e575}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 32 of file Combination\+With\+Repetition.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_combination_with_repetition_a4b09bcd5af0648192dc877a8cd3398f9}{}\index{model\+::\+Combination\+With\+Repetition@{model\+::\+Combination\+With\+Repetition}!combine@{combine}}
+\index{combine@{combine}!model\+::\+Combination\+With\+Repetition@{model\+::\+Combination\+With\+Repetition}}
+\subsubsection[{combine}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int \+\_\+\+N, int \+\_\+k$>$ template$<$typename T $>$ static Eigen\+::\+Matrix$<${\bf T},{\bf value},{\bf k}$>$ {\bf model\+::\+Combination\+With\+Repetition}$<$ \+\_\+\+N, \+\_\+k $>$\+::combine (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ {\bf T}, 1, {\bf N} $>$ \&}]{pool}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_combination_with_repetition_a4b09bcd5af0648192dc877a8cd3398f9}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em pool} & a row vector of N values \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a matrix having in each row the
+\end{DoxyReturn}
+
+
+Definition at line 36 of file Combination\+With\+Repetition.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_combination_with_repetition_8h}{Combination\+With\+Repetition.\+h}\end{DoxyCompactItemize}

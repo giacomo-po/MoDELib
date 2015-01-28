@@ -1,0 +1,101 @@
+\hypertarget{classmodel_1_1_depth_first}{}\section{model\+:\+:Depth\+First$<$ Node\+Type, Link\+Type $>$ Class Template Reference}
+\label{classmodel_1_1_depth_first}\index{model\+::\+Depth\+First$<$ Node\+Type, Link\+Type $>$@{model\+::\+Depth\+First$<$ Node\+Type, Link\+Type $>$}}
+
+
+{\ttfamily \#include $<$Depth\+First.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_depth_first_a7e563ae47f78286b5de01dd6adca5a5b}{Depth\+First} (const \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} \&node\+Ref\+\_\+in)
+\item 
+bool \hyperlink{classmodel_1_1_depth_first_a771585f9525518e30ee2a76aca351170}{search} (const size\+\_\+t \&I\+D, const size\+\_\+t \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}=U\+L\+O\+N\+G\+\_\+\+M\+A\+X) const 
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \hyperlink{classmodel_1_1_depth_first_af3af2d7020b4327e683f8119b0cde931}{execute} (void(Derived\+::$\ast$Nfptr)(const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&), void(Link\+Type\+::$\ast$Lfptr)(const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&), const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&input, const size\+\_\+t \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}=U\+L\+O\+N\+G\+\_\+\+M\+A\+X)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \hyperlink{classmodel_1_1_depth_first_a8ff5dea9674464c0165abdd0dd080fce}{node\+Execute} (void(Derived\+::$\ast$Nfptr)(const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&), const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&input, const size\+\_\+t \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}=U\+L\+O\+N\+G\+\_\+\+M\+A\+X)
+\item 
+void \hyperlink{classmodel_1_1_depth_first_a631c96df185d294da998277f7dec74c8}{node\+Execute} (void(Derived\+::$\ast$Nfptr)(void), const size\+\_\+t \&\hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N}=U\+L\+O\+N\+G\+\_\+\+M\+A\+X)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Node\+Type, typename Link\+Type$>$class model\+::\+Depth\+First$<$ Node\+Type, Link\+Type $>$}
+
+
+
+Definition at line 18 of file Depth\+First.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_depth_first_a7e563ae47f78286b5de01dd6adca5a5b}{}\index{model\+::\+Depth\+First@{model\+::\+Depth\+First}!Depth\+First@{Depth\+First}}
+\index{Depth\+First@{Depth\+First}!model\+::\+Depth\+First@{model\+::\+Depth\+First}}
+\subsubsection[{Depth\+First}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ {\bf model\+::\+Depth\+First}$<$ {\bf Node\+Type}, {\bf Link\+Type} $>$\+::{\bf Depth\+First} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Node\+Type} \&}]{node\+Ref\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_depth_first_a7e563ae47f78286b5de01dd6adca5a5b}
+
+
+Definition at line 93 of file Depth\+First.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_depth_first_af3af2d7020b4327e683f8119b0cde931}{}\index{model\+::\+Depth\+First@{model\+::\+Depth\+First}!execute@{execute}}
+\index{execute@{execute}!model\+::\+Depth\+First@{model\+::\+Depth\+First}}
+\subsubsection[{execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ template$<$typename T $>$ void {\bf model\+::\+Depth\+First}$<$ {\bf Node\+Type}, {\bf Link\+Type} $>$\+::execute (
+\begin{DoxyParamCaption}
+\item[{void(Derived\+::$\ast$)(const {\bf T} \&)}]{Nfptr, }
+\item[{void(Link\+Type\+::$\ast$)(const {\bf T} \&)}]{Lfptr, }
+\item[{const {\bf T} \&}]{input, }
+\item[{const size\+\_\+t \&}]{N = {\ttfamily ULONG\+\_\+MAX}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_depth_first_af3af2d7020b4327e683f8119b0cde931}
+
+
+Definition at line 103 of file Depth\+First.\+h.
+
+\hypertarget{classmodel_1_1_depth_first_a8ff5dea9674464c0165abdd0dd080fce}{}\index{model\+::\+Depth\+First@{model\+::\+Depth\+First}!node\+Execute@{node\+Execute}}
+\index{node\+Execute@{node\+Execute}!model\+::\+Depth\+First@{model\+::\+Depth\+First}}
+\subsubsection[{node\+Execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ template$<$typename T $>$ void {\bf model\+::\+Depth\+First}$<$ {\bf Node\+Type}, {\bf Link\+Type} $>$\+::node\+Execute (
+\begin{DoxyParamCaption}
+\item[{void(Derived\+::$\ast$)(const {\bf T} \&)}]{Nfptr, }
+\item[{const {\bf T} \&}]{input, }
+\item[{const size\+\_\+t \&}]{N = {\ttfamily ULONG\+\_\+MAX}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_depth_first_a8ff5dea9674464c0165abdd0dd080fce}
+
+
+Definition at line 111 of file Depth\+First.\+h.
+
+\hypertarget{classmodel_1_1_depth_first_a631c96df185d294da998277f7dec74c8}{}\index{model\+::\+Depth\+First@{model\+::\+Depth\+First}!node\+Execute@{node\+Execute}}
+\index{node\+Execute@{node\+Execute}!model\+::\+Depth\+First@{model\+::\+Depth\+First}}
+\subsubsection[{node\+Execute}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ void {\bf model\+::\+Depth\+First}$<$ {\bf Node\+Type}, {\bf Link\+Type} $>$\+::node\+Execute (
+\begin{DoxyParamCaption}
+\item[{void(Derived\+::$\ast$)(void)}]{Nfptr, }
+\item[{const size\+\_\+t \&}]{N = {\ttfamily ULONG\+\_\+MAX}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_depth_first_a631c96df185d294da998277f7dec74c8}
+
+
+Definition at line 116 of file Depth\+First.\+h.
+
+\hypertarget{classmodel_1_1_depth_first_a771585f9525518e30ee2a76aca351170}{}\index{model\+::\+Depth\+First@{model\+::\+Depth\+First}!search@{search}}
+\index{search@{search}!model\+::\+Depth\+First@{model\+::\+Depth\+First}}
+\subsubsection[{search}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Node\+Type , typename Link\+Type $>$ bool {\bf model\+::\+Depth\+First}$<$ {\bf Node\+Type}, {\bf Link\+Type} $>$\+::search (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{I\+D, }
+\item[{const size\+\_\+t \&}]{N = {\ttfamily ULONG\+\_\+MAX}}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_depth_first_a771585f9525518e30ee2a76aca351170}
+
+
+Definition at line 96 of file Depth\+First.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_depth_first_8h}{Depth\+First.\+h}\end{DoxyCompactItemize}

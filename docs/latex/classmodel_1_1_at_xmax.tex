@@ -1,0 +1,84 @@
+\hypertarget{classmodel_1_1_at_xmax}{}\section{model\+:\+:At\+Xmax$<$ i $>$ Class Template Reference}
+\label{classmodel_1_1_at_xmax}\index{model\+::\+At\+Xmax$<$ i $>$@{model\+::\+At\+Xmax$<$ i $>$}}
+
+
+{\ttfamily \#include $<$At\+Xmax.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename Finite\+Element\+Type $>$ }\\\hyperlink{classmodel_1_1_at_xmax_a9bccd444d3936fbc7ee4ea781c3a824f}{At\+Xmax} (const Finite\+Element\+Type \&fe)
+\item 
+{\footnotesize template$<$typename Node\+Type $>$ }\\bool \hyperlink{classmodel_1_1_at_xmax_ac1567d5436a129acf19c2698bf71d3e7}{operator()} (const \hyperlink{_network_typedefs_8h_a723f680c66f6a92647827790bcbafce0}{Node\+Type} \&node) const 
+\item 
+{\footnotesize template$<$int dim$>$ }\\bool \hyperlink{classmodel_1_1_at_xmax_a20a24a61ea3538906738fb226336decf}{operator()} (const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \&P0) const 
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename Finite\+Element\+Type , int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ }\\static \hyperlink{structmodel_1_1_integration_domain}{Integration\+Domain}$<$ Finite\+Element\+Type, 1, q\+Order, Quadrature\+Rule $>$ \hyperlink{classmodel_1_1_at_xmax_a1f076e4a559338292e51cbdce39e933d}{boundary} (const Finite\+Element\+Type \&fe)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int i$>$class model\+::\+At\+Xmax$<$ i $>$}
+
+
+
+Definition at line 22 of file At\+Xmax.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_at_xmax_a9bccd444d3936fbc7ee4ea781c3a824f}{}\index{model\+::\+At\+Xmax@{model\+::\+At\+Xmax}!At\+Xmax@{At\+Xmax}}
+\index{At\+Xmax@{At\+Xmax}!model\+::\+At\+Xmax@{model\+::\+At\+Xmax}}
+\subsubsection[{At\+Xmax}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int i$>$ template$<$typename Finite\+Element\+Type $>$ {\bf model\+::\+At\+Xmax}$<$ {\bf i} $>$\+::{\bf At\+Xmax} (
+\begin{DoxyParamCaption}
+\item[{const Finite\+Element\+Type \&}]{fe}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_at_xmax_a9bccd444d3936fbc7ee4ea781c3a824f}
+
+
+Definition at line 31 of file At\+Xmax.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_at_xmax_a1f076e4a559338292e51cbdce39e933d}{}\index{model\+::\+At\+Xmax@{model\+::\+At\+Xmax}!boundary@{boundary}}
+\index{boundary@{boundary}!model\+::\+At\+Xmax@{model\+::\+At\+Xmax}}
+\subsubsection[{boundary}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int i$>$ template$<$typename Finite\+Element\+Type , int q\+Order, template$<$ short unsigned int, short unsigned int $>$ class Quadrature\+Rule$>$ static {\bf Integration\+Domain}$<$Finite\+Element\+Type,1,q\+Order,Quadrature\+Rule$>$ {\bf model\+::\+At\+Xmax}$<$ {\bf i} $>$\+::boundary (
+\begin{DoxyParamCaption}
+\item[{const Finite\+Element\+Type \&}]{fe}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{classmodel_1_1_at_xmax_a1f076e4a559338292e51cbdce39e933d}
+
+
+Definition at line 53 of file At\+Xmax.\+h.
+
+\hypertarget{classmodel_1_1_at_xmax_ac1567d5436a129acf19c2698bf71d3e7}{}\index{model\+::\+At\+Xmax@{model\+::\+At\+Xmax}!operator()@{operator()}}
+\index{operator()@{operator()}!model\+::\+At\+Xmax@{model\+::\+At\+Xmax}}
+\subsubsection[{operator()}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int i$>$ template$<$typename Node\+Type $>$ bool {\bf model\+::\+At\+Xmax}$<$ {\bf i} $>$\+::operator() (
+\begin{DoxyParamCaption}
+\item[{const {\bf Node\+Type} \&}]{node}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_at_xmax_ac1567d5436a129acf19c2698bf71d3e7}
+
+
+Definition at line 39 of file At\+Xmax.\+h.
+
+\hypertarget{classmodel_1_1_at_xmax_a20a24a61ea3538906738fb226336decf}{}\index{model\+::\+At\+Xmax@{model\+::\+At\+Xmax}!operator()@{operator()}}
+\index{operator()@{operator()}!model\+::\+At\+Xmax@{model\+::\+At\+Xmax}}
+\subsubsection[{operator()}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int i$>$ template$<$int dim$>$ bool {\bf model\+::\+At\+Xmax}$<$ {\bf i} $>$\+::operator() (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ double, {\bf dim}, 1 $>$ \&}]{P0}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_at_xmax_a20a24a61ea3538906738fb226336decf}
+
+
+Definition at line 46 of file At\+Xmax.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_at_xmax_8h}{At\+Xmax.\+h}\end{DoxyCompactItemize}

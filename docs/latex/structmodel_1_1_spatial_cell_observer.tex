@@ -1,0 +1,325 @@
+\hypertarget{structmodel_1_1_spatial_cell_observer}{}\section{model\+:\+:Spatial\+Cell\+Observer$<$ Particle\+Type, dim $>$ Struct Template Reference}
+\label{structmodel_1_1_spatial_cell_observer}\index{model\+::\+Spatial\+Cell\+Observer$<$ Particle\+Type, dim $>$@{model\+::\+Spatial\+Cell\+Observer$<$ Particle\+Type, dim $>$}}
+
+
+{\ttfamily \#include $<$Spatial\+Cell.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \hyperlink{structmodel_1_1_spatial_cell_observer_a9b73220477f451fa7981e2597f23614b}{Vector\+Dim\+D}
+\item 
+typedef Eigen\+::\+Matrix$<$ int, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \hyperlink{structmodel_1_1_spatial_cell_observer_a4463a457f13bd480c87facc50799832b}{Cell\+Id\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_spatial_cell}{Spatial\+Cell}$<$ Particle\+Type, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $>$ \hyperlink{structmodel_1_1_spatial_cell_observer_a276f0ef902c63265b8236fb591d8a1f9}{Spatial\+Cell\+Type}
+\item 
+typedef std\+::map$<$ \hyperlink{structmodel_1_1_spatial_cell_observer_a4463a457f13bd480c87facc50799832b}{Cell\+Id\+Type}, \hyperlink{structmodel_1_1_spatial_cell_observer_a276f0ef902c63265b8236fb591d8a1f9}{Spatial\+Cell\+Type} $\ast$const, \hyperlink{structmodel_1_1_compare_vectors_by_component}{Compare\+Vectors\+By\+Component}$<$ int, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $>$ $>$ \hyperlink{structmodel_1_1_spatial_cell_observer_a3ee3ac7a68725cbe49ef4ae951ce2231}{Cell\+Map\+Type}
+\item 
+typedef std\+::shared\+\_\+ptr$<$ \hyperlink{structmodel_1_1_spatial_cell_observer_a276f0ef902c63265b8236fb591d8a1f9}{Spatial\+Cell\+Type} $>$ \hyperlink{structmodel_1_1_spatial_cell_observer_ae879e58433ae1725fa700b08b790b2cd}{Shared\+Ptr\+Type}
+\item 
+typedef std\+::pair$<$ bool, \hyperlink{structmodel_1_1_spatial_cell_observer_a276f0ef902c63265b8236fb591d8a1f9}{Spatial\+Cell\+Type} $\ast$const  $>$ \hyperlink{structmodel_1_1_spatial_cell_observer_a8308b4c6ce9d94f1f29b80a41e3374b5}{is\+Cell\+Type}
+\item 
+typedef \hyperlink{classmodel_1_1_cell_shift}{Cell\+Shift}$<$ \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \hyperlink{structmodel_1_1_spatial_cell_observer_a5e02c4303a1bcb2dee305e5e5556f517}{Cell\+Shift\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static Cell\+Map\+Type\+::const\+\_\+iterator \hyperlink{structmodel_1_1_spatial_cell_observer_a040e9231e8149d96803c46279ed31d82}{cell\+Begin} ()
+\item 
+static Cell\+Map\+Type\+::const\+\_\+iterator \hyperlink{structmodel_1_1_spatial_cell_observer_a58ef2237ad9b95350b1562d70fa151cf}{cell\+End} ()
+\item 
+static size\+\_\+t \hyperlink{structmodel_1_1_spatial_cell_observer_ad7b5ded013db11e298fc85c29648ded7}{total\+Cells} ()
+\item 
+static \hyperlink{structmodel_1_1_spatial_cell_observer_a4463a457f13bd480c87facc50799832b}{Cell\+Id\+Type} \hyperlink{structmodel_1_1_spatial_cell_observer_afa80a3acba71b828842bc3ac1b68eb1d}{get\+Cell\+I\+D\+By\+Position} (const \hyperlink{structmodel_1_1_spatial_cell_observer_a9b73220477f451fa7981e2597f23614b}{Vector\+Dim\+D} \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P})
+\item 
+static \hyperlink{structmodel_1_1_spatial_cell_observer_ae879e58433ae1725fa700b08b790b2cd}{Shared\+Ptr\+Type} \hyperlink{structmodel_1_1_spatial_cell_observer_abf145145094f568f68b3edf6a52f104f}{get\+Cell\+By\+I\+D} (const \hyperlink{structmodel_1_1_spatial_cell_observer_a4463a457f13bd480c87facc50799832b}{Cell\+Id\+Type} \&cell\+I\+D)
+\item 
+static \hyperlink{structmodel_1_1_spatial_cell_observer_ae879e58433ae1725fa700b08b790b2cd}{Shared\+Ptr\+Type} \hyperlink{structmodel_1_1_spatial_cell_observer_a7c15f14c52447f8038602b16447e4019}{get\+Cell\+By\+Position} (const \hyperlink{structmodel_1_1_spatial_cell_observer_a9b73220477f451fa7981e2597f23614b}{Vector\+Dim\+D} \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P})
+\item 
+static \hyperlink{structmodel_1_1_spatial_cell_observer_a8308b4c6ce9d94f1f29b80a41e3374b5}{is\+Cell\+Type} \hyperlink{structmodel_1_1_spatial_cell_observer_a8356953ed0ad046efd4957d08df93d3c}{is\+Cell} (const \hyperlink{structmodel_1_1_spatial_cell_observer_a4463a457f13bd480c87facc50799832b}{Cell\+Id\+Type} \&cell\+I\+D)
+\item 
+static const \hyperlink{structmodel_1_1_spatial_cell_observer_a3ee3ac7a68725cbe49ef4ae951ce2231}{Cell\+Map\+Type} \& \hyperlink{structmodel_1_1_spatial_cell_observer_ac7692bd99745722f232eb60390ae1781}{cells} ()
+\item 
+static \hyperlink{structmodel_1_1_spatial_cell_observer_a3ee3ac7a68725cbe49ef4ae951ce2231}{Cell\+Map\+Type} \hyperlink{structmodel_1_1_spatial_cell_observer_a0be8d72211607d9222e246bb9eebfc5b}{neighbor\+Cells} (const \hyperlink{structmodel_1_1_spatial_cell_observer_a9b73220477f451fa7981e2597f23614b}{Vector\+Dim\+D} \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P})
+\item 
+static \hyperlink{structmodel_1_1_spatial_cell_observer_a3ee3ac7a68725cbe49ef4ae951ce2231}{Cell\+Map\+Type} \hyperlink{structmodel_1_1_spatial_cell_observer_a3b9504aca66c19b9310dc0896b591060}{far\+Cells} (const \hyperlink{structmodel_1_1_spatial_cell_observer_a9b73220477f451fa7981e2597f23614b}{Vector\+Dim\+D} \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P})
+\item 
+static void \hyperlink{structmodel_1_1_spatial_cell_observer_a9ccaa459c78b396ffe02232d6c4111af}{set\+Cell\+Size} (const double \&new\+Size)
+\item 
+static double \& \hyperlink{structmodel_1_1_spatial_cell_observer_a47cfd8f7c648bf38a27dc55409c8bef5}{cell\+Size} ()
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{structmodel_1_1_spatial_cell_observer_a66a2fc25a4a56a7f37b3f0f90b386e03}{Spatial\+Cell$<$ Particle\+Type, dim $>$}
+\item 
+{\footnotesize template$<$class T $>$ }\\\hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \& \hyperlink{structmodel_1_1_spatial_cell_observer_a96e877e3c58ac16c3cdf8114bbbc7aa2}{operator$<$$<$} (\hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&os, const \hyperlink{structmodel_1_1_spatial_cell_observer}{Spatial\+Cell\+Observer}$<$ \hyperlink{structmodel_1_1_spatial_cell_observer_a276f0ef902c63265b8236fb591d8a1f9}{Spatial\+Cell\+Type}, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $>$ \&s\+C\+O)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Particle\+Type, short unsigned int dim$>$struct model\+::\+Spatial\+Cell\+Observer$<$ Particle\+Type, dim $>$}
+
+
+
+Definition at line 33 of file Spatial\+Cell.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_spatial_cell_observer_a4463a457f13bd480c87facc50799832b}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!Cell\+Id\+Type@{Cell\+Id\+Type}}
+\index{Cell\+Id\+Type@{Cell\+Id\+Type}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{Cell\+Id\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ typedef Eigen\+::\+Matrix$<$int,{\bf dim},1$>$ {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::{\bf Cell\+Id\+Type}}\label{structmodel_1_1_spatial_cell_observer_a4463a457f13bd480c87facc50799832b}
+
+
+Definition at line 29 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a3ee3ac7a68725cbe49ef4ae951ce2231}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!Cell\+Map\+Type@{Cell\+Map\+Type}}
+\index{Cell\+Map\+Type@{Cell\+Map\+Type}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{Cell\+Map\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ typedef std\+::map$<${\bf Cell\+Id\+Type}, {\bf Spatial\+Cell\+Type}$\ast$ const,{\bf Compare\+Vectors\+By\+Component}$<$int,{\bf dim}$>$ $>$ {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::{\bf Cell\+Map\+Type}}\label{structmodel_1_1_spatial_cell_observer_a3ee3ac7a68725cbe49ef4ae951ce2231}
+
+
+Definition at line 31 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a5e02c4303a1bcb2dee305e5e5556f517}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!Cell\+Shift\+Type@{Cell\+Shift\+Type}}
+\index{Cell\+Shift\+Type@{Cell\+Shift\+Type}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{Cell\+Shift\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ typedef {\bf Cell\+Shift}$<${\bf dim},1$>$ {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::{\bf Cell\+Shift\+Type}}\label{structmodel_1_1_spatial_cell_observer_a5e02c4303a1bcb2dee305e5e5556f517}
+
+
+Definition at line 34 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a8308b4c6ce9d94f1f29b80a41e3374b5}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!is\+Cell\+Type@{is\+Cell\+Type}}
+\index{is\+Cell\+Type@{is\+Cell\+Type}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{is\+Cell\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ typedef std\+::pair$<$bool,{\bf Spatial\+Cell\+Type}$\ast$ const$>$ {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::{\bf is\+Cell\+Type}}\label{structmodel_1_1_spatial_cell_observer_a8308b4c6ce9d94f1f29b80a41e3374b5}
+
+
+Definition at line 33 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_ae879e58433ae1725fa700b08b790b2cd}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!Shared\+Ptr\+Type@{Shared\+Ptr\+Type}}
+\index{Shared\+Ptr\+Type@{Shared\+Ptr\+Type}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{Shared\+Ptr\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ typedef std\+::shared\+\_\+ptr$<${\bf Spatial\+Cell\+Type}$>$ {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::{\bf Shared\+Ptr\+Type}}\label{structmodel_1_1_spatial_cell_observer_ae879e58433ae1725fa700b08b790b2cd}
+
+
+Definition at line 32 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a276f0ef902c63265b8236fb591d8a1f9}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!Spatial\+Cell\+Type@{Spatial\+Cell\+Type}}
+\index{Spatial\+Cell\+Type@{Spatial\+Cell\+Type}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{Spatial\+Cell\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ typedef {\bf Spatial\+Cell}$<$Particle\+Type,{\bf dim}$>$ {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::{\bf Spatial\+Cell\+Type}}\label{structmodel_1_1_spatial_cell_observer_a276f0ef902c63265b8236fb591d8a1f9}
+
+
+Definition at line 30 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a9b73220477f451fa7981e2597f23614b}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!Vector\+Dim\+D@{Vector\+Dim\+D}}
+\index{Vector\+Dim\+D@{Vector\+Dim\+D}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{Vector\+Dim\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ typedef Eigen\+::\+Matrix$<$double,{\bf dim},1$>$ {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::{\bf Vector\+Dim\+D}}\label{structmodel_1_1_spatial_cell_observer_a9b73220477f451fa7981e2597f23614b}
+
+
+Definition at line 28 of file Spatial\+Cell\+Observer.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_spatial_cell_observer_a040e9231e8149d96803c46279ed31d82}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!cell\+Begin@{cell\+Begin}}
+\index{cell\+Begin@{cell\+Begin}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{cell\+Begin}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ static Cell\+Map\+Type\+::const\+\_\+iterator {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::cell\+Begin (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_spatial_cell_observer_a040e9231e8149d96803c46279ed31d82}
+\begin{DoxyReturn}{Returns}
+A const\+\_\+iterator to the first Spatial\+Cell\+Type cell.
+\end{DoxyReturn}
+
+
+Definition at line 40 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a58ef2237ad9b95350b1562d70fa151cf}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!cell\+End@{cell\+End}}
+\index{cell\+End@{cell\+End}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{cell\+End}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ static Cell\+Map\+Type\+::const\+\_\+iterator {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::cell\+End (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_spatial_cell_observer_a58ef2237ad9b95350b1562d70fa151cf}
+\begin{DoxyReturn}{Returns}
+A const\+\_\+iterator to the past-\/the-\/last Spatial\+Cell\+Type cell.
+\end{DoxyReturn}
+
+
+Definition at line 47 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_ac7692bd99745722f232eb60390ae1781}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!cells@{cells}}
+\index{cells@{cells}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{cells}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ static const {\bf Cell\+Map\+Type}\& {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::cells (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_spatial_cell_observer_ac7692bd99745722f232eb60390ae1781}
+
+
+Definition at line 98 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a47cfd8f7c648bf38a27dc55409c8bef5}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!cell\+Size@{cell\+Size}}
+\index{cell\+Size@{cell\+Size}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{cell\+Size}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ static double\& {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::cell\+Size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_spatial_cell_observer_a47cfd8f7c648bf38a27dc55409c8bef5}
+
+
+Definition at line 151 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a3b9504aca66c19b9310dc0896b591060}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!far\+Cells@{far\+Cells}}
+\index{far\+Cells@{far\+Cells}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{far\+Cells}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ static {\bf Cell\+Map\+Type} {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::far\+Cells (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim\+D} \&}]{P}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_spatial_cell_observer_a3b9504aca66c19b9310dc0896b591060}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em P} & the position vector \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a map of the Spatial\+Cell(s) not neighboring P.
+\end{DoxyReturn}
+
+
+Definition at line 125 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_abf145145094f568f68b3edf6a52f104f}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!get\+Cell\+By\+I\+D@{get\+Cell\+By\+I\+D}}
+\index{get\+Cell\+By\+I\+D@{get\+Cell\+By\+I\+D}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{get\+Cell\+By\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ static {\bf Shared\+Ptr\+Type} {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::get\+Cell\+By\+I\+D (
+\begin{DoxyParamCaption}
+\item[{const {\bf Cell\+Id\+Type} \&}]{cell\+I\+D}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_spatial_cell_observer_abf145145094f568f68b3edf6a52f104f}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em cell\+I\+D} & The I\+D of the cell. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+If a cell with I\+D=cell\+I\+D exists, a shared-\/pointer to that cell is returned. Otherwise, a shared-\/pointer to a new cell with I\+D=cell\+I\+D is returned.
+\end{DoxyReturn}
+
+
+Definition at line 69 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a7c15f14c52447f8038602b16447e4019}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!get\+Cell\+By\+Position@{get\+Cell\+By\+Position}}
+\index{get\+Cell\+By\+Position@{get\+Cell\+By\+Position}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{get\+Cell\+By\+Position}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ static {\bf Shared\+Ptr\+Type} {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::get\+Cell\+By\+Position (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim\+D} \&}]{P}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_spatial_cell_observer_a7c15f14c52447f8038602b16447e4019}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em P} & The position vector. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+If a cell satisfying cell\+I\+D $<$= P/cell\+Size $<$ (cell\+I\+D+1) exists, a shared-\/pointer to that cell is returned. Otherwise, a shared-\/pointer to a new cell satisfying cell\+I\+D $<$= P/cell\+Size $<$ (cell\+I\+D+1) is returned.
+\end{DoxyReturn}
+
+
+Definition at line 80 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_afa80a3acba71b828842bc3ac1b68eb1d}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!get\+Cell\+I\+D\+By\+Position@{get\+Cell\+I\+D\+By\+Position}}
+\index{get\+Cell\+I\+D\+By\+Position@{get\+Cell\+I\+D\+By\+Position}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{get\+Cell\+I\+D\+By\+Position}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ static {\bf Cell\+Id\+Type} {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::get\+Cell\+I\+D\+By\+Position (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim\+D} \&}]{P}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_spatial_cell_observer_afa80a3acba71b828842bc3ac1b68eb1d}
+\begin{DoxyReturn}{Returns}
+The Cell\+Id\+Type I\+D of the cell that contains P. The I\+D satisfies cell\+I\+D $<$= P/cell\+Size $<$ (cell\+I\+D+1).
+\end{DoxyReturn}
+
+
+Definition at line 61 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a8356953ed0ad046efd4957d08df93d3c}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!is\+Cell@{is\+Cell}}
+\index{is\+Cell@{is\+Cell}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{is\+Cell}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ static {\bf is\+Cell\+Type} {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::is\+Cell (
+\begin{DoxyParamCaption}
+\item[{const {\bf Cell\+Id\+Type} \&}]{cell\+I\+D}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_spatial_cell_observer_a8356953ed0ad046efd4957d08df93d3c}
+
+
+Definition at line 91 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a0be8d72211607d9222e246bb9eebfc5b}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!neighbor\+Cells@{neighbor\+Cells}}
+\index{neighbor\+Cells@{neighbor\+Cells}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{neighbor\+Cells}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ static {\bf Cell\+Map\+Type} {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::neighbor\+Cells (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim\+D} \&}]{P}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_spatial_cell_observer_a0be8d72211607d9222e246bb9eebfc5b}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em P} & the position vector \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a map of the Spatial\+Cell(s) neighboring P.
+\end{DoxyReturn}
+
+
+Definition at line 104 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a9ccaa459c78b396ffe02232d6c4111af}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!set\+Cell\+Size@{set\+Cell\+Size}}
+\index{set\+Cell\+Size@{set\+Cell\+Size}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{set\+Cell\+Size}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ static void {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::set\+Cell\+Size (
+\begin{DoxyParamCaption}
+\item[{const double \&}]{new\+Size}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_spatial_cell_observer_a9ccaa459c78b396ffe02232d6c4111af}
+
+
+Definition at line 143 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_ad7b5ded013db11e298fc85c29648ded7}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!total\+Cells@{total\+Cells}}
+\index{total\+Cells@{total\+Cells}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{total\+Cells}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ static size\+\_\+t {\bf model\+::\+Spatial\+Cell\+Observer}$<$ Particle\+Type, {\bf dim} $>$\+::total\+Cells (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_spatial_cell_observer_ad7b5ded013db11e298fc85c29648ded7}
+\begin{DoxyReturn}{Returns}
+The number of observed Spatial\+Cell\+Type cells.
+\end{DoxyReturn}
+
+
+Definition at line 54 of file Spatial\+Cell\+Observer.\+h.
+
+
+
+\subsection{Friends And Related Function Documentation}
+\hypertarget{structmodel_1_1_spatial_cell_observer_a96e877e3c58ac16c3cdf8114bbbc7aa2}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{operator$<$$<$}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ template$<$class T $>$ {\bf T}\& operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{{\bf T} \&}]{os, }
+\item[{const {\bf Spatial\+Cell\+Observer}$<$ {\bf Spatial\+Cell\+Type}, {\bf dim} $>$ \&}]{s\+C\+O}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [friend]}}\label{structmodel_1_1_spatial_cell_observer_a96e877e3c58ac16c3cdf8114bbbc7aa2}
+Operator $<$$<$ uses Particle\+Type-\/specific operator $<$$<$
+
+Definition at line 158 of file Spatial\+Cell\+Observer.\+h.
+
+\hypertarget{structmodel_1_1_spatial_cell_observer_a66a2fc25a4a56a7f37b3f0f90b386e03}{}\index{model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}!Spatial\+Cell$<$ Particle\+Type, dim $>$@{Spatial\+Cell$<$ Particle\+Type, dim $>$}}
+\index{Spatial\+Cell$<$ Particle\+Type, dim $>$@{Spatial\+Cell$<$ Particle\+Type, dim $>$}!model\+::\+Spatial\+Cell\+Observer@{model\+::\+Spatial\+Cell\+Observer}}
+\subsubsection[{Spatial\+Cell$<$ Particle\+Type, dim $>$}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Particle\+Type, short unsigned int dim$>$ friend class {\bf Spatial\+Cell}$<$ Particle\+Type, {\bf dim} $>$\hspace{0.3cm}{\ttfamily [friend]}}\label{structmodel_1_1_spatial_cell_observer_a66a2fc25a4a56a7f37b3f0f90b386e03}
+
+
+Definition at line 171 of file Spatial\+Cell\+Observer.\+h.
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_spatial_cell_8h}{Spatial\+Cell.\+h}\item 
+\hyperlink{_spatial_cell_observer_8h}{Spatial\+Cell\+Observer.\+h}\end{DoxyCompactItemize}

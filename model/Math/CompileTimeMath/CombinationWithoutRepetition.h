@@ -12,7 +12,8 @@
 #include <Eigen/Dense>
 #include <model/Math/CompileTimeMath/Binomial.h>
 
-namespace model {
+namespace model
+{
     
     /**************************************************************************/
     /**************************************************************************/
@@ -28,7 +29,8 @@ namespace model {
         static_assert(N>0,"N MUST BE >0.");
         static_assert(k>0,"k MUST BE >0.");
         static_assert(k<=N,"k MUST BE <=N.");
-		enum{value=Binomial<N,k>::value};
+        static constexpr int value=Binomial<N,k>::value;
+//		enum{value=Binomial<N,k>::value};
         
         
         template <typename T>

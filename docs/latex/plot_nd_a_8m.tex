@@ -1,0 +1,99 @@
+\hypertarget{plot_nd_a_8m}{}\section{plot\+Nd\+A.\+m File Reference}
+\label{plot_nd_a_8m}\index{plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{plot_nd_a_8m_aae2a4441ced6bc987b682b6478b8689e}{figure} (1) clf hold on grid on \hyperlink{_cubic_spline_intersection_8m_ab544bafc3ddf3e29a17d7aac7084255e}{axis} equal \hyperlink{tube_plotter_8m_a2e6ccb550ed279bf6ab3d7b5ccf4bd59}{plot3}(\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}(\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $\ast$\hyperlink{plot_cells_8m_ac483f6ce851c9ecd9fb835ff7551737c}{p}+1
+\item 
+\hyperlink{plot_nd_a_8m_abe9148ff7c055c98d41813e2e207d216}{P} (\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $\ast$\hyperlink{plot_cells_8m_ac483f6ce851c9ecd9fb835ff7551737c}{p}+2, 1\+:\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}+1)
+\item 
+\hyperlink{tube_plotter_8m_a86bdec0d61a48a8ca4da1674058837cc}{g} \hyperlink{plot_nd_a_8m_a73d060973270aab13dc3ae4d1667d5d2}{plot3} (\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}(\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $\ast$\hyperlink{plot_cells_8m_ac483f6ce851c9ecd9fb835ff7551737c}{p}+1,\mbox{[}1 3\mbox{]}), \hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}(\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $\ast$\hyperlink{plot_cells_8m_ac483f6ce851c9ecd9fb835ff7551737c}{p}+2,\mbox{[}1 3\mbox{]}), \hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}(\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $\ast$\hyperlink{plot_cells_8m_ac483f6ce851c9ecd9fb835ff7551737c}{p}+3,\mbox{[}1 3\mbox{]}),\textquotesingle{}\hyperlink{tube_plotter_8m_a86bdec0d61a48a8ca4da1674058837cc}{g}\textquotesingle{}) plot3(\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P}(\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $\ast$\hyperlink{plot_cells_8m_ac483f6ce851c9ecd9fb835ff7551737c}{p}+1
+\item 
+\hyperlink{tube_plotter_8m_a86bdec0d61a48a8ca4da1674058837cc}{g} \hyperlink{plot_nd_a_8m_a3800286042da03746f42061e6a99b265}{P} (\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $\ast$\hyperlink{plot_cells_8m_ac483f6ce851c9ecd9fb835ff7551737c}{p}+2,\mbox{[}1 4\mbox{]})
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+close all clear all clc \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} =3
+\item 
+Load \hyperlink{plot_nd_a_8m_a2de865ad6dc88c711fbee00e74ed3043}{P} =load(\textquotesingle{}P/P\+\_\+0.\+txt\textquotesingle{})
+\item 
+\hyperlink{plot_nd_a_8m_a350bfcb1e3cfb28ddff48ce525d4f139}{D} =load(\textquotesingle{}D/D\+\_\+0.\+txt\textquotesingle{})
+\item 
+Plot \hyperlink{plot_nd_a_8m_ab62069821a4786a6abccffffb2ab7f1b}{p} =round(\hyperlink{_longest_processing_time_8m_afbc848e2075d7de831c5ab494c14a63b}{rand}(1)$\ast$(\hyperlink{tube_plotter_8m_a28d27d05f2a1790454a053a603af2bb2}{size}(\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a50a9afb44201a65ab7ad5feb2150aeb6}{P},1)/\hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}))
+\item 
+\hyperlink{plot_nd_a_8m_ae31ac69c75bb42f47c8d6a7cde4937c6}{\+\_\+\+\_\+pad1\+\_\+\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{plot_nd_a_8m_aae2a4441ced6bc987b682b6478b8689e}{}\index{plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}!figure@{figure}}
+\index{figure@{figure}!plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}}
+\subsubsection[{figure}]{\setlength{\rightskip}{0pt plus 5cm}figure (
+\begin{DoxyParamCaption}
+\item[{1}]{}
+\end{DoxyParamCaption}
+)}\label{plot_nd_a_8m_aae2a4441ced6bc987b682b6478b8689e}
+\hypertarget{plot_nd_a_8m_abe9148ff7c055c98d41813e2e207d216}{}\index{plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}!P@{P}}
+\index{P@{P}!plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}}
+\subsubsection[{P}]{\setlength{\rightskip}{0pt plus 5cm}P (
+\begin{DoxyParamCaption}
+\item[{{\bf dim} $\ast${\bf p}+}]{2, }
+\item[{1\+:{\bf dim}+}]{1}
+\end{DoxyParamCaption}
+)}\label{plot_nd_a_8m_abe9148ff7c055c98d41813e2e207d216}
+\hypertarget{plot_nd_a_8m_a3800286042da03746f42061e6a99b265}{}\index{plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}!P@{P}}
+\index{P@{P}!plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}}
+\subsubsection[{P}]{\setlength{\rightskip}{0pt plus 5cm}{\bf g} P (
+\begin{DoxyParamCaption}
+\item[{{\bf dim} $\ast${\bf p}+}]{2}
+\end{DoxyParamCaption}
+)}\label{plot_nd_a_8m_a3800286042da03746f42061e6a99b265}
+\hypertarget{plot_nd_a_8m_a73d060973270aab13dc3ae4d1667d5d2}{}\index{plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}!plot3@{plot3}}
+\index{plot3@{plot3}!plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}}
+\subsubsection[{plot3}]{\setlength{\rightskip}{0pt plus 5cm}{\bf g} plot3 (
+\begin{DoxyParamCaption}
+\item[{{\bf P}({\bf dim} $\ast${\bf p}+1, \mbox{[}1 3\mbox{]})}]{, }
+\item[{{\bf P}({\bf dim} $\ast${\bf p}+2, \mbox{[}1 3\mbox{]})}]{, }
+\item[{{\bf P}({\bf dim} $\ast${\bf p}+3, \mbox{[}1 3\mbox{]})}]{, }
+\item[{\textquotesingle{}{\bf g}\textquotesingle{}}]{}
+\end{DoxyParamCaption}
+)}\label{plot_nd_a_8m_a73d060973270aab13dc3ae4d1667d5d2}
+
+
+\subsection{Variable Documentation}
+\hypertarget{plot_nd_a_8m_ae31ac69c75bb42f47c8d6a7cde4937c6}{}\index{plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}!\+\_\+\+\_\+pad1\+\_\+\+\_\+@{\+\_\+\+\_\+pad1\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+pad1\+\_\+\+\_\+@{\+\_\+\+\_\+pad1\+\_\+\+\_\+}!plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}}
+\subsubsection[{\+\_\+\+\_\+pad1\+\_\+\+\_\+}]{\setlength{\rightskip}{0pt plus 5cm}\+\_\+\+\_\+pad1\+\_\+\+\_\+}\label{plot_nd_a_8m_ae31ac69c75bb42f47c8d6a7cde4937c6}
+
+
+Definition at line 20 of file plot\+Nd\+A.\+m.
+
+\hypertarget{plot_nd_a_8m_a350bfcb1e3cfb28ddff48ce525d4f139}{}\index{plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}!D@{D}}
+\index{D@{D}!plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}}
+\subsubsection[{D}]{\setlength{\rightskip}{0pt plus 5cm}D =load(\textquotesingle{}D/D\+\_\+0.\+txt\textquotesingle{})}\label{plot_nd_a_8m_a350bfcb1e3cfb28ddff48ce525d4f139}
+
+
+Definition at line 10 of file plot\+Nd\+A.\+m.
+
+\hypertarget{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{}\index{plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}!dim@{dim}}
+\index{dim@{dim}!plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}}
+\subsubsection[{dim}]{\setlength{\rightskip}{0pt plus 5cm}close all clear all clc dim =3}\label{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}
+
+
+Definition at line 5 of file plot\+Nd\+A.\+m.
+
+\hypertarget{plot_nd_a_8m_a2de865ad6dc88c711fbee00e74ed3043}{}\index{plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}!P@{P}}
+\index{P@{P}!plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}}
+\subsubsection[{P}]{\setlength{\rightskip}{0pt plus 5cm}{\bf g} P =load(\textquotesingle{}P/P\+\_\+0.\+txt\textquotesingle{})}\label{plot_nd_a_8m_a2de865ad6dc88c711fbee00e74ed3043}
+
+
+Definition at line 9 of file plot\+Nd\+A.\+m.
+
+\hypertarget{plot_nd_a_8m_ab62069821a4786a6abccffffb2ab7f1b}{}\index{plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}!p@{p}}
+\index{p@{p}!plot\+Nd\+A.\+m@{plot\+Nd\+A.\+m}}
+\subsubsection[{p}]{\setlength{\rightskip}{0pt plus 5cm}Plot p =round({\bf rand}(1)$\ast$({\bf size}({\bf P},1)/{\bf dim}))}\label{plot_nd_a_8m_ab62069821a4786a6abccffffb2ab7f1b}
+
+
+Definition at line 13 of file plot\+Nd\+A.\+m.
+

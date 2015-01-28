@@ -241,7 +241,7 @@ namespace model
         }
         
         /**********************************************************************/
-        Eigen::Matrix<double,rows,1> operator()(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* guess) const
+        Eigen::Matrix<double,rows,1> operator()(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* const guess) const
         {/*!@param[in] P the position vector
           * @param[in] guess the Simplex where the search starts
           * \returns the value of the Derived expression at P.
@@ -254,6 +254,15 @@ namespace model
                 val=sfm(*(temp.second),temp.second->simplex.pos2bary(P))*dofs(*(temp.second));
             }
             return val;
+        }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,rows,1> operator()(const Eigen::Matrix<double,dim,1>& P) const
+        {/*!@param[in] P the position vector
+          * @param[in] guess the Simplex where the search starts
+          * \returns the value of the Derived expression at P.
+          */
+            return operator()(P,&(fe.mesh.begin()->second));
         }
         
     };

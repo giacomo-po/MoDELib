@@ -11,12 +11,16 @@
 
 #include <memory> // std::auto_ptr
 #include <assert.h>
+//#include <model/Network/NetworkException.h>
 
-namespace model {
+
+namespace model
+{
 	
     /**************************************************************************/
 	template <typename VertexType>
-	class VertexInsertion{
+	class VertexInsertion
+    {
 		
         typedef typename VertexType::NetworkNodeContainerType NetworkVertexMapType;
 		
@@ -42,9 +46,10 @@ namespace model {
 			// 1- Creates a new node
 			std::auto_ptr<VertexType> pN (new VertexType(NodeInput...) );
 			// 2- Inserts the new node in NodeContainer
-			size_t nodeID(pN->sID);
-			assert(networkVertexMapRef.insert(nodeID , pN ).second && "CANNOT INSERT NETWORK VERTEX IN VERTEX CONTAINER.");
-			// 3- Returns the static ID of the new node.
+			const size_t nodeID(pN->sID);
+            const bool success(networkVertexMapRef.insert(nodeID , pN ).second);
+            assert(success && "CANNOT INSERT NETWORK VERTEX IN VERTEX CONTAINER.");			
+            // 3- Returns the static ID of the new node.
 			return nodeID;
 		}
 		

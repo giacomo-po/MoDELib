@@ -1,0 +1,119 @@
+\hypertarget{classmodel_1_1_vertex_connection}{}\section{model\+:\+:Vertex\+Connection$<$ Vertex\+Type, Edge\+Type $>$ Class Template Reference}
+\label{classmodel_1_1_vertex_connection}\index{model\+::\+Vertex\+Connection$<$ Vertex\+Type, Edge\+Type $>$@{model\+::\+Vertex\+Connection$<$ Vertex\+Type, Edge\+Type $>$}}
+
+
+{\ttfamily \#include $<$Vertex\+Connection.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_vertex_connection_a1623fe02152b194a824c194ce085537c}{Vertex\+Connection} (Network\+Vertex\+Map\+Type \&network\+Vertex\+Map\+Ref\+\_\+in, Network\+Edge\+Map\+Type \&network\+Edge\+Map\+Ref\+\_\+in)
+\item 
+{\footnotesize template$<$typename... Edge\+Arg\+Types$>$ }\\bool \hyperlink{classmodel_1_1_vertex_connection_a8acc4f9d2a013525a5a9de917bde07a9}{connect} (const size\+\_\+t \&\hyperlink{_cubic_spline_intersection_8m_a6f6ccfcf58b31cb6412107d9d5281426}{i}, const size\+\_\+t \&j, const Edge\+Arg\+Types \&...edge\+Args)
+\item 
+{\footnotesize template$<$bool remove\+Isolated\+Nodes$>$ }\\bool \hyperlink{classmodel_1_1_vertex_connection_ab8f25ac7237d0ea86c6ca976af651ddc}{disconnect} (const size\+\_\+t \&\hyperlink{_cubic_spline_intersection_8m_a6f6ccfcf58b31cb6412107d9d5281426}{i}, const size\+\_\+t \&j)
+\item 
+{\footnotesize template$<$bool remove\+Isolated\+Nodes$>$ }\\bool \hyperlink{classmodel_1_1_vertex_connection_a9053fbcc84b52855ab34e80663c9acd3}{remove} (const size\+\_\+t \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k})
+\item 
+{\footnotesize template$<$bool remove\+Isolated\+Nodes$>$ }\\size\+\_\+t \hyperlink{classmodel_1_1_vertex_connection_add21bc09ceaeebb26451a991cec66f94}{disconnect\+\_\+if} (bool(Edge\+Type\+::$\ast$Lfptr)(void) const)
+\item 
+{\footnotesize template$<$bool remove\+Isolated\+Nodes, typename T $>$ }\\size\+\_\+t \hyperlink{classmodel_1_1_vertex_connection_aaaa0e48d4372180a6129f7aa935f0661}{disconnect\+\_\+if} (bool(Edge\+Type\+::$\ast$Lfptr)(const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&) const, const \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T} \&input)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Vertex\+Type, typename Edge\+Type$>$class model\+::\+Vertex\+Connection$<$ Vertex\+Type, Edge\+Type $>$}
+
+
+
+Definition at line 21 of file Vertex\+Connection.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_vertex_connection_a1623fe02152b194a824c194ce085537c}{}\index{model\+::\+Vertex\+Connection@{model\+::\+Vertex\+Connection}!Vertex\+Connection@{Vertex\+Connection}}
+\index{Vertex\+Connection@{Vertex\+Connection}!model\+::\+Vertex\+Connection@{model\+::\+Vertex\+Connection}}
+\subsubsection[{Vertex\+Connection}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex\+Type, typename Edge\+Type$>$ {\bf model\+::\+Vertex\+Connection}$<$ Vertex\+Type, Edge\+Type $>$\+::{\bf Vertex\+Connection} (
+\begin{DoxyParamCaption}
+\item[{Network\+Vertex\+Map\+Type \&}]{network\+Vertex\+Map\+Ref\+\_\+in, }
+\item[{Network\+Edge\+Map\+Type \&}]{network\+Edge\+Map\+Ref\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_vertex_connection_a1623fe02152b194a824c194ce085537c}
+
+
+Definition at line 36 of file Vertex\+Connection.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_vertex_connection_a8acc4f9d2a013525a5a9de917bde07a9}{}\index{model\+::\+Vertex\+Connection@{model\+::\+Vertex\+Connection}!connect@{connect}}
+\index{connect@{connect}!model\+::\+Vertex\+Connection@{model\+::\+Vertex\+Connection}}
+\subsubsection[{connect}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex\+Type, typename Edge\+Type$>$ template$<$typename... Edge\+Arg\+Types$>$ bool {\bf model\+::\+Vertex\+Connection}$<$ Vertex\+Type, Edge\+Type $>$\+::connect (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{i, }
+\item[{const size\+\_\+t \&}]{j, }
+\item[{const Edge\+Arg\+Types \&...}]{edge\+Args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_vertex_connection_a8acc4f9d2a013525a5a9de917bde07a9}
+Connects vertex i to vertex j creating the edge i-\/$>$j. Requirements are\+:
+\begin{DoxyItemize}
+\item i and j are distinct (asserts otherwise)
+\item vertex i exists (asserts otherwise)
+\item vertex j exists (asserts otherwise)
+\item edge i-\/$>$j does not exist (asserts otherwise)
+\item edge j-\/$>$i does not exist (asserts otherwise)
+\end{DoxyItemize}
+
+Definition at line 44 of file Vertex\+Connection.\+h.
+
+\hypertarget{classmodel_1_1_vertex_connection_ab8f25ac7237d0ea86c6ca976af651ddc}{}\index{model\+::\+Vertex\+Connection@{model\+::\+Vertex\+Connection}!disconnect@{disconnect}}
+\index{disconnect@{disconnect}!model\+::\+Vertex\+Connection@{model\+::\+Vertex\+Connection}}
+\subsubsection[{disconnect}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex\+Type, typename Edge\+Type$>$ template$<$bool remove\+Isolated\+Nodes$>$ bool {\bf model\+::\+Vertex\+Connection}$<$ Vertex\+Type, Edge\+Type $>$\+::disconnect (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{i, }
+\item[{const size\+\_\+t \&}]{j}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_vertex_connection_ab8f25ac7237d0ea86c6ca976af651ddc}
+
+
+Definition at line 67 of file Vertex\+Connection.\+h.
+
+\hypertarget{classmodel_1_1_vertex_connection_add21bc09ceaeebb26451a991cec66f94}{}\index{model\+::\+Vertex\+Connection@{model\+::\+Vertex\+Connection}!disconnect\+\_\+if@{disconnect\+\_\+if}}
+\index{disconnect\+\_\+if@{disconnect\+\_\+if}!model\+::\+Vertex\+Connection@{model\+::\+Vertex\+Connection}}
+\subsubsection[{disconnect\+\_\+if}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex\+Type, typename Edge\+Type$>$ template$<$bool remove\+Isolated\+Nodes$>$ size\+\_\+t {\bf model\+::\+Vertex\+Connection}$<$ Vertex\+Type, Edge\+Type $>$\+::disconnect\+\_\+if (
+\begin{DoxyParamCaption}
+\item[{bool(Edge\+Type\+::$\ast$)(void) const}]{Lfptr}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_vertex_connection_add21bc09ceaeebb26451a991cec66f94}
+
+
+Definition at line 133 of file Vertex\+Connection.\+h.
+
+\hypertarget{classmodel_1_1_vertex_connection_aaaa0e48d4372180a6129f7aa935f0661}{}\index{model\+::\+Vertex\+Connection@{model\+::\+Vertex\+Connection}!disconnect\+\_\+if@{disconnect\+\_\+if}}
+\index{disconnect\+\_\+if@{disconnect\+\_\+if}!model\+::\+Vertex\+Connection@{model\+::\+Vertex\+Connection}}
+\subsubsection[{disconnect\+\_\+if}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex\+Type, typename Edge\+Type$>$ template$<$bool remove\+Isolated\+Nodes, typename T $>$ size\+\_\+t {\bf model\+::\+Vertex\+Connection}$<$ Vertex\+Type, Edge\+Type $>$\+::disconnect\+\_\+if (
+\begin{DoxyParamCaption}
+\item[{bool(Edge\+Type\+::$\ast$)(const {\bf T} \&) const}]{Lfptr, }
+\item[{const {\bf T} \&}]{input}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_vertex_connection_aaaa0e48d4372180a6129f7aa935f0661}
+
+
+Definition at line 154 of file Vertex\+Connection.\+h.
+
+\hypertarget{classmodel_1_1_vertex_connection_a9053fbcc84b52855ab34e80663c9acd3}{}\index{model\+::\+Vertex\+Connection@{model\+::\+Vertex\+Connection}!remove@{remove}}
+\index{remove@{remove}!model\+::\+Vertex\+Connection@{model\+::\+Vertex\+Connection}}
+\subsubsection[{remove}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex\+Type, typename Edge\+Type$>$ template$<$bool remove\+Isolated\+Nodes$>$ bool {\bf model\+::\+Vertex\+Connection}$<$ Vertex\+Type, Edge\+Type $>$\+::remove (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{k}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_vertex_connection_a9053fbcc84b52855ab34e80663c9acd3}
+
+
+Definition at line 97 of file Vertex\+Connection.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_vertex_connection_8h}{Vertex\+Connection.\+h}\end{DoxyCompactItemize}

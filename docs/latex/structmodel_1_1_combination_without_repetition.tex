@@ -1,0 +1,70 @@
+\hypertarget{structmodel_1_1_combination_without_repetition}{}\section{model\+:\+:Combination\+Without\+Repetition$<$ N, k $>$ Struct Template Reference}
+\label{structmodel_1_1_combination_without_repetition}\index{model\+::\+Combination\+Without\+Repetition$<$ N, k $>$@{model\+::\+Combination\+Without\+Repetition$<$ N, k $>$}}
+
+
+{\ttfamily \#include $<$Combination\+Without\+Repetition.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{structmodel_1_1_combination_without_repetition_ad193fd879d424233f86d62ce25775207a73e92f4f1fc7e0071cda6ef63024e6d4}{value} =Binomial$<$N,k$>$\+:\+:value
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename T $>$ }\\static Eigen\+::\+Matrix$<$ \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T}, \hyperlink{structmodel_1_1_combination_without_repetition_ad193fd879d424233f86d62ce25775207a73e92f4f1fc7e0071cda6ef63024e6d4}{value}, \hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k} $>$ \hyperlink{structmodel_1_1_combination_without_repetition_a117ca315f9f91486a79984a0d1b80f37}{combine} (const Eigen\+::\+Matrix$<$ \hyperlink{_spline_node_base__corder1_8h_a82692d3a5502b91460591f1d5504314a}{T}, 1, \hyperlink{thompson__tetrahedron_8m_a7823765a845eb81829f110d8337f81ae}{N} $>$ \&pool)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int N, int k$>$struct model\+::\+Combination\+Without\+Repetition$<$ N, k $>$}
+
+Class template that computes C(\+N,k), the combination without repetition of k values taken from a pool of N values.
+
+C(\+N,k) represents the number of ways to form un-\/ordered sets of k objects taken from a pool of N objects if repetition is not allowed. 
+
+Definition at line 26 of file Combination\+Without\+Repetition.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{structmodel_1_1_combination_without_repetition_ad193fd879d424233f86d62ce25775207}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int N, int k$>$ anonymous enum}\label{structmodel_1_1_combination_without_repetition_ad193fd879d424233f86d62ce25775207}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{value@{value}!model\+::\+Combination\+Without\+Repetition@{model\+::\+Combination\+Without\+Repetition}}\index{model\+::\+Combination\+Without\+Repetition@{model\+::\+Combination\+Without\+Repetition}!value@{value}}\item[{\em 
+\hypertarget{structmodel_1_1_combination_without_repetition_ad193fd879d424233f86d62ce25775207a73e92f4f1fc7e0071cda6ef63024e6d4}{}value\label{structmodel_1_1_combination_without_repetition_ad193fd879d424233f86d62ce25775207a73e92f4f1fc7e0071cda6ef63024e6d4}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 31 of file Combination\+Without\+Repetition.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_combination_without_repetition_a117ca315f9f91486a79984a0d1b80f37}{}\index{model\+::\+Combination\+Without\+Repetition@{model\+::\+Combination\+Without\+Repetition}!combine@{combine}}
+\index{combine@{combine}!model\+::\+Combination\+Without\+Repetition@{model\+::\+Combination\+Without\+Repetition}}
+\subsubsection[{combine}]{\setlength{\rightskip}{0pt plus 5cm}template$<$int N, int k$>$ template$<$typename T $>$ static Eigen\+::\+Matrix$<${\bf T},{\bf value},{\bf k}$>$ {\bf model\+::\+Combination\+Without\+Repetition}$<$ {\bf N}, {\bf k} $>$\+::combine (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix$<$ {\bf T}, 1, {\bf N} $>$ \&}]{pool}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_combination_without_repetition_a117ca315f9f91486a79984a0d1b80f37}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em pool} & a row vector of N values \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a matrix having in each row the
+\end{DoxyReturn}
+
+
+Definition at line 35 of file Combination\+Without\+Repetition.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_combination_without_repetition_8h}{Combination\+Without\+Repetition.\+h}\end{DoxyCompactItemize}

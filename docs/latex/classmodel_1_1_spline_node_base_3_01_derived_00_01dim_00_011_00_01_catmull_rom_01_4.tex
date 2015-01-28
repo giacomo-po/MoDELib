@@ -1,0 +1,244 @@
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4}{}\section{model\+:\+:Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$ Class Template Reference}
+\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+
+
+{\ttfamily \#include $<$Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h$>$}
+
+Inheritance diagram for model\+:\+:Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.651917cm]{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ab13da9c673efb528b32f27cce59e9b90af0273aaa3354d1dcfbfb6c727a3379b3}{corder} =1
+ \}
+\item 
+enum \{ \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a735def12229f65db6d953b96ff2d612faaaf69fbc7315ebbd60872f115b6d3c0a}{Ndof\+Xnode} =dim
+ \}
+\item 
+typedef Eigen\+::\+Matrix$<$ double, \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a735def12229f65db6d953b96ff2d612faaaf69fbc7315ebbd60872f115b6d3c0a}{Ndof\+Xnode}, 1 $>$ \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a357827d66168927f72b4b2a0bc1dc9e5}{Vector\+Dof\+Type}
+\item 
+typedef \hyperlink{classmodel_1_1_spline_node_base}{Spline\+Node\+Base}$<$ Derived, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ab13da9c673efb528b32f27cce59e9b90af0273aaa3354d1dcfbfb6c727a3379b3}{corder}, \hyperlink{classmodel_1_1_catmull_rom}{Catmull\+Rom} $>$ \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a62122ec7698f5b118c3d268097401fee}{Node\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a5f5c6600d0b445d6d704b574c15ec2d7}{Spline\+Node\+Base} (const \hyperlink{_spline_enums_8h_ad5cfc23fc5c8569885db746e503c2e14}{Vector\+Dim} \&P\+\_\+in)
+\item 
+\hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a9cb49b4b30fd7f846969e8b52a7f8b24}{Spline\+Node\+Base} (const \hyperlink{structmodel_1_1_expanding_edge}{Expanding\+Edge}$<$ \hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $>$ \&p\+L, const double \&\hyperlink{angle_axis_8m_a52688d77a393e5a594a1e82658e634b6}{u})
+\item 
+\hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a5b5d2fb0ac5a013bd9d279e4da10c6b5}{Spline\+Node\+Base} (const \hyperlink{structmodel_1_1_expanding_edge}{Expanding\+Edge}$<$ \hyperlink{_spline_node_base__corder0_8h_ab09ccc0af6ea9402dfef7b0eac55cff3}{Link\+Type} $>$ \&p\+L, const \hyperlink{_spline_enums_8h_ad5cfc23fc5c8569885db746e503c2e14}{Vector\+Dim} \&P\+\_\+in)
+\item 
+void \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a5bdd76ce45551a1974b18e6b4ed0fb44}{set} (const \hyperlink{_spline_enums_8h_ad5cfc23fc5c8569885db746e503c2e14}{Vector\+Dim} \&P\+\_\+in)
+\item 
+void \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a1cd22817c7019db124e4256c112eb9c7}{make\+\_\+\+T} ()
+\item 
+\hyperlink{_spline_enums_8h_ad5cfc23fc5c8569885db746e503c2e14}{Vector\+Dim} \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a585e36cf97961fce0f1230306e3873bc}{get\+\_\+node\+Dof} () const 
+\item 
+Eigen\+::\+Matrix$<$ int, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim}, 1 $>$ \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ab6a5fc188b4ce85bb9c4f68edae73013}{node\+\_\+dof\+I\+D} () const 
+\item 
+Eigen\+::\+Vector\+Xd \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a51fe0f7b5d1c26ff7137214904bf6353}{get\+\_\+dof} () const 
+\item 
+Eigen\+::\+Vector\+Xi \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a3ee75e74a1912e423c857dbe28ef6f8b}{dof\+I\+D} () const 
+\item 
+const Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $\ast$(\hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ab13da9c673efb528b32f27cce59e9b90af0273aaa3354d1dcfbfb6c727a3379b3}{corder}+1), Eigen\+::\+Dynamic $>$ \& \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_aecfc64093b20d11eed1a6e197e4d4c06}{W2\+H} () const 
+\item 
+Eigen\+::\+Matrix$<$ double, \hyperlink{plot_nd_a_8m_a382f3ca768b275b8d563604f7fc7df73}{dim} $\ast$(\hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ab13da9c673efb528b32f27cce59e9b90af0273aaa3354d1dcfbfb6c727a3379b3}{corder}+1), Eigen\+::\+Dynamic $>$ \hyperlink{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ad13f4c509c1defd78a6491baeae80775}{W2\+Ht} () const 
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Derived, short unsigned int dim$>$class model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}
+
+
+
+Definition at line 14 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a62122ec7698f5b118c3d268097401fee}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!Node\+Type@{Node\+Type}}
+\index{Node\+Type@{Node\+Type}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{Node\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ typedef {\bf Spline\+Node\+Base}$<$Derived, {\bf dim},{\bf corder},{\bf Catmull\+Rom}$>$ {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::{\bf Node\+Type}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a62122ec7698f5b118c3d268097401fee}
+
+
+Definition at line 29 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a357827d66168927f72b4b2a0bc1dc9e5}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!Vector\+Dof\+Type@{Vector\+Dof\+Type}}
+\index{Vector\+Dof\+Type@{Vector\+Dof\+Type}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{Vector\+Dof\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ typedef Eigen\+::\+Matrix$<$double, {\bf Ndof\+Xnode}, 1$>$ {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::{\bf Vector\+Dof\+Type}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a357827d66168927f72b4b2a0bc1dc9e5}
+
+
+Definition at line 26 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ab13da9c673efb528b32f27cce59e9b90}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ anonymous enum}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ab13da9c673efb528b32f27cce59e9b90}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{corder@{corder}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!corder@{corder}}\item[{\em 
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ab13da9c673efb528b32f27cce59e9b90af0273aaa3354d1dcfbfb6c727a3379b3}{}corder\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ab13da9c673efb528b32f27cce59e9b90af0273aaa3354d1dcfbfb6c727a3379b3}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 23 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a735def12229f65db6d953b96ff2d612f}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ anonymous enum}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a735def12229f65db6d953b96ff2d612f}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{Ndof\+Xnode@{Ndof\+Xnode}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!Ndof\+Xnode@{Ndof\+Xnode}}\item[{\em 
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a735def12229f65db6d953b96ff2d612faaaf69fbc7315ebbd60872f115b6d3c0a}{}Ndof\+Xnode\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a735def12229f65db6d953b96ff2d612faaaf69fbc7315ebbd60872f115b6d3c0a}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 24 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a5f5c6600d0b445d6d704b574c15ec2d7}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!Spline\+Node\+Base@{Spline\+Node\+Base}}
+\index{Spline\+Node\+Base@{Spline\+Node\+Base}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{Spline\+Node\+Base}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::{\bf Spline\+Node\+Base} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim} \&}]{P\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a5f5c6600d0b445d6d704b574c15ec2d7}
+
+
+Definition at line 35 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a9cb49b4b30fd7f846969e8b52a7f8b24}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!Spline\+Node\+Base@{Spline\+Node\+Base}}
+\index{Spline\+Node\+Base@{Spline\+Node\+Base}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{Spline\+Node\+Base}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::{\bf Spline\+Node\+Base} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Expanding\+Edge}$<$ {\bf Link\+Type} $>$ \&}]{p\+L, }
+\item[{const double \&}]{u}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a9cb49b4b30fd7f846969e8b52a7f8b24}
+
+
+Definition at line 44 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a5b5d2fb0ac5a013bd9d279e4da10c6b5}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!Spline\+Node\+Base@{Spline\+Node\+Base}}
+\index{Spline\+Node\+Base@{Spline\+Node\+Base}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{Spline\+Node\+Base}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::{\bf Spline\+Node\+Base} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Expanding\+Edge}$<$ {\bf Link\+Type} $>$ \&}]{p\+L, }
+\item[{const {\bf Vector\+Dim} \&}]{P\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a5b5d2fb0ac5a013bd9d279e4da10c6b5}
+
+
+Definition at line 53 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a3ee75e74a1912e423c857dbe28ef6f8b}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!dof\+I\+D@{dof\+I\+D}}
+\index{dof\+I\+D@{dof\+I\+D}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{dof\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ Eigen\+::\+Vector\+Xi {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::dof\+I\+D (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a3ee75e74a1912e423c857dbe28ef6f8b}
+The I\+Ds of D\+O\+Fs of this and the neighbor nodes in the subnetwork
+
+Definition at line 125 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a51fe0f7b5d1c26ff7137214904bf6353}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!get\+\_\+dof@{get\+\_\+dof}}
+\index{get\+\_\+dof@{get\+\_\+dof}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{get\+\_\+dof}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ Eigen\+::\+Vector\+Xd {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::get\+\_\+dof (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a51fe0f7b5d1c26ff7137214904bf6353}
+
+
+Definition at line 119 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a585e36cf97961fce0f1230306e3873bc}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!get\+\_\+node\+Dof@{get\+\_\+node\+Dof}}
+\index{get\+\_\+node\+Dof@{get\+\_\+node\+Dof}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{get\+\_\+node\+Dof}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ {\bf Vector\+Dim} {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::get\+\_\+node\+Dof (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a585e36cf97961fce0f1230306e3873bc}
+
+
+Definition at line 105 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a1cd22817c7019db124e4256c112eb9c7}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!make\+\_\+\+T@{make\+\_\+\+T}}
+\index{make\+\_\+\+T@{make\+\_\+\+T}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{make\+\_\+\+T}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ void {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::make\+\_\+\+T (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a1cd22817c7019db124e4256c112eb9c7}
+Calls make\+\_\+\+C\+R2\+H()
+
+computes T=(C\+R2\+H$\ast$\+Vector\+Dof).segment(dim,dim) 
+
+Definition at line 90 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ab6a5fc188b4ce85bb9c4f68edae73013}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!node\+\_\+dof\+I\+D@{node\+\_\+dof\+I\+D}}
+\index{node\+\_\+dof\+I\+D@{node\+\_\+dof\+I\+D}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{node\+\_\+dof\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ Eigen\+::\+Matrix$<$int,{\bf dim},1$>$ {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::node\+\_\+dof\+I\+D (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ab6a5fc188b4ce85bb9c4f68edae73013}
+The I\+Ds of D\+O\+Fs of this node in the subnetwork
+
+Definition at line 111 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a5bdd76ce45551a1974b18e6b4ed0fb44}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!set@{set}}
+\index{set@{set}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{set}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ void {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::set (
+\begin{DoxyParamCaption}
+\item[{const {\bf Vector\+Dim} \&}]{P\+\_\+in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_a5bdd76ce45551a1974b18e6b4ed0fb44}
+Because of the \hyperlink{classmodel_1_1_catmull_rom}{Catmull\+Rom} rule for parametric tangents, changing the position of this \hyperlink{classmodel_1_1_catmull_rom}{Catmull\+Rom} node must also change its parametric tangent and the parametric tangents of its first-\/neighboring nodes. This in turn affects the shape of all Spline\+Segments attached to the first-\/neighboring nodes. The update strategy is as follows\+:
+
+1-\/ Sets P=P\+\_\+in
+
+2-\/ Transmits \textquotesingle{}make\+\_\+\+T\textquotesingle{} on the neighbor nodes of level (corder+1=2), that is this node and its first-\/neighbors 
+
+Definition at line 65 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_aecfc64093b20d11eed1a6e197e4d4c06}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!W2\+H@{W2\+H}}
+\index{W2\+H@{W2\+H}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{W2\+H}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ const Eigen\+::\+Matrix$<$double, {\bf dim}$\ast$({\bf corder}+1), Eigen\+::\+Dynamic$>$\& {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::W2\+H (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_aecfc64093b20d11eed1a6e197e4d4c06}
+
+
+Definition at line 142 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+\hypertarget{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ad13f4c509c1defd78a6491baeae80775}{}\index{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}!W2\+Ht@{W2\+Ht}}
+\index{W2\+Ht@{W2\+Ht}!model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$@{model\+::\+Spline\+Node\+Base$<$ Derived, dim, 1, Catmull\+Rom $>$}}
+\subsubsection[{W2\+Ht}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived , short unsigned int dim$>$ Eigen\+::\+Matrix$<$double, {\bf dim}$\ast$({\bf corder}+1), Eigen\+::\+Dynamic$>$ {\bf model\+::\+Spline\+Node\+Base}$<$ Derived, {\bf dim}, 1, {\bf Catmull\+Rom} $>$\+::W2\+Ht (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\label{classmodel_1_1_spline_node_base_3_01_derived_00_01dim_00_011_00_01_catmull_rom_01_4_ad13f4c509c1defd78a6491baeae80775}
+C\+H\+A\+N\+G\+E T\+H\+I\+S I\+N C\+A\+T\+M\+U\+L\+L\+R\+O\+M 
+
+Definition at line 149 of file Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_spline_node_base___catmull_rom_8h}{Spline\+Node\+Base\+\_\+\+Catmull\+Rom.\+h}\end{DoxyCompactItemize}

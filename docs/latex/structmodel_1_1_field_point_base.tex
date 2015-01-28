@@ -1,0 +1,227 @@
+\hypertarget{structmodel_1_1_field_point_base}{}\section{model\+:\+:Field\+Point\+Base$<$ Derived, Field\+Type $>$ Struct Template Reference}
+\label{structmodel_1_1_field_point_base}\index{model\+::\+Field\+Point\+Base$<$ Derived, Field\+Type $>$@{model\+::\+Field\+Point\+Base$<$ Derived, Field\+Type $>$}}
+
+
+A class template that contains the underlying Field\+Type data of the Derived particle.  
+
+
+
+
+{\ttfamily \#include $<$Field\+Point\+Base.\+h$>$}
+
+Inheritance diagram for model\+:\+:Field\+Point\+Base$<$ Derived, Field\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.307692cm]{structmodel_1_1_field_point_base}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{structmodel_1_1_field_point_base_a1d9fdd2d53d3c5ddead347874493d855af0f958d8d671d90e3ea2c2fddc6644c2}{rows} =Field\+Type\+:\+:rows
+ \}
+\item 
+enum \{ \hyperlink{structmodel_1_1_field_point_base_a6dc42dcaa11e9bcb461705d8607fe5f3ab2ce121c0ae74586411dfdb458970a9c}{cols} =Field\+Type\+:\+:cols
+ \}
+\item 
+enum \{ \hyperlink{structmodel_1_1_field_point_base_a3f3c342d2feb97b57e43f850c5be8775af5e1d6c4fcb680281df730d990a70888}{Data\+Per\+Particle} =rows$\ast$cols
+ \}
+\item 
+typedef Field\+Type\+::\+Scalar \hyperlink{structmodel_1_1_field_point_base_a3dda233ae4c7db5b714a8a3f25486dde}{Scalar}
+\item 
+typedef \hyperlink{structmodel_1_1_field_point_base}{Field\+Point\+Base}$<$ Derived, Field\+Type $>$ \hyperlink{structmodel_1_1_field_point_base_af0913f98b672e5e02c75754aed6e0355}{Field\+Point\+Base\+Type}
+\item 
+typedef Eigen\+::\+Map$<$ Eigen\+::\+Matrix$<$ typename Field\+Type\+::\+Scalar, Field\+Type\+::rows, Field\+Type\+::cols $>$ $>$ \hyperlink{structmodel_1_1_field_point_base_a595d9a8b475233f7197b3ad3659df94e}{Eigen\+Map\+Type}
+\item 
+typedef \hyperlink{structmodel_1_1_field_point_base_a595d9a8b475233f7197b3ad3659df94e}{Eigen\+Map\+Type} \hyperlink{structmodel_1_1_field_point_base_a40049730fe4abdfa3cff40d66f7d4ce5}{Base\+Eigen\+Type}
+\item 
+typedef Eigen\+::\+Matrix$<$ typename Field\+Type\+::\+Scalar, Field\+Type\+::rows, Field\+Type\+::cols $>$ \hyperlink{structmodel_1_1_field_point_base_aa9d600abaa521d1bbc6357203da99dde}{Base\+Eigen\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{structmodel_1_1_field_point_base_a2a7702172dfc6e9a9db334bc651999dd}{set\+\_\+mpi\+I\+D} (const size\+\_\+t \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k})
+\item 
+\hyperlink{structmodel_1_1_field_point_base_af55c8605e9c4daf15deeb9ec9f65391b}{Field\+Point\+Base} ()
+\item 
+\hyperlink{structmodel_1_1_field_point_base_af55c8605e9c4daf15deeb9ec9f65391b}{Field\+Point\+Base} ()
+\item 
+{\footnotesize template$<$typename Other\+Derived $>$ }\\\hyperlink{structmodel_1_1_field_point_base_af0913f98b672e5e02c75754aed6e0355}{Field\+Point\+Base\+Type} \& \hyperlink{structmodel_1_1_field_point_base_a3321b533154eee131ae928595961a718}{operator=} (const Eigen\+::\+Matrix\+Base$<$ Other\+Derived $>$ \&other)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{structmodel_1_1_field_point_base_ad4c64a38c3fc2f2af3d456ee3a0cc61c}{resize} (const unsigned int \&\hyperlink{_f_e_m_2linear__elasticity__3d_2tetgen_2generate_p_o_l_ycube_8m_a5d2aad4440da75aa43f2643e72b1a3bd}{k}, const \hyperlink{structmodel_1_1_field_point_base_a3dda233ae4c7db5b714a8a3f25486dde}{Scalar} \&val=\hyperlink{structmodel_1_1_field_point_base_a3dda233ae4c7db5b714a8a3f25486dde}{Scalar}())
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static std\+::vector$<$ \hyperlink{structmodel_1_1_field_point_base_a3dda233ae4c7db5b714a8a3f25486dde}{Scalar} $>$ \hyperlink{structmodel_1_1_field_point_base_a4e28d7aa8e628b4b0bd6a58cd422ea78}{result\+Vector}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Derived, typename Field\+Type$>$struct model\+::\+Field\+Point\+Base$<$ Derived, Field\+Type $>$}
+
+A class template that contains the underlying Field\+Type data of the Derived particle. 
+
+If M\+P\+I is not used, the data is stored locally in the base class Eigen\+::\+Matrix$<$scalar,rows,cols$>$.
+
+In case that M\+P\+I is used, the underlying data is not stored with the object but is deallocated to a static vector that can efficiently be syncronized using M\+P\+I\+\_\+\+Allgatherv. However, the base data is conveniently used as regular \hyperlink{namespace_eigen}{Eigen} object via the Eigen\+::\+Map class. 
+
+Definition at line 27 of file Field\+Point\+Base.\+h.
+
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{structmodel_1_1_field_point_base_a40049730fe4abdfa3cff40d66f7d4ce5}{}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!Base\+Eigen\+Type@{Base\+Eigen\+Type}}
+\index{Base\+Eigen\+Type@{Base\+Eigen\+Type}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}
+\subsubsection[{Base\+Eigen\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ typedef {\bf Eigen\+Map\+Type} {\bf model\+::\+Field\+Point\+Base}$<$ Derived, Field\+Type $>$\+::{\bf Base\+Eigen\+Type}}\label{structmodel_1_1_field_point_base_a40049730fe4abdfa3cff40d66f7d4ce5}
+
+
+Definition at line 43 of file Field\+Point\+Base.\+h.
+
+\hypertarget{structmodel_1_1_field_point_base_aa9d600abaa521d1bbc6357203da99dde}{}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!Base\+Eigen\+Type@{Base\+Eigen\+Type}}
+\index{Base\+Eigen\+Type@{Base\+Eigen\+Type}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}
+\subsubsection[{Base\+Eigen\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ typedef Eigen\+::\+Matrix$<$typename Field\+Type\+::\+Scalar,Field\+Type\+::rows,Field\+Type\+::cols$>$ {\bf model\+::\+Field\+Point\+Base}$<$ Derived, Field\+Type $>$\+::{\bf Base\+Eigen\+Type}}\label{structmodel_1_1_field_point_base_aa9d600abaa521d1bbc6357203da99dde}
+
+
+Definition at line 65 of file Field\+Point\+Base.\+h.
+
+\hypertarget{structmodel_1_1_field_point_base_a595d9a8b475233f7197b3ad3659df94e}{}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!Eigen\+Map\+Type@{Eigen\+Map\+Type}}
+\index{Eigen\+Map\+Type@{Eigen\+Map\+Type}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}
+\subsubsection[{Eigen\+Map\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ typedef Eigen\+::\+Map$<$Eigen\+::\+Matrix$<$typename Field\+Type\+::\+Scalar,Field\+Type\+::rows,Field\+Type\+::cols$>$ $>$ {\bf model\+::\+Field\+Point\+Base}$<$ Derived, Field\+Type $>$\+::{\bf Eigen\+Map\+Type}}\label{structmodel_1_1_field_point_base_a595d9a8b475233f7197b3ad3659df94e}
+
+
+Definition at line 42 of file Field\+Point\+Base.\+h.
+
+\hypertarget{structmodel_1_1_field_point_base_af0913f98b672e5e02c75754aed6e0355}{}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!Field\+Point\+Base\+Type@{Field\+Point\+Base\+Type}}
+\index{Field\+Point\+Base\+Type@{Field\+Point\+Base\+Type}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}
+\subsubsection[{Field\+Point\+Base\+Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ typedef {\bf Field\+Point\+Base}$<$Derived,Field\+Type$>$ {\bf model\+::\+Field\+Point\+Base}$<$ Derived, Field\+Type $>$\+::{\bf Field\+Point\+Base\+Type}}\label{structmodel_1_1_field_point_base_af0913f98b672e5e02c75754aed6e0355}
+
+
+Definition at line 38 of file Field\+Point\+Base.\+h.
+
+\hypertarget{structmodel_1_1_field_point_base_a3dda233ae4c7db5b714a8a3f25486dde}{}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!Scalar@{Scalar}}
+\index{Scalar@{Scalar}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}
+\subsubsection[{Scalar}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ typedef Field\+Type\+::\+Scalar {\bf model\+::\+Field\+Point\+Base}$<$ Derived, Field\+Type $>$\+::{\bf Scalar}}\label{structmodel_1_1_field_point_base_a3dda233ae4c7db5b714a8a3f25486dde}
+
+
+Definition at line 37 of file Field\+Point\+Base.\+h.
+
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{structmodel_1_1_field_point_base_a1d9fdd2d53d3c5ddead347874493d855}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ anonymous enum}\label{structmodel_1_1_field_point_base_a1d9fdd2d53d3c5ddead347874493d855}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{rows@{rows}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!rows@{rows}}\item[{\em 
+\hypertarget{structmodel_1_1_field_point_base_a1d9fdd2d53d3c5ddead347874493d855af0f958d8d671d90e3ea2c2fddc6644c2}{}rows\label{structmodel_1_1_field_point_base_a1d9fdd2d53d3c5ddead347874493d855af0f958d8d671d90e3ea2c2fddc6644c2}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 34 of file Field\+Point\+Base.\+h.
+
+\hypertarget{structmodel_1_1_field_point_base_a6dc42dcaa11e9bcb461705d8607fe5f3}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ anonymous enum}\label{structmodel_1_1_field_point_base_a6dc42dcaa11e9bcb461705d8607fe5f3}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{cols@{cols}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!cols@{cols}}\item[{\em 
+\hypertarget{structmodel_1_1_field_point_base_a6dc42dcaa11e9bcb461705d8607fe5f3ab2ce121c0ae74586411dfdb458970a9c}{}cols\label{structmodel_1_1_field_point_base_a6dc42dcaa11e9bcb461705d8607fe5f3ab2ce121c0ae74586411dfdb458970a9c}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 35 of file Field\+Point\+Base.\+h.
+
+\hypertarget{structmodel_1_1_field_point_base_a3f3c342d2feb97b57e43f850c5be8775}{}\subsubsection[{anonymous enum}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ anonymous enum}\label{structmodel_1_1_field_point_base_a3f3c342d2feb97b57e43f850c5be8775}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{Data\+Per\+Particle@{Data\+Per\+Particle}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!Data\+Per\+Particle@{Data\+Per\+Particle}}\item[{\em 
+\hypertarget{structmodel_1_1_field_point_base_a3f3c342d2feb97b57e43f850c5be8775af5e1d6c4fcb680281df730d990a70888}{}Data\+Per\+Particle\label{structmodel_1_1_field_point_base_a3f3c342d2feb97b57e43f850c5be8775af5e1d6c4fcb680281df730d990a70888}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 36 of file Field\+Point\+Base.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{structmodel_1_1_field_point_base_af55c8605e9c4daf15deeb9ec9f65391b}{}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!Field\+Point\+Base@{Field\+Point\+Base}}
+\index{Field\+Point\+Base@{Field\+Point\+Base}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}
+\subsubsection[{Field\+Point\+Base}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ {\bf model\+::\+Field\+Point\+Base}$<$ Derived, Field\+Type $>$\+::{\bf Field\+Point\+Base} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_field_point_base_af55c8605e9c4daf15deeb9ec9f65391b}
+
+
+Definition at line 58 of file Field\+Point\+Base.\+h.
+
+\hypertarget{structmodel_1_1_field_point_base_af55c8605e9c4daf15deeb9ec9f65391b}{}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!Field\+Point\+Base@{Field\+Point\+Base}}
+\index{Field\+Point\+Base@{Field\+Point\+Base}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}
+\subsubsection[{Field\+Point\+Base}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ {\bf model\+::\+Field\+Point\+Base}$<$ Derived, Field\+Type $>$\+::{\bf Field\+Point\+Base} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_field_point_base_af55c8605e9c4daf15deeb9ec9f65391b}
+
+
+Definition at line 68 of file Field\+Point\+Base.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{structmodel_1_1_field_point_base_a3321b533154eee131ae928595961a718}{}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!operator=@{operator=}}
+\index{operator=@{operator=}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}
+\subsubsection[{operator=}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ template$<$typename Other\+Derived $>$ {\bf Field\+Point\+Base\+Type}\& {\bf model\+::\+Field\+Point\+Base}$<$ Derived, Field\+Type $>$\+::operator= (
+\begin{DoxyParamCaption}
+\item[{const Eigen\+::\+Matrix\+Base$<$ Other\+Derived $>$ \&}]{other}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_field_point_base_a3321b533154eee131ae928595961a718}
+
+
+Definition at line 76 of file Field\+Point\+Base.\+h.
+
+\hypertarget{structmodel_1_1_field_point_base_ad4c64a38c3fc2f2af3d456ee3a0cc61c}{}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!resize@{resize}}
+\index{resize@{resize}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}
+\subsubsection[{resize}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ static void {\bf model\+::\+Field\+Point\+Base}$<$ Derived, Field\+Type $>$\+::resize (
+\begin{DoxyParamCaption}
+\item[{const unsigned int \&}]{k, }
+\item[{const {\bf Scalar} \&}]{val = {\ttfamily {\bf Scalar}()}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\label{structmodel_1_1_field_point_base_ad4c64a38c3fc2f2af3d456ee3a0cc61c}
+
+
+Definition at line 46 of file Field\+Point\+Base.\+h.
+
+\hypertarget{structmodel_1_1_field_point_base_a2a7702172dfc6e9a9db334bc651999dd}{}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!set\+\_\+mpi\+I\+D@{set\+\_\+mpi\+I\+D}}
+\index{set\+\_\+mpi\+I\+D@{set\+\_\+mpi\+I\+D}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}
+\subsubsection[{set\+\_\+mpi\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ void {\bf model\+::\+Field\+Point\+Base}$<$ Derived, Field\+Type $>$\+::set\+\_\+mpi\+I\+D (
+\begin{DoxyParamCaption}
+\item[{const size\+\_\+t \&}]{k}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\label{structmodel_1_1_field_point_base_a2a7702172dfc6e9a9db334bc651999dd}
+
+
+Definition at line 52 of file Field\+Point\+Base.\+h.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{structmodel_1_1_field_point_base_a4e28d7aa8e628b4b0bd6a58cd422ea78}{}\index{model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}!result\+Vector@{result\+Vector}}
+\index{result\+Vector@{result\+Vector}!model\+::\+Field\+Point\+Base@{model\+::\+Field\+Point\+Base}}
+\subsubsection[{result\+Vector}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Derived, typename Field\+Type$>$ std\+::vector$<$ typename Field\+Type\+::\+Scalar $>$ {\bf model\+::\+Field\+Point\+Base}$<$ Derived, Field\+Type $>$\+::result\+Vector\hspace{0.3cm}{\ttfamily [static]}}\label{structmodel_1_1_field_point_base_a4e28d7aa8e628b4b0bd6a58cd422ea78}
+
+
+Definition at line 41 of file Field\+Point\+Base.\+h.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{_field_point_base_8h}{Field\+Point\+Base.\+h}\end{DoxyCompactItemize}
