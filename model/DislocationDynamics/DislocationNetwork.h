@@ -29,7 +29,6 @@
 // -5 use modelMacros instead of assert
 // -4 CHANGE definition of modelMacros in debug mode BECAUSE assert(x) CAN BE REMOVED BY NDEBUG!!! MUST USE mode::assert_fail
 // -3 MAKE isIsolated and isBalanced data members of NetworkNode that are modified by addToNeighbors and removeFromNeigbors
-// implement IndependentPath
 // There is a bug with implicit integration. Nodes may exit the domain boundary.
 
 // -1 - remove DislocationEnergyRules and EdgeConfig !!!
@@ -134,9 +133,9 @@ namespace model
         
 		enum {NdofXnode=NodeType::NdofXnode};
         
-        //#ifdef UpdateBoundaryConditionsFile
-        //#include UpdateBoundaryConditionsFile
-        //#endif
+//#ifdef UpdateBoundaryConditionsFile
+//#include UpdateBoundaryConditionsFile
+//#endif
         
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
@@ -300,16 +299,16 @@ namespace model
 			//! 1- Che;ck that all nodes are balanced
 			checkBalance();
 			
-			//! 1 - Update quadrature points
+			//! 2 - Update quadrature points
 			updateQuadraturePoints();
             
-			//! 2- Calculate BVP correction
+			//! 3- Calculate BVP correction
             update_BVP_Solution();
             
-			//! 3- Solve the equation of motion
+			//! 4- Solve the equation of motion
 			assembleAndSolve();
             
-			//! 4- Compute time step dt (based on max nodal velocity) and increment totalTime
+			//! 5- Compute time step dt (based on max nodal velocity) and increment totalTime
 			make_dt();
 			totalTime+=dt;
             
@@ -322,14 +321,13 @@ namespace model
                 this->template computeNeighborField<ElasticEnergy>();
             }
             
-            //! 11- Output the current configuration before changing it
+            //! 6- Output the current configuration before changing it
             output();
             
-			//! 5- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
+			//! 7- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
 			move(dt,0.0);
             
-            //bool useImplicitTimeIntegration(false); // THIS COULD BE DECIDED ON THE FLY BASED ON DISTRIBUTION OF VELOCITIES
-            if(useImplicitTimeIntegration)
+            if(useImplicitTimeIntegration) // THIS COULD BE DECIDED ON THE FLY BASED ON DISTRIBUTION OF VELOCITIES
             {
                 updateQuadraturePoints();
                 assembleAndSolve(); // this also stores the new velocity in each node
@@ -346,28 +344,27 @@ namespace model
                 move(dt,dt_old); // move again (internally this subtracts DislocationNode::vOld*dt_old)
             }
             
-            //! 10- Cross Slip (needs upated PK force)
+            //! 8- Cross Slip (needs upated PK force)
 			crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
             
 			DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
 			
-			//! 6- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
+			//! 9- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
             DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
 			
-			//! 7- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
+			//! 10- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeBoundarySegments();
 			
-			//! 8- Form Junctions
+			//! 11- Form Junctions
 			formJunctions();
 			
-			//! 9- Node redistribution
+			//! 12- Node redistribution
 			remesh();
+            
             // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
-
-            //			removeBoundarySegments();
             
-			//! 12 - Increment runID counter
+			//! 13 - Increment runID counter
 			++runID;     // increment the runID counter
 		}
 		
@@ -404,18 +401,17 @@ namespace model
 		}
         
 	public:
-        //		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-		
-        //        typedef DislocationSharedObjects<LinkType> DislocationSharedObjectsType;
-        //
-        //        typedef typename DislocationSharedObjectsType::BvpSolverType BvpSolverType;
-        
+
+        //! The object conataing shared data
 		DislocationSharedObjectsType shared;
 		
-		//! The number of simulation steps taken by the next call to runByStep()
+		//! The number of simulation steps taken by the next call to runSteps()
 		int Nsteps;
+        
+        //! The simulation time run run foby the next call to runTime()
 		double timeWindow;
         
+        //! The accumulated plastic distortion
         MatrixDimD plasticDistortion;
         
 		/**********************************************************************/
@@ -510,13 +506,6 @@ namespace model
             MatrixDimD C2Gtemp;
             EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
             Material<Isotropic>::rotateCrystal(C2Gtemp);
-            
-            
-            // Min SubNetwork::nodeOrder for Assemble and solve
-            //            int minSNorderForSolve_temp(0);
-            //            EDR.readScalarInFile(fullName.str(),"minSNorderForSolve",minSNorderForSolve_temp); // material by atomic number Z
-            //            assert(minSNorderForSolve_temp>=0 && "minSNorderForSolve must be >=0");
-            //            shared.minSNorderForSolve=(size_t)minSNorderForSolve_temp;
             
             // core size
             EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width

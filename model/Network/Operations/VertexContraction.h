@@ -146,8 +146,10 @@ namespace model {
 			// if j was isolated then newID will now also be isolated. Remove it.
 			const isConstNetworkVertexType Vn(VertexFinder<VertexType>(networkVertexMapRef).node(newID));
 			
-			if(Vn.first){
-				if(Vn.second->is_isolated()){ // WHAT IF THE ONLY NEIGHBOR OF I IS J? THEN NEW_ID IS ISOLATED
+			if(Vn.first)
+            {
+				if(Vn.second->is_isolated())
+                { // WHAT IF THE ONLY NEIGHBOR OF I IS J? THEN NEW_ID IS ISOLATED
 					VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).template remove<0>(newID); 
 				}
 			}

@@ -212,34 +212,43 @@ namespace model {
                 }
                 else
                 {
-                    const VectorDimD d1(PN1[0].cross(PN1[1]));
-                    const VectorDimD d2(PN2[0].cross(PN2[1]));
-                    const VectorDimD d1xd2(d1.cross(d2));
-                    if(d1xd2.norm()>FLT_EPSILON) // d1 and d2 are not aligned
+                    VectorDimD d1(PN1[0].cross(PN1[1]));
+                    const double d1norm(d1.norm());
+                    assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
+                    d1/=d1norm;
+                    VectorDimD d2(PN2[0].cross(PN2[1]));
+                    const double d2norm(d2.norm());
+                    assert(d2norm>FLT_EPSILON && "DIRECTION d2 HAS ZERO NORM");
+                    d2/=d2norm;
+
+                    const VectorDimD d3(d1.cross(d2));
+                    const double d3Norm(d3.norm());
+
+                    if(d3Norm<FLT_EPSILON) // d1 and d2 are aligned, this means colinear or no intersection
                     {
-                        if(std::fabs(d1.cross(d2).dot((P1-P2)/P12norm))<FLT_EPSILON) // planarity condition
+                        if(d1.cross((P1-P2).normalized()).norm()<FLT_EPSILON) // colinear
+                        {
+                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
+                        }
+                        //                        else
+                        //                        {
+                        //                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. ALIGNMENT CONDITION FAILED.");
+                        //
+                        //                        }
+                    }
+                    else // d1 and d2 are not aligned
+                    {
+                        if(std::fabs((d3/d3Norm).dot((P1-P2)/P12norm))<FLT_EPSILON) // planarity condition
                         {
                             const VectorDimD dOrth=d2-d2.dot(d1)*d1; // component of d2 orthogonal to d1
                             const double den=d2.dot(dOrth);
                             assert(std::fabs(den)>FLT_EPSILON && "YOU SHOULD HAVE FOUND THIS ABOVE.");
                             contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+(P1-P2).dot(dOrth)/den*d2);
                         }
-                        else
-                        {
-                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. PLANARITY CONDITION FAILED.");
-                        }
-                    }
-                    else
-                    {
-                        if(d1.cross((P1-P2).normalized()).norm()<FLT_EPSILON) // P2-P1 is also aligned to d1 and d2
-                        {
-                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
-                        }
-                        else
-                        {
-                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. ALIGNMENT CONDITION FAILED.");
-                            
-                        }
+//                        else
+//                        {
+//                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. PLANARITY CONDITION FAILED.");
+//                        }
                     }
                 }
             }
@@ -682,6 +691,9 @@ namespace model {
         /**********************************************************************/
         void breakZeroLengthJunctions()
         {
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"		Breaking zero-length Junctions... "<<std::flush;
+
             std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecomp;
             
             for (typename NetworkNodeContainerType::const_iterator nodeIter =DN.nodeBegin();
@@ -695,12 +707,14 @@ namespace model {
                 }
             }
             
+            int broken=0;
+            
             for(int n=0;n<nodeDecomp.size();++n)
             {
                 const size_t& i=nodeDecomp[n].first;
                 auto Ni=DN.node(i);
                 assert(Ni.first);
-                size_t m=DN.insertVertex(Ni.second->get_P());
+//                size_t m=DN.insertVertex(Ni.second->get_P());
                 
                 // Check that Links still exist
                 bool linksexist=true;
@@ -726,6 +740,8 @@ namespace model {
                 
                 if(linksexist)
                 {
+                    size_t m=DN.insertVertex(Ni.second->get_P());
+                    
                     for(size_t d=0;d<nodeDecomp[n].second.size();++d)
                     {
                         const size_t& j=nodeDecomp[n].second[d].first;
@@ -749,8 +765,11 @@ namespace model {
                             assert(0 && "i must be equal to either j or k.");
                         }
                     }
+                    
+                    broken++;
                 }
             }
+            model::cout<<broken<<" broken."<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
         
         
