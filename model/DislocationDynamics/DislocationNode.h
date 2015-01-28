@@ -135,7 +135,6 @@ namespace model
         /* init list        */ boundaryNormal(get_boundaryNormal())
         {/*! Constructor from DOF
           */
-            std::cout<<"Creating DislocationNode "<< this->sID<<" case A"<<std::endl;
 		}
 		
 		/* Constructor ********************************************************/
@@ -147,7 +146,6 @@ namespace model
         /* init list        */ boundaryNormal(get_boundaryNormal())
         {/*! Constructor from ExpandingEdge and parameter along link
           */
-                        std::cout<<"Creating DislocationNode "<< this->sID<<" case B"<<std::endl;
 		}
 		
 		/* Constructor ********************************************************/
@@ -159,7 +157,6 @@ namespace model
         /* init list        */ boundaryNormal(get_boundaryNormal())
         {/*! Constructor from ExpandingEdge and DOF
           */
-                        std::cout<<"Creating DislocationNode "<< this->sID<<" case C"<<std::endl;
 		}
 		
 		/* Constructor from Link and position along link **********************/
@@ -170,7 +167,6 @@ namespace model
 		/* init list        */ vOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ boundaryNormal(get_boundaryNormal())
         {
-                     std::cout<<"Creating DislocationNode "<< this->sID<<" case D"<<std::endl;   
 		}
         
         

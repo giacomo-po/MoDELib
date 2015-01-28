@@ -76,9 +76,6 @@ namespace model
 		/**********************************************************************/
 		void makeTopologyChange()
         {
-            
-            std::cout<<"NetworkLink "<<source->sID<<"->"<<sink->sID<<" makeTopologyChange"<<std::endl;
-		
 			//! 1- Adds this to the source node neighborood and to the sink node neighborood
 			source->addToNeighborhood(this->p_derived());
 			sink  ->addToNeighborhood(this->p_derived());

@@ -131,7 +131,7 @@ namespace model {
             const size_t sizePN1(PN1.size());
             const size_t sizePN2(PN2.size());
             
-            std::cout<<"Contracting with Plane Check: case "<<sizePN1<<" "<<sizePN2<<std::endl;
+//            std::cout<<"Contracting with Plane Check: case "<<sizePN1<<" "<<sizePN2<<std::endl;
             
             if(sizePN1==1 && sizePN2==1) // nodes constrained to move on planes
             {
@@ -425,8 +425,8 @@ namespace model {
                                 EdgeIntersectionType intersectionOnB(std::make_pair(linkIterB->second->nodeIDPair,paramIter->second));
                                 const int dir(junctionDir(*linkIterA->second,*linkIterB->second,paramIter->first,paramIter->second));
                                 
-                                std::cout<< "Intersecting "<<linkIterA->second->nodeIDPair.first<<"->"<<linkIterA->second->nodeIDPair.second<<" "
-                                <<linkIterB->second->nodeIDPair.first<<"->"<<linkIterB->second->nodeIDPair.second<<". dir="<<dir<<std::endl;
+//                                std::cout<< "Intersecting "<<linkIterA->second->nodeIDPair.first<<"->"<<linkIterA->second->nodeIDPair.second<<" "
+//                                <<linkIterB->second->nodeIDPair.first<<"->"<<linkIterB->second->nodeIDPair.second<<". dir="<<dir<<std::endl;
                                 
                                 if(dir!=0)
                                 {
@@ -465,8 +465,8 @@ namespace model {
                 const isNetworkLinkType L1(DN.link(key1.first,key1.second));
                 const isNetworkLinkType L2(DN.link(key2.first,key2.second));
                 
-                std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"
-                <<intersectionContainer[interID]. first.second<<","<<intersectionContainer[interID]. second.second<<std::endl;
+//                std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"
+//                <<intersectionContainer[interID]. first.second<<","<<intersectionContainer[interID]. second.second<<std::endl;
                 
                 if(L1.first && L2.first) // Links exist
                 {
@@ -495,8 +495,8 @@ namespace model {
                     }
                     
                     
-                    std::cout<<"du1="<<du1<<std::endl;
-                    std::cout<<"du2="<<du2<<std::endl;
+//                    std::cout<<"du1="<<du1<<std::endl;
+//                    std::cout<<"du2="<<du2<<std::endl;
                     //                    std::cout<<"avoidNodeIntersection="<<avoidNodeIntersection<<std::endl;
                     
                     const VectorDimD C1(L1.second->chord());
@@ -589,15 +589,15 @@ namespace model {
                     {
                         case +1:
                         {
-                            std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
-                            std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
+//                            std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
+//                            std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
                             if(im!=jm)
                             {
                                 const isNetworkNodeType N1=DN.node(im);
                                 const isNetworkNodeType N2=DN.node(jm);
                                 if(N1.first && N2.first)
                                 {
-                                    std::cout<<"first contract +1"<<jm<<std::endl;
+//                                    std::cout<<"first contract +1"<<jm<<std::endl;
                                     contractWithConstraintCheck(N1,N2);
                                 }
                             }
@@ -607,7 +607,7 @@ namespace model {
                                 const isNetworkNodeType N2=DN.node(jp);
                                 if(N1.first && N2.first)
                                 {
-                                    std::cout<<"second contract +1"<<jm<<std::endl;
+//                                    std::cout<<"second contract +1"<<jm<<std::endl;
                                     contractWithConstraintCheck(N1,N2);
                                 }
                             }
@@ -616,15 +616,15 @@ namespace model {
                             
                         case -1:
                         {
-                            std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
-                            std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
+//                            std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
+//                            std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
                             if(im!=jp)
                             {
                                 const isNetworkNodeType N1=DN.node(im);
                                 const isNetworkNodeType N2=DN.node(jp);
                                 if(N1.first && N2.first)
                                 {
-                                    std::cout<<"first contract -1"<<jm<<std::endl;
+//                                    std::cout<<"first contract -1"<<jm<<std::endl;
                                     contractWithConstraintCheck(N1,N2);
                                 }
                             }
@@ -634,7 +634,7 @@ namespace model {
                                 const isNetworkNodeType N2=DN.node(jm);
                                 if(N1.first && N2.first)
                                 {
-                                    std::cout<<"second contract -1"<<jm<<std::endl;
+//                                    std::cout<<"second contract -1"<<jm<<std::endl;
                                     contractWithConstraintCheck(N1,N2);
                                 }
                             }
@@ -675,9 +675,9 @@ namespace model {
             const double den(d.dot(N));
             if(std::fabs(den)<FLT_EPSILON)
             {
-                std::cout<<"d="<<d.transpose()<<std::endl;
-                std::cout<<"N="<<N.transpose()<<std::endl;
-                assert(std::fabs(den)<FLT_EPSILON && "bringBackToMesh: direction is parallel to mesh face.");
+                model::cout<<"d="<<d.transpose()<<std::endl;
+                model::cout<<"N="<<N.transpose()<<std::endl;
+                assert(0 && "bringBackToMesh: direction is parallel to mesh face.");
             }
             
             const double u((V-P).dot(N)/den);

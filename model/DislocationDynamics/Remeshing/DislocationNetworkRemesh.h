@@ -328,7 +328,6 @@ namespace model {
                     const VectorDimD expandPoint(Lij.second->get_r(expand_at));
                     if(pointIsInsideMesh(expandPoint,Lij.second->source->includingSimplex()))
                     {
-                        //                        std::cout<<"DislocationRemesh: expanding "<<i<<"->"<<j<<std::endl;
                         DN.expand(i,j,expandPoint);
                         Nexpanded++;
                     }
@@ -381,7 +380,7 @@ namespace model {
                 const size_t sourcePNsize(sourcePN.size());
                 const size_t   sinkPNsize(  sinkPN.size());
                 
-                std::cout<<"SingleEdgeContract "<<i<<"->"<<j<<", case "<<sourcePNsize<<","<<sinkPNsize<<std::endl;
+//                std::cout<<"SingleEdgeContract "<<i<<"->"<<j<<", case "<<sourcePNsize<<","<<sinkPNsize<<std::endl;
                 
                 
                 //                if (Lij.second->source->meshLocation()==insideMesh && Lij.second->sink->meshLocation()==insideMesh)
@@ -435,7 +434,6 @@ namespace model {
                                 if (d1.cross(C/cNorm).norm()<FLT_EPSILON)
                                 { // colinear
                                     //                                        Ncontracted+=contractWithCommonNeighborCheck(Lij,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
-                                    std::cout<<"case colinear "<<sourcePNsize<<","<<sinkPNsize<<std::endl;
                                     
                                     Ncontracted+=contractWithCommonNeighborCheck(*Lij.second->source,*Lij.second->sink,0.5*(P1+P2)); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
                                 }
@@ -448,7 +446,6 @@ namespace model {
                                     if(std::fabs(u1<Lmin))
                                     {
                                         //                                            Ncontracted+=contractWithCommonNeighborCheck(Lij,P1+d1*u1); // PATCH FOR COMMON NEIGHBOR AND OUTSIDE-MESH
-                                        std::cout<<"case coplanar u1="<<u1<<std::endl;
                                         //const VectorDimD P0(P1+d1*u1);
                                         if(std::fabs(u1)>FLT_EPSILON && std::fabs(std::fabs(u1)-cNorm)>FLT_EPSILON) // intersection point is neither P1 nor P2
                                         {
