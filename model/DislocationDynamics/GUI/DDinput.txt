@@ -1,5 +1,0 @@
-dx=;
-Nsteps=;
-asfsdf=;
-Giacomo=;
-Ben=;
