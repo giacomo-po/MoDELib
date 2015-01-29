@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <limits.h>
 
-#include <boost/ptr_container/ptr_map.hpp>
+//#include <boost/ptr_container/ptr_map.hpp>
 #include <tuple> // std::tuple replaces boost::tuple in c++11
 #include <memory> // std::shared_ptr
 

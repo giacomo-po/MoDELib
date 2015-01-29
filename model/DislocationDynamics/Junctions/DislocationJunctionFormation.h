@@ -23,7 +23,8 @@
 //#include <model/Math/MatrixCompanion.h>
 
 
-namespace model {
+namespace model
+{
     
     template <typename DislocationNetworkType>
     class DislocationJunctionFormation
@@ -699,10 +700,10 @@ namespace model {
                  /*                                             */ nodeIter!=DN.nodeEnd();
                  /*                                             */ nodeIter++)
             {
-                std::deque<std::pair<size_t,size_t> > temp=nodeIter->second->edgeDecomposition();
+                std::deque<std::pair<size_t,size_t> > temp=nodeIter->second.edgeDecomposition();
                 if(temp.size())
                 {
-                    nodeDecomp.emplace_back(nodeIter->second->sID,temp);
+                    nodeDecomp.emplace_back(nodeIter->second.sID,temp);
                 }
             }
             

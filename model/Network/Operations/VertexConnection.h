@@ -26,8 +26,9 @@ namespace model
     {
 		
 		
-		typedef boost::ptr_map<size_t,VertexType> NetworkVertexMapType;
-		//! A reference to the network vertex map
+//		typedef boost::ptr_map<size_t,VertexType> NetworkVertexMapType;
+        typedef std::map<size_t,VertexType> NetworkVertexMapType;
+        //! A reference to the network vertex map
 		NetworkVertexMapType& networkVertexMapRef;
 		
 //		typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
@@ -67,7 +68,7 @@ namespace model
 //			assert(networkEdgeMapRef.insert(std::make_pair(i,j), pL ).second && "CANNOT INSERT EDGE IN networkEdgeMapRef.");
             const bool success=networkEdgeMapRef.emplace(std::piecewise_construct,
                                                          std::make_tuple(i,j),
-                                                         std::make_tuple(std::make_pair(Ni->second,Nj->second), edgeArgs...) ).second;
+                                                         std::make_tuple(std::make_pair(&Ni->second,&Nj->second), edgeArgs...) ).second;
             assert(success && "CANNOT INSERT EDGE IN networkEdgeMapRef.");
             return success;
 		}
@@ -87,13 +88,13 @@ namespace model
 			if (removeIsolatedNodes){				
 				typename NetworkVertexMapType::iterator Ni(networkVertexMapRef.find(i));
 				assert(Ni!=networkVertexMapRef.end() && "NODE i DOES NOT EXIST");
-				if (Ni->second->is_isolated()){
+				if (Ni->second.is_isolated()){
 					networkVertexMapRef.erase(Ni); // WARNING: erasing by key, i.e. networkVertexMapRef.erase(i), gives a bug
 					//	WHY IS THIS TRIGGERED????				assert(networkVertexMapRef.find(i)==networkVertexMapRef.end() && "NODE i IS STILL IN networkVertexMapRef AFTER ERASE.");
 				}
 				typename NetworkVertexMapType::iterator Nj(networkVertexMapRef.find(j));
 				assert(Nj!=networkVertexMapRef.end() && "NODE j DOES NOT EXIST");
-				if (Nj->second->is_isolated()){
+				if (Nj->second.is_isolated()){
 					networkVertexMapRef.erase(Nj); // WARNING: erasing by key, i.e. networkVertexMapRef.erase(j), gives a bug
 					// 	WHY IS THIS TRIGGERED????					assert(networkVertexMapRef.find(j)==networkVertexMapRef.end() && "NODE j IS STILL IN networkVertexMapRef AFTER ERASE.");
 				}
@@ -104,19 +105,12 @@ namespace model
 		/************************************************************/
 		// remove (a node)
 		template<bool removeIsolatedNodes>
-		bool remove(const size_t& k){
-//						std::cout<<"I'm here 2"<<std::endl;
+		bool remove(const size_t& k)
+        {
 			
 			typename NetworkVertexMapType::iterator Nk(networkVertexMapRef.find(k));
 			assert(Nk!=networkVertexMapRef.end() && "REMOVING NON-EXISTING VERTEX.");
-			
-			
-			
-			//bool success=0;
-			//			isNetworkNodeType Nk=node(k);
-			
-			//			if (Nk.first){
-			
+						
 			// Define BoolLinkMFPsize_t as a member-function-pointer of class EdgeType with size_t input and bool output
 			typedef bool (EdgeType::*BoolLinkMFPsize_t)(const size_t &) const;
 			BoolLinkMFPsize_t MFP = &EdgeType::isIncident;
@@ -124,15 +118,12 @@ namespace model
 			//	disconnect_if<removeIsolatedNodes>(&EdgeType::isIncident,k);	// WHY IS THIS NOT WORKING????????
 			
 			typename NetworkVertexMapType::iterator Nkk(networkVertexMapRef.find(k));	
-			if (Nkk!=networkVertexMapRef.end()){
+			if (Nkk!=networkVertexMapRef.end())
+            {
 				networkVertexMapRef.erase(Nkk); // WARNING: erasing by key, i.e. networkVertexMapRef.erase(j), gives a bug
 			}
 			assert(networkVertexMapRef.find(k)==networkVertexMapRef.end() && "NODE k IS STILL IN networkVertexMapRef AFTER ERASE.");
-			
-			
-			//				success=NetworkNodeContainerType::erase(k) == 1;
-			//			}			
-			
+						
 			return true;
 		}
 		
@@ -185,6 +176,5 @@ namespace model
 		
 	};
 	
-	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif

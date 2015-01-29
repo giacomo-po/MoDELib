@@ -57,9 +57,11 @@ namespace model {
 	};
 	
 	template <typename EdgeType>
-	class EdgeFinder<EdgeType,true>{
-		
-		typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
+	class EdgeFinder<EdgeType,true>
+    {
+	
+        typedef std::map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
+//		typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
 //        typedef typename EdgeType::NetworkLinkContainerType NetworkEdgeMapType;
 		//! A reference to the network Edge map
 		const NetworkEdgeMapType& networkEdgeMapRef;

@@ -15,7 +15,7 @@
 
 #include <iterator> // std::advance
 #include <utility>  // std::pair
-#include <boost/ptr_container/ptr_map.hpp>
+//#include <boost/ptr_container/ptr_map.hpp>
 #include <map>
 
 namespace model
@@ -24,8 +24,9 @@ namespace model
 	template <typename VertexType, typename EdgeType>
 	class ParallelExecute{
 		
-		
-		typedef boost::ptr_map<size_t,VertexType> NetworkVertexMapType;
+
+        typedef std::map<size_t,VertexType> NetworkVertexMapType;
+//		typedef boost::ptr_map<size_t,VertexType> NetworkVertexMapType;
 		//! A reference to the network vertex map
 		NetworkVertexMapType& networkVertexMapRef;
 		
@@ -44,7 +45,8 @@ namespace model
 		
         
 		/* execute ************************************************************/
-		void execute(void (EdgeType::*Lfptr)(void)){
+		void execute(void (EdgeType::*Lfptr)(void))
+        {
 #ifdef _OPENMP
 #pragma omp parallel for
             for (unsigned int k=0;k<networkEdgeMapRef.size();++k){
@@ -61,7 +63,8 @@ namespace model
         
 		/* execute ************************************************************/
 		template <typename T>
-		void execute(void (EdgeType::*Lfptr)(const T&), const T & input){
+		void execute(void (EdgeType::*Lfptr)(const T&), const T & input)
+        {
 #ifdef _OPENMP
 #pragma omp parallel for
             for (unsigned int k=0;k<networkEdgeMapRef.size();++k){

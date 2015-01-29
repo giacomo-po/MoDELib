@@ -12,12 +12,13 @@
 
 #include <assert.h>
 
-#include <boost/ptr_container/ptr_map.hpp>
+//#include <boost/ptr_container/ptr_map.hpp>
 
 
 #include <model/Utilities/TypeTraits.h>
 #include <model/Utilities/CRTP.h>
 #include <model/Utilities/AddressBook.h>
+#include <model/Utilities/NonCopyable.h>
 
 #include <model/Network/NetworkComponent.h>
 #include <model/Network/Operations/includeNetworkOperations.h>
@@ -30,8 +31,9 @@ namespace model {
 	
 	
 	template <typename Derived>
-	class Network : boost::noncopyable,
-	/*          */  protected boost::ptr_map<size_t,typename TypeTraits<Derived>::NodeType>,
+    class Network : public NonCopyable,
+    /*          */  protected std::map<size_t,typename TypeTraits<Derived>::NodeType>,
+//    /*          */  protected boost::ptr_map<size_t,typename TypeTraits<Derived>::NodeType>,
 //	/*          */  protected boost::ptr_map<std::pair<size_t,size_t>,typename TypeTraits<Derived>::LinkType>,
     /*          */  protected std::map<std::pair<size_t,size_t>,typename TypeTraits<Derived>::LinkType>,
     //	/*          */  protected std::map<size_t,std::auto_ptr<typename TypeTraits<Derived>::NodeType> >,

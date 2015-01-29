@@ -12,7 +12,8 @@
 //#include <assert.h>
 #include <model/Utilities/modelMacros.h> // model_checkInput
 
-namespace model {
+namespace model
+{
 	
 	/************************************************************/	
 	/************************************************************/
@@ -45,7 +46,7 @@ namespace model {
 		
 		// The incremental counters
 		static size_t count;
-		static size_t nextCount;
+//		static size_t nextCount;
 		
 	public:
 		
@@ -55,21 +56,25 @@ namespace model {
         /**********************************************************************/
 		StaticID() : sID(count)
         {
-			count=nextCount;
-			nextCount+=increment;
+            count+=increment;
+//			count=nextCount;
+//			nextCount+=increment;
 		}
 		
         /**********************************************************************/
 		StaticID(const StaticID&) : sID(count)
         {
-			count=nextCount;
-			nextCount+=increment;
+            count+=increment;
+//			count=nextCount;
+//			nextCount+=increment;
 		}
         
         /**********************************************************************/
         static size_t nextID()
         {
-            return nextCount;
+            return count;
+//
+//            return nextCount;
         }
 		
         /**********************************************************************/
@@ -77,22 +82,23 @@ namespace model {
         {
 			model_checkInput(newCount>=count && "YOU ARE TRYING TO SET THE COUNTER TO A LOWER VALUE THAN THE CURRENT ONE.");
 			count =  newCount;
-			nextCount=count+increment;
+//			nextCount=count+increment;
 		}
         
         /**********************************************************************/
         static void force_count(const size_t& newCount)
         {
             count =  newCount;
-            nextCount=count+increment;
+//            nextCount=count+increment;
         }
 		
         /**********************************************************************/
 		static void set_increment(const int& newIncrement)
         {
 			model_checkInput(newIncrement>=1 && "newIncrement MUST BE >=1.");
-			nextCount+=(newIncrement-increment);	// now next time count will be used it will be correct
-			increment = newIncrement;
+//			nextCount+=(newIncrement-increment);	// now next time count will be used it will be correct
+			count+=(newIncrement-increment);	// now next time count will be used it will be correct
+            increment = newIncrement;
 		}
 		
 	};
@@ -104,8 +110,8 @@ namespace model {
 	template<typename Derived>
 	size_t StaticID<Derived>::count = 0;
 
-	template<typename Derived>
-	size_t StaticID<Derived>::nextCount = 1;
+//	template<typename Derived>
+//	size_t StaticID<Derived>::nextCount = 1;
 	
 	/************************************************************/	
 	/************************************************************/

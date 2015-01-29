@@ -18,8 +18,8 @@
 #include <Eigen/Geometry>
 #include <Eigen/Sparse>
 #include <set>
-#include <boost/ptr_container/ptr_map.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
+//#include <boost/ptr_container/ptr_map.hpp>
+//#include <boost/ptr_container/ptr_vector.hpp>
 
 
 #include <model/Network/Operations/EdgeExpansion.h>

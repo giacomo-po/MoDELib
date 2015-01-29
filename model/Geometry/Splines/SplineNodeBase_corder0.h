@@ -27,7 +27,7 @@ private:
 	VectorDim P;
 
 public:
-EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+//EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 	const VectorDim & get_P() const{
 		return P;

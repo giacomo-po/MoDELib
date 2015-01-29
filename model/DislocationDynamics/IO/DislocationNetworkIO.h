@@ -183,10 +183,10 @@ namespace model
                 SequentialBinFile<'V',BinVertexType> binVertexFile;
                 for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
                 {
-                    VertexDataType temp( (VertexDataType()<< nodeIter->second->get_P().transpose(),
-                                          /*                                    */ nodeIter->second->get_T().transpose(),
-                                          /*                                    */ nodeIter->second->pSN()->sID,
-                                          /*                                    */ (nodeIter->second->meshLocation()==onMeshBoundary)).finished());
+                    VertexDataType temp( (VertexDataType()<< nodeIter->second.get_P().transpose(),
+                                          /*                                    */ nodeIter->second.get_T().transpose(),
+                                          /*                                    */ nodeIter->second.pSN()->sID,
+                                          /*                                    */ (nodeIter->second.meshLocation()==onMeshBoundary)).finished());
                     binVertexFile.write(std::make_pair(nodeIter->first,temp));
                 }
                 model::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;
@@ -199,7 +199,7 @@ namespace model
                 //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
                 for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
                 {
-                    vertexFile << *(nodeIter->second)<<"\n";
+                    vertexFile << (nodeIter->second)<<"\n";
                 }
                 model::cout<<", V/V_"<<vertexFile.sID<<".txt"<<std::flush;
             }

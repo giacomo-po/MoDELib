@@ -33,8 +33,9 @@ namespace model
 		
 		typedef typename EdgeFinder<EdgeType>::isConstNetworkEdgeType isConstNetworkEdgeType;
 		
-		typedef boost::ptr_map<size_t,VertexType> NetworkVertexMapType;
-		//! A reference to the network vertex map
+//		typedef boost::ptr_map<size_t,VertexType> NetworkVertexMapType;
+        typedef std::map<size_t,VertexType> NetworkVertexMapType;
+        //! A reference to the network vertex map
 		NetworkVertexMapType& networkVertexMapRef;
 
 //        typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;

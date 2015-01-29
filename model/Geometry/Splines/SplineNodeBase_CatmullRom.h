@@ -11,7 +11,8 @@ namespace model
     
     
     template <typename Derived, short unsigned int dim>
-    class SplineNodeBase<Derived, dim,1,CatmullRom> :	public NetworkNode<Derived>{
+    class SplineNodeBase<Derived, dim,1,CatmullRom> :	public NetworkNode<Derived>
+    {
         
         
         

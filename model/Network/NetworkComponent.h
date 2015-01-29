@@ -14,7 +14,7 @@
 #include <assert.h>
 #include <map>
 #include <utility>
-#include <boost/ptr_container/ptr_map.hpp>
+//#include <boost/ptr_container/ptr_map.hpp>
 //#include <boost/tuple/tuple.hpp>
 //#include <boost/utility.hpp>
 //#include <model/Network/NetworkLink.h>

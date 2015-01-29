@@ -197,7 +197,7 @@ namespace model
             
 			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
             {
-				const double vNorm(nodeIter->second->get_V().norm());
+				const double vNorm(nodeIter->second.get_V().norm());
                 vmean +=vNorm;
 				if (vNorm>vmax)
                 {
@@ -334,7 +334,7 @@ namespace model
                 
                 for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
                 {
-					nodeIter->second->implicitStep(); // average velocities
+					nodeIter->second.implicitStep(); // average velocities
 				}
                 
                 const double dt_old(dt); // store current dt
@@ -730,7 +730,7 @@ namespace model
             
 			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
             {
-				nodeIter->second->move(dt_in,dt_old);
+				nodeIter->second.move(dt_in,dt_old);
 			}
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
 		}
@@ -782,14 +782,14 @@ namespace model
                      /*                                             */ nodeIter!=this->nodeEnd();
                      /*                                             */ nodeIter++)
                 {
-                    if (nodeIter->second->neighborhood().size()>2)
+                    if (nodeIter->second.neighborhood().size()>2)
                     {
-                        const bool nodeIsBalanced(nodeIter->second->is_balanced());
-                        if (!nodeIsBalanced && nodeIter->second->meshLocation()==insideMesh)
+                        const bool nodeIsBalanced(nodeIter->second.is_balanced());
+                        if (!nodeIsBalanced && nodeIter->second.meshLocation()==insideMesh)
                         {
-                            model::cout<<"Node "<<nodeIter->second->sID<<" is not balanced:"<<std::endl;
-                            model::cout<<"    outflow="<<nodeIter->second->outFlow().transpose()<<std::endl;
-                            model::cout<<"     inflow="<<nodeIter->second->inFlow().transpose()<<std::endl;
+                            model::cout<<"Node "<<nodeIter->second.sID<<" is not balanced:"<<std::endl;
+                            model::cout<<"    outflow="<<nodeIter->second.outFlow().transpose()<<std::endl;
+                            model::cout<<"     inflow="<<nodeIter->second.inFlow().transpose()<<std::endl;
                             assert(0 && "NODE IS NOT BALANCED");
                         }
                     }

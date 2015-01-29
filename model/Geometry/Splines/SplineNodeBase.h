@@ -18,14 +18,15 @@
 #include <model/Network/Operations/EdgeExpansion.h>
 #include <model/Math/CompileTimeMath/Pow.h>
 
-
-namespace model {
+namespace model
+{
 	
-	/*******************************************************************************/
-	/* class template SplineNodeBase: general case                                 */
-	/*******************************************************************************/
+	/**************************************************************************/
+	/* class template SplineNodeBase: general case                            */
+	/**************************************************************************/
 	template <typename Derived,	short unsigned int dim, short unsigned int corder,  typename InterpolationType>
-	class SplineNodeBase {
+	class SplineNodeBase
+    {
 		
 	public:
 		SplineNodeBase(){
@@ -39,6 +40,4 @@ namespace model {
 #include "model/Geometry/Splines/SplineNodeBase_Hermite.h"
 #include "model/Geometry/Splines/SplineNodeBase_CatmullRom.h"
 
-///////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////
 #endif
