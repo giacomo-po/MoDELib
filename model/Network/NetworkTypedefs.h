@@ -27,7 +27,8 @@ public:
 
 	typedef std::pair<NodeType* const,NodeType* const>			    NodePairType;
 	typedef std::pair<size_t,size_t>								LinkIDType;
-	typedef boost::ptr_map<LinkIDType,LinkType>                     NetworkLinkContainerType;
+//	typedef boost::ptr_map<LinkIDType,LinkType>                     NetworkLinkContainerType;
+    typedef std::map<LinkIDType,LinkType>                     NetworkLinkContainerType;
 
 
 	/* Containers and iterators used in SubNetwork **************************************************/

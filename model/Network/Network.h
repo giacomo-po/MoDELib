@@ -32,8 +32,9 @@ namespace model {
 	template <typename Derived>
 	class Network : boost::noncopyable,
 	/*          */  protected boost::ptr_map<size_t,typename TypeTraits<Derived>::NodeType>,
-	/*          */  protected boost::ptr_map<std::pair<size_t,size_t>,typename TypeTraits<Derived>::LinkType>,
-//	/*          */  protected std::map<size_t,std::auto_ptr<typename TypeTraits<Derived>::NodeType> >,
+//	/*          */  protected boost::ptr_map<std::pair<size_t,size_t>,typename TypeTraits<Derived>::LinkType>,
+    /*          */  protected std::map<std::pair<size_t,size_t>,typename TypeTraits<Derived>::LinkType>,
+    //	/*          */  protected std::map<size_t,std::auto_ptr<typename TypeTraits<Derived>::NodeType> >,
 //	/*          */  protected std::map<std::pair<size_t,size_t>,std::auto_ptr<typename TypeTraits<Derived>::LinkType> >,
 	/*          */  public  CRTP<Derived>,
 	/*          */  public  AddressBook<NetworkComponent<typename TypeTraits<Derived>::NodeType,typename TypeTraits<Derived>::LinkType>,0>

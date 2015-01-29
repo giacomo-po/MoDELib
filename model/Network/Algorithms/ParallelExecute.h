@@ -16,8 +16,10 @@
 #include <iterator> // std::advance
 #include <utility>  // std::pair
 #include <boost/ptr_container/ptr_map.hpp>
+#include <map>
 
-namespace model {
+namespace model
+{
 	
 	template <typename VertexType, typename EdgeType>
 	class ParallelExecute{
@@ -27,8 +29,9 @@ namespace model {
 		//! A reference to the network vertex map
 		NetworkVertexMapType& networkVertexMapRef;
 		
-		typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
-		//! A reference to the network Edge map
+//		typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
+        typedef std::map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
+        //! A reference to the network Edge map
 		NetworkEdgeMapType& networkEdgeMapRef;
 		
 		
@@ -47,11 +50,11 @@ namespace model {
             for (unsigned int k=0;k<networkEdgeMapRef.size();++k){
                 typename NetworkEdgeMapType::iterator linkIter(networkEdgeMapRef.begin()); //  the data within a parallel region is private to each thread
                 std::advance(linkIter,k);
-                (linkIter->second->*Lfptr)();
+                (linkIter->second.*Lfptr)();
             }
 #else
             for (typename NetworkEdgeMapType::iterator linkIter=networkEdgeMapRef.begin();linkIter!=networkEdgeMapRef.end();++linkIter){
-                (linkIter->second->*Lfptr)();
+                (linkIter->second.*Lfptr)();
             }
 #endif
 		}
@@ -64,11 +67,11 @@ namespace model {
             for (unsigned int k=0;k<networkEdgeMapRef.size();++k){
                 typename NetworkEdgeMapType::iterator linkIter(networkEdgeMapRef.begin()); //  the data within a parallel region is private to each thread
                 std::advance(linkIter,k);
-                (linkIter->second->*Lfptr)(input);
+                (linkIter->second.*Lfptr)(input);
             }
 #else
             for (typename NetworkEdgeMapType::iterator linkIter=networkEdgeMapRef.begin();linkIter!=networkEdgeMapRef.end();++linkIter){
-                (linkIter->second->*Lfptr)(input);
+                (linkIter->second.*Lfptr)(input);
             }
 #endif
 		}

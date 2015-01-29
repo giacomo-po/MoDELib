@@ -392,7 +392,7 @@ namespace model
 			MultiIntersectionContainerType multiIntersectionContainer;
 			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
             {
-				multiIntersectionContainer[linkIter->second->nodeIDPair()]=linkIter->second->boundaryCollision();
+				multiIntersectionContainer[linkIter->second.nodeIDPair()]=linkIter->second.boundaryCollision();
 			}
 			for (typename MultiIntersectionContainerType::const_iterator iter=multiIntersectionContainer.begin();iter!=multiIntersectionContainer.end();++iter)
             {
@@ -442,7 +442,7 @@ namespace model
                  /*                                       */ linkIter!=this->linkEnd();
                  /*                                       */ linkIter++)
             {
-				linkIter->second->quadratureParticleContainer.clear();
+				linkIter->second.quadratureParticleContainer.clear();
 			}
             
             this->clearParticles();
@@ -711,7 +711,7 @@ namespace model
                  /*                                       */ linkIter!=this->linkEnd();
                  /*                                       */ linkIter++)
             {
-                linkIter->second->updateQuadraturePoints(*this);
+                linkIter->second.updateQuadraturePoints(*this);
 			}
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 		}
@@ -807,7 +807,7 @@ namespace model
                  /*                                             */ linkIter!=this->linkEnd();
                  /*                                             */ linkIter++)
             {
-				temp+= linkIter->second->plasticDistortionRate();
+				temp+= linkIter->second.plasticDistortionRate();
 			}
 			return temp;
 		}
@@ -830,7 +830,7 @@ namespace model
                  /*                                             */ linkIter!=this->linkEnd();
                  /*                                             */ linkIter++)
             {
-				temp+= linkIter->second->template arcLength<qOrder,QuadratureRule>();
+				temp+= linkIter->second.template arcLength<qOrder,QuadratureRule>();
 			}
 			return temp;
 		}
@@ -871,7 +871,7 @@ namespace model
 //			double temp(0.0);
 //			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
 //            {
-//				temp+= linkIter->second->energy();
+//				temp+= linkIter->second.energy();
 //			}
 //			return 0.5*temp;
 //		}
@@ -942,7 +942,7 @@ namespace model
 //                 /*                                             */ linkIter!=this->linkEnd();
 //                 /*                                             */ linkIter++)
 //            {
-//				temp+= linkIter->second->displacement(Rfield,S);
+//				temp+= linkIter->second.displacement(Rfield,S);
 //			}
 //			return temp;
 //		}
@@ -957,7 +957,7 @@ namespace model
 //                 /*                                             */ linkIter!=this->linkEnd();
 //                 /*                                             */ linkIter++)
 //            {
-//				temp+= linkIter->second->lattice_rotation_source(Rfield);
+//				temp+= linkIter->second.lattice_rotation_source(Rfield);
 //			}
 //			return temp;
 //		}
@@ -970,7 +970,7 @@ namespace model
 //                 /*                                             */ linkIter!=this->linkEnd();
 //                 /*                                             */ linkIter++)
 //            {
-//				temp+= linkIter->second->displacement_gradient_source(Rfield);
+//				temp+= linkIter->second.displacement_gradient_source(Rfield);
 //			}
 //			return temp;
 //		}

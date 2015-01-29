@@ -20,7 +20,8 @@
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/MPI/MPIcout.h>
 
-namespace model {
+namespace model
+{
     
 	/**************************************************************************/
 	/**************************************************************************/
@@ -149,11 +150,11 @@ namespace model {
                 SequentialBinFile<'E',BinEdgeType> binEdgeFile;
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
                 {
-                    Eigen::Matrix<double,1,9> temp( (Eigen::Matrix<double,1,9>()<< linkIter->second->flow.transpose(),
-                                                     /*                                                          */ linkIter->second->glidePlaneNormal.transpose(),
-                                                     /*                                                          */ linkIter->second->sourceTfactor,
-                                                     /*                                                          */ linkIter->second->sinkTfactor,
-                                                     /*                                                          */ linkIter->second->pSN()->sID).finished());
+                    Eigen::Matrix<double,1,9> temp( (Eigen::Matrix<double,1,9>()<< linkIter->second.flow.transpose(),
+                                                     /*                                                          */ linkIter->second.glidePlaneNormal.transpose(),
+                                                     /*                                                          */ linkIter->second.sourceTfactor,
+                                                     /*                                                          */ linkIter->second.sinkTfactor,
+                                                     /*                                                          */ linkIter->second.pSN()->sID).finished());
                     binEdgeFile.write(std::make_pair(linkIter->first,temp));
                 }
                 model::cout<<" E/E_"<<binEdgeFile.sID<<".bin"<<std::flush;
@@ -166,7 +167,8 @@ namespace model {
                 //edgeFile << *(const NetworkLinkContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
                 {
-                    edgeFile<< *(linkIter->second)<<"\n";
+//                    edgeFile<< *(linkIter->second)<<"\n";
+                    edgeFile<< linkIter->second<<"\n";
                 }
                 model::cout<<" E/E_"<<edgeFile.sID<<".txt"<<std::flush;
             }
@@ -236,10 +238,10 @@ namespace model {
                 int ll=0;
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
                 {
-                    const int qOrder(linkIter->second->rgauss.cols());
+                    const int qOrder(linkIter->second.rgauss.cols());
                     for (int q=0;q<qOrder;++q)
                     {
-                        p_file << ll*qOrder+q<<" "<< linkIter->second->rgauss.col(q).transpose()<<" "<<linkIter->second->pkGauss.col(q).transpose()<<"\n";
+                        p_file << ll*qOrder+q<<" "<< linkIter->second.rgauss.col(q).transpose()<<" "<<linkIter->second.pkGauss.col(q).transpose()<<"\n";
                     }
                     ll++;
                 }
@@ -255,10 +257,10 @@ namespace model {
                 int ll=0;
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
                 {
-                    const int qOrder(linkIter->second->rgauss.cols());
-                    for (int q=0;q<linkIter->second->quadratureParticleContainer.size();++q)
+                    const int qOrder(linkIter->second.rgauss.cols());
+                    for (int q=0;q<linkIter->second.quadratureParticleContainer.size();++q)
                     {
-                        w_file << ll*qOrder+q<<" "<< linkIter->second->rgauss.col(q).transpose()<<" "<< linkIter->second->quadratureParticleContainer[q]->template field<ElasticEnergy>()<<"\n";
+                        w_file << ll*qOrder+q<<" "<< linkIter->second.rgauss.col(q).transpose()<<" "<< linkIter->second.quadratureParticleContainer[q]->template field<ElasticEnergy>()<<"\n";
                     }
                     ll++;
                 }

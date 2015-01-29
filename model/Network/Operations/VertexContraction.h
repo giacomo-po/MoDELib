@@ -11,16 +11,19 @@
 #define model_VERTEXCONTRACTION_H_
 
 #include <float.h> // for FLT_EPSILON, remove this once FlowComparison Class is created
+#include <map> // for FLT_EPSILON, remove this once FlowComparison Class is created
 
 #include <model/Network/Operations/VertexFinder.h>
 #include <model/Network/Operations/EdgeFinder.h>
 #include <model/Network/Operations/VertexInsertion.h>
 #include <model/Network/Operations/VertexConnection.h>
 
-namespace model {
+namespace model
+{
 	
 	template <typename VertexType, typename EdgeType>
-	class VertexContraction{
+	class VertexContraction
+    {
 		
 		typedef typename EdgeType::FlowType FlowType;
 		
@@ -33,8 +36,9 @@ namespace model {
 		typedef boost::ptr_map<size_t,VertexType> NetworkVertexMapType;
 		//! A reference to the network vertex map
 		NetworkVertexMapType& networkVertexMapRef;
-		
-		typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
+
+//        typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
+        typedef std::map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
 		//! A reference to the network Edge map
 		NetworkEdgeMapType& networkEdgeMapRef;
 		
@@ -127,7 +131,8 @@ namespace model {
 		
 		/* contract *************************************************/
 		template <typename ...NodeArgTypes>
-		void contract(const size_t& i, const size_t& j, const NodeArgTypes&... NodeInput){
+		void contract(const size_t& i, const size_t& j, const NodeArgTypes&... NodeInput)
+        {
 			
 			const size_t newID(VertexInsertion<VertexType>(networkVertexMapRef).insert(NodeInput...)); // CHANGE THIS LIKE EXPAND
 			
@@ -159,7 +164,8 @@ namespace model {
 		
 		/* contractSecond *******************************************/
 		//		template <typename ...NodeArgTypes>
-		void contractSecond(const size_t& i, const size_t& j){
+		void contractSecond(const size_t& i, const size_t& j)
+        {
 			
 			// If i->j (or reverse) exists and is the only connection this will remove both i and j
 			// If i->j (and reverse) do not exists, then i will survive
@@ -167,8 +173,10 @@ namespace model {
 			// if j was isolated then newID will now also be isolated. Remove it.
 			const isConstNetworkVertexType Vi(VertexFinder<VertexType>(networkVertexMapRef).node(i));
 			
-			if(Vi.first){
-				if(Vi.second->is_isolated()){ // WHAT IF THE ONLY NEIGHBOR OF I IS J? THEN NEW_ID IS ISOLATED
+			if(Vi.first)
+            {
+				if(Vi.second->is_isolated())
+                { // WHAT IF THE ONLY NEIGHBOR OF I IS J? THEN NEW_ID IS ISOLATED
 					VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).template remove<0>(i); 
 				}
 			}

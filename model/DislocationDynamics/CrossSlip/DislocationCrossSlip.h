@@ -68,7 +68,7 @@ namespace model
                  /*                                             */ linkIter!=dislocationNetwork.linkEnd();
                  /*                                             */ linkIter++)
             {
-                this->emplace_back(linkIter->second->isCrossSlipSegment(sinCrossSlipRad,crossSlipLength));
+                this->emplace_back(linkIter->second.isCrossSlipSegment(sinCrossSlipRad,crossSlipLength));
 			}
         }
 		
@@ -178,12 +178,12 @@ namespace model
 //! 1-Loop over DislocationSegment(s), check cross-slip criterion and store CrossSlipSegment(s)
 //			for (typename NetworkLinkContainerType::const_iterator linkIter=dislocationNetwork.linkBegin();linkIter!=dislocationNetwork.linkEnd();++linkIter)
 //            {
-////				CrossSlipSegmentType css(linkIter->second->isCrossSlipSegment(sinCrossSlipRad,crossSlipLength));
+////				CrossSlipSegmentType css(linkIter->second.isCrossSlipSegment(sinCrossSlipRad,crossSlipLength));
 ////				if(css.isCrossSlipSegment)
 ////                {
 ////					CSC.push_back(css);
 ////				}
-//                CSC.emplace_back(linkIter->second->isCrossSlipSegment(sinCrossSlipRad,crossSlipLength));
+//                CSC.emplace_back(linkIter->second.isCrossSlipSegment(sinCrossSlipRad,crossSlipLength));
 //
 //			}
 

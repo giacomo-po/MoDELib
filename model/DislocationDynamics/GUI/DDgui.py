@@ -18,7 +18,7 @@ class DDgui(Frame):
         self.f2 = Frame()
         self.nb.add(self.f2, text='Material')
         self.f3 = Frame()
-        self.nb.add(self.f3, text='Dislocaitons')
+        self.nb.add(self.f3, text='Dislocations')
 
         #        self.button_clicks = 0
     

@@ -201,17 +201,17 @@ namespace model {
             std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
             for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
             {
-                const VectorDimD chord(linkIter->second->chord()); // this is sink->get_P() - source->get_P()
+                const VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
                 const double chordLength(chord.norm());
-                const VectorDimD dv(linkIter->second->sink->get_V()-linkIter->second->source->get_V());
+                const VectorDimD dv(linkIter->second.sink->get_V()-linkIter->second.source->get_V());
                 //				bool endsAreApproaching( chord.dot(dv) < -vTolcont*chordLength*dv.norm() );
                 bool endsAreApproaching( chord.dot(dv) < 0.0 );
                 //				bool endsAreApproaching( chord.dot(dv) + dv.squaredNorm()*dt < 0.0 );
-                if ((endsAreApproaching || linkIter->second->is_boundarySegment())// ends are approaching
+                if ((endsAreApproaching || linkIter->second.is_boundarySegment())// ends are approaching
                     && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
                     && chordLength<Lmin)
                 {
-                    assert(toBeContracted.insert(std::make_pair(chordLength,linkIter->second->nodeIDPair)).second && "COULD NOT INSERT IN SET.");
+                    assert(toBeContracted.insert(std::make_pair(chordLength,linkIter->second.nodeIDPair)).second && "COULD NOT INSERT IN SET.");
                 }
             }
             
@@ -242,72 +242,72 @@ namespace model {
             // Store the segments to be expanded
             for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter){
                 
-                const VectorDimD chord(linkIter->second->chord()); // this is sink->get_P() - source->get_P()
+                const VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
                 const double chordLength(chord.norm());
-                //				const VectorDimD dv(linkIter->second->sink->get_V()-linkIter->second->source->get_V());
+                //				const VectorDimD dv(linkIter->second.sink->get_V()-linkIter->second.source->get_V());
                 
                 
                 // Always expand single FR source segment
-                if (linkIter->second->source->openOrder()==1 && linkIter->second->sink->openOrder()==1)
+                if (linkIter->second.source->openOrder()==1 && linkIter->second.sink->openOrder()==1)
                 {
-                    toBeExpanded.insert(linkIter->second->nodeIDPair);
+                    toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
                 // Expand single FR source segment
-                if (   linkIter->second->source->constraintNormals().size()>2
-                    && linkIter->second->  sink->constraintNormals().size()>2
+                if (   linkIter->second.source->constraintNormals().size()>2
+                    && linkIter->second.  sink->constraintNormals().size()>2
                     && chordLength>3.0*Lmin)
                 {
-                    toBeExpanded.insert(linkIter->second->nodeIDPair);
+                    toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
-                if (!linkIter->second->source->is_simple() && !linkIter->second->sink->is_simple()
+                if (!linkIter->second.source->is_simple() && !linkIter->second.sink->is_simple()
                     /*&& chord.dot(dv)>vTolexp*chordLength*dv.norm()*/ && chordLength>3.0*Lmin){ // also expands a straight line to generate glissile segment
-                    toBeExpanded.insert(linkIter->second->nodeIDPair);
+                    toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
                 // Expand segments shorter than Lmax
                 if (chordLength>Lmax)
                 {
-                    toBeExpanded.insert(linkIter->second->nodeIDPair);
+                    toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
                 // Angle criterion
-                if (linkIter->second->source->is_simple())
+                if (linkIter->second.source->is_simple())
                 { //check angle criterion at source
-                    const VectorDimD c0(linkIter->second->source->openNeighborNode(0)->get_P()-linkIter->second->source->get_P());
-                    const VectorDimD c1(linkIter->second->source->openNeighborNode(1)->get_P()-linkIter->second->source->get_P());
+                    const VectorDimD c0(linkIter->second.source->openNeighborNode(0)->get_P()-linkIter->second.source->get_P());
+                    const VectorDimD c1(linkIter->second.source->openNeighborNode(1)->get_P()-linkIter->second.source->get_P());
                     const double c0norm(c0.norm());
                     const double c1norm(c1.norm());
                     if(c0.dot(c1)>cos_theta_max_crit*c0norm*c1norm)
                     {
                         if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
                         {
-                            toBeExpanded.insert(linkIter->second->source->openNeighborLink(0)->nodeIDPair);
+                            toBeExpanded.insert(linkIter->second.source->openNeighborLink(0)->nodeIDPair);
                         }
                         
                         if (c1norm>3.0*Lmin /*&& c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
                         {
-                            toBeExpanded.insert(linkIter->second->source->openNeighborLink(1)->nodeIDPair);
+                            toBeExpanded.insert(linkIter->second.source->openNeighborLink(1)->nodeIDPair);
                         }
                     }
                 }
-                if (linkIter->second->sink->is_simple())
+                if (linkIter->second.sink->is_simple())
                 { //check angle criterion at sink
-                    const VectorDimD c0(linkIter->second->sink->openNeighborNode(0)->get_P()-linkIter->second->sink->get_P());
-                    const VectorDimD c1(linkIter->second->sink->openNeighborNode(1)->get_P()-linkIter->second->sink->get_P());
+                    const VectorDimD c0(linkIter->second.sink->openNeighborNode(0)->get_P()-linkIter->second.sink->get_P());
+                    const VectorDimD c1(linkIter->second.sink->openNeighborNode(1)->get_P()-linkIter->second.sink->get_P());
                     const double c0norm(c0.norm());
                     const double c1norm(c1.norm());
                     if(c0.dot(c1)>cos_theta_max_crit*c0norm*c1norm)
                     {
                         if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
                         {
-                            toBeExpanded.insert(linkIter->second->sink->openNeighborLink(0)->nodeIDPair);
+                            toBeExpanded.insert(linkIter->second.sink->openNeighborLink(0)->nodeIDPair);
                         }
                         if (c1norm>3.0*Lmin/* && c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
                         {
                             //														model::cout<<"Expanding 4"<<std::endl;
-                            toBeExpanded.insert(linkIter->second->sink->openNeighborLink(1)->nodeIDPair);
+                            toBeExpanded.insert(linkIter->second.sink->openNeighborLink(1)->nodeIDPair);
                         }
                     }
                 }
@@ -343,11 +343,11 @@ namespace model {
             
             for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
             {
-                VectorDimD chord(linkIter->second->chord()); // this is sink->get_P() - source->get_P()
+                VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
                 double chordLength(chord.norm());
                 if (chordLength<=FLT_EPSILON)
                 {// toBeContracted part
-                    toBeContracted.insert(std::make_pair(chordLength,linkIter->second->nodeIDPair));
+                    toBeContracted.insert(std::make_pair(chordLength,linkIter->second.nodeIDPair));
                 }
             }
             

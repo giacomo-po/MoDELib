@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <memory> // std::shared_ptr
 
-#include <boost/ptr_container/ptr_map.hpp>
+//#include <boost/ptr_container/ptr_map.hpp>
 
 #include <model/Network/NetworkComponent.h>
 #include <model/Network/Operations/includeNetworkOperations.h>
@@ -135,7 +135,7 @@ namespace model
           *  @param[in] Flow_in the input flow
           */
 			makeTopologyChange();
-		}
+        }
 		
 		/* Constructor from ExpandingEdge *************************************/
 		NetworkLink(const std::pair<NodeType* const,NodeType* const> & NodePair_in,

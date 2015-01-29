@@ -59,11 +59,11 @@ namespace model
             add(pN);
         }
         
-        /************************************************************/
-        /* Constructor with pointer to Link *************************/
-        NetworkComponent(LinkType* const pL){
-            add(pL);
-        }
+//        /************************************************************/
+//        /* Constructor with pointer to Link *************************/
+//        NetworkComponent(LinkType* const pL){
+//            add(pL);
+//        }
         
         /************************************************************/
         // Destructor

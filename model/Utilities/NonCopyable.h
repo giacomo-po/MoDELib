@@ -16,12 +16,15 @@ namespace model
     class NonCopyable
     {
     protected:
-        NonCopyable() = default;
-        ~NonCopyable() = default;
+        NonCopyable() = default;   //default constructor
+        ~NonCopyable() = default;  //default destructor
+        
+//        NonCopyable(NonCopyable &&) = default; //default move constructor
+//        NonCopyable& operator=(NonCopyable &&) = default; //default move assignment
         
     public:
         NonCopyable(const NonCopyable&) = delete; // non construction-copyable
-        const NonCopyable& operator=(const NonCopyable&) = delete; // non assignment-copyable
+        const NonCopyable& operator=(const NonCopyable&) = delete; // non assignable
     };
     
 }

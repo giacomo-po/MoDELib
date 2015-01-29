@@ -37,7 +37,8 @@ namespace model {
 	template <typename Derived>
 	class NetworkNode : public::NonCopyable,
 	/*               */ public CRTP<Derived>,
-	/*               */ public StaticID<Derived>{
+	/*               */ public StaticID<Derived>
+    {
 		
 	public:
 #include <model/Network/NetworkTypedefs.h>

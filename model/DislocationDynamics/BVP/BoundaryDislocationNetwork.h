@@ -38,17 +38,17 @@ namespace model
             
             for (typename DislocationNetworkType::NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
             {
-                if(linkIter->second->is_boundarySegment())
+                if(linkIter->second.is_boundarySegment())
                 {
-                    VectorDim n = linkIter->second->source->bndNormal()-linkIter->second->source->bndNormal().dot(linkIter->second->glidePlaneNormal)*linkIter->second->glidePlaneNormal;
-                    VectorDim P0 = linkIter->second->source->get_P();
+                    VectorDim n = linkIter->second.source->bndNormal()-linkIter->second.source->bndNormal().dot(linkIter->second.glidePlaneNormal)*linkIter->second.glidePlaneNormal;
+                    VectorDim P0 = linkIter->second.source->get_P();
                     VectorDim P1 = P0 + n*L;
-                    this->emplace_back(P0,P1,linkIter->second->Burgers);
+                    this->emplace_back(P0,P1,linkIter->second.Burgers);
                     
-                    n = linkIter->second->sink->bndNormal()-linkIter->second->sink->bndNormal().dot(linkIter->second->glidePlaneNormal)*linkIter->second->glidePlaneNormal;
-                    P0 = linkIter->second->sink->get_P() - n*L;
-                    P1 = linkIter->second->sink->get_P();
-                    this->emplace_back(P0,P1,linkIter->second->Burgers);
+                    n = linkIter->second.sink->bndNormal()-linkIter->second.sink->bndNormal().dot(linkIter->second.glidePlaneNormal)*linkIter->second.glidePlaneNormal;
+                    P0 = linkIter->second.sink->get_P() - n*L;
+                    P1 = linkIter->second.sink->get_P();
+                    this->emplace_back(P0,P1,linkIter->second.Burgers);
                 }
             }
         }

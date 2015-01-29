@@ -13,9 +13,13 @@
 #include <memory>   // for auto_ptr
 #include <utility>  // for std::pair
 #include <assert.h>
-#include <boost/ptr_container/ptr_map.hpp>
+//#include <boost/ptr_container/ptr_map.hpp>
+#include <map>
+#include <tuple>
 
-namespace model {
+
+namespace model
+{
 	
 	template <typename VertexType, typename EdgeType>
 	class VertexConnection
@@ -26,8 +30,9 @@ namespace model {
 		//! A reference to the network vertex map
 		NetworkVertexMapType& networkVertexMapRef;
 		
-		typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
-		//! A reference to the network Edge map
+//		typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
+        typedef std::map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
+        //! A reference to the network Edge map
 		NetworkEdgeMapType& networkEdgeMapRef;
 		
 		
@@ -58,9 +63,13 @@ namespace model {
 			assert(Nj!=networkVertexMapRef.end() && "TRYING TO CONNECT (i->j): VERTEX j DOES NOT EXIST.");			
 			assert(networkEdgeMapRef.find(std::make_pair(i,j))==networkEdgeMapRef.end() && "EDGE ALREADY EXISTS. CANNOT CONNECT");
 			assert(networkEdgeMapRef.find(std::make_pair(j,i))==networkEdgeMapRef.end() && "OPPOSITE EDGE ALREADY EXISTS. CANNOT CONNECT");
-			std::auto_ptr<EdgeType> pL (new EdgeType(std::make_pair(Ni->second,Nj->second), edgeArgs...) );
-			assert(networkEdgeMapRef.insert(std::make_pair(i,j), pL ).second && "CANNOT INSERT EDGE IN networkEdgeMapRef.");
-			return true;
+//			std::auto_ptr<EdgeType> pL (new EdgeType(std::make_pair(Ni->second,Nj->second), edgeArgs...) );
+//			assert(networkEdgeMapRef.insert(std::make_pair(i,j), pL ).second && "CANNOT INSERT EDGE IN networkEdgeMapRef.");
+            const bool success=networkEdgeMapRef.emplace(std::piecewise_construct,
+                                                         std::make_tuple(i,j),
+                                                         std::make_tuple(std::make_pair(Ni->second,Nj->second), edgeArgs...) ).second;
+            assert(success && "CANNOT INSERT EDGE IN networkEdgeMapRef.");
+            return success;
 		}
 		
 		/* disconnect ***********************************************/
@@ -128,40 +137,46 @@ namespace model {
 		}
 		
 		
-		/************************************************************/
-		// disconnect_if
+		/**********************************************************************/
 		template<bool removeIsolatedNodes>
-		size_t disconnect_if(bool (EdgeType::*Lfptr)(void) const){
+		size_t disconnect_if(bool (EdgeType::*Lfptr)(void) const)
+        {
 			// LOOPING AND ERASING IS DANGEROUS!!! YOU MUST INCREMENT THE ITERATOR BEFORE ERASING
 			
-//			std::cout<<"I'm here 0"<<std::endl;
 			size_t count = 0;
-			for(typename NetworkEdgeMapType::iterator edgeIter=networkEdgeMapRef.begin(); edgeIter!=networkEdgeMapRef.end();){
-				if ( (edgeIter->second->*Lfptr)() ) {
+			for(typename NetworkEdgeMapType::iterator edgeIter=networkEdgeMapRef.begin(); edgeIter!=networkEdgeMapRef.end();)
+            {
+				if ( (edgeIter->second.*Lfptr)() )
+                {
 					typename NetworkEdgeMapType::iterator toBeDisconnected(edgeIter);
 					++edgeIter;
-					count+=disconnect<removeIsolatedNodes>(toBeDisconnected->second->source->sID,toBeDisconnected->second->sink->sID);					
+					count+=disconnect<removeIsolatedNodes>(toBeDisconnected->second.source->sID,toBeDisconnected->second.sink->sID);
 				}
-				else{
+				else
+                {
 					++edgeIter;
 				}
 			}
 			return count;
 		}
 		
-		/************************************************************/
+		/**********************************************************************/
 		// disconnect_if
 		template<bool removeIsolatedNodes, typename T>
-		size_t disconnect_if(bool (EdgeType::*Lfptr)(const T &) const, const T & input){
+		size_t disconnect_if(bool (EdgeType::*Lfptr)(const T &) const, const T & input)
+        {
 			size_t count = 0;
-			for(typename NetworkEdgeMapType::iterator edgeIter=networkEdgeMapRef.begin(); edgeIter!=networkEdgeMapRef.end();){
-				if ( (edgeIter->second->*Lfptr)(input) ) {
+			for(typename NetworkEdgeMapType::iterator edgeIter=networkEdgeMapRef.begin(); edgeIter!=networkEdgeMapRef.end();)
+            {
+				if ( (edgeIter->second.*Lfptr)(input) )
+                {
 					// LOOPING AND ERASING IS DANGEROUS!!! YOU MUST INCREMENT THE ITERATOR BEFORE ERASING
 					typename NetworkEdgeMapType::iterator toBeDisconnected(edgeIter);
 					++edgeIter;
-					count+=disconnect<removeIsolatedNodes>(toBeDisconnected->second->source->sID,toBeDisconnected->second->sink->sID);					
+					count+=disconnect<removeIsolatedNodes>(toBeDisconnected->second.source->sID,toBeDisconnected->second.sink->sID);
 				}
-				else{
+				else
+                {
 					++edgeIter;
 				}
 			}
