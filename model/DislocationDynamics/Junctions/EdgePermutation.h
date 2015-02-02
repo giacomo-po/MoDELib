@@ -36,7 +36,7 @@ namespace model
                                                                                 +0.0*Eigen::Matrix<double,1,Pow<3,n-1>::value>::Ones(),
                                                                                   EdgePermutation<n-1>::edgePerm.transpose(),
                                                                                   EdgePermutation<n-1>::edgePerm.transpose(),
-                                                                                EdgePermutation<n-1>::edgePerm.transpose()
+                                                                                  EdgePermutation<n-1>::edgePerm.transpose()
                                                                                 ).finished().transpose();
     
     /**************************************************************************/
@@ -91,7 +91,9 @@ namespace model
 //                    break;
                     
                 default:
-                    assert(0 && "CASE NOT IMPLEMENTED");
+//                    assert(0 && "CASE NOT IMPLEMENTED");
+                    model::cout<<"WARNING: EdgePermutations, case not implemented"<<std::endl;
+                    return Eigen::MatrixXd::Zero(1,n);
                     
             }
             

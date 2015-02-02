@@ -82,7 +82,7 @@ namespace model
     {/*!@param[in] os the stream object
       * @param[in] expr the expression
       *
-      * Outputs the value of Derived on the faces of the mes
+      * Outputs the value of Derived on the faces of the mesh
       */
         constexpr int dim=Derived::TrialFunctionType::dim;
         const Eigen::Matrix<double,dim+1,dim+1> vertexBary(Eigen::Matrix<double,dim+1,dim+1>::Identity());

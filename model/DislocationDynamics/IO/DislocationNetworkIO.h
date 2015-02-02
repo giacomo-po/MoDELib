@@ -39,6 +39,8 @@ namespace model
         typedef typename DislocationNetworkType::GlidePlaneObserverType GlidePlaneObserverType;
         typedef typename DislocationNetworkType::SpatialCellObserverType SpatialCellObserverType;
         typedef typename SpatialCellObserverType::CellMapType CellMapType;
+        typedef typename DislocationNetworkType::BvpSolverType::FiniteElementType FiniteElementType;
+        typedef typename DislocationNetworkType::BvpSolverType::TrialFunctionType TrialFunctionType;
         
         enum {NdofXnode=NodeType::NdofXnode};
         
@@ -270,14 +272,16 @@ namespace model
             if (DN.shared.use_bvp && outputMeshDisplacement && !(DN.runningID()%DN.shared.use_bvp))
             {
                 
-                model::SequentialOutputFile<'S',1>::set_increment(outputFrequency); // Vertices_file;
-                model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
-                model::SequentialOutputFile<'S',true> d_file;
+                model::SequentialOutputFile<'U',1>::set_increment(outputFrequency); // Vertices_file;
+                model::SequentialOutputFile<'U',1>::set_count(runID); // Vertices_file;
+                model::SequentialOutputFile<'U',true> d_file;
                 d_file<<DN.shared.bvpSolver.displacement();
                 
-                //                    for (unsigned int i = 0; i< DN.shared.domain.nodeContainer.size(); i++){
-                //                        d_file<< DN.shared.domain.nodeContainer[i].sID<<"	" << (DN.shared.domain.nodeContainer[i].u+DN.shared.domain.nodeContainer[i].uInf).transpose()<<"\n";
-                //                    }
+                
+//                for(const auto& node : DN.shared.bvpSolver.finiteElement().nodes())
+//                {
+//                
+//                }
                 
                 /**************************************************************************/
                 // Output displacement and stress on external mesh faces

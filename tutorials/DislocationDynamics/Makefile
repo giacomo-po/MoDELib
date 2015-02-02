@@ -140,6 +140,7 @@ Cexists=$(shell test -d C && echo 1)
 Pexists=$(shell test -d P && echo 1)
 Dexists=$(shell test -d D && echo 1)
 Sexists=$(shell test -d S && echo 1)
+Uexists=$(shell test -d U && echo 1)
 TGAexists=$(shell test -d tga && echo 1)
 JPGexists=$(shell test -d jpg && echo 1)
 
@@ -172,6 +173,11 @@ ifeq ($(Sexists),1)
 	@echo ${blueColor}emptying folder S ${normalColor}
 	@find S/ -name S_\*.txt -exec rm {} \;
 	@find S/ -name S_\*.bin -exec rm {} \;
+endif	
+ifeq ($(Uexists),1)
+	@echo ${blueColor}emptying folder U ${normalColor}
+	@find U/ -name U_\*.txt -exec rm {} \;
+	@find U/ -name U_\*.bin -exec rm {} \;
 endif	
 ifeq ($(TGAexists),1)
 	@echo ${blueColor}emptying folder tga ${normalColor}
