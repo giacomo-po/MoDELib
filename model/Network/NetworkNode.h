@@ -35,7 +35,7 @@ namespace model {
 	class NetworkLink; // class predeclaration
 	
 	template <typename Derived>
-	class NetworkNode : public::NonCopyable,
+	class NetworkNode : public NonCopyable,
 	/*               */ public CRTP<Derived>,
 	/*               */ public StaticID<Derived>
     {
