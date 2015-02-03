@@ -9,6 +9,7 @@
 #ifndef model_Simplex_H_
 #define model_Simplex_H_
 
+#include <memory> // shared_ptr
 #include <set>
 #include <map>
 #include <float.h>
@@ -18,15 +19,17 @@
 #include <model/Mesh/SimplexObserver.h>
 #include <model/Mesh/SimplexBase.h>
 #include <model/Mesh/SimplexChild.h>
+#include <model/Mesh/MeshRegion.h>
 #include <model/Network/Readers/VertexReader.h>
 #include <model/FEM/BarycentricTraits.h>
 
-namespace model {
+namespace model
+{
     
     /**************************************************************************/
-	/**************************************************************************/
-	template<short int dim>
-	class Simplex<dim,0> :
+    /**************************************************************************/
+    template<short int dim>
+    class Simplex<dim,0> :
     /* inheritance      */ public SimplexBase<dim,0>,
     /* inheritance      */ public SimplexChild <dim,0>
     {
@@ -39,24 +42,24 @@ namespace model {
         const Eigen::Matrix<double,dim,1> P0;
         
         
-//        /**********************************************************************/
-//        Eigen::Matrix<double,dim,1> get_P0() const
-//        {
-//            const typename VertexReader<'N',dim+1,double>::const_iterator nIter(SimplexReader<dim>::nodeReader.find((this->xID)(0)));
-//            assert((nIter!=SimplexReader<dim>::nodeReader.end()) && "MESH VERTEX NOT FOUND IN N/N_x.txt.");
-//            return nIter->second;
-//        }
+        //        /**********************************************************************/
+        //        Eigen::Matrix<double,dim,1> get_P0() const
+        //        {
+        //            const typename VertexReader<'N',dim+1,double>::const_iterator nIter(SimplexReader<dim>::nodeReader.find((this->xID)(0)));
+        //            assert((nIter!=SimplexReader<dim>::nodeReader.end()) && "MESH VERTEX NOT FOUND IN N/N_x.txt.");
+        //            return nIter->second;
+        //        }
         
         
     public:
         
-//        static VertexReader<'N',dim+1,double> nodeReader;
+        //        static VertexReader<'N',dim+1,double> nodeReader;
         
         
-		/**********************************************************************/
+        /**********************************************************************/
         Simplex(const SimplexIDType& vIN) :
         /* init list */ SimplexBase<dim,order>(vIN),
-//        /* init list */ P0(get_P0())
+        //        /* init list */ P0(get_P0())
         /* init list */ P0(SimplexReader<dim>::get_P0(this->xID))
         {/*!@param[in] vIN the (possibly unsorted) ID of this Simplex
           *
@@ -73,16 +76,16 @@ namespace model {
             SimplexObserver<dim,order>::removeSimplex(*this);
         }
         
-	};
+    };
     
-//    template<short int dim>
-//    VertexReader<'N',dim+1,double> Simplex<dim,0>::nodeReader;
+    //    template<short int dim>
+    //    VertexReader<'N',dim+1,double> Simplex<dim,0>::nodeReader;
     
     
     /**************************************************************************/
-	/**************************************************************************/
-	template<short int dim, short int order>
-	class Simplex :
+    /**************************************************************************/
+    template<short int dim, short int order>
+    class Simplex :
     /* inheritance */ public SimplexBase<dim,order>,
     /* inheritance */ public SimplexTraits<dim,order>::BaseArrayType,
     /* inheritance */ public SimplexChild <dim,order>
@@ -101,7 +104,7 @@ namespace model {
         
         
     public:
-		/**********************************************************************/
+        /**********************************************************************/
         Simplex(const SimplexIDType& vIN) :
         /* init list */ SimplexBase<dim,order>(vIN),
         /* init list */ BaseArrayType(SimplexObserver<dim,order>::faces(vIN))
@@ -176,12 +179,12 @@ namespace model {
             return temp;
         }
         
-	};
+    };
     
     /**************************************************************************/
-	/**************************************************************************/
-	template<short int dim>
-	class Simplex<dim,dim> :
+    /**************************************************************************/
+    template<short int dim>
+    class Simplex<dim,dim> :
     /* inheritance */ public SimplexBase<dim,dim>,
     /* inheritance */ public SimplexTraits<dim,dim>::BaseArrayType
     {
@@ -216,6 +219,12 @@ namespace model {
         typedef Simplex<dim,order-1> ChildSimplexType;
         typedef typename SimplexTraits<dim,order-1>::SimplexIDType ChildIDType;
         
+        typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
+        typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
+
+        
+        const std::shared_ptr<MeshRegionType> region;
+        
         //! The barycentric-coordinate to position transformation matrix
         const Eigen::Matrix<double,dim+1,dim+1> b2p;
         
@@ -225,12 +234,13 @@ namespace model {
         //! The column matrix of face normals
         const Eigen::Matrix<double,dim,dim+1> nda;
         
-		/**********************************************************************/
-        Simplex(const SimplexIDType& vIN) :
-        /* init list */ SimplexBase<dim,order>(vIN),
-        /* init list */ BaseArrayType(SimplexObserver<dim,dim>::faces(vIN)),
-        /* init list */ b2p(get_b2p()),
+        /**********************************************************************/
+        Simplex(const SimplexIDType& vIN, const int regionID=0) :
+        /* init base */ SimplexBase<dim,order>(vIN),
+        /* init base */ BaseArrayType(SimplexObserver<dim,dim>::faces(vIN)),
+        /* init base */ b2p(get_b2p()),
         //        /* init list */ p2b(b2p.inverse()),
+        /* init list */ region(MeshRegionObserverType::getRegion(regionID)),
         /* init list */ p2b(b2p.fullPivLu().solve(Eigen::Matrix<double,dim+1,dim+1>::Identity())),
         /* init list */ nda(get_nda())
         {/*!
@@ -241,27 +251,32 @@ namespace model {
             {
                 this->child(k).addToParents(this);
             }
+            
+            region->emplace(this);
+            
         }
         
         /**********************************************************************/
         ~Simplex()
         {/*! Destructor performs the following operations:
           */
-//            std::cout<<"Destroying Simplex<dim,dim>..."<<std::flush; // problem with SegmentationFault is after this line
-
+            //            std::cout<<"Destroying Simplex<dim,dim>..."<<std::flush; // problem with SegmentationFault is after this line
+            
             //! -1 removes this in SimplexObserver
             SimplexObserver<dim,order>::removeSimplex(*this);
             
-//            std::cout<<"I'm here"<<std::endl;
-
+            //            std::cout<<"I'm here"<<std::endl;
+            
             
             //! -2 remove this fomr children parentContainers
             for (int k=0;k<nFaces;++k)
             {
                 this->child(k).removeFromParents(this);
             }
-//            std::cout<<"done"<<std::endl;
-
+            //            std::cout<<"done"<<std::endl;
+            
+            region->erase(this);
+            
         }
         
         /**********************************************************************/
@@ -328,8 +343,8 @@ namespace model {
         
         /**********************************************************************/
         void convexDelaunaynSearch(const Eigen::Matrix<double,dim,1>& P,
-                    std::pair<bool,const Simplex<dim,dim>*>& lastSearched,
-                    std::set<int>& searchSet) const // TO DO: searchSet is not necessary, because baryMin changes sign in next Simplex
+                                   std::pair<bool,const Simplex<dim,dim>*>& lastSearched,
+                                   std::set<int>& searchSet) const // TO DO: searchSet is not necessary, because baryMin changes sign in next Simplex
         {
             if(searchSet.find(this->sID)==searchSet.end())
             {// this simplex has not been searched yet
@@ -393,7 +408,7 @@ namespace model {
         }
         
         
-	};
+    };
     
     
 }	// close namespace
