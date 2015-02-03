@@ -12,10 +12,11 @@
 namespace model {
     
     /**************************************************************************/
-	/**************************************************************************/
+    /**************************************************************************/
     template<short int dim,short int dmo>
-	struct BoundarySimplex
+    struct BoundarySimplex
     {
+        /**********************************************************************/
         template<template <short int,short int> class SimplexChildType>
         static bool isBoundarySimplex(const SimplexChildType<dim,dim-dmo>& simplexChild)
         {
@@ -31,26 +32,62 @@ namespace model {
             return temp;
         }
         
-	};
+        /**********************************************************************/
+        template<template <short int,short int> class SimplexChildType>
+        static bool isRegionBoundarySimplex(const SimplexChildType<dim,dim-dmo>& simplexChild)
+        {
+            bool temp(false);
+            for (typename SimplexChildType<dim,dim-dmo>::ParentContainerType::const_iterator pIter=simplexChild.parentBegin();pIter!=simplexChild.parentEnd();++pIter)
+            {
+                temp=(*pIter)->isRegionBoundarySimplex();
+                if (temp)
+                {
+                    break;
+                }
+            }
+            return temp;
+        }
+        
+    };
     
     /**************************************************************************/
-	/**************************************************************************/
+    /**************************************************************************/
     template<short int dim>
-	struct BoundarySimplex<dim,1>
+    struct BoundarySimplex<dim,1>
     {
+        /**********************************************************************/
         template<template <short int,short int> class SimplexChildType>
         static bool isBoundarySimplex(const SimplexChildType<dim,dim-1>& simplexChild)
         {
             return simplexChild.parents().size()==1;
         }
         
-	};
+        /**********************************************************************/
+        template<template <short int,short int> class SimplexChildType>
+        static bool isRegionBoundarySimplex(const SimplexChildType<dim,dim-1>& simplexChild)
+        {
+            bool temp(false);
+            if(simplexChild.parents().size()==2)
+            {
+                if((*simplexChild.parents().begin())->regionID != (*simplexChild.parents().rbegin())->regionID)
+                {
+                    temp=true;
+                }
+                
+            }
+            
+            return temp;
+        }
+        
+    };
     
     /**************************************************************************/
-	/**************************************************************************/
+    /**************************************************************************/
     template<short int dim>
-	struct BoundarySimplex<dim,0>
+    struct BoundarySimplex<dim,0>
     {
+        
+        /**********************************************************************/
         static bool isBoundarySimplex(const Simplex<dim,dim>& simplex)
         {
             bool temp(false);
@@ -66,7 +103,23 @@ namespace model {
             return temp;
         }
         
-	};
+        /**********************************************************************/
+        static bool isRegionBoundarySimplex(const Simplex<dim,dim>& simplex)
+        {
+            bool temp(false);
+            
+            for (int n=0;n<simplex.nFaces;++n)
+            {
+                temp=simplex.child(n).isRegionBoundarySimplex();
+                if (temp)
+                {
+                    break;
+                }
+            }
+            return temp;
+        }
+        
+    };
     
 }	// close namespace
 #endif

@@ -14,7 +14,8 @@
 #include <model/Mesh/SimplexCompare.h>
 #include <model/Mesh/BoundarySimplex.h>
 
-namespace model {
+namespace model
+{
 
     template<short int dim,short int order>
     class SimplexChild
@@ -44,7 +45,7 @@ namespace model {
             assert(couldInsert && "COULD NOT INSERT PARENT IN parentContainer");
         
             
-            // HERE WE SHOULD LOOP AVER PARENTS AND ADD pP TO THEIR NEIGHBORS
+            // HERE WE SHOULD LOOP OVER PARENTS AND ADD pP TO THEIR NEIGHBORS
             
         }
         
@@ -58,7 +59,7 @@ namespace model {
             assert(nRemoved==1 && "COULD NOT REMOVE PARENT IN parentContainer");
             
             
-            // HERE WE SHOULD LOOP AVER PARENTS AND REMOVE pP FROM THEIR NEIGHBORS
+            // HERE WE SHOULD LOOP OVER PARENTS AND REMOVE pP FROM THEIR NEIGHBORS
             
         }
         
