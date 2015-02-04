@@ -2,8 +2,8 @@ clc
 clear all
 close all
 
-U=load('U/U_200.txt');
-S=load('S/S_200.txt');
+U=load('U/U_10.txt');
+S=load('S/S_10.txt');
 
 %% Plot displacement
 comp={'x_1','x_2','x_3','u_1','u_2','u_3'};
@@ -16,10 +16,10 @@ uMax=max(U(:,clrCol))
 uMin=min(U(:,clrCol))
 clrID=round((U(:,clrCol)-uMin)/(uMax-uMin)*size(colormap,1));
 
-def=1;
+def=100;
 
 for f=1:3:size(S,1)
-    plot3(U(f:f+2,1),U(f:f+2,2),U(f:f+2,3),'Color',[0.5 0.5 0.5])
+%    plot3(U(f:f+2,1),U(f:f+2,2),U(f:f+2,3),'Color',[0.5 0.5 0.5])
     fill3(U(f:f+2,1)+def*U(f:f+2,4),U(f:f+2,2)+def*U(f:f+2,5),U(f:f+2,3)+def*U(f:f+2,6),clrID(f:f+2))
 end
 grid on

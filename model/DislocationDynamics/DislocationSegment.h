@@ -128,7 +128,7 @@ namespace model
 //        static const Eigen::Matrix<double,_dim,1> zeroDim;
         
         
-        static UniqueOutputFile<'K'> k_file;
+//        static UniqueOutputFile<'K'> k_file;
         
         /******************************************************************/
     public: //  data members
@@ -341,7 +341,7 @@ namespace model
                     const VectorDim rgauss_temp=C+Rk*vec;
                     const VectorDim rugauss_temp=boundaryLoopNormal.cross(Rk*vec).normalized()*dldu;
                     
-                    k_file<<rgauss_temp.transpose()<<" "<<rugauss_temp.transpose()<<"\n";
+//                    k_file<<rgauss_temp.transpose()<<" "<<rugauss_temp.transpose()<<"\n";
                     
                     quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss_temp,rugauss_temp,Burgers,
                                                                                      Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
@@ -751,9 +751,9 @@ namespace model
 //    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
 //    const Eigen::Matrix<double,dim,1> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::zeroDim=Eigen::Matrix<double,dim,1>::Zero();
     
-    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    UniqueOutputFile<'K'> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::k_file;
+//    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+//    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//    UniqueOutputFile<'K'> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::k_file;
 
     
 } // namespace model
