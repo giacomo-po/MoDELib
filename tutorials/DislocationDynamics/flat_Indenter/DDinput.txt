@@ -2,7 +2,7 @@
 # Number of simulation steps 
 Nsteps=4000000;
 timeWindow=5.1e03;
-startAtTimeStep = 2010;
+startAtTimeStep = 0;
 
 ######################################
 # TIME STEP
@@ -11,7 +11,7 @@ dx=10;
 equilibriumVelocity=0.01;
 
 # Time integration method:
-useImplicitTimeIntegration=1;
+useImplicitTimeIntegration=0;
 
 ######################################
 # OUTPUT
@@ -20,7 +20,7 @@ outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=1;
+outputPKforce=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=1;
 
