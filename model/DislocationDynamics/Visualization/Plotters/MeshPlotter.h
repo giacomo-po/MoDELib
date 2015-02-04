@@ -60,7 +60,6 @@ namespace model
         
         //        SimplicialMesh<3> mesh;
         
-        const SimplicialMesh<3>* const p_mesh;
         
         std::deque<std::pair<Eigen::Matrix<double,3,1>,Eigen::Matrix<double,6,1>>> deq;
 
@@ -70,6 +69,10 @@ namespace model
 
         
 	public:
+        
+        const SimplicialMesh<3>* const p_mesh;
+
+        
 		enum {showMeshStates=3};
 		short unsigned int showMesh;
 		
@@ -82,10 +85,10 @@ namespace model
         
 		/* Constructor ******************************************/
 		MeshPlotter(const SimplicialMesh<3>* const p_mesh_in) :
+        /* init list */ dispFileIsGood(false),
         /* init list */ p_mesh(p_mesh_in),
         //        /* init list */ edgeFileIsGood(false),
         //		/* init list */ nodeFileIsGood(false),
-		/* init list */ dispFileIsGood(false),
 		/* init list */ showMesh(0),
         //        /* init list */ showQuad(false),
 		/* init list */ dispScale(1.0f)
@@ -118,7 +121,8 @@ namespace model
         }
 		
 		/* read *************************************************/
-		void read(const int& frameN){
+		void read(const int& frameN)
+        {
 			// Read edge file T only if it exists, otherwise try to read 0
             //			edgeFileIsGood=EdgeContainerType::isGood(frameN,true);
             //			if (edgeFileIsGood){

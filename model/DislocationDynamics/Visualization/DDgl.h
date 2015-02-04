@@ -80,7 +80,7 @@ namespace model {
         
         static float alpha;
 		
-        const SimplicialMesh<3>* const p_mesh; // declaring mesh as pointer is necessary
+//        const SimplicialMesh<3>* const p_mesh; // declaring mesh as pointer is necessary
 
         
         //  #include <model/DislocationDynamics/Visualization/eps/rendereps.h>
@@ -168,7 +168,8 @@ namespace model {
 		
 		/*************************************************************/
 		/* initGL ****************************************************/
-		void initGL() const {
+		void initGL() const
+        {
             
             
             
@@ -318,19 +319,10 @@ namespace model {
 		
 		/*************************************************************/
 		/* plotAxes *************************************************/
-		void plotAxes(){
-			if (showAxes){
-				//glDisable(GL_DEPTH_TEST);
-				//glDisable (GL_BLEND);
-				//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				
-                //				glDisable(GL_ALPHA_TEST);
-                //	//			glAlphaFunc(GL_GREATER, 0.0f);
-				
-				//glEnable(GL_COLOR_MATERIAL);
-                //	//			glColor4f(0.0f, 0.0f, 0.0f, 0.1);
-                
-                //               glColor3f(0.0f, 0.0f, 0.0f);
+		void plotAxes()
+        {
+			if (showAxes)
+            {
                 
                 glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
                 GLfloat materialColor[]={0.0, 0.0, 0.0, 0.1};
@@ -340,7 +332,7 @@ namespace model {
                 glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor);  // emission color for the material
                 
 				
-                //				glColor4f(0.0f, 0.0f, 0.0f, 0.8);
+                // Plot axes
 				glBegin(GL_LINES);
 				glVertex3f(xMin, 0.0f,0.0f);
 				glVertex3f(xMax, 0.0f,0.0f);
@@ -352,30 +344,18 @@ namespace model {
 				glVertex3f(0.0f, 0.0f,zMax);
 				glEnd();
                 
-                
-                
-                
-                
-                //          VectorDimF P(VectorDimF::Zero());
-                //        BitmapPlotter::renderString(P,"hello");
-                
-				
-                //			glEnable(GL_DEPTH_TEST); //Makes 3D drawing work when something is in front of something else
-                
-                
-                BitmapPlotter::renderString((VectorDimF()<<0.0f, 0.0f,zMax).finished(),
-                                            /*                       */ static_cast<std::ostringstream*>( &(std::ostringstream() << zMax) )->str());
-                
-                BitmapPlotter::renderString((VectorDimF()<<0.0f, yMax,0.0f).finished(),
-                                            /*                       */ static_cast<std::ostringstream*>( &(std::ostringstream() << yMax) )->str());
-                
-                
+                // Plot labels x1,x2,x3
+                BitmapPlotter::renderString((VectorDimF()<<1.05f*xMax, 0.0f,0.0f).finished(),"x1");
+                BitmapPlotter::renderString((VectorDimF()<<0.0f, 1.05f*yMax,0.0f).finished(),"x2");
+                BitmapPlotter::renderString((VectorDimF()<<0.0f, 0.0f,1.05f*zMax).finished(),"x3");
+
+                // Plot box limits
                 BitmapPlotter::renderString((VectorDimF()<<xMax, 0.0f,0.0f).finished(),
                                             /*                       */ static_cast<std::ostringstream*>( &(std::ostringstream() << xMax) )->str());
-                
-                
-                
-                
+                BitmapPlotter::renderString((VectorDimF()<<0.0f, yMax,0.0f).finished(),
+                                            /*                       */ static_cast<std::ostringstream*>( &(std::ostringstream() << yMax) )->str());
+                BitmapPlotter::renderString((VectorDimF()<<0.0f, 0.0f,zMax).finished(),
+                                            /*                       */ static_cast<std::ostringstream*>( &(std::ostringstream() << zMax) )->str());
 			}
 		}
 		
@@ -389,7 +369,23 @@ namespace model {
 			yMax=0.0f;
 			zMin=0.0f;
 			zMax=0.0f;
-			splinePlotter.boundingBox(xMin,xMax,yMin,yMax,zMin,zMax);
+            if(meshPlotter.p_mesh->size())
+            {
+                
+                std::cout<<"mesh xMin="<<meshPlotter.p_mesh->xMin().transpose()<<std::endl;
+                std::cout<<"mesh xMax="<<meshPlotter.p_mesh->xMax().transpose()<<std::endl;
+                
+                xMin=meshPlotter.p_mesh->xMin()(0);
+                xMax=meshPlotter.p_mesh->xMax()(0);
+                yMin=meshPlotter.p_mesh->xMin()(1);
+                yMax=meshPlotter.p_mesh->xMax()(1);
+                zMin=meshPlotter.p_mesh->xMin()(2);
+                zMax=meshPlotter.p_mesh->xMax()(2);
+            }
+            else
+            {
+                splinePlotter.boundingBox(xMin,xMax,yMin,yMax,zMin,zMax);
+            }
 			xMean=0.5*(xMax+xMin);
 			yMean=0.5*(yMax+yMin);
 			zMean=0.5*(zMax+zMin);
@@ -538,8 +534,9 @@ namespace model {
 		
 		
 		/* Constructor **************************************************/
-		DDgl(const SimplicialMesh<3>* const p_mesh_in) :
-        /* init list */ p_mesh(p_mesh_in),
+		DDgl(const SimplicialMesh<3>* const p_mesh) :
+//        /* init list */ p_mesh(p_mesh_in),
+        /* init list */ stepIncrement(1),
         /* init list */ meshPlotter(p_mesh)
         {
 			
@@ -563,7 +560,7 @@ namespace model {
 			old_y=0;
 			old_x=0;
             
-            stepIncrement=1;
+            
 			
 			scale = 1.0f;
 			
@@ -604,12 +601,9 @@ namespace model {
             autoCenter();
 		}
 		
-		
-		
-		
-		/*************************************************************/
-		/* handleKeypress ********************************************/
-		void zoom () {
+		/**********************************************************************/
+		void zoom ()
+        {
 			float mat[16];
 			glGetFloatv(GL_MODELVIEW_MATRIX, mat);
 			//mat[0], mat[4], mat[8] is the right vector
@@ -622,17 +616,16 @@ namespace model {
 			eyePoint=centerPoint+center2eye*scale;
 		}
 		
-		
-		
-		
-		/* keyUp *****************************************************/
+
+        /**********************************************************************/
 		void keyUp (unsigned char key, int x, int y) {
 			keyStates[key] = false; // Set the state of the current key to "not pressed"
 		}
 		
 		
-		/* handleKeypress ********************************************/
-		void handleKeypress(unsigned char key, int x, int y) { // The key that was press and the current mouse coordinates
+        /**********************************************************************/
+		void handleKeypress(unsigned char key, int x, int y)
+        { // The key that was press and the current mouse coordinates
 			
 			keyStates[key]=true; // Set the state of the current key to pressed
 			

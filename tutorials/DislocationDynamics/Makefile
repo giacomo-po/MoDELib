@@ -135,6 +135,7 @@ DDviewer:
 ##########################################################
 #mkdirV=$(shell test -d V || mkdir V)
 #mkdirE=$(shell test -d E || mkdir E)
+Fexists=$(shell test -d F && echo 1)
 Gexists=$(shell test -d G && echo 1)
 Cexists=$(shell test -d C && echo 1)
 Pexists=$(shell test -d P && echo 1)
@@ -149,6 +150,11 @@ empty:
 	@find V/ -name V_\*.bin ! -name V_0.bin -exec rm {} \;
 	@find E/ -name E_\*.txt ! -name E_0.txt -exec rm {} \;
 	@find E/ -name E_\*.bin ! -name E_0.bin -exec rm {} \;
+ifeq ($(Fexists),1)
+	@echo ${blueColor}emptying folder F ${normalColor}
+	@find F/ -name F_\*.txt -exec rm {} \;
+	@find F/ -name F_\*.bin -exec rm {} \;
+endif
 ifeq ($(Gexists),1)
 	@echo ${blueColor}emptying folder G ${normalColor}
 	@find G/ -name G_\*.txt -exec rm {} \;

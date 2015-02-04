@@ -3,7 +3,7 @@ close all
 clear all
 
 Burgers=0.2556e-9; % for Cu [m]
-targetDensity=1e14; % target initial dislocaiton density [m^-2]
+targetDensity=2e14; % target initial dislocaiton density [m^-2]
 
 L=1000;
 V=L^3;

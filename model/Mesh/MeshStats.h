@@ -41,7 +41,6 @@ namespace model {
                 model::cout<<" ("<<nB<<" boundary)";
             }
             model::cout<<"\n";
-            
         }
 
 	};

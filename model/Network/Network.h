@@ -78,6 +78,18 @@ namespace model {
 			return NetworkLinkContainerType::size();
 		}
         
+        /************************************************************/
+        const NetworkNodeContainerType& nodeContainer() const
+        {
+            return *this;
+        }
+        
+        /************************************************************/
+        const NetworkLinkContainerType& linkContainer() const
+        {
+            return *this;
+        }
+        
 		/************************************************************/
 		// node
 		isNetworkNodeType node(const size_t & k)
@@ -95,16 +107,11 @@ namespace model {
         {
 			return EdgeFinder<LinkType>(*this).link(i,j);
 		}
-		
-        //		isConstNetworkLinkType link(const size_t& i, const size_t& j) const {
-        //			return EdgeFinder<LinkType>(*this).link(i,j);
-        //		}
         
 		isConstNetworkLinkType link(const size_t& i, const size_t& j) const
         {
 			return EdgeFinder<LinkType,true>(*this).link(i,j);
 		}
-		
 		
 		/************************************************************/
 		typename NetworkNodeContainerType::iterator nodeBegin()

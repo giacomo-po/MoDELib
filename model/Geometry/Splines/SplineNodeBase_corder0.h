@@ -8,11 +8,7 @@
 
 
 typedef NetworkNode<Derived> NetworkNodeType;
-
 typedef typename NetworkNodeType::LinkType LinkType;
-
-//typedef std::tuple<Derived*,LinkType*,short int> NeighborType;
-//typedef std::map<size_t,NeighborType> NeighborContainerType;
 typedef typename NetworkNodeType::NeighborType NeighborType;
 typedef typename NetworkNodeType::NeighborContainerType NeighborContainerType;
 
@@ -33,52 +29,45 @@ public:
 		return P;
 	}
 
-//	///////////////////////////////
-//	bool is_removable() const {
-//		return true;
-//	}
-
-
-
-
-/* isNeighborAt ***************************************************************/
-std::set<size_t> areNeighborsAt(const VectorDim& P0) const
-{
-    std::set<size_t> temp;
-    for (typename Derived::NeighborContainerType::const_iterator nIiter =this->neighborhood().begin();
-         /*                                                   */ nIiter!=this->neighborhood().end();
-         /*                                                   */ nIiter++)
-    { // loop over neighborhood
-        if (std::get<0>(nIiter->second)->sID!=this->sID)
-        { // neighbor is not this
-            if((std::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON)
-            { // a neighbor of I exists at P0
-                const bool ableToInsert(temp.insert(std::get<0>(nIiter->second)->sID).second);
-                assert(ableToInsert && "COULD NOT INSERT ID IN isNeighborAt");
-            }
-        }
-    }
-    return temp;
-}
-
-/* isNeighborAt ***************************************************************/
-void neighborsAt(const VectorDim& P0, std::set<size_t>& temp) const
-{
-//    std::pair<bool,size_t> temp(false,0);
+/******************************************************************************/
+void neighborsAt(const VectorDim& P0, std::set<size_t>& temp, const double& tol) const
+{/*!\param[in] P0 position to be serached
+  * \param[out]temp set of IDs of neighbors of this which are located at P0
+  * \param[in] tol tolerance used to detect position overlap
+  */
     for (typename Derived::NeighborContainerType::const_iterator nIiter=this->neighborhood().begin();
          nIiter!=this->neighborhood().end();++nIiter)
     { // loop over neighborhood
         if (std::get<0>(nIiter->second)->sID!=this->sID)
         { // neighbor is not this
-            if((std::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON)
+            if((std::get<0>(nIiter->second)->get_P()-P0).norm()<tol)
             { // a neighbor of I exists at P0
-//                temp=std::pair<bool,size_t>(true,std::get<0>(nIiter->second)->sID);
                 temp.insert(std::get<0>(nIiter->second)->sID);
             }
         }
     }
-//    return temp;
 }
+
+
+///* isNeighborAt ***************************************************************/
+//std::set<size_t> areNeighborsAt(const VectorDim& P0) const
+//{
+//    std::set<size_t> temp;
+//    for (typename Derived::NeighborContainerType::const_iterator nIiter =this->neighborhood().begin();
+//         /*                                                   */ nIiter!=this->neighborhood().end();
+//         /*                                                   */ nIiter++)
+//    { // loop over neighborhood
+//        if (std::get<0>(nIiter->second)->sID!=this->sID)
+//        { // neighbor is not this
+//            if((std::get<0>(nIiter->second)->get_P()-P0).norm()<FLT_EPSILON)
+//            { // a neighbor of I exists at P0
+//                const bool ableToInsert(temp.insert(std::get<0>(nIiter->second)->sID).second);
+//                assert(ableToInsert && "COULD NOT INSERT ID IN isNeighborAt");
+//            }
+//        }
+//    }
+//    return temp;
+//}
 
 ///* isNeighborAt ***************************************************************/
 //std::pair<bool,size_t> isNeighborAt(const VectorDim& P0) const {

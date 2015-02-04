@@ -132,12 +132,11 @@ namespace model
             const size_t sizePN1(PN1.size());
             const size_t sizePN2(PN2.size());
             
-//            std::cout<<"Contracting with Plane Check: case "<<sizePN1<<" "<<sizePN2<<std::endl;
+            //std::cout<<"contractWithConstraintCheck "<<N1.second->sID<<" "<<N2.second->sID<<std::endl;
+            //std::cout<<"contractWithConstraintCheck: case "<<sizePN1<<" "<<sizePN2<<std::endl;
             
             if(sizePN1==1 && sizePN2==1) // nodes constrained to move on planes
             {
-                //                const VectorDimD d(PN1[0].cross(PN2[0])); // direction of common line
-                
                 //std::cout<<"contractWithConstraintCheck, case 1"<<std::endl;
                 const double denom(1.0-std::pow(PN1[0].dot(PN2[0]),2));
                 const double numer((P2-P1).dot(PN2[0]));
@@ -164,20 +163,19 @@ namespace model
                 const VectorDimD d2(PN2[0].cross(PN2[1]));
                 const double den(d2.dot(PN1[0]));
                 const double num((P1-P2).dot(PN1[0]));
-                if(std::fabs(den)>FLT_EPSILON)
+                if(std::fabs(den)>FLT_EPSILON) // line and plane are not parallel
                 {
+                    //std::cout<<"contractWithConstraintCheck, case 2a"<<std::endl;
                     contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+num/den*d2);
                 }
                 else
                 {
                     if(std::fabs(num)<FLT_EPSILON && (P1-P2).norm()<FLT_EPSILON)
                     {
+                        //std::cout<<"contractWithConstraintCheck, case 2b"<<std::endl;
                         contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
                     }
-                    //                    else
-                    //                    {
-                    //                        assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
-                    //                    }
+                    //std::cout<<"contractWithConstraintCheck, case 2c"<<std::endl;
                 }
             }
             else if(sizePN1==2 && sizePN2==1) // N1 moves on a line, N2 moves on a plane
@@ -186,7 +184,7 @@ namespace model
                 const VectorDimD d1(PN1[0].cross(PN1[1]));
                 const double den(d1.dot(PN2[0]));
                 const double num((P2-P1).dot(PN2[0]));
-                if(std::fabs(den)>FLT_EPSILON)
+                if(std::fabs(den)>FLT_EPSILON) // line and plane are not parallel
                 {
                     contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P1+num/den*d1);
                 }
@@ -196,10 +194,6 @@ namespace model
                     {
                         contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
                     }
-                    //                    else
-                    //                    {
-                    //                        assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
-                    //                    }
                 }
             }
             else if(sizePN1==2 && sizePN2==2) // both N1 and N2 move on lines
@@ -221,10 +215,10 @@ namespace model
                     const double d2norm(d2.norm());
                     assert(d2norm>FLT_EPSILON && "DIRECTION d2 HAS ZERO NORM");
                     d2/=d2norm;
-
+                    
                     const VectorDimD d3(d1.cross(d2));
                     const double d3Norm(d3.norm());
-
+                    
                     if(d3Norm<FLT_EPSILON) // d1 and d2 are aligned, this means colinear or no intersection
                     {
                         if(d1.cross((P1-P2).normalized()).norm()<FLT_EPSILON) // colinear
@@ -246,10 +240,10 @@ namespace model
                             assert(std::fabs(den)>FLT_EPSILON && "YOU SHOULD HAVE FOUND THIS ABOVE.");
                             contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+(P1-P2).dot(dOrth)/den*d2);
                         }
-//                        else
-//                        {
-//                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. PLANARITY CONDITION FAILED.");
-//                        }
+                        //                        else
+                        //                        {
+                        //                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. PLANARITY CONDITION FAILED.");
+                        //                        }
                     }
                 }
             }
@@ -426,8 +420,8 @@ namespace model
                                 EdgeIntersectionType intersectionOnB(std::make_pair(linkIterB->second.nodeIDPair,paramIter->second));
                                 const int dir(junctionDir(linkIterA->second,linkIterB->second,paramIter->first,paramIter->second));
                                 
-//                                std::cout<< "Intersecting "<<linkIterA->second.nodeIDPair.first<<"->"<<linkIterA->second.nodeIDPair.second<<" "
-//                                <<linkIterB->second.nodeIDPair.first<<"->"<<linkIterB->second.nodeIDPair.second<<". dir="<<dir<<std::endl;
+                                //                                //std::cout<< "Intersecting "<<linkIterA->second.nodeIDPair.first<<"->"<<linkIterA->second.nodeIDPair.second<<" "
+                                //                                <<linkIterB->second.nodeIDPair.first<<"->"<<linkIterB->second.nodeIDPair.second<<". dir="<<dir<<std::endl;
                                 
                                 if(dir!=0)
                                 {
@@ -465,8 +459,7 @@ namespace model
                 const isNetworkLinkType L1(DN.link(key1.first,key1.second));
                 const isNetworkLinkType L2(DN.link(key2.first,key2.second));
                 
-//                std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"
-//                <<intersectionContainer[interID]. first.second<<","<<intersectionContainer[interID]. second.second<<std::endl;
+                //std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[interID]. first.second<<","<<intersectionContainer[interID]. second.second<<std::endl;
                 
                 if(L1.first && L2.first) // Links exist
                 {
@@ -495,9 +488,9 @@ namespace model
                     }
                     
                     
-//                    std::cout<<"du1="<<du1<<std::endl;
-//                    std::cout<<"du2="<<du2<<std::endl;
-                    //                    std::cout<<"avoidNodeIntersection="<<avoidNodeIntersection<<std::endl;
+                    //std::cout<<"du1="<<du1<<std::endl;
+                    //std::cout<<"du2="<<du2<<std::endl;
+                    //                    //std::cout<<"avoidNodeIntersection="<<avoidNodeIntersection<<std::endl;
                     
                     const VectorDimD C1(L1.second->chord());
                     const VectorDimD C2(L2.second->chord());
@@ -589,15 +582,15 @@ namespace model
                     {
                         case +1:
                         {
-//                            std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
-//                            std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
+                            //std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
+                            //std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
                             if(im!=jm)
                             {
                                 const isNetworkNodeType N1=DN.node(im);
                                 const isNetworkNodeType N2=DN.node(jm);
                                 if(N1.first && N2.first)
                                 {
-//                                    std::cout<<"first contract +1"<<jm<<std::endl;
+                                    //std::cout<<"first contract +1 "<<jm<<std::endl;
                                     contractWithConstraintCheck(N1,N2);
                                 }
                             }
@@ -607,7 +600,7 @@ namespace model
                                 const isNetworkNodeType N2=DN.node(jp);
                                 if(N1.first && N2.first)
                                 {
-//                                    std::cout<<"second contract +1"<<jm<<std::endl;
+                                    //std::cout<<"second contract +1 "<<jm<<std::endl;
                                     contractWithConstraintCheck(N1,N2);
                                 }
                             }
@@ -616,15 +609,15 @@ namespace model
                             
                         case -1:
                         {
-//                            std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
-//                            std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
+                            //std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
+                            //std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
                             if(im!=jp)
                             {
                                 const isNetworkNodeType N1=DN.node(im);
                                 const isNetworkNodeType N2=DN.node(jp);
                                 if(N1.first && N2.first)
                                 {
-//                                    std::cout<<"first contract -1"<<jm<<std::endl;
+                                    //std::cout<<"first contract -1 "<<jm<<std::endl;
                                     contractWithConstraintCheck(N1,N2);
                                 }
                             }
@@ -634,7 +627,7 @@ namespace model
                                 const isNetworkNodeType N2=DN.node(jm);
                                 if(N1.first && N2.first)
                                 {
-//                                    std::cout<<"second contract -1"<<jm<<std::endl;
+                                    //std::cout<<"second contract -1 "<<jm<<std::endl;
                                     contractWithConstraintCheck(N1,N2);
                                 }
                             }
@@ -693,17 +686,15 @@ namespace model
         {
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"		Breaking zero-length Junctions... "<<std::flush;
-
+            
             std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecomp;
             
-            for (typename NetworkNodeContainerType::const_iterator nodeIter =DN.nodeBegin();
-                 /*                                             */ nodeIter!=DN.nodeEnd();
-                 /*                                             */ nodeIter++)
+            for (auto& nodePair : DN.nodeContainer())
             {
-                std::deque<std::pair<size_t,size_t> > temp=nodeIter->second.edgeDecomposition();
+                std::deque<std::pair<size_t,size_t> > temp=nodePair.second.edgeDecomposition();
                 if(temp.size())
                 {
-                    nodeDecomp.emplace_back(nodeIter->second.sID,temp);
+                    nodeDecomp.emplace_back(nodePair.second.sID,temp);
                 }
             }
             
@@ -714,7 +705,7 @@ namespace model
                 const size_t& i=nodeDecomp[n].first;
                 auto Ni=DN.node(i);
                 assert(Ni.first);
-//                size_t m=DN.insertVertex(Ni.second->get_P());
+                //                size_t m=DN.insertVertex(Ni.second->get_P());
                 
                 // Check that Links still exist
                 bool linksexist=true;
@@ -782,470 +773,3 @@ namespace model
 } // namespace model
 #endif
 
-
-//                    if (   intersectionContainer[interID]. first.second-du1 > avoidNodeIntersection     // intersection on first link is far enough from source
-//                        && intersectionContainer[interID]. first.second+du1<1.0-avoidNodeIntersection   // intersection on first link is far enough from sink
-//                        && intersectionContainer[interID].second.second-du2 > avoidNodeIntersection     // intersection on second link is far enough from source
-//                        && intersectionContainer[interID].second.second+du2<1.0-avoidNodeIntersection   // intersection on second link is far enough from sink
-//                        //                        && dirVector[interID]!=0
-//                        )
-//                    {
-//                        std::cout<<"Case A"<<std::endl;
-//
-//
-//                        const double u1m(intersectionContainer[interID]. first.second-du1);
-//                        const double u2m(intersectionContainer[interID].second.second-du2);
-//                        const VectorDimD P1m(L1.second->get_r(u1m));
-//                        const VectorDimD P2m(L2.second->get_r(u2m));
-//
-//                        const double u1p(intersectionContainer[interID]. first.second+du1);
-//                        const double u2p(intersectionContainer[interID].second.second+du2);
-//                        const VectorDimD P1p(L1.second->get_r(u1p));
-//                        const VectorDimD P2p(L2.second->get_r(u2p));
-//
-//
-//                        bool firstIntersectionInsideMesh(true);
-//                        if (DN.shared.use_boundary)
-//                        {
-//                            //                            firstIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L1.second->get_r(u1m),L1.second->source->includingSimplex(),FLT_EPSILON).first;
-//                            firstIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P1m,S1).first;
-//                            if(firstIntersectionInsideMesh)
-//                            {
-//                                //                                firstIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2m),L2.second->source->includingSimplex(),FLT_EPSILON).first;
-//                                firstIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P2m,S2).first;
-//                            }
-//                        }
-//
-//                        bool secondIntersectionInsideMesh(true);
-//                        if (DN.shared.use_boundary)
-//                        {
-//                            //                            secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L1.second->get_r(u1p),L1.second->source->includingSimplex(),FLT_EPSILON).first;
-//                            secondIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P1p,L1.second->source->includingSimplex()).first;
-//                            if(secondIntersectionInsideMesh)
-//                            {
-//                                //                                secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2p),L2.second->source->includingSimplex(),FLT_EPSILON).first;
-//                                secondIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P2p,L2.second->source->includingSimplex()).first;
-//                            }
-//                        }
-//
-//                        if(firstIntersectionInsideMesh && secondIntersectionInsideMesh)
-//                        {
-//
-//                            //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-//                            //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-//                            //std::cout<<"Junction case 1"<<std::endl;
-//
-//                            const std::pair<bool,size_t> success1m=DN.expand(source1.sID,sink1.sID,P1m); // now L1.second is invalid
-//                            assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
-//                            const size_t& im=success1m.second; // id of the node obtained expanding L1
-//
-//                            const std::pair<bool,size_t> success2m=DN.expand(source2.sID,sink2.sID,P2m); // now L2.second is invalid
-//                            assert(success2m.first && "COULD NOT EXPLAND LINK2 AT LOWER INTERSECTION");
-//                            const size_t& jm=success2m.second; // id of the node obtained expanding L2
-//
-//                            const std::pair<bool,size_t> success1p=DN.expand(im,sink1.sID,P1p); // now L1.second is invalid
-//                            assert(success1p.first && "COULD NOT EXPLAND LINK1 AT UPPER INTERSECTION");
-//                            const size_t& ip=success1p.second; // id of the node obtained expanding L1
-//
-//                            const std::pair<bool,size_t> success2p=DN.expand(jm,sink2.sID,P2p); // now L2.second is invalid
-//                            assert(success2p.first && "COULD NOT EXPLAND LINK2 AT UPPER INTERSECTION");
-//                            const size_t& jp=success2p.second; // id of the node obtained expanding L2
-//
-//                            switch (dirVector[interID])
-//                            {
-//                                case +1:
-//                                {
-//                                    contractWithConstraintCheck(im,jm);
-//                                    contractWithConstraintCheck(ip,jp);
-//                                    break;
-//                                }
-//
-//                                case -1:
-//                                {
-//                                    contractWithConstraintCheck(im,jp);
-//                                    contractWithConstraintCheck(ip,jm);
-//                                    break;
-//                                }
-//
-//                                default:
-//                                    assert(0 && "DIR VECTOR CAN ONLY BE +1 or -1");
-//                                    break;
-//                            }
-//
-//                        }
-//
-//                    }
-//                    else if (   intersectionContainer[interID]. first.second-du1 < avoidNodeIntersection     // intersection on first link is near source
-//                             && intersectionContainer[interID]. first.second+du1<1.0-avoidNodeIntersection        // intersection on first link is far enough from sink
-//                             && intersectionContainer[interID].second.second-du2 > avoidNodeIntersection          // intersection on second link is far enough from source
-//                             && intersectionContainer[interID].second.second+du2<1.0-avoidNodeIntersection        // intersection on second link is far enough from sink
-//                             )
-//                    {
-//                        std::cout<<"Case B"<<std::endl;
-//                        //                        const double u1m(intersectionContainer[interID]. first.second-du1);
-//                        const double u2m(intersectionContainer[interID].second.second-du2);
-//                        //                        const VectorDimD P1m(L1.second->get_r(u1m));
-//                        const VectorDimD P2m(L2.second->get_r(u2m));
-//
-//                        const double u1p(intersectionContainer[interID]. first.second+du1);
-//                        const double u2p(intersectionContainer[interID].second.second+du2);
-//                        const VectorDimD P1p(L1.second->get_r(u1p));
-//                        const VectorDimD P2p(L2.second->get_r(u2p));
-//
-//                        std::cout<<"P1p="<<P1p.transpose()<<std::endl;
-//                        std::cout<<"P2p="<<P2p.transpose()<<std::endl;
-//                        std::cout<<"P2m="<<P2m.transpose()<<std::endl;
-//
-//                        bool firstIntersectionInsideMesh(true);
-//                        if (DN.shared.use_boundary)
-//                        {
-//                            firstIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P2m,S2).first;
-//                        }
-//
-//                        bool secondIntersectionInsideMesh(true);
-//                        if (DN.shared.use_boundary)
-//                        {
-//                            secondIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P1p,L1.second->source->includingSimplex()).first;
-//                            if(secondIntersectionInsideMesh)
-//                            {
-//                                secondIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P2p,L2.second->source->includingSimplex()).first;
-//                            }
-//                        }
-//
-//                        std::cout<<"firstIntersectionInsideMesh="<<firstIntersectionInsideMesh<<std::endl;
-//                        std::cout<<"secondIntersectionInsideMesh="<<secondIntersectionInsideMesh<<std::endl;
-//
-//                        if(firstIntersectionInsideMesh && secondIntersectionInsideMesh)
-//                        {
-//
-//
-//                            //                            const std::pair<bool,size_t> success1m=DN.expand(source1.sID,sink1.sID,P1m); // now L1.second is invalid
-//                            //                            assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
-//                            const size_t& im=source1.sID; // id of the node obtained expanding L1
-//
-//                            //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-//                            //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-//                            //std::cout<<"Junction case 2: node "<<im<<" survives"<<std::endl;
-//
-//                            const std::pair<bool,size_t> success2m=DN.expand(source2.sID,sink2.sID,P2m); // now L2.second is invalid
-//                            assert(success2m.first && "COULD NOT EXPLAND LINK2 AT LOWER INTERSECTION");
-//                            const size_t& jm=success2m.second; // id of the node obtained expanding L2
-//
-//                            const std::pair<bool,size_t> success1p=DN.expand(im,sink1.sID,P1p); // now L1.second is invalid
-//                            assert(success1p.first && "COULD NOT EXPLAND LINK1 AT UPPER INTERSECTION");
-//                            const size_t& ip=success1p.second; // id of the node obtained expanding L1
-//
-//                            const std::pair<bool,size_t> success2p=DN.expand(jm,sink2.sID,P2p); // now L2.second is invalid
-//                            assert(success2p.first && "COULD NOT EXPLAND LINK2 AT UPPER INTERSECTION");
-//                            const size_t& jp=success2p.second; // id of the node obtained expanding L2
-//
-//                            switch (dirVector[interID])
-//                            {
-//                                case +1:
-//                                {
-//                                    contractWithConstraintCheck(im,jm);
-//                                    contractWithConstraintCheck(ip,jp);
-//                                    break;
-//                                }
-//
-//                                case -1:
-//                                {
-//                                    contractWithConstraintCheck(im,jp);
-//                                    contractWithConstraintCheck(ip,jm);
-//                                    break;
-//                                }
-//
-//                                default:
-//                                    assert(0 && "DIR VECTOR CAN ONLY BE +1 or -1");
-//                                    break;
-//                            }
-//
-//                        }
-//
-//                    }
-//                    else if (   intersectionContainer[interID]. first.second-du1 > avoidNodeIntersection     // intersection on first link is far enough from source
-//                             && intersectionContainer[interID]. first.second+du1 >1.0-avoidNodeIntersection   // intersection on first link is near sink
-//                             && intersectionContainer[interID].second.second-du2 > avoidNodeIntersection     // intersection on second link is far enough from source
-//                             && intersectionContainer[interID].second.second+du2<1.0-avoidNodeIntersection   // intersection on second link is far enough from sink
-//                             //                        && dirVector[interID]!=0
-//                             )
-//                    {
-//                        std::cout<<"Case C"<<std::endl;
-//
-//                        //                        //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-//                        //                        //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-//
-//                        const double u1m(intersectionContainer[interID]. first.second-du1);
-//                        const double u2m(intersectionContainer[interID].second.second-du2);
-//                        const VectorDimD P1m(L1.second->get_r(u1m));
-//                        const VectorDimD P2m(L2.second->get_r(u2m));
-//
-//                        //                        const double u1p(intersectionContainer[interID]. first.second+du1);
-//                        const double u2p(intersectionContainer[interID].second.second+du2);
-//                        //                        const VectorDimD P1p(L1.second->get_r(u1p));
-//                        const VectorDimD P2p(L2.second->get_r(u2p));
-//
-//
-//                        bool firstIntersectionInsideMesh(true);
-//                        if (DN.shared.use_boundary)
-//                        {
-//                            //                            firstIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L1.second->get_r(u1m),L1.second->source->includingSimplex(),FLT_EPSILON).first;
-//                            firstIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P1m,S1).first;
-//                            if(firstIntersectionInsideMesh)
-//                            {
-//                                //                                firstIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2m),L2.second->source->includingSimplex(),FLT_EPSILON).first;
-//                                firstIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P2m,S2).first;
-//                            }
-//                        }
-//
-//                        bool secondIntersectionInsideMesh(true);
-//                        if (DN.shared.use_boundary)
-//                        {
-//                            //                            secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L1.second->get_r(u1p),L1.second->source->includingSimplex(),FLT_EPSILON).first;
-//                            //                            secondIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P1p,L1.second->source->includingSimplex()).first;
-//                            //                            if(secondIntersectionInsideMesh)
-//                            //                            {
-//                            //                                secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2p),L2.second->source->includingSimplex(),FLT_EPSILON).first;
-//                            secondIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P2p,L2.second->source->includingSimplex()).first;
-//                            //                            }
-//                        }
-//
-//                        if(firstIntersectionInsideMesh && secondIntersectionInsideMesh)
-//                        {
-//
-//                            const std::pair<bool,size_t> success1m=DN.expand(source1.sID,sink1.sID,P1m); // now L1.second is invalid
-//                            assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
-//                            const size_t& im=success1m.second; // id of the node obtained expanding L1
-//
-//                            const std::pair<bool,size_t> success2m=DN.expand(source2.sID,sink2.sID,P2m); // now L2.second is invalid
-//                            assert(success2m.first && "COULD NOT EXPLAND LINK2 AT LOWER INTERSECTION");
-//                            const size_t& jm=success2m.second; // id of the node obtained expanding L2
-//
-//                            //                            const std::pair<bool,size_t> success1p=DN.expand(im,sink1.sID,P1p); // now L1.second is invalid
-//                            //                            assert(success1p.first && "COULD NOT EXPLAND LINK1 AT UPPER INTERSECTION");
-//                            const size_t& ip=sink1.sID; // id of the node obtained expanding L1
-//
-//                            //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-//                            //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-//                            //std::cout<<"Junction case 3: node "<<ip<<" survives"<<std::endl;
-//
-//                            const std::pair<bool,size_t> success2p=DN.expand(jm,sink2.sID,P2p); // now L2.second is invalid
-//                            assert(success2p.first && "COULD NOT EXPLAND LINK2 AT UPPER INTERSECTION");
-//                            const size_t& jp=success2p.second; // id of the node obtained expanding L2
-//
-//                            switch (dirVector[interID])
-//                            {
-//                                case +1:
-//                                {
-//                                    contractWithConstraintCheck(im,jm);
-//                                    contractWithConstraintCheck(ip,jp);
-//                                    break;
-//                                }
-//
-//                                case -1:
-//                                {
-//                                    contractWithConstraintCheck(im,jp);
-//                                    contractWithConstraintCheck(ip,jm);
-//                                    break;
-//                                }
-//
-//                                default:
-//                                    assert(0 && "DIR VECTOR CAN ONLY BE +1 or -1");
-//                                    break;
-//                            }
-//
-//                        }
-//
-//                    }
-//                    else if (   intersectionContainer[interID]. first.second-du1 > avoidNodeIntersection     // intersection on first link is far enough from source
-//                             && intersectionContainer[interID]. first.second+du1<1.0-avoidNodeIntersection   // intersection on first link is far enough from sink
-//                             && intersectionContainer[interID].second.second-du2 < avoidNodeIntersection     // intersection on second link near source
-//                             && intersectionContainer[interID].second.second+du2<1.0-avoidNodeIntersection   // intersection on second link is far enough from sink
-//                             //                        && dirVector[interID]!=0
-//                             )
-//                    {
-//                        std::cout<<"Case D"<<std::endl;
-//
-//                        //                        //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-//                        //                        //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-//
-//                        const double u1m(intersectionContainer[interID]. first.second-du1);
-//                        //                        const double u2m(intersectionContainer[interID].second.second-du2);
-//                        const VectorDimD P1m(L1.second->get_r(u1m));
-//                        //                        const VectorDimD P2m(L2.second->get_r(u2m));
-//
-//                        const double u1p(intersectionContainer[interID]. first.second+du1);
-//                        const double u2p(intersectionContainer[interID].second.second+du2);
-//                        const VectorDimD P1p(L1.second->get_r(u1p));
-//                        const VectorDimD P2p(L2.second->get_r(u2p));
-//
-//
-//                        bool firstIntersectionInsideMesh(true);
-//                        if (DN.shared.use_boundary)
-//                        {
-//                            //                            firstIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L1.second->get_r(u1m),L1.second->source->includingSimplex(),FLT_EPSILON).first;
-//                            firstIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P1m,S1).first;
-//                            //                            if(firstIntersectionInsideMesh)
-//                            //                            {
-//                            //                                //                                firstIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2m),L2.second->source->includingSimplex(),FLT_EPSILON).first;
-//                            //                                firstIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P2m,S2).first;
-//                            //                            }
-//                        }
-//
-//                        bool secondIntersectionInsideMesh(true);
-//                        if (DN.shared.use_boundary)
-//                        {
-//                            //                            secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L1.second->get_r(u1p),L1.second->source->includingSimplex(),FLT_EPSILON).first;
-//                            secondIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P1p,L1.second->source->includingSimplex()).first;
-//                            if(secondIntersectionInsideMesh)
-//                            {
-//                                //                                secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2p),L2.second->source->includingSimplex(),FLT_EPSILON).first;
-//                                secondIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P2p,L2.second->source->includingSimplex()).first;
-//                            }
-//                        }
-//
-//                        if(firstIntersectionInsideMesh && secondIntersectionInsideMesh)
-//                        {
-//
-//                            const std::pair<bool,size_t> success1m=DN.expand(source1.sID,sink1.sID,P1m); // now L1.second is invalid
-//                            assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
-//                            const size_t& im=success1m.second; // id of the node obtained expanding L1
-//
-//                            //                            const std::pair<bool,size_t> success2m=DN.expand(source2.sID,sink2.sID,P2m); // now L2.second is invalid
-//                            //                            assert(success2m.first && "COULD NOT EXPLAND LINK2 AT LOWER INTERSECTION");
-//                            const size_t& jm=source2.sID; // id of the node obtained expanding L2
-//
-//                            //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-//                            //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-//                            //std::cout<<"Junction case 4: node "<<jm<<" survives"<<std::endl;
-//
-//
-//                            const std::pair<bool,size_t> success1p=DN.expand(im,sink1.sID,P1p); // now L1.second is invalid
-//                            assert(success1p.first && "COULD NOT EXPLAND LINK1 AT UPPER INTERSECTION");
-//                            const size_t& ip=success1p.second; // id of the node obtained expanding L1
-//
-//                            const std::pair<bool,size_t> success2p=DN.expand(jm,sink2.sID,P2p); // now L2.second is invalid
-//                            assert(success2p.first && "COULD NOT EXPLAND LINK2 AT UPPER INTERSECTION");
-//                            const size_t& jp=success2p.second; // id of the node obtained expanding L2
-//
-//                            switch (dirVector[interID])
-//                            {
-//                                case +1:
-//                                {
-//                                    contractWithConstraintCheck(im,jm);
-//                                    contractWithConstraintCheck(ip,jp);
-//                                    break;
-//                                }
-//
-//                                case -1:
-//                                {
-//                                    contractWithConstraintCheck(im,jp);
-//                                    contractWithConstraintCheck(ip,jm);
-//                                    break;
-//                                }
-//
-//                                default:
-//                                    assert(0 && "DIR VECTOR CAN ONLY BE +1 or -1");
-//                                    break;
-//                            }
-//
-//                        }
-//
-//                    }
-//                    else if (   intersectionContainer[interID]. first.second-du1 > avoidNodeIntersection     // intersection on first link is far enough from source
-//                             && intersectionContainer[interID]. first.second+du1<1.0-avoidNodeIntersection   // intersection on first link is far enough from sink
-//                             && intersectionContainer[interID].second.second-du2 > avoidNodeIntersection     // intersection on second link is far enough from source
-//                             && intersectionContainer[interID].second.second+du2>1.0-avoidNodeIntersection   // intersection on second link is near sink
-//                             //                        && dirVector[interID]!=0
-//                             )
-//                    {
-//                        std::cout<<"Case E"<<std::endl;
-//
-//                        //                        //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-//                        //                        //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-//
-//                        const double u1m(intersectionContainer[interID]. first.second-du1);
-//                        const double u2m(intersectionContainer[interID].second.second-du2);
-//                        const VectorDimD P1m(L1.second->get_r(u1m));
-//                        const VectorDimD P2m(L2.second->get_r(u2m));
-//
-//                        const double u1p(intersectionContainer[interID]. first.second+du1);
-//                        //                        const double u2p(intersectionContainer[interID].second.second+du2);
-//                        const VectorDimD P1p(L1.second->get_r(u1p));
-//                        //                        const VectorDimD P2p(L2.second->get_r(u2p));
-//                        //
-//
-//                        bool firstIntersectionInsideMesh(true);
-//                        if (DN.shared.use_boundary)
-//                        {
-//                            //                            firstIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L1.second->get_r(u1m),L1.second->source->includingSimplex(),FLT_EPSILON).first;
-//                            firstIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P1m,S1).first;
-//                            if(firstIntersectionInsideMesh)
-//                            {
-//                                //                                firstIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2m),L2.second->source->includingSimplex(),FLT_EPSILON).first;
-//                                firstIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P2m,S2).first;
-//                            }
-//                        }
-//
-//                        bool secondIntersectionInsideMesh(true);
-//                        if (DN.shared.use_boundary)
-//                        {
-//                            //                            secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L1.second->get_r(u1p),L1.second->source->includingSimplex(),FLT_EPSILON).first;
-//                            secondIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P1p,L1.second->source->includingSimplex()).first;
-//                            //                            if(secondIntersectionInsideMesh)
-//                            //                            {
-//                            //                                //                                secondIntersectionInsideMesh*=DN.shared.mesh.isStrictlyInsideMesh(L2.second->get_r(u2p),L2.second->source->includingSimplex(),FLT_EPSILON).first;
-//                            //                                secondIntersectionInsideMesh*=DN.shared.mesh.searchWithGuess(P2p,L2.second->source->includingSimplex()).first;
-//                            //                            }
-//                        }
-//
-//                        if(firstIntersectionInsideMesh && secondIntersectionInsideMesh)
-//                        {
-//
-//                            const std::pair<bool,size_t> success1m=DN.expand(source1.sID,sink1.sID,P1m); // now L1.second is invalid
-//                            assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
-//                            const size_t& im=success1m.second; // id of the node obtained expanding L1
-//
-//                            const std::pair<bool,size_t> success2m=DN.expand(source2.sID,sink2.sID,P2m); // now L2.second is invalid
-//                            assert(success2m.first && "COULD NOT EXPLAND LINK2 AT LOWER INTERSECTION");
-//                            const size_t& jm=success2m.second; // id of the node obtained expanding L2
-//
-//                            const std::pair<bool,size_t> success1p=DN.expand(im,sink1.sID,P1p); // now L1.second is invalid
-//                            assert(success1p.first && "COULD NOT EXPLAND LINK1 AT UPPER INTERSECTION");
-//                            const size_t& ip=success1p.second; // id of the node obtained expanding L1
-//
-//                            //                            const std::pair<bool,size_t> success2p=DN.expand(jm,sink2.sID,P2p); // now L2.second is invalid
-//                            //                            assert(success2p.first && "COULD NOT EXPLAND LINK2 AT UPPER INTERSECTION");
-//                            const size_t& jp=sink2.sID; // id of the node obtained expanding L2
-//
-//
-//                            //model::cout<<"key1 is "<<key1.first<<"->"<<key1.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID]. first.second<<std::endl;
-//                            //model::cout<<"key2 is "<<key2.first<<"->"<<key2.second<<" at "<<std::setprecision(15)<<intersectionContainer[interID].second.second<<std::endl;
-//                            //std::cout<<"Junction case 5: node "<<jp<<" survives"<<std::endl;
-//
-//
-//
-//                            switch (dirVector[interID])
-//                            {
-//                                case +1:
-//                                {
-//                                    contractWithConstraintCheck(im,jm);
-//                                    contractWithConstraintCheck(ip,jp);
-//                                    break;
-//                                }
-//
-//                                case -1:
-//                                {
-//                                    contractWithConstraintCheck(im,jp);
-//                                    contractWithConstraintCheck(ip,jm);
-//                                    break;
-//                                }
-//
-//                                default:
-//                                    assert(0 && "DIR VECTOR CAN ONLY BE +1 or -1");
-//                                    break;
-//                            }
-//
-//                        }
-//
-//                    }

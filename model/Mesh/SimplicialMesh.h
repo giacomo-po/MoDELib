@@ -57,9 +57,10 @@ namespace model {
         
         /**********************************************************************/
         SimplicialMesh() :
-        /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Constant( DBL_MAX)),
-        /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Constant(-DBL_MAX))
-        
+//        /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Constant( DBL_MAX)),
+//        /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Constant(-DBL_MAX))
+        /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Zero()),
+        /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Zero())
         {
         }
         
@@ -77,7 +78,6 @@ namespace model {
             model::cout<<greenColor<<"Reading mesh "<<meshID<<defaultColor<<std::endl;
             this->clear();
             
-//            Simplex<dim,0>::nodeReader.read(meshID,true);
             SimplexReader<dim>::nodeReader.read(meshID,true);
             
             this->clear();
@@ -89,7 +89,6 @@ namespace model {
             
             if (success)
             {
-//                double t0(clock());
                 const auto t0= std::chrono::system_clock::now();
 
                 model::cout<<"Creating mesh..."<<std::flush;
@@ -101,34 +100,46 @@ namespace model {
                     //                    binFile.write(std::make_pair(eIter->first,eIter->second));
                     
                 }
-//                model::cout<<" done.["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
                 model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
                 MeshStats<dim,dim>::stats(true);
                 SimplexReader<dim>::nodeReader.clear();
+                
+                if(this->size())
+                {
+                    _xMin=SimplexObserver<dim,0>::simplexBegin()->second->P0;
+                    _xMax=SimplexObserver<dim,0>::simplexBegin()->second->P0;
+                    
+                    for (typename SimplexObserver<dim,0>::const_iterator nIter = SimplexObserver<dim,0>::simplexBegin();
+                         /*                                           */ nIter!= SimplexObserver<dim,0>::simplexEnd();
+                         /*                                           */ nIter++)
+                    {
+                        for(int d=0;d<dim;++d)
+                        {
+                            if (nIter->second->P0(d)<_xMin(d))
+                            {
+                                _xMin(d)=nIter->second->P0(d);
+                            }
+                            if (nIter->second->P0(d)>_xMax(d))
+                            {
+                                _xMax(d)=nIter->second->P0(d);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    model::cout<<"Mesh is empty."<<std::endl;
+
+                }
             }
             else
             {
                 model::cout<<"Cannot read mesh file T/T_"<<meshID<<".txt . Mesh is empty."<<std::endl;
             }
-            
-            for (typename SimplexObserver<dim,0>::const_iterator nIter = SimplexObserver<dim,0>::simplexBegin();
-                 /*                                           */ nIter!= SimplexObserver<dim,0>::simplexEnd();
-                 /*                                           */ nIter++)
-            {
-                for(int d=0;d<dim;++d)
-                {
-                    if (nIter->second->P0(d)<_xMin(d))
-                    {
-                        _xMin(d)=nIter->second->P0(d);
-                    }
-                    if (nIter->second->P0(d)>_xMax(d))
-                    {
-                        _xMax(d)=nIter->second->P0(d);
-                    }
-                }
-            }
-            
+
+            model::cout<<"mesh xMin="<<_xMin.transpose()<<std::endl;
+            model::cout<<"mesh xMax="<<_xMax.transpose()<<std::endl;
             
         }
         

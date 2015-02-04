@@ -75,8 +75,10 @@ namespace model
         
         /**********************************************************************/
         FiniteElement(const SimplicialMesh<dim>& m) :
-        /* init list */ _xMin(Eigen::Matrix<double,ElementType::dim,1>::Constant( DBL_MAX)),
-        /* init list */ _xMax(Eigen::Matrix<double,ElementType::dim,1>::Constant(-DBL_MAX)),
+//        /* init list */ _xMin(Eigen::Matrix<double,ElementType::dim,1>::Constant( DBL_MAX)),
+//        /* init list */ _xMax(Eigen::Matrix<double,ElementType::dim,1>::Constant(-DBL_MAX)),
+        /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Zero()),
+        /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Zero()),
         /* init list */ mesh(m)
         {/*!@param[in] s A const reference to a SimplicialMesh on which *this 
           * FiniteElement is constructed.
@@ -102,20 +104,30 @@ namespace model
             }
             
             // Compute _xMin and _xMax
-            for (int n=0;n<nodeSize();++n)
+            
+            if(nodeSize())
             {
-                for(int d=0;d<dim;++d)
+                _xMin=node(0).P0;
+                _xMax=node(0).P0;
+                
+                for (int n=0;n<nodeSize();++n)
                 {
-                    if (node(n).P0(d)<_xMin(d))
+                    for(int d=0;d<dim;++d)
                     {
-                        _xMin(d)=node(n).P0(d);
-                    }
-                    if (node(n).P0(d)>_xMax(d))
-                    {
-                        _xMax(d)=node(n).P0(d);
+                        if (node(n).P0(d)<_xMin(d))
+                        {
+                            _xMin(d)=node(n).P0(d);
+                        }
+                        if (node(n).P0(d)>_xMax(d))
+                        {
+                            _xMax(d)=node(n).P0(d);
+                        }
                     }
                 }
+                
             }
+            
+
             
              model::cout<<"   # elements: "<<elementSize()    <<"\n";
              model::cout<<"   # nodes: "   <<nodeSize()       <<"\n";

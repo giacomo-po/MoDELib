@@ -39,6 +39,20 @@ int main (int argc, char* argv[])
     EDR.readScalarInFile("./punchInput.txt","initialDisplacement",FlatPunch::initialDisplacement);
     EDR.readScalarInFile("./punchInput.txt","relaxSteps",FlatPunch::relaxSteps);
     
+    
+//    if(FlatPunch::relaxSteps>0) // run initial relaxation steps
+//    {
+//        int Nsteps_temp=DN.Nsteps;
+//        unsigned int bvp_temp=DN.shared.use_bvp;
+//        
+//        DN.Nsteps=FlatPunch::relaxSteps;
+//        DN.shared.use_bvp=0;
+//        DN.runSteps();
+//
+//        DN.Nsteps=Nsteps_temp;
+//        DN.shared.use_bvp=bvp_temp;
+//    }
+    
     // Run time steps
     DN.runSteps();
     

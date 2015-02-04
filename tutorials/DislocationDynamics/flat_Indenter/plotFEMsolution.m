@@ -2,8 +2,8 @@ clc
 clear all
 close all
 
-U=load('U/U_10.txt');
-S=load('S/S_10.txt');
+U=load('U/U_600.txt');
+S=load('S/S_600.txt');
 
 %% Plot displacement
 comp={'x_1','x_2','x_3','u_1','u_2','u_3'};
