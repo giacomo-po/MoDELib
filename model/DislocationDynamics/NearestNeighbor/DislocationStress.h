@@ -12,7 +12,7 @@
 #include <tuple>
 #include <model/ParticleInteraction/FieldBase.h>
 #include <model/ParticleInteraction/FieldPoint.h>
-#include <model/DislocationDynamics/BVP/BoundaryDislocationNetwork.h>
+//#include <model/DislocationDynamics/BVP/BoundaryDislocationNetwork.h>
 
 
 namespace model
@@ -68,13 +68,13 @@ namespace model
             return Material<Isotropic>::C2 * (temp+temp.transpose());
         }
         
-        /**********************************************************************/
-        template <typename ParticleType>
-        static MatrixType addSourceContribution(const ParticleType& field,
-                                                const BoundaryDislocationNetwork<dim>& bd)
-        {
-            return bd.nonSymmStress(field.P);
-        }
+//        /**********************************************************************/
+//        template <typename ParticleType>
+//        static MatrixType addSourceContribution(const ParticleType& field,
+//                                                const BoundaryDislocationNetwork<dim>& bd)
+//        {
+//            return bd.nonSymmStress(field.P);
+//        }
         
         template <typename ParticleType>
         static MatrixType addSourceContribution(const ParticleType&)

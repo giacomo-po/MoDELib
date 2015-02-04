@@ -19,7 +19,7 @@
 
 #include <model/Mesh/SimplicialMesh.h> // defines model::cout
 #include <model/DislocationDynamics/BVP/BVPsolver.h>
-#include <model/DislocationDynamics/BVP/BoundaryDislocationNetwork.h>
+//#include <model/DislocationDynamics/BVP/BoundaryDislocationNetwork.h>
 
 
 namespace model {
@@ -43,7 +43,7 @@ namespace model {
          * order of destruction of the static mesh and the static map in SimplexObserver.
          */
         
-        static BoundaryDislocationNetwork<TypeTraits<LinkType>::dim> bdn;
+//        static BoundaryDislocationNetwork<TypeTraits<LinkType>::dim> bdn;
         
         static BvpSolverType bvpSolver;
     
@@ -66,8 +66,8 @@ namespace model {
     template <typename LinkType>
 	SimplicialMesh<TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::mesh;
     
-    template <typename LinkType>
-	BoundaryDislocationNetwork<TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::bdn;
+//    template <typename LinkType>
+//	BoundaryDislocationNetwork<TypeTraits<LinkType>::dim> DislocationSharedObjects<LinkType>::bdn;
     
     template <typename LinkType>
 	BVPsolver<TypeTraits<LinkType>::dim,2> DislocationSharedObjects<LinkType>::bvpSolver(DislocationSharedObjects<LinkType>::mesh);

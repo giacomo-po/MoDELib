@@ -8,27 +8,21 @@
 clc
 close all
 clear all
+addpath('../../../../matlab/');
 
-modelDir='../../../../';
-addpath([modelDir 'matlab/']);
 
-%% Define output file name
-meshID=1;
 filename='cube'; % this creates file cube.stl
+L=4000; % the side length of the cube, in units of Burgers vector
 
-%% Size and position of the cube
-L=1000; % the side length of the cube, in units of Burgers vector
-
-% coordinates of the 8 vertices of the cube.
-% The base of the cube is at z=0. The cube is centered in x and y
-v0=[0 0 0]*L%-[1 1 0]*L/2;
-v1=[1 0 0]*L%-[1 1 0]*L/2;
-v2=[1 1 0]*L%-[1 1 0]*L/2;
-v3=[0 1 0]*L%-[1 1 0]*L/2;
-v4=[0 0 1]*L%-[1 1 0]*L/2;
-v5=[1 0 1]*L%-[1 1 0]*L/2;
-v6=[1 1 1]*L%-[1 1 0]*L/2;
-v7=[0 1 1]*L%-[1 1 0]*L/2;
+% coordinates of the 8 vertices of the cube, centered at origin
+v0=[0 0 0]*L-[1 1 1]*L/2;
+v1=[1 0 0]*L-[1 1 1]*L/2;
+v2=[1 1 0]*L-[1 1 1]*L/2;
+v3=[0 1 0]*L-[1 1 1]*L/2;
+v4=[0 0 1]*L-[1 1 1]*L/2;
+v5=[1 0 1]*L-[1 1 1]*L/2;
+v6=[1 1 1]*L-[1 1 1]*L/2;
+v7=[0 1 1]*L-[1 1 1]*L/2;
 
 % Create 12 facets by splitting each face of the cube in two triangles
 Facets={};
@@ -60,9 +54,10 @@ grid on
 writeSTL(Facets,filename)
 
 %% Run Tetgen 
-averageElementVolume=100000;
-system([modelDir 'scripts/tetgenSTL.sh ' filename ' ' num2str(averageElementVolume)]);
+averageElementVolume=10000000;
+system(['../../../../scripts/tetgenSTL.sh ' filename ' ' num2str(averageElementVolume)]);
 
 %% Create T and N files and clean tetgent output
-system([modelDir 'scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
+meshID=0;
+system(['../../../../scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
 

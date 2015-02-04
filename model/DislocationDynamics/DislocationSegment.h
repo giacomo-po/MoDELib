@@ -49,12 +49,14 @@
 
 #include <model/DislocationDynamics/CrossSlip/CrossSlipSegment.h>
 #include <model/DislocationDynamics/DislocationMobility.h>
+#include <model/Utilities/UniqueOutputFile.h>
 
 
 //#include <model/DislocationDynamics/BVP/VirtualBoundarySlipContainer.h>
 
 
-namespace model {
+namespace model
+{
     
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
@@ -122,9 +124,11 @@ namespace model {
         //! The identity matrix
         static const Eigen::Matrix<double,_dim,_dim> I;
         
-        //! A static vector of zeros
-        static const Eigen::Matrix<double,_dim,1> zeroDim;
+//        //! A static vector of zeros
+//        static const Eigen::Matrix<double,_dim,1> zeroDim;
         
+        
+        static UniqueOutputFile<'K'> k_file;
         
         /******************************************************************/
     public: //  data members
@@ -140,6 +144,9 @@ namespace model {
         const VectorDim   glidePlaneNormal;
         
         const VectorDim sessilePlaneNormal;
+        
+        VectorDim boundaryLoopNormal;
+
         
         //		static double coreLsquared; //!todo remove this
         
@@ -162,6 +169,7 @@ namespace model {
         
     private:
         
+
         
         /* stiffness_integrand ************************************************/
         MatrixNdof stiffness_integrand(const int& k) const
@@ -224,6 +232,7 @@ namespace model {
         /* init list       */ Burgers(this->flow * Material<Isotropic>::b),
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
+        /* init list       */ boundaryLoopNormal(glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), // change this
         /* init list       */ dm(glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and flow
@@ -250,6 +259,7 @@ namespace model {
         /* init list       */ Burgers(this->flow * Material<Isotropic>::b),
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
+        /* init list       */ boundaryLoopNormal(glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), 			// change this
         /* init list       */ dm(glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and ExpandingEdge
@@ -296,26 +306,53 @@ namespace model {
             quadratureParticleContainer.clear();
             quadratureParticleContainer.reserve(qOrder);
             
+            const MatrixNcoeff  SFCH(this->get_SFCH());
+            const MatrixNcoeffDim qH(this->get_qH());
             for (unsigned int k=0;k<qOrder;++k)
             {
-                MatrixNcoeff  SFCH(this->get_SFCH());
-                MatrixNcoeffDim qH(this->get_qH());
+                //                    const MatrixNcoeff  SFCH(this->get_SFCH());
+                //                    const MatrixNcoeffDim qH(this->get_qH());
                 SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                 rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                 rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                 jgauss(k)=rugauss.col(k).norm();
                 rlgauss.col(k)=rugauss.col(k)/jgauss(k);
+            }
+
+            // Add the quadrature particles
+            if (is_boundarySegment() && shared.use_bvp && shared.use_virtualSegments)
+            {
                 
-                
-                // Add the quadrature particles
-                if (is_boundarySegment() && shared.use_bvp && shared.use_virtualSegments)
+                const VectorDim C((this->source->get_P()+this->sink->get_P())*0.5);
+                const VectorDim vec(this->source->get_P()-C);
+                const VectorDim n((this->source->get_boundaryNormal()+this->sink->get_boundaryNormal()).normalized());
+                boundaryLoopNormal=glidePlaneNormal;
+                const MatrixDim R(Eigen::AngleAxisd(0.5*M_PI,boundaryLoopNormal));
+                const double dldu=vec.norm()*M_PI;
+                //double sign_theta=1.0;
+                if((R*vec).dot(n)<0.0)
                 {
-                    // if bvp with virtualSegments is used, add particles with zero Burgers for segments on the boundary
-                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),zeroDim,
+                    boundaryLoopNormal*=-1.0;
+                }
+                
+                for (unsigned int k=0;k<qOrder;++k)
+                {
+                    const MatrixDim Rk(Eigen::AngleAxisd(Quadrature<1,qOrder,QuadratureRule>::abscissas(k)*M_PI,boundaryLoopNormal));
+                    const VectorDim rgauss_temp=C+Rk*vec;
+                    const VectorDim rugauss_temp=boundaryLoopNormal.cross(Rk*vec).normalized()*dldu;
+                    
+                    k_file<<rgauss_temp.transpose()<<" "<<rugauss_temp.transpose()<<"\n";
+                    
+                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss_temp,rugauss_temp,Burgers,
                                                                                      Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
                                                                                      Quadrature<1,qOrder,QuadratureRule>::weights(k)));
                 }
-                else
+            }
+            else
+            { // segment inside mesh
+                boundaryLoopNormal=glidePlaneNormal;
+
+                for (unsigned int k=0;k<qOrder;++k)
                 {
                     quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),Burgers,
                                                                                      Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
@@ -323,7 +360,52 @@ namespace model {
                 }
             }
             
+
+            
         }
+        
+//        /**********************************************************************/
+//        void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
+//        {/*! @param[in] particleSystem the ParticleSystem of DislocationParticle
+//          *  Computes all geometric properties at the k-th quadrature point
+//          */
+//            
+//            quadratureParticleContainer.clear();
+//            quadratureParticleContainer.reserve(qOrder);
+//            
+//            for (unsigned int k=0;k<qOrder;++k)
+//            {
+//                MatrixNcoeff  SFCH(this->get_SFCH());
+//                MatrixNcoeffDim qH(this->get_qH());
+//                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+//                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+//                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+//                jgauss(k)=rugauss.col(k).norm();
+//                rlgauss.col(k)=rugauss.col(k)/jgauss(k);
+//                
+//                
+//                // Add the quadrature particles
+//                if (is_boundarySegment() && shared.use_bvp && shared.use_virtualSegments)
+//                {
+//                    // if bvp with virtualSegments is used, add particles with zero Burgers for segments on the boundary
+////                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),zeroDim,
+////                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
+////                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
+//                    asseert(0 && "FINISH HERE. PLACE GAUSS POINTS IN CIRCLE");
+//                    const VectorDim C((this->source->get_P()+this->sink->get_P())*0.5);
+//                    const VectorDim n((this->source->boundaryNormal+this->sink->boundaryNormal).normalized());
+//                    const MatrixDim R(Eigen::AngleAxisf(Quadrature<1,qOrder,QuadratureRule>::abscissas(k)*M_PI, glidePlaneNormal));
+//                
+//                }
+//                else
+//                {
+//                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),Burgers,
+//                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
+//                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
+//                }
+//            }
+//            
+//        }
         
         //		/**********************************************************************/
         //		VectorDim pkForce(const size_t & k)
@@ -345,7 +427,9 @@ namespace model {
             MatrixDim temp(quadratureParticleContainer[k]->stress()+shared.externalStress);
             if(shared.use_bvp)
             {
-                temp += shared.bvpSolver.stress(quadratureParticleContainer[k]->P,this->source->includingSimplex());
+//                temp += shared.bvpSolver.stress(quadratureParticleContainer[k]->P,this->source->includingSimplex());
+                temp += shared.bvpSolver.stress(rgauss.col(k),this->source->includingSimplex());
+
             }
             return temp;
             //            //            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
@@ -600,6 +684,47 @@ namespace model {
             return pkGauss.col(qOrder/2)*this->chord().norm();
         }
         
+        /*********************************************************************/
+        void addToSolidAngleJump(const VectorDim& Pf, const VectorDim& Sf, VectorDim& dispJump) const
+        {
+            if(is_boundarySegment())
+            {
+                
+                const double den(Sf.dot(boundaryLoopNormal));
+                if(std::fabs(den)>FLT_EPSILON) // s direction intersects plane
+                {
+                    const double u=(this->source->get_P()-Pf).dot(boundaryLoopNormal)/den;
+                    if(u>FLT_EPSILON) // intersection in the positive sense
+                    {
+                        const VectorDim P=Pf+u*Sf; // intersection point on plane
+                        const VectorDim C=(this->source->get_P()+this->sink->get_P())*0.5; // center of segment
+                        
+                        const double R=(this->source->get_P()-this->sink->get_P()).norm();
+                        const double PC=(P-C).norm();
+                        
+                        if(PC<=R) // intersection point is inside circle
+                        {
+                            const VectorDim n((this->source->get_boundaryNormal()+this->sink->get_boundaryNormal()).normalized());
+                            const double PCn=(P-C).dot(n);
+                            if(PCn>0.0) // external side of loop
+                            {
+                                if(den>0.0)
+                                {
+                                    dispJump -= Burgers;
+                                }
+                                else
+                                {
+                                    dispJump += Burgers;
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+                
+            }
+        }
+        
         /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const Derived& ds)
@@ -622,9 +747,14 @@ namespace model {
     /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     const Eigen::Matrix<double,dim,dim> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::I=Eigen::Matrix<double,dim,dim>::Identity();
     
+//    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+//    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//    const Eigen::Matrix<double,dim,1> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::zeroDim=Eigen::Matrix<double,dim,1>::Zero();
+    
     template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
     /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    const Eigen::Matrix<double,dim,1> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::zeroDim=Eigen::Matrix<double,dim,1>::Zero();
+    UniqueOutputFile<'K'> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::k_file;
+
     
 } // namespace model
 #endif

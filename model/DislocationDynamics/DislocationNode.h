@@ -104,22 +104,7 @@ namespace model
             return temp.second;
         }
         
-        /**********************************************************************/
-		VectorDim get_boundaryNormal() const
-        {
-            VectorDim temp(VectorDim::Zero());
-			if (shared.use_boundary)
-            {
-                const Eigen::Matrix<double,dim+1,1> bary(p_Simplex->pos2bary(this->get_P()));
-                int faceID;
-                const double baryMin(bary.minCoeff(&faceID)); // this also writes faceID
-                if (std::fabs(baryMin)<FLT_EPSILON && p_Simplex->child(faceID).isBoundarySimplex())
-                {
-                    temp=p_Simplex->nda.col(faceID).normalized();
-                }
-			}
-			return temp;
-		}
+
 		
         
 		
@@ -223,6 +208,23 @@ namespace model
             make_planeNormals();
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
             NodeBaseType::make_T();
+        }
+        
+        /**********************************************************************/
+        VectorDim get_boundaryNormal() const
+        {
+            VectorDim temp(VectorDim::Zero());
+            if (shared.use_boundary)
+            {
+                const Eigen::Matrix<double,dim+1,1> bary(p_Simplex->pos2bary(this->get_P()));
+                int faceID;
+                const double baryMin(bary.minCoeff(&faceID)); // this also writes faceID
+                if (std::fabs(baryMin)<FLT_EPSILON && p_Simplex->child(faceID).isBoundarySimplex())
+                {
+                    temp=p_Simplex->nda.col(faceID).normalized();
+                }
+            }
+            return temp;
         }
         
         /**********************************************************************/

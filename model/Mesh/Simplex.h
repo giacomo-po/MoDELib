@@ -238,9 +238,8 @@ namespace model
         Simplex(const SimplexIDType& vIN, const int regionID=0) :
         /* init base */ SimplexBase<dim,order>(vIN),
         /* init base */ BaseArrayType(SimplexObserver<dim,dim>::faces(vIN)),
-        /* init base */ b2p(get_b2p()),
-        //        /* init list */ p2b(b2p.inverse()),
         /* init list */ region(MeshRegionObserverType::getRegion(regionID)),
+        /* init base */ b2p(get_b2p()),
         /* init list */ p2b(b2p.fullPivLu().solve(Eigen::Matrix<double,dim+1,dim+1>::Identity())),
         /* init list */ nda(get_nda())
         {/*!
@@ -260,20 +259,15 @@ namespace model
         ~Simplex()
         {/*! Destructor performs the following operations:
           */
-            //            std::cout<<"Destroying Simplex<dim,dim>..."<<std::flush; // problem with SegmentationFault is after this line
             
             //! -1 removes this in SimplexObserver
             SimplexObserver<dim,order>::removeSimplex(*this);
-            
-            //            std::cout<<"I'm here"<<std::endl;
-            
             
             //! -2 remove this fomr children parentContainers
             for (int k=0;k<nFaces;++k)
             {
                 this->child(k).removeFromParents(this);
             }
-            //            std::cout<<"done"<<std::endl;
             
             region->erase(this);
             

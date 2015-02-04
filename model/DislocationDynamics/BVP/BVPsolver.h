@@ -24,9 +24,9 @@
 
 namespace model
 {
-	
-	template <int dim, int sfOrder>
-	class BVPsolver
+    
+    template <int dim, int sfOrder>
+    class BVPsolver
     {
         
     public:
@@ -282,10 +282,23 @@ namespace model
             {
                 u->dirichletConditions().at(nodeList[n]->gID*dofPerNode+dof) -= fieldPoints[n].template field<DisplacementField>()(dof);
             }
-            if(DN.shared.use_virtualSegments)
+            
+            if(DN.shared.use_virtualSegments) // Add solid angle contribution
             {
-                std::cout<<"NEED TO COMPUTE DISPLACEMENT OF RADIAL SEGMENTS"<<std::endl;
-            }
+                //std::cout<<"NEED TO COMPUTE DISPLACEMENT OF RADIAL SEGMENTS"<<std::endl;
+                
+                for(int n=0;n<fieldPoints.size();++n)
+                {
+                    VectorDim dispJump(VectorDim::Zero());
+                    
+                    for (typename DislocationNetworkType::NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+                    {
+                        linkIter->second.addToSolidAngleJump(fieldPoints[n].P,fieldPoints[n].S,dispJump);
+                    }
+                    
+                    u->dirichletConditions().at(nodeList[n]->gID*dofPerNode+dof) -= dispJump(dof);
+                }
+            } // end virtual loops
             
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
@@ -296,34 +309,36 @@ namespace model
         void assembleAndSolve(const DislocationNetworkType& DN)
         {
 #ifdef userBVPfile
-
+            
             typedef typename DislocationNetworkType::StressField StressField;
             typedef BoundaryStressPoint<DislocationNetworkType> FieldPointType;
             
             //LinearWeakFormType lwf(u->test(),ds);
-//            const auto t0= std::chrono::system_clock::now();
+            //            const auto t0= std::chrono::system_clock::now();
             
             auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
             auto eb_list = ndA.template integrationList<FieldPointType>();
             
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"Computing DD boundary traction..."<<std::flush;
-            if (DN.shared.use_virtualSegments)
-            {
-                DN.template computeField<FieldPointType,StressField>(eb_list,DN.shared.bdn);
-            }
-            else
-            {
-                DN.template computeField<FieldPointType,StressField>(eb_list);
-            }
+            //            if (DN.shared.use_virtualSegments)
+            //            {
+            //                DN.template computeField<FieldPointType,StressField>(eb_list,DN.shared.bdn);
+            //            }
+            //            else
+            //            {
+            //                DN.template computeField<FieldPointType,StressField>(eb_list);
+            //            }
+            DN.template computeField<FieldPointType,StressField>(eb_list);
+            
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-
-//
-//            if(DN.shared.use_virtualSegments)
-//            {
-//                std::cout<<"HERE NEED TO ADD STRESS OF RADIAL BOUNDARY SEGMENTS!!"<<std::endl;
-//            }
-
+            
+            //
+            //            if(DN.shared.use_virtualSegments)
+            //            {
+            //                std::cout<<"HERE NEED TO ADD STRESS OF RADIAL BOUNDARY SEGMENTS!!"<<std::endl;
+            //            }
+            
             
             auto dislocationTraction=(u->test(),eb_list);
             
@@ -331,7 +346,7 @@ namespace model
             
 #include userBVPfile // userBVPfile defines additional loads, boundary conditions, and calls solver
 #else
-            assert(0 &&"YOU MUST #defined THE userBVPfile to use the BVP solver.");
+            assert(0 && "YOU MUST #define THE userBVPfile to use BVPsolver.");
 #endif
         }
         
@@ -379,19 +394,19 @@ namespace model
             const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(a1));
             const Eigen::Matrix<double,dim+1,1> bary(face2domainBary(b1,boundaryFace));
             return stress(ele,bary)*JGNselector<dim>::jGN(ele.jGN(bary,boundaryFace));
-		}
+        }
         
         /**********************************************************************/
-		template <typename DislocationNetworkType>
+        template <typename DislocationNetworkType>
         VectorDim ddTraction(const Eigen::Matrix<double,dim-1,1>& a1, const ElementType& ele, const int& boundaryFace, const DislocationNetworkType& DN) const
         {
             const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(a1));
             const Eigen::Matrix<double,dim+1,1> bary(face2domainBary(b1,boundaryFace));
             return DN.stress(ele.position(bary))*JGNselector<dim>::jGN(ele.jGN(bary,boundaryFace));
-		}
+        }
         
-	};
-	
+    };
+    
     
 } // namespace model
 #endif

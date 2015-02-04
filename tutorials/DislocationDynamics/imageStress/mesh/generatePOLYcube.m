@@ -2,48 +2,32 @@ clc
 close all
 clear all
 
-modelDir='../../../../';
+filename='cube';
 
-%% Define output file name
-meshID=0;
-filename='cube'; % this creates file cube.poly
-
-L=1000;     % side length of the cube
-Lp=300;     % side length of flat punch
-t=50;       % tickness of the boundary layer
-%L1=L-2*t;   % side length of the inner cube
+L=4000;     % side length of the cube
+t=75;       % tickness of the boundary layer
+L1=L-2*t;   % side length of the inner cube
 
 %% Define vertices
 % Coordinates of the outer cube
-% The base of the cube is at z=0. The cube is centered in x and y
-P(1,:)=[0 0 0]*L;%-[1 1 0]*L/2;
-P(2,:)=[1 0 0]*L;%-[1 1 0]*L/2;
-P(3,:)=[1 1 0]*L;%-[1 1 0]*L/2;
-P(4,:)=[0 1 0]*L;%-[1 1 0]*L/2;
-P(5,:)=[0 0 1]*L;%-[1 1 0]*L/2;
-P(6,:)=[1 0 1]*L;%-[1 1 0]*L/2;
-P(7,:)=[1 1 1]*L;%-[1 1 0]*L/2;
-P(8,:)=[0 1 1]*L;%-[1 1 0]*L/2;
+P(1,:)=[0 0 0]*L-[1 1 1]*L/2;
+P(2,:)=[1 0 0]*L-[1 1 1]*L/2;
+P(3,:)=[1 1 0]*L-[1 1 1]*L/2;
+P(4,:)=[0 1 0]*L-[1 1 1]*L/2;
+P(5,:)=[0 0 1]*L-[1 1 1]*L/2;
+P(6,:)=[1 0 1]*L-[1 1 1]*L/2;
+P(7,:)=[1 1 1]*L-[1 1 1]*L/2;
+P(8,:)=[0 1 1]*L-[1 1 1]*L/2;
 
 % Coordinates of the inner cube
-P( 9,:)=[t   t t];%-[L1 L1 0]/2;
-P(10,:)=[L-t t t];%-[L1 L1 0]/2;
-P(11,:)=[L-t L-t t];%-[L1 L1 0]/2;
-P(12,:)=[t  L-t t];%-[L1 L1 0]/2;
-P(13,:)=[t   t L-t];%-[L1 L1 0]/2;
-P(14,:)=[L-t t L-t];%-[L1 L1 0]/2;
-P(15,:)=[L-t L-t L-t];%-[L1 L1 0]/2;
-P(16,:)=[t  L-t L-t];%-[L1 L1 0]/2;
-
-% Punc points
-P(17,:)=[(L-Lp)/2  (L-Lp)/2  L];%-[1 1 0]*Lp/2;
-P(18,:)=[(L+Lp)/2  (L-Lp)/2  L];%-[1 1 0]*Lp/2;
-P(19,:)=[(L+Lp)/2  (L+Lp)/2  L];%-[1 1 0]*Lp/2;
-P(20,:)=[(L-Lp)/2  (L+Lp)/2  L];%-[1 1 0]*Lp/2;
-P(21,:)=[(L-Lp)/2  (L-Lp)/2  L-t];%-[1 1 0]*Lp/2;
-P(22,:)=[(L+Lp)/2  (L-Lp)/2  L-t];%-[1 1 0]*Lp/2;
-P(23,:)=[(L+Lp)/2  (L+Lp)/2  L-t];%-[1 1 0]*Lp/2;
-P(24,:)=[(L-Lp)/2  (L+Lp)/2  L-t];%-[1 1 0]*Lp/2;
+P( 9,:)=[0   0 0]-[L1 L1 L1]/2;
+P(10,:)=[L1  0 0]-[L1 L1 L1]/2;
+P(11,:)=[L1 L1 0]-[L1 L1 L1]/2;
+P(12,:)=[0  L1 0]-[L1 L1 L1]/2;
+P(13,:)=[0   0 L1]-[L1 L1 L1]/2;
+P(14,:)=[L1  0 L1]-[L1 L1 L1]/2;
+P(15,:)=[L1 L1 L1]-[L1 L1 L1]/2;
+P(16,:)=[0  L1 L1]-[L1 L1 L1]/2;
 
 figure(1)
 clf
@@ -54,44 +38,29 @@ axis equal
 xlabel('x')
 ylabel('y')
 grid on
+%print(gcf,'-depsc','../dox/vertices')
 
 %% Define facets
 % Facets normal to x
 Fx=[ 1  5  8  4;
      2  6  7  3;
      9 13 16 12;
-    10 14 15 11;
-    17 20 24 21;
-    18 19 23 22];
+    10 14 15 11];
 % Facets normal to y
 Fy=[ 1  2  6  5;
      9 10 14 13;
     12 11 15 16;
-     4  3  7  8;
-     21 22 18 17;
-     24 23 19 20];
+     4  3  7  8];
 % Facets normal to z
 Fz=[ 1  2  3  4;
+     5  6  7  8;
      9 10 11 12;
-    5 6 18 17;
-    6 7 19 18;
-    7 8 20 19;
-    8 5 17 20;
-    17 18 19 20;
-    13 14 22 21;
-    14 15 23 22;
-    15 16 24 23;
-    16 13 21 24;
-    21 22 23 24];
+    13 14 15 16];
  % Inclined facets
 Fxy=[1 9 13 5;
     2 10 14 6;
     3 11 15 7;
-    4 12 16 8;
-    5 13 21 17;
-    6 14 22 18;
-    7 15 23 19;
-    8 16 24 20];
+    4 12 16 8];
 Fxz=[1 9 12 4;
     2 10 11 3;
     6 14 15 7;
@@ -108,6 +77,7 @@ for f=1:size(F,1)
     drawnow
     pause(0.1)
 end
+%print(gcf,'-depsc','../dox/zFaces')
 
 %% Define Regions
 % Each row in the following matrix correponds to a region.
@@ -118,11 +88,7 @@ RP=[9 10 11 12 13 14 15 16;
    4 3 7 8 11 12 15 16;
    1 4 5 8 9 13 16 12;
    1 2 3 4 9 10 11 12;
-   21 22 23 24 17 18 19 20;
-   5 17 20 8 13 21 24 16;
-   13 14 22 21 5 6 18 17;
-   6 7 19 18 22 14 15 23;
-   7 8 20 19 15 16 24 23];
+   5 6 7 8 13 14 15 16];
 
 % The rows of the matrix Xm are the barycenters of each region
 for r=1:size(RP,1)
@@ -160,9 +126,8 @@ fprintf(polyFile,'0 \n\n');
 fprintf(polyFile,'# Part 4 - the region list.\n');
 fprintf(polyFile,'%i \n',size(Xm,1));
 
-vL=t^3/6/sqrt(2);
-meshSize=ones(size(Xm,1),1)*vL;
-meshSize(1)=vL*10; % increase volume element in central cube
+meshSize=ones(size(Xm,1),1)*10000000;
+meshSize(1)=meshSize(1);
 for r=1:size(Xm,1)
 fprintf(polyFile,'%i %d %d %d %d \n',[r Xm(r,:) meshSize(r)]);
 end
@@ -170,7 +135,8 @@ end
 fclose(polyFile);
 
 %% Run Tetgen 
-system([modelDir 'scripts/tetgenPOLY.sh ' filename]);
+system(['../../../../scripts/tetgenPOLY.sh ' filename]);
 
 %% Create T and N files and clean tetgent output
-system([modelDir 'scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
+meshID=1;
+system(['../../../../scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);

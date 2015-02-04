@@ -1,6 +1,6 @@
-punchSize=300;
+punchSize=1300;
 centerX=500;
 centerY=500;
 strainRate=-1.0e-9;
-initialDisplacement=-10;
+initialDisplacement=0;
 relaxSteps=0;

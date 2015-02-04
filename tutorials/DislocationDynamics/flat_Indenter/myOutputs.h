@@ -50,22 +50,24 @@ for(auto node : fieldPoints)
     disp += nodeDisp(2);
 }
 
+double avgdisp = disp/nodeList.size();
+
+
 /******************************************************************************/
 // COMPUTATION OF LOAD
 //double load = 0.0;
 auto boundaryUnderPunch = FlatPunch::boundary(DN.shared.bvpSolver.finiteElement());
-Eigen::Matrix<double,3,1> traction(Eigen::Matrix<double,3,1>::Zero());
+Eigen::Matrix<double,3,1> force(Eigen::Matrix<double,3,1>::Zero());
 typedef typename DislocationNetworkType::BvpSolverType BvpSolverType;
-boundaryUnderPunch.integrate(&DN.shared.bvpSolver,traction,&BvpSolverType::bvpTraction); // integrate the bvp correction
-boundaryUnderPunch.integrate(&DN.shared.bvpSolver,traction,&BvpSolverType::ddTraction,DN); // integrate the dd traction
+boundaryUnderPunch.integrate(&DN.shared.bvpSolver,force,&BvpSolverType::bvpTraction); // integrate the bvp correction
+boundaryUnderPunch.integrate(&DN.shared.bvpSolver,force,&BvpSolverType::ddTraction,DN); // integrate the dd traction
 
 
 /******************************************************************************/
 // OUTPUT TO F_0.txt
 Eigen::Matrix<double,dim,dim> pSR(DN.plasticStrainRate());
 UniqueOutputFile<'F'> f_file;
-double avgdisp = disp/nodeList.size();
-f_file<< nodeList.size() <<"  "<<avgdisp<<"  "<<traction(2)<<"  "<<pSR(0,0)<<"  "<<pSR(0,1)<<"  "<<pSR(0,2)<<"  "<<pSR(1,1)<<"  "<<pSR(1,2) <<"  "<<pSR(2,2)<<"  "<<DN.get_dt()<<"  "<<DN.networkLength()<<std::endl;
+f_file<< DN.runningID()<<" "<<DN.get_dt()<<"  "<<DN.networkLength()<<" "<<avgdisp<<"  "<<force(2)<<"  "<<pSR(0,0)<<"  "<<pSR(0,1)<<"  "<<pSR(0,2)<<"  "<<pSR(1,1)<<"  "<<pSR(1,2) <<"  "<<pSR(2,2)<<"  "<<std::endl;
 
 
 

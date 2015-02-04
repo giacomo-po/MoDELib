@@ -256,14 +256,14 @@ namespace model
             //! Update the BonudaryDislocationNetwork
             if(shared.use_bvp)
             {
-                if(shared.use_virtualSegments)
-                {
-                    const auto t1= std::chrono::system_clock::now();
-                    model::cout<<"		Updating virtual segments..."<<std::flush;
-                    shared.bdn.update(*this);
-                    model::cout<<" ("<<shared.bdn.size()<<" boundary segments)"
-                    /*       */<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
-                }
+//                if(shared.use_virtualSegments) OLD APPROACH WITH BOUNDARY DISLOCATION NETWORK
+//                {
+//                    const auto t1= std::chrono::system_clock::now();
+//                    model::cout<<"		Updating virtual segments..."<<std::flush;
+//                    shared.bdn.update(*this);
+//                    model::cout<<" ("<<shared.bdn.size()<<" boundary segments)"
+//                    /*       */<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
+//                }
                 
                 // enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
                 if (!(runID%shared.use_bvp))
@@ -638,14 +638,15 @@ namespace model
             //! -1 Compute the interaction StressField between dislocation particles
             model::cout<<"		Computing particle-particle interaction..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
-            if (shared.use_bvp && shared.use_virtualSegments)
-            {
-                this->template computeNeighborField<StressField>(shared.bdn);
-            }
-            else
-            {
-                this->template computeNeighborField<StressField>();
-            }
+//            if (shared.use_bvp && shared.use_virtualSegments)
+//            {
+//                this->template computeNeighborField<StressField>(shared.bdn); // OLD APPROACH WITH BOUNDARY DISLOCATION NETWORK AND STRAIGHT SEGMENTS
+//            }
+//            else
+//            {
+//                this->template computeNeighborField<StressField>();
+//            }
+            this->template computeNeighborField<StressField>();
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             
 			//! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
