@@ -69,6 +69,7 @@ Eigen::Matrix<double,dim,dim> pSR(DN.plasticStrainRate());
 /******************************************************************************/
 // OUTPUT TO F_0.txt
 UniqueOutputFile<'F'> f_file;
+model::cout<<", F/F_0"<<std::flush;
 f_file<< DN.runningID()<<" "<<DN.get_dt()<<"  "<<DN.networkLength()<<" "<<avgdisp<<"  "<<force(2)<<"  "<<pSR(0,0)<<"  "<<pSR(0,1)<<"  "<<pSR(0,2)<<"  "<<pSR(1,1)<<"  "<<pSR(1,2) <<"  "<<pSR(2,2)<<"  "<<std::endl;
 
 

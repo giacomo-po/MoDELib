@@ -72,6 +72,10 @@ namespace model
         //! The previous velocity vector of *this DislocationNode
 		VectorDofType vOld;
         
+        static bool use_velocityFilter;
+        static double velocityReductionFactor;
+        double velocityReductionCoeff;
+        
         //! The normal unit vector of the boundary on which *this DislocationNode is moving on
         VectorDim boundaryNormal;
         
@@ -117,6 +121,7 @@ namespace model
         /* init list        */ p_Simplex(get_includingSimplex((const Simplex<dim,dim>*) NULL)),
         /* init list        */ velocity(VectorDofType::Zero()),
 		/* init list        */ vOld(VectorDofType::Zero()),
+        /* init list        */ velocityReductionCoeff(1.0),
         /* init list        */ boundaryNormal(get_boundaryNormal())
         {/*! Constructor from DOF
           */
@@ -128,6 +133,7 @@ namespace model
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        /* init list        */ velocityReductionCoeff(1.0),
         /* init list        */ boundaryNormal(get_boundaryNormal())
         {/*! Constructor from ExpandingEdge and parameter along link
           */
@@ -139,6 +145,7 @@ namespace model
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
 		/* init list        */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        /* init list        */ velocityReductionCoeff(1.0),
         /* init list        */ boundaryNormal(get_boundaryNormal())
         {/*! Constructor from ExpandingEdge and DOF
           */
@@ -150,7 +157,8 @@ namespace model
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity(Vin),
 		/* init list        */ vOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list        */ boundaryNormal(get_boundaryNormal())
+        /* init list        */ velocityReductionCoeff(1.0),
+        /* init list        */ boundaryNormal(get_boundaryNormal())
         {
 		}
         
@@ -303,6 +311,28 @@ namespace model
         {
             vOld=velocity; // store current value of velocity before updating
             velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
+            
+            if(use_velocityFilter)
+            {
+                if(velocity.dot(vOld)<0.0)
+                {
+                    velocityReductionCoeff*=velocityReductionFactor;
+                }
+                else
+                {
+                    velocityReductionCoeff/=velocityReductionFactor;
+                }
+                if(velocityReductionCoeff>1.0)
+                {
+                    velocityReductionCoeff=1.0;
+                }
+                if(velocityReductionCoeff<0.01)
+                {
+                    velocityReductionCoeff=0.01;
+                }
+                velocity*=velocityReductionCoeff;
+            }
+            
 		}
         
         /**********************************************************************/
@@ -470,6 +500,17 @@ namespace model
         }
         
     };
+    
+    
+    // static data
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    bool DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>::use_velocityFilter=true;
+
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    double DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>::velocityReductionFactor=0.75;
+
     
 } // close namespace
 #endif
