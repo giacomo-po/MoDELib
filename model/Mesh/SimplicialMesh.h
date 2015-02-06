@@ -24,10 +24,12 @@
 #include <model/Mesh/Simplex.h>
 #include <model/Mesh/SimplexReader.h>
 #include <model/Mesh/MeshStats.h>
+#include <model/Mesh/MeshRegionObserver.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 
 
-namespace model {
+namespace model
+{
     
     
     /**************************************************************************/
@@ -44,6 +46,7 @@ namespace model {
         Eigen::Matrix<double,_dim,1> _xMin;
         Eigen::Matrix<double,_dim,1> _xMax;
         
+        
     public:
         
         enum {dim=_dim};
@@ -55,6 +58,11 @@ namespace model {
         /*                                      */ SimplexTraits<dim,dim>::nVertices> // key compare
         /*            */ >  SimplexMapType;
         
+        typedef VertexReader<'T',dim+3,size_t> ElementReaderType;
+
+        typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
+        typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
+
         /**********************************************************************/
         SimplicialMesh() :
 //        /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Constant( DBL_MAX)),
@@ -81,8 +89,9 @@ namespace model {
             SimplexReader<dim>::nodeReader.read(meshID,true);
             
             this->clear();
-            
-            VertexReader<'T',dim+2,size_t> elementReader;
+
+//            VertexReader<'T',dim+2,size_t> elementReader;
+            ElementReaderType elementReader; // exaple in 3d: [elementID v1 v2 v3 v4 regionID]
             const bool success=elementReader.read(meshID,true);
             
             //            SequentialBinFile<'T',std::pair<int,typename SimplexTraits<dim,dim>::SimplexIDType>,true> binFile;
@@ -92,10 +101,11 @@ namespace model {
                 const auto t0= std::chrono::system_clock::now();
 
                 model::cout<<"Creating mesh..."<<std::flush;
-                for (typename VertexReader<'T',dim+2,size_t>::const_iterator eIter =elementReader.begin();
+                for (typename ElementReaderType::const_iterator eIter =elementReader.begin();
                      /*                                       */ eIter!=elementReader.end();++eIter)
                 {
-                    insertSimplex(eIter->second);
+//                    insertSimplex(eIter->second);
+                    insertSimplex(eIter->second.template segment<dim+1>(0),eIter->second(dim+1));
                     
                     //                    binFile.write(std::make_pair(eIter->first,eIter->second));
                     
@@ -141,16 +151,27 @@ namespace model {
             model::cout<<"mesh xMin="<<_xMin.transpose()<<std::endl;
             model::cout<<"mesh xMax="<<_xMax.transpose()<<std::endl;
             
+            for(auto rIter : MeshRegionObserverType::regions())
+            {
+                std::cout<<"mesh region "<<rIter.second->regionID<<" contains "<<rIter.second->size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
+            }
+            
         }
         
         /**********************************************************************/
-        void insertSimplex(const typename SimplexTraits<dim,dim>::SimplexIDType& xIN)
+        void insertSimplex(const typename SimplexTraits<dim,dim>::SimplexIDType& xIN,const int& regionID)
         {/*!@param[in] xIN the (unsorted) array of mesh node IDs defining a simplex
           *\brief Inserts a Simplex<dim> into the mesh, with ID equal to the
           * sorted array xIN.
           */
             const typename SimplexTraits<dim,dim>::SimplexIDType xID(SimplexTraits<dim,dim>::sortID(xIN));
-            this->emplace(xID,xID); // requires gcc4.8 and above
+//            this->emplace(xID,xID); // requires gcc4.8 and above
+            const bool success=this->emplace(std::piecewise_construct,
+                                             std::make_tuple(xID),
+                                             std::make_tuple(xID, regionID)
+                                             ).second;
+
+            assert(success);
         }
         
         /**********************************************************************/

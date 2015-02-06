@@ -29,6 +29,12 @@ namespace model
     public:
         
         /**********************************************************************/
+        static const RegionMapType& regions()
+        {
+            return regionMap;
+        }
+        
+        /**********************************************************************/
         static SharedPtrType getRegion(const int& k)
         {
             typename RegionMapType::const_iterator iter(regionMap.find(k));

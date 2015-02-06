@@ -1,5 +1,5 @@
 clc
-close all
+%close all
 clear all
 
 
@@ -8,6 +8,8 @@ Burgers=0.2489e-9; % [m]
 R=2127/2;   % cylinder radius [in units of b]
 H=6*R;      % cylinder height [in units of b]
 V=pi*R^2*H; % volume of cylinder
+x0=0;       % offset of cylinder axis 
+y0=0;       % offset of cylinder axis
 
 
 lMin=R/2;           % minimum size of loop [b]
@@ -58,7 +60,7 @@ end
 if dot(P1,d2)<0     % correct d2 to point inside the cylinder
     d2=-d2;
 end
-P(:,1)=P1+[R R 0]'; % shift the axis to match mesh file
+P(:,1)=P1+[x0 y0 0]'; % shift the axis to match mesh file
 u=rand(1);
 a1=lMin*(1-u)+lMax*u;   % random size of loop on plane 1
 u=rand(1);
@@ -67,10 +69,10 @@ P(:,2)=P(:,1)+a1*d1;    % second point of the loop
 P(:,3)=P(:,2)+a2*d2;    % third point of the loop
 P(:,4)=P(:,3)-a1*d1;    % fourth point of the loop
 
-if (   norm(P([1 2],1)-[R R]')<R && P(3,1)>0 && P(3,1)<H ...
-    && norm(P([1 2],2)-[R R]')<R && P(3,2)>0 && P(3,2)<H ...
-    && norm(P([1 2],3)-[R R]')<R && P(3,3)>0 && P(3,3)<H ...
-    && norm(P([1 2],4)-[R R]')<R && P(3,4)>0 && P(3,4)<H) % all points are inside
+if (   norm(P([1 2],1)-[x0 y0]')<R && P(3,1)>0 && P(3,1)<H ...
+    && norm(P([1 2],2)-[x0 y0]')<R && P(3,2)>0 && P(3,2)<H ...
+    && norm(P([1 2],3)-[x0 y0]')<R && P(3,3)>0 && P(3,3)<H ...
+    && norm(P([1 2],4)-[x0 y0]')<R && P(3,4)>0 && P(3,4)<H) % all points are inside
 
 % plot loop
 figure(1)

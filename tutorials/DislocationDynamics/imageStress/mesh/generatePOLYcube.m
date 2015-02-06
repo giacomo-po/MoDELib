@@ -98,7 +98,7 @@ plot3(Xm(:,1),Xm(:,2),Xm(:,3),'bx','Linewidth',2)
 text(Xm(:,1),Xm(:,2),Xm(:,3),num2str([1:size(Xm,1)]'),'FontSize',16)
 
 %% Write .poly file
-polyFile = fopen('cube.poly','w');
+polyFile = fopen([filename '.poly'],'w');
 
 % Part 1- the node list.
 pointFormat='%i %d %d %d \n';
@@ -129,7 +129,8 @@ fprintf(polyFile,'%i \n',size(Xm,1));
 meshSize=ones(size(Xm,1),1)*10000000;
 meshSize(1)=meshSize(1);
 for r=1:size(Xm,1)
-fprintf(polyFile,'%i %d %d %d %d \n',[r Xm(r,:) meshSize(r)]);
+%fprintf(polyFile,'%i %d %d %d %d \n',[r Xm(r,:) meshSize(r)]);
+fprintf(polyFile,'%i %d %d %d %i %d \n',[r Xm(r,:) r meshSize(r)]);
 end
 
 fclose(polyFile);

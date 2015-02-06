@@ -69,7 +69,7 @@ namespace model {
             bool temp(false);
             if(simplexChild.parents().size()==2)
             {
-                if((*simplexChild.parents().begin())->regionID != (*simplexChild.parents().rbegin())->regionID)
+                if((*simplexChild.parents().begin())->region->regionID != (*simplexChild.parents().rbegin())->region->regionID)
                 {
                     temp=true;
                 }

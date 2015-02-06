@@ -2,7 +2,7 @@ clc
 close all
 clear all
 
-modelDir='../../../../';
+modelDir='../../../';
 
 %% Define output file name
 meshID=0;

@@ -88,6 +88,12 @@ namespace model
             return BoundarySimplex<dim,dim-order>::template isBoundarySimplex<SimplexChild>(*this);
         }
         
+        /**********************************************************************/
+        bool isRegionBoundarySimplex() const
+        {
+            return BoundarySimplex<dim,dim-order>::template isRegionBoundarySimplex<SimplexChild>(*this);
+        }
+        
     };
     
 }	// close namespace

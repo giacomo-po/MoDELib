@@ -39,9 +39,6 @@ namespace model
 {
 	
 	class MeshPlotter :
-    //    /*               */ public VertexReader<'N',5,float>,
-    //	/*               */ public EdgeReader  <'T',3,float>,
-    //    /*               */ public VertexReader<'Q',4,float> // quadrature points file
 	/*               */ public VertexReader<'D',4,float>
     {
 		
@@ -63,7 +60,10 @@ namespace model
         
         std::deque<std::pair<Eigen::Matrix<double,3,1>,Eigen::Matrix<double,6,1>>> deq;
 
-		
+        std::deque<Eigen::Matrix<float,3,3> > regionsBndDeq;
+        
+
+        
         Eigen::Matrix<float,1,6> sMin;
         Eigen::Matrix<float,1,6> sMax;
 
@@ -118,6 +118,17 @@ namespace model
                     
                 }
             }
+            
+            for (typename SimplexObserver<3,2>::const_iterator sIter=SimplexObserver<3,2>::simplexBegin();
+                 /*                                         */ sIter!=SimplexObserver<3,2>::simplexEnd();++sIter)
+            {
+                if(sIter->second->isRegionBoundarySimplex())
+                {
+                    regionsBndDeq.emplace_back(sIter->second->vertexPositionMatrix().template cast<float>());
+                    
+                }
+            }
+            
         }
 		
 		/* read *************************************************/
@@ -290,15 +301,31 @@ namespace model
                 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor);      // diffuse color for the material
                 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor);  // specular color for the material
                 glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor);  // emission color for the material
-                
-                
-				for (EdgeVectoType::const_iterator iterE=edgeVector.begin(); iterE!=edgeVector.end();++iterE)
+
+                for (auto& edge : edgeVector)
                 {
-					glBegin(GL_LINES);
-                    glVertex3f(iterE->operator()(0,0)+iterE->operator()(0,2)*dispCorr, iterE->operator()(1,0)+iterE->operator()(1,2)*dispCorr,iterE->operator()(2,0)+iterE->operator()(2,2)*dispCorr);
-                    glVertex3f(iterE->operator()(0,1)+iterE->operator()(0,3)*dispCorr, iterE->operator()(1,1)+iterE->operator()(1,3)*dispCorr,iterE->operator()(2,1)+iterE->operator()(2,3)*dispCorr);
-					glEnd();
-				}
+                    glBegin(GL_LINES);
+                    glVertex3f(edge(0,0)+edge(0,2)*dispCorr, edge(1,0)+edge(1,2)*dispCorr,edge(2,0)+edge(2,2)*dispCorr);
+                    glVertex3f(edge(0,1)+edge(0,3)*dispCorr, edge(1,1)+edge(1,3)*dispCorr,edge(2,1)+edge(2,3)*dispCorr);
+                    glEnd();
+                }
+                
+//                GLfloat faceColor[]={0.0, 0.0, 0.5, 0.1};
+//                glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, faceColor);      // ambient color for the material
+//                glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, faceColor);      // diffuse color for the material
+//                glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, faceColor);  // specular color for the material
+//                glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, faceColor);  // emission color for the material
+//                
+//                for(auto& mat : regionsBndDeq)
+//                {
+//                    glBegin(GL_TRIANGLES);
+//                    glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
+//                    glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
+//                    glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
+//                    glEnd();                    
+//                }
+
+
                 
                 glDisable(GL_BLEND);
 				glEnable(GL_DEPTH_TEST); //Makes 3D drawing work when something is in front of something else

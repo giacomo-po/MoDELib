@@ -29,15 +29,14 @@ namespace model
         
         const int regionID;
         
+        /**********************************************************************/
         MeshRegion(const int& rID) : regionID(rID)
         {
-            model::cout<<"Creating MeshRegion "<<regionID<<std::endl;
-            
-            
             const bool success=MeshRegionObserverType::emplace(regionID,this).second;
             assert(success && "COULD NOT INSERT MeshRegion in MeshRegionObserver.");
         }
         
+        /**********************************************************************/
         ~MeshRegion()
         {
             
@@ -45,9 +44,7 @@ namespace model
             assert(n==1 && "COULD NOT ERASE MeshRegion in MeshRegionObserver.");
             
         }
-        
-        
-        
+
     };
     
 }	// close namespace

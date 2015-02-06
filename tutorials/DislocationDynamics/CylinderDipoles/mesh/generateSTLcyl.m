@@ -13,12 +13,13 @@ filename='cylinder'; % this creates file cylinder.stl
 
 R=2127/2; % radius of cylinder (units of Burgers vector)
 H=6*R;    % height of cylinder (units of Burgers vector)
+x0=0;     % offset of cylinder axis 
+y0=0;     % offset of cylinder axis
 
 np=30;    % number of circumferential points
-
 theta=[0:np-1]/np*2*pi;
-x=R*cos(theta)+R;
-y=R*sin(theta)+R;
+x=R*cos(theta)+x0;
+y=R*sin(theta)+y0;
 
 Facets={};
 
@@ -27,13 +28,13 @@ for k=1:np
     
     % triangles on the bottom surface
     v1=[x(k)  y(k) 0];
-    v2=[R R 0];
+    v2=[x0 y0 0];
     v3=[x(k1)  y(k1) 0];
     Facets=addFacet(Facets,v1,v2,v3);
     
     % triangles on the top surface
     v1=[x(k1)  y(k1) H];
-    v2=[R R H];
+    v2=[x0 y0 H];
     v3=[x(k)  y(k) H];
     Facets=addFacet(Facets,v1,v2,v3); 
     

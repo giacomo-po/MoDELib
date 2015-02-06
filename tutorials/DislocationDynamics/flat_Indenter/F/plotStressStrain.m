@@ -22,7 +22,7 @@ figure(1)
 subplot(2,1,1)
 plot(-e33*100,-s33)
 v=axis;
-%axis([0 v(2) 0 v(4)])
+axis([0 max(-e33*100) 0 v(4)])
 xlabel('\epsilon_{33} [%]','Fontsize',fontSize)
 ylabel('\sigma_{33}/\mu','Fontsize',fontSize)
 grid on
@@ -33,7 +33,7 @@ plot(-e33*100,ddLength)
 xlabel('\epsilon_{33} [%]','Fontsize',fontSize)
 ylabel('line length / b','Fontsize',fontSize)
 v=axis;
-axis([0 v(2) 0 v(4)])
+axis([0 max(-e33*100) 0 v(4)])
 grid on
 set(gca,'Fontsize',fontSize)
 

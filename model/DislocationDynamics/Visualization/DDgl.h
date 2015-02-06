@@ -275,7 +275,7 @@ namespace model {
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "g: hide/show glide planes\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
-                sprintf (outString, "i: set frame increment planes\n");
+                sprintf (outString, "i: set frame increment\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "k: locate specific vertex (by ID)\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);

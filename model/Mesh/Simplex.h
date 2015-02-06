@@ -322,6 +322,12 @@ namespace model
             return BoundarySimplex<dim,dim-order>::isBoundarySimplex(*this);
         }
         
+        /**********************************************************************/
+        bool isRegionBoundarySimplex() const
+        {
+            return BoundarySimplex<dim,dim-order>::isRegionBoundarySimplex(*this);
+        }
+        
         
         /**********************************************************************/
         Eigen::Matrix<double,dim+1,1> pos2bary(const Eigen::Matrix<double,dim,1>& P) const
