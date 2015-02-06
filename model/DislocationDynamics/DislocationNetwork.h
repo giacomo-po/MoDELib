@@ -520,9 +520,6 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_StressMultipole",DislocationStress<dim>::use_multipole);
             EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",DislocationEnergy<dim>::use_multipole);
             
-            
-            
-            
             // Eternal Stress
             EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
             
@@ -544,6 +541,9 @@ namespace model
 			assert(dx>0.0);
             EDR.readScalarInFile(fullName.str(),"equilibriumVelocity",equilibriumVelocity);
 			assert(equilibriumVelocity>=0.0);
+            EDR.readScalarInFile(fullName.str(),"use_velocityFilter",NodeType::use_velocityFilter);
+            EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
+            assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
             EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
             
 			

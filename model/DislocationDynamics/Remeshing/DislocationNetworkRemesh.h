@@ -87,8 +87,6 @@ namespace model
             Nj.neighborsAt(P0,neighbors,100.0*FLT_EPSILON);
             neighbors.erase(i); // make sure
             neighbors.erase(j); // make sure
-//            neighbors.insert(i);
-//            neighbors.insert(j);
             
             // There are no links between those neighbors (otherwise they would have zero-norm). Contract them
             if(neighbors.size())
@@ -97,14 +95,25 @@ namespace model
                 {
                     if(nIter!=neighbors.begin())
                     {
-                        DN.contractSecond(*neighbors.begin(),*nIter);
-                        temp++;
+                        if(DN.node(*nIter).first)
+                        {
+                            DN.contractSecond(*neighbors.begin(),*nIter);
+                            temp++;
+                        }
                     }
                 }
-                DN.contractSecond(*neighbors.begin(),i);
-                temp++;
-                DN.contractSecond(*neighbors.begin(),j);
-                temp++;
+                
+                if(DN.node(i).first)
+                {
+                    DN.contractSecond(*neighbors.begin(),i);
+                    temp++;
+                }
+                
+                if(DN.node(i).first)
+                {
+                    DN.contractSecond(*neighbors.begin(),j);
+                    temp++;
+                }
             }
             else // neither i nor j has a neighbor at P0
             {
@@ -117,7 +126,7 @@ namespace model
             
             return temp;
         }
-        
+
         /**********************************************************************/
         unsigned int contractSecondWithCommonNeighborCheck(const NodeType& Ni,
                                                            const NodeType& Nj)
@@ -133,32 +142,84 @@ namespace model
             
             // collect all neighbors at Ni.get_P() (but j)
             std::set<size_t> neighbors;
-            Nj.neighborsAt(Ni.get_P(),neighbors,1.0);
+            Nj.neighborsAt(Ni.get_P(),neighbors,100.0*FLT_EPSILON);
             neighbors.erase(i);
             neighbors.erase(j);
             
-            // There are no links between those neighbors (otherwise they would have zero-norm). Contract them
+            // There are no links between those neighbors and i (otherwise they would have zero-norm). Contract them
             if(neighbors.size())
             {
                 for (std::set<size_t>::const_iterator nIter=neighbors.begin();nIter!=neighbors.end();++nIter)
                 {
-                    if(nIter!=neighbors.begin())
+//                    if(nIter!=neighbors.begin())
+//                    {
+                    if(DN.node(*nIter).first)
                     {
-                        DN.contractSecond(*neighbors.begin(),*nIter);
+                        DN.contractSecond(i,*nIter);
                         temp++;
                     }
+//                    }
                 }
                 DN.contractSecond(i,*neighbors.begin());
                 temp++;
             }
-            else // j has a neighbor at P0
+//            else // j has no neighbor at P0
+//            {
+//                DN.contractSecond(i,j);
+//                temp++;
+//            }
+            
+            if(DN.node(j).first)
             {
-                    DN.contractSecond(i,j);
-                    temp++;
+                DN.contractSecond(i,j);
+                temp++;
             }
-
+            
             return temp;
         }
+
+        
+//        /**********************************************************************/
+//        unsigned int contractSecondWithCommonNeighborCheck(const NodeType& Ni,
+//                                                           const NodeType& Nj)
+//        {/*!@param[in] i StaticID of the first node (vertex i remains)
+//          * @param[in] j StaticID of the second node (vertex j is contracted)
+//          *
+//          * Contracts  vertex j onto vertex i, making sure no other neighbors of j (but i)
+//          * occupies the position of i.
+//          */
+//            unsigned int temp(0);
+//            const int i(Ni.sID);
+//            const int j(Nj.sID);
+//            
+//            // collect all neighbors at Ni.get_P() (but j)
+//            std::set<size_t> neighbors;
+//            Nj.neighborsAt(Ni.get_P(),neighbors,100.0*FLT_EPSILON);
+//            neighbors.erase(i);
+//            neighbors.erase(j);
+//            
+//            // There are no links between those neighbors (otherwise they would have zero-norm). Contract them
+//            if(neighbors.size())
+//            {
+//                for (std::set<size_t>::const_iterator nIter=neighbors.begin();nIter!=neighbors.end();++nIter)
+//                {
+//                    if(nIter!=neighbors.begin())
+//                    {
+//                        DN.contractSecond(*neighbors.begin(),*nIter);
+//                        temp++;
+//                    }
+//                }
+//                DN.contractSecond(i,*neighbors.begin());
+//                temp++;
+//            }
+//            else // j has no neighbor at P0
+//            {
+//                DN.contractSecond(i,j);
+//                temp++;
+//            }
+//            
+//            return temp;
+//        }
         
         /**********************************************************************/
         unsigned int contractSecondWithCommonNeighborCheck(const int& i, const int& j)

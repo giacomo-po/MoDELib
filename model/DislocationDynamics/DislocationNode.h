@@ -56,6 +56,10 @@ namespace model
 		typedef Eigen::Matrix<double,NdofXnode,1> VectorDofType;
 		typedef std::vector<VectorDim,Eigen::aligned_allocator<VectorDim> > VectorOfNormalsType;
 		
+        static bool use_velocityFilter;
+        static double velocityReductionFactor;
+
+        
 	private:
 		
 		DislocationSharedObjects<LinkType> shared;
@@ -72,8 +76,6 @@ namespace model
         //! The previous velocity vector of *this DislocationNode
 		VectorDofType vOld;
         
-        static bool use_velocityFilter;
-        static double velocityReductionFactor;
         double velocityReductionCoeff;
         
         //! The normal unit vector of the boundary on which *this DislocationNode is moving on

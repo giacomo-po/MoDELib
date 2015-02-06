@@ -5,7 +5,8 @@ timeWindow=5.1e03;
 startAtTimeStep = 0;
 
 equilibriumVelocity=0.01;
-
+use_velocityFilter=1;
+velocityReductionFactor=0.75;
 ######################################
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 

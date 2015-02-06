@@ -118,14 +118,8 @@ namespace model
         {
             size_t contracted(0);
             
-            //            const auto N1=DN.node(i);
-            //            const auto N2=DN.node(j);
-            //            assert(N1.first && "NODE i DOES NOT EXIST.");
-            //            assert(N2.first && "NODE j DOES NOT EXIST.");
-            
             const VectorDimD P1=N1.second->get_P();
             const VectorDimD P2=N2.second->get_P();
-            
             
             const typename DislocationNetworkType::NodeType::VectorOfNormalsType PN1(GramSchmidt<dim>(N1.second->constraintNormals()));
             const typename DislocationNetworkType::NodeType::VectorOfNormalsType PN2(GramSchmidt<dim>(N2.second->constraintNormals()));

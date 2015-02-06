@@ -9,6 +9,8 @@ startAtTimeStep = 0;
 # Maximum nodal displacement per time step (this controls time step size) 
 dx=10;
 equilibriumVelocity=0.01;
+use_velocityFilter=1;
+velocityReductionFactor=0.75;
 
 # Time integration method:
 useImplicitTimeIntegration=0;
