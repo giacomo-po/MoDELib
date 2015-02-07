@@ -14,11 +14,14 @@
 namespace model
 {
 
+    template <typename _TrialFunctionType>
     struct DirichletCondition
     {
-        const double value;
         
-        DirichletCondition(const double& vale_in) :
+        typename _TrialFunctionType TrialFunctionType;
+
+        
+        DirichletCondition(const TrialFunctionType& trial_in) :trial(trial_in)
         /* init list */ value(vale_in)
         {
         

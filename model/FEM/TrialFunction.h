@@ -13,15 +13,17 @@
 #include <deque>
 #include <map>
 #include <list>
+#include <assert.h>
 
 #include <model/Utilities/TerminalColors.h>
 #include <model/FEM/TrialFunctionTraits.h>
+//#include <model/FEM/TrialNode.h>
 #include <model/FEM/Constant.h>
 #include <model/FEM/TrialOperators/TrialSum.h>
 #include <model/FEM/TrialOperators/TrialProd.h>
 #include <model/FEM/TrialOperators/TrialGrad.h>
 #include <model/FEM/TrialOperators/TrialDef.h>
-#include <model/FEM/Boundaries/NodeList.h>
+//#include <model/FEM/Boundaries/NodeList.h>
 #include <model/MPI/MPIcout.h>
 
 
@@ -29,8 +31,8 @@
 namespace model
 {
     
-	template<int _nComponents, typename _FiniteElementType>
-	class TrialFunction : public TrialExpressionBase<TrialFunction<_nComponents,_FiniteElementType> >,
+    template<int _nComponents, typename _FiniteElementType>
+    class TrialFunction : public TrialExpressionBase<TrialFunction<_nComponents,_FiniteElementType> >,
     /*                 */ public Eigen::Matrix<double,Eigen::Dynamic,1>, // DofContainer
     /*                 */ private std::map<size_t,double> // DirichletConditionContainer
     {
@@ -39,11 +41,13 @@ namespace model
         
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
+        typedef double Scalar;
         typedef _FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::ElementType ElementType;
         typedef typename FiniteElementType::NodeType NodeType;
         
         typedef TrialFunction<_nComponents,FiniteElementType> TrialFunctionType;
+        //        typedef TrialNode<TrialFunctionType> TrialNodeType;
         constexpr static int rows=_nComponents;
         
         typedef typename TypeTraits<TrialFunctionType>::NodeContainerType NodeContainerType;
@@ -136,60 +140,25 @@ namespace model
         
         /**********************************************************************/
         template<typename Condition>
-        void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList)
-        {/*!@param[in] dc the Dirichlet condition
-          * @param[in] the nodal dof to be constrained
+        void addDirichletCondition(const size_t& nodeListID,
+                                   const Condition& cond,
+                                   const std::array<bool,dofPerNode>& constrainDof)
+        {/*!@param[in] nodeListID ID of the FiniteElement nodeList to which this DirichletCondition applies
+          * @param[in] cond the condition object
+          * @param[in] constrainDof array of booleans indicating which dofs are to be constrained
           */
             
-            assert((&this->fe)==(&nodeList.fe) && "USING NODE LIST CREATED FROM A DIFFERENT FINITE ELEMENT.");
-            
-            for(typename NodeList<FiniteElementType>::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
+            for(const auto& pNode :  fe.nodeList(nodeListID))
             {
-                const Eigen::Matrix<double,dofPerNode,1> value(cond.at(**nIter));
+                const Eigen::Matrix<Scalar,dofPerNode,1> value(cond(*pNode,*this));
                 for(int dof=0;dof<dofPerNode;++dof)
                 {
-                    const auto temp=this->emplace(dofPerNode*(*nIter)->gID+dof,value(dof));
-                    assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
+                    if(constrainDof[dof])
+                    {
+                        const auto temp=this->emplace(dofPerNode*(pNode->gID)+dof,value(dof));
+                        assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
+                    }
                 }
-            }
-        }
-        
-        /**********************************************************************/
-        template<typename Condition>
-        void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList, const int& dof)
-        {/*!@param[in] dc the Dirichlet condition
-          * @param[in] the nodal dof to be constrained
-          */
-            
-            assert(dof>=0 && "dof MUST BE >=0");
-            assert(dof<dofPerNode && "dof MUST BE < dofPerNode");
-            
-            //Make sure that (&this->fe)==&(nodeList.fe)
-            assert((&this->fe)==(&nodeList.fe) && "USING NODE LIST CREATED FROM A DIFFERENT FINITE ELEMENT.");
-            
-            for(typename NodeList<FiniteElementType>::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
-            {
-                const auto temp=this->emplace(dofPerNode*(*nIter)->gID+dof,cond.at(**nIter));
-                assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
-            }
-        }
-        
-        /**********************************************************************/
-        void addDirichletCondition(const double& val, const NodeList<FiniteElementType>& nodeList, const int& dof)
-        {/*!@param[in] dc the Dirichlet condition
-          * @param[in] the nodal dof to be constrained
-          */
-            
-            assert(dof>=0 && "dof MUST BE >=0");
-            assert(dof<dofPerNode && "dof MUST BE < dofPerNode");
-            
-            //Make sure that (&this->fe)==&(nodeList.fe)
-            assert((&this->fe)==(&nodeList.fe) && "USING NODE LIST CREATED FROM A DIFFERENT FINITE ELEMENT.");
-            
-            for(typename NodeList<FiniteElementType>::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
-            {
-                const auto temp=this->emplace(dofPerNode*(*nIter)->gID+dof,val);
-                assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
             }
         }
         
@@ -269,3 +238,92 @@ namespace model
     
 }	// close namespace
 #endif
+
+
+
+//        /**********************************************************************/
+//        template<typename Condition>
+//        void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList)
+//        {/*!@param[in] dc the Dirichlet condition
+//          * @param[in] the nodal dof to be constrained
+//          */
+//
+//            assert((&this->fe)==(&nodeList.fe) && "USING NODE LIST CREATED FROM A DIFFERENT FINITE ELEMENT.");
+//
+//            for(typename NodeList<FiniteElementType>::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
+//            {
+//                const Eigen::Matrix<double,dofPerNode,1> value(cond.at(**nIter));
+//                for(int dof=0;dof<dofPerNode;++dof)
+//                {
+//                    const auto temp=this->emplace(dofPerNode*(*nIter)->gID+dof,value(dof));
+//                    assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
+//                }
+//            }
+//        }
+//
+//        /**********************************************************************/
+//        template<typename Condition>
+//        void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList, const int& dof)
+//        {/*!@param[in] dc the Dirichlet condition
+//          * @param[in] the nodal dof to be constrained
+//          */
+//
+//            assert(dof>=0 && "dof MUST BE >=0");
+//            assert(dof<dofPerNode && "dof MUST BE < dofPerNode");
+//
+//            //Make sure that (&this->fe)==&(nodeList.fe)
+//            assert((&this->fe)==(&nodeList.fe) && "USING NODE LIST CREATED FROM A DIFFERENT FINITE ELEMENT.");
+//
+//            for(typename NodeList<FiniteElementType>::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
+//            {
+//                const auto temp=this->emplace(dofPerNode*(*nIter)->gID+dof,cond.at(**nIter));
+//                assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
+//            }
+//        }
+//
+//        /**********************************************************************/
+//        void addDirichletCondition(const double& val, const NodeList<FiniteElementType>& nodeList, const int& dof)
+//        {/*!@param[in] dc the Dirichlet condition
+//          * @param[in] the nodal dof to be constrained
+//          */
+//
+//            assert(dof>=0 && "dof MUST BE >=0");
+//            assert(dof<dofPerNode && "dof MUST BE < dofPerNode");
+//
+//            //Make sure that (&this->fe)==&(nodeList.fe)
+//            assert((&this->fe)==(&nodeList.fe) && "USING NODE LIST CREATED FROM A DIFFERENT FINITE ELEMENT.");
+//
+//            for(typename NodeList<FiniteElementType>::const_iterator nIter=nodeList.begin();nIter!=nodeList.end();++nIter)
+//            {
+//                const auto temp=this->emplace(dofPerNode*(*nIter)->gID+dof,val);
+//                assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
+//            }
+//        }
+
+//        /**********************************************************************/
+//        template<typename Condition>
+//        void addDirichletCondition(const NodeList<FiniteElementType>& nodeList,
+//                                   const Condition& cond,
+//                                   const std::array<bool,dofPerNode>& constrainDof)
+//        {/*!@param[in] dc the Dirichlet condition
+//          * @param[in] the nodal dof to be constrained
+//          */
+//
+//            //Make sure that (&this->fe)==&(nodeList.fe)
+//            //assert((&this->fe)==(&nodeList.fe) && "USING NODE LIST CREATED FROM A DIFFERENT FINITE ELEMENT.");
+//
+//            for(const auto& pNode :  nodeList)
+//            {
+//                const Eigen::Matrix<Scalar,dofPerNode,1> value(cond(TrialNodeType(*pNode)));
+//                for(int dof=0;dof<dofPerNode;++dof)
+//                {
+//                    if(constrainDof[dof])
+//                    {
+//                        const auto temp=this->emplace(dofPerNode*(pNode->gID)+dof,value(dof));
+////                        assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
+//                    }
+//                }
+//            }
+//        }
+
+

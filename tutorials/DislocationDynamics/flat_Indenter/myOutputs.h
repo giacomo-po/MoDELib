@@ -8,10 +8,10 @@
 double disp = 0.0;
 
 // Obtain a list of nodes under the punch
-auto nodeList=DN.shared.bvpSolver.finiteElement().template getNodeList<FlatPunch>();
+const size_t nodeListID=DN.shared.bvpSolver.finiteElement().template createNodeList<FlatPunch>();
 
 // Sum FEM displacement of those nodes
-for(auto node : nodeList)
+for(auto node : DN.shared.bvpSolver.finiteElement().nodeList(nodeListID))
 {
     Eigen::Matrix<double,dim,1> nodeDisp = DN.shared.bvpSolver.displacement().template segment<dim>(dim*node->gID);
     disp += nodeDisp(2);
@@ -21,7 +21,7 @@ for(auto node : nodeList)
 typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
 typedef typename FieldPointType::DisplacementField DisplacementField;
 std::deque<FieldPointType> fieldPoints; // the container of field points
-for (auto node : nodeList) // range-based for loop (C++11)
+for (auto node : DN.shared.bvpSolver.finiteElement().nodeList(nodeListID)) // range-based for loop (C++11)
 {
     // Compute S vector
     Eigen::Matrix<double,dim,1> s(Eigen::Matrix<double,dim,1>::Zero());
@@ -50,7 +50,7 @@ for(auto node : fieldPoints)
     disp += nodeDisp(2);
 }
 
-double avgdisp = disp/nodeList.size();
+double avgdisp = disp/DN.shared.bvpSolver.finiteElement().nodeList(nodeListID).size();
 
 
 /******************************************************************************/

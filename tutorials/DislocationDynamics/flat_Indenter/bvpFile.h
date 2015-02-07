@@ -1,16 +1,14 @@
 // BOUNDARY CONDITIONS
 // Fix nodes at z=0
-auto nodeList_0=finiteElement().template getNodeList<AtXmin<2>>();
+const size_t nodeList_0=finiteElement().template createNodeList<AtXmin<2>>();
 Fix fix;
-addDirichletCondition(fix,nodeList_0,0,DN); // fix x-component of displacement
-addDirichletCondition(fix,nodeList_0,1,DN); // fix y-component of displacement
-addDirichletCondition(fix,nodeList_0,2,DN); // fix z-component of displacement
+addDirichletCondition(nodeList_0,fix,{1,1,1},DN); // fix u1 u2 u3
 
 // Displace top nodes using flat punch
-auto nodeList_1=finiteElement().template getNodeList<FlatPunch>();
+const size_t nodeList_1=finiteElement().template createNodeList<FlatPunch>();
 FlatPunch punch(finiteElement());
 punch.updateDisplacement(DN);
-addDirichletCondition(punch,nodeList_1,2,DN); // prescribe z-component of displacement
+addDirichletCondition(nodeList_1,punch,{0,0,1},DN); // prescribe only u3
 
 // CALL SOLVER, passing the negative dislocation traction vector and the solution guess
 displacement()=solve(-dislocationTraction.globalVector(),displacement());

@@ -12,6 +12,8 @@
 #include <deque>
 #include <map>
 #include <list>
+#include <stdexcept>      // std::out_of_range
+
 
 #include <Eigen/Dense>
 
@@ -26,7 +28,7 @@
 #include <model/FEM/Domains/IntegrationDomain.h>
 #include <model/FEM/Domains/EntireDomain.h>
 #include <model/FEM/Boundaries/ExternalBoundary.h>
-#include <model/FEM/Boundaries/NodeList.h>
+//#include <model/FEM/Boundaries/NodeList.h>
 #include <model/MPI/MPIcout.h>
 
 
@@ -43,7 +45,8 @@ namespace model
     /* inherits        */ public std::map<Eigen::Matrix<double,_ElementType::dim,1>, // key
     /*                                  */ typename _ElementType::NodeType* const, // value
     /*                                  */ CompareVectorsByComponent<double,_ElementType::dim,float> // key compare
-    /*                                  */ > // nodefinder
+    /*                                  */ >, // nodefinder
+    /* inherits        */ private std::map<size_t,std::deque<const typename _ElementType::NodeType*>> // node list container
     {
         
     private:
@@ -55,8 +58,11 @@ namespace model
         typedef _ElementType ElementType;
         typedef FiniteElement<ElementType> FiniteElementType;
         typedef typename ElementType::NodeType NodeType;
-        typedef std::list<const NodeType*> NodeListType;
-        typedef std::map<size_t,NodeListType> NodeMapType;
+//        typedef std::list<const NodeType*> NodeListType;
+//        typedef std::map<size_t,NodeListType> NodeMapType;
+        typedef std::deque<const NodeType*> NodeListType;
+        typedef std::map<size_t,NodeListType> NodeListContainerType;
+
         constexpr static int dim=ElementType::dim;
         constexpr static int nodesPerElement=ElementType::nodesPerElement;
         typedef SimplicialMesh<dim> MeshType;
@@ -70,8 +76,8 @@ namespace model
         /*                                  */ CompareVectorsByComponent<double,_ElementType::dim,float> // key compare
         /*                                  */ > NodeFinderType;
         
-        
         const MeshType& mesh;
+        size_t nodeListID;
         
         /**********************************************************************/
         FiniteElement(const SimplicialMesh<dim>& m) :
@@ -79,7 +85,8 @@ namespace model
 //        /* init list */ _xMax(Eigen::Matrix<double,ElementType::dim,1>::Constant(-DBL_MAX)),
         /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Zero()),
         /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Zero()),
-        /* init list */ mesh(m)
+        /* init list */ mesh(m),
+        /* init list */ nodeListID(0)
         {/*!@param[in] s A const reference to a SimplicialMesh on which *this 
           * FiniteElement is constructed.
           */
@@ -219,20 +226,59 @@ namespace model
             return DomainType::template domain<FiniteElementType,qOrder,QuadratureRule>(*this);
         }
         
+//        /**********************************************************************/
+//        template <typename NodeSelectorType, typename... NodeSelectorArgs>
+//        NodeList<FiniteElementType> getNodeList(const NodeSelectorArgs&... args) const
+//        {
+//            NodeList<FiniteElementType> temp(*this);
+//            const NodeSelectorType nodeSelector(*this,args...);
+//            for(auto& node : nodes())
+//            {
+//                if(nodeSelector(node))
+//                {
+//                    temp.emplace_back(&node);
+//                }
+//            }
+//            return temp;
+//        }
+        
         /**********************************************************************/
         template <typename NodeSelectorType, typename... NodeSelectorArgs>
-        NodeList<FiniteElementType> getNodeList(const NodeSelectorArgs&... args) const
+        size_t createNodeList(const NodeSelectorArgs&... args)
         {
-            NodeList<FiniteElementType> temp(*this);
+            //const size_t nodeListID_old(nodeListID);
+            auto pair=NodeListContainerType::emplace(nodeListID,NodeListType());
+            assert(pair.second);
             const NodeSelectorType nodeSelector(*this,args...);
-            for(typename NodeContainerType::const_iterator nIter=nodeBegin(); nIter!=nodeEnd();++nIter)
+            for(auto& node : nodes())
             {
-                if(nodeSelector(*nIter))
+                if(nodeSelector(node))
                 {
-                    temp.emplace_back(&(*nIter));
+                    pair.first->second.emplace_back(&node);
                 }
             }
-            return temp;
+            nodeListID++;
+            return pair.first->first;
+        }
+        
+        /**********************************************************************/
+        void  clearNodeLists()
+        {
+            return NodeListContainerType::clear();
+        }
+        
+        /**********************************************************************/
+        const NodeListType& nodeList(const size_t& k) const
+        {
+            try
+            {
+                return NodeListContainerType::at(k);
+            }
+            catch (const std::out_of_range& oor)
+            {
+                std::cerr << "FiniteElement::nodeList(), out_of_range error: " << oor.what() << "\n";
+                return NodeListContainerType::at(k);
+            }
         }
         
         /**********************************************************************/

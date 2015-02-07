@@ -9,6 +9,7 @@
 #ifndef model_BVPsolver_H_
 #define model_BVPsolver_H_
 
+#include <array>
 #include <deque>
 #include <memory> // unique_ptr
 #include <model/FEM/FiniteElement.h>
@@ -236,10 +237,12 @@ namespace model
             A.prune(A.norm()/A.nonZeros(),FLT_EPSILON);
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         }
-        
+
         /**********************************************************************/
         template<typename Condition,typename DislocationNetworkType>
-        void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList, const int& dof,
+        void addDirichletCondition(const size_t& nodeListID,
+                                   const Condition& cond,
+                                   const std::array<bool,dofPerNode>& constrainDof,
                                    const DislocationNetworkType& DN)
         {/*!@param[in] dc the Dirichlet condition
           * @param[in] the nodal dof to be constrained
@@ -247,7 +250,7 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"adding DirichletCondition... "<<std::flush;
             // Add the Dirichlet condition
-            u->addDirichletCondition(cond,nodeList,dof);
+            u->addDirichletCondition(nodeListID,cond,constrainDof);
             
             // Compute  the DislocationNetwork displacement at nodeList
             model::cout<<"subtracting DislocationDisplacement... "<<std::flush;
@@ -255,7 +258,7 @@ namespace model
             typedef typename FieldPointType::DisplacementField DisplacementField;
             std::deque<FieldPointType> fieldPoints; // the container of field points
             
-            for (auto node : nodeList) // range-based for loop (C++11)
+            for (auto node : fe->nodeList(nodeListID)) // range-based for loop (C++11)
             {
                 // Compute S vector
                 Eigen::Matrix<double,dim,1> s(Eigen::Matrix<double,dim,1>::Zero());
@@ -280,7 +283,13 @@ namespace model
             // Subtract the DislocationNetwork displacement from the Dirichlet conditions
             for(int n=0;n<fieldPoints.size();++n)
             {
-                u->dirichletConditions().at(nodeList[n]->gID*dofPerNode+dof) -= fieldPoints[n].template field<DisplacementField>()(dof);
+                for(int dof=0;dof<dofPerNode;++dof)
+                {
+                    if(constrainDof[dof])
+                    {
+                        u->dirichletConditions().at(fe->nodeList(nodeListID)[n]->gID*dofPerNode+dof) -= fieldPoints[n].template field<DisplacementField>()(dof);
+                    }
+                }
             }
             
             if(DN.shared.use_virtualSegments) // Add solid angle contribution
@@ -296,12 +305,84 @@ namespace model
                         linkIter->second.addToSolidAngleJump(fieldPoints[n].P,fieldPoints[n].S,dispJump);
                     }
                     
-                    u->dirichletConditions().at(nodeList[n]->gID*dofPerNode+dof) -= dispJump(dof);
+                    for(int dof=0;dof<dofPerNode;++dof)
+                    {
+                        if(constrainDof[dof])
+                        {
+                            u->dirichletConditions().at(fe->nodeList(nodeListID)[n]->gID*dofPerNode+dof) -= dispJump(dof);
+                        }
+                    }
                 }
             } // end virtual loops
             
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
+        
+//        /**********************************************************************/
+//        template<typename Condition,typename DislocationNetworkType>
+//        void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList, const int& dof,
+//                                   const DislocationNetworkType& DN)
+//        {/*!@param[in] dc the Dirichlet condition
+//          * @param[in] the nodal dof to be constrained
+//          */
+//            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"adding DirichletCondition... "<<std::flush;
+//            // Add the Dirichlet condition
+//            u->addDirichletCondition(cond,nodeList,dof);
+//            
+//            // Compute  the DislocationNetwork displacement at nodeList
+//            model::cout<<"subtracting DislocationDisplacement... "<<std::flush;
+//            typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
+//            typedef typename FieldPointType::DisplacementField DisplacementField;
+//            std::deque<FieldPointType> fieldPoints; // the container of field points
+//            
+//            for (auto node : nodeList) // range-based for loop (C++11)
+//            {
+//                // Compute S vector
+//                Eigen::Matrix<double,dim,1> s(Eigen::Matrix<double,dim,1>::Zero());
+//                for(auto ele : *node)
+//                {
+//                    const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(node->P0));
+//                    //std::map<double,int> baryIDmap;
+//                    for(int k=0;k<dim+1;++k)
+//                    {
+//                        if (std::fabs(bary(k))<FLT_EPSILON && ele->simplex.child(k).isBoundarySimplex())
+//                        {
+//                            s += ele->simplex.nda.col(k).normalized();
+//                        }
+//                    }
+//                }
+//                const double sNorm(s.norm());
+//                assert(sNorm>0.0 && "s-vector has zero norm.");
+//                fieldPoints.emplace_back(*node,s/sNorm);
+//            }
+//            DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
+//            
+//            // Subtract the DislocationNetwork displacement from the Dirichlet conditions
+//            for(int n=0;n<fieldPoints.size();++n)
+//            {
+//                u->dirichletConditions().at(nodeList[n]->gID*dofPerNode+dof) -= fieldPoints[n].template field<DisplacementField>()(dof);
+//            }
+//            
+//            if(DN.shared.use_virtualSegments) // Add solid angle contribution
+//            {
+//                //std::cout<<"NEED TO COMPUTE DISPLACEMENT OF RADIAL SEGMENTS"<<std::endl;
+//                
+//                for(int n=0;n<fieldPoints.size();++n)
+//                {
+//                    VectorDim dispJump(VectorDim::Zero());
+//                    
+//                    for (typename DislocationNetworkType::NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+//                    {
+//                        linkIter->second.addToSolidAngleJump(fieldPoints[n].P,fieldPoints[n].S,dispJump);
+//                    }
+//                    
+//                    u->dirichletConditions().at(nodeList[n]->gID*dofPerNode+dof) -= dispJump(dof);
+//                }
+//            } // end virtual loops
+//            
+//            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//        }
         
         
         /**********************************************************************/
@@ -341,8 +422,10 @@ namespace model
             
             
             auto dislocationTraction=(u->test(),eb_list);
-            
+
+            fe->clearNodeLists();
             u->clearDirichletConditions();
+
             
 #include userBVPfile // userBVPfile defines additional loads, boundary conditions, and calls solver
 #else

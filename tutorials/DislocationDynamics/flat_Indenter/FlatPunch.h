@@ -65,10 +65,10 @@ struct FlatPunch
     }
     
     /**************************************/
-    template <typename NodeType>
-    double at(const NodeType&) const
+    template <typename NodeType,typename TrialFunctionType>
+    Eigen::Matrix<double,3,1> operator()(const NodeType&,const TrialFunctionType&) const
     {
-        return initialDisplacement+deltaDisplacement;
+        return (Eigen::Matrix<double,3,1>()<<0.0,0.0,initialDisplacement+deltaDisplacement).finished();
     }
     
     /**************************************/
