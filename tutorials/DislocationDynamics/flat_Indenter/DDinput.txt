@@ -20,7 +20,7 @@ useImplicitTimeIntegration=0;
 # Options for output files:
 outputFrequency=1;
 outputBinary=0;
-outputGlidePlanes=0;
+outputGlidePlanes=1;
 outputSpatialCells=0;
 outputPKforce=0;
 outputElasticEnergy=0;

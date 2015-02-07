@@ -106,6 +106,52 @@ namespace model {
             return temp;
         }
         
+        /**********************************************************************/
+        SegmentMeshCollisionPairContainerType getPlaneRegionIntersection(const VectorDimD& x0, const VectorDimD& n) const
+        {/*!@param[in] x0 a point on *this GlidePlane
+          *!@param[n]  n  the unit plane normal to *this GlidePlane
+          *\returns a container of segments representing the intersection of *this GlidePLane with the SimplexMesh
+          */
+            SegmentMeshCollisionPairContainerType temp;
+            if (shared.use_boundary)
+            {
+                for(typename SimplexObserver<dim,dim-1>::const_iterator fIter =SimplexObserver<dim,dim-1>::simplexBegin();
+                    /*                                               */ fIter!=SimplexObserver<dim,dim-1>::simplexEnd();++fIter)
+                {
+                    if(fIter->second->isRegionBoundarySimplex())
+                    {
+                        std::deque<VectorDimD> intersectionPoints;
+                        for(unsigned int e=0;e<dim;++e)
+                        {// this part of the code is specific to dim=3;
+                            const VectorDimD& v0(fIter->second->child(e).child(0).P0);
+                            const VectorDimD& v1(fIter->second->child(e).child(1).P0);
+                            const double u ((x0-v0).dot(n) / (v1-v0).dot(n));
+                            if(u>=0 && u<=1.0)
+                            {
+                                const VectorDimD P(v0 + u*(v1-v0));
+                                bool isDifferent=true;
+                                for (unsigned int k=0;k<intersectionPoints.size();++k)
+                                {
+                                    isDifferent*= (P-intersectionPoints[k]).squaredNorm()>FLT_EPSILON;
+                                }
+                                
+                                if (isDifferent)
+                                {
+                                    intersectionPoints.emplace_back(P);
+                                }
+                            }
+                        }
+                        assert(intersectionPoints.size()<3);
+                        if (intersectionPoints.size()==2)
+                        {
+                            temp.emplace_back(intersectionPoints[0],intersectionPoints[1]);
+                        }
+                    }
+                }
+            }
+            return temp;
+        }
+        
         
         
 	public:
@@ -122,11 +168,16 @@ namespace model {
 		//! A container of the intersection lines between *this and the mesh boundary
 		const SegmentMeshCollisionPairContainerType segmentMeshCollisionPairContainer;
 
+        //! A container of the intersection lines between *this and the internal region mesh boundaries
+        const SegmentMeshCollisionPairContainerType segmentRegionCollisionPairContainer;
+
+        
 		/**********************************************************************/
 		GlidePlane(const VectorDimD& planeNormal_in, const double& height_in) :
         /* init list */ planeNormal(planeNormal_in),
 		/* init list */ height(height_in),
-        /* init list */ segmentMeshCollisionPairContainer(getPlaneMeshIntersection(planeNormal*height,planeNormal))
+        /* init list */ segmentMeshCollisionPairContainer(getPlaneMeshIntersection(planeNormal*height,planeNormal)),
+        /* init list */ segmentRegionCollisionPairContainer(getPlaneRegionIntersection(planeNormal*height,planeNormal))
         {
 			assert(std::fabs(planeNormal.norm()-1.0)<=DBL_EPSILON && "GLIDE PLANE NORMAL IS NOT UNIT");
 			const bool success(this->glidePlaneMap.insert(std::make_pair((VectorDimPlusOneD()<< planeNormal, height).finished(),this)).second);
@@ -234,7 +285,15 @@ namespace model {
         {
             unsigned int ii = 0 ;
             typename SegmentMeshCollisionPairContainerType::const_iterator itt;
-            for (itt = gp.segmentMeshCollisionPairContainer.begin(); itt != gp.segmentMeshCollisionPairContainer.end() ;++itt){
+            for (itt = gp.segmentMeshCollisionPairContainer.begin(); itt != gp.segmentMeshCollisionPairContainer.end() ;++itt)
+            {
+                os << gp.sID<< " "<< ii <<" "
+                << itt->first.transpose()<<" "
+                << itt->second.transpose()<<"\n";
+                ii++;
+            }
+            for (itt = gp.segmentRegionCollisionPairContainer.begin(); itt != gp.segmentRegionCollisionPairContainer.end() ;++itt)
+            {
                 os << gp.sID<< " "<< ii <<" "
                 << itt->first.transpose()<<" "
                 << itt->second.transpose()<<"\n";

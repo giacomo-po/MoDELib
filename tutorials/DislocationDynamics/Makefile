@@ -45,6 +45,7 @@ endif
 CFLAGS += -Wall
 # … and more warnings       
 CFLAGS += -Wextra
+#CFLAGS += -ftime-report
 
 #disable model-assertions
 CFLAGS += -D _MODEL_NO_DEBUG_
