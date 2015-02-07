@@ -361,10 +361,13 @@ namespace model
                 }
                 else
                 {
-                    for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
-                        /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
+//                    for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
+//                        /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
+//                    {
+                    for(auto& pParent : this->child(kMin).parents())
                     {
-                        (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
+//                        (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
+                    pParent->convexDelaunaynSearch(P,lastSearched,searchSet);
                         if (lastSearched.first)
                         {
                             break;

@@ -54,12 +54,17 @@ namespace model {
 			
 			SimplexIDType temp;
 			int k(0);
-			for (std::set<size_t>::const_iterator iter=set.begin();iter!=set.end();++iter)
+//			for (std::set<size_t>::const_iterator iter=set.begin();iter!=set.end();++iter)
+//            {
+//				temp(k)=(*iter);
+//				++k;
+//			}
+            for (const size_t& m : set)
             {
-				temp(k)=(*iter);
-				++k;
-			}
-			return temp;
+                temp(k)=m;
+                ++k;
+            }
+            return temp;
 		}
         
         /**********************************************************************/

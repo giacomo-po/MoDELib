@@ -10,6 +10,7 @@
 #define model_SimplexBase_H_
 
 #include <model/Utilities/StaticID.h>
+#include <model/Utilities/NonCopyable.h>
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Mesh/SimplexObserver.h>
 
@@ -20,7 +21,9 @@ namespace model
 	/**************************************************************************/
 	/**************************************************************************/	
 	template<short int dim, short int order>
-	struct SimplexBase : public StaticID<SimplexBase<dim,order> >
+	struct SimplexBase :
+    /* inheritance    */ public NonCopyable,
+    /* inheritance    */ public StaticID<SimplexBase<dim,order> >
     {
         
         typedef SimplexTraits<dim,order> SimplexTraitsType;

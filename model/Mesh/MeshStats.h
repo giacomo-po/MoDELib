@@ -34,9 +34,10 @@ namespace model {
             if (countBoundarySimplices)
             {
                 size_t nB(0);
-                for (typename SimplexMapType::const_iterator sIter=SimplexObserverType::simplexBegin();sIter!=SimplexObserverType::simplexEnd();++sIter)
+//                for (typename SimplexMapType::const_iterator sIter=SimplexObserverType::simplexBegin();sIter!=SimplexObserverType::simplexEnd();++sIter)
+                for (auto& pSimplex : SimplexObserverType::simplices())
                 {
-                    nB+=sIter->second->isBoundarySimplex();
+                    nB+=pSimplex.second->isBoundarySimplex();
                 }
                 model::cout<<" ("<<nB<<" boundary)";
             }
@@ -61,9 +62,12 @@ namespace model {
             if (countBoundarySimplices)
             {
                 size_t nB(0);
-                for (typename SimplexMapType::const_iterator sIter=SimplexObserverType::simplexBegin();sIter!=SimplexObserverType::simplexEnd();++sIter)
+//                for (typename SimplexMapType::const_iterator sIter=SimplexObserverType::simplexBegin();sIter!=SimplexObserverType::simplexEnd();++sIter)
+//                {
+//                    nB+=sIter->second->isBoundarySimplex();
+                for (auto& pSimplex : SimplexObserverType::simplices())
                 {
-                    nB+=sIter->second->isBoundarySimplex();
+                    nB+=pSimplex.second->isBoundarySimplex();
                 }
                                 model::cout<<" ("<<nB<<" boundary)";
             }

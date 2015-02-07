@@ -18,7 +18,7 @@ namespace model
 {
 
     template<short int dim,short int order>
-    class SimplexChild
+    class SimplexChild : private std::set<const Simplex<dim,order+1>*,SimplexCompare<dim,order+1> >
     {
         
     public:
@@ -27,9 +27,11 @@ namespace model
         typedef typename SimplexTraits<dim,order+1>::ScalarIDType ScalarIDType;
         typedef std::set<const ParentSimplexType*,SimplexCompare<dim,order+1> >  ParentContainerType;
 
+//        typedef std::set<const ParentSimplexType*,SimplexCompare<dim,order+1> >  ParentContainerType;
+
         
-    private:
-        ParentContainerType parentContainer;
+//    private:
+//        ParentContainerType parentContainer;
 
     public:
         
@@ -41,7 +43,8 @@ namespace model
           *
           * Adds pP to the parentContainer.
           */
-            const bool couldInsert(parentContainer.insert(pP).second);
+//            const bool couldInsert(parentContainer.insert(pP).second);
+            const bool couldInsert(this->insert(pP).second);
             assert(couldInsert && "COULD NOT INSERT PARENT IN parentContainer");
         
             
@@ -55,7 +58,8 @@ namespace model
           *
           * Removes pID from the parentContainer.
           */
-            const int nRemoved(parentContainer.erase(pP));
+//            const int nRemoved(parentContainer.erase(pP));
+            const int nRemoved(this->erase(pP));
             assert(nRemoved==1 && "COULD NOT REMOVE PARENT IN parentContainer");
             
             
@@ -67,19 +71,22 @@ namespace model
         /**********************************************************************/
         typename ParentContainerType::const_iterator parentBegin() const
         {
-            return parentContainer.begin();
+            return this->begin();
+            //            return parentContainer.begin();
         }
         
         /**********************************************************************/
         typename ParentContainerType::const_iterator parentEnd() const
         {
-            return parentContainer.end();
+            return this->end();
+//            return parentContainer.end();
         }
         
         /**********************************************************************/
         const ParentContainerType& parents() const
         {
-            return parentContainer;
+            return *this;
+//            return parentContainer;
         }
         
         /**********************************************************************/

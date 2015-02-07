@@ -36,6 +36,12 @@ namespace model {
         typedef std::shared_ptr<SimplexType> SharedPtrType;
 		
 		
+        /**********************************************************************/
+        static const SimplexMapType& simplices()
+        {
+            return simplexMap;
+        }
+        
 		/**********************************************************************/
 		static size_t size()
         {
