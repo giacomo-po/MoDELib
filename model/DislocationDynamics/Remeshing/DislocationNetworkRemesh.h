@@ -151,23 +151,13 @@ namespace model
             {
                 for (std::set<size_t>::const_iterator nIter=neighbors.begin();nIter!=neighbors.end();++nIter)
                 {
-//                    if(nIter!=neighbors.begin())
-//                    {
                     if(DN.node(*nIter).first)
                     {
                         DN.contractSecond(i,*nIter);
                         temp++;
                     }
-//                    }
                 }
-                DN.contractSecond(i,*neighbors.begin());
-                temp++;
             }
-//            else // j has no neighbor at P0
-//            {
-//                DN.contractSecond(i,j);
-//                temp++;
-//            }
             
             if(DN.node(j).first)
             {
