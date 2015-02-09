@@ -151,6 +151,8 @@ namespace model
             for(const auto& pNode :  fe.nodeList(nodeListID))
             {
                 const Eigen::Matrix<Scalar,dofPerNode,1> value(cond(*pNode,*this));
+                // DirichletBoundaryCondition<TrialFunctionType> value(*pNode); // TO DO , implement this
+                // cond(value); // TO DO , implement this
                 for(int dof=0;dof<dofPerNode;++dof)
                 {
                     if(constrainDof[dof])

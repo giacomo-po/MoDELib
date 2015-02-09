@@ -2,8 +2,8 @@ clc
 clear all
 close all
 
-step=0;
-U=load(['D/D_' num2str(step) '.txt']);
+step=90;
+U=load(['U/U_' num2str(step) '.txt']);
 S=load(['S/S_' num2str(step) '.txt']);
 
 %% Plot displacement 
