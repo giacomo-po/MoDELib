@@ -18,9 +18,9 @@ struct FlatPunch
     //! Height of sample in z direction
     const double Lz;
     
-    static double centerX;
+    const double centerX;
     
-    static double centerY;
+    const double centerY;
     
     //! Height of sample in z direction
     const double geometricTol;
@@ -47,6 +47,8 @@ struct FlatPunch
     //    /* init list */ DN(DN_in),
     /* init list */ zFace(fe.xMax()(2)), // zFace is the one at x(2)= max among finite element node coordinates
     /* init list */ Lz(fe.xMax()(2)-fe.xMin()(2)),
+    /* init list */ centerX((fe.xMax()(0)+fe.xMin()(0))*0.5),
+    /* init list */ centerY((fe.xMax()(1)+fe.xMin()(1))*0.5),
     /* init list */ geometricTol(0.01)
     {
     }
@@ -120,8 +122,8 @@ struct FlatPunch
 
 // Static data
 double FlatPunch::punchSize=300.0;
-double FlatPunch::centerX=0.0;
-double FlatPunch::centerY=0.0;
+//double FlatPunch::centerX=0.0;
+//double FlatPunch::centerY=0.0;
 double FlatPunch::strainRate=-1.0e-9;
 double FlatPunch::initialDisplacement=0; // 0.0;
 int FlatPunch::relaxSteps=0;
