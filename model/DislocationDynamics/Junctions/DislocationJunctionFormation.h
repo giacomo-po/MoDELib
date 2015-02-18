@@ -429,7 +429,7 @@ namespace model
             } // end loop over first segment
         }
         
-        /* formEdgeEdgeJunctions **********************************************/
+        /**********************************************************************/
         void formJunctions(const double& dx, const double& avoidNodeIntersection)
         {
             //! 1- Initialize intersectionContainer calling findIntersections deque<Pair<Pair<Link*double>,Pair<Link*,double>>>

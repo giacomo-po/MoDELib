@@ -6,6 +6,10 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
+// The following line is needed for shape functions or order 5 or more
+//#define EIGEN_STACK_ALLOCATION_LIMIT 1000000
+
+
 #include <iostream>
 #include <model/Utilities/SequentialOutputFile.h>
 #include <model/FEM/FiniteElement.h>

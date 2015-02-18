@@ -3,9 +3,9 @@ clc
 clear all
 
 
-Burgers=0.2489e-9; % [m]
-
-R=2127/2;   % cylinder radius [in units of b]
+Burgers=0.2489e-9; % Burgers vectro for Cu [m]
+D=1e-6/Burgers; % Diameter of 1[um], in units of Burgers
+R=D/2;   % cylinder radius [in units of b]
 H=6*R;      % cylinder height [in units of b]
 V=pi*R^2*H; % volume of cylinder
 x0=0;       % offset of cylinder axis 
@@ -14,7 +14,7 @@ y0=0;       % offset of cylinder axis
 
 lMin=R/2;           % minimum size of loop [b]
 lMax=R;             % max size of loop [b]
-targetDensity=5e13; % target dislocaiton density [m^-2]
+targetDensity=1e13; % target dislocaiton density [m^-2]
 
 % Plane normals for FCC (unsigned)
 N =[-0.5774    0.5774   -0.5774    0.5774;

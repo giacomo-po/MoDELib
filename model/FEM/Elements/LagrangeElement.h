@@ -54,7 +54,6 @@ namespace model
      * The matrix \f$c_{ij}\f$ is stored in the field sfCoeffs;
      */
     template<int _dim,int degree, template<typename T> class MappingType=IsoparametricMapping>
-//	class LagrangeElement : private std::vector<const LagrangeNode<_dim>* >
 	class LagrangeElement : private std::vector<LagrangeNode<LagrangeElement<_dim,degree,MappingType>>*>
     {
         
@@ -66,7 +65,6 @@ namespace model
         constexpr static int nodesPerElement=CombinationWithRepetition<_dim+1,degree>::value;
         constexpr static int dofPerNode(int c) { return c; }
         
-//        typedef LagrangeNode<dim> NodeType;
         typedef LagrangeNode<ElementType> NodeType;
         
     private:

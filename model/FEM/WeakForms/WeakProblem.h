@@ -26,6 +26,10 @@
 #include <Eigen/PardisoSupport>
 #endif
 
+#ifdef _OPENMP
+#include <omp.h> // for PARDISO
+#endif
+
 
 
 namespace model

@@ -25,6 +25,10 @@ namespace model
     template<typename Derived>
 	struct TrialExpressionBase;
     
+    /*!
+     * NOTE: if dofPerElement is too large, you may get the Eigen error OBJECT_ALLOCATED_ON_STACK_IS_TOO_BIG
+     * #define EIGEN_STACK_ALLOCATION_LIMIT 1000000
+     */
     template<int _nComponents, typename _FiniteElementType>
 	struct TypeTraits<TrialFunction<_nComponents,_FiniteElementType> >
     {

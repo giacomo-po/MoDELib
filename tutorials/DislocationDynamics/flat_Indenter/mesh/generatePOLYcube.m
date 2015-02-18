@@ -2,48 +2,52 @@ clc
 close all
 clear all
 
-modelDir='../../../../';
+MODEL_DIR='../../../..';
 
 %% Define output file name
-meshID=0;
+meshID=1; % creates ../N/N_1.txt and ../T/T_1.txt
 filename='cube'; % this creates file cube.poly
 
 L=1000;     % side length of the cube
 Lp=300;     % side length of flat punch
 t=50;       % tickness of the boundary layer
-%L1=L-2*t;   % side length of the inner cube
+x0=L/2;     % center of cube in x-y plane (x coordinate)
+y0=L/2;     % center of cube in x-y plane (y coordinate)
 
 %% Define vertices
 % Coordinates of the outer cube
 % The base of the cube is at z=0. The cube is centered in x and y
-P(1,:)=[0 0 0]*L;%-[1 1 0]*L/2;
-P(2,:)=[1 0 0]*L;%-[1 1 0]*L/2;
-P(3,:)=[1 1 0]*L;%-[1 1 0]*L/2;
-P(4,:)=[0 1 0]*L;%-[1 1 0]*L/2;
-P(5,:)=[0 0 1]*L;%-[1 1 0]*L/2;
-P(6,:)=[1 0 1]*L;%-[1 1 0]*L/2;
-P(7,:)=[1 1 1]*L;%-[1 1 0]*L/2;
-P(8,:)=[0 1 1]*L;%-[1 1 0]*L/2;
+P(1,:)=[0 0 0]*L;
+P(2,:)=[1 0 0]*L;
+P(3,:)=[1 1 0]*L;
+P(4,:)=[0 1 0]*L;
+P(5,:)=[0 0 1]*L;
+P(6,:)=[1 0 1]*L;
+P(7,:)=[1 1 1]*L;
+P(8,:)=[0 1 1]*L;
 
 % Coordinates of the inner cube
-P( 9,:)=[t   t t];%-[L1 L1 0]/2;
-P(10,:)=[L-t t t];%-[L1 L1 0]/2;
-P(11,:)=[L-t L-t t];%-[L1 L1 0]/2;
-P(12,:)=[t  L-t t];%-[L1 L1 0]/2;
-P(13,:)=[t   t L-t];%-[L1 L1 0]/2;
-P(14,:)=[L-t t L-t];%-[L1 L1 0]/2;
-P(15,:)=[L-t L-t L-t];%-[L1 L1 0]/2;
-P(16,:)=[t  L-t L-t];%-[L1 L1 0]/2;
+P( 9,:)=[t   t t];
+P(10,:)=[L-t t t];
+P(11,:)=[L-t L-t t];
+P(12,:)=[t  L-t t];
+P(13,:)=[t   t L-t];
+P(14,:)=[L-t t L-t];
+P(15,:)=[L-t L-t L-t];
+P(16,:)=[t  L-t L-t];
 
 % Punc points
-P(17,:)=[(L-Lp)/2  (L-Lp)/2  L];%-[1 1 0]*Lp/2;
-P(18,:)=[(L+Lp)/2  (L-Lp)/2  L];%-[1 1 0]*Lp/2;
-P(19,:)=[(L+Lp)/2  (L+Lp)/2  L];%-[1 1 0]*Lp/2;
-P(20,:)=[(L-Lp)/2  (L+Lp)/2  L];%-[1 1 0]*Lp/2;
-P(21,:)=[(L-Lp)/2  (L-Lp)/2  L-t];%-[1 1 0]*Lp/2;
-P(22,:)=[(L+Lp)/2  (L-Lp)/2  L-t];%-[1 1 0]*Lp/2;
-P(23,:)=[(L+Lp)/2  (L+Lp)/2  L-t];%-[1 1 0]*Lp/2;
-P(24,:)=[(L-Lp)/2  (L+Lp)/2  L-t];%-[1 1 0]*Lp/2;
+P(17,:)=[(L-Lp)/2  (L-Lp)/2  L];
+P(18,:)=[(L+Lp)/2  (L-Lp)/2  L];
+P(19,:)=[(L+Lp)/2  (L+Lp)/2  L];
+P(20,:)=[(L-Lp)/2  (L+Lp)/2  L];
+P(21,:)=[(L-Lp)/2  (L-Lp)/2  L-t];
+P(22,:)=[(L+Lp)/2  (L-Lp)/2  L-t];
+P(23,:)=[(L+Lp)/2  (L+Lp)/2  L-t];
+P(24,:)=[(L-Lp)/2  (L+Lp)/2  L-t];
+
+% Recenter
+P=P+repmat([-L/2+x0 -L/2+y0 -L/2],size(P,1),1);
 
 figure(1)
 clf
@@ -171,7 +175,7 @@ end
 fclose(polyFile);
 
 %% Run Tetgen 
-system([modelDir 'scripts/tetgenPOLY.sh ' filename]);
+system([MODEL_DIR '/scripts/tetgenPOLY.sh ' filename]);
 
 %% Create T and N files and clean tetgent output
-system([modelDir 'scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
+system([MODEL_DIR '/scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);

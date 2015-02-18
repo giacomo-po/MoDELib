@@ -7,14 +7,21 @@
 clc
 close all
 clear all
-addpath('../../../../matlab/');
 
-filename='cylinder'; % this creates file cylinder.stl
+MODEL_DIR='../../../..';
+addpath([MODEL_DIR '/matlab/']);
 
-R=2127/2; % radius of cylinder (units of Burgers vector)
-H=6*R;    % height of cylinder (units of Burgers vector)
+filename='cylinder'; % creates file cylinder.stl
+meshID=0;           % creates file ../N/N_0.txt and ../T/T_0.txt
+Burgers=0.2489e-9; % Burgers vectro for Cu [m]
+D=1e-6/Burgers; % Diameter of 1[um], in units of Burgers
+R=D/2;   % cylinder radius [in units of b]
+H=6*R;      % cylinder height [in units of b]
+V=pi*R^2*H; % volume of cylinder
 x0=0;     % offset of cylinder axis 
 y0=0;     % offset of cylinder axis
+nElements=1e5; % target number of mesh elements
+
 
 np=30;    % number of circumferential points
 theta=[0:np-1]/np*2*pi;
@@ -57,11 +64,10 @@ grid on
 writeSTL(Facets,filename) % creates file mesh.stl
 
 %% Run Tetgen 
-averageElementVolume=1000000;
-system(['../../../../scripts/tetgenSTL.sh ' filename ' ' num2str(averageElementVolume)]);
+averageElementVolume=V/nElements;
+system([MODEL_DIR '/scripts/tetgenSTL.sh ' filename ' ' num2str(averageElementVolume)]);
 
 %% Create T and N files and clean tetgent output
-meshID=0;
-system(['../../../../scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
+system([MODEL_DIR '/scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
 
 

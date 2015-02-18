@@ -2,32 +2,39 @@ clc
 close all
 clear all
 
-filename='cube';
+MODEL_DIR='../../../..';
 
+filename='cube';
+meshID=1; % creates ../N/N_1.txt and ../T/T_1.txt
 L=4000;     % side length of the cube
-t=75;       % tickness of the boundary layer
-L1=L-2*t;   % side length of the inner cube
+t=150;       % tickness of the boundary layer
+x0=0;     % center of cube (x coordinate)
+y0=0;     % center of cube (y coordinate)
+z0=0;     % center of cube (z coordinate)
 
 %% Define vertices
 % Coordinates of the outer cube
-P(1,:)=[0 0 0]*L-[1 1 1]*L/2;
-P(2,:)=[1 0 0]*L-[1 1 1]*L/2;
-P(3,:)=[1 1 0]*L-[1 1 1]*L/2;
-P(4,:)=[0 1 0]*L-[1 1 1]*L/2;
-P(5,:)=[0 0 1]*L-[1 1 1]*L/2;
-P(6,:)=[1 0 1]*L-[1 1 1]*L/2;
-P(7,:)=[1 1 1]*L-[1 1 1]*L/2;
-P(8,:)=[0 1 1]*L-[1 1 1]*L/2;
+P(1,:)=[0 0 0]*L ;
+P(2,:)=[1 0 0]*L;
+P(3,:)=[1 1 0]*L;
+P(4,:)=[0 1 0]*L;
+P(5,:)=[0 0 1]*L;
+P(6,:)=[1 0 1]*L;
+P(7,:)=[1 1 1]*L;
+P(8,:)=[0 1 1]*L;
 
 % Coordinates of the inner cube
-P( 9,:)=[0   0 0]-[L1 L1 L1]/2;
-P(10,:)=[L1  0 0]-[L1 L1 L1]/2;
-P(11,:)=[L1 L1 0]-[L1 L1 L1]/2;
-P(12,:)=[0  L1 0]-[L1 L1 L1]/2;
-P(13,:)=[0   0 L1]-[L1 L1 L1]/2;
-P(14,:)=[L1  0 L1]-[L1 L1 L1]/2;
-P(15,:)=[L1 L1 L1]-[L1 L1 L1]/2;
-P(16,:)=[0  L1 L1]-[L1 L1 L1]/2;
+P( 9,:)=[t   t t];
+P(10,:)=[L-t  t t];
+P(11,:)=[L-t L-t t];
+P(12,:)=[t  L-t t];
+P(13,:)=[t   t L-t];
+P(14,:)=[L-t  t L-t];
+P(15,:)=[L-t L-t L-t];
+P(16,:)=[t  L-t L-t];
+
+% Recenter
+P=P+repmat([-L/2+x0 -L/2+y0 -L/2+z0],size(P,1),1);
 
 figure(1)
 clf
@@ -136,8 +143,7 @@ end
 fclose(polyFile);
 
 %% Run Tetgen 
-system(['../../../../scripts/tetgenPOLY.sh ' filename]);
+system([MODEL_DIR '/scripts/tetgenPOLY.sh ' filename]);
 
 %% Create T and N files and clean tetgent output
-meshID=1;
-system(['../../../../scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
+system([MODEL_DIR '/scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
