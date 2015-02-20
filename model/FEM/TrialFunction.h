@@ -25,6 +25,8 @@
 #include <model/FEM/TrialOperators/TrialDef.h>
 //#include <model/FEM/Boundaries/NodeList.h>
 #include <model/MPI/MPIcout.h>
+#include <model/Utilities/RuntimeError.h>
+
 
 
 
@@ -158,6 +160,7 @@ namespace model
                     if(constrainDof[dof])
                     {
                         const auto temp=this->emplace(dofPerNode*(pNode->gID)+dof,value(dof));
+                        RuntimeError(temp.second,"UNABLE TO INSERT DIRICHLET CONDITION");
 //                        assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
                     }
                 }

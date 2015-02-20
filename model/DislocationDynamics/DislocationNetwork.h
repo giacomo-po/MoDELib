@@ -72,7 +72,7 @@
 #define EIGEN_DONT_PARALLELIZE // disable Eigen Internal openmp Parallelization
 #endif
 
-
+#include <chrono>
 #include <Eigen/Dense>
 
 #include <model/Network/Network.h>

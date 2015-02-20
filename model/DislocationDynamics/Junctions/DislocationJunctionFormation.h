@@ -120,87 +120,99 @@ namespace model
             
             const VectorDimD P1=N1.second->get_P();
             const VectorDimD P2=N2.second->get_P();
-            
-            const typename DislocationNetworkType::NodeType::VectorOfNormalsType PN1(GramSchmidt<dim>(N1.second->constraintNormals()));
-            const typename DislocationNetworkType::NodeType::VectorOfNormalsType PN2(GramSchmidt<dim>(N2.second->constraintNormals()));
-            const size_t sizePN1(PN1.size());
-            const size_t sizePN2(PN2.size());
-            
-            //std::cout<<"contractWithConstraintCheck "<<N1.second->sID<<" "<<N2.second->sID<<std::endl;
-            //std::cout<<"contractWithConstraintCheck: case "<<sizePN1<<" "<<sizePN2<<std::endl;
-            
-            if(sizePN1==1 && sizePN2==1) // nodes constrained to move on planes
+            const VectorDimD P12=P1-P2;
+            const double P12norm(P12.norm());
+
+            if(P12norm<FLT_EPSILON) // points are coincindent, just contract them
             {
-                //std::cout<<"contractWithConstraintCheck, case 1"<<std::endl;
-                const double denom(1.0-std::pow(PN1[0].dot(PN2[0]),2));
-                const double numer((P2-P1).dot(PN2[0]));
+                contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
+            }
+            else
+            {
                 
-                if(denom<FLT_EPSILON)
-                {
-                    if(std::fabs(denom)<FLT_EPSILON) // planes are coincident
-                    {
-                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
-                    }
-                    else // parallel planes
-                    {
-                        assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
-                    }
-                }
-                else // incident planes
-                {
-                    contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P1+(PN2[0]-PN2[0].dot(PN1[0])*PN1[0])*numer/denom);
-                }
-            }
-            else if(sizePN1==1 && sizePN2==2) // N1 moves on a plane, N2 moves on a line
-            {
-                //std::cout<<"contractWithConstraintCheck, case 2"<<std::endl;
-                const VectorDimD d2(PN2[0].cross(PN2[1]));
-                const double den(d2.dot(PN1[0]));
-                const double num((P1-P2).dot(PN1[0]));
-                if(std::fabs(den)>FLT_EPSILON) // line and plane are not parallel
-                {
-                    //std::cout<<"contractWithConstraintCheck, case 2a"<<std::endl;
-                    contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+num/den*d2);
-                }
-                else
-                {
-                    if(std::fabs(num)<FLT_EPSILON && (P1-P2).norm()<FLT_EPSILON)
-                    {
-                        //std::cout<<"contractWithConstraintCheck, case 2b"<<std::endl;
-                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
-                    }
-                    //std::cout<<"contractWithConstraintCheck, case 2c"<<std::endl;
-                }
-            }
-            else if(sizePN1==2 && sizePN2==1) // N1 moves on a line, N2 moves on a plane
-            {
-                //std::cout<<"contractWithConstraintCheck, case 3"<<std::endl;
-                const VectorDimD d1(PN1[0].cross(PN1[1]));
-                const double den(d1.dot(PN2[0]));
-                const double num((P2-P1).dot(PN2[0]));
-                if(std::fabs(den)>FLT_EPSILON) // line and plane are not parallel
-                {
-                    contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P1+num/den*d1);
-                }
-                else
-                {
-                    if(std::fabs(num)<FLT_EPSILON && (P1-P2).norm()<FLT_EPSILON)
-                    {
-                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
-                    }
-                }
-            }
-            else if(sizePN1==2 && sizePN2==2) // both N1 and N2 move on lines
-            {
-                //std::cout<<"contractWithConstraintCheck, case 4"<<std::endl;
+                const VectorDimD unitP12=P12/P12norm;
+
                 
-                const double P12norm((P1-P2).norm());
-                if(P12norm<FLT_EPSILON)
+                const typename DislocationNetworkType::NodeType::VectorOfNormalsType PN1(GramSchmidt<dim>(N1.second->constraintNormals()));
+                const typename DislocationNetworkType::NodeType::VectorOfNormalsType PN2(GramSchmidt<dim>(N2.second->constraintNormals()));
+                const size_t sizePN1(PN1.size());
+                const size_t sizePN2(PN2.size());
+                
+                //std::cout<<"contractWithConstraintCheck "<<N1.second->sID<<" "<<N2.second->sID<<std::endl;
+                //std::cout<<"contractWithConstraintCheck: case "<<sizePN1<<" "<<sizePN2<<std::endl;
+                
+                if(sizePN1==1 && sizePN2==1) // nodes constrained to move on planes
                 {
-                    contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
+                    //std::cout<<"contractWithConstraintCheck, case 1"<<std::endl;
+                    const double denom(1.0-std::pow(PN1[0].dot(PN2[0]),2));
+                    const double numer((P2-P1).dot(PN2[0]));
+                    
+                    if(denom<FLT_EPSILON)
+                    {
+                        if(std::fabs(denom)<FLT_EPSILON) // planes are coincident
+                        {
+                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
+                        }
+                        else // parallel planes
+                        {
+                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
+                        }
+                    }
+                    else // incident planes
+                    {
+                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P1+(PN2[0]-PN2[0].dot(PN1[0])*PN1[0])*numer/denom);
+                    }
                 }
-                else
+                else if(sizePN1==1 && sizePN2==2) // N1 moves on a plane, N2 moves on a line
                 {
+                    //std::cout<<"contractWithConstraintCheck, case 2"<<std::endl;
+                    const VectorDimD d2(PN2[0].cross(PN2[1]));
+                    const double den(d2.dot(PN1[0]));
+                    const double num(P12.dot(PN1[0]));
+                    if(std::fabs(den)>FLT_EPSILON) // line and plane are not parallel
+                    {
+                        //std::cout<<"contractWithConstraintCheck, case 2a"<<std::endl;
+                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+num/den*d2);
+                    }
+                    else
+                    {
+                        if(std::fabs(num)<FLT_EPSILON) // P2 belongs to the plane of P1
+                        {
+                            //std::cout<<"contractWithConstraintCheck, case 2b"<<std::endl;
+//                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2)); // HERE
+                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
+
+                        }
+                        //std::cout<<"contractWithConstraintCheck, case 2c"<<std::endl;
+                    }
+                }
+                else if(sizePN1==2 && sizePN2==1) // N1 moves on a line, N2 moves on a plane
+                {
+                    contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
+                    //                    //std::cout<<"contractWithConstraintCheck, case 3"<<std::endl;
+//                    const VectorDimD d1(PN1[0].cross(PN1[1]));
+//                    const double den(d1.dot(PN2[0]));
+//                    const double num((P2-P1).dot(PN2[0]));
+//                    if(std::fabs(den)>FLT_EPSILON) // line and plane are not parallel
+//                    {
+//                        //std::cout<<"contractWithConstraintCheck, case 3a"<<std::endl;
+//                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P1+num/den*d1);
+//                    }
+//                    else
+//                    {
+//                        if(std::fabs(num)<FLT_EPSILON) // P1 belongs to the plane of P2
+//                        {
+//                            //std::cout<<"contractWithConstraintCheck, case 3b"<<std::endl;
+//
+////                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2)); // HERE
+//                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
+//                        }
+//                    }
+                }
+                else if(sizePN1==2 && sizePN2==2) // both N1 and N2 move on lines
+                {
+                    //std::cout<<"contractWithConstraintCheck, case 4"<<std::endl;
+                    
                     VectorDimD d1(PN1[0].cross(PN1[1]));
                     const double d1norm(d1.norm());
                     assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
@@ -215,75 +227,97 @@ namespace model
                     
                     if(d3Norm<FLT_EPSILON) // d1 and d2 are aligned, this means colinear or no intersection
                     {
-                        if(d1.cross((P1-P2).normalized()).norm()<FLT_EPSILON) // colinear
+                        if(d1.cross(P12.normalized()).norm()<FLT_EPSILON) // colinear
                         {
                             contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
                         }
-                        //                        else
-                        //                        {
-                        //                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. ALIGNMENT CONDITION FAILED.");
-                        //
-                        //                        }
+                        else // parallel (not colinear) lines, contraction not possible
+                        {
+                            //assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. ALIGNMENT CONDITION FAILED.");
+                            
+                        }
                     }
                     else // d1 and d2 are not aligned
                     {
-                        if(std::fabs((d3/d3Norm).dot((P1-P2)/P12norm))<FLT_EPSILON) // planarity condition
+                        if(std::fabs((d3/d3Norm).dot(P12/P12norm))<FLT_EPSILON) // planarity condition
                         {
                             const VectorDimD dOrth=d2-d2.dot(d1)*d1; // component of d2 orthogonal to d1
                             const double den=d2.dot(dOrth);
                             assert(std::fabs(den)>FLT_EPSILON && "YOU SHOULD HAVE FOUND THIS ABOVE.");
-                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+(P1-P2).dot(dOrth)/den*d2);
+                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+P12.dot(dOrth)/den*d2);
                         }
-                        //                        else
-                        //                        {
-                        //                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. PLANARITY CONDITION FAILED.");
-                        //                        }
+                        else // planarity condition failed, contraction not possible
+                        {
+                            //assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. PLANARITY CONDITION FAILED.");
+                        }
+                    }
+                }
+                else if(sizePN1==1 && sizePN2==3)
+                {
+                    if(std::fabs(P12.normalized().dot(PN1[0]))<FLT_EPSILON) // P2 belongs to the plane of P1
+                    {// contract N1
+                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
+                    }
+                    else // contraction not possible
+                    {
+                        
+                    }
+                }
+                else if(sizePN1==3 && sizePN2==1)
+                {
+                    contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
+
+//                    if(std::fabs(P12.normalized().dot(PN2[0]))<FLT_EPSILON) // P1 belongs to the plane of P2
+//                    {// contract N2
+//                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
+//                    }
+//                    else // contraction not possible
+//                    {
+//                        
+//                    }
+                }
+                else if(sizePN1==2 && sizePN2==3)
+                {
+                    VectorDimD d1(PN1[0].cross(PN1[1]));
+                    const double d1norm(d1.norm());
+                    assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
+                    d1/=d1norm;
+                    if(P12.normalized().cross(d1).norm()<FLT_EPSILON) // P2 belongs to the line of P1
+                    {
+                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
+                    }
+                    else // contraction not possible
+                    {
+                        
+                    }
+                }
+                else if(sizePN1==3 && sizePN2==2)
+                {
+                    contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
+
+//                    VectorDimD d2(PN2[0].cross(PN2[1]));
+//                    const double d2norm(d2.norm());
+//                    assert(d2norm>FLT_EPSILON && "DIRECTION d2 HAS ZERO NORM");
+//                    d2/=d2norm;
+//                    if(P12.normalized().cross(d2).norm()<FLT_EPSILON) // P2 belongs to the line of P1
+//                    {
+//                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
+//                    }
+//                    else // contraction not possible
+//                    {
+//                        
+//                    }
+                }
+                else if(sizePN1==3 && sizePN2==3)
+                {
+                    if(P12norm<FLT_EPSILON)
+                    {
+                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
                     }
                 }
             }
-            else if(sizePN1==1 && sizePN2==3)
-            {
-                if(std::fabs((P2-P1).dot(PN1[0]))<FLT_EPSILON) // P2 belongs to the plane of P1
-                {// contract N1
-                    contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                }
-            }
-            else if(sizePN1==3 && sizePN2==1)
-            {
-                if(std::fabs((P1-P2).dot(PN2[0]))<FLT_EPSILON) // P1 belongs to the plane of P2
-                {// contract N2
-                    contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
-                }
-            }
-            else if(sizePN1==2 && sizePN2==3)
-            {
-                const VectorDimD d1(PN1[0].cross(PN1[1]));
-                if((P2-P1).cross(d1).norm()<FLT_EPSILON) // P2 belongs to the line of P1
-                {
-                    contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                }
-            }
-            else if(sizePN1==3 && sizePN2==2)
-            {
-                const VectorDimD d2(PN2[0].cross(PN2[1]));
-                if((P2-P1).cross(d2).norm()<FLT_EPSILON) // P2 belongs to the line of P1
-                {
-                    contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
-                }            }
-            else if(sizePN1==3 && sizePN2==3)
-            {
-                if((P1-P2).norm()<FLT_EPSILON)
-                {
-                    contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
-                }
-                //                assert(0 && "NOT IMPLEMENTED YET");
-            }
             
             return contracted;
-            
-            
-            
-            
         }
         
         //! A reference to the DislocationNetwork

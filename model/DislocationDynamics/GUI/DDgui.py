@@ -4,8 +4,8 @@
 from Tkinter import *
 from ttk import *
 
-def write_help_text(lab,text):
-    lab["text"] = text
+#def write_help_text(lab,text):
+#    lab["text"] = text
 
 class Simulation_Tab(Frame):
     
@@ -14,10 +14,9 @@ class Simulation_Tab(Frame):
         self.grid()
         self.name='Simulation'
         
-        self.stringFields=['dx',
-                           'Nsteps']
-        self.helpFields=['maximum distance that a dislocation node can travel in one simulation time step',
-                         'number of time steps to be performed']
+        self.stringFields=['dx','Nsteps']
+#        self.helpFields=['maximum distance that a dislocation node can travel in one simulation time step',
+#                         'number of time steps to be performed']
         self.labelList=[]
         self.entryList=[]
         self.buttons=[]
@@ -87,7 +86,7 @@ class DDgui(Frame):
         Frame.__init__(self,master)
         self.grid()
 
-        self.nb = Notebook(master)
+        self.nb = Notebook(self)
         self.nb.pack(fill='both', expand='yes')
 
         self.tabs=[Simulation_Tab(self.nb), Material_Tab(self.nb), Write_Tab(self.nb)]

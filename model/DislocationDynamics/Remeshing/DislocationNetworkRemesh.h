@@ -9,6 +9,7 @@
 #ifndef model_DISLOCATIONNETWORKREMESH_H_
 #define model_DISLOCATIONNETWORKREMESH_H_
 
+#include <chrono>
 #include <utility>  // for std::pair and "<" operator between them
 #include <set>      // for std::set
 #include <vector>      // for std::set
@@ -88,7 +89,22 @@ namespace model
             neighbors.erase(i); // make sure
             neighbors.erase(j); // make sure
             
-            // There are no links between those neighbors (otherwise they would have zero-norm). Contract them
+            // Remove all existing links among neighbors
+            for (std::set<size_t>::const_iterator nIter1=neighbors.begin();nIter1!=neighbors.end();++nIter1)
+            {
+                    for (std::set<size_t>::const_iterator nIter2=nIter1;nIter2!=neighbors.end();++nIter2)
+                    {
+                        if(nIter2!=nIter1)
+                        {
+                            if(DN.link(*nIter1,*nIter2).first || DN.link(*nIter2,*nIter1).first)
+                            {
+                                DN.template disconnect<true>(*nIter1,*nIter2);
+                            }
+                        }
+                    }
+            }
+            
+            // Contract
             if(neighbors.size())
             {
                 for (std::set<size_t>::const_iterator nIter=neighbors.begin();nIter!=neighbors.end();++nIter)
@@ -109,7 +125,7 @@ namespace model
                     temp++;
                 }
                 
-                if(DN.node(i).first)
+                if(DN.node(j).first)
                 {
                     DN.contractSecond(*neighbors.begin(),j);
                     temp++;
@@ -146,7 +162,22 @@ namespace model
             neighbors.erase(i);
             neighbors.erase(j);
             
-            // There are no links between those neighbors and i (otherwise they would have zero-norm). Contract them
+            // Remove all existing links among neighbors
+            for (std::set<size_t>::const_iterator nIter1=neighbors.begin();nIter1!=neighbors.end();++nIter1)
+            {
+                for (std::set<size_t>::const_iterator nIter2=nIter1;nIter2!=neighbors.end();++nIter2)
+                {
+                    if(nIter2!=nIter1)
+                    {
+                        if(DN.link(*nIter1,*nIter2).first || DN.link(*nIter2,*nIter1).first)
+                        {
+                            DN.template disconnect<true>(*nIter1,*nIter2);
+                        }
+                    }
+                }
+            }
+            
+            // Contract
             if(neighbors.size())
             {
                 for (std::set<size_t>::const_iterator nIter=neighbors.begin();nIter!=neighbors.end();++nIter)
@@ -168,49 +199,6 @@ namespace model
             return temp;
         }
 
-        
-//        /**********************************************************************/
-//        unsigned int contractSecondWithCommonNeighborCheck(const NodeType& Ni,
-//                                                           const NodeType& Nj)
-//        {/*!@param[in] i StaticID of the first node (vertex i remains)
-//          * @param[in] j StaticID of the second node (vertex j is contracted)
-//          *
-//          * Contracts  vertex j onto vertex i, making sure no other neighbors of j (but i)
-//          * occupies the position of i.
-//          */
-//            unsigned int temp(0);
-//            const int i(Ni.sID);
-//            const int j(Nj.sID);
-//            
-//            // collect all neighbors at Ni.get_P() (but j)
-//            std::set<size_t> neighbors;
-//            Nj.neighborsAt(Ni.get_P(),neighbors,100.0*FLT_EPSILON);
-//            neighbors.erase(i);
-//            neighbors.erase(j);
-//            
-//            // There are no links between those neighbors (otherwise they would have zero-norm). Contract them
-//            if(neighbors.size())
-//            {
-//                for (std::set<size_t>::const_iterator nIter=neighbors.begin();nIter!=neighbors.end();++nIter)
-//                {
-//                    if(nIter!=neighbors.begin())
-//                    {
-//                        DN.contractSecond(*neighbors.begin(),*nIter);
-//                        temp++;
-//                    }
-//                }
-//                DN.contractSecond(i,*neighbors.begin());
-//                temp++;
-//            }
-//            else // j has no neighbor at P0
-//            {
-//                DN.contractSecond(i,j);
-//                temp++;
-//            }
-//            
-//            return temp;
-//        }
-        
         /**********************************************************************/
         unsigned int contractSecondWithCommonNeighborCheck(const int& i, const int& j)
         {/*! @param[in] i StaticID of the first node (vertex i remains)
@@ -228,7 +216,6 @@ namespace model
             
             return contractSecondWithCommonNeighborCheck(*Ni.second,*Nj.second);
         }
-        
         
         /**********************************************************************/
         void remesh()
@@ -278,8 +265,6 @@ namespace model
             model::cout<<" ("<<Ncontracted<<" contracted)"<<std::flush;
             
         }
-        
-        
         
         /**********************************************************************/
         void remeshByExpansion()
@@ -388,6 +373,9 @@ namespace model
         /**********************************************************************/
         void contract0chordSegments()
         {
+            model::cout<<"		contracting zero-chord segments... "<<std::flush;
+            const auto t0= std::chrono::system_clock::now();
+
             std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
             
             for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
@@ -411,6 +399,8 @@ namespace model
                     contractSecondWithCommonNeighborCheck(i,j);
                 }
             }
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+
         }
         
         /**********************************************************************/
@@ -592,7 +582,7 @@ namespace model
         /**********************************************************************/
         void loopInversion(const double& dt)
         {
-            double t0=clock();
+            const auto t0= std::chrono::system_clock::now();
             model::cout<<"		Checking for loop inversions ... "<<std::flush;
             //! 3- Check and remove loop inversions
             std::vector<int> toBeErased;
@@ -614,12 +604,11 @@ namespace model
             {
                 DN.template removeVertex<true>(toBeErased[nn]);
             }
-            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
         
         
     };
-    
     
     // static data
     template <typename DislocationNetworkType>

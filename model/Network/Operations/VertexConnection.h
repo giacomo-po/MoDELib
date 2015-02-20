@@ -75,26 +75,32 @@ namespace model
 		
 		/* disconnect ***********************************************/
 		template<bool removeIsolatedNodes>
-		bool disconnect(const size_t& i, const size_t& j){
+		bool disconnect(const size_t& i, const size_t& j)
+        {
 			typename NetworkEdgeMapType::iterator iterIJ(networkEdgeMapRef.find(std::make_pair(i,j))); // look for edge (i->j)
-			if (iterIJ!=networkEdgeMapRef.end()){   // edge (i->j) is in the edgeMap
+			if (iterIJ!=networkEdgeMapRef.end())
+            {   // edge (i->j) is in the edgeMap
 				networkEdgeMapRef.erase(iterIJ);	// remove (i->j)
 			}
-			else{ // edge (i->j) is not in the edgeMap
+			else
+            { // edge (i->j) is not in the edgeMap
 				typename NetworkEdgeMapType::iterator iterJI(networkEdgeMapRef.find(std::make_pair(j,i))); // look for edge (j->i)
 				assert(iterJI!=networkEdgeMapRef.end() && "NEITHER (i->j) nor (j->i) ARE IN networkEdgeMapRef.");
 				networkEdgeMapRef.erase(iterJI);	// remove (j->i)
 			}
-			if (removeIsolatedNodes){				
+			if (removeIsolatedNodes)
+            {
 				typename NetworkVertexMapType::iterator Ni(networkVertexMapRef.find(i));
 				assert(Ni!=networkVertexMapRef.end() && "NODE i DOES NOT EXIST");
-				if (Ni->second.is_isolated()){
+				if (Ni->second.is_isolated())
+                {
 					networkVertexMapRef.erase(Ni); // WARNING: erasing by key, i.e. networkVertexMapRef.erase(i), gives a bug
 					//	WHY IS THIS TRIGGERED????				assert(networkVertexMapRef.find(i)==networkVertexMapRef.end() && "NODE i IS STILL IN networkVertexMapRef AFTER ERASE.");
 				}
 				typename NetworkVertexMapType::iterator Nj(networkVertexMapRef.find(j));
 				assert(Nj!=networkVertexMapRef.end() && "NODE j DOES NOT EXIST");
-				if (Nj->second.is_isolated()){
+				if (Nj->second.is_isolated())
+                {
 					networkVertexMapRef.erase(Nj); // WARNING: erasing by key, i.e. networkVertexMapRef.erase(j), gives a bug
 					// 	WHY IS THIS TRIGGERED????					assert(networkVertexMapRef.find(j)==networkVertexMapRef.end() && "NODE j IS STILL IN networkVertexMapRef AFTER ERASE.");
 				}
