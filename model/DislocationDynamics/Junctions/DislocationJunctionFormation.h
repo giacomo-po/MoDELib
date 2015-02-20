@@ -16,7 +16,7 @@
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 #include <model/DislocationDynamics/Remeshing/DislocationNetworkRemesh.h>
 #include <model/MPI/MPIcout.h>
-#include <Model/Threads/EqualIteratorRange.h>
+#include <model/Threads/EqualIteratorRange.h>
 
 namespace model
 {
