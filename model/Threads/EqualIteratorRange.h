@@ -20,6 +20,41 @@ namespace model
 	
     template <typename ContainerType>
     struct EqualIteratorRange :
+    /* inheritance  */ public std::vector<std::pair<typename ContainerType::iterator,
+    /*                                           */ typename ContainerType::iterator>>
+    {
+        
+        typedef typename ContainerType::iterator IterType;
+        
+        /**********************************************************************/
+        EqualIteratorRange(const IterType& first, const IterType& last, const int& nRanges)
+        {
+            assert(nRanges>0 && "NUMBER OF RANGES MUST BE >0");
+            
+            const auto nElments(std::distance(first,last));
+            assert( nElments > 0 && "RANGE MUST HAVE AT LEAST ONE ELEMENT");
+            
+            const size_t quotient = nElments / nRanges;
+            const size_t remainder= nElments % nRanges;
+            
+            this->reserve(nRanges);
+            
+            IterType currentBegin(first);
+            IterType currentEnd(first);
+            
+            for (int i=0;i<nRanges;++i)
+            {
+                std::advance(currentEnd,(i<remainder)? quotient+1 : quotient);
+                this->emplace_back(currentBegin,currentEnd);
+                currentBegin=currentEnd;
+            }
+            
+        }
+        
+    };
+    
+    template <typename ContainerType>
+    struct EqualConstIteratorRange :
     /* inheritance  */ public std::vector<std::pair<typename ContainerType::const_iterator,
     /*                                           */ typename ContainerType::const_iterator>>
     {
@@ -27,7 +62,7 @@ namespace model
         typedef typename ContainerType::const_iterator IterType;
         
         /**********************************************************************/
-        EqualIteratorRange(const IterType& first, const IterType& last, const int& nRanges)
+        EqualConstIteratorRange(const IterType& first, const IterType& last, const int& nRanges)
         {
             assert(nRanges>0 && "NUMBER OF RANGES MUST BE >0");
             
