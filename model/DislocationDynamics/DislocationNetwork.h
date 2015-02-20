@@ -164,11 +164,11 @@ namespace model
           */
 			if (use_junctions)
             {
-				double t0=clock();
-				model::cout<<"		Forming Junctions: "<<std::flush;
+//				double t0=clock();
+//				model::cout<<"		Forming Junctions: "<<std::flush;
                 const double avoidNodeIntersection(0.05);
 				DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx,avoidNodeIntersection);
-				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+//				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
 		}
 		

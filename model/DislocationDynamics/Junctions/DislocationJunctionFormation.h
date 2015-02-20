@@ -339,8 +339,8 @@ namespace model
         
         /* findIntersections **************************************************/
         //		EdgeIntersectionPairContainerType findIntersections(const double& avoidNodeIntersection) const
-        void findIntersections(EdgeIntersectionPairContainerType& intersectionContainer,
-                               std::deque<int>& dirVector) const
+        void findIntersections(std::deque<EdgeIntersectionPairContainerType>& intersectionContainer,
+                               std::deque<std::deque<int>>& dirVector) const
         
         {/*! @param[in]  avoidNodeIntersection
           *  Computes all the intersections between the edges of the DislocationNetwork
@@ -350,8 +350,12 @@ namespace model
             
             
             //! 2- loop over all links and determine their intersections
-            for (typename NetworkLinkContainerType::const_iterator linkIterA=DN.linkBegin();linkIterA!=DN.linkEnd();linkIterA++)
+#pragma omp parallel for
+            for (int ll=0;ll<DN.linkOrder();ll++)
+//            for (typename NetworkLinkContainerType::const_iterator linkIterA=DN.linkBegin();linkIterA!=DN.linkEnd();linkIterA++)
             {
+                typename NetworkLinkContainerType::const_iterator linkIterA=DN.linkBegin();
+                std::advance(linkIterA,ll);
                 const DislocationSegmentIntersection<dim,pOrder> dsi(linkIterA->second. hermiteCoefficients(),linkIterA->second.glidePlaneNormal);
                 
                 for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.linkEnd();linkIterB++)
@@ -453,8 +457,8 @@ namespace model
                                 
                                 if(dir!=0)
                                 {
-                                    intersectionContainer.emplace_back(intersectionOnA,intersectionOnB);
-                                    dirVector.emplace_back(dir);
+                                    intersectionContainer[omp_get_thread_num()].emplace_back(intersectionOnA,intersectionOnB);
+                                    dirVector[omp_get_thread_num()].emplace_back(dir);
                                 }
                             }
                         } // end for
@@ -466,28 +470,46 @@ namespace model
         /**********************************************************************/
         void formJunctions(const double& dx, const double& avoidNodeIntersection)
         {
+
+            
             //! 1- Initialize intersectionContainer calling findIntersections deque<Pair<Pair<Link*double>,Pair<Link*,double>>>
             //			EdgeIntersectionPairContainerType intersectionContainer(findIntersections(avoidNodeIntersection));
-            EdgeIntersectionPairContainerType intersectionContainer;
-            std::deque<int> dirVector;
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"		Finding Junctions: "<<std::flush;
+            std::deque<EdgeIntersectionPairContainerType> intersectionContainer;
+            std::deque<std::deque<int>> dirVector;
+            intersectionContainer.resize(omp_get_max_threads());
+            dirVector.resize(omp_get_max_threads());
             findIntersections(intersectionContainer,dirVector);
-            assert(intersectionContainer.size()==dirVector.size());
-            //			model::cout<<intersectionContainer.size()<<" geometric) ";
-            model::cout<<intersectionContainer.size()<<" physical intersections. ";
             
+            int nIntersections=0;
+            for (int tt=0;tt<intersectionContainer.size();++tt)
+            {
+                            assert(intersectionContainer[tt].size()==dirVector[tt].size());
+                nIntersections+=intersectionContainer[tt].size();
+            }
+            model::cout<<nIntersections<<" physical intersections. ";
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+
+            
+            const auto t1= std::chrono::system_clock::now();
+            model::cout<<"		Forming Junctions: "<<std::flush;
+
             typedef std::pair<size_t,size_t> EdgeIDType;
             
             
             //			EdgeIntersectionContainerType edgeIntersectionContainer;
-            for (size_t interID=0;interID!=intersectionContainer.size();++interID)
+            for (int tt=0;tt<intersectionContainer.size();++tt)
             {
-                const EdgeIDType& key1(intersectionContainer[interID]. first.first);
-                const EdgeIDType& key2(intersectionContainer[interID].second.first);
+            for (size_t interID=0;interID!=intersectionContainer[tt].size();++interID)
+            {
+                const EdgeIDType& key1(intersectionContainer[tt][interID]. first.first);
+                const EdgeIDType& key2(intersectionContainer[tt][interID].second.first);
                 
                 const isNetworkLinkType L1(DN.link(key1.first,key1.second));
                 const isNetworkLinkType L2(DN.link(key2.first,key2.second));
                 
-                //std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[interID]. first.second<<","<<intersectionContainer[interID]. second.second<<std::endl;
+                //std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[tt][interID]. first.second<<","<<intersectionContainer[tt][interID]. second.second<<std::endl;
                 
                 if(L1.first && L2.first) // Links exist
                 {
@@ -532,7 +554,7 @@ namespace model
                     
                     // Prepare lower point on first link
                     size_t im = source1.sID;
-                    const double u1m(intersectionContainer[interID]. first.second-du1);
+                    const double u1m(intersectionContainer[tt][interID]. first.second-du1);
                     if (u1m > avoidNodeIntersection)
                     {
                         VectorDimD P1m(L1.second->get_r(u1m));
@@ -551,7 +573,7 @@ namespace model
                     
                     // Prepare upper point on first link
                     size_t ip = sink1.sID;
-                    const double u1p(intersectionContainer[interID]. first.second+du1);
+                    const double u1p(intersectionContainer[tt][interID]. first.second+du1);
                     if (u1p < 1.0-avoidNodeIntersection)
                     {
                         VectorDimD P1p(L1.second->get_r(u1p));
@@ -570,7 +592,7 @@ namespace model
                     
                     // Prepare lower point on second link
                     size_t jm = source2.sID;
-                    const double u2m(intersectionContainer[interID].second.second-du2);
+                    const double u2m(intersectionContainer[tt][interID].second.second-du2);
                     if (u2m > avoidNodeIntersection)
                     {
                         VectorDimD P2m(L2.second->get_r(u2m));
@@ -589,7 +611,7 @@ namespace model
                     
                     // Prepare upper point on second link
                     size_t jp = sink2.sID;
-                    const double u2p(intersectionContainer[interID].second.second+du2);
+                    const double u2p(intersectionContainer[tt][interID].second.second+du2);
                     if (u2p < 1.0-avoidNodeIntersection)
                     {
                         VectorDimD P2p(L2.second->get_r(u2p));
@@ -606,7 +628,7 @@ namespace model
                         jp=success2p.second; // id of the node obtained expanding L2
                     }
                     
-                    switch (dirVector[interID])
+                    switch (dirVector[tt][interID])
                     {
                         case +1:
                         {
@@ -671,6 +693,9 @@ namespace model
                 }
                 
             }
+        } // loop over threads
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
+
             
         }
         
