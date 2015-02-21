@@ -178,12 +178,12 @@ namespace model {
         
 		/* insert (a new vertex) **************************************/
 		template <typename ...NodeArgTypes>
-		size_t insertVertex(const NodeArgTypes&... NodeInput)
-        {/*! @param[in] NodeInput
-          *  Inserts a new vertex in the Network using NodeInput as variable
+		size_t insertVertex(const NodeArgTypes&... nodeInput)
+        {/*! @param[in] nodeInput
+          *  Inserts a new vertex in the Network using nodeInput as variable
           *  constructor arguments
           */
-			return VertexInsertion<NodeType>(*this).insert(NodeInput...);
+			return VertexInsertion<NodeType>(*this).insert(nodeInput...);
 		}
 		
 		/* connect ***************************************************/
@@ -278,10 +278,10 @@ namespace model {
         
 		
 		/* contract **************************************************/
-		template <typename T>
-		void contract(const size_t& i, const size_t& j, const T& NodeInput)
+		template <typename ...NodeArgTypes>
+		void contract(const size_t& i, const size_t& j, const NodeArgTypes&... nodeInput)
         {
-			VertexContraction<NodeType,LinkType>(*this,*this).contract(i,j,NodeInput);
+			VertexContraction<NodeType,LinkType>(*this,*this).contract(i,j,nodeInput...);
 		}
 		
         

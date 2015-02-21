@@ -42,7 +42,7 @@ namespace model
         DislocationNetworkType& DN;
         
         /**********************************************************************/
-        bool pointIsInsideMesh(const VectorDimD& P0, const Simplex<dim,dim>* const guess)
+        std::pair<bool,const Simplex<dim,dim>*> pointIsInsideMesh(const VectorDimD& P0, const Simplex<dim,dim>* const guess)
         {/*!\param[in] P0 position vector
           * \param[in] guess pointer of the Simplex where the search starts
           * \returns true if P0 is inside the mesh
@@ -52,7 +52,7 @@ namespace model
             {
                 temp=DN.shared.mesh.searchWithGuess(P0,guess);
             }
-            return temp.first;
+            return temp;
         }
         
     public:
@@ -133,9 +133,10 @@ namespace model
             }
             else // neither i nor j has a neighbor at P0
             {
-                if(pointIsInsideMesh(P0,Ni.includingSimplex())) // check that P0 is inside mesh
+                std::pair<bool,const Simplex<dim,dim>*> guess(pointIsInsideMesh(P0,Ni.includingSimplex()));
+                if(guess.first) // check that P0 is inside mesh
                 {
-                    DN.contract(i,j,P0);
+                    DN.contract(i,j,P0,guess.second);
                     temp++;
                 }
             }
@@ -360,7 +361,7 @@ namespace model
                 if(Lij.first)
                 {
                     const VectorDimD expandPoint(Lij.second->get_r(expand_at));
-                    if(pointIsInsideMesh(expandPoint,Lij.second->source->includingSimplex()))
+                    if(pointIsInsideMesh(expandPoint,Lij.second->source->includingSimplex()).first)
                     {
                         DN.expand(i,j,expandPoint);
                         Nexpanded++;

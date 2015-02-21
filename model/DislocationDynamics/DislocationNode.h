@@ -118,9 +118,9 @@ namespace model
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
 		/* Constructor ********************************************************/
-		DislocationNode(const VectorDofType& Qin) :
+		DislocationNode(const VectorDofType& Qin,const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
         /* base constructor */ NodeBaseType::SplineNodeBase(Qin),
-        /* init list        */ p_Simplex(get_includingSimplex((const Simplex<dim,dim>*) NULL)),
+        /* init list        */ p_Simplex(get_includingSimplex(guess)),
         /* init list        */ velocity(VectorDofType::Zero()),
 		/* init list        */ vOld(VectorDofType::Zero()),
         /* init list        */ velocityReductionCoeff(1.0),
