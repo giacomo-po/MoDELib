@@ -120,13 +120,13 @@ namespace model
                     }
                 }
                 
-                if(DN.node(i).first)
+                if(DN.node(i).first && *neighbors.begin()!=i)
                 {
                     DN.contractSecond(*neighbors.begin(),i);
                     temp++;
                 }
                 
-                if(DN.node(j).first)
+                if(DN.node(j).first && *neighbors.begin()!=j)
                 {
                     DN.contractSecond(*neighbors.begin(),j);
                     temp++;
