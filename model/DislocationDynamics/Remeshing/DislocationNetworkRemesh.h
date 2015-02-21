@@ -60,6 +60,7 @@ namespace model
         static double Lmax;
         static double Lmin;
         static double thetaDeg;
+        static double neighborRadius;
         
         /**********************************************************************/
         DislocationNetworkRemesh(DislocationNetworkType& DN_in) :
@@ -84,8 +85,8 @@ namespace model
             
             // collect all neighbors at P0 (but i and j)
             std::set<size_t> neighbors;
-            Ni.neighborsAt(P0,neighbors,100.0*FLT_EPSILON);
-            Nj.neighborsAt(P0,neighbors,100.0*FLT_EPSILON);
+            Ni.neighborsAt(P0,neighbors,neighborRadius);
+            Nj.neighborsAt(P0,neighbors,neighborRadius);
 //            neighbors.erase(i); // make sure
 //            neighbors.erase(j); // make sure
             
@@ -623,6 +624,9 @@ namespace model
     
     template <typename DislocationNetworkType>
     double DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg=45.0;
-    
+
+    template <typename DislocationNetworkType>
+    double DislocationNetworkRemesh<DislocationNetworkType>::neighborRadius=0.001;
+
 } // namespace model
 #endif

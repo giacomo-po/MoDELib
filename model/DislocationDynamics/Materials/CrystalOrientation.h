@@ -185,7 +185,7 @@ namespace model {
                 }
 			}
             
-            assert(std::fabs(  chord.dot(temp))<FLT_EPSILON && "CHORD AND NORMAL ARE NOT ORTHOGONAL");
+            assert(std::fabs(  chord.normalized().dot(temp))<FLT_EPSILON && "CHORD AND NORMAL ARE NOT ORTHOGONAL");
             //assert(std::fabs(Burgers.dot(temp))<FLT_EPSILON && "BURGERS AND NORMAL ARE NOT ORTHOGONAL");
             
             
