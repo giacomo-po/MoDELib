@@ -86,12 +86,15 @@ namespace model
             std::set<size_t> neighbors;
             Ni.neighborsAt(P0,neighbors,100.0*FLT_EPSILON);
             Nj.neighborsAt(P0,neighbors,100.0*FLT_EPSILON);
-            neighbors.erase(i); // make sure
-            neighbors.erase(j); // make sure
+//            neighbors.erase(i); // make sure
+//            neighbors.erase(j); // make sure
             
-            // Remove all existing links among neighbors
-            for (std::set<size_t>::const_iterator nIter1=neighbors.begin();nIter1!=neighbors.end();++nIter1)
+            if(neighbors.size())
             {
+                
+                // Remove all existing links among neighbors
+                for (std::set<size_t>::const_iterator nIter1=neighbors.begin();nIter1!=neighbors.end();++nIter1)
+                {
                     for (std::set<size_t>::const_iterator nIter2=nIter1;nIter2!=neighbors.end();++nIter2)
                     {
                         if(nIter2!=nIter1)
@@ -102,11 +105,9 @@ namespace model
                             }
                         }
                     }
-            }
-            
-            // Contract
-            if(neighbors.size())
-            {
+                }
+
+                // Contract
                 for (std::set<size_t>::const_iterator nIter=neighbors.begin();nIter!=neighbors.end();++nIter)
                 {
                     if(nIter!=neighbors.begin())
@@ -143,7 +144,7 @@ namespace model
             
             return temp;
         }
-
+        
         /**********************************************************************/
         unsigned int contractSecondWithCommonNeighborCheck(const NodeType& Ni,
                                                            const NodeType& Nj)
@@ -160,8 +161,8 @@ namespace model
             // collect all neighbors at Ni.get_P() (but j)
             std::set<size_t> neighbors;
             Nj.neighborsAt(Ni.get_P(),neighbors,100.0*FLT_EPSILON);
-            neighbors.erase(i);
-            neighbors.erase(j);
+            //            neighbors.erase(i);
+            //            neighbors.erase(j);
             
             // Remove all existing links among neighbors
             for (std::set<size_t>::const_iterator nIter1=neighbors.begin();nIter1!=neighbors.end();++nIter1)
@@ -179,17 +180,19 @@ namespace model
             }
             
             // Contract
-            if(neighbors.size())
+            neighbors.erase(i);
+            
+            //            if(neighbors.size())
+            //            {
+            for (std::set<size_t>::const_iterator nIter=neighbors.begin();nIter!=neighbors.end();++nIter)
             {
-                for (std::set<size_t>::const_iterator nIter=neighbors.begin();nIter!=neighbors.end();++nIter)
+                if(DN.node(*nIter).first)
                 {
-                    if(DN.node(*nIter).first)
-                    {
-                        DN.contractSecond(i,*nIter);
-                        temp++;
-                    }
+                    DN.contractSecond(i,*nIter);
+                    temp++;
                 }
             }
+            //            }
             
             if(DN.node(j).first)
             {
@@ -199,7 +202,7 @@ namespace model
             
             return temp;
         }
-
+        
         /**********************************************************************/
         unsigned int contractSecondWithCommonNeighborCheck(const int& i, const int& j)
         {/*! @param[in] i StaticID of the first node (vertex i remains)
@@ -376,7 +379,7 @@ namespace model
         {
             model::cout<<"		contracting zero-chord segments... "<<std::flush;
             const auto t0= std::chrono::system_clock::now();
-
+            
             std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
             
             for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
@@ -401,7 +404,7 @@ namespace model
                 }
             }
             model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-
+            
         }
         
         /**********************************************************************/
