@@ -474,6 +474,10 @@ namespace model
                     }
                 }
                 
+                if(temp.rows()>7)
+                {
+                    std::cout<<"Dislocation Node "<<this->sID<<std::endl;
+                }
                 auto vecVec=EdgePermutations::edgeStats(temp);
                 if(vecVec.size()==2)
                 {

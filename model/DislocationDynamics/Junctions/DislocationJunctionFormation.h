@@ -125,7 +125,7 @@ namespace model
             else
             {
                 
-                const VectorDimD unitP12=P12/P12norm;
+//                const VectorDimD unitP12=P12/P12norm;
                 
                 
                 const typename DislocationNetworkType::NodeType::VectorOfNormalsType PN1(GramSchmidt<dim>(N1.second->constraintNormals()));
@@ -139,12 +139,31 @@ namespace model
                 if(sizePN1==1 && sizePN2==1) // nodes constrained to move on planes
                 {
                     //std::cout<<"contractWithConstraintCheck, case 1"<<std::endl;
-                    const double denom(1.0-std::pow(PN1[0].dot(PN2[0]),2));
-                    const double numer((P2-P1).dot(PN2[0]));
-                    
-                    if(denom<FLT_EPSILON)
+//                    const double denom(1.0-std::pow(PN1[0].dot(PN2[0]),2));
+//                    const double numer((P2-P1).dot(PN2[0]));
+//                    
+//                    if(denom<FLT_EPSILON) // parallel or coincident planes
+//                    {
+//                        if(std::fabs(denom)<FLT_EPSILON) // planes are coincident
+//                        {
+//                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
+//                        }
+//                        else // parallel planes
+//                        {
+//                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
+//                        }
+//                    }
+//                    else // incident planes
+//                    {
+//                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P1+(PN2[0]-PN2[0].dot(PN1[0])*PN1[0])*numer/denom);
+//                    }
+
+//                    const VectorDimD d3(PN1[0].cross(PN2[0]));
+//                    const double d3norm(d3.norm());
+//                    if (d3norm<FLT_EPSILON) // parallel or coincident planes
+                    if ((PN1[0].cross(PN2[0])).norm()<FLT_EPSILON) // parallel or coincident planes
                     {
-                        if(std::fabs(denom)<FLT_EPSILON) // planes are coincident
+                        if(std::fabs((P1-P2).dot(PN1[0]))<FLT_EPSILON) // planes are coincident
                         {
                             contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
                         }
@@ -155,8 +174,15 @@ namespace model
                     }
                     else // incident planes
                     {
-                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P1+(PN2[0]-PN2[0].dot(PN1[0])*PN1[0])*numer/denom);
+                        // Contract at X, where X minimizes 0.5*(X-P1)^2+0.5*(X-P2)^2
+                        // under the constraints (X-P1)*N1=0 and (X-P2)*N2=0
+                        const VectorDimD P(P1+P2);
+                        const Eigen::Matrix<double,3,2> N((Eigen::Matrix<double,2,3>()<<PN1[0].transpose(),PN2[0].transpose()).finished().transpose());
+                        const Eigen::Matrix<double,2,1> A((Eigen::Matrix<double,2,1>()<<P1.dot(PN1[0]),P2.dot(PN2[0])).finished());
+                        const Eigen::Matrix<double,2,1> L=(N.transpose()*N).inverse()*(N.transpose()*P-2.0*A);
+                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P-N*L));
                     }
+                
                 }
                 else if(sizePN1==1 && sizePN2==2) // N1 moves on a plane, N2 moves on a line
                 {
@@ -224,6 +250,8 @@ namespace model
                     {
                         if(d1.cross(P12.normalized()).norm()<FLT_EPSILON) // colinear
                         {
+                            //std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl;
+
                             contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
                         }
                         else // parallel (not colinear) lines, contraction not possible
@@ -236,6 +264,8 @@ namespace model
                     {
                         if(std::fabs((d3/d3Norm).dot(P12/P12norm))<FLT_EPSILON) // planarity condition
                         {
+                            //std::cout<<"contractWithConstraintCheck, case 4b"<<std::endl;
+
                             const VectorDimD dOrth=d2-d2.dot(d1)*d1; // component of d2 orthogonal to d1
                             const double den=d2.dot(dOrth);
                             assert(std::fabs(den)>FLT_EPSILON && "YOU SHOULD HAVE FOUND THIS ABOVE.");
@@ -249,6 +279,8 @@ namespace model
                 }
                 else if(sizePN1==1 && sizePN2==3)
                 {
+                    //std::cout<<"contractWithConstraintCheck, case 5"<<std::endl;
+
                     if(std::fabs(P12.normalized().dot(PN1[0]))<FLT_EPSILON) // P2 belongs to the plane of P1
                     {// contract N1
                         contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
@@ -260,6 +292,8 @@ namespace model
                 }
                 else if(sizePN1==3 && sizePN2==1)
                 {
+                    //std::cout<<"contractWithConstraintCheck, case 6"<<std::endl;
+
                     contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
                     
                     //                    if(std::fabs(P12.normalized().dot(PN2[0]))<FLT_EPSILON) // P1 belongs to the plane of P2
@@ -273,6 +307,8 @@ namespace model
                 }
                 else if(sizePN1==2 && sizePN2==3)
                 {
+                    //std::cout<<"contractWithConstraintCheck, case 7"<<std::endl;
+
                     VectorDimD d1(PN1[0].cross(PN1[1]));
                     const double d1norm(d1.norm());
                     assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");

@@ -102,6 +102,7 @@ namespace model
                         {
                             if(DN.link(*nIter1,*nIter2).first || DN.link(*nIter2,*nIter1).first)
                             {
+                                //std::cout<<"disconnecting "<<*nIter1<<" "<<*nIter2<<std::endl;
                                 DN.template disconnect<true>(*nIter1,*nIter2);
                             }
                         }
@@ -115,6 +116,7 @@ namespace model
                     {
                         if(DN.node(*nIter).first)
                         {
+                                                            //std::cout<<"contractingSecond "<<*neighbors.begin()<<" "<<*nIter<<std::endl;
                             DN.contractSecond(*neighbors.begin(),*nIter);
                             temp++;
                         }
@@ -123,12 +125,16 @@ namespace model
                 
                 if(DN.node(i).first && *neighbors.begin()!=i)
                 {
+                    //std::cout<<"contractingSecond "<<*neighbors.begin()<<" "<<i<<std::endl;
+
                     DN.contractSecond(*neighbors.begin(),i);
                     temp++;
                 }
                 
                 if(DN.node(j).first && *neighbors.begin()!=j)
                 {
+                    //std::cout<<"contractingSecond "<<*neighbors.begin()<<" "<<j<<std::endl;
+
                     DN.contractSecond(*neighbors.begin(),j);
                     temp++;
                 }
@@ -138,6 +144,8 @@ namespace model
                 std::pair<bool,const Simplex<dim,dim>*> guess(pointIsInsideMesh(P0,Ni.includingSimplex()));
                 if(guess.first) // check that P0 is inside mesh
                 {
+                    //std::cout<<"contracting "<<i<<" "<<j<<std::endl;
+
                     DN.contract(i,j,P0,guess.second);
                     temp++;
                 }
@@ -174,6 +182,7 @@ namespace model
                     {
                         if(DN.link(*nIter1,*nIter2).first || DN.link(*nIter2,*nIter1).first)
                         {
+                            //std::cout<<"disconnecting "<<*nIter1<<" "<<*nIter2<<std::endl;
                             DN.template disconnect<true>(*nIter1,*nIter2);
                         }
                     }
@@ -189,6 +198,8 @@ namespace model
             {
                 if(DN.node(*nIter).first)
                 {
+                    //std::cout<<"contractingSecond "<<i<<" "<<*nIter<<std::endl;
+
                     DN.contractSecond(i,*nIter);
                     temp++;
                 }
@@ -197,6 +208,8 @@ namespace model
             
             if(DN.node(j).first)
             {
+                //std::cout<<"contractingSecond (j) "<<i<<" "<<j<<std::endl;
+
                 DN.contractSecond(i,j);
                 temp++;
             }

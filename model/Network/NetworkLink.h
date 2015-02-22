@@ -134,6 +134,7 @@ namespace model
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
           */
+            //std::cout<<"Creating NetworkLink "<<source->sID<<"->"<<sink->sID<<std::endl;
 			makeTopologyChange();
         }
 		
@@ -157,7 +158,7 @@ namespace model
 //            }
 //            
 //			makeTopologyChange(ee);
-            
+                        //std::cout<<"Creating NetworkLink "<<source->sID<<"->"<<sink->sID<<std::endl;
             makeTopologyChange();
 
 		}
@@ -165,6 +166,9 @@ namespace model
 		/* Destructor *********************************************************/
 		~NetworkLink()
         {
+            
+                        //std::cout<<"Destroying NetworkLink "<<source->sID<<"->"<<sink->sID<<std::endl;
+            
 			//! 1- Remove this from the Neighborood of Source and Sink nodes
 			source->removeFromNeighborhood(this->p_derived());			
 			sink  ->removeFromNeighborhood(this->p_derived());
