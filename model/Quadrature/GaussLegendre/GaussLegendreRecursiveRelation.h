@@ -35,7 +35,8 @@ namespace model {
 	 *	
 	 */
 //	template<short unsigned int qOrder>
-	struct GaussLegendreRecursiveRelation{
+	struct GaussLegendreRecursiveRelation
+    {
 		
 		/*! \brief Class template defining the coefficients A, B and C 
 		 *  of the recursive relation for orthogonal Legendre polinomials:

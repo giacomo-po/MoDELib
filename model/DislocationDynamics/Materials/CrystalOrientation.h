@@ -43,6 +43,9 @@ namespace model {
         
     public:
         
+        
+        static double tol;
+        
         /* rotate *************************************************************/
         template <typename CrystalStructure>
         static void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in)
@@ -80,8 +83,7 @@ namespace model {
         
         /**********************************************************************/
 		static void find_slipSystem(const VectorDim& chord, const VectorDim& Burgers,
-                                    PlaneNormalIteratorContainerType& allowedSlipSystems,
-                                    const double& tol = FLT_EPSILON)
+                                    PlaneNormalIteratorContainerType& allowedSlipSystems)
         {/*!
           */
 			assert(  chord.norm()>tol && "CHORD HAS ZERO NORM");
@@ -104,37 +106,42 @@ namespace model {
 					allowedSlipSystems.push_back( iter );
 				}
 			}
+            
+            if(allowedSlipSystems.size()==0)
+            {
+                for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter)
+                {
+                    //						std::cout<<"c*n="<< std::fabs( iter->normal.dot(normalizedChord)) << " tol is "<<tol<<std::endl;
+                    if(	std::fabs( iter->dot(normalizedChord))<tol )
+                    {
+                        //allowedSlipSystems.insert( *iter );
+                        allowedSlipSystems.push_back( iter );
+                    }
+                }
+                if (allowedSlipSystems.size()<2)
+                {
+                    std::cout<<"chord="<<chord.transpose()<<std::endl;
+                    std::cout<<"Burgers="<<Burgers.transpose()<<std::endl;
+                    for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter){
+                        
+                        std::cout<<"n="<<iter->transpose()<<" |c*n|="<< std::fabs( iter->dot(normalizedChord)) << " tol is "<<tol<<std::endl;
+                    }
+                    assert(allowedSlipSystems.size()>=2 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO CRYSTALLOGRAPHIC PLANES.");
+                }
+            }
 			
-			const unsigned int N(allowedSlipSystems.size());
-			switch (N) {
-				case 0: // CHECK FOR SESSILE
-                    for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter)
-                    {
-                        //						std::cout<<"c*n="<< std::fabs( iter->normal.dot(normalizedChord)) << " tol is "<<tol<<std::endl;
-						if(	std::fabs( iter->dot(normalizedChord))<tol )
-                        {
-							//allowedSlipSystems.insert( *iter );
-							allowedSlipSystems.push_back( iter );
-						}
-					}
-                    if (allowedSlipSystems.size()<2)
-                    {
-						std::cout<<"chord="<<chord.transpose()<<std::endl;
-                        std::cout<<"Burgers="<<Burgers.transpose()<<std::endl;
-                        for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter){
-                            
-							std::cout<<"n="<<iter->transpose()<<" |c*n|="<< std::fabs( iter->dot(normalizedChord)) << " tol is "<<tol<<std::endl;
-						}
-						assert(allowedSlipSystems.size()>=2 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO CRYSTALLOGRAPHIC PLANES.");
-					}
-					break;
-                    
-				case 1: // OK
-					break;
-                    
-				default: // More than one slip plane found. This must be a screw segment
-					break;
-			}
+//			const unsigned int N(allowedSlipSystems.size());
+//			switch (N) {
+//				case 0: // CHECK FOR SESSILE
+//
+//					break;
+//                    
+//				case 1: // OK
+//					break;
+//                    
+//				default: // More than one slip plane found. This must be a screw segment
+//					break;
+//			}
             
 		}
         
@@ -150,7 +157,7 @@ namespace model {
 			//shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
             //            CrystalBase<dim,Nslips>::find_slipSystem(chord,Burgers,allowedSlipSystems);
             find_slipSystem(chord,Burgers,allowedSlipSystems);
-            assert(std::fabs(  chord.dot(**allowedSlipSystems.begin()))<FLT_EPSILON && "CHORD AND NORMAL ARE NOT ORTHOGONAL");
+            assert(std::fabs(  chord.dot(**allowedSlipSystems.begin()))<tol && "CHORD AND NORMAL ARE NOT ORTHOGONAL");
 			return **allowedSlipSystems.begin(); // RETURNING THE FIRST PLANE FOUND IS SOMEWHAT ARBITRARY
 		}
         
@@ -185,7 +192,7 @@ namespace model {
                 }
 			}
             
-            assert(std::fabs(  chord.normalized().dot(temp))<FLT_EPSILON && "CHORD AND NORMAL ARE NOT ORTHOGONAL");
+            assert(std::fabs(  chord.normalized().dot(temp))<tol && "CHORD AND NORMAL ARE NOT ORTHOGONAL");
             //assert(std::fabs(Burgers.dot(temp))<FLT_EPSILON && "BURGERS AND NORMAL ARE NOT ORTHOGONAL");
             
             
@@ -194,13 +201,13 @@ namespace model {
 		
         
         /**********************************************************************/
-        static PlaneNormalContainerType conjugatePlaneNormal(const VectorDim& B, const VectorDim& N, const double& tol=FLT_EPSILON)
+        static PlaneNormalContainerType conjugatePlaneNormal(const VectorDim& B, const VectorDim& N)
         {
             
 			int count(0);
 //			VectorDim temp(VectorDim::Zero());
             PlaneNormalContainerType temp;
-            assert((std::fabs(B.normalized().dot(N.normalized()))<FLT_EPSILON) && "CANNOT DETERMINE CONJUGATE PLANE FOR SESSILE SEGMENT");
+            assert((std::fabs(B.normalized().dot(N.normalized()))<tol) && "CANNOT DETERMINE CONJUGATE PLANE FOR SESSILE SEGMENT");
             for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter){
 //                std::cout<<*iter.transpose()<<std::endl;
                 if(	 std::fabs(B.normalized().dot(*iter))<tol && N.normalized().cross(*iter).norm()>tol){
@@ -247,7 +254,10 @@ namespace model {
     
     template <int dim>
     Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::C2G=Eigen::Matrix<double,dim,dim>::Identity();
-    
+
+    template <int dim>
+    double CrystalOrientation<dim>::tol=FLT_EPSILON;
+
     
     /**************************************************************************/
 } // namespace model

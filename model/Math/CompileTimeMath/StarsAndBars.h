@@ -25,18 +25,11 @@ namespace model
 	template <int _N, int _k,int _j=0>
 	struct StarsAndBars
     {
-
         static_assert(_N>0,"N MUST BE >0.");
         static_assert(_k>0,"k MUST BE >0.");
         static_assert(_j>=0,"j MUST BE >0.");
         static_assert(_j<_k,"j MUST BE <k.");
         
-//        enum{N=_N}; // number of positive integers
-//        enum{k=_k}; // value of the sum of the N integers
-//        enum{j=_j}; // value of the sum of the N integers
-//        enum{r1=CombinationWithRepetition<N,k-j-1>::value};
-//        enum{r2=CombinationWithRepetition<N-1,k-j>::value};
-
         static constexpr int N=_N; // number of positive integers
         static constexpr int k=_k; // value of the sum of the N integers
         static constexpr int j=_j; // value of the sum of the N integers

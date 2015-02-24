@@ -9,14 +9,12 @@
 #ifndef model_GAUSSLEGENDRE_H_
 #define model_GAUSSLEGENDRE_H_
 
-
 #include <assert.h>
+#include <model/Quadrature/GaussLegendre/GaussLegendreRecursiveRelation.h>
+#include <model/Quadrature/QuadratureRecursiveRelation.h>
 
-
-
-
-
-namespace model {
+namespace model
+{
 	
 	/**************************************************/
 	/* GaussLegendre: general case                    */
@@ -25,23 +23,25 @@ namespace model {
 	 *	of quadrature abscissas and weights.
 	 */
 	template<short unsigned int dim, short unsigned int qOrder>
-	struct GaussLegendre{
-		
-//        static_assert(false,"GaussLegendre: CASE NOT IMPLEMENTED.");
-		
-		
-		GaussLegendre(){
-			assert(0 && "GaussLegendre: dimensionality not implemented.");
-		}
+	struct GaussLegendre
+    {
 		
 	};
     
+    /* Template specialization for cases not included in includeGaussLegendre1D.h
+     */
+    template<short unsigned int qOrder>
+    struct GaussLegendre<1,qOrder>
+    {
+        
+        static Eigen::Matrix<double,2,qOrder> abcsissasAndWeights()
+        {
+            return QuadratureRecursiveRelation::template abcsissasAndWeights<GaussLegendreRecursiveRelation>(qOrder);
+        }
+        
+    };
     
-	
-	
-	//////////////////////////////////////////////////////////////
 } // namespace model
-
 
 #include <model/Quadrature/GaussLegendre/includeGaussLegendre1D.h>
 #include <model/Quadrature/GaussLegendre/includeGaussLegendre2D.h>

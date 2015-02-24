@@ -18,17 +18,13 @@ namespace model
     struct Pow
     {
         static_assert (n>0, "n MUST BE > 0.");
-//        enum { value = x * Pow<x,n-1>::value};
         static constexpr int value = x * Pow<x,n-1>::value;
-
     };
     
     template<const int x>
     struct Pow<x,0>
     {
-//        enum { value = 1};
         static constexpr int value = 1;
-
     };
     
 }

@@ -12,7 +12,7 @@
 #include <assert.h>
 #include <Eigen/Dense>
 #include <model/Quadrature/GaussLegendre/GaussLegendre.h>
-#include <model/Quadrature/UniformOpen.h>
+#include <model/Quadrature/UniformOpen/UniformOpen.h>
 
 
 
@@ -100,7 +100,8 @@ namespace model {
           * }
           * \endcode
           */
-			for(int k=0;k<qOrder;++k){
+			for(int k=0;k<qOrder;++k)
+            {
 				intgrl+=(*fp)(k) * weights(k);
 			}
 		}
@@ -187,7 +188,8 @@ namespace model {
           * \endcode
           */
             
-			for(int k=0;k<qOrder;++k){
+			for(int k=0;k<qOrder;++k)
+            {
 				intgrl+=(C->*mfp)(k,args...) * weights(k);
 			}
 		}
@@ -198,7 +200,8 @@ namespace model {
         {/*! Execute non-static member function of arbitrary class, at quadrature points in range [0,1]
           
           */
-			for(int k=0;k<qOrder;++k){
+			for(int k=0;k<qOrder;++k)
+            {
 				(C->*mfp)(abscissa(k),args...);
 			}
 		}
@@ -209,7 +212,8 @@ namespace model {
         {/*! Execute non-static member function of arbitrary class, at quadrature points in range [0,1]
           
           */
-			for(int k=0;k<qOrder;++k){
+			for(int k=0;k<qOrder;++k)
+            {
 				(C->*mfp)(k,args...);
 			}
 		}

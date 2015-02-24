@@ -12,9 +12,9 @@
 
 #include <assert.h>
 #include <Eigen/Dense>
-//#include <model/Quadrature/QuadratureRecursiveRelation.h>
 
-namespace model {
+namespace model
+{
 	
 	/**************************************************/
 	/* UniformOpen: general case                    */
@@ -23,12 +23,11 @@ namespace model {
 	 *	of quadrature abscissas and weights.
 	 */
 	template<short unsigned int dim, short unsigned int qOrder>
-	struct UniformOpen{
-		
-		
-		
-		UniformOpen(){
-			assert(0 && "GaussLegendre: dimensionality not implemented.");
+	struct UniformOpen
+    {
+		UniformOpen()
+        {
+			assert(0 && "UniformOpen: dimensionality not implemented.");
 		}
 		
 	};
@@ -41,24 +40,21 @@ namespace model {
 	 *	
 	 */
 	template<short unsigned int qOrder>
-	struct UniformOpen<1,qOrder> {
-		static Eigen::Matrix<double,2,qOrder> abcsissasAndWeights(){
+	struct UniformOpen<1,qOrder>
+    {
+		static Eigen::Matrix<double,2,qOrder> abcsissasAndWeights()
+        {
 			Eigen::Matrix<double,2,qOrder> U;
-            for(int k=0;k<qOrder;++k){
+            for(int k=0;k<qOrder;++k)
+            {
                 U(0,k)= 0.5/qOrder+k*1.0/qOrder;		
                 U(1,k)= 1.0/qOrder;
             }
-            
-           // std::cout<< "Quadrature rule UniformOpen<1,"<<qOrder<<"> (weights in last row):"<<std::endl;
-			//std::cout<<std::setprecision(15)<<std::scientific<<U<<std::endl;
-            
 			return U;
 		}
 		
 	};
-		
-	
-	//////////////////////////////////////////////////////////////
+
 } // namespace model
 #endif
 

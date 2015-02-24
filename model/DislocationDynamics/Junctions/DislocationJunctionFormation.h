@@ -45,6 +45,43 @@ namespace model
         //		typedef std::vector<EdgeIntersectionPairType> EdgeIntersectionPairContainerType;
         typedef std::deque<EdgeIntersectionPairType> EdgeIntersectionPairContainerType;
         
+        /**********************************************************************/
+        void bringBackToPlane(VectorDimD& P, const LinkType& L)
+        {
+            const VectorDimD& n(L.glidePlaneNormal);
+            P -= (P-0.5*(L.source->get_P()+L.sink->get_P())).dot(n)*n;
+        }
+        
+        /**********************************************************************/
+        void bringBackToMesh(VectorDimD& P,
+                             const std::pair<bool,const Simplex<dim,dim>*>& search,
+                             const VectorDimD& c,
+                             const VectorDimD& g) const
+        {
+            
+            const VectorDimD dir(c.cross(g));
+            assert(dir.squaredNorm()>FLT_EPSILON && "bringBackToMesh: direction has zero norm.");
+            const VectorDimD d(dir.normalized());
+            
+            int faceID;
+            search.second->pos2bary(P).minCoeff(&faceID); // find the ID of the face with minimum bary coordinate
+            const bool isBoundaryFace(search.second->child(faceID).isBoundarySimplex());
+            assert(isBoundaryFace && "bringBackToMesh: face is not a boundary face.");
+            
+            const VectorDimD V(search.second->child(faceID).vertices()[0]->P0);
+            const VectorDimD N(search.second->nda.col(faceID).normalized());
+            const double den(d.dot(N));
+            if(std::fabs(den)<FLT_EPSILON)
+            {
+                model::cout<<"d="<<d.transpose()<<std::endl;
+                model::cout<<"N="<<N.transpose()<<std::endl;
+                assert(0 && "bringBackToMesh: direction is parallel to mesh face.");
+            }
+            
+            const double u((V-P).dot(N)/den);
+            
+            P += u*d;
+        }
         
         /**********************************************************************/
         //		int junctionDir(const EdgeIntersectionPairType& intersectionPair) const
@@ -122,7 +159,7 @@ namespace model
             {
                 contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
             }
-            else
+            else // points are distinct
             {
                 
 //                const VectorDimD unitP12=P12/P12norm;
@@ -608,6 +645,7 @@ namespace model
                         if (u1m > avoidNodeIntersection)
                         {
                             VectorDimD P1m(L1.second->get_r(u1m));
+                            bringBackToPlane(P1m,*L1.second); // remove numerical errors
                             if (DN.shared.use_boundary)
                             {
                                 const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P1m,S1);
@@ -627,6 +665,7 @@ namespace model
                         if (u1p < 1.0-avoidNodeIntersection)
                         {
                             VectorDimD P1p(L1.second->get_r(u1p));
+                            bringBackToPlane(P1p,*L1.second); // remove numerical errors
                             if (DN.shared.use_boundary)
                             {
                                 const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P1p,S1);
@@ -646,6 +685,7 @@ namespace model
                         if (u2m > avoidNodeIntersection)
                         {
                             VectorDimD P2m(L2.second->get_r(u2m));
+                            bringBackToPlane(P2m,*L2.second); // remove numerical errors
                             if (DN.shared.use_boundary)
                             {
                                 const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P2m,S2);
@@ -665,6 +705,7 @@ namespace model
                         if (u2p < 1.0-avoidNodeIntersection)
                         {
                             VectorDimD P2p(L2.second->get_r(u2p));
+                            bringBackToPlane(P2p,*L2.second); // remove numerical errors
                             if (DN.shared.use_boundary)
                             {
                                 const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P2p,S2);
@@ -690,7 +731,7 @@ namespace model
                                     const isNetworkNodeType N2=DN.node(jm);
                                     if(N1.first && N2.first)
                                     {
-                                        //std::cout<<"first contract +1 "<<jm<<std::endl;
+                                        //std::cout<<"first contract +1 "<<std::endl;
                                         contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -700,7 +741,7 @@ namespace model
                                     const isNetworkNodeType N2=DN.node(jp);
                                     if(N1.first && N2.first)
                                     {
-                                        //std::cout<<"second contract +1 "<<jm<<std::endl;
+                                        //std::cout<<"second contract +1 "<<std::endl;
                                         contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -717,7 +758,7 @@ namespace model
                                     const isNetworkNodeType N2=DN.node(jp);
                                     if(N1.first && N2.first)
                                     {
-                                        //std::cout<<"first contract -1 "<<jm<<std::endl;
+                                        //std::cout<<"first contract -1 "<<std::endl;
                                         contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -727,7 +768,7 @@ namespace model
                                     const isNetworkNodeType N2=DN.node(jm);
                                     if(N1.first && N2.first)
                                     {
-                                        //std::cout<<"second contract -1 "<<jm<<std::endl;
+                                        //std::cout<<"second contract -1 "<<std::endl;
                                         contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -749,37 +790,7 @@ namespace model
             
         }
         
-        
-        /**********************************************************************/
-        void bringBackToMesh(VectorDimD& P,
-                             const std::pair<bool,const Simplex<dim,dim>*>& search,
-                             const VectorDimD& c,
-                             const VectorDimD& g) const
-        {
-            
-            const VectorDimD dir(c.cross(g));
-            assert(dir.squaredNorm()>FLT_EPSILON && "bringBackToMesh: direction has zero norm.");
-            const VectorDimD d(dir.normalized());
-            
-            int faceID;
-            search.second->pos2bary(P).minCoeff(&faceID); // find the ID of the face with minimum bary coordinate
-            const bool isBoundaryFace(search.second->child(faceID).isBoundarySimplex());
-            assert(isBoundaryFace && "bringBackToMesh: face is not boundary face.");
-            
-            const VectorDimD V(search.second->child(faceID).vertices()[0]->P0);
-            const VectorDimD N(search.second->nda.col(faceID).normalized());
-            const double den(d.dot(N));
-            if(std::fabs(den)<FLT_EPSILON)
-            {
-                model::cout<<"d="<<d.transpose()<<std::endl;
-                model::cout<<"N="<<N.transpose()<<std::endl;
-                assert(0 && "bringBackToMesh: direction is parallel to mesh face.");
-            }
-            
-            const double u((V-P).dot(N)/den);
-            
-            P += u*d;
-        }
+
         
         
         

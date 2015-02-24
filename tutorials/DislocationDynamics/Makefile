@@ -148,9 +148,9 @@ JPGexists=$(shell test -d jpg && echo 1)
 
 empty:
 	@find V/ -name V_\*.txt ! -name V_0.txt -exec rm {} \;
-	@find V/ -name V_\*.bin ! -name V_0.bin -exec rm {} \;
+	@find V/ -name V_\*.bin -exec rm {} \;
 	@find E/ -name E_\*.txt ! -name E_0.txt -exec rm {} \;
-	@find E/ -name E_\*.bin ! -name E_0.bin -exec rm {} \;
+	@find E/ -name E_\*.bin -exec rm {} \;
 ifeq ($(Fexists),1)
 	@echo ${blueColor}emptying folder F ${normalColor}
 	@find F/ -name F_\*.txt -exec rm {} \;
