@@ -126,14 +126,15 @@ namespace model
           */
             typename StressField::MatrixType temp(this->template field<StressField>());
             
-            // stress is in fraction of mu. Keep only resolution of 8 digits
-            const double dig(1.0e+08);
-            temp = ((temp*dig).template cast<long int>().template cast<double>()/dig);
             
 #ifdef userStressFile
             temp+=userStress(*this);
 #endif
             
+            // stress is in fraction of mu. Keep only resolution of 8 digits
+            const double dig(1.0e+08);
+            temp = ((temp*dig).template cast<long int>().template cast<double>()/dig);
+        
             //            return Material<Isotropic>::C2*(temp+temp.transpose());
             return temp;
             

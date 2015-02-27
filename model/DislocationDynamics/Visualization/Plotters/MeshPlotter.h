@@ -287,21 +287,17 @@ namespace model
             
 			if (showMesh>0)
             {
-				float dispCorr(dispScale*(showMesh>1));
-				//glDisable(GL_DEPTH_TEST);
-				glEnable (GL_BLEND);
-				glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				//glEnable(GL_ALPHA_TEST);
-				//glAlphaFunc(GL_GREATER, 0.0f);
-				//glEnable(GL_COLOR_MATERIAL);
-				//glColor4f(1.0f, 1.0f, 1.0f, 0.3);
+                float dispCorr(dispScale*(showMesh>1));
+                glDisable(GL_DEPTH_TEST);
+                glEnable (GL_BLEND);
+                glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
                 glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
                 GLfloat materialColor[]={0.0, 0.0, 0.0, 0.1};
                 glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor);      // ambient color for the material
                 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor);      // diffuse color for the material
                 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor);  // specular color for the material
                 glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor);  // emission color for the material
-
                 for (auto& edge : edgeVector)
                 {
                     glBegin(GL_LINES);
@@ -309,45 +305,38 @@ namespace model
                     glVertex3f(edge(0,1)+edge(0,3)*dispCorr, edge(1,1)+edge(1,3)*dispCorr,edge(2,1)+edge(2,3)*dispCorr);
                     glEnd();
                 }
-                
-//                GLfloat faceColor[]={0.0, 0.0, 0.5, 0.1};
-//                glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, faceColor);      // ambient color for the material
-//                glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, faceColor);      // diffuse color for the material
-//                glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, faceColor);  // specular color for the material
-//                glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, faceColor);  // emission color for the material
-//                
-//                for(auto& mat : regionsBndDeq)
-//                {
-//                    glBegin(GL_TRIANGLES);
-//                    glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
-//                    glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
-//                    glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
-//                    glEnd();                    
-//                }
 
-
+                for(auto& mat : regionsBndDeq)
+                {
+                    
+                    GLfloat materialColor1[]={0.0, 0.8, 0.0, 0.1};
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor1);      // ambient color for the material
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor1);      // diffuse color for the material
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor1);  // specular color for the material
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor1);  // emission color for the material
+                    glBegin(GL_TRIANGLES);
+                    glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
+                    glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
+                    glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
+                    glEnd();
+                    
+                    GLfloat materialColor2[]={0.0, 0.2, 0.0, 0.1};
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor2);      // ambient color for the material
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor2);      // diffuse color for the material
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor2);  // specular color for the material
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor2);  // emission color for the material
+                    glBegin(GL_LINE_LOOP);
+                    glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
+                    glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
+                    glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
+                    glEnd();
+                }
                 
                 glDisable(GL_BLEND);
-				glEnable(GL_DEPTH_TEST); //Makes 3D drawing work when something is in front of something else
                 
-                //                if (showQuad){
-                //                    GLUquadric* myQuad;
-                //                    myQuad=gluNewQuadric();
-                //                    float radius=10.0;
-                //                    glColor4f(0.0f, 0.0f, 0.0f, 0.7);
-                //                    for (QuadContainerType::const_iterator iterQ=QuadContainerType::begin(); iterQ!=QuadContainerType::end();++iterQ)
-                //                    {
-                //                        glTranslatef(  iterQ->second(0),  iterQ->second(1),  iterQ->second(2) );
-                //                        gluSphere( myQuad , radius , 10 , 10 );
-                //                        glTranslatef( -iterQ->second(0), -iterQ->second(1), -iterQ->second(2) );
-                //
-                //                    }
-                //                    gluDeleteQuadric(myQuad); // free myQuad pointer
-                //                }
+                glEnable(GL_DEPTH_TEST); //Makes 3D drawing work when something is in front of something else
                 
-
-                
-			}
+            }
             
 
             

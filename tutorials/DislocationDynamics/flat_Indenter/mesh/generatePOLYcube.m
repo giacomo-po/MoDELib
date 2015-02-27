@@ -47,7 +47,7 @@ P(23,:)=[(L+Lp)/2  (L+Lp)/2  L-t];
 P(24,:)=[(L-Lp)/2  (L+Lp)/2  L-t];
 
 % Recenter
-P=P+repmat([-L/2+x0 -L/2+y0 -L/2],size(P,1),1);
+P=P+repmat([-L/2+x0 -L/2+y0 0],size(P,1),1);
 
 figure(1)
 clf

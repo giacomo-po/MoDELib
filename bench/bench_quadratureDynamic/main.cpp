@@ -7,9 +7,9 @@ using namespace model;
 int main (int argc, char * const argv[])
 {
     
-    QuadratureDynamic<1,GaussLegendre,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024,2048> qd;
+    QuadratureDynamic<1,GaussLegendre,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> qd;
 	
-    const int N=9;
+    const int N=8;
     
     for (int k=0;k<N;++k)
     {

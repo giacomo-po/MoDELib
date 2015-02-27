@@ -349,7 +349,7 @@ namespace model
             
 			DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
 			
-			//! 9- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
+			//! 9- detect loops that shrink to zero and expand as inverted loops
             DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
 			
 			//! 10- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
@@ -384,21 +384,21 @@ namespace model
 			}
 		}
         
-        /**********************************************************************/
-		void segmentMeshCollision()
-        {
-			typedef std::map<double,VectorDimD> MultiIntersectionType; // keeps intersections sorted for increasing parameter
-			typedef std::map<LinkIDType,MultiIntersectionType> MultiIntersectionContainerType; // Container of MultiIntersectionType for different links
-			MultiIntersectionContainerType multiIntersectionContainer;
-			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
-            {
-				multiIntersectionContainer[linkIter->second.nodeIDPair()]=linkIter->second.boundaryCollision();
-			}
-			for (typename MultiIntersectionContainerType::const_iterator iter=multiIntersectionContainer.begin();iter!=multiIntersectionContainer.end();++iter)
-            {
-				this->multiExpand(iter->first.first,iter->first.second,iter->second);
-			}
-		}
+//        /**********************************************************************/
+//		void segmentMeshCollision()
+//        {
+//			typedef std::map<double,VectorDimD> MultiIntersectionType; // keeps intersections sorted for increasing parameter
+//			typedef std::map<LinkIDType,MultiIntersectionType> MultiIntersectionContainerType; // Container of MultiIntersectionType for different links
+//			MultiIntersectionContainerType multiIntersectionContainer;
+//			for (typename NetworkLinkContainerType::iterator linkIter=this->linkBegin();linkIter!=this->linkEnd();++linkIter)
+//            {
+//				multiIntersectionContainer[linkIter->second.nodeIDPair()]=linkIter->second.boundaryCollision();
+//			}
+//			for (typename MultiIntersectionContainerType::const_iterator iter=multiIntersectionContainer.begin();iter!=multiIntersectionContainer.end();++iter)
+//            {
+//				this->multiExpand(iter->first.first,iter->first.second,iter->second);
+//			}
+//		}
         
 	public:
 

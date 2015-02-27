@@ -43,7 +43,7 @@ namespace model
     
 } // namespace model
 
-#include <model/Quadrature/GaussLegendre/includeGaussLegendre1D.h>
+//#include <model/Quadrature/GaussLegendre/includeGaussLegendre1D.h>
 #include <model/Quadrature/GaussLegendre/includeGaussLegendre2D.h>
 #include <model/Quadrature/GaussLegendre/includeGaussLegendre3D.h>
 
