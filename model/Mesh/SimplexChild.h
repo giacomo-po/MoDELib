@@ -22,19 +22,17 @@ namespace model
     {
         
     public:
+//        typedef SimplexChild<dim,order> SimplexChildType;
         typedef Simplex<dim,order+1> ParentSimplexType;
         typedef typename SimplexTraits<dim,order+1>::SimplexIDType ParentSimplexIDType;
         typedef typename SimplexTraits<dim,order+1>::ScalarIDType ScalarIDType;
         typedef std::set<const ParentSimplexType*,SimplexCompare<dim,order+1> >  ParentContainerType;
 
-//        typedef std::set<const ParentSimplexType*,SimplexCompare<dim,order+1> >  ParentContainerType;
-
-        
+//      typedef std::set<const ParentSimplexType*,SimplexCompare<dim,order+1> >  ParentContainerType;
 //    private:
-//        ParentContainerType parentContainer;
+//      ParentContainerType parentContainer;
 
     public:
-        
         
         /**********************************************************************/
         void addToParents(const ParentSimplexType* const pP)
@@ -46,10 +44,9 @@ namespace model
 //            const bool couldInsert(parentContainer.insert(pP).second);
             const bool couldInsert(this->insert(pP).second);
             assert(couldInsert && "COULD NOT INSERT PARENT IN parentContainer");
-        
-            
+
             // HERE WE SHOULD LOOP OVER PARENTS AND ADD pP TO THEIR NEIGHBORS
-            
+
         }
         
         /**********************************************************************/
@@ -66,7 +63,6 @@ namespace model
             // HERE WE SHOULD LOOP OVER PARENTS AND REMOVE pP FROM THEIR NEIGHBORS
             
         }
-        
         
         /**********************************************************************/
         typename ParentContainerType::const_iterator parentBegin() const
@@ -92,13 +88,15 @@ namespace model
         /**********************************************************************/
         bool isBoundarySimplex() const
         {
-            return BoundarySimplex<dim,dim-order>::template isBoundarySimplex<SimplexChild>(*this);
+//            return BoundarySimplex<dim,dim-order>::template isBoundarySimplex<SimplexChild>(*this);
+            return BoundarySimplex<dim,dim-order>::isBoundarySimplex(*this);
+
         }
         
         /**********************************************************************/
         bool isRegionBoundarySimplex() const
         {
-            return BoundarySimplex<dim,dim-order>::template isRegionBoundarySimplex<SimplexChild>(*this);
+            return BoundarySimplex<dim,dim-order>::isRegionBoundarySimplex(*this);
         }
         
     };

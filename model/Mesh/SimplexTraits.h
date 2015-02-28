@@ -19,6 +19,9 @@ namespace model {
     
     template<short int dim, short int order>
 	class Simplex;
+    
+    template<short int dim,short int order>
+    class SimplexChild;
 
     
     /**************************************************************************/

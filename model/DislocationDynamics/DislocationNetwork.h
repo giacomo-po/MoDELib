@@ -858,15 +858,26 @@ namespace model
             return vmax;
         }
         
+//        /**********************************************************************/
+//        MatrixDimD stress(const VectorDimD& P) const
+//        {
+//            std::deque<SingleFieldPoint<StressField>> fieldPoints;
+//            fieldPoints.emplace_back(P);
+//            this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoints);
+//            return fieldPoints[0].template field<StressField>();
+//        }
+        
         /**********************************************************************/
         MatrixDimD stress(const VectorDimD& P) const
         {
-            std::deque<SingleFieldPoint<StressField>> fieldPoints;
-            fieldPoints.emplace_back(P);
-            this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoints);
-            return fieldPoints[0].template field<StressField>();
+//            std::deque<SingleFieldPoint<StressField>> fieldPoints;
+//            fieldPoints.emplace_back(P);
+
+            SingleFieldPoint<StressField> fieldPoint(P);
+            this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoint);
+            return fieldPoint.field();
         }
-		
+        
 	};
     
 } // namespace model

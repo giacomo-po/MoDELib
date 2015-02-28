@@ -15,14 +15,14 @@
 
 #include <iterator> // std::advance
 #include <utility>  // std::pair
-//#include <boost/ptr_container/ptr_map.hpp>
 #include <map>
 
 namespace model
 {
 	
 	template <typename VertexType, typename EdgeType>
-	class ParallelExecute{
+	class ParallelExecute
+    {
 		
 
         typedef std::map<size_t,VertexType> NetworkVertexMapType;
@@ -49,7 +49,8 @@ namespace model
         {
 #ifdef _OPENMP
 #pragma omp parallel for
-            for (unsigned int k=0;k<networkEdgeMapRef.size();++k){
+            for (unsigned int k=0;k<networkEdgeMapRef.size();++k)
+            {
                 typename NetworkEdgeMapType::iterator linkIter(networkEdgeMapRef.begin()); //  the data within a parallel region is private to each thread
                 std::advance(linkIter,k);
                 (linkIter->second.*Lfptr)();

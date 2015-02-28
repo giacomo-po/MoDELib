@@ -56,10 +56,10 @@ namespace model
 	struct StarsAndBars<_N,_k,_k>
     {
         static_assert(_N>0,"N MUST BE >0.");
-        enum{N=_N};
-        enum{k=_k};
-        enum{j=_k};
-        enum{r=CombinationWithRepetition<N-1,k-j>::value}; // this is = 1, since C(n,0)=1
+        static constexpr int N=_N;
+        static constexpr int k=_k;
+        static constexpr int j=_k;
+        static constexpr int r=CombinationWithRepetition<N-1,k-j>::value; // this is = 1, since C(n,0)=1
         
         static Eigen::Matrix<int,r,N> sAb()
         {
@@ -76,10 +76,10 @@ namespace model
 	struct StarsAndBars<_N,0,0>
     {
         static_assert(_N>0,"N MUST BE >0.");
-        enum{N=_N};
-        enum{k=0};
-        enum{j=k};
-		enum{r=CombinationWithRepetition<N,k-j>::value}; // this is = 1, since C(n,0)=1
+        static constexpr int N=_N;
+        static constexpr int k=0;
+        static constexpr int j=k;
+		static constexpr int r=CombinationWithRepetition<N,k-j>::value; // this is = 1, since C(n,0)=1
         
         static Eigen::Matrix<int,r,N> sAb() // this is an 1xN matrix
         {
@@ -94,8 +94,8 @@ namespace model
 	struct StarsAndBars<1,k,j>
     {
         static_assert(k>0,"k MUST BE >0.");
-        enum{N=1};
-		enum{r=CombinationWithRepetition<N,k-j>::value}; // this is = 1, since C(1,k-j)=1
+        static constexpr int N=1;
+		static constexpr int r=CombinationWithRepetition<N,k-j>::value; // this is = 1, since C(1,k-j)=1
         
         static Eigen::Matrix<int,r,N> sAb() // this is a 1x1 matrix
         {
@@ -110,9 +110,9 @@ namespace model
     struct StarsAndBars<1,k,k>
     {
         static_assert(k>0,"k MUST BE >0.");
-        enum{N=1};
-        enum{j=k};
-        enum{r=CombinationWithRepetition<N,k-j>::value}; // this is = 1, since C(1,k-j)=1
+        static constexpr int N=1;
+        static constexpr int j=k;
+        static constexpr int r=CombinationWithRepetition<N,k-j>::value; // this is = 1, since C(1,k-j)=1
         
         static Eigen::Matrix<int,r,N> sAb() // this is a 1x1 matrix
         {
@@ -126,10 +126,10 @@ namespace model
     template <>
     struct StarsAndBars<1,0,0>
     {        
-        enum{N=1};
-        enum{k=0};
-        enum{j=k};
-        enum{r=CombinationWithRepetition<N,k-j>::value}; // this is = 1, since C(1,0)=1
+        static constexpr int N=1;
+        static constexpr int k=0;
+        static constexpr int j=k;
+        static constexpr int r=CombinationWithRepetition<N,k-j>::value; // this is = 1, since C(1,0)=1
         
         static Eigen::Matrix<int,r,N> sAb() // this is a 1x1 matrix
         {

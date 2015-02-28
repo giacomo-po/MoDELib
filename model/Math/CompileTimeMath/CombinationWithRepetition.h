@@ -25,11 +25,11 @@ namespace model {
 	template <int _N, int _k>
 	struct CombinationWithRepetition
     {
-        enum{N=_N};
-        enum{k=_k};
+        static constexpr int N=_N;
+        static constexpr int k=_k;
         static_assert(N>0,"N MUST BE >0.");
         static_assert(k>0,"k MUST BE >0.");
-//		enum{value=Binomial<N+k-1,k>::value};
+//		static constexpr int value=Binomial<N+k-1,k>::value;
         static constexpr int value=Binomial<N+k-1,k>::value;
       
         
@@ -58,8 +58,8 @@ namespace model {
     {        
         
         static_assert(k>0,"k MUST BE >0.");
-        enum{N=1};
-		enum{value=Binomial<N+k-1,k>::value};
+        static constexpr int N=1;
+		static constexpr int value=Binomial<N+k-1,k>::value;
         
         
         template <typename T>
@@ -78,10 +78,10 @@ namespace model {
 	struct CombinationWithRepetition<_N,1>
     {
                 
-        enum{N=_N};
+        static constexpr int N=_N;
         static_assert(N>0,"N MUST BE >0.");
-        enum{k=1};
-		enum{value=Binomial<N+k-1,k>::value};
+        static constexpr int k=1;
+		static constexpr int value=Binomial<N+k-1,k>::value;
         
         template <typename T>
         static Eigen::Matrix<T,value,k> combine(const Eigen::Matrix<T,1,N>& pool)
@@ -98,11 +98,9 @@ namespace model {
     template <>
 	struct CombinationWithRepetition<1,1>
     {
-        
-        enum{N=1};
-//        static_assert(N>0,"N MUST BE >0.");
-        enum{k=1};
-		enum{value=Binomial<N+k-1,k>::value};
+        static constexpr int N=1;
+        static constexpr int k=1;
+		static constexpr int value=Binomial<N+k-1,k>::value;
         
         template <typename T>
         static Eigen::Matrix<T,value,k> combine(const Eigen::Matrix<T,1,N>& pool)
@@ -119,11 +117,10 @@ namespace model {
     template <int _N>
 	struct CombinationWithRepetition<_N,0>
     {
-        
-        enum{N=_N};
+        static constexpr int N=_N;
         static_assert(N>0,"N MUST BE >0.");
-        enum{k=0};
-		enum{value=Binomial<N+k-1,k>::value};
+        static constexpr int k=0;
+		static constexpr int value=Binomial<N+k-1,k>::value;
         
 //        template <typename T>
 //        static Eigen::Matrix<T,value,k> combine(const Eigen::Matrix<T,1,N>& pool)
@@ -141,10 +138,10 @@ namespace model {
 	struct CombinationWithRepetition<1,0>
     {
         
-        enum{N=1};
+        static constexpr int N=1;
 //        static_assert(N>0,"N MUST BE >0.");
-        enum{k=0};
-		enum{value=Binomial<N+k-1,k>::value};
+        static constexpr int k=0;
+		static constexpr int value=Binomial<N+k-1,k>::value;
         
         //        template <typename T>
         //        static Eigen::Matrix<T,value,k> combine(const Eigen::Matrix<T,1,N>& pool)

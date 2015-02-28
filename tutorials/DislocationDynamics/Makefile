@@ -5,7 +5,7 @@ usePARDISO = 0
 # EDIT HERE
 ##########################################################
 MODEL_INCLUDE =../../../
-MKL_PATH=/opt/intel/composer_xe_2013.3.171/mkl
+MKL_PATH=/opt/intel/composer_xe_2015.2.132/mkl
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-

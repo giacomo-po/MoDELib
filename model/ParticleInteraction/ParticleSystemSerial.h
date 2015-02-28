@@ -142,6 +142,17 @@ namespace model {
         }
         
         /**********************************************************************/
+        template <typename OtherParticleType, typename FieldType,typename... OtherSourceTypes>
+        void computeField(OtherParticleType& part, const OtherSourceTypes&... otherSources) const
+        {/*!@param[in] part
+          * @param[in] otherSources
+          * \brief computes the field FieldType for the only particle part, 
+          * without parallelization
+          */
+            ParticleSystemBaseType::template computeField<OtherParticleType,FieldType,OtherSourceTypes...>(part,otherSources...);
+        }
+        
+        /**********************************************************************/
         template <class T>
         friend T& operator<< (T& os, const ParticleContainerType& pS)
         {/*! Operator<< use ParticleType-specific operator<<

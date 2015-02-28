@@ -74,6 +74,51 @@ namespace model {
             SpatialCellObserverType::cellSize=cellSize;
         }
         
+        /**********************************************************************/
+        template <typename OtherParticleType, typename FieldType,typename... OtherSourceTypes>
+        void computeField(OtherParticleType& part, const OtherSourceTypes&... otherSources) const
+        {/*!@param[in] part
+          * @param[in] otherSources
+          * \brief computes the field FieldType for the only particle part,
+          * without parallelization
+          */
+            
+            // Nearest-neighbor interaction
+            typename SpatialCellType::CellMapType neighborCells(part.template neighborCells<_ParticleType>());
+            
+            //! -2 loop over neighbor cells of current particle
+            for (typename SpatialCellType::CellMapType::const_iterator cIter =neighborCells.begin();
+                 /*                                                 */ cIter!=neighborCells.end();
+                 /*                                               */ ++cIter)
+            {
+                //! -3 loop over particles in the current neighbor cell
+                for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
+                    /*                                                           */ qIter!=cIter->second->particleEnd();
+                    /*                                                         */ ++qIter)
+                {
+                    //part.template field<FieldType>() += FieldType::compute(**qIter,part);
+                    *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&part) += FieldType::compute(**qIter,part);
+                }
+            }
+            
+            // Non-nearest-neighbor interaction
+            if(FieldType::use_multipole)
+            {
+                typename SpatialCellType::CellMapType farCells(part.template farCells<_ParticleType>());
+                //
+                //                    part.template field<FieldType>() += FieldType::multipole(part,farCells);
+                *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&part) += FieldType::multipole(part,farCells);
+            }
+            
+            // Add contribution of other sources
+            if(sizeof...(OtherSourceTypes))
+            {
+                *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&part) += FieldType::addSourceContribution(part,otherSources...);
+            }
+            
+            //            }
+        }
+        
     };
     
     

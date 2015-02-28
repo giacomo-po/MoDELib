@@ -24,6 +24,11 @@ namespace model
         
         SingleFieldPoint(const Eigen::Matrix<double,Field::dim,1>& Pin) : P(Pin){}
         
+        
+        typename Field::MatrixType field() const
+        {
+            return FieldPoint<SingleFieldPoint<Field>,Field::dim,Field>::template field<Field>();
+        }
     };
     
 } // end namespace

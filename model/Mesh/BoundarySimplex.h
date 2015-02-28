@@ -17,15 +17,13 @@ namespace model {
     struct BoundarySimplex
     {
         /**********************************************************************/
-        template<template <short int,short int> class SimplexChildType>
-        static bool isBoundarySimplex(const SimplexChildType<dim,dim-dmo>& simplexChild)
+//        template<template <short int,short int> class SimplexChildType>
+        static bool isBoundarySimplex(const SimplexChild<dim,dim-dmo>& simplexChild)
         {
             bool temp(false);
-//            for (typename SimplexChildType<dim,dim-dmo>::ParentContainerType::const_iterator pIter=simplexChild.parentBegin();pIter!=simplexChild.parentEnd();++pIter)
             for (auto& pParent : simplexChild.parents())
             {
                 temp=pParent->isBoundarySimplex();
-//                temp=(*pIter)->isBoundarySimplex();
                 if (temp)
                 {
                     break;
@@ -35,14 +33,12 @@ namespace model {
         }
         
         /**********************************************************************/
-        template<template <short int,short int> class SimplexChildType>
-        static bool isRegionBoundarySimplex(const SimplexChildType<dim,dim-dmo>& simplexChild)
+//        template<template <short int,short int> class SimplexChildType>
+        static bool isRegionBoundarySimplex(const SimplexChild<dim,dim-dmo>& simplexChild)
         {
             bool temp(false);
-//            for (typename SimplexChildType<dim,dim-dmo>::ParentContainerType::const_iterator pIter=simplexChild.parentBegin();pIter!=simplexChild.parentEnd();++pIter)
             for (auto& pParent : simplexChild.parents())
             {
-//                temp=(*pIter)->isRegionBoundarySimplex();
                 temp=pParent->isRegionBoundarySimplex();
                 if (temp)
                 {
@@ -60,15 +56,15 @@ namespace model {
     struct BoundarySimplex<dim,1>
     {
         /**********************************************************************/
-        template<template <short int,short int> class SimplexChildType>
-        static bool isBoundarySimplex(const SimplexChildType<dim,dim-1>& simplexChild)
+//        template<template <short int,short int> class SimplexChildType>
+        static bool isBoundarySimplex(const SimplexChild<dim,dim-1>& simplexChild)
         {
             return simplexChild.parents().size()==1;
         }
         
         /**********************************************************************/
-        template<template <short int,short int> class SimplexChildType>
-        static bool isRegionBoundarySimplex(const SimplexChildType<dim,dim-1>& simplexChild)
+//        template<template <short int,short int> class SimplexChildType>
+        static bool isRegionBoundarySimplex(const SimplexChild<dim,dim-1>& simplexChild)
         {
             bool temp(false);
             if(simplexChild.parents().size()==2)
