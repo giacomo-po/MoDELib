@@ -277,6 +277,8 @@ namespace model {
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "i: set frame increment\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
+                sprintf (outString, "j: show mesh region boundaries\n");
+                BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "k: locate specific vertex (by ID)\n");
                 BitmapPlotter::drawGLString (10, (lineSpacing * line++) + startOffest, outString);
                 sprintf (outString, "l: load specific frame\n");
@@ -744,6 +746,10 @@ namespace model {
 					meshPlotter.showMesh=(meshPlotter.showMesh+1)%meshPlotter.showMeshStates;
 					break;
 					
+                case 'j':
+                    meshPlotter.showRegionBoundaries=!meshPlotter.showRegionBoundaries;
+                    break;
+
 				case 'n':
 					splinePlotter.showPlaneNormal=!splinePlotter.showPlaneNormal;
 					break;

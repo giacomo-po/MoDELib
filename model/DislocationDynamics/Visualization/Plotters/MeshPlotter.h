@@ -37,61 +37,63 @@
 
 namespace model
 {
-	
-	class MeshPlotter :
-	/*               */ public VertexReader<'D',4,float>
+    
+    class MeshPlotter :
+    /*               */ public VertexReader<'D',4,float>
     {
-		
+        
         //		typedef VertexReader<'N',5,float> NodeContainerType;
-		typedef VertexReader<'D',4,float> DispContainerType;
+        typedef VertexReader<'D',4,float> DispContainerType;
         //		typedef VertexReader<'Q',4,float> QuadContainerType;
         //		typedef   EdgeReader<'T',3,float> EdgeContainerType;
-		
+        
         //		bool edgeFileIsGood;
         //		bool nodeFileIsGood;
-		bool dispFileIsGood;
+        bool dispFileIsGood;
         //		bool quadFileIsGood;
-		
-		typedef std::vector<Eigen::Matrix<float,3,4>,Eigen::aligned_allocator<Eigen::Matrix<float,3,4> > > EdgeVectoType;
-		EdgeVectoType edgeVector; // this is [P0 P1 D0 D1]
+        
+        typedef std::vector<Eigen::Matrix<float,3,4>,Eigen::aligned_allocator<Eigen::Matrix<float,3,4> > > EdgeVectoType;
+        EdgeVectoType edgeVector; // this is [P0 P1 D0 D1]
         
         //        SimplicialMesh<3> mesh;
         
         
         std::deque<std::pair<Eigen::Matrix<double,3,1>,Eigen::Matrix<double,6,1>>> deq;
-
+        
         std::deque<Eigen::Matrix<float,3,3> > regionsBndDeq;
         
-
+        
         
         Eigen::Matrix<float,1,6> sMin;
         Eigen::Matrix<float,1,6> sMax;
-
         
-	public:
+        
+    public:
         
         const SimplicialMesh<3>* const p_mesh;
-
         
-		enum {showMeshStates=3};
-		short unsigned int showMesh;
-		
+        
+        enum {showMeshStates=3};
+        short unsigned int showMesh;
+        
         //        bool showQuad;
         float dispScale;
         
         static bool plotBndStress;
-		static unsigned int stressCol;
+        static unsigned int stressCol;
+        static bool showRegionBoundaries;
+
         //        SimplicialMesh<3> mesh;
         
-		/* Constructor ******************************************/
-		MeshPlotter(const SimplicialMesh<3>* const p_mesh_in) :
+        /* Constructor ******************************************/
+        MeshPlotter(const SimplicialMesh<3>* const p_mesh_in) :
         /* init list */ dispFileIsGood(false),
         /* init list */ p_mesh(p_mesh_in),
         //        /* init list */ edgeFileIsGood(false),
         //		/* init list */ nodeFileIsGood(false),
-		/* init list */ showMesh(0),
+        /* init list */ showMesh(0),
         //        /* init list */ showQuad(false),
-		/* init list */ dispScale(1.0f)
+        /* init list */ dispScale(1.0f)
         //        /* init list */ mesh(1) // read N/N_0.txt and T/T_0.txt
         //        /* init list */ p_mesh(new SimplicialMesh<3>(1)) // read N/N_0.txt and T/T_0.txt
         {
@@ -130,11 +132,11 @@ namespace model
             }
             
         }
-		
-		/* read *************************************************/
-		void read(const int& frameN)
+        
+        /* read *************************************************/
+        void read(const int& frameN)
         {
-			// Read edge file T only if it exists, otherwise try to read 0
+            // Read edge file T only if it exists, otherwise try to read 0
             //			edgeFileIsGood=EdgeContainerType::isGood(frameN,true);
             //			if (edgeFileIsGood){
             //				EdgeContainerType::read(frameN,true);
@@ -142,8 +144,8 @@ namespace model
             //			else{
             //				EdgeContainerType::read(0,true);
             //			}
-			
-			// Read node file N only if it exists, otherwise try to read 0
+            
+            // Read node file N only if it exists, otherwise try to read 0
             //			nodeFileIsGood=NodeContainerType::isGood(frameN,true);
             //			if (nodeFileIsGood){
             //				NodeContainerType::read(frameN,true);
@@ -151,16 +153,16 @@ namespace model
             //			else{
             //				NodeContainerType::read(0,true);
             //			}
-			
-//			dispFileIsGood=DispContainerType::isGood(frameN,true);
-//			if (dispFileIsGood)
-//            {
-//				DispContainerType::read(frameN,true);
-//			}
-//			else
-//            {
-//				DispContainerType::read(0,true);
-//			}
+            
+            //			dispFileIsGood=DispContainerType::isGood(frameN,true);
+            //			if (dispFileIsGood)
+            //            {
+            //				DispContainerType::read(frameN,true);
+            //			}
+            //			else
+            //            {
+            //				DispContainerType::read(0,true);
+            //			}
             
             //            quadFileIsGood=QuadContainerType::isGood(frameN,true);
             //            if (quadFileIsGood){
@@ -170,9 +172,9 @@ namespace model
             //			else{
             //				QuadContainerType::read(0,true);
             //			}
-			//			assert(NodeContainerType==DispContainerType && "NUMBER OF NODES IN DISPLACEMENT FILE");
-			
-			
+            //			assert(NodeContainerType==DispContainerType && "NUMBER OF NODES IN DISPLACEMENT FILE");
+            
+            
             //			edgeVector.clear();
             //			edgeVector.reserve(EdgeContainerType::size()); // use reserve to speed-up push_back used later
             //			for (EdgeContainerType::const_iterator iterE=EdgeContainerType::begin(); iterE!=EdgeContainerType::end();++iterE)
@@ -206,7 +208,7 @@ namespace model
             {
                 deq.clear();
                 float x,y,z,s11,s22,s33,s12,s23,s13;
-
+                
                 std::ostringstream fullName;
                 fullName<<"S/S_"<<frameN<<".txt";
                 FILE *fp =fopen(fullName.str().c_str(), "r");
@@ -224,26 +226,26 @@ namespace model
                 
                 std::cout<<fullName.str()<<" has "<<deq.size()<<"rows"<<std::endl;
                 
-//                float sMin=FLT_MAX;
-//                float sMax=FLT_MIN;
+                //                float sMin=FLT_MAX;
+                //                float sMax=FLT_MIN;
                 
                 sMin=Eigen::Matrix<float,1,6>::Constant(FLT_MAX);
                 sMax=Eigen::Matrix<float,1,6>::Constant(FLT_MIN);
-
+                
                 
                 for (int k=0;k<deq.size();++k)
                 {
                     for(int c=0;c<6;++c)
                     {
-                    if(deq[k].second(c)>sMax(c))
-                    {
-                        sMax(c)=deq[k].second(c);
-                    }
-                    
-                    if(deq[k].second(c)<sMin(c))
-                    {
-                        sMin(c)=deq[k].second(c);
-                    }
+                        if(deq[k].second(c)>sMax(c))
+                        {
+                            sMax(c)=deq[k].second(c);
+                        }
+                        
+                        if(deq[k].second(c)<sMin(c))
+                        {
+                            sMin(c)=deq[k].second(c);
+                        }
                     }
                 }
                 
@@ -252,16 +254,14 @@ namespace model
                 
             }
             
-		}
-		
-		/* plot *************************************************/
-		void plot() const
+        }
+        
+        /* plot *************************************************/
+        void plot() const
         {
             
             if (plotBndStress)
             {
-//                glEnable (GL_BLEND);
-//                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glEnable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
                 
                 for (int k=0;k<deq.size()/3;++k)
@@ -269,8 +269,6 @@ namespace model
                     RGBcolor clr0=RGBmap::getColor(deq[3*k+0].second(stressCol),sMin(stressCol),sMax(stressCol));
                     RGBcolor clr1=RGBmap::getColor(deq[3*k+1].second(stressCol),sMin(stressCol),sMax(stressCol));
                     RGBcolor clr2=RGBmap::getColor(deq[3*k+2].second(stressCol),sMin(stressCol),sMax(stressCol));
-                    
-                    //                    std::cout<<"k="<<k<<",P="<<deq[3*k].first.transpose()<<std::endl;
                     glShadeModel(GL_SMOOTH);
                     glBegin(GL_TRIANGLES);
                     glColor4f(clr0.r, clr0.g, clr0.b,0.5);
@@ -283,15 +281,14 @@ namespace model
                 }
                 
             }
-            
-            
-			if (showMesh>0)
+
+            glDisable(GL_DEPTH_TEST);
+            glEnable (GL_BLEND);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            if (showMesh>0)
             {
                 float dispCorr(dispScale*(showMesh>1));
-                glDisable(GL_DEPTH_TEST);
-                glEnable (GL_BLEND);
-                glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
                 glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
                 GLfloat materialColor[]={0.0, 0.0, 0.0, 0.1};
                 glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor);      // ambient color for the material
@@ -305,10 +302,12 @@ namespace model
                     glVertex3f(edge(0,1)+edge(0,3)*dispCorr, edge(1,1)+edge(1,3)*dispCorr,edge(2,1)+edge(2,3)*dispCorr);
                     glEnd();
                 }
-
+            }
+            
+            if(showRegionBoundaries)
+            {
                 for(auto& mat : regionsBndDeq)
                 {
-                    
                     GLfloat materialColor1[]={0.0, 0.8, 0.0, 0.1};
                     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor1);      // ambient color for the material
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor1);      // diffuse color for the material
@@ -331,25 +330,27 @@ namespace model
                     glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
                     glEnd();
                 }
-                
-                glDisable(GL_BLEND);
-                
-                glEnable(GL_DEPTH_TEST); //Makes 3D drawing work when something is in front of something else
-                
             }
             
+            glDisable(GL_BLEND);
+            
+            glEnable(GL_DEPTH_TEST); //Makes 3D drawing work when something is in front of something else
 
             
-		}
+            
+        }
         
         
-		
-	};
+        
+    };
     
     // Declare static data
     bool MeshPlotter::plotBndStress=false;
     unsigned int MeshPlotter::stressCol=0;
+    bool MeshPlotter::showRegionBoundaries=false;
 
+    
+    
 } // namespace model
 #endif
 

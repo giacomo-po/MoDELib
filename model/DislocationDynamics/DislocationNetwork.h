@@ -823,17 +823,25 @@ namespace model
 		}
         
         /**********************************************************************/
-		double networkLength() const
+        std::pair<double,double> networkLength() const
         {/*!\returns the line length of *this DislocationNetwork.
           */
-			double temp(0.0);
-			for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
+			double totalLength(0.0);
+            double immobileLength(0.0);
+
+            for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
                  /*                                             */ linkIter!=this->linkEnd();
                  /*                                             */ linkIter++)
             {
-				temp+= linkIter->second.template arcLength<qOrder,QuadratureRule>();
+                const double temp= linkIter->second.template arcLength<qOrder,QuadratureRule>();
+                totalLength+=temp;
+                if(linkIter->second.is_boundarySegment() || linkIter->second.sessilePlaneNormal.squaredNorm()>0.0)
+                {
+                    immobileLength+=temp;
+                }
+                
 			}
-			return temp;
+            return std::make_pair(totalLength,immobileLength);
 		}
         
         /**********************************************************************/
