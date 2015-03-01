@@ -32,7 +32,7 @@ namespace model
             assert(nRanges>0 && "NUMBER OF RANGES MUST BE >0");
             
             const auto nElments(std::distance(first,last));
-            assert( nElments > 0 && "RANGE MUST HAVE AT LEAST ONE ELEMENT");
+            //assert( nElments > 0 && "RANGE MUST HAVE AT LEAST ONE ELEMENT");
             
             const size_t quotient = nElments / nRanges;
             const size_t remainder= nElments % nRanges;
@@ -67,7 +67,7 @@ namespace model
             assert(nRanges>0 && "NUMBER OF RANGES MUST BE >0");
             
             const auto nElments(std::distance(first,last));
-            assert( nElments > 0 && "RANGE MUST HAVE AT LEAST ONE ELEMENT");
+            //assert( nElments > 0 && "RANGE MUST HAVE AT LEAST ONE ELEMENT");
             
             const size_t quotient = nElments / nRanges;
             const size_t remainder= nElments % nRanges;
@@ -88,10 +88,6 @@ namespace model
         
     };
     
-    
-	
-	/************************************************************/
-	/************************************************************/
 } // namespace model
 #endif
 

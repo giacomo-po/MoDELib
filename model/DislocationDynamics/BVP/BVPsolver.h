@@ -11,6 +11,7 @@
 
 #include <array>
 #include <deque>
+#include <chrono>
 #include <memory> // unique_ptr
 #include <model/FEM/FiniteElement.h>
 #include <model/DislocationDynamics/Materials/Material.h>
@@ -481,12 +482,30 @@ namespace model
         }
         
         /**********************************************************************/
+        VectorDim bvpMoment(const Eigen::Matrix<double,dim-1,1>& a1, const ElementType& ele, const int& boundaryFace,const VectorDim& x0) const
+        {
+            const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(a1));
+            const Eigen::Matrix<double,dim+1,1> bary(face2domainBary(b1,boundaryFace));
+            return (ele.position(bary)-x0).cross(stress(ele,bary)*JGNselector<dim>::jGN(ele.jGN(bary,boundaryFace)));
+        }
+        
+        /**********************************************************************/
         template <typename DislocationNetworkType>
         VectorDim ddTraction(const Eigen::Matrix<double,dim-1,1>& a1, const ElementType& ele, const int& boundaryFace, const DislocationNetworkType& DN) const
         {
             const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(a1));
             const Eigen::Matrix<double,dim+1,1> bary(face2domainBary(b1,boundaryFace));
             return DN.stress(ele.position(bary))*JGNselector<dim>::jGN(ele.jGN(bary,boundaryFace));
+        }
+        
+        /**********************************************************************/
+        template <typename DislocationNetworkType>
+        VectorDim ddMoment(const Eigen::Matrix<double,dim-1,1>& a1, const ElementType& ele, const int& boundaryFace, const VectorDim& x0,const DislocationNetworkType& DN) const
+        {
+            const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(a1));
+            const Eigen::Matrix<double,dim+1,1> bary(face2domainBary(b1,boundaryFace));
+            const VectorDim pos(ele.position(bary));
+            return (pos-x0).cross(DN.stress(pos)*JGNselector<dim>::jGN(ele.jGN(bary,boundaryFace)));
         }
         
     };

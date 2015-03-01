@@ -16,6 +16,8 @@
 #include <iterator> // std::advance
 #include <utility>  // std::pair
 #include <map>
+#include <model/Threads/EqualIteratorRange.h>
+
 
 namespace model
 {
@@ -48,15 +50,27 @@ namespace model
 		void execute(void (EdgeType::*Lfptr)(void))
         {
 #ifdef _OPENMP
+            const size_t nThreads = omp_get_max_threads();
+            EqualIteratorRange<NetworkEdgeMapType> eir(networkEdgeMapRef.begin(),networkEdgeMapRef.end(),nThreads);
+
 #pragma omp parallel for
-            for (unsigned int k=0;k<networkEdgeMapRef.size();++k)
+            for (int thread=0;thread<eir.size();thread++)
             {
-                typename NetworkEdgeMapType::iterator linkIter(networkEdgeMapRef.begin()); //  the data within a parallel region is private to each thread
-                std::advance(linkIter,k);
-                (linkIter->second.*Lfptr)();
+                for (typename NetworkEdgeMapType::iterator linkIter=eir[thread].first;linkIter!=eir[thread].second;linkIter++)
+                {
+                    (linkIter->second.*Lfptr)();
+                }
             }
+
+//            for (unsigned int k=0;k<networkEdgeMapRef.size();++k)
+//            {
+//                typename NetworkEdgeMapType::iterator linkIter(networkEdgeMapRef.begin()); //  the data within a parallel region is private to each thread
+//                std::advance(linkIter,k);
+//                (linkIter->second.*Lfptr)();
+//            }
 #else
-            for (typename NetworkEdgeMapType::iterator linkIter=networkEdgeMapRef.begin();linkIter!=networkEdgeMapRef.end();++linkIter){
+            for (typename NetworkEdgeMapType::iterator linkIter=networkEdgeMapRef.begin();linkIter!=networkEdgeMapRef.end();++linkIter)
+            {
                 (linkIter->second.*Lfptr)();
             }
 #endif
@@ -67,12 +81,23 @@ namespace model
 		void execute(void (EdgeType::*Lfptr)(const T&), const T & input)
         {
 #ifdef _OPENMP
+            const size_t nThreads = omp_get_max_threads();
+            EqualIteratorRange<NetworkEdgeMapType> eir(networkEdgeMapRef.begin(),networkEdgeMapRef.end(),nThreads);
+            
 #pragma omp parallel for
-            for (unsigned int k=0;k<networkEdgeMapRef.size();++k){
-                typename NetworkEdgeMapType::iterator linkIter(networkEdgeMapRef.begin()); //  the data within a parallel region is private to each thread
-                std::advance(linkIter,k);
-                (linkIter->second.*Lfptr)(input);
+            for (int thread=0;thread<eir.size();thread++)
+            {
+                for (typename NetworkEdgeMapType::iterator linkIter=eir[thread].first;linkIter!=eir[thread].second;linkIter++)
+                {
+                    (linkIter->second.*Lfptr)(input);
+                }
             }
+            //#pragma omp parallel for
+//            for (unsigned int k=0;k<networkEdgeMapRef.size();++k){
+//                typename NetworkEdgeMapType::iterator linkIter(networkEdgeMapRef.begin()); //  the data within a parallel region is private to each thread
+//                std::advance(linkIter,k);
+//                (linkIter->second.*Lfptr)(input);
+//            }
 #else
             for (typename NetworkEdgeMapType::iterator linkIter=networkEdgeMapRef.begin();linkIter!=networkEdgeMapRef.end();++linkIter){
                 (linkIter->second.*Lfptr)(input);

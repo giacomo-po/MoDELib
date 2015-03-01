@@ -164,11 +164,8 @@ namespace model
           */
 			if (use_junctions)
             {
-//				double t0=clock();
-//				model::cout<<"		Forming Junctions: "<<std::flush;
                 const double avoidNodeIntersection(0.05);
 				DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx,avoidNodeIntersection);
-//				model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
 			}
 		}
 		
@@ -188,7 +185,7 @@ namespace model
           *  where \f$c_s\f$ is the shear velocity and \f$f=0.1\f$ is a constant.
           */
 			model::cout<<"		Computing dt..."<<std::flush;
-			double t0=clock();
+			const auto t0=std::chrono::system_clock::now();
 			
             //			double vmax(0.0);
             vmax=0.0;
@@ -232,7 +229,7 @@ namespace model
 			model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
 			model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<dt;
 			model::cout<<std::setprecision(3)<<std::scientific<<" eta_dt="<<dt/dt_mean;
-			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+			model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 		}
         
         /**********************************************************************/
@@ -456,10 +453,10 @@ namespace model
             {
 				if(!(runID%use_redistribution))
                 {
-					double t0=clock();
+                    const auto t0= std::chrono::system_clock::now();
 					model::cout<<"		Remeshing network... "<<std::flush;
 					DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
-					model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
 				}
 			}
 		}
@@ -684,7 +681,7 @@ namespace model
           */
             if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency))
             {
-                double t0=clock();
+                const auto t0=std::chrono::system_clock::now();
 #ifdef _MODEL_DD_MPI_
 				if(ModelMPIbase::mpiRank()==0)
                 {
@@ -693,7 +690,7 @@ namespace model
 #else
                 DislocationNetworkIO<DislocationNetworkType>::output(*this,runID);
 #endif
-                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 			}
 		}
 		
@@ -702,7 +699,7 @@ namespace model
 		void updateQuadraturePoints()
         {
             model::cout<<"		Updating quadrature points... "<<std::flush;
-			double t0=clock();
+			const auto t0=std::chrono::system_clock::now();
             
             // Clear DislocationParticles
             this->clearParticles(); // this also destroys all cells
@@ -714,7 +711,7 @@ namespace model
             {
                 linkIter->second.updateQuadraturePoints(*this);
 			}
-			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]."<<defaultColor<<std::endl;
+			model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 		}
 		
 		
@@ -726,7 +723,7 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             //			typedef void (NodeType::*NodeMemberFunctionPointerType)(const double&); // define type of Link member function
             //			NodeMemberFunctionPointerType Nmfp(&NodeType::move); // Lmfp is a member function pointer to Link::assemble
-            //			double t0=clock();
+            //			const auto t0=std::chrono::system_clock::now();
             //			this->parallelExecute(Nmfp,dt_in); // NOT POSSIBLE TO PARALLELIZE SINCE move exectuts tansmit::makeT
             
 			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
