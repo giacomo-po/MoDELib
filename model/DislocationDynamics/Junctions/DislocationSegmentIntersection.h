@@ -133,7 +133,9 @@ namespace model {
         /*                                                    */ chord1 (P1-P0)
         //        /*                                                    */ spline1Degen(isDegen(chord1,T0,T1))
         {   // chord vector
-            assert(std::fabs(n1.dot(chord1))<FLT_EPSILON);
+            const double chord1norm(chord1.norm());
+            assert(chord1norm>FLT_EPSILON);
+            assert(std::fabs(n1.dot(chord1/chord1norm))<FLT_EPSILON);
             assert(std::fabs(n1.dot(H1.col(1)))<FLT_EPSILON);
             assert(std::fabs(n1.dot(H1.col(3)))<FLT_EPSILON);
         }
@@ -150,8 +152,11 @@ namespace model {
             
             
             // chech that H1 is planar
-            
-            const double absN2dotC2(std::fabs(n2.dot(H2.col(2)-H2.col(0))));
+            const VectorDim chord2=H2.col(2)-H2.col(0);
+            const double chord2norm(chord2.norm());
+            assert(chord2norm>FLT_EPSILON);
+
+            const double absN2dotC2(std::fabs(n2.dot(chord2/chord2norm)));
             const double absN2dotT2source(std::fabs(n2.dot(H2.col(1))));
             const double   absN2dotT2sink(std::fabs(n2.dot(H2.col(3))));
             if (absN2dotC2>FLT_EPSILON || absN2dotT2source>FLT_EPSILON || absN2dotT2sink>FLT_EPSILON)
@@ -172,7 +177,7 @@ namespace model {
             const VectorDim T2 = H2.col(1);	  // tangent of the spline source
             const VectorDim P3 = H2.col(2);   // end point of the spline
             const VectorDim T3 = H2.col(3);   // tangent of the spline sink
-            const VectorDim chord2 = P3-P2;	  // end point of the spline
+//            const VectorDim chord2 = P3-P2;	  // end point of the spline
             
             if((0.5*(P0+P1)-0.5*(P2+P3)).norm()<0.75*(chord1.norm()+chord2.norm()))
             {
