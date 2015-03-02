@@ -147,8 +147,8 @@ namespace model
             if (outputBinary)
             {
                 typedef std::pair<std::pair<int,int>,Eigen::Matrix<double,1,9> > BinEdgeType;
-                SequentialBinFile<'E',BinEdgeType>::set_increment(outputFrequency);
                 SequentialBinFile<'E',BinEdgeType>::set_count(runID);
+                SequentialBinFile<'E',BinEdgeType>::set_increment(outputFrequency);
                 SequentialBinFile<'E',BinEdgeType> binEdgeFile;
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
                 {
@@ -163,8 +163,8 @@ namespace model
             }
             else
             {
-                SequentialOutputFile<'E',1>::set_increment(outputFrequency); // edgeFile;
                 SequentialOutputFile<'E',1>::set_count(runID); // edgeFile;
+                SequentialOutputFile<'E',1>::set_increment(outputFrequency); // edgeFile;
                 SequentialOutputFile<'E',1> edgeFile;
                 //edgeFile << *(const NetworkLinkContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
@@ -180,8 +180,8 @@ namespace model
             {
                 typedef Eigen::Matrix<double,1,8> VertexDataType;
                 typedef std::pair<int, VertexDataType> BinVertexType;
-                SequentialBinFile<'V',BinVertexType>::set_increment(outputFrequency);
                 SequentialBinFile<'V',BinVertexType>::set_count(runID);
+                SequentialBinFile<'V',BinVertexType>::set_increment(outputFrequency);
                 SequentialBinFile<'V',BinVertexType> binVertexFile;
                 for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
                 {
@@ -195,8 +195,8 @@ namespace model
             }
             else
             {
-                SequentialOutputFile<'V',1>::set_increment(outputFrequency); // vertexFile;
                 SequentialOutputFile<'V',1>::set_count(runID); // vertexFile;
+                SequentialOutputFile<'V',1>::set_increment(outputFrequency); // vertexFile;
                 SequentialOutputFile<'V',1> vertexFile;
                 //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
                 for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
@@ -209,8 +209,8 @@ namespace model
             if(outputSpatialCells)
             {
                 //! 3- Outputs the nearest neighbor Cell structures to file C_*.txt where * is the current simulation step
-                SequentialOutputFile<'C',1>::set_increment(outputFrequency); // Cell_file;
                 SequentialOutputFile<'C',1>::set_count(runID); // Cell_file;
+                SequentialOutputFile<'C',1>::set_increment(outputFrequency); // Cell_file;
                 SequentialOutputFile<'C',1> Cell_file;
                 //              SpatialCellObserverType SPC;
                 int cID(0);
@@ -225,8 +225,8 @@ namespace model
             if(outputGlidePlanes)
             {
                 //! 4- Outputs the glide planes
-                SequentialOutputFile<'G',1>::set_increment(outputFrequency); // GlidePlanes_file;
                 SequentialOutputFile<'G',1>::set_count(runID); // GlidePlanes_file;
+                SequentialOutputFile<'G',1>::set_increment(outputFrequency); // GlidePlanes_file;
                 SequentialOutputFile<'G',1> glide_file;
                 glide_file << *dynamic_cast<const GlidePlaneObserverType*>(&DN);
                 model::cout<<", G/G_"<<glide_file.sID<<std::flush;
@@ -234,8 +234,8 @@ namespace model
             
             if(outputPKforce)
             {
-                SequentialOutputFile<'P',1>::set_increment(outputFrequency); // Edges_file;
                 SequentialOutputFile<'P',1>::set_count(runID); // Edges_file;
+                SequentialOutputFile<'P',1>::set_increment(outputFrequency); // Edges_file;
                 SequentialOutputFile<'P',1> p_file;
                 int ll=0;
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
@@ -253,8 +253,8 @@ namespace model
             if(outputElasticEnergy)
             {
                 typedef typename DislocationNetworkType::DislocationParticleType::ElasticEnergy ElasticEnergy;
-                SequentialOutputFile<'W',1>::set_increment(outputFrequency);
                 SequentialOutputFile<'W',1>::set_count(runID);
+                SequentialOutputFile<'W',1>::set_increment(outputFrequency);
                 SequentialOutputFile<'W',1> w_file; //energy_file
                 int ll=0;
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
@@ -271,9 +271,8 @@ namespace model
             
             if (DN.shared.use_bvp && outputMeshDisplacement && !(DN.runningID()%DN.shared.use_bvp))
             {
-                
-                model::SequentialOutputFile<'U',1>::set_increment(outputFrequency); // Vertices_file;
                 model::SequentialOutputFile<'U',1>::set_count(runID); // Vertices_file;
+                model::SequentialOutputFile<'U',1>::set_increment(outputFrequency); // Vertices_file;
                 model::SequentialOutputFile<'U',true> d_file;
                 d_file<<DN.shared.bvpSolver.displacement();
                 
@@ -285,9 +284,8 @@ namespace model
                 
                 /**************************************************************************/
                 // Output displacement and stress on external mesh faces
-                
-                model::SequentialOutputFile<'S',1>::set_increment(outputFrequency); // Vertices_file;
                 model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
+                model::SequentialOutputFile<'S',1>::set_increment(outputFrequency); // Vertices_file;
                 model::SequentialOutputFile<'S',true> s_file;
                 s_file<<DN.shared.bvpSolver.stress();
                 

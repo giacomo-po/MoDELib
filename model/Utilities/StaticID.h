@@ -97,7 +97,7 @@ namespace model
         {
 			model_checkInput(newIncrement>=1 && "newIncrement MUST BE >=1.");
 //			nextCount+=(newIncrement-increment);	// now next time count will be used it will be correct
-			count+=(newIncrement-increment);	// now next time count will be used it will be correct
+//			count+=(newIncrement-increment);	// now next time count will be used it will be correct
             increment = newIncrement;
 		}
 		
