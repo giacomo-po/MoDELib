@@ -135,9 +135,9 @@ namespace model {
         {   // chord vector
             const double chord1norm(chord1.norm());
             assert(chord1norm>FLT_EPSILON);
-            assert(std::fabs(n1.dot(chord1/chord1norm))<FLT_EPSILON);
-            assert(std::fabs(n1.dot(H1.col(1)))<FLT_EPSILON);
-            assert(std::fabs(n1.dot(H1.col(3)))<FLT_EPSILON);
+//            assert(std::fabs(n1.dot(chord1/chord1norm))<FLT_EPSILON);
+//            assert(std::fabs(n1.dot(H1.col(1)))<FLT_EPSILON);
+//            assert(std::fabs(n1.dot(H1.col(3)))<FLT_EPSILON);
         }
         
         
@@ -168,9 +168,9 @@ namespace model {
                 std::cout<<"absN2dotT2sink="<<absN2dotT2sink<<"\n";
             }
             
-            assert(      absN2dotC2<FLT_EPSILON);
-            assert(absN2dotT2source<FLT_EPSILON);
-            assert(  absN2dotT2sink<FLT_EPSILON);
+//            assert(      absN2dotC2<FLT_EPSILON);
+//            assert(absN2dotT2source<FLT_EPSILON);
+//            assert(  absN2dotT2sink<FLT_EPSILON);
             
             
             const VectorDim P2 = H2.col(0);	  // end point of the spline

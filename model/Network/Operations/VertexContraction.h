@@ -20,6 +20,33 @@
 
 namespace model
 {
+    
+    /****************************************************************/
+    /****************************************************************/
+    template <typename EdgeType>
+    struct ContractingEdge
+    {
+        
+        const EdgeType& E;
+        ContractingEdge(const EdgeType& Ein) : E(Ein) {}
+        
+    };
+    
+    /****************************************************************/
+    /****************************************************************/
+    template <typename VertexType>
+    struct ContractingVertices
+    {
+        
+        const VertexType& v0;
+        const VertexType& v1;
+        
+        ContractingVertices(const VertexType& v0in,const VertexType& v1in) :
+        /* init */v0(v0in),
+        /* init */v1(v1in)
+        {}
+        
+    };
 	
 	template <typename VertexType, typename EdgeType>
 	class VertexContraction
@@ -48,7 +75,8 @@ namespace model
 		
 		/* contractHelper ***************************************************/
 		template <bool removeIsolatedNodes>
-		void contractHelper(const size_t& i, const size_t& j){
+		void contractHelper(const size_t& i, const size_t& j)
+        {
 			
 			const isConstNetworkVertexType Vi(VertexFinder<VertexType>(networkVertexMapRef).node(i));
 			assert(Vi.first && "CONTRACTING NON EXISTING VERTEX i");
@@ -171,9 +199,9 @@ namespace model
 			// If i->j (or reverse) exists and is the only connection this will remove both i and j
 			// If i->j (and reverse) do not exists, then i will survive
 			contractHelper<1>(i,j);
+            
 			// if j was isolated then newID will now also be isolated. Remove it.
 			const isConstNetworkVertexType Vi(VertexFinder<VertexType>(networkVertexMapRef).node(i));
-			
 			if(Vi.first)
             {
 				if(Vi.second->is_isolated())

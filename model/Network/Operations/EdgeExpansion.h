@@ -19,7 +19,8 @@ namespace model {
 	/****************************************************************/
 	/****************************************************************/
 	template <typename EdgeType>
-	struct ExpandingEdge{
+	struct ExpandingEdge
+    {
 	
 		const EdgeType& E;
 		ExpandingEdge(const EdgeType& Ein) : E(Ein) {}
