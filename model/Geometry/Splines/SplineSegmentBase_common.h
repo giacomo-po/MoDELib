@@ -66,11 +66,13 @@ typedef ParametricCurve<SplineSegmentBaseType,dim> ParametricCurveType;
 int sourceTfactor; // LEAVE THIS UNINITIALIZED: this is calculated in TopologyChangeActions of source node, which happens before constructor of this
 int sinkTfactor;   // LEAVE THIS UNINITIALIZED: this is calculated in TopologyChangeActions of   sink node, which happens before constructor of this
 
-VectorDim sourceT() const {
+VectorDim sourceT() const
+{
 	return this->source->get_T()*sourceTfactor;
 }
 
-VectorDim sinkT() const {
+VectorDim sinkT() const
+{
 	//AFTER INTRODUCING THE ENERGY CRITERION CHANGE THIS IN A -1
 	return -this->sink->get_T()*sinkTfactor;
 	//return this->sink->get_T()*sinkTfactor;

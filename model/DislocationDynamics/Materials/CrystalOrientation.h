@@ -40,6 +40,10 @@ namespace model {
         static PlaneNormalContainerType planeNormalContainer;
         
         static Eigen::Matrix<double,dim,dim> C2G;
+
+        static Eigen::Matrix<double,dim,dim> latticeMatrix;
+        static Eigen::Matrix<double,dim,dim> inverseLatticeMatrix;
+
         
     public:
         
@@ -69,8 +73,9 @@ namespace model {
                 planeNormalContainer.push_back(temp/tempNorm);
             }
             
-//            std::string magentaColor    = "\033[0;35m";   // a magenta color
-//            std::string defaultColor    = "\033[0m";	   // the default color for the console
+            
+            latticeMatrix=C2G*CrystalStructure::template getLatticeMatrix<dim>();
+            inverseLatticeMatrix=latticeMatrix.inverse();
             
             std::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
             for (unsigned int k=0; k<planeNormalContainer.size();++k)
@@ -226,6 +231,16 @@ namespace model {
             return C2G;
         }
         
+        static const Eigen::Matrix<double,dim,dim>& lattMat()
+        {
+            return latticeMatrix;
+        }
+        
+        static const Eigen::Matrix<double,dim,dim>& invLattMat()
+        {
+            return inverseLatticeMatrix;
+        }
+        
         
         /**********************************************************************/
         static size_t planeID(const VectorDim& planeNormal)
@@ -255,6 +270,13 @@ namespace model {
     template <int dim>
     Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::C2G=Eigen::Matrix<double,dim,dim>::Identity();
 
+    template <int dim>
+    Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::latticeMatrix=FCC::getLatticeMatrix<dim>();
+
+    template <int dim>
+    Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::inverseLatticeMatrix=latticeMatrix.inverse();
+
+    
     template <int dim>
     double CrystalOrientation<dim>::tol=FLT_EPSILON;
 

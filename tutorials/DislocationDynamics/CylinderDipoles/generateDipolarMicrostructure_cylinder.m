@@ -17,9 +17,9 @@ lMax=R;             % max size of loop [b]
 targetDensity=1e13; % target dislocaiton density [m^-2]
 
 % Plane normals for FCC (unsigned)
-N =[-0.5774    0.5774   -0.5774    0.5774;
-     0.5774   -0.5774   -0.5774    0.5774;
-    -0.5774   -0.5774    0.5774    0.5774];
+N =[-1    1   -1    1;
+     1   -1   -1    1;
+    -1   -1    1    1]/sqrt(3);
 
 % Burgers vectors for FCC (unsigned)
 B=[0  1  1;

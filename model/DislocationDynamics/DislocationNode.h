@@ -21,7 +21,7 @@
 #include <model/Network/Operations/EdgeExpansion.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationConsts.h>
-#include <model/Geometry/Splines/SplineNodeBase.h>
+#include <model/Geometry/Splines/SplineNode.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/Math/GramSchmidt.h>
 #include <model/DislocationDynamics/DislocationEnergyRules.h>
@@ -33,8 +33,11 @@ namespace model
 	
 	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-	class DislocationNode : public SplineNodeBase<DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>,
-	/*                                         */ _dim,corder,InterpolationType>
+//	class DislocationNode : public SplineNodeBase<DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>,
+//	/*                                         */ _dim,corder,InterpolationType>
+    class DislocationNode : public SplineNode<DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>,
+    /*                                         */ _dim,corder,InterpolationType>
+
     {
 		
 	public:
@@ -48,7 +51,7 @@ namespace model
 #include <model/Network/NetworkTypedefs.h>
 		
 		
-		typedef SplineNodeBase<NodeType,dim,corder,InterpolationType> NodeBaseType;
+		typedef SplineNode<NodeType,dim,corder,InterpolationType> NodeBaseType;
 		
 		using NodeBaseType::NdofXnode;
 		
@@ -120,7 +123,7 @@ namespace model
         
 		/* Constructor ********************************************************/
 		DislocationNode(const VectorDofType& Qin,const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
-        /* base constructor */ NodeBaseType::SplineNodeBase(Qin),
+        /* base constructor */ NodeBaseType(Qin),
         /* init list        */ p_Simplex(get_includingSimplex(guess)),
         /* init list        */ velocity(VectorDofType::Zero()),
 		/* init list        */ vOld(velocity),
@@ -132,7 +135,7 @@ namespace model
 		
 		/* Constructor ********************************************************/
 		DislocationNode(const ExpandingEdge<LinkType>& pL, const double& u) :
-        /* base constructor */ NodeBaseType::SplineNodeBase(pL,u),
+        /* base constructor */ NodeBaseType(pL,u),
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init list        */ vOld(velocity),
@@ -144,7 +147,7 @@ namespace model
 		
 		/* Constructor ********************************************************/
 		DislocationNode(const ExpandingEdge<LinkType>& pL, const VectorDofType& Qin) :
-        /* base constructor */ NodeBaseType::SplineNodeBase(pL,Qin),
+        /* base constructor */ NodeBaseType(pL,Qin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init list        */ vOld(velocity),
@@ -156,7 +159,7 @@ namespace model
 		
 		/* Constructor from Link and position along link **********************/
 		DislocationNode(const ExpandingEdge<LinkType>& pL, const VectorDofType& Qin, const VectorDofType& Vin)
-        /* base constructor */ : NodeBaseType::SplineNodeBase(pL,Qin),
+        /* base constructor */ : NodeBaseType(pL,Qin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity(Vin),
         /* init list        */ vOld(velocity),

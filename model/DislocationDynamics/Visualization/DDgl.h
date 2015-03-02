@@ -536,10 +536,12 @@ namespace model {
 		
 		
 		/* Constructor **************************************************/
-		DDgl(const SimplicialMesh<3>* const p_mesh) :
+        DDgl(const SimplicialMesh<3>* const p_mesh,	int windowH, int windowW) :
 //        /* init list */ p_mesh(p_mesh_in),
         /* init list */ stepIncrement(1),
-        /* init list */ meshPlotter(p_mesh)
+        /* init list */ meshPlotter(p_mesh),
+         windowHeight(windowH),
+         windowWidth(windowW)
         {
 			
  //               mesh.readMesh(0);
@@ -556,8 +558,8 @@ namespace model {
 			frameN=(ddrIter->first);
 			rewind=false;
 			
-			windowHeight = 768;
-			windowWidth  = 1024;
+//			windowHeight = 768;
+//			windowWidth  = 1024;
 			
 			old_y=0;
 			old_x=0;

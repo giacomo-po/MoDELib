@@ -6,12 +6,29 @@
  * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
+
+#ifndef model_SPLINENODE_CATMULLROM_H_
+#define model_SPLINENODE_CATMULLROM_H_
+
+//#include <vector>
+#include <assert.h>
+#include <iterator>
+#include <Eigen/Dense>
+#include <model/Network/NetworkNode.h>
+#include <model/Network/Operations/EdgeExpansion.h>
+//#include <model/Math/CompileTimeMath/Pow.h>
+#include <model/Geometry/Splines/SplineNodeBase.h>
+
+
 namespace model
 {
     
+
     
     template <typename Derived, short unsigned int dim>
-    class SplineNodeBase<Derived, dim,1,CatmullRom> :	public NetworkNode<Derived>
+    class SplineNode<Derived, dim,1,CatmullRom> :
+    /* inherits */  public NetworkNode<Derived>,
+    /* inherits */  public SplineNodeBase<Derived,dim,1>
     {
         
         
@@ -26,43 +43,67 @@ namespace model
         
         typedef Eigen::Matrix<double, NdofXnode, 1> VectorDofType;
         
-#include "model/Geometry/Splines/SplineNodeBase_corder1.h"
-        typedef SplineNodeBase<Derived, dim,corder,CatmullRom> NodeType;
+//#include "model/Geometry/Splines/SplineNodeBase_corder1.h"
+        typedef SplineNode<Derived, dim,corder,CatmullRom> NodeType;
+        
+        
+        typedef NetworkNode<Derived> NetworkNodeType;
+        typedef typename NetworkNodeType::LinkType LinkType;
+        typedef typename NetworkNodeType::NeighborType NeighborType;
+        typedef typename NetworkNodeType::NeighborContainerType NeighborContainerType;
+        
+        
+        typedef typename NeighborContainerType::iterator NeighborIteratorType;
+        typedef typename NeighborContainerType::const_iterator constNeighborIteratorType;
+        
+        typedef SplineNodeBase<Derived,dim,1> SplineNodeBaseType;
+        typedef typename SplineNodeBaseType::VectorDim VectorDim;
+        typedef typename SplineNodeBaseType::MatrixDim MatrixDim;
+
+        
+        /******************************************************************************/
+        void neighborsAt(const VectorDim& P0, std::set<size_t>& temp, const double& tol) const
+        {/*!\param[in] P0 position to be serached
+          * \param[out]temp set of IDs of neighbors of this which are located at P0 (possibly including *this)
+          * \param[in] tol tolerance used to detect position overlap
+          */
+            for (typename Derived::NeighborContainerType::const_iterator nIiter=this->neighborhood().begin();
+                 nIiter!=this->neighborhood().end();++nIiter)
+            { // loop over neighborhood
+                if((std::get<0>(nIiter->second)->get_P()-P0).norm()<tol)
+                { // a neighbor of I exists at P0
+                    temp.insert(std::get<0>(nIiter->second)->sID);
+                }
+            }
+        }
         
         
     public:
         
-        /* Constructor from position **************************************************************/
-        SplineNodeBase(const VectorDim& P_in) :
-        /* init list */ P(P_in),
-        /* init list */ T(VectorDim::Zero()),
-        /* init list */ prjM(MatrixDim::Identity()){
-            set(get_nodeDof()); // trigger calculation of tangents
+        SplineNode(const VectorDim& P_in) :
+        /* init list */ SplineNodeBaseType(P_in,VectorDim::Zero())
+        {
+//            std::cout<<"Verify SplineNode_CatmullRom get_nodeDof() 1"<<std::endl;
+            set(this->get_P()); // trigger calculation of tangents
         }
         
-        /* Constructor from EdgeExpansion and parameter along edge ********************************/
-        //SplineNodeBase(const EdgeExpansion<LinkType>& pL, const double& u) :
-        SplineNodeBase(const ExpandingEdge<LinkType>& pL, const double& u) :
+        SplineNode(const ExpandingEdge<LinkType>& pL, const double& u) :
         /* init list */ NetworkNode<Derived>::NetworkNode(pL),
-        /* init list */ P(pL.E.get_r(u)),
-        /* init list */ prjM(MatrixDim::Identity()){
-            set(get_nodeDof()); // trigger calculation of tangents
+        /* init list */ SplineNodeBaseType(pL.E.get_r(u),VectorDim::Zero())
+        {
+//            std::cout<<"Verify SplineNode_CatmullRom get_nodeDof() 2"<<std::endl;
+            set(this->get_P()); // trigger calculation of tangents
         }
         
-        /* Constructor from EdgeExpansion and position along edge *********************************/
-        //	SplineNodeBase(const EdgeExpansion<LinkType>& pL, const VectorDim& P_in) :
-        SplineNodeBase(const ExpandingEdge<LinkType>& pL, const VectorDim& P_in) :
+        SplineNode(const ExpandingEdge<LinkType>& pL, const VectorDim& P_in) :
         /* init list */ NetworkNode<Derived>::NetworkNode(pL),
-        /* init list */ P(P_in),
-        /* init list */ prjM(MatrixDim::Identity()){
-            set(get_nodeDof()); // trigger calculation of tangents
+        /* init list */ SplineNodeBaseType(P_in,VectorDim::Zero())
+        {
+//            std::cout<<"Verify SplineNode_CatmullRom get_nodeDof() 3"<<std::endl;
+            set(this->get_P()); // trigger calculation of tangents
         }
         
-        
-        
-        
-        //////////////////////////////////////////////////
-        // set
+        /*************************************************/
         void set(const VectorDim& P_in)
         {
             /*! Because of the CatmullRom rule for parametric tangents, changing the position of this
@@ -72,7 +113,8 @@ namespace model
              */
             
             //! 1- Sets P=P_in
-            this->P=P_in;
+            //this->P=P_in;
+            SplineNodeBaseType::set_P(P_in);
             
             //! 2- Transmits 'make_T' on the neighbor nodes of level (corder+1=2), that is this node and its first-neighbors
             typedef void (Derived::*node_member_function_pointer_type)(void);
@@ -81,49 +123,38 @@ namespace model
             this->depthFirstNodeExecute(Nmfp,corder+1); // transmit to 1st neighbors (corder+1=2)
         }
         
-        
-        
-        
-
-        
-        //////////////////////////////////////////////////
-        // make_T
-        void make_T(){
-            
+        /*************************************************/
+        void make_T()
+        {
             //! Calls make_CR2H()
             make_CR2H();
             
             //! computes T=(CR2H*VectorDof).segment(dim,dim)
-            this->T=(CR2H*VectorDof).template segment<dim>(dim);
-            
-            //       print182();
-            
+            SplineNodeBaseType::set_T((CR2H*VectorDof).template segment<dim>(dim));
         }
         
-        
-        //////////////////////////////////////////////////
-        // get_nodeDof
-        VectorDim get_nodeDof() const {
-            return this->P;
+        /*************************************************/
+        VectorDim get_nodeDof() const
+        {
+            return this->get_P();
         }
         
-        //////////////////////////////////////////////////
-        // dofID
+        /*************************************************/
         Eigen::Matrix<int,dim,1> node_dofID() const {
             /*! The IDs of DOFs of this node in the subnetwork
              */
             return ( (Eigen::Array<int,dim,1>() << 0, 1, 2).finished()+this->snID()*dim).matrix();
         }
         
-        //////////////////////////////////////////////////
-        // get_dof
-        Eigen::VectorXd get_dof() const {
+        /*************************************************/
+        Eigen::VectorXd get_dof() const
+        {
             return VectorDof;
         }
         
-        //////////////////////////////////////////////////
-        // dofID
-        Eigen::VectorXi dofID() const {
+        /*************************************************/
+        Eigen::VectorXi dofID() const
+        {
             /*! The IDs of DOFs of this and the neighbor nodes in the subnetwork
              */
             Eigen::VectorXi VectorDofID;
@@ -138,15 +169,14 @@ namespace model
             return VectorDofID;
         }
         
-        //////////////////////////////////////////////////
-        // W2H
-        const Eigen::Matrix<double, dim*(corder+1), Eigen::Dynamic> & W2H() const {
+        /*************************************************/
+        const Eigen::Matrix<double, dim*(corder+1), Eigen::Dynamic> & W2H() const
+        {
             return CR2H;
         }
         
         
-        //////////////////////////////////////////////////
-        // W2H
+        /*************************************************/
         Eigen::Matrix<double, dim*(corder+1), Eigen::Dynamic> W2Ht() const
         {
             Eigen::Matrix<double, dim*(corder+1), Eigen::Dynamic> temp(CR2H);
@@ -296,7 +326,8 @@ namespace model
         
         
         /* make_CRneighbors ************************************/
-        void make_CRneighbors(){
+        void make_CRneighbors()
+        {
             //size_t Nneighbors=this->neighborhood().size();
             Ndof=dim*this->neighborhood().size();
             VectorDof.resize(Ndof);
@@ -307,12 +338,7 @@ namespace model
             }
         }
         
-        
-        
-        
-        
-        //////////////////////////////////////////////////
-        // make_CR2H
+        /*************************************************/
         void make_CR2H(){
             
             //! 1- Call make_CRneighbors()
@@ -352,13 +378,7 @@ namespace model
             
         }
         
-        
-        
-        
-        
-        
-        //////////////////////////////////////////////////
-        // make_CR2H_central
+        /*************************************************/
         void make_CR2H_central()
         {
             
@@ -459,58 +479,10 @@ namespace model
                 }
                 ++k;
             }
-            
-            
-            
-            //        if (this->sID==88)
-            //        {
-            //            std::cout<<"CPLT="<<CPLT<<std::endl;
-            //            std::cout<<"sjOverGjT="<<sjOverGjT<<std::endl;
-            //            std::cout<<"sjT="<<sjT<<std::endl;
-            //            std::cout<<"CPLTinv="<<CPLTinv<<std::endl;
-            //            std::cout<<CR2H<<std::endl;
-            //        }
-            
-            
-            
         }
-        
-        
-        
         
     };
     
 }
 
-
-//	//////////////////////////////////////////////////
-//	// topologyChangeActions
-//	void topologyChangeActions(){
-//		/*! Because of the CatmullRom rule for parametric tangents, changing the connectivity of this
-//		 *  CatmullRom node must also change its parametric tangent. This in turn affects the shape
-//		 *  of all SplineSegments attached to it. The update strategy is as follows:
-//		 */
-//
-//
-//        //		energyRule();
-//		this->p_derived()->findEdgeConfiguration();
-//		make_T();
-//
-//
-//		//		//! 1- Recalculates tangent
-//		//		typedef void (Derived::*node_member_function_pointer_type)(void);
-//		//		node_member_function_pointer_type Nmfp;
-//		//		//	Nmfp=&Derived::update;
-//		//		Nmfp=&Derived::make_T;
-//		//		this->nodeTransmit(Nmfp,corder+2);
-//
-//		// MAKE_CRNEIGHNORS AND MAKE_T SHOULD BE SEPARATED SO THAT HERE ONE TRANSMITS MAKE_CRNEIGHNORS AND MAKE_T,
-//		// WHILE IN SET ONLY MAKE_T IS TRANSMITTED
-//
-//		//		//! 2- Transmits 'update' on the neighbor links of level (corder=1), that is the first neighbor links
-//		//		typedef void (LinkType::*link_member_function_pointer_type)(void);
-//		//		link_member_function_pointer_type Lmfp;
-//		//		Lmfp=&LinkType::update;
-//		//		this->linkTransmit(Lmfp,corder+2);
-//	}
-
+#endif

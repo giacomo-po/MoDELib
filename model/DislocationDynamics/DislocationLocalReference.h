@@ -13,15 +13,18 @@
 #include <float.h>
 #include <Eigen/Core>
 
-namespace model {
+namespace model
+{
 
 	template <short unsigned int dim>
-	struct DislocationLocalReference {
+	struct DislocationLocalReference
+    {
 	
 		typedef Eigen::Matrix<double,dim,1>   VectorDimD;
 		typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
 
-		static MatrixDimD global2local(const VectorDimD& C, const VectorDimD& N){
+		static MatrixDimD global2local(const VectorDimD& C, const VectorDimD& N)
+        {
 			assert(C.norm()>FLT_EPSILON);
 			assert(N.norm()>FLT_EPSILON);
 			assert(std::fabs(C.dot(N))<FLT_EPSILON);
@@ -35,8 +38,7 @@ namespace model {
 		}
 	};
 
-	//////////////////////////////////////////////////////////////s
-} // namespace model
+}
 #endif
 
 

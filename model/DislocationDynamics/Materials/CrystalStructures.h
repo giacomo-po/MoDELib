@@ -23,6 +23,20 @@ namespace model {
     {
         
         template <int dim>
+        static Eigen::Matrix<double,dim,dim> getLatticeMatrix()
+        {/*!\returns The matrix of lattice vectors (in columns), in units of the
+          * crystallographic Burgers vector.
+          */
+            
+            Eigen::Matrix<double,dim,dim> temp;
+            temp << 1.0, 0.0, 1.0,
+            /*   */ 1.0, 1.0, 0.0,
+            /*   */ 0.0, 1.0, 1.0;
+            
+            return temp/sqrt(2.0);
+        }
+        
+        template <int dim>
         static std::vector<Eigen::Matrix<double,dim,1> > getPlaneNormals()
         {
             typedef Eigen::Matrix<double,dim,1> VectorDim;
@@ -100,6 +114,20 @@ namespace model {
     
     struct BCC
     {
+        
+        template <int dim>
+        static Eigen::Matrix<double,dim,dim> getLatticeMatrix()
+        {/*!\returns The matrix of lattice vectors (in columns), in units of the
+          * crystallographic Burgers vector.
+          */
+            
+            Eigen::Matrix<double,dim,dim> temp;
+            temp <<  1.0, -1.0,  1.0,
+            /*   */  1.0,  1.0, -1.0,
+            /*   */ -1.0,  1.0,  1.0;
+            
+            return temp/sqrt(3.0);
+        }
         
         template <int dim>
         static std::vector<Eigen::Matrix<double,dim,1> > getPlaneNormals()

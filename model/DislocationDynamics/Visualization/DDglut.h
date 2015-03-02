@@ -139,7 +139,8 @@ namespace model {
 	}
 	
 	/*************************************************************/
-	int DDglut(int argc, char** argv) {
+	int DDglut(int argc, char** argv)
+    {
         
         int meshID(0);
         EigenDataReader EDR;
@@ -150,10 +151,21 @@ namespace model {
             EDR.readScalarInFile("./DDinput.txt","meshID",meshID);
         }
         
+        int windowHeight = 768;
+        int windowWidth  = 1024;
+        if (argc>1)
+        {
+            windowWidth=atoi(argv[1]);
+            if (argc>2)
+            {
+                windowHeight=atoi(argv[2]);
+            }
+        }
+
 
         
         p_mesh = new model::SimplicialMesh<3>(meshID);
-        p_DDgl = new model::DDgl(p_mesh);
+        p_DDgl = new model::DDgl(p_mesh,windowHeight,windowWidth);
 		//! \brief A Glut wrapper for model::DDviewer
 		
 		//Initialize GLUT

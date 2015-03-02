@@ -14,7 +14,7 @@ namespace model {
     ///////////////////////////////////////////////////////////////////////////////////////////
     // SPECIALIZATION CORDR=0, INTRPOLATION=Hermite
     template <typename Derived, short unsigned int dim>
-    class SplineNodeBase<Derived, dim,0,Hermite> : public NetworkNode<Derived>{
+    class SplineNode<Derived, dim,0,Hermite> : public NetworkNode<Derived>{
         
         
     public:
@@ -32,7 +32,7 @@ namespace model {
         
         //////////////////////////////////////////////////
         // Constructor
-        SplineNodeBase(VectorDofType Q_in) :  P(Q_in.segment<dim>(0)){
+        SplineNode(VectorDofType Q_in) :  P(Q_in.segment<dim>(0)){
         }
         
         //////////////////////////////////////////////////
@@ -77,13 +77,13 @@ namespace model {
     ///////////////////////////////////////////////////////////////////////////////////////////
     // SPECIALIZATION CORDER=1, INTRPOLATION=Hermite
     template <typename Derived, short unsigned int dim>
-    class SplineNodeBase<Derived, dim,1,Hermite> : public NetworkNode<Derived>{
+    class SplineNode<Derived, dim,1,Hermite> : public NetworkNode<Derived>{
         
         /*!	\brief  Implementation of Hermite SplineNode for the case of C1 continuity. Degrees of freedom are
          *	the nodal position vector and nodal tangent vector.
          *  (tangent continuity at each node).
          *
-         *	Spline Nodes of type SplineNodeBase<Derived,dim,1,Hermite> guarantee that spline
+         *	Spline Nodes of type SplineNode<Derived,dim,1,Hermite> guarantee that spline
          *	segments in the spline network meet at each node with continuity of both position
          *	and parametric tangent. Each node is defined by a position and a tangent vector which
          *  are passed together in VectorDofType using the set(VectorDofType Q_in) member function.
@@ -105,7 +105,7 @@ namespace model {
         
         //////////////////////////////////////////////////
         // Constructor
-        SplineNodeBase(VectorDofType Q_in) :  P(Q_in.template segment<dim>(0)),	 T(Q_in.template segment<dim>(dim)){
+        SplineNode(VectorDofType Q_in) :  P(Q_in.template segment<dim>(0)),	 T(Q_in.template segment<dim>(dim)){
             prjM.setIdentity();
         }
         
@@ -174,7 +174,7 @@ namespace model {
     ///////////////////////////////////////////////////////////////////////////////////////////
     // SPECIALIZATION CORDER=2, INTRPOLATION=Hermite
     template <typename Derived, short unsigned int dim>
-    class SplineNodeBase<Derived, dim,2,Hermite> : public NetworkNode<Derived>{
+    class SplineNode<Derived, dim,2,Hermite> : public NetworkNode<Derived>{
         
         
         
@@ -196,7 +196,7 @@ namespace model {
         
         //////////////////////////////////////////////////
         // Constructor 
-        SplineNodeBase(VectorDofType Q_in) : P(Q_in.segment<dim>(0)),
+        SplineNode(VectorDofType Q_in) : P(Q_in.segment<dim>(0)),
         /*														 */	 T(Q_in.segment<dim>(dim)),
         /*														 */	 K(Q_in.segment<dim>(2*dim)){
             prjM.setIdentity();

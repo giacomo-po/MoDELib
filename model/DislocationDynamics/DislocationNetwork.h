@@ -618,15 +618,7 @@ namespace model
 #endif
 			
 			// Initializing configuration
-            //			model::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
 			move(0.0);	// initial configuration
-            //			output();	// initial configuration, this overwrites the input file
-            //			if (runID==0) // not a restart
-            //            {
-            //				remesh();	// expand initial FR sources
-            //			}
-            //			updateQuadraturePoints();
-            //			++runID;     // increment the runID counter
         }
 		
 		/**********************************************************************/
