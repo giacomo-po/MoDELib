@@ -307,10 +307,6 @@ namespace model
             
 			//! 5- Compute time step dt (based on max nodal velocity) and increment totalTime
 			make_dt();
-			totalTime+=dt;
-            
-            const MatrixDimD pdr(plasticDistortionRate());
-            plasticDistortion += pdr*dt;
             
             if(DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy)
             {
@@ -320,6 +316,13 @@ namespace model
             
             //! 6- Output the current configuration before changing it
             output();
+            
+            //! Update accumulated quantities
+            totalTime+=dt;
+            
+            const MatrixDimD pdr(plasticDistortionRate());
+            plasticDistortion += pdr*dt;
+
             
 			//! 7- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
 			move(dt,0.0);
