@@ -123,7 +123,7 @@ namespace model
         /* base constructor */ NodeBaseType::SplineNodeBase(Qin),
         /* init list        */ p_Simplex(get_includingSimplex(guess)),
         /* init list        */ velocity(VectorDofType::Zero()),
-		/* init list        */ vOld(VectorDofType::Zero()),
+		/* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
         /* init list        */ boundaryNormal(get_boundaryNormal())
         {/*! Constructor from DOF
@@ -135,7 +135,7 @@ namespace model
         /* base constructor */ NodeBaseType::SplineNodeBase(pL,u),
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list        */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
         /* init list        */ boundaryNormal(get_boundaryNormal())
         {/*! Constructor from ExpandingEdge and parameter along link
@@ -147,7 +147,7 @@ namespace model
         /* base constructor */ NodeBaseType::SplineNodeBase(pL,Qin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-		/* init list        */ vOld((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
         /* init list        */ boundaryNormal(get_boundaryNormal())
         {/*! Constructor from ExpandingEdge and DOF
@@ -159,7 +159,7 @@ namespace model
         /* base constructor */ : NodeBaseType::SplineNodeBase(pL,Qin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity(Vin),
-		/* init list        */ vOld(velocity), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
         /* init list        */ boundaryNormal(get_boundaryNormal())
         {
@@ -338,11 +338,11 @@ namespace model
             
 		}
         
-        /**********************************************************************/
-        void implicitStep()
-        {
-            velocity= (velocity+vOld)*0.5; // this brings back
-        }
+//        /**********************************************************************/
+//        void implicitStep()
+//        {
+//            velocity= (velocity+vOld)*0.5; // this brings back
+//        }
 		
         /**********************************************************************/
 		const VectorDofType& get_V() const
@@ -359,10 +359,11 @@ namespace model
 		}
         
         /**********************************************************************/
-		void move(const double & dt, const double & dt_old)
+//		void move(const double & dt, const double & dt_old)
+        void move(const double & dt)
         {
 			
-			VectorDim dX=velocity.template segment<dim>(0)*dt - vOld.template segment<dim>(0)*dt_old;
+			VectorDim dX=velocity.template segment<dim>(0)*dt;
             
             //			if (dX.squaredNorm()>0.0 && (meshLocation()!=onMeshBoundary || shared.use_bvp==0)) // move a node only if |v|!=0 and if not on mesh boundary
             if (dX.squaredNorm()>0.0) // move a node only if |v|!=0

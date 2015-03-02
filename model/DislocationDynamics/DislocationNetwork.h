@@ -146,7 +146,7 @@ namespace model
         bool check_balance;
 		short unsigned int use_redistribution;
 		bool use_junctions;
-        bool useImplicitTimeIntegration;
+//        bool useImplicitTimeIntegration;
         double equilibriumVelocity;
         
 		unsigned int runID;
@@ -325,24 +325,24 @@ namespace model
 
             
 			//! 7- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
-			move(dt,0.0);
+			move(dt);
             
-            if(useImplicitTimeIntegration) // THIS COULD BE DECIDED ON THE FLY BASED ON DISTRIBUTION OF VELOCITIES
-            {
-                updateQuadraturePoints();
-                assembleAndSolve(); // this also stores the new velocity in each node
-                
-                for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
-                {
-					nodeIter->second.implicitStep(); // average velocities
-				}
-                
-                const double dt_old(dt); // store current dt
-                make_dt();      // compute dt again with average velocity
-                totalTime += dt-dt_old; // correct accumulated totalTime
-                plasticDistortion += pdr*(dt-dt_old); // // correct accumulated plasticDistortion
-                move(dt,dt_old); // move again (internally this subtracts DislocationNode::vOld*dt_old)
-            }
+//            if(useImplicitTimeIntegration) // THIS COULD BE DECIDED ON THE FLY BASED ON DISTRIBUTION OF VELOCITIES
+//            {
+//                updateQuadraturePoints();
+//                assembleAndSolve(); // this also stores the new velocity in each node
+//                
+//                for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
+//                {
+//					nodeIter->second.implicitStep(); // average velocities
+//				}
+//                
+//                const double dt_old(dt); // store current dt
+//                make_dt();      // compute dt again with average velocity
+//                totalTime += dt-dt_old; // correct accumulated totalTime
+//                plasticDistortion += pdr*(dt-dt_old); // // correct accumulated plasticDistortion
+//                move(dt,dt_old); // move again (internally this subtracts DislocationNode::vOld*dt_old)
+//            }
             
             //! 8- Cross Slip (needs upated PK force)
 			crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
@@ -419,7 +419,7 @@ namespace model
         /* init list  */ check_balance(true),
         /* init list  */ use_redistribution(0),
 		/* init list  */ use_junctions(false),
-		/* init list  */ useImplicitTimeIntegration(false),
+//		/* init list  */ useImplicitTimeIntegration(false),
         /* init list  */ equilibriumVelocity(0.01),
 		/* init list  */ runID(0),
 		/* init list  */ use_crossSlip(false),
@@ -544,7 +544,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_velocityFilter",NodeType::use_velocityFilter);
             EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
             assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
-            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
+//            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
             
 			
 			EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
@@ -619,7 +619,7 @@ namespace model
 			
 			// Initializing configuration
             //			model::cout<<redBoldColor<<"runID "<<runID<<" (initial configuration). nodeOrder="<<this->nodeOrder()<<", linkOrder="<<this->linkOrder()<<defaultColor<<std::endl;
-			move(0.0,0.0);	// initial configuration
+			move(0.0);	// initial configuration
             //			output();	// initial configuration, this overwrites the input file
             //			if (runID==0) // not a restart
             //            {
@@ -719,7 +719,8 @@ namespace model
 		
 		
 		/**********************************************************************/
-		void move(const double & dt_in, const double & dt_old)
+//		void move(const double & dt_in, const double & dt_old)
+        void move(const double & dt_in)
         {/*! Moves all nodes in the DislocationNetwork using the stored velocity and current dt
           */
 			model::cout<<"		Moving DislocationNodes (dt="<<dt_in<< ")... "<<std::flush;
@@ -731,8 +732,9 @@ namespace model
             
 			for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
             {
-				nodeIter->second.move(dt_in,dt_old);
-			}
+//				nodeIter->second.move(dt_in,dt_old);
+                nodeIter->second.move(dt_in);
+            }
 			model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
 		}
 		
