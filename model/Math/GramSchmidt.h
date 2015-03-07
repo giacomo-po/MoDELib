@@ -29,8 +29,10 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef std::vector<VectorDim,Eigen::aligned_allocator<VectorDim> > VectorOfNormalsType;
         
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        
         /********************************************************************/
-        GramSchmidt(const VectorOfNormalsType& NV, const double& tol=Eigen::NumTraits<double>::dummy_precision())
+        GramSchmidt(const VectorOfNormalsType& NV, const size_t ID, const double& tol=Eigen::NumTraits<double>::dummy_precision())
         {/*
           * Ref:
           * Giraud, L., Langou, J., & Rozloznik, M. (2005). The loss of 
@@ -71,6 +73,8 @@ namespace model
                     std::cout<<std::setprecision(15)<<std::scientific<<v.transpose()<<std::endl;
                 }
                 std::cout<<"tol="<<tol<<std::endl;
+                std::cout<<"Node="<<ID<<std::endl;
+
                 assert(0 && "GramSchmidt failed.");
             }
         }

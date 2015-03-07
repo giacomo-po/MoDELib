@@ -56,12 +56,44 @@
 namespace model
 {
     
+    
+    template <short unsigned int dim>
+    struct PlanarDislocationSegment
+    {/*! Class template used ad a base of DislocationSegment used to
+      * initialize glidePlaneNormal and sessilePlaneNormal before the base
+      * NetworkLink.
+      */
+
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
+        
+        //! The glide plane unit normal vector
+        const VectorDim   glidePlaneNormal;
+        
+        const VectorDim sessilePlaneNormal;
+
+        
+        PlanarDislocationSegment(const VectorDim& chord,const VectorDim& Burgers) :
+        /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(chord,Burgers).normalized()),
+        /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(chord,Burgers))
+        {
+        
+        }
+        
+        template<typename LinkType>
+        PlanarDislocationSegment(const ExpandingEdge<LinkType>& ee) :
+        /* init list       */ glidePlaneNormal(ee.E.glidePlaneNormal),
+        /* init list       */ sessilePlaneNormal(ee.E.sessilePlaneNormal)
+        {
+            
+        }
+    };
+    
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    class DislocationSegment :
-    /*	                      */ public SplineSegmentBase<DislocationSegment<_dim,corder,InterpolationType,qOrder,QuadratureRule>,
-    /*                                               */ _dim, corder>,
-    /*	                      */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,qOrder,QuadratureRule> >
+    class DislocationSegment : public PlanarDislocationSegment<_dim>,
+    /*	                    */ public SplineSegmentBase<DislocationSegment<_dim,corder,InterpolationType,qOrder,QuadratureRule>,
+    /*                                              */ _dim, corder>,
+    /*	                    */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,qOrder,QuadratureRule> >
     {
         
         
@@ -74,7 +106,7 @@ namespace model
 #include <model/Network/NetworkTypedefs.h>
 #include <model/Geometry/Splines/SplineEnums.h>
         
-        
+        typedef PlanarDislocationSegment<dim> PlanarSegmentType;
         typedef SplineSegmentBase<Derived,dim,corder> SegmentBaseType;
         typedef std::map<size_t,LinkType* const> AddressMapType;
         typedef typename AddressMapType::iterator AddressMapIteratorType;
@@ -139,9 +171,9 @@ namespace model
         const VectorDim Burgers;
         
         //! The glide plane unit normal vector
-        const VectorDim   glidePlaneNormal;
-        
-        const VectorDim sessilePlaneNormal;
+//        const VectorDim   glidePlaneNormal;
+//        
+//        const VectorDim sessilePlaneNormal;
         
         VectorDim boundaryLoopNormal;
 
@@ -226,23 +258,24 @@ namespace model
         
         /* Constructor with Nodes and FLow ************************************/
         DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const VectorDim & Fin) :
-        /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,Fin) ,
+        /* base class initialization */ PlanarSegmentType(nodePair.second->get_P()-nodePair.first->get_P(),Fin),
+        /* base class initialization */ SegmentBaseType(nodePair,Fin),
         /* init list       */ Burgers(this->flow * Material<Isotropic>::b),
-        /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
-        /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
-        /* init list       */ boundaryLoopNormal(glidePlaneNormal),
-        /* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), // change this
-        /* init list       */ dm(glidePlaneNormal,Burgers)
+//        /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
+//        /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
+        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
+        /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
+        /* init list       */ dm(this->glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
           */
             
-            this->source->make_planeNormals();
+//            this->source->make_planeNormals(); // unnecessary
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->source); // This should not be called in edge expansion or contraction
             this->source->make_T();
             
-            this->sink->make_planeNormals();
+//            this->sink->make_planeNormals();
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->sink); // This should not be called in edge expansion or contraction
             this->sink->make_T();
             
@@ -253,23 +286,25 @@ namespace model
         
         /* Constructor from EdgeExpansion) ************************************/
         DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const ExpandingEdge<LinkType>& ee) :
+        /* base class initialization */ PlanarSegmentType(ee),
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
         /* init list       */ Burgers(this->flow * Material<Isotropic>::b),
-        /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
-        /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
-        /* init list       */ boundaryLoopNormal(glidePlaneNormal),
-        /* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), 			// change this
-        /* init list       */ dm(glidePlaneNormal,Burgers)
+//        /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
+//        /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
+        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
+//        /* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), 			// change this
+        /* init list       */ pGlidePlane(ee.E.pGlidePlane),
+        /* init list       */ dm(this->glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and ExpandingEdge
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] ee the expanding edge
           */
             
-            this->source->make_planeNormals();
+//            this->source->make_planeNormals();
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->source); // This should not be called in edge expansion or contraction
             this->source->make_T();
             
-            this->sink->make_planeNormals();
+//            this->sink->make_planeNormals();
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->sink); // This should not be called in edge expansion or contraction
             this->sink->make_T();
             
@@ -324,7 +359,7 @@ namespace model
                 const VectorDim C((this->source->get_P()+this->sink->get_P())*0.5);
                 const VectorDim vec(this->source->get_P()-C);
                 const VectorDim n((this->source->get_boundaryNormal()+this->sink->get_boundaryNormal()).normalized());
-                boundaryLoopNormal=glidePlaneNormal;
+                boundaryLoopNormal=this->glidePlaneNormal;
                 const MatrixDim R(Eigen::AngleAxisd(0.5*M_PI,boundaryLoopNormal));
                 const double dldu=vec.norm()*M_PI;
                 //double sign_theta=1.0;
@@ -348,7 +383,7 @@ namespace model
             }
             else
             { // segment inside mesh
-                boundaryLoopNormal=glidePlaneNormal;
+                boundaryLoopNormal=this->glidePlaneNormal;
 
                 for (unsigned int k=0;k<qOrder;++k)
                 {
@@ -619,7 +654,7 @@ namespace model
         /**********************************************************************/
         Eigen::Matrix<double,dim-1,Ncoeff> hermiteLocalCoefficient() const
         {
-            const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),glidePlaneNormal));
+            const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),this->glidePlaneNormal));
             Eigen::Matrix<double,dim-1,Ncoeff> HrCf = Eigen::Matrix<double,dim-1,Ncoeff>::Zero();
             HrCf.col(1)= (G2L*this->sourceT()*this->chordParametricLength()).template segment<dim-1>(0);
             HrCf.col(2)= (G2L*(this->sink->get_P()-this->source->get_P())).template segment<dim-1>(0);
@@ -645,7 +680,7 @@ namespace model
                 const Eigen::Matrix<double,dim-1,Ncoeff> C1L(polynomialLocalCoeff()); // the local polynomial coefficients of this
                 PlanarSplineImplicitization<pOrder> psi(Coeff2Hermite<pOrder>::template h2c<dim-1>(C1L));
                 
-                const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),glidePlaneNormal));
+                const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),this->glidePlaneNormal));
                 
                 for (int k=0; k<pGlidePlane->segmentMeshCollisionPairContainer.size();++k)
                 {
@@ -672,7 +707,7 @@ namespace model
         /*********************************************************************/
         vector_VectorDim conjugatePlaneNormal() const
         {
-            return CrystalOrientation<dim>::conjugatePlaneNormal(Burgers,glidePlaneNormal);
+            return CrystalOrientation<dim>::conjugatePlaneNormal(Burgers,this->glidePlaneNormal);
         }
         
         /*********************************************************************/

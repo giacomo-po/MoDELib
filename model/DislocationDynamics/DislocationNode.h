@@ -279,10 +279,19 @@ namespace model
 //			return GS;
 //		}
 
+//        void //showTemp(const VectorOfNormalsType& temp) const
+//        {
+//            for(int k=0;k<temp.size();++k)
+//            {
+//                std::cout<<temp[k].transpose()<<std::endl;
+//            }
+//        }
+        
         /**********************************************************************/
         VectorOfNormalsType constraintNormals() const
         {
             VectorOfNormalsType temp(planenormals);
+            //showTemp(temp);
             if (meshLocation()==insideMesh)
             { // DislocationNode is inside mesh
                 if (!this->is_balanced())
@@ -290,18 +299,22 @@ namespace model
                     temp.push_back((VectorDim()<<1.0,0.0,0.0).finished());
                     temp.push_back((VectorDim()<<0.0,1.0,0.0).finished());
                     temp.push_back((VectorDim()<<0.0,0.0,1.0).finished());
+                    std::cout<<"case a"<<std::endl;
+                    //showTemp(temp);
                 }
             }
             else if (meshLocation()==onMeshBoundary)
             { // DislocationNode is on mesh boundary, constrain by boundaryNormal
                 temp.push_back(boundaryNormal);
+                //showTemp(temp);
             }
             else
             {
                 std::cout<<"DislocationNode "<<this->sID<< " at "<<this->get_P().transpose()<<" is outside mesh."<<std::endl;
                 assert(0 && "DISLOCATION NODE FOUND OUTSIDE MESH."); //RE-ENABLE THIS
             }
-            GramSchmidt<dim> GS(temp);
+            //showTemp(temp);
+            GramSchmidt<dim> GS(temp,this->sID);
             assert(GS.size()>=1 && "GLIDING NODE MUST HAVE AT LEAST ONE CONSTRAINT.");
             return GS;
         }
@@ -317,6 +330,7 @@ namespace model
         {
 			Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
 			VectorOfNormalsType  CN = planenormals;
+            //showTemp(CN);
             
             if(meshLocation()==onMeshBoundary)
             {
@@ -330,8 +344,10 @@ namespace model
                 }
             }
             
+            //showTemp(CN);
+            
 			//CN.push_back(boundaryNormal);
-			GramSchmidt<dim> GS(CN);
+			GramSchmidt<dim> GS(CN,this->sID);
 			this->prjM.setIdentity();
 			for (size_t k=0;k<GS.size();++k)
             {

@@ -17,7 +17,7 @@
 
 #include <Eigen/Dense>
 #include <model/Network/Operations/EdgeFinder.h>
-#include <model/Math/GramSchmidt.h>
+//#include <model/Math/GramSchmidt.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/MPI/MPIcout.h>
 #include <model/Mesh/Simplex.h>
@@ -431,8 +431,8 @@ namespace model
                 const size_t j(Lij.second->  sink->sID);
                 
                 
-                const typename DislocationNetworkType::NodeType::VectorOfNormalsType sourcePN(GramSchmidt<dim>(Lij.second->source->constraintNormals()));
-                const typename DislocationNetworkType::NodeType::VectorOfNormalsType   sinkPN(GramSchmidt<dim>(Lij.second->  sink->constraintNormals()));
+                const typename DislocationNetworkType::NodeType::VectorOfNormalsType sourcePN(Lij.second->source->constraintNormals());
+                const typename DislocationNetworkType::NodeType::VectorOfNormalsType   sinkPN(Lij.second->  sink->constraintNormals());
                 
                 const size_t sourcePNsize(sourcePN.size());
                 const size_t   sinkPNsize(  sinkPN.size());

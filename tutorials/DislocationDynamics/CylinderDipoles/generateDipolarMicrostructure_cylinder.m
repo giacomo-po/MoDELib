@@ -6,7 +6,7 @@ clear all
 Burgers=0.2489e-9; % Burgers vectro for Cu [m]
 D=1e-6/Burgers; % Diameter of 1[um], in units of Burgers
 R=D/2;   % cylinder radius [in units of b]
-H=6*R;      % cylinder height [in units of b]
+H=4*R;      % cylinder height [in units of b]
 V=pi*R^2*H; % volume of cylinder
 x0=0;       % offset of cylinder axis 
 y0=0;       % offset of cylinder axis
@@ -69,10 +69,11 @@ P(:,2)=P(:,1)+a1*d1;    % second point of the loop
 P(:,3)=P(:,2)+a2*d2;    % third point of the loop
 P(:,4)=P(:,3)-a1*d1;    % fourth point of the loop
 
-if (   norm(P([1 2],1)-[x0 y0]')<R && P(3,1)>0 && P(3,1)<H ...
-    && norm(P([1 2],2)-[x0 y0]')<R && P(3,2)>0 && P(3,2)<H ...
-    && norm(P([1 2],3)-[x0 y0]')<R && P(3,3)>0 && P(3,3)<H ...
-    && norm(P([1 2],4)-[x0 y0]')<R && P(3,4)>0 && P(3,4)<H) % all points are inside
+f=0.95;
+if (   norm(P([1 2],1)-[x0 y0]')<f*R && P(3,1)>0 && P(3,1)<H ...
+    && norm(P([1 2],2)-[x0 y0]')<f*R && P(3,2)>0 && P(3,2)<H ...
+    && norm(P([1 2],3)-[x0 y0]')<f*R && P(3,3)>0 && P(3,3)<H ...
+    && norm(P([1 2],4)-[x0 y0]')<f*R && P(3,4)>0 && P(3,4)<H) % all points are inside
 
 % plot loop
 figure(1)
