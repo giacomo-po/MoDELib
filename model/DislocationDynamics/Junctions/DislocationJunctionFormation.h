@@ -165,8 +165,8 @@ namespace model
 //                const VectorDimD unitP12=P12/P12norm;
                 
                 
-                const typename DislocationNetworkType::NodeType::VectorOfNormalsType PN1(GramSchmidt<dim>(N1.second->constraintNormals()));
-                const typename DislocationNetworkType::NodeType::VectorOfNormalsType PN2(GramSchmidt<dim>(N2.second->constraintNormals()));
+                const typename DislocationNetworkType::NodeType::VectorOfNormalsType PN1(N1.second->constraintNormals());
+                const typename DislocationNetworkType::NodeType::VectorOfNormalsType PN2(N2.second->constraintNormals());
                 const size_t sizePN1(PN1.size());
                 const size_t sizePN2(PN2.size());
                 
