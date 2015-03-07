@@ -93,6 +93,9 @@ meshID=0;
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
 use_bvp = 0;
+use_virtualSegments=1;
+solverTolerance=0.0001;
+
 
 ######################################
 # Enable/disable cross-slip

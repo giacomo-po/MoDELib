@@ -61,12 +61,13 @@ namespace model
         std::deque<std::pair<Eigen::Matrix<double,3,1>,Eigen::Matrix<double,6,1>>> deq;
         
         std::deque<Eigen::Matrix<float,3,3> > regionsBndDeq;
-        
+        std::deque<std::pair<int,int>> regionsBndIDDeq;
         
         
         Eigen::Matrix<float,1,6> sMin;
         Eigen::Matrix<float,1,6> sMax;
         
+        int rMax;
         
     public:
         
@@ -91,6 +92,7 @@ namespace model
         /* init list */ p_mesh(p_mesh_in),
         //        /* init list */ edgeFileIsGood(false),
         //		/* init list */ nodeFileIsGood(false),
+        rMax(0),
         /* init list */ showMesh(0),
         //        /* init list */ showQuad(false),
         /* init list */ dispScale(1.0f)
@@ -127,7 +129,21 @@ namespace model
                 if(sIter->second->isRegionBoundarySimplex())
                 {
                     regionsBndDeq.emplace_back(sIter->second->vertexPositionMatrix().template cast<float>());
+                    (*(sIter->second->parents().begin()))->region->regionID;
                     
+                    int rID1=(*(sIter->second->parents(). begin()))->region->regionID;
+                    int rID2=(*(sIter->second->parents().rbegin()))->region->regionID;
+                    
+                    if(rID1>rMax)
+                    {
+                        rMax=rID1;
+                    }
+                    if(rID2>rMax)
+                    {
+                        rMax=rID2;
+                    }
+                    
+                    regionsBndIDDeq.emplace_back(rID1,rID2);
                 }
             }
             
@@ -306,24 +322,35 @@ namespace model
             
             if(showRegionBoundaries)
             {
-                for(auto& mat : regionsBndDeq)
+                glEnable(GL_COLOR_MATERIAL); // use glColor4f to set color
+
+                
+                for(int k=0; k<regionsBndDeq.size();++k)
                 {
-                    GLfloat materialColor1[]={0.0, 0.8, 0.0, 0.1};
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor1);      // ambient color for the material
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor1);      // diffuse color for the material
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor1);  // specular color for the material
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor1);  // emission color for the material
+                    
+                    auto& mat=regionsBndDeq[k];
+                    
+                    RGBcolor clr0=RGBmap::getColor(float(regionsBndIDDeq[k].first+regionsBndIDDeq[k].second)*0.5,0,rMax);
+
+                    glColor4f(clr0.r, clr0.g, clr0.b,0.1);
+
+                    
+//                    GLfloat materialColor1[]={0.0, 0.8, 0.0, 0.1};
+//                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor1);      // ambient color for the material
+//                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor1);      // diffuse color for the material
+//                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor1);  // specular color for the material
+//                    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor1);  // emission color for the material
                     glBegin(GL_TRIANGLES);
                     glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
                     glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
                     glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
                     glEnd();
                     
-                    GLfloat materialColor2[]={0.0, 0.2, 0.0, 0.1};
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor2);      // ambient color for the material
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor2);      // diffuse color for the material
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor2);  // specular color for the material
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor2);  // emission color for the material
+//                    GLfloat materialColor2[]={0.0, 0.2, 0.0, 0.1};
+//                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor2);      // ambient color for the material
+//                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor2);      // diffuse color for the material
+//                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor2);  // specular color for the material
+//                    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor2);  // emission color for the material
                     glBegin(GL_LINE_LOOP);
                     glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
                     glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));

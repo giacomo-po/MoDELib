@@ -38,7 +38,8 @@ namespace model
 // boost::noncopyable,
     /*              */ private	std::map<size_t,NodeType* const>,
     /*              */ private	std::map<std::pair<size_t,size_t>,LinkType* const>,
-    /*              */ public	AddressBook<NetworkComponent<NodeType,LinkType> >{
+    /*              */ public	AddressBook<NetworkComponent<NodeType,LinkType> >
+    {
         
         
         
@@ -76,47 +77,55 @@ namespace model
         // NODE OPERATIONS
         /************************************************************/
         // nodeOrder
-        size_t nodeOrder() const {
+        size_t nodeOrder() const
+        {
             return NetworkComponentNodeContainerType::size();
         }
         
         /************************************************************/
         // nodeBegin
-        typename NetworkComponentNodeContainerType::iterator nodeBegin() {
+        typename NetworkComponentNodeContainerType::iterator nodeBegin()
+        {
             return NetworkComponentNodeContainerType::begin();
         }
         
         /************************************************************/
         // nodeBegin
-        typename NetworkComponentNodeContainerType::const_iterator nodeBegin() const {
+        typename NetworkComponentNodeContainerType::const_iterator nodeBegin() const
+        {
             return NetworkComponentNodeContainerType::begin();
         }
         
         /************************************************************/
         // nodeEnd
-        typename NetworkComponentNodeContainerType::iterator nodeEnd() {
+        typename NetworkComponentNodeContainerType::iterator nodeEnd()
+        {
             return NetworkComponentNodeContainerType::end();
         }
         
         /************************************************************/
         // nodeEnd
-        typename NetworkComponentNodeContainerType::const_iterator nodeEnd() const {
+        typename NetworkComponentNodeContainerType::const_iterator nodeEnd() const
+        {
             return NetworkComponentNodeContainerType::end();
         }
         
         /************************************************************/
         // snID
-        size_t snID(const NodeType* const & pN) const {
+        size_t snID(const NodeType* const & pN) const
+        {
             return std::distance(NetworkComponentNodeContainerType::begin(), NetworkComponentNodeContainerType::find(pN->sID) );
         }
         
         /************************************************************/
-        void add(NodeType* const pN){
+        void add(NodeType* const pN)
+        {
             assert(NetworkComponentNodeContainerType::insert(std::make_pair(pN->sID,pN)).second);
         }
         
         /************************************************************/
-        void remove(NodeType* const pN){
+        void remove(NodeType* const pN)
+        {
             assert(NetworkComponentNodeContainerType::erase(pN->sID)==1);
         }
         
@@ -124,13 +133,15 @@ namespace model
         // LINK OPERATIONS
         /************************************************************/
         // linkOrder
-        size_t linkOrder() const {
+        size_t linkOrder() const
+        {
             return NetworkComponentLinkContainerType::size();
         }
         
         /************************************************************/
         // linkBegin
-        typename NetworkComponentLinkContainerType::iterator linkBegin()  {
+        typename NetworkComponentLinkContainerType::iterator linkBegin()
+        {
             return NetworkComponentLinkContainerType::begin();
         }
         
@@ -172,6 +183,17 @@ namespace model
         {/*! @param[in] pL
           */
             assert(NetworkComponentLinkContainerType::erase(pL->nodeIDPair )==1);
+        }
+        
+        /************************************************************/
+        const std::map<std::pair<size_t,size_t>,LinkType* const>& links() const
+        {
+            return *this;
+        }
+        
+        const std::map<size_t,NodeType* const>& nodes() const
+        {
+            return *this;
         }
         
     };

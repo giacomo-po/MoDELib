@@ -76,7 +76,8 @@ namespace model
 		/* contractHelper ***************************************************/
 		template <bool removeIsolatedNodes>
 		void contractHelper(const size_t& i, const size_t& j)
-        {
+        {/* In contractHelper, j is destroyed
+          */
 			
 			const isConstNetworkVertexType Vi(VertexFinder<VertexType>(networkVertexMapRef).node(i));
 			assert(Vi.first && "CONTRACTING NON EXISTING VERTEX i");
@@ -84,34 +85,42 @@ namespace model
 			assert(Vj.first && "CONTRACTING NON EXISTING VERTEX j");
             assert(i!=j && "IN CONTRACTING (i,j), i AND j MUST BE DISTINCT");
 			
+            // Loop over out-neighbors of j and connect to i
 			for (typename NeighborContainerType::const_iterator nIter=Vj.second->outNeighborhood().begin(); nIter!=Vj.second->outNeighborhood().end();++nIter){
 				const size_t k(std::get<0>(nIter->second)->sID);
-				if(k!=i){
+				if(k!=i)
+                {
 					const FlowType fjk(std::get<1>(nIter->second)->flow);
 					const isConstNetworkEdgeType eik(EdgeFinder<EdgeType>(networkEdgeMapRef).link(i,k));
-					if (eik.first){
+					if (eik.first)
+                    {
 						const FlowType fik(eik.second->flow);
 						VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).template disconnect<0>(i,k);
-						if((fik+fjk).norm()>FLT_EPSILON){
+						if((fik+fjk).norm()>FLT_EPSILON)
+                        {
 							VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(i,k,fik+fjk);
 						}
 					}
 					else{
 						const isConstNetworkEdgeType eki(EdgeFinder<EdgeType>(networkEdgeMapRef).link(k,i));
-						if(eki.first){
+						if(eki.first)
+                        {
 							const FlowType fki(eki.second->flow);
 							VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).template disconnect<0>(k,i);
-							if((fki-fjk).norm()>FLT_EPSILON){
+							if((fki-fjk).norm()>FLT_EPSILON)
+                            {
 								VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(k,i,fki-fjk);
 							}
 						}
-						else {
+						else
+                        {
 							VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(i,k,fjk);
 						}					
 					}
 				}
 			}
 			
+            // Loop over in-neighbors of j and connect to i
 			for (typename NeighborContainerType::const_iterator nIter=Vj.second->inNeighborhood().begin(); nIter!=Vj.second->inNeighborhood().end();++nIter){
 				const size_t k(std::get<0>(nIter->second)->sID);
 				if (k!=i){

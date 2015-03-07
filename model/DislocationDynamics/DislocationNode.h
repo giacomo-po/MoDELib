@@ -247,38 +247,65 @@ namespace model
             return planenormals;
         }
 		
+//        /**********************************************************************/
+//		VectorOfNormalsType constraintNormals() const
+//        {
+//			GramSchmidt<dim> GS;
+//			if (meshLocation()==insideMesh)
+//            { // DislocationNode is inside mesh
+//				if (this->is_balanced())
+//                { // DislocationNode is balanced
+//					GS.orthoNormalize(planenormals); //  constrain by planenormals
+//				}
+//				else
+//                { // DislocationNode is unbalanced and is inside mesh: fix
+//					GS.push_back((VectorDim()<<1.0,0.0,0.0).finished());
+//					GS.push_back((VectorDim()<<0.0,1.0,0.0).finished());
+//					GS.push_back((VectorDim()<<0.0,0.0,1.0).finished());
+//				}
+//			}
+//			else if (meshLocation()==onMeshBoundary)
+//            { // DislocationNode is on mesh boundary:
+//				VectorOfNormalsType PN(planenormals); // constrain by planenormals
+//				PN.push_back(boundaryNormal); // constrain by boundaryNormal
+//				GS.orthoNormalize(PN);
+//			}
+//			else
+//            {
+//                std::cout<<"DislocationNode "<<this->sID<< " at "<<this->get_P().transpose()<<" is outside mesh."<<std::endl;
+//                assert(0 && "DISLOCATION NODE FOUND OUTSIDE MESH."); //RE-ENABLE THIS
+//			}
+//			assert(GS.size()>=1 && "GLIDING NODE MUST HAVE AT LEAST ONE CONSTRAINT.");
+//			return GS;
+//		}
+
         /**********************************************************************/
-		VectorOfNormalsType constraintNormals() const
+        VectorOfNormalsType constraintNormals() const
         {
-			GramSchmidt<dim> GS;
-			if (meshLocation()==insideMesh)
+            VectorOfNormalsType temp(planenormals);
+            if (meshLocation()==insideMesh)
             { // DislocationNode is inside mesh
-				if (this->is_balanced())
-                { // DislocationNode is balanced
-					GS.orthoNormalize(planenormals); //  constrain by planenormals
-				}
-				else
-                { // DislocationNode is unbalanced and is inside mesh: fix
-					GS.push_back((VectorDim()<<1.0,0.0,0.0).finished());
-					GS.push_back((VectorDim()<<0.0,1.0,0.0).finished());
-					GS.push_back((VectorDim()<<0.0,0.0,1.0).finished());
-				}
-			}
-			else if (meshLocation()==onMeshBoundary)
-            { // DislocationNode is on mesh boundary:
-				VectorOfNormalsType PN(planenormals); // constrain by planenormals
-				PN.push_back(boundaryNormal); // constrain by boundaryNormal
-				GS.orthoNormalize(PN);
-			}
-			else
+                if (!this->is_balanced())
+                { // DislocationNode is not balanced, fix it
+                    temp.push_back((VectorDim()<<1.0,0.0,0.0).finished());
+                    temp.push_back((VectorDim()<<0.0,1.0,0.0).finished());
+                    temp.push_back((VectorDim()<<0.0,0.0,1.0).finished());
+                }
+            }
+            else if (meshLocation()==onMeshBoundary)
+            { // DislocationNode is on mesh boundary, constrain by boundaryNormal
+                temp.push_back(boundaryNormal);
+            }
+            else
             {
                 std::cout<<"DislocationNode "<<this->sID<< " at "<<this->get_P().transpose()<<" is outside mesh."<<std::endl;
                 assert(0 && "DISLOCATION NODE FOUND OUTSIDE MESH."); //RE-ENABLE THIS
-			}
-			assert(GS.size()>=1 && "GLIDING NODE MUST HAVE AT LEAST ONE CONSTRAINT.");
-			return GS;
-		}
-		
+            }
+            GramSchmidt<dim> GS(temp);
+            assert(GS.size()>=1 && "GLIDING NODE MUST HAVE AT LEAST ONE CONSTRAINT.");
+            return GS;
+        }
+        
         /**********************************************************************/
 		bool is_removable() const
         {

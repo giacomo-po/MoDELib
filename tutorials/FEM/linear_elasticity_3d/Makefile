@@ -33,6 +33,5 @@ program:
 clean:
 		rm -f fem
 		
-		
-# export DYLD_LIBRARY_PATH=/opt/intel/composer_xe_2013.3.171/mkl/lib:$DYLD_LIBRARY_PATH
-# export DYLD_LIBRARY_PATH=/opt/intel/composer_xe_2013.3.171/compiler/lib:$DYLD_LIBRARY_PATH
+# export DYLD_LIBRARY_PATH=/opt/intel/composer_xe_2015.2.132/mkl/lib:$DYLD_LIBRARY_PATH
+# export DYLD_LIBRARY_PATH=/opt/intel/composer_xe_2015.2.132/compiler/lib:$DYLD_LIBRARY_PATH

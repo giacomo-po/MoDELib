@@ -541,7 +541,8 @@ namespace model
         
         
         /**********************************************************************/
-        void addToGlobalAssembly(std::vector<Eigen::Triplet<double> >& kqqT,  Eigen::VectorXd& FQ) const
+//        void addToGlobalAssembly(std::vector<Eigen::Triplet<double> >& kqqT,  Eigen::VectorXd& FQ) const
+        void addToGlobalAssembly(std::deque<Eigen::Triplet<double> >& kqqT,  Eigen::VectorXd& FQ) const
         {/*!\param[in] kqqT the stiffness matrix of the network component
           * \param[in] FQ the force vector of the network component
           */

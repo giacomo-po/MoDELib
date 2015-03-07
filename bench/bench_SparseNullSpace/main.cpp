@@ -10,7 +10,7 @@
 #include <Eigen/SparseQR>
 #include <Eigen/OrderingMethods>
 
-#include <SparseNullSpace.h>
+#include <model/Math/SparseNullSpace.h>
 
 // http://stackoverflow.com/questions/2181418/computing-the-null-space-of-a-matrix-as-fast-as-possible
 
@@ -43,30 +43,12 @@ int main()
 
     SparseNullSpace<SparseMatType> ns(A);
     
-//    SparseMatType AT=A.transpose();
-//    Eigen::SparseQR<SparseMatType,Eigen::COLAMDOrdering<int> > qr(AT);
-//    SparseMatType Q;
-//    Q=qr.matrixQ();
-//    SparseMatType R;
-//    R=qr.matrixR();
-//    
-//    std::cout<<Eigen::MatrixXd(Q)<<std::endl<<std::endl;
-//
-//    std::cout<<Eigen::MatrixXd(R)<<std::endl<<std::endl;
-//
-//
-////    std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<std::endl;
-//
-//    SparseMatType Z;
-//    Z=Q;
-////
-////    std::cout<<Eigen::MatrixXd(Z)<<std::endl<<std::endl;
-//
-    SparseMatType AZ;
-    AZ=A*ns.matrixZ();
-//    
-    std::cout<<Eigen::MatrixXd(AZ)<<std::endl;
 
+    SparseMatType AZ;
+//    AZ=A*ns.matrixZ();
+
+    std::cout<<"(A*Z).norm()="<<(A*ns.matrixZ()).norm()<<std::endl;
+    std::cout<<"(A*Y).norm()="<<(A*ns.matrixY()).norm()<<std::endl;
     
     return 0;
 }
