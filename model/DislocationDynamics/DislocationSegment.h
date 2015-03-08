@@ -261,8 +261,6 @@ namespace model
         /* base class initialization */ PlanarSegmentType(nodePair.second->get_P()-nodePair.first->get_P(),Fin),
         /* base class initialization */ SegmentBaseType(nodePair,Fin),
         /* init list       */ Burgers(this->flow * Material<Isotropic>::b),
-//        /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
-//        /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
         /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ dm(this->glidePlaneNormal,Burgers)
@@ -290,12 +288,6 @@ namespace model
         /* base class initialization */ PlanarSegmentType(nodePair.second->get_P()-nodePair.first->get_P(),ee.E.flow),
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
         /* init list       */ Burgers(this->flow * Material<Isotropic>::b),
-//        /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
-//        /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
-//        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
-//        /* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), 			// change this
-//        /* init list       */ pGlidePlane(ee.E.pGlidePlane),
-//        /* init list       */ dm(this->glidePlaneNormal,Burgers)
         /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ dm(this->glidePlaneNormal,Burgers)
@@ -784,18 +776,19 @@ namespace model
     template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
     /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     const Eigen::Matrix<double,dim,dim> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::I=Eigen::Matrix<double,dim,dim>::Identity();
-    
-//    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-//    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-//    const Eigen::Matrix<double,dim,1> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::zeroDim=Eigen::Matrix<double,dim,1>::Zero();
-    
-//    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-//    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-//    UniqueOutputFile<'K'> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::k_file;
 
     
 } // namespace model
 #endif
+
+
+//    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+//    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//    const Eigen::Matrix<double,dim,1> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::zeroDim=Eigen::Matrix<double,dim,1>::Zero();
+
+//    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
+//    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//    UniqueOutputFile<'K'> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::k_file;
 
 
 
