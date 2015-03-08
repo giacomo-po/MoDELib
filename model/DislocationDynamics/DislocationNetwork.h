@@ -317,7 +317,7 @@ namespace model
             }
             
             //! 6- Output the current configuration before changing it
-            output();
+            output(runID);
             
             //! Update accumulated quantities
             totalTime+=dt;
@@ -359,6 +359,7 @@ namespace model
             
             //! 11- Form Junctions
             formJunctions();
+            //output(runID);
             
             //! 12- Node redistribution
             remesh();
@@ -689,7 +690,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void output() const
+        void output(const size_t& fileID) const
         {/*! Outputs DislocationNetwork data
           */
             if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency))
@@ -698,10 +699,10 @@ namespace model
 #ifdef _MODEL_DD_MPI_
                 if(ModelMPIbase::mpiRank()==0)
                 {
-                    DislocationNetworkIO<DislocationNetworkType>::output(*this,runID);
+                    DislocationNetworkIO<DislocationNetworkType>::output(*this,fileID);
                 }
 #else
-                DislocationNetworkIO<DislocationNetworkType>::output(*this,runID);
+                DislocationNetworkIO<DislocationNetworkType>::output(*this,fileID);
 #endif
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }

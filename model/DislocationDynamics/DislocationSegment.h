@@ -79,13 +79,13 @@ namespace model
         
         }
         
-        template<typename LinkType>
-        PlanarDislocationSegment(const ExpandingEdge<LinkType>& ee) :
-        /* init list       */ glidePlaneNormal(ee.E.glidePlaneNormal),
-        /* init list       */ sessilePlaneNormal(ee.E.sessilePlaneNormal)
-        {
-            
-        }
+//        template<typename LinkType>
+//        PlanarDislocationSegment(const ExpandingEdge<LinkType>& ee) :
+//        /* init list       */ glidePlaneNormal(ee.E.glidePlaneNormal),
+//        /* init list       */ sessilePlaneNormal(ee.E.sessilePlaneNormal)
+//        {
+//            THIS DOES NOT WORK FOR CROSS SLIP
+//        }
     };
     
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
@@ -286,14 +286,18 @@ namespace model
         
         /* Constructor from EdgeExpansion) ************************************/
         DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const ExpandingEdge<LinkType>& ee) :
-        /* base class initialization */ PlanarSegmentType(ee),
+//        /* base class initialization */ PlanarSegmentType(ee),
+        /* base class initialization */ PlanarSegmentType(nodePair.second->get_P()-nodePair.first->get_P(),ee.E.flow),
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
         /* init list       */ Burgers(this->flow * Material<Isotropic>::b),
 //        /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers).normalized()),
 //        /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(nodePair.second->get_P()-nodePair.first->get_P(),Burgers)),
-        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
+//        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
 //        /* init list       */ pGlidePlane(this->findExistingGlidePlane(glidePlaneNormal,this->source->get_P().dot(glidePlaneNormal))), 			// change this
-        /* init list       */ pGlidePlane(ee.E.pGlidePlane),
+//        /* init list       */ pGlidePlane(ee.E.pGlidePlane),
+//        /* init list       */ dm(this->glidePlaneNormal,Burgers)
+        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
+        /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ dm(this->glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and ExpandingEdge
           *  @param[in] NodePair_in the pair of source and sink pointers

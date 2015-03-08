@@ -127,7 +127,7 @@ namespace model
                 {
                     std::cout<<"contracting "<<i<<" "<<j<<std::endl;
                     
-                    DN.contract(i,j,P0,guess.second);
+                    DN.contract(i,j,P0,guess.second); // 2 3 4 5
                     temp++;
                 }
             }
@@ -289,9 +289,9 @@ namespace model
                     //                    if (d3norm<FLT_EPSILON) // parallel or coincident planes
                     if ((PN1[0].cross(PN2[0])).norm()<FLT_EPSILON) // parallel or coincident planes
                     {
-                        std::cout<<"contractWithConstraintCheck, case 1a"<<std::endl;
+                        std::cout<<"contractWithConstraintCheck, case 1a"<<std::endl; // 2 3 5
 
-                        if(std::fabs((P1-P2).dot(PN1[0]))<FLT_EPSILON) // planes are coincident
+                        if(std::fabs((P12).dot(PN1[0]))<FLT_EPSILON) // planes are coincident
                         {
                             contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
                         }
@@ -323,7 +323,7 @@ namespace model
                     if(std::fabs(den)>FLT_EPSILON) // line and plane are not parallel
                     {
                         std::cout<<"contractWithConstraintCheck, case 2a"<<std::endl;
-                        contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+num/den*d2);
+                        contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+num/den*d2); // 4
                     }
                     else
                     {

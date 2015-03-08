@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=1000;
+Nsteps=10000;
 timeWindow=5.1e03;
 startAtTimeStep = 0;
 
@@ -46,7 +46,7 @@ temperature = 300.0;
 # Set the remote external stress (a uniform stress felt by dislocations)
 externalStress = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.001;
+		 0.0 0.0 0.01;
 
 ######################################
 # STRESS FIELD
