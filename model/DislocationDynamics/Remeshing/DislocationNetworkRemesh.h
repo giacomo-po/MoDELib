@@ -252,6 +252,7 @@ namespace model
             }
             
             // Call Network::contract
+            int nContracted=0;
             for (std::set<std::pair<double,std::pair<size_t,size_t> > >::const_iterator smallIter=toBeContracted.begin(); smallIter!=toBeContracted.end(); ++smallIter)
             {
                 const size_t i(smallIter->second.first);
@@ -259,9 +260,11 @@ namespace model
                 typename EdgeFinder<LinkType>::isNetworkEdgeType Lij=DN.link(i,j);
                 if (Lij.first )
                 {
-                    contractSecondWithCommonNeighborCheck(i,j);
+                    //DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
+                    nContracted+=DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
                 }
             }
+            model::cout<<"("<<nContracted<<" contracted"<<std::flush;
             model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
         }
