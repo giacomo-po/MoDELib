@@ -66,19 +66,12 @@ endif
 # MAKE ALL
 ##########################################################
 
-esc=`echo "\033"`
-normalColor="${esc}[m\017"
-greenColor="${esc}[0;32m"
-redColor="${esc}[0;31m"
-blueColor="${esc}[0;34m"
-
 all:
-	@echo ${redColor}please use \
-	${greenColor}make DDomp \
-	${redColor}or ${greenColor}make DDmpi \
-	${redColor}or ${greenColor}make DDviewer \
-	${redColor}or ${greenColor}make empty \
-	${normalColor}
+	@echo please use \
+	make DDomp \
+	or make DDmpi \
+	or make DDviewer \
+	or make empty \
 
 
 ##########################################################
@@ -87,7 +80,7 @@ all:
 OBJS 	= DDomp
 
 $(OBJS): 
-	@echo ${greenColor}making omp version... ${normalColor}
+	@echo making DDomp
 	$(CC) main.cpp -o  $(OBJS)  $(CFLAGS) $(LIBS) $(IDIR)
 
 
@@ -100,7 +93,7 @@ mpiCFLAGS += -D _MODEL_MPI_
 mpiOBJS = DDmpi
 
 $(mpiOBJS):
-	@echo ${blueColor}making mpi version... ${normalColor}
+	@echo making DDmpi
 	$(mpiCC) main.cpp -o $(mpiOBJS) $(CFLAGS) $(mpiCFLAGS) $(IDIR) $(LIBS) $(mpiLIBS)
 
 
@@ -152,45 +145,45 @@ empty:
 	@find E/ -name E_\*.txt ! -name E_0.txt -exec rm {} \;
 	@find E/ -name E_\*.bin -exec rm {} \;
 ifeq ($(Fexists),1)
-	@echo ${blueColor}emptying folder F ${normalColor}
+	@echo emptying folder F
 	@find F/ -name F_\*.txt -exec rm {} \;
 	@find F/ -name F_\*.bin -exec rm {} \;
 endif
 ifeq ($(Gexists),1)
-	@echo ${blueColor}emptying folder G ${normalColor}
+	@echo emptying folder G
 	@find G/ -name G_\*.txt -exec rm {} \;
 	@find G/ -name G_\*.bin -exec rm {} \;
 endif
 ifeq ($(Cexists),1)
-	@echo ${blueColor}emptying folder C ${normalColor}
+	@echo emptying folder C
 	@find C/ -name C_\*.txt -exec rm {} \;
 	@find C/ -name C_\*.bin -exec rm {} \;
 endif
 ifeq ($(Pexists),1)
-	@echo ${blueColor}emptying folder P ${normalColor}
+	@echo emptying folder P
 	@find P/ -name P_\*.txt -exec rm {} \;
 	@find P/ -name P_\*.bin -exec rm {} \;
 endif	
 ifeq ($(Dexists),1)
-	@echo ${blueColor}emptying folder D ${normalColor}
+	@echo emptying folder D
 	@find D/ -name D_\*.txt -exec rm {} \;
 	@find D/ -name D_\*.bin -exec rm {} \;
 endif	
 ifeq ($(Sexists),1)
-	@echo ${blueColor}emptying folder S ${normalColor}
+	@echo emptying folder S
 	@find S/ -name S_\*.txt -exec rm {} \;
 	@find S/ -name S_\*.bin -exec rm {} \;
 endif	
 ifeq ($(Uexists),1)
-	@echo ${blueColor}emptying folder U ${normalColor}
+	@echo emptying folder U
 	@find U/ -name U_\*.txt -exec rm {} \;
 	@find U/ -name U_\*.bin -exec rm {} \;
 endif	
 ifeq ($(TGAexists),1)
-	@echo ${blueColor}emptying folder tga ${normalColor}
+	@echo emptying folder tga
 	@find tga/ -name image_\*.tga -exec rm {} \;
 endif	
 ifeq ($(JPGexists),1)
-	@echo ${blueColor}emptying folder jpg ${normalColor}
+	@echo emptying folder jpg
 	@find jpg/ -name image_\*.jpg -exec rm {} \;
 endif

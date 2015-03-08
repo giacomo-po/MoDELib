@@ -95,6 +95,7 @@
 #include <model/ParticleInteraction/ParticleSystem.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/ParticleInteraction/SingleFieldPoint.h>
+#include <model/DislocationDynamics/Operations/DislocationNodeContraction.h>
 
 
 
@@ -130,6 +131,7 @@ namespace model
         typedef typename DislocationSharedObjectsType::BvpSolverType BvpSolverType;
         typedef typename DislocationSharedObjectsType::BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::ElementType ElementType;
+        typedef DislocationNodeContraction<DislocationNetworkType> ContractionType;
         
         enum {NdofXnode=NodeType::NdofXnode};
         
@@ -448,6 +450,13 @@ namespace model
             this->clearParticles();
         }
         
+        /**********************************************************************/
+        size_t contractWithConstraintCheck(const isNetworkNodeType& Ni,
+                                           const isNetworkNodeType& Nj)
+        {
+            return ContractionType(*this).contractWithConstraintCheck(Ni,Nj);
+        }
+        
         
         /**********************************************************************/
         void remesh()
@@ -456,10 +465,10 @@ namespace model
             {
                 if(!(runID%use_redistribution))
                 {
-                    const auto t0= std::chrono::system_clock::now();
-                    model::cout<<"		Remeshing network... "<<std::flush;
+//                    const auto t0= std::chrono::system_clock::now();
+//                    model::cout<<"		Remeshing network... "<<std::flush;
                     DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
-                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+//                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
                 }
             }
         }
@@ -879,6 +888,20 @@ namespace model
             SingleFieldPoint<StressField> fieldPoint(P);
             this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoint);
             return fieldPoint.field();
+        }
+        
+        /**********************************************************************/
+        std::pair<bool,const Simplex<dim,dim>*> pointIsInsideMesh(const VectorDimD& P0, const Simplex<dim,dim>* const guess) const
+        {/*!\param[in] P0 position vector
+          * \param[in] guess pointer of the Simplex where the search starts
+          * \returns true if P0 is inside the mesh
+          */
+            std::pair<bool,const Simplex<dim,dim>*> temp(true,NULL);
+            if (shared.use_boundary)
+            {
+                temp=shared.mesh.searchWithGuess(P0,guess);
+            }
+            return temp;
         }
         
     };
