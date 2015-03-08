@@ -41,20 +41,6 @@ namespace model
         //! A reference to the DislocationNetwork
         DislocationNetworkType& DN;
         
-        //        /**********************************************************************/
-        //        std::pair<bool,const Simplex<dim,dim>*> pointIsInsideMesh(const VectorDimD& P0, const Simplex<dim,dim>* const guess)
-        //        {/*!\param[in] P0 position vector
-        //          * \param[in] guess pointer of the Simplex where the search starts
-        //          * \returns true if P0 is inside the mesh
-        //          */
-        //            std::pair<bool,const Simplex<dim,dim>*> temp(true,NULL);
-        //            if (DN.shared.use_boundary)
-        //            {
-        //                temp=DN.shared.mesh.searchWithGuess(P0,guess);
-        //            }
-        //            return temp;
-        //        }
-        
     public:
         
         static double Lmax;
@@ -315,6 +301,22 @@ namespace model
     
 } // namespace model
 #endif
+
+
+
+//        /**********************************************************************/
+//        std::pair<bool,const Simplex<dim,dim>*> pointIsInsideMesh(const VectorDimD& P0, const Simplex<dim,dim>* const guess)
+//        {/*!\param[in] P0 position vector
+//          * \param[in] guess pointer of the Simplex where the search starts
+//          * \returns true if P0 is inside the mesh
+//          */
+//            std::pair<bool,const Simplex<dim,dim>*> temp(true,NULL);
+//            if (DN.shared.use_boundary)
+//            {
+//                temp=DN.shared.mesh.searchWithGuess(P0,guess);
+//            }
+//            return temp;
+//        }
 
 
 //        /**********************************************************************/
