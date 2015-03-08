@@ -289,6 +289,8 @@ namespace model
                     //                    if (d3norm<FLT_EPSILON) // parallel or coincident planes
                     if ((PN1[0].cross(PN2[0])).norm()<FLT_EPSILON) // parallel or coincident planes
                     {
+                        std::cout<<"contractWithConstraintCheck, case 1a"<<std::endl;
+
                         if(std::fabs((P1-P2).dot(PN1[0]))<FLT_EPSILON) // planes are coincident
                         {
                             contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
@@ -300,6 +302,8 @@ namespace model
                     }
                     else // incident planes
                     {
+                        std::cout<<"contractWithConstraintCheck, case 1b"<<std::endl;
+
                         // Contract at X, where X minimizes 0.5*(X-P1)^2+0.5*(X-P2)^2
                         // under the constraints (X-P1)*N1=0 and (X-P2)*N2=0
                         const VectorDimD P(P1+P2);
