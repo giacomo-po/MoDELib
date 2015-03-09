@@ -5,7 +5,8 @@ usePARDISO = 1
 # EDIT HERE
 ##########################################################
 MODEL_INCLUDE =../../../
-MKL_PATH=/opt/intel/composer_xe_2015.2.132/mkl
+MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
+MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
@@ -55,11 +56,15 @@ CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 # Settings for PARDISO solver
 ifeq ($(usePARDISO), 1)
 CFLAGS += -D _MODEL_PARDISO_SOLVER_
-IDIR += -I $(MKL_PATH)/include
-LIBS += -L $(MKL_PATH)/lib
+IDIR += -I $(MKL_INCLUDE)
+LIBS += -L $(MKL_LIB)
 LIBS += -lmkl_intel_lp64 
-LIBS += -lmkl_intel_thread 
 LIBS += -lmkl_core
+ifeq ($(USE_ICC), 1)
+	LIBS += -lmkl_intel_thread 
+else
+LIBS += -lmkl_gnu_thread 
+endif
 endif
 
 ##########################################################
@@ -140,50 +145,52 @@ TGAexists=$(shell test -d tga && echo 1)
 JPGexists=$(shell test -d jpg && echo 1)
 
 empty:
-	@find V/ -name V_\*.txt ! -name V_0.txt -exec rm {} \;
-	@find V/ -name V_\*.bin -exec rm {} \;
-	@find E/ -name E_\*.txt ! -name E_0.txt -exec rm {} \;
-	@find E/ -name E_\*.bin -exec rm {} \;
+	@echo emptying folder V
+	@find V/ -name V_\*.txt ! -name V_0.txt -exec rm {} +;
+	@find V/ -name V_\*.bin -exec rm {} +;
+	@echo emptying folder E
+	@find E/ -name E_\*.txt ! -name E_0.txt -exec rm {} +;
+	@find E/ -name E_\*.bin -exec rm {} +;
 ifeq ($(Fexists),1)
 	@echo emptying folder F
-	@find F/ -name F_\*.txt -exec rm {} \;
-	@find F/ -name F_\*.bin -exec rm {} \;
+	@find F/ -name F_\*.txt -exec rm {} +;
+	@find F/ -name F_\*.bin -exec rm {} +;
 endif
 ifeq ($(Gexists),1)
 	@echo emptying folder G
-	@find G/ -name G_\*.txt -exec rm {} \;
-	@find G/ -name G_\*.bin -exec rm {} \;
+	@find G/ -name G_\*.txt -exec rm {} +;
+	@find G/ -name G_\*.bin -exec rm {} +;
 endif
 ifeq ($(Cexists),1)
 	@echo emptying folder C
-	@find C/ -name C_\*.txt -exec rm {} \;
-	@find C/ -name C_\*.bin -exec rm {} \;
+	@find C/ -name C_\*.txt -exec rm {} +;
+	@find C/ -name C_\*.bin -exec rm {} +;
 endif
 ifeq ($(Pexists),1)
 	@echo emptying folder P
-	@find P/ -name P_\*.txt -exec rm {} \;
-	@find P/ -name P_\*.bin -exec rm {} \;
+	@find P/ -name P_\*.txt -exec rm {} +;
+	@find P/ -name P_\*.bin -exec rm {} +;
 endif	
 ifeq ($(Dexists),1)
 	@echo emptying folder D
-	@find D/ -name D_\*.txt -exec rm {} \;
-	@find D/ -name D_\*.bin -exec rm {} \;
+	@find D/ -name D_\*.txt -exec rm {} +;
+	@find D/ -name D_\*.bin -exec rm {} +;
 endif	
 ifeq ($(Sexists),1)
 	@echo emptying folder S
-	@find S/ -name S_\*.txt -exec rm {} \;
-	@find S/ -name S_\*.bin -exec rm {} \;
+	@find S/ -name S_\*.txt -exec rm {} +;
+	@find S/ -name S_\*.bin -exec rm {} +;
 endif	
 ifeq ($(Uexists),1)
 	@echo emptying folder U
-	@find U/ -name U_\*.txt -exec rm {} \;
-	@find U/ -name U_\*.bin -exec rm {} \;
+	@find U/ -name U_\*.txt -exec rm {} +;
+	@find U/ -name U_\*.bin -exec rm {} +;
 endif	
 ifeq ($(TGAexists),1)
 	@echo emptying folder tga
-	@find tga/ -name image_\*.tga -exec rm {} \;
+	@find tga/ -name image_\*.tga -exec rm {} +;
 endif	
 ifeq ($(JPGexists),1)
 	@echo emptying folder jpg
-	@find jpg/ -name image_\*.jpg -exec rm {} \;
+	@find jpg/ -name image_\*.jpg -exec rm {} +;
 endif
