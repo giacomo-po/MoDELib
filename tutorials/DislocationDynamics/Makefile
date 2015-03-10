@@ -18,6 +18,8 @@ IDIR += -I$(MODEL_INCLUDE)
 ##########################################################
 # COMPILER SETTINGS - DO NOT EDIT-
 ##########################################################
+OS= $(shell uname -s)
+
 ifeq ($(USE_ICC), 1)
 CC= icpc
 mpiCC= icpc
@@ -117,8 +119,6 @@ clean:
 ##########################################################
 # MAKE VIEWER
 ##########################################################	
-OS= $(shell uname -s)
-
 ifeq ($(OS),Darwin)
 	VIEWERLIBS += -framework GLUT
 	VIEWERLIBS += -framework OpenGL 
