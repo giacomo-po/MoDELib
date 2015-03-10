@@ -19,6 +19,8 @@
 //#include <model/Math/SchurComplementSolver.h>
 #include <Eigen/Sparse>
 #include <model/Math/MINRES.h>
+#include <Eigen/SparseCholesky> // simplicial DLDT
+
 //#include <model/Math/SparseNullSpace.h>
 
 #ifdef _MODEL_PARDISO_SOLVER_
@@ -26,7 +28,8 @@
 #endif
 
 
-namespace model {
+namespace model
+{
     
     template <typename NodeType,typename LinkType>
     class DislocationNetworkComponent
@@ -214,6 +217,7 @@ namespace model {
         //        bool solvable;
         //       static bool useSchurComplementSolver;
         
+        static bool use_directSolver;
         
         /************************************************************/
         DislocationNetworkComponent(NetworkComponentType& NCin) :
@@ -223,48 +227,10 @@ namespace model {
           */
         }
         
-//        /************************************************************/
-//        void nullSpaceSolve()
-//        {
-//            // Make some initial checks
-//            TripletContainerType aT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
-//            Eigen::VectorXd Fq; // the vector of nodal forces
-//            const size_t Ndof=assembleNCtriplets(aT,Fq);
-//            SparseMatrixType A(Ndof,Ndof);
-//            A.setFromTriplets(aT.begin(),aT.end()); // now KQQ is idefinite (NOT SPD) therefore conjugate-gradient cannot be used
-//            
-//            // testing null-space solver
-//            TripletContainerType cT; // the vector of Eigen::Triplets of constraints
-//            size_t rows=0; // start placing constraints at row=0
-//            assembleConstraints<false>(cT,rows);
-//            SparseMatrixType C(rows,Ndof);
-//            std::cout<<"rows="<<rows<<std::endl;
-//            std::cout<<"cols="<<Ndof<<std::endl;
-//            
-//            int tempR=0;
-//            int tempC=0;
-//            for(const auto& t : cT)
-//            {
-//            if(t.row()>tempR)
-//            {
-//                tempR=t.row();
-//            }
-//                if(t.col()>tempC)
-//                {
-//                    tempC=t.col();
-//                }
-//            }
-//            std::cout<<"cT_max_row="<<tempR<<std::endl;
-//            std::cout<<"cT_max_col="<<tempC<<std::endl;
-//
-//            
-//            C.setFromTriplets(cT.begin(),cT.end());
-//            SparseNullSpace<SparseMatrixType> ns(C);
-//        }
+
         
-#ifdef _MODEL_PARDISO_SOLVER_
         /************************************************************/
-        void ldltSolve()
+        void directSolve()
         {
             TripletContainerType kqqT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
             Eigen::VectorXd Fq; // the vector of nodal forces
@@ -277,13 +243,24 @@ namespace model {
             KQQ.setFromTriplets(kqqT.begin(),kqqT.end()); // now KQQ is SPSD therefore conjugate-gradient cannot be used
             Eigen::VectorXd F(Eigen::VectorXd::Zero(newNdof));
             F.segment(0,Ndof)=Fq;
-
-            Eigen::PardisoLDLT<SparseMatrixType> solver(KQQ);
-            Eigen::VectorXd x=solver.solve(F);
             
-            storeNodeSolution(x.segment(0,Ndof));
-        }
+#ifdef _MODEL_PARDISO_SOLVER_
+            Eigen::PardisoLDLT<SparseMatrixType>    solver(KQQ);
+#else
+            Eigen::SimplicialLDLT<SparseMatrixType> solver(KQQ);
 #endif
+
+            if(solver.info()==Eigen::Success)
+            {
+                Eigen::VectorXd x=solver.solve(F);
+                storeNodeSolution(x.segment(0,Ndof));
+            }
+            else
+            {
+                assert(0 && "LDLT DECOMPOSITION FAILED.");
+            }
+
+        }
         
         
         /************************************************************/
@@ -482,5 +459,48 @@ namespace model {
         
     };
     
+    //Static data
+    template <typename NodeType,typename LinkType>
+    bool DislocationNetworkComponent<NodeType,LinkType>::use_directSolver=true;
+    
 } // namespace model
 #endif
+
+//        /************************************************************/
+//        void nullSpaceSolve()
+//        {
+//            // Make some initial checks
+//            TripletContainerType aT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
+//            Eigen::VectorXd Fq; // the vector of nodal forces
+//            const size_t Ndof=assembleNCtriplets(aT,Fq);
+//            SparseMatrixType A(Ndof,Ndof);
+//            A.setFromTriplets(aT.begin(),aT.end()); // now KQQ is idefinite (NOT SPD) therefore conjugate-gradient cannot be used
+//
+//            // testing null-space solver
+//            TripletContainerType cT; // the vector of Eigen::Triplets of constraints
+//            size_t rows=0; // start placing constraints at row=0
+//            assembleConstraints<false>(cT,rows);
+//            SparseMatrixType C(rows,Ndof);
+//            std::cout<<"rows="<<rows<<std::endl;
+//            std::cout<<"cols="<<Ndof<<std::endl;
+//
+//            int tempR=0;
+//            int tempC=0;
+//            for(const auto& t : cT)
+//            {
+//            if(t.row()>tempR)
+//            {
+//                tempR=t.row();
+//            }
+//                if(t.col()>tempC)
+//                {
+//                    tempC=t.col();
+//                }
+//            }
+//            std::cout<<"cT_max_row="<<tempR<<std::endl;
+//            std::cout<<"cT_max_col="<<tempC<<std::endl;
+//
+//
+//            C.setFromTriplets(cT.begin(),cT.end());
+//            SparseNullSpace<SparseMatrixType> ns(C);
+//        }

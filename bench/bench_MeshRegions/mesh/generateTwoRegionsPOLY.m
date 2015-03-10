@@ -117,7 +117,7 @@ fprintf(polyFile,'0 \n\n');
 fprintf(polyFile,'# Part 4 - the region list.\n');
 fprintf(polyFile,'%i \n',size(Xm,1));
 
-vL=1e+4
+vL=1e+5
 %vL=t^3/6/sqrt(2);
 meshSize=ones(size(Xm,1),1)*vL;
 meshSize(1)=vL; % increase volume element in central cube

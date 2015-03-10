@@ -466,10 +466,10 @@ namespace model
             {
                 if(!(runID%use_redistribution))
                 {
-//                    const auto t0= std::chrono::system_clock::now();
-//                    model::cout<<"		Remeshing network... "<<std::flush;
+                    //                    const auto t0= std::chrono::system_clock::now();
+                    //                    model::cout<<"		Remeshing network... "<<std::flush;
                     DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
-//                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+                    //                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
                 }
             }
         }
@@ -555,6 +555,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
             assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
             //            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
+            EDR.readScalarInFile(fullName.str(),"use_directSolver",DislocationNetworkComponentType::use_directSolver);
             
             
             EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
@@ -596,6 +597,8 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
             if (shared.use_boundary)
             {
+                EDR.readScalarInFile(fullName.str(),"use_meshRegions",shared.use_meshRegions);
+                
                 int meshID(0);
                 EDR.readScalarInFile(fullName.str(),"meshID",meshID);
                 shared.mesh.readMesh(meshID);
@@ -662,30 +665,55 @@ namespace model
             //! -3 Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve
             model::cout<<"		Assembling NetworkComponents and solving "<<std::flush;
             const auto t3= std::chrono::system_clock::now();
+            
+            
+            
+            if(DislocationNetworkComponentType::use_directSolver)
+            {
+                
 #ifdef _MODEL_PARDISO_SOLVER_
-             model::cout<<"(PardisoLDLT)..."<<std::flush;
-            for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
-            {
-                DislocationNetworkComponentType(*snIter->second).ldltSolve();
-            }
-
+                model::cout<<"(PardisoLDLT)..."<<std::flush;
+                for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
+                {
+                    DislocationNetworkComponentType(*snIter->second).directSolve();
+                }
 #else
-            model::cout<<"(MINRES)..."<<std::flush;
-#ifdef _OPENMP
+                model::cout<<"(SimplicialLDLT)..."<<std::flush;
+    #ifdef _OPENMP // SimplicialLDLT is not multi-threaded. So parallelize loop over NetworkComponents.
+    #pragma omp parallel for
+                for (unsigned int k=0;k<this->Naddresses();++k)
+                {
+                    typename NetworkComponentContainerType::iterator snIter(this->ABbegin());
+                    std::advance(snIter,k);
+                    DislocationNetworkComponentType(*snIter->second).directSolve();
+                }
+    #else
+                for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
+                {
+                    DislocationNetworkComponentType(*snIter->second).directSolve();
+                }
+    #endif
+#endif
+            }
+            else // iterative solver
+            {
+                model::cout<<"(MINRES)..."<<std::flush;
+#ifdef _OPENMP // SimplicialLDLT is not multi-threaded. So parallelize loop over NetworkComponents.
 #pragma omp parallel for
-            for (unsigned int k=0;k<this->Naddresses();++k)
-            {
-                typename NetworkComponentContainerType::iterator snIter(this->ABbegin()); //  data within a parallel region is private to each thread
-                std::advance(snIter,k);
-                DislocationNetworkComponentType(*snIter->second).iterativeSolve();
-            }
+                for (unsigned int k=0;k<this->Naddresses();++k)
+                {
+                    typename NetworkComponentContainerType::iterator snIter(this->ABbegin());
+                    std::advance(snIter,k);
+                    DislocationNetworkComponentType(*snIter->second).iterativeSolve();
+                }
 #else
-            for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
-            {
-                DislocationNetworkComponentType(*snIter->second).iterativeSolve();
+                for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
+                {
+                    DislocationNetworkComponentType(*snIter->second).iterativeSolve();
+                }
+#endif
             }
-#endif
-#endif
+            
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]."<<defaultColor<<std::endl;
         }
         

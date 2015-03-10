@@ -1,10 +1,10 @@
 USE_ICC = 0
-usePARDISO = 1
+usePARDISO = 0
 
 ##########################################################
 # EDIT HERE
 ##########################################################
-MODEL_INCLUDE =../../../
+MODEL_INCLUDE =../..
 MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
 MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
 
@@ -55,21 +55,16 @@ CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 
 # Settings for PARDISO solver
 ifeq ($(usePARDISO), 1)
-	CFLAGS += -D _MODEL_PARDISO_SOLVER_
-	IDIR += -I $(MKL_INCLUDE)
-	LIBS += -L $(MKL_LIB)
-	LIBS += -lmkl_intel_lp64 
-	LIBS += -lmkl_core
-	ifeq ($(OS),Darwin)
-		LIBS += -lmkl_intel_thread 
-	endif
-	ifeq ($(OS),Linux)
-		ifeq ($(USE_ICC), 1)
-			LIBS += -lmkl_intel_thread 
-		else
-			LIBS += -lmkl_gnu_thread 
-		endif
-	endif
+CFLAGS += -D _MODEL_PARDISO_SOLVER_
+IDIR += -I $(MKL_INCLUDE)
+LIBS += -L $(MKL_LIB)
+LIBS += -lmkl_intel_lp64 
+LIBS += -lmkl_core
+ifeq ($(USE_ICC), 1)
+LIBS += -lmkl_intel_thread 
+else
+LIBS += -lmkl_gnu_thread 
+endif
 endif
 
 ##########################################################

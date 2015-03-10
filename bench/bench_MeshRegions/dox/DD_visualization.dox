@@ -1,0 +1,29 @@
+namespace model {
+/*! \page DD_visualization The Dislocation Dynamics Viewer
+MODEL provides a dedicated viewer to display the output of Dislocation Dynamics simulations. The viewer, based on <a href="http://www.opengl.org">OpenGL</a> and <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>, is extremely portable and should work on most architectures.
+
+
+\section DD_viewer_compiling Compiling the viewer
+The same Makefile used to compile \b DDserial (or \b DDparallel) is also used to compile the Dislocation Dynamics viewer (DDviewer). To do this simply issue the command:
+\verbatim
+make viewer
+\endverbatim
+This creates the executable \b DDviewer, which you can run by calling:
+\verbatim
+./DDviewer
+\endverbatim
+
+\b DDviewer reads the output files produced by \b DDserial(\b DDparallel). In fact, upon lunching the \b DDviewer, your terminal will display the output files available for visualization. 
+
+\section DD_visualization_options Visualization Options
+
+  \image html DislocationDynamics/FRsource/jpg/image_0.jpg "FR source at step 0" width=7cm
+  \image html DislocationDynamics/FRsource/jpg/image_100.jpg "FR source at step 100" width=7cm
+  \image html DislocationDynamics/FRsource/jpg/image_200.jpg "FR source at step 200" width=7cm
+  \image html DislocationDynamics/FRsource/jpg/image_300.jpg "FR source at step 300" width=7cm
+  \image html DislocationDynamics/FRsource/jpg/image_400.jpg "FR source at step 400" width=7cm
+  \image html DislocationDynamics/FRsource/jpg/image_500.jpg "FR source at step 500" width=7cm
+
+
+*/ 
+}

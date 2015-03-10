@@ -341,14 +341,50 @@ namespace model
             return (b2p*bary).template segment<dim>(0);
         }
         
+//        /**********************************************************************/
+//        void convexDelaunaynSearch(const Eigen::Matrix<double,dim,1>& P,
+//                                   std::pair<bool,const Simplex<dim,dim>*>& lastSearched,
+//                                   std::set<int>& searchSet) const // TO DO: searchSet is not necessary, because baryMin changes sign in next Simplex
+//        {
+//            if(searchSet.find(this->sID)==searchSet.end())
+//            {// this simplex has not been searched yet
+//                searchSet.insert(this->sID);
+//                lastSearched.second=this;
+//#ifdef _MODEL_BENCH_BARYSEARCH_
+//                const Eigen::Matrix<double,dim+1,1> bary(pos2bary(P));
+//                searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<"\n";
+//#endif
+//                int kMin;
+//                if (pos2bary(P).minCoeff(&kMin)>=0.0)
+//                {
+//                    lastSearched.first=true;
+//                }
+//                else
+//                {
+////                    for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
+////                        /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
+////                    {
+//                    for(auto& pParent : this->child(kMin).parents())
+//                    {
+////                        (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
+//                    pParent->convexDelaunaynSearch(P,lastSearched,searchSet);
+//                        if (lastSearched.first)
+//                        {
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
         /**********************************************************************/
         void convexDelaunaynSearch(const Eigen::Matrix<double,dim,1>& P,
                                    std::pair<bool,const Simplex<dim,dim>*>& lastSearched,
-                                   std::set<int>& searchSet) const // TO DO: searchSet is not necessary, because baryMin changes sign in next Simplex
+                                   std::set<const Simplex<dim,dim>*>& searchSet) const // TO DO: searchSet is not necessary, because baryMin changes sign in next Simplex
         {
-            if(searchSet.find(this->sID)==searchSet.end())
+            if(searchSet.find(this)==searchSet.end())
             {// this simplex has not been searched yet
-                searchSet.insert(this->sID);
+                searchSet.insert(this);
                 lastSearched.second=this;
 #ifdef _MODEL_BENCH_BARYSEARCH_
                 const Eigen::Matrix<double,dim+1,1> bary(pos2bary(P));
@@ -361,13 +397,13 @@ namespace model
                 }
                 else
                 {
-//                    for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
-//                        /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
-//                    {
+                    //                    for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
+                    //                        /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
+                    //                    {
                     for(auto& pParent : this->child(kMin).parents())
                     {
-//                        (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
-                    pParent->convexDelaunaynSearch(P,lastSearched,searchSet);
+                        //                        (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
+                        pParent->convexDelaunaynSearch(P,lastSearched,searchSet);
                         if (lastSearched.first)
                         {
                             break;
@@ -376,7 +412,6 @@ namespace model
                 }
             }
         }
-        
         
         /**********************************************************************/
         Eigen::Matrix<double,dim+1,1> faceLineIntersection(const Eigen::Matrix<double,dim+1,1>& bary0,
@@ -405,6 +440,10 @@ namespace model
                 
                 temp=bary0*(1.0-u)+bary1*u;
                 temp(faceID)=0.0; // make sure
+            }
+            else
+            {
+                std::cout<<"Parallel faceLineIntersection"<<std::endl;
             }
             return temp;
             

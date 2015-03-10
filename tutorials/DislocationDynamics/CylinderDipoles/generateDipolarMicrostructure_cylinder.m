@@ -14,7 +14,7 @@ y0=0;       % offset of cylinder axis
 
 lMin=R/2;           % minimum size of loop [b]
 lMax=R;             % max size of loop [b]
-targetDensity=1e13; % target dislocaiton density [m^-2]
+targetDensity=5e13; % target dislocaiton density [m^-2]
 
 % Plane normals for FCC (unsigned)
 N =[-1    1   -1    1;

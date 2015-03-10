@@ -3,6 +3,7 @@
 Nsteps=10000;
 timeWindow=5.1e03;
 startAtTimeStep = 0;
+use_directSolver=1;
 
 ######################################
 # TIME STEP
@@ -29,7 +30,7 @@ outputMeshDisplacement=0;
 ######################################
 # MATERIAL
 # Choose a material by its atomic number (Z), for example Al=13; Ni=28; Cu=29;
-material=29;
+material=13;
 
 ######################################
 # CRYSTAL ORIENTATION
@@ -46,7 +47,7 @@ temperature = 300.0;
 # Set the remote external stress (a uniform stress felt by dislocations)
 externalStress = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.001;
+		 0.0 0.0 0.01;
 
 ######################################
 # STRESS FIELD

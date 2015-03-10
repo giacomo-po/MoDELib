@@ -31,7 +31,9 @@ namespace model {
         typedef BVPsolver<TypeTraits<LinkType>::dim,2> BvpSolverType;
         
 		static bool use_boundary;
-		static unsigned int use_bvp;
+        static bool use_meshRegions;
+
+        static unsigned int use_bvp;
 		static bool use_virtualSegments;
 		static Eigen::Matrix<double,TypeTraits<LinkType>::dim,TypeTraits<LinkType>::dim> externalStress;
 
@@ -52,7 +54,11 @@ namespace model {
 	// Static data members
 	template <typename LinkType>
 	bool DislocationSharedObjects<LinkType>::use_boundary=false;
-	
+
+    template <typename LinkType>
+    bool DislocationSharedObjects<LinkType>::use_meshRegions=false;
+
+    
 	template <typename LinkType>
 	unsigned int DislocationSharedObjects<LinkType>::use_bvp=0;
 
