@@ -1,9 +1,8 @@
-USE_ICC = 0
-usePARDISO = 1
-
 ##########################################################
 # EDIT HERE
 ##########################################################
+USE_ICC = 0
+usePARDISO = 1
 MODEL_INCLUDE =../../../
 MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
 MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
@@ -55,7 +54,8 @@ CFLAGS += -D _MODEL_NO_DEBUG_
 #disable model-input-checks
 CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 
-# Settings for PARDISO solver
+############################################
+# Compiler flags for MKL PARDISO
 ifeq ($(usePARDISO), 1)
 	CFLAGS += -D _MODEL_PARDISO_SOLVER_
 	IDIR += -I $(MKL_INCLUDE)
@@ -74,17 +74,29 @@ ifeq ($(usePARDISO), 1)
 	endif
 endif
 
+############################################
+# Compiler flags for DDviewer (OpenGL flags)
+ifeq ($(OS),Darwin)
+	VIEWERLIBS += -framework GLUT
+	VIEWERLIBS += -framework OpenGL 
+endif
+
+ifeq ($(OS),Linux)
+	VIEWERLIBS += -L/usr/lib/
+	VIEWERLIBS += -lGL
+	VIEWERLIBS += -lGLU
+	VIEWERLIBS += -lglut
+endif
+
 ##########################################################
 # MAKE ALL
 ##########################################################
-
 all:
 	@echo please use \
 	make DDomp \
 	or make DDmpi \
 	or make DDviewer \
 	or make empty \
-
 
 ##########################################################
 # MAKE DDOMP
@@ -113,24 +125,11 @@ $(mpiOBJS):
 # MAKE CLEAN
 ##########################################################
 clean:
-		rm -f $(OBJS) $(mpiOBJS)
-
+	rm -f $(OBJS) $(mpiOBJS)
 
 ##########################################################
 # MAKE VIEWER
-##########################################################	
-ifeq ($(OS),Darwin)
-	VIEWERLIBS += -framework GLUT
-	VIEWERLIBS += -framework OpenGL 
-endif
-
-ifeq ($(OS),Linux)
-	VIEWERLIBS += -L/usr/lib/
-	VIEWERLIBS += -lGL
-	VIEWERLIBS += -lGLU
-	VIEWERLIBS += -lglut
-endif	
-
+##########################################################
 DDviewer: 
 	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -O3 -std=c++11 $(IDIR)  $(VIEWERLIBS) 
 

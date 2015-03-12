@@ -17,6 +17,7 @@
 #include <Eigen/Dense>
 #include <model/Utilities/TerminalColors.h>
 #include <model/DislocationDynamics/Materials/CrystalStructures.h>
+#include <model/MPI/MPIcout.h>
 
 
 
@@ -75,14 +76,18 @@ namespace model {
             
             
             latticeMatrix=C2G*CrystalStructure::template getLatticeMatrix<dim>();
+            //model::cout<<
+            
             inverseLatticeMatrix=latticeMatrix.inverse();
             
-            std::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
+            
+            
+            model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
             for (unsigned int k=0; k<planeNormalContainer.size();++k)
             {
                 std::cout<<"    "<<planeNormalContainer[k].transpose()<<std::endl;
             }
-            std::cout<<defaultColor<<std::endl;
+            model::cout<<defaultColor<<std::endl;
             
 		}
         

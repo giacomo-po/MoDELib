@@ -16,7 +16,8 @@
 #include <iomanip>
 #include <string>
 
-namespace model {
+namespace model
+{
     std::string defaultColor    = "\033[0m";	  // the default color for the console
 
     std::string redColor        = "\033[0;31m";

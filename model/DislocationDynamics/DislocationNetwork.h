@@ -149,7 +149,7 @@ namespace model
         short unsigned int use_redistribution;
         bool use_junctions;
         //        bool useImplicitTimeIntegration;
-        double equilibriumVelocity;
+        double shearWaveSpeedFraction;
         
         unsigned int runID;
         
@@ -205,30 +205,31 @@ namespace model
             }
             vmean/=NetworkNodeContainerType::size();
             
-            //double equilibriumVelocity(0.01);
+            //double shearWaveSpeedFraction(0.01);
             //short unsigned int shearWaveExp=1;
-            if (vmax > Material<Isotropic>::cs*equilibriumVelocity)
+            if (vmax > Material<Isotropic>::cs*shearWaveSpeedFraction)
             {
                 dt=dx/vmax;
                 
             }
             else
             {
-                //dt=dx/std::pow(shared.material.cs*equilibriumVelocity,shearWaveExp+1)*std::pow(vmax,shearWaveExp);
-                //dt=dx/(shared.material.cs*equilibriumVelocity)*std::pow(vmax/(shared.material.cs*equilibriumVelocity),1);
-                dt=dx/(Material<Isotropic>::cs*equilibriumVelocity);
+                //dt=dx/std::pow(shared.material.cs*shearWaveSpeedFraction,shearWaveExp+1)*std::pow(vmax,shearWaveExp);
+                //dt=dx/(shared.material.cs*shearWaveSpeedFraction)*std::pow(vmax/(shared.material.cs*shearWaveSpeedFraction),1);
+                dt=dx/(Material<Isotropic>::cs*shearWaveSpeedFraction);
             }
             
-            if (vmean > Material<Isotropic>::cs*equilibriumVelocity)
+            if (vmean > Material<Isotropic>::cs*shearWaveSpeedFraction)
             {
                 dt_mean=dx/vmean;
             }
             else
             {
-                dt_mean=dx/(Material<Isotropic>::cs*equilibriumVelocity);
+                dt_mean=dx/(Material<Isotropic>::cs*shearWaveSpeedFraction);
             }
             
             model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
+            model::cout<<std::setprecision(3)<<std::scientific<<" vmax/cs="<<vmax/Material<Isotropic>::cs;
             model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<dt;
             model::cout<<std::setprecision(3)<<std::scientific<<" eta_dt="<<dt/dt_mean;
             model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -423,7 +424,7 @@ namespace model
         /* init list  */ use_redistribution(0),
         /* init list  */ use_junctions(false),
         //		/* init list  */ useImplicitTimeIntegration(false),
-        /* init list  */ equilibriumVelocity(0.01),
+        /* init list  */ shearWaveSpeedFraction(0.0001),
         /* init list  */ runID(0),
         /* init list  */ use_crossSlip(false),
         /* init list  */ totalTime(0.0),
@@ -549,8 +550,8 @@ namespace model
             dt=0.0;
             EDR.readScalarInFile(fullName.str(),"dx",dx);
             assert(dx>0.0);
-            EDR.readScalarInFile(fullName.str(),"equilibriumVelocity",equilibriumVelocity);
-            assert(equilibriumVelocity>=0.0);
+//            EDR.readScalarInFile(fullName.str(),"shearWaveSpeedFraction",shearWaveSpeedFraction);
+//            assert(shearWaveSpeedFraction>=0.0);
             EDR.readScalarInFile(fullName.str(),"use_velocityFilter",NodeType::use_velocityFilter);
             EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
             assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);

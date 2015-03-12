@@ -3,16 +3,14 @@
 Nsteps=500;
 timeWindow=5.1e03;
 startAtTimeStep = 0;
+use_directSolver=0;
 
-equilibriumVelocity=0.01;
-use_velocityFilter=1;
-velocityReductionFactor=0.75;
 ######################################
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
 dx=10;
-# Time integration method:
-useImplicitTimeIntegration=0;
+use_velocityFilter=1;
+velocityReductionFactor=0.75;
 
 ######################################
 # OUTPUT

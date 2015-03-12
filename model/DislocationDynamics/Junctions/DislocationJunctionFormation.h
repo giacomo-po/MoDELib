@@ -559,7 +559,8 @@ namespace model
             
             std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecomp;
             
-            for (auto& nodePair : DN.nodeContainer())
+//            for (auto& nodePair : DN.nodeContainer())
+            for (auto& nodePair : DN.nodes())
             {
                 std::deque<std::pair<size_t,size_t> > temp=nodePair.second.edgeDecomposition();
                 if(temp.size())

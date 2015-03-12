@@ -79,13 +79,29 @@ namespace model {
 		}
         
         /************************************************************/
-        const NetworkNodeContainerType& nodeContainer() const
+//        const NetworkNodeContainerType& nodeContainer() const
+        const NetworkNodeContainerType& nodes() const
         {
             return *this;
         }
         
         /************************************************************/
-        const NetworkLinkContainerType& linkContainer() const
+//        NetworkNodeContainerType& nodeContainer()
+        NetworkNodeContainerType& nodes()
+        {
+            return *this;
+        }
+        
+        /************************************************************/
+//        const NetworkLinkContainerType& linkContainer() const
+        const NetworkLinkContainerType& links() const
+        {
+            return *this;
+        }
+        
+        /************************************************************/
+//        NetworkLinkContainerType& linkContainer()
+        NetworkLinkContainerType& links()
         {
             return *this;
         }

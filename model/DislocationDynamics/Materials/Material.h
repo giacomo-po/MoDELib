@@ -14,6 +14,7 @@
 #include <model/DislocationDynamics/Materials/PeriodicElement.h>
 #include <model/DislocationDynamics/Materials/CrystalOrientation.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
+#include <model/Utilities/TerminalColors.h> // defines mode::cout
 
 
 
@@ -43,22 +44,21 @@ namespace model
             
             mu=1.0;     // mu is used to normalized stress
             b =1.0;     // b is used to normalized length
-            cs =1.0;    // shear wave speed is used to normalized velocity
-            
-            //            B =1.0;
-//            Binv=1.0/B;
-//            rho=IM::mu*std::pow(IM::b/IM::B,2)*IM::rho;  //! rho* = mu*(b/B)^2 * rho
+            B =1.0;     // B=A*T [Pa*sec] is effectively used to normalize time
+            Binv=1.0/B;
+            rho=IM::mu*std::pow(IM::b/(IM::A*T),2)*IM::rho;  //! rho* = mu*(b/B)^2 * rho, B=A*T
             //        cs=IM::B/IM::b*std::pow(IM::rho*IM::mu,-0.5);
- //           cs=sqrt(mu/rho); // sc*=sqrt(mu*/rho*)
+            cs=sqrt(mu/rho); // sc*=sqrt(mu*/rho*)
+//            cs =1.0;    // shear wave speed is used to normalized velocity
             nu=IM::nu;
             lambda=2.0*mu*nu/(1.0-2.0*nu);
             C1=1.0-nu;
             C2=1.0/(4.0*M_PI*C1);
             C3=1.0-2.0*nu;
             C4=0.5*C2;
-//            kT=1.38e-23/IM::mu/std::pow(IM::b,3)*T; // [-]
-            kb=1.38e-23/IM::mu/std::pow(IM::b,3); // [-]
             
+            /* still unused, to be used in BCC mobility */
+            kb=1.38e-23/IM::mu/std::pow(IM::b,3); // [-]
             dH0=PeriodicElement<Z,Isotropic>::dH0/IM::mu/std::pow(IM::b,3); // [-]
             p=PeriodicElement<Z,Isotropic>::p; // [-]
             q=PeriodicElement<Z,Isotropic>::q; // [-]
@@ -66,21 +66,26 @@ namespace model
             tauP=PeriodicElement<Z,Isotropic>::tauP / IM::mu ;  // [-]
             Ta=PeriodicElement<Z,Isotropic>::Ta;  // [K]
             
-            std::string magentaColor    = "\033[0;35m";   // a magenta color
-            std::string defaultColor    = "\033[0m";	   // the default color for the console
             model::cout<<magentaColor<<"Material is now: "<<IM::name<<defaultColor<<std::endl;
-            
+            model::cout<<greenColor<<"  units of stress: mu="<<IM::mu<<" [Pa] (shear modulus)"<<std::endl;
+            model::cout<<greenColor<<"  units of length: b="<<IM::b<<" [m] (Burgers vector)"<<std::endl;
+            model::cout<<greenColor<<"  units of time: B/mu="<<IM::A*T/IM::mu<<" [sec] (B is mibility in [Pa/sec])"<<defaultColor<<std::endl;
         }
         
         
     public:
         
-        enum{Al=13, Ni=28, Cu=29, W=74, Fe=26};
+        enum{Al=13,
+             Fe=26,
+             Ni=28,
+             Cu=29,
+              W=74};
         
         static double mu;
         static double b;
         static double B;
         static double Binv;
+        static double T;
         static double rho;
         static double cs;
         static double nu;
@@ -89,8 +94,6 @@ namespace model
         static double C2;
         static double C3;
         static double C4;
-        static double T;
-//        static double kT;
         static double kb;
         static double tauIII;
         static double vAct;
@@ -98,7 +101,6 @@ namespace model
         static double p;
         static double q;
         static double A;
-//        static double Ta;
         static double tauP;
         static double Ta;
 
@@ -184,17 +186,16 @@ namespace model
     double Material<Isotropic>::b=1.0;
     double Material<Isotropic>::B=1.0;
     double Material<Isotropic>::Binv=1.0;
-    double Material<Isotropic>::rho=1.0;
-    double Material<Isotropic>::cs=1.0;
+    double Material<Isotropic>::T=300.0;  // Temperature [K]
+    double Material<Isotropic>::rho=PeriodicElement<29,Isotropic>::mu*std::pow(PeriodicElement<29,Isotropic>::b/(PeriodicElement<29,Isotropic>::A*T),2)*PeriodicElement<29,Isotropic>::rho;
+    double Material<Isotropic>::cs=sqrt(mu/rho);
     double Material<Isotropic>::nu=0.34;
     double Material<Isotropic>::lambda=2.0*1.0*0.34/(1.0-2.0*0.34);
     double Material<Isotropic>::C1=1.0-0.34;    // 1-nu
     double Material<Isotropic>::C2=1.0/(4.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
     double Material<Isotropic>::C3=1.0-2.0*0.34; // 1-2*nu
     double Material<Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
-	double Material<Isotropic>::T=300.0;  // Temperature [K]
 	double Material<Isotropic>::kb=1.38e-23/48.0e9/pow(0.2556e-9,3);  // boltzmann constant
-//	double Material<Isotropic>::kT=1.38e-23/48.0e9/pow(0.2556e-9,3)*300.0;  // boltzmann constant * Temperature
 	double Material<Isotropic>::tauIII=0.667e-3;  // critical resovled shear stress in stage III
 	double Material<Isotropic>::vAct=300.0;  // Activation volume [b^3]
 

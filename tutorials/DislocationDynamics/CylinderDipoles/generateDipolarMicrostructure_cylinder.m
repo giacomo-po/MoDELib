@@ -1,11 +1,11 @@
 clc
-%close all
+close all
 clear all
 
 
-Burgers=0.2489e-9; % Burgers vectro for Cu [m]
-D=1e-6/Burgers; % Diameter of 1[um], in units of Burgers
-R=D/2;   % cylinder radius [in units of b]
+
+Burgers=0.2851e-9; % Burgers vector for Al [m]
+R=0.5e-6/2/Burgers;   % cylinder radius [in units of b]
 H=4*R;      % cylinder height [in units of b]
 V=pi*R^2*H; % volume of cylinder
 x0=0;       % offset of cylinder axis 
@@ -14,7 +14,7 @@ y0=0;       % offset of cylinder axis
 
 lMin=R/2;           % minimum size of loop [b]
 lMax=R;             % max size of loop [b]
-targetDensity=5e13; % target dislocaiton density [m^-2]
+targetDensity=3e13; % target dislocaiton density [m^-2]
 
 % Plane normals for FCC (unsigned)
 N =[-1    1   -1    1;
@@ -78,7 +78,7 @@ if (   norm(P([1 2],1)-[x0 y0]')<f*R && P(3,1)>0 && P(3,1)<H ...
 % plot loop
 figure(1)
 hold on
-plot3(P(1,:),P(2,:),P(3,:),'color',[0.5 0.5 0.5]+b/2)
+plot3([P(1,:) P(1,1)],[P(2,:) P(2,1)],[P(3,:) P(3,1)],'color',[0.5 0.5 0.5]+b/2)
 axis equal
 set(gca,'View',[-34 26])
 

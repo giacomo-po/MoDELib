@@ -44,7 +44,6 @@ namespace model
         
         enum {NdofXnode=NodeType::NdofXnode};
         
-        
         static int  outputFrequency;
         static bool outputBinary;
         static bool outputGlidePlanes;
@@ -113,7 +112,6 @@ namespace model
                 else
                 {
                     assert(0 && "UNABLE TO READ EDGE FILE E/E_x (x is the requested file ID).");
-                    
                 }
             }
             
@@ -125,7 +123,8 @@ namespace model
 				const size_t sourceID(eIter->first.first );
 				const size_t   sinkID(eIter->first.second);
                 model::cout << "\r \r" << "Creating DislocationSegment "<<sourceID<<"->"<<sinkID<<" ("<<kk<<" of "<<eReader.size()<<")              "<<std::flush;
-				assert(DN.connect(sourceID,sinkID,B) && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
+                const bool success=DN.connect(sourceID,sinkID,B);
+				assert(success && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
                 kk++;
 			}
             model::cout<<std::endl;
@@ -138,7 +137,7 @@ namespace model
           * ./V/V_x.txt (DislocationNode(s) are always outputted)
           * ./C/C_x.txt (DislocationCell(s) only if outputSpatialCells==true)
           * ./G/G_x.txt (GlidePlane(s) only if outputGlidePlanes==true)
-          * ./P/P_x.txt (PK force only if outputPKforce==true)
+          * ./P/P_x.txt (PK forces only if outputPKforce==true)
           * ./D/D_x.txt (mesh displacement only if outputMeshDisplacement==true)
           */
             model::cout<<"		Writing to "<<std::flush;
@@ -153,7 +152,7 @@ namespace model
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
                 {
                     Eigen::Matrix<double,1,9> temp( (Eigen::Matrix<double,1,9>()<< linkIter->second.flow.transpose(),
-                                                     /*                                                          */ linkIter->second.glidePlaneNormal.transpose(),
+                    /*                                                          */ linkIter->second.glidePlaneNormal.transpose(),
                                                      /*                                                          */ linkIter->second.sourceTfactor,
                                                      /*                                                          */ linkIter->second.sinkTfactor,
                                                      /*                                                          */ linkIter->second.pSN()->sID).finished());
@@ -183,13 +182,14 @@ namespace model
                 SequentialBinFile<'V',BinVertexType>::set_count(runID);
                 SequentialBinFile<'V',BinVertexType>::set_increment(outputFrequency);
                 SequentialBinFile<'V',BinVertexType> binVertexFile;
-                for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
+//                for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
+                for (const auto& node : DN.nodes())
                 {
-                    VertexDataType temp( (VertexDataType()<< nodeIter->second.get_P().transpose(),
-                                          /*                                    */ nodeIter->second.get_T().transpose(),
-                                          /*                                    */ nodeIter->second.pSN()->sID,
-                                          /*                                    */ (nodeIter->second.meshLocation()==onMeshBoundary)).finished());
-                    binVertexFile.write(std::make_pair(nodeIter->first,temp));
+                    VertexDataType temp( (VertexDataType()<< node.second.get_P().transpose(),
+                                          /*                                    */ node.second.get_T().transpose(),
+                                          /*                                    */ node.second.pSN()->sID,
+                                          /*                                    */ (node.second.meshLocation()==onMeshBoundary)).finished());
+                    binVertexFile.write(std::make_pair(node.first,temp));
                 }
                 model::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;
             }
@@ -199,9 +199,11 @@ namespace model
                 SequentialOutputFile<'V',1>::set_increment(outputFrequency); // vertexFile;
                 SequentialOutputFile<'V',1> vertexFile;
                 //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
-                for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
+//                for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
+                for (const auto& node : DN.nodes())
                 {
-                    vertexFile << (nodeIter->second)<<"\n";
+//                    vertexFile << (nodeIter->second)<<"\n";
+                    vertexFile << (node.second)<<"\n";
                 }
                 model::cout<<", V/V_"<<vertexFile.sID<<".txt"<<std::flush;
             }
@@ -214,9 +216,10 @@ namespace model
                 SequentialOutputFile<'C',1> Cell_file;
                 //              SpatialCellObserverType SPC;
                 int cID(0);
-                for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::cellBegin();cellIter!=SpatialCellObserverType::cellEnd();++cellIter)
+                //for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::cellBegin();cellIter!=SpatialCellObserverType::cellEnd();++cellIter)
+                for (const auto& cell : SpatialCellObserverType::cells())
                 {
-                    Cell_file<<cID<<"\t"<<cellIter->second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize()<<"\n";
+                    Cell_file<<cID<<"\t"<<cell.second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize()<<"\n";
                     ++cID;
                 }
                 model::cout<<", C/C_"<<Cell_file.sID<<std::flush;

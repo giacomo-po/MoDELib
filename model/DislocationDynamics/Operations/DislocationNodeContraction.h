@@ -90,6 +90,8 @@ namespace model
                     }
                 }
                 
+                //std::cout<<"neighbors.size()="<<neighbors.size()<<std::endl;
+                
                 // Contract
                 for (std::set<size_t>::const_iterator nIter=neighbors.begin();nIter!=neighbors.end();++nIter)
                 {
@@ -97,14 +99,14 @@ namespace model
                     {
                         if(DN.node(*nIter).first)
                         {
-                            //std::cout<<"contractingSecond "<<*neighbors.begin()<<" "<<*nIter<<std::endl;
+                            //std::cout<<"neighbors contractingSecond "<<*neighbors.begin()<<" "<<*nIter<<std::endl;
                             DN.contractSecond(*neighbors.begin(),*nIter);
                             temp++;
                         }
                     }
                 }
                 
-                if(DN.node(i).first && *neighbors.begin()!=i)
+                if(DN.node(i).first && DN.node(*neighbors.begin()).first && *neighbors.begin()!=i)
                 {
                     //std::cout<<"contractingSecond "<<*neighbors.begin()<<" "<<i<<std::endl;
                     
@@ -112,7 +114,7 @@ namespace model
                     temp++;
                 }
                 
-                if(DN.node(j).first && *neighbors.begin()!=j)
+                if(DN.node(j).first && DN.node(*neighbors.begin()).first && *neighbors.begin()!=j)
                 {
                     //std::cout<<"contractingSecond "<<*neighbors.begin()<<" "<<j<<std::endl;
                     
@@ -150,7 +152,7 @@ namespace model
             
             // collect all neighbors at Ni.get_P() (but j)
             std::set<size_t> neighbors;
-            Nj.neighborsAt(Ni.get_P(),neighbors,100.0*FLT_EPSILON);
+            Nj.neighborsAt(Ni.get_P(),neighbors,neighborRadius);
             //            neighbors.erase(i);
             //            neighbors.erase(j);
             
@@ -170,11 +172,10 @@ namespace model
                 }
             }
             
-            // Contract
+            // Remove i from neighbors
             neighbors.erase(i);
             
-            //            if(neighbors.size())
-            //            {
+            // Contract
             for (std::set<size_t>::const_iterator nIter=neighbors.begin();nIter!=neighbors.end();++nIter)
             {
                 if(DN.node(*nIter).first)
@@ -185,7 +186,6 @@ namespace model
                     temp++;
                 }
             }
-            //            }
             
             if(DN.node(j).first)
             {
@@ -265,28 +265,6 @@ namespace model
                 if(sizePN1==1 && sizePN2==1) // nodes constrained to move on planes
                 {
                     //std::cout<<"contractWithConstraintCheck, case 1"<<std::endl;
-                    //                    const double denom(1.0-std::pow(PN1[0].dot(PN2[0]),2));
-                    //                    const double numer((P2-P1).dot(PN2[0]));
-                    //
-                    //                    if(denom<FLT_EPSILON) // parallel or coincident planes
-                    //                    {
-                    //                        if(std::fabs(denom)<FLT_EPSILON) // planes are coincident
-                    //                        {
-                    //                            contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
-                    //                        }
-                    //                        else // parallel planes
-                    //                        {
-                    //                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
-                    //                        }
-                    //                    }
-                    //                    else // incident planes
-                    //                    {
-                    //                        contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,P1+(PN2[0]-PN2[0].dot(PN1[0])*PN1[0])*numer/denom);
-                    //                    }
-                    
-                    //                    const VectorDimD d3(PN1[0].cross(PN2[0]));
-                    //                    const double d3norm(d3.norm());
-                    //                    if (d3norm<FLT_EPSILON) // parallel or coincident planes
                     if ((PN1[0].cross(PN2[0])).norm()<FLT_EPSILON) // parallel or coincident planes
                     {
                         //std::cout<<"contractWithConstraintCheck, case 1a"<<std::endl; // 2 3 5
@@ -340,25 +318,6 @@ namespace model
                 else if(sizePN1==2 && sizePN2==1) // N1 moves on a line, N2 moves on a plane
                 {
                     contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
-                    //                    //std::cout<<"contractWithConstraintCheck, case 3"<<std::endl;
-                    //                    const VectorDimD d1(PN1[0].cross(PN1[1]));
-                    //                    const double den(d1.dot(PN2[0]));
-                    //                    const double num((P2-P1).dot(PN2[0]));
-                    //                    if(std::fabs(den)>FLT_EPSILON) // line and plane are not parallel
-                    //                    {
-                    //                        //std::cout<<"contractWithConstraintCheck, case 3a"<<std::endl;
-                    //                        contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,P1+num/den*d1);
-                    //                    }
-                    //                    else
-                    //                    {
-                    //                        if(std::fabs(num)<FLT_EPSILON) // P1 belongs to the plane of P2
-                    //                        {
-                    //                            //std::cout<<"contractWithConstraintCheck, case 3b"<<std::endl;
-                    //
-                    ////                            contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2)); // HERE
-                    //                            contracted+=contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
-                    //                        }
-                    //                    }
                 }
                 else if(sizePN1==2 && sizePN2==2) // both N1 and N2 move on lines
                 {
@@ -425,15 +384,6 @@ namespace model
                     //std::cout<<"contractWithConstraintCheck, case 6"<<std::endl;
                     
                     contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
-                    
-                    //                    if(std::fabs(P12.normalized().dot(PN2[0]))<FLT_EPSILON) // P1 belongs to the plane of P2
-                    //                    {// contract N2
-                    //                        contracted+=contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
-                    //                    }
-                    //                    else // contraction not possible
-                    //                    {
-                    //
-                    //                    }
                 }
                 else if(sizePN1==2 && sizePN2==3)
                 {

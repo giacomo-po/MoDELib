@@ -9,17 +9,13 @@ use_directSolver=1;
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
 dx=10;
-equilibriumVelocity=0.01;
 use_velocityFilter=1;
 velocityReductionFactor=0.75;
-
-# Time integration method:
-useImplicitTimeIntegration=0;
 
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=10;
+outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
@@ -87,6 +83,7 @@ check_balance=1;
 # T/T_meshID.txt must be present in the working directory.
 use_boundary =1;
 meshID=0;
+use_meshRegions=0;
 
 
 ######################################
