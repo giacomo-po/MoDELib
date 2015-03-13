@@ -58,14 +58,14 @@ namespace model
         //        SimplicialMesh<3> mesh;
         
         
-        std::deque<std::pair<Eigen::Matrix<double,3,1>,Eigen::Matrix<double,6,1>>> deq;
+        std::deque<std::pair<Eigen::Matrix<float,3,1>,Eigen::Matrix<float,6,1>>> deq;
         
         std::deque<Eigen::Matrix<float,3,3> > regionsBndDeq;
         std::deque<std::pair<int,int>> regionsBndIDDeq;
         
         
-        Eigen::Matrix<float,1,6> sMin;
-        Eigen::Matrix<float,1,6> sMax;
+        Eigen::Matrix<float,6,1> sMin;
+        Eigen::Matrix<float,6,1> sMax;
         
         int rMax;
         
@@ -229,8 +229,8 @@ namespace model
                 fullName<<"S/S_"<<frameN<<".txt";
                 FILE *fp =fopen(fullName.str().c_str(), "r");
                 
-                Eigen::Matrix<double,3,1> P;
-                Eigen::Matrix<double,6,1> S;
+                Eigen::Matrix<float,3,1> P;
+                Eigen::Matrix<float,6,1> S;
                 
                 while (fscanf (fp, "%f%f%f%f%f%f%f%f%f", &x,&y,&z,&s11,&s22,&s33,&s12,&s23,&s13)==9)
                 {
@@ -245,8 +245,10 @@ namespace model
                 //                float sMin=FLT_MAX;
                 //                float sMax=FLT_MIN;
                 
-                sMin=Eigen::Matrix<float,1,6>::Constant(FLT_MAX);
-                sMax=Eigen::Matrix<float,1,6>::Constant(FLT_MIN);
+//                sMin=Eigen::Matrix<float,1,6>::Constant(FLT_MAX);
+//                sMax=Eigen::Matrix<float,1,6>::Constant(FLT_MIN);
+                sMin=deq[0].second;
+                sMax=deq[0].second;
                 
                 
                 for (int k=0;k<deq.size();++k)
@@ -278,14 +280,22 @@ namespace model
             
             if (plotBndStress)
             {
-                glEnable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
+                glEnable(GL_DEPTH_TEST);
+
+                glEnable(GL_COLOR_MATERIAL); // use glColorMaterial(...) to set material colors
+//                glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+                glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
+                glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+                glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
+                glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
                 
                 for (int k=0;k<deq.size()/3;++k)
                 {
                     RGBcolor clr0=RGBmap::getColor(deq[3*k+0].second(stressCol),sMin(stressCol),sMax(stressCol));
                     RGBcolor clr1=RGBmap::getColor(deq[3*k+1].second(stressCol),sMin(stressCol),sMax(stressCol));
                     RGBcolor clr2=RGBmap::getColor(deq[3*k+2].second(stressCol),sMin(stressCol),sMax(stressCol));
-                    glShadeModel(GL_SMOOTH);
+ //                   glShadeModel(GL_SMOOTH);
                     glBegin(GL_TRIANGLES);
                     glColor4f(clr0.r, clr0.g, clr0.b,0.5);
                     glVertex3f(deq[3*k+0].first(0),deq[3*k+0].first(1),deq[3*k+0].first(2));
@@ -311,6 +321,7 @@ namespace model
                 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor);      // diffuse color for the material
                 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor);  // specular color for the material
                 glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor);  // emission color for the material
+
                 for (auto& edge : edgeVector)
                 {
                     glBegin(GL_LINES);

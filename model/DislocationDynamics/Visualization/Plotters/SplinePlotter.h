@@ -24,9 +24,6 @@
 #include <set>
 #include <iterator> // std::distance
 
-//#include <boost/ptr_container/ptr_vector.hpp>
-
-
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
@@ -34,7 +31,6 @@
 #include <model/Network/Readers/EdgeReader.h>
 
 #include <model/openGL/BitmapPlotter.h>
-//#include <model/DislocationDynamics/Visualization/Plotters/BitmapPlotter.h>
 #include <model/openGL/RGBmap.h>
 
 
@@ -42,9 +38,6 @@
 namespace model
 {
 	
-	
-    class DDgl;
-    
 	/*********************************************************************/
 	/*********************************************************************/
 	template <int dim, int Np, int Nc>
@@ -70,24 +63,11 @@ namespace model
 		MatrixDimNp tubeTangents;
 		std::vector<MatrixDimNc> tubeCircles;
 		
-		
-		//		MatrixDimNc circle;
-		VectorDim planeNormal;
+        VectorDim planeNormal;
 		VectorDim burgers;
 		VectorDim chord;
-		
-		//		scalarType radius;
-		
-		scalarType specularity;
-		scalarType emissivity;
-		scalarType shininess;
-		scalarType transparency;
-		
-        //		VectorDim colorVector;
         
         const bool isSessile;
-		
-		//	unsigned int edgeTypes;	// 0 = full axis only, 1 = full tubes, 2 =  tubes with direction
 		
 		
 		/* getCircle **************************************************************/
@@ -99,8 +79,6 @@ namespace model
 			return circle;
 		}
 		
-		//	enum {edgeTypes=3};
-		
 	public:
 		
         enum{colorBurgers=0,colorSessile=1,colorNormal=2,colorComponent=3};
@@ -111,10 +89,6 @@ namespace model
         /* init list */ snID(snID_in),
 		/* init list */ planeNormal(P0T0P1T1BN.col(5).normalized()),
 		/* init list */ burgers(P0T0P1T1BN.col(4).normalized()),
-		/* init list */ specularity(0.5f),
-		/* init list */ emissivity(0.0f),
-		/* init list */ shininess(1.0f),
-		/* init list */ transparency(0.1f),
         /* init list */ isSessile(std::fabs(planeNormal.dot(burgers))>FLT_EPSILON)
         {
             
@@ -144,7 +118,7 @@ namespace model
 			}
 		}
 		
-		
+        /*********************************************************************/
         void flipColor(VectorDim& colorVector) const
         {
             if(colorVector(0)<0.0){
@@ -175,7 +149,8 @@ namespace model
 			
             // 1- Define the color
             VectorDim colorVector;
-            switch (colorScheme) {
+            switch (colorScheme)
+            {
                 case colorSessile:
                     colorVector(0)= isSessile? 1.0 : 0.1;
                     colorVector(1)= isSessile? 0.5 : 0.4;
@@ -202,13 +177,17 @@ namespace model
             
             //			glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
             //			glEnable(GL_DEPTH_TEST);
-            GLfloat materialColor[]={colorVector(0), colorVector(1), colorVector(2), 1.0};
+            GLfloat materialAmbient[]={colorVector(0), colorVector(1), colorVector(2), 1.0};
+            GLfloat materialEmission[]={colorVector(0)*0.1f, colorVector(1)*0.1f, colorVector(2)*0.1f, 1.0};
+
             //			GLfloat materialSpecular[] = {specularity, specularity, specularity, 1.0f};
             //			GLfloat materialEmission[] = {emissivity, emissivity, emissivity, 1.0f};
             // note that glMaterialfv(...) works when GL_COLOR_MATERIAL is disabled
-			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor);      // ambient color for the material
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor);      // diffuse color for the material
-			glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor);  // specular color for the material
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialAmbient);      // ambient color for the material
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialAmbient);      // diffuse color for the material
+			glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialAmbient);  // specular color for the material
+            glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialEmission);  // emission color for the material
+
             //			glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialEmission);  // emission color for the material
             //			glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess); //The shininess parameter
 			
@@ -262,6 +241,7 @@ namespace model
 				glVertex3f(tubeAxis(0,k)+planeNormal(0)*10.0*radius,tubeAxis(1,k)+planeNormal(1)*10.0*radius,tubeAxis(2,k)+planeNormal(2)*10.0*radius);
 				glEnd();
 			}
+            
             if(showBurgers)
             {
 				glBegin(GL_LINES);
@@ -287,7 +267,6 @@ namespace model
 	/* inherits from   */ public VertexReader<'V',9,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ public EdgeReader  <'E',11,double>,
 	/*                 */ public VertexReader<'P',7,double>,
-//	/* inherits from   */ private boost::ptr_vector<SingleSplinePlotter<dim,Np,Nc> >{ // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
     /* inherits from   */ private std::vector<SingleSplinePlotter<dim,Np,Nc> >
     { // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
 		
@@ -296,8 +275,6 @@ namespace model
 		typedef EdgeReader  <'E',11,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
         typedef VertexReader<'P',7,double> PKContainerType;
 		typedef SingleSplinePlotter<dim,Np,Nc> SingleSplinePlotterType;
-        //		typedef std::vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
-//		typedef boost::ptr_vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
         typedef std::vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
 
         typedef typename SingleSplinePlotterType::VectorDim VectorDim;
@@ -330,7 +307,6 @@ namespace model
 		/* init list   */ showPlaneNormal(false),
 		/* init list   */ showBurgers(false),
         /* init list   */ showVertexID(false),
-        //        /* init list   */ colorScheme(0),
         /* init list   */ showSpecificVertex(false),
         /* init list   */ specificVertexID(0),
         /* init list   */ showPK(false),
@@ -402,19 +378,7 @@ namespace model
 		void plot(const scalarType& radius)
         {
             
-            float specularity(0.5f);
-            float emissivity(0.0f);
-            float shininess(1.0f);
-            
-            
-            glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
-            glEnable(GL_DEPTH_TEST);
-            GLfloat materialSpecular[] = {specularity, specularity, specularity, 1.0f};
-            GLfloat materialEmission[] = {emissivity, emissivity, emissivity, 1.0f};
-            glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialEmission);  // emission color for the material
-            glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess); //The shininess parameter
-            
-			
+            // Collect IDs of Network Components
             SIDs.clear();
             for (typename VertexContainerType::const_iterator vIter=VertexContainerType::begin();vIter!=VertexContainerType::end();++vIter)
             {
@@ -423,13 +387,16 @@ namespace model
             float sIDmax(*SIDs.rbegin());
             float sIDmin(*SIDs.begin());
             
+            // Plot Segments
+            glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
+            glEnable(GL_DEPTH_TEST);
+            glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100.0f); //The shininess parameter
 			for (typename SingleSplinePlotterVectorType::const_iterator itEdge=SingleSplinePlotterVectorType::begin(); itEdge!=SingleSplinePlotterVectorType::end(); ++itEdge)
             {
-                //				itEdge->plot(radius,showTubes,showPlaneNormal,showBurgers,colorScheme,sIDmin,sIDmax);
 				itEdge->plot(radius,showTubes,showPlaneNormal,showBurgers,colorScheme,std::distance(SIDs.begin(),SIDs.find(itEdge->snID)),0,SIDs.size());
-                
 			}
 			
+            // Plot Nodes
 			if(showVertices) // Show vertices
             {
 				// Loop and plot spheres
@@ -437,9 +404,6 @@ namespace model
 				myQuad=gluNewQuadric();
 				for (typename VertexContainerType::const_iterator vIter=VertexContainerType::begin();vIter!=VertexContainerType::end();++vIter)
                 {
-                    //				float snID=(vIter->second(6)-sIDmin)/(sIDmax-sIDmin+1.0);
-                    //           RGBcolor rgb(RGBmap::getColor(vIter->second(6),sIDmin,sIDmax));
-                    //           GLfloat materialColor[] = {rgb.r, rgb.g, rgb.b, 1.0};
                     GLfloat materialColor[] = {0.0, 0.0, 0.0, 1.0};
                     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor);      // ambient color for the material
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor);      // diffuse color for the material
@@ -448,6 +412,7 @@ namespace model
                     
                     if(!vertexOnBoundary || plotBoundarySegments)
                     {
+                        glColor3f(0.0f, 0.0f, 0.0f);
                         glTranslatef(  vIter->second(0),  vIter->second(1),  vIter->second(2) );
                         gluSphere( myQuad , radius*1.2 , 10 , 10 );
                         glTranslatef( -vIter->second(0), -vIter->second(1), -vIter->second(2) );

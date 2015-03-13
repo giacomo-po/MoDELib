@@ -47,40 +47,14 @@
 
 namespace model {
 	
-//	std::string defaultColor    = "\033[0m";	  // the default color for the console
-//	std::string redBoldColor    = "\033[1;31m";   // a bold red color
-//	std::string greenBoldColor  = "\033[1;32m";   // a bold green color
-//	std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
-//	std::string magentaColor    = "\033[0;35m";   // a magenta color
-	
-	
-    //#include <model/DislocationDynamics/Visualization/eps/rendereps_out.h>
-    
-//    mesh.readMesh(0);
 	
 	/*************************************************************/
 	/* DDgl **************************************************/
 	/*************************************************************/
-//	template <short unsigned int dim, float & alpha>
-//	struct DDgl{
-//		
-//	public:
-//		DDgl(){
-//			assert(0 && "DDgl.h: template specialization not implemented");
-//		}
-//		
-//	};
-	
-	/*************************************************************/
-	/* DDgl **************************************************/
-	/*************************************************************/
-//	template <float & alpha>
 	struct DDgl
     {
         
         static float alpha;
-		
-//        const SimplicialMesh<3>* const p_mesh; // declaring mesh as pointer is necessary
 
         
         //  #include <model/DislocationDynamics/Visualization/eps/rendereps.h>
@@ -186,7 +160,7 @@ namespace model {
 			
 			//Add positioned light
 			glEnable(GL_LIGHT0); //Enable light #0
-            GLfloat light0Pos[] =   {10000.0f, 10000.0f, 0.0f,10000.0f};
+            GLfloat light0Pos[] =   {10000.0f, 10000.0f, 10000.0f,1.0f};
             glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
             GLfloat light0Amb[] =   {0.0f, 0.0f, 0.0f, 1.0f}; // ambient color for GL_LIGHT0
             glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
@@ -200,7 +174,7 @@ namespace model {
             
             
             
-			glEnable(GL_COLOR_MATERIAL);
+//			glEnable(GL_COLOR_MATERIAL);
             
 			
 			glEnable(GL_NORMALIZE); //Automatically normalize normals
@@ -326,14 +300,15 @@ namespace model {
 			if (showAxes)
             {
                 
+
                 glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
-                GLfloat materialColor[]={0.0, 0.0, 0.0, 0.1};
+                glEnable(GL_DEPTH_TEST);
+                GLfloat materialColor[]={0.0f, 0.0f, 0.0f, 1.0};
                 glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor);      // ambient color for the material
                 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor);      // diffuse color for the material
                 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor);  // specular color for the material
                 glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor);  // emission color for the material
-                
-				
+
                 // Plot axes
 				glBegin(GL_LINES);
 				glVertex3f(xMin, 0.0f,0.0f);
@@ -484,29 +459,17 @@ namespace model {
 			//VectorDimF eyePoint = centerPoint +  scale* center2eye;
 			gluLookAt(eyePoint(0),eyePoint(1),eyePoint(2), centerPoint(0), centerPoint(1), centerPoint(2), upVector(0), upVector(1), upVector(2)); //giacomo
 			
-//			GLfloat lightColor0[] = {1.0f, 1.0f, 1.0f, 1.0f}; //Color (0.5, 0.5, 0.5)
 //			GLfloat lightPos0[] = {eyePoint(0)-centerPoint(0), eyePoint(1)-centerPoint(1), eyePoint(2)-centerPoint(2), 0.0f}; //Positioned at (4, 0, 8)
 			GLfloat lightPos0[] = {eyePoint(0), eyePoint(1), eyePoint(2), 0.0f};
 
-//			glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor0);
 			glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);
             
             
-            //            glClear (GL_COLOR_BUFFER_BIT);
-            //            glEnable (GL_BLEND);
-            //            glEnable (GL_POLYGON_SMOOTH);
-            //            glDisable (GL_DEPTH_TEST);
-            
-            glEnable(GL_MULTISAMPLE);
-            //glEnable(GL_POLYGON_SMOOTH);
-            //           glEnable(GL_LINE_SMOOTH);
-            //           glEnable(GL_POLYGON_SMOOTH);
-            //           glEnable(GL_MULTISAMPLE_ARB);
-            //glShadeModel(GL_SMOOTH);
+            meshPlotter.plot();
+
 			splinePlotter.plot(radius);
 			cellPlotter.plot();
-			plotAxes();
-			meshPlotter.plot();
+            plotAxes();
 			planePlotter.plot();
             
 			
@@ -642,11 +605,13 @@ namespace model {
 				case '-':
 					if (keyStates['z'] && keyStates['f']){
 						scale*=1.005;
-						zoom();
+//                        scale+=0.001*boxSize;
+                        zoom();
 					}
 					if (keyStates['z'] && !keyStates['f']){
 						scale*=1.05;
-						zoom();
+//                        scale+=0.01*boxSize;
+                        zoom();
 					}
 					if (keyStates['r']){
 						radius*=.95;
@@ -662,11 +627,13 @@ namespace model {
 				case '=':
 					if (keyStates['z'] && keyStates['f']){
 						scale*=0.995;
-						zoom();
+//                        scale-=0.001*boxSize;
+                        zoom();
 					}
 					if (keyStates['z'] && !keyStates['f']){
 						scale*=0.95;
-						zoom();
+//                        scale-=0.01*boxSize;
+                        zoom();
 					}
 					if (keyStates['r']){
 						radius*=1.05;

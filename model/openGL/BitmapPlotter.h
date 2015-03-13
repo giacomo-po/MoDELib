@@ -33,7 +33,7 @@ namespace model {
         template <typename scalarType>
 		static void renderString(const Eigen::Matrix<scalarType,3,1>& P, const std::string& string2render) {
   			glRasterPos3f(P(0), P(1), P(2));
-			glColor3f(1.0f, 1.0f, 1.0f);
+            glEnable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
   			for (unsigned int k=0; k<string2render.length(); ++k) {
     			glutBitmapCharacter(font, string2render[k]);
   			}

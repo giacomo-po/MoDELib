@@ -27,7 +27,8 @@ model::SimplicialMesh<3>* p_mesh;  // declaring as pointer is necessary for glut
 model::DDgl* p_DDgl; // declaring as pointer is necessary for glut
 
 
-namespace model {
+namespace model
+{
 	
 	
 	/*************************************************************/
@@ -48,15 +49,15 @@ namespace model {
 	
 	/*************************************************************/
 	//Draws the 3D scene
-	void DDglut_DisplayFunc(){
+	void DDglut_DisplayFunc()
+    {
 		p_DDgl->displayFunc();
 	}
 	
 	
 	/*************************************************************/
-	//float _angle = -70.0f;
-	
-	void update(int value) {
+	void update(int value)
+    {
 		//	_angle += 1.5f;
 		//	if (_angle > 360) {
 		//		_angle -= 360;
@@ -68,23 +69,27 @@ namespace model {
 	
 	
 	/*************************************************************/
-	void DDglut_handleKeypress(unsigned char key, int x, int y) {// key and current mouse coordinates
+	void DDglut_handleKeypress(unsigned char key, int x, int y)
+    {// key and current mouse coordinates
 		p_DDgl->handleKeypress(key,x,y);
 	}
 	
 	/*************************************************************/
-	void DDglut_mouseButton(int button, int state, int x, int y){
+	void DDglut_mouseButton(int button, int state, int x, int y)
+    {
 		//! see DDviewer::DDglut_mouseButton
 		p_DDgl->mouseButton(button,state,x,y);
 	}
 	
 	/*************************************************************/
-	void DDglut_mouseMotion(int x, int y){
+	void DDglut_mouseMotion(int x, int y)
+    {
 		p_DDgl->mouseMotion(x,y);
 	}
 	
 	/*************************************************************/
-	void DDglut_specialKey(int key, int x, int y){
+	void DDglut_specialKey(int key, int x, int y)
+    {
 		p_DDgl->specialKey(key,x,y);
 	}
 	
@@ -94,7 +99,8 @@ namespace model {
     
 	void DDglut_menu1(int item)
     {
-        switch (item) {
+        switch (item)
+        {
             case 0:
                 GL2tga::saveTGA=!GL2tga::saveTGA;
                 break;

@@ -7,10 +7,12 @@
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
-#include <Eigen/SparseQR>
-#include <Eigen/OrderingMethods>
+#include <Eigen/PardisoSupport>
 
-#include <model/Math/SparseNullSpace.h>
+//#include <Eigen/SparseQR>
+//#include <Eigen/OrderingMethods>
+//
+//#include <model/Math/SparseNullSpace.h>
 
 // http://stackoverflow.com/questions/2181418/computing-the-null-space-of-a-matrix-as-fast-as-possible
 
@@ -41,14 +43,16 @@ int main()
     A.insert(2,5) = -9.0;
     A.makeCompressed();                        // optional
 
-    SparseNullSpace<SparseMatType> ns(A);
+//    SparseNullSpace<SparseMatType> ns(A);
     
 
-    SparseMatType AZ;
+//    SparseMatType AZ;
 //    AZ=A*ns.matrixZ();
 
-    std::cout<<"(A*Z).norm()="<<(A*ns.matrixZ()).norm()<<std::endl;
-    std::cout<<"(A*Y).norm()="<<(A*ns.matrixY()).norm()<<std::endl;
+//    std::cout<<"(A*Z).norm()="<<(A*ns.matrixZ()).norm()<<std::endl;
+//    std::cout<<"(A*Y).norm()="<<(A*ns.matrixY()).norm()<<std::endl;
+
+    Eigen::PardisoDLDT<SparseMatType> solver(A);
     
     return 0;
 }

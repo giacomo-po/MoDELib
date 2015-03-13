@@ -34,13 +34,9 @@ CC= g++
 mpiCC = mpicxx
 # optimization level = fast
 #CFLAGS  += -O3
-CFLAGS  += -Ofast
-CFLAGS  += -msse4
-#CFLAGS  += -mavx
-#CFLAGS  += -march=native
-# enable openMP
+CFLAGS += -Ofast
+CFLAGS += -msse4
 CFLAGS += -fopenmp
-# enable C++0x
 CFLAGS += -std=c++0x
 endif
 # enable common warnings… 
@@ -60,18 +56,19 @@ ifeq ($(usePARDISO), 1)
 	CFLAGS += -D _MODEL_PARDISO_SOLVER_
 	IDIR += -I $(MKL_INCLUDE)
 	LIBS += -L $(MKL_LIB)
-	LIBS += -lmkl_intel_lp64 
-	LIBS += -lmkl_core
+
 	ifeq ($(OS),Darwin)
-		LIBS += -lmkl_intel_thread 
+		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread
 	endif
+
 	ifeq ($(OS),Linux)
 		ifeq ($(USE_ICC), 1)
-			LIBS += -lmkl_intel_thread 
+			LIBS += -Wl,--start-group -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -Wl,--end-group 
 		else
-			LIBS += -lmkl_gnu_thread 
+			LIBS += -Wl,--start-group -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -Wl,--end-group 
 		endif
 	endif
+
 endif
 
 ############################################
