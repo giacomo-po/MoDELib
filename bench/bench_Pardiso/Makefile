@@ -15,7 +15,8 @@ OS= $(shell uname -s)
 ifeq ($(OS),Darwin)
 	LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread
 else
-	LIBS+= -Wl,--start-group -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -Wl,--end-group -ldl -lpthread -lm
+	LIBS+= -Wl,--start-group -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -Wl,--end-group 
+#-ldl -lpthread -lm
 endif
 
 
@@ -24,3 +25,7 @@ program:
 	
 clean:
 		rm -f bench
+
+
+#export LD_LIBRARY_PATH=/opt/intel/composer_xe_2015.2.164/mkl/lib/intel64/:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH =/opt/intel/composer_xe_2015.2.164/compiler/lib intel64/:$LD_LIBRARY_PATH

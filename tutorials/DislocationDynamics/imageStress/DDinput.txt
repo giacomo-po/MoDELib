@@ -78,6 +78,7 @@ collisionTol=10;
 # T/T_meshID.txt must be present in the working directory.
 use_boundary=1;
 meshID=1;
+use_meshRegions=0;
 
 ######################################
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
@@ -85,6 +86,7 @@ meshID=1;
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
 use_bvp = 10;
 use_virtualSegments=0;
+use_directSolver=0;
 solverTolerance=0.0001;
 
 ######################################

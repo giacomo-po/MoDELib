@@ -6,8 +6,8 @@ crystal=2
 
 switch crystal
     case 1 % BCC
-        A=[ 1 -1  1;
-            1  1 -1;
+        A=[  1 -1  1;
+             1  1 -1;
             -1  1  1]/sqrt(3); % lattice vectors in units of b
         
         N =[ 1 -1   1 -1  0  0;

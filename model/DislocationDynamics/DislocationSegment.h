@@ -230,9 +230,7 @@ namespace model
            *  @param[in] k the current quadrature point
            */
             MatrixDimNdof temp(SFgaussEx(k));
-            //			return temp.transpose()*pkGauss.col(k)*jgauss(k);
-            ////			return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
-            
+            //return temp.transpose()*pkGauss.col(k)*jgauss(k);
             return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
             //            return temp.transpose()*dm.getVelocity(stressGauss[k],rlgauss.col(k))*jgauss(k); // inverse mobility law
         }

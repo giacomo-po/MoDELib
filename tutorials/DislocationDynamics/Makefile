@@ -2,7 +2,7 @@
 # EDIT HERE
 ##########################################################
 USE_ICC = 0
-usePARDISO = 1
+usePARDISO = 0
 MODEL_INCLUDE =../../../
 MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
 MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
@@ -20,30 +20,24 @@ IDIR += -I$(MODEL_INCLUDE)
 OS= $(shell uname -s)
 
 ifeq ($(USE_ICC), 1)
-CC= icpc
-mpiCC= icpc
-# optimization level
-CFLAGS	 = -O3
-CFLAGS	+= -fast
-# enable openMP
-CFLAGS	+= -openmp 
-#enable C++0x
-CFLAGS	+= -std=c++0x
+	CC= icpc
+	mpiCC= icpc
+	CFLAGS	 = -O3
+	CFLAGS	+= -xhost
+	#CFLAGS	+= -fast
+	CFLAGS	+= -openmp 
+	CFLAGS	+= -std=c++11
 else
-CC= g++
-mpiCC = mpicxx
-# optimization level = fast
-#CFLAGS  += -O3
-CFLAGS += -Ofast
-CFLAGS += -msse4
-CFLAGS += -fopenmp
-CFLAGS += -std=c++0x
+	CC= g++
+	mpiCC = mpicxx
+	CFLAGS += -Ofast
+	CFLAGS += -msse4
+	CFLAGS += -fopenmp
+	CFLAGS += -std=c++11
 endif
-# enable common warnings… 
-CFLAGS += -Wall
-# … and more warnings       
-CFLAGS += -Wextra
-#CFLAGS += -ftime-report
+
+# enable warnings
+CFLAGS += -Wall -Wextra
 
 #disable model-assertions
 CFLAGS += -D _MODEL_NO_DEBUG_

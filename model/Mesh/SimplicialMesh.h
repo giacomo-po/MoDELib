@@ -65,8 +65,6 @@ namespace model
 
         /**********************************************************************/
         SimplicialMesh() :
-//        /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Constant( DBL_MAX)),
-//        /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Constant(-DBL_MAX))
         /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Zero()),
         /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Zero())
         {
@@ -165,7 +163,6 @@ namespace model
           * sorted array xIN.
           */
             const typename SimplexTraits<dim,dim>::SimplexIDType xID(SimplexTraits<dim,dim>::sortID(xIN));
-//            this->emplace(xID,xID); // requires gcc4.8 and above
             const bool success=this->emplace(std::piecewise_construct,
                                              std::make_tuple(xID),
                                              std::make_tuple(xID, regionID)

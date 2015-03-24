@@ -3,7 +3,7 @@
 Nsteps=10000;
 timeWindow=5.1e03;
 startAtTimeStep = 0;
-use_directSolver=1;
+use_directSolver=0;
 
 ######################################
 # TIME STEP

@@ -122,33 +122,22 @@ namespace model {
 			}
 			
 			
-			//////////////////////////////////////////////////////////////
 			// Destructor
-			~UniqueOutputFile(){
-//				bool isEmpty = !p_ofstream->tellp();	// if tellp()==0 then file is empty
-//				
-//				p_ofstream->close();
-//				
-//				if( isEmpty){
-//				//	std::cout<<"File is empty. ";
-//					deleteFile();
-//				} 
-				
-				delete p_ofstream;  // is this needed ???????
+			~UniqueOutputFile()
+            {
+                delete p_ofstream;
 			}
 			
-			//////////////////////////////////////////////////////////////
-			// define operator << for template types
 			template <typename T>
-			UniqueOutputFile & operator<<(const T & AnyOutput){
+			UniqueOutputFile & operator<<(const T & AnyOutput)
+            {// define operator << for template types
 				*p_ofstream << AnyOutput;
 				return *this;
 			}
 			
 			
-			//////////////////////////////////////////////////////////////
-			// Overload operator << for std::endl
-			UniqueOutputFile & operator<<(StlEndl manip){
+			UniqueOutputFile & operator<<(StlEndl manip)
+            {// Overload operator << for std::endl
 				manip(*p_ofstream);
 				return *this;
 			}
@@ -156,6 +145,5 @@ namespace model {
 			
 		};
 		
-		//////////////////////////////////////////////////////////////
 } // namespace model
 #endif
