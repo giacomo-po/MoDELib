@@ -104,25 +104,12 @@ namespace model {
 			}
 			
 			
-//			//////////////////////////////////////////////////////////////
-//			// Close file and delete if empty
-//			void deleteFile(){
-//				//std::cout<<"Deleting file: "<<filename<<std::endl;
-//				remove(filename.c_str());	// ENABLE
-//			}
-			
-
-			///////////////////////////////
-			// Public
 		public:
-			//////////////////////////////////////////////////////////////
-			// Constructor
-			UniqueOutputFile() {
+			UniqueOutputFile()
+            {
 				new_file();
 			}
-			
-			
-			// Destructor
+						
 			~UniqueOutputFile()
             {
                 delete p_ofstream;

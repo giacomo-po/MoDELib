@@ -1,8 +1,3 @@
-
-//const double zSurf = 1.0e3;
-//const double cubelength = 1000.0;
-//const double V = cubelength*cubelength*cubelength;
-
 /******************************************************************************/
 // COMPUTATION OF DISPLACEMENT
 double disp = 0.0;
