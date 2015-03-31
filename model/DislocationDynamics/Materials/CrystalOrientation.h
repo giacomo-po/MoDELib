@@ -18,7 +18,7 @@
 #include <model/Utilities/TerminalColors.h>
 #include <model/DislocationDynamics/Materials/CrystalStructures.h>
 #include <model/MPI/MPIcout.h>
-#include <model/DislocationDynamics/LatticeMath/LatticeBase.h>
+#include <model/LatticeMath/LatticeBase.h>
 
 
 
