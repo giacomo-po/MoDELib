@@ -58,7 +58,7 @@ namespace model
         typedef typename QuadratureType::VectorDim AbscissaType;
         
         /**********************************************************************/
-        void assembleOnDomain(Eigen::Matrix<double,Eigen::Dynamic,1>& _globalVector) const
+        void assembleOnDomain(Eigen::Matrix<double,Eigen::Dynamic,1>&) const
         {
 
             assert(0 && "FINISH HERE, AbscissaType is the wrong type in this function in case of boundary integration (and viceversa).");

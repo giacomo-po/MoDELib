@@ -11,6 +11,8 @@ IDIR += -I $(MODEL_INCLUDE)
 CFLAGS += -std=c++11  
 CFLAGS += -O3 
 CFLAGS += -fopenmp
+CFLAGS += -Wall
+CFLAGS += -Wextra
 
 ##############################
 LIBS += 

@@ -22,6 +22,7 @@ namespace model
             if(!dontCrash) // similar to assert
             {
                 std::cerr<<msg<<std::endl;
+                exit(EXIT_FAILURE);
             }
         }
         

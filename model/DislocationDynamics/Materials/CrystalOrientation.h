@@ -18,6 +18,7 @@
 #include <model/Utilities/TerminalColors.h>
 #include <model/DislocationDynamics/Materials/CrystalStructures.h>
 #include <model/MPI/MPIcout.h>
+#include <model/DislocationDynamics/LatticeMath/LatticeBase.h>
 
 
 
@@ -42,8 +43,8 @@ namespace model {
         
         static Eigen::Matrix<double,dim,dim> C2G;
 
-        static Eigen::Matrix<double,dim,dim> latticeMatrix;
-        static Eigen::Matrix<double,dim,dim> inverseLatticeMatrix;
+//        static Eigen::Matrix<double,dim,dim> latticeMatrix;
+//        static Eigen::Matrix<double,dim,dim> inverseLatticeMatrix;
 
         
     public:
@@ -75,11 +76,10 @@ namespace model {
             }
             
             
-            latticeMatrix=C2G*CrystalStructure::template getLatticeMatrix<dim>();
-            //model::cout<<
-            
-            inverseLatticeMatrix=latticeMatrix.inverse();
-            
+//            latticeMatrix=C2G*CrystalStructure::template getLatticeMatrix<dim>();
+//            inverseLatticeMatrix=latticeMatrix.inverse();
+            LatticeBase<dim>::setLatticeBasis(C2G*CrystalStructure::template getLatticeBasis<dim>());
+
             
             
             model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
@@ -236,15 +236,15 @@ namespace model {
             return C2G;
         }
         
-        static const Eigen::Matrix<double,dim,dim>& lattMat()
-        {
-            return latticeMatrix;
-        }
-        
-        static const Eigen::Matrix<double,dim,dim>& invLattMat()
-        {
-            return inverseLatticeMatrix;
-        }
+//        static const Eigen::Matrix<double,dim,dim>& lattMat()
+//        {
+//            return latticeMatrix;
+//        }
+//        
+//        static const Eigen::Matrix<double,dim,dim>& invLattMat()
+//        {
+//            return inverseLatticeMatrix;
+//        }
         
         
         /**********************************************************************/
@@ -267,6 +267,12 @@ namespace model {
 //            return std::distance(planeNormalContainer.begin(),pIter);
         }
         
+        /**********************************************************************/
+        static const std::vector<Eigen::Matrix<double,dim,1> >& planeNormals()
+        {
+            return planeNormalContainer;
+        }
+        
     };
     
     template <int dim>
@@ -275,11 +281,11 @@ namespace model {
     template <int dim>
     Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::C2G=Eigen::Matrix<double,dim,dim>::Identity();
 
-    template <int dim>
-    Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::latticeMatrix=FCC::getLatticeMatrix<dim>();
-
-    template <int dim>
-    Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::inverseLatticeMatrix=latticeMatrix.inverse();
+//    template <int dim>
+//    Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::latticeMatrix=FCC::getLatticeMatrix<dim>();
+//
+//    template <int dim>
+//    Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::inverseLatticeMatrix=latticeMatrix.inverse();
 
     
     template <int dim>
