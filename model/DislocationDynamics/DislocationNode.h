@@ -33,8 +33,6 @@ namespace model
 	
 	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-//	class DislocationNode : public SplineNodeBase<DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>,
-//	/*                                         */ _dim,corder,InterpolationType>
     class DislocationNode : public SplineNode<DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>,
     /*                                         */ _dim,corder,InterpolationType>
 

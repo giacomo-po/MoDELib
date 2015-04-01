@@ -65,17 +65,20 @@ namespace model
       */
 
         typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef LatticeVector<dim> LatticeVectorType;
 
         //! The glide plane unit normal vector
+        const ReciprocalLatticeDirectionType& glidePlaneReciprocalNormal;
         const VectorDim   glidePlaneNormal;
         
         const VectorDim sessilePlaneNormal;
 
         
         PlanarDislocationSegment(const VectorDim& chord,const LatticeVectorType& Burgers) :
-        /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(chord,Burgers).normalized()),
-        /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(chord,Burgers))
+        /* init list       */ glidePlaneReciprocalNormal(CrystalOrientation<dim>::find_planeNormal(chord,Burgers)),
+        /* init list       */ glidePlaneNormal(glidePlaneReciprocalNormal.cartesian()),
+        /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::find_sessileNormal(chord,Burgers))
         {
         
         }
