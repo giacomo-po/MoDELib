@@ -195,13 +195,16 @@ namespace model {
 		}
 		
 		/* connect ***************************************************/
-		bool connect(const size_t& i, const size_t& j, const FlowType& f)
+        template <typename ...EdgeArgTypes>
+        bool connect(const size_t& i, const size_t& j, const EdgeArgTypes&... edgeArgs)
+//		bool connect(const size_t& i, const size_t& j, const FlowType& f)
         {/*! @param[in] i the StaticID of the source vertex
           *  @param[in] j the StaticID of the sink vertex
           *  @param[in] f the flow
           *  Connects source vertex i to sink vertex j with flow f
           */
-			return VertexConnection<NodeType,LinkType>(*this,*this).connect(i,j,f);
+//			return VertexConnection<NodeType,LinkType>(*this,*this).connect(i,j,f);
+            return VertexConnection<NodeType,LinkType>(*this,*this).connect(i,j,edgeArgs...);
 		}
 		
 		/* disconnect ************************************************/

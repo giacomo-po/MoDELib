@@ -79,8 +79,8 @@ namespace model
         {
             VectorDimD nd(AT*d);
             VectorDimD rd(RoundEigen<double,dim>::round(nd));
-            //            std::cout<<"d2cov, nd="<<nd.transpose()<<std::endl;
-            //            std::cout<<"d2cov, rd="<<rd.transpose()<<std::endl;
+                        std::cout<<"d2cov, nd="<<nd.transpose()<<std::endl;
+                        std::cout<<"d2cov, rd="<<rd.transpose()<<std::endl;
             assert((nd-rd).norm()<roundTol && "Input vector is not a lattice vector");
             return rd.template cast<long int>();
         }

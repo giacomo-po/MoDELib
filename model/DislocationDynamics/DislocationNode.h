@@ -460,7 +460,7 @@ namespace model
                                         faceInt=simplex->faceLineIntersection(baryOld,baryNew,f);
                                         //                                    std::cout<<"DislocationNode "<<this->sID<<", baryMin="<<faceInt.minCoeff()<<std::endl;
                                         
-                                        if(faceInt.minCoeff()>=0.0) // faceInt belongs to triangle
+                                        if(faceInt.minCoeff()>=-FLT_EPSILON) // faceInt belongs to triangle
                                         {
                                             regBndSimplex=simplex; // current simplex is the region boundary simplex wanted
                                             faceID=f; // intersection face is f

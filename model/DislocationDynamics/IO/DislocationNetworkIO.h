@@ -19,6 +19,7 @@
 #include <model/Utilities/TerminalColors.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/MPI/MPIcout.h>
+#include <model/LatticeMath/LatticeMath.h>
 
 namespace model
 {
@@ -41,6 +42,7 @@ namespace model
         typedef typename SpatialCellObserverType::CellMapType CellMapType;
         typedef typename DislocationNetworkType::BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename DislocationNetworkType::BvpSolverType::TrialFunctionType TrialFunctionType;
+        typedef LatticeVector<dim> LatticeVectorType;
         
         enum {NdofXnode=NodeType::NdofXnode};
         
@@ -123,7 +125,7 @@ namespace model
 				const size_t sourceID(eIter->first.first );
 				const size_t   sinkID(eIter->first.second);
                 model::cout << "\r \r" << "Creating DislocationSegment "<<sourceID<<"->"<<sinkID<<" ("<<kk<<" of "<<eReader.size()<<")              "<<std::flush;
-                const bool success=DN.connect(sourceID,sinkID,B);
+                const bool success=DN.connect(sourceID,sinkID,LatticeVectorType(B));
 				assert(success && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
                 kk++;
 			}
@@ -151,7 +153,7 @@ namespace model
                 SequentialBinFile<'E',BinEdgeType> binEdgeFile;
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
                 {
-                    Eigen::Matrix<double,1,9> temp( (Eigen::Matrix<double,1,9>()<< linkIter->second.flow.transpose(),
+                    Eigen::Matrix<double,1,9> temp( (Eigen::Matrix<double,1,9>()<< linkIter->second.flow.cartesian().transpose(),
                     /*                                                          */ linkIter->second.glidePlaneNormal.transpose(),
                                                      /*                                                          */ linkIter->second.sourceTfactor,
                                                      /*                                                          */ linkIter->second.sinkTfactor,

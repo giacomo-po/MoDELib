@@ -90,8 +90,8 @@ namespace model
         {
             //            const double u1(intersectionPair.first.second);
             //            const double u2(intersectionPair.second.second);
-            const VectorDimD b1(L1.flow);
-            const VectorDimD b2(L2.flow);
+            const VectorDimD b1(L1.Burgers);
+            const VectorDimD b2(L2.Burgers);
             const VectorDimD rl1(L1.get_rl(u1));
             const VectorDimD rl2(L2.get_rl(u2));
             

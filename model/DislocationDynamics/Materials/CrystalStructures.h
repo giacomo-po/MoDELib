@@ -158,6 +158,33 @@ namespace model
         }
 
 
+        template <int dim>
+        static std::vector<ReciprocalLatticeDirection<dim>> reciprocalPlaneNormals()
+        {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
+          * the slip plane normals of the FCC lattice
+          */
+            typedef Eigen::Matrix<long int,dim,1> VectorDimI;
+            typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
+            typedef std::vector<ReciprocalLatticeDirectionType> ReciprocalPlaneNormalContainerType;
+            ReciprocalPlaneNormalContainerType temp;
+            
+            ReciprocalLatticeDirectionType   alpha(VectorDimI( 0, 1, 0)); // is ( 0, 1, 1) in cartesian
+            ReciprocalLatticeDirectionType    beta(VectorDimI( 0, 0, 1)); // is ( 1, 0, 1) in cartesian
+            ReciprocalLatticeDirectionType   gamma(VectorDimI( 0,-1, 1)); // is ( 1,-1, 0) in cartesian
+            ReciprocalLatticeDirectionType   delta(VectorDimI( 1, 0,-1)); // is ( 0, 1,-1) in cartesian
+            ReciprocalLatticeDirectionType epsilon(VectorDimI( 1, 0, 0)); // is ( 1, 1, 0) in cartesian
+            ReciprocalLatticeDirectionType     phi(VectorDimI( 1,-1, 0)); // is ( 1, 0,-1) in cartesian
+            
+            temp.push_back(alpha);
+            temp.push_back(beta);
+            temp.push_back(gamma);
+            temp.push_back(delta);
+            temp.push_back(epsilon);
+            temp.push_back(phi);
+            
+            return temp;
+        }
+        
 
     };    
     /**************************************************************************/

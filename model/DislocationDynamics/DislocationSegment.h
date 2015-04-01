@@ -65,14 +65,15 @@ namespace model
       */
 
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-        
+        typedef LatticeVector<dim> LatticeVectorType;
+
         //! The glide plane unit normal vector
         const VectorDim   glidePlaneNormal;
         
         const VectorDim sessilePlaneNormal;
 
         
-        PlanarDislocationSegment(const VectorDim& chord,const VectorDim& Burgers) :
+        PlanarDislocationSegment(const VectorDim& chord,const LatticeVectorType& Burgers) :
         /* init list       */ glidePlaneNormal(CrystalOrientation<dim>::find_planeNormal(chord,Burgers).normalized()),
         /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::get_sessileNormal(chord,Burgers))
         {
@@ -117,14 +118,12 @@ namespace model
         typedef typename GlidePlaneObserver<LinkType>::GlidePlaneType GlidePlaneType;
         typedef typename GlidePlaneObserver<LinkType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
         
-        //        typedef DislocationQuadratureParticle<dim> DislocationParticleType;
         
-        typedef std::vector<Eigen::Matrix<double,dim,1>> vector_VectorDim;
         
         typedef DislocationParticle<dim> DislocationParticleType;
         typedef std::vector<DislocationParticleType*> QuadratureParticleContainerType;
-        
-        
+        typedef LatticeVector<dim> LatticeVectorType;
+
         /******************************************************************/
     private: //  data members
         /******************************************************************/
@@ -168,7 +167,9 @@ namespace model
         
         
         //! The Burgers vector
+//        const VectorDim Burgers;
         const VectorDim Burgers;
+//        const LatticeVectorType& Burgers;
         
         //! The glide plane unit normal vector
 //        const VectorDim   glidePlaneNormal;
@@ -255,10 +256,11 @@ namespace model
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         /* Constructor with Nodes and FLow ************************************/
-        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const VectorDim & Fin) :
+//        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const VectorDim & Fin) :
+        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const LatticeVectorType& Fin) :
         /* base class initialization */ PlanarSegmentType(nodePair.second->get_P()-nodePair.first->get_P(),Fin),
         /* base class initialization */ SegmentBaseType(nodePair,Fin),
-        /* init list       */ Burgers(this->flow * Material<Isotropic>::b),
+        /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
         /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ dm(this->glidePlaneNormal,Burgers)
@@ -285,7 +287,7 @@ namespace model
 //        /* base class initialization */ PlanarSegmentType(ee),
         /* base class initialization */ PlanarSegmentType(nodePair.second->get_P()-nodePair.first->get_P(),ee.E.flow),
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
-        /* init list       */ Burgers(this->flow * Material<Isotropic>::b),
+        /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
         /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ dm(this->glidePlaneNormal,Burgers)
@@ -699,9 +701,9 @@ namespace model
         }
         
         /*********************************************************************/
-        vector_VectorDim conjugatePlaneNormal() const
+        std::vector<VectorDim> conjugatePlaneNormal() const
         {
-            return CrystalOrientation<dim>::conjugatePlaneNormal(Burgers,this->glidePlaneNormal);
+            return CrystalOrientation<dim>::conjugatePlaneNormal(this->flow,this->glidePlaneNormal);
         }
         
         /*********************************************************************/
@@ -758,7 +760,7 @@ namespace model
         friend T& operator << (T& os, const Derived& ds)
         {
             os  << ds.source->sID<<"\t"<< ds.sink->sID<<"\t"
-            /**/<< std::setprecision(15)<<std::scientific<<ds.flow.transpose()<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<ds.Burgers.transpose()<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.glidePlaneNormal.transpose()<<"\t"
             /**/<< ds.sourceTfactor<<"\t"
             /**/<< ds.sinkTfactor<<"\t"

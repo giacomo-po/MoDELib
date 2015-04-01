@@ -8,7 +8,6 @@
 
 public:
 
-	/* Basic types defined by TypeTraits<Derived> ***************************************************/
 	typedef typename TypeTraits<Derived>::NetworkType				NetworkType;			
     typedef typename TypeTraits<Derived>::NodeType					NodeType;
 	typedef typename TypeTraits<Derived>::LinkType					LinkType;
@@ -16,9 +15,7 @@ public:
     typedef NetworkComponent<NodeType,LinkType>                     NetworkComponentType;
 
 
-	/* Containers and iterators used in Network *****************************************************/
     typedef typename std::map<size_t,NodeType>                          NetworkNodeContainerType;
-//    typedef typename boost::ptr_map<size_t,NodeType>				NetworkNodeContainerType;
     typedef typename VertexFinder<NodeType>::isNetworkVertexType		isNetworkNodeType;
 	typedef typename VertexFinder<NodeType>::isConstNetworkVertexType	isConstNetworkNodeType;
 	typedef typename EdgeFinder<LinkType>::isNetworkEdgeType            isNetworkLinkType;
@@ -28,16 +25,13 @@ public:
 
 	typedef std::pair<NodeType* const,NodeType* const>			    NodePairType;
 	typedef std::pair<size_t,size_t>								LinkIDType;
-//	typedef boost::ptr_map<LinkIDType,LinkType>                     NetworkLinkContainerType;
     typedef std::map<LinkIDType,LinkType>                     NetworkLinkContainerType;
 
 
-	/* Containers and iterators used in SubNetwork **************************************************/
 	typedef std::map<size_t,NetworkComponentType* const>			NetworkComponentContainerType;
     typedef typename NetworkComponent<NodeType,LinkType>::NetworkComponentNodeContainerType SubNetworkNodeContainerType;
     typedef typename NetworkComponent<NodeType,LinkType>::NetworkComponentLinkContainerType SubNetworkLinkContainerType;
 
 
-	/* Containers and iterators used in SubNetwork **************************************************/
 	typedef std::tuple<NodeType* const ,LinkType* const,short int>				NeighborType;
-    typedef std::map<size_t,NeighborType>							NeighborContainerType;
+    typedef std::map<size_t,NeighborType>						    	NeighborContainerType;

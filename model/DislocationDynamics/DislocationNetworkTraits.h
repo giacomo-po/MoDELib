@@ -14,6 +14,7 @@
 #include <model/Utilities/TypeTraits.h>
 #include <model/Geometry/Splines/SplineConsts.h>
 #include <model/Quadrature/Quadrature.h>
+#include <model/LatticeMath/LatticeMath.h>
 
 namespace model
 {
@@ -43,8 +44,10 @@ namespace model
 		typedef DislocationNetwork   <dim,corder,InterpolationType,qOrder,QuadratureRule>	NetworkType;
 		typedef DislocationNode      <dim,corder,InterpolationType,qOrder,QuadratureRule>	NodeType;
 		typedef DislocationSegment   <dim,corder,InterpolationType,qOrder,QuadratureRule>	LinkType;
-		typedef Eigen::Matrix<double,dim,1>													FlowType;
-	};
+//		typedef Eigen::Matrix<double,dim,1>													FlowType;
+        typedef LatticeVector<3>                                                            FlowType;
+
+    };
 
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
 	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>

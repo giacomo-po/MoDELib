@@ -53,27 +53,19 @@ namespace model
     {
 		
 		typedef typename EdgeType::FlowType FlowType;
-		
-		typedef typename VertexType::NeighborContainerType NeighborContainerType; 
-		
+		typedef typename VertexType::NeighborContainerType NeighborContainerType;
 		typedef typename VertexFinder<VertexType>::isConstNetworkVertexType isConstNetworkVertexType;
-		
 		typedef typename EdgeFinder<EdgeType>::isConstNetworkEdgeType isConstNetworkEdgeType;
-		
-//		typedef boost::ptr_map<size_t,VertexType> NetworkVertexMapType;
         typedef std::map<size_t,VertexType> NetworkVertexMapType;
+        typedef std::map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
+
         //! A reference to the network vertex map
 		NetworkVertexMapType& networkVertexMapRef;
 
-//        typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
-        typedef std::map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
 		//! A reference to the network Edge map
 		NetworkEdgeMapType& networkEdgeMapRef;
 		
-		
-		
-		
-		/* contractHelper ***************************************************/
+        /**********************************************************************/
 		template <bool removeIsolatedNodes>
 		void contractHelper(const size_t& i, const size_t& j)
         {/* In contractHelper, j is destroyed
@@ -86,7 +78,8 @@ namespace model
             assert(i!=j && "IN CONTRACTING (i,j), i AND j MUST BE DISTINCT");
 			
             // Loop over out-neighbors of j and connect to i
-			for (typename NeighborContainerType::const_iterator nIter=Vj.second->outNeighborhood().begin(); nIter!=Vj.second->outNeighborhood().end();++nIter){
+			for (typename NeighborContainerType::const_iterator nIter=Vj.second->outNeighborhood().begin(); nIter!=Vj.second->outNeighborhood().end();++nIter)
+            {
 				const size_t k(std::get<0>(nIter->second)->sID);
 				if(k!=i)
                 {
@@ -96,7 +89,7 @@ namespace model
                     {
 						const FlowType fik(eik.second->flow);
 						VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).template disconnect<0>(i,k);
-						if((fik+fjk).norm()>FLT_EPSILON)
+						if((fik+fjk).squaredNorm()>FLT_EPSILON)
                         {
 							VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(i,k,fik+fjk);
 						}
@@ -107,7 +100,7 @@ namespace model
                         {
 							const FlowType fki(eki.second->flow);
 							VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).template disconnect<0>(k,i);
-							if((fki-fjk).norm()>FLT_EPSILON)
+							if((fki-fjk).squaredNorm()>FLT_EPSILON)
                             {
 								VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(k,i,fki-fjk);
 							}
@@ -121,28 +114,35 @@ namespace model
 			}
 			
             // Loop over in-neighbors of j and connect to i
-			for (typename NeighborContainerType::const_iterator nIter=Vj.second->inNeighborhood().begin(); nIter!=Vj.second->inNeighborhood().end();++nIter){
+			for (typename NeighborContainerType::const_iterator nIter=Vj.second->inNeighborhood().begin(); nIter!=Vj.second->inNeighborhood().end();++nIter)
+            {
 				const size_t k(std::get<0>(nIter->second)->sID);
-				if (k!=i){
+				if (k!=i)
+                {
 					const FlowType fkj(std::get<1>(nIter->second)->flow);
 					const isConstNetworkEdgeType eik(EdgeFinder<EdgeType>(networkEdgeMapRef).link(i,k));
-					if (eik.first){
+					if (eik.first)
+                    {
 						const FlowType fik(eik.second->flow);
 						VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).template disconnect<0>(i,k);
-						if((fik-fkj).norm()>FLT_EPSILON){
+						if((fik-fkj).squaredNorm()>FLT_EPSILON)
+                        {
 							VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(i,k,fik-fkj);
 						}
 					}
 					else{
 						const isConstNetworkEdgeType eki(EdgeFinder<EdgeType>(networkEdgeMapRef).link(k,i));
-						if(eki.first){
+						if(eki.first)
+                        {
 							const FlowType fki(eki.second->flow);
 							VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).template disconnect<0>(k,i);
-							if((fki+fkj).norm()>FLT_EPSILON){
+							if((fki+fkj).squaredNorm()>FLT_EPSILON)
+                            {
 								VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(k,i,fki+fkj);
 							}
 						}
-						else {
+						else
+                        {
 							VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(k,i,fkj);
 						}					
 					}
@@ -154,20 +154,15 @@ namespace model
 			assert(!newVj.first && "CONTRACTING LEFT j");		
 		}
 		
-		
-		
-		
-		
 	public:
-		//		VertexContraction(const VertexType& V1in, const VertexType& V2in) : V1(V1in), V2(V2in) {}
-		/* Constructor **********************************************/
+
+        /**********************************************************************/
 		VertexContraction(NetworkVertexMapType& networkVertexMapRef_in,
 		/*             */   NetworkEdgeMapType& networkEdgeMapRef_in) : networkVertexMapRef(networkVertexMapRef_in),
-		/*                                                           */   networkEdgeMapRef(networkEdgeMapRef_in  ){}
+		/*                                                           */   networkEdgeMapRef(networkEdgeMapRef_in  )
+        {}
 		
-		
-		
-		/* contract *************************************************/
+        /**********************************************************************/
 		template <typename ...NodeArgTypes>
 		void contract(const size_t& i, const size_t& j, const NodeArgTypes&... NodeInput)
         {
@@ -197,11 +192,9 @@ namespace model
 				}
 			}
 			
-			
 		}
 		
-		/* contractSecond *******************************************/
-		//		template <typename ...NodeArgTypes>
+        /**********************************************************************/
 		void contractSecond(const size_t& i, const size_t& j)
         {
 			
@@ -223,6 +216,5 @@ namespace model
 		
 	};
 	
-	//////////////////////////////////////////////////////////////
 } // namespace model
 #endif

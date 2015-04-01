@@ -18,7 +18,7 @@
 #include <model/Utilities/TerminalColors.h>
 #include <model/DislocationDynamics/Materials/CrystalStructures.h>
 #include <model/MPI/MPIcout.h>
-#include <model/DislocationDynamics/LatticeMath/LatticeBase.h>
+#include <model/LatticeMath/LatticeBase.h>
 
 
 
@@ -33,8 +33,14 @@ namespace model {
     public:
         typedef Eigen::Matrix<double,dim,1> VectorDim;
 //        typedef std::vector<VectorDim> PlaneNormalContainerType;
-        typedef std::vector<VectorDim> PlaneNormalContainerType;
-        typedef std::vector<typename PlaneNormalContainerType::const_iterator> PlaneNormalIteratorContainerType;
+//        typedef std::vector<VectorDim> PlaneNormalContainerType;
+        typedef           LatticeVector<dim>              LatticeVectorType;
+        typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
+        
+        typedef std::vector<ReciprocalLatticeDirectionType> PlaneNormalContainerType;
+        
+        
+        typedef std::vector<const ReciprocalLatticeDirectionType*> PlaneNormalPointerContainerType;
         //        typedef std::vector<const VectorDim> PlaneNormalContainerType;
 
         
@@ -42,9 +48,6 @@ namespace model {
         static PlaneNormalContainerType planeNormalContainer;
         
         static Eigen::Matrix<double,dim,dim> C2G;
-
-//        static Eigen::Matrix<double,dim,dim> latticeMatrix;
-//        static Eigen::Matrix<double,dim,dim> inverseLatticeMatrix;
 
         
     public:
@@ -64,77 +67,65 @@ namespace model {
             // store C2G
             C2G=C2G_in;
             
-            const PlaneNormalContainerType tempPN(CrystalStructure::template getPlaneNormals<dim>());
-            planeNormalContainer.clear();
+            // Get crystallographic plane normals from the CrystalStructure
+            planeNormalContainer=CrystalStructure::template reciprocalPlaneNormals<dim>();
             
-            for (unsigned int k=0; k<tempPN.size();++k)
-            {
-                VectorDim temp(C2G*tempPN[k]);
-                double tempNorm(temp.norm());
-                assert(tempNorm > FLT_EPSILON && "PLANE NORMAL HAS ZERO NORM.");
-                planeNormalContainer.push_back(temp/tempNorm);
-            }
-            
-            
-//            latticeMatrix=C2G*CrystalStructure::template getLatticeMatrix<dim>();
-//            inverseLatticeMatrix=latticeMatrix.inverse();
+            // Rotate the LatticeBasis of the CrystalStructure using C2G
             LatticeBase<dim>::setLatticeBasis(C2G*CrystalStructure::template getLatticeBasis<dim>());
 
-            
-            
             model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
             for (unsigned int k=0; k<planeNormalContainer.size();++k)
             {
-                std::cout<<"    "<<planeNormalContainer[k].transpose()<<std::endl;
+                std::cout<<"    "<<planeNormalContainer[k].cartesian().transpose()<<std::endl;
             }
             model::cout<<defaultColor<<std::endl;
             
 		}
         
         /**********************************************************************/
-		static void find_slipSystem(const VectorDim& chord, const VectorDim& Burgers,
-                                    PlaneNormalIteratorContainerType& allowedSlipSystems)
+		static void find_slipSystem(const VectorDim& chord,
+                                    const LatticeVectorType& Burgers,
+                                    PlaneNormalPointerContainerType& allowedSlipSystems)
         {/*!
           */
 			assert(  chord.norm()>tol && "CHORD HAS ZERO NORM");
-			assert(Burgers.norm()>tol && "BURGERS HAS ZERO NORM");
+			assert(Burgers.squaredNorm()>0 && "BURGERS HAS ZERO NORM");
 			
 			
 			const VectorDim normalizedChord(chord.normalized());
-            const VectorDim normalizedBurgers(Burgers.normalized());
+//            const VectorDim normalizedBurgers(Burgers.normalized());
             
 			allowedSlipSystems.clear();
             
             // Try to find a plane which has normal orthogonal to both the chord and the Burgers
             //			for (typename std::set<SlipSystem<dim,Nslips> >::iterator iter=slipSystemContainer.begin();iter!=slipSystemContainer.end();++iter){
-            for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter)
+            for (const auto& planeNormal : planeNormalContainer)
             {
-				if(std::fabs(iter->dot(  normalizedChord))<tol &&
-                   std::fabs(iter->dot(normalizedBurgers))<tol)
+				if(std::fabs(planeNormal.cartesian().dot(  normalizedChord))<tol
+                   && planeNormal.dot(Burgers)==0)
                 {
 					//allowedSlipSystems.insert( *iter );
-					allowedSlipSystems.push_back( iter );
+					allowedSlipSystems.push_back(&planeNormal);
 				}
 			}
             
             if(allowedSlipSystems.size()==0)
             {
-                for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter)
+                for (const auto& planeNormal : planeNormalContainer)
                 {
-                    //						std::cout<<"c*n="<< std::fabs( iter->normal.dot(normalizedChord)) << " tol is "<<tol<<std::endl;
-                    if(	std::fabs( iter->dot(normalizedChord))<tol )
+                    if(	std::fabs( planeNormal.cartesian().dot(normalizedChord))<tol )
                     {
-                        //allowedSlipSystems.insert( *iter );
-                        allowedSlipSystems.push_back( iter );
+                        allowedSlipSystems.push_back( &planeNormal );
                     }
                 }
                 if (allowedSlipSystems.size()<2)
                 {
                     std::cout<<"chord="<<chord.transpose()<<std::endl;
-                    std::cout<<"Burgers="<<Burgers.transpose()<<std::endl;
-                    for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter){
+                    std::cout<<"Burgers="<<Burgers.cartesian().transpose()<<std::endl;
+                    for (const auto& planeNormal : planeNormalContainer)
+                    {
                         
-                        std::cout<<"n="<<iter->transpose()<<" |c*n|="<< std::fabs( iter->dot(normalizedChord)) << " tol is "<<tol<<std::endl;
+                        std::cout<<"n="<<planeNormal.cartesian().transpose()<<" |c*n|="<< std::fabs( planeNormal.cartesian().dot(normalizedChord)) << " tol is "<<tol<<std::endl;
                     }
                     assert(allowedSlipSystems.size()>=2 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO CRYSTALLOGRAPHIC PLANES.");
                 }
@@ -156,34 +147,32 @@ namespace model {
 		}
         
         /**********************************************************************/
-		static const VectorDim& find_planeNormal(const VectorDim& chord,
-                                                 const VectorDim& Burgers)
+		static const VectorDim find_planeNormal(const VectorDim& chord,
+                                                 const LatticeVectorType& Burgers)
         {/*!@param[in] chord the chord of a DislocationSegment
           * @param[in] Burgers the Burgers vector of a DislocationSegment
           *\returns A const reference to the first vector in planeNormalContainer 
           * which is orthogonal to both chord and Burgers.
           */
-            PlaneNormalIteratorContainerType allowedSlipSystems;
-			//shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
-            //            CrystalBase<dim,Nslips>::find_slipSystem(chord,Burgers,allowedSlipSystems);
+            PlaneNormalPointerContainerType allowedSlipSystems;
             find_slipSystem(chord,Burgers,allowedSlipSystems);
-            assert(std::fabs(  chord.dot(**allowedSlipSystems.begin()))<tol && "CHORD AND NORMAL ARE NOT ORTHOGONAL");
-			return **allowedSlipSystems.begin(); // RETURNING THE FIRST PLANE FOUND IS SOMEWHAT ARBITRARY
+			return (*allowedSlipSystems.begin())->cartesian(); // RETURNING THE FIRST PLANE FOUND IS SOMEWHAT ARBITRARY
 		}
         
         /**********************************************************************/
-		static VectorDim get_sessileNormal(const VectorDim& chord, const VectorDim& Burgers)
+		static VectorDim get_sessileNormal(const VectorDim& chord,
+                                           const LatticeVectorType& Burgers)
         {
             //			assert(chord.norm()>FLT_EPSILON && "CHORD TOO SMALL");
             //			assert(Burgers.norm()>FLT_EPSILON && "Burgers TOO SMALL");
             //            std::set<SlipSystem<dim,Nslips> > allowedSlipSystems;
-            PlaneNormalIteratorContainerType allowedSlipSystems;
+            PlaneNormalPointerContainerType allowedSlipSystems;
             
             //shared.material.find_slipSystem(chord,Burgers,allowedSlipSystems);
             //            CrystalBase<dim,Nslips>::find_slipSystem(chord,Burgers,allowedSlipSystems);
             find_slipSystem(chord,Burgers,allowedSlipSystems);
             
-            VectorDim temp(chord.normalized().cross(Burgers));
+            VectorDim temp(chord.normalized().cross(Burgers.cartesian())); // CHANGE HERE
 			double tempNorm(temp.norm());
 			if (tempNorm<FLT_EPSILON) // a screw segment
             { 
@@ -192,12 +181,14 @@ namespace model {
                 temp.setZero(); // allow glide on primary plane
 			}
 			else{ // not a screw segment
-                if (allowedSlipSystems.size()>=2){ // a sessile segment
+                if (allowedSlipSystems.size()>=2)
+                { // a sessile segment
                     //temp=allowedSlipSystems.rbegin()->normal;
-                    temp=**allowedSlipSystems.rbegin();
+                    temp=(*allowedSlipSystems.rbegin())->cartesian();
                     
                 }
-                else{ // a glissile segment
+                else
+                { // a glissile segment
                     temp.setZero();
                 }
 			}
@@ -211,18 +202,21 @@ namespace model {
 		
         
         /**********************************************************************/
-        static PlaneNormalContainerType conjugatePlaneNormal(const VectorDim& B, const VectorDim& N)
+        static std::vector<VectorDim> conjugatePlaneNormal(const LatticeVectorType& B,
+                                                             const VectorDim& N)
         {
             
 			int count(0);
 //			VectorDim temp(VectorDim::Zero());
-            PlaneNormalContainerType temp;
-            assert((std::fabs(B.normalized().dot(N.normalized()))<tol) && "CANNOT DETERMINE CONJUGATE PLANE FOR SESSILE SEGMENT");
-            for (typename PlaneNormalContainerType::const_iterator iter=planeNormalContainer.begin();iter!=planeNormalContainer.end();++iter){
+            std::vector<VectorDim> temp;
+            assert((std::fabs(B.cartesian().normalized().dot(N.normalized()))<tol) && "CANNOT DETERMINE CONJUGATE PLANE FOR SESSILE SEGMENT");
+            for (const auto& planeNormal : planeNormalContainer)
+            {
 //                std::cout<<*iter.transpose()<<std::endl;
-                if(	 std::fabs(B.normalized().dot(*iter))<tol && N.normalized().cross(*iter).norm()>tol){
+                if(	 B.dot(planeNormal)==0 && N.normalized().cross(planeNormal.cartesian()).norm()>tol)
+                {
 //                    temp=*iter;
-                    temp.push_back(*iter);
+                    temp.push_back(planeNormal.cartesian());
                     ++count;
                 }
 			}
@@ -236,17 +230,6 @@ namespace model {
             return C2G;
         }
         
-//        static const Eigen::Matrix<double,dim,dim>& lattMat()
-//        {
-//            return latticeMatrix;
-//        }
-//        
-//        static const Eigen::Matrix<double,dim,dim>& invLattMat()
-//        {
-//            return inverseLatticeMatrix;
-//        }
-        
-        
         /**********************************************************************/
         static size_t planeID(const VectorDim& planeNormal)
         {
@@ -254,7 +237,7 @@ namespace model {
             
             for (int n=0;n<planeNormalContainer.size();++n)
             {
-            if ((planeNormalContainer[n]-planeNormal).norm()<FLT_EPSILON)
+            if ((planeNormalContainer[n].cartesian()-planeNormal).norm()<FLT_EPSILON)
             {
                 temp=n;
             }
@@ -267,16 +250,16 @@ namespace model {
 //            return std::distance(planeNormalContainer.begin(),pIter);
         }
         
-        /**********************************************************************/
-        static const std::vector<Eigen::Matrix<double,dim,1> >& planeNormals()
-        {
-            return planeNormalContainer;
-        }
+//        /**********************************************************************/
+//        static const std::vector<Eigen::Matrix<double,dim,1> >& planeNormals()
+//        {
+//            return planeNormalContainer;
+//        }
         
     };
     
     template <int dim>
-    std::vector<Eigen::Matrix<double,dim,1> > CrystalOrientation<dim>::planeNormalContainer=FCC::getPlaneNormals<dim>();
+    std::vector<ReciprocalLatticeDirection<dim>> CrystalOrientation<dim>::planeNormalContainer=FCC::reciprocalPlaneNormals<dim>();
     
     template <int dim>
     Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::C2G=Eigen::Matrix<double,dim,dim>::Identity();

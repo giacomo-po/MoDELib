@@ -64,13 +64,12 @@ namespace model
 			assert(Nj!=networkVertexMapRef.end() && "TRYING TO CONNECT (i->j): VERTEX j DOES NOT EXIST.");			
 			assert(networkEdgeMapRef.find(std::make_pair(i,j))==networkEdgeMapRef.end() && "EDGE ALREADY EXISTS. CANNOT CONNECT");
 			assert(networkEdgeMapRef.find(std::make_pair(j,i))==networkEdgeMapRef.end() && "OPPOSITE EDGE ALREADY EXISTS. CANNOT CONNECT");
-//			std::auto_ptr<EdgeType> pL (new EdgeType(std::make_pair(Ni->second,Nj->second), edgeArgs...) );
-//			assert(networkEdgeMapRef.insert(std::make_pair(i,j), pL ).second && "CANNOT INSERT EDGE IN networkEdgeMapRef.");
             const bool success=networkEdgeMapRef.emplace(std::piecewise_construct,
                                                          std::make_tuple(i,j),
                                                          std::make_tuple(std::make_pair(&Ni->second,&Nj->second), edgeArgs...) ).second;
             assert(success && "CANNOT INSERT EDGE IN networkEdgeMapRef.");
             return success;
+//            return true;
 		}
 		
 		/* disconnect ***********************************************/
