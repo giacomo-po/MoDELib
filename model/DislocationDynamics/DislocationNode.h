@@ -118,8 +118,22 @@ namespace model
             return temp.second;
         }
         
-
-		
+        /**********************************************************************/
+		void bringToRegionBonudary()
+        {
+//            if(shared.use_meshRegions)
+//            {
+//                assert(pL.E.source->includingSimplex().region->regionID == pL.E.sink->includingSimplex().region->regionID);
+//                
+//                if (pL.E.source->includingSimplex().region->regionID != p_Simplex->region->regionID)
+//                {
+//                    
+//                    //                    0.5*(pL.E.source->regionBndNormal+pL.E.sink->regionBndNormal);
+//                    
+//                    this->set(0.5*(pL.E.source->get_P()+pL.E.sink->get_P())); // move node
+//                }
+//            }
+        }
         
 		
 	public:
@@ -149,6 +163,7 @@ namespace model
         /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from ExpandingEdge and parameter along link
           */
+            bringToRegionBonudary();
 		}
 		
         /**********************************************************************/
@@ -162,6 +177,7 @@ namespace model
         /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from ExpandingEdge and DOF
           */
+            bringToRegionBonudary();
 		}
 		
         /**********************************************************************/
@@ -174,6 +190,7 @@ namespace model
         /* init list        */ boundaryNormal(get_boundaryNormal()),
         /* init list        */ regionBndNormal(VectorDim::Zero())
         {
+            bringToRegionBonudary();
 		}
         
         
@@ -460,7 +477,7 @@ namespace model
                                         faceInt=simplex->faceLineIntersection(baryOld,baryNew,f);
                                         //                                    std::cout<<"DislocationNode "<<this->sID<<", baryMin="<<faceInt.minCoeff()<<std::endl;
                                         
-                                        if(faceInt.minCoeff()>=0.0) // faceInt belongs to triangle
+                                        if(faceInt.minCoeff()>=-FLT_EPSILON) // faceInt belongs to triangle
                                         {
                                             regBndSimplex=simplex; // current simplex is the region boundary simplex wanted
                                             faceID=f; // intersection face is f
@@ -543,6 +560,12 @@ namespace model
           * 2 = on mesh boundary
           */
             return (boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh);
+        }
+        
+        /**********************************************************************/
+        bool isOnRegionBoundary() const
+        {
+            return regionBndNormal.squaredNorm()>0.0;
         }
         
         /**********************************************************************/
