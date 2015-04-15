@@ -65,20 +65,25 @@ namespace model
       */
 
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-        typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
+//        typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef LatticeVector<dim> LatticeVectorType;
 
         //! The glide plane unit normal vector
-        const ReciprocalLatticeDirectionType& glidePlaneReciprocalNormal;
-        const VectorDim   glidePlaneNormal;
-        
-        const VectorDim sessilePlaneNormal;
+//        const LatticePlaneBase& glidePlaneReciprocal;
+        const LatticePlane   glidePlane;
+        const LatticePlane sessilePlane;
+
+        VectorDim   glidePlaneNormal;
+         VectorDim sessilePlaneNormal;
 
         
-        PlanarDislocationSegment(const VectorDim& chord,const LatticeVectorType& Burgers) :
-        /* init list       */ glidePlaneReciprocalNormal(CrystalOrientation<dim>::find_planeNormal(chord,Burgers)),
-        /* init list       */ glidePlaneNormal(glidePlaneReciprocalNormal.cartesian()),
-        /* init list       */ sessilePlaneNormal(CrystalOrientation<dim>::find_sessileNormal(chord,Burgers))
+        PlanarDislocationSegment(const LatticeVectorType& sourceL,
+                                 const LatticeVectorType& sinkL,
+                                 const LatticeVectorType& Burgers) :
+        /* init list       */   glidePlane(sourceL,CrystalOrientation<dim>::find_glidePlane(sinkL-sourceL,Burgers)),
+        /* init list       */ sessilePlane(sourceL,CrystalOrientation<dim>::find_sessilePlane(sinkL-sourceL,Burgers)),
+        /* init list       */ glidePlaneNormal(glidePlane.n.cartesian().normalized()),
+        /* init list       */ sessilePlaneNormal(sessilePlane.n.cartesian().normalized())
         {
         
         }
@@ -172,6 +177,8 @@ namespace model
         //! The Burgers vector
 //        const VectorDim Burgers;
         const VectorDim Burgers;
+        const bool isSessile;
+        
 //        const LatticeVectorType& Burgers;
         
         //! The glide plane unit normal vector
@@ -261,9 +268,11 @@ namespace model
         /* Constructor with Nodes and FLow ************************************/
 //        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const VectorDim & Fin) :
         DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const LatticeVectorType& Fin) :
-        /* base class initialization */ PlanarSegmentType(nodePair.second->get_P()-nodePair.first->get_P(),Fin),
+//        /* base class initialization */ PlanarSegmentType(nodePair.second->get_P()-nodePair.first->get_P(),Fin),
+        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),Fin),
         /* base class initialization */ SegmentBaseType(nodePair,Fin),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
+        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
         /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ dm(this->glidePlaneNormal,Burgers)
@@ -288,9 +297,11 @@ namespace model
         /* Constructor from EdgeExpansion) ************************************/
         DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const ExpandingEdge<LinkType>& ee) :
 //        /* base class initialization */ PlanarSegmentType(ee),
-        /* base class initialization */ PlanarSegmentType(nodePair.second->get_P()-nodePair.first->get_P(),ee.E.flow),
+//        /* base class initialization */ PlanarSegmentType(nodePair.second->get_P()-nodePair.first->get_P(),ee.E.flow),
+        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow),
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
+        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
         /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ dm(this->glidePlaneNormal,Burgers)

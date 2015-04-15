@@ -21,6 +21,7 @@
 #include <model/Utilities/TerminalColors.h>
 #include <model/MPI/MPIcout.h>
 #include <model/Mesh/Simplex.h>
+#include <model/LatticeMath/LatticeMath.h>
 
 namespace model
 {
@@ -37,7 +38,7 @@ namespace model
         typedef typename DislocationNetworkType::LinkType LinkType;
         typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
         typedef typename DislocationNetworkType::NodeType NodeType;
-        
+        typedef LatticeVector<dim> LatticeVectorType;
         //! A reference to the DislocationNetwork
         DislocationNetworkType& DN;
         
@@ -208,10 +209,13 @@ namespace model
                 const typename EdgeFinder<LinkType>::isNetworkEdgeType Lij(DN.link(i,j));
                 if(Lij.first)
                 {
-                    const VectorDimD expandPoint(Lij.second->get_r(expand_at));
+                    VectorDimD expandPoint(Lij.second->get_r(expand_at));
+                    expandPoint=Lij.second->glidePlane.snapToLattice(expandPoint);
+
                     if(DN.pointIsInsideMesh(expandPoint,Lij.second->source->includingSimplex()).first)
                     {
-                        DN.expand(i,j,expandPoint);
+//                        DN.expand(i,j,expandPoint);
+                        DN.expand(i,j,LatticeVectorType(expandPoint));
                         Nexpanded++;
                     }
                 }

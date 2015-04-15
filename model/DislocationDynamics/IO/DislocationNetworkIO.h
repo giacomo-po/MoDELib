@@ -20,6 +20,7 @@
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/MPI/MPIcout.h>
 #include <model/LatticeMath/LatticeMath.h>
+#include <model/LatticeMath/LatticeMath.h>
 
 namespace model
 {
@@ -43,7 +44,7 @@ namespace model
         typedef typename DislocationNetworkType::BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename DislocationNetworkType::BvpSolverType::TrialFunctionType TrialFunctionType;
         typedef LatticeVector<dim> LatticeVectorType;
-        
+
         enum {NdofXnode=NodeType::NdofXnode};
         
         static int  outputFrequency;
@@ -86,7 +87,9 @@ namespace model
 				const size_t nodeIDinFile(vIter->first);
 				NodeType::set_count(nodeIDinFile);
                 model::cout << "\r \r" << "Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<vReader.size()<<")"<<std::flush;
-				const size_t nodeID(DN.insertVertex(vIter->second.template segment<NdofXnode>(0).transpose()));
+
+                LatticeVectorType L(VectorDimD(vIter->second.template segment<NdofXnode>(0)));
+                const size_t nodeID(DN.insertVertex(L));
 				assert(nodeID==nodeIDinFile);
                 kk++;
 			}

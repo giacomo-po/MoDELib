@@ -41,10 +41,10 @@ namespace model
         /* delegating */ LatticeDirection(r1.cross(r2))
         {}
         
-        Eigen::Matrix<double,dim,1> cartesian() const
-        {
-            return (this->squaredNorm()>0)? LatticeVectorType::cartesian().normalized() : Eigen::Matrix<double,dim,1>::Zero();
-        }
+//        Eigen::Matrix<double,dim,1> cartesian() const
+//        {
+//            return (this->squaredNorm()>0)? LatticeVectorType::cartesian().normalized() : Eigen::Matrix<double,dim,1>::Zero();
+//        }
     };
     
 } // end namespace

@@ -1,4 +1,4 @@
-/* This file is part of PIL, the Particle Interaction Library.
+/* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
  * Copyright (C) 2015 by Giacomo Po <gpo@ucla.edu>
  *
@@ -11,6 +11,7 @@
 
 #include <model/LatticeMath/LatticeVector.h>
 #include <model/LatticeMath/LatticeDirection.h>
+#include <math.h>       /* round, floor, ceil, trunc */
 
 namespace model
 {
@@ -38,22 +39,36 @@ namespace model
         /* init */ d(d_in)
         {}
         
-//        /**********************************************************************/
-//        PlaneLineIntersection intersectWith(const LatticePlane& plane) const
-//        {
-//            return PlaneLineIntersection(plane,*this);
-//        }
+        /**********************************************************************/
+        VectorDimD snapToLattice(const VectorDimD& P0) const
+        {
+            const VectorDimD dc(d.cartesian());
+            const VectorDimD Pc(P.cartesian());
+            const double n=(P0-Pc).dot(dc)/dc.squaredNorm();
+            return Pc+round(n)*dc;
+        }
         
         
-//        /**********************************************************************/
-//        LatticeVectorType closestPoint(const VectorDimD& P)
-//        {
-////            const double u();
-//            
-//        }
-        
+        bool contains(const LatticeVectorType& P0) const
+        {
+            return LatticeDirectionType(LatticeVectorType(P0-P)).cross(d).squaredNorm()==0;
+        }
         
     };
     
 } // end namespace
 #endif
+
+//        /**********************************************************************/
+//        PlaneLineIntersection intersectWith(const LatticePlane& plane) const
+//        {
+//            return PlaneLineIntersection(plane,*this);
+//        }
+
+
+//        /**********************************************************************/
+//        LatticeVectorType closestPoint(const VectorDimD& P)
+//        {
+////            const double u();
+//
+//        }

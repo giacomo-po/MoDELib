@@ -20,25 +20,35 @@ namespace model
     {
         typedef Eigen::Matrix<long int,3,1> VectorDimI;
 
+        enum IntersectionType
+        {
+            parallel=0,
+            coincident=1,
+            intersecting=2,
+        };
+        
         const long int num;
         const long int den;
-        const bool exists;
+        const IntersectionType intersectionType;
         const LatticeVector<3> P;
 
+        /**********************************************************************/
         PlaneLineIntersection(const LatticePlane& plane, const LatticeLine& line) :
         /* init */ num(plane.P.dot(plane.n)-line.P.dot(plane.n)),
         /* init */ den(line.d.dot(plane.n)),
-        /* init */ exists(num==0 || (den!=0 && LatticeGCD<3>::gcd(abs(num),abs(den))==abs(den))),
-        /* init */ P( (num==0)? line.P : (exists? (line.P+num/den*line.d).eval() : VectorDimI::Zero()) )
+        /* init */ intersectionType(den!=0? intersecting : (num==0? coincident : parallel)),
+        /* init */ P( intersectionType==intersecting? (line.P+num/den*line.d).eval() : (intersectionType==coincident? line.P : VectorDimI::Zero() ))
         {
-            
+            std::cout<<"num="<<num<<std::endl;
+            std::cout<<"den="<<den<<std::endl;
         }
         
+        /**********************************************************************/
         friend std::ostream& operator << (std::ostream& os, const PlaneLineIntersection& pli)
         {
             os  <<pli.num<<"\n"
             /**/<<pli.den<<"\n"
-            /**/<<pli.exists<<"\n"
+            /**/<<pli.intersectionType<<"\n"
             /**/<<pli.P.cartesian().transpose();
             return os;
         }

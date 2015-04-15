@@ -149,22 +149,21 @@ namespace model {
         {/*! Costructor with node arguments
           */
 			// Insert this->p_derived() in the Neighborhood
-            //			Neighborhood.insert(std::make_pair(this->sID, std::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
 			Neighborhood.insert(std::make_pair(this->sID, NeighborType(this->p_derived(),(LinkType*) NULL,0) ));
-			
+            std::cout<<"Creating NetworkNode "<<this->sID<<std::endl;
 		}
 		
         /**********************************************************************/
 		NetworkNode(const ExpandingEdge<LinkType>& ee) :
-        /* init list                                  */ psn(ee.E.pSN())
+        /* init list */ psn(ee.E.pSN())
         {/*! Costructor from EdgeExpansion
           */
 			// Insert this->p_derived() in the Neighborhood
-            //			Neighborhood.insert(std::make_pair(this->sID, std::make_tuple(this->p_derived(),(LinkType*) NULL,0) ));
 			Neighborhood.insert(std::make_pair(this->sID, NeighborType(this->p_derived(),(LinkType*) NULL,0) ));
 			
 			// Manage NetworkComponent
 			psn->add(this->p_derived());
+            std::cout<<"Creating NetworkNode "<<this->sID<<std::endl;
 		}
         
 		/* Destructor *********************************************************/

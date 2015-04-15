@@ -30,7 +30,7 @@ namespace model
 #include <model/LatticeMath/ReciprocalLatticeVector.h>
 #include <model/LatticeMath/ReciprocalLatticeDirection.h>
 
-
+#include <model/LatticeMath/LatticePlaneBase.h>
 #include <model/LatticeMath/LatticePlane.h>
 #include <model/LatticeMath/LatticeLine.h>
 #include <model/LatticeMath/PlaneLineIntersection.h>

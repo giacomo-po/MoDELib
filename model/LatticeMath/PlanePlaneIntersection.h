@@ -21,20 +21,27 @@
 namespace model
 {
     
-    enum PlanePlaneIntersectionType{incident=0,parallel=1,coincident=2};
     
     struct PlanePlaneIntersection
     {
         typedef Eigen::Matrix<long int,3,1> VectorDimI;
         typedef Eigen::Matrix<double,3,1> VectorDimD;
         
-//        const LatticePlane& plane1;
-//        const LatticePlane& plane2;
-        const LatticeDirection<3> d;
-        const int intersectionType;
-        const LatticeVector<3> P;
-
+        enum IntersectionType
+        {
+            incident=0,
+            parallel=1,
+            coincident=2
+        };
         
+        const LatticeDirection<3> d;
+        const IntersectionType intersectionType;
+        const LatticeVector<3> P;
+        
+        
+        
+        
+        /**********************************************************************/
         LatticeVector<3> midPoint(const LatticeVector<3>& p1, const ReciprocalLatticeDirection<3>& n1,
                                   const LatticeVector<3>& p2, const ReciprocalLatticeDirection<3>& n2,
                                   const LatticeDirection<3>& dir)
@@ -53,7 +60,7 @@ namespace model
                 }
             }
             
-            assert(d>=0 && "all components od dir are 0.");
+            assert(d>=0 && "all components of dir are 0.");
             intSet.erase(d);
             
             const int a=*intSet.begin();
@@ -68,6 +75,7 @@ namespace model
             
             
             Eigen::Matrix<long int,2,1> p=N.lu().solve(PN);
+//            Eigen::Matrix<long int,2,1> p=N.inverse()*PN;
             
             
             
@@ -76,22 +84,34 @@ namespace model
             temp(b)=p(1);
             temp(d)=0;
             
+            std::cout<<"PlanePlaneIntersection: I'm here"<<std::endl;
+            
             assert((temp-p1).dot(n1)==0);
             assert((temp-p2).dot(n2)==0);
+
+            assert(dir.dot(n1)==0);
+            assert(dir.dot(n2)==0);
             
             return temp;
         }
         
+        /**********************************************************************/
         PlanePlaneIntersection(const LatticePlane& plane1, const LatticePlane& plane2) :
-//        /* init */ plane1(pl1),
-//        /* init */ plane2(pl2),
         /* init */ d(plane1.n,plane2.n),
         /* init */ intersectionType(d.squaredNorm()? incident : ((plane1.P-plane2.P).dot(plane1.n)? parallel : coincident)),
-        /* init */ P(incident? midPoint(plane1.P,plane1.n,plane2.P,plane2.n,d) : (coincident? plane1.P : VectorDimI::Zero()))
+        /* init */ P(intersectionType==incident? midPoint(plane1.P,plane1.n,plane2.P,plane2.n,d) : (intersectionType==coincident? plane1.P : VectorDimI::Zero()))
         {
-            
+//         if(intersectionType==incident || intersectionType==coincident)
+//         {
+//             assert((P-plane1.P).dot(plane1.n)==0);
+//             assert(d.dot(plane1.n)==0);
+//
+//             assert((P-plane2.P).dot(plane2.n)==0);
+//             assert(d.dot(plane2.n)==0);
+//         }
         }
         
+        /**********************************************************************/
         friend std::ostream& operator << (std::ostream& os, const PlanePlaneIntersection& ppi)
         {
             os << ppi.intersectionType<<"\n"

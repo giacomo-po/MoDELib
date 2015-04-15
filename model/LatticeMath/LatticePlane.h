@@ -1,4 +1,4 @@
-/* This file is part of PIL, the Particle Interaction Library.
+/* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
  * Copyright (C) 2015 by Giacomo Po <gpo@ucla.edu>
  *
@@ -10,8 +10,7 @@
 #define model_LatticePlane_h_
 
 #include <model/LatticeMath/LatticeVector.h>
-#include <model/LatticeMath/ReciprocalLatticeVector.h>
-#include <model/LatticeMath/ReciprocalLatticeDirection.h>
+#include <model/LatticeMath/LatticePlaneBase.h>
 
 namespace model
 {
@@ -19,28 +18,24 @@ namespace model
     {
         
         typedef LatticeVector<3>    LatticeVectorType;
-        typedef ReciprocalLatticeVector<3> ReciprocalLatticeVectorType;
-        typedef ReciprocalLatticeDirection<3> ReciprocalLatticeDirectionType;
         
-        LatticeVectorType P;
-        ReciprocalLatticeDirectionType n;
+        const LatticeVectorType& P;
+        const LatticePlaneBase& n;
         
-        LatticePlane(const LatticeVectorType& P_in,const ReciprocalLatticeVectorType n_in) :
+        LatticePlane(const LatticeVectorType& P_in,const LatticePlaneBase& n_in) :
         /* init */ P(P_in),
         /* init */ n(n_in)
         {}
         
+        Eigen::Matrix<double,3,1> snapToLattice(const Eigen::Matrix<double,3,1>& P0) const
+        {
+            return P.cartesian()+n.snapToLattice(P0-P.cartesian());
+        }
         
-        LatticePlane(const LatticeVectorType& P_in,const ReciprocalLatticeDirectionType n_in) :
-        /* init */ P(P_in),
-        /* init */ n(n_in)
-        {}
-        
-//        /**********************************************************************/
-//        PlaneLineIntersection intersectWith(const LatticeLine& line) const
-//        {
-//            return PlaneLineIntersection(*this,line);
-//        }
+        bool contains(const LatticeVectorType& L) const
+        {
+            return (L-P).dot(n)==0;
+        }
         
     };
     

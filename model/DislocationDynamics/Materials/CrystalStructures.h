@@ -31,9 +31,12 @@ namespace model
           */
             
             Eigen::Matrix<double,dim,dim> temp;
-            temp << 1.0, 0.0, 1.0,
-            /*   */ 1.0, 1.0, 0.0,
-            /*   */ 0.0, 1.0, 1.0;
+//            temp << 1.0, 0.0, 1.0,
+//            /*   */ 1.0, 1.0, 0.0,
+//            /*   */ 0.0, 1.0, 1.0;
+            temp << 0.0, 1.0, 1.0,
+            /*   */ 1.0, 0.0, 1.0,
+            /*   */ 1.0, 1.0, 0.0;
             
             return temp/sqrt(2.0);
         }
@@ -58,29 +61,54 @@ namespace model
             return temp;
         }
         
+//        template <int dim>
+//        static std::vector<ReciprocalLatticeDirection<dim>> reciprocalPlaneNormals()
+//        {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
+//          * the slip plane normals of the FCC lattice
+//          */
+//            typedef Eigen::Matrix<long int,dim,1> VectorDimI;
+//            typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
+//            typedef std::vector<ReciprocalLatticeDirectionType> ReciprocalPlaneNormalContainerType;
+//            ReciprocalPlaneNormalContainerType temp;
+//            
+//            ReciprocalLatticeDirectionType alpha(VectorDimI( 0, 0,-1)); // is (-1, 1,-1) in cartesian
+//            ReciprocalLatticeDirectionType  beta(VectorDimI( 0,-1, 0)); // is ( 1,-1,-1) in cartesian
+//            ReciprocalLatticeDirectionType gamma(VectorDimI(-1, 0, 0)); // is (-1,-1, 1) in cartesian
+//            ReciprocalLatticeDirectionType delta(VectorDimI( 1, 1, 1)); // is ( 1, 1, 1) in cartesian
+//            
+//            temp.push_back(alpha);
+//            temp.push_back(beta);
+//            temp.push_back(gamma);
+//            temp.push_back(delta);
+//            
+//            return temp;
+//        }
+
         template <int dim>
-        static std::vector<ReciprocalLatticeDirection<dim>> reciprocalPlaneNormals()
+        static std::vector<LatticePlaneBase> reciprocalPlaneNormals()
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */
             typedef Eigen::Matrix<long int,dim,1> VectorDimI;
-            typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
-            typedef std::vector<ReciprocalLatticeDirectionType> ReciprocalPlaneNormalContainerType;
-            ReciprocalPlaneNormalContainerType temp;
             
-            ReciprocalLatticeDirectionType alpha(VectorDimI( 0, 0,-1)); // is (-1, 1,-1) in cartesian
-            ReciprocalLatticeDirectionType  beta(VectorDimI( 0,-1, 0)); // is ( 1,-1,-1) in cartesian
-            ReciprocalLatticeDirectionType gamma(VectorDimI(-1, 0, 0)); // is (-1,-1, 1) in cartesian
-            ReciprocalLatticeDirectionType delta(VectorDimI( 1, 1, 1)); // is ( 1, 1, 1) in cartesian
+            typedef LatticeVector<dim> LatticeVectorType;
+            LatticeVectorType a1(VectorDimI(1,0,0));
+            LatticeVectorType a2(VectorDimI(0,1,0));
+            LatticeVectorType a3(VectorDimI(0,0,1));
             
-            temp.push_back(alpha);
-            temp.push_back(beta);
-            temp.push_back(gamma);
-            temp.push_back(delta);
+//            ReciprocalLatticeDirectionType alpha(VectorDimI( 0, 0,-1));
+//            ReciprocalLatticeDirectionType  beta(VectorDimI( 0,-1, 0));
+//            ReciprocalLatticeDirectionType gamma(VectorDimI(-1, 0, 0)); // is (-1,-1, 1) in cartesian
+//            ReciprocalLatticeDirectionType delta(VectorDimI( 1, 1, 1)); // is ( 1, 1, 1) in cartesian
+            
+            std::vector<LatticePlaneBase> temp;
+            temp.emplace_back(a1,a3);           // is (-1, 1,-1) in cartesian
+            temp.emplace_back(a3,a2);           // is ( 1,-1,-1) in cartesian
+            temp.emplace_back(a2,a1);           // is (-1,-1, 1) in cartesian
+            temp.emplace_back(a1-a3,a2-a3);     // is ( 1, 1, 1) in cartesian
             
             return temp;
         }
-        
 
 
         
@@ -97,9 +125,9 @@ namespace model
           */
             
             Eigen::Matrix<double,dim,dim> temp;
-            temp <<  1.0, -1.0,  1.0,
-            /*   */  1.0,  1.0, -1.0,
-            /*   */ -1.0,  1.0,  1.0;
+            temp << -1.0,  1.0,  1.0,
+            /*   */  1.0, -1.0,  1.0,
+            /*   */  1.0,  1.0, -1.0;
             
             return temp/sqrt(3.0);
         }
@@ -158,29 +186,53 @@ namespace model
         }
 
 
+//        template <int dim>
+//        static std::vector<ReciprocalLatticeDirection<dim>> reciprocalPlaneNormals()
+//        {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
+//          * the slip plane normals of the FCC lattice
+//          */
+//            typedef Eigen::Matrix<long int,dim,1> VectorDimI;
+//            typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
+//            typedef std::vector<ReciprocalLatticeDirectionType> ReciprocalPlaneNormalContainerType;
+//            ReciprocalPlaneNormalContainerType temp;
+//            
+//            ReciprocalLatticeDirectionType   alpha(VectorDimI( 0, 1, 0)); // is ( 0, 1, 1) in cartesian
+//            ReciprocalLatticeDirectionType    beta(VectorDimI( 0, 0, 1)); // is ( 1, 0, 1) in cartesian
+//            ReciprocalLatticeDirectionType   gamma(VectorDimI( 0,-1, 1)); // is ( 1,-1, 0) in cartesian
+//            ReciprocalLatticeDirectionType   delta(VectorDimI( 1, 0,-1)); // is ( 0, 1,-1) in cartesian
+//            ReciprocalLatticeDirectionType epsilon(VectorDimI( 1, 0, 0)); // is ( 1, 1, 0) in cartesian
+//            ReciprocalLatticeDirectionType     phi(VectorDimI( 1,-1, 0)); // is ( 1, 0,-1) in cartesian
+//            
+//            temp.push_back(alpha);
+//            temp.push_back(beta);
+//            temp.push_back(gamma);
+//            temp.push_back(delta);
+//            temp.push_back(epsilon);
+//            temp.push_back(phi);
+//            
+//            return temp;
+//        }
+
         template <int dim>
-        static std::vector<ReciprocalLatticeDirection<dim>> reciprocalPlaneNormals()
+        static std::vector<LatticePlaneBase> reciprocalPlaneNormals()
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */
             typedef Eigen::Matrix<long int,dim,1> VectorDimI;
-            typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
-            typedef std::vector<ReciprocalLatticeDirectionType> ReciprocalPlaneNormalContainerType;
-            ReciprocalPlaneNormalContainerType temp;
             
-            ReciprocalLatticeDirectionType   alpha(VectorDimI( 0, 1, 0)); // is ( 0, 1, 1) in cartesian
-            ReciprocalLatticeDirectionType    beta(VectorDimI( 0, 0, 1)); // is ( 1, 0, 1) in cartesian
-            ReciprocalLatticeDirectionType   gamma(VectorDimI( 0,-1, 1)); // is ( 1,-1, 0) in cartesian
-            ReciprocalLatticeDirectionType   delta(VectorDimI( 1, 0,-1)); // is ( 0, 1,-1) in cartesian
-            ReciprocalLatticeDirectionType epsilon(VectorDimI( 1, 0, 0)); // is ( 1, 1, 0) in cartesian
-            ReciprocalLatticeDirectionType     phi(VectorDimI( 1,-1, 0)); // is ( 1, 0,-1) in cartesian
+            typedef LatticeVector<dim> LatticeVectorType;
+            LatticeVectorType a1(VectorDimI(1,0,0));
+            LatticeVectorType a2(VectorDimI(0,1,0));
+            LatticeVectorType a3(VectorDimI(0,0,1));
+            LatticeVectorType  y(VectorDimI(1,1,1));
             
-            temp.push_back(alpha);
-            temp.push_back(beta);
-            temp.push_back(gamma);
-            temp.push_back(delta);
-            temp.push_back(epsilon);
-            temp.push_back(phi);
+            std::vector<LatticePlaneBase> temp;
+            temp.emplace_back(a3,a1); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back( y,a2); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back(a2,a3); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back( y,a1); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back(a1,a2); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back( y,a3); // is (-1, 1, 0) in cartesian
             
             return temp;
         }

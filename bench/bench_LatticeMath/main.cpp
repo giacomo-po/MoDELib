@@ -18,15 +18,15 @@ int main()
     typedef Eigen::Matrix<double,3,1> VectorDimD;
     
     const double a=1.0;
-//    const double b=0.5*sqrt(2.0)*a; // FCC
-    const double b=0.5*sqrt(3.0)*a; // BCC
+    const double b=0.5*sqrt(2.0)*a; // FCC
+//    const double b=0.5*sqrt(3.0)*a; // BCC
     
 //    LatticeBase<3>::setLatticeBasis(FCC::getLatticeBasis<3>());
     LatticeBase<3>::setLatticeBasis(BCC::getLatticeBasis<3>());
 
     /*******************************************/
     std::cout<<"slip normals are"<<std::endl;
-    std::vector<ReciprocalLatticeDirection<3>> normals=BCC::template reciprocalPlaneNormals<3>();
+    std::vector<LatticePlaneBase> normals=FCC::template reciprocalPlaneNormals<3>();
     for(unsigned int i=0;i<normals.size();++i)
     {
             std::cout<<normals[i].cartesian().transpose()<<std::endl;

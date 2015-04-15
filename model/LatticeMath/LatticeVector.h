@@ -22,11 +22,19 @@
 namespace model
 {
     
-//    template <typename T>
+//    template <int dim, typename T>
 //    struct T2contra
 //    {
-//    static c
-//    }
+//
+//    };
+//
+//    template <int dim>
+//    struct T2contra<dim,double>
+//    {
+//        
+//    };
+
+    
     
     template <int dim>
     struct LatticeVector : public Eigen::Matrix<long int,dim,1>

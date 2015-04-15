@@ -23,7 +23,6 @@ namespace model
 	class VertexInsertion
     {
 		
-//        typedef typename VertexType::NetworkNodeContainerType NetworkVertexMapType;
         typedef typename std::map<size_t,VertexType> NetworkVertexMapType;
 
         //! A reference to the network vertex map

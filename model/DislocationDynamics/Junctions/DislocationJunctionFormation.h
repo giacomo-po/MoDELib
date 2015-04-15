@@ -45,12 +45,12 @@ namespace model
         //		typedef std::vector<EdgeIntersectionPairType> EdgeIntersectionPairContainerType;
         typedef std::deque<EdgeIntersectionPairType> EdgeIntersectionPairContainerType;
         
-        /**********************************************************************/
-        void bringBackToPlane(VectorDimD& P, const LinkType& L)
-        {
-            const VectorDimD& n(L.glidePlaneNormal);
-            P -= (P-0.5*(L.source->get_P()+L.sink->get_P())).dot(n)*n;
-        }
+//        /**********************************************************************/
+//        void bringBackToPlane(VectorDimD& P, const LinkType& L)
+//        {
+//            const VectorDimD& n(L.glidePlaneNormal);
+//            P -= (P-0.5*(L.source->get_P()+L.sink->get_P())).dot(n)*n;
+//        }
         
         /**********************************************************************/
         void bringBackToMesh(VectorDimD& P,
@@ -96,30 +96,39 @@ namespace model
             const VectorDimD rl2(L2.get_rl(u2));
             
             
-            const bool is1sessile(L1.sessilePlaneNormal.norm()>FLT_EPSILON);
-            const bool is2sessile(L2.sessilePlaneNormal.norm()>FLT_EPSILON);
+//            const bool L1.isSessile(L1.sessilePlaneNormal.norm()>FLT_EPSILON);
+//            const bool L2.isSessile(L2.sessilePlaneNormal.norm()>FLT_EPSILON);
+
+//            const bool L1.isSessile(L1.flow.dot()>FLT_EPSILON);
+//            const bool L2.isSessile(L2.sessilePlaneNormal.norm()>FLT_EPSILON);
+
             
             VectorDimD prjDir(VectorDimD::Zero());
-            if (!is1sessile && !is2sessile)
+            if (!L1.isSessile && !L2.isSessile)
             {
+                std::cout<<"junctionDir, case 1"<<std::endl;
                 const VectorDimD commonLine(L1.glidePlaneNormal.cross(L2.glidePlaneNormal));
                 if(commonLine.norm()>FLT_EPSILON)
                 { // planes are not parallel, intersection will be on common line
+                                    std::cout<<"junctionDir, case 1a"<<std::endl;
                     prjDir=commonLine.normalized();
                 }
                 else
                 {
+                                    std::cout<<"junctionDir, case 1b"<<std::endl;
                     const double rl1Norm(rl1.norm());
                     assert(rl1Norm>FLT_EPSILON && "TANGENT HAS ZERO NORM");
                     prjDir=rl1/rl1Norm;
                 }
             }
-            else if(is1sessile && !is2sessile)
+            else if(L1.isSessile && !L2.isSessile)
             { // use chord of I
+                                std::cout<<"junctionDir, case 2"<<std::endl;
                 prjDir=L1.chord().normalized();
             }
-            else if(!is1sessile && is2sessile)
+            else if(!L1.isSessile && L2.isSessile)
             { // use chord of J
+                                std::cout<<"junctionDir, case 2"<<std::endl;
                 prjDir=L2.chord().normalized();
             }
             else
@@ -130,6 +139,7 @@ namespace model
             
             const double sgnrl1rl2(rl1.dot(prjDir)*rl2.dot(prjDir));
             
+                            std::cout<<"junctionDir, sgnrl1rl2="<<sgnrl1rl2<<std::endl;
             
             //const bool frankRule(b1.dot(b2)*rl1.dot(rl2)<=0.0);
             const bool frankRule(b1.dot(b2)*sgnrl1rl2<=0.0);
@@ -194,14 +204,14 @@ namespace model
                     {
                         if (linkIterA->second.sID!=linkIterB->second.sID) // don't intersect with itself
                         {
-                            const bool L1isSessile(linkIterA->second.sessilePlaneNormal.squaredNorm()>FLT_EPSILON);
-                            const bool L2isSessile(linkIterB->second.sessilePlaneNormal.squaredNorm()>FLT_EPSILON);
+                            const bool& L1isSessile(linkIterA->second.isSessile);
+                            const bool& L2isSessile(linkIterB->second.isSessile);
                             
                             std::set<std::pair<double,double> > temp; // the container of the roots
                             
                             if (!L1isSessile && !L2isSessile) // both are glissile
                             {
-                                temp = dsi.intersectWith(linkIterB->second. hermiteCoefficients(),linkIterB->second.glidePlaneNormal,collisionTol);
+                                temp = dsi.intersectWith(linkIterB->second.hermiteCoefficients(),linkIterB->second.glidePlaneNormal,collisionTol);
                             }
                             
                             else if (!L1isSessile && L2isSessile) // L1 is glissile and L2 is sessile
@@ -353,7 +363,7 @@ namespace model
                     const isNetworkLinkType L1(DN.link(key1.first,key1.second));
                     const isNetworkLinkType L2(DN.link(key2.first,key2.second));
                     
-                    //std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[tt][interID]. first.second<<","<<intersectionContainer[tt][interID]. second.second<<std::endl;
+                    std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[tt][interID]. first.second<<","<<intersectionContainer[tt][interID]. second.second<<std::endl;
                     
                     if(L1.first && L2.first) // Links exist
                     {
@@ -382,35 +392,65 @@ namespace model
                         }
                         
                         
-                        //std::cout<<"du1="<<du1<<std::endl;
-                        //std::cout<<"du2="<<du2<<std::endl;
-                        //                    //std::cout<<"avoidNodeIntersection="<<avoidNodeIntersection<<std::endl;
+                        std::cout<<"du1="<<du1<<std::endl;
+                        std::cout<<"du2="<<du2<<std::endl;
                         
                         const VectorDimD C1(L1.second->chord());
                         const VectorDimD C2(L2.second->chord());
                         
                         const VectorDimD N1(L1.second->glidePlaneNormal);
                         const VectorDimD N2(L2.second->glidePlaneNormal);
-                        //                    const bool is1sessile(L1.second->sessilePlaneNormal.norm()>FLT_EPSILON);
-                        //                    const bool is2sessile(L2.second->sessilePlaneNormal.norm()>FLT_EPSILON);
                         const Simplex<dim,dim>* S1(source1.includingSimplex());
                         const Simplex<dim,dim>* S2(source2.includingSimplex());
+
+                        const double u1m(intersectionContainer[tt][interID]. first.second-du1);
+                        VectorDimD P1m(L1.second->get_r(u1m));
+                        P1m=L1.second->glidePlane.snapToLattice(P1m);
+                        
+                        const double u1p(intersectionContainer[tt][interID]. first.second+du1);
+                        VectorDimD P1p(L1.second->get_r(u1p));
+                        P1p=L1.second->glidePlane.snapToLattice(P1p);
+
+                        const double u2m(intersectionContainer[tt][interID].second.second-du2);
+                        VectorDimD P2m(L2.second->get_r(u2m));
+                        P2m=L2.second->glidePlane.snapToLattice(P2m);
+                        
+                        const double u2p(intersectionContainer[tt][interID].second.second+du2);
+                        VectorDimD P2p(L2.second->get_r(u2p));
+                        P2p=L2.second->glidePlane.snapToLattice(P2p);
+
+                        if (DN.shared.use_boundary)
+                        {
+                            std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P1m,S1);
+                            if(!search.first)
+                            {
+                                bringBackToMesh(P1m,search,C1,N1);
+                            }
+                            
+                            search=DN.shared.mesh.searchWithGuess(P1p,S1);
+                            if(!search.first)
+                            {
+                                bringBackToMesh(P1p,search,C1,N1);
+                            }
+                            
+                            search=DN.shared.mesh.searchWithGuess(P2m,S2);
+                            if(!search.first)
+                            {
+                                bringBackToMesh(P2m,search,C2,N2);
+                            }
+                            
+                            search=DN.shared.mesh.searchWithGuess(P2p,S2);
+                            if(!search.first)
+                            {
+                                bringBackToMesh(P2p,search,C2,N2);
+                            }
+                        }
+
                         
                         // Prepare lower point on first link
                         size_t im = source1.sID;
-                        const double u1m(intersectionContainer[tt][interID]. first.second-du1);
                         if (u1m > avoidNodeIntersection)
                         {
-                            VectorDimD P1m(L1.second->get_r(u1m));
-                            bringBackToPlane(P1m,*L1.second); // remove numerical errors
-                            if (DN.shared.use_boundary)
-                            {
-                                const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P1m,S1);
-                                if(!search.first)
-                                {
-                                    bringBackToMesh(P1m,search,C1,N1);
-                                }
-                            }
                             const std::pair<bool,size_t> success1m=DN.expand(source1.sID,sink1.sID,P1m); // now L1.second is invalid
                             assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
                             im=success1m.second; // id of the node obtained expanding L1
@@ -418,19 +458,8 @@ namespace model
                         
                         // Prepare upper point on first link
                         size_t ip = sink1.sID;
-                        const double u1p(intersectionContainer[tt][interID]. first.second+du1);
                         if (u1p < 1.0-avoidNodeIntersection)
                         {
-                            VectorDimD P1p(L1.second->get_r(u1p));
-                            bringBackToPlane(P1p,*L1.second); // remove numerical errors
-                            if (DN.shared.use_boundary)
-                            {
-                                const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P1p,S1);
-                                if(!search.first)
-                                {
-                                    bringBackToMesh(P1p,search,C1,N1);
-                                }
-                            }
                             const std::pair<bool,size_t> success1p=DN.expand(im,sink1.sID,P1p); // now L1.second is invalid
                             assert(success1p.first && "COULD NOT EXPLAND LINK1 AT UPPER INTERSECTION");
                             ip=success1p.second; // id of the node obtained expanding L1
@@ -438,19 +467,8 @@ namespace model
                         
                         // Prepare lower point on second link
                         size_t jm = source2.sID;
-                        const double u2m(intersectionContainer[tt][interID].second.second-du2);
                         if (u2m > avoidNodeIntersection)
                         {
-                            VectorDimD P2m(L2.second->get_r(u2m));
-                            bringBackToPlane(P2m,*L2.second); // remove numerical errors
-                            if (DN.shared.use_boundary)
-                            {
-                                const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P2m,S2);
-                                if(!search.first)
-                                {
-                                    bringBackToMesh(P2m,search,C2,N2);
-                                }
-                            }
                             const std::pair<bool,size_t> success2m=DN.expand(source2.sID,sink2.sID,P2m); // now L2.second is invalid
                             assert(success2m.first && "COULD NOT EXPLAND LINK2 AT LOWER INTERSECTION");
                             jm=success2m.second; // id of the node obtained expanding L2
@@ -458,19 +476,8 @@ namespace model
                         
                         // Prepare upper point on second link
                         size_t jp = sink2.sID;
-                        const double u2p(intersectionContainer[tt][interID].second.second+du2);
                         if (u2p < 1.0-avoidNodeIntersection)
                         {
-                            VectorDimD P2p(L2.second->get_r(u2p));
-                            bringBackToPlane(P2p,*L2.second); // remove numerical errors
-                            if (DN.shared.use_boundary)
-                            {
-                                const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P2p,S2);
-                                if(!search.first)
-                                {
-                                    bringBackToMesh(P2p,search,C2,N2);
-                                }
-                            }
                             const std::pair<bool,size_t> success2p=DN.expand(jm,sink2.sID,P2p); // now L2.second is invalid
                             assert(success2p.first && "COULD NOT EXPLAND LINK2 AT UPPER INTERSECTION");
                             jp=success2p.second; // id of the node obtained expanding L2
@@ -480,8 +487,8 @@ namespace model
                         {
                             case +1:
                             {
-                                //std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
-                                //std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
+                                std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
+                                std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
                                 if(im!=jm)
                                 {
                                     const isNetworkNodeType N1=DN.node(im);
@@ -489,8 +496,7 @@ namespace model
                                     if(N1.first && N2.first)
                                     {
                                         //std::cout<<"first contract +1 "<<std::endl;
-                                        //contractWithConstraintCheck(N1,N2);
-                                        DN.contractWithConstraintCheck(N1,N2);
+//                                        DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
                                 if(ip!=jp)
@@ -500,7 +506,6 @@ namespace model
                                     if(N1.first && N2.first)
                                     {
                                         //std::cout<<"second contract +1 "<<std::endl;
-//                                        contractWithConstraintCheck(N1,N2);
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -509,8 +514,8 @@ namespace model
                                 
                             case -1:
                             {
-                                //std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
-                                //std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
+                                std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
+                                std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
                                 if(im!=jp)
                                 {
                                     const isNetworkNodeType N1=DN.node(im);
@@ -518,7 +523,6 @@ namespace model
                                     if(N1.first && N2.first)
                                     {
                                         //std::cout<<"first contract -1 "<<std::endl;
-//                                        contractWithConstraintCheck(N1,N2);
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -529,7 +533,6 @@ namespace model
                                     if(N1.first && N2.first)
                                     {
                                         //std::cout<<"second contract -1 "<<std::endl;
-//                                        contractWithConstraintCheck(N1,N2);
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }

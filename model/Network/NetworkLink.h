@@ -134,7 +134,7 @@ namespace model
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
           */
-            //std::cout<<"Creating NetworkLink "<<source->sID<<"->"<<sink->sID<<std::endl;
+            std::cout<<"Creating NetworkLink "<<source->sID<<"->"<<sink->sID<<std::endl;
 			makeTopologyChange();
         }
 		
@@ -158,7 +158,7 @@ namespace model
 //            }
 //            
 //			makeTopologyChange(ee);
-                        //std::cout<<"Creating NetworkLink "<<source->sID<<"->"<<sink->sID<<std::endl;
+                        std::cout<<"Creating (2) NetworkLink "<<source->sID<<"->"<<sink->sID<<std::endl;
             makeTopologyChange();
 
 		}

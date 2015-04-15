@@ -27,6 +27,7 @@
 #include <model/DislocationDynamics/DislocationEnergyRules.h>
 #include <model/Mesh/Simplex.h>
 #include <model/DislocationDynamics/Junctions/EdgePermutation.h>
+#include <model/LatticeMath/LatticeMath.h>
 
 namespace model
 {
@@ -57,7 +58,10 @@ namespace model
 		typedef Eigen::Matrix<double,dim,dim> MatrixDim;
 		typedef Eigen::Matrix<double,NdofXnode,1> VectorDofType;
 		typedef std::vector<VectorDim,Eigen::aligned_allocator<VectorDim> > VectorOfNormalsType;
-		
+        typedef std::deque<const LatticePlane*> LatticePlaneContainerType;
+
+        typedef LatticeVector<dim> LatticeVectorType;
+        
         static bool use_velocityFilter;
         static double velocityReductionFactor;
 
@@ -65,12 +69,15 @@ namespace model
 	private:
 		
 		DislocationSharedObjects<LinkType> shared;
+        
+        LatticeVectorType L;
 		
         //! A pointer to the Simplex containing *this
         const Simplex<dim,dim>* p_Simplex;
         
 		//! The std::vector containing the glidePlaneNormal(s) of the connected DislocationSegment(s)
-		VectorOfNormalsType planenormals;
+//		VectorOfNormalsType planenormals;
+        LatticePlaneContainerType _confiningPlanes;
         
         //! The current velocity vector of *this DislocationNode
         VectorDofType velocity;
@@ -124,8 +131,10 @@ namespace model
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         /**********************************************************************/
-		DislocationNode(const VectorDofType& Qin,const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
-        /* base constructor */ NodeBaseType(Qin),
+		DislocationNode(const LatticeVectorType& Lin,
+                        const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
+        /* base constructor */ NodeBaseType(Lin.cartesian()),
+        /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(guess)),
         /* init list        */ velocity(VectorDofType::Zero()),
 		/* init list        */ vOld(velocity),
@@ -136,22 +145,25 @@ namespace model
           */
 		}
 		
-        /**********************************************************************/
-		DislocationNode(const ExpandingEdge<LinkType>& pL, const double& u) :
-        /* base constructor */ NodeBaseType(pL,u),
-        /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
-        /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-        /* init list        */ vOld(velocity),
-        /* init list        */ velocityReductionCoeff(1.0),
-        /* init list        */ boundaryNormal(get_boundaryNormal()),
-        /* init list        */ regionBndNormal(VectorDim::Zero())
-        {/*! Constructor from ExpandingEdge and parameter along link
-          */
-		}
+//        /**********************************************************************/
+//		DislocationNode(const ExpandingEdge<LinkType>& pL, const double& u) :
+//        /* base constructor */ NodeBaseType(pL,u),
+//        /* init list        */ L(Qin),
+//        /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
+//        /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+//        /* init list        */ vOld(velocity),
+//        /* init list        */ velocityReductionCoeff(1.0),
+//        /* init list        */ boundaryNormal(get_boundaryNormal()),
+//        /* init list        */ regionBndNormal(VectorDim::Zero())
+//        {/*! Constructor from ExpandingEdge and parameter along link
+//          */
+//		}
 		
         /**********************************************************************/
-		DislocationNode(const ExpandingEdge<LinkType>& pL, const VectorDofType& Qin) :
-        /* base constructor */ NodeBaseType(pL,Qin),
+		DislocationNode(const ExpandingEdge<LinkType>& pL,
+                        const LatticeVectorType& Lin) :
+        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
+        /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init list        */ vOld(velocity),
@@ -163,8 +175,11 @@ namespace model
 		}
 		
         /**********************************************************************/
-		DislocationNode(const ExpandingEdge<LinkType>& pL, const VectorDofType& Qin, const VectorDofType& Vin)
-        /* base constructor */ : NodeBaseType(pL,Qin),
+		DislocationNode(const ExpandingEdge<LinkType>& pL,
+                        const LatticeVectorType& Lin,
+                        const VectorDofType& Vin) :
+        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
+        /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity(Vin),
         /* init list        */ vOld(velocity),
@@ -174,33 +189,89 @@ namespace model
         {
 		}
         
+        /**********************************************************************/
+        DislocationNode(const ContractingVertices<NodeType>& cv,
+                        const LatticeVectorType& Lin) :
+        /* base constructor */ NodeBaseType(Lin.cartesian()),
+        /* init list        */ L(Lin),
+        /* init list        */ p_Simplex(get_includingSimplex(cv.v0.includingSimplex())),
+        /* init list        */ velocity(0.5*(cv.v0.get_V()+cv.v1.get_V())),
+        /* init list        */ vOld(velocity),
+        /* init list        */ velocityReductionCoeff(1.0),
+        /* init list        */ boundaryNormal(get_boundaryNormal()),
+        /* init list        */ regionBndNormal(VectorDim::Zero())
+        {/*! Constructor from VertexContraction
+          */
+        }
         
         /**********************************************************************/
-		void make_planeNormals()
+        const LatticeVectorType& get_L() const
         {
-            //! 1- Clear and re-builds the std::vector planenormals
-			planenormals.clear();
-			for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
-            {
-				if (std::get<2>(neighborIter->second))
-                {
-					LinkType* pL(std::get<1>(neighborIter->second));
-					if (std::find(planenormals.begin(),planenormals.end(), pL->glidePlaneNormal )==planenormals.end() &&
-						std::find(planenormals.begin(),planenormals.end(),-pL->glidePlaneNormal )==planenormals.end()   )
-                    {
-						planenormals.push_back(pL->glidePlaneNormal );
-					}
-					if(pL->sessilePlaneNormal.norm()>FLT_EPSILON)
-                    {
-						planenormals.push_back(pL->sessilePlaneNormal);
-					}
-					
-				}
-			}
-			
-			//! 2- Compute projectionMatrix
-			make_projectionMatrix();
+            return L;
         }
+        
+//        /**********************************************************************/
+//		void make_planeNormals()
+//        {
+//            //! 1- Clear and re-builds the std::vector planenormals
+//			planenormals.clear();
+//			for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
+//            {
+//				if (std::get<2>(neighborIter->second))
+//                {
+//					LinkType* pL(std::get<1>(neighborIter->second));
+//					if (std::find(planenormals.begin(),planenormals.end(), pL->glidePlaneNormal )==planenormals.end() &&
+//						std::find(planenormals.begin(),planenormals.end(),-pL->glidePlaneNormal )==planenormals.end()   )
+//                    {
+//						planenormals.push_back(pL->glidePlaneNormal );
+//					}
+//					if(pL->sessilePlaneNormal.norm()>FLT_EPSILON)
+//                    {
+//						planenormals.push_back(pL->sessilePlaneNormal);
+//					}
+//					
+//				}
+//			}
+//			
+//			//! 2- Compute projectionMatrix
+//			make_projectionMatrix();
+//        }
+        
+        const LatticePlaneContainerType& confiningPlanes() const
+        {
+            return _confiningPlanes;
+        }
+        
+        /**********************************************************************/
+        void make_confiningPlanes()
+        {
+            
+            //std::cout<<"DislocationNode "<<this->sID<<"make_confiningPlanes"<<std::endl;
+            
+            //! 1- Clear and re-builds the std::vector planenormals
+            _confiningPlanes.clear();
+            for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
+            {
+                if (std::get<2>(neighborIter->second))
+                {
+                    LinkType* pL(std::get<1>(neighborIter->second));
+                    _confiningPlanes.push_back(&(pL->glidePlane));
+                    _confiningPlanes.push_back(&(pL->sessilePlane));
+                }
+            }
+            //std::cout<<"a"<<std::endl;
+
+            GramSchmidt::makeUnique(_confiningPlanes);
+            
+            //std::cout<<"b"<<std::endl;
+
+            //! 2- Compute projectionMatrix
+            make_projectionMatrix();
+            
+            //std::cout<<"done"<<std::endl;
+
+        }
+
         
         /**********************************************************************/
         void removeFromNeighborhood(LinkType* const pL)
@@ -211,7 +282,8 @@ namespace model
           *  planeNormals and tangent after the DislocationSegment is disconnected
           */
             NodeBaseType::removeFromNeighborhood(pL);
-            make_planeNormals();
+//            make_planeNormals();
+            make_confiningPlanes();
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
             NodeBaseType::make_T();
         }
@@ -225,7 +297,8 @@ namespace model
           *  planeNormals and tangent after the DislocationSegment is disconnected
           */
             NodeBaseType::addToNeighborhood(pL);
-            make_planeNormals();
+//            make_planeNormals();
+            make_confiningPlanes();
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
             NodeBaseType::make_T();
         }
@@ -247,57 +320,26 @@ namespace model
             return temp;
         }
         
-        /**********************************************************************/
-		const VectorOfNormalsType& planeNormals() const
-        {
-            return planenormals;
-        }
-		
 //        /**********************************************************************/
-//		VectorOfNormalsType constraintNormals() const
+//		const VectorOfNormalsType& planeNormals() const
 //        {
-//			GramSchmidt<dim> GS;
-//			if (meshLocation()==insideMesh)
-//            { // DislocationNode is inside mesh
-//				if (this->is_balanced())
-//                { // DislocationNode is balanced
-//					GS.orthoNormalize(planenormals); //  constrain by planenormals
-//				}
-//				else
-//                { // DislocationNode is unbalanced and is inside mesh: fix
-//					GS.push_back((VectorDim()<<1.0,0.0,0.0).finished());
-//					GS.push_back((VectorDim()<<0.0,1.0,0.0).finished());
-//					GS.push_back((VectorDim()<<0.0,0.0,1.0).finished());
-//				}
-//			}
-//			else if (meshLocation()==onMeshBoundary)
-//            { // DislocationNode is on mesh boundary:
-//				VectorOfNormalsType PN(planenormals); // constrain by planenormals
-//				PN.push_back(boundaryNormal); // constrain by boundaryNormal
-//				GS.orthoNormalize(PN);
-//			}
-//			else
-//            {
-//                std::cout<<"DislocationNode "<<this->sID<< " at "<<this->get_P().transpose()<<" is outside mesh."<<std::endl;
-//                assert(0 && "DISLOCATION NODE FOUND OUTSIDE MESH."); //RE-ENABLE THIS
-//			}
-//			assert(GS.size()>=1 && "GLIDING NODE MUST HAVE AT LEAST ONE CONSTRAINT.");
-//			return GS;
-//		}
-
-//        void //showTemp(const VectorOfNormalsType& temp) const
-//        {
-//            for(int k=0;k<temp.size();++k)
-//            {
-//                std::cout<<temp[k].transpose()<<std::endl;
-//            }
+//            return planenormals;
 //        }
+		
+
         
         /**********************************************************************/
         VectorOfNormalsType constraintNormals() const
         {
-            VectorOfNormalsType temp(planenormals);
-            //showTemp(temp);
+            VectorOfNormalsType temp;
+            
+            for(const auto& plane : _confiningPlanes)
+            {
+                temp.push_back(plane->n.cartesian().normalized());
+            }
+            
+            
+            
             if (meshLocation()==insideMesh)
             { // DislocationNode is inside mesh
                 if (!this->is_balanced())
@@ -326,9 +368,9 @@ namespace model
                 assert(0 && "DISLOCATION NODE FOUND OUTSIDE MESH."); //RE-ENABLE THIS
             }
             //showTemp(temp);
-            GramSchmidt<dim> GS(temp,this->sID);
-            assert(GS.size()>=1 && "GLIDING NODE MUST HAVE AT LEAST ONE CONSTRAINT.");
-            return GS;
+            GramSchmidt::orthoNormalize(temp);
+            assert(temp.size()>=1 && "GLIDING NODE MUST HAVE AT LEAST ONE CONSTRAINT.");
+            return temp;
         }
         
         /**********************************************************************/
@@ -340,10 +382,16 @@ namespace model
         /**********************************************************************/
 		void make_projectionMatrix()
         {
-			Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
-			VectorOfNormalsType  CN = planenormals;
-            //showTemp(CN);
             
+            // Add normal to glide and sessile planes
+			Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
+			VectorOfNormalsType  CN;
+            for(const auto& plane : _confiningPlanes)
+            {
+                CN.push_back(plane->n.cartesian().normalized());
+            }
+            
+            // Add normal to mesh boundary
             if(meshLocation()==onMeshBoundary)
             {
                 const Eigen::Matrix<double,dim+1,1> bary(p_Simplex->pos2bary(this->get_P()));
@@ -356,16 +404,17 @@ namespace model
                 }
             }
             
-            
+            // Add normal to region boundary
             CN.push_back(regionBndNormal);
-            //showTemp(CN);
             
-			//CN.push_back(boundaryNormal);
-			GramSchmidt<dim> GS(CN,this->sID);
+            // Find independent vectors
+            GramSchmidt::orthoNormalize(CN);
+
+            // Assemble projection matrix (prjM)
 			this->prjM.setIdentity();
-			for (size_t k=0;k<GS.size();++k)
+			for (size_t k=0;k<CN.size();++k)
             {
-				this->prjM*=( I-GS[k]*GS[k].transpose() );
+				this->prjM*=( I-CN[k]*CN[k].transpose() );
 			}
 		}
 		
@@ -397,12 +446,6 @@ namespace model
             }
             
 		}
-        
-//        /**********************************************************************/
-//        void implicitStep()
-//        {
-//            velocity= (velocity+vOld)*0.5; // this brings back
-//        }
 		
         /**********************************************************************/
 		const VectorDofType& get_V() const
@@ -419,11 +462,24 @@ namespace model
 		}
         
         /**********************************************************************/
-//		void move(const double & dt, const double & dt_old)
         void move(const double & dt)
         {
 			
 			VectorDim dX=velocity.template segment<dim>(0)*dt;
+            switch (_confiningPlanes.size())
+            {
+                case 1:
+                    dX=_confiningPlanes[0]->n.snapToLattice(dX);
+                    break;
+                    
+//                case 2:
+//                    dX=this->openNeighborLink(0)->glidePlaneReciprocal.snapToLattice(dX);
+//                    break;
+                    
+                default:
+                    dX.setZero();
+                    break;
+            }
             
             //			if (dX.squaredNorm()>0.0 && (meshLocation()!=onMeshBoundary || shared.use_bvp==0)) // move a node only if |v|!=0 and if not on mesh boundary
             if (dX.squaredNorm()>0.0) // move a node only if |v|!=0
@@ -480,6 +536,7 @@ namespace model
                         else // use_meshRegions disenabled or node not crossing regions
                         {
                             p_Simplex=temp.second;
+                            L+=LatticeVectorType(dX);
                             this->set(this->get_P()+dX); // move node
                             boundaryNormal=get_boundaryNormal(); // check if node is now on a boundary
                         }
@@ -516,6 +573,7 @@ namespace model
 				}
 				else // move node freely
                 {
+                    L+=LatticeVectorType(dX);
 					this->set(this->get_nodeDof()+dX);
 				}
 			}
@@ -543,18 +601,6 @@ namespace model
             return (boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh);
         }
         
-        /**********************************************************************/
-        template <class T>
-		friend T& operator << (T& os, const NodeType& ds)
-        {
-			os  << ds.sID<<"\t"
-            /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<"\t"
-			/**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<"\t"
-            /**/<< ds.pSN()->sID<<"\t"
-            /**/<< (ds.meshLocation()==onMeshBoundary);
-			return os;
-        }
-		
         /**********************************************************************/
         std::deque<std::pair<size_t,size_t> > edgeDecomposition() const
         {
@@ -613,6 +659,34 @@ namespace model
             return firstLinkDeq;
         }
         
+        /******************************************************************************/
+        void neighborsAt(const LatticeVectorType& L0, std::set<size_t>& temp) const
+        {/*!\param[in] P0 position to be serached
+          * \param[out]temp set of IDs of neighbors of this which are located at P0 (possibly including *this)
+          * \param[in] tol tolerance used to detect position overlap
+          */
+            for (typename Derived::NeighborContainerType::const_iterator nIiter=this->neighborhood().begin();
+                 nIiter!=this->neighborhood().end();++nIiter)
+            { // loop over neighborhood
+                if((std::get<0>(nIiter->second)->get_L()-L0).squaredNorm()==0)
+                { // a neighbor of I exists at P0
+                    temp.insert(std::get<0>(nIiter->second)->sID);
+                }
+            }
+        }
+        
+        /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const NodeType& ds)
+        {
+            os  << ds.sID<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<"\t"
+            /**/<< ds.pSN()->sID<<"\t"
+            /**/<< (ds.meshLocation()==onMeshBoundary);
+            return os;
+        }
+        
     };
     
     
@@ -628,3 +702,44 @@ namespace model
     
 } // close namespace
 #endif
+
+
+//        /**********************************************************************/
+//		VectorOfNormalsType constraintNormals() const
+//        {
+//			GramSchmidt<dim> GS;
+//			if (meshLocation()==insideMesh)
+//            { // DislocationNode is inside mesh
+//				if (this->is_balanced())
+//                { // DislocationNode is balanced
+//					GS.orthoNormalize(planenormals); //  constrain by planenormals
+//				}
+//				else
+//                { // DislocationNode is unbalanced and is inside mesh: fix
+//					GS.push_back((VectorDim()<<1.0,0.0,0.0).finished());
+//					GS.push_back((VectorDim()<<0.0,1.0,0.0).finished());
+//					GS.push_back((VectorDim()<<0.0,0.0,1.0).finished());
+//				}
+//			}
+//			else if (meshLocation()==onMeshBoundary)
+//            { // DislocationNode is on mesh boundary:
+//				VectorOfNormalsType PN(planenormals); // constrain by planenormals
+//				PN.push_back(boundaryNormal); // constrain by boundaryNormal
+//				GS.orthoNormalize(PN);
+//			}
+//			else
+//            {
+//                std::cout<<"DislocationNode "<<this->sID<< " at "<<this->get_P().transpose()<<" is outside mesh."<<std::endl;
+//                assert(0 && "DISLOCATION NODE FOUND OUTSIDE MESH."); //RE-ENABLE THIS
+//			}
+//			assert(GS.size()>=1 && "GLIDING NODE MUST HAVE AT LEAST ONE CONSTRAINT.");
+//			return GS;
+//		}
+
+//        void //showTemp(const VectorOfNormalsType& temp) const
+//        {
+//            for(int k=0;k<temp.size();++k)
+//            {
+//                std::cout<<temp[k].transpose()<<std::endl;
+//            }
+//        }

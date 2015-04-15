@@ -12,6 +12,7 @@
 #include <model/LatticeMath/LatticeBase.h>
 #include <model/LatticeMath/LatticeGCD.h>
 #include <model/LatticeMath/LatticeVector.h>
+//#include <model/LatticeMath/LatticeDirection.h>
 #include <model/LatticeMath/ReciprocalLatticeVector.h>
 
 namespace model
@@ -26,12 +27,7 @@ namespace model
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         
-        
-
-        
     public:
-        
-//        const long int gcd;
         
         ReciprocalLatticeDirection(const ReciprocalLatticeVectorType& v) :
         /* base init */ LatticeGCDType(v),
@@ -40,14 +36,12 @@ namespace model
         
         ReciprocalLatticeDirection(const LatticeVectorType& v1,const LatticeVectorType& v2) :
         /* delegating */ ReciprocalLatticeDirection(v1.cross(v2))
-        //        /* base init */ gcd(LatticeBaseType::gcd(v1.cross(v2))),
-//        /* base init */ ReciprocalLatticeVectorType((v1.cross(v2).squaredNorm()==0)? v1.cross(v2) : (v1.cross(v2)/gcd*LatticeBaseType::signOfFirstNonzero(v1.cross(v2))).eval())
         {}
         
-        Eigen::Matrix<double,dim,1> cartesian() const
-        {
-            return (this->squaredNorm()>0)? ReciprocalLatticeVectorType::cartesian().normalized() : Eigen::Matrix<double,dim,1>::Zero();
-        }
+//        Eigen::Matrix<double,dim,1> cartesian() const
+//        {
+//            return (this->squaredNorm()>0)? ReciprocalLatticeVectorType::cartesian().normalized() : Eigen::Matrix<double,dim,1>::Zero();
+//        }
         
     };
     

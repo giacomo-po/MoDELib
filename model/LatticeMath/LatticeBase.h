@@ -1,4 +1,4 @@
-/* This file is part of PIL, the Particle Interaction Library.
+/* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
  * Copyright (C) 2015 by Giacomo Po <gpo@ucla.edu>
  *
@@ -68,9 +68,12 @@ namespace model
         {
             VectorDimD nd(invA*d);
             VectorDimD rd(RoundEigen<double,dim>::round(nd));
-            //            std::cout<<"d2contra, nd="<<nd.transpose()<<std::endl;
-            //            std::cout<<"d2contra, rd="<<rd.transpose()<<std::endl;
-            assert((nd-rd).norm()<roundTol && "Input vector is not a lattice vector");
+            if((nd-rd).norm()>roundTol)
+            {
+                std::cout<<"d2contra, nd="<<nd.transpose()<<std::endl;
+                std::cout<<"d2contra, rd="<<rd.transpose()<<std::endl;
+                assert(0 && "Input vector is not a lattice vector");
+            }
             return rd.template cast<long int>();
         }
         
@@ -79,9 +82,13 @@ namespace model
         {
             VectorDimD nd(AT*d);
             VectorDimD rd(RoundEigen<double,dim>::round(nd));
-                        std::cout<<"d2cov, nd="<<nd.transpose()<<std::endl;
-                        std::cout<<"d2cov, rd="<<rd.transpose()<<std::endl;
-            assert((nd-rd).norm()<roundTol && "Input vector is not a lattice vector");
+            if((nd-rd).norm()>roundTol)
+            {
+                std::cout<<"d2cov, nd="<<nd.transpose()<<std::endl;
+                std::cout<<"d2cov, rd="<<rd.transpose()<<std::endl;
+                assert(0 && "Input vector is not a lattice vector");
+            }
+            //            assert((nd-rd).norm()<roundTol && "Input vector is not a lattice vector");
             return rd.template cast<long int>();
         }
         
@@ -111,19 +118,19 @@ namespace model
         //            return b>0? gcd(b, a % b) : a;
         //        }
         
-//        static int signOfFirstNonzero(const VectorDimI& v)
-//        {
-//            int sgn=1;
-//            for(int d=0;d<dim;++d)
-//            {
-//                if(v(d)!=0)
-//                {
-//                    sgn = ((v(d)>0)? 1 : -1);
-//                    break;
-//                }
-//            }
-//            return sgn;
-//        }
+        //        static int signOfFirstNonzero(const VectorDimI& v)
+        //        {
+        //            int sgn=1;
+        //            for(int d=0;d<dim;++d)
+        //            {
+        //                if(v(d)!=0)
+        //                {
+        //                    sgn = ((v(d)>0)? 1 : -1);
+        //                    break;
+        //                }
+        //            }
+        //            return sgn;
+        //        }
         
     };
     

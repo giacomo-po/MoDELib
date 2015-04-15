@@ -21,16 +21,16 @@
 namespace model
 {
     
-    /****************************************************************/
-    /****************************************************************/
-    template <typename EdgeType>
-    struct ContractingEdge
-    {
-        
-        const EdgeType& E;
-        ContractingEdge(const EdgeType& Ein) : E(Ein) {}
-        
-    };
+//    /****************************************************************/
+//    /****************************************************************/
+//    template <typename EdgeType>
+//    struct ContractingEdge
+//    {
+//        
+//        const EdgeType& E;
+//        ContractingEdge(const EdgeType& Ein) : E(Ein) {}
+//        
+//    };
     
     /****************************************************************/
     /****************************************************************/
@@ -167,7 +167,13 @@ namespace model
 		void contract(const size_t& i, const size_t& j, const NodeArgTypes&... NodeInput)
         {
 			
-			const size_t newID(VertexInsertion<VertexType>(networkVertexMapRef).insert(NodeInput...)); // CHANGE THIS LIKE EXPAND
+            const isConstNetworkVertexType Vi(VertexFinder<VertexType>(networkVertexMapRef).node(i));
+            assert(Vi.first && "CONTRACTING NON EXISTING VERTEX i");
+            const isConstNetworkVertexType Vj(VertexFinder<VertexType>(networkVertexMapRef).node(j));
+            assert(Vj.first && "CONTRACTING NON EXISTING VERTEX j");
+
+            
+			const size_t newID(VertexInsertion<VertexType>(networkVertexMapRef).insert(ContractingVertices<VertexType>(*Vi.second,*Vj.second),NodeInput...)); // CHANGE THIS LIKE EXPAND
 			
 			/* - Call contractHelper with removeIsolatedNodes=0 to make sure that j survives
 			 * - This will not create isolated nodes

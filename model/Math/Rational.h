@@ -1,4 +1,4 @@
-/* This file is part of PIL, the Particle Interaction Library.
+/* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
  * Copyright (C) 2015 by Giacomo Po <gpo@ucla.edu>
  *
