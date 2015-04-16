@@ -45,12 +45,12 @@ namespace model
         //		typedef std::vector<EdgeIntersectionPairType> EdgeIntersectionPairContainerType;
         typedef std::deque<EdgeIntersectionPairType> EdgeIntersectionPairContainerType;
         
-        /**********************************************************************/
-        void bringBackToPlane(VectorDimD& P, const LinkType& L)
-        {
-            const VectorDimD& n(L.glidePlaneNormal);
-            P -= (P-0.5*(L.source->get_P()+L.sink->get_P())).dot(n)*n;
-        }
+//        /**********************************************************************/
+//        void bringBackToPlane(VectorDimD& P, const LinkType& L)
+//        {
+//            const VectorDimD& n(L.glidePlaneNormal);
+//            P -= (P-0.5*(L.source->get_P()+L.sink->get_P())).dot(n)*n;
+//        }
         
         /**********************************************************************/
         void bringBackToMesh(VectorDimD& P,
