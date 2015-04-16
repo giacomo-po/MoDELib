@@ -396,21 +396,51 @@ namespace model
                         const Simplex<dim,dim>* S1(source1.includingSimplex());
                         const Simplex<dim,dim>* S2(source2.includingSimplex());
                         
+                        
+                        const double u1m(intersectionContainer[tt][interID]. first.second-du1);
+                        VectorDimD P1m(L1.second->get_r(u1m));
+                        
+                        const double u1p(intersectionContainer[tt][interID]. first.second+du1);
+                        VectorDimD P1p(L1.second->get_r(u1p));
+                        
+                        const double u2m(intersectionContainer[tt][interID].second.second-du2);
+                        VectorDimD P2m(L2.second->get_r(u2m));
+                        
+                        const double u2p(intersectionContainer[tt][interID].second.second+du2);
+                        VectorDimD P2p(L2.second->get_r(u2p));
+                        
+                        if (DN.shared.use_boundary)
+                        {
+                            std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P1m,S1);
+                            if(!search.first)
+                            {
+                                bringBackToMesh(P1m,search,C1,N1);
+                            }
+                            
+                            search=DN.shared.mesh.searchWithGuess(P1p,S1);
+                            if(!search.first)
+                            {
+                                bringBackToMesh(P1p,search,C1,N1);
+                            }
+                            
+                            search=DN.shared.mesh.searchWithGuess(P2m,S2);
+                            if(!search.first)
+                            {
+                                bringBackToMesh(P2m,search,C2,N2);
+                            }
+                            
+                            search=DN.shared.mesh.searchWithGuess(P2p,S2);
+                            if(!search.first)
+                            {
+                                bringBackToMesh(P2p,search,C2,N2);
+                            }
+                        }
+                        
+                        
                         // Prepare lower point on first link
                         size_t im = source1.sID;
-                        const double u1m(intersectionContainer[tt][interID]. first.second-du1);
                         if (u1m > avoidNodeIntersection)
                         {
-                            VectorDimD P1m(L1.second->get_r(u1m));
-                            bringBackToPlane(P1m,*L1.second); // remove numerical errors
-                            if (DN.shared.use_boundary)
-                            {
-                                const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P1m,S1);
-                                if(!search.first)
-                                {
-                                    bringBackToMesh(P1m,search,C1,N1);
-                                }
-                            }
                             const std::pair<bool,size_t> success1m=DN.expand(source1.sID,sink1.sID,P1m); // now L1.second is invalid
                             assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
                             im=success1m.second; // id of the node obtained expanding L1
@@ -418,19 +448,8 @@ namespace model
                         
                         // Prepare upper point on first link
                         size_t ip = sink1.sID;
-                        const double u1p(intersectionContainer[tt][interID]. first.second+du1);
                         if (u1p < 1.0-avoidNodeIntersection)
                         {
-                            VectorDimD P1p(L1.second->get_r(u1p));
-                            bringBackToPlane(P1p,*L1.second); // remove numerical errors
-                            if (DN.shared.use_boundary)
-                            {
-                                const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P1p,S1);
-                                if(!search.first)
-                                {
-                                    bringBackToMesh(P1p,search,C1,N1);
-                                }
-                            }
                             const std::pair<bool,size_t> success1p=DN.expand(im,sink1.sID,P1p); // now L1.second is invalid
                             assert(success1p.first && "COULD NOT EXPLAND LINK1 AT UPPER INTERSECTION");
                             ip=success1p.second; // id of the node obtained expanding L1
@@ -438,19 +457,8 @@ namespace model
                         
                         // Prepare lower point on second link
                         size_t jm = source2.sID;
-                        const double u2m(intersectionContainer[tt][interID].second.second-du2);
                         if (u2m > avoidNodeIntersection)
                         {
-                            VectorDimD P2m(L2.second->get_r(u2m));
-                            bringBackToPlane(P2m,*L2.second); // remove numerical errors
-                            if (DN.shared.use_boundary)
-                            {
-                                const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P2m,S2);
-                                if(!search.first)
-                                {
-                                    bringBackToMesh(P2m,search,C2,N2);
-                                }
-                            }
                             const std::pair<bool,size_t> success2m=DN.expand(source2.sID,sink2.sID,P2m); // now L2.second is invalid
                             assert(success2m.first && "COULD NOT EXPLAND LINK2 AT LOWER INTERSECTION");
                             jm=success2m.second; // id of the node obtained expanding L2
@@ -458,23 +466,92 @@ namespace model
                         
                         // Prepare upper point on second link
                         size_t jp = sink2.sID;
-                        const double u2p(intersectionContainer[tt][interID].second.second+du2);
                         if (u2p < 1.0-avoidNodeIntersection)
                         {
-                            VectorDimD P2p(L2.second->get_r(u2p));
-                            bringBackToPlane(P2p,*L2.second); // remove numerical errors
-                            if (DN.shared.use_boundary)
-                            {
-                                const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P2p,S2);
-                                if(!search.first)
-                                {
-                                    bringBackToMesh(P2p,search,C2,N2);
-                                }
-                            }
                             const std::pair<bool,size_t> success2p=DN.expand(jm,sink2.sID,P2p); // now L2.second is invalid
                             assert(success2p.first && "COULD NOT EXPLAND LINK2 AT UPPER INTERSECTION");
                             jp=success2p.second; // id of the node obtained expanding L2
                         }
+                        
+//                        // Prepare lower point on first link
+//                        size_t im = source1.sID;
+//                        const double u1m(intersectionContainer[tt][interID]. first.second-du1);
+//                        if (u1m > avoidNodeIntersection)
+//                        {
+//                            VectorDimD P1m(L1.second->get_r(u1m));
+//                            bringBackToPlane(P1m,*L1.second); // remove numerical errors
+//                            if (DN.shared.use_boundary)
+//                            {
+//                                const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P1m,S1);
+//                                if(!search.first)
+//                                {
+//                                    bringBackToMesh(P1m,search,C1,N1);
+//                                }
+//                            }
+//                            const std::pair<bool,size_t> success1m=DN.expand(source1.sID,sink1.sID,P1m); // now L1.second is invalid
+//                            assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
+//                            im=success1m.second; // id of the node obtained expanding L1
+//                        }
+//                        
+//                        // Prepare upper point on first link
+//                        size_t ip = sink1.sID;
+//                        const double u1p(intersectionContainer[tt][interID]. first.second+du1);
+//                        if (u1p < 1.0-avoidNodeIntersection)
+//                        {
+//                            VectorDimD P1p(L1.second->get_r(u1p));
+//                            bringBackToPlane(P1p,*L1.second); // remove numerical errors
+//                            if (DN.shared.use_boundary)
+//                            {
+//                                const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P1p,S1);
+//                                if(!search.first)
+//                                {
+//                                    bringBackToMesh(P1p,search,C1,N1);
+//                                }
+//                            }
+//                            const std::pair<bool,size_t> success1p=DN.expand(im,sink1.sID,P1p); // now L1.second is invalid
+//                            assert(success1p.first && "COULD NOT EXPLAND LINK1 AT UPPER INTERSECTION");
+//                            ip=success1p.second; // id of the node obtained expanding L1
+//                        }
+//                        
+//                        // Prepare lower point on second link
+//                        size_t jm = source2.sID;
+//                        const double u2m(intersectionContainer[tt][interID].second.second-du2);
+//                        if (u2m > avoidNodeIntersection)
+//                        {
+//                            VectorDimD P2m(L2.second->get_r(u2m));
+//                            bringBackToPlane(P2m,*L2.second); // remove numerical errors
+//                            if (DN.shared.use_boundary)
+//                            {
+//                                const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P2m,S2);
+//                                if(!search.first)
+//                                {
+//                                    bringBackToMesh(P2m,search,C2,N2);
+//                                }
+//                            }
+//                            const std::pair<bool,size_t> success2m=DN.expand(source2.sID,sink2.sID,P2m); // now L2.second is invalid
+//                            assert(success2m.first && "COULD NOT EXPLAND LINK2 AT LOWER INTERSECTION");
+//                            jm=success2m.second; // id of the node obtained expanding L2
+//                        }
+//                        
+//                        // Prepare upper point on second link
+//                        size_t jp = sink2.sID;
+//                        const double u2p(intersectionContainer[tt][interID].second.second+du2);
+//                        if (u2p < 1.0-avoidNodeIntersection)
+//                        {
+//                            VectorDimD P2p(L2.second->get_r(u2p));
+//                            bringBackToPlane(P2p,*L2.second); // remove numerical errors
+//                            if (DN.shared.use_boundary)
+//                            {
+//                                const std::pair<bool,const Simplex<dim,dim>*> search=DN.shared.mesh.searchWithGuess(P2p,S2);
+//                                if(!search.first)
+//                                {
+//                                    bringBackToMesh(P2p,search,C2,N2);
+//                                }
+//                            }
+//                            const std::pair<bool,size_t> success2p=DN.expand(jm,sink2.sID,P2p); // now L2.second is invalid
+//                            assert(success2p.first && "COULD NOT EXPLAND LINK2 AT UPPER INTERSECTION");
+//                            jp=success2p.second; // id of the node obtained expanding L2
+//                        }
                         
                         switch (dirVector[tt][interID])
                         {
