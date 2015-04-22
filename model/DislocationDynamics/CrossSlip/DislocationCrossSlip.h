@@ -31,7 +31,8 @@ namespace model
 	template <typename DislocationNetworkType>
 	class DislocationCrossSlip : private std::deque<CrossSlipSegment<typename DislocationNetworkType::LinkType> >
     {
-		
+
+        typedef typename DislocationNetworkType::NetworkNodeContainerType NetworkNodeContainerType;
         typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
         typedef typename DislocationNetworkType::LinkType LinkType;
         typedef CrossSlipSegment<LinkType> CrossSlipSegmentType;
@@ -146,14 +147,15 @@ namespace model
                     if (crossSlipPointsInsideMesh)
                     {
                         // 2.4- call expand
-                        std::pair<bool,size_t> expand1(dislocationNetwork.expand(iterCS->sourceID,iterCS->sinkID,crossPoints.first)); // place first point on common line
-                        assert(expand1.first && "COULD NOT DO FIRST EXPANSION IN CROSS SLIP");
                         
-                        std::pair<bool,size_t> expand2(dislocationNetwork.expand(expand1.second,iterCS->sinkID,crossPoints.second));  // place second point on common line
-                        assert(expand2.first && "COULD NOT DO SECOND EXPANSION IN CROSS SLIP");
+                        std::pair<typename NetworkNodeContainerType::iterator,bool> expand1(dislocationNetwork.expand(iterCS->sourceID,iterCS->sinkID,crossPoints.first)); // place first point on common line
+                        assert(expand1.second && "COULD NOT DO FIRST EXPANSION IN CROSS SLIP");
                         
-                        std::pair<bool,size_t> expand3(dislocationNetwork.expand(expand1.second,expand2.second,conjugatePoint,crossSlipVelocity));
-                        assert(expand3.first && "COULD NOT DO THIRD EXPANSION IN CROSS SLIP");
+                        std::pair<typename NetworkNodeContainerType::iterator,bool> expand2(dislocationNetwork.expand(expand1.first->first,iterCS->sinkID,crossPoints.second));  // place second point on common line
+                        assert(expand2.second && "COULD NOT DO SECOND EXPANSION IN CROSS SLIP");
+                        
+                        std::pair<typename NetworkNodeContainerType::iterator,bool> expand3(dislocationNetwork.expand(expand1.first->first,expand2.first->first,conjugatePoint,crossSlipVelocity));
+                        assert(expand3.second && "COULD NOT DO THIRD EXPANSION IN CROSS SLIP");
                         
                         n_nrossSlips++;
                     }

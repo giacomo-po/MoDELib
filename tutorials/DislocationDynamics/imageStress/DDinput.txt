@@ -62,7 +62,6 @@ use_EnergyMultipole = 0;
 use_redistribution=1;
 Lmax=500;
 Lmin=100;
-thetaDeg=45.0;
 
 ######################################
 # DISLOCATION JUNCTIONS

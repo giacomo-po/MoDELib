@@ -234,6 +234,7 @@ namespace model
           * -pair.second is a pointer to the last Simplex<dim,dim> searched.
           */
 //            std::set<const Simplex<dim,dim>*> searchSet;
+            searchSet.clear();
             std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,NULL);
             guess->convexDelaunaynSearch(P,lastSearched,searchSet);
             

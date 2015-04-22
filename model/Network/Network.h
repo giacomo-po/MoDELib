@@ -186,7 +186,8 @@ namespace model {
         
 		/* insert (a new vertex) **************************************/
 		template <typename ...NodeArgTypes>
-		size_t insertVertex(const NodeArgTypes&... nodeInput)
+//		size_t insertVertex(const NodeArgTypes&... nodeInput)
+        std::pair<typename NetworkNodeContainerType::iterator,bool> insertVertex(const NodeArgTypes&... nodeInput)
         {/*! @param[in] nodeInput
           *  Inserts a new vertex in the Network using nodeInput as variable
           *  constructor arguments
@@ -245,7 +246,7 @@ namespace model {
 		
 		/* expand ***************************************************/
 		template <typename ...NodeArgTypes>
-		std::pair<bool,size_t> expand(const size_t & i, const size_t & j, const NodeArgTypes&... Args)
+		std::pair<typename NetworkNodeContainerType::iterator,bool> expand(const size_t & i, const size_t & j, const NodeArgTypes&... Args)
         {
 			return EdgeExpansion<NodeType,LinkType>(*this,*this).expand(i,j,Args...);
 		}

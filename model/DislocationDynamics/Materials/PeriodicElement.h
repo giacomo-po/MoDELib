@@ -42,7 +42,8 @@ namespace model {
         static constexpr double tauP=0.0;               // Peierls stress [Pa]
         static constexpr double p=1.0;                  // exponent in (1-(T/Ta)^p)^q [-]
         static constexpr double q=1.69;                 // exponent in (1-(T/Ta)^p)^q [-]
-        static constexpr double A=3.3333e-07;           // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double Ae=3.3333e-07;           // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double As=3.3333e-07;           // coefficient of v0=tau*b/(A*T) [Pa*s/K]
         static constexpr double Ta=0.0;  // Athermal transition temperature [K]
 
         static const Eigen::Matrix<double,4,2> dH0;     // activation energy prefactor for kink nucleation [J]
@@ -73,7 +74,8 @@ namespace model {
         static constexpr double tauP=0.0;               // Peierls stress [Pa]
         static constexpr double p=1.0;                  // exponent in (1-(T/Ta)^p)^q [-]
         static constexpr double q=1.69;                 // exponent in (1-(T/Ta)^p)^q [-]
-        static constexpr double A=3.3333e-07;           // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double Ae=3.3333e-07;           // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double As=3.3333e-07;           // coefficient of v0=tau*b/(A*T) [Pa*s/K]
         static constexpr double Ta=0.0;  // Athermal transition temperature [K]
 
         static const Eigen::Matrix<double,4,2> dH0;     // activation energy prefactor for kink nucleation [J]
@@ -105,7 +107,8 @@ namespace model {
         static constexpr double tauP=0.0; // Peierls stress [Pa]
         static constexpr double p=1.0;  // exponent in (1-(T/Ta)^p)^q [-]
         static constexpr double q=1.69;  // exponent in (1-(T/Ta)^p)^q [-]
-        static constexpr double A=3.3333e-07;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double Ae=3.3333e-07;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double As=3.3333e-07;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
         static constexpr double Ta=0.0;  // Athermal transition temperature [K]
 
         static const Eigen::Matrix<double,4,2> dH0; // activation energy prefactor for kink nucleation [J]
@@ -136,7 +139,8 @@ namespace model {
         static constexpr double tauP=420.0e6; // Peierls stress [Pa]
         static constexpr double p=1.0;  // exponent in (1-(T/Ta)^p)^q [-]
         static constexpr double q=1.69;  // exponent in (1-(T/Ta)^p)^q [-]
-        static constexpr double A=1.0e-6;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double Ae=1.0e-6;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double As=1.0e-6;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
         static constexpr double Ta=400.0;  // Athermal transition temperature [K]
 
         static const Eigen::Matrix<double,18,2> dH0; // activation energy prefactor for kink nucleation [J]
@@ -182,7 +186,8 @@ namespace model {
         static constexpr double p=0.86;          //
         static constexpr double q=1.69;         //
 //        static constexpr double A=1.0e-6;     // coefficient of v0=tau*b/(A*T) [Pa*s/K]
-        static constexpr double A=3.3333e-07;   // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double Ae=3.3333e-07;   // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+        static constexpr double As=3.3333e-07;   // coefficient of v0=tau*b/(A*T) [Pa*s/K]
         static constexpr double Ta=800.0;       // Athermal transition temperature [K]
 
         static const Eigen::Matrix<double,18,2> dH0; // activation energy prefactor for kink nucleation [J]

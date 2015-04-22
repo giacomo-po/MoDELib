@@ -38,7 +38,8 @@ namespace model
         
         /* insert ***********************************/
         template <typename ...NodeArgTypes>
-        size_t insert(const NodeArgTypes&... NodeInput)
+        //size_t insert(const NodeArgTypes&... NodeInput)
+        std::pair<typename NetworkVertexMapType::iterator,bool> insert(const NodeArgTypes&... NodeInput)
         {/*!@tparam NodeArgTypes a variable number of input parameter types.
           * @param[in] NodeInput a variable number of input parameters.
           *
@@ -58,7 +59,8 @@ namespace model
             assert(inserted.first->second.sID == nodeID && "sID != nodeID");
             
             // 3- Returns the static ID of the new node.
-            return nodeID;
+//            return nodeID;
+            return inserted;
         }
         
 //		/* insert ***********************************/

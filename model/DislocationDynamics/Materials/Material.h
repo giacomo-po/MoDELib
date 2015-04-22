@@ -46,7 +46,7 @@ namespace model
             b =1.0;     // b is used to normalized length
             B =1.0;     // B=A*T [Pa*sec] is effectively used to normalize time
             Binv=1.0/B;
-            rho=IM::mu*std::pow(IM::b/(IM::A*T),2)*IM::rho;  //! rho* = mu*(b/B)^2 * rho, B=A*T
+            rho=IM::mu*std::pow(IM::b/(IM::Ae*T),2)*IM::rho;  //! rho* = mu*(b/B)^2 * rho, B=A*T
             //        cs=IM::B/IM::b*std::pow(IM::rho*IM::mu,-0.5);
             cs=sqrt(mu/rho); // sc*=sqrt(mu*/rho*)
 //            cs =1.0;    // shear wave speed is used to normalized velocity
@@ -62,24 +62,28 @@ namespace model
             dH0=PeriodicElement<Z,Isotropic>::dH0/IM::mu/std::pow(IM::b,3); // [-]
             p=PeriodicElement<Z,Isotropic>::p; // [-]
             q=PeriodicElement<Z,Isotropic>::q; // [-]
-            A=PeriodicElement<Z,Isotropic>::A / IM::mu / (IM::b/sqrt(IM::mu/IM::rho));   // [1/K]
+//            Ae=PeriodicElement<Z,Isotropic>::Ae / IM::mu / (IM::b/sqrt(IM::mu/IM::rho));   // [1/K]
+            Be=1.0;   // [1/K]
+            Bs=PeriodicElement<Z,Isotropic>::As / PeriodicElement<Z,Isotropic>::Ae;   // [1/K]
             tauP=PeriodicElement<Z,Isotropic>::tauP / IM::mu ;  // [-]
             Ta=PeriodicElement<Z,Isotropic>::Ta;  // [K]
             
             model::cout<<magentaColor<<"Material is now: "<<IM::name<<defaultColor<<std::endl;
             model::cout<<greenColor<<"  units of stress: mu="<<IM::mu<<" [Pa] (shear modulus)"<<std::endl;
             model::cout<<greenColor<<"  units of length: b="<<IM::b<<" [m] (Burgers vector)"<<std::endl;
-            model::cout<<greenColor<<"  units of time: B/mu="<<IM::A*T/IM::mu<<" [sec] (B is mibility in [Pa/sec])"<<defaultColor<<std::endl;
+            model::cout<<greenColor<<"  units of time: B/mu="<<IM::Ae*T/IM::mu<<" [sec] (B is mibility in [Pa/sec])"<<defaultColor<<std::endl;
         }
         
         
     public:
         
-        enum{Al=13,
+        enum{
+            Al=13,
              Fe=26,
              Ni=28,
              Cu=29,
-              W=74};
+              W=74
+        };
         
         static double mu;
         static double b;
@@ -100,7 +104,8 @@ namespace model
         
         static double p;
         static double q;
-        static double A;
+        static double Be;
+        static double Bs;
         static double tauP;
         static double Ta;
 
@@ -187,7 +192,7 @@ namespace model
     double Material<Isotropic>::B=1.0;
     double Material<Isotropic>::Binv=1.0;
     double Material<Isotropic>::T=300.0;  // Temperature [K]
-    double Material<Isotropic>::rho=PeriodicElement<29,Isotropic>::mu*std::pow(PeriodicElement<29,Isotropic>::b/(PeriodicElement<29,Isotropic>::A*T),2)*PeriodicElement<29,Isotropic>::rho;
+    double Material<Isotropic>::rho=PeriodicElement<29,Isotropic>::mu*std::pow(PeriodicElement<29,Isotropic>::b/(PeriodicElement<29,Isotropic>::Ae*T),2)*PeriodicElement<29,Isotropic>::rho;
     double Material<Isotropic>::cs=sqrt(mu/rho);
     double Material<Isotropic>::nu=0.34;
     double Material<Isotropic>::lambda=2.0*1.0*0.34/(1.0-2.0*0.34);
@@ -201,7 +206,8 @@ namespace model
 
     double Material<Isotropic>::p=PeriodicElement<29,Isotropic>::p;
     double Material<Isotropic>::q=PeriodicElement<29,Isotropic>::q;
-    double Material<Isotropic>::A=PeriodicElement<29,Isotropic>::A;
+    double Material<Isotropic>::Be=1.0;
+    double Material<Isotropic>::Bs=PeriodicElement<29,Isotropic>::As/PeriodicElement<29,Isotropic>::Ae;
     double Material<Isotropic>::tauP=PeriodicElement<29,Isotropic>::tauP;
     double Material<Isotropic>::Ta=PeriodicElement<29,Isotropic>::Ta;
     

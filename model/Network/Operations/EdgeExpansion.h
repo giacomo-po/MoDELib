@@ -60,15 +60,16 @@ namespace model {
 		
 		/* expand ***************************************************/
 		template <typename ...NodeArgTypes>
-		std::pair<bool,size_t> expand(const size_t& i, const size_t& j, const NodeArgTypes&... Args)
+		std::pair<typename NetworkVertexMapType::iterator,bool> expand(const size_t& i, const size_t& j, const NodeArgTypes&... Args)
         {
 			isConstNetworkEdgeType Lij(EdgeFinder<EdgeType>(networkEdgeMapRef).link(i,j));
 			assert(Lij.first && "EXPANDING NON-EXISTING LINK.");
-			const size_t newID(VertexInsertion<VertexType>(networkVertexMapRef).insert(ExpandingEdge<EdgeType>(*Lij.second),Args...));
-			VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(i,newID,ExpandingEdge<EdgeType>(*Lij.second));
-			VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(newID,j,ExpandingEdge<EdgeType>(*Lij.second));
+            const std::pair<typename NetworkVertexMapType::iterator,bool> temp(VertexInsertion<VertexType>(networkVertexMapRef).insert(ExpandingEdge<EdgeType>(*Lij.second),Args...));
+//			const size_t newID(temp.first->first);
+			VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(i,temp.first->first,ExpandingEdge<EdgeType>(*Lij.second));
+			VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(temp.first->first,j,ExpandingEdge<EdgeType>(*Lij.second));
 			VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).template disconnect<0>(i,j);
-			return std::make_pair(true,newID);
+			return temp;
 		}
 		
 	};

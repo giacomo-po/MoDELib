@@ -166,8 +166,8 @@ namespace model
           */
             if (use_junctions)
             {
-                const double avoidNodeIntersection(0.05);
-                DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx,avoidNodeIntersection);
+//                const double avoidNodeIntersection(0.05);
+                DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx);
             }
         }
         
@@ -319,7 +319,7 @@ namespace model
             
             //! 6- Output the current configuration before changing it
             output(runID);
-            
+
             //! Update accumulated quantities
             totalTime+=dt;
             
@@ -360,10 +360,11 @@ namespace model
             
             //! 11- Form Junctions
             formJunctions();
-            //output(runID);
             
             //! 12- Node redistribution
             remesh();
+//            output(runID); // remove THIS
+
             
             // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
@@ -580,9 +581,9 @@ namespace model
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
             EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
-            EDR.readScalarInFile(fullName.str(),"thetaDeg",DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg);
-            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg>=0.0);
-            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg<=90.0);
+//            EDR.readScalarInFile(fullName.str(),"thetaDeg",DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg);
+//            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg>=0.0);
+//            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg<=90.0);
             
             // Cross-Slip
             EDR.readScalarInFile(fullName.str(),"use_crossSlip",use_crossSlip);

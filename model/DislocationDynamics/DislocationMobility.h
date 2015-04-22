@@ -45,8 +45,8 @@ namespace model {
 //        const double& Ta;
         const double& p;
         const double& q;
-        const double Ae;
-        const double As;
+        const double Be;
+        const double Bs;
         const double& Ta; // Peierls stress [Pa]
         
         
@@ -61,8 +61,8 @@ namespace model {
 //        /* init list */ Ta(Material<Isotropic>::Ta),
         /* init list */ p(Material<Isotropic>::p),
         /* init list */ q(Material<Isotropic>::q),
-        /* init list */ Ae(Material<Isotropic>::A),
-        /* init list */ As(Material<Isotropic>::A),
+        /* init list */ Be(Material<Isotropic>::Be),
+        /* init list */ Bs(Material<Isotropic>::Bs),
         /* init list */ Ta(Material<Isotropic>::Ta)
         {/*! Contructor initializes data members.
           */
@@ -107,8 +107,8 @@ namespace model {
                 
                 const double cos2Theta=std::pow(t.dot(Burgers.normalized()),2);
                 
-                const double vE=pKnorm/(Ae*Material<Isotropic>::T);
-                      double vS=pKnorm/(As*Material<Isotropic>::T);
+                const double vE=pKnorm/Be;
+                      double vS=pKnorm/Bs;
 
 
                 

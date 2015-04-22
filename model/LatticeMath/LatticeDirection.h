@@ -24,12 +24,8 @@ namespace model
         typedef LatticeBase<dim> LatticeBaseType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
-        
-        
-        
+
     public:
-        
-//        const long int gcd;
         
         LatticeDirection(const LatticeVectorType& v) :
         /* base init */ LatticeGCDType(v),
@@ -37,14 +33,9 @@ namespace model
         {}
         
         LatticeDirection(const ReciprocalLatticeVectorType& r1,const ReciprocalLatticeVectorType& r2) :
- //       /* base init */ LatticeVectorType(LatticeBaseType::gcd(r1.cross(r2)))
         /* delegating */ LatticeDirection(r1.cross(r2))
         {}
         
-//        Eigen::Matrix<double,dim,1> cartesian() const
-//        {
-//            return (this->squaredNorm()>0)? LatticeVectorType::cartesian().normalized() : Eigen::Matrix<double,dim,1>::Zero();
-//        }
     };
     
 } // end namespace

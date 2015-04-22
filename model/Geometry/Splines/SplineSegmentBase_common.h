@@ -224,7 +224,7 @@ Eigen::Matrix<double, Ndof, Eigen::Dynamic>  get_G2H() const {
 }
 
 /* closestPoint *****************************************************/
-std::map<double,std::pair<double,VectorDim> > closestPoint(const VectorDim& P0) const
+std::pair<double,std::pair<double,VectorDim> > closestPoint(const VectorDim& P0) const
 {
         
     // solve (P-P0)*dP/du=0
@@ -260,7 +260,7 @@ std::map<double,std::pair<double,VectorDim> > closestPoint(const VectorDim& P0) 
     
     for (int k=0;k<2*Ncoeff-3;++k)
     {
-        if (std::fabs(mc.root(k).imag())<FLT_EPSILON && mc.root(k).real()>=0.0 && mc.root(k).real()<=1.0 )
+        if (std::fabs(mc.root(k).imag())<FLT_EPSILON && mc.root(k).real()>0.0 && mc.root(k).real()<1.0 )
         {
             
             VectorDim P(this->get_r(mc.root(k).real()));
@@ -269,7 +269,11 @@ std::map<double,std::pair<double,VectorDim> > closestPoint(const VectorDim& P0) 
         }
         
     }
+
+    // check distance to limits of interval
+    rootMap.insert(std::make_pair((this->source->get_P()-P0).norm(), std::make_pair(0.0,this->source->get_P()) ));
+    rootMap.insert(std::make_pair((this->  sink->get_P()-P0).norm(), std::make_pair(1.0,this->  sink->get_P()) ));
     
-    return rootMap;
+    return *rootMap.begin();
     
 }

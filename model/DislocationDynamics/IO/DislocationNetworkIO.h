@@ -89,7 +89,7 @@ namespace model
                 model::cout << "\r \r" << "Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<vReader.size()<<")"<<std::flush;
 
                 LatticeVectorType L(VectorDimD(vIter->second.template segment<NdofXnode>(0)));
-                const size_t nodeID(DN.insertVertex(L));
+                const size_t nodeID(DN.insertVertex(L).first->first);
 				assert(nodeID==nodeIDinFile);
                 kk++;
 			}

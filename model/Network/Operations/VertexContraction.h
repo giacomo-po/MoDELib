@@ -173,7 +173,7 @@ namespace model
             assert(Vj.first && "CONTRACTING NON EXISTING VERTEX j");
 
             
-			const size_t newID(VertexInsertion<VertexType>(networkVertexMapRef).insert(ContractingVertices<VertexType>(*Vi.second,*Vj.second),NodeInput...)); // CHANGE THIS LIKE EXPAND
+			const size_t newID(VertexInsertion<VertexType>(networkVertexMapRef).insert(ContractingVertices<VertexType>(*Vi.second,*Vj.second),NodeInput...).first->first); // CHANGE THIS LIKE EXPAND
 			
 			/* - Call contractHelper with removeIsolatedNodes=0 to make sure that j survives
 			 * - This will not create isolated nodes
