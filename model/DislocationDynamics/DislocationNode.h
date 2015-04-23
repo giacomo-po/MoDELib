@@ -549,7 +549,7 @@ namespace model
                     }
                     else // new position is outside mesh
                     {
-                        std::cout<<"Outside mesh"<<std::endl;
+                        std::cout<<"DislocationNode"<<this->sID<<" Outside mesh"<<std::endl;
                         const LatticeDirectionType dD=LatticeVectorType(dX);
                         
                         std::cout<<LatticeVectorType(dX)<<std::endl;
@@ -679,6 +679,11 @@ namespace model
           * 2 = on mesh boundary
           */
             return (boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh);
+        }
+        
+        bool isBoundaryNode() const
+        {
+            return meshLocation()==onMeshBoundary;
         }
         
         /**********************************************************************/

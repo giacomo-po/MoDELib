@@ -658,7 +658,7 @@ namespace model
         /**********************************************************************/
         bool is_boundarySegment() const
         {
-            return (this->source->meshLocation() == onMeshBoundary && this->sink->meshLocation() == onMeshBoundary);
+            return (this->source->isBoundaryNode() && this->sink->isBoundaryNode() );
         }
         
         /**********************************************************************/

@@ -132,7 +132,7 @@ namespace model
                 {
                     //std::cout<<"contracting "<<i<<" "<<j<<std::endl;
                     
-//                    DN.contract(i,j,L0,guess.second); // 2 3 4 5
+                    //                    DN.contract(i,j,L0,guess.second); // 2 3 4 5
                     DN.contract(i,j,L0); // 2 3 4 5
                     temp++;
                 }
@@ -140,6 +140,7 @@ namespace model
             
             return temp;
         }
+        
         
         /**********************************************************************/
         unsigned int contractSecondWithCommonNeighborCheck(const NodeType& Ni,
@@ -220,6 +221,54 @@ namespace model
             return contractSecondWithCommonNeighborCheck(*Ni.second,*Nj.second);
         }
         
+        /**********************************************************************/
+        LatticeVectorType lineMeshIntersection(const LatticeLine& line,
+                                               LatticeVectorType L1,
+                                               const Simplex<dim,dim>* guess) const
+        {
+            const int d2=line.d.squaredNorm(); // minimum (squared) distance along line
+            assert(d2>0 && "LINE HAS ZERO DIRECTION");
+            
+            LatticeVectorType L0=line.P;
+            std::pair<bool,const Simplex<dim,dim>*> temp=DN.shared.mesh.searchWithGuess(L0.cartesian(),guess);
+            assert(temp.first && "LINE-MESH-INTERSECTION, STARTING POINT NOT INSIDE MESH");
+            
+            //  Bring L1 to line
+            L1=LatticeVectorType(line.snapToLattice(L1.cartesian()));
+            
+            assert((L1-L0).squaredNorm()>0 && "L0 and L1 are the same");
+            
+            int n=(L1-L0).dot(line.d)/d2;
+            
+            temp=DN.shared.mesh.searchWithGuess(L1.cartesian(),guess);
+            while (temp.first) // repeat untile L1 is found outside
+            {
+                L0=L1;
+                n*=2;
+                L1=line.P+n*line.d;
+                temp=DN.shared.mesh.searchWithGuess(L1.cartesian(),temp.second);
+            }
+            
+            // now L1 is ouside mesh, and L0 is inside
+            
+            while((L0-L1).squaredNorm()>d2)
+            {
+                LatticeVectorType L3(line.snapToLattice(0.5*(L0.cartesian()+L1.cartesian())));
+                temp=DN.shared.mesh.searchWithGuess(L3.cartesian(),temp.second);
+                if (temp.first) // midpoint inside
+                {
+                    L0=L3;
+                }
+                else
+                {
+                    L1=L3;
+                }
+            }
+            
+            return L0;
+        }
+
+        
     public:
         
         /**********************************************************************/
@@ -243,9 +292,15 @@ namespace model
             size_t contracted(0);
             
             
+            
+            
             const LatticeVectorType& L1=N1.second->get_L();
             const LatticeVectorType& L2=N2.second->get_L();
-//            const int L12=(L1-L2).squaredNorm();
+            //            const int L12=(L1-L2).squaredNorm();
+            
+            const bool isBoundaryNode1(N1.second->isBoundaryNode());
+            const bool isBoundaryNode2(N2.second->isBoundaryNode());
+            
             
             //            const VectorDimD P12=P1-P2;
             //            const double P12norm(P12.norm());
@@ -266,244 +321,255 @@ namespace model
                 const size_t sizePN2(PN2.size());
                 const VectorDimD P1=L1.cartesian();
                 const VectorDimD P2=L2.cartesian();
-
+                
                 std::cout<<"contractWithConstraintCheck: case "<<sizePN1<<" "<<sizePN2<<std::endl;
                 
                 if(sizePN1==1 && sizePN2==1) // nodes constrained to move on planes
                 {
-                    
-                    std::cout<<"contractWithConstraintCheck, case 1"<<std::endl; // 2 3 5
-
-                    
                     PlanePlaneIntersection ppi(*PN1[0],*PN2[0]);
-                    
 
-                    
-                    switch (ppi.intersectionType)
+                    if(!isBoundaryNode1 && !isBoundaryNode2)
                     {
-                        case PlanePlaneIntersection::IntersectionType::coincident:
+                        std::cout<<"contractWithConstraintCheck, case 1a"<<std::endl; // 2 3 5
+                        switch (ppi.intersectionType)
                         {
-                                                std::cout<<"contractWithConstraintCheck, case 1a"<<std::endl; // 2 3 5
-                            
-                            LatticeVectorType L(PN1[0]->snapToLattice(0.5*(P1+P2)));
-                            contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,L);
-                            break;
+                            case PlanePlaneIntersection::IntersectionType::coincident:
+                            {
+                                std::cout<<"contractWithConstraintCheck, case 1a1"<<std::endl; // 2 3 5
+                                
+                                LatticeVectorType L(PN1[0]->snapToLattice(0.5*(P1+P2)));
+                                contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,L);
+                                break;
+                            }
+                                
+                            case PlanePlaneIntersection::IntersectionType::incident:
+                            {
+                                std::cout<<"contractWithConstraintCheck, case 1a1"<<std::endl; // 2 3 5
+                                // Find closest point on intersection line
+                                const VectorDimD n1=PN1[0]->n.cartesian().normalized();
+                                const VectorDimD n2=PN2[0]->n.cartesian().normalized();
+                                const VectorDimD P(P1+P2);
+                                const Eigen::Matrix<double,3,2> N((Eigen::Matrix<double,2,3>()<<n1.transpose(),n2.transpose()).finished().transpose());
+                                const Eigen::Matrix<double,2,1> A((Eigen::Matrix<double,2,1>()<<P1.dot(n1),P2.dot(n2)).finished());
+                                const Eigen::Matrix<double,2,1> lam=(N.transpose()*N).inverse()*(N.transpose()*P-2.0*A);
+                                
+                                const LatticeLine line(ppi.P,ppi.d);
+                                LatticeVectorType L(line.snapToLattice(0.5*(P-N*lam)));
+                                
+                                std::cout<<L1.transpose()<<std::endl;
+                                std::cout<<L2.transpose()<<std::endl;
+                                std::cout<<L.transpose()<<std::endl;
+                                
+                                contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,L);
+                                break;
+                            }
+                                
+                            default:
+                                break;
                         }
-                            
-                        case PlanePlaneIntersection::IntersectionType::incident:
-                        {
-                                                std::cout<<"contractWithConstraintCheck, case 1b"<<std::endl; // 2 3 5
-                            // Find closest point on intersection line
-                            const VectorDimD n1=PN1[0]->n.cartesian().normalized();
-                            const VectorDimD n2=PN2[0]->n.cartesian().normalized();
-                            const VectorDimD P(P1+P2);
-                            const Eigen::Matrix<double,3,2> N((Eigen::Matrix<double,2,3>()<<n1.transpose(),n2.transpose()).finished().transpose());
-                            const Eigen::Matrix<double,2,1> A((Eigen::Matrix<double,2,1>()<<P1.dot(n1),P2.dot(n2)).finished());
-                            const Eigen::Matrix<double,2,1> lam=(N.transpose()*N).inverse()*(N.transpose()*P-2.0*A);
-                            
-                            const LatticeLine line(ppi.P,ppi.d);
-                            LatticeVectorType L(line.snapToLattice(0.5*(P-N*lam)));
-                            
-                            std::cout<<L1.transpose()<<std::endl;
-                            std::cout<<L2.transpose()<<std::endl;
-                            std::cout<<L.transpose()<<std::endl;
-                            
-                            contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,L);
-                            break;
-                        }
-                            
-                        default:
-                            break;
                     }
-                    
-                    //                    //std::cout<<"contractWithConstraintCheck, case 1"<<std::endl;
-                    //                    if ((PN1[0].cross(PN2[0])).norm()<FLT_EPSILON) // parallel or coincident planes
-                    //                    {
-                    //                        //std::cout<<"contractWithConstraintCheck, case 1a"<<std::endl; // 2 3 5
-                    //
-                    //                        if(std::fabs((P12).dot(PN1[0]))<FLT_EPSILON) // planes are coincident
-                    //                        {
-                    //                            contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
-                    //                        }
-                    //                        else // parallel planes
-                    //                        {
-                    //                            assert(0 && "COULD NOT CONTRACT JUNCTION POINTS.");
-                    //                        }
-                    //                    }
-                    //                    else // incident planes
-                    //                    {
-                    //                        //std::cout<<"contractWithConstraintCheck, case 1b"<<std::endl;
-                    //
-                    //                        // Contract at X, where X minimizes 0.5*(X-P1)^2+0.5*(X-P2)^2
-                    //                        // under the constraints (X-P1)*N1=0 and (X-P2)*N2=0
-                    //                        const VectorDimD P(P1+P2);
-                    //                        const Eigen::Matrix<double,3,2> N((Eigen::Matrix<double,2,3>()<<PN1[0].transpose(),PN2[0].transpose()).finished().transpose());
-                    //                        const Eigen::Matrix<double,2,1> A((Eigen::Matrix<double,2,1>()<<P1.dot(PN1[0]),P2.dot(PN2[0])).finished());
-                    //                        const Eigen::Matrix<double,2,1> L=(N.transpose()*N).inverse()*(N.transpose()*P-2.0*A);
-                    //                        contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P-N*L));
-                    //                    }
-                    
+
+                    else if(!isBoundaryNode1 && isBoundaryNode2)
+                    {
+                        contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
+                    }
+                    else // case (isBoundaryNode1 && !isBoundaryNode2) and (isBoundaryNode1 && isBoundaryNode2)
+                    { // N1 moves on its plane, constrained on the boundary, N2 moves on its plane
+                        std::cout<<"contractWithConstraintCheck, case 1b"<<std::endl; // 2 3 5
+                        switch (ppi.intersectionType)
+                        {
+                            case PlanePlaneIntersection::IntersectionType::coincident:
+                            {
+                                std::cout<<"contractWithConstraintCheck, case 1b1"<<std::endl; // 2 3 5
+                                contracted+=contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
+                                break;
+                            }
+                                
+                            case PlanePlaneIntersection::IntersectionType::incident:
+                            {
+                                std::cout<<"contractWithConstraintCheck, case 1b1"<<std::endl; // 2 3 5
+                                // Find closest point on intersection line
+                                const VectorDimD n1=PN1[0]->n.cartesian().normalized();
+                                const VectorDimD n2=PN2[0]->n.cartesian().normalized();
+                                const VectorDimD P(P1+P2);
+                                const Eigen::Matrix<double,3,2> N((Eigen::Matrix<double,2,3>()<<n1.transpose(),n2.transpose()).finished().transpose());
+                                const Eigen::Matrix<double,2,1> A((Eigen::Matrix<double,2,1>()<<P1.dot(n1),P2.dot(n2)).finished());
+                                const Eigen::Matrix<double,2,1> lam=(N.transpose()*N).inverse()*(N.transpose()*P-2.0*A);
+                                
+                                const LatticeLine line(ppi.P,ppi.d);
+                                LatticeVectorType L(line.snapToLattice(0.5*(P-N*lam)));
+                                const LatticeLine line2(L,line.d); // shift origin of line
+                                contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,lineMeshIntersection(line2,N1.second->get_L(),N1.second->includingSimplex()));
+                                break;
+                            }
+                                
+                            default:
+                                break;
+                        }
+                    }
                 }
                 else if(sizePN1==1 && sizePN2==2) // N1 moves on a plane, N2 moves on a line
                 {
-                                        std::cout<<"contractWithConstraintCheck, case 2"<<std::endl; // 2 3 5
-                    
-                    // Find the LatticeLine over which node2 moves
-                    PlanePlaneIntersection ppi(*PN2[0],*PN2[1]);
-                    assert(ppi.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
-                    const LatticeLine line(ppi.P,ppi.d);
-                    
-                    // Find the intersection of the line and the plane of node1
-                    PlaneLineIntersection pli(*PN1[0],line);
-                    switch (pli.intersectionType)
+                    if(!isBoundaryNode1 && !isBoundaryNode2)
                     {
-                        case PlaneLineIntersection::IntersectionType::intersecting:
-                            contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,pli.P);
-                            break;
-                            
-                        case PlaneLineIntersection::IntersectionType::coincident:
+                        std::cout<<"contractWithConstraintCheck, case 2a"<<std::endl; // 2 3 5
+                        
+                        // Find the LatticeLine over which node2 moves
+                        PlanePlaneIntersection ppi(*PN2[0],*PN2[1]);
+                        assert(ppi.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
+                        const LatticeLine line(ppi.P,ppi.d);
+                        
+                        // Find the intersection of the line and the plane of node1
+                        PlaneLineIntersection pli(*PN1[0],line);
+                        switch (pli.intersectionType)
+                        {
+                            case PlaneLineIntersection::IntersectionType::intersecting:
+                                contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,pli.P);
+                                break;
+                                
+                            case PlaneLineIntersection::IntersectionType::coincident:
+                                contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
+                                break;
+                                
+                            default:
+                                break;
+                        }
+                    }
+                    else if(isBoundaryNode1 && !isBoundaryNode2)
+                    {// N1 can move on its plane and it is contrained on the bonudary, N2 moves on a line
+                        std::cout<<"contractWithConstraintCheck, case 2b"<<std::endl; // 2 3 5
+                        PlanePlaneIntersection ppi(*PN2[0],*PN2[1]);
+                        assert(ppi.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
+                        const LatticeLine line(ppi.P,ppi.d);
+                        
+                        // Find the intersection of the line and the plane of node1
+                        PlaneLineIntersection pli(*PN1[0],line);
+                        switch (pli.intersectionType)
+                        {
+                            case PlaneLineIntersection::IntersectionType::intersecting:
+                            {// check if the intersection point is a boundary point
+                                std::pair<bool,const Simplex<dim,dim>*> temp=DN.shared.mesh.searchWithGuess(pli.P.cartesian(),N1.second->includingSimplex());
+                                std::pair<bool,const Simplex<dim,dim>*> tempp=DN.shared.mesh.searchWithGuess(pli.P.cartesian()+line.d.cartesian(),N1.second->includingSimplex());
+                                std::pair<bool,const Simplex<dim,dim>*> tempm=DN.shared.mesh.searchWithGuess(pli.P.cartesian()-line.d.cartesian(),N1.second->includingSimplex());
+                                if((temp.first && !tempp.first) || (temp.first && !tempm.first))
+                                {
+                                    contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,pli.P);
+                                }
+                                break;
+                            }
+                                
+                            case PlaneLineIntersection::IntersectionType::coincident:
+                            {// find the point where the line intersects the boundary
+                                const LatticeLine line2(N2.second->get_L(),line.d);
+                                LatticeVectorType L=lineMeshIntersection(line2,N1.second->get_L(),N1.second->includingSimplex());
+                                contracted+=contractWithCommonNeighborCheck(*N2.second,*N1.second,L);
+                                break;
+                            }
+                                
+                            default:
+                                break;
+                        }
+                    }
+                    else if(!isBoundaryNode1 && isBoundaryNode2)
+                    {// N2 is stuck, N1 moves on a plane. Only option is that plane1 contains P2
+                        std::cout<<"contractWithConstraintCheck, case 2c"<<std::endl; // 2 3 5
+                        if(PN1[0]->contains(L2))
+                        {
                             contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                            break;
-                            
-                        default:
-                            break;
+                        }
+                    }
+                    else
+                    {
+                        std::cout<<"contractWithConstraintCheck, case 2d"<<std::endl; // 2 3 5
+
                     }
                     
-//                    if(pli.exists)
-//                    {
-//                        
-//                        
-//                        
-//                    }
-                    
-                    //std::cout<<"contractWithConstraintCheck, case 2"<<std::endl;
-                    //                    const VectorDimD d2(PN2[0].cross(PN2[1]));
-                    //                    const double den(d2.dot(PN1[0]));
-                    //                    const double num(P12.dot(PN1[0]));
-                    //                    if(std::fabs(den)>FLT_EPSILON) // line and plane are not parallel
-                    //                    {
-                    //                        //std::cout<<"contractWithConstraintCheck, case 2a"<<std::endl;
-                    //                        contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+num/den*d2); // 4
-                    //                    }
-                    //                    else
-                    //                    {
-                    //                        if(std::fabs(num)<FLT_EPSILON) // P2 belongs to the plane of P1
-                    //                        {
-                    //                            //std::cout<<"contractWithConstraintCheck, case 2b"<<std::endl;
-                    //                            //                            contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2)); // HERE
-                    //                            contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                    //
-                    //                        }
-                    //                        //std::cout<<"contractWithConstraintCheck, case 2c"<<std::endl;
-                    //                    }
                 }
                 else if(sizePN1==2 && sizePN2==1) // N1 moves on a line, N2 moves on a plane
                 {
-                                        std::cout<<"contractWithConstraintCheck, case 3"<<std::endl; // 2 3 5
+                    std::cout<<"contractWithConstraintCheck, case 3"<<std::endl; // 2 3 5
                     contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
                 }
                 else if(sizePN1==2 && sizePN2==2) // both N1 and N2 move on lines
                 {
-                                        std::cout<<"contractWithConstraintCheck, case 4"<<std::endl; // 2 3 5
-                    PlanePlaneIntersection ppi1(*PN1[0],*PN1[1]);
-                    assert(ppi1.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
-                    const LatticeLine line1(ppi1.P,ppi1.d);
                     
-                    
-                    PlanePlaneIntersection ppi2(*PN2[0],*PN2[1]);
-                    assert(ppi2.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
-                    const LatticeLine line2(ppi2.P,ppi2.d);
-                    
-                    
-                    LineLineIntersection lli(line1,line2);
-                    
-                    switch (lli.intersectionType)
+                    if(!isBoundaryNode1 && !isBoundaryNode2)
                     {
-                        case LineLineIntersection::IntersectionType::intersectingLines:
+                        std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl; // 2 3 5
+                        PlanePlaneIntersection ppi1(*PN1[0],*PN1[1]);
+                        assert(ppi1.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
+                        const LatticeLine line1(ppi1.P,ppi1.d);
+                        
+                        
+                        PlanePlaneIntersection ppi2(*PN2[0],*PN2[1]);
+                        assert(ppi2.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
+                        const LatticeLine line2(ppi2.P,ppi2.d);
+                        
+                        
+                        LineLineIntersection lli(line1,line2);
+                        
+                        switch (lli.intersectionType)
                         {
-                            std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl; // 2 3 5
-                            contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,lli.P);
-                            break;
+                            case LineLineIntersection::IntersectionType::intersectingLines:
+                            {
+                                std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl; // 2 3 5
+                                contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,lli.P);
+                                break;
+                            }
+                                
+                            case LineLineIntersection::IntersectionType::coincidentLines:
+                            {
+                                std::cout<<"contractWithConstraintCheck, case 4b"<<std::endl; // 2 3 5
+                                //std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl; // 2 3 5
+                                contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,LatticeVectorType(line1.snapToLattice(0.5*(P1+P2))));
+                                break;
+                            }
+                                
+                                
+                            default:
+                                break;
                         }
-
-                        case LineLineIntersection::IntersectionType::coincidentLines:
-                        {
-                            std::cout<<"contractWithConstraintCheck, case 4b"<<std::endl; // 2 3 5
-                            //std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl; // 2 3 5
-                            contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,LatticeVectorType(line1.snapToLattice(0.5*(P1+P2))));
-                            break;
-                        }
-
-                            
-                        default:
-                            break;
                     }
-                    
-                    
-                    //                    //std::cout<<"contractWithConstraintCheck, case 4"<<std::endl;
-                    //
-                    //                    VectorDimD d1(PN1[0].cross(PN1[1]));
-                    //                    const double d1norm(d1.norm());
-                    //                    assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
-                    //                    d1/=d1norm;
-                    //                    VectorDimD d2(PN2[0].cross(PN2[1]));
-                    //                    const double d2norm(d2.norm());
-                    //                    assert(d2norm>FLT_EPSILON && "DIRECTION d2 HAS ZERO NORM");
-                    //                    d2/=d2norm;
-                    //
-                    //                    const VectorDimD d3(d1.cross(d2));
-                    //                    const double d3Norm(d3.norm());
-                    //
-                    //                    if(d3Norm<FLT_EPSILON) // d1 and d2 are aligned, this means colinear or no intersection
-                    //                    {
-                    //                        if(d1.cross(P12.normalized()).norm()<FLT_EPSILON) // colinear
-                    //                        {
-                    //                            //std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl;
-                    //
-                    //                            contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
-                    //                        }
-                    //                        else // parallel (not colinear) lines, contraction not possible
-                    //                        {
-                    //                            //assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. ALIGNMENT CONDITION FAILED.");
-                    //
-                    //                        }
-                    //                    }
-                    //                    else // d1 and d2 are not aligned
-                    //                    {
-                    //                        if(std::fabs((d3/d3Norm).dot(P12/P12norm))<FLT_EPSILON) // planarity condition
-                    //                        {
-                    //                            //std::cout<<"contractWithConstraintCheck, case 4b"<<std::endl;
-                    //
-                    //                            const VectorDimD dOrth=d2-d2.dot(d1)*d1; // component of d2 orthogonal to d1
-                    //                            const double den=d2.dot(dOrth);
-                    //                            assert(std::fabs(den)>FLT_EPSILON && "YOU SHOULD HAVE FOUND THIS ABOVE.");
-                    //                            contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+P12.dot(dOrth)/den*d2);
-                    //                        }
-                    //                        else // planarity condition failed, contraction not possible
-                    //                        {
-                    //                            //assert(0 && "COULD NOT CONTRACT JUNCTION POINTS. PLANARITY CONDITION FAILED.");
-                    //                        }
-                    //                    }
+                    else if(isBoundaryNode1 && !isBoundaryNode2)
+                    {
+                        // node 1 is stuck, while node2 moves on a line. Only option is thatl line2 contains P1
+                        PlanePlaneIntersection ppi2(*PN2[0],*PN2[1]);
+                        assert(ppi2.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
+                        const LatticeLine line2(ppi2.P,ppi2.d);
+                        if(line2.contains(L1))
+                        {
+                            contracted+=contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
+                        }
+                    }
+                    else if(!isBoundaryNode1 && isBoundaryNode2)
+                    {
+                        contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
+                    }
+                    else // both are bonudary nodes
+                    {
+                        // both nodes are stuck, so only option is then P1==P2, already considered above
+                    }
                 }
                 else if(sizePN1==1 && sizePN2==3)
-                {
-                    std::cout<<"contractWithConstraintCheck, case 5"<<std::endl;
-                    
-                    if(PN1[0]->contains(L2))
+                {// node2 is stuck,
+                    if(!isBoundaryNode1)
                     {
-                                            std::cout<<"contractWithConstraintCheck, case 5a"<<std::endl; // 2 3 5
-                        contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                        
+                        std::cout<<"contractWithConstraintCheck, case 5a"<<std::endl;
+                        if(PN1[0]->contains(L2))
+                        {
+                            std::cout<<"contractWithConstraintCheck, case 5a1"<<std::endl; // 2 3 5
+                            contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
+                        }
                     }
-                    
-                    //                    if(std::fabs(P12.normalized().dot(PN1[0]))<FLT_EPSILON) // P2 belongs to the plane of P1
-                    //                    {// contract N1
-                    //                        contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                    //                    }
-                    //                    else // contraction not possible
-                    //                    {
-                    //
-                    //                    }
+                    else // node1 is a boundary node, so it can be contracted to N2 if N2 belongs to the plane of N1, and N2 is a boundary node
+                    {
+                        std::cout<<"contractWithConstraintCheck, case 5b"<<std::endl;
+                        if(PN1[0]->contains(L2) && isBoundaryNode2)
+                        {
+                            std::cout<<"contractWithConstraintCheck, case 5b1"<<std::endl; // 2 3 5
+                            contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
+                        }
+                    }
                 }
                 else if(sizePN1==3 && sizePN2==1)
                 {
@@ -512,36 +578,29 @@ namespace model
                     contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
                 }
                 else if(sizePN1==2 && sizePN2==3)
-                {
-                    std::cout<<"contractWithConstraintCheck, case 7"<<std::endl;
-                    
-                    PlanePlaneIntersection ppi(*PN1[0],*PN1[1]);
-                    assert(ppi.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
-                    const LatticeLine line(ppi.P,ppi.d);
-                    if(line.contains(L2))
+                {// node2 is stuck,
+                    if(!isBoundaryNode1)
                     {
-                                            std::cout<<"contractWithConstraintCheck, case 7a"<<std::endl; // 2 3 5
-                        contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
+                        std::cout<<"contractWithConstraintCheck, case 7a"<<std::endl;
                         
+                        PlanePlaneIntersection ppi(*PN1[0],*PN1[1]);
+                        assert(ppi.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
+                        const LatticeLine line(ppi.P,ppi.d);
+                        if(line.contains(L2))
+                        {
+                            std::cout<<"contractWithConstraintCheck, case 7aa"<<std::endl; // 2 3 5
+                            contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
+                        }
                     }
-                    
-                    
-                    //                    VectorDimD d1(PN1[0].cross(PN1[1]));
-                    //                    const double d1norm(d1.norm());
-                    //                    assert(d1norm>FLT_EPSILON && "DIRECTION d1 HAS ZERO NORM");
-                    //                    d1/=d1norm;
-                    //                    if(P12.normalized().cross(d1).norm()<FLT_EPSILON) // P2 belongs to the line of P1
-                    //                    {
-                    //                        contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                    //                    }
-                    //                    else // contraction not possible
-                    //                    {
-                    //
-                    //                    }
+                    else // node1 is a boundary node, so it is also stuck.
+                    {
+                        //Only option is that P1==P2, but that case was already considered above.
+                        // If P1!=P2, then contraction cannot take place
+                    }
                 }
                 else if(sizePN1==3 && sizePN2==2)
                 {
-                                        std::cout<<"contractWithConstraintCheck, case 8"<<std::endl; // 2 3 5
+                    std::cout<<"contractWithConstraintCheck, case 8"<<std::endl; // 2 3 5
                     contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
                 }
                 //                else if(sizePN1==3 && sizePN2==3)
