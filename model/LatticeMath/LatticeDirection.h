@@ -30,11 +30,15 @@ namespace model
         LatticeDirection(const LatticeVectorType& v) :
         /* base init */ LatticeGCDType(v),
         /* base init */ LatticeVectorType((v.squaredNorm()==0)? v : (v/this->gCD).eval())
-        {}
+        {
+//            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
+        }
         
         LatticeDirection(const ReciprocalLatticeVectorType& r1,const ReciprocalLatticeVectorType& r2) :
         /* delegating */ LatticeDirection(r1.cross(r2))
-        {}
+        {
+//            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
+        }
         
     };
     

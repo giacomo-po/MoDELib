@@ -318,7 +318,7 @@ namespace model
             }
             
             //! 6- Output the current configuration before changing it
-            output(runID);
+//            output(runID);
 
             //! Update accumulated quantities
             totalTime+=dt;
@@ -364,11 +364,13 @@ namespace model
             
             //! 12- Node redistribution
             remesh();
-//            output(runID); // remove THIS
 
             
             // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
+
+            output(runID); // remove THIS
+
             
             //! 13 - Increment runID counter
             ++runID;     // increment the runID counter

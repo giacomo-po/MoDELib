@@ -578,30 +578,30 @@ namespace model
                         std::cout<<"DislocationNode"<<this->sID<<" Outside mesh"<<std::endl;
                         const LatticeDirectionType dD=LatticeVectorType(dX);
                         
-                        std::cout<<LatticeVectorType(dX)<<std::endl;
-                        std::cout<<dD<<std::endl;
-                        std::cout<<dD.gCD<<std::endl;
+//                        std::cout<<LatticeVectorType(dX)<<std::endl;
+//                        std::cout<<dD<<std::endl;
+//                        std::cout<<dD.gCD<<std::endl;
                         
                         bool foundInside=false;
 //                        std::cout<<"dD.gCD="<<dD.gCD<<std::endl;
                         for(int g=1;g<dD.gCD+1;++g)
                         {
-                            std::cout<<"g="<<g<<std::endl;
+//                            std::cout<<"g="<<g<<std::endl;
                             
                             dX = dX1-g*dD.cartesian();
-                            std::cout<<"dX="<<LatticeVectorType(dX).transpose()<<std::endl;
+//                            std::cout<<"dX="<<LatticeVectorType(dX).transpose()<<std::endl;
 
                             // repeat search with decreased dX
                             temp = DislocationSharedObjects<LinkType>::mesh.searchWithGuess(this->get_P()+dX,p_Simplex,path);
-                            std::cout<<"Outside mesh 2a"<<std::endl;
-                            std::cout<<temp.second->xID<<std::endl;
+//                            std::cout<<"Outside mesh 2a"<<std::endl;
+//                            std::cout<<temp.second->xID<<std::endl;
 
                             
                             if(temp.first)
                             {
                                 // now this->get_P()+dX is inside temp.second, while this->get_P()+dX+dD.cartesian() is outside the mesh
                                 
-                                std::cout<<"Outside mesh 3"<<std::endl;
+//                                std::cout<<"Outside mesh 3"<<std::endl;
                                 
                                 foundInside=true;
                                 p_Simplex=temp.second;
@@ -612,8 +612,8 @@ namespace model
 
                                 assert(!temp.first && "LAST NODE POSITION STILL INSIDE");
                                 
-                                
-                                std::cout<<"Outside mesh 4a"<<std::endl;
+//                                
+//                                std::cout<<"Outside mesh 4a"<<std::endl;
                                 
                                 int faceID=-1;
                                 for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
@@ -715,7 +715,7 @@ namespace model
                         //
                         //                        assert(meshLocation()==onMeshBoundary && "NODE MUST NOW BE ON MESH BOUNDARY.");
                     }
-                    std::cout<<"Outside mesh 5"<<std::endl;
+//                    std::cout<<"Outside mesh 5"<<std::endl;
                     
                     make_projectionMatrix();
                     

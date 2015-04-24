@@ -84,7 +84,7 @@ namespace model
             temp(b)=p(1);
             temp(d)=0;
             
-            std::cout<<"PlanePlaneIntersection: I'm here"<<std::endl;
+//            std::cout<<"PlanePlaneIntersection: I'm here"<<std::endl;
             
             assert((temp-p1).dot(n1)==0);
             assert((temp-p2).dot(n2)==0);

@@ -32,11 +32,15 @@ namespace model
         ReciprocalLatticeDirection(const ReciprocalLatticeVectorType& v) :
         /* base init */ LatticeGCDType(v),
         /* base init */ ReciprocalLatticeVectorType( (v.squaredNorm()==0)? v : (v/this->gCD).eval() )
-        {}
+        {
+//            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
+        }
         
         ReciprocalLatticeDirection(const LatticeVectorType& v1,const LatticeVectorType& v2) :
         /* delegating */ ReciprocalLatticeDirection(v1.cross(v2))
-        {}
+        {
+//            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
+        }
         
 //        Eigen::Matrix<double,dim,1> cartesian() const
 //        {

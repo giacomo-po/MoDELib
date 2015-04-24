@@ -375,8 +375,9 @@ namespace model
                         const NodeType&   sink1=*(L1.second->sink);
                         const NodeType& source2=*(L2.second->source);
                         const NodeType&   sink2=*(L2.second->sink);
-//                        double du1(dx/L1.second->chordLength());
-                        
+//                                                const Simplex<dim,dim>* S1(source1.includingSimplex());
+//                                                const Simplex<dim,dim>* S2(source2.includingSimplex());
+
                         const int dx2=pow(dx,2);
                         
                         
@@ -388,25 +389,63 @@ namespace model
                             const double du1(dx/L1.second->chordLength());
                             std::cout<<"du1="<<du1<<std::endl;
                             
-                            const double u1m(intersectionContainer[tt][interID]. first.second-du1);
+                            double u1m(intersectionContainer[tt][interID]. first.second-du1);
+                            if(u1m<0.0)
+                            {
+                                u1m=0.0;
+                            }
+                            if(u1m>1.0)
+                            {
+                                u1m=1.0;
+                            }
                             VectorDimD P1m(L1.second->get_r(u1m));
                             P1m=L1.second->glidePlane.snapToLattice(P1m);
+
                             
-                            const double u1p(intersectionContainer[tt][interID]. first.second+du1);
+                            
+                            double u1p(intersectionContainer[tt][interID]. first.second+du1);
+                            if(u1p<u1m)
+                            {
+                                u1p=u1m;
+                            }
+                            if(u1p>1.0)
+                            {
+                                u1p=1.0;
+                            }
                             VectorDimD P1p(L1.second->get_r(u1p));
                             P1p=L1.second->glidePlane.snapToLattice(P1p);
-                            
-                            if(  (P1m-source1.get_P()).squaredNorm()>dx2
-                               &&(P1p-  sink1.get_P()).squaredNorm()>dx2
-                               &&            (P1m-P1p).squaredNorm()>dx2)
+
+//                            bool insideMesh1m=true;
+//                            bool insideMesh1p=true;
+//                            if(shared.use_boundary)
+//                            {
+//                                insideMesh1m=DN.shared.mesh.searchWithGuess(P1m,S1).first;
+//                                if(!insideMesh1m)
+//                                {
+//                                    P1m=source1.get_P()*(1.0-u1m)+sink1.get_P()*u1m;
+//                                    P1m=L1.second->glidePlane.snapToLattice(P1m);
+//                                    insideMesh1m=DN.shared.mesh.searchWithGuess(P1m,S1).first;
+//                                }
+//                                
+//                                insideMesh1p=DN.shared.mesh.searchWithGuess(P1p,S1).first;
+//                                if(!insideMesh1p)
+//                                {
+//                                    P1p=source1.get_P()*(1.0-u1p)+sink1.get_P()*u1p;
+//                                    P1p=L1.second->glidePlane.snapToLattice(P1p);
+//                                    insideMesh1p=DN.shared.mesh.searchWithGuess(P1p,S1).first;
+//                                }
+//                            }
+    
+                            if(  (P1m-source1.get_P()).squaredNorm()>dx2)
                             {
                                 std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(source1.sID,sink1.sID,P1m);
-                                //                            const std::pair<bool,size_t> success1m=DN.expand(source1.sID,sink1.sID,P1m); // now L1.second is invalid
-                                //                            assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
                                 im=temp.first->first; // id of the node obtained expanding L1
-                                
-                                temp=DN.expand(im,sink1.sID,P1p); // now L1.second is invalid
-                                //assert(success1p.first && "COULD NOT EXPLAND LINK1 AT UPPER INTERSECTION");
+                            }
+                            
+                            if((P1p-  sink1.get_P()).squaredNorm()>dx2
+                               &&          (P1m-P1p).squaredNorm()>dx2)
+                            {
+                                std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(im,sink1.sID,P1p); // now L1.second is invalid
                                 ip=temp.first->first; // id of the node obtained expanding L1
                             }
                         }
@@ -418,31 +457,47 @@ namespace model
                         {
                             const double du2(dx/L2.second->chordLength());
                             std::cout<<"du2="<<du2<<std::endl;
-
-                            const double u2m(intersectionContainer[tt][interID].second.second-du2);
+                            
+                            double u2m(intersectionContainer[tt][interID].second.second-du2);
+                            if(u2m<0.0)
+                            {
+                                u2m=0.0;
+                            }
+                            if(u2m>1.0)
+                            {
+                                u2m=1.0;
+                            }
                             VectorDimD P2m(L2.second->get_r(u2m));
                             P2m=L2.second->glidePlane.snapToLattice(P2m);
                             
-                            const double u2p(intersectionContainer[tt][interID].second.second+du2);
+                            double u2p(intersectionContainer[tt][interID].second.second+du2);
+                            if(u2p<u2m)
+                            {
+                                u2p=u2m;
+                            }
+                            if(u2p>1.0)
+                            {
+                                u2p=1.0;
+                            }
                             VectorDimD P2p(L2.second->get_r(u2p));
                             P2p=L2.second->glidePlane.snapToLattice(P2p);
                             
-                            if(  (P2m-source2.get_P()).squaredNorm()>dx2
-                               &&(P2p-  sink2.get_P()).squaredNorm()>dx2
-                               &&            (P2m-P2p).squaredNorm()>dx2)
+                            if(  (P2m-source2.get_P()).squaredNorm()>dx2)
                             {
                                 std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(source2.sID,sink2.sID,P2m);
-                                //                            const std::pair<bool,size_t> success1m=DN.expand(source1.sID,sink1.sID,P1m); // now L1.second is invalid
-                                //                            assert(success1m.first && "COULD NOT EXPLAND LINK1 AT LOWER INTERSECTION");
                                 jm=temp.first->first; // id of the node obtained expanding L1
-                                
-                                temp=DN.expand(jm,sink2.sID,P2p); // now L1.second is invalid
-                                //assert(success1p.first && "COULD NOT EXPLAND LINK1 AT UPPER INTERSECTION");
+                            }
+
+                            if((P2p-  sink2.get_P()).squaredNorm()>dx2
+                               &&          (P2m-P2p).squaredNorm()>dx2)
+                            {
+                                std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(jm,sink2.sID,P2p); // now L1.second is invalid
                                 jp=temp.first->first; // id of the node obtained expanding L1
                             }
+
                         }
                         
-
+                        
                         
                         switch (dirVector[tt][interID])
                         {
@@ -457,7 +512,7 @@ namespace model
                                     if(N1.first && N2.first)
                                     {
                                         //std::cout<<"first contract +1 "<<std::endl;
-                                        //                                        DN.contractWithConstraintCheck(N1,N2);
+                                        DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
                                 if(ip!=jp)

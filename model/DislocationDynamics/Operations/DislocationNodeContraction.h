@@ -345,7 +345,7 @@ namespace model
                                 
                             case PlanePlaneIntersection::IntersectionType::incident:
                             {
-                                std::cout<<"contractWithConstraintCheck, case 1a1"<<std::endl; // 2 3 5
+                                std::cout<<"contractWithConstraintCheck, case 1a2"<<std::endl; // 2 3 5
                                 // Find closest point on intersection line
                                 const VectorDimD n1=PN1[0]->n.cartesian().normalized();
                                 const VectorDimD n2=PN2[0]->n.cartesian().normalized();
@@ -356,11 +356,6 @@ namespace model
                                 
                                 const LatticeLine line(ppi.P,ppi.d);
                                 LatticeVectorType L(line.snapToLattice(0.5*(P-N*lam)));
-                                
-                                std::cout<<L1.transpose()<<std::endl;
-                                std::cout<<L2.transpose()<<std::endl;
-                                std::cout<<L.transpose()<<std::endl;
-                                
                                 contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,L);
                                 break;
                             }
@@ -388,17 +383,25 @@ namespace model
                                 
                             case PlanePlaneIntersection::IntersectionType::incident:
                             {
-                                std::cout<<"contractWithConstraintCheck, case 1b1"<<std::endl; // 2 3 5
-                                // Find closest point on intersection line
-                                const VectorDimD n1=PN1[0]->n.cartesian().normalized();
-                                const VectorDimD n2=PN2[0]->n.cartesian().normalized();
-                                const VectorDimD P(P1+P2);
-                                const Eigen::Matrix<double,3,2> N((Eigen::Matrix<double,2,3>()<<n1.transpose(),n2.transpose()).finished().transpose());
-                                const Eigen::Matrix<double,2,1> A((Eigen::Matrix<double,2,1>()<<P1.dot(n1),P2.dot(n2)).finished());
-                                const Eigen::Matrix<double,2,1> lam=(N.transpose()*N).inverse()*(N.transpose()*P-2.0*A);
+                                std::cout<<"contractWithConstraintCheck, case 1b2"<<std::endl; // 2 3 5
+//                                // Find closest point on intersection line
+//                                const VectorDimD n1=PN1[0]->n.cartesian().normalized();
+//                                const VectorDimD n2=PN2[0]->n.cartesian().normalized();
+//                                const VectorDimD P(P1+P2);
+//                                const Eigen::Matrix<double,3,2> N((Eigen::Matrix<double,2,3>()<<n1.transpose(),n2.transpose()).finished().transpose());
+//                                const Eigen::Matrix<double,2,1> A((Eigen::Matrix<double,2,1>()<<P1.dot(n1),P2.dot(n2)).finished());
+//                                const Eigen::Matrix<double,2,1> lam=(N.transpose()*N).inverse()*(N.transpose()*P-2.0*A);
                                 
                                 const LatticeLine line(ppi.P,ppi.d);
-                                LatticeVectorType L(line.snapToLattice(0.5*(P-N*lam)));
+                                LatticeVectorType L(line.snapToLattice(N2.second->get_P()));
+//                                if (!DN.shared.mesh.searchWithGuess(L.cartesian(),N1.second->includingSimplex()).first)
+//                                {
+//                                    L+=2.0*line.d;
+//                                    if (!DN.shared.mesh.searchWithGuess(L.cartesian(),N1.second->includingSimplex()).first)
+//                                    {
+//                                        L-=4.0*line.d;
+//                                    }
+//                                }
                                 const LatticeLine line2(L,line.d); // shift origin of line
                                 contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,lineMeshIntersection(line2,N1.second->get_L(),N1.second->includingSimplex()));
                                 break;
