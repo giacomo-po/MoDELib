@@ -31,60 +31,60 @@
 
 namespace model
 {
-	
-	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     class DislocationNode : public SplineNode<DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>,
     /*                                         */ _dim,corder,InterpolationType>
-
+    
     {
-		
-	public:
-		
+        
+    public:
+        
         // make dim available outside class
         constexpr static int dim=_dim;
         
         
         // define Derived to use NetworkTypedefs.h
-		typedef DislocationNode       <dim,corder,InterpolationType,qOrder,QuadratureRule> Derived;
+        typedef DislocationNode       <dim,corder,InterpolationType,qOrder,QuadratureRule> Derived;
 #include <model/Network/NetworkTypedefs.h>
-		
-		
-		typedef SplineNode<NodeType,dim,corder,InterpolationType> NodeBaseType;
-		
-		using NodeBaseType::NdofXnode;
-		
-		typedef Eigen::Matrix<double,dim,1> VectorDim;
-		typedef Eigen::Matrix<double,dim,dim> MatrixDim;
-		typedef Eigen::Matrix<double,NdofXnode,1> VectorDofType;
-		typedef std::vector<VectorDim,Eigen::aligned_allocator<VectorDim> > VectorOfNormalsType;
+        
+        
+        typedef SplineNode<NodeType,dim,corder,InterpolationType> NodeBaseType;
+        
+        using NodeBaseType::NdofXnode;
+        
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
+        typedef Eigen::Matrix<double,NdofXnode,1> VectorDofType;
+        typedef std::vector<VectorDim,Eigen::aligned_allocator<VectorDim> > VectorOfNormalsType;
         typedef std::deque<const LatticePlane*> LatticePlaneContainerType;
-
+        
         typedef LatticeVector<dim> LatticeVectorType;
         typedef LatticeDirection<dim> LatticeDirectionType;
         
         static bool use_velocityFilter;
         static double velocityReductionFactor;
-
         
-	private:
-		
-		DislocationSharedObjects<LinkType> shared;
+        
+    private:
+        
+        DislocationSharedObjects<LinkType> shared;
         
         LatticeVectorType L;
-		
+        
         //! A pointer to the Simplex containing *this
         const Simplex<dim,dim>* p_Simplex;
         
-		//! The std::vector containing the glidePlaneNormal(s) of the connected DislocationSegment(s)
-//		VectorOfNormalsType planenormals;
+        //! The std::vector containing the glidePlaneNormal(s) of the connected DislocationSegment(s)
+        //		VectorOfNormalsType planenormals;
         LatticePlaneContainerType _confiningPlanes;
         
         //! The current velocity vector of *this DislocationNode
         VectorDofType velocity;
         
         //! The previous velocity vector of *this DislocationNode
-		VectorDofType vOld;
+        VectorDofType vOld;
         
         double velocityReductionCoeff;
         
@@ -93,7 +93,7 @@ namespace model
         
         //! The normal to the region boundary
         VectorDim regionBndNormal;
-
+        
         
         
         /**********************************************************************/
@@ -124,44 +124,44 @@ namespace model
             return temp.second;
         }
         
-
-		
         
-		
-	public:
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        
+        
+        
+    public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         /**********************************************************************/
-		DislocationNode(const LatticeVectorType& Lin,
+        DislocationNode(const LatticeVectorType& Lin,
                         const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
         /* base constructor */ NodeBaseType(Lin.cartesian()),
         /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(guess)),
         /* init list        */ velocity(VectorDofType::Zero()),
-		/* init list        */ vOld(velocity),
+        /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
         /* init list        */ boundaryNormal(get_boundaryNormal()),
         /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from DOF
           */
-		}
-		
-//        /**********************************************************************/
-//		DislocationNode(const ExpandingEdge<LinkType>& pL, const double& u) :
-//        /* base constructor */ NodeBaseType(pL,u),
-//        /* init list        */ L(Qin),
-//        /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
-//        /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-//        /* init list        */ vOld(velocity),
-//        /* init list        */ velocityReductionCoeff(1.0),
-//        /* init list        */ boundaryNormal(get_boundaryNormal()),
-//        /* init list        */ regionBndNormal(VectorDim::Zero())
-//        {/*! Constructor from ExpandingEdge and parameter along link
-//          */
-//		}
-		
+        }
+        
+        //        /**********************************************************************/
+        //		DislocationNode(const ExpandingEdge<LinkType>& pL, const double& u) :
+        //        /* base constructor */ NodeBaseType(pL,u),
+        //        /* init list        */ L(Qin),
+        //        /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
+        //        /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        //        /* init list        */ vOld(velocity),
+        //        /* init list        */ velocityReductionCoeff(1.0),
+        //        /* init list        */ boundaryNormal(get_boundaryNormal()),
+        //        /* init list        */ regionBndNormal(VectorDim::Zero())
+        //        {/*! Constructor from ExpandingEdge and parameter along link
+        //          */
+        //		}
+        
         /**********************************************************************/
-		DislocationNode(const ExpandingEdge<LinkType>& pL,
+        DislocationNode(const ExpandingEdge<LinkType>& pL,
                         const LatticeVectorType& Lin) :
         /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
         /* init list        */ L(Lin),
@@ -173,10 +173,10 @@ namespace model
         /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from ExpandingEdge and DOF
           */
-		}
-		
+        }
+        
         /**********************************************************************/
-		DislocationNode(const ExpandingEdge<LinkType>& pL,
+        DislocationNode(const ExpandingEdge<LinkType>& pL,
                         const LatticeVectorType& Lin,
                         const VectorDofType& Vin) :
         /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
@@ -188,7 +188,7 @@ namespace model
         /* init list        */ boundaryNormal(get_boundaryNormal()),
         /* init list        */ regionBndNormal(VectorDim::Zero())
         {
-		}
+        }
         
         /**********************************************************************/
         DislocationNode(const ContractingVertices<NodeType>& cv,
@@ -211,32 +211,32 @@ namespace model
             return L;
         }
         
-//        /**********************************************************************/
-//		void make_planeNormals()
-//        {
-//            //! 1- Clear and re-builds the std::vector planenormals
-//			planenormals.clear();
-//			for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
-//            {
-//				if (std::get<2>(neighborIter->second))
-//                {
-//					LinkType* pL(std::get<1>(neighborIter->second));
-//					if (std::find(planenormals.begin(),planenormals.end(), pL->glidePlaneNormal )==planenormals.end() &&
-//						std::find(planenormals.begin(),planenormals.end(),-pL->glidePlaneNormal )==planenormals.end()   )
-//                    {
-//						planenormals.push_back(pL->glidePlaneNormal );
-//					}
-//					if(pL->sessilePlaneNormal.norm()>FLT_EPSILON)
-//                    {
-//						planenormals.push_back(pL->sessilePlaneNormal);
-//					}
-//					
-//				}
-//			}
-//			
-//			//! 2- Compute projectionMatrix
-//			make_projectionMatrix();
-//        }
+        //        /**********************************************************************/
+        //		void make_planeNormals()
+        //        {
+        //            //! 1- Clear and re-builds the std::vector planenormals
+        //			planenormals.clear();
+        //			for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
+        //            {
+        //				if (std::get<2>(neighborIter->second))
+        //                {
+        //					LinkType* pL(std::get<1>(neighborIter->second));
+        //					if (std::find(planenormals.begin(),planenormals.end(), pL->glidePlaneNormal )==planenormals.end() &&
+        //						std::find(planenormals.begin(),planenormals.end(),-pL->glidePlaneNormal )==planenormals.end()   )
+        //                    {
+        //						planenormals.push_back(pL->glidePlaneNormal );
+        //					}
+        //					if(pL->sessilePlaneNormal.norm()>FLT_EPSILON)
+        //                    {
+        //						planenormals.push_back(pL->sessilePlaneNormal);
+        //					}
+        //
+        //				}
+        //			}
+        //
+        //			//! 2- Compute projectionMatrix
+        //			make_projectionMatrix();
+        //        }
         
         const LatticePlaneContainerType& confiningPlanes() const
         {
@@ -261,18 +261,18 @@ namespace model
                 }
             }
             //std::cout<<"a"<<std::endl;
-
+            
             GramSchmidt::makeUnique(_confiningPlanes);
             
             //std::cout<<"b"<<std::endl;
-
+            
             //! 2- Compute projectionMatrix
             make_projectionMatrix();
             
             //std::cout<<"done"<<std::endl;
-
+            
         }
-
+        
         
         /**********************************************************************/
         void removeFromNeighborhood(LinkType* const pL)
@@ -283,7 +283,7 @@ namespace model
           *  planeNormals and tangent after the DislocationSegment is disconnected
           */
             NodeBaseType::removeFromNeighborhood(pL);
-//            make_planeNormals();
+            //            make_planeNormals();
             make_confiningPlanes();
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
             NodeBaseType::make_T();
@@ -298,7 +298,7 @@ namespace model
           *  planeNormals and tangent after the DislocationSegment is disconnected
           */
             NodeBaseType::addToNeighborhood(pL);
-//            make_planeNormals();
+            //            make_planeNormals();
             make_confiningPlanes();
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
             NodeBaseType::make_T();
@@ -311,23 +311,44 @@ namespace model
             if (shared.use_boundary)
             {
                 const Eigen::Matrix<double,dim+1,1> bary(p_Simplex->pos2bary(this->get_P()));
-                int faceID;
-                const double baryMin(bary.minCoeff(&faceID)); // this also writes faceID
-                if (std::fabs(baryMin)<FLT_EPSILON && p_Simplex->child(faceID).isBoundarySimplex())
+                int faceID=-1;
+                for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
+                {
+                   const double h=3.0*p_Simplex->vol0/p_Simplex->child(f).vol0*bary(f); // distance from f-th face
+                    
+                    if(p_Simplex->child(f).isBoundarySimplex() && h>=0.0 && h<2.0)
+                    {
+                        faceID=f;
+                        boundaryNormal=simplex->nda.col(faceID).normalized();
+                    }
+                }
+                
+                if(faceID>=0)
                 {
                     temp=p_Simplex->nda.col(faceID).normalized();
                 }
+//                else
+//                {
+//                    assert(0 && "COULD NOT FIND BOUNDARY NORMAL");
+//                }
+//
+//                int faceID;
+//                const double baryMin(bary.minCoeff(&faceID)); // this also writes faceID
+//                if (std::fabs(baryMin)<FLT_EPSILON && p_Simplex->child(faceID).isBoundarySimplex())
+//                {
+//                    temp=p_Simplex->nda.col(faceID).normalized();
+//                }
             }
             return temp;
         }
         
-//        /**********************************************************************/
-//		const VectorOfNormalsType& planeNormals() const
-//        {
-//            return planenormals;
-//        }
-		
-
+        //        /**********************************************************************/
+        //		const VectorOfNormalsType& planeNormals() const
+        //        {
+        //            return planenormals;
+        //        }
+        
+        
         
         /**********************************************************************/
         VectorOfNormalsType constraintNormals() const
@@ -348,14 +369,14 @@ namespace model
                     temp.push_back((VectorDim()<<1.0,0.0,0.0).finished());
                     temp.push_back((VectorDim()<<0.0,1.0,0.0).finished());
                     temp.push_back((VectorDim()<<0.0,0.0,1.0).finished());
-//                    std::cout<<"case a"<<std::endl;
+                    //                    std::cout<<"case a"<<std::endl;
                     //showTemp(temp);
                 }
-//                if()
-//                {
-//                
-//                }
-
+                //                if()
+                //                {
+                //
+                //                }
+                
                 temp.push_back(regionBndNormal);
             }
             else if (meshLocation()==onMeshBoundary)
@@ -375,18 +396,18 @@ namespace model
         }
         
         /**********************************************************************/
-		bool is_removable() const
+        bool is_removable() const
         {
-			return (this->is_simple() && constraintNormals().size()==1);
-		}
-		
+            return (this->is_simple() && constraintNormals().size()==1);
+        }
+        
         /**********************************************************************/
-		void make_projectionMatrix()
+        void make_projectionMatrix()
         {
             
             // Add normal to glide and sessile planes
-			Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
-			VectorOfNormalsType  CN;
+            Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
+            VectorOfNormalsType  CN;
             for(const auto& plane : _confiningPlanes)
             {
                 CN.push_back(plane->n.cartesian().normalized());
@@ -410,17 +431,17 @@ namespace model
             
             // Find independent vectors
             GramSchmidt::orthoNormalize(CN);
-
+            
             // Assemble projection matrix (prjM)
-			this->prjM.setIdentity();
-			for (size_t k=0;k<CN.size();++k)
+            this->prjM.setIdentity();
+            for (size_t k=0;k<CN.size();++k)
             {
-				this->prjM*=( I-CN[k]*CN[k].transpose() );
-			}
-		}
-		
+                this->prjM*=( I-CN[k]*CN[k].transpose() );
+            }
+        }
+        
         /**********************************************************************/
-		void set_V(const VectorDofType& vNew)
+        void set_V(const VectorDofType& vNew)
         {
             vOld=velocity; // store current value of velocity before updating
             velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
@@ -446,27 +467,27 @@ namespace model
                 velocity*=velocityReductionCoeff;
             }
             
-		}
-		
-        /**********************************************************************/
-		const VectorDofType& get_V() const
-        {/*! The nodal velocity vector
-          */
-			return velocity;
-		}
+        }
         
         /**********************************************************************/
-		bool invertedMotion() const
+        const VectorDofType& get_V() const
         {/*! The nodal velocity vector
           */
-			return velocity.template segment<dim>(0).dot( vOld.template segment<dim>(0) ) < 0.0;
-		}
+            return velocity;
+        }
+        
+        /**********************************************************************/
+        bool invertedMotion() const
+        {/*! The nodal velocity vector
+          */
+            return velocity.template segment<dim>(0).dot( vOld.template segment<dim>(0) ) < 0.0;
+        }
         
         /**********************************************************************/
         void move(const double & dt)
         {
-			
-			VectorDim dX=velocity.template segment<dim>(0)*dt;
+            
+            VectorDim dX=velocity.template segment<dim>(0)*dt;
             switch (_confiningPlanes.size())
             {
                 case 1:
@@ -489,7 +510,7 @@ namespace model
             //			if (dX.squaredNorm()>0.0 && (meshLocation()!=onMeshBoundary || shared.use_bvp==0)) // move a node only if |v|!=0 and if not on mesh boundary
             if (dX.squaredNorm()>0.0) // move a node only if |v|!=0
             {
-				if(shared.use_boundary) // using confining mesh
+                if(shared.use_boundary) // using confining mesh
                 {
                     // See if the new position is inside mesh
                     std::set<const Simplex<dim,dim>*> path;
@@ -501,54 +522,59 @@ namespace model
                         if(shared.use_meshRegions && temp.second->region->regionID!=p_Simplex->region->regionID)
                         {// use_meshRegions enabled and node is crossing regions
                             assert(0 && "RE-ENABLE THIS");
-//                            std::cout<<"DislocationNode "<<this->sID<<" crossing region. Path size="<<path.size()<<std::endl;
-//
-//                            int faceID=-1;
-////                            const Simplex<dim,dim>* regBndSimplex=(const Simplex<dim,dim>*) NULL;
-//                            const Simplex<dim,dim>* regBndSimplex(NULL);
-//
-//                            Eigen::Matrix<double,dim+1,1> faceInt(Eigen::Matrix<double,dim+1,1>::Zero());
-//
-//                            for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
-//                            {
-//                                const Eigen::Matrix<double,dim+1,1> baryOld(simplex->pos2bary(this->get_P()));
-//                                const Eigen::Matrix<double,dim+1,1> baryNew(simplex->pos2bary(this->get_P()+dX));
-//                                for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
-//                                {
-//                                    if(simplex->child(f).isRegionBoundarySimplex())
-//                                    {
-//                                        faceInt=simplex->faceLineIntersection(baryOld,baryNew,f);
-//                                        //                                    std::cout<<"DislocationNode "<<this->sID<<", baryMin="<<faceInt.minCoeff()<<std::endl;
-//                                        
-//                                        if(faceInt.minCoeff()>=-FLT_EPSILON) // faceInt belongs to triangle
-//                                        {
-//                                            regBndSimplex=simplex; // current simplex is the region boundary simplex wanted
-//                                            faceID=f; // intersection face is f
-//                                            break;
-//                                        }
-//                                    }
-//                                }
-//                                
-//                                if(faceID>=0)
-//                                {
-//                                    break;
-//                                }
-//                            }
-//  
-//                            assert(faceID>=0 && "FACE INTERSECTION NOT FOUND");
-//                            this->set(regBndSimplex->bary2pos(faceInt)); // move node to intersction with region boundary
-//                            regionBndNormal=regBndSimplex->nda.col(faceID).normalized();
+                            //                            std::cout<<"DislocationNode "<<this->sID<<" crossing region. Path size="<<path.size()<<std::endl;
+                            //
+                            //                            int faceID=-1;
+                            ////                            const Simplex<dim,dim>* regBndSimplex=(const Simplex<dim,dim>*) NULL;
+                            //                            const Simplex<dim,dim>* regBndSimplex(NULL);
+                            //
+                            //                            Eigen::Matrix<double,dim+1,1> faceInt(Eigen::Matrix<double,dim+1,1>::Zero());
+                            //
+                            //                            for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
+                            //                            {
+                            //                                const Eigen::Matrix<double,dim+1,1> baryOld(simplex->pos2bary(this->get_P()));
+                            //                                const Eigen::Matrix<double,dim+1,1> baryNew(simplex->pos2bary(this->get_P()+dX));
+                            //                                for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
+                            //                                {
+                            //                                    if(simplex->child(f).isRegionBoundarySimplex())
+                            //                                    {
+                            //                                        faceInt=simplex->faceLineIntersection(baryOld,baryNew,f);
+                            //                                        //                                    std::cout<<"DislocationNode "<<this->sID<<", baryMin="<<faceInt.minCoeff()<<std::endl;
+                            //
+                            //                                        if(faceInt.minCoeff()>=-FLT_EPSILON) // faceInt belongs to triangle
+                            //                                        {
+                            //                                            regBndSimplex=simplex; // current simplex is the region boundary simplex wanted
+                            //                                            faceID=f; // intersection face is f
+                            //                                            break;
+                            //                                        }
+                            //                                    }
+                            //                                }
+                            //
+                            //                                if(faceID>=0)
+                            //                                {
+                            //                                    break;
+                            //                                }
+                            //                            }
+                            //
+                            //                            assert(faceID>=0 && "FACE INTERSECTION NOT FOUND");
+                            //                            this->set(regBndSimplex->bary2pos(faceInt)); // move node to intersction with region boundary
+                            //                            regionBndNormal=regBndSimplex->nda.col(faceID).normalized();
                         }
                         else // use_meshRegions disenabled or node not crossing regions
                         {
                             p_Simplex=temp.second;
                             L+=LatticeVectorType(dX);
                             this->set(this->get_P()+dX); // move node
-                            boundaryNormal=get_boundaryNormal(); // check if node is now on a boundary
+//                            boundaryNormal=get_boundaryNormal(); // check if node is now on a boundary
+//                            
+//                            PROBLEM HERE, BOUNDSARY NODES ARE ASSIGNED ZERO NORMAL
+                            
                         }
                     }
                     else // new position is outside mesh
                     {
+                        const VectorDim dX1(dX);
+                        
                         std::cout<<"DislocationNode"<<this->sID<<" Outside mesh"<<std::endl;
                         const LatticeDirectionType dD=LatticeVectorType(dX);
                         
@@ -557,107 +583,150 @@ namespace model
                         std::cout<<dD.gCD<<std::endl;
                         
                         bool foundInside=false;
+//                        std::cout<<"dD.gCD="<<dD.gCD<<std::endl;
                         for(int g=1;g<dD.gCD+1;++g)
                         {
                             std::cout<<"g="<<g<<std::endl;
-
-                            dX -= g*dD.cartesian();
                             
-                            std::cout<<LatticeVectorType(dX)<<std::endl;
+                            dX = dX1-g*dD.cartesian();
+                            std::cout<<"dX="<<LatticeVectorType(dX).transpose()<<std::endl;
 
-                            
-                            std::cout<<"Outside mesh 2"<<std::endl;
-
+                            // repeat search with decreased dX
                             temp = DislocationSharedObjects<LinkType>::mesh.searchWithGuess(this->get_P()+dX,p_Simplex,path);
-                            
                             std::cout<<"Outside mesh 2a"<<std::endl;
+                            std::cout<<temp.second->xID<<std::endl;
 
+                            
                             if(temp.first)
                             {
+                                // now this->get_P()+dX is inside temp.second, while this->get_P()+dX+dD.cartesian() is outside the mesh
+                                
                                 std::cout<<"Outside mesh 3"<<std::endl;
-
+                                
                                 foundInside=true;
                                 p_Simplex=temp.second;
                                 
-                                int faceID;
-                                const Eigen::Matrix<double,dim+1,1> baryNew(p_Simplex->pos2bary(this->get_P()+dX));
-                                const double baryMin(baryNew.minCoeff(&faceID)); // this also finds faceID
                                 
-                                std::cout<<"Outside mesh 4"<<std::endl;
+                                temp = DislocationSharedObjects<LinkType>::mesh.searchWithGuess(this->get_P()+dX+dD.cartesian(),p_Simplex,path);
+                                std::cout<<temp.second->xID<<std::endl;
 
+                                assert(!temp.first && "LAST NODE POSITION STILL INSIDE");
                                 
-                                assert(p_Simplex->child(faceID).isBoundarySimplex() && "FACE MUST BE A BOUNDARY FACE");
-                                boundaryNormal=p_Simplex->nda.col(faceID).normalized();
-
+                                
+                                std::cout<<"Outside mesh 4a"<<std::endl;
+                                
+                                int faceID=-1;
+                                for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
+                                {
+                                    //                                const Eigen::Matrix<double,dim+1,1> baryOld(simplex->pos2bary(this->get_P()));
+                                    //                                const Eigen::Matrix<double,dim+1,1> baryNew(simplex->pos2bary(this->get_P()+dX));
+                                    
+                                    const Eigen::Matrix<double,dim+1,1> bary(simplex->pos2bary(this->get_P()+dX+dD.cartesian()));
+                                    //const double baryMin(baryNew.minCoeff(&faceID)); // this also finds faceID
+                                    
+                                    
+                                    for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
+                                    {
+                                        if(simplex->child(f).isBoundarySimplex() && bary(f)<0.0)
+                                        {
+                                            //                                        faceInt=simplex->faceLineIntersection(baryOld,baryNew,f);
+                                            //                                    std::cout<<"DislocationNode "<<this->sID<<", baryMin="<<faceInt.minCoeff()<<std::endl;
+                                            
+                                            //                                        if(faceInt.minCoeff()>=-FLT_EPSILON) // faceInt belongs to triangle
+                                            //                                        {
+                                            //                                            regBndSimplex=simplex; // current simplex is the region boundary simplex wanted
+                                            //                                            faceID=f; // intersection face is f
+                                            //                                            break;
+                                            //                                        }
+                                            faceID=f;
+                                            //                                        std::cout<<p_Simplex->child(faceID).xID<<std::endl;
+                                            //                                        assert(sim->child(faceID).isBoundarySimplex() && "FACE MUST BE A BOUNDARY FACE");
+                                            boundaryNormal=simplex->nda.col(faceID).normalized();
+                                            
+                                            
+                                        }
+                                    }
+                                    
+                                    if(faceID>=0)
+                                    {
+                                        break;
+                                    }
+                                    
+                                }
+                                
+                                
+                                assert(faceID>0);
+                                
                                 
                                 L+=LatticeVectorType(dX);
                                 this->set(this->get_P()+dX); // move node
-
+                                
                                 velocity=dX/dt; // correct stored velocity
-
                                 
                                 
-//                                if(baryMin>-FLT_EPSILON) // DislocationNode is sligtly outside the boundary
-//                                {
-//                                    this->set(this->get_P()+dX); // move node
-//                                    boundaryNormal=get_boundaryNormal(); // check if node is now on a boundary
-//                                }
-//                                else // Node is completely outside the boundary. We bring it back to the boundary.
-//                                {
-//                                    const Eigen::Matrix<double,dim+1,1> baryOld(p_Simplex->pos2bary(this->get_P()));
-//                                    const Eigen::Matrix<double,dim+1,1> faceInt(p_Simplex->faceLineIntersection(baryOld,baryNew,faceID));
-//                                    dX=p_Simplex->bary2pos(faceInt)-this->get_P();
-//                                    this->set(this->get_P()+dX);
-//                                    boundaryNormal=p_Simplex->nda.col(faceID).normalized();
-//                                    velocity=dX/dt; // correct stored velocity
-//                                }
+                                
+                                //                                if(baryMin>-FLT_EPSILON) // DislocationNode is sligtly outside the boundary
+                                //                                {
+                                //                                    this->set(this->get_P()+dX); // move node
+                                //                                    boundaryNormal=get_boundaryNormal(); // check if node is now on a boundary
+                                //                                }
+                                //                                else // Node is completely outside the boundary. We bring it back to the boundary.
+                                //                                {
+                                //                                    const Eigen::Matrix<double,dim+1,1> baryOld(p_Simplex->pos2bary(this->get_P()));
+                                //                                    const Eigen::Matrix<double,dim+1,1> faceInt(p_Simplex->faceLineIntersection(baryOld,baryNew,faceID));
+                                //                                    dX=p_Simplex->bary2pos(faceInt)-this->get_P();
+                                //                                    this->set(this->get_P()+dX);
+                                //                                    boundaryNormal=p_Simplex->nda.col(faceID).normalized();
+                                //                                    velocity=dX/dt; // correct stored velocity
+                                //                                }
                                 
                                 assert(meshLocation()==onMeshBoundary && "NODE MUST NOW BE ON MESH BOUNDARY.");
                                 
                                 
                                 break;
                             }
-    
+                            
+                            
                         }
                         assert(foundInside && "COULD NOT BRING NODE INSIDE MESH");
-
                         
-//                        p_Simplex=temp.second;
-
-//                        int faceID;
-//                        const Eigen::Matrix<double,dim+1,1> baryNew(p_Simplex->pos2bary(this->get_P()+dX));
-//                        const double baryMin(baryNew.minCoeff(&faceID)); // this also finds faceID
-//                        assert(p_Simplex->child(faceID).isBoundarySimplex() && "FACE MUST BE A BOUNDARY FACE");
-//                        
-//                        if(baryMin>-FLT_EPSILON) // DislocationNode is sligtly outside the boundary
-//                        {
-//                            this->set(this->get_P()+dX); // move node
-//                            boundaryNormal=get_boundaryNormal(); // check if node is now on a boundary
-//                        }
-//                        else // Node is completely outside the boundary. We bring it back to the boundary.
-//                        {
-//                            const Eigen::Matrix<double,dim+1,1> baryOld(p_Simplex->pos2bary(this->get_P()));
-//                            const Eigen::Matrix<double,dim+1,1> faceInt(p_Simplex->faceLineIntersection(baryOld,baryNew,faceID));
-//                            dX=p_Simplex->bary2pos(faceInt)-this->get_P();
-//                            this->set(this->get_P()+dX);
-//                            boundaryNormal=p_Simplex->nda.col(faceID).normalized();
-//                            velocity=dX/dt; // correct stored velocity
-//                        }
-//                        
-//                        assert(meshLocation()==onMeshBoundary && "NODE MUST NOW BE ON MESH BOUNDARY.");
+                        
+                        //                        p_Simplex=temp.second;
+                        
+                        //                        int faceID;
+                        //                        const Eigen::Matrix<double,dim+1,1> baryNew(p_Simplex->pos2bary(this->get_P()+dX));
+                        //                        const double baryMin(baryNew.minCoeff(&faceID)); // this also finds faceID
+                        //                        assert(p_Simplex->child(faceID).isBoundarySimplex() && "FACE MUST BE A BOUNDARY FACE");
+                        //
+                        //                        if(baryMin>-FLT_EPSILON) // DislocationNode is sligtly outside the boundary
+                        //                        {
+                        //                            this->set(this->get_P()+dX); // move node
+                        //                            boundaryNormal=get_boundaryNormal(); // check if node is now on a boundary
+                        //                        }
+                        //                        else // Node is completely outside the boundary. We bring it back to the boundary.
+                        //                        {
+                        //                            const Eigen::Matrix<double,dim+1,1> baryOld(p_Simplex->pos2bary(this->get_P()));
+                        //                            const Eigen::Matrix<double,dim+1,1> faceInt(p_Simplex->faceLineIntersection(baryOld,baryNew,faceID));
+                        //                            dX=p_Simplex->bary2pos(faceInt)-this->get_P();
+                        //                            this->set(this->get_P()+dX);
+                        //                            boundaryNormal=p_Simplex->nda.col(faceID).normalized();
+                        //                            velocity=dX/dt; // correct stored velocity
+                        //                        }
+                        //
+                        //                        assert(meshLocation()==onMeshBoundary && "NODE MUST NOW BE ON MESH BOUNDARY.");
                     }
                     std::cout<<"Outside mesh 5"<<std::endl;
-
+                    
                     make_projectionMatrix();
                     
-				}
-				else // move node freely
+                }
+                else // move node freely
                 {
                     L+=LatticeVectorType(dX);
-					this->set(this->get_nodeDof()+dX);
-				}
-			}
-		}
+                    this->set(this->get_nodeDof()+dX);
+                }
+            }
+        }
         
         /**********************************************************************/
         const Simplex<dim,dim>* includingSimplex() const
@@ -722,13 +791,13 @@ namespace model
                 {
                     if((vecVec[0].array()*vecVec[1].array()).matrix().squaredNorm()<FLT_EPSILON) // decompisition is unique
                     {
-//                        std::cout<<"DislocationNode "<<this->sID<<std::endl;
-//                        std::cout<<"Matrix of Burgers= "<<std::endl<<temp<<std::endl;
-//                        std::cout<<"null configurations= "<<std::endl;
-//                        for(auto v : vecVec)
-//                        {
-//                            std::cout<<v<<std::endl;
-//                        }
+                        //                        std::cout<<"DislocationNode "<<this->sID<<std::endl;
+                        //                        std::cout<<"Matrix of Burgers= "<<std::endl<<temp<<std::endl;
+                        //                        std::cout<<"null configurations= "<<std::endl;
+                        //                        for(auto v : vecVec)
+                        //                        {
+                        //                            std::cout<<v<<std::endl;
+                        //                        }
                         for(int n=0;n<neighSize;++n)
                         {
                             if(vecVec[0](n)!=0)
@@ -750,8 +819,9 @@ namespace model
           * \param[out]temp set of IDs of neighbors of this which are located at P0 (possibly including *this)
           * \param[in] tol tolerance used to detect position overlap
           */
-            for (typename Derived::NeighborContainerType::const_iterator nIiter=this->neighborhood().begin();
-                 nIiter!=this->neighborhood().end();++nIiter)
+            for (typename Derived::NeighborContainerType::const_iterator nIiter =this->neighborhood().begin();
+                 /*                                                   */ nIiter!=this->neighborhood().end();
+                 /*                                                   */ ++nIiter)
             { // loop over neighborhood
                 if((std::get<0>(nIiter->second)->get_L()-L0).squaredNorm()==0)
                 { // a neighbor of I exists at P0
@@ -779,11 +849,11 @@ namespace model
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     bool DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>::use_velocityFilter=true;
-
+    
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
     double DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>::velocityReductionFactor=0.75;
-
+    
     
 } // close namespace
 #endif

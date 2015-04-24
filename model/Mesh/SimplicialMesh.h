@@ -47,6 +47,8 @@ namespace model
         Eigen::Matrix<double,_dim,1> _xMax;
         
         
+        double vol0;
+        
     public:
         
         enum {dim=_dim};
@@ -71,7 +73,8 @@ namespace model
         }
         
         /**********************************************************************/
-        SimplicialMesh(const int& meshID)
+        SimplicialMesh(const int& meshID) :
+        /* init */ vol0(0.0)
         {
             readMesh(meshID);
         }
@@ -80,6 +83,8 @@ namespace model
         void readMesh(const int& meshID)
         {/*!
           */
+            
+            vol0=0.0;
             
             model::cout<<greenColor<<"Reading mesh "<<meshID<<defaultColor<<std::endl;
             this->clear();
@@ -110,7 +115,7 @@ namespace model
                 }
                 model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
-                MeshStats<dim,dim>::stats(true);
+                MeshStats<dim,dim>::stats();
                 SimplexReader<dim>::nodeReader.clear();
                 
                 if(this->size())
@@ -148,6 +153,7 @@ namespace model
 
             model::cout<<"mesh xMin="<<_xMin.transpose()<<std::endl;
             model::cout<<"mesh xMax="<<_xMax.transpose()<<std::endl;
+//            model::cout<<"mesh volume="<<volume()<<std::endl;
             
             for(auto rIter : MeshRegionObserverType::regions())
             {
@@ -163,12 +169,13 @@ namespace model
           * sorted array xIN.
           */
             const typename SimplexTraits<dim,dim>::SimplexIDType xID(SimplexTraits<dim,dim>::sortID(xIN));
-            const bool success=this->emplace(std::piecewise_construct,
+            const auto pair=this->emplace(std::piecewise_construct,
                                              std::make_tuple(xID),
                                              std::make_tuple(xID, regionID)
-                                             ).second;
+                                             );
 
-            assert(success);
+            assert(pair.second);
+            vol0+=pair.first->second.vol0;
         }
         
         /**********************************************************************/
@@ -325,6 +332,13 @@ namespace model
         {
             return _xMax;
         }
+
+        /**********************************************************************/
+        const double& volume() const
+        {
+            return vol0;
+        }
+
         
     };
     

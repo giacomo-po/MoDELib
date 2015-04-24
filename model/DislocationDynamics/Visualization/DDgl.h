@@ -731,6 +731,23 @@ namespace model {
 //					saveTga=!saveTga;
 //					break;
 					
+                case 's':
+                    autoplay=false;
+                    meshPlotter.showSpecificSimplex=!meshPlotter.showSpecificSimplex;
+                    if(meshPlotter.showSpecificSimplex)
+                    {
+                        std::cout<<"Enter a Simplex ID: ";
+                        size_t a;
+                        size_t b;
+                        size_t c;
+                        size_t d;
+                        std::cin>>a>>b>>c>>d;
+                        Eigen::Matrix<size_t,4,1> xID;
+                        xID<<a,b,c,d;
+                        meshPlotter.specificSimplexID=SimplexTraits<3,3>::sortID(xID);
+                    }
+                    break;
+                    
 				case 'v':
 					splinePlotter.showVertices=!splinePlotter.showVertices;
 					break;

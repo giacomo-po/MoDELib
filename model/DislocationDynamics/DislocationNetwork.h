@@ -351,6 +351,7 @@ namespace model
             crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
             
             DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
+
             
             //! 9- detect loops that shrink to zero and expand as inverted loops
             DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);

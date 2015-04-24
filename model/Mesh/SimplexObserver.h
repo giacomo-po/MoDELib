@@ -93,6 +93,12 @@ namespace model {
             assert(nRemoved==1 && "COULD NOT REMOVE SIMPLEX FROM SIPLEX-MAP");
         }
         
+        /**********************************************************************/
+        static typename SimplexMapType::const_iterator find(const SimplexIDType& key)
+        {
+            return simplexMap.find(key);
+        }
+        
 	private:
 		static  SimplexMapType simplexMap;
         

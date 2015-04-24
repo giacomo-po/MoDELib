@@ -13,7 +13,8 @@
 #include <model/Mesh/SimplexObserver.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 
-namespace model {
+namespace model
+{
     
     
     /**************************************************************************/
@@ -26,22 +27,30 @@ namespace model {
         typedef typename SimplexObserverType::SimplexMapType SimplexMapType;
         
         /**********************************************************************/
-        static void stats(const bool& countBoundarySimplices)
+        static void stats()
         {
-            MeshStats<dim,k-1>::stats(countBoundarySimplices);
+            MeshStats<dim,k-1>::stats();
             
-            model::cout<<"    Simplex<"<<dim<<","<<k  <<">: "<<SimplexObserverType::size();
-            if (countBoundarySimplices)
+            size_t nT(0);
+            size_t nB(0);
+            double volT=0.0;
+            double volB=0.0;
+            
+            for (auto& pSimplex : SimplexObserverType::simplices())
             {
-                size_t nB(0);
-//                for (typename SimplexMapType::const_iterator sIter=SimplexObserverType::simplexBegin();sIter!=SimplexObserverType::simplexEnd();++sIter)
-                for (auto& pSimplex : SimplexObserverType::simplices())
+                nT++;
+                volT+=pSimplex.second->vol0;
+                
+                if(pSimplex.second->isBoundarySimplex())
                 {
-                    nB+=pSimplex.second->isBoundarySimplex();
+                    nB++;
+                    volB+=pSimplex.second->vol0;
                 }
-                model::cout<<" ("<<nB<<" boundary)";
             }
-            model::cout<<"\n";
+            
+            model::cout<<"    Simplex<"<<dim<<","<<k  <<"> #="<<nT<<", vol="<<volT;
+            model::cout<<"     (bonudary #="<<nB<<", vol="<<volB<<")\n";
+
         }
 
 	};
@@ -56,24 +65,24 @@ namespace model {
         typedef typename SimplexObserverType::SimplexMapType SimplexMapType;
         
         /**********************************************************************/
-        static void stats(const bool& countBoundarySimplices)
+        static void stats()
         {
-            model::cout<<"    Simplex<"<<dim<<","<<k  <<">: "<<SimplexObserverType::size();
-            if (countBoundarySimplices)
+
+            size_t nT(0);
+            size_t nB(0);
+            
+            for (auto& pSimplex : SimplexObserverType::simplices())
             {
-                size_t nB(0);
-//                for (typename SimplexMapType::const_iterator sIter=SimplexObserverType::simplexBegin();sIter!=SimplexObserverType::simplexEnd();++sIter)
-//                {
-//                    nB+=sIter->second->isBoundarySimplex();
-                for (auto& pSimplex : SimplexObserverType::simplices())
+                nT++;
+                if(pSimplex.second->isBoundarySimplex())
                 {
-                    nB+=pSimplex.second->isBoundarySimplex();
+                    nB++;
                 }
-                                model::cout<<" ("<<nB<<" boundary)";
             }
-            model::cout<<"\n";
+            
+            model::cout<<"    Simplex<"<<dim<<","<<k  <<"> #="<<nT;
+            model::cout<<"     (bonudary #="<<nB<<")\n";
         }
-        
 	};
     
     

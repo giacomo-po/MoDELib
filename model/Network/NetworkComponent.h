@@ -66,80 +66,67 @@ namespace model
 //            add(pL);
 //        }
         
-        /************************************************************/
-        // Destructor
+        /**********************************************************************/
         ~NetworkComponent(){
             assert(NetworkComponentNodeContainerType::empty() && "Destroying non-empty NetworkComponent! NetworkComponent contains Vertices.");	// make sure that only empty NetworkComponents are deleted
             assert(NetworkComponentLinkContainerType::empty() && "Destroying non-empty NetworkComponent! NetworkComponent contains Edges.");		// make sure that only empty NetworkComponents are deleted
         }
         
-        /************************************************************/
-        // NODE OPERATIONS
-        /************************************************************/
-        // nodeOrder
+        /**********************************************************************/
         size_t nodeOrder() const
         {
             return NetworkComponentNodeContainerType::size();
         }
         
-        /************************************************************/
-        // nodeBegin
+        /**********************************************************************/
         typename NetworkComponentNodeContainerType::iterator nodeBegin()
         {
             return NetworkComponentNodeContainerType::begin();
         }
         
-        /************************************************************/
-        // nodeBegin
+        /**********************************************************************/
         typename NetworkComponentNodeContainerType::const_iterator nodeBegin() const
         {
             return NetworkComponentNodeContainerType::begin();
         }
         
-        /************************************************************/
-        // nodeEnd
+        /**********************************************************************/
         typename NetworkComponentNodeContainerType::iterator nodeEnd()
         {
             return NetworkComponentNodeContainerType::end();
         }
         
-        /************************************************************/
-        // nodeEnd
+        /**********************************************************************/
         typename NetworkComponentNodeContainerType::const_iterator nodeEnd() const
         {
             return NetworkComponentNodeContainerType::end();
         }
         
-        /************************************************************/
-        // snID
+        /**********************************************************************/
         size_t snID(const NodeType* const & pN) const
         {
             return std::distance(NetworkComponentNodeContainerType::begin(), NetworkComponentNodeContainerType::find(pN->sID) );
         }
         
-        /************************************************************/
+        /**********************************************************************/
         void add(NodeType* const pN)
         {
             assert(NetworkComponentNodeContainerType::insert(std::make_pair(pN->sID,pN)).second);
         }
         
-        /************************************************************/
+        /**********************************************************************/
         void remove(NodeType* const pN)
         {
             assert(NetworkComponentNodeContainerType::erase(pN->sID)==1);
         }
         
-        /************************************************************/
-        // LINK OPERATIONS
-        /************************************************************/
-        // linkOrder
+        /**********************************************************************/
         size_t linkOrder() const
         {
             return NetworkComponentLinkContainerType::size();
         }
         
-        /************************************************************/
-        // linkBegin
+        /**********************************************************************/
         typename NetworkComponentLinkContainerType::iterator linkBegin()
         {
             return NetworkComponentLinkContainerType::begin();
@@ -149,8 +136,7 @@ namespace model
             return NetworkComponentLinkContainerType::begin();
         }
         
-        /************************************************************/
-        // linkEnd
+        /**********************************************************************/
         typename NetworkComponentLinkContainerType::iterator linkEnd()
         {/*! @return An iterator to the end of the link container
           */
@@ -162,8 +148,7 @@ namespace model
             return NetworkComponentLinkContainerType::end();
         }
         
-        /************************************************************/
-        // snID (link)
+        /**********************************************************************/
         size_t snID(const LinkType* const & pL) const
         {/*! @param[in] pL
           *  @return The ID of pL in this NetworkComponent
@@ -171,34 +156,32 @@ namespace model
             return std::distance(NetworkComponentLinkContainerType::begin(), NetworkComponentLinkContainerType::find(pL->nodeIDPair  ) );
         }
         
-        /************************************************************/
+        /**********************************************************************/
         void add(LinkType* const pL)
         {/*! @param[in] pL
           */
             assert(NetworkComponentLinkContainerType::insert(std::make_pair(pL->nodeIDPair ,pL)).second);
         }
         
-        /************************************************************/
+        /**********************************************************************/
         void remove(LinkType* const pL)
         {/*! @param[in] pL
           */
             assert(NetworkComponentLinkContainerType::erase(pL->nodeIDPair )==1);
         }
         
-        /************************************************************/
+        /**********************************************************************/
         const std::map<std::pair<size_t,size_t>,LinkType* const>& links() const
         {
             return *this;
         }
-        
+
+        /**********************************************************************/
         const std::map<size_t,NodeType* const>& nodes() const
         {
             return *this;
         }
         
     };
-    
-    /************************************************************/
-    /************************************************************/
 } // namespace model
 #endif

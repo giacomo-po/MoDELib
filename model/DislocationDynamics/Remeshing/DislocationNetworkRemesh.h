@@ -212,11 +212,15 @@ namespace model
                     VectorDimD expandPoint(Lij.second->get_r(expand_at));
                     expandPoint=Lij.second->glidePlane.snapToLattice(expandPoint);
 
-                    if(DN.pointIsInsideMesh(expandPoint,Lij.second->source->includingSimplex()).first)
+                    if(  (LatticeVectorType(expandPoint)-DN.node(i).second->get_L()).squaredNorm()
+                       &&(LatticeVectorType(expandPoint)-DN.node(j).second->get_L()).squaredNorm() )
                     {
-//                        DN.expand(i,j,expandPoint);
-                        DN.expand(i,j,LatticeVectorType(expandPoint));
-                        Nexpanded++;
+                        if(DN.pointIsInsideMesh(expandPoint,Lij.second->source->includingSimplex()).first)
+                        {
+                            //                        DN.expand(i,j,expandPoint);
+                            DN.expand(i,j,LatticeVectorType(expandPoint));
+                            Nexpanded++;
+                        }
                     }
                 }
             }
@@ -248,7 +252,7 @@ namespace model
                 const size_t i(smallIter->second.first);
                 const size_t j(smallIter->second.second);
                 typename EdgeFinder<LinkType>::isNetworkEdgeType Lij=DN.link(i,j);
-                if (Lij.first )
+                if (Lij.first)
                 {
                     //DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
                     nContracted+=DN.contractWithConstraintCheck(DN.node(i),DN.node(j));

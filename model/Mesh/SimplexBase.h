@@ -32,8 +32,9 @@ namespace model
         const SimplexIDType xID;
         
 		/**********************************************************************/
-        SimplexBase(const SimplexIDType& vIN) : xID(SimplexTraitsType::sortID(vIN))
-        {/*! 
+        SimplexBase(const SimplexIDType& vIN) :
+        /* init */ xID(SimplexTraitsType::sortID(vIN))
+        {/*!
           */            
         }
         
@@ -62,8 +63,6 @@ namespace model
             }
             return temp;
         }
-        
-
         
 	};
     

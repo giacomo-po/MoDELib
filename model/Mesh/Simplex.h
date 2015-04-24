@@ -22,6 +22,7 @@
 #include <model/Mesh/MeshRegion.h>
 #include <model/Network/Readers/VertexReader.h>
 #include <model/FEM/BarycentricTraits.h>
+#include <model/Mesh/SimplexVolume.h>
 
 namespace model
 {
@@ -33,28 +34,15 @@ namespace model
     /* inheritance      */ public SimplexBase<dim,0>,
     /* inheritance      */ public SimplexChild <dim,0>
     {
+        
     public:
+        
         enum{order=0};
         enum{nVertices=SimplexTraits<dim,order>::nVertices};
         enum{nFaces=SimplexTraits<dim,order>::nFaces};
         typedef typename SimplexTraits<dim,order>::SimplexIDType SimplexIDType;
         
         const Eigen::Matrix<double,dim,1> P0;
-        
-        
-        //        /**********************************************************************/
-        //        Eigen::Matrix<double,dim,1> get_P0() const
-        //        {
-        //            const typename VertexReader<'N',dim+1,double>::const_iterator nIter(SimplexReader<dim>::nodeReader.find((this->xID)(0)));
-        //            assert((nIter!=SimplexReader<dim>::nodeReader.end()) && "MESH VERTEX NOT FOUND IN N/N_x.txt.");
-        //            return nIter->second;
-        //        }
-        
-        
-    public:
-        
-        //        static VertexReader<'N',dim+1,double> nodeReader;
-        
         
         /**********************************************************************/
         Simplex(const SimplexIDType& vIN) :
@@ -78,10 +66,6 @@ namespace model
         
     };
     
-    //    template<short int dim>
-    //    VertexReader<'N',dim+1,double> Simplex<dim,0>::nodeReader;
-    
-    
     /**************************************************************************/
     /**************************************************************************/
     template<short int dim, short int order>
@@ -92,7 +76,7 @@ namespace model
     {
         
         typedef typename SimplexTraits<dim,order>::BaseArrayType BaseArrayType;
-        
+
         
     public:
         enum{nVertices=SimplexTraits<dim,order>::nVertices};
@@ -102,12 +86,13 @@ namespace model
         typedef Simplex<dim,order-1> ChildSimplexType;
         typedef typename SimplexTraits<dim,order-1>::SimplexIDType ChildIDType;
         
+        double vol0; // SHOULD BE CONST, SEE BELOW
         
-    public:
         /**********************************************************************/
         Simplex(const SimplexIDType& vIN) :
         /* init list */ SimplexBase<dim,order>(vIN),
         /* init list */ BaseArrayType(SimplexObserver<dim,order>::faces(vIN))
+//        /* init */ vol0(SimplexVolume<dim,order>::volume(this->vertexPositionMatrix())) // THIS GIVES SEGMENTATION FAULT, WHY?
         {/*!@param[in] vIN the (possibly unsorted) ID of this
           *
           * Constructur performs the following operations:
@@ -120,6 +105,8 @@ namespace model
             {
                 this->child(k).addToParents(this);
             }
+            
+            vol0=SimplexVolume<dim,order>::volume(this->vertexPositionMatrix());
         }
         
         /**********************************************************************/
@@ -234,6 +221,8 @@ namespace model
         //! The column matrix of face normals
         const Eigen::Matrix<double,dim,dim+1> nda;
         
+        const double vol0;
+        
         /**********************************************************************/
         Simplex(const SimplexIDType& vIN, const int regionID=0) :
         /* init base */ SimplexBase<dim,order>(vIN),
@@ -241,7 +230,8 @@ namespace model
         /* init list */ region(MeshRegionObserverType::getRegion(regionID)),
         /* init base */ b2p(get_b2p()),
         /* init list */ p2b(b2p.fullPivLu().solve(Eigen::Matrix<double,dim+1,dim+1>::Identity())),
-        /* init list */ nda(get_nda())
+        /* init list */ nda(get_nda()),
+        /* init */ vol0(SimplexVolume<dim,order>::volume(this->vertexPositionMatrix()))
         {/*!
           */
             SimplexObserver<dim,order>::insertSimplex(*this);
@@ -340,42 +330,6 @@ namespace model
         {
             return (b2p*bary).template segment<dim>(0);
         }
-        
-//        /**********************************************************************/
-//        void convexDelaunaynSearch(const Eigen::Matrix<double,dim,1>& P,
-//                                   std::pair<bool,const Simplex<dim,dim>*>& lastSearched,
-//                                   std::set<int>& searchSet) const // TO DO: searchSet is not necessary, because baryMin changes sign in next Simplex
-//        {
-//            if(searchSet.find(this->sID)==searchSet.end())
-//            {// this simplex has not been searched yet
-//                searchSet.insert(this->sID);
-//                lastSearched.second=this;
-//#ifdef _MODEL_BENCH_BARYSEARCH_
-//                const Eigen::Matrix<double,dim+1,1> bary(pos2bary(P));
-//                searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<"\n";
-//#endif
-//                int kMin;
-//                if (pos2bary(P).minCoeff(&kMin)>=0.0)
-//                {
-//                    lastSearched.first=true;
-//                }
-//                else
-//                {
-////                    for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
-////                        /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
-////                    {
-//                    for(auto& pParent : this->child(kMin).parents())
-//                    {
-////                        (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
-//                    pParent->convexDelaunaynSearch(P,lastSearched,searchSet);
-//                        if (lastSearched.first)
-//                        {
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
 
         /**********************************************************************/
         void convexDelaunaynSearch(const Eigen::Matrix<double,dim,1>& P,
@@ -455,3 +409,41 @@ namespace model
     
 }	// close namespace
 #endif
+
+
+
+//        /**********************************************************************/
+//        void convexDelaunaynSearch(const Eigen::Matrix<double,dim,1>& P,
+//                                   std::pair<bool,const Simplex<dim,dim>*>& lastSearched,
+//                                   std::set<int>& searchSet) const // TO DO: searchSet is not necessary, because baryMin changes sign in next Simplex
+//        {
+//            if(searchSet.find(this->sID)==searchSet.end())
+//            {// this simplex has not been searched yet
+//                searchSet.insert(this->sID);
+//                lastSearched.second=this;
+//#ifdef _MODEL_BENCH_BARYSEARCH_
+//                const Eigen::Matrix<double,dim+1,1> bary(pos2bary(P));
+//                searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<"\n";
+//#endif
+//                int kMin;
+//                if (pos2bary(P).minCoeff(&kMin)>=0.0)
+//                {
+//                    lastSearched.first=true;
+//                }
+//                else
+//                {
+////                    for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
+////                        /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
+////                    {
+//                    for(auto& pParent : this->child(kMin).parents())
+//                    {
+////                        (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
+//                    pParent->convexDelaunaynSearch(P,lastSearched,searchSet);
+//                        if (lastSearched.first)
+//                        {
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//        }

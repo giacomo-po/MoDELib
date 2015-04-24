@@ -55,6 +55,8 @@ namespace model
         typedef std::vector<Eigen::Matrix<float,3,4>,Eigen::aligned_allocator<Eigen::Matrix<float,3,4> > > EdgeVectoType;
         EdgeVectoType edgeVector; // this is [P0 P1 D0 D1]
         
+        typedef Simplex<3,3>::SimplexIDType SimplexIDType;
+        
         //        SimplicialMesh<3> mesh;
         
         
@@ -83,7 +85,8 @@ namespace model
         static bool plotBndStress;
         static unsigned int stressCol;
         static bool showRegionBoundaries;
-
+        static bool showSpecificSimplex;
+        static SimplexIDType specificSimplexID;
         //        SimplicialMesh<3> mesh;
         
         /* Constructor ******************************************/
@@ -329,6 +332,92 @@ namespace model
                     glVertex3f(edge(0,1)+edge(0,3)*dispCorr, edge(1,1)+edge(1,3)*dispCorr,edge(2,1)+edge(2,3)*dispCorr);
                     glEnd();
                 }
+                
+                if(showSpecificSimplex)
+                {
+                    
+                    glEnable(GL_COLOR_MATERIAL); // use glColor4f to set color
+
+//                    std::cout<<specificSimplexID<<std::endl;
+                    
+                    const auto iter=SimplexObserver<3,3>::find(specificSimplexID);
+                    if(iter!=SimplexObserver<3,3>::simplexEnd())
+                    {
+                        Eigen::Matrix<float,3,4> mat=iter->second->vertexPositionMatrix().template cast<float>();
+                        
+                        
+                        glColor4f(0.5, 0.0, 0.5,0.1);
+
+                        glBegin(GL_TRIANGLES);
+                        glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
+                        glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
+                        glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
+                        glEnd();
+                        
+                        glBegin(GL_TRIANGLES);
+                        glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
+                        glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
+                        glVertex3f(mat.col(3)(0),mat.col(3)(1),mat.col(3)(2));
+                        glEnd();
+                        
+                        glBegin(GL_TRIANGLES);
+                        glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
+                        glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
+                        glVertex3f(mat.col(3)(0),mat.col(3)(1),mat.col(3)(2));
+                        glEnd();
+                        
+                        glBegin(GL_TRIANGLES);
+                        glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
+                        glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
+                        glVertex3f(mat.col(3)(0),mat.col(3)(1),mat.col(3)(2));
+                        glEnd();
+                        
+                        glColor4f(0.0, 0.0, 0.0,0.8);
+
+                        
+                        glBegin(GL_LINES);
+                        glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
+                        glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
+                        glEnd();
+
+                        glBegin(GL_LINES);
+                        glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
+                        glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
+                        glEnd();
+
+                        glBegin(GL_LINES);
+                        glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
+                        glVertex3f(mat.col(3)(0),mat.col(3)(1),mat.col(3)(2));
+                        glEnd();
+                        
+                        glBegin(GL_LINES);
+                        glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
+                        glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
+                        glEnd();
+                        
+                        glBegin(GL_LINES);
+                        glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
+                        glVertex3f(mat.col(3)(0),mat.col(3)(1),mat.col(3)(2));
+                        glEnd();
+
+                        glBegin(GL_LINES);
+                        glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
+                        glVertex3f(mat.col(3)(0),mat.col(3)(1),mat.col(3)(2));
+                        glEnd();
+
+                        for(int c=0;c<4;++c)
+                        {
+                            Eigen::Matrix<float,3,1> P=mat.col(c);
+                            BitmapPlotter::renderString(P, static_cast<std::ostringstream*>( &(std::ostringstream() << specificSimplexID(c)) )->str());
+                        }
+
+                    }
+                    else
+                    {
+                        std::cout<<"Simplex not found"<<std::endl;
+                    }
+                }
+                
             }
             
             if(showRegionBoundaries)
@@ -386,8 +475,8 @@ namespace model
     bool MeshPlotter::plotBndStress=false;
     unsigned int MeshPlotter::stressCol=0;
     bool MeshPlotter::showRegionBoundaries=false;
-
-    
+    bool MeshPlotter::showSpecificSimplex=false;
+    Simplex<3,3>::SimplexIDType MeshPlotter::specificSimplexID;
     
 } // namespace model
 #endif

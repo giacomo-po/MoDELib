@@ -87,7 +87,7 @@ namespace model
                             if(DN.link(*nIter1,*nIter2).first || DN.link(*nIter2,*nIter1).first)
                             {
                                 //std::cout<<"disconnecting "<<*nIter1<<" "<<*nIter2<<std::endl;
-                                DN.template disconnect<true>(*nIter1,*nIter2);
+                                DN.template disconnect<false>(*nIter1,*nIter2);
                             }
                         }
                     }
@@ -171,7 +171,7 @@ namespace model
                         if(DN.link(*nIter1,*nIter2).first || DN.link(*nIter2,*nIter1).first)
                         {
                             //std::cout<<"disconnecting "<<*nIter1<<" "<<*nIter2<<std::endl;
-                            DN.template disconnect<true>(*nIter1,*nIter2);
+                            DN.template disconnect<false>(*nIter1,*nIter2);
                         }
                     }
                 }
@@ -307,9 +307,10 @@ namespace model
             
             if((L1-L2).squaredNorm()==0) // points are coincindent, just contract them
             {
-                //std::cout<<"contractWithConstraintCheck: chord= "<<P12norm<<std::endl;
+                std::cout<<"contractWithConstraintCheck: chord= "<<(L1-L2).squaredNorm()<<std::endl;
+                contracted+=contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
                 
-                contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,L1);
+//                contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,L1);
             }
             else // points are distinct
             {
