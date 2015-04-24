@@ -319,7 +319,7 @@ namespace model
                     if(p_Simplex->child(f).isBoundarySimplex() && h>=0.0 && h<2.0)
                     {
                         faceID=f;
-                        boundaryNormal=p_Simplex->nda.col(faceID).normalized();
+                        temp=p_Simplex->nda.col(faceID).normalized();
                     }
                 }
                 
