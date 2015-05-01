@@ -96,7 +96,7 @@ solverTolerance=0.0001;
 
 ######################################
 # Enable/disable cross-slip
-use_crossSlip=0;
+use_crossSlip=1;
 crossSlipDeg=5.0;
 crossSlipLength=110.0;
 

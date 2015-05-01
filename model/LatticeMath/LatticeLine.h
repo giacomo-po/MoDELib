@@ -48,13 +48,13 @@ namespace model
             return Pc+round(n)*dc;
         }
         
-        /**********************************************************************/
-        VectorDimD snapToDirection(const VectorDimD& DP) const
-        {
-            const VectorDimD dc(d.cartesian());
-//            const double n=;
-            return round(DP.dot(dc)/dc.squaredNorm())*dc;
-        }
+//        /**********************************************************************/
+//        VectorDimD snapToDirection(const VectorDimD& DP) const
+//        {
+//            const VectorDimD dc(d.cartesian());
+////            const double n=;
+//            return round(DP.dot(dc)/dc.squaredNorm())*dc;
+//        }
         
         /**********************************************************************/
         bool contains(const LatticeVectorType& P0) const

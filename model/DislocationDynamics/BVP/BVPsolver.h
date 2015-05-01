@@ -386,12 +386,12 @@ namespace model
 //            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 //        }
         
-        
+#ifdef userBVPfile
         /**********************************************************************/
         template <typename DislocationNetworkType,int qOrder>
         void assembleAndSolve(const DislocationNetworkType& DN)
         {
-#ifdef userBVPfile
+
             
             typedef typename DislocationNetworkType::StressField StressField;
             typedef BoundaryStressPoint<DislocationNetworkType> FieldPointType;
@@ -429,12 +429,19 @@ namespace model
             fe->clearNodeLists();
             u->clearDirichletConditions();
 
-            
 #include userBVPfile // userBVPfile defines additional loads, boundary conditions, and calls solver
-#else
-            assert(0 && "YOU MUST #define THE userBVPfile to use BVPsolver.");
-#endif
+
         }
+#else
+        /**********************************************************************/
+        template <typename DislocationNetworkType,int qOrder>
+        void assembleAndSolve(const DislocationNetworkType& )
+        {
+            assert(0 && "YOU MUST #define THE userBVPfile to use BVPsolver.");
+        }
+#endif
+
+
         
         /**********************************************************************/
         Eigen::Matrix<double,dim,dim> stress(const Eigen::Matrix<double,dim,1> P,

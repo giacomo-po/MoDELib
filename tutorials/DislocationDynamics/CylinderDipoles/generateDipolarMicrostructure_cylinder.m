@@ -2,8 +2,6 @@ clc
 close all
 clear all
 
-
-
 Burgers=0.2851e-9; % Burgers vector for Al [m]
 R=0.5e-6/2/Burgers;   % cylinder radius [in units of b]
 H=4*R;      % cylinder height [in units of b]
@@ -16,11 +14,10 @@ lMin=R/2;           % minimum size of loop [b]
 lMax=R;             % max size of loop [b]
 targetDensity=1e14; % target dislocaiton density [m^-2]
 
+% Lattice Matrix for FCC
 A=[0 1 1;
    1 0 1;
    1 1 0]/sqrt(2);
-
-%return
 
 invA=inv(A);
 

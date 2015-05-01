@@ -32,7 +32,7 @@ else
 	mpiCC = mpicxx
 	CFLAGS += -Ofast
 	CFLAGS += -msse4
-	CFLAGS += -fopenmp
+#	CFLAGS += -fopenmp
 	CFLAGS += -std=c++11
 endif
 

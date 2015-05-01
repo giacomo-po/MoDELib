@@ -39,8 +39,8 @@ namespace model
         /* init */ intersectionType(den!=0? intersecting : (num==0? coincident : parallel)),
         /* init */ P( intersectionType==intersecting? (line.P+num/den*line.d).eval() : (intersectionType==coincident? line.P : VectorDimI::Zero() ))
         {
-            std::cout<<"num="<<num<<std::endl;
-            std::cout<<"den="<<den<<std::endl;
+//            std::cout<<"num="<<num<<std::endl;
+//            std::cout<<"den="<<den<<std::endl;
         }
         
         /**********************************************************************/

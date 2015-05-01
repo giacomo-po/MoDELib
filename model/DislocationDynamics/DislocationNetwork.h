@@ -242,7 +242,7 @@ namespace model
             if(use_crossSlip)
             {
                 const auto t0= std::chrono::system_clock::now();
-                model::cout<<"FIX CROSS-SLIP LENGHT PROBLEM		performing cross-slip ... ("<<std::flush;
+                model::cout<<"		performing cross-slip ... ("<<std::flush;
                 size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip());
                 model::cout<<crossSlipEvents<<" cross-slip events) ";
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -318,7 +318,7 @@ namespace model
             }
             
             //! 6- Output the current configuration before changing it
-//            output(runID);
+            output(runID);
 
             //! Update accumulated quantities
             totalTime+=dt;
@@ -368,9 +368,6 @@ namespace model
             
             // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
-
-            output(runID); // remove THIS
-
             
             //! 13 - Increment runID counter
             ++runID;     // increment the runID counter
@@ -594,8 +591,8 @@ namespace model
             {
                 EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
                 assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
-                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
-                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
+//                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
+//                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
             }
             
             // Mesh and BVP

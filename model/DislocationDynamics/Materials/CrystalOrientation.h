@@ -113,7 +113,7 @@ namespace model {
                     for (const auto& planeNormal : planeNormalContainer)
                     {
                         
-                        std::cout<<"n="<<planeNormal.cartesian().normalized().transpose()<<" c*n="<< planeNormal.dot(chord) <<std::endl;
+                        std::cout<<"n="<<planeNormal.cartesian().normalized().transpose()<<" c*n="<< planeNormal.dot(chord)<<" b*n="<< planeNormal.dot(Burgers) <<std::endl;
                     }
                     assert(allowedSlipSystems.size()>=2 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO CRYSTALLOGRAPHIC PLANES.");
                 }
@@ -157,17 +157,22 @@ namespace model {
         
         
         /**********************************************************************/
-        static std::vector<VectorDim> conjugatePlaneNormal(const LatticeVectorType& B,
-                                                           const VectorDim& N)
+        static std::deque<const LatticePlaneBase*> conjugatePlaneNormal(const LatticeVectorType& B,
+                                                           const ReciprocalLatticeDirectionType& N)
         {
-            std::vector<VectorDim> temp;
-            assert((std::fabs(B.cartesian().normalized().dot(N.normalized()))<tol) && "CANNOT DETERMINE CONJUGATE PLANE FOR SESSILE SEGMENT");
+//            assert(B.dot(N)==0 && "CANNOT DETERMINE CONJUGATE PLANE FOR SESSILE SEGMENT");
+
+            
+            std::deque<const LatticePlaneBase*> temp;
+            if(B.dot(N)==0) // not sessile
+            {
             for (const auto& planeNormal : planeNormalContainer)
             {
-                if(	 B.dot(planeNormal)==0 && N.normalized().cross(planeNormal.cartesian().normalized()).norm()>tol)
+                if(	 B.dot(planeNormal)==0 && N.cross(planeNormal).squaredNorm()>0)
                 {
-                    temp.push_back(planeNormal.cartesian().normalized());
+                    temp.push_back(&planeNormal);
                 }
+            }
             }
             return temp;
         }

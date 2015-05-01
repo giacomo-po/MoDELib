@@ -150,7 +150,7 @@ namespace model {
           */
 			// Insert this->p_derived() in the Neighborhood
 			Neighborhood.insert(std::make_pair(this->sID, NeighborType(this->p_derived(),(LinkType*) NULL,0) ));
-            std::cout<<"Creating NetworkNode "<<this->sID<<std::endl;
+//            std::cout<<"Creating NetworkNode "<<this->sID<<std::endl;
 		}
 		
         /**********************************************************************/
@@ -163,7 +163,7 @@ namespace model {
 			
 			// Manage NetworkComponent
 			psn->add(this->p_derived());
-            std::cout<<"Creating NetworkNode "<<this->sID<<std::endl;
+//            std::cout<<"Creating NetworkNode "<<this->sID<<std::endl;
 		}
         
 		/* Destructor *********************************************************/

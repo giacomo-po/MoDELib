@@ -45,7 +45,7 @@
 #include <model/DislocationDynamics/DislocationLocalReference.h>
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 
-#include <model/DislocationDynamics/CrossSlip/CrossSlipSegment.h>
+//#include <model/DislocationDynamics/CrossSlip/CrossSlipSegment.h>
 #include <model/DislocationDynamics/DislocationMobility.h>
 #include <model/Utilities/UniqueOutputFile.h>
 
@@ -131,6 +131,7 @@ namespace model
         typedef DislocationParticle<dim> DislocationParticleType;
         typedef std::vector<DislocationParticleType*> QuadratureParticleContainerType;
         typedef LatticeVector<dim> LatticeVectorType;
+        typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
 
         /******************************************************************/
     private: //  data members
@@ -178,6 +179,7 @@ namespace model
 //        const VectorDim Burgers;
         const VectorDim Burgers;
         const bool isSessile;
+        const std::deque<const LatticePlaneBase*> conjugatePlaneNormals;
         
 //        const LatticeVectorType& Burgers;
         
@@ -273,6 +275,7 @@ namespace model
         /* base class initialization */ SegmentBaseType(nodePair,Fin),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
         /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
+        /* init list       */ conjugatePlaneNormals(CrystalOrientation<dim>::conjugatePlaneNormal(this->flow,this->glidePlane.n)),
         /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ dm(this->glidePlaneNormal,Burgers)
@@ -302,6 +305,7 @@ namespace model
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
         /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
+                /* init list       */ conjugatePlaneNormals(CrystalOrientation<dim>::conjugatePlaneNormal(this->flow,this->glidePlane.n)),
         /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ dm(this->glidePlaneNormal,Burgers)
@@ -368,7 +372,7 @@ namespace model
                 
                 const VectorDim C((this->source->get_P()+this->sink->get_P())*0.5);
                 const VectorDim vec(this->source->get_P()-C);
-                const VectorDim n((this->source->get_boundaryNormal()+this->sink->get_boundaryNormal()).normalized());
+                const VectorDim n((this->source->bndNormal()+this->sink->bndNormal()).normalized());
                 boundaryLoopNormal=this->glidePlaneNormal;
                 const MatrixDim R(Eigen::AngleAxisd(0.5*M_PI,boundaryLoopNormal));
                 const double dldu=vec.norm()*M_PI;
@@ -678,47 +682,47 @@ namespace model
             return Coeff2Hermite<pOrder>::template h2c<dim-1>(hermiteLocalCoefficient());
         }
         
-        /**********************************************************************/
-        std::map<double,VectorDim> boundaryCollision() const
-        {/*! The collision points with the glidePlane boundary polygon.
-          */
-            std::map<double,VectorDim> temp;
-            
-            if (shared.boundary_type){
-                VectorDim origin = this->source->get_P();
-                
-                const Eigen::Matrix<double,dim-1,Ncoeff> C1L(polynomialLocalCoeff()); // the local polynomial coefficients of this
-                PlanarSplineImplicitization<pOrder> psi(Coeff2Hermite<pOrder>::template h2c<dim-1>(C1L));
-                
-                const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),this->glidePlaneNormal));
-                
-                for (int k=0; k<pGlidePlane->segmentMeshCollisionPairContainer.size();++k)
-                {
-                    Eigen::Matrix<double,dim-1,2> H2L;
-                    H2L.col(0)=(G2L*(pGlidePlane->segmentMeshCollisionPairContainer[k].first -origin)).template segment<dim-1>(0);
-                    H2L.col(1)=(G2L*(pGlidePlane->segmentMeshCollisionPairContainer[k].second-origin)).template segment<dim-1>(0);
-                    std::set<std::pair<double,double> > intersectinParameters = psi.template intersectWith<1>(Coeff2Hermite<1>::template h2c<dim-1>(H2L),FLT_EPSILON);
-                    for (std::set<std::pair<double,double> >::const_iterator iter=intersectinParameters.begin();iter!=intersectinParameters.end();++iter)
-                    {
-                        temp.insert(std::make_pair(iter->first,this->get_r(iter->first)));
-                    }
-                }
-            }
-            
-            return temp;
-        }
+//        /**********************************************************************/
+//        std::map<double,VectorDim> boundaryCollision() const
+//        {/*! The collision points with the glidePlane boundary polygon.
+//          */
+//            std::map<double,VectorDim> temp;
+//            
+//            if (shared.boundary_type){
+//                VectorDim origin = this->source->get_P();
+//                
+//                const Eigen::Matrix<double,dim-1,Ncoeff> C1L(polynomialLocalCoeff()); // the local polynomial coefficients of this
+//                PlanarSplineImplicitization<pOrder> psi(Coeff2Hermite<pOrder>::template h2c<dim-1>(C1L));
+//                
+//                const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),this->glidePlaneNormal));
+//                
+//                for (int k=0; k<pGlidePlane->segmentMeshCollisionPairContainer.size();++k)
+//                {
+//                    Eigen::Matrix<double,dim-1,2> H2L;
+//                    H2L.col(0)=(G2L*(pGlidePlane->segmentMeshCollisionPairContainer[k].first -origin)).template segment<dim-1>(0);
+//                    H2L.col(1)=(G2L*(pGlidePlane->segmentMeshCollisionPairContainer[k].second-origin)).template segment<dim-1>(0);
+//                    std::set<std::pair<double,double> > intersectinParameters = psi.template intersectWith<1>(Coeff2Hermite<1>::template h2c<dim-1>(H2L),FLT_EPSILON);
+//                    for (std::set<std::pair<double,double> >::const_iterator iter=intersectinParameters.begin();iter!=intersectinParameters.end();++iter)
+//                    {
+//                        temp.insert(std::make_pair(iter->first,this->get_r(iter->first)));
+//                    }
+//                }
+//            }
+//            
+//            return temp;
+//        }
         
-        /*********************************************************************/
-        CrossSlipSegment<LinkType> isCrossSlipSegment(const double& sinThetaCrossSlipCr,const double& crossSlipLength) const
-        {
-            return CrossSlipSegment<LinkType>(*this,sinThetaCrossSlipCr,crossSlipLength);
-        }
+//        /*********************************************************************/
+//        CrossSlipSegment<LinkType> crossSlipSegment(const double& sinThetaCrossSlipCr,const double& crossSlipLength) const
+//        {
+//            return CrossSlipSegment<LinkType>(*this,sinThetaCrossSlipCr,crossSlipLength);
+//        }
         
-        /*********************************************************************/
-        std::vector<VectorDim> conjugatePlaneNormal() const
-        {
-            return CrystalOrientation<dim>::conjugatePlaneNormal(this->flow,this->glidePlaneNormal);
-        }
+//        /*********************************************************************/
+//        std::deque<const LatticePlaneBase*> conjugatePlaneNormals() const
+//        {
+//            return CrystalOrientation<dim>::conjugatePlaneNormal(this->flow,this->glidePlane.n);
+//        }
         
         /*********************************************************************/
         VectorDim integralPK() const

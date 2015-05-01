@@ -1,81 +1,56 @@
 /* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
- * Copyright (C) 2013 by Tamer Crosby     <tcrosby@ucla.edu>.
- * Copyright (C) 2011 by Can Erel         <canerel55@gmail.com>,
- * Copyright (C) 2011 by Giacomo Po       <gpo@ucla.edu>.
+ * Copyright (C) 2015 by Giacomo Po       <gpo@ucla.edu>.
  *
  * model is distributed without any warranty under the 
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
 
-#ifndef model_CROSSSLIPSEGMENT_H
-#define model_CROSSSLIPSEGMENT_H
+#ifndef model_CrossSlipModels_H
+#define model_CrossSlipModels_H
 
-#include <math.h> // isfinite
-#include <float.h>
-#include <list>
-#include <stdlib.h> // rand()
-#include <ctime> 
-#include <time.h>
-#include <iterator>
-#include <vector>
-#include <set>
+#include <deque>
 #include <map>
-//#include <boost/random/mersenne_twister.hpp>
-//#include <boost/random/uniform_int_distribution.hpp>
-#include <model/DislocationDynamics/Materials/Material.h>
-#include <model/LatticeMath/LatticeMath.h>
+#include <Eigen/Dense>
+#include <Model/LatticeMath/LatticeMath.h>
 
-namespace model {
+namespace model
+{
     
-//    boost::random::mt19937 gen(time(0));
     
-    template <typename DislocationSegmentType>
-	struct CrossSlipSegment
+	struct CrossSlipModels
     {
-		
-		typedef typename DislocationSegmentType::VectorDim VectorDim;
-//        typedef std::vector<Eigen::Matrix<double,3,1>> VectorVectorDim;
-//        typedef std::pair<std::vector<double>,std::vector<double> > VectorPairType;
-//        typedef std::vector<VectorPairType> vector_VectorPairType;
-        typedef LatticeVector<DislocationSegmentType::dim> LatticeVectorType;
-//        typedef ReciprocalLatticeDirection<DislocationSegmentType::dim> ReciprocalLatticeDirectionType;
-        typedef typename DislocationSegmentType::NodeType NodeType;
         
-        
-        
-        NodeType& source;
-        NodeType&   sink;
-        const  LatticeVectorType Burgers;
-        const  LatticeVectorType midPoint;
-		const  VectorDim pkForce;
-//		/*const*/  VectorDim normalPrimary;
-        LatticePlane primaryPlane;
-//        /*const*/  bool isSessile;
-//		/*const*/  VectorDim normalConjugate;
-        LatticePlaneBase conjugatePlaneBase;
-//		const  bool isCrossSlipSegment;
-        
-		/* Constructor *******************************************************/		
-		CrossSlipSegment(DislocationSegmentType& ds,
-                         const LatticePlaneBase& conjugatePlaneBase_in) :
-		/*init list   */ source(*ds.source),
-		/*init list   */ sink(*ds.sink),
-//		/*init list   */ chord(ds.chord()),
-        /*init list   */ Burgers(ds.flow),
-        /*init list   */ midPoint(ds.glidePlane.snapToLattice(ds.get_r(0.5))),
-		/*init list   */ pkForce(ds.integralPK()),
-//		/*init list   */ normalPrimary(ds.glidePlaneNormal),
-        /*init list   */ primaryPlane(midPoint,ds.glidePlane.n),
-//        /*init list   */ isSessile(ds.isSessile),
-        /*init list   */ conjugatePlaneBase(conjugatePlaneBase_in)
-//		/*init list   */ isCrossSlipSegment(conjugatePlane.n != primaryPlane.n)
-        //(ReciprocalLatticeDirectionType(conjugatePlane.n) != ReciprocalLatticeDirectionType(primaryPlane.n)
-        {
+        /**********************************************************************/
+        template <typename DislocationSegmentType>
+        static const LatticePlaneBase& maxRSS(const DislocationSegmentType& ds)
+        {/*!@param[in] ds const reference to a DislocationSegment
+          *\returns the plane on which the segment moves according to the cross-slip model. 
+          */
             
+            typedef Eigen::Matrix<double,DislocationSegmentType::dim,1> VectorDim;
+
+            const VectorDim pkForce=ds.integralPK();
             
-                        
+            std::deque<const LatticePlaneBase*> allNormals(ds.conjugatePlaneNormals);
+            // add normalPrimary at the beginning of allNormals.
+            // This way, in case of duplicate keys, normalPrimary is inserted in argMap
+            allNormals.insert(allNormals.begin(),&ds.glidePlane.n);
+            std::map<double,int> argMap; // map automatically sorts keys
+            const VectorDim nc=allNormals[0]->cartesian().normalized();
+            const double trss0((pkForce-pkForce.dot(nc)*nc).norm());
+            argMap.insert(std::make_pair(trss0,0)); // normalPrimary
+            
+                
+                for (unsigned int i=1; i< allNormals.size(); i++)
+                {
+                    const VectorDim nc=allNormals[i]->cartesian().normalized();
+                    const double trss((pkForce-pkForce.dot(nc)*nc).norm());
+                    argMap.insert(std::make_pair(trss,i)); // normalPrimary
+                }
+            
+            return *allNormals[argMap.rbegin()->second];
         }
         
     };

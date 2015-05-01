@@ -210,7 +210,17 @@ namespace model
                 if(Lij.first)
                 {
                     VectorDimD expandPoint(Lij.second->get_r(expand_at));
-                    expandPoint=Lij.second->glidePlane.snapToLattice(expandPoint);
+                    
+                    if(!Lij.second->isSessile)
+                    {
+                        expandPoint=Lij.second->glidePlane.snapToLattice(expandPoint);
+                    }
+                    else
+                    {
+                        PlanePlaneIntersection ppi(Lij.second->glidePlane,Lij.second->sessilePlane);
+                        LatticeLine line(ppi.P,ppi.d);
+                        expandPoint=line.snapToLattice(expandPoint);
+                    }
 
                     if(  (LatticeVectorType(expandPoint)-DN.node(i).second->get_L()).squaredNorm()
                        &&(LatticeVectorType(expandPoint)-DN.node(j).second->get_L()).squaredNorm() )

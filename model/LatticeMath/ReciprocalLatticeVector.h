@@ -59,6 +59,12 @@ namespace model
             return *this;
         }
         
+//        ReciprocalLatticeVector& operator=(const ReciprocalLatticeVector& other)
+//        {
+//            BaseType::operator=(other);
+//            return *this;
+//        }
+        
 //        const VectorDimI& cov() const
 //        {
 //            return coVariant;
