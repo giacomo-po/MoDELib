@@ -74,7 +74,8 @@ namespace model
                 
                 if ( !linkIter->second.source->isBoundaryNode() && !linkIter->second.sink->isBoundaryNode()
                     && linkIter->second.chord().normalized().cross(linkIter->second.Burgers.normalized()).norm()<=sinCrossSlipRad
-                    && !linkIter->second.isSessile)
+                    && !linkIter->second.isSessile
+                    && linkIter->second.chord().norm()>2.0*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
                 {
                     const LatticePlaneBase& conjugatePlaneBase=CrossSlipModels::maxRSS(linkIter->second);
                     if(conjugatePlaneBase != linkIter->second.glidePlane.n)

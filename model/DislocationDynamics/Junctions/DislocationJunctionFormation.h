@@ -296,11 +296,11 @@ namespace model
                     const DislocationSegmentIntersection<LinkType> dsi(linkIterA->second,linkIterA->second.glidePlaneNormal);
                     
                     for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.linkEnd();linkIterB++)
-                    {                        
+                    {
                         if (linkIterA->second.sID!=linkIterB->second.sID) // don't intersect with itself
                         {
                             
-                            std::cout<< "Intersecting "<<linkIterA->second.nodeIDPair.first<<"->"<<linkIterA->second.nodeIDPair.second<<" " <<linkIterB->second.nodeIDPair.first<<"->"<<linkIterB->second.nodeIDPair.second<<std::flush;
+                            //std::cout<< "Intersecting "<<linkIterA->second.nodeIDPair.first<<"->"<<linkIterA->second.nodeIDPair.second<<" " <<linkIterB->second.nodeIDPair.first<<"->"<<linkIterB->second.nodeIDPair.second<<std::flush;
 
                             const bool& L1isSessile(linkIterA->second.isSessile);
                             const bool& L2isSessile(linkIterB->second.isSessile);
@@ -362,8 +362,7 @@ namespace model
                             
                             
                             
-                            // std::set<std::pair<double,double> > temp ( dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol));
-                            std::cout<<" ("<<temp.size()<<" intersections):"<<std::endl;
+                            //std::cout<<" ("<<temp.size()<<" intersections):"<<std::endl;
 
                             
                             for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter)
@@ -395,7 +394,7 @@ namespace model
                                     EdgeIntersectionType intersectionOnB(std::make_pair(linkIterB->second.nodeIDPair,paramIter->second));
                                     const int dir(junctionDir(linkIterA->second,linkIterB->second,paramIter->first,paramIter->second));
                                 
-                                std::cout<<paramIter->first<<" "<<paramIter->second<<" "<<dir<<std::endl;
+//                                std::cout<<paramIter->first<<" "<<paramIter->second<<" "<<dir<<std::endl;
                                 
                                     if(dir!=0)
                                     {

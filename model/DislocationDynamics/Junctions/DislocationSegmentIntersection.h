@@ -121,7 +121,8 @@ namespace model {
         //		const Eigen::Matrix<double,dim,dim> R1;
         
         static double compTol;
-        
+        static bool useNodeIntersection;
+
         /* Constructor *****************************************************/
         //        DislocationSegmentIntersection(const MatrixDimPolyCoeff& H1_in,
         //                                       /*                          */ const VectorDim& n1_in) : H1(H1_in),
@@ -140,7 +141,6 @@ namespace model {
             //            assert(std::fabs(n1.dot(chord1/chord1norm))<FLT_EPSILON);
             //            assert(std::fabs(n1.dot(H1.col(1)))<FLT_EPSILON);
             //            assert(std::fabs(n1.dot(H1.col(3)))<FLT_EPSILON);
-            std::cout<<"DislocationSegmentIntersection, finished contructor"<<std::endl;
         }
         
         
@@ -189,106 +189,116 @@ namespace model {
             if((0.5*(P0+P1)-0.5*(P2+P3)).norm()<0.75*(chord1.norm()+chord2.norm()))
             {
                 
-                const double nodeTol=physTol*0.25;
-                const bool useNodeIntersection=true;
+                if(useNodeIntersection)
+                {
+                    
+                    const double nodeTol=physTol*0.25;
+                    
+                    if(ds1.source->sID==ds2.source->sID )
+                    {// intersectionIsSourceSource
+                        std::pair<double,std::pair<double,VectorDim> > map1=ds1.closestPoint(ds2.sink->get_P());
+                        std::pair<double,std::pair<double,VectorDim> > map2=ds2.closestPoint(ds1.sink->get_P());
+                        if(map1.first<=nodeTol && map2.first>nodeTol)
+                        {
+                            //std::cout<<"DislocationSegmentIntersection case 1 "<<map1.second.first<<std::endl;
+                            intersectionParameters.emplace(map1.second.first,1.0);
+                        }
+                        else if(map1.first>nodeTol && map2.first<=nodeTol)
+                        {
+                            //std::cout<<"DislocationSegmentIntersection case 2 "<<map2.second.first<<std::endl;
+                            intersectionParameters.emplace(1.0,map2.second.first);
+                        }
+                        else if(map1.first<=nodeTol && map2.first<=nodeTol)
+                        {
+                            //std::cout<<"DislocationSegmentIntersection case 3 "<<std::endl;
+                            intersectionParameters.emplace(1.0,1.0);
+                        }
+                        else
+                        {
+                            // do nothing
+                        }
+                    }
+                    else if(ds1.source->sID==ds2.sink->sID )
+                    {// intersectionIsSourceSink
+                        std::pair<double,std::pair<double,VectorDim> > map1=ds1.closestPoint(ds2.source->get_P());
+                        std::pair<double,std::pair<double,VectorDim> > map2=ds2.closestPoint(ds1.sink->get_P());
+                        if(map1.first<=nodeTol && map2.first>nodeTol)
+                        {
+                            //std::cout<<"DislocationSegmentIntersection case 4 "<<map1.second.first<<std::endl;
+                            intersectionParameters.emplace(map1.second.first,0.0);
+                        }
+                        else if(map1.first>nodeTol && map2.first<=nodeTol)
+                        {
+                            //std::cout<<"DislocationSegmentIntersection case 5 "<<map2.second.first<<std::endl;
+                            intersectionParameters.emplace(1.0,map2.second.first);
+                        }
+                        else if(map1.first<=nodeTol && map2.first<=nodeTol)
+                        {
+                            //std::cout<<"DislocationSegmentIntersection case 6 "<<std::endl;
+                            intersectionParameters.emplace(1.0,0.0);
+                        }
+                        else
+                        {
+                            // do nothing
+                        }
+                    }
+                    else if(ds1.sink->sID==ds2.source->sID )
+                    {// intersectionIsSinkSource
+                        std::pair<double,std::pair<double,VectorDim> > map1=ds1.closestPoint(ds2.sink->get_P());
+                        std::pair<double,std::pair<double,VectorDim> > map2=ds2.closestPoint(ds1.source->get_P());
+                        if(map1.first<=nodeTol && map2.first>nodeTol)
+                        {
+                            //std::cout<<"DislocationSegmentIntersection case 7 "<<map1.second.first<<std::endl;
+                            intersectionParameters.emplace(map1.second.first,1.0);
+                        }
+                        else if(map1.first>nodeTol && map2.first<=nodeTol)
+                        {
+                            //std::cout<<"DislocationSegmentIntersection case 8 "<<map2.second.first<<std::endl;
+                            intersectionParameters.emplace(0.0,map2.second.first);
+                        }
+                        else if(map1.first<=nodeTol && map2.first<=nodeTol)
+                        {
+                            //std::cout<<"DislocationSegmentIntersection case 9 "<<std::endl;
+                            intersectionParameters.emplace(0.0,1.0);
+                        }
+                        else
+                        {
+                            // do nothing
+                        }
+                    }
+                    else if(ds1.sink->sID==ds2.sink->sID )
+                    {//intersectionIsSinkSink
+                        std::pair<double,std::pair<double,VectorDim> > map1=ds1.closestPoint(ds2.source->get_P());
+                        std::pair<double,std::pair<double,VectorDim> > map2=ds2.closestPoint(ds1.source->get_P());
+                        if(map1.first<=nodeTol && map2.first>nodeTol)
+                        {
+                            //std::cout<<"DislocationSegmentIntersection case 10 "<<map1.second.first<<std::endl;
+                            intersectionParameters.emplace(map1.second.first,0.0);
+                        }
+                        else if(map1.first>nodeTol && map2.first<=nodeTol)
+                        {
+                            //std::cout<<"DislocationSegmentIntersection case 11 "<<map2.second.first<<std::endl;
+                            intersectionParameters.emplace(0.0,map2.second.first);
+                        }
+                        else if(map1.first<=nodeTol && map2.first<=nodeTol)
+                        {
+                            //std::cout<<"DislocationSegmentIntersection case 12 "<<map1.second.first<<std::endl;
+                            intersectionParameters.emplace(0.0,0.0);
+                        }
+                        else
+                        {
+                            // do nothing
+                        }
+                    }
+                    else
+                    {
+                    // no node intersection
+                    }
+                }
                 
-                if(ds1.source->sID==ds2.source->sID && useNodeIntersection)
-                {// intersectionIsSourceSource
-                    std::pair<double,std::pair<double,VectorDim> > map1=ds1.closestPoint(ds2.sink->get_P());
-                    std::pair<double,std::pair<double,VectorDim> > map2=ds2.closestPoint(ds1.sink->get_P());
-                    if(map1.first<=nodeTol && map2.first>nodeTol)
-                    {
-                        //std::cout<<"DislocationSegmentIntersection case 1 "<<map1.second.first<<std::endl;
-                        intersectionParameters.emplace(map1.second.first,1.0);
-                    }
-                    else if(map1.first>nodeTol && map2.first<=nodeTol)
-                    {
-                        //std::cout<<"DislocationSegmentIntersection case 2 "<<map2.second.first<<std::endl;
-                        intersectionParameters.emplace(1.0,map2.second.first);
-                    }
-                    else if(map1.first<=nodeTol && map2.first<=nodeTol)
-                    {
-                        //std::cout<<"DislocationSegmentIntersection case 3 "<<std::endl;
-                        intersectionParameters.emplace(1.0,1.0);
-                    }
-                    else
-                    {
-                        // do nothing
-                    }
-                }
-                else if(ds1.source->sID==ds2.sink->sID && useNodeIntersection)
-                {// intersectionIsSourceSink
-                    std::pair<double,std::pair<double,VectorDim> > map1=ds1.closestPoint(ds2.source->get_P());
-                    std::pair<double,std::pair<double,VectorDim> > map2=ds2.closestPoint(ds1.sink->get_P());
-                    if(map1.first<=nodeTol && map2.first>nodeTol)
-                    {
-                        //std::cout<<"DislocationSegmentIntersection case 4 "<<map1.second.first<<std::endl;
-                        intersectionParameters.emplace(map1.second.first,0.0);
-                    }
-                    else if(map1.first>nodeTol && map2.first<=nodeTol)
-                    {
-                        //std::cout<<"DislocationSegmentIntersection case 5 "<<map2.second.first<<std::endl;
-                        intersectionParameters.emplace(1.0,map2.second.first);
-                    }
-                    else if(map1.first<=nodeTol && map2.first<=nodeTol)
-                    {
-                        //std::cout<<"DislocationSegmentIntersection case 6 "<<std::endl;
-                        intersectionParameters.emplace(1.0,0.0);
-                    }
-                    else
-                    {
-                        // do nothing
-                    }
-                }
-                else if(ds1.sink->sID==ds2.source->sID && useNodeIntersection)
-                {// intersectionIsSinkSource
-                    std::pair<double,std::pair<double,VectorDim> > map1=ds1.closestPoint(ds2.sink->get_P());
-                    std::pair<double,std::pair<double,VectorDim> > map2=ds2.closestPoint(ds1.source->get_P());
-                    if(map1.first<=nodeTol && map2.first>nodeTol)
-                    {
-                        //std::cout<<"DislocationSegmentIntersection case 7 "<<map1.second.first<<std::endl;
-                        intersectionParameters.emplace(map1.second.first,1.0);
-                    }
-                    else if(map1.first>nodeTol && map2.first<=nodeTol)
-                    {
-                        //std::cout<<"DislocationSegmentIntersection case 8 "<<map2.second.first<<std::endl;
-                        intersectionParameters.emplace(0.0,map2.second.first);
-                    }
-                    else if(map1.first<=nodeTol && map2.first<=nodeTol)
-                    {
-                        //std::cout<<"DislocationSegmentIntersection case 9 "<<std::endl;
-                        intersectionParameters.emplace(0.0,1.0);
-                    }
-                    else
-                    {
-                        // do nothing
-                    }
-                }
-                else if(ds1.sink->sID==ds2.sink->sID && useNodeIntersection)
-                {//intersectionIsSinkSink
-                    std::pair<double,std::pair<double,VectorDim> > map1=ds1.closestPoint(ds2.source->get_P());
-                    std::pair<double,std::pair<double,VectorDim> > map2=ds2.closestPoint(ds1.source->get_P());
-                    if(map1.first<=nodeTol && map2.first>nodeTol)
-                    {
-                        //std::cout<<"DislocationSegmentIntersection case 10 "<<map1.second.first<<std::endl;
-                        intersectionParameters.emplace(map1.second.first,0.0);
-                    }
-                    else if(map1.first>nodeTol && map2.first<=nodeTol)
-                    {
-                        //std::cout<<"DislocationSegmentIntersection case 11 "<<map2.second.first<<std::endl;
-                        intersectionParameters.emplace(0.0,map2.second.first);
-                    }
-                    else if(map1.first<=nodeTol && map2.first<=nodeTol)
-                    {
-                        //std::cout<<"DislocationSegmentIntersection case 12 "<<map1.second.first<<std::endl;
-                        intersectionParameters.emplace(0.0,0.0);
-                    }
-                    else
-                    {
-                        // do nothing
-                    }
-                }
-                else // sements have no common nodes
+                
+
+                if(intersectionParameters.empty()) // sements have no node intersections
                 {
                     const int planesType=planePlaneType(n1,n2,P0,P2);
                     switch (planesType)
@@ -451,14 +461,12 @@ namespace model {
     
     
     // Declare statica data members
-    //template <short unsigned int dim, short unsigned int polyDegree>
     template <typename LinkType>
     double DislocationSegmentIntersection<LinkType>::compTol=FLT_EPSILON;
+ 
+    template <typename LinkType>
+    bool DislocationSegmentIntersection<LinkType>::useNodeIntersection=true;
     
-    
-    
-    
-    //////////////////////////////////////////////////////////////s
 } // namespace model
 #endif
 

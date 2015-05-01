@@ -29,14 +29,16 @@ namespace model{
     public:
         
         const VectorNcoeff coeffs;
-        const MatrixPorder cM; // the matrix companion
+        const Eigen::MatrixXd cM; // the matrix companion
         const EigenSolverType es;
+        const size_t rootSize;
         
         /**********************************************************************/
         MatrixCompanion(const VectorNcoeff& coeffsIN) :
         /* init list */ coeffs(coeffsIN),
         /* init list */ cM(getCM(coeffsIN)),
-        /* init list */ es(cM)
+        /* init list */ es(cM),
+        /* init list */ rootSize(cM.rows())
         {/*!@param[in] coeffsIN the coefficients of the polynomial, from highest 
           * to lowest.
           *
@@ -94,13 +96,16 @@ namespace model{
     public:
         
         const VectorNcoeff coeffs;
-        const MatrixPorder cM; // the matrix companion
+        const Eigen::MatrixXd cM; // the matrix companion
         const EigenSolverType es;
+        const size_t rootSize;
+
         
         MatrixCompanion(const VectorNcoeff& coeffsIN) :
         /* init list */ coeffs(coeffsIN),
         /* init list */ cM(getCM(coeffsIN)),
-        /* init list */ es(cM)
+        /* init list */ es(cM),
+        /* init list */ rootSize(cM.rows())
         {
             
         }

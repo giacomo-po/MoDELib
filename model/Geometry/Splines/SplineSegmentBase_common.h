@@ -258,7 +258,8 @@ std::pair<double,std::pair<double,VectorDim> > closestPoint(const VectorDim& P0)
     // sort roots according to distance to P0
     std::map<double,std::pair<double,VectorDim> > rootMap;
     
-    for (int k=0;k<2*Ncoeff-3;++k)
+//    for (int k=0;k<2*Ncoeff-3;++k)
+        for (int k=0;k<mc.rootSize;++k)
     {
         if (std::fabs(mc.root(k).imag())<FLT_EPSILON && mc.root(k).real()>0.0 && mc.root(k).real()<1.0 )
         {
