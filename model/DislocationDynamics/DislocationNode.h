@@ -582,7 +582,7 @@ namespace model
                 {
                     // See if the new position is inside mesh
                     std::set<const Simplex<dim,dim>*> path;
-                    std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<LinkType>::mesh.searchWithGuess(this->get_P()+dX,p_Simplex,path));
+                    const std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<LinkType>::mesh.searchWithGuess(this->get_P()+dX,p_Simplex,path));
                     //p_Simplex=temp.second;
                     
                     
@@ -652,10 +652,17 @@ namespace model
                         }
                         else
                         {
-                            model::cout<<"Coudld not find dL for DislocationNode "<<this->sID<<std::endl;
-                            model::cout<<"temp.first= "<<temp.first<<std::endl;
-                            model::cout<<"meshLocation()= "<<meshLocation()<<std::endl;
-                            model::cout<<"p_Simplex->xID= "<<p_Simplex->xID<<std::endl;
+                            if(temp.first)
+                            {
+                                const VectorDim bndNrml=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*temp.second,10.0);
+                                if(bndNrml.squaredNorm()>0.0)
+                                {
+                                    p_Simplex=temp.second;
+                                    set(L+LatticeVectorType(dX));
+                                    boundaryNormal=bndNrml;
+                                    assert(meshLocation()==onMeshBoundary);
+                                }
+                            }
                         }
                     }
                     else // node is internal and remains internal

@@ -88,8 +88,8 @@ namespace model
 		SingleSplinePlotter(const Eigen::Matrix<scalarType,dim,6>& P0T0P1T1BN, const int& snID_in) :
         /* init list */ snID(snID_in),
 		/* init list */ planeNormal(P0T0P1T1BN.col(5).normalized()),
-		/* init list */ burgers(P0T0P1T1BN.col(4).normalized()),
-        /* init list */ isSessile(std::fabs(planeNormal.dot(burgers))>FLT_EPSILON)
+		/* init list */ burgers(P0T0P1T1BN.col(4)),
+        /* init list */ isSessile(std::fabs(planeNormal.dot(burgers.normalized()))>FLT_EPSILON)
         {
             
 			tubeCircles.reserve(Np); // set the capacity of the vector to speed-up push_back
@@ -170,7 +170,7 @@ namespace model
                     break;
                     
                 default:
-                    colorVector = burgers;
+                    colorVector = burgers.normalized();
                     flipColor(colorVector);
                     break;
             }

@@ -878,7 +878,7 @@ namespace model
             {
                 const double temp= linkIter->second.template arcLength<qOrder,QuadratureRule>();
                 totalLength+=temp;
-                if(linkIter->second.is_boundarySegment() || linkIter->second.sessilePlaneNormal.squaredNorm()>0.0)
+                if(linkIter->second.is_boundarySegment() || linkIter->second.isSessile)
                 {
                     immobileLength+=temp;
                 }

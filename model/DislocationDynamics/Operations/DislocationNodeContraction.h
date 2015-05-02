@@ -233,63 +233,12 @@ namespace model
         /* init list */ DN(DN_in)
         {}
         
-//        /**********************************************************************/
-//        LatticeVectorType lineMeshIntersection(const LatticeLine& line,
-//                                               LatticeVectorType L1,
-//                                               const Simplex<dim,dim>* guess) const
-//        {
-//            const int d2=line.d.squaredNorm(); // minimum (squared) distance along line
-//            assert(d2>0 && "LINE HAS ZERO DIRECTION");
-//            
-//            LatticeVectorType L0=line.P;
-//            std::pair<bool,const Simplex<dim,dim>*> temp=DN.shared.mesh.searchWithGuess(L0.cartesian(),guess);
-//            assert(temp.first && "LINE-MESH-INTERSECTION, STARTING POINT NOT INSIDE MESH");
-//            
-//            //  Bring L1 to line
-//            L1=LatticeVectorType(line.snapToLattice(L1.cartesian()));
-//            
-//            assert((L1-L0).squaredNorm()>0 && "L0 and L1 are the same");
-//            
-//            int n=(L1-L0).dot(line.d)/d2;
-//            
-//            temp=DN.shared.mesh.searchWithGuess(L1.cartesian(),guess);
-//            while (temp.first) // repeat untile L1 is found outside
-//            {
-//                L0=L1;
-//                n*=2;
-//                L1=line.P+n*line.d;
-//                temp=DN.shared.mesh.searchWithGuess(L1.cartesian(),temp.second);
-//            }
-//            
-//            // now L1 is ouside mesh, and L0 is inside
-//            
-//            while((L0-L1).squaredNorm()>d2)
-//            {
-//                LatticeVectorType L3(line.snapToLattice(0.5*(L0.cartesian()+L1.cartesian())));
-//                temp=DN.shared.mesh.searchWithGuess(L3.cartesian(),temp.second);
-//                if (temp.first) // midpoint inside
-//                {
-//                    L0=L3;
-//                }
-//                else
-//                {
-//                    L1=L3;
-//                }
-//            }
-//            
-//            return L0;
-//        }
-        
         /**********************************************************************/
         //        size_t contractWithConstraintCheck(const size_t& i, const size_t& j)
         size_t contractWithConstraintCheck(const isNetworkNodeType& N1, const isNetworkNodeType& N2)
         {
             
-             // std::cout<<"contractWithConstraintCheck "<<N1.second->sID<<" "<<N2.second->sID<<std::endl;
-            
-            
-            assert(N1.first && "Non-existing node i. Change here");
-            assert(N2.first && "Non-existing node j. Change here");
+//              std::cout<<"contractWithConstraintCheck "<<N1.second->sID<<" "<<N2.second->sID<<std::endl;
             
             size_t contracted(0);
             
@@ -298,14 +247,9 @@ namespace model
             
             const LatticeVectorType& L1=N1.second->get_L();
             const LatticeVectorType& L2=N2.second->get_L();
-            //            const int L12=(L1-L2).squaredNorm();
             
             const bool isBoundaryNode1(N1.second->isBoundaryNode());
             const bool isBoundaryNode2(N2.second->isBoundaryNode());
-            
-            
-            //            const VectorDimD P12=P1-P2;
-            //            const double P12norm(P12.norm());
             
             if((L1-L2).squaredNorm()==0) // points are coincindent, just contract them
             {
@@ -327,8 +271,8 @@ namespace model
                 
                  // std::cout<<"contractWithConstraintCheck: case "<<sizePN1<<" "<<sizePN2<<std::endl;
                 
-                if(sizePN1==1 && sizePN2==1) // nodes constrained to move on planes
-                {
+                if(sizePN1==1 && sizePN2==1)
+                {// nodes constrained to move on planes, both inside mesh
                     PlanePlaneIntersection ppi(*PN1[0],*PN2[0]);
 
                     if(!isBoundaryNode1 && !isBoundaryNode2)
@@ -385,20 +329,53 @@ namespace model
                                 
                             case PlanePlaneIntersection::IntersectionType::incident:
                             {
-//                                PROBLEM HERE
                                   std::cout<<"contractWithConstraintCheck, case 1b2"<<std::endl; // 2 3 5
                                 const LatticeLine line(ppi.P,ppi.d);
-                                LatticeVectorType L0(line.snapToLattice(N1.second->get_P()-5.0*line.d.cartesian().norm()*N1.second->bndNormal())); // here we could also say P2-f*P1.bndNormal, where f is a positive number
-                                LatticeVectorType L1(line.snapToLattice(N1.second->get_P()+5.0*line.d.cartesian().norm()*N1.second->bndNormal())); // here we could also say P2-f*P1.bndNormal, where f is a positive number
+//                                const VectorDimD n1=PN1[0]->n.cartesian().normalized();
+//                                const VectorDimD n2=PN2[0]->n.cartesian().normalized();
+//                                const VectorDimD P(P1+P2);
+//                                const Eigen::Matrix<double,3,2> N((Eigen::Matrix<double,2,3>()<<n1.transpose(),n2.transpose()).finished().transpose());
+//                                const Eigen::Matrix<double,2,1> A((Eigen::Matrix<double,2,1>()<<P1.dot(n1),P2.dot(n2)).finished());
+//                                const Eigen::Matrix<double,2,1> lam=(N.transpose()*N).inverse()*(N.transpose()*P-2.0*A);
 
-                                if((L0-L1).squaredNorm()!=0)
+                                VectorDimD v0=line.snapToLattice(0.5*(P1+P2));
+                                bool v0Inside=DN.shared.mesh.searchWithGuess(v0,N1.second->includingSimplex()).first;
+                                if(!v0Inside)
                                 {
-//                                    L=LatticeVectorType(line.snapToLattice(N2.second->get_P()-15.0*line.d.cartesian().norm()*N1.second->bndNormal()));
-                                    const LatticeLine line2(L0,line.d); // shift origin of line
-                                    LineMeshIntersection lmi(line2,L1,DN.shared.mesh,N1.second->includingSimplex());
-                                    //                                contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,lineMeshIntersection(line2,N1.second->get_L(),N1.second->includingSimplex()));
-                                    contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,lmi.L);
+                                    v0+=10.0*line.d.cartesian();
+                                    v0Inside=DN.shared.mesh.searchWithGuess(v0,N1.second->includingSimplex()).first;
                                 }
+                                if(!v0Inside)
+                                {
+                                    v0-=20.0*line.d.cartesian();
+                                    v0Inside=DN.shared.mesh.searchWithGuess(v0,N1.second->includingSimplex()).first;
+                                }
+                                if(v0Inside)
+                                {
+                                    const LatticeLine line2(LatticeVectorType(v0),line.d); // shift origin of line
+                                    VectorDimD v1=line.snapToLattice(v0+10.0*line.d.cartesian());
+                                    bool v1outside=!DN.shared.mesh.searchWithGuess(v1,N1.second->includingSimplex()).first;
+                                    if(!v1outside)
+                                    {
+                                        v1=line.snapToLattice(v0-10.0*line.d.cartesian());
+                                        v1outside=!DN.shared.mesh.searchWithGuess(v1,N1.second->includingSimplex()).first;
+                                    }
+                                    if(v1outside)
+                                    {
+                                        LineMeshIntersection lmi(line2,LatticeVectorType(v1),DN.shared.mesh,N1.second->includingSimplex());
+                                        contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,lmi.L);
+                                    }
+                                }
+//
+//                                shared.mesh.searchWithGuess
+////                                LatticeVectorType L0(line.snapToLattice(N1.second->get_P()-5.0*line.d.cartesian().norm()*N1.second->bndNormal())); // here we could also say P2-f*P1.bndNormal, where f is a positive number
+////                                LatticeVectorType L1(line.snapToLattice(N1.second->get_P()+5.0*line.d.cartesian().norm()*N1.second->bndNormal())); // here we could also say P2-f*P1.bndNormal, where f is a positive number
+//
+//                                if((L0-L1).squaredNorm()!=0)
+//                                {
+////                                    L=LatticeVectorType(line.snapToLattice(N2.second->get_P()-15.0*line.d.cartesian().norm()*N1.second->bndNormal()));
+//                                    //                                contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,lineMeshIntersection(line2,N1.second->get_L(),N1.second->includingSimplex()));
+//                                }
 
                                 break;
                             }
@@ -465,9 +442,13 @@ namespace model
                                   std::cout<<"contractWithConstraintCheck, case 2b2"<<std::endl; // 2 3 5
 
                                 const LatticeLine line2(N2.second->get_L(),line.d);
-                                LineMeshIntersection lmi(line2,N1.second->get_L(),DN.shared.mesh,N1.second->includingSimplex());
+                                const LatticeVectorType dL(line.d.snapToDirection(N1.second->bndNormal()*10.0));
+                                if(dL.squaredNorm()>0)
+                                {
+                                LineMeshIntersection lmi(line2,N2.second->get_L()+dL,DN.shared.mesh,N1.second->includingSimplex());
 //                                LatticeVectorType L=lineMeshIntersection(line2,N1.second->get_L(),N1.second->includingSimplex());
                                 contracted+=contractWithCommonNeighborCheck(*N2.second,*N1.second,lmi.L);
+                                }
                                 break;
                             }
                                 

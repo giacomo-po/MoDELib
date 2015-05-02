@@ -75,7 +75,7 @@ namespace model
                 if ( !linkIter->second.source->isBoundaryNode() && !linkIter->second.sink->isBoundaryNode()
                     && linkIter->second.chord().normalized().cross(linkIter->second.Burgers.normalized()).norm()<=sinCrossSlipRad
                     && !linkIter->second.isSessile
-                    && linkIter->second.chord().norm()>2.0*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                    && linkIter->second.chord().norm()>2.5*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
                 {
                     const LatticePlaneBase& conjugatePlaneBase=CrossSlipModels::maxRSS(linkIter->second);
                     if(conjugatePlaneBase != linkIter->second.glidePlane.n)
@@ -90,7 +90,7 @@ namespace model
         size_t crossSlip()
         {
             
-            size_t n_nrossSlips(0);
+            size_t  n_crossSlips(0);
             
             //! 2- Loop over container of CrossSlipSegment(s) and perform cross-slip
             for (const auto& css : *this)
@@ -203,11 +203,11 @@ namespace model
                     // expand
                     std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(css.source.sID,css.sink.sID,conjugateL,crossSlipVelocity);
                     assert(temp.second && "COULD NOT DO THIRD EXPANSION IN CROSS SLIP");
-                    n_nrossSlips++;
+                     n_crossSlips++;
                 }
                 
             } // end for loop
-            return n_nrossSlips;
+            return  n_crossSlips;
         }
         
     };
@@ -280,7 +280,7 @@ namespace model
 //                        std::pair<typename NetworkNodeContainerType::iterator,bool> expand3(DN.expand(expand1.first->first,expand2.first->first,LatticeVectorType(conjugatePoint),crossSlipVelocity));
 //                        assert(expand3.second && "COULD NOT DO THIRD EXPANSION IN CROSS SLIP");
 //
-//                        n_nrossSlips++;
+//                         n_crossSlips++;
 //                    }
 
 

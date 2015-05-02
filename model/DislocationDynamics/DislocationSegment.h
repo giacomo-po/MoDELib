@@ -752,7 +752,7 @@ namespace model
                         
                         if(PC<=R) // intersection point is inside circle
                         {
-                            const VectorDim n((this->source->get_boundaryNormal()+this->sink->get_boundaryNormal()).normalized());
+                            const VectorDim n((this->source->bndNormal()+this->sink->bndNormal()).normalized());
                             const double PCn=(P-C).dot(n);
                             if(PCn>0.0) // external side of loop
                             {
