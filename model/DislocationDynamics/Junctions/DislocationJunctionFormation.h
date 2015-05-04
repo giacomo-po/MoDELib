@@ -462,7 +462,7 @@ namespace model
                     const isNetworkLinkType L1(DN.link(key1.first,key1.second));
                     const isNetworkLinkType L2(DN.link(key2.first,key2.second));
                     
-                    // std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[tt][interID]. first.second<<","<<intersectionContainer[tt][interID]. second.second<<std::endl;
+                     std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[tt][interID]. first.second<<","<<intersectionContainer[tt][interID]. second.second<<std::endl;
                     
                     if(L1.first && L2.first) // Links exist
                     {
@@ -480,15 +480,15 @@ namespace model
                         {
                             case +1:
                             {
-                                // std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
-                                // std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
+                                 std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
+                                 std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
                                 if(im!=jm)
                                 {
                                     const isNetworkNodeType N1=DN.node(im);
                                     const isNetworkNodeType N2=DN.node(jm);
                                     if(N1.first && N2.first)
                                     {
-                                        //// std::cout<<"first contract +1 "<<std::endl;
+                                        std::cout<<"first contract +1 "<<std::endl;
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -498,7 +498,7 @@ namespace model
                                     const isNetworkNodeType N2=DN.node(jp);
                                     if(N1.first && N2.first)
                                     {
-                                        //// std::cout<<"second contract +1 "<<std::endl;
+                                        std::cout<<"second contract +1 "<<std::endl;
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -507,15 +507,15 @@ namespace model
                                 
                             case -1:
                             {
-                                // std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
-                                // std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
+                                 std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
+                                 std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
                                 if(im!=jp)
                                 {
                                     const isNetworkNodeType N1=DN.node(im);
                                     const isNetworkNodeType N2=DN.node(jp);
                                     if(N1.first && N2.first)
                                     {
-                                        //// std::cout<<"first contract -1 "<<std::endl;
+                                         std::cout<<"first contract -1 "<<std::endl;
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -525,7 +525,7 @@ namespace model
                                     const isNetworkNodeType N2=DN.node(jm);
                                     if(N1.first && N2.first)
                                     {
-                                        //// std::cout<<"second contract -1 "<<std::endl;
+                                         std::cout<<"second contract -1 "<<std::endl;
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }

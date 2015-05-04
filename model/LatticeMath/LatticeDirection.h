@@ -41,6 +41,10 @@ namespace model
 //            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
         }
         
+//        LatticeDirection(const VectorDimD& d):
+//        /* delegating */ LatticeDirection(LatticeVectorType(d))
+//        {}
+        
         /**********************************************************************/
         VectorDimD snapToDirection(const VectorDimD& dP) const
         {
