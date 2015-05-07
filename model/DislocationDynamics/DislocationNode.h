@@ -126,7 +126,40 @@ namespace model
             return temp.second;
         }
         
-        
+        /**********************************************************************/
+        void forceBoundaryNode(const ExpandingEdge<LinkType>& pL)
+        {
+            if(shared.use_boundary)
+            {
+                if(pL.E.is_boundarySegment() && !isBoundaryNode())
+                {
+                    const VectorDim nb=(pL.E.source->bndNormal()+pL.E.sink->bndNormal()).normalized();
+                    const VectorDim np=pL.E.glidePlane.n.cartesian().normalized();
+                    VectorDim outDir=nb-nb.dot(np)*np;
+                    if(outDir.squaredNorm()>0)
+                    {
+                        outDir.normalize();
+                        LatticeVectorType dL(pL.E.glidePlane.n.snapToLattice(outDir));
+                        assert(dL.squaredNorm()>0.0);
+                        LatticeLine line(L,dL);
+                        LineMeshIntersection lmi(line,L+dL,shared.mesh,p_Simplex);
+                        if(lmi.search.first)
+                        {
+                            p_Simplex=lmi.search.second;
+                            set(lmi.L);
+                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0);
+                            if(!isBoundaryNode())
+                            {
+                                std::cout<<"DislocaitonNode "<<this->sID<<" not on mesh boundary"<<std::endl;
+                                std::cout<<"dL="<<dL.transpose()<<std::endl;
+                            }
+                            assert(isBoundaryNode());
+                        }
+                    }
+                    
+                }
+            }
+        }
         
         
         
@@ -148,20 +181,6 @@ namespace model
           */
         }
         
-        //        /**********************************************************************/
-        //		DislocationNode(const ExpandingEdge<LinkType>& pL, const double& u) :
-        //        /* base constructor */ NodeBaseType(pL,u),
-        //        /* init list        */ L(Qin),
-        //        /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
-        //        /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-        //        /* init list        */ vOld(velocity),
-        //        /* init list        */ velocityReductionCoeff(1.0),
-        //        /* init list        */ boundaryNormal(SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0)),
-        //        /* init list        */ regionBndNormal(VectorDim::Zero())
-        //        {/*! Constructor from ExpandingEdge and parameter along link
-        //          */
-        //		}
-        
         /**********************************************************************/
         DislocationNode(const ExpandingEdge<LinkType>& pL,
                         const LatticeVectorType& Lin) :
@@ -175,35 +194,7 @@ namespace model
         /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from ExpandingEdge and DOF
           */
-            
-//            if(shared.use_boundary)
-//            {
-//                if(pL.E.is_boundarySegment() && !isBoundaryNode())
-//                {
-//                    const VectorDim nb=(pL.E.source->bndNormal()+pL.E.sink->bndNormal()).normalized();
-//                    const VectorDim np=pL.E.glidePlane.n.cartesian().normalized();
-//                    const VectorDim dv=pL.E.glidePlane.snapToLattice(2.0*(nb-nb.dot(np)*np));
-//                    if(dv.squaredNorm()>0)
-//                    {
-//                        LatticeVectorType dL(dv);
-//                        LatticeLine line(L,dL);
-//                        LineMeshIntersection lmi(line,L+dL,shared.mesh,p_Simplex);
-//                        if(lmi.search.first)
-//                        {
-//                            p_Simplex=lmi.search.second;
-//                            set(lmi.L);
-//                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0);
-////                            assert(meshLocation()==onMeshBoundary);
-//                            if(meshLocation()!=onMeshBoundary)
-//                            {
-//                                std::cout<<"DislocaitonNode "<<this->sID<<" not on mesh boundary"<<std::endl;
-//                            }
-//                        }
-//                    }
-//                    
-//                }
-//            }
-            
+            forceBoundaryNode(pL);
         }
         
         /**********************************************************************/
@@ -219,30 +210,7 @@ namespace model
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0) : VectorDim::Zero()),
         /* init list        */ regionBndNormal(VectorDim::Zero())
         {
-//            if(shared.use_boundary)
-//            {
-//                if(pL.E.is_boundarySegment() && !isBoundaryNode())
-//                {
-//                    const VectorDim nb=(pL.E.source->bndNormal()+pL.E.sink->bndNormal()).normalized();
-//                    const VectorDim np=pL.E.glidePlane.n.cartesian().normalized();
-//                    const VectorDim dv=pL.E.glidePlane.snapToLattice(2.0*(nb-nb.dot(np)*np));
-//                    if(dv.squaredNorm()>0)
-//                    {
-//                        LatticeVectorType dL(dv);
-//                        LatticeLine line(L,dL);
-//                        LineMeshIntersection lmi(line,L+dL,shared.mesh,p_Simplex);
-//                        if(lmi.search.first)
-//                        {
-//                            p_Simplex=lmi.search.second;
-//                            set(lmi.L);
-//                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0);
-//                            assert(meshLocation()==onMeshBoundary);
-//                        }
-//                    }
-//                    
-//                }
-//            }
-            
+            forceBoundaryNode(pL);
         }
         
         /**********************************************************************/
@@ -335,7 +303,6 @@ namespace model
             
         }
         
-        
         /**********************************************************************/
         void removeFromNeighborhood(LinkType* const pL)
         {/*!@param[in] pL A pointer to the DislocationSegment being disconnected
@@ -365,111 +332,6 @@ namespace model
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
             NodeBaseType::make_T();
         }
-        
-        //        /**********************************************************************/
-        //        VectorDim get_boundaryNormal(const VectorDim& P0,const Simplex<dim,dim>& simplex) const
-        //        {
-        //            const double dmax=10.0;
-        //
-        //            VectorDim temp(VectorDim::Zero());
-        //            if (shared.use_boundary)
-        //            {
-        //
-        //                const Eigen::Matrix<double,dim+1,1> bary(simplex.pos2bary(P0));
-        //
-        //                //std::cout<<"DislocationNode "<<this->sID<<std::endl;
-        //                //std::cout<<"Simplex="<<p_Simplex->xID<<std::endl;
-        //                //std::cout<<"Simplex is boundary="<<p_Simplex->isBoundarySimplex()<<std::endl;
-        //
-        //                // 1) check if P is close to a boundary face
-        //                for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
-        //                {
-        //
-        //                    const double h=3.0*p_Simplex->vol0/p_Simplex->child(f).vol0*bary(f); // distance from f-th face
-        //
-        //                    //std::cout<<"f= "<<f<<std::endl;
-        //                    //std::cout<<"child(f)= "<<p_Simplex->child(f).xID<<std::endl;
-        //                    //std::cout<<"h="<<h<<std::endl;
-        //
-        //                    if(p_Simplex->child(f).isBoundarySimplex() && h>=0.0 && h<dmax)
-        //                    {
-        //                        temp=p_Simplex->nda.col(f).normalized();
-        //                        break;
-        //                    }
-        //                }
-        //
-        //
-        //                // 2) check if P is close to a boundary edge
-        //                if(temp.squaredNorm()==0.0) // no boundary face was found
-        //                {
-        //                    for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
-        //                    {
-        //                        //std::cout<<"f= "<<f<<std::endl;
-        //                        //std::cout<<"child(f)= "<<p_Simplex->child(f).xID<<std::endl;
-        //
-        //
-        //                        for(int e=0;e<3;++e)
-        //                        {
-        //
-        //                            //std::cout<<"e= "<<e<<std::endl;
-        //                            //std::cout<<"child(e)= "<<p_Simplex->child(f).child(e).xID<<std::endl;
-        //                            //std::cout<<"child(e) is boundary= "<<p_Simplex->child(f).child(e).isBoundarySimplex()<<std::endl;
-        //
-        //                            const VectorDim& x1=p_Simplex->child(f).child(e).child(0).P0;
-        //                            const VectorDim& x2=p_Simplex->child(f).child(e).child(1).P0;
-        //                            const VectorDim& x0=this->get_P();
-        //                            const double d=(x0-x1).cross(x0-x2).norm()/(x2-x1).norm(); // distance to edge
-        //
-        //                            //std::cout<<"d="<<d<<std::endl;
-        //
-        //                            if(d<dmax && p_Simplex->child(f).child(e).isBoundarySimplex()) // point close to edge, and edge is on boundary
-        //                            {
-        //                                for(const auto& parent : p_Simplex->child(f).child(e).parents())
-        //                                {
-        //                                    if(parent->isBoundarySimplex())
-        //                                    {
-        //                                        temp+=p_Simplex->nda.col(f).normalized();
-        //                                    }
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-        //                    const double tempNorm(temp.norm());
-        //                    if(tempNorm)
-        //                    {
-        //                        temp.normalize();
-        //                    }
-        //
-        //                }
-        //
-        //                // check if P is close to a boundary vertex
-        //                if(temp.squaredNorm()==0.0) // no boundary face was found
-        //                {
-        //                    for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
-        //                    {
-        //                        for(int e=0;e<3;++e)
-        //                        {
-        //                            for(int v=0;v<2;++v)
-        //                            {
-        //                                if((p_Simplex->child(f).child(e).child(v).P0-this->get_P()).norm()<dmax && p_Simplex->child(f).child(e).child(v).isBoundarySimplex())
-        //                                {
-        //                                    temp+=p_Simplex->nda.col(f).normalized();
-        //
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-        //
-        //                    const double tempNorm(temp.norm());
-        //                    if(tempNorm)
-        //                    {
-        //                        temp.normalize();
-        //                    }
-        //                }
-        //
-        //            }
-        //            return temp;
-        //        }
         
         /**********************************************************************/
         VectorOfNormalsType constraintNormals() const

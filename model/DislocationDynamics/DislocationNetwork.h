@@ -191,19 +191,24 @@ namespace model
             
             //			double vmax(0.0);
             vmax=0.0;
+            int nVmean=0;
             double vmean=0.0;
             double dt_mean=0.0;
             
             for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
             {
-                const double vNorm(nodeIter->second.get_V().norm());
-                vmean +=vNorm;
-                if (vNorm>vmax)
+                if(!nodeIter->second.isBoundaryNode())
                 {
-                    vmax=vNorm;
+                    const double vNorm(nodeIter->second.get_V().norm());
+                    vmean +=vNorm;
+                    nVmean++;
+                    if (vNorm>vmax)
+                    {
+                        vmax=vNorm;
+                    }
                 }
             }
-            vmean/=NetworkNodeContainerType::size();
+            vmean/=nVmean;
             
             //double shearWaveSpeedFraction(0.01);
             //short unsigned int shearWaveExp=1;

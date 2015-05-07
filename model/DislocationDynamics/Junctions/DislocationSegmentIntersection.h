@@ -305,7 +305,7 @@ namespace model {
                     {
                         case 1: // coplanar planes
                         {
-                            //                        											//std::cout<<"Coplanar case ";
+                            //                        											////std::cout<<"Coplanar case ";
                             const Eigen::Matrix<double,dim,dim> R1(DislocationLocalReference<dim>::global2local(chord1,n1));
                             
                             Eigen::Matrix<double,dim-1,polyCoeff> H1L;
@@ -330,7 +330,7 @@ namespace model {
                             
                         case 2: // incident planes
                         {
-                            //                       						//std::cout<<"Incident case ";
+                            //                       						////std::cout<<"Incident case ";
                             std::set<std::pair<double,double> > lineIntersectionParameters1;
                             std::set<std::pair<double,double> > lineIntersectionParameters2;
                             

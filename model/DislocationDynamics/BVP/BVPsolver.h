@@ -22,7 +22,8 @@
 #include <model/DislocationDynamics/BVP/BoundaryDisplacementPoint.h>
 #include <model/DislocationDynamics/BVP/BoundaryStressPoint.h>
 #include <model/FEM/Domains/LinearWeakList.h>
-#include <model/Utilities/RuntimeError.h>
+//
+//#include <model/Utilities/RuntimeError.h>
 
 namespace model
 {
@@ -276,7 +277,6 @@ namespace model
                     }
                 }
                 const double sNorm(s.norm());
-                RuntimeError(sNorm>FLT_EPSILON,"s-vector has zero norm.");
 //                assert(sNorm>0.0 && "s-vector has zero norm.");
                 fieldPoints.emplace_back(*node,s/sNorm);
             }

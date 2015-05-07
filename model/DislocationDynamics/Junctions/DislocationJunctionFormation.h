@@ -364,6 +364,7 @@ namespace model
                             
                             //std::cout<<" ("<<temp.size()<<" intersections):"<<std::endl;
 
+                            const double avoidNodeIntersection=0.1;
                             
                             for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter)
                             {
@@ -371,25 +372,25 @@ namespace model
                                 //                                && paramIter->second>avoidNodeIntersection && paramIter->second<1.0-avoidNodeIntersection) // avoid node intersection
                                 //                            {
                                 
-//                                const bool intersectionIsSourceSource(   paramIter->first  <avoidNodeIntersection
-//                                                                      && paramIter->second <avoidNodeIntersection
-//                                                                      && linkIterA->second.source->sID==linkIterB->second.source->sID);
-//                                
-//                                const bool   intersectionIsSourceSink(   paramIter->first  <avoidNodeIntersection
-//                                                                      && paramIter->second >1.0-avoidNodeIntersection
-//                                                                      && linkIterA->second.source->sID==linkIterB->second.sink->sID);
-//                                
-//                                const bool   intersectionIsSinkSource(   paramIter->first  > 1.0-avoidNodeIntersection
-//                                                                      && paramIter->second <avoidNodeIntersection
-//                                                                      && linkIterA->second.sink->sID==linkIterB->second.source->sID);
-//                                
-//                                const bool     intersectionIsSinkSink(   paramIter->first  > 1.0-avoidNodeIntersection
-//                                                                      && paramIter->second > 1.0-avoidNodeIntersection
-//                                                                      && linkIterA->second.sink->sID==linkIterB->second.sink->sID);
-//                                
-//                                
-//                                if(!intersectionIsSourceSource && !intersectionIsSourceSink && !intersectionIsSinkSource && !intersectionIsSinkSink)
-//                                {
+                                const bool intersectionIsSourceSource(   paramIter->first  <avoidNodeIntersection
+                                                                      && paramIter->second <avoidNodeIntersection
+                                                                      && linkIterA->second.source->sID==linkIterB->second.source->sID);
+                                
+                                const bool   intersectionIsSourceSink(   paramIter->first  <avoidNodeIntersection
+                                                                      && paramIter->second >1.0-avoidNodeIntersection
+                                                                      && linkIterA->second.source->sID==linkIterB->second.sink->sID);
+                                
+                                const bool   intersectionIsSinkSource(   paramIter->first  > 1.0-avoidNodeIntersection
+                                                                      && paramIter->second <avoidNodeIntersection
+                                                                      && linkIterA->second.sink->sID==linkIterB->second.source->sID);
+                                
+                                const bool     intersectionIsSinkSink(   paramIter->first  > 1.0-avoidNodeIntersection
+                                                                      && paramIter->second > 1.0-avoidNodeIntersection
+                                                                      && linkIterA->second.sink->sID==linkIterB->second.sink->sID);
+                                
+                                
+                                if(!intersectionIsSourceSource && !intersectionIsSourceSink && !intersectionIsSinkSource && !intersectionIsSinkSink)
+                                {
                                     EdgeIntersectionType intersectionOnA(std::make_pair(linkIterA->second.nodeIDPair,paramIter->first ));
                                     EdgeIntersectionType intersectionOnB(std::make_pair(linkIterB->second.nodeIDPair,paramIter->second));
                                     const int dir(junctionDir(linkIterA->second,linkIterB->second,paramIter->first,paramIter->second));
@@ -406,7 +407,7 @@ namespace model
                                         dirVector[0].emplace_back(dir);
 #endif
                                     }
-//                                }
+                                }
                             } // end for
                         } // end don't self-intersect
                     } // end loop over second segment
