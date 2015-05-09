@@ -68,7 +68,7 @@ namespace model
 				
                 
                 
-                const int nN(BsV.size());
+                const size_t nN(BsV.size());
                 
                 // 5- reset edgeConfiguration
 //				dN.edgeConfiguration.setZero(nN);

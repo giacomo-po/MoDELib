@@ -286,7 +286,7 @@ namespace model
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-            for (int thread=0;thread<eir.size();thread++)
+            for (size_t thread=0;thread<eir.size();thread++)
             {
                 for (typename NetworkLinkContainerType::const_iterator linkIterA=eir[thread].first;linkIterA!=eir[thread].second;linkIterA++)
                     //            for (typename NetworkLinkContainerType::const_iterator linkIterA=DN.linkBegin();linkIterA!=DN.linkEnd();linkIterA++)
@@ -416,7 +416,7 @@ namespace model
             
             
             int nIntersections=0;
-            for (int tt=0;tt<intersectionContainer.size();++tt)
+            for (size_t tt=0;tt<intersectionContainer.size();++tt)
             {
                 assert(intersectionContainer[tt].size()==dirVector[tt].size());
                 nIntersections+=intersectionContainer[tt].size();
@@ -453,7 +453,7 @@ namespace model
             typedef std::pair<size_t,size_t> EdgeIDType;
             
             
-            for (int tt=0;tt<intersectionContainer.size();++tt)
+            for (size_t tt=0;tt<intersectionContainer.size();++tt)
             {
                 for (size_t interID=0;interID!=intersectionContainer[tt].size();++interID)
                 {
@@ -568,7 +568,7 @@ namespace model
             
             int broken=0;
             
-            for(int n=0;n<nodeDecomp.size();++n)
+            for(size_t n=0;n<nodeDecomp.size();++n)
             {
                 const size_t& i=nodeDecomp[n].first;
                 auto Ni=DN.node(i);

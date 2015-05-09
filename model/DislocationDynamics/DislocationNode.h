@@ -884,7 +884,7 @@ namespace model
                         //                        {
                         //                           //std::cout<<v<<std::endl;
                         //                        }
-                        for(int n=0;n<neighSize;++n)
+                        for(size_t n=0;n<neighSize;++n)
                         {
                             if(vecVec[0](n)!=0)
                             {

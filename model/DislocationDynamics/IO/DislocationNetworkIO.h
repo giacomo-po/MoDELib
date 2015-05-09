@@ -268,7 +268,7 @@ namespace model
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
                 {
                     const int qOrder(linkIter->second.rgauss.cols());
-                    for (int q=0;q<linkIter->second.quadratureParticleContainer.size();++q)
+                    for (size_t q=0;q<linkIter->second.quadratureParticleContainer.size();++q)
                     {
                         w_file << ll*qOrder+q<<" "<< linkIter->second.rgauss.col(q).transpose()<<" "<< linkIter->second.quadratureParticleContainer[q]->template field<ElasticEnergy>()<<"\n";
                     }

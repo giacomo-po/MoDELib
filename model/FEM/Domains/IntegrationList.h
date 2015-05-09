@@ -47,7 +47,7 @@ namespace model
             
             model::cout<<"Creating IntegrationList (size "<<this->size()<<"->"<<std::flush;
             const auto t0= std::chrono::system_clock::now();
-            for (int k=0;k<domain.size();++k)
+            for (size_t k=0;k<domain.size();++k)
             {
                 const ElementType& ele(*domain[k].first);  // element ID
                 const int f(domain[k].second); //    face ID

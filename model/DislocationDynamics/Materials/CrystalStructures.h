@@ -13,7 +13,6 @@
 #include <vector>
 #include <Eigen/Dense>
 
-//#include <model/DislocationDynamics/Materials/SlipSystem.h>
 #include <model/LatticeMath/LatticeMath.h>
 
 namespace model
@@ -31,9 +30,6 @@ namespace model
           */
             
             Eigen::Matrix<double,dim,dim> temp;
-//            temp << 1.0, 0.0, 1.0,
-//            /*   */ 1.0, 1.0, 0.0,
-//            /*   */ 0.0, 1.0, 1.0;
             temp << 0.0, 1.0, 1.0,
             /*   */ 1.0, 0.0, 1.0,
             /*   */ 1.0, 1.0, 0.0;
@@ -41,49 +37,6 @@ namespace model
             return temp/sqrt(2.0);
         }
         
-        template <int dim>
-        static std::vector<Eigen::Matrix<double,dim,1> > getPlaneNormals()
-        {
-            typedef Eigen::Matrix<double,dim,1> VectorDim;
-            typedef std::vector<VectorDim> PlaneNormalContainerType;
-            PlaneNormalContainerType temp;
-
-            VectorDim alpha(-1.0, 1.0,-1.0);
-			VectorDim  beta( 1.0,-1.0,-1.0);
-			VectorDim gamma(-1.0,-1.0, 1.0);
-			VectorDim delta( 1.0, 1.0, 1.0);
-            
-            temp.push_back(alpha);
-            temp.push_back(beta);
-            temp.push_back(gamma);
-            temp.push_back(delta);
-            
-            return temp;
-        }
-        
-//        template <int dim>
-//        static std::vector<ReciprocalLatticeDirection<dim>> reciprocalPlaneNormals()
-//        {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
-//          * the slip plane normals of the FCC lattice
-//          */
-//            typedef Eigen::Matrix<long int,dim,1> VectorDimI;
-//            typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
-//            typedef std::vector<ReciprocalLatticeDirectionType> ReciprocalPlaneNormalContainerType;
-//            ReciprocalPlaneNormalContainerType temp;
-//            
-//            ReciprocalLatticeDirectionType alpha(VectorDimI( 0, 0,-1)); // is (-1, 1,-1) in cartesian
-//            ReciprocalLatticeDirectionType  beta(VectorDimI( 0,-1, 0)); // is ( 1,-1,-1) in cartesian
-//            ReciprocalLatticeDirectionType gamma(VectorDimI(-1, 0, 0)); // is (-1,-1, 1) in cartesian
-//            ReciprocalLatticeDirectionType delta(VectorDimI( 1, 1, 1)); // is ( 1, 1, 1) in cartesian
-//            
-//            temp.push_back(alpha);
-//            temp.push_back(beta);
-//            temp.push_back(gamma);
-//            temp.push_back(delta);
-//            
-//            return temp;
-//        }
-
         template <int dim>
         static std::vector<LatticePlaneBase> reciprocalPlaneNormals()
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
@@ -113,8 +66,9 @@ namespace model
 
         
     };
-    /**************************************************************************/
     
+    /**************************************************************************/
+    /**************************************************************************/
     struct BCC
     {
         
@@ -132,87 +86,6 @@ namespace model
             return temp/sqrt(3.0);
         }
         
-        template <int dim>
-        static std::vector<Eigen::Matrix<double,dim,1> > getPlaneNormals()
-        {
-            typedef Eigen::Matrix<double,dim,1> VectorDim;
-            typedef std::vector<VectorDim> PlaneNormalContainerType;
-            PlaneNormalContainerType temp;
-
-             // 6 {110} slip planes with 2 <111> slip directiosn = 12 slip systems
-            VectorDim system1_alpha(0.0,1.0,1.0);
-			VectorDim system1_beta( 1.0,0.0,1.0);
-			VectorDim system1_gamma(1.0,-1.0,0.0);
-			VectorDim system1_delta(0.0, 1.0, -1.0);
-            VectorDim system1_epsilon(1.0,1.0, 0.0);
-			VectorDim system1_zeta( 1.0,0.0, -1.0);
-            
-            temp.push_back(system1_alpha);
-            temp.push_back(system1_beta);
-            temp.push_back(system1_gamma);
-            temp.push_back(system1_delta);
-            temp.push_back(system1_epsilon);
-            temp.push_back(system1_zeta);
-            
-            // 12 {211} slip planes with 1 <111> slip directiosn = 12 slip systems
-            VectorDim system2_alpha(2.0,-1.0,1.0);
-			VectorDim system2_beta( 1.0,-2.0,-1.0);
-			VectorDim system2_gamma(1.0,1.0,2.0);
-			VectorDim system2_delta(2.0, 1.0, 1.0);
-            VectorDim system2_epsilon(1.0,2.0,-1.0);
-			VectorDim system2_zeta( 1.0, -1.0,2.0);
-            VectorDim system2_eta(2.0,1.0,-1.0);
-			VectorDim system2_iota( 1.0,2.0,1.0);
-			VectorDim system2_kappa(1.0,-1.0,-2.0);
-			VectorDim system2_lambda(2.0,-1.0,-1.0);
-            VectorDim system2_mu(1.0,-2.0,1.0);
-			VectorDim system2_nu( 1.0,1.0,-2.0);
-            
-            temp.push_back(system2_alpha);
-            temp.push_back(system2_beta);
-            temp.push_back(system2_gamma);
-            temp.push_back(system2_delta);
-            temp.push_back(system2_epsilon);
-            temp.push_back(system2_zeta);
-            temp.push_back(system2_eta);
-            temp.push_back(system2_iota);
-            temp.push_back(system2_kappa);
-            temp.push_back(system2_lambda);
-            temp.push_back(system2_mu);
-            temp.push_back(system2_nu);
-            
-            
-            return temp;
-        }
-
-
-//        template <int dim>
-//        static std::vector<ReciprocalLatticeDirection<dim>> reciprocalPlaneNormals()
-//        {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
-//          * the slip plane normals of the FCC lattice
-//          */
-//            typedef Eigen::Matrix<long int,dim,1> VectorDimI;
-//            typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
-//            typedef std::vector<ReciprocalLatticeDirectionType> ReciprocalPlaneNormalContainerType;
-//            ReciprocalPlaneNormalContainerType temp;
-//            
-//            ReciprocalLatticeDirectionType   alpha(VectorDimI( 0, 1, 0)); // is ( 0, 1, 1) in cartesian
-//            ReciprocalLatticeDirectionType    beta(VectorDimI( 0, 0, 1)); // is ( 1, 0, 1) in cartesian
-//            ReciprocalLatticeDirectionType   gamma(VectorDimI( 0,-1, 1)); // is ( 1,-1, 0) in cartesian
-//            ReciprocalLatticeDirectionType   delta(VectorDimI( 1, 0,-1)); // is ( 0, 1,-1) in cartesian
-//            ReciprocalLatticeDirectionType epsilon(VectorDimI( 1, 0, 0)); // is ( 1, 1, 0) in cartesian
-//            ReciprocalLatticeDirectionType     phi(VectorDimI( 1,-1, 0)); // is ( 1, 0,-1) in cartesian
-//            
-//            temp.push_back(alpha);
-//            temp.push_back(beta);
-//            temp.push_back(gamma);
-//            temp.push_back(delta);
-//            temp.push_back(epsilon);
-//            temp.push_back(phi);
-//            
-//            return temp;
-//        }
-
         template <int dim>
         static std::vector<LatticePlaneBase> reciprocalPlaneNormals()
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
@@ -244,6 +117,79 @@ namespace model
 } // namespace model
 #endif
 
+
+//        template <int dim>
+//        static std::vector<Eigen::Matrix<double,dim,1> > getPlaneNormals()
+//        {
+//            typedef Eigen::Matrix<double,dim,1> VectorDim;
+//            typedef std::vector<VectorDim> PlaneNormalContainerType;
+//            PlaneNormalContainerType temp;
+//
+//            VectorDim alpha(-1.0, 1.0,-1.0);
+//			VectorDim  beta( 1.0,-1.0,-1.0);
+//			VectorDim gamma(-1.0,-1.0, 1.0);
+//			VectorDim delta( 1.0, 1.0, 1.0);
+//
+//            temp.push_back(alpha);
+//            temp.push_back(beta);
+//            temp.push_back(gamma);
+//            temp.push_back(delta);
+//
+//            return temp;
+//        }
+
+//        template <int dim>
+//        static std::vector<Eigen::Matrix<double,dim,1> > getPlaneNormals()
+//        {
+//            typedef Eigen::Matrix<double,dim,1> VectorDim;
+//            typedef std::vector<VectorDim> PlaneNormalContainerType;
+//            PlaneNormalContainerType temp;
+//
+//             // 6 {110} slip planes with 2 <111> slip directiosn = 12 slip systems
+//            VectorDim system1_alpha(0.0,1.0,1.0);
+//			VectorDim system1_beta( 1.0,0.0,1.0);
+//			VectorDim system1_gamma(1.0,-1.0,0.0);
+//			VectorDim system1_delta(0.0, 1.0, -1.0);
+//            VectorDim system1_epsilon(1.0,1.0, 0.0);
+//			VectorDim system1_zeta( 1.0,0.0, -1.0);
+//
+//            temp.push_back(system1_alpha);
+//            temp.push_back(system1_beta);
+//            temp.push_back(system1_gamma);
+//            temp.push_back(system1_delta);
+//            temp.push_back(system1_epsilon);
+//            temp.push_back(system1_zeta);
+//
+//            // 12 {211} slip planes with 1 <111> slip directiosn = 12 slip systems
+//            VectorDim system2_alpha(2.0,-1.0,1.0);
+//			VectorDim system2_beta( 1.0,-2.0,-1.0);
+//			VectorDim system2_gamma(1.0,1.0,2.0);
+//			VectorDim system2_delta(2.0, 1.0, 1.0);
+//            VectorDim system2_epsilon(1.0,2.0,-1.0);
+//			VectorDim system2_zeta( 1.0, -1.0,2.0);
+//            VectorDim system2_eta(2.0,1.0,-1.0);
+//			VectorDim system2_iota( 1.0,2.0,1.0);
+//			VectorDim system2_kappa(1.0,-1.0,-2.0);
+//			VectorDim system2_lambda(2.0,-1.0,-1.0);
+//            VectorDim system2_mu(1.0,-2.0,1.0);
+//			VectorDim system2_nu( 1.0,1.0,-2.0);
+//
+//            temp.push_back(system2_alpha);
+//            temp.push_back(system2_beta);
+//            temp.push_back(system2_gamma);
+//            temp.push_back(system2_delta);
+//            temp.push_back(system2_epsilon);
+//            temp.push_back(system2_zeta);
+//            temp.push_back(system2_eta);
+//            temp.push_back(system2_iota);
+//            temp.push_back(system2_kappa);
+//            temp.push_back(system2_lambda);
+//            temp.push_back(system2_mu);
+//            temp.push_back(system2_nu);
+//
+//
+//            return temp;
+//        }
 
 //        /**************************************************************************/
 //        template <int dim>

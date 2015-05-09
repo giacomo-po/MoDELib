@@ -68,14 +68,14 @@ int sinkTfactor;   // LEAVE THIS UNINITIALIZED: this is calculated in TopologyCh
 
 VectorDim sourceT() const
 {
-	return this->source->get_T()*sourceTfactor;
+    return this->source->get_T()*sourceTfactor;
 }
 
 VectorDim sinkT() const
 {
-	//AFTER INTRODUCING THE ENERGY CRITERION CHANGE THIS IN A -1
-	return -this->sink->get_T()*sinkTfactor;
-	//return this->sink->get_T()*sinkTfactor;
+    //AFTER INTRODUCING THE ENERGY CRITERION CHANGE THIS IN A -1
+    return -this->sink->get_T()*sinkTfactor;
+    //return this->sink->get_T()*sinkTfactor;
 }
 
 public:
@@ -123,110 +123,110 @@ SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in,
 VectorDim chord() const
 {/*!\returns the chord vector (source -> sink)
   */
-	return this->sink->get_P()-this->source->get_P();
+    return this->sink->get_P()-this->source->get_P();
 }
 
 /******************************************************************************/
 double chordLength() const
 {/*!\returns the length of the chord vector
   */
-	return chord().norm();
+    return chord().norm();
 }
 
 /******************************************************************************/
 RowNcoeff get_SF(const double & uin) const
 {
-	return get_UPOW(uin)*get_SFCH();
+    return get_UPOW(uin)*get_SFCH();
 }
 
 /******************************************************************************/
 RowNcoeff get_SFu(const double & uin) const
 {
-	return get_UPOWu(uin)*get_SFCH().template block<Ncoeff-1,Ncoeff>(1,0);
+    return get_UPOWu(uin)*get_SFCH().template block<Ncoeff-1,Ncoeff>(1,0);
 }
 
 /******************************************************************************/
 RowNcoeff get_SFuu(const double & uin) const
 {
-	return  get_UPOWuu(uin)*get_SFCH().template block<Ncoeff-2,Ncoeff>(2,0);
+    return  get_UPOWuu(uin)*get_SFCH().template block<Ncoeff-2,Ncoeff>(2,0);
 }
 
 /******************************************************************************/
 VectorDim get_r(const double & u) const {
-	/*! The position vector at parameter u
-	 *  @param[in] u the parametrization variable in [0:1]
-	 *	\f[
-	 *		\mathbf{r} = \mathbf{q}\mathbf{H}\mathbf{u} \\
-	 *		r_i = q_{ik}H_{km}u^{m} = q_{ik} N_k
-	 *	\f]
-	 * with i=0..dim-1, k,m = 0... Ncoeff
-	 * ACTUALLY IN THE CODE WE HAVE THE TRANSPOSE OF THIS !!!!
-	 */
-	return get_SF(u)*get_qH();
+    /*! The position vector at parameter u
+     *  @param[in] u the parametrization variable in [0:1]
+     *	\f[
+     *		\mathbf{r} = \mathbf{q}\mathbf{H}\mathbf{u} \\
+     *		r_i = q_{ik}H_{km}u^{m} = q_{ik} N_k
+     *	\f]
+     * with i=0..dim-1, k,m = 0... Ncoeff
+     * ACTUALLY IN THE CODE WE HAVE THE TRANSPOSE OF THIS !!!!
+     */
+    return get_SF(u)*get_qH();
 }
 
 //////////////////////////////////////////////////////////////
 //! ru=SFu*qH
 VectorDim get_ru(const double & uin) const {
-	//make_SFu(uin);
-	return get_SFu(uin)*get_qH();
+    //make_SFu(uin);
+    return get_SFu(uin)*get_qH();
 }
 
 //////////////////////////////////////////////////////////////
 //! get_rmu
 VectorDim get_rmu(const double & uin) const {
-	return this->get_ru(uin)/chordParametricLength();
+    return this->get_ru(uin)/chordParametricLength();
 }
 
 //////////////////////////////////////////////////////////////
 //! ruu=SFuu*qH
 VectorDim get_ruu(const double & uin) const {
-	//make_SFuu(uin);
-	return get_SFuu(uin)*get_qH();
+    //make_SFuu(uin);
+    return get_SFuu(uin)*get_qH();
 }
 
 //////////////////////////////////////////////////////////////
 //! get_rmumu
 VectorDim get_rmumu(const double & uin) const {
-	return this->get_ruu(uin)/std::pow(chordParametricLength(),2);
+    return this->get_ruu(uin)/std::pow(chordParametricLength(),2);
 }
 
 //////////////////////////////////////////////////////////////
 //! get_G2H
 Eigen::Matrix<double, Ndof, Eigen::Dynamic>  get_G2H() const {
-	//make_G2H();
-	
-	size_t gDof(this->pSN()->nodeOrder()*this->source->NdofXnode); // CHANGE HERE, NdofXnode should be available directly
-	
-	Eigen::Matrix<double, Ndof, Eigen::Dynamic> G2H(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,gDof));
-	
-	//G2H.setZero(Ndof,gDof);
-	
-	Eigen::VectorXi dofid(this->source->dofID());
-	Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> M(this->source->W2H());
-	M.block(dim,0,dim,M.cols())*=sourceTfactor;
+    //make_G2H();
+    
+    size_t gDof(this->pSN()->nodeOrder()*this->source->NdofXnode); // CHANGE HERE, NdofXnode should be available directly
+    
+    Eigen::Matrix<double, Ndof, Eigen::Dynamic> G2H(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,gDof));
+    
+    //G2H.setZero(Ndof,gDof);
+    
+    Eigen::VectorXi dofid(this->source->dofID());
+    Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> M(this->source->W2H());
+    M.block(dim,0,dim,M.cols())*=sourceTfactor;
     //	std::cout<<"M source=\n"<<M<<std::endl;
-	
-	for (int k=0;k<dofid.size();++k){
-		G2H.template block<Ndof/2,1>(0,dofid(k))=M.col(k);
-	}
-	
-	dofid=this->sink->dofID();
-	M=this->sink->W2H();
-	M.block(dim,0,dim,M.cols())*=(-sinkTfactor);
+    
+    for (int k=0;k<dofid.size();++k){
+        G2H.template block<Ndof/2,1>(0,dofid(k))=M.col(k);
+    }
+    
+    dofid=this->sink->dofID();
+    M=this->sink->W2H();
+    M.block(dim,0,dim,M.cols())*=(-sinkTfactor);
     //	std::cout<<"M sink=\n"<<M<<std::endl;
-	
-	for (int k=0;k<dofid.size();++k){
-		G2H.template block<Ndof/2,1>(Ndof/2,dofid(k))=M.col(k);
-	}
-	
-	return G2H;
+    
+    for (int k=0;k<dofid.size();++k){
+        G2H.template block<Ndof/2,1>(Ndof/2,dofid(k))=M.col(k);
+    }
+    
+    return G2H;
 }
 
 /* closestPoint *****************************************************/
 std::pair<double,std::pair<double,VectorDim> > closestPoint(const VectorDim& P0) const
 {
-        
+    
     // solve (P-P0)*dP/du=0
     
     // The polynomial coefficients of this spine segment
@@ -248,7 +248,7 @@ std::pair<double,std::pair<double,VectorDim> > closestPoint(const VectorDim& P0)
     {
         for (int j=0;j<Ncoeff-1;++j)
         {
-            pcoeffs(2*Ncoeff-3-i-j) += coeffs.col(i).dot(dcoeffs.col(j));            
+            pcoeffs(2*Ncoeff-3-i-j) += coeffs.col(i).dot(dcoeffs.col(j));
         }
     }
     
@@ -258,8 +258,8 @@ std::pair<double,std::pair<double,VectorDim> > closestPoint(const VectorDim& P0)
     // sort roots according to distance to P0
     std::map<double,std::pair<double,VectorDim> > rootMap;
     
-//    for (int k=0;k<2*Ncoeff-3;++k)
-        for (int k=0;k<mc.rootSize;++k)
+    //    for (int k=0;k<2*Ncoeff-3;++k)
+    for (size_t k=0;k<mc.rootSize;++k)
     {
         if (std::fabs(mc.root(k).imag())<FLT_EPSILON && mc.root(k).real()>0.0 && mc.root(k).real()<1.0 )
         {
@@ -270,7 +270,7 @@ std::pair<double,std::pair<double,VectorDim> > closestPoint(const VectorDim& P0)
         }
         
     }
-
+    
     // check distance to limits of interval
     rootMap.insert(std::make_pair((this->source->get_P()-P0).norm(), std::make_pair(0.0,this->source->get_P()) ));
     rootMap.insert(std::make_pair((this->  sink->get_P()-P0).norm(), std::make_pair(1.0,this->  sink->get_P()) ));

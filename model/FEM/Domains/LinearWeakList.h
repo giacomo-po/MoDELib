@@ -70,7 +70,7 @@ namespace model
             Eigen::Matrix<double,Eigen::Dynamic,1> _globalVector(Eigen::Matrix<double,Eigen::Dynamic,1>::Zero(gSize()));
             
             
-            for (int k=0;k<list.size();++k)
+            for (size_t k=0;k<list.size();++k)
             {
                 const ElementType& ele(list[k].ele);  // element
                 const int f(list[k].boundaryFace); //    face ID

@@ -188,7 +188,7 @@ namespace model {
         {
             size_t temp=planeNormalContainer.size();
             
-            for (int n=0;n<planeNormalContainer.size();++n)
+            for (size_t n=0;n<planeNormalContainer.size();++n)
             {
                 if ((planeNormalContainer[n].cartesian().normalized()-planeNormal.normalized()).norm()<FLT_EPSILON)
                 {

@@ -117,7 +117,7 @@ namespace model
                 _xMin=node(0).P0;
                 _xMax=node(0).P0;
                 
-                for (int n=0;n<nodeSize();++n)
+                for (size_t n=0;n<nodeSize();++n)
                 {
                     for(int d=0;d<dim;++d)
                     {
@@ -134,7 +134,11 @@ namespace model
                 
             }
             
-
+//            SequentialOutputFile<'M',1> nodeFile;
+//            for (const auto& node : nodeFinder())
+//            {
+//                nodeFile<<std::setprecision(15)<<std::scientific<<node.second->P0.transpose()<<"\n";
+//            }
             
              model::cout<<"   # elements: "<<elementSize()    <<"\n";
              model::cout<<"   # nodes: "   <<nodeSize()       <<"\n";
@@ -198,6 +202,12 @@ namespace model
           * \returns a reference to the n-th node in *this FiniteElement
           */
             return NodeContainerType::operator[](n);
+        }
+        
+        /**********************************************************************/
+        const NodeFinderType& nodeFinder() const
+        {
+            return *this;
         }
         
         /**********************************************************************/

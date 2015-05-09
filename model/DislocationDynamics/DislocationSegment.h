@@ -36,7 +36,6 @@
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/Geometry/Splines/Intersection/PlanarSplineImplicitization.h>
 #include <model/Geometry/Splines/Coeff2Hermite.h>
-#include <model/Utilities/CompareVectorsByComponent.h>
 
 //#include <model/DislocationDynamics/NearestNeighbor/DislocationQuadratureParticle.h>
 #include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>

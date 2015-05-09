@@ -54,7 +54,7 @@ namespace model
             EqualIteratorRange<NetworkEdgeMapType> eir(networkEdgeMapRef.begin(),networkEdgeMapRef.end(),nThreads);
 
 #pragma omp parallel for
-            for (int thread=0;thread<eir.size();thread++)
+            for (size_t thread=0;thread<eir.size();thread++)
             {
                 for (typename NetworkEdgeMapType::iterator linkIter=eir[thread].first;linkIter!=eir[thread].second;linkIter++)
                 {

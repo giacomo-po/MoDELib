@@ -267,7 +267,6 @@ namespace model
                 for(auto ele : *node)
                 {
                     const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(node->P0));
-                    //std::map<double,int> baryIDmap;
                     for(int k=0;k<dim+1;++k)
                     {
                         if (std::fabs(bary(k))<FLT_EPSILON && ele->simplex.child(k).isBoundarySimplex())
@@ -276,14 +275,15 @@ namespace model
                         }
                     }
                 }
+
                 const double sNorm(s.norm());
-//                assert(sNorm>0.0 && "s-vector has zero norm.");
+                assert(sNorm>0.0 && "s-vector has zero norm.");
                 fieldPoints.emplace_back(*node,s/sNorm);
             }
             DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
             
             // Subtract the DislocationNetwork displacement from the Dirichlet conditions
-            for(int n=0;n<fieldPoints.size();++n)
+            for(size_t n=0;n<fieldPoints.size();++n)
             {
                 for(int dof=0;dof<dofPerNode;++dof)
                 {
@@ -298,7 +298,7 @@ namespace model
             {
                 //std::cout<<"NEED TO COMPUTE DISPLACEMENT OF RADIAL SEGMENTS"<<std::endl;
                 
-                for(int n=0;n<fieldPoints.size();++n)
+                for(size_t n=0;n<fieldPoints.size();++n)
                 {
                     VectorDim dispJump(VectorDim::Zero());
                     

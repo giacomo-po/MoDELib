@@ -76,7 +76,7 @@ namespace model
         {
             model::cout<<"Integrating on boundary ("<<this->size()<<" faces) ..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
-            for (int k=0;k<this->size();++k)
+            for (size_t k=0;k<this->size();++k)
             {
                 QuadratureType::integrate(C,intgrl,mfp,*(this->operator[](k)).first,this->operator[](k).second,args...);
             }

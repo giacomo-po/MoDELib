@@ -95,7 +95,7 @@ namespace model
             if(eIter->second.isBoundaryElement())
             {
                 const std::vector<int> boundaryFaces=eIter->second.boundaryFaces();
-                for (int f=0;f<boundaryFaces.size();++f)
+                for (size_t f=0;f<boundaryFaces.size();++f)
                 {
                     for (int v=0;v<dim+1;++v)
                     {

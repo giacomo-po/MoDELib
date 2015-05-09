@@ -17,7 +17,6 @@
 
 #include <model/Utilities/TerminalColors.h>
 #include <model/FEM/TrialFunctionTraits.h>
-//#include <model/FEM/TrialNode.h>
 #include <model/FEM/Constant.h>
 #include <model/FEM/TrialOperators/TrialSum.h>
 #include <model/FEM/TrialOperators/TrialProd.h>
@@ -25,7 +24,6 @@
 #include <model/FEM/TrialOperators/TrialDef.h>
 //#include <model/FEM/Boundaries/NodeList.h>
 #include <model/MPI/MPIcout.h>
-//#include <model/Utilities/RuntimeError.h>
 
 
 
@@ -49,7 +47,6 @@ namespace model
         typedef typename FiniteElementType::NodeType NodeType;
         
         typedef TrialFunction<_nComponents,FiniteElementType> TrialFunctionType;
-        //        typedef TrialNode<TrialFunctionType> TrialNodeType;
         constexpr static int rows=_nComponents;
         
         typedef typename TypeTraits<TrialFunctionType>::NodeContainerType NodeContainerType;
@@ -160,8 +157,7 @@ namespace model
                     if(constrainDof[dof])
                     {
                         const auto temp=this->emplace(dofPerNode*(pNode->gID)+dof,value(dof));
-//                        RuntimeError(temp.second,"UNABLE TO INSERT DIRICHLET CONDITION");
-//                        assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
+                        assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
                     }
                 }
             }
