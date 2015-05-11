@@ -141,22 +141,33 @@ namespace model
                         outDir.normalize();
                         LatticeVectorType dL(pL.E.glidePlane.n.snapToLattice(outDir));
                         assert(dL.squaredNorm()>0.0);
-                        LatticeLine line(L,dL);
-                        LineMeshIntersection lmi(line,L+dL,shared.mesh,p_Simplex);
-                        if(lmi.search.first)
+                        LatticeVectorType L0=L;
+                        if(!DislocationSharedObjects<LinkType>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first)
                         {
-                            p_Simplex=lmi.search.second;
-                            set(lmi.L);
-                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0);
-                            if(!isBoundaryNode())
+                            L0=LatticeVectorType(pL.E.glidePlane.snapToLattice(0.5*(pL.E.source->get_P()+pL.E.sink->get_P())));
+                            if(!DislocationSharedObjects<LinkType>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first)
                             {
-                                std::cout<<"DislocaitonNode "<<this->sID<<" not on mesh boundary"<<std::endl;
-                                std::cout<<"dL="<<dL.transpose()<<std::endl;
+                                LatticeLine line(L0,dL);
+                                LineMeshIntersection lmi(line,L+dL,shared.mesh,p_Simplex);
+                                if(lmi.search.first)
+                                {
+                                    p_Simplex=lmi.search.second;
+                                    set(lmi.L);
+                                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0);
+                                    if(!isBoundaryNode())
+                                    {
+                                        std::cout<<"DislocaitonNode "<<this->sID<<" not on mesh boundary"<<std::endl;
+                                        std::cout<<"dL="<<dL.transpose()<<std::endl;
+                                    }
+                                    assert(isBoundaryNode());
+                                }
                             }
-                            assert(isBoundaryNode());
+                            else
+                            {
+                                assert(0 && "forceBoundaryNode failed.");
+                            }
                         }
                     }
-                    
                 }
             }
         }
