@@ -13,7 +13,7 @@
 #include <deque>
 #include <map>
 #include <Eigen/Dense>
-#include <Model/LatticeMath/LatticeMath.h>
+#include <model/LatticeMath/LatticeMath.h>
 
 namespace model
 {
