@@ -345,7 +345,15 @@ namespace model
                 searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<"\n";
 #endif
                 int kMin;
-                if (pos2bary(P).minCoeff(&kMin)>=0.0)
+                const double baryMin=pos2bary(P).minCoeff(&kMin);
+                double tol=0.0;
+                if(this->child(kMin).isBoundarySimplex())
+                {
+                    tol=-FLT_EPSILON;
+                }
+                
+                
+                if (baryMin>=tol)
                 {
                     lastSearched.first=true;
                 }
