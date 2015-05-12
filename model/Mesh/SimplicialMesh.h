@@ -190,44 +190,6 @@ namespace model
           */
             return searchWithGuess(P,&(this->begin()->second));
         }
-        
-//        /**********************************************************************/
-//        std::pair<bool,const Simplex<dim,dim>*> searchWithGuess(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* const guess) const
-//        {/*!@param[in] P position to search for
-//          * @param[in] guess Simplex* where the search starts
-//          *\returns a pair, where:
-//          * -pair.first is a boolean indicating whether the
-//          * search succesfully found a Simplex<dim,dim> which includes P.
-//          * -pair.second is a pointer to the last Simplex<dim,dim> searched.
-//          */
-//            std::set<int> searchSet;
-//            std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,NULL);
-//            guess->convexDelaunaynSearch(P,lastSearched,searchSet);
-//            
-//            if(!lastSearched.first) // search not successful. Force search neighbors of last searched Simplex
-//            {
-//                const std::pair<bool,const Simplex<dim,dim>*> temp(lastSearched);
-//                const Eigen::Matrix<double,dim+1,1> bary=temp.second->pos2bary(P);
-//                for(int k=0;k<dim+1;++k)
-//                {
-//                    if(bary(k)<=0.0)
-//                    {
-//                        for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=temp.second->child(k).parentBegin();
-//                            /*                                                            */ pIter!=temp.second->child(k).parentEnd();++pIter)
-//                        {
-//                            (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
-//                            if (lastSearched.first)
-//                            {
-//                                break;
-//                            }
-//                        }
-//                    }
-//                    
-//                }
-//            }
-//            
-//            return lastSearched;
-//        }
 
         /**********************************************************************/
         std::pair<bool,const Simplex<dim,dim>*> searchWithGuess(const Eigen::Matrix<double,dim,1>& P,
@@ -240,10 +202,11 @@ namespace model
           * search succesfully found a Simplex<dim,dim> which includes P.
           * -pair.second is a pointer to the last Simplex<dim,dim> searched.
           */
-//            std::set<const Simplex<dim,dim>*> searchSet;
+
             searchSet.clear();
             std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,NULL);
             guess->convexDelaunaynSearch(P,lastSearched,searchSet);
+            assert(lastSearched.second->isBoundarySimplex() && "SEARCH DID NOT END ON BOUNDARY SIMPLEX");
             
             if(!lastSearched.first) // search not successful. Force search neighbors of last searched Simplex
             {
@@ -265,8 +228,15 @@ namespace model
                     }
                     
                 }
+                
+                if(!lastSearched.first && !lastSearched.second->isBoundarySimplex())
+                {
+                    lastSearched=temp;
+                }
+                
             }
             
+            assert(lastSearched.second->isBoundarySimplex() && "SEARCH DID NOT END ON BOUNDARY SIMPLEX");
             return lastSearched;
         }
         
