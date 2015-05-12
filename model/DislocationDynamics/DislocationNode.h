@@ -518,13 +518,13 @@ namespace model
                         LatticeVectorType dL(LatticeVectorType::Zero());
                         
                         VectorDim outDir=boundaryNormal;
-                        if(outDir.squaredNorm()==0)
+                        if(outDir.squaredNorm()==0.0)
                         {// node is exiting for the first time, we need a tentative boundary normal to identify the "outside direction"
                             for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
                             {
                                 outDir=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*simplex,dX.norm());
                                 
-                                if(outDir.squaredNorm()>0)
+                                if(outDir.squaredNorm()>0.0)
                                 {
                                     break;
                                 }
