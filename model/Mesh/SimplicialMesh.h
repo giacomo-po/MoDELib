@@ -206,7 +206,14 @@ namespace model
             searchSet.clear();
             std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,NULL);
             guess->convexDelaunaynSearch(P,lastSearched,searchSet);
-            assert((lastSearched.first || lastSearched.second->isBoundarySimplex()) && "SEARCH DID NOT END ON BOUNDARY SIMPLEX");
+            
+            if(!(lastSearched.first || lastSearched.second->isBoundarySimplex()))
+            {
+                std::cout<<"P="<<std::setprecision(15)<<std::scientific<<P.transpose()<<std::endl;
+                std::cout<<"guess="<<guess->xID<<std::endl;
+                std::cout<<"lastSearched="<<lastSearched.second->xID<<std::endl;
+                assert(0 && "SEARCH DID NOT END ON BOUNDARY SIMPLEX");
+            }
             
             if(!lastSearched.first) // search not successful. Force search neighbors of last searched Simplex
             {
@@ -236,7 +243,14 @@ namespace model
                 
             }
             
-            assert((lastSearched.first || lastSearched.second->isBoundarySimplex()) && "SEARCH DID NOT END ON BOUNDARY SIMPLEX");
+            if(!(lastSearched.first || lastSearched.second->isBoundarySimplex()))
+            {
+                std::cout<<"P="<<std::setprecision(15)<<std::scientific<<P.transpose()<<std::endl;
+                std::cout<<"guess="<<guess->xID<<std::endl;
+                std::cout<<"lastSearched="<<lastSearched.second->xID<<std::endl;
+                assert(0 && "SEARCH DID NOT END ON BOUNDARY SIMPLEX");
+            }
+
             return lastSearched;
         }
         
