@@ -28,8 +28,7 @@ int main(int argc, char * argv[])
     SimplicialMesh<2> mesh2;
     mesh2.readMesh(meshID);
     
-    searchFile<<P2.transpose()<<"\n";
-    //    auto p=mesh2.search(P2);
+    searchFile<<P2.transpose()<<" "<<Eigen::Matrix<double,1,3>::Zero()<<"\n";    //    auto p=mesh2.search(P2);
     auto p=mesh2.searchWithGuess(P2,&(mesh2.rbegin()->second));
     
     std::cout<<"Found? "<<p.first<<std::endl;
@@ -42,7 +41,8 @@ int main(int argc, char * argv[])
         int faceID;
         bary2.minCoeff(&faceID);
         
-        searchFile<<p.second->bary2pos(p.second->faceLineIntersection(bary1,bary2,faceID)).transpose()<<std::endl;
+        searchFile<<p.second->bary2pos(p.second->faceLineIntersection(bary1,bary2,faceID)).transpose()<<" "
+        /*      */<<p.second->xID<<std::endl;
     }
     
     SequentialOutputFile<'P',true> pFile;

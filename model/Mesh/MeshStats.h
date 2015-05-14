@@ -49,7 +49,7 @@ namespace model
             }
             
             model::cout<<"    Simplex<"<<dim<<","<<k  <<"> #="<<nT<<", vol="<<volT;
-            model::cout<<"     (bonudary #="<<nB<<", vol="<<volB<<")\n";
+            model::cout<<"     (boundary #="<<nB<<", vol="<<volB<<")\n";
 
         }
 
@@ -81,7 +81,7 @@ namespace model
             }
             
             model::cout<<"    Simplex<"<<dim<<","<<k  <<"> #="<<nT;
-            model::cout<<"     (bonudary #="<<nB<<")\n";
+            model::cout<<"     (boundary #="<<nB<<")\n";
         }
 	};
     

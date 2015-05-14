@@ -31,6 +31,7 @@ namespace model {
         /*            */ >  SimplexMapType;
 		
         typedef typename SimplexMapType::const_iterator const_iterator;
+        typedef typename SimplexMapType::iterator iterator;
         
         typedef typename SimplexTraits<dim,order>::SimplexIDType SimplexIDType;
         typedef std::shared_ptr<SimplexType> SharedPtrType;
@@ -98,6 +99,7 @@ namespace model {
         {
             return simplexMap.find(key);
         }
+        
         
 	private:
 		static  SimplexMapType simplexMap;
