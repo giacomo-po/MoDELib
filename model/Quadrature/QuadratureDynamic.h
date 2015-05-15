@@ -9,19 +9,22 @@
 #ifndef model_QUADRATUREDYNAMIC_H_
 #define model_QUADRATUREDYNAMIC_H_
 
+#include <math.h>       /* round, floor, ceil, trunc */
 #include <assert.h>
+#include <set>
 #include <Eigen/Dense>
 #include <model/Quadrature/Quadrature.h>
 
 namespace model
 {
-    
+    /**************************************************************************/
     template<
     short unsigned int dim,
     template <short unsigned int, short unsigned int> class QuadratureRule,
     int...Orders>
     struct QuadratureDynamic;
     
+    /**************************************************************************/
     template<
     short unsigned int dim,
     template <short unsigned int, short unsigned int> class QuadratureRule,
@@ -124,8 +127,47 @@ namespace model
             }
         }
         
+        static const std::set<int> orderSet;
+        
+        static std::set<int> fillSet()
+        {
+            std::set<int> temp;
+            QuadratureDynamic<dim,QuadratureRule,otherOrders...>::fillSet(temp);
+            temp.emplace(order);
+            return temp;
+        }
+        
+        static std::set<int> fillSet(std::set<int>& temp)
+        {
+            QuadratureDynamic<dim,QuadratureRule,otherOrders...>::fillSet(temp);
+            temp.emplace(order);
+            return temp;
+        }
+        
+        static int lowerOrder(const int& k)
+        {
+            std::set<int>::const_iterator temp=orderSet.lower_bound(k);
+            return temp==orderSet.end()? *orderSet.rbegin() : *temp;
+        }
+        
+        static int lowerOrder(const double& d)
+        {
+            return lowerOrder(int(round(d)));
+        }
+        
+        
     };
     
+    template<
+    short unsigned int dim,
+    template <short unsigned int, short unsigned int> class QuadratureRule,
+    int order,
+    int... otherOrders>
+    const std::set<int> QuadratureDynamic<dim,QuadratureRule,order,otherOrders...>::orderSet=QuadratureDynamic<dim,QuadratureRule,order,otherOrders...>::fillSet();
+    
+    
+    
+    /**************************************************************************/
     template<
     short unsigned int dim,
     template <short unsigned int, short unsigned int> class QuadratureRule,
@@ -198,7 +240,30 @@ namespace model
             assert(N==order && "quadrature order N not found in QuadratureDynamic");
             Quadrature<dim,order,QuadratureRule>::execute(C,mfp,args...);
         }
+        
+        static const std::set<int> orderSet;
+        
+        static std::set<int> fillSet(std::set<int>& temp)
+        {
+            temp.emplace(order);
+            return temp;
+        }
+        
+        static std::set<int> fillSet()
+        {
+            std::set<int> temp;
+            temp.emplace(order);
+            return temp;
+        }
+        
     };
+    
+    template<
+    short unsigned int dim,
+    template <short unsigned int, short unsigned int> class QuadratureRule,
+    int order>
+    const std::set<int> QuadratureDynamic<dim,QuadratureRule,order>::orderSet=QuadratureDynamic<dim,QuadratureRule,order>::fillSet();
+
     
 } // namespace model
 #endif
