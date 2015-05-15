@@ -331,83 +331,66 @@ namespace model
             return (b2p*bary).template segment<dim>(0);
         }
         
-        //        /**********************************************************************/
-        //        void convexDelaunaynSearch(const Eigen::Matrix<double,dim,1>& P,
-        //                                   std::pair<bool,const Simplex<dim,dim>*>& lastSearched,
-        //                                   std::set<const Simplex<dim,dim>*>& searchSet) const // TO DO: searchSet is not necessary, because baryMin changes sign in next Simplex
-        //        {
-        //            if(searchSet.find(this)==searchSet.end())
-        //            {// this simplex has not been searched yet
-        //                searchSet.insert(this);
-        //                lastSearched.second=this;
-        //
-        //                const Eigen::Matrix<double,dim+1,1> bary(pos2bary(P));
-        //                std::multimap<double,int> baryMap;
-        //                for(int k=0;k<dim+1;++k)
-        //                {
-        //                    baryMap.emplace(bary(k),k);
-        //                }
-        //
-        //
-        //
-        //                //                int kMin;
-        //                //                const double baryMin=pos2bary(P).minCoeff(&kMin);
-        //                //                double tol=0.0;
-        //                //                if(this->child(kMin).isBoundarySimplex())
-        //                //                {
-        //                //                    tol=-FLT_EPSILON;
-        //                //                }
-        //
-        //#ifdef _MODEL_BENCH_BARYSEARCH_
-        //                std::cout<<"Searchig "<<this->xID<<std::endl;
-        //                std::cout<<"bary= "<<bary<<std::endl;
-        //                searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<" "
-        //                /*      */<<this->xID<<"\n";
-        //#endif
-        //
-        //
-        //
-        //
-        //                //                if (baryMin>=tol)
-        //                if (baryMap.begin()->first>=-FLT_EPSILON)
-        //                {
-        //                    lastSearched.first=true;
-        //                }
-        //                else
-        //                {
-        //
-        //                    for(const auto& pair : baryMap)
-        //                    {
-        //                        if(pair.first<FLT_EPSILON && !lastSearched.first)
-        //                        {
-        //                            for(auto& pParent : this->child(pair.second).parents())
-        //                            {
-        //                                pParent->convexDelaunaynSearch(P,lastSearched,searchSet);
-        //                                if (lastSearched.first)
-        //                                {
-        //                                    break;
-        //                                }
-        //                            }
-        //                            if (lastSearched.first)
-        //                            {
-        //                                break;
-        //                            }
-        //                        }
-        //
-        //                    }
-        //                    //                    for(auto& pParent : this->child(kMin).parents())
-        //                    //                    {
-        //                    //                        //                        (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
-        //                    //                        pParent->convexDelaunaynSearch(P,lastSearched,searchSet);
-        //                    //                        if (lastSearched.first)
-        //                    //                        {
-        //                    //                            break;
-        //                    //                        }
-        //                    //                    }
-        //
-        //                }
-        //            }
-        //        }
+//        /**********************************************************************/
+//        void convexDelaunaynExtendedSearch(const Eigen::Matrix<double,dim,1>& P,
+//                                   std::pair<bool,const Simplex<dim,dim>*>& lastSearched,
+//                                   std::set<const Simplex<dim,dim>*>& searchSet) const // TO DO: searchSet is not necessary, because baryMin changes sign in next Simplex
+//        {
+//            if(searchSet.find(this)==searchSet.end())
+//            {// this simplex has not been searched yet
+//                searchSet.insert(this);
+//                lastSearched.second=this;
+//
+//                const Eigen::Matrix<double,dim+1,1> bary(pos2bary(P));
+//                std::multimap<double,int> baryMap;
+//                for(int k=0;k<dim+1;++k)
+//                {
+//                    baryMap.emplace(bary(k),k);
+//                }
+//
+//#ifdef _MODEL_BENCH_BARYSEARCH_
+//                std::cout<<"Searchig "<<this->xID<<std::endl;
+//                std::cout<<"bary= "<<bary<<std::endl;
+//                searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<" "
+//                /*      */<<this->xID<<"\n";
+//#endif
+//
+//
+//
+//
+//                //                if (baryMin>=tol)
+//                if (baryMap.begin()->first>=-FLT_EPSILON)
+//                {
+//                    lastSearched.first=true;
+//                }
+//                else
+//                {
+//
+//                    std::multimap<double,int>::const_iterator last=baryMap.upper_bound(baryMap.begin()->first+10.0*FLT_EPSILON);
+//                    
+//                    for(std::multimap<double,int>::const_iterator iter=baryMap.begin();iter!=last;++iter)
+//                    {
+//                        if(pair.first<FLT_EPSILON && !lastSearched.first)
+//                        {
+//                            for(auto& pParent : this->child(pair.second).parents())
+//                            {
+//                                pParent->convexDelaunaynExtendedSearch(P,lastSearched,searchSet);
+//                                if (lastSearched.first)
+//                                {
+//                                    break;
+//                                }
+//                            }
+//                            if (lastSearched.first)
+//                            {
+//                                break;
+//                            }
+//                        }
+//
+//                    }
+//
+//                }
+//            }
+//        }
         
         /**********************************************************************/
         void convexDelaunaynSearch(const Eigen::Matrix<double,dim,1>& P,

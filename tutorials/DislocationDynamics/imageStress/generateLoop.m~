@@ -13,11 +13,10 @@ v3=v3/norm(v3);
 C2G=[v1;cross(v3,v1); v3]
 
 A=C2G*A;  
-%invA=inv(A);
+invA=inv(A);
 
-g1=A(:,1)-A(:,3); % primitive lattice vector on the 111 plane
-g2=A(:,2)-A(:,3); % primitive lattice vector on the 111 plane
-G=[g1 g2];
+g1=A(:,1)-A(:,3); % lattive
+g2=A(:,2)-A(:,3);
 
 %% Initial configuration
 b=[1 0 0];
@@ -29,7 +28,7 @@ r=1900;
 theta=[0:np-1]/np*2*pi;
 
 XL=[r*cos(theta);r*sin(theta);zeros(1,np)];
-XL=G*round(inv(G'*G)*G'*XL);
+XL=A*round(invA*XL);
 
 %XL(:,[1])=XL(:,[1])*0.75;
 

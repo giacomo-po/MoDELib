@@ -4,11 +4,11 @@ clc
 
 dim=3;
 
-meshID=1;
+meshID=0;
 %x=rand(1,2)*30
 %x=[-0.05 -0.15 0.0]
-x=[-7.071067811865473e+02  7.071067811865477e+02  2.088793431625061e+03]
-guess=[1318 2157 2160 3528];
+x=[ -9.999999999999992e-01  7.835797853441600e+03  1.004290794541103e+03]
+guess=[14 16 24 25];
 %guess=[1318 2157 3528 5033];
 system(['./search ' num2str(meshID) ' ' num2str(x(1)) ' ' num2str(x(2)) ' ' num2str(x(3)) ' ' num2str(guess(1)) ' ' num2str(guess(2)) ' ' num2str(guess(3)) ' ' num2str(guess(4))])
 

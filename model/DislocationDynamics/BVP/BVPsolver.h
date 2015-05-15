@@ -32,6 +32,8 @@ namespace model
     class BVPsolver
     {
         
+        
+        
     public:
         
         typedef LagrangeElement<dim,sfOrder> ElementType;
@@ -68,6 +70,14 @@ namespace model
         BilinearWeakFormType* bWF;
         
         SparseMatrixType A;
+        SparseMatrixType T;
+        SparseMatrixType A1;
+        
+#ifdef _MODEL_PARDISO_SOLVER_
+        Eigen::PardisoLLT<SparseMatrixType> solver;
+#else
+        Eigen::ConjugateGradient<SparseMatrixType> solver;
+#endif
         
         /**********************************************************************/
         Eigen::Matrix<double,dim+1,1> face2domainBary(const Eigen::Matrix<double,dim,1>& b1,
@@ -104,7 +114,7 @@ namespace model
         }
         
         /**********************************************************************/
-        Eigen::VectorXd solve(const Eigen::VectorXd& b,const Eigen::VectorXd& y) const
+        Eigen::VectorXd solve(const Eigen::VectorXd& b,const Eigen::VectorXd& y)
         {/*!@param[in] b the rhs of A*x=b
           * @param[in] y the guess for x
           */
@@ -145,31 +155,76 @@ namespace model
                 col++;
             }
             
-            SparseMatrixType T(gSize,tSize);
-            T.setFromTriplets(tTriplets.begin(),tTriplets.end());
-            
-            SparseMatrixType A1(T.transpose()*A*T);
-            Eigen::VectorXd b1(T.transpose()*(b-A*g));
+            SparseMatrixType T1(gSize,tSize);
+            T1.setFromTriplets(tTriplets.begin(),tTriplets.end());
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+
             
-            const auto t1= std::chrono::system_clock::now();
+            
+//            SparseMatrixType A1(T1.transpose()*A*T1);
+//            Eigen::VectorXd b1(T1.transpose()*(b-A*g));
+//
+//            const auto t1= std::chrono::system_clock::now();
+//#ifdef _MODEL_PARDISO_SOLVER_
+//            model::cout<<"Solving (PardisoLLT)..."<<std::flush;
+//            Eigen::PardisoLLT<SparseMatrixType> solver(A1);
+//            const Eigen::VectorXd x=T*solver.solve(b1)+g;
+//#else
+//            model::cout<<"Solving (ConjugateGradient)..."<<std::flush;
+//            Eigen::ConjugateGradient<SparseMatrixType> solver(A1);
+//            //                    Eigen::ConjugateGradient<SparseMatrixType> solver(T.transpose()*A*T); // this gives a segmentation fault
+//            solver.setTolerance(tolerance);
+//            //                    x=T*solver.solve(T.transpose()*(b-A*g))+g;
+//            const Eigen::VectorXd x=T*solver.solveWithGuess(b1,guess)+g;
+//            //                    x=T*solver.solve(b1)+g;
+//            model::cout<<" (relative error ="<<solver.error()<<", tolerance="<<solver.tolerance();
+//#endif
+//            model::cout<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
+//            assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
+//
+            const auto t4= std::chrono::system_clock::now();
+            model::cout<<"Checking if null-space has changed... "<<std::flush;
+            bool sameT=false;
+            if(T.cols()==T1.cols() && T.rows()==T1.rows())
+            {
+                const double normT2=(T1-T).squaredNorm();
+                if(normT2==0.0)
+                {
+                    sameT=true;
+                }
+                
+            }
+            model::cout<<!sameT<<std::flush;
+            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t4)).count()<<" sec]"<<std::endl;
+            
+            if(!sameT)
+            { // need to re-factorized the LLT decomposition
+                const auto t1= std::chrono::system_clock::now();
 #ifdef _MODEL_PARDISO_SOLVER_
-            model::cout<<"Solving (PardisoLLT)..."<<std::flush;
-            Eigen::PardisoLLT<SparseMatrixType> solver(A1);
+                model::cout<<"PardisoLLT: factorizing..."<<std::flush;
+#else
+                model::cout<<"ConjugateGradient: factorizing..."<<std::flush;
+#endif
+                T=T1; // store new T
+                A1=T.transpose()*A*T; // store new A1
+                solver.compute(A1);
+                model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
+            }
+            
+            const auto t2= std::chrono::system_clock::now();
+            Eigen::VectorXd b1(T.transpose()*(b-A*g));
+
+#ifdef _MODEL_PARDISO_SOLVER_
+            model::cout<<"PardisoLLT: solving..."<<std::flush;
             const Eigen::VectorXd x=T*solver.solve(b1)+g;
 #else
-            model::cout<<"Solving (ConjugateGradient)..."<<std::flush;
-            Eigen::ConjugateGradient<SparseMatrixType> solver(A1);
-            //                    Eigen::ConjugateGradient<SparseMatrixType> solver(T.transpose()*A*T); // this gives a segmentation fault
+            model::cout<<"ConjugateGradient: solving..."<<std::flush;
             solver.setTolerance(tolerance);
-            //                    x=T*solver.solve(T.transpose()*(b-A*g))+g;
             const Eigen::VectorXd x=T*solver.solveWithGuess(b1,guess)+g;
-            //                    x=T*solver.solve(b1)+g;
-            model::cout<<" (relative error ="<<solver.error()<<", tolerance="<<solver.tolerance();
+            model::cout<<" (relative error ="<<solver.error()<<", tolerance="<<solver.tolerance()<<")";
 #endif
-            model::cout<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
+            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]"<<std::endl;
             assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
-            
             return x;
         }
         
@@ -320,71 +375,7 @@ namespace model
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
         
-//        /**********************************************************************/
-//        template<typename Condition,typename DislocationNetworkType>
-//        void addDirichletCondition(const Condition& cond, const NodeList<FiniteElementType>& nodeList, const int& dof,
-//                                   const DislocationNetworkType& DN)
-//        {/*!@param[in] dc the Dirichlet condition
-//          * @param[in] the nodal dof to be constrained
-//          */
-//            const auto t0= std::chrono::system_clock::now();
-//            model::cout<<"adding DirichletCondition... "<<std::flush;
-//            // Add the Dirichlet condition
-//            u->addDirichletCondition(cond,nodeList,dof);
-//            
-//            // Compute  the DislocationNetwork displacement at nodeList
-//            model::cout<<"subtracting DislocationDisplacement... "<<std::flush;
-//            typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
-//            typedef typename FieldPointType::DisplacementField DisplacementField;
-//            std::deque<FieldPointType> fieldPoints; // the container of field points
-//            
-//            for (auto node : nodeList) // range-based for loop (C++11)
-//            {
-//                // Compute S vector
-//                Eigen::Matrix<double,dim,1> s(Eigen::Matrix<double,dim,1>::Zero());
-//                for(auto ele : *node)
-//                {
-//                    const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(node->P0));
-//                    //std::map<double,int> baryIDmap;
-//                    for(int k=0;k<dim+1;++k)
-//                    {
-//                        if (std::fabs(bary(k))<FLT_EPSILON && ele->simplex.child(k).isBoundarySimplex())
-//                        {
-//                            s += ele->simplex.nda.col(k).normalized();
-//                        }
-//                    }
-//                }
-//                const double sNorm(s.norm());
-//                assert(sNorm>0.0 && "s-vector has zero norm.");
-//                fieldPoints.emplace_back(*node,s/sNorm);
-//            }
-//            DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
-//            
-//            // Subtract the DislocationNetwork displacement from the Dirichlet conditions
-//            for(int n=0;n<fieldPoints.size();++n)
-//            {
-//                u->dirichletConditions().at(nodeList[n]->gID*dofPerNode+dof) -= fieldPoints[n].template field<DisplacementField>()(dof);
-//            }
-//            
-//            if(DN.shared.use_virtualSegments) // Add solid angle contribution
-//            {
-//                //std::cout<<"NEED TO COMPUTE DISPLACEMENT OF RADIAL SEGMENTS"<<std::endl;
-//                
-//                for(int n=0;n<fieldPoints.size();++n)
-//                {
-//                    VectorDim dispJump(VectorDim::Zero());
-//                    
-//                    for (typename DislocationNetworkType::NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
-//                    {
-//                        linkIter->second.addToSolidAngleJump(fieldPoints[n].P,fieldPoints[n].S,dispJump);
-//                    }
-//                    
-//                    u->dirichletConditions().at(nodeList[n]->gID*dofPerNode+dof) -= dispJump(dof);
-//                }
-//            } // end virtual loops
-//            
-//            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-//        }
+
         
 #ifdef userBVPfile
         /**********************************************************************/

@@ -5,6 +5,7 @@
 model::SequentialOutputFile<'S',true> searchFile;
 
 #include <model/Mesh/SimplicialMesh.h>
+#include <model/DislocationDynamics/SimplexBndNormal.h>
 
 
 using namespace model;
@@ -42,9 +43,11 @@ int main(int argc, char * argv[])
         std::cout<<"guess found"<<std::endl;
     }
     
-    auto p=mesh.searchWithGuess(P,guess);
+    std::set<const Simplex<3,3>*> path;
 
-        std::cout<<"lastSearch= "<<p.second->xID<<std::endl;
+    auto p=mesh.searchWithGuess(P,guess,path);
+
+   std::cout<<"lastSearch= "<<p.second->xID<<std::endl;
     std::cout<<"Found? "<<p.first<<std::endl;
     std::cout<<"Boundary Simplex? "<<p.second->isBoundarySimplex()<<std::endl;
 
@@ -67,6 +70,25 @@ int main(int argc, char * argv[])
     {
         pFile<<sIter->second->vertexPositionMatrix()<<"\n";
     }
+    
+
+    Eigen::Matrix<double,3,1> outDir=Eigen::Matrix<double,3,1>::Zero();
+    if(outDir.squaredNorm()==0.0)
+    {// node is exiting for the first time, we need a tentative boundary normal to identify the "outside direction"
+        for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
+        {
+            outDir=SimplexBndNormal::get_boundaryNormal(P,*simplex,9.999999999999992e-01+FLT_EPSILON);
+            
+            if(outDir.squaredNorm()>0.0)
+            {
+                break;
+            }
+            
+        }
+        
+    }
+    std::cout<<"outDir="<<outDir.transpose()<<std::endl;
+    //assert(outDir.squaredNorm()>0 && "COULD NOT DETERMINE OUTDIR");
     
     return 0;
 }

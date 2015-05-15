@@ -389,11 +389,11 @@ namespace model
             return temp;
         }
         
-        /**********************************************************************/
-        bool is_removable() const
-        {
-            return (this->is_simple() && constraintNormals().size()==1);
-        }
+//        /**********************************************************************/
+//        bool is_removable() const
+//        {
+//            return (this->is_simple() && constraintNormals().size()==1);
+//        }
         
         /**********************************************************************/
         void make_projectionMatrix()
@@ -522,7 +522,7 @@ namespace model
                         {// node is exiting for the first time, we need a tentative boundary normal to identify the "outside direction"
                             for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
                             {
-                                outDir=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*simplex,dX.norm());
+                                outDir=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*simplex,dX.norm()+FLT_EPSILON);
                                 
                                 if(outDir.squaredNorm()>0.0)
                                 {

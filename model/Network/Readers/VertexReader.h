@@ -45,7 +45,7 @@ namespace model
 			typedef std::pair<int, Eigen::Matrix<scalar,1,cols-1> > BinVertexType;
 			BinaryFileReader<BinVertexType> rV(filename);
             //			double t1(clock());
-			for (unsigned int k=0;k<rV.size();++k)
+			for (size_t k=0;k<rV.size();++k)
             {
 				//this->insert(std::make_pair(rV[k].first,rV[k].second));
                 assert(this->insert(std::make_pair(rV[k].first,rV[k].second)).second && "COULD NOT INSERT VERTEX AFTER BINARY READ.");
@@ -130,17 +130,31 @@ namespace model
         {
             std::stringstream filename;
             std::ifstream ifs;
-            switch (useTXT){
-                case true:
-                    //filename << "V/V_" << frameN << ".txt";; // TXT
-                    filename << c << "/" << c << "_" << frameN << ".txt";
-                    ifs.open( filename.str().c_str() , std::ifstream::in );
-                    break;
-                default:
-                    filename << c << "/" << c << "_" << frameN << ".bin";
-                    //filename << "V/V_" << frameN << ".bin";; // BIN
-                    ifs.open( filename.str().c_str() , std::ifstream::in );
+            if(useTXT)
+            {
+                //filename << "V/V_" << frameN << ".txt";; // TXT
+                filename << c << "/" << c << "_" << frameN << ".txt";
+                ifs.open( filename.str().c_str() , std::ifstream::in );
+
             }
+            else
+            {
+                filename << c << "/" << c << "_" << frameN << ".bin";
+                //filename << "V/V_" << frameN << ".bin";; // BIN
+                ifs.open( filename.str().c_str() , std::ifstream::in );
+
+            }
+//            switch (useTXT){
+//                case true:
+//                    //filename << "V/V_" << frameN << ".txt";; // TXT
+//                    filename << c << "/" << c << "_" << frameN << ".txt";
+//                    ifs.open( filename.str().c_str() , std::ifstream::in );
+//                    break;
+//                default:
+//                    filename << c << "/" << c << "_" << frameN << ".bin";
+//                    //filename << "V/V_" << frameN << ".bin";; // BIN
+//                    ifs.open( filename.str().c_str() , std::ifstream::in );
+//            }
             return ifs.good();
         }
         

@@ -32,26 +32,15 @@ namespace model
             
             
             VectorDim temp(VectorDim::Zero());
-//            if (shared.use_boundary)
-//            {
             
                 const Eigen::Matrix<double,dim+1,1> bary(simplex.pos2bary(P));
             
-//            if(bary.minCoeff()>=0.0) //simplex includes P
-//            {
-                //std::cout<<"DislocationNode "<<this->sID<<std::endl;
-                //std::cout<<"Simplex="<<simplex.xID<<std::endl;
-                //std::cout<<"Simplex is boundary="<<simplex.isBoundarySimplex()<<std::endl;
-                
+            
                 // 1) check if P is close to a boundary face
                 for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
                 {
                     
                     const double h=3.0*simplex.vol0/simplex.child(f).vol0*bary(f); // distance from f-th face
-                    
-                    //std::cout<<"f= "<<f<<std::endl;
-                    //std::cout<<"child(f)= "<<simplex.child(f).xID<<std::endl;
-                    //std::cout<<"h="<<h<<std::endl;
                     
                     if(simplex.child(f).isBoundarySimplex() && std::fabs(h)<dmax)
                     {
@@ -66,23 +55,14 @@ namespace model
                 {
                     for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
                     {
-                        //std::cout<<"f= "<<f<<std::endl;
-                        //std::cout<<"child(f)= "<<simplex.child(f).xID<<std::endl;
-                        
                         
                         for(int e=0;e<3;++e)
                         {
                             
-                            //std::cout<<"e= "<<e<<std::endl;
-                            //std::cout<<"child(e)= "<<simplex.child(f).child(e).xID<<std::endl;
-                            //std::cout<<"child(e) is boundary= "<<simplex.child(f).child(e).isBoundarySimplex()<<std::endl;
-                            
                             const VectorDim& x1=simplex.child(f).child(e).child(0).P0;
                             const VectorDim& x2=simplex.child(f).child(e).child(1).P0;
                             const double d=(P-x1).cross(P-x2).norm()/(x2-x1).norm(); // distance to edge
-                            
-                            //std::cout<<"d="<<d<<std::endl;
-                            
+                                                        
                             if(d<dmax && simplex.child(f).child(e).isBoundarySimplex()) // point close to edge, and edge is on boundary
                             {
                                 for(const auto& parent : simplex.child(f).child(e).parents())
