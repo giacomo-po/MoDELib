@@ -35,8 +35,8 @@ namespace model
 {
     
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    class DislocationNode : public SplineNode<DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>,
+    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    class DislocationNode : public SplineNode<DislocationNode<_dim,corder,InterpolationType,QuadratureRule>,
     /*                                         */ _dim,corder,InterpolationType>
     
     {
@@ -48,7 +48,7 @@ namespace model
         
         
         // define Derived to use NetworkTypedefs.h
-        typedef DislocationNode       <dim,corder,InterpolationType,qOrder,QuadratureRule> Derived;
+        typedef DislocationNode       <dim,corder,InterpolationType,QuadratureRule> Derived;
 #include <model/Network/NetworkTypedefs.h>
         
         
@@ -944,12 +944,12 @@ namespace model
     
     // static data
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    bool DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>::use_velocityFilter=true;
+    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    bool DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::use_velocityFilter=true;
     
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    double DislocationNode<_dim,corder,InterpolationType,qOrder,QuadratureRule>::velocityReductionFactor=0.75;
+    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::velocityReductionFactor=0.75;
     
     
 } // close namespace

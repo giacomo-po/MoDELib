@@ -97,20 +97,21 @@ namespace model
     };
     
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
     class DislocationSegment : public PlanarDislocationSegment<_dim>,
-    /*	                    */ public SplineSegmentBase<DislocationSegment<_dim,corder,InterpolationType,qOrder,QuadratureRule>,
+    /*	                    */ public SplineSegmentBase<DislocationSegment<_dim,corder,InterpolationType,QuadratureRule>,
     /*                                              */ _dim, corder>,
-    /*	                    */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,qOrder,QuadratureRule> >
+    /*	                    */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,QuadratureRule> >
     {
         
         
     public:
         
         enum{dim=_dim}; // make dim available outside class
+        enum{qOrder=16}; // make dim available outside class
         
         
-        typedef DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule> Derived; 		// Define "Derived" so that NetworkTypedefs.h can be used
+        typedef DislocationSegment<dim,corder,InterpolationType,QuadratureRule> Derived; 		// Define "Derived" so that NetworkTypedefs.h can be used
 #include <model/Network/NetworkTypedefs.h>
 #include <model/Geometry/Splines/SplineEnums.h>
         
@@ -773,6 +774,12 @@ namespace model
         }
         
         /**********************************************************************/
+        double arcLength()
+        {
+            return SegmentBaseType::template arcLength<qOrder,QuadratureRule>();
+        }
+        
+        /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const Derived& ds)
         {
@@ -791,9 +798,8 @@ namespace model
     
     // Static Data
     template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
-    const Eigen::Matrix<double,dim,dim> DislocationSegment<dim,corder,InterpolationType,qOrder,QuadratureRule>::I=Eigen::Matrix<double,dim,dim>::Identity();
-
+    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    const Eigen::Matrix<double,dim,dim> DislocationSegment<dim,corder,InterpolationType,QuadratureRule>::I=Eigen::Matrix<double,dim,dim>::Identity();
     
 } // namespace model
 #endif

@@ -26,7 +26,7 @@ using namespace model;
 int main (int argc, char* argv[])
 {
     // Create the DislocationNetwork object
-    typedef DislocationNetwork<3,1,CatmullRom,16,UniformOpen> DislocationNetworkType;
+    typedef DislocationNetwork<3,1,CatmullRom,UniformOpen> DislocationNetworkType;
     DislocationNetworkType DN(argc,argv);
     
     // Read punch data

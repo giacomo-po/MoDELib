@@ -14,9 +14,6 @@
 #define _MODEL_NON_SINGULAR_DD_ 0
 #define userBVPfile "./bvpFile.h"
 
-//#define customUserOutputs "./myOutputs.h" // declare the custom output file
-//#include <model/FEM/Boundaries/LowerCorner.h>
-//#include <model/FEM/Boundaries/OnMaxAxis.h>
 #include <model/FEM/Boundaries/AtXmin.h>
 #include <model/FEM/Boundaries/AtXmax.h>
 #include <model/FEM/BoundaryConditions/Fix.h>
@@ -27,7 +24,7 @@ using namespace model;
 int main (int argc, char* argv[])
 {
     // Create the DislocationNetwork object
-    typedef DislocationNetwork<3,1,CatmullRom,16,UniformOpen> DislocationNetworkType;
+    typedef DislocationNetwork<3,1,CatmullRom,UniformOpen> DislocationNetworkType;
     DislocationNetworkType DN(argc,argv);
     
     // Run time steps

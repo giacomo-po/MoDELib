@@ -103,10 +103,10 @@ namespace model
 {
     
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
     class DislocationNetwork :
-    /* inheritance          */ public Network<DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule> >,
-    /* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,qOrder,QuadratureRule> >::LinkType>,
+    /* inheritance          */ public Network<DislocationNetwork<_dim,corder,InterpolationType,QuadratureRule> >,
+    /* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,QuadratureRule> >::LinkType>,
     /* inheritance          */ public ParticleSystem<DislocationParticle<_dim> >
     {
         
@@ -114,7 +114,7 @@ namespace model
         
         enum {dim=_dim}; // make dim available outside class
         
-        typedef DislocationNetwork<dim,corder,InterpolationType,qOrder,QuadratureRule> DislocationNetworkType;
+        typedef DislocationNetwork<dim,corder,InterpolationType,QuadratureRule> DislocationNetworkType;
         typedef DislocationNetworkType Derived; // define Derived to use NetworkTypedefs.h
 #include <model/Network/NetworkTypedefs.h>
         typedef DislocationNetworkComponent<NodeType,LinkType> DislocationNetworkComponentType;
@@ -881,7 +881,7 @@ namespace model
                  /*                                             */ linkIter!=this->linkEnd();
                  /*                                             */ linkIter++)
             {
-                const double temp= linkIter->second.template arcLength<qOrder,QuadratureRule>();
+                const double temp= linkIter->second.arcLength();
                 totalLength+=temp;
                 if(linkIter->second.is_boundarySegment() || linkIter->second.isSessile)
                 {
