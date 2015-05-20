@@ -16,11 +16,11 @@ velocityReductionFactor=0.75;
 # Options for output files:
 outputFrequency=1;
 outputBinary=0;
-outputGlidePlanes=1;
+outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=0;
 outputElasticEnergy=0;
-outputMeshDisplacement=1;
+outputMeshDisplacement=0;
 
 ######################################
 # MATERIAL

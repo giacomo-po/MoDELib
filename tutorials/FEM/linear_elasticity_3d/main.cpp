@@ -48,7 +48,7 @@ int main(int argc, char** argv)
     const double lam=119.9; // GPa (for Cu)
     const double C11(lam+2.0*mu);
     const double C12(lam);
-    const double C44(2.0*mu); // this multiplies a true strain, so 2 is necessary
+    const double C44(mu);
     
     Eigen::Matrix<double,6,6> C;
     C  << C11, C12, C12, 0.0, 0.0, 0.0,
@@ -63,8 +63,8 @@ int main(int argc, char** argv)
     // Define trial function (displacement field) u and related expressions
     auto u=fe.trial<3>();       // displacement field u=[u1; u2; u3]
     auto b=grad(u);             // displacement gradient b=[u1,1; u1,2; u2,1; u2,2]
-    auto e=def(u);              // strain e=[u1,1; u2,2; u3,3; u1,2+u2,1; u2,3+u3,12; u1,3+u3,1]
-    auto s=C*e;                 // stress field s=[s11; s12; s21; s22]
+    auto e=def(u);              // engineering strain e=[u1,1; u2,2; u3,3; u1,2+u2,1; u2,3+u3,2; u1,3+u3,1]
+    auto s=C*e;                 // stress field s=[s11; s22; s33; s12; s23; s13]
     
     /**************************************************************************/
     // Create the BilinearWeakForm bWF_u=int(test(e)^T*s)dV
@@ -74,7 +74,7 @@ int main(int argc, char** argv)
     /**************************************************************************/
     // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndA
     Eigen::Matrix<double,3,1> f;
-    f<<0.0,0.0,-0.001;
+    f<<0.0,0.001,0.00;
     auto ndA_1=fe.boundary<AtXmax<2>,3,GaussLegendre>();
     auto lWF_1=(u.test(),f)*ndA_1;
     
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
     
     /**************************************************************************/
     // Create the WeakProblem
-    auto weakProblem(bWF_u=lWF_1+lWF_2); //  weak problem
+    auto weakProblem(bWF_u=lWF_1); //  weak problem
     
     /**************************************************************************/
     // Set up Dirichlet boundary conditions
@@ -98,8 +98,8 @@ int main(int argc, char** argv)
     u.addDirichletCondition(nodeList_0,fix,{1, 1, 1}); // fix u1, u2, u3
     
     // Create a list of nodes having x(2)=x2_max, where x2_max is the maximum value among the fe nodes
-    const size_t nodeList_1=fe.createNodeList<AtXmax<2>>();
-    u.addDirichletCondition(nodeList_1,fix,{0, 0, 1}); // fix only u3
+    //const size_t nodeList_1=fe.createNodeList<AtXmax<2>>();
+    //u.addDirichletCondition(nodeList_1,fix,{0, 0, 1}); // fix only u3
     
     
     /**************************************************************************/
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
     
     /**************************************************************************/
     // Solve for u using current value as guess solution
-    const double solverTolerance=1.0e-4;
+    const double solverTolerance=1.0e-6;
     u=weakProblem.solveWithGuess(solverTolerance,u);
     
     /**************************************************************************/

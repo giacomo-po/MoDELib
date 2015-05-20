@@ -45,10 +45,35 @@ namespace model
             }
             return temp;
         }
+
+//        template<typename T, int N>
+//        static Eigen::Matrix<T,(c*(c+1))/2,c*N> expandSFdef(const Eigen::Matrix<T,c,N>& m)
+//        {
+//            Eigen::Matrix<T,(c*(c+1))/2,c*N> temp(Eigen::Matrix<T,(c*(c+1))/2,c*N>::Zero());
+//            
+//            for (int n=0;n<N;++n) // loop over shape functions
+//            {
+//                int row=0;
+//                for (int k=0;k<c;++k) // k is the index of the diagonal
+//                {
+//                    for (int j=0;j<c-k;++j)
+//                    {
+//                        temp(row,n*c+j+k)+=0.5*m(j  ,n);
+//                        temp(row,n*c+j  )+=0.5*m(j+k,n);
+//                        row++;
+//                    }
+//                }
+//            }
+//            return temp;
+//        }
         
         template<typename T, int N>
         static Eigen::Matrix<T,(c*(c+1))/2,c*N> expandSFdef(const Eigen::Matrix<T,c,N>& m)
-        {
+        {/*!@\param[in] m matrix of shape function gradients
+          *\returns the matrix of shape function symmetric gradients 
+          * (in engineering sense, that is e_{ij}=u_{i,j} if i==j, but 
+          * e_{ij}=u_{i,j}+u_{j,i} if i!=j)
+          */
             Eigen::Matrix<T,(c*(c+1))/2,c*N> temp(Eigen::Matrix<T,(c*(c+1))/2,c*N>::Zero());
             
             for (int n=0;n<N;++n) // loop over shape functions
@@ -58,12 +83,15 @@ namespace model
                 {
                     for (int j=0;j<c-k;++j)
                     {
-                        // i=j+k;
-                        //                        SOMETHING WRONG HERE
-                        //                        temp(row,n*c+j+k)=0.5*m(j  ,n);
-                        //                        temp(row,n*c+j  )=0.5*m(j+k,n);
-                        temp(row,n*c+j+k)+=0.5*m(j  ,n);
-                        temp(row,n*c+j  )+=0.5*m(j+k,n);
+                        if(k==0)
+                        {
+                            temp(row,n*c+j)=m(j,n);
+                        }
+                        else
+                        {
+                            temp(row,n*c+j+k)=m(j  ,n);
+                            temp(row,n*c+j  )=m(j+k,n);
+                        }
                         row++;
                     }
                 }
