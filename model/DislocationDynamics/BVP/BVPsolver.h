@@ -101,7 +101,7 @@ namespace model
             const double lam=2.0*mu*nu/(1.0-2.0*nu);
             const double C11(lam+2.0*mu);
             const double C12(lam);
-            const double C44(2.0*mu); // C multiplies true strain (not engineering), so 2 is necessary
+            const double C44(mu); // C multiplies engineering strain
             
             Eigen::Matrix<double,6,6> temp;
             temp<<C11, C12, C12, 0.0, 0.0, 0.0,
