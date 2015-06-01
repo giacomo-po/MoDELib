@@ -20,7 +20,12 @@ N =[-1    1   -1    1;
      1   -1   -1    1;
     -1   -1    1    1];
 %N=Rot*N;
-    
+
+A=[0 1 1;
+   1 0 1;
+   1 1 0]/sqrt(2);
+invA=inv(A);
+
 
 B=[0  1  1;
    0  1 -1;
@@ -64,13 +69,20 @@ if dot(P1,d2)<0
     d2=-d2;
 end
 P(:,1)=P1;
+P=A*round(invA*P);
+
 u=rand(1);
 a1=lMin*(1-u)+lMax*u;
+a1=round(a1/sqrt(3))*sqrt(3);
+
 u=rand(1);
 a2=lMin*(1-u)+lMax*u;
+a2=round(a2/sqrt(3))*sqrt(3);
+
 P(:,2)=P(:,1)+a1*d1;
 P(:,3)=P(:,2)+a2*d2;
 P(:,4)=P(:,3)-a1*d1;
+P=A*round(invA*P);
 
 if ( length(find(P<0))==0 && length(find(P>L))==0)
 figure(1)
