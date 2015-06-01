@@ -11,6 +11,13 @@ V=L^3;
 lMin=L/6;
 lMax=L/3;
 
+v1=[1 -1 0];
+v1=v1/norm(v1);
+v3=[1 1 1];
+v3=v3/norm(v3);
+C2G=[v1;cross(v3,v1); v3]
+
+
 %alpha=0;
 %c=cos(alpha);
 %s=sin(alpha);
@@ -19,11 +26,15 @@ lMax=L/3;
 N =[-1    1   -1    1;
      1   -1   -1    1;
     -1   -1    1    1];
-%N=Rot*N;
+N=C2G*N;
 
 A=[0 1 1;
    1 0 1;
    1 1 0]/sqrt(2);
+
+
+A=C2G*A;  
+
 invA=inv(A);
 
 
@@ -34,7 +45,7 @@ B=[0  1  1;
    1  1  0;
    1 -1  0];
 
-%B=(Rot*B')';
+B=(C2G*B')';
 
 
 totalLength=0;
