@@ -71,7 +71,8 @@ namespace model {
         static void setCellSize(const double& cellSize)
         {
             assert(cellSize>0.0);
-            SpatialCellObserverType::cellSize=cellSize;
+//            SpatialCellObserverType::cellSize=cellSize;
+            SpatialCellObserverType::setCellSize(cellSize);
         }
         
         /**********************************************************************/
@@ -117,6 +118,18 @@ namespace model {
             }
             
             //            }
+        }
+        
+        /**********************************************************************/
+        template <class T>
+        friend T& operator<< (T& os, const ParticleSystemBase<ParticleType>& system)
+        {/*! Operator << uses ParticleType-specific operator <<
+          */
+            for (const auto& particle : system)
+            {
+                os << particle <<"\n";
+            }
+            return os;
         }
         
     };
