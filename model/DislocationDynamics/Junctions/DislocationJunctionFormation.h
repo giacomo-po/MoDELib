@@ -304,6 +304,9 @@ namespace model
 
                             const bool& L1isSessile(linkIterA->second.isSessile);
                             const bool& L2isSessile(linkIterB->second.isSessile);
+
+//                            const bool L1isConfined(linkIterA->second.isSessile || linkIterA->second.isOnRegionBoundary());
+//                            const bool L2isConfined(linkIterB->second.isSessile || linkIterB->second.isOnRegionBoundary());
                             
                             std::set<std::pair<double,double> > temp; // the container of the roots
                             
@@ -311,7 +314,6 @@ namespace model
                             {
                                 temp = dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol);
                             }
-                            
                             else if (!L1isSessile && L2isSessile) // L1 is glissile and L2 is sessile
                             {
                                 const bool gnAgnB((linkIterA->second.glidePlaneNormal-linkIterB->second.glidePlaneNormal  ).squaredNorm()<FLT_EPSILON);

@@ -457,7 +457,7 @@ namespace model {
 		
 		bool is_balanced() const {
 			//			return FlowCompare<FlowType>(outFlow(),inFlow());
-			return (outFlow() - inFlow()).norm()<FLT_EPSILON;
+			return (outFlow() - inFlow()).squaredNorm()==0;
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////

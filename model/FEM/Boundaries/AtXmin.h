@@ -23,12 +23,16 @@ namespace model
     {
         
         const double min;
-        
+        const double tol;
+
     public:
         
         /**************************************/
         template <typename FiniteElementType>
-        AtXmin(const FiniteElementType& fe) : min(fe.xMin()(i))
+        AtXmin(const FiniteElementType& fe,
+               const double& tol_in=FLT_EPSILON) :
+        /* init list */ min(fe.xMin()(i)),
+        /* init list */ tol(tol_in)
         {
 
         }
@@ -37,7 +41,7 @@ namespace model
         template <typename NodeType>
         bool operator()(const NodeType& node) const
         {
-            return std::abs(node.P0(i)-min)<FLT_EPSILON;
+            return std::abs(node.P0(i)-min)<tol;
             
         }
         
@@ -45,7 +49,7 @@ namespace model
         template <int dim>
         bool operator()(const Eigen::Matrix<double,dim,1>& P0) const
         {
-            return std::abs(P0(i)-min)<FLT_EPSILON;
+            return std::abs(P0(i)-min)<tol;
             
         }
         

@@ -92,9 +92,9 @@ namespace model {
 	 *  of a spline \f$\mathbf{r}(u)=\sum_{i=0}^P\mathbf{c}_it^i\f$ of odd degree \f$P\f$, parametrized in \f$[0\ 1]\f$. 
 	 *  
 	 *  Consider the spline:
-	 *  \f[
+	 *  \[
 	 *  \mathbf{r}(u)=\sum_{i=0}^P\mathbf{c}_it^i
-	 *  \f]
+	 *  \]
 	 *  where \f$t\in[0,1]\f$ and P is odd. The matrix
 	 *  \f[
 	 *  \left[\mathbf{c}_0\ \mathbf{c}_1\ \ldots \ \mathbf{c}_P\right]

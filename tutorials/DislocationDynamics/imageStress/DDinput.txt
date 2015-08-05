@@ -14,7 +14,7 @@ velocityReductionFactor=0.75;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=10;
 outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
@@ -47,10 +47,10 @@ externalStress = 0.0 0.0 0.0
 ######################################
 # ELASTIC FIELDS
 # The dislocation core size
-coreSize=10.0;
+coreSize=100.0;
 # Use of multipole-expanded elastic fields for non-nearest neighbor cells
 dislocationCellSize=300;
-use_DisplacementMultipole=0;
+use_DisplacementMultipole=1;
 use_StressMultipole = 1;
 use_EnergyMultipole = 0;
 
@@ -76,7 +76,7 @@ collisionTol=10;
 # If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
 # T/T_meshID.txt must be present in the working directory.
 use_boundary=1;
-meshID=1;
+meshID=0;
 use_meshRegions=0;
 
 ######################################
@@ -84,7 +84,7 @@ use_meshRegions=0;
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
 use_bvp = 10;
-use_virtualSegments=1;
+use_virtualSegments=0;
 use_directSolver=0;
 solverTolerance=0.0001;
 

@@ -10,9 +10,11 @@
 #define _model_PointSource_h
 
 #include <model/SpaceDecomposition/SpatialCellParticle.h>
+#include <model/ParticleInteraction/SingleSourcePoint.h>
 
 
-namespace model {
+namespace model
+{
 
     
     /*!\brief A class template that...
@@ -28,18 +30,22 @@ namespace model {
     /*    */ typename FieldType,
     /*    */ typename ...MoreFieldTypes>
     struct PointSource<Derived,_dim,FieldType,MoreFieldTypes...> :
-    /* inheritance  */ public PointSource<Derived,_dim,MoreFieldTypes...>
+    /* inheritance  */ public PointSource<Derived,_dim,MoreFieldTypes...>,
+    /* inheritance  */ public SingleSourcePoint<Derived,FieldType>
     {
         
         typedef typename PointSource<Derived,_dim,MoreFieldTypes...>::VectorDimD VectorDimD;
         
         /**********************************************************************/
-        PointSource(const VectorDimD& Pin) :
-        /* base init */ PointSource<Derived,_dim,MoreFieldTypes...>(Pin)
+        template<typename...T>
+        PointSource(const VectorDimD& Pin, const bool& enb, const T&...moreEnb) :
+        /* base init */ PointSource<Derived,_dim,MoreFieldTypes...>(Pin,moreEnb...),
+        /* base init */ SingleSourcePoint<Derived,FieldType>(enb)
         {/*! @param[in] Pin the position of this PointSource
           * Constructor initializes SpatialCellParticle
           */
         }
+        
     };
     
     // template specialization: zero fields
@@ -59,6 +65,15 @@ namespace model {
           * Constructor initializes SpatialCellParticle
           */
         }
+        
+//        /**********************************************************************/
+//        PointSource(const VectorDimD& Pin, const bool& enable) :
+//        /* base init */ SpatialCellParticleType(Pin),
+//        /* base init */ enabled(true)
+//        {/*! @param[in] Pin the position of this PointSource
+//          * Constructor initializes SpatialCellParticle
+//          */
+//        }
     };
     
     

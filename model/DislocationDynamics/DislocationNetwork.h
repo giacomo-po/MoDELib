@@ -524,6 +524,9 @@ namespace model
             EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
             Material<Isotropic>::rotateCrystal(C2Gtemp);
             
+            // quadPerLength
+            EDR.readScalarInFile(fullName.str(),"quadPerLength",LinkType::quadPerLength); // quadPerLength
+
             // core size
             EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width
             assert((StressField::a)>0.0 && "coreSize MUST BE > 0.");
@@ -562,7 +565,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
             assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
             //            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
-            EDR.readScalarInFile(fullName.str(),"use_directSolver",DislocationNetworkComponentType::use_directSolver);
+            EDR.readScalarInFile(fullName.str(),"use_directSolver_DD",DislocationNetworkComponentType::use_directSolver);
             
             
             EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
@@ -616,6 +619,7 @@ namespace model
                 EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
                 if(shared.use_bvp)
                 {
+                    EDR.readScalarInFile(fullName.str(),"use_directSolver_FEM",shared.bvpSolver.use_directSolver);
                     EDR.readScalarInFile(fullName.str(),"solverTolerance",shared.bvpSolver.tolerance);
                     shared.bvpSolver.init();
                 }
@@ -881,7 +885,7 @@ namespace model
                  /*                                             */ linkIter!=this->linkEnd();
                  /*                                             */ linkIter++)
             {
-                const double temp= linkIter->second.arcLength();
+                const double temp(linkIter->second.arcLength());
                 totalLength+=temp;
                 if(linkIter->second.is_boundarySegment() || linkIter->second.isSessile)
                 {

@@ -141,11 +141,11 @@ namespace model {
 				
 				p_ofstream->close();
 				
-				if( isEmpty)
-                {
-				//	std::cout<<"File is empty. ";
-					deleteFile();
-				} 
+//				if( isEmpty)
+//                {
+//				//	std::cout<<"File is empty. ";
+//					deleteFile();
+//				} 
 				
 				delete p_ofstream;  // is this needed ???????
 			}

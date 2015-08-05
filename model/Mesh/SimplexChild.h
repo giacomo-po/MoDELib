@@ -28,10 +28,6 @@ namespace model
         typedef typename SimplexTraits<dim,order+1>::ScalarIDType ScalarIDType;
         typedef std::set<const ParentSimplexType*,SimplexCompare<dim,order+1> >  ParentContainerType;
 
-//      typedef std::set<const ParentSimplexType*,SimplexCompare<dim,order+1> >  ParentContainerType;
-//    private:
-//      ParentContainerType parentContainer;
-
     public:
         
         /**********************************************************************/
@@ -68,27 +64,23 @@ namespace model
         typename ParentContainerType::const_iterator parentBegin() const
         {
             return this->begin();
-            //            return parentContainer.begin();
         }
         
         /**********************************************************************/
         typename ParentContainerType::const_iterator parentEnd() const
         {
             return this->end();
-//            return parentContainer.end();
         }
         
         /**********************************************************************/
         const ParentContainerType& parents() const
         {
             return *this;
-//            return parentContainer;
         }
         
         /**********************************************************************/
         bool isBoundarySimplex() const
         {
-//            return BoundarySimplex<dim,dim-order>::template isBoundarySimplex<SimplexChild>(*this);
             return BoundarySimplex<dim,dim-order>::isBoundarySimplex(*this);
 
         }
@@ -97,6 +89,21 @@ namespace model
         bool isRegionBoundarySimplex() const
         {
             return BoundarySimplex<dim,dim-order>::isRegionBoundarySimplex(*this);
+        }
+        
+        /**********************************************************************/
+        std::set<int> regionIDs() const
+        {
+            std::set<int> temp;
+            for(const auto& parent : parents())
+            {
+                const std::set<int> parentIDs(parent.regionIDs());
+                for(const int& regionID : parentIDs)
+                {
+                    temp.insert(regionID);
+                }
+            }
+            return temp;
         }
         
     };

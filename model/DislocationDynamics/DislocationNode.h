@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <memory>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 
@@ -94,7 +95,7 @@ namespace model
         VectorDim boundaryNormal;
         
         //! The normal to the region boundary
-        VectorDim regionBndNormal;
+//        std::auto_ptr<LatticePlane> regionBndPlane;
         
         
         
@@ -141,32 +142,36 @@ namespace model
                         outDir.normalize();
                         LatticeVectorType dL(pL.E.glidePlane.n.snapToLattice(outDir));
                         assert(dL.squaredNorm()>0.0);
+                        
                         LatticeVectorType L0=L;
                         if(!DislocationSharedObjects<LinkType>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first)
                         {
                             L0=LatticeVectorType(pL.E.glidePlane.snapToLattice(0.5*(pL.E.source->get_P()+pL.E.sink->get_P())));
-                            if(!DislocationSharedObjects<LinkType>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first)
-                            {
-                                LatticeLine line(L0,dL);
-                                LineMeshIntersection lmi(line,L+dL,shared.mesh,p_Simplex);
-                                if(lmi.search.first)
-                                {
-                                    p_Simplex=lmi.search.second;
-                                    set(lmi.L);
-                                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0);
-                                    if(!isBoundaryNode())
-                                    {
-                                        std::cout<<"DislocaitonNode "<<this->sID<<" not on mesh boundary"<<std::endl;
-                                        std::cout<<"dL="<<dL.transpose()<<std::endl;
-                                    }
-                                    assert(isBoundaryNode());
-                                }
-                            }
-                            else
-                            {
-                                assert(0 && "forceBoundaryNode failed.");
-                            }
                         }
+                        assert(DislocationSharedObjects<LinkType>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first && "L0 outside mesh");
+                        
+                        LatticeLine line(L0,dL);
+                        LineMeshIntersection lmi(line,L+dL,shared.mesh,p_Simplex);
+                        if(lmi.search.first)
+                        {
+                            p_Simplex=lmi.search.second;
+                            set(lmi.L);
+                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0);
+                            if(!isBoundaryNode())
+                            {
+                                std::cout<<"DislocaitonNode "<<this->sID<<" not on mesh boundary"<<std::endl;
+                                std::cout<<"dL="<<dL.transpose()<<std::endl;
+                            }
+                            assert(isBoundaryNode());
+                        }
+                        else
+                        {
+                            assert(0 && "lmi failed.");
+                        }
+                    }
+                    else
+                    {
+                        assert(0 && "outDir has zero norm");
                     }
                 }
             }
@@ -186,8 +191,8 @@ namespace model
         /* init list        */ velocity(VectorDofType::Zero()),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0) : VectorDim::Zero()),
-        /* init list        */ regionBndNormal(VectorDim::Zero())
+        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0) : VectorDim::Zero())
+//        /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from DOF
           */
         }
@@ -201,8 +206,8 @@ namespace model
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0) : VectorDim::Zero()),
-        /* init list        */ regionBndNormal(VectorDim::Zero())
+        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0) : VectorDim::Zero())
+//        /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from ExpandingEdge and DOF
           */
             forceBoundaryNode(pL);
@@ -218,14 +223,14 @@ namespace model
         /* init list        */ velocity(Vin),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0) : VectorDim::Zero()),
-        /* init list        */ regionBndNormal(VectorDim::Zero())
+        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0) : VectorDim::Zero())
+//        /* init list        */ regionBndNormal(VectorDim::Zero())
         {
             forceBoundaryNode(pL);
         }
         
         /**********************************************************************/
-        DislocationNode(const ContractingVertices<NodeType>& cv,
+        DislocationNode(const ContractingVertices<NodeType,LinkType>& cv,
                         const LatticeVectorType& Lin) :
         /* base constructor */ NodeBaseType(Lin.cartesian()),
         /* init list        */ L(Lin),
@@ -233,8 +238,8 @@ namespace model
         /* init list        */ velocity(0.5*(cv.v0.get_V()+cv.v1.get_V())),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0) : VectorDim::Zero()),
-        /* init list        */ regionBndNormal(VectorDim::Zero())
+        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0) : VectorDim::Zero())
+//        /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from VertexContraction
           */
         }
@@ -371,7 +376,7 @@ namespace model
                 //
                 //                }
                 
-                temp.push_back(regionBndNormal);
+//                temp.push_back(regionBndNormal);
             }
             else if (meshLocation()==onMeshBoundary)
             { // DislocationNode is on mesh boundary, constrain by boundaryNormal
@@ -389,11 +394,11 @@ namespace model
             return temp;
         }
         
-//        /**********************************************************************/
-//        bool is_removable() const
-//        {
-//            return (this->is_simple() && constraintNormals().size()==1);
-//        }
+        //        /**********************************************************************/
+        //        bool is_removable() const
+        //        {
+        //            return (this->is_simple() && constraintNormals().size()==1);
+        //        }
         
         /**********************************************************************/
         void make_projectionMatrix()
@@ -421,7 +426,7 @@ namespace model
             }
             
             // Add normal to region boundary
-            CN.push_back(regionBndNormal);
+//            CN.push_back(regionBndNormal);
             
             // Find independent vectors
             GramSchmidt::orthoNormalize(CN);

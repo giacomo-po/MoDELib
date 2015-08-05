@@ -45,7 +45,6 @@ namespace model
         /**********************************************************************/
         Eigen::Matrix<double,dim,dim> operator()() const
         {
-//            return Material<Isotropic>::C2*(this->template field<StressField>()+this->template field<StressField>().transpose());
             return this->template field<StressField>();
         }
         

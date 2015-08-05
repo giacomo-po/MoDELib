@@ -23,13 +23,16 @@ namespace model
     {
         
         const double max;
+        const double tol;
         
     public:
         
         /**************************************/
         template <typename FiniteElementType>
-        AtXmax(const FiniteElementType& fe) :
-        max(fe.xMax()(i))
+        AtXmax(const FiniteElementType& fe,
+               const double& tol_in=FLT_EPSILON) :
+        /* init list */ max(fe.xMax()(i)),
+        /* init list */ tol(tol_in)
         {
             
         }
@@ -38,14 +41,14 @@ namespace model
         template <typename NodeType>
         bool operator()(const NodeType& node) const
         {
-            return std::abs(node.P0(i)-max)<FLT_EPSILON;
+            return std::abs(node.P0(i)-max)<tol;
         }
         
         /**************************************/
         template <int dim>
         bool operator()(const Eigen::Matrix<double,dim,1>& P0) const
         {
-            return std::abs(P0(i)-max)<FLT_EPSILON;
+            return std::abs(P0(i)-max)<tol;
         }
         
         /**********************************************************************/

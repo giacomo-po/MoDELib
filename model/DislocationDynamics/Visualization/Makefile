@@ -1,6 +1,5 @@
 IDIR  = -I/usr/local/include/
-IDIR += -I/Users/giacomo/Documents/UCLA/Research/C++/Mmdl/
-IDIR += -I/home/giacomo/Documents/UCLA/Research/C++/Mmdl/
+IDIR += -I/../../../
 
 
 ##########################################################

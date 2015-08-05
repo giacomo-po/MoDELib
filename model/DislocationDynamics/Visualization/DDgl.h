@@ -381,6 +381,9 @@ namespace model {
 			eyePoint=centerPoint+VectorDimF::Ones().normalized()*scale;
 			upVector   << 0.0,0.0,1.0;
 			transVector<< 0.0,0.0,0.0;
+            std::cout<<"eyePoint="<<eyePoint.transpose()<<std::endl;
+            std::cout<<"centerPoint="<<centerPoint.transpose()<<std::endl;
+
 		}
 
         /**********************************************************************/
@@ -450,7 +453,7 @@ namespace model {
 			
 			glMatrixMode(GL_PROJECTION); //erel
 			glLoadIdentity(); //erel
-			gluPerspective (60.0, (float)windowWidth/(float)windowHeight, 10.0, 10.0*boxSize); //erel
+			gluPerspective (60.0, (float)windowWidth/(float)windowHeight, 0.01*boxSize, 10.0*boxSize); //erel
 			glMatrixMode(GL_MODELVIEW);//Switch to the drawing perspective
 			
 			glLoadIdentity();
@@ -857,6 +860,11 @@ namespace model {
                     
                     
 			}
+            
+            if(meshPlotter.plotBndStress)
+            {
+                meshPlotter.read(frameN);
+            }
 		}
 		
 		

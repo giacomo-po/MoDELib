@@ -16,7 +16,7 @@ filename='cube'; % this creates file cube.stl
 meshID=0; % creates ../N/N_0.txt and ../T/T_0.txt
 L=4000; % the side length of the cube, in units of Burgers vector
 V=L^3;  % volume of the cube
-nElements=1e5; % target number of mesh elements
+nElements=1e4; % target number of mesh elements
 
 % coordinates of the 8 vertices of the cube, centered at origin
 v0=[0 0 0]*L-[1 1 1]*L/2;

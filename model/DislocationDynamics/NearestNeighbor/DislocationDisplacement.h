@@ -181,7 +181,7 @@ namespace model
                 VectorDim r(field.P-cell.second->center);
                 const double R(r.norm());
                 r/=R; // normalize R;
-                const MatrixDim& alpha(std::get<0>(*cell.second));
+                const MatrixDim& alpha(std::get<1>(*cell.second));
                 const VectorDim a(DislocationStress<dim>::axialVector(alpha));
                 temp += (+2.0*Material<Isotropic>::C1/(1.0+r.dot(field.S))*alpha*(field.S.cross(r))
                 /*    */ - Material<Isotropic>::C3*a

@@ -39,7 +39,11 @@ namespace model {
 			std::cout<<"Opening directory: "<<dirName<<std::endl;
 			
 			DIR* const dp(opendir(dirName.c_str()));
-			assert(dp != NULL && "UNABLE TO OPEN DIRECTORY");
+            if(dp == NULL)
+            {
+                std::cout<<"Undable to open directory "<<dirName<<std::endl;
+                assert(0 && "UNABLE TO OPEN DIRECTORY");
+            }
 			
 			
 			struct dirent *dirp;

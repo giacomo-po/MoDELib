@@ -11,7 +11,7 @@
 #define model_VERTEXCONTRACTION_H_
 
 #include <float.h> // for FLT_EPSILON, remove this once FlowComparison Class is created
-#include <map> // for FLT_EPSILON, remove this once FlowComparison Class is created
+#include <map> 
 
 #include <model/Network/Operations/VertexFinder.h>
 #include <model/Network/Operations/EdgeFinder.h>
@@ -21,33 +21,28 @@
 namespace model
 {
     
-//    /****************************************************************/
-//    /****************************************************************/
-//    template <typename EdgeType>
-//    struct ContractingEdge
-//    {
-//        
-//        const EdgeType& E;
-//        ContractingEdge(const EdgeType& Ein) : E(Ein) {}
-//        
-//    };
-    
     /****************************************************************/
     /****************************************************************/
-    template <typename VertexType>
+    template <typename VertexType, typename EdgeType>
     struct ContractingVertices
     {
         
+        typedef typename EdgeFinder<EdgeType>::isConstNetworkEdgeType isConstNetworkEdgeType;
+        
         const VertexType& v0;
         const VertexType& v1;
+        const isConstNetworkEdgeType E;
         
-        ContractingVertices(const VertexType& v0in,const VertexType& v1in) :
+        ContractingVertices(const VertexType& v0in,const VertexType& v1in, const isConstNetworkEdgeType& E_in) :
         /* init */v0(v0in),
-        /* init */v1(v1in)
+        /* init */v1(v1in),
+        /* init */E(E_in)
         {}
         
     };
 	
+    /****************************************************************/
+    /****************************************************************/
 	template <typename VertexType, typename EdgeType>
 	class VertexContraction
     {
@@ -56,6 +51,7 @@ namespace model
 		typedef typename VertexType::NeighborContainerType NeighborContainerType;
 		typedef typename VertexFinder<VertexType>::isConstNetworkVertexType isConstNetworkVertexType;
 		typedef typename EdgeFinder<EdgeType>::isConstNetworkEdgeType isConstNetworkEdgeType;
+//        typedef typename EdgeFinder<EdgeType>::isNetworkEdgeType isNetworkEdgeType;
         typedef std::map<size_t,VertexType> NetworkVertexMapType;
         typedef std::map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
 
@@ -172,8 +168,11 @@ namespace model
             const isConstNetworkVertexType Vj(VertexFinder<VertexType>(networkVertexMapRef).node(j));
             assert(Vj.first && "CONTRACTING NON EXISTING VERTEX j");
 
+
+            const isConstNetworkEdgeType tempE1(EdgeFinder<EdgeType>(networkEdgeMapRef).link(i,j));
+            const isConstNetworkEdgeType tempE2(tempE1.first? tempE1 : EdgeFinder<EdgeType>(networkEdgeMapRef).link(j,i));
             
-			const size_t newID(VertexInsertion<VertexType>(networkVertexMapRef).insert(ContractingVertices<VertexType>(*Vi.second,*Vj.second),NodeInput...).first->first); // CHANGE THIS LIKE EXPAND
+			const size_t newID(VertexInsertion<VertexType>(networkVertexMapRef).insert(ContractingVertices<VertexType,EdgeType>(*Vi.second,*Vj.second,tempE2),NodeInput...).first->first); // CHANGE THIS LIKE EXPAND
 			
 			/* - Call contractHelper with removeIsolatedNodes=0 to make sure that j survives
 			 * - This will not create isolated nodes

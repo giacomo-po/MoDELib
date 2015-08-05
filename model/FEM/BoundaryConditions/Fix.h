@@ -9,9 +9,7 @@
 #ifndef model_Fix_H_
 #define model_Fix_H_
 
-//#include <array>
 #include <Eigen/Dense>
-//#include <model/FEM/TrialNode.h>
 
 
 namespace model
@@ -35,34 +33,3 @@ namespace model
     
 }	// close namespace
 #endif
-
-
-//    template <typename _TrialFunctionType>
-//    struct Fix
-//    {
-//
-//        typename _TrialFunctionType TrialFunctionType;
-//
-//        //        /**************************************/
-//        //        template <typename NodeType,typename TrialFunctionType>
-//        //        static double at(const NodeType&, const TrialFunctionType&)
-//        //        {
-//        //            return 0.0;
-//        //        }
-//
-//        const TrialFunctionType& trial;
-//
-//        Fix(const TrialFunctionType& trial_in) :trial(trial_in)
-//        {
-//
-//        }
-//
-//        /**************************************/
-//        template <typename TrialFunctionType>
-//        Eigen::Matrix<typename TrialFunctionType::Scalar,TrialFunctionType::dofPerNode,1> operator()(const TrialNode<TrialFunctionType>&) const
-//        {
-//            return Eigen::Matrix<typename TrialFunctionType::Scalar,TrialFunctionType::dofPerNode, 1>::Zero();
-//        }
-//
-//
-//    };

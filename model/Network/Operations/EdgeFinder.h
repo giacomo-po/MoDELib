@@ -21,13 +21,10 @@ namespace model {
 
         typedef std::map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
 
-//		typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
-//        typedef typename EdgeType::NetworkLinkContainerType NetworkEdgeMapType;
 		//! A reference to the network Edge map
 		NetworkEdgeMapType& networkEdgeMapRef;
 		
 	public:
-		//typedef size_t ReturnType;
 
 		typedef std::pair<bool,EdgeType* const>			isNetworkEdgeType;
 		typedef std::pair<bool,const EdgeType* const>	isConstNetworkEdgeType;
@@ -61,13 +58,11 @@ namespace model {
     {
 	
         typedef std::map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
-//		typedef boost::ptr_map<std::pair<size_t,size_t>,EdgeType> NetworkEdgeMapType;
-//        typedef typename EdgeType::NetworkLinkContainerType NetworkEdgeMapType;
-		//! A reference to the network Edge map
+
+        //! A reference to the network Edge map
 		const NetworkEdgeMapType& networkEdgeMapRef;
 		
 	public:
-		//typedef size_t ReturnType;
 		
 		typedef std::pair<bool,EdgeType* const>			isNetworkEdgeType;
 		typedef std::pair<bool,const EdgeType* const>	isConstNetworkEdgeType;

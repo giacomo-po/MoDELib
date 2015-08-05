@@ -232,46 +232,52 @@ namespace model
                 fullName<<"S/S_"<<frameN<<".txt";
                 FILE *fp =fopen(fullName.str().c_str(), "r");
                 
-                Eigen::Matrix<float,3,1> P;
-                Eigen::Matrix<float,6,1> S;
-                
-                while (fscanf (fp, "%f%f%f%f%f%f%f%f%f", &x,&y,&z,&s11,&s22,&s33,&s12,&s23,&s13)==9)
+                if (fp!=NULL)
                 {
-                    P<<x,y,z;
-                    S<<s11,s22,s33,s12,s23,s13;
-                    deq.emplace_back(P,S);
+                    
+                    Eigen::Matrix<float,3,1> P;
+                    Eigen::Matrix<float,6,1> S;
+                    
+                    while (fscanf (fp, "%f%f%f%f%f%f%f%f%f", &x,&y,&z,&s11,&s22,&s33,&s12,&s23,&s13)==9)
+                    {
+                        P<<x,y,z;
+                        S<<s11,s22,s33,s12,s23,s13;
+                        deq.emplace_back(P,S);
+                    }
+                    fclose(fp);
+                    
+                    sMin=deq[0].second;
+                    sMax=deq[0].second;
+                    
+                    
+                    for (int k=0;k<deq.size();++k)
+                    {
+                        for(int c=0;c<6;++c)
+                        {
+                            if(deq[k].second(c)>sMax(c))
+                            {
+                                sMax(c)=deq[k].second(c);
+                            }
+                            
+                            if(deq[k].second(c)<sMin(c))
+                            {
+                                sMin(c)=deq[k].second(c);
+                            }
+                        }
+                    }
+                    
+                    std::cout<<"sigma_min="<<sMin<<std::endl;
+                    std::cout<<"sigma_max="<<sMax<<std::endl;
+
                 }
-                fclose(fp);
                 
                 std::cout<<fullName.str()<<" has "<<deq.size()<<"rows"<<std::endl;
                 
                 //                float sMin=FLT_MAX;
                 //                float sMax=FLT_MIN;
                 
-//                sMin=Eigen::Matrix<float,1,6>::Constant(FLT_MAX);
-//                sMax=Eigen::Matrix<float,1,6>::Constant(FLT_MIN);
-                sMin=deq[0].second;
-                sMax=deq[0].second;
-                
-                
-                for (int k=0;k<deq.size();++k)
-                {
-                    for(int c=0;c<6;++c)
-                    {
-                        if(deq[k].second(c)>sMax(c))
-                        {
-                            sMax(c)=deq[k].second(c);
-                        }
-                        
-                        if(deq[k].second(c)<sMin(c))
-                        {
-                            sMin(c)=deq[k].second(c);
-                        }
-                    }
-                }
-                
-                std::cout<<"sigma_min="<<sMin<<std::endl;
-                std::cout<<"sigma_max="<<sMax<<std::endl;
+                //                sMin=Eigen::Matrix<float,1,6>::Constant(FLT_MAX);
+                //                sMax=Eigen::Matrix<float,1,6>::Constant(FLT_MIN);
                 
             }
             
@@ -284,10 +290,10 @@ namespace model
             if (plotBndStress)
             {
                 glEnable(GL_DEPTH_TEST);
-
+                
                 glEnable(GL_COLOR_MATERIAL); // use glColorMaterial(...) to set material colors
-//                glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-
+                //                glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+                
                 glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
                 glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
                 glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
@@ -298,7 +304,7 @@ namespace model
                     RGBcolor clr0=RGBmap::getColor(deq[3*k+0].second(stressCol),sMin(stressCol),sMax(stressCol));
                     RGBcolor clr1=RGBmap::getColor(deq[3*k+1].second(stressCol),sMin(stressCol),sMax(stressCol));
                     RGBcolor clr2=RGBmap::getColor(deq[3*k+2].second(stressCol),sMin(stressCol),sMax(stressCol));
- //                   glShadeModel(GL_SMOOTH);
+                    //                   glShadeModel(GL_SMOOTH);
                     glBegin(GL_TRIANGLES);
                     glColor4f(clr0.r, clr0.g, clr0.b,0.5);
                     glVertex3f(deq[3*k+0].first(0),deq[3*k+0].first(1),deq[3*k+0].first(2));
@@ -310,11 +316,11 @@ namespace model
                 }
                 
             }
-
+            
             glDisable(GL_DEPTH_TEST);
             glEnable (GL_BLEND);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+            
             if (showMesh>0)
             {
                 float dispCorr(dispScale*(showMesh>1));
@@ -324,7 +330,7 @@ namespace model
                 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor);      // diffuse color for the material
                 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor);  // specular color for the material
                 glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor);  // emission color for the material
-
+                
                 for (auto& edge : edgeVector)
                 {
                     glBegin(GL_LINES);
@@ -337,8 +343,8 @@ namespace model
                 {
                     
                     glEnable(GL_COLOR_MATERIAL); // use glColor4f to set color
-
-//                    std::cout<<specificSimplexID<<std::endl;
+                    
+                    //                    std::cout<<specificSimplexID<<std::endl;
                     
                     const auto iter=SimplexObserver<3,3>::find(specificSimplexID);
                     if(iter!=SimplexObserver<3,3>::simplexEnd())
@@ -347,7 +353,7 @@ namespace model
                         
                         
                         glColor4f(0.5, 0.0, 0.5,0.1);
-
+                        
                         glBegin(GL_TRIANGLES);
                         glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
                         glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
@@ -373,18 +379,18 @@ namespace model
                         glEnd();
                         
                         glColor4f(0.0, 0.0, 0.0,0.8);
-
+                        
                         
                         glBegin(GL_LINES);
                         glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
                         glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
                         glEnd();
-
+                        
                         glBegin(GL_LINES);
                         glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
                         glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
                         glEnd();
-
+                        
                         glBegin(GL_LINES);
                         glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
                         glVertex3f(mat.col(3)(0),mat.col(3)(1),mat.col(3)(2));
@@ -399,18 +405,18 @@ namespace model
                         glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
                         glVertex3f(mat.col(3)(0),mat.col(3)(1),mat.col(3)(2));
                         glEnd();
-
+                        
                         glBegin(GL_LINES);
                         glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
                         glVertex3f(mat.col(3)(0),mat.col(3)(1),mat.col(3)(2));
                         glEnd();
-
+                        
                         for(int c=0;c<4;++c)
                         {
                             Eigen::Matrix<float,3,1> P=mat.col(c);
                             BitmapPlotter::renderString(P, static_cast<std::ostringstream*>( &(std::ostringstream() << specificSimplexID(c)) )->str());
                         }
-
+                        
                     }
                     else
                     {
@@ -423,7 +429,7 @@ namespace model
             if(showRegionBoundaries)
             {
                 glEnable(GL_COLOR_MATERIAL); // use glColor4f to set color
-
+                
                 
                 for(int k=0; k<regionsBndDeq.size();++k)
                 {
@@ -431,26 +437,26 @@ namespace model
                     auto& mat=regionsBndDeq[k];
                     
                     RGBcolor clr0=RGBmap::getColor(float(regionsBndIDDeq[k].first+regionsBndIDDeq[k].second)*0.5,0,rMax);
-
-                    glColor4f(clr0.r, clr0.g, clr0.b,0.1);
-
                     
-//                    GLfloat materialColor1[]={0.0, 0.8, 0.0, 0.1};
-//                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor1);      // ambient color for the material
-//                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor1);      // diffuse color for the material
-//                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor1);  // specular color for the material
-//                    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor1);  // emission color for the material
+                    glColor4f(clr0.r, clr0.g, clr0.b,0.1);
+                    
+                    
+                    //                    GLfloat materialColor1[]={0.0, 0.8, 0.0, 0.1};
+                    //                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor1);      // ambient color for the material
+                    //                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor1);      // diffuse color for the material
+                    //                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor1);  // specular color for the material
+                    //                    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor1);  // emission color for the material
                     glBegin(GL_TRIANGLES);
                     glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
                     glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
                     glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
                     glEnd();
                     
-//                    GLfloat materialColor2[]={0.0, 0.2, 0.0, 0.1};
-//                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor2);      // ambient color for the material
-//                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor2);      // diffuse color for the material
-//                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor2);  // specular color for the material
-//                    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor2);  // emission color for the material
+                    //                    GLfloat materialColor2[]={0.0, 0.2, 0.0, 0.1};
+                    //                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor2);      // ambient color for the material
+                    //                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor2);      // diffuse color for the material
+                    //                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor2);  // specular color for the material
+                    //                    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialColor2);  // emission color for the material
                     glBegin(GL_LINE_LOOP);
                     glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
                     glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
@@ -462,7 +468,7 @@ namespace model
             glDisable(GL_BLEND);
             
             glEnable(GL_DEPTH_TEST); //Makes 3D drawing work when something is in front of something else
-
+            
             
             
         }

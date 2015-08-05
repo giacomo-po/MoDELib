@@ -39,7 +39,7 @@ namespace model
                                     const short unsigned int & k)
         {
             assert(k < N          && "k must be less than N");
-            return (N==order)? Quadrature<dim,order,QuadratureRule>::weights(k) : QuadratureDynamic<dim,QuadratureRule,otherOrders...>::weights(N,k);
+            return (N==order)? Quadrature<dim,order,QuadratureRule>::weight(k) : QuadratureDynamic<dim,QuadratureRule,otherOrders...>::weight(N,k);
         }
         
         /* abscissa ******************************************/
@@ -182,7 +182,7 @@ namespace model
         {
             assert(k < N          && "k must be less than N");
             assert(N==order && "quadrature order N not found in QuadratureDynamic");
-            return Quadrature<dim,order,QuadratureRule>::weights(k);
+            return Quadrature<dim,order,QuadratureRule>::weight(k);
         }
         
         /* abscissa ******************************************/

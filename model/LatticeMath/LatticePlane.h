@@ -19,7 +19,7 @@ namespace model
         
         typedef LatticeVector<3>    LatticeVectorType;
         
-        const LatticeVectorType& P;
+        const LatticeVectorType P;
         const LatticePlaneBase& n;
         
         LatticePlane(const LatticeVectorType& P_in,const LatticePlaneBase& n_in) :

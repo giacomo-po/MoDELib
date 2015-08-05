@@ -14,6 +14,8 @@
 #include <model/Utilities/TypeTraits.h>
 #include <model/Geometry/Splines/SplineConsts.h>
 #include <model/Quadrature/Quadrature.h>
+#include <model/Quadrature/QuadratureDynamic.h>
+#include <model/Quadrature/QuadPowDynamic.h>
 #include <model/LatticeMath/LatticeMath.h>
 
 namespace model
@@ -46,7 +48,8 @@ namespace model
 		typedef DislocationSegment   <dim,corder,InterpolationType,QuadratureRule>	LinkType;
 //		typedef Eigen::Matrix<double,dim,1>													FlowType;
         typedef LatticeVector<3>                                                            FlowType;
-
+        typedef QuadratureDynamic<1,QuadratureRule,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
+        typedef    QuadPowDynamic<3,QuadratureRule,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
     };
 
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,

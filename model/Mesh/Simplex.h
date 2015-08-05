@@ -193,7 +193,11 @@ namespace model
             Eigen::Matrix<double,dim,dim> F(vP.template block<dim,dim>(0,0));
             F.colwise() -= vP.col(dim);
             const double jFabs(std::fabs(F.determinant()));
-            assert(jFabs>FLT_EPSILON && "SIMPLEX HAS ZERO VOLUME");
+            if(jFabs<FLT_EPSILON)
+            {
+                std::cout<<this->xID<<", volume="<<jFabs<<std::endl;
+                assert(0 && "SIMPLEX HAS ZERO VOLUME");
+            }
             return jFabs*F.inverse().transpose()*BarycentricTraits<dim>::NdA;
         }
         
@@ -474,6 +478,14 @@ namespace model
             }
             return temp;
             
+        }
+        
+        /**********************************************************************/
+        std::set<int> regionIDs() const
+        {
+            std::set<int> temp;
+            temp.insert(region->regionID);
+            return temp;
         }
         
         

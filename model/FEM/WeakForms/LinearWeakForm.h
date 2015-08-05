@@ -87,7 +87,7 @@ namespace model
         {
              model::cout<<"Assembling LinearWeakForm on faces ("<<domain.size()<<" faces) ..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
-            for (int k=0;k<domain.size();++k)
+            for (unsigned int k=0;k<domain.size();++k)
             {
                 const ElementType& ele(domain.element(k));  // element ID
                 const int f(domain[k].second); //    face ID

@@ -68,14 +68,6 @@ namespace model
             return Material<Isotropic>::C2 * (temp+temp.transpose());
         }
         
-//        /**********************************************************************/
-//        template <typename ParticleType>
-//        static MatrixType addSourceContribution(const ParticleType& field,
-//                                                const BoundaryDislocationNetwork<dim>& bd)
-//        {
-//            return bd.nonSymmStress(field.P);
-//        }
-        
         template <typename ParticleType>
         static MatrixType addSourceContribution(const ParticleType&)
         {
@@ -89,6 +81,84 @@ namespace model
           * @param[in] farCells container of SpatialCell(s) that are not neighbors of field
           *\returns the Cauchy stress contribution of the farCells on field.
           *
+          * \f[
+          * \begin{align}
+          * \sigma_{ij}=\oint_\mathcal{L}S_{ijkl}R(\mathbf x-\mathbf x')b'_k\xi'_l\ dL'
+          * \end{align}
+          * \f]
+          * Now let \f$\mathbf{x'}=\mathbf{x}^c-\tilde{\mathbf{x}}\f$, then
+          * \f[
+          * \begin{align}
+          * \sigma_{ij}=\oint_\mathcal{L}S_{ijkl}R(\mathbf x-\mathbf x^c+\tilde{\mathbf{x}})b'_k\xi'_l\ dL'
+          * \end{align}
+          * \f]
+          * Now assume
+          * \f[
+          * \begin{align}
+          * |\tilde{\mathbf{x}}|\ll |\mathbf x-\mathbf x^c|
+          * \end{align}
+          * \f]
+          * then, expanding \f$R\f$ for \f$\tilde{\mathbf{x}}\rightarrow0\f$ yields
+          * \f[
+          * \begin{align}
+          * R(\mathbf x-\mathbf x^c+\tilde{\mathbf{x}})\approx R(\mathbf x-\mathbf x^c)+\partial_pR(\mathbf x-\mathbf x^c)\tilde{x}_p+\ldots
+          * \end{align}
+          * \f]
+          * and
+          * \f[
+          * \begin{align}
+          * \sigma_{ij}=S_{ijkl}R(\mathbf x-\mathbf x^c)\oint_\mathcal{L}b'_k\xi'_l\ dL'+S_{ijkl}\partial_pR(\mathbf x-\mathbf x^c)\oint_\mathcal{L}\tilde{x}_pb'_k\xi'_l+\ldots
+          * \end{align}
+          * \f]
+          * First order expansion:
+          * \f[
+          * \begin{align}
+          * \mathbf\sigma^0(\mathbf x)=\frac{\mu}{4\pi(1-\nu)R^2}&\left\{
+          * (1-\nu)\left[\hat{\mathbf\xi}'\otimes(\mathbf b\times\hat{\mathbf R})+(\mathbf b\times\hat{\mathbf R})\otimes\hat{\mathbf\xi}'\right]
+          * +\left[(\hat{\mathbf \xi}'\times\mathbf b)\otimes\hat{\mathbf R}+\hat{\mathbf R}\otimes(\hat{\mathbf \xi}'\times\mathbf b)\right] \right. \nonumber\\
+          * &\left.+\hat{\mathbf R}\cdot(\mathbf b\times\hat{\mathbf\xi}')\left[3\hat{\mathbf R}\otimes\hat{\mathbf R}+\mathbf I \right]
+          * \right\}
+          * \end{align}
+          *\f]
+          * Letting
+          * \f[
+          * \begin{align}
+          * (\mathbf b\times\hat{\mathbf R})\otimes\hat{\mathbf\xi})_{ij}=\epsilon_{ikm}b_kR_m\xi_j=\epsilon_{ikm}R_m\alpha_{kj}=\mathbf{S}\cdot\mathbf{\alpha}
+          * \end{align}
+          * \f]
+          * \f[
+          * \begin{align}
+          * \mathbf{S}=\left[\begin{array}{ccc}
+          * 0&R_3&-R_2\\
+          * -R_3&0&R_1\\
+          * R_2&-R_1&0
+          * \end{array}\right]
+          * \end{align}
+          * \f]
+          * \f[
+          * \begin{align}
+          * \mathbf b\times\hat{\mathbf \xi}'=\epsilon_{ikm}b_k\xi_m=a_i
+          * \end{align}
+          * \f]
+          * \f[
+          * \begin{align}
+          * \mathbf{a}=\left[\begin{array}{c}
+          * \alpha_{23}-\alpha_{32}\\
+          * \alpha_{31}-\alpha_{13}\\
+          * \alpha_{12}-\alpha_{21}
+          * \end{array}\right]
+          * \end{align}
+          * \f]
+          * we obtain
+          * \f[
+          * \begin{align}
+          * \mathbf\sigma^0(\mathbf x)=\frac{\mu}{4\pi(1-\nu)R^2}&\left\{
+          * (1-\nu)\left[(\mathbf{S}\cdot\mathbf{\alpha})^T+\mathbf{S}\cdot\mathbf{\alpha}\right]
+          * -\left[\mathbf{a}\otimes\hat{\mathbf R}+\hat{\mathbf R}\otimes\mathbf{a}\right] \right. \nonumber\\
+          * &\left.+(\hat{\mathbf R}\cdot\mathbf a)\left[3\hat{\mathbf R}\otimes\hat{\mathbf R}+\mathbf I \right]
+          * \right\}
+          * \end{align}
+          * \f]
           */
             MatrixType temp(MatrixType::Zero());
             for(auto cell : farCells)
@@ -156,14 +226,17 @@ namespace model
           * Dislocations. Solid State Physics, 10, 249–292.
           */
             
-            MatrixType temp(MatrixType::Zero());
+//            MatrixType temp(MatrixType::Zero());
             Eigen::Matrix<double,_dim,1> r(field.P-source.P);
             const double R2(r.squaredNorm()+a2);
                 r/=sqrt(R2); // normalize r
-                temp = -Material<Isotropic>::C1*source.T*(r.cross(source.B)).transpose()
-                /*  */ -r*(source.B.cross(source.T)).transpose() // the factor 2.0 takes care of the C2 term in DislocationParticle::stress
-                /*  */ +0.5*r.dot(source.B.cross(source.T)) * (3.0*r*r.transpose() + I);
-            return temp/R2*source.quadWeight;
+//                temp = -Material<Isotropic>::C1*source.T*(r.cross(source.B)).transpose()
+//                /*  */ -r*(source.B.cross(source.T)).transpose() // the factor 2.0 takes care of the C2 term in DislocationParticle::stress
+//                /*  */ +0.5*r.dot(source.B.cross(source.T)) * (3.0*r*r.transpose() + I);
+//            return temp/R2*source.quadWeight;
+            return (-Material<Isotropic>::C1*source.T*(r.cross(source.B)).transpose()
+            /*  */  -r*(source.B.cross(source.T)).transpose() // the factor 2.0 takes care of the C2 term in DislocationParticle::stress
+            /*  */  +0.5*r.dot(source.B.cross(source.T)) * (3.0*r*r.transpose() + I))/R2*source.quadWeight;
         }
         
 #elif _MODEL_NON_SINGULAR_DD_ == 1 /* Cai's non-singular theory */
@@ -309,3 +382,6 @@ namespace model
     
 }	// close namespace
 #endif
+
+
+

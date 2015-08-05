@@ -25,13 +25,32 @@ namespace model {
         typedef FieldBase<double,dim,1> FieldBaseType;
         typedef typename FieldBaseType::MatrixType MatrixType;
         
+        static bool use_multipole;
+
+        /**********************************************************************/
+        static const MatrixType& get(const MatrixType& temp)
+        {
+            return temp;
+        }
+        
+        /**********************************************************************/
+        template <typename ChargeParticleType, typename CellContainerType>
+        static MatrixType multipole(const ChargeParticleType& field,const CellContainerType& farCells)
+        {/*!@param[in] field  the FieldPoint at which stress is computed
+          * @param[in] farCells container of SpatialCell(s) that are not neighbors of field
+          *\returns not miplemente yet
+          *
+          */
+            assert(0 && "multipole not implemented");
+            return MatrixType::Zero(); //
+        }
         
         template <typename ChargeParticleType>
         static MatrixType compute(const ChargeParticleType& source,const ChargeParticleType& field)
         {
             
             MatrixType temp(MatrixType::Zero());
-            MatrixType R(field.P()-source.P());
+            MatrixType R(field.P-source.P);
             const double r2( R.squaredNorm() ); // squared distance between particles
             if(r2!=0.0)
             {
@@ -42,7 +61,11 @@ namespace model {
         }
         
     };
-        
+    
+    
+    template <short unsigned int dim>
+    bool ElectricField<dim>::use_multipole=false;
+
 }
 #endif
 

@@ -75,7 +75,7 @@ int main (int argc, char * argv[]) {
     // -4 output
     model::cout<<"Writing output file P/P_0.txt..."<<std::endl;
     SequentialOutputFile<'P',true> pFile1;
-    pFile1<<particleSystem.particles()<<std::endl;
+    pFile1<<particleSystem<<std::endl;
 
     
     return 0;

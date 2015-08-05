@@ -341,7 +341,7 @@ namespace model
         typename TypeTraits<TrialFunctionType>::ShapeFunctionDefMatrixType sfmDef(const Eigen::Matrix<double,1,dim+1>& bary) const
         {/*!\param[in] bary the vector of barycentric coordinates
           * \returns A matrix of the symmetric gradient of the shape-functions,
-          * evaluated at bary.
+          * evaluated at bary. Symmetric gradients are interpreted in egineering sense.
           */
             static_assert(TypeTraits<TrialFunctionType>::nComponents==dim,"SYMMETRIC GRADIENT (DEF) CAN ONLY BE COMPUTED IF nComponents==dim.");
             Eigen::Matrix<double,dim,nodesPerElement> temp(Gs(bary).transpose()*gradS(bary));

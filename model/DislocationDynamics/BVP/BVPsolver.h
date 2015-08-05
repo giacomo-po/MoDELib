@@ -9,10 +9,15 @@
 #ifndef model_BVPsolver_H_
 #define model_BVPsolver_H_
 
+//#define _MODEL_TEST_DD_DISPLACEMENT_
+
 #include <array>
 #include <deque>
 #include <chrono>
 #include <memory> // unique_ptr
+#ifdef _MODEL_PARDISO_SOLVER_
+#include <Eigen/PardisoSupport>
+#endif
 #include <model/FEM/FiniteElement.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 //#include <model/DislocationDynamics/BVP/DislocationNegativeFields.h>
@@ -58,6 +63,9 @@ namespace model
         const SimplicialMesh<dim>& mesh;
         size_t gSize;
         
+        static bool apply_DD_displacement;
+        static bool use_directSolver;
+        
     private:
         Eigen::Matrix<double,6,6> C; // matrix of elastic moduli
         FiniteElementType* fe;
@@ -74,10 +82,16 @@ namespace model
         SparseMatrixType A1;
         
 #ifdef _MODEL_PARDISO_SOLVER_
-        Eigen::PardisoLLT<SparseMatrixType> solver;
+        Eigen::PardisoLLT<SparseMatrixType> directSolver;
+        //        Eigen::PardisoLU<SparseMatrixType> directSolver;
+        //        Eigen::PardisoLDLT<SparseMatrixType> directSolver;
+        
 #else
-        Eigen::ConjugateGradient<SparseMatrixType> solver;
+        Eigen::SimplicialLLT<SparseMatrixType> directSolver;
+        
 #endif
+        
+        Eigen::ConjugateGradient<SparseMatrixType> iterativeSolver;
         
         /**********************************************************************/
         Eigen::Matrix<double,dim+1,1> face2domainBary(const Eigen::Matrix<double,dim,1>& b1,
@@ -101,7 +115,7 @@ namespace model
             const double lam=2.0*mu*nu/(1.0-2.0*nu);
             const double C11(lam+2.0*mu);
             const double C12(lam);
-            const double C44(2.0*mu); // C multiplies true strain (not engineering), so 2 is necessary
+            const double C44(mu); // C multiplies engineering strain
             
             Eigen::Matrix<double,6,6> temp;
             temp<<C11, C12, C12, 0.0, 0.0, 0.0,
@@ -158,30 +172,8 @@ namespace model
             SparseMatrixType T1(gSize,tSize);
             T1.setFromTriplets(tTriplets.begin(),tTriplets.end());
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
-
             
-            
-//            SparseMatrixType A1(T1.transpose()*A*T1);
-//            Eigen::VectorXd b1(T1.transpose()*(b-A*g));
-//
-//            const auto t1= std::chrono::system_clock::now();
-//#ifdef _MODEL_PARDISO_SOLVER_
-//            model::cout<<"Solving (PardisoLLT)..."<<std::flush;
-//            Eigen::PardisoLLT<SparseMatrixType> solver(A1);
-//            const Eigen::VectorXd x=T*solver.solve(b1)+g;
-//#else
-//            model::cout<<"Solving (ConjugateGradient)..."<<std::flush;
-//            Eigen::ConjugateGradient<SparseMatrixType> solver(A1);
-//            //                    Eigen::ConjugateGradient<SparseMatrixType> solver(T.transpose()*A*T); // this gives a segmentation fault
-//            solver.setTolerance(tolerance);
-//            //                    x=T*solver.solve(T.transpose()*(b-A*g))+g;
-//            const Eigen::VectorXd x=T*solver.solveWithGuess(b1,guess)+g;
-//            //                    x=T*solver.solve(b1)+g;
-//            model::cout<<" (relative error ="<<solver.error()<<", tolerance="<<solver.tolerance();
-//#endif
-//            model::cout<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
-//            assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
-//
+            // Check if null-space has changed
             const auto t4= std::chrono::system_clock::now();
             model::cout<<"Checking if null-space has changed... "<<std::flush;
             bool sameT=false;
@@ -197,35 +189,84 @@ namespace model
             model::cout<<!sameT<<std::flush;
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t4)).count()<<" sec]"<<std::endl;
             
+            // Update A1 if null-space has changed
             if(!sameT)
             { // need to re-factorized the LLT decomposition
                 const auto t1= std::chrono::system_clock::now();
+                if(use_directSolver)
+                {
 #ifdef _MODEL_PARDISO_SOLVER_
-                model::cout<<"PardisoLLT: factorizing..."<<std::flush;
+                    model::cout<<"PardisoLLT: factorizing..."<<std::flush;
 #else
-                model::cout<<"ConjugateGradient: factorizing..."<<std::flush;
+                    model::cout<<"SimplicialLLT: factorizing..."<<std::flush;
 #endif
+                }
+                else
+                {
+                    model::cout<<"ConjugateGradient: factorizing..."<<std::flush;
+                }
+                
                 T=T1; // store new T
                 A1=T.transpose()*A*T; // store new A1
-                solver.compute(A1);
+                if(use_directSolver)
+                {
+                    directSolver.compute(A1);
+                    assert(directSolver.info()==Eigen::Success && "SOLVER  FAILED");
+                }
+                else
+                {
+                    iterativeSolver.compute(A1);
+                    assert(iterativeSolver.info()==Eigen::Success && "SOLVER  FAILED");
+                }
+                //                solver.compute(A1);
+                //                assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
                 model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
             }
             
+            // Solve
             const auto t2= std::chrono::system_clock::now();
             Eigen::VectorXd b1(T.transpose()*(b-A*g));
+//            Eigen::VectorXd x(Eigen::VectorXd::Zero(gSize));
+            Eigen::VectorXd x(Eigen::VectorXd::Zero(b1.rows()));
 
+            
+            if(use_directSolver)
+            {
 #ifdef _MODEL_PARDISO_SOLVER_
-            model::cout<<"PardisoLLT: solving..."<<std::flush;
-            const Eigen::VectorXd x=T*solver.solve(b1)+g;
+                model::cout<<"PardisoLLT: solving..."<<std::flush;
 #else
-            model::cout<<"ConjugateGradient: solving..."<<std::flush;
-            solver.setTolerance(tolerance);
-            const Eigen::VectorXd x=T*solver.solveWithGuess(b1,guess)+g;
-            model::cout<<" (relative error ="<<solver.error()<<", tolerance="<<solver.tolerance()<<")";
+                model::cout<<"SimplicialLLT: solving..."<<std::flush;
 #endif
+//                x=T*directSolver.solve(b1)+g;
+                x=directSolver.solve(b1);
+                assert(directSolver.info()==Eigen::Success && "SOLVER  FAILED");
+                const double b1Norm(b1.norm());
+                if(b1Norm>0.0)
+                {
+                    const double axbNorm((A1*x-b1).norm());
+                    if(axbNorm/b1Norm>tolerance)
+                    {
+                        model::cout<<"norm(A*x-b)/norm(b)="<<axbNorm/b1Norm<<std::endl;
+                        model::cout<<"tolerance="<<tolerance<<std::endl;
+                        assert(0 && "SOLVER FAILED");
+                    }
+                }
+            }
+            else
+            {
+                model::cout<<"ConjugateGradient: solving..."<<std::flush;
+                iterativeSolver.setTolerance(tolerance);
+//                x=T*iterativeSolver.solveWithGuess(b1,guess)+g;
+                x=iterativeSolver.solveWithGuess(b1,guess);
+                model::cout<<" (relative error ="<<iterativeSolver.error()<<", tolerance="<<iterativeSolver.tolerance()<<")";
+                assert(iterativeSolver.info()==Eigen::Success && "SOLVER  FAILED");
+            }
+            
+            
+            
+            
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]"<<std::endl;
-            assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
-            return x;
+            return T*x+g;
         }
         
     public:
@@ -294,7 +335,7 @@ namespace model
             A.prune(A.norm()/A.nonZeros(),FLT_EPSILON);
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         }
-
+        
         /**********************************************************************/
         template<typename Condition,typename DislocationNetworkType>
         void addDirichletCondition(const size_t& nodeListID,
@@ -304,85 +345,98 @@ namespace model
         {/*!@param[in] dc the Dirichlet condition
           * @param[in] the nodal dof to be constrained
           */
+            
+            //#ifdef _MODEL_TEST_DD_DISPLACEMENT_
+            //            SequentialOutputFile<'Y',1>::set_count(DN.runningID());
+            //            SequentialOutputFile<'Y',1> dd_disp_file;
+            //#endif
+            
+            
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"adding DirichletCondition... "<<std::flush;
             // Add the Dirichlet condition
             u->addDirichletCondition(nodeListID,cond,constrainDof);
             
-            // Compute  the DislocationNetwork displacement at nodeList
-            model::cout<<"subtracting DislocationDisplacement... "<<std::flush;
-            typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
-            typedef typename FieldPointType::DisplacementField DisplacementField;
-            std::deque<FieldPointType> fieldPoints; // the container of field points
-            
-            for (auto node : fe->nodeList(nodeListID)) // range-based for loop (C++11)
+            if(apply_DD_displacement)
             {
-                // Compute S vector
-                Eigen::Matrix<double,dim,1> s(Eigen::Matrix<double,dim,1>::Zero());
-                for(auto ele : *node)
+                // Compute  the DislocationNetwork displacement at nodeList
+                model::cout<<"subtracting DislocationDisplacement... "<<std::flush;
+                typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
+                typedef typename FieldPointType::DisplacementField DisplacementField;
+                std::deque<FieldPointType> fieldPoints; // the container of field points
+                
+                for (auto node : fe->nodeList(nodeListID)) // range-based for loop (C++11)
                 {
-                    const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(node->P0));
-                    for(int k=0;k<dim+1;++k)
+                    // Compute S vector
+                    Eigen::Matrix<double,dim,1> s(Eigen::Matrix<double,dim,1>::Zero());
+                    for(auto ele : *node)
                     {
-                        if (std::fabs(bary(k))<FLT_EPSILON && ele->simplex.child(k).isBoundarySimplex())
+                        const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(node->P0));
+                        for(int k=0;k<dim+1;++k)
                         {
-                            s += ele->simplex.nda.col(k).normalized();
+                            if (std::fabs(bary(k))<FLT_EPSILON && ele->simplex.child(k).isBoundarySimplex())
+                            {
+                                s += ele->simplex.nda.col(k).normalized();
+                            }
                         }
                     }
+                    
+                    const double sNorm(s.norm());
+                    assert(sNorm>0.0 && "s-vector has zero norm.");
+                    fieldPoints.emplace_back(*node,s/sNorm);
                 }
-
-                const double sNorm(s.norm());
-                assert(sNorm>0.0 && "s-vector has zero norm.");
-                fieldPoints.emplace_back(*node,s/sNorm);
-            }
-            DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
-            
-            // Subtract the DislocationNetwork displacement from the Dirichlet conditions
-            for(size_t n=0;n<fieldPoints.size();++n)
-            {
-                for(int dof=0;dof<dofPerNode;++dof)
-                {
-                    if(constrainDof[dof])
-                    {
-                        u->dirichletConditions().at(fe->nodeList(nodeListID)[n]->gID*dofPerNode+dof) -= fieldPoints[n].template field<DisplacementField>()(dof);
-                    }
-                }
-            }
-            
-            if(DN.shared.use_virtualSegments) // Add solid angle contribution
-            {
-                //std::cout<<"NEED TO COMPUTE DISPLACEMENT OF RADIAL SEGMENTS"<<std::endl;
+                DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
                 
+                // Subtract the DislocationNetwork displacement from the Dirichlet conditions
                 for(size_t n=0;n<fieldPoints.size();++n)
                 {
-                    VectorDim dispJump(VectorDim::Zero());
-                    
-                    for (typename DislocationNetworkType::NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
-                    {
-                        linkIter->second.addToSolidAngleJump(fieldPoints[n].P,fieldPoints[n].S,dispJump);
-                    }
-                    
                     for(int dof=0;dof<dofPerNode;++dof)
                     {
                         if(constrainDof[dof])
                         {
-                            u->dirichletConditions().at(fe->nodeList(nodeListID)[n]->gID*dofPerNode+dof) -= dispJump(dof);
+                            //#ifdef _MODEL_TEST_DD_DISPLACEMENT_
+                            //                            dd_disp_file<<fieldPoints[n].P.transpose()<<" "<<fieldPoints[n].template field<DisplacementField>().transpose()<<"\n";
+                            //#endif
+                            u->dirichletConditions().at(fe->nodeList(nodeListID)[n]->gID*dofPerNode+dof) -= fieldPoints[n].template field<DisplacementField>()(dof);
                         }
                     }
                 }
-            } // end virtual loops
+                
+                if(DN.shared.use_virtualSegments) // Add solid angle contribution
+                {
+                    //std::cout<<"NEED TO COMPUTE DISPLACEMENT OF RADIAL SEGMENTS"<<std::endl;
+                    
+                    for(size_t n=0;n<fieldPoints.size();++n)
+                    {
+                        VectorDim dispJump(VectorDim::Zero());
+                        
+                        for (typename DislocationNetworkType::NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+                        {
+                            linkIter->second.addToSolidAngleJump(fieldPoints[n].P,fieldPoints[n].S,dispJump);
+                        }
+                        
+                        for(int dof=0;dof<dofPerNode;++dof)
+                        {
+                            if(constrainDof[dof])
+                            {
+                                u->dirichletConditions().at(fe->nodeList(nodeListID)[n]->gID*dofPerNode+dof) -= dispJump(dof);
+                            }
+                        }
+                    }
+                } // end virtual loops
+            }
             
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
         
-
+        
         
 #ifdef userBVPfile
         /**********************************************************************/
         template <typename DislocationNetworkType,int qOrder>
         void assembleAndSolve(const DislocationNetworkType& DN)
         {
-
+            
             
             typedef typename DislocationNetworkType::StressField StressField;
             typedef BoundaryStressPoint<DislocationNetworkType> FieldPointType;
@@ -416,12 +470,12 @@ namespace model
             
             
             auto dislocationTraction=(u->test(),eb_list);
-
+            
             fe->clearNodeLists();
             u->clearDirichletConditions();
-
+            
 #include userBVPfile // userBVPfile defines additional loads, boundary conditions, and calls solver
-
+            
         }
 #else
         /**********************************************************************/
@@ -431,8 +485,8 @@ namespace model
             assert(0 && "YOU MUST #define THE userBVPfile to use BVPsolver.");
         }
 #endif
-
-
+        
+        
         
         /**********************************************************************/
         Eigen::Matrix<double,dim,dim> stress(const Eigen::Matrix<double,dim,1> P,
@@ -509,8 +563,24 @@ namespace model
         
     };
     
+    //static data
+    
+    template <int dim, int sfOrder>
+    bool BVPsolver<dim,sfOrder>::apply_DD_displacement=true;
+    
+    template <int dim, int sfOrder>
+    bool BVPsolver<dim,sfOrder>::use_directSolver=true;
     
 } // namespace model
 #endif
 
+//#ifdef _MODEL_PARDISO_SOLVER_
+//            model::cout<<"PardisoLLT: solving..."<<std::flush;
+//            const Eigen::VectorXd x=T*solver.solve(b1)+g;
+//#else
+//            model::cout<<"ConjugateGradient: solving..."<<std::flush;
+//            solver.setTolerance(tolerance);
+//            const Eigen::VectorXd x=T*solver.solveWithGuess(b1,guess)+g;
+//            model::cout<<" (relative error ="<<solver.error()<<", tolerance="<<solver.tolerance()<<")";
+//#endif
 

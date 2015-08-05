@@ -52,7 +52,7 @@ namespace model {
         
         typedef typename ParticleSystemBaseType::SpatialCellType SpatialCellType;
         typedef typename ParticleSystemBaseType::ParticleContainerType ParticleContainerType;
-
+        
         
         /**********************************************************************/
         template <typename FieldType,typename... OtherSourceTypes>
@@ -75,7 +75,10 @@ namespace model {
                         /*                                                           */ qIter!=cIter->second->particleEnd();
                         /*                                                         */ ++qIter)
                     {
-                        *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::compute(**qIter,this->operator[](k));
+                        if(static_cast<const SingleSourcePoint<_ParticleType,FieldType>* const>(*qIter)->enabled)
+                        {
+                            *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::compute(**qIter,this->operator[](k));
+                        }
                     }
                 }
                 
@@ -94,7 +97,7 @@ namespace model {
             }
         }
         
-
+        
         
         /**********************************************************************/
         template <typename OtherParticleType, typename FieldType,typename... OtherSourceTypes>
@@ -119,7 +122,10 @@ namespace model {
                         /*                                                         */ ++qIter)
                     {
                         //fpDeq[k].template field<FieldType>() += FieldType::compute(**qIter,fpDeq[k]);
-                        *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::compute(**qIter,fpDeq[k]);
+                        if(static_cast<const SingleSourcePoint<_ParticleType,FieldType>* const>(*qIter)->enabled)
+                        {
+                            *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::compute(**qIter,fpDeq[k]);
+                        }
                     }
                 }
                 
@@ -127,8 +133,8 @@ namespace model {
                 if(FieldType::use_multipole)
                 {
                     typename SpatialCellType::CellMapType farCells(fpDeq[k].template farCells<_ParticleType>());
-//
-//                    fpDeq[k].template field<FieldType>() += FieldType::multipole(fpDeq[k],farCells);
+                    //
+                    //                    fpDeq[k].template field<FieldType>() += FieldType::multipole(fpDeq[k],farCells);
                     *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::multipole(fpDeq[k],farCells);
                 }
                 
@@ -146,7 +152,7 @@ namespace model {
         void computeField(OtherParticleType& part, const OtherSourceTypes&... otherSources) const
         {/*!@param[in] part
           * @param[in] otherSources
-          * \brief computes the field FieldType for the only particle part, 
+          * \brief computes the field FieldType for the only particle part,
           * without parallelization
           */
             ParticleSystemBaseType::template computeField<OtherParticleType,FieldType,OtherSourceTypes...>(part,otherSources...);
@@ -165,7 +171,7 @@ namespace model {
         }
         
     };
-
+    
 } // end namespace
 #endif
 

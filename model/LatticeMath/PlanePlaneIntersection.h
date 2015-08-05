@@ -66,16 +66,30 @@ namespace model
             const int a=*intSet.begin();
             const int b=*intSet.rbegin();
             
-            Eigen::Matrix<long int,2,2> N;
+// before Eigen 3.2.5
+//            Eigen::Matrix<long int,2,2> N;
+//            N << n1(a), n1(b),
+//            /**/ n2(a), n2(b);
+//            
+//            
+//            
+//            Eigen::Matrix<long int,2,1> PN;
+//            PN<<p1.dot(n1),p2.dot(n2);
+//            
+//            Eigen::Matrix<long int,2,1> p=N.lu().solve(PN);
+            
+            Eigen::Matrix<double,2,2> N;
             N << n1(a), n1(b),
             /**/ n2(a), n2(b);
             
-            Eigen::Matrix<long int,2,1> PN;
+            
+            
+            Eigen::Matrix<double,2,1> PN;
             PN<<p1.dot(n1),p2.dot(n2);
             
+            const Eigen::Matrix<double,2,1> tempD(N.inverse()*PN);
             
-            Eigen::Matrix<long int,2,1> p=N.lu().solve(PN);
-//            Eigen::Matrix<long int,2,1> p=N.inverse()*PN;
+            const Eigen::Matrix<long int,2,1> p=RoundEigen<long int,2>::round(tempD);
             
             
             

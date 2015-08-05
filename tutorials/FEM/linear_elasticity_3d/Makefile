@@ -37,3 +37,6 @@ clean:
 		
 # export DYLD_LIBRARY_PATH=/opt/intel/composer_xe_2015.2.132/mkl/lib:$DYLD_LIBRARY_PATH
 # export DYLD_LIBRARY_PATH=/opt/intel/composer_xe_2015.2.132/compiler/lib:$DYLD_LIBRARY_PATH
+
+# Hoffman2
+#export LD_LIBRARY_PATH=$MKLROOT/lib/intel64:$LD_LIBRARY_PATH

@@ -14,25 +14,23 @@
 namespace model
 {
 
-    template <typename _TrialFunctionType>
     struct DirichletCondition
     {
         
-        typename _TrialFunctionType TrialFunctionType;
-
+        const double value;
         
-        DirichletCondition(const TrialFunctionType& trial_in) :trial(trial_in)
-        /* init list */ value(vale_in)
+        DirichletCondition(const double& value_in) :
+        /* init list */ value(value_in)
         {
         
         }
-        
-        
+                
         /**************************************/
-        template <typename NodeType>
-        double at(const NodeType& node) const
+        template <typename NodeType,typename TrialFunctionType>
+        Eigen::Matrix<typename TrialFunctionType::Scalar,TrialFunctionType::dofPerNode,1>
+        operator()(const NodeType&, const TrialFunctionType&) const
         {
-            return value;
+            return Eigen::Matrix<typename TrialFunctionType::Scalar,TrialFunctionType::dofPerNode,1>::Constant(value);
         }
         
     };

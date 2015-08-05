@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <float.h>
 #include <vector>
+#include <deque>
 #include <iterator>     // std::distance
 #include <Eigen/Dense>
 #include <model/Utilities/TerminalColors.h>

@@ -50,7 +50,7 @@ namespace model
 			}
 			
 			std::cout<< "Computing powers of abscissas:"<<std::endl;
-			std::cout<<temp<<std::endl;
+//			std::cout<<temp<<std::endl;
 			
 			
 			return temp;
@@ -74,7 +74,7 @@ namespace model
 				}
 			}
 			std::cout<< "Computing 1-st derivative of powers of abscissas:"<<std::endl;
-			std::cout<<temp<<std::endl;
+//			std::cout<<temp<<std::endl;
 			return temp;
 		}
 		
@@ -96,27 +96,27 @@ namespace model
 				}
 			}
 			std::cout<< "Computing 2-nd derivative of powers of abscissas:"<<std::endl;
-			std::cout<<temp<<std::endl;
+//			std::cout<<temp<<std::endl;
 			return temp;
 		}
 	
     public:
         
-		static const Eigen::Matrix<double,qOrder,pOrder+1>   uPow;
-		static const Eigen::Matrix<double,qOrder,pOrder  >  duPow;
-		static const Eigen::Matrix<double,qOrder,pOrder-1> dduPow;
+        static const Eigen::Matrix<double,Eigen::Dynamic,pOrder+1>   uPow;
+		static const Eigen::Matrix<double,Eigen::Dynamic,pOrder  >  duPow;
+		static const Eigen::Matrix<double,Eigen::Dynamic,pOrder-1> dduPow;
 		
 	};
 	
     // Declare static data members
     template<short unsigned int pOrder, short unsigned int qOrder,  template <short unsigned int, short unsigned int> class QuadratureRule>
-	const Eigen::Matrix<double,qOrder,pOrder+1> QuadPow<pOrder,qOrder,QuadratureRule>::uPow=QuadPow<pOrder,qOrder,QuadratureRule>::uPowFill();
+	const Eigen::Matrix<double,Eigen::Dynamic,pOrder+1> QuadPow<pOrder,qOrder,QuadratureRule>::uPow=QuadPow<pOrder,qOrder,QuadratureRule>::uPowFill();
 	
 	template<short unsigned int pOrder, short unsigned int qOrder,  template <short unsigned int, short unsigned int> class QuadratureRule>
-	const Eigen::Matrix<double,qOrder,pOrder  > QuadPow<pOrder,qOrder,QuadratureRule>::duPow=QuadPow<pOrder,qOrder,QuadratureRule>::duPowFill();
+	const Eigen::Matrix<double,Eigen::Dynamic,pOrder  > QuadPow<pOrder,qOrder,QuadratureRule>::duPow=QuadPow<pOrder,qOrder,QuadratureRule>::duPowFill();
 	
 	template<short unsigned int pOrder, short unsigned int qOrder,  template <short unsigned int, short unsigned int> class QuadratureRule>
-	const Eigen::Matrix<double,qOrder,pOrder-1> QuadPow<pOrder,qOrder,QuadratureRule>::dduPow=QuadPow<pOrder,qOrder,QuadratureRule>::dduPowFill();
+	const Eigen::Matrix<double,Eigen::Dynamic,pOrder-1> QuadPow<pOrder,qOrder,QuadratureRule>::dduPow=QuadPow<pOrder,qOrder,QuadratureRule>::dduPowFill();
 	
 } // namespace model
 #endif

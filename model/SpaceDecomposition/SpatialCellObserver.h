@@ -101,7 +101,7 @@ namespace model {
             return cellMap;
         }
         
-        /* neighborCells ******************************************************/
+        /**********************************************************************/
         static CellMapType neighborCells(const VectorDimD& P)
         {/*!@param[in] P the position vector
           *\returns a map of the SpatialCell(s) neighboring P.
@@ -122,7 +122,7 @@ namespace model {
             return temp;
         }
         
-        /* neighborCells ******************************************************/
+        /**********************************************************************/
         static CellMapType farCells(const VectorDimD& P)
         {/*!@param[in] P the position vector
           *\returns a map of the SpatialCell(s) not neighboring P.
@@ -179,13 +179,12 @@ namespace model {
         
     };
     
-    /////////////////////////////
-    // Declare static data member
+    // Static data member
     template <typename ParticleType,short unsigned int dim>
     double SpatialCellObserver<ParticleType,dim>::_cellSize=1.0;
     
     template <typename ParticleType,short unsigned int dim>
     std::map<Eigen::Matrix<int,dim,1>, SpatialCell<ParticleType,dim>* const,CompareVectorsByComponent<int,dim> > SpatialCellObserver<ParticleType,dim>::cellMap;
     
-}	// close namespace
+}
 #endif
