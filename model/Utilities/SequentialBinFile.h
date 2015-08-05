@@ -137,10 +137,10 @@ namespace model {
 			// Destructor
 			~SequentialBinFile()
             {
-				bool isEmpty = !p_ofstream->tellp();	// if tellp()==0 then file is empty
 				
 				p_ofstream->close();
 				
+//              bool isEmpty = !p_ofstream->tellp();	// if tellp()==0 then file is empty
 //				if( isEmpty)
 //                {
 //				//	std::cout<<"File is empty. ";
