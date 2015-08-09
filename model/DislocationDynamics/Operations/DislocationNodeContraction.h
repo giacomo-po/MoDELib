@@ -394,7 +394,7 @@ namespace model
                 {
                     if(!isBoundaryNode1 && !isBoundaryNode2)
                     {
-                         //std::cout<<"contractWithConstraintCheck, case 2a"<<std::flush; // 2 3 5
+                        //std::cout<<"contractWithConstraintCheck, case 2a"<<std::endl; // 2 3 5
                         
                         // Find the LatticeLine over which node2 moves
                         PlanePlaneIntersection ppi(*PN2[0],*PN2[1]);
@@ -407,23 +407,24 @@ namespace model
                         {
                             case PlaneLineIntersection::IntersectionType::intersecting:
                                 contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,pli.P);
-                               //std::cout<<" done"<<std::endl;
+                               //std::cout<<"contractWithConstraintCheck, case 2a1"<<std::endl; // 2 3 5
 
                                 break;
                                 
                             case PlaneLineIntersection::IntersectionType::coincident:
                                 contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                               //std::cout<<" done"<<std::endl;
+                               //std::cout<<"contractWithConstraintCheck, case 2a2"<<std::endl; // 2 3 5
 
                                 break;
                                 
                             default:
+                               //std::cout<<"contractWithConstraintCheck, case 2a3"<<std::endl; // 2 3 5
                                 break;
                         }
                     }
                     else if(isBoundaryNode1 && !isBoundaryNode2)
                     {// N1 can move on its plane and it is contrained on the bonudary, N2 moves on a line
-                         //std::cout<<"contractWithConstraintCheck, case 2b"<<std::endl; // 2 3 5
+                        //std::cout<<"contractWithConstraintCheck, case 2b"<<std::endl; // 2 3 5
                         PlanePlaneIntersection ppi(*PN2[0],*PN2[1]);
                         assert(ppi.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
                         const LatticeLine line(ppi.P,ppi.d);
@@ -434,7 +435,7 @@ namespace model
                         {
                             case PlaneLineIntersection::IntersectionType::intersecting:
                             {// check if the intersection point is a boundary point
-                                 //std::cout<<"contractWithConstraintCheck, case 2b1"<<std::flush; // 2 3 5
+                                //std::cout<<"contractWithConstraintCheck, case 2b1"<<std::flush; // 2 3 5
 
                                 std::pair<bool,const Simplex<dim,dim>*> temp=DN.shared.mesh.searchWithGuess(pli.P.cartesian(),N1.second->includingSimplex());
                                 std::pair<bool,const Simplex<dim,dim>*> tempp=DN.shared.mesh.searchWithGuess(pli.P.cartesian()+line.d.cartesian(),N1.second->includingSimplex());
@@ -450,7 +451,7 @@ namespace model
                                 
                             case PlaneLineIntersection::IntersectionType::coincident:
                             {// find the point where the line intersects the boundary
-                                 //std::cout<<"contractWithConstraintCheck, case 2b2"<<std::flush; // 2 3 5
+                                //std::cout<<"contractWithConstraintCheck, case 2b2"<<std::flush; // 2 3 5
 
                                 const LatticeLine line2(N2.second->get_L(),line.d);
                                 const LatticeVectorType dL(line.d.snapToDirection(N1.second->bndNormal()*10.0));
@@ -458,7 +459,10 @@ namespace model
                                 {
                                 LineMeshIntersection lmi(line2,N2.second->get_L()+dL,DN.shared.mesh,N1.second->includingSimplex());
 //                                LatticeVectorType L=lineMeshIntersection(line2,N1.second->get_L(),N1.second->includingSimplex());
-                                contracted+=contractWithCommonNeighborCheck(*N2.second,*N1.second,lmi.L);
+                                    if((lmi.L-N2.second->get_L()).squaredNorm()<2.0*(N1.second->get_L()-N2.second->get_L()).squaredNorm())
+                                    {
+                                        contracted+=contractWithCommonNeighborCheck(*N2.second,*N1.second,lmi.L);
+                                    }
                                    //std::cout<<" done"<<std::endl;
 
                                 }

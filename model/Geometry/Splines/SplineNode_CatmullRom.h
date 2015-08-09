@@ -82,6 +82,8 @@ namespace model
         /* init list */ NetworkNode<Derived>::NetworkNode(pL),
         /* init list */ SplineNodeBaseType(P_in,VectorDim::Zero())
         {
+//            std::cout<<"SplineNode_CatmullRom from ExpadingLink B "<<this->sID<<std::endl;
+
 //            std::cout<<"Verify SplineNode_CatmullRom get_nodeDof() 3"<<std::endl;
             set(this->get_P()); // trigger calculation of tangents
         }

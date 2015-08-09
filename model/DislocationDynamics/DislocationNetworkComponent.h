@@ -311,7 +311,7 @@ namespace model
             if (useMINRES)
             {
                 Eigen::MINRES<SparseMatrixType> solver(KQQ);
-                solver.setTolerance(DBL_EPSILON);
+                solver.setTolerance(FLT_EPSILON);
                 solver.setMaxIterations(10*F.rows());
                 x1=solver.solveWithGuess(F,x1);
                 if(solver.info()==Eigen::Success)

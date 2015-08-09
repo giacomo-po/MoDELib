@@ -78,6 +78,13 @@ namespace model
         }
         
         /**********************************************************************/
+        static VectorDimI snapToLattice(const VectorDimD& d)
+        {
+            VectorDimD nd(invA*d);
+            return RoundEigen<double,dim>::round(nd).template cast<long int>();
+        }
+        
+        /**********************************************************************/
         static VectorDimI d2cov(const VectorDimD& d)
         {
             VectorDimD nd(AT*d);

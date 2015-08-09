@@ -10,28 +10,34 @@
 #ifndef model_SLIPSYSTEM_H_
 #define model_SLIPSYSTEM_H_
 
-#include <cfloat> // FLT_EPSILON
 #include <assert.h>
-#include <vector>
-#include <Eigen/Dense>
+#include <model/LatticeMath/LatticePlaneBase.h>
+#include <model/LatticeMath/LatticeVector.h>
 
-namespace model {
+namespace model
+{
     
     /**************************************************************************/
     /**************************************************************************/
-    template<int dim>
-    struct SlipSystem {
+    struct SlipSystem
+    {
         
-        typedef Eigen::Matrix<double,dim,1> VectorDimD;
 
-        const VectorDimD normal;
-        const VectorDimD slip;
+        const LatticePlaneBase n;
+        const LatticeVector<3>  s;
         
-        SlipSystem(const VectorDimD& normal_in,const VectorDimD& slip_in):
-        /* init list */ normal(normal_in),
-        /* init list */ slip(slip_in)
+        SlipSystem(const LatticePlaneBase& normal_in,const LatticeVector<3>& slip_in):
+        /* init list */ n(normal_in),
+        /* init list */ s(slip_in)
         {
-            assert(std::fabs(normal.dot(slip))<FLT_EPSILON && "PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL.");
+            assert(std::fabs(n.dot(s))==0 && "PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL.");
+        }
+        
+        SlipSystem(const LatticeVector<3>& a1,const LatticeVector<3>& a2,const LatticeVector<3>& slip_in):
+        /* init list */ n(a1,a2),
+        /* init list */ s(slip_in)
+        {
+            assert(std::fabs(n.dot(s))==0 && "PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL.");
         }
         
     };

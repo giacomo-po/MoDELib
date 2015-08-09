@@ -153,6 +153,11 @@ namespace model
             return TrialFunction<nComponents,FiniteElementType>(*this);
         }
         
+        const ElementContainerType& elements() const
+        {
+            return *this;
+        }
+        
         /**********************************************************************/
         typename ElementContainerType::const_iterator elementBegin() const
         {

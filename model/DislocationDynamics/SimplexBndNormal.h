@@ -30,7 +30,7 @@ namespace model
                                      const double& dmax)
         {
             
-            
+            //std::cout<<simplex.xID<<std::endl;
             VectorDim temp(VectorDim::Zero());
             
                 const Eigen::Matrix<double,dim+1,1> bary(simplex.pos2bary(P));
@@ -42,6 +42,7 @@ namespace model
                     
                     const double h=3.0*simplex.vol0/simplex.child(f).vol0*bary(f); // distance from f-th face
                     
+                    //std::cout<<h<<std::endl;
                     if(simplex.child(f).isBoundarySimplex() && std::fabs(h)<dmax)
                     {
                         temp=simplex.nda.col(f).normalized();
@@ -62,9 +63,12 @@ namespace model
                             const VectorDim& x1=simplex.child(f).child(e).child(0).P0;
                             const VectorDim& x2=simplex.child(f).child(e).child(1).P0;
                             const double d=(P-x1).cross(P-x2).norm()/(x2-x1).norm(); // distance to edge
-                                                        
+                            
+                            //std::cout<<d<<" to edge "<<simplex.child(f).child(e).child(0).xID<<" "<<simplex.child(f).child(e).child(1).xID<<std::endl;
+                            
                             if(d<dmax && simplex.child(f).child(e).isBoundarySimplex()) // point close to edge, and edge is on boundary
                             {
+                                // average bnd-normals of parents
                                 for(const auto& parent : simplex.child(f).child(e).parents())
                                 {
                                     if(parent->isBoundarySimplex())
@@ -109,6 +113,7 @@ namespace model
                 }
                 
 //            }
+            
             return temp;
         }
         

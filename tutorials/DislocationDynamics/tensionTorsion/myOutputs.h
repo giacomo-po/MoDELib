@@ -24,7 +24,10 @@ if(DN.shared.use_bvp)
         const Eigen::Matrix<double,3,1> v0=(node->P0-tt.pivot).normalized();
         const Eigen::Matrix<double,3,1> v1=((Eigen::Matrix<double,3,1>()<<(node->P0+nodeDisp-tt.pivot).template segment<2>(0),0.0).finished()).normalized();
         const double sinTheta=(v1-v1.dot(v0)*v0).dot(Eigen::Matrix<double,3,1>::UnitZ().cross(v0));
-        rotZ += std::asin(sinTheta);
+        if(sinTheta>=-1.0 && sinTheta<=1.0)
+        {
+            rotZ += std::asin(sinTheta);
+        }
     }
     
     // Compute dislocation displacement for those nodes
@@ -62,7 +65,10 @@ if(DN.shared.use_bvp)
         const Eigen::Matrix<double,3,1> v0=(node.P-tt.pivot).normalized();
         const Eigen::Matrix<double,3,1> v1=((Eigen::Matrix<double,3,1>()<<(node.P+nodeDisp-tt.pivot).template segment<2>(0),0.0).finished()).normalized();
         const double sinTheta=(v1-v1.dot(v0)*v0).dot(Eigen::Matrix<double,3,1>::UnitZ().cross(v0));
-        rotZ += std::asin(sinTheta);
+        if(sinTheta>=-1.0 && sinTheta<=1.0)
+        {
+            rotZ += std::asin(sinTheta);
+        }
         
         //    const double dotp((node.P-tt.pivot).template segment<2>(0).normalized().dot((node.P+nodeDisp-tt.pivot).template segment<2>(0).normalized()));
         //    if (dotp>0.1 && dotp<=1.0)

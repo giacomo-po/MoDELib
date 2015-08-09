@@ -105,10 +105,10 @@ namespace model
                 const typename EdgeFinder<LinkType>::isNetworkEdgeType Lij(DN.link(i,j));
                 if (Lij.first )
                 {
-                    //Ncontracted+=singleEdgeContract(Lij);
-//                    const isNetworkNodeType Ni=DN.node(i);
-//                    const isNetworkNodeType Nj=DN.node(j);
+                   //std::cout<<"contracting"<<i<<"->"<<j<<std::endl;
                     Ncontracted+=DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
+                   //std::cout<<"Ncontracted="<<Ncontracted<<std::endl;
+
                 }
             }
             model::cout<<" ("<<Ncontracted<<" contracted)"<<std::flush;
@@ -209,6 +209,7 @@ namespace model
                 const typename EdgeFinder<LinkType>::isNetworkEdgeType Lij(DN.link(i,j));
                 if(Lij.first)
                 {
+                   //std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
                     VectorDimD expandPoint(Lij.second->get_r(expand_at));
                     
                     if(!Lij.second->isSessile)

@@ -20,6 +20,7 @@
 #include <model/DislocationDynamics/Materials/CrystalStructures.h>
 #include <model/MPI/MPIcout.h>
 #include <model/LatticeMath/LatticeBase.h>
+#include <model/DislocationDynamics/Materials/SlipSystem.h>
 
 
 
@@ -37,10 +38,12 @@ namespace model {
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
 //        typedef LatticePlaneBase ReciprocalLatticeDirectionType;
         typedef std::vector<LatticePlaneBase> PlaneNormalContainerType;
+        typedef std::vector<SlipSystem> SlipSystemContainerType;
         typedef std::vector<unsigned int> PlaneNormalIDContainerType;
         
     private:
         static PlaneNormalContainerType planeNormalContainer;
+        static SlipSystemContainerType slipSystemContainer;
         
         static Eigen::Matrix<double,dim,dim> C2G;
         
@@ -63,6 +66,7 @@ namespace model {
             
             // Get crystallographic plane normals from the CrystalStructure
             planeNormalContainer=CrystalStructure::template reciprocalPlaneNormals<dim>();
+            slipSystemContainer=CrystalStructure::slipSystems();
             
             // Rotate the LatticeBasis of the CrystalStructure using C2G
             LatticeBase<dim>::setLatticeBasis(C2G*CrystalStructure::template getLatticeBasis<dim>());
@@ -204,16 +208,26 @@ namespace model {
             //            return std::distance(planeNormalContainer.begin(),pIter);
         }
         
-        //        /**********************************************************************/
-        //        static const std::vector<Eigen::Matrix<double,dim,1> >& planeNormals()
-        //        {
-        //            return planeNormalContainer;
-        //        }
+        /**********************************************************************/
+        static const PlaneNormalContainerType& planeNormals()
+        {
+            return planeNormalContainer;
+        }
+        
+        /**********************************************************************/
+        static const SlipSystemContainerType& slipSystems()
+        {
+            return slipSystemContainer;
+        }
         
     };
     
     template <int dim>
     std::vector<LatticePlaneBase> CrystalOrientation<dim>::planeNormalContainer=FCC::reciprocalPlaneNormals<dim>();
+
+    template <int dim>
+    std::vector<SlipSystem> CrystalOrientation<dim>::slipSystemContainer=FCC::slipSystems();
+
     
     template <int dim>
     Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::C2G=Eigen::Matrix<double,dim,dim>::Identity();

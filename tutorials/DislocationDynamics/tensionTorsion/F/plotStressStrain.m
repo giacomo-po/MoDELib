@@ -2,12 +2,17 @@ clear all
 close all
 clc
 
-Burgers=0.2851e-9; % Burgers vector for Al [m]
-R=0.5e-6/2/Burgers % radius of cylinder (units of Burgers vector)
-H=4*R;    % height of cylinder (units of Burgers vector)
-A=pi*R^2;
+Burgers=0.2556e-9; % Burgers vector for Cu [m]
+L1=2000 % radius of cylinder (units of Burgers vector)
+L2=2000
+H=4000
+A=L1*L2;
 V=H*A;
-J=pi*R^4/2;
+J=pi*(L1*L2^3+L2*L1^3)/12;
+
+eDot=1.0e-11;
+gDot=1.0e-11;
+
 
 fontSize=16;
 F=load('F_0.txt');
@@ -24,12 +29,13 @@ t3=F(:,9); % torque
 pdr=F(:,10:end)/V; % plastic distortion rate
 pd=cumsum(pdr.*repmat(dt,1,size(pdr,2))); % plastic distortion
 
-
-
 e33=u3/H;
 s33=f3/A;
 
+R=L1/2;
+
 gamma=theta3*R/H;
+
 tau=t3*R/J;
 
 
@@ -125,7 +131,7 @@ ylabel('dt')
 figure(6)
 plot(runID,u3,'Linewidth',2)
 hold on
-plot(runID,1.0e-9*time*H,'r','Linewidth',1)
+plot(runID,eDot*time*H,'r','Linewidth',1)
 grid on
 xlabel('DD step','Fontsize',fontSize)
 ylabel('u_3 / b','Fontsize',fontSize)
@@ -136,7 +142,7 @@ figure(7)
 %plot(t,theta3)
 plot(runID,theta3,'b','Linewidth',2)
 hold on
-plot(runID,1.0e-9*time*H/R,'r','Linewidth',1)
+plot(runID,gDot*time*H/R,'r','Linewidth',1)
 grid on
 xlabel('DD step ','Fontsize',fontSize)
 ylabel('theta_3 [rad]','Fontsize',fontSize)
