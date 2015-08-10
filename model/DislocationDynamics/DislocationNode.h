@@ -118,7 +118,7 @@ namespace model
                     // Detect if the DislocationNode is sligtly outside the boundary
                     int faceID;
                     const double baryMin(temp.second->pos2bary(this->get_P()).minCoeff(&faceID));
-                    const bool isApproxOnBoundary(std::fabs(baryMin)<FLT_EPSILON && temp.second->child(faceID).isBoundarySimplex());
+                    const bool isApproxOnBoundary(std::fabs(baryMin)<1000.0*FLT_EPSILON && temp.second->child(faceID).isBoundarySimplex());
                     if(!isApproxOnBoundary)
                     {
                         model::cout<<"DislocationNode "<<this->sID<<" @ "<<this->get_P().transpose()<<std::endl;
