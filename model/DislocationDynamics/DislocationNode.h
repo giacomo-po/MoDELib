@@ -119,7 +119,15 @@ namespace model
                     int faceID;
                     const double baryMin(temp.second->pos2bary(this->get_P()).minCoeff(&faceID));
                     const bool isApproxOnBoundary(std::fabs(baryMin)<FLT_EPSILON && temp.second->child(faceID).isBoundarySimplex());
-                    assert(isApproxOnBoundary && "DISLOCATION NODE CREATED OUTSIDE MESH.");
+                    if(!isApproxOnBoundary)
+                    {
+                        model::cout<<"DislocationNode "<<this->sID<<" @ "<<this->get_P().transpose()<<std::endl;
+                        model::cout<<"Simplex "<<temp.second->xID<<std::endl;
+                        model::cout<<"bary "<<temp.second->pos2bary(this->get_P())<<std::endl;
+                        model::cout<<"face of barymin is "<<temp.second->child(faceID).xID<<std::endl;
+                        model::cout<<"face of barymin is boundary Simplex? "<<temp.second->child(faceID).isBoundarySimplex()<<std::endl;
+                        assert(0 && "DISLOCATION NODE CREATED OUTSIDE MESH.");
+                    }
                 }
             }
             
