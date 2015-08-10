@@ -592,8 +592,8 @@ namespace model
                     
                     if(isBoundaryNode()) // node already a boundary node, it must remain on boundary
                     {
-                        const VectorDim bndNrml=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*temp.second,bndDistance);
-                        if(bndNrml.squaredNorm()>0.0) // new position is on boundary
+                        const VectorDim bndNrml=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*temp.second,bndDistance); // boundary normal at new position
+                        if(temp.first && bndNrml.squaredNorm()>0.0) // new position is on boundary
                         {
                             p_Simplex=temp.second;
                             set(L+LatticeVectorType(dX));
