@@ -276,7 +276,7 @@ namespace model
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init list        */ vOld(velocity),
-        /* init list        */ velocityReductionCoeff(1.0),
+        /* init list        */ velocityReductionCoeff(0.5*(pL.E.source->velocityReduction()+pL.E.sink->velocityReduction())),
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from ExpandingEdge and DOF
@@ -294,7 +294,7 @@ namespace model
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity(Vin),
         /* init list        */ vOld(velocity),
-        /* init list        */ velocityReductionCoeff(1.0),
+        /* init list        */ velocityReductionCoeff(0.5*(pL.E.source->velocityReduction()+pL.E.sink->velocityReduction())),
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
         {
@@ -310,7 +310,7 @@ namespace model
         /* init list        */ p_Simplex(get_includingSimplex(cv.v0.includingSimplex())),
         /* init list        */ velocity(0.5*(cv.v0.get_V()+cv.v1.get_V())),
         /* init list        */ vOld(velocity),
-        /* init list        */ velocityReductionCoeff(1.0),
+        /* init list        */ velocityReductionCoeff(0.5*(cv.v0.velocityReduction()+cv.v1.velocityReduction())),
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from VertexContraction
@@ -799,6 +799,12 @@ namespace model
                     temp.insert(std::get<0>(nIiter->second)->sID);
                 }
             }
+        }
+        
+        /**********************************************************************/
+        const double& velocityReduction() const
+        {
+            return velocityReductionCoeff;
         }
         
         /**********************************************************************/
