@@ -151,7 +151,7 @@ namespace model
         //        bool useImplicitTimeIntegration;
         double shearWaveSpeedFraction;
         
-        unsigned int runID;
+        long int runID;
         
         bool use_crossSlip;
         
@@ -533,6 +533,34 @@ namespace model
             
             // Restart
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
+            if(runID<0)
+            {// restart from last in F/F_0.txt
+                model::cout<<"Restarting"<<std::endl;
+                const std::string restartFile="./F/F_0.txt";
+                std::ifstream ifs ( restartFile.c_str() , std::ifstream::in );
+                if (ifs.is_open())
+                {
+                    std::string line;
+                    while (std::getline(ifs, line))
+                    {
+                        std::stringstream ss(line);
+                        ss>>runID;
+                    }
+                    if(runID<0)
+                    {
+                        model::cout<<"could not read runID from F/F_0.txt"<<std::endl;
+                        runID=0;
+                    }
+                    model::cout<<"starting at time step "<<runID<<std::endl;
+                    
+                }
+                else
+                {
+                    model::cout<<"undable to open "<<restartFile<<" for restart. Starting at time step 0."<<std::endl;
+                    runID=0;
+                }
+            
+            }
             
             // IO
             EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
@@ -865,7 +893,7 @@ namespace model
         
         /**********************************************************************/
         std::pair<double,double> networkLength() const
-        {/*!\returns the line length of *this DislocationNetwork.
+        {/*!\returns the line length of *this DislocationNetwork. 
           */
             double totalLength(0.0);
             double immobileLength(0.0);
@@ -886,7 +914,7 @@ namespace model
         }
         
         /**********************************************************************/
-        const unsigned int& runningID() const
+        const long int& runningID() const
         {/*! The current simulation step ID.
           */
             return runID;

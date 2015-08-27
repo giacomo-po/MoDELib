@@ -68,7 +68,8 @@ namespace model
                 std::cout<<"Reading: "<<filename;
                 double t0(clock());
                 int row(0);
-                while (std::getline(ifs, line)) {
+                while (std::getline(ifs, line))
+                {
                     std::stringstream ss(line);
                     
                     int col(0);
