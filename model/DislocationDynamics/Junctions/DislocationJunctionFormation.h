@@ -108,16 +108,16 @@ namespace model
             VectorDimD prjDir(VectorDimD::Zero());
             if (!L1.isSessile && !L2.isSessile)
             {
-                ////std::cout<<"junctionDir, case 1"<<std::endl;
+                //std::cout<<"junctionDir, case 1"<<std::endl;
                 const VectorDimD commonLine(L1.glidePlaneNormal.cross(L2.glidePlaneNormal));
                 if(commonLine.norm()>FLT_EPSILON)
                 { // planes are not parallel, intersection will be on common line
-                    ////std::cout<<"junctionDir, case 1a"<<std::endl;
+                    //std::cout<<"junctionDir, case 1a"<<std::endl;
                     prjDir=commonLine.normalized();
                 }
                 else
                 {
-                    ////std::cout<<"junctionDir, case 1b"<<std::endl;
+                    //std::cout<<"junctionDir, case 1b"<<std::endl;
                     const double rl1Norm(rl1.norm());
                     assert(rl1Norm>FLT_EPSILON && "TANGENT HAS ZERO NORM");
                     prjDir=rl1/rl1Norm;
@@ -125,12 +125,12 @@ namespace model
             }
             else if(L1.isSessile && !L2.isSessile)
             { // use chord of I
-                ////std::cout<<"junctionDir, case 2"<<std::endl;
+                //std::cout<<"junctionDir, case 2"<<std::endl;
                 prjDir=L1.chord().normalized();
             }
             else if(!L1.isSessile && L2.isSessile)
             { // use chord of J
-                ////std::cout<<"junctionDir, case 2"<<std::endl;
+                //std::cout<<"junctionDir, case 2"<<std::endl;
                 prjDir=L2.chord().normalized();
             }
             else
@@ -141,7 +141,7 @@ namespace model
             
             const double sgnrl1rl2(rl1.dot(prjDir)*rl2.dot(prjDir));
             
-            ////std::cout<<"junctionDir, sgnrl1rl2="<<sgnrl1rl2<<std::endl;
+            //std::cout<<"junctionDir, sgnrl1rl2="<<sgnrl1rl2<<std::endl;
             
             //const bool frankRule(b1.dot(b2)*rl1.dot(rl2)<=0.0);
             const bool frankRule(b1.dot(b2)*sgnrl1rl2<=0.0);
@@ -172,7 +172,6 @@ namespace model
             {// segment1 is not small, create new junction nodes
                 
                 const double du(dx/L.chordLength());
-                ////std::cout<<"du="<<du<<std::endl;
                 
                 double um(u-du);
                 if(um<0.0)
@@ -185,8 +184,6 @@ namespace model
                 }
                 VectorDimD Pm(L.get_r(um));
                 Pm=L.glidePlane.snapToLattice(Pm);
-                
-                
                 
                 double up(u+du);
                 if(up<um)
@@ -223,21 +220,42 @@ namespace model
                     }
                 }
                 
+//               //std::cout<<source.get_P().transpose()<<std::endl;
+//               //std::cout<<Pm.transpose()<<std::endl;
+//               //std::cout<<Pp.transpose()<<std::endl;
+//               //std::cout<<sink.get_P().transpose()<<std::endl;
+                
+//                if(   (Pm-source.get_P()).squaredNorm()>dx2
+//                   && insideMeshM)
+//                {
+//                    std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(source.sID,sink.sID,Pm);
+//                    im=temp.first->first; // id of the node obtained expanding L1
+//                }
+//                
+//                if(   (Pp-  sink.get_P()).squaredNorm()>dx2
+//                   && (Pm-Pp).squaredNorm()>dx2
+//                   && insideMeshP)
+//                {
+//                    std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(im,sink.sID,Pp); // now L1.second is invalid
+//                    ip=temp.first->first; // id of the node obtained expanding L1
+//                }
+                
                 if(   (Pm-source.get_P()).squaredNorm()>dx2
+                   && (Pm-Pp).squaredNorm()>dx2
+                   && (Pp-  sink.get_P()).squaredNorm()>dx2
                    && insideMeshM)
                 {
-                    std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(source.sID,sink.sID,Pm);
-                    im=temp.first->first; // id of the node obtained expanding L1
+                    //std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(source.sID,sink.sID,Pm);
+                    im=DN.expand(source.sID,sink.sID,Pm).first->first; // id of the node obtained expanding L1
+                    
+                    //std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(im,sink.sID,Pp); // now L1.second is invalid
+                    ip=DN.expand(im,sink.sID,Pp).first->first; // id of the node obtained expanding L1
+
                 }
-                
-                if(   (Pp-  sink.get_P()).squaredNorm()>dx2
-                   && (Pm-Pp).squaredNorm()>dx2
-                   && insideMeshP)
-                {
-                    std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(im,sink.sID,Pp); // now L1.second is invalid
-                    ip=temp.first->first; // id of the node obtained expanding L1
-                }
+            
             }
+            
+            
             return std::make_pair(im,ip);
         }
         
@@ -465,33 +483,35 @@ namespace model
                     const isNetworkLinkType L1(DN.link(key1.first,key1.second));
                     const isNetworkLinkType L2(DN.link(key2.first,key2.second));
                     
-                    //std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[tt][interID]. first.second<<","<<intersectionContainer[tt][interID]. second.second<<std::endl;
+                   //std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[tt][interID]. first.second<<","<<intersectionContainer[tt][interID]. second.second<<std::endl;
                     
                     if(L1.first && L2.first) // Links exist
                     {
-                        
+                       //std::cout<<"I'm here 1"<<std::endl;
                         
                         const std::pair<size_t,size_t> I=junctionIDs(*L1.second,intersectionContainer[tt][interID]. first.second,dx);
                         const size_t im=I.first;
                         const size_t ip=I.second;
                         
+                        
                         const std::pair<size_t,size_t> J=junctionIDs(*L2.second,intersectionContainer[tt][interID].second.second,dx);
                         const size_t jm=J.first;
                         const size_t jp=J.second;
+                        
                         
                         switch (dirVector[tt][interID])
                         {
                             case +1:
                             {
-                                //std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
-                                //std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
+                               //std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
+                               //std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
                                 if(im!=jm)
                                 {
                                     const isNetworkNodeType N1=DN.node(im);
                                     const isNetworkNodeType N2=DN.node(jm);
                                     if(N1.first && N2.first)
                                     {
-                                       //std::cout<<"first contract +1 "<<std::endl;
+                                      //std::cout<<"first contract +1 "<<std::endl;
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -501,7 +521,7 @@ namespace model
                                     const isNetworkNodeType N2=DN.node(jp);
                                     if(N1.first && N2.first)
                                     {
-                                       //std::cout<<"second contract +1 "<<std::endl;
+                                      //std::cout<<"second contract +1 "<<std::endl;
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -510,15 +530,15 @@ namespace model
                                 
                             case -1:
                             {
-                                //std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
-                                //std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
+                               //std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
+                               //std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
                                 if(im!=jp)
                                 {
                                     const isNetworkNodeType N1=DN.node(im);
                                     const isNetworkNodeType N2=DN.node(jp);
                                     if(N1.first && N2.first)
                                     {
-                                        //std::cout<<"first contract -1 "<<std::endl;
+                                       //std::cout<<"first contract -1 "<<std::endl;
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -528,7 +548,7 @@ namespace model
                                     const isNetworkNodeType N2=DN.node(jm);
                                     if(N1.first && N2.first)
                                     {
-                                        //std::cout<<"second contract -1 "<<std::endl;
+                                       //std::cout<<"second contract -1 "<<std::endl;
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -542,7 +562,8 @@ namespace model
                         
                         
                     }
-                    
+                    //std::cout<<"done forming Junction "<<std::endl;
+
                 }
             } // loop over threads
             model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -660,7 +681,7 @@ namespace model
 //                        {// segment1 is not small, create new junction nodes
 //
 //                            const double du1(dx/L1.second->chordLength());
-//                            ////std::cout<<"du1="<<du1<<std::endl;
+//                            //std::cout<<"du1="<<du1<<std::endl;
 //
 //                            double u1m(intersectionContainer[tt][interID]. first.second-du1);
 //                            if(u1m<0.0)
@@ -729,7 +750,7 @@ namespace model
 //                        if(L2.second->chordLength()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
 //                        {
 //                            const double du2(dx/L2.second->chordLength());
-//                            ////std::cout<<"du2="<<du2<<std::endl;
+//                            //std::cout<<"du2="<<du2<<std::endl;
 //
 //                            double u2m(intersectionContainer[tt][interID].second.second-du2);
 //                            if(u2m<0.0)
@@ -887,12 +908,12 @@ namespace model
 //                const size_t sizePN1(PN1.size());
 //                const size_t sizePN2(PN2.size());
 //
-//                //////std::cout<<"contractWithConstraintCheck "<<N1.second->sID<<" "<<N2.second->sID<<std::endl;
-//                //////std::cout<<"contractWithConstraintCheck: case "<<sizePN1<<" "<<sizePN2<<std::endl;
+//                //std::cout<<"contractWithConstraintCheck "<<N1.second->sID<<" "<<N2.second->sID<<std::endl;
+//                //std::cout<<"contractWithConstraintCheck: case "<<sizePN1<<" "<<sizePN2<<std::endl;
 //
 //                if(sizePN1==1 && sizePN2==1) // nodes constrained to move on planes
 //                {
-//                    //////std::cout<<"contractWithConstraintCheck, case 1"<<std::endl;
+//                    //std::cout<<"contractWithConstraintCheck, case 1"<<std::endl;
 ////                    const double denom(1.0-std::pow(PN1[0].dot(PN2[0]),2));
 ////                    const double numer((P2-P1).dot(PN2[0]));
 ////
@@ -940,44 +961,44 @@ namespace model
 //                }
 //                else if(sizePN1==1 && sizePN2==2) // N1 moves on a plane, N2 moves on a line
 //                {
-//                    //////std::cout<<"contractWithConstraintCheck, case 2"<<std::endl;
+//                    //std::cout<<"contractWithConstraintCheck, case 2"<<std::endl;
 //                    const VectorDimD d2(PN2[0].cross(PN2[1]));
 //                    const double den(d2.dot(PN1[0]));
 //                    const double num(P12.dot(PN1[0]));
 //                    if(std::fabs(den)>FLT_EPSILON) // line and plane are not parallel
 //                    {
-//                        //////std::cout<<"contractWithConstraintCheck, case 2a"<<std::endl;
+//                        //std::cout<<"contractWithConstraintCheck, case 2a"<<std::endl;
 //                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P2+num/den*d2);
 //                    }
 //                    else
 //                    {
 //                        if(std::fabs(num)<FLT_EPSILON) // P2 belongs to the plane of P1
 //                        {
-//                            //////std::cout<<"contractWithConstraintCheck, case 2b"<<std::endl;
+//                            //std::cout<<"contractWithConstraintCheck, case 2b"<<std::endl;
 //                            //                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2)); // HERE
 //                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
 //
 //                        }
-//                        //////std::cout<<"contractWithConstraintCheck, case 2c"<<std::endl;
+//                        //std::cout<<"contractWithConstraintCheck, case 2c"<<std::endl;
 //                    }
 //                }
 //                else if(sizePN1==2 && sizePN2==1) // N1 moves on a line, N2 moves on a plane
 //                {
 //                    contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
-//                    //                    //////std::cout<<"contractWithConstraintCheck, case 3"<<std::endl;
+//                    //                    //std::cout<<"contractWithConstraintCheck, case 3"<<std::endl;
 //                    //                    const VectorDimD d1(PN1[0].cross(PN1[1]));
 //                    //                    const double den(d1.dot(PN2[0]));
 //                    //                    const double num((P2-P1).dot(PN2[0]));
 //                    //                    if(std::fabs(den)>FLT_EPSILON) // line and plane are not parallel
 //                    //                    {
-//                    //                        //////std::cout<<"contractWithConstraintCheck, case 3a"<<std::endl;
+//                    //                        //std::cout<<"contractWithConstraintCheck, case 3a"<<std::endl;
 //                    //                        contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,P1+num/den*d1);
 //                    //                    }
 //                    //                    else
 //                    //                    {
 //                    //                        if(std::fabs(num)<FLT_EPSILON) // P1 belongs to the plane of P2
 //                    //                        {
-//                    //                            //////std::cout<<"contractWithConstraintCheck, case 3b"<<std::endl;
+//                    //                            //std::cout<<"contractWithConstraintCheck, case 3b"<<std::endl;
 //                    //
 //                    ////                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2)); // HERE
 //                    //                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
@@ -986,7 +1007,7 @@ namespace model
 //                }
 //                else if(sizePN1==2 && sizePN2==2) // both N1 and N2 move on lines
 //                {
-//                    //////std::cout<<"contractWithConstraintCheck, case 4"<<std::endl;
+//                    //std::cout<<"contractWithConstraintCheck, case 4"<<std::endl;
 //
 //                    VectorDimD d1(PN1[0].cross(PN1[1]));
 //                    const double d1norm(d1.norm());
@@ -1004,7 +1025,7 @@ namespace model
 //                    {
 //                        if(d1.cross(P12.normalized()).norm()<FLT_EPSILON) // colinear
 //                        {
-//                            //////std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl;
+//                            //std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl;
 //
 //                            contracted+=DislocationNetworkRemesh<DislocationNetworkType>(DN).contractWithCommonNeighborCheck(*N1.second,*N2.second,0.5*(P1+P2));
 //                        }
@@ -1018,7 +1039,7 @@ namespace model
 //                    {
 //                        if(std::fabs((d3/d3Norm).dot(P12/P12norm))<FLT_EPSILON) // planarity condition
 //                        {
-//                            //////std::cout<<"contractWithConstraintCheck, case 4b"<<std::endl;
+//                            //std::cout<<"contractWithConstraintCheck, case 4b"<<std::endl;
 //
 //                            const VectorDimD dOrth=d2-d2.dot(d1)*d1; // component of d2 orthogonal to d1
 //                            const double den=d2.dot(dOrth);
@@ -1033,7 +1054,7 @@ namespace model
 //                }
 //                else if(sizePN1==1 && sizePN2==3)
 //                {
-//                    //////std::cout<<"contractWithConstraintCheck, case 5"<<std::endl;
+//                    //std::cout<<"contractWithConstraintCheck, case 5"<<std::endl;
 //
 //                    if(std::fabs(P12.normalized().dot(PN1[0]))<FLT_EPSILON) // P2 belongs to the plane of P1
 //                    {// contract N1
@@ -1046,7 +1067,7 @@ namespace model
 //                }
 //                else if(sizePN1==3 && sizePN2==1)
 //                {
-//                    //////std::cout<<"contractWithConstraintCheck, case 6"<<std::endl;
+//                    //std::cout<<"contractWithConstraintCheck, case 6"<<std::endl;
 //
 //                    contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
 //
@@ -1061,7 +1082,7 @@ namespace model
 //                }
 //                else if(sizePN1==2 && sizePN2==3)
 //                {
-//                    //////std::cout<<"contractWithConstraintCheck, case 7"<<std::endl;
+//                    //std::cout<<"contractWithConstraintCheck, case 7"<<std::endl;
 //
 //                    VectorDimD d1(PN1[0].cross(PN1[1]));
 //                    const double d1norm(d1.norm());

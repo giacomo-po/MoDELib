@@ -87,14 +87,14 @@ namespace model
                         {
                             if(DN.link(*nIter1,*nIter2).first || DN.link(*nIter2,*nIter1).first)
                             {
-                                // //std::cout<<"disconnecting "<<*nIter1<<" "<<*nIter2<<std::endl;
+                                //std::cout<<"disconnecting "<<*nIter1<<" "<<*nIter2<<std::endl;
                                 DN.template disconnect<false>(*nIter1,*nIter2);
                             }
                         }
                     }
                 }
                 
-                // //std::cout<<"neighbors.size()="<<neighbors.size()<<std::endl;
+                //std::cout<<"neighbors.size()="<<neighbors.size()<<std::endl;
                 
                 // Contract
                 for (std::set<size_t>::const_iterator nIter=neighbors.begin();nIter!=neighbors.end();++nIter)
@@ -103,7 +103,7 @@ namespace model
                     {
                         if(DN.node(*nIter).first)
                         {
-                            // //std::cout<<"neighbors contractingSecond "<<*neighbors.begin()<<" "<<*nIter<<std::endl;
+                            //std::cout<<"neighbors contractingSecond "<<*neighbors.begin()<<" "<<*nIter<<std::endl;
                             DN.contractSecond(*neighbors.begin(),*nIter);
                             temp++;
                         }
@@ -112,7 +112,7 @@ namespace model
                 
                 if(DN.node(i).first && DN.node(*neighbors.begin()).first && *neighbors.begin()!=i)
                 {
-                    // //std::cout<<"contractingSecond "<<*neighbors.begin()<<" "<<i<<std::endl;
+                    //std::cout<<"contractingSecond "<<*neighbors.begin()<<" "<<i<<std::endl;
                     
                     DN.contractSecond(*neighbors.begin(),i);
                     temp++;
@@ -120,7 +120,7 @@ namespace model
                 
                 if(DN.node(j).first && DN.node(*neighbors.begin()).first && *neighbors.begin()!=j)
                 {
-                    // //std::cout<<"contractingSecond "<<*neighbors.begin()<<" "<<j<<std::endl;
+                    //std::cout<<"contractingSecond "<<*neighbors.begin()<<" "<<j<<std::endl;
                     
                     DN.contractSecond(*neighbors.begin(),j);
                     temp++;
@@ -131,7 +131,7 @@ namespace model
                 std::pair<bool,const Simplex<dim,dim>*> guess(DN.pointIsInsideMesh(L0.cartesian(),Ni.includingSimplex()));
                 if(guess.first) // check that P0 is inside mesh
                 {
-                    // //std::cout<<"contracting "<<i<<" "<<j<<std::endl;
+                    //std::cout<<"contracting "<<i<<" "<<j<<std::endl;
                     
                     //                    DN.contract(i,j,L0,guess.second); // 2 3 4 5
                     DN.contract(i,j,L0); // 2 3 4 5
@@ -171,7 +171,7 @@ namespace model
                     {
                         if(DN.link(*nIter1,*nIter2).first || DN.link(*nIter2,*nIter1).first)
                         {
-                            // //std::cout<<"disconnecting "<<*nIter1<<" "<<*nIter2<<std::endl;
+                            //std::cout<<"disconnecting "<<*nIter1<<" "<<*nIter2<<std::endl;
                             DN.template disconnect<false>(*nIter1,*nIter2);
                         }
                     }
@@ -186,7 +186,7 @@ namespace model
             {
                 if(DN.node(*nIter).first)
                 {
-                    // //std::cout<<"contractingSecond "<<i<<" "<<*nIter<<std::endl;
+                    //std::cout<<"contractingSecond "<<i<<" "<<*nIter<<std::endl;
                     
                     DN.contractSecond(i,*nIter);
                     temp++;
@@ -195,7 +195,7 @@ namespace model
             
             if(DN.node(j).first)
             {
-                // //std::cout<<"contractingSecond (j) "<<i<<" "<<j<<std::endl;
+                //std::cout<<"contractingSecond (j) "<<i<<" "<<j<<std::endl;
                 
                 DN.contractSecond(i,j);
                 temp++;
@@ -238,7 +238,7 @@ namespace model
         size_t contractWithConstraintCheck(const isNetworkNodeType& N1, const isNetworkNodeType& N2)
         {
             
-             //std::cout<<"contractWithConstraintCheck "<<N1.second->sID<<" "<<N2.second->sID<<std::endl;
+            //std::cout<<"contractWithConstraintCheck "<<N1.second->sID<<" "<<N2.second->sID<<std::endl;
             
             size_t contracted(0);
             
@@ -253,7 +253,7 @@ namespace model
             
             if((L1-L2).squaredNorm()==0) // points are coincindent, just contract them
             {
-                 //std::cout<<"contractWithConstraintCheck: chord= "<<(L1-L2).squaredNorm()<<std::endl;
+                //std::cout<<"contractWithConstraintCheck: chord= "<<(L1-L2).squaredNorm()<<std::endl;
                 contracted+=contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
                 
 //                contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,L1);
@@ -269,7 +269,7 @@ namespace model
                 const VectorDimD P1=L1.cartesian();
                 const VectorDimD P2=L2.cartesian();
                 
-                 //std::cout<<"contractWithConstraintCheck: case "<<sizePN1<<" "<<sizePN2<<std::endl;
+                //std::cout<<"contractWithConstraintCheck: case "<<sizePN1<<" "<<sizePN2<<std::endl;
                 
                 if(sizePN1==1 && sizePN2==1)
                 {// nodes constrained to move on planes, both inside mesh
@@ -277,22 +277,22 @@ namespace model
 
                     if(!isBoundaryNode1 && !isBoundaryNode2)
                     {
-                         //std::cout<<"contractWithConstraintCheck, case 1a"<<std::endl; // 2 3 5
+                        //std::cout<<"contractWithConstraintCheck, case 1a"<<std::endl; // 2 3 5
                         switch (ppi.intersectionType)
                         {
                             case PlanePlaneIntersection::IntersectionType::coincident:
                             {
-                                 //std::cout<<"contractWithConstraintCheck, case 1a1"<<std::flush; // 2 3 5
+                                //std::cout<<"contractWithConstraintCheck, case 1a1"<<std::flush; // 2 3 5
                                 
                                 LatticeVectorType L(PN1[0]->snapToLattice(0.5*(P1+P2)));
                                 contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,L);
-                               //std::cout<<" done"<<std::endl;
+                              //std::cout<<" done"<<std::endl;
                                 break;
                             }
                                 
                             case PlanePlaneIntersection::IntersectionType::incident:
                             {
-                                 //std::cout<<"contractWithConstraintCheck, case 1a2"<<std::flush; // 2 3 5
+                                //std::cout<<"contractWithConstraintCheck, case 1a2"<<std::flush; // 2 3 5
                                 // Find closest point on intersection line
                                 const VectorDimD n1=PN1[0]->n.cartesian().normalized();
                                 const VectorDimD n2=PN2[0]->n.cartesian().normalized();
@@ -304,7 +304,7 @@ namespace model
                                 const LatticeLine line(ppi.P,ppi.d);
                                 LatticeVectorType L(line.snapToLattice(0.5*(P-N*lam)));
                                 contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,L);
-                               //std::cout<<" done"<<std::endl;
+                              //std::cout<<" done"<<std::endl;
 
                                 break;
                             }
@@ -320,20 +320,20 @@ namespace model
                     }
                     else // case (isBoundaryNode1 && !isBoundaryNode2) and (isBoundaryNode1 && isBoundaryNode2)
                     { // N1 moves on its plane, constrained on the boundary, N2 moves on its plane, possibly on the boundary
-                         //std::cout<<"contractWithConstraintCheck, case 1b"<<std::endl; // 2 3 5
+                        //std::cout<<"contractWithConstraintCheck, case 1b"<<std::endl; // 2 3 5
                         switch (ppi.intersectionType)
                         {
                             case PlanePlaneIntersection::IntersectionType::coincident:
                             {
-                                 //std::cout<<"contractWithConstraintCheck, case 1b1"<<std::flush; // 2 3 5
+                                //std::cout<<"contractWithConstraintCheck, case 1b1"<<std::flush; // 2 3 5
                                 contracted+=contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
-                               //std::cout<<" done"<<std::endl;
+                              //std::cout<<" done"<<std::endl;
                                 break;
                             }
                                 
                             case PlanePlaneIntersection::IntersectionType::incident:
                             {
-                                 //std::cout<<"contractWithConstraintCheck, case 1b2"<<std::flush; // 2 3 5
+                                //std::cout<<"contractWithConstraintCheck, case 1b2"<<std::flush; // 2 3 5
                                 const LatticeLine line(ppi.P,ppi.d);
 //                                const VectorDimD n1=PN1[0]->n.cartesian().normalized();
 //                                const VectorDimD n2=PN2[0]->n.cartesian().normalized();
@@ -368,7 +368,7 @@ namespace model
                                     {
                                         LineMeshIntersection lmi(line2,LatticeVectorType(v1),DN.shared.mesh,N1.second->includingSimplex());
                                         contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,lmi.L);
-                                       //std::cout<<" done"<<std::endl;
+                                      //std::cout<<" done"<<std::endl;
                                     }
                                 }
 //
@@ -394,7 +394,7 @@ namespace model
                 {
                     if(!isBoundaryNode1 && !isBoundaryNode2)
                     {
-                        //std::cout<<"contractWithConstraintCheck, case 2a"<<std::endl; // 2 3 5
+                       //std::cout<<"contractWithConstraintCheck, case 2a"<<std::endl; // 2 3 5
                         
                         // Find the LatticeLine over which node2 moves
                         PlanePlaneIntersection ppi(*PN2[0],*PN2[1]);
@@ -407,24 +407,24 @@ namespace model
                         {
                             case PlaneLineIntersection::IntersectionType::intersecting:
                                 contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,pli.P);
-                               //std::cout<<"contractWithConstraintCheck, case 2a1"<<std::endl; // 2 3 5
+                              //std::cout<<"contractWithConstraintCheck, case 2a1"<<std::endl; // 2 3 5
 
                                 break;
                                 
                             case PlaneLineIntersection::IntersectionType::coincident:
                                 contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                               //std::cout<<"contractWithConstraintCheck, case 2a2"<<std::endl; // 2 3 5
+                              //std::cout<<"contractWithConstraintCheck, case 2a2"<<std::endl; // 2 3 5
 
                                 break;
                                 
                             default:
-                               //std::cout<<"contractWithConstraintCheck, case 2a3"<<std::endl; // 2 3 5
+                              //std::cout<<"contractWithConstraintCheck, case 2a3"<<std::endl; // 2 3 5
                                 break;
                         }
                     }
                     else if(isBoundaryNode1 && !isBoundaryNode2)
                     {// N1 can move on its plane and it is contrained on the bonudary, N2 moves on a line
-                        //std::cout<<"contractWithConstraintCheck, case 2b"<<std::endl; // 2 3 5
+                       //std::cout<<"contractWithConstraintCheck, case 2b"<<std::endl; // 2 3 5
                         PlanePlaneIntersection ppi(*PN2[0],*PN2[1]);
                         assert(ppi.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
                         const LatticeLine line(ppi.P,ppi.d);
@@ -435,7 +435,7 @@ namespace model
                         {
                             case PlaneLineIntersection::IntersectionType::intersecting:
                             {// check if the intersection point is a boundary point
-                                //std::cout<<"contractWithConstraintCheck, case 2b1"<<std::flush; // 2 3 5
+                               //std::cout<<"contractWithConstraintCheck, case 2b1"<<std::flush; // 2 3 5
 
                                 std::pair<bool,const Simplex<dim,dim>*> temp=DN.shared.mesh.searchWithGuess(pli.P.cartesian(),N1.second->includingSimplex());
                                 std::pair<bool,const Simplex<dim,dim>*> tempp=DN.shared.mesh.searchWithGuess(pli.P.cartesian()+line.d.cartesian(),N1.second->includingSimplex());
@@ -443,7 +443,7 @@ namespace model
                                 if((temp.first && !tempp.first) || (temp.first && !tempm.first))
                                 {
                                     contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,pli.P);
-                                   //std::cout<<" done"<<std::endl;
+                                  //std::cout<<" done"<<std::endl;
 
                                 }
                                 break;
@@ -451,7 +451,7 @@ namespace model
                                 
                             case PlaneLineIntersection::IntersectionType::coincident:
                             {// find the point where the line intersects the boundary
-                                //std::cout<<"contractWithConstraintCheck, case 2b2"<<std::flush; // 2 3 5
+                               //std::cout<<"contractWithConstraintCheck, case 2b2"<<std::flush; // 2 3 5
 
                                 const LatticeLine line2(N2.second->get_L(),line.d);
                                 const LatticeVectorType dL(line.d.snapToDirection(N1.second->bndNormal()*10.0));
@@ -463,7 +463,7 @@ namespace model
                                     {
                                         contracted+=contractWithCommonNeighborCheck(*N2.second,*N1.second,lmi.L);
                                     }
-                                   //std::cout<<" done"<<std::endl;
+                                  //std::cout<<" done"<<std::endl;
 
                                 }
                                 break;
@@ -475,24 +475,24 @@ namespace model
                     }
                     else if(!isBoundaryNode1 && isBoundaryNode2)
                     {// N2 is stuck, N1 moves on a plane. Only option is that plane1 contains P2
-                         //std::cout<<"contractWithConstraintCheck, case 2c"<<std::flush; // 2 3 5
+                        //std::cout<<"contractWithConstraintCheck, case 2c"<<std::flush; // 2 3 5
                         if(PN1[0]->contains(L2))
                         {
                             contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                           //std::cout<<" done"<<std::endl;
+                          //std::cout<<" done"<<std::endl;
 
                         }
                     }
                     else
                     {
-                         //std::cout<<"contractWithConstraintCheck, case 2d"<<std::endl; // 2 3 5
+                        //std::cout<<"contractWithConstraintCheck, case 2d"<<std::endl; // 2 3 5
 
                     }
                     
                 }
                 else if(sizePN1==2 && sizePN2==1) // N1 moves on a line, N2 moves on a plane
                 {
-                     //std::cout<<"contractWithConstraintCheck, case 3"<<std::endl; // 2 3 5
+                    //std::cout<<"contractWithConstraintCheck, case 3"<<std::endl; // 2 3 5
                     contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
                 }
                 else if(sizePN1==2 && sizePN2==2) // both N1 and N2 move on lines
@@ -500,7 +500,7 @@ namespace model
                     
                     if(!isBoundaryNode1 && !isBoundaryNode2)
                     {
-                         //std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl; // 2 3 5
+                        //std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl; // 2 3 5
                         PlanePlaneIntersection ppi1(*PN1[0],*PN1[1]);
                         assert(ppi1.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
                         const LatticeLine line1(ppi1.P,ppi1.d);
@@ -517,19 +517,19 @@ namespace model
                         {
                             case LineLineIntersection::IntersectionType::intersectingLines:
                             {
-                                 //std::cout<<"contractWithConstraintCheck, case 4a"<<std::flush; // 2 3 5
+                                //std::cout<<"contractWithConstraintCheck, case 4a"<<std::flush; // 2 3 5
                                 contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,lli.P);
-                               //std::cout<<" done"<<std::endl;
+                              //std::cout<<" done"<<std::endl;
 
                                 break;
                             }
                                 
                             case LineLineIntersection::IntersectionType::coincidentLines:
                             {
-                                 //std::cout<<"contractWithConstraintCheck, case 4b"<<std::flush; // 2 3 5
-                                // //std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl; // 2 3 5
+                                //std::cout<<"contractWithConstraintCheck, case 4b"<<std::flush; // 2 3 5
+                                //std::cout<<"contractWithConstraintCheck, case 4a"<<std::endl; // 2 3 5
                                 contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,LatticeVectorType(line1.snapToLattice(0.5*(P1+P2))));
-                               //std::cout<<" done"<<std::endl;
+                              //std::cout<<" done"<<std::endl;
 
                                 break;
                             }
@@ -541,7 +541,7 @@ namespace model
                     }
                     else if(isBoundaryNode1 && !isBoundaryNode2)
                     {
-                       //std::cout<<"contractWithConstraintCheck, case 4c"<<std::flush; // 2 3 5
+                      //std::cout<<"contractWithConstraintCheck, case 4c"<<std::flush; // 2 3 5
 
                         // node 1 is stuck, while node2 moves on a line. Only option is thatl line2 contains P1
                         PlanePlaneIntersection ppi2(*PN2[0],*PN2[1]);
@@ -550,20 +550,20 @@ namespace model
                         if(line2.contains(L1))
                         {
                             contracted+=contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
-                           //std::cout<<" done"<<std::endl;
+                          //std::cout<<" done"<<std::endl;
 
                         }
                     }
                     else if(!isBoundaryNode1 && isBoundaryNode2)
                     {
-//                       //std::cout<<"contractWithConstraintCheck, case 4d"<<std::endl; // 2 3 5
-                       //std::cout<<"contractWithConstraintCheck, case 4 flip"<<std::flush; // 2 3 5
+//                      //std::cout<<"contractWithConstraintCheck, case 4d"<<std::endl; // 2 3 5
+                      //std::cout<<"contractWithConstraintCheck, case 4 flip"<<std::flush; // 2 3 5
 
                         contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
                     }
                     else // both are bonudary nodes
                     {
-                       //std::cout<<"contractWithConstraintCheck, case 4d"<<std::endl; // 2 3 5
+                      //std::cout<<"contractWithConstraintCheck, case 4d"<<std::endl; // 2 3 5
 
                         // both nodes are stuck, so only option is then P1==P2, already considered above
                     }
@@ -572,49 +572,49 @@ namespace model
                 {// node2 is stuck,
                     if(!isBoundaryNode1)
                     {
-                         //std::cout<<"contractWithConstraintCheck, case 5a"<<std::endl;
-                         //std::cout<<isBoundaryNode1<<" "<<isBoundaryNode2<<std::endl;
+                        //std::cout<<"contractWithConstraintCheck, case 5a"<<std::endl;
+                        //std::cout<<isBoundaryNode1<<" "<<isBoundaryNode2<<std::endl;
                         if(PN1[0]->contains(L2))
                         {
-                             //std::cout<<"contractWithConstraintCheck, case 5a1"<<std::flush; // 2 3 5
+                            //std::cout<<"contractWithConstraintCheck, case 5a1"<<std::flush; // 2 3 5
                             contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                           //std::cout<<" done"<<std::endl;
+                          //std::cout<<" done"<<std::endl;
 
                         }
                     }
                     else // node1 is a boundary node, so it can be contracted to N2 if N2 belongs to the plane of N1, and N2 is a boundary node
                     {
-                         //std::cout<<"contractWithConstraintCheck, case 5b"<<std::endl;
+                        //std::cout<<"contractWithConstraintCheck, case 5b"<<std::endl;
                         if(PN1[0]->contains(L2) && isBoundaryNode2)
                         {
-                             //std::cout<<"contractWithConstraintCheck, case 5b1"<<std::flush; // 2 3 5
+                            //std::cout<<"contractWithConstraintCheck, case 5b1"<<std::flush; // 2 3 5
                             contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                           //std::cout<<" done"<<std::endl;
+                          //std::cout<<" done"<<std::endl;
 
                         }
                     }
                 }
                 else if(sizePN1==3 && sizePN2==1)
                 {
-                     //std::cout<<"contractWithConstraintCheck, case 6 "<<std::flush;
+                    //std::cout<<"contractWithConstraintCheck, case 6 "<<std::flush;
                     contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
-                   //std::cout<<" done"<<std::endl;
+                  //std::cout<<" done"<<std::endl;
 
                 }
                 else if(sizePN1==2 && sizePN2==3)
                 {// node2 is stuck,
                     if(!isBoundaryNode1)
                     {
-                         //std::cout<<"contractWithConstraintCheck, case 7a"<<std::endl;
+                        //std::cout<<"contractWithConstraintCheck, case 7a"<<std::endl;
                         
                         PlanePlaneIntersection ppi(*PN1[0],*PN1[1]);
                         assert(ppi.intersectionType==PlanePlaneIntersection::IntersectionType::incident);
                         const LatticeLine line(ppi.P,ppi.d);
                         if(line.contains(L2))
                         {
-                             //std::cout<<"contractWithConstraintCheck, case 7aa"<<std::flush; // 2 3 5
+                            //std::cout<<"contractWithConstraintCheck, case 7aa"<<std::flush; // 2 3 5
                             contracted+=contractSecondWithCommonNeighborCheck(*N2.second,*N1.second);
-                           //std::cout<<" done"<<std::endl;
+                          //std::cout<<" done"<<std::endl;
 
                         }
                     }
@@ -626,9 +626,9 @@ namespace model
                 }
                 else if(sizePN1==3 && sizePN2==2)
                 {
-                     //std::cout<<"contractWithConstraintCheck, case 8"<<std::flush; // 2 3 5
+                    //std::cout<<"contractWithConstraintCheck, case 8"<<std::flush; // 2 3 5
                     contracted+=contractWithConstraintCheck(N2, N1); // call recursively switching N1 and N2
-                   //std::cout<<" done"<<std::endl;
+                  //std::cout<<" done"<<std::endl;
 
                 }
                 //                else if(sizePN1==3 && sizePN2==3)
