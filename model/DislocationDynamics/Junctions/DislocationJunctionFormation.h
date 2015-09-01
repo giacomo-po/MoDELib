@@ -243,7 +243,8 @@ namespace model
                 if(   (Pm-source.get_P()).squaredNorm()>dx2
                    && (Pm-Pp).squaredNorm()>dx2
                    && (Pp-  sink.get_P()).squaredNorm()>dx2
-                   && insideMeshM)
+                   && insideMeshM
+                   && insideMeshP)
                 {
                     //std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(source.sID,sink.sID,Pm);
                     im=DN.expand(source.sID,sink.sID,Pm).first->first; // id of the node obtained expanding L1
