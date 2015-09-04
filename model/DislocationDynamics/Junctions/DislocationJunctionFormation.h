@@ -292,14 +292,9 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"		Finding Junctions ("<<nThreads<<" threads)... "<<std::flush;
             
-            
-            //			EdgeIntersectionPairContainerType intersectionContainer;
-//#ifdef _OPENMP
-//            const size_t nThreads = omp_get_max_threads();
-//#else
-//            const size_t nThreads = 1;
-//#endif
+            // Create an EqualConstIteratorRange over links
             EqualConstIteratorRange<NetworkLinkContainerType> eir(DN.linkBegin(),DN.linkEnd(),nThreads);
+            assert(eir.size()==nThreads);
             
             //! 2- loop over all links and determine their intersections
 #ifdef _OPENMP
@@ -308,10 +303,7 @@ namespace model
             for (size_t thread=0;thread<eir.size();thread++)
             {
                 for (typename NetworkLinkContainerType::const_iterator linkIterA=eir[thread].first;linkIterA!=eir[thread].second;linkIterA++)
-                    //            for (typename NetworkLinkContainerType::const_iterator linkIterA=DN.linkBegin();linkIterA!=DN.linkEnd();linkIterA++)
                 {
-                    //                typename NetworkLinkContainerType::const_iterator linkIterA=DN.linkBegin();
-                    //                std::advance(linkIterA,ll);
                     const DislocationSegmentIntersection<LinkType> dsi(linkIterA->second,linkIterA->second.glidePlaneNormal);
                     
                     for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.linkEnd();linkIterB++)
@@ -323,9 +315,6 @@ namespace model
 
                             const bool& L1isSessile(linkIterA->second.isSessile);
                             const bool& L2isSessile(linkIterB->second.isSessile);
-
-//                            const bool L1isConfined(linkIterA->second.isSessile || linkIterA->second.isOnRegionBoundary());
-//                            const bool L2isConfined(linkIterB->second.isSessile || linkIterB->second.isOnRegionBoundary());
                             
                             std::set<std::pair<double,double> > temp; // the container of the roots
                             
@@ -381,10 +370,6 @@ namespace model
                                 // cannot intersect
                             }
                             
-                            
-                            
-                            //std::cout<<" ("<<temp.size()<<" intersections):"<<std::endl;
-
                             const double avoidNodeIntersection=0.1;
                             
                             for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter)

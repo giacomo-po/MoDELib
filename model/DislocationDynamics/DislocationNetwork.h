@@ -666,19 +666,16 @@ namespace model
         void assembleAndSolve()
         {/*! Performs the following operatons:
           */
-            
+            const auto t0= std::chrono::system_clock::now();
+#ifdef _OPENMP
+            const size_t nThreads = omp_get_max_threads();
+#else
+            const size_t nThreads = 1;
+#endif
             
             //! -1 Compute the interaction StressField between dislocation particles
-            model::cout<<"		Computing dislocation-dislocation interactions..."<<std::flush;
-            const auto t0= std::chrono::system_clock::now();
-            //            if (shared.use_bvp && shared.use_virtualSegments)
-            //            {
-            //                this->template computeNeighborField<StressField>(shared.bdn); // OLD APPROACH WITH BOUNDARY DISLOCATION NETWORK AND STRAIGHT SEGMENTS
-            //            }
-            //            else
-            //            {
-            //                this->template computeNeighborField<StressField>();
-            //            }
+            model::cout<<"		Computing dislocation-dislocation interactions ("<<nThreads<<" threads)..."<<std::flush;
+
             this->template computeNeighborField<StressField>();
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             

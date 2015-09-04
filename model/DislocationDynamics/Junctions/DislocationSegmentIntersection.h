@@ -1,7 +1,7 @@
 /* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
  * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
- * Copyright (C) 2011 by Tamer Crsoby <tamercrosby@gmail.com>,
+ * Copyright (C) 2011 by Tamer Crosby <tamercrosby@gmail.com>,
  *
  * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
@@ -19,34 +19,13 @@
 #include <math.h>
 #include <float.h>
 #include <Eigen/Dense>
-//#include <model/Geometry/LineLineIntersection.h>
 #include <model/Geometry/Splines/Intersection/PlanarSplineImplicitization.h>
-//#include <model/Geometry/Splines/SplineDegeneracy.h>
 #include <model/Geometry/Splines/Coeff2Hermite.h>
 #include <model/DislocationDynamics/DislocationLocalReference.h>
 
 
-namespace model {
-    
-    
-    //    /******************************************************************************************************************/
-    //    /* DislocationSegmentIntersection: general case  ******************************************************************************/
-    //    /******************************************************************************************************************/
-    //    template <short unsigned int dim, short unsigned int polyDegree>
-    //    class DislocationSegmentIntersection {
-    //
-    //    public:
-    //
-    //        static double compTol;
-    //
-    //
-    //        DislocationSegmentIntersection(){
-    //            assert(0 && "DislocationSegmentIntersection: TEMPLATE SPECIALIZATION NOT IMPLEMENTED.");
-    //
-    //        }
-    //    };
-    
-    
+namespace model
+{
     
     /******************************************************************************************************************/
     /* DislocationSegmentIntersection<3,3,1,1>: template specializatio (planar spline-spline intersection) ************/
@@ -90,22 +69,6 @@ namespace model {
             return i;
         }
         
-        //        /**********************************************************************/
-        //        bool isDegen(const VectorDim& chord, const VectorDim& Ti, const VectorDim& Tj) const
-        //        {
-        //            const double cNorm(chord.norm());
-        //            assert(cNorm>FLT_EPSILON);
-        //            const VectorDim chordNorm(chord/cNorm);
-        //
-        //            const double TiNorm(Ti.norm());
-        //            const bool chordxTi(TiNorm<FLT_EPSILON? true : chordNorm.cross(Ti/TiNorm).norm()<FLT_EPSILON);
-        //
-        //            const double TjNorm(Tj.norm());
-        //            const bool chordxTj(TjNorm<FLT_EPSILON? true : chordNorm.cross(Tj/TjNorm).norm()<FLT_EPSILON);
-        //
-        //            return chordxTi && chordxTj;
-        //        }
-        
     public:
         //        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
@@ -144,16 +107,12 @@ namespace model {
         }
         
         
-        /* intersectWith ***************************************************/
-        //template <typename T>
-        //        std::set<std::pair<double,double> > intersectWith(const MatrixDimPolyCoeff& H2, const VectorDim& n2, const double& physTol) const
+        /**********************************************************************/
         std::set<std::pair<double,double> > intersectWith(const LinkType& ds2,
                                                           const VectorDim& n2,
                                                           const double& physTol) const
-        
         {
             const MatrixDimPolyCoeff H2=ds2.hermiteCoefficients();
-            //            const VectorDim& n2=ds2.glidePlaneNormal;
             
             std::set<std::pair<double,double> > intersectionParameters;
             
@@ -418,12 +377,6 @@ namespace model {
                                             assert(lineIntersectionParameters1.erase(*toBeErased) && "NONE ERASED");
                                             assert(lineIntersectionParameters2.erase(*(compareTo1.begin()->second)) && "NONE DELETED");
                                         }
-                                        //                                    double u1=iter1->first;
-                                        //                                    double u2=compareTo1.begin()->second->first;
-                                        //
-                                        //                                    if()
-                                        //                                    {
-                                        //                                    }
                                         else
                                         {
                                             ++iter1;

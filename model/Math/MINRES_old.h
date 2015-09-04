@@ -2,7 +2,7 @@
 // for linear algebra.
 //
 // Copyright (C) 2012 Giacomo Po <gpo@ucla.edu>
-// Copyright (C) 2011-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
+// Copyright (C) 2011 Gael Guennebaud <gael.guennebaud@inria.fr>
 //
 // This Source Code Form is subject to the terms of the Mozilla
 // Public License v. 2.0. If a copy of the MPL was not distributed
@@ -29,7 +29,7 @@ namespace Eigen {
         template<typename MatrixType, typename Rhs, typename Dest, typename Preconditioner>
         EIGEN_DONT_INLINE
         void minres(const MatrixType& mat, const Rhs& rhs, Dest& x,
-                    const Preconditioner& precond, Index& iters,
+                    const Preconditioner& precond, int& iters,
                     typename Dest::RealScalar& tol_error)
         {
             using std::sqrt;
@@ -48,8 +48,8 @@ namespace Eigen {
             }
             
             // initialize
-            const Index maxIters(iters);  // initialize maxIters to iters
-            const Index N(mat.cols());    // the size of the matrix
+            const int maxIters(iters);  // initialize maxIters to iters
+            const int N(mat.cols());    // the size of the matrix
             const RealScalar threshold2(tol_error*tol_error*rhsNorm2); // convergence threshold (compared to residualNorm2)
             
             // Initialize preconditioned Lanczos
@@ -165,8 +165,8 @@ namespace Eigen {
      * The vectors x and b can be either dense or sparse.
      *
      * \tparam _MatrixType the type of the sparse matrix A, can be a dense or a sparse matrix.
-     * \tparam _UpLo the triangular part that will be used for the computations. It can be Lower,
-     *               Upper, or Lower|Upper in which the full matrix entries will be considered. Default is Lower.
+     * \tparam _UpLo the triangular part that will be used for the computations. It can be Lower
+     *               or Upper. Default is Lower.
      * \tparam _Preconditioner the type of the preconditioner. Default is DiagonalPreconditioner
      *
      * The maximal number of iterations and tolerance value can be controlled via the setMaxIterations()
@@ -189,7 +189,20 @@ namespace Eigen {
      * \endcode
      *
      * By default the iterations start with x=0 as an initial guess of the solution.
-     * One can control the start using the solveWithGuess() method.
+     * One can control the start using the solveWithGuess() method. Here is a step by
+     * step execution example starting with a random guess and printing the evolution
+     * of the estimated error:
+     * * \code
+     * x = VectorXd::Random(n);
+     * mr.setMaxIterations(1);
+     * int i = 0;
+     * do {
+     *   x = mr.solveWithGuess(b,x);
+     *   std::cout << i << " : " << mr.error() << std::endl;
+     *   ++i;
+     * } while (mr.info()!=Success && i<100);
+     * \endcode
+     * Note that such a step by step excution is slightly slower.
      *
      * \sa class ConjugateGradient, BiCGSTAB, SimplicialCholesky, DiagonalPreconditioner, IdentityPreconditioner
      */
@@ -204,9 +217,9 @@ namespace Eigen {
         using Base::m_info;
         using Base::m_isInitialized;
     public:
-        using Base::_solve_impl;
         typedef _MatrixType MatrixType;
         typedef typename MatrixType::Scalar Scalar;
+        typedef typename MatrixType::Index Index;
         typedef typename MatrixType::RealScalar RealScalar;
         typedef _Preconditioner Preconditioner;
         
@@ -231,16 +244,27 @@ namespace Eigen {
         
         /** Destructor. */
         ~MINRES(){}
-
+		
+        /** \returns the solution x of \f$ A x = b \f$ using the current decomposition of A
+         * \a x0 as an initial solution.
+         *
+         * \sa compute()
+         */
+        template<typename Rhs,typename Guess>
+        inline const internal::solve_retval_with_guess<MINRES, Rhs, Guess>
+        solveWithGuess(const MatrixBase<Rhs>& b, const Guess& x0) const
+        {
+            eigen_assert(m_isInitialized && "MINRES is not initialized.");
+            eigen_assert(Base::rows()==b.rows()
+                         && "MINRES::solve(): invalid number of rows of the right hand side matrix b");
+            return internal::solve_retval_with_guess
+            <MINRES, Rhs, Guess>(*this, b.derived(), x0);
+        }
+        
         /** \internal */
         template<typename Rhs,typename Dest>
-        void _solve_with_guess_impl(const Rhs& b, Dest& x) const
+        void _solveWithGuess(const Rhs& b, Dest& x) const
         {
-            typedef typename internal::conditional<UpLo==(Lower|Upper),
-                                                   Ref<const MatrixType>&,
-                                                   SparseSelfAdjointView<const Ref<const MatrixType>, UpLo>
-                                                  >::type MatrixWrapperType;
-                                          
             m_iterations = Base::maxIterations();
             m_error = Base::m_tolerance;
             
@@ -250,7 +274,7 @@ namespace Eigen {
                 m_error = Base::m_tolerance;
                 
                 typename Dest::ColXpr xj(x,j);
-                internal::minres(MatrixWrapperType(mp_matrix), b.col(j), xj,
+                internal::minres(mp_matrix->template selfadjointView<UpLo>(), b.col(j), xj,
                                  Base::m_preconditioner, m_iterations, m_error);
             }
             
@@ -260,16 +284,33 @@ namespace Eigen {
         
         /** \internal */
         template<typename Rhs,typename Dest>
-        void _solve_impl(const Rhs& b, MatrixBase<Dest> &x) const
+        void _solve(const Rhs& b, Dest& x) const
         {
             x.setZero();
-            _solve_with_guess_impl(b,x.derived());
+            _solveWithGuess(b,x);
         }
         
     protected:
         
     };
-
+    
+    namespace internal {
+        
+        template<typename _MatrixType, int _UpLo, typename _Preconditioner, typename Rhs>
+        struct solve_retval<MINRES<_MatrixType,_UpLo,_Preconditioner>, Rhs>
+        : solve_retval_base<MINRES<_MatrixType,_UpLo,_Preconditioner>, Rhs>
+        {
+            typedef MINRES<_MatrixType,_UpLo,_Preconditioner> Dec;
+            EIGEN_MAKE_SOLVE_HELPERS(Dec,Rhs)
+            
+            template<typename Dest> void evalTo(Dest& dst) const
+            {
+                dec()._solve(rhs(),dst);
+            }
+        };
+        
+    } // end namespace internal
+    
 } // end namespace Eigen
 
 #endif // EIGEN_MINRES_H

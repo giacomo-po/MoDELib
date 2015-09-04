@@ -75,8 +75,8 @@ int main(int argc, char** argv)
     // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndA
     Eigen::Matrix<double,3,1> f;
     f<<0.0,0.001,0.00;
-    auto ndA_1=fe.boundary<AtXmax<2>,3,GaussLegendre>();
-    auto lWF_1=(u.test(),f)*ndA_1;
+    auto dA_1=fe.boundary<AtXmax<2>,3,GaussLegendre>();
+    auto lWF_1=(u.test(),f)*dA_1;
     
     /**************************************************************************/
     // Create the LinearWeakForm lWF_2=int(test(u)^T*p)ndA
