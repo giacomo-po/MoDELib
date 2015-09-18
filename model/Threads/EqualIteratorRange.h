@@ -9,7 +9,7 @@
 #ifndef model_EqualIteratorRange_H_
 #define model_EqualIteratorRange_H_
 
-#include <vector>
+#include <deque>
 
 #include <utility>  // std::pair
 #include <iterator> // std::distance, std::advance
@@ -18,13 +18,9 @@
 namespace model
 {
 	
-    template <typename ContainerType>
-    struct EqualIteratorRange :
-    /* inheritance  */ public std::vector<std::pair<typename ContainerType::iterator,
-    /*                                           */ typename ContainerType::iterator>>
+    template <typename IterType>
+    struct EqualIteratorRange : public std::deque<std::pair<IterType,IterType>>
     {
-        
-        typedef typename ContainerType::iterator IterType;
         
         /**********************************************************************/
         EqualIteratorRange(const IterType& first, const IterType& last, const size_t& nRanges)
@@ -37,42 +33,6 @@ namespace model
             const size_t quotient = nElments / nRanges;
             const size_t remainder= nElments % nRanges;
             
-            this->reserve(nRanges);
-            
-            IterType currentBegin(first);
-            IterType currentEnd(first);
-            
-            for (size_t i=0;i<nRanges;++i)
-            {
-                std::advance(currentEnd,(i<remainder)? quotient+1 : quotient);
-                this->emplace_back(currentBegin,currentEnd);
-                currentBegin=currentEnd;
-            }
-            
-        }
-        
-    };
-    
-    template <typename ContainerType>
-    struct EqualConstIteratorRange :
-    /* inheritance  */ public std::vector<std::pair<typename ContainerType::const_iterator,
-    /*                                           */ typename ContainerType::const_iterator>>
-    {
-        
-        typedef typename ContainerType::const_iterator IterType;
-        
-        /**********************************************************************/
-        EqualConstIteratorRange(const IterType& first, const IterType& last, const size_t& nRanges)
-        {
-            assert(nRanges>0 && "NUMBER OF RANGES MUST BE >0");
-            
-            const auto nElments(std::distance(first,last));
-            //assert( nElments > 0 && "RANGE MUST HAVE AT LEAST ONE ELEMENT");
-            
-            const size_t quotient = nElments / nRanges;
-            const size_t remainder= nElments % nRanges;
-            
-            this->reserve(nRanges);
             
             IterType currentBegin(first);
             IterType currentEnd(first);
@@ -90,4 +50,40 @@ namespace model
     
 } // namespace model
 #endif
+
+
+//    template <typename ContainerType>
+//    struct EqualConstIteratorRange :
+//    /* inheritance  */ public std::vector<std::pair<typename ContainerType::const_iterator,
+//    /*                                           */ typename ContainerType::const_iterator>>
+//    {
+//
+//        typedef typename ContainerType::const_iterator IterType;
+//
+//        /**********************************************************************/
+//        EqualConstIteratorRange(const IterType& first, const IterType& last, const size_t& nRanges)
+//        {
+//            assert(nRanges>0 && "NUMBER OF RANGES MUST BE >0");
+//
+//            const auto nElments(std::distance(first,last));
+//            //assert( nElments > 0 && "RANGE MUST HAVE AT LEAST ONE ELEMENT");
+//
+//            const size_t quotient = nElments / nRanges;
+//            const size_t remainder= nElments % nRanges;
+//
+//            this->reserve(nRanges);
+//
+//            IterType currentBegin(first);
+//            IterType currentEnd(first);
+//
+//            for (size_t i=0;i<nRanges;++i)
+//            {
+//                std::advance(currentEnd,(i<remainder)? quotient+1 : quotient);
+//                this->emplace_back(currentBegin,currentEnd);
+//                currentBegin=currentEnd;
+//            }
+//
+//        }
+//
+//    };
 

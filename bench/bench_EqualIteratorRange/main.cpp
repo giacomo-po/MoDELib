@@ -6,6 +6,7 @@
 #include <chrono>
 #include <omp.h>
 #include <Model/Threads/EqualIteratorRange.h>
+#include <Model/Threads/N2IteratorRange.h>
 
 
 
@@ -28,12 +29,10 @@ int main (int argc, char * const argv[])
         v.emplace(k,0);
     }
     
-    
-    auto t1= std::chrono::system_clock::now();
-    
     const size_t nThreads = omp_get_max_threads();
-    EqualIteratorRange<MapType > eir(v.begin(),v.end(),nThreads);
     
+    // EqualIteratorRange
+    EqualIteratorRange<MapType::iterator> eir(v.begin(),v.end(),nThreads);
 #pragma omp parallel for
     for (unsigned int k = 0; k < eir.size(); ++k)
     {
@@ -44,11 +43,36 @@ int main (int argc, char * const argv[])
         
     }
     
+    std::cout<<"EqualIteratorRange"<<std::endl;
     for (MapType::const_iterator iter=v.begin(); iter!=v.end(); ++iter)
     {
         std::cout<<iter->first<<" "<<iter->second<<std::endl;
     }
+
+    // N2IteratorRange
+    v.clear();
+    for(int k=0;k<N;++k)
+    {
+        v.emplace(k,0);
+    }
     
+    N2IteratorRange<MapType::iterator> nir(v.begin(),v.end(),nThreads);
+#pragma omp parallel for
+    for (unsigned int k = 0; k < nir.size(); ++k)
+    {
+        for (MapType::iterator iter=nir[k].first; iter!=nir[k].second; ++iter)
+        {
+            iter->second=omp_get_thread_num();
+        }
+        
+    }
+    
+    std::cout<<std::endl<<"N2teratorRange"<<std::endl;
+    for (MapType::const_iterator iter=v.begin(); iter!=v.end(); ++iter)
+    {
+        std::cout<<iter->first<<" "<<iter->second<<std::endl;
+    }
+
     return 0;
 }
 

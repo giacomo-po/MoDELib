@@ -17,6 +17,7 @@
 #include <model/DislocationDynamics/Remeshing/DislocationNetworkRemesh.h>
 #include <model/MPI/MPIcout.h>
 #include <model/Threads/EqualIteratorRange.h>
+#include <model/Threads/N2IteratorRange.h>
 
 namespace model
 {
@@ -293,8 +294,19 @@ namespace model
             model::cout<<"		Finding Junctions ("<<nThreads<<" threads)... "<<std::flush;
             
             // Create an EqualConstIteratorRange over links
-            EqualConstIteratorRange<NetworkLinkContainerType> eir(DN.linkBegin(),DN.linkEnd(),nThreads);
+//            EqualConstIteratorRange<NetworkLinkContainerType> eir(DN.linkBegin(),DN.linkEnd(),nThreads);
+            N2IteratorRange<typename NetworkLinkContainerType::const_iterator> eir(DN.linkBegin(),DN.linkEnd(),nThreads);
+
             assert(eir.size()==nThreads);
+            
+//            std::cout<<"#links="<<DN.linkOrder()<<std::endl;
+//            for(auto pair : eir)
+//            {
+//                std::cout<<std::distance(pair.first,pair.second)<<std::endl;
+//            }
+//            
+//            std::vector<int> threadVector(nThreads,0);
+            
             
             //! 2- loop over all links and determine their intersections
 #ifdef _OPENMP
@@ -310,6 +322,7 @@ namespace model
                     {
                         if (linkIterA->second.sID!=linkIterB->second.sID) // don't intersect with itself
                         {
+//                            threadVector[omp_get_thread_num()]++;
                             
                             //std::cout<< "Intersecting "<<linkIterA->second.nodeIDPair.first<<"->"<<linkIterA->second.nodeIDPair.second<<" " <<linkIterB->second.nodeIDPair.first<<"->"<<linkIterB->second.nodeIDPair.second<<std::flush;
 
@@ -420,6 +433,11 @@ namespace model
                 } // end loop over first segment
             }// end loop ever threads
             
+            
+//            for(int k=0;k<threadVector.size();++k)
+//            {
+//                std::cout<<"thread "<<k<<" computed "<<threadVector[k]<<" intersections"<<std::endl;
+//            }
             
             int nIntersections=0;
             for (size_t tt=0;tt<intersectionContainer.size();++tt)

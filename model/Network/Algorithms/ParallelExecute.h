@@ -51,7 +51,7 @@ namespace model
         {
 #ifdef _OPENMP
             const size_t nThreads = omp_get_max_threads();
-            EqualIteratorRange<NetworkEdgeMapType> eir(networkEdgeMapRef.begin(),networkEdgeMapRef.end(),nThreads);
+            EqualIteratorRange<typename NetworkEdgeMapType::iterator> eir(networkEdgeMapRef.begin(),networkEdgeMapRef.end(),nThreads);
 
 #pragma omp parallel for
             for (size_t thread=0;thread<eir.size();thread++)
@@ -82,7 +82,7 @@ namespace model
         {
 #ifdef _OPENMP
             const size_t nThreads = omp_get_max_threads();
-            EqualIteratorRange<NetworkEdgeMapType> eir(networkEdgeMapRef.begin(),networkEdgeMapRef.end(),nThreads);
+            EqualIteratorRange<typename NetworkEdgeMapType::iterator> eir(networkEdgeMapRef.begin(),networkEdgeMapRef.end(),nThreads);
             
 #pragma omp parallel for
             for (int thread=0;thread<eir.size();thread++)

@@ -1,4 +1,0 @@
-var searchData=
-[
-  ['j',['j',['../structmodel_1_1_stars_and_bars.html#a0da88a2fe5dbbf1e0b81ce26918ffd47',1,'model::StarsAndBars::j()'],['../structmodel_1_1_stars_and_bars_3_01___n_00_01__k_00_01__k_01_4.html#a1b1950b9c855774edc31e7b8e4d3c29e',1,'model::StarsAndBars&lt; _N, _k, _k &gt;::j()'],['../structmodel_1_1_stars_and_bars_3_01___n_00_010_00_010_01_4.html#a3df23142f5993801bfde95657770f0af',1,'model::StarsAndBars&lt; _N, 0, 0 &gt;::j()'],['../structmodel_1_1_stars_and_bars_3_011_00_01k_00_01k_01_4.html#a53b9b2d40e362a6a95cf1291656db69c',1,'model::StarsAndBars&lt; 1, k, k &gt;::j()'],['../structmodel_1_1_stars_and_bars_3_011_00_010_00_010_01_4.html#a488b811ee5b69a8630ffb2d217399f02',1,'model::StarsAndBars&lt; 1, 0, 0 &gt;::j()'],['../tension_torsion_2_f_2plot_stress_strain_8m.html#aeb9806a56e1e80b69cc9a606b36cfe4b',1,'J():&#160;plotStressStrain.m']]]
-];
