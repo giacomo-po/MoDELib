@@ -5,6 +5,7 @@ timeWindow=5.1e03;
 startAtTimeStep = 0;
 use_directSolver_DD=0;
 quadPerLength=0.1;
+bndDistance=3;
 
 ######################################
 # TIME STEP

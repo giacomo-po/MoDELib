@@ -3,8 +3,9 @@
 Nsteps=10000;
 timeWindow=5.1e03;
 startAtTimeStep = 0;
-use_directSolver=0;
+use_directSolver_DD=0;
 quadPerLength=0.1;
+bndDistance=3;
 
 ######################################
 # TIME STEP
@@ -83,6 +84,7 @@ check_balance=1;
 # T/T_meshID.txt must be present in the working directory.
 use_boundary =1;
 meshID=0;
+use_directSolver_FEM=0;
 use_meshRegions=0;
 
 

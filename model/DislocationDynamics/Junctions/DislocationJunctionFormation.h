@@ -297,7 +297,7 @@ namespace model
 //            EqualConstIteratorRange<NetworkLinkContainerType> eir(DN.linkBegin(),DN.linkEnd(),nThreads);
             N2IteratorRange<typename NetworkLinkContainerType::const_iterator> eir(DN.linkBegin(),DN.linkEnd(),nThreads);
 
-            assert(eir.size()==nThreads);
+            assert(eir.size()<=nThreads);
             
 //            std::cout<<"#links="<<DN.linkOrder()<<std::endl;
 //            for(auto pair : eir)

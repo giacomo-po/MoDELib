@@ -3,7 +3,9 @@
 Nsteps=500;
 timeWindow=5.1e03;
 startAtTimeStep = 0;
-use_directSolver=0;
+use_directSolver_DD=0;
+quadPerLength=0.1;
+bndDistance=3;
 
 ######################################
 # TIME STEP
@@ -89,6 +91,8 @@ meshID=1;
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
 use_bvp = 0;
+use_directSolver_FEM=0;
+
 
 ######################################
 # Enable/disable cross-slip

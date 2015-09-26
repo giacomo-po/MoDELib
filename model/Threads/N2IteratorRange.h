@@ -38,17 +38,6 @@ namespace model
                 currentEnd++;
             }
             this->emplace_back(currentBegin,last);
-
-            
-            //            for(size_t k=0;k<nDiv;++k)
-            //            {
-            //
-            //
-            //
-            //
-            //                this->emplace_back();
-            //                currentBegin=currentEnd;
-            //            }
             
         }
         
