@@ -17,14 +17,18 @@
 
 namespace model
 {
-	
+    
     template <typename IterType>
     struct EqualIteratorRange : public std::deque<std::pair<IterType,IterType>>
     {
         
         /**********************************************************************/
-        EqualIteratorRange(const IterType& first, const IterType& last, const size_t& nRanges)
+        EqualIteratorRange(const IterType& first,
+                           const IterType& last,
+                           const size_t& nRanges,
+                           const bool& checkRanges=false)
         {
+            
             assert(nRanges>0 && "NUMBER OF RANGES MUST BE >0");
             
             const auto nElments(std::distance(first,last));
@@ -33,7 +37,7 @@ namespace model
             const size_t quotient = nElments / nRanges;
             const size_t remainder= nElments % nRanges;
             
-            
+            // Fill ranges
             IterType currentBegin(first);
             IterType currentEnd(first);
             
@@ -44,46 +48,20 @@ namespace model
                 currentBegin=currentEnd;
             }
             
+            //check
+            if(checkRanges)
+            {
+                auto temp(nElments*0);
+                for (size_t i=0;i<nRanges;++i)
+                {
+                    temp+=std::distance(this->operator[](i).first,this->operator[](i).second);
+                }
+                assert(temp==nElments);
+            }
+            
         }
         
     };
     
 } // namespace model
 #endif
-
-
-//    template <typename ContainerType>
-//    struct EqualConstIteratorRange :
-//    /* inheritance  */ public std::vector<std::pair<typename ContainerType::const_iterator,
-//    /*                                           */ typename ContainerType::const_iterator>>
-//    {
-//
-//        typedef typename ContainerType::const_iterator IterType;
-//
-//        /**********************************************************************/
-//        EqualConstIteratorRange(const IterType& first, const IterType& last, const size_t& nRanges)
-//        {
-//            assert(nRanges>0 && "NUMBER OF RANGES MUST BE >0");
-//
-//            const auto nElments(std::distance(first,last));
-//            //assert( nElments > 0 && "RANGE MUST HAVE AT LEAST ONE ELEMENT");
-//
-//            const size_t quotient = nElments / nRanges;
-//            const size_t remainder= nElments % nRanges;
-//
-//            this->reserve(nRanges);
-//
-//            IterType currentBegin(first);
-//            IterType currentEnd(first);
-//
-//            for (size_t i=0;i<nRanges;++i)
-//            {
-//                std::advance(currentEnd,(i<remainder)? quotient+1 : quotient);
-//                this->emplace_back(currentBegin,currentEnd);
-//                currentBegin=currentEnd;
-//            }
-//
-//        }
-//
-//    };
-

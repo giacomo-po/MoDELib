@@ -96,6 +96,7 @@
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/ParticleInteraction/SingleFieldPoint.h>
 #include <model/DislocationDynamics/Operations/DislocationNodeContraction.h>
+#include <model/Threads/EqualIteratorRange.h>
 
 
 
@@ -680,11 +681,12 @@ namespace model
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             
             //! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
-            model::cout<<"		Computing segment stiffness matrices and force vectors..."<<std::flush;
+            model::cout<<"		Computing segment stiffness matrices and force vectors ("<<nThreads<<" threads)..."<<std::flush;
             const auto t2= std::chrono::system_clock::now();
             typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
             LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
             this->parallelExecute(Lmfp);
+            
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]."<<defaultColor<<std::endl;
             
             //! -3 Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve

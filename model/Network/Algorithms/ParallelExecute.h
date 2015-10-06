@@ -99,7 +99,8 @@ namespace model
 //                (linkIter->second.*Lfptr)(input);
 //            }
 #else
-            for (typename NetworkEdgeMapType::iterator linkIter=networkEdgeMapRef.begin();linkIter!=networkEdgeMapRef.end();++linkIter){
+            for (typename NetworkEdgeMapType::iterator linkIter=networkEdgeMapRef.begin();linkIter!=networkEdgeMapRef.end();++linkIter)
+            {
                 (linkIter->second.*Lfptr)(input);
             }
 #endif
