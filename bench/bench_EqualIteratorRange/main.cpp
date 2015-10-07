@@ -66,6 +66,16 @@ int main (int argc, char * const argv[])
         }
         
     }
+
+//    N2IteratorRange<MapType::iterator> nir(v.begin(),v.end(),25);
+//    for (unsigned int k = 0; k < nir.size(); ++k)
+//    {
+//        for (MapType::iterator iter=nir[k].first; iter!=nir[k].second; ++iter)
+//        {
+//            iter->second=k;
+//        }
+//        
+//    }
     
     std::cout<<std::endl<<"N2teratorRange"<<std::endl;
     for (MapType::const_iterator iter=v.begin(); iter!=v.end(); ++iter)

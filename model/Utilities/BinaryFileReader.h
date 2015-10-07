@@ -15,10 +15,15 @@
 #include <string>
 #include <assert.h>
 
-namespace model {
+namespace model
+{
     
     /*!	\brief A class template that reads generic binary files containing arrays
      *  of DataType elements.
+     *
+     * remember that there are 8 bytes in a double so, for example, if
+     * double fnum[4] = {9.5, -3.4, 1.0, 2.1};
+     * then sizeof(fnum) is 32
      */
     template <typename DataType>
     class BinaryFileReader
@@ -28,17 +33,14 @@ namespace model {
         std::ifstream::pos_type _bytes_in_file;
         size_t _array_size;
         const size_t _bytes_in_Type;
-        
         bool _success;
         
     public:
         
-        // remember that there are 8 bytes in a double so, for example, if
-        // double fnum[4] = {9.5, -3.4, 1.0, 2.1};
-        // then sizeof(fnum) is 32
-        
         /**********************************************************************/
         BinaryFileReader(const std::string& filename) :
+        /* init list */ memblock(NULL),
+        /* init list */ _array_size(0),
         /* init list */ _bytes_in_Type( sizeof (DataType) ),
         /* init list */ _success(false)
         {/*! @param[in] filename The name of the file to be read

@@ -505,7 +505,7 @@ namespace model
         {/*!@param[in] k the k-th quandrature point
           *\returns the stress field at the k-th quandrature point
           */
-            
+
             MatrixDim temp(quadratureParticleContainer[k]->stress()+shared.externalStress);
             if(shared.use_bvp)
             {
@@ -535,7 +535,6 @@ namespace model
           * - edge-to-component matrix Mseg
           */
             
-            
             //! 1- Compute and store stress and PK-force at quadrature points
             stressGauss.clear();
             for (unsigned int k=0;k<qOrder;++k)
@@ -553,7 +552,6 @@ namespace model
             //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,Fq,&LinkType::PKintegrand);
             QuadratureDynamicType::integrate(qOrder,this,Fq,&LinkType::PKintegrand);
             
-            
             /*! 3- Assembles the stiffness matrix of this segment.
              *	\f[
              *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
@@ -562,7 +560,6 @@ namespace model
             Kqq.setZero();
             //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,Kqq,&LinkType::stiffness_integrand);
             QuadratureDynamicType::integrate(qOrder,this,Kqq,&LinkType::stiffness_integrand);
-            
             
             //            //! 3-
             //            ortC.setZero();

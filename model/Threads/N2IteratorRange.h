@@ -28,6 +28,8 @@ namespace model
             while(currentEnd!=last)
             {
                 weight+=distance;
+                currentEnd++;
+
                 if(weight>=quotient)
                 {
                     this->emplace_back(currentBegin,currentEnd);
@@ -35,9 +37,15 @@ namespace model
                     weight=0;
                 }
                 distance--;
-                currentEnd++;
+//                currentEnd++;
             }
-            this->emplace_back(currentBegin,last);
+            if(currentBegin!=last)
+            {
+                this->emplace_back(currentBegin,last);
+            }
+            
+            assert(this->size()<=nDiv);
+
             
         }
         

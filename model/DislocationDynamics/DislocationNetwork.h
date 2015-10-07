@@ -348,8 +348,6 @@ namespace model
             //! 9- detect loops that shrink to zero and expand as inverted loops
             DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
             
-            //! 10- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
-            removeBoundarySegments();
             
             //! 11- Form Junctions
             formJunctions();
@@ -357,11 +355,13 @@ namespace model
             //! 12- Node redistribution
             remesh();
 //            output(runID);
-
-
             
             // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
+            
+            //! 10- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
+            removeBoundarySegments();
+
             
             //! 13 - Increment runID counter
             ++runID;     // increment the runID counter
@@ -374,7 +374,7 @@ namespace model
             if (shared.use_boundary && !shared.use_bvp)
             {
                 const auto t0= std::chrono::system_clock::now();
-                model::cout<<"		Removing DislocationSegments outside mesh boundary... ";
+                model::cout<<"		Removing DislocationSegments on mesh boundary... ";
                 typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
                 link_member_function_pointer_type boundarySegment_Lmfp;
                 boundarySegment_Lmfp=&LinkType::is_boundarySegment;
