@@ -157,7 +157,8 @@ namespace model
                     if(constrainDof[dof])
                     {
                         const auto temp=this->emplace(dofPerNode*(pNode->gID)+dof,value(dof));
-                        assert(temp.second && "UNABLE TO INSERT DIRICHLET CONDITION");
+                        // assert that the condition has been inserted, or that an equivalent condition already existed
+                        assert((temp.second || temp.first->second==value(dof) ) && "UNABLE TO INSERT DIRICHLET CONDITION");
                     }
                 }
             }

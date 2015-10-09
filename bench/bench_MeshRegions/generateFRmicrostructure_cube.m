@@ -16,6 +16,13 @@ lMax=L/3;
 %s=sin(alpha);
 %Rot=[c -s 0;s c 0;0 0 1];
 
+% Lattice Matrix for FCC
+A=[0 1 1;
+   1 0 1;
+   1 1 0]/sqrt(2);
+
+invA=inv(A);
+
 N =[-1    1   -1    1;
      1   -1   -1    1;
     -1   -1    1    1];
@@ -64,13 +71,18 @@ if dot(P1,d2)<0
     d2=-d2;
 end
 P(:,1)=P1;
-u=rand(1);
-a1=lMin*(1-u)+lMax*u;
-u=rand(1);
-a2=lMin*(1-u)+lMax*u;
-P(:,2)=P(:,1)+a1*d1;
-%P(:,3)=P(:,2)+a2*d2;
-%P(:,4)=P(:,3)-a1*d1;
+    P=A*round(invA*P);
+    u=rand(1);
+    a1=lMin*(1-u)+lMax*u;   % random size of loop on plane 1
+    a1=round(a1/sqrt(3))*sqrt(3);
+    u=rand(1);
+    a2=lMin*(1-u)+lMax*u;   % random size of loop on plane 2
+    a2=round(a2/sqrt(3))*sqrt(3);
+    P(:,2)=P(:,1)+a1*d1;    % second point of the loop
+    %P(:,3)=P(:,2)+a2*d2;    % third point of the loop
+    %P(:,4)=P(:,3)-a1*d1;    % fourth point of the loop
+    P=A*round(invA*P);
+
 
 if ( length(find(P-repmat([0 0 L/2]',1,2)<0))==0 && length(find(P>L))==0)
 figure(1)
