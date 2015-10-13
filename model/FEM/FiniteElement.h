@@ -110,6 +110,12 @@ namespace model
                 }
             }
             
+            // Check that node[k].gID==k;
+            for(size_t n=0;n<nodes().size();++n)
+            {
+                assert(node(n).gID==n);
+            }
+            
             // Compute _xMin and _xMax
             
             if(nodeSize())

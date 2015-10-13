@@ -34,7 +34,8 @@ namespace model
     template<int _nComponents, typename _FiniteElementType>
     class TrialFunction : public TrialExpressionBase<TrialFunction<_nComponents,_FiniteElementType> >,
     /*                 */ public Eigen::Matrix<double,Eigen::Dynamic,1>, // DofContainer
-    /*                 */ private std::map<size_t,double> // DirichletConditionContainer
+    /*                 */ private std::map<size_t,double>, // DirichletConditionContainer
+    /*                 */ private std::map<size_t,std::array<bool,TypeTraits<TrialFunction<_nComponents,_FiniteElementType>>::dofPerNode>> // DirichletNodeMap
     {
         
     public:
@@ -47,15 +48,17 @@ namespace model
         typedef typename FiniteElementType::NodeType NodeType;
         
         typedef TrialFunction<_nComponents,FiniteElementType> TrialFunctionType;
+        
         constexpr static int rows=_nComponents;
-        
-        typedef typename TypeTraits<TrialFunctionType>::NodeContainerType NodeContainerType;
-        typedef std::map<size_t,double> DirichletConditionContainerType;
-        
         constexpr static int dim=ElementType::dim;
         constexpr static int nodesPerElement=ElementType::nodesPerElement;
         constexpr static int dofPerNode=TypeTraits<TrialFunctionType>::dofPerNode;
         constexpr static int dofPerElement=TypeTraits<TrialFunctionType>::dofPerElement;
+        
+        typedef typename TypeTraits<TrialFunctionType>::NodeContainerType NodeContainerType;
+        typedef std::map<size_t,double> DirichletConditionContainerType;
+        typedef std::map<size_t,std::array<bool,dofPerNode>>  DirichletNodeMapType;
+        
         
         typedef typename TypeTraits<TrialFunctionType>::BaryType BaryType;
         typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionMatrixType     ShapeFunctionMatrixType;
@@ -147,27 +150,51 @@ namespace model
           * @param[in] constrainDof array of booleans indicating which dofs are to be constrained
           */
             
-            for(const auto& pNode :  fe.nodeList(nodeListID))
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"Adding Dirichlet condition..."<<std::flush;
+            // Check that at least one constrainDof is true
+            bool isConstrained(false);
+            for(int dof=0;dof<dofPerNode;++dof)
             {
-                const Eigen::Matrix<Scalar,dofPerNode,1> value(cond(*pNode,*this));
-                // DirichletBoundaryCondition<TrialFunctionType> value(*pNode); // TO DO , implement this
-                // cond(value); // TO DO , implement this
-                for(int dof=0;dof<dofPerNode;++dof)
+                isConstrained+=constrainDof[dof];
+            }
+            
+            if(isConstrained)
+            {
+                // Add to dirichletConditions
+                for(const auto& pNode :  fe.nodeList(nodeListID))
                 {
-                    if(constrainDof[dof])
+                    const Eigen::Matrix<Scalar,dofPerNode,1> value(cond(*pNode,*this));
+                    // DirichletBoundaryCondition<TrialFunctionType> value(*pNode); // TO DO , implement this
+                    // cond(value); // TO DO , implement this
+                    for(int dof=0;dof<dofPerNode;++dof)
                     {
-                        const auto temp=this->emplace(dofPerNode*(pNode->gID)+dof,value(dof));
-                        // assert that the condition has been inserted, or that an equivalent condition already existed
-                        assert((temp.second || temp.first->second==value(dof) ) && "UNABLE TO INSERT DIRICHLET CONDITION");
+                        dirichletNodeMap()[pNode->gID][dof]+=constrainDof[dof];
+                        
+                        if(constrainDof[dof])
+                        {
+                            const auto temp=dirichletConditions().emplace(dofPerNode*(pNode->gID)+dof,value(dof));
+                            // assert that the condition has been inserted, or that an equivalent condition already existed
+                            if(!(temp.second || std::abs(temp.first->second-value(dof))<FLT_EPSILON ))
+                            {
+                                model::cout<<"FEM node "<<pNode->gID<<", dof "<<dof<<std::endl;
+                                model::cout<<"exising dirichlet-condition= "<<temp.first->second<<std::endl;
+                                model::cout<<"    new dirichlet-condition= "<<value(dof)<<std::endl;
+                                assert(0 && "CONFLICTING DIRICHLET CONDITIONS");
+                            }
+                        }
                     }
                 }
             }
+
+            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/
         void clearDirichletConditions()
         {
-            this->clear();
+            dirichletNodeMap().clear();
+            dirichletConditions().clear();
         }
         
         /**********************************************************************/
@@ -179,6 +206,24 @@ namespace model
         /**********************************************************************/
         const DirichletConditionContainerType& dirichletConditions() const
         {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        DirichletNodeMapType& dirichletNodeMap()
+        {/*!\returns A map of the nodes having a DirichletCondition. The key is
+          * the global ID of the node (gID), and the value is an array of bool
+          * indicating which component is constrained.
+          */
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const DirichletNodeMapType& dirichletNodeMap() const
+        {/*!\returns A map of the nodes having a DirichletCondition. The key is
+          * the global ID of the node (gID), and the value is an array of bool
+          * indicating which component is constrained.
+          */
             return *this;
         }
         
