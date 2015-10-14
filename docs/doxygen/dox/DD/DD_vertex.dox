@@ -1,0 +1,23 @@
+namespace model 
+{
+/*! \page DD_vertex Dislocation Vertex file
+
+The structure of a Network is defined by \b vertices connected by \b edges. For a DislocationNetwork, a vertex is a DislocationNode, while an edge is a DislocationSegment.
+
+The information necessary to construct all DislocationNode (s) for the simulation time step N are stored in the file V/V_N.txt (or V/V_N.bin if binary output is selected, see the \ref DD_input). Each line in V/V_N.txt contains the properties of a distinct DislocationNode. The format of each line is:
+\verbatim
+sID Px Py Pz Tx Ty Tz ncID onBND
+\endverbatim
+where
+- sID is the StaticID of the DislocationNode, a self-assigned unique positive integer that labels the node.
+- Px Py Pz are the Cartesian coordinates of the position of the DislocationNode
+- Tx Ty Tz are the Cartesian coordinates of the parametric tangent of the DislocationNode
+- ncID is the StaticID of the NetworkComponent to which the DislocationNode belongs
+- onBND is a boolean indicating if the DislocaitonNode is on the external mesh boundary (used for postprocessing)
+
+
+\b Note that, when writing the initial input file, you only need to correctly assign sID, Px, Py, and Pz. All other quantities can be set to zero, because they are internally re-computed by the code.
+
+\sa \ref DD_edge
+ */ 
+}

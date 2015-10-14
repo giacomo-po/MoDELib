@@ -6,14 +6,12 @@ In this tutorial we cover the necessary steps to get a minimal  DD simulation ru
 
 \section FRsource_main The source file (main.cpp)
 The source file is main.cpp. This file contains the following code:
-\include DislocationDynamics/FRsource/main.cpp
+\include tutorials/DislocationDynamics/FRsource/main.cpp
 If you know a little C++, this code is pretty self-explanatory. After including the necessary headers, all we do in the main function is:
 - create an instance, named DN, of type DislocationNetwork by specifying a series of template parameters. These parameter are:
 	- 3 is the dimensionality of the space (three dimensions)
 	- 1 is the degree of parametric continuity at the SplineNode(s): 0= position continuity, 1= position and tangent continuity, 2 = position, tangent, and curvature continuity. 
 	- CatmullRom is the type of splines used. Alternatively, you can use Hermite splines
-	- centripetal is the type of spline parametrization used. Alternatively you can use uniform, or chordal
-	- 16 means that sixteen quadrature points per DislocationSegment are used for numerical integration
 	- UniformOpen is the type of quadrature used. Alternatively you can use GaussLegendre.
 - call the method DislocationNetwork::runSteps() on DN. This runs a fixed number of simulations time steps defined by the variable \b Nsteps in the input file \b DDinput.txt (see below). Alternatively you can run the simulation for a fixed amount of time (see DislocationNetwork::runTime()). You can also call the two methods consecutively or place them in a more complex for loop.
 
@@ -24,39 +22,39 @@ If all necessary external libraries have been installed (see \ref DD_installatio
 cd <MODELDIR>/tutorials/DislocationDynamics/FRsource
 \endverbatim
 
-The same Makefile can now be used to compile both the serial version and the parallel version (MPI) of the code. The serial version can be compiled executing the following command in your terminal:
+The same Makefile can now be used to compile both the Open-MP version and the Open-MPI version of the code. The Open-MP version can be compiled executing the following command in your terminal:
 \verbatim
-make serial
+make DDomp
 \endverbatim
-This compiles the source code into the executable \b DDserial. 
+This compiles the source code into the executable \b DDomp. 
 
-Similarly, The parallel version (MPI) of the code can be compiled using:
+Similarly, The Open-MPI version of the code can be compiled using:
 \verbatim
-make parallel 
+make DDmpi
 \endverbatim
-This creates the executable \b DDparallel. Compiling the parallel version requires that both \ref openmpi and \ref metis are correctly installed in your system.
+This creates the executable \b DDmpi. Compiling the Open-MPI version requires the \ref openmpi  be correctly installed in your system.
 
 
-\section FRsource_run Running DDserial and DDparallel
+\section FRsource_run Running DDomp and DDmpi
 
-The serial version of the code can be run executing:
+The Open-MP version of the code can be run executing:
 \verbatim
-./DDserial
+./DDomp
 \endverbatim
 
 On the other hand, the parallel version of the code can be run executing:
 \verbatim
-mpirun -np N DDparallel
+mpirun -np N DDmpi
 \endverbatim
 where \b N is the number of processors to be used.
 
-Are you curious to see what running the code produced? Then jump to the next tutorial, where you learn how to use \ref DD_visualization. Otherwise, just keep reading for more explanation.
+Running the code produces a series of output files. If you want to visualize the output jump to the next tutorial, where you learn how to use \ref DD_visualization. Otherwise, just keep reading for more explanation.
 
 \section FRsource_input Input files
 
 The first thing that a DislocationNetwork does is to read the some input files. These files are:
-- the vertex file V/V_0.txt
-- the edge file E/E_0.txt
+- the \ref DD_vertex V/V_0.txt
+- the \ref DD_edge E/E_0.txt
 - the configuration file DDinput.txt
 
 

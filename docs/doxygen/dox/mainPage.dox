@@ -1,23 +1,25 @@
 namespace model {
 /*! \mainpage The MODEL library
  
- 
-   
- 
 \section introduction Introduction 
 
-MODEL is the The Mechanics of Defect Evolution Library, a collection of free software for the study of defects in materials. 
+MODEL is the The Mechanics of Defects Evolution Library, a collection of free software for the study of defects in materials. 
 
 MODEL contains the following modules:
 - \ref DD_intro
 - \ref PIL 
+- \ref FEM_intro 
+- \ref Mesh_intro
+- \ref Quadrature_intro 
 
 \section installation Installation
 MODEL is a header-only library, therefore you just need to have MODEL in your include path.
 
-MODEL is written in C++ and is heavily object-oriented. In particular, some of the latest features of the C++11 standard are used. Therefore MODEL can only be compiled with C++11-capable compilers. The following compilers should do the job:
+MODEL is written in C++ and is heavily object-oriented. In particular, some of the latest features of the C++11 standard are used. Therefore, MODEL can only be compiled by C++11-capable compilers. The following compilers should do the job:
 - GNU g++ version 4.8 or above (available at http://gcc.gnu.org)
 - INTEL icc version 13.0.1 or above
+
+In order to speed up compilation time, gcc release 5 or greater is recommended.
 
 Are you testing MODEL on <a href="http://www.apple.com/osx/">Mac OsX</a>? Then make sure you read the dedicated \ref macosx page.
 
@@ -25,12 +27,10 @@ Are you testing MODEL on <a href="http://www.apple.com/osx/">Mac OsX</a>? Then m
 \subsection libraries External libraries
 The Discrete Dislocation Dynamics module of MODEL requires the following external libraries:
 	- the c++ standard library
-	- the boost library (header only, available at http://www.boost.org/)
 	- the Eigen library (header only, available at http://eigen.tuxfamily.org)	
 
 In order to run MODEL-DDD in parallel mode, additional libraries are needed:
 	- the \ref openmpi protocol
-	- the \ref metis partitioner
 
 \subsection packages Other useful packages
 Some bash scripts used for post-processing of pictures and videos are:

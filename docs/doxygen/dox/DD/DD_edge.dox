@@ -1,0 +1,24 @@
+namespace model 
+{
+/*! \page DD_edge Dislocation Edge file
+The structure of a Network is defined by \b vertices connected by \b edges. For a DislocationNetwork, a vertex is a DislocationNode, while an edge is a DislocationSegment.
+
+The information necessary to construct all DislocationSegment (s) for the simulation time step N are stored in the file E/E_N.txt (or E/E_N.bin if binary output is selected, see the \ref DD_input). Each line in E/E_N.txt contains the properties of a distinct DislocationSegment. The format of each line is:
+\verbatim
+sourceID sinkID Bx By Bz Nx Ny Nz sourceTfactor sinkTfactor ncID
+\endverbatim
+where
+- sourceID is the StaticID of the DislocationNode from which the DislocationSegment starts
+- sinkID   is the StaticID of the DislocationNode at which the DislocationSegment ends
+- Bx By Bz are the Cartesian coordinates of the Burgers vector of the DislocationSegment
+- Nx Ny Nz are the Cartesian coordinates of the GlidePlane normal of the DislocationSegment
+- sourceTfactor a multiplicative factor (+1 or -1)of the parametric tangent of the source DislocationNode
+- sinkTfactor a multiplicative factor (+1 or -1)of the parametric tangent of the sink DislocationNode
+- ncID is the StaticID of the NetworkComponent to which the DislocationSegment belongs
+
+
+\b Note that, when writing the initial input file, you only need to assign sourceID, sinkID, Bx, By, and Bz. All other quantities can be set to zero, because they are internally re-computed by the code.
+
+\sa \ref DD_vertex
+ */ 
+}

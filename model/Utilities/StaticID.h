@@ -9,7 +9,6 @@
 #ifndef model_STATICID_H_
 #define model_STATICID_H_
 
-//#include <assert.h>
 #include <model/Utilities/modelMacros.h> // model_checkInput
 
 namespace model
@@ -17,25 +16,14 @@ namespace model
 	
 	/************************************************************/	
 	/************************************************************/
-	/*! \brief 
-	 * A class template that implements a counter of the number of instances of
-     * Derived type that are created at runtime. It also provides a unique 
-     * increasing static identifier (sID) for each instance.
+	/*! \brief A class template that implements a counter of the number of 
+     * instances of Derived type that are created at runtime. It also provides a 
+     * unique increasing static identifier (sID) for each instance.
 	 *
-	 * \code
-	 * #include <model/Utilities/StaticID.h>
-	 * 
-	 * class MyClass : public model::StaticID<MyClass>{};
-	 *
-	 * int main(){
-	 *
-	 * MyClass a;		// with default constructor
-	 * MyClass b(a);	// with copy constructor
-	 *
-	 * std::cout<<a.sID<<std::endl;
-	 * std::cout<<b.sID<<std::endl;
-	 * }
-	 * \endcode
+     * Example:
+     * \include test/test_StaticID/main.cpp 
+     * Output:
+     * \include test/test_StaticID/output.txt
 	 */
 	template<typename Derived>
 	class StaticID
