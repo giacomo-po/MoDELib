@@ -685,7 +685,7 @@ namespace model
             //\todo this integral should be calculated using shape functions
             
             const VectorDim V((this->source->get_V().template segment<dim>(0)+this->sink->get_V().template segment<dim>(0))*0.5);
-            return -Burgers*V.cross(this->chord()).transpose();
+            return -Burgers*V.cross(this->chord()).transpose()*(!is_boundarySegment());
         }
         
         /**********************************************************************/
@@ -729,7 +729,7 @@ namespace model
         /**********************************************************************/
         void addToSolidAngleJump(const VectorDim& Pf, const VectorDim& Sf, VectorDim& dispJump) const
         {
-            //            if(is_boundarySegment())
+            //            if(is_boundarySegment() && shared.use_virtualSegments)
             //            {
             //
             //                const double den(Sf.dot(boundaryLoopNormal));

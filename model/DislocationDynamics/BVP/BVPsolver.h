@@ -358,23 +358,24 @@ namespace model
                 const auto& gID(pair.first);
                 const auto node(fe->node(gID));
                 
-                // Compute S vector
-                Eigen::Matrix<double,dim,1> s(Eigen::Matrix<double,dim,1>::Zero());
-                for(auto ele : node)
-                {
-                    const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(node.P0));
-                    for(int k=0;k<dim+1;++k)
-                    {
-                        if (std::fabs(bary(k))<FLT_EPSILON && ele->simplex.child(k).isBoundarySimplex())
-                        {
-                            s += ele->simplex.nda.col(k).normalized();
-                        }
-                    }
-                }
-                
-                const double sNorm(s.norm());
-                assert(sNorm>0.0 && "s-vector has zero norm.");
-                fieldPoints.emplace_back(node,s/sNorm);
+//                // Compute S vector
+//                Eigen::Matrix<double,dim,1> s(Eigen::Matrix<double,dim,1>::Zero());
+//                for(auto ele : node)
+//                {
+//                    const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(node.P0));
+//                    for(int k=0;k<dim+1;++k)
+//                    {
+//                        if (std::fabs(bary(k))<FLT_EPSILON && ele->simplex.child(k).isBoundarySimplex())
+//                        {
+//                            s += ele->simplex.nda.col(k).normalized();
+//                        }
+//                    }
+//                }
+//                
+//                const double sNorm(s.norm());
+//                assert(sNorm>0.0 && "s-vector has zero norm.");
+//                fieldPoints.emplace_back(node,s/sNorm);
+                  fieldPoints.emplace_back(node);
             }
             DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
             

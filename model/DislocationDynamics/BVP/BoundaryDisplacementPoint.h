@@ -9,6 +9,7 @@
 #ifndef _model_BoundaryDisplacementPoint_h
 #define _model_BoundaryDisplacementPoint_h
 
+#include <assert.h>
 #include <model/ParticleInteraction/FieldPoint.h>
 
 
@@ -29,24 +30,27 @@ namespace model
         const Eigen::Matrix<double,dim,1> P;
         const Eigen::Matrix<double,dim,1> S;
         
-        BoundaryDisplacementPoint(const NodeType& node,
-                                  const Eigen::Matrix<double,dim,1>& s_in) :
+        BoundaryDisplacementPoint(const NodeType& node) :
         /*   */ gID(node.gID),
         /*   */ P(node.P0),
-        /*   */ S(s_in)
+        /*   */ S(node.outNormal())
         {
-            
+            if(std::abs(S.norm()-1.0)>=10.0*DBL_EPSILON)
+            {
+                model::cout<<"FEM node "<<gID<<"\n"<<"P="<<P.transpose()<<"\n"<<"S="<<S.transpose()<<"\n"<<"norm(S)="<<S.norm()<<std::endl;
+                assert(0 && "S-vector has non-unit norm");
+            }
         }
         
-        BoundaryDisplacementPoint(const size_t gID_in,
-                                  const Eigen::Matrix<double,dim,1>& P0,
-                                  const Eigen::Matrix<double,dim,1>& s_in) :
-        /*   */ gID(gID_in),
-        /*   */ P(P0),
-        /*   */ S(s_in)
-        {
-            
-        }
+//        BoundaryDisplacementPoint(const size_t gID_in,
+//                                  const Eigen::Matrix<double,dim,1>& P0,
+//                                  const Eigen::Matrix<double,dim,1>& s_in) :
+//        /*   */ gID(gID_in),
+//        /*   */ P(P0),
+//        /*   */ S(s_in)
+//        {
+//            assert(std::abs(S.norm()-1.0)>10.0*DBL_EPSILON && "S-vector has non-unit norm");
+//        }
         
     };
     

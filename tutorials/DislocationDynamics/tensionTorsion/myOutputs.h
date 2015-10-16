@@ -18,7 +18,7 @@ if(DN.shared.use_bvp)
     // Sum FEM displacement of those nodes
     for(auto node : DN.shared.bvpSolver.finiteElement().nodeList(nodeListID))
     {
-        Eigen::Matrix<double,dim,1> nodeDisp = DN.shared.bvpSolver.displacement().template segment<dim>(dim*node->gID);
+        const Eigen::Matrix<double,dim,1> nodeDisp = DN.shared.bvpSolver.displacement().template segment<dim>(dim*node->gID);
         dispZ += nodeDisp(2);
         
         const Eigen::Matrix<double,3,1> v0=(node->P0-tt.pivot).normalized();
@@ -36,22 +36,7 @@ if(DN.shared.use_bvp)
     std::deque<FieldPointType> fieldPoints; // the container of field points
     for (auto node : DN.shared.bvpSolver.finiteElement().nodeList(nodeListID)) // range-based for loop (C++11)
     {
-        // Compute S vector
-        Eigen::Matrix<double,dim,1> s(Eigen::Matrix<double,dim,1>::Zero());
-        for(auto ele : *node)
-        {
-            const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(node->P0));
-            for(int k=0;k<dim+1;++k)
-            {
-                if (std::fabs(bary(k))<FLT_EPSILON && ele->simplex.child(k).isBoundarySimplex())
-                {
-                    s += ele->simplex.nda.col(k).normalized();
-                }
-            }
-        }
-        const double sNorm(s.norm());
-        assert(sNorm>0.0 && "s-vector has zero norm.");
-        fieldPoints.emplace_back(*node,s/sNorm);
+        fieldPoints.emplace_back(*node);
     }
     DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
     
@@ -59,6 +44,14 @@ if(DN.shared.use_bvp)
     for(auto node : fieldPoints)
     {
         Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
+        if (DN.shared.use_virtualSegments) // solid-angle jump of virtual segments
+        {
+            for(const auto& segment : DN.links())
+            {
+                segment.second.addToSolidAngleJump(node.P,node.S,nodeDisp);
+            }
+        }
+        
         dispZ += nodeDisp(2);
         
         
@@ -69,12 +62,6 @@ if(DN.shared.use_bvp)
         {
             rotZ += std::asin(sinTheta);
         }
-        
-        //    const double dotp((node.P-tt.pivot).template segment<2>(0).normalized().dot((node.P+nodeDisp-tt.pivot).template segment<2>(0).normalized()));
-        //    if (dotp>0.1 && dotp<=1.0)
-        //    {
-        //        rotZ += acos(dotp);
-        //    }
     }
     
     avgDispZ = dispZ/DN.shared.bvpSolver.finiteElement().nodeList(nodeListID).size();

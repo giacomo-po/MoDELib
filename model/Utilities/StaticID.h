@@ -65,16 +65,21 @@ namespace model
 			count =  newCount;
 		}
         
-        /**********************************************************************/
-        static void force_count(const size_t& newCount)
-        {
-            count =  newCount;
-        }
+//        /**********************************************************************/
+//        static void force_count(const size_t& newCount)
+//        {
+//            count =  newCount;
+//        }
 		
         /**********************************************************************/
 		static void set_increment(const int& newIncrement)
         {
 			model_checkInput(newIncrement>=1 && "newIncrement MUST BE >=1.");
+            if(count>=increment)
+            {
+                count-=increment;
+                count+=newIncrement;
+            }
             increment = newIncrement;
 		}
 		

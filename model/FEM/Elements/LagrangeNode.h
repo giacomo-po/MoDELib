@@ -18,13 +18,10 @@ namespace model
 	
     /**************************************************************************/
 	/**************************************************************************/
-//	template<int _dim>
 	template<typename ElementType>
 	struct LagrangeNode : public std::set<const ElementType*>
-//	struct LagrangeNode : public std::vector<const ElementType*>
     {
         static constexpr int dim=ElementType::dim;
-//        static constexpr int dim=_dim;
 
         typedef Eigen::Matrix<double,dim,1> PositionType;
         
@@ -34,25 +31,30 @@ namespace model
         /**********************************************************************/
         LagrangeNode(const PositionType& p,
                      const size_t& gid) :
-//                     const ElementType* const pEle) :
         /* init list */ P0(p),
         /* init list */ gID(gid)
         {
-//            std::cout<<"Lagrange Node constructor..."<<this<<" ";
-////            auto success=this->insert(pEle);
-//            const bool success=this->emplace(pEle).second;
-//            assert(success && "COULD NOT INSERT ELEMENT IN LAGRANGE NODE.");
-//            std::cout<<this->size()<<std::endl;
-//            show();
+
         }
         
-//        void show() const
-//        {
-//            for (auto ele : *this)
-//            {
-//                std::cout<<"node "<<gID<<" ("<<this<< ") of element "<<ele<<std::endl;
-//            }
-//        }
+        /**********************************************************************/
+        Eigen::Matrix<double,dim,1> outNormal() const
+        {
+            Eigen::Matrix<double,dim,1> temp(Eigen::Matrix<double,dim,1>::Zero());
+            for(auto ele : *this)
+            {
+                const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(P0));
+                for(int k=0;k<dim+1;++k)
+                {
+                    if (std::fabs(bary(k))<FLT_EPSILON && ele->simplex.child(k).isBoundarySimplex())
+                    {
+                        temp += ele->simplex.nda.col(k).normalized();
+                    }
+                }
+            }
+            const double tempNorm(temp.norm());
+            return tempNorm>FLT_EPSILON? (temp/tempNorm).eval() : Eigen::Matrix<double,dim,1>::Zero();
+        }
         
     };
     

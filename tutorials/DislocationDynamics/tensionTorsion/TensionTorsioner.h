@@ -109,11 +109,11 @@ struct TensionTorsioner
             if(eIter->second.isBoundaryElement())
             {
                 const std::vector<int> boundaryFaces=eIter->second.boundaryFaces();
-                for (int f=0;f<boundaryFaces.size();++f) // loop ever bonudary faces of the current Elements
+                for (unsigned int f=0;f<boundaryFaces.size();++f) // loop ever bonudary faces of the current Elements
                 {
                     bool isExternalBoundaryFace(true);
                     std::array<const Simplex<FiniteElementType::dim,0>*, SimplexTraits<FiniteElementType::dim,FiniteElementType::dim-1>::nVertices> vertices=eIter->second.simplex.child(boundaryFaces[f]).vertices();
-                    for(int v=0;v<vertices.size();++v) // loop over vertices of the current face
+                    for(unsigned int v=0;v<vertices.size();++v) // loop over vertices of the current face
                     {
                         isExternalBoundaryFace *= TensionTorsioner(fe)(*vertices[v]); // check if the current vertices satisfies operator()
                     }

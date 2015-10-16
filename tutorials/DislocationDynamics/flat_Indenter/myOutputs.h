@@ -8,7 +8,7 @@ const size_t nodeListID=DN.shared.bvpSolver.finiteElement().template createNodeL
 // Sum FEM displacement of those nodes
 for(auto node : DN.shared.bvpSolver.finiteElement().nodeList(nodeListID))
 {
-    Eigen::Matrix<double,dim,1> nodeDisp = DN.shared.bvpSolver.displacement().template segment<dim>(dim*node->gID);
+    const Eigen::Matrix<double,dim,1> nodeDisp = DN.shared.bvpSolver.displacement().template segment<dim>(dim*node->gID);
     disp += nodeDisp(2);
 }
 
@@ -18,30 +18,23 @@ typedef typename FieldPointType::DisplacementField DisplacementField;
 std::deque<FieldPointType> fieldPoints; // the container of field points
 for (auto node : DN.shared.bvpSolver.finiteElement().nodeList(nodeListID)) // range-based for loop (C++11)
 {
-    // Compute S vector
-    Eigen::Matrix<double,dim,1> s(Eigen::Matrix<double,dim,1>::Zero());
-    for(auto ele : *node)
-    {
-        const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(node->P0));
-        //std::map<double,int> baryIDmap;
-        for(int k=0;k<dim+1;++k)
-        {
-            if (std::fabs(bary(k))<FLT_EPSILON && ele->simplex.child(k).isBoundarySimplex())
-            {
-                s += ele->simplex.nda.col(k).normalized();
-            }
-        }
-    }
-    const double sNorm(s.norm());
-    assert(sNorm>0.0 && "s-vector has zero norm.");
-    fieldPoints.emplace_back(*node,s/sNorm);
+    fieldPoints.emplace_back(*node);
 }
 DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
 
 // Sum dislocation displacement to disp
 for(auto node : fieldPoints)
 {
-    Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
+    Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>(); // line integral part of displacement
+    
+    if (DN.shared.use_virtualSegments) // solid-angle jump of virtual segments
+    {
+        for(const auto& segment : DN.links())
+        {
+            segment.second.addToSolidAngleJump(node.P,node.S,nodeDisp);
+        }
+    }
+        
     disp += nodeDisp(2);
 }
 
