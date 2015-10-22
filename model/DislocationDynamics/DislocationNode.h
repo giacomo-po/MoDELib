@@ -579,6 +579,11 @@ namespace model
                     break;
             }
             
+            if(isPureBoundaryNode())
+            {
+                dX.setZero();
+            }
+            
             //			if (dX.squaredNorm()>0.0 && (meshLocation()!=onMeshBoundary || shared.use_bvp==0)) // move a node only if |v|!=0 and if not on mesh boundary
             if (dX.squaredNorm()>0.0) // move a node only if |v|!=0
             {
@@ -721,9 +726,31 @@ namespace model
             return (boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh);
         }
         
+        /**********************************************************************/
         bool isBoundaryNode() const
         {
             return meshLocation()==onMeshBoundary;
+        }
+        
+        /**********************************************************************/
+        bool isPureBoundaryNode() const
+        {
+            return isBoundaryNode() && isConnectedToBoundaryNodes();
+        }
+        
+        /**********************************************************************/
+        bool isConnectedToBoundaryNodes() const
+        {
+            bool temp(!this->is_isolated()); 
+            for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
+            {
+                if (std::get<2>(neighborIter->second)) // not self
+                {
+                    temp*=std::get<0>(neighborIter->second)->isBoundaryNode();
+                }
+            }
+            
+            return temp;
         }
         
         /**********************************************************************/

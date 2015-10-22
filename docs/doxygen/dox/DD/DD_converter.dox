@@ -1,0 +1,20 @@
+namespace model 
+{
+/*! \page DD_converter DDconverter
+DDconverter is a a simple utility tool that converts \ref DD_vertex (s) and \ref DD_edge (s) from binary to txt format. 
+Using the Makefile in any of the Dislocation Dynamics tutorials, compile as:
+\verbatim
+make DDconverter
+\endverbatim
+
+Run in the current directory to convert
+\verbatim
+V/V_*.bin -> V/V_*.txt
+\endverbatim
+and
+\verbatim
+E/E_*.bin -> E/E_*.txt
+\endverbatim
+
+*/ 
+}

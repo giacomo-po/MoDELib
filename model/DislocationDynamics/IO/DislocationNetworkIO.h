@@ -54,7 +54,8 @@ namespace model
         static bool outputPKforce;
         static bool outputElasticEnergy;
         static bool outputMeshDisplacement;
-        
+        static bool outputDislocationLength;
+        static bool outputPlasticDistortionRate;
         
         /* readVertices *******************************************************/
         static void readVertices(DislocationNetworkType& DN, const unsigned int& fileID)
@@ -146,7 +147,7 @@ namespace model
           * ./D/D_x.txt (mesh displacement only if outputMeshDisplacement==true)
           */
             model::cout<<"		Writing to "<<std::flush;
-			
+            
 			//! 1- Outputs the Edge informations to file E_*.txt where * is the current simulation step
             if (outputBinary)
             {
@@ -302,10 +303,28 @@ namespace model
                 model::cout<<", D/D_"<<d_file.sID<<"(FINISH HERE)"<<std::flush;
             }
             
-			
+            // Output to F file
+            UniqueOutputFile<'F'> f_file;
+            model::cout<<" F/F_0.txt"<<std::flush;
+            f_file<< DN.runningID()<<" "<<DN.get_totalTime()<<" "<<DN.get_dt()<<" ";
+            
+            if(outputDislocationLength)
+            {
+                const auto length=DN.networkLength();
+                f_file<<length.first<<" "<<length.second<<" ";
+            }
+            
+            if(outputPlasticDistortionRate)
+            {
+                Eigen::Matrix<double,dim,dim> pDR(DN.plasticDistortionRate());
+                f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" ";
+            }
+
 #ifdef userOutputFile
 #include userOutputFile
 #endif
+            
+            f_file<<std::endl;
 			
 		}
         
@@ -333,7 +352,13 @@ namespace model
     
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement=false;
+
+    template <typename DislocationNetworkType>
+    bool DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength=false;
     
+    template <typename DislocationNetworkType>
+    bool DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortionRate=false;
+
     /**************************************************************************/
     /**************************************************************************/
 } // namespace model

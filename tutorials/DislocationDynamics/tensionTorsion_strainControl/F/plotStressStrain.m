@@ -1,5 +1,5 @@
 clear all
-close all
+%close all
 clc
 
 Burgers=0.2556e-9; % Burgers vector for Cu [m]
@@ -20,6 +20,12 @@ F=load('F_0.txt');
 runID=F(:,1);
 time=F(:,2);
 dt=F(:,3);
+
+figure(1)
+%hold on
+plot(runID,dt,'r')
+
+return
 ddLength=F(:,4);
 ddImmobLength=F(:,5);
 u3=F(:,6);

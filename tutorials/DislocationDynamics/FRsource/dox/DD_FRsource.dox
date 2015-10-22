@@ -34,6 +34,10 @@ make DDmpi
 \endverbatim
 This creates the executable \b DDmpi. Compiling the Open-MPI version requires the \ref openmpi  be correctly installed in your system.
 
+The Makefile can also be used to build some other utilities:
+	- The \ref DD_visualization
+	- The \ref DD_converter
+	- The \ref DD_dipoleGenerator 
 
 \section FRsource_run Running DDomp and DDmpi
 
@@ -48,7 +52,7 @@ mpirun -np N DDmpi
 \endverbatim
 where \b N is the number of processors to be used.
 
-Running the code produces a series of output files. If you want to visualize the output jump to the next tutorial, where you learn how to use \ref DD_visualization. Otherwise, just keep reading for more explanation.
+Running the code produces a series of output files. If you want to visualize the output jump to the next tutorial, where you learn how to use \ref DD_visualization. 
 
 \section FRsource_input Input files
 

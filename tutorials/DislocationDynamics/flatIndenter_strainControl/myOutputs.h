@@ -49,17 +49,9 @@ typedef typename DislocationNetworkType::BvpSolverType BvpSolverType;
 boundaryUnderPunch.integrate(&DN.shared.bvpSolver,force,&BvpSolverType::bvpTraction); // integrate the bvp correction
 boundaryUnderPunch.integrate(&DN.shared.bvpSolver,force,&BvpSolverType::ddTraction,DN); // integrate the dd traction
 
-
-/******************************************************************************/
-// PLASTIC STRAIN RATE
-Eigen::Matrix<double,dim,dim> pSR(DN.plasticStrainRate());
-std::pair<double,double> length=DN.networkLength(); // first is total immobilized length, second is total mobile length
-
 /******************************************************************************/
 // OUTPUT TO F_0.txt
-UniqueOutputFile<'F'> f_file;
-model::cout<<", F/F_0"<<std::flush;
-f_file<< DN.runningID()<<" "<<DN.get_dt()<<"  "<<length.first<<" "<<length.second<<" "<<avgdisp<<"  "<<force(2)<<"  "<<pSR(0,0)<<"  "<<pSR(0,1)<<"  "<<pSR(0,2)<<"  "<<pSR(1,1)<<"  "<<pSR(1,2) <<"  "<<pSR(2,2)<<"  "<<std::endl;
+f_file<<avgdisp<<"  "<<force(2);
 
 
 

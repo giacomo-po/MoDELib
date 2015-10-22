@@ -71,7 +71,7 @@ Lmin=50;
 # Enable/disable the use of dislocation junction formation
 use_junctions=1;
 # Tolerance used in detecting collisions between dislocation segments in different planes
-collisionTol=10;
+collisionTol=3;
 
 ######################################
 # Impose that all dislocation nodes (but FR source/sink nodes) are balanced

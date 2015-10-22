@@ -1,5 +1,5 @@
 IDIR  = -I/usr/local/include/
-IDIR += -I../../../
+IDIR += -I../../
 
 
 ##########################################################
@@ -26,12 +26,12 @@ endif
 ##########################################################
 # PROGRAM
 ##########################################################
-PROGRAM =	dipoleGenerator
-OBJS 	= 	dipoleGenerator
+PROGRAM =	microstructureGenerator
+OBJS 	= 	microstructureGenerator
 
 
 $(PROGRAM): 
-	$(CC) dipoleGenerator.cpp -o $(OBJS) $(CFLAGS) $(IDIR)  
+	$(CC) main.cpp -o $(OBJS) $(CFLAGS) $(IDIR)  
 	
 clean:
 		rm -f $(OBJS)

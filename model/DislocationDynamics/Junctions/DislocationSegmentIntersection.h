@@ -135,10 +135,6 @@ namespace model
                 model::cout<<"absN2dotT2sink="<<absN2dotT2sink<<"\n";
             }
             
-            //            assert(      absN2dotC2<FLT_EPSILON);
-            //            assert(absN2dotT2source<FLT_EPSILON);
-            //            assert(  absN2dotT2sink<FLT_EPSILON);
-            
             
             const VectorDim P2 = H2.col(0);	  // end point of the spline
             const VectorDim T2 = H2.col(1);	  // tangent of the spline source

@@ -111,7 +111,6 @@ $(mpiOBJS):
 	@echo making DDmpi
 	$(mpiCC) main.cpp -o $(mpiOBJS) $(CFLAGS) $(mpiCFLAGS) $(IDIR) $(LIBS) $(mpiLIBS)
 
-
 ##########################################################
 # MAKE CLEAN
 ##########################################################
@@ -123,6 +122,24 @@ clean:
 ##########################################################
 DDviewer: 
 	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -O3 -std=c++11 $(IDIR)  $(VIEWERLIBS) 
+
+##########################################################
+# MAKE DIPOLEGENERATOR
+##########################################################
+dipoleOBJS = dipoleGenerator
+
+$(dipoleOBJS):
+	@echo making dipoleGenerator
+	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/MicrostructureGeneration/dipoleGenerator.cpp -o dipoleGenerator -O3 -std=c++11 $(IDIR)
+
+##########################################################
+# MAKE DIPOLEGENERATOR
+##########################################################
+converterOBJS = DDconverter
+
+$(converterOBJS):
+	@echo making DDconverter
+	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/DDconverter/DDconverter.cpp -o DDconverter -O3 -std=c++11 $(IDIR)
 
 ##########################################################
 # MAKE EMPTY

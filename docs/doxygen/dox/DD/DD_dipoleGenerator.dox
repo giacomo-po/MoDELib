@@ -1,0 +1,14 @@
+namespace model 
+{
+/*! \page DD_dipoleGenerator dipoleGenerator
+dipoleGenerator is a a simple utility that generates an initial microstructure made of prismatic loops, and writes the corresponding \ref DD_vertex and \ref DD_edge. 
+
+Using the Makefile in any of the Dislocation Dynamics tutorials, compile as:
+\verbatim
+make dipoleGenerator
+\endverbatim
+
+The dipoleGenerator reads input parameters from the file “microstructureInput.txt” in the current directory.
+
+*/ 
+}

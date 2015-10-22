@@ -152,48 +152,46 @@ RowNcoeff get_SFuu(const double & uin) const
 }
 
 /******************************************************************************/
-VectorDim get_r(const double & u) const {
-    /*! The position vector at parameter u
-     *  @param[in] u the parametrization variable in [0:1]
-     *	\f[
-     *		\mathbf{r} = \mathbf{q}\mathbf{H}\mathbf{u} \\
-     *		r_i = q_{ik}H_{km}u^{m} = q_{ik} N_k
-     *	\f]
-     * with i=0..dim-1, k,m = 0... Ncoeff
-     * ACTUALLY IN THE CODE WE HAVE THE TRANSPOSE OF THIS !!!!
-     */
+VectorDim get_r(const double & u) const
+{/*!\returns The position vector at parameter u
+  *  @param[in] u the parametrization variable in [0:1]
+  *	\f[
+  *		\mathbf{r} = \mathbf{q}\mathbf{H}\mathbf{u} \\
+  *		r_i = q_{ik}H_{km}u^{m} = q_{ik} N_k
+  *	\f]
+  * with i=0..dim-1, k,m = 0... Ncoeff
+  * ACTUALLY IN THE CODE WE HAVE THE TRANSPOSE OF THIS !!!!
+  */
     return get_SF(u)*get_qH();
 }
 
-//////////////////////////////////////////////////////////////
-//! ru=SFu*qH
-VectorDim get_ru(const double & uin) const {
-    //make_SFu(uin);
+/******************************************************************************/
+VectorDim get_ru(const double & uin) const
+{
     return get_SFu(uin)*get_qH();
 }
 
-//////////////////////////////////////////////////////////////
-//! get_rmu
-VectorDim get_rmu(const double & uin) const {
+/******************************************************************************/
+VectorDim get_rmu(const double & uin) const
+{
     return this->get_ru(uin)/chordParametricLength();
 }
 
-//////////////////////////////////////////////////////////////
-//! ruu=SFuu*qH
-VectorDim get_ruu(const double & uin) const {
-    //make_SFuu(uin);
+/******************************************************************************/
+VectorDim get_ruu(const double & uin) const
+{
     return get_SFuu(uin)*get_qH();
 }
 
-//////////////////////////////////////////////////////////////
-//! get_rmumu
-VectorDim get_rmumu(const double & uin) const {
+/******************************************************************************/
+VectorDim get_rmumu(const double & uin) const
+{
     return this->get_ruu(uin)/std::pow(chordParametricLength(),2);
 }
 
-//////////////////////////////////////////////////////////////
-//! get_G2H
-Eigen::Matrix<double, Ndof, Eigen::Dynamic>  get_G2H() const {
+/******************************************************************************/
+Eigen::Matrix<double, Ndof, Eigen::Dynamic>  get_G2H() const
+{
     //make_G2H();
     
     size_t gDof(this->pSN()->nodeOrder()*this->source->NdofXnode); // CHANGE HERE, NdofXnode should be available directly
@@ -207,7 +205,8 @@ Eigen::Matrix<double, Ndof, Eigen::Dynamic>  get_G2H() const {
     M.block(dim,0,dim,M.cols())*=sourceTfactor;
     //	std::cout<<"M source=\n"<<M<<std::endl;
     
-    for (int k=0;k<dofid.size();++k){
+    for (int k=0;k<dofid.size();++k)
+    {
         G2H.template block<Ndof/2,1>(0,dofid(k))=M.col(k);
     }
     
@@ -216,16 +215,23 @@ Eigen::Matrix<double, Ndof, Eigen::Dynamic>  get_G2H() const {
     M.block(dim,0,dim,M.cols())*=(-sinkTfactor);
     //	std::cout<<"M sink=\n"<<M<<std::endl;
     
-    for (int k=0;k<dofid.size();++k){
+    for (int k=0;k<dofid.size();++k)
+    {
         G2H.template block<Ndof/2,1>(Ndof/2,dofid(k))=M.col(k);
     }
     
     return G2H;
 }
 
-/* closestPoint *****************************************************/
+/******************************************************************************/
 std::pair<double,std::pair<double,VectorDim> > closestPoint(const VectorDim& P0) const
-{
+{/*!@param[in] P0 reference point
+  * \returns The closesest point to P0 along this segment. The return value is a
+  * pair, where pair.first is the parameter value u, and pair.second is the position P
+  * of the closest point, so that get_r(u)=P.
+  *
+  * 
+  */
     
     // solve (P-P0)*dP/du=0
     

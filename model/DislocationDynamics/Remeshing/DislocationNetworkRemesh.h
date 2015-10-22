@@ -78,19 +78,35 @@ namespace model
             
             // Store segments to be contracted
             std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
-            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+//            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+//            {
+//                const VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
+//                const double chordLength(chord.norm());
+//                const VectorDimD dv(linkIter->second.sink->get_V()-linkIter->second.source->get_V());
+//                //				bool endsAreApproaching( chord.dot(dv) < -vTolcont*chordLength*dv.norm() );
+//                bool endsAreApproaching( chord.dot(dv) < 0.0 );
+//                //				bool endsAreApproaching( chord.dot(dv) + dv.squaredNorm()*dt < 0.0 );
+//                if ((endsAreApproaching || linkIter->second.is_boundarySegment())// ends are approaching
+//                    && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
+//                    && chordLength<Lmin)
+//                {
+//                    assert(toBeContracted.insert(std::make_pair(chordLength,linkIter->second.nodeIDPair)).second && "COULD NOT INSERT IN SET.");
+//                }
+//            }
+
+            for (const auto& linkIter : DN.links())
             {
-                const VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
+                const LinkType& segment(linkIter.second);
+                const VectorDimD chord(segment.chord()); // this is sink->get_P() - source->get_P()
                 const double chordLength(chord.norm());
-                const VectorDimD dv(linkIter->second.sink->get_V()-linkIter->second.source->get_V());
-                //				bool endsAreApproaching( chord.dot(dv) < -vTolcont*chordLength*dv.norm() );
+                const VectorDimD dv(segment.sink->get_V()-segment.source->get_V());
                 bool endsAreApproaching( chord.dot(dv) < 0.0 );
-                //				bool endsAreApproaching( chord.dot(dv) + dv.squaredNorm()*dt < 0.0 );
-                if ((endsAreApproaching || linkIter->second.is_boundarySegment())// ends are approaching
+
+                if ((endsAreApproaching || segment.is_boundarySegment())// ends are approaching
                     && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
                     && chordLength<Lmin)
                 {
-                    assert(toBeContracted.insert(std::make_pair(chordLength,linkIter->second.nodeIDPair)).second && "COULD NOT INSERT IN SET.");
+                    assert(toBeContracted.insert(std::make_pair(chordLength,segment.nodeIDPair)).second && "COULD NOT INSERT IN SET.");
                 }
             }
             
@@ -103,12 +119,10 @@ namespace model
                 const size_t i(smallIter->second.first);
                 const size_t j(smallIter->second.second);
                 const typename EdgeFinder<LinkType>::isNetworkEdgeType Lij(DN.link(i,j));
+                
                 if (Lij.first )
                 {
-                   //std::cout<<"contracting"<<i<<"->"<<j<<std::endl;
                     Ncontracted+=DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
-                   //std::cout<<"Ncontracted="<<Ncontracted<<std::endl;
-
                 }
             }
             model::cout<<" ("<<Ncontracted<<" contracted)"<<std::flush;
@@ -124,7 +138,8 @@ namespace model
             std::set<std::pair<size_t,size_t> > toBeExpanded;
             
             // Store the segments to be expanded
-            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter){
+            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+            {
                 
                 const VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
                 const double chordLength(chord.norm());
@@ -137,7 +152,7 @@ namespace model
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
-                // Expand single FR source segment
+                // Expand pin points
                 if (   linkIter->second.source->constraintNormals().size()>2
                     && linkIter->second.  sink->constraintNormals().size()>2
                     && chordLength>3.0*Lmin)
@@ -146,7 +161,8 @@ namespace model
                 }
                 
                 if (!linkIter->second.source->is_simple() && !linkIter->second.sink->is_simple()
-                    /*&& chord.dot(dv)>vTolexp*chordLength*dv.norm()*/ && chordLength>3.0*Lmin){ // also expands a straight line to generate glissile segment
+                    /*&& chord.dot(dv)>vTolexp*chordLength*dv.norm()*/ && chordLength>3.0*Lmin)
+                { // also expands a straight line to generate glissile segment
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 

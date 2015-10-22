@@ -44,6 +44,7 @@ namespace model
             
             mu=1.0;     // mu is used to normalized stress
             b =1.0;     // b is used to normalized length
+            b_real=PeriodicElement<Z,Isotropic>::b;
             B =1.0;     // B=A*T [Pa*sec] is effectively used to normalize time
             Binv=1.0/B;
             rho=IM::mu*std::pow(IM::b/(IM::Ae*T),2)*IM::rho;  //! rho* = mu*(b/B)^2 * rho, B=A*T
@@ -87,6 +88,7 @@ namespace model
         
         static double mu;
         static double b;
+        static double b_real;
         static double B;
         static double Binv;
         static double T;
@@ -189,6 +191,7 @@ namespace model
     int Material<Isotropic>::selectedMaterial=29;
     double Material<Isotropic>::mu=1.0;
     double Material<Isotropic>::b=1.0;
+    double Material<Isotropic>::b_real=PeriodicElement<29,Isotropic>::b;
     double Material<Isotropic>::B=1.0;
     double Material<Isotropic>::Binv=1.0;
     double Material<Isotropic>::T=300.0;  // Temperature [K]

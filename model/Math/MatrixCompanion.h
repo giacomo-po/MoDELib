@@ -11,6 +11,7 @@
 
 #include <Eigen/Dense>
 #include <assert.h>
+#include <cfloat>
 
 
 namespace model{

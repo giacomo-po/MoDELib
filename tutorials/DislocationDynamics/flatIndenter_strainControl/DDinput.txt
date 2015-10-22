@@ -18,12 +18,14 @@ velocityReductionFactor=0.75;
 # OUTPUT
 # Options for output files:
 outputFrequency=10;
-outputBinary=1;
+outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
+outputDislocationLength=1;
+outputPlasticDistortionRate=1;
 
 ######################################
 # MATERIAL
@@ -63,7 +65,7 @@ use_EnergyMultipole = 0;
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
-Lmax=300;
+Lmax=200;
 Lmin=41;
 
 ######################################
@@ -71,7 +73,7 @@ Lmin=41;
 # Enable/disable the use of dislocation junction formation
 use_junctions=1;
 # Tolerance used in detecting collisions between dislocation segments in different planes
-collisionTol=10;
+collisionTol=3;
 
 ######################################
 # BOUNDARY MESH
@@ -79,17 +81,18 @@ collisionTol=10;
 # If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
 # T/T_meshID.txt must be present in the working directory.
 use_boundary=1;
-meshID=0;
 use_meshRegions=0;
+meshID=1;
 
 ######################################
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
 use_bvp = 10;
-use_directSolver_FEM=1;
+use_virtualSegments=1;
+use_directSolver_FEM=0;
 solverTolerance=0.0001;
-use_virtualSegments=0;
+
 ######################################
 # Impose that all dislocation nodes (but FR source/sink nodes) are balanced
 check_balance=1;
@@ -98,6 +101,10 @@ check_balance=1;
 # Enable/disable cross-slip
 use_crossSlip=1;
 crossSlipDeg=2.0;
+crossSlipLength=110.0;
 
 ######################################
+# Don't assemble and solve SubNetworks with less than "minSNorderForSolve" nodes:
+minSNorderForSolve=0;
+
 parametrizationExponent=0.5;

@@ -339,15 +339,14 @@ namespace model
             move(dt);
 //            output(runID);
 
-            //! 8- Cross Slip (needs upated PK force)
-            crossSlip(); // do crossSlip after remesh so that cross-slip points are not removed
             
             DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
 
+            //! 8- Cross Slip (needs upated PK force)
+            crossSlip();
             
             //! 9- detect loops that shrink to zero and expand as inverted loops
             DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
-            
             
             //! 11- Form Junctions
             formJunctions();
@@ -571,6 +570,8 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
             EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
+            EDR.readScalarInFile(fullName.str(),"outputDislocationLength",DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength);
+            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortionRate",DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortionRate);
             
             // time-stepping
             dt=0.0;

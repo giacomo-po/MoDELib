@@ -48,10 +48,6 @@
 #include <model/DislocationDynamics/DislocationMobility.h>
 #include <model/Utilities/UniqueOutputFile.h>
 
-
-//#include <model/DislocationDynamics/BVP/VirtualBoundarySlipContainer.h>
-
-
 namespace model
 {
     
@@ -87,13 +83,6 @@ namespace model
             
         }
         
-        //        template<typename LinkType>
-        //        PlanarDislocationSegment(const ExpandingEdge<LinkType>& ee) :
-        //        /* init list       */ glidePlaneNormal(ee.E.glidePlaneNormal),
-        //        /* init list       */ sessilePlaneNormal(ee.E.sessilePlaneNormal)
-        //        {
-        //            THIS DOES NOT WORK FOR CROSS SLIP
-        //        }
     };
     
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
@@ -333,72 +322,7 @@ namespace model
             //            quadratureParticleContainer.clear();
         }
         
-        //        /**********************************************************************/
-        //        void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
-        //        {/*! @param[in] particleSystem the ParticleSystem of DislocationParticle
-        //          *  Computes all geometric properties at the k-th quadrature point
-        //          */
-        //
-        //            quadratureParticleContainer.clear();
-        //            quadratureParticleContainer.reserve(qOrder);
-        //
-        //            const MatrixNcoeff  SFCH(this->get_SFCH());
-        //            const MatrixNcoeffDim qH(this->get_qH());
-        //            for (unsigned int k=0;k<qOrder;++k)
-        //            {
-        //                //                    const MatrixNcoeff  SFCH(this->get_SFCH());
-        //                //                    const MatrixNcoeffDim qH(this->get_qH());
-        //                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-        //                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-        //                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-        //                jgauss(k)=rugauss.col(k).norm();
-        //                rlgauss.col(k)=rugauss.col(k)/jgauss(k);
-        //            }
-        //
-        //            // Add the quadrature particles
-        //            if (is_boundarySegment() && shared.use_bvp && shared.use_virtualSegments)
-        //            {
-        //
-        //                const VectorDim C((this->source->get_P()+this->sink->get_P())*0.5);
-        //                const VectorDim vec(this->source->get_P()-C);
-        //                const VectorDim n((this->source->bndNormal()+this->sink->bndNormal()).normalized());
-        //                boundaryLoopNormal=this->glidePlaneNormal;
-        //                const MatrixDim R(Eigen::AngleAxisd(0.5*M_PI,boundaryLoopNormal));
-        //                const double dldu=vec.norm()*M_PI;
-        //                //double sign_theta=1.0;
-        //                if((R*vec).dot(n)<0.0)
-        //                {
-        //                    boundaryLoopNormal*=-1.0;
-        //                }
-        //
-        //                for (unsigned int k=0;k<qOrder;++k)
-        //                {
-        //                    const MatrixDim Rk(Eigen::AngleAxisd(Quadrature<1,qOrder,QuadratureRule>::abscissas(k)*M_PI,boundaryLoopNormal));
-        //                    const VectorDim rgauss_temp=C+Rk*vec;
-        //                    const VectorDim rugauss_temp=boundaryLoopNormal.cross(Rk*vec).normalized()*dldu;
-        //
-        ////                    k_file<<rgauss_temp.transpose()<<" "<<rugauss_temp.transpose()<<"\n";
-        //
-        //                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss_temp,rugauss_temp,Burgers,
-        //                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
-        //                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
-        //                }
-        //            }
-        //            else
-        //            { // segment inside mesh
-        //                boundaryLoopNormal=this->glidePlaneNormal;
-        //
-        //                for (unsigned int k=0;k<qOrder;++k)
-        //                {
-        //                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),Burgers,
-        //                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
-        //                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
-        //                }
-        //            }
-        //
-        //
-        //
-        //        }
+
         
         /**********************************************************************/
         void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
@@ -457,48 +381,7 @@ namespace model
             
         }
         
-        //        /**********************************************************************/
-        //        void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
-        //        {/*! @param[in] particleSystem the ParticleSystem of DislocationParticle
-        //          *  Computes all geometric properties at the k-th quadrature point
-        //          */
-        //
-        //            quadratureParticleContainer.clear();
-        //            quadratureParticleContainer.reserve(qOrder);
-        //
-        //            for (unsigned int k=0;k<qOrder;++k)
-        //            {
-        //                MatrixNcoeff  SFCH(this->get_SFCH());
-        //                MatrixNcoeffDim qH(this->get_qH());
-        //                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-        //                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-        //                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-        //                jgauss(k)=rugauss.col(k).norm();
-        //                rlgauss.col(k)=rugauss.col(k)/jgauss(k);
-        //
-        //
-        //                // Add the quadrature particles
-        //                if (is_boundarySegment() && shared.use_bvp && shared.use_virtualSegments)
-        //                {
-        //                    // if bvp with virtualSegments is used, add particles with zero Burgers for segments on the boundary
-        ////                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),zeroDim,
-        ////                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
-        ////                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
-        //                    asseert(0 && "FINISH HERE. PLACE GAUSS POINTS IN CIRCLE");
-        //                    const VectorDim C((this->source->get_P()+this->sink->get_P())*0.5);
-        //                    const VectorDim n((this->source->boundaryNormal+this->sink->boundaryNormal).normalized());
-        //                    const MatrixDim R(Eigen::AngleAxisf(Quadrature<1,qOrder,QuadratureRule>::abscissas(k)*M_PI, glidePlaneNormal));
-        //
-        //                }
-        //                else
-        //                {
-        //                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),Burgers,
-        //                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
-        //                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
-        //                }
-        //            }
-        //
-        //        }
+
         
         /**********************************************************************/
         MatrixDim stressAtQuadrature(const size_t & k)
@@ -801,6 +684,118 @@ namespace model
     
 } // namespace model
 #endif
+
+//        /**********************************************************************/
+//        void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
+//        {/*! @param[in] particleSystem the ParticleSystem of DislocationParticle
+//          *  Computes all geometric properties at the k-th quadrature point
+//          */
+//
+//            quadratureParticleContainer.clear();
+//            quadratureParticleContainer.reserve(qOrder);
+//
+//            for (unsigned int k=0;k<qOrder;++k)
+//            {
+//                MatrixNcoeff  SFCH(this->get_SFCH());
+//                MatrixNcoeffDim qH(this->get_qH());
+//                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+//                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+//                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+//                jgauss(k)=rugauss.col(k).norm();
+//                rlgauss.col(k)=rugauss.col(k)/jgauss(k);
+//
+//
+//                // Add the quadrature particles
+//                if (is_boundarySegment() && shared.use_bvp && shared.use_virtualSegments)
+//                {
+//                    // if bvp with virtualSegments is used, add particles with zero Burgers for segments on the boundary
+////                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),zeroDim,
+////                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
+////                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
+//                    asseert(0 && "FINISH HERE. PLACE GAUSS POINTS IN CIRCLE");
+//                    const VectorDim C((this->source->get_P()+this->sink->get_P())*0.5);
+//                    const VectorDim n((this->source->boundaryNormal+this->sink->boundaryNormal).normalized());
+//                    const MatrixDim R(Eigen::AngleAxisf(Quadrature<1,qOrder,QuadratureRule>::abscissas(k)*M_PI, glidePlaneNormal));
+//
+//                }
+//                else
+//                {
+//                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),Burgers,
+//                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
+//                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
+//                }
+//            }
+//
+//        }
+
+
+//        /**********************************************************************/
+//        void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
+//        {/*! @param[in] particleSystem the ParticleSystem of DislocationParticle
+//          *  Computes all geometric properties at the k-th quadrature point
+//          */
+//
+//            quadratureParticleContainer.clear();
+//            quadratureParticleContainer.reserve(qOrder);
+//
+//            const MatrixNcoeff  SFCH(this->get_SFCH());
+//            const MatrixNcoeffDim qH(this->get_qH());
+//            for (unsigned int k=0;k<qOrder;++k)
+//            {
+//                //                    const MatrixNcoeff  SFCH(this->get_SFCH());
+//                //                    const MatrixNcoeffDim qH(this->get_qH());
+//                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+//                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+//                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+//                jgauss(k)=rugauss.col(k).norm();
+//                rlgauss.col(k)=rugauss.col(k)/jgauss(k);
+//            }
+//
+//            // Add the quadrature particles
+//            if (is_boundarySegment() && shared.use_bvp && shared.use_virtualSegments)
+//            {
+//
+//                const VectorDim C((this->source->get_P()+this->sink->get_P())*0.5);
+//                const VectorDim vec(this->source->get_P()-C);
+//                const VectorDim n((this->source->bndNormal()+this->sink->bndNormal()).normalized());
+//                boundaryLoopNormal=this->glidePlaneNormal;
+//                const MatrixDim R(Eigen::AngleAxisd(0.5*M_PI,boundaryLoopNormal));
+//                const double dldu=vec.norm()*M_PI;
+//                //double sign_theta=1.0;
+//                if((R*vec).dot(n)<0.0)
+//                {
+//                    boundaryLoopNormal*=-1.0;
+//                }
+//
+//                for (unsigned int k=0;k<qOrder;++k)
+//                {
+//                    const MatrixDim Rk(Eigen::AngleAxisd(Quadrature<1,qOrder,QuadratureRule>::abscissas(k)*M_PI,boundaryLoopNormal));
+//                    const VectorDim rgauss_temp=C+Rk*vec;
+//                    const VectorDim rugauss_temp=boundaryLoopNormal.cross(Rk*vec).normalized()*dldu;
+//
+////                    k_file<<rgauss_temp.transpose()<<" "<<rugauss_temp.transpose()<<"\n";
+//
+//                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss_temp,rugauss_temp,Burgers,
+//                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
+//                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
+//                }
+//            }
+//            else
+//            { // segment inside mesh
+//                boundaryLoopNormal=this->glidePlaneNormal;
+//
+//                for (unsigned int k=0;k<qOrder;++k)
+//                {
+//                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),Burgers,
+//                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
+//                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
+//                }
+//            }
+//
+//
+//
+//        }
+
 
 //        /**********************************************************************/
 //        std::map<double,VectorDim> boundaryCollision() const

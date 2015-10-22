@@ -79,15 +79,10 @@ if(DN.shared.use_bvp)
     loadedBnd.integrate(&DN.shared.bvpSolver,torque,&BvpSolverType::ddMoment ,tt.pivot,DN); // integrate  dd moment about tt.pivot
 }
 
-/******************************************************************************/
-// PLASTIC STRAIN RATE
-Eigen::Matrix<double,dim,dim> pDR(DN.plasticDistortionRate());
-const auto length=DN.networkLength();
+
 /******************************************************************************/
 // OUTPUT TO F_0.txt
-UniqueOutputFile<'F'> f_file;
-model::cout<<", F/F_0"<<std::flush;
-f_file<< DN.runningID()<<" "<<DN.get_totalTime()<<" "<<DN.get_dt()<<"  "<<length.first<<" "<<length.second<<" "<<avgDispZ<<" "<<avgRotZ<<"  "<<force(2)<<" "<<torque(2)<<"  "<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<std::endl;
+f_file <<avgDispZ<<" "<<avgRotZ<<" "<<force(2)<<" "<<torque(2);
 
 
 
