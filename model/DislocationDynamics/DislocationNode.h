@@ -640,7 +640,6 @@ namespace model
         
     };
     
-    
     // static data
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
