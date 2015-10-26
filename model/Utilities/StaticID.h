@@ -30,7 +30,7 @@ namespace model
     {
 
 		// The increment
-		static int increment;
+		static size_t increment;
 		
 		// The incremental counters
 		static size_t count;
@@ -72,7 +72,7 @@ namespace model
 //        }
 		
         /**********************************************************************/
-		static void set_increment(const int& newIncrement)
+		static void set_increment(const size_t& newIncrement)
         {
 			model_checkInput(newIncrement>=1 && "newIncrement MUST BE >=1.");
             if(count>=increment)
@@ -87,7 +87,7 @@ namespace model
 	
 	/* Static data members  *****************************/
 	template<typename Derived>
-	int StaticID<Derived>::increment = 1;
+	size_t StaticID<Derived>::increment = 1;
 
 	template<typename Derived>
 	size_t StaticID<Derived>::count = 0;

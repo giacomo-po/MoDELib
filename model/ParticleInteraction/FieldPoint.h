@@ -45,6 +45,15 @@ namespace model {
         
         typedef typename FieldPoint<Derived,_dim,MoreFieldTypes...>::VectorDimD VectorDimD;
         
+        /**********************************************************************/
+        template<typename...T>
+        FieldPoint(const bool& enb, const T&...moreEnb) :
+        /* base init */ FieldPoint<Derived,_dim,MoreFieldTypes...>(moreEnb...),
+        /* base init */ FieldPointBase<Derived,FieldType>(enb)
+        {/*! @param[in] 
+          */
+        }
+        
 //        /**********************************************************************/
 //        template <typename OtherFieldType>
 //        FieldPointBase<Derived,OtherFieldType>& field()

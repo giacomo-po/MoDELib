@@ -153,6 +153,7 @@ Pexists=$(shell test -d P && echo 1)
 Dexists=$(shell test -d D && echo 1)
 Sexists=$(shell test -d S && echo 1)
 Uexists=$(shell test -d U && echo 1)
+Qexists=$(shell test -d Q && echo 1)
 TGAexists=$(shell test -d tga && echo 1)
 JPGexists=$(shell test -d jpg && echo 1)
 
@@ -197,6 +198,11 @@ ifeq ($(Uexists),1)
 	@echo emptying folder U
 	@find U/ -name U_\*.txt -exec rm {} +;
 	@find U/ -name U_\*.bin -exec rm {} +;
+endif
+ifeq ($(Qexists),1)
+	@echo emptying folder Q
+	@find Q/ -name Q_\*.txt -exec rm {} +;
+	@find Q/ -name Q_\*.bin -exec rm {} +;
 endif	
 ifeq ($(TGAexists),1)
 	@echo emptying folder tga

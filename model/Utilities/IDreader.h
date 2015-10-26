@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_EDGEREADER_H_
-#define model_EDGEREADER_H_
+#ifndef model_IDREADER_H_
+#define model_IDREADER_H_
 
 #include <iostream>
 #include <fstream>
@@ -17,33 +17,27 @@
 #include <map>
 #include <assert.h>
 #include <utility>
-#include <Eigen/Dense>
+//#include <Eigen/Dense>
 #include <model/Utilities/BinaryFileReader.h>
 
 namespace model
 {
 	
-    /*!	\brief A class template to read Edge data from file.
-     *	\param[cols] is the number of columns in the file.
-     *	First column is the source Vertex ID, second column is the sink Vertex ID.
-     *  Other columns are optional.
+    /*!	\brief A class template
      */
-	template <char c, int cols, typename scalar>
-	class EdgeReader : public std::map<std::pair<int, int>, Eigen::Matrix<scalar,1,cols-2>,
-	/*                              */ std::less<std::pair<int, int> >,   
-	/*                              */ Eigen::aligned_allocator<std::pair<const std::pair<int, int>, Eigen::Matrix<scalar,1,cols-2> > > > {	
+	template <char c, int keySize, int valueSize, typename T>
+	class IDreader : public std::map<std::array<int, keySize>, std::array<T, valueSize> >
+    {
 		
+        typedef std::array<int, keySize> KeyType;
+        typedef std::array<T, valueSize> ValueType;
+        
 		int currentFrame;
 		
         /**********************************************************************/
 		bool readTXT(const std::string& filename)
         {
-			scalar temp;
-			//int key1, key2, row, col;
-			std::string line;
-			
-			Eigen::Matrix<scalar,1,cols-2> edgeNB = Eigen::Matrix<scalar,1,cols-2>::Zero();
-			
+            
 			std::ifstream ifs ( filename.c_str() , std::ifstream::in );
 			
             bool success(false);
@@ -52,34 +46,33 @@ namespace model
             {
 				std::cout<<"Reading: "<<filename;
 				double t0(clock());
+                std::string line;
+
+
 				int row = 0;
 				while (std::getline(ifs, line))
                 {
 					std::stringstream ss(line);
 					
 					int col=0;
-					int key1, key2;
+                    KeyType key;
+                    ValueType value;
+                    T temp;
+
 					while (ss >> temp)
                     {
-						
-						switch (col)
+						if(col<keySize)
                         {
-							case 0:
-								key1=static_cast<int>(temp);
-								break;
-							case 1:
-								key2=static_cast<int>(temp);
-								break;
-								
-							default:
-								edgeNB(col-2)=temp;
-								break;
-						}
-						
+                            key[col]=static_cast<int>(temp);
+                        }
+                        else
+                        {
+                            value[col-keySize]=temp;
+                        }
 						col++;
 					}
 					
-					this->insert ( std::pair<std::pair<int, int>, Eigen::Matrix<scalar,1,cols-2> >(std::pair<int, int>(key1, key2), edgeNB) );
+					this->emplace(key,value);
 					
 					row++;
 				}
@@ -99,29 +92,29 @@ namespace model
             return success;
 		}
 		
-        /**********************************************************************/
-		bool readBIN(const std::string& filename)
-        {/*! Reads the binary file filename and stores its data in this
-          */
-            //bool success(false);
-			std::cout<<"Reading: "<<filename;
-			double t0(clock());
-			typedef std::pair<std::pair<int,int>, Eigen::Matrix<scalar,1,cols-2> > BinEdgeType;
-			BinaryFileReader<BinEdgeType> rE(filename);
-			for (unsigned int k=0;k<rE.size();++k)
-            {
-//				this->insert(std::make_pair(rE[k].first,rE[k].second));
-				assert(this->insert(std::make_pair(rE[k].first,rE[k].second)).second && "COULD NOT INSERT EDGE AFTER BINARY READ.");
-			}
-			std::cout<<" ("<<this->size()<<" edges) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
-            return rE.success();
-		}
+//        /**********************************************************************/
+//		bool readBIN(const std::string& filename)
+//        {/*! Reads the binary file filename and stores its data in this
+//          */
+//            //bool success(false);
+//			std::cout<<"Reading: "<<filename;
+//			double t0(clock());
+//			typedef std::pair<std::pair<int,int>, Eigen::Matrix<scalar,1,cols-2> > BinEdgeType;
+//			BinaryFileReader<BinEdgeType> rE(filename);
+//			for (unsigned int k=0;k<rE.size();++k)
+//            {
+////				this->insert(std::make_pair(rE[k].first,rE[k].second));
+//				assert(this->insert(std::make_pair(rE[k].first,rE[k].second)).second && "COULD NOT INSERT EDGE AFTER BINARY READ.");
+//			}
+//			std::cout<<" ("<<this->size()<<" edges) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
+//            return rE.success();
+//		}
 		
 	public:	
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
         /**********************************************************************/
-		EdgeReader () :
+		IDreader () :
         /* init list */ currentFrame(-1)
  //       /* init list */ success(false)
         {/*! Constructor initializes currentFrame to -1 so that the statement
@@ -143,7 +136,8 @@ namespace model
 		}
 		
         /**********************************************************************/
-		static bool isGood(const int& frameN, const bool& useTXT){
+		static bool isGood(const int& frameN, const bool& useTXT)
+        {
 			/*!	Checks whether the file named "E/E_ \param[frameN] .txt" is good for reading.
 			 */
 			std::ifstream ifs ( getFilename(frameN,useTXT).c_str() , std::ifstream::in );
@@ -172,7 +166,8 @@ namespace model
 				}
 				else
                 {
-					success=readBIN(getFilename(frameN,false));
+                    assert(0 && "NOT IMEPLEMETNTED YET");
+					//success=readBIN(getFilename(frameN,false));
 				}
 			}
             else

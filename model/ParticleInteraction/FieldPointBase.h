@@ -9,7 +9,8 @@
 #ifndef _model_FieldPointBase_h
 #define _model_FieldPointBase_h
 
-namespace model {
+namespace model
+{
     
     /*!\brief A class template that contains the underlying FieldType data of
      * the Derived particle.
@@ -37,10 +38,14 @@ namespace model {
         typedef typename FieldType::Scalar Scalar;
         typedef FieldPointBase<Derived,FieldType> FieldPointBaseType;
         
+        const bool enabled;
+
+        
 #ifdef _MODEL_MPI_
         static std::vector<Scalar> resultVector;
         typedef Eigen::Map<Eigen::Matrix<typename FieldType::Scalar,FieldType::rows,FieldType::cols> > EigenMapType;
         typedef EigenMapType BaseEigenType;
+        
         
         /**********************************************************************/
         static void resize(const unsigned int&  k, const Scalar& val = Scalar())
@@ -55,8 +60,9 @@ namespace model {
         }
         
         /**********************************************************************/
-        FieldPointBase() :
-        /* init list */ Eigen::Map<Eigen::Matrix<Scalar,rows,cols> >(NULL)
+        FieldPointBase(const bool& enb) :
+        /* init list */ Eigen::Map<Eigen::Matrix<Scalar,rows,cols> >(NULL),
+        /* init list */ enabled(enb)
         {/*
           */
         }
@@ -65,8 +71,9 @@ namespace model {
         typedef Eigen::Matrix<typename FieldType::Scalar,FieldType::rows,FieldType::cols> BaseEigenType;
         
         /**********************************************************************/
-        FieldPointBase() :
-        /* init list */ Eigen::Matrix<Scalar,rows,cols>(Eigen::Matrix<Scalar,rows,cols>::Zero())
+        FieldPointBase(const bool& enb) :
+        /* init list */ Eigen::Matrix<Scalar,rows,cols>(Eigen::Matrix<Scalar,rows,cols>::Zero()),
+        /* init list */ enabled(enb)
         {/*
           */
         }

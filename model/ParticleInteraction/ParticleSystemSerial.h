@@ -65,34 +65,37 @@ namespace model {
 #endif
             for (unsigned int k=0; k<this->size();++k)
             {
-                //! -2 loop over neighbor cells of current particle
-                for (typename SpatialCellType::CellMapType::const_iterator cIter =this->operator[](k).neighborCellsBegin();
-                     /*                                                 */ cIter!=this->operator[](k).neighborCellsEnd();
-                     /*                                               */ ++cIter)
+                if(static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k))->enabled)
                 {
-                    //! -3 loop over particles in the current neighbor cell
-                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
-                        /*                                                           */ qIter!=cIter->second->particleEnd();
-                        /*                                                         */ ++qIter)
+                    //! -2 loop over neighbor cells of current particle
+                    for (typename SpatialCellType::CellMapType::const_iterator cIter =this->operator[](k).neighborCellsBegin();
+                         /*                                                 */ cIter!=this->operator[](k).neighborCellsEnd();
+                         /*                                               */ ++cIter)
                     {
-                        if(static_cast<const SingleSourcePoint<_ParticleType,FieldType>* const>(*qIter)->enabled)
+                        //! -3 loop over particles in the current neighbor cell
+                        for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
+                            /*                                                           */ qIter!=cIter->second->particleEnd();
+                            /*                                                         */ ++qIter)
                         {
-                            *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::compute(**qIter,this->operator[](k));
+                            if(static_cast<const SingleSourcePoint<_ParticleType,FieldType>* const>(*qIter)->enabled)
+                            {
+                                *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::compute(**qIter,this->operator[](k));
+                            }
                         }
                     }
-                }
-                
-                // Non-nearest-neighbor interaction
-                if(FieldType::use_multipole)
-                {
-                    typename SpatialCellType::CellMapType farCells(this->operator[](k).template farCells<_ParticleType>());
-                    *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::multipole(this->operator[](k),farCells);
-                }
-                
-                // Add contribution of other sources
-                if(sizeof...(OtherSourceTypes))
-                {
-                    *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::addSourceContribution(this->operator[](k),otherSources...);
+                    
+                    // Non-nearest-neighbor interaction
+                    if(FieldType::use_multipole)
+                    {
+                        typename SpatialCellType::CellMapType farCells(this->operator[](k).template farCells<_ParticleType>());
+                        *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::multipole(this->operator[](k),farCells);
+                    }
+                    
+                    // Add contribution of other sources
+                    if(sizeof...(OtherSourceTypes))
+                    {
+                        *static_cast<FieldPointBase<ParticleType,FieldType>* const>(&this->operator[](k)) += FieldType::addSourceContribution(this->operator[](k),otherSources...);
+                    }
                 }
             }
         }
@@ -108,42 +111,44 @@ namespace model {
 #endif
             for (unsigned int k=0; k<fpDeq.size();++k)
             {
-                // Nearest-neighbor interaction
-                typename SpatialCellType::CellMapType neighborCells(fpDeq[k].template neighborCells<_ParticleType>());
-                
-                //! -2 loop over neighbor cells of current particle
-                for (typename SpatialCellType::CellMapType::const_iterator cIter =neighborCells.begin();
-                     /*                                                 */ cIter!=neighborCells.end();
-                     /*                                               */ ++cIter)
+                if(static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k])->enabled)
                 {
-                    //! -3 loop over particles in the current neighbor cell
-                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
-                        /*                                                           */ qIter!=cIter->second->particleEnd();
-                        /*                                                         */ ++qIter)
+                    // Nearest-neighbor interaction
+                    typename SpatialCellType::CellMapType neighborCells(fpDeq[k].template neighborCells<_ParticleType>());
+                    
+                    //! -2 loop over neighbor cells of current particle
+                    for (typename SpatialCellType::CellMapType::const_iterator cIter =neighborCells.begin();
+                         /*                                                 */ cIter!=neighborCells.end();
+                         /*                                               */ ++cIter)
                     {
-                        //fpDeq[k].template field<FieldType>() += FieldType::compute(**qIter,fpDeq[k]);
-                        if(static_cast<const SingleSourcePoint<_ParticleType,FieldType>* const>(*qIter)->enabled)
+                        //! -3 loop over particles in the current neighbor cell
+                        for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
+                            /*                                                           */ qIter!=cIter->second->particleEnd();
+                            /*                                                         */ ++qIter)
                         {
-                            *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::compute(**qIter,fpDeq[k]);
+                            //fpDeq[k].template field<FieldType>() += FieldType::compute(**qIter,fpDeq[k]);
+                            if(static_cast<const SingleSourcePoint<_ParticleType,FieldType>* const>(*qIter)->enabled)
+                            {// source is enabled
+                                *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::compute(**qIter,fpDeq[k]);
+                            }
                         }
                     }
+                    
+                    // Non-nearest-neighbor interaction
+                    if(FieldType::use_multipole)
+                    {
+                        typename SpatialCellType::CellMapType farCells(fpDeq[k].template farCells<_ParticleType>());
+                        //
+                        //                    fpDeq[k].template field<FieldType>() += FieldType::multipole(fpDeq[k],farCells);
+                        *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::multipole(fpDeq[k],farCells);
+                    }
+                    
+                    // Add contribution of other sources
+                    if(sizeof...(OtherSourceTypes))
+                    {
+                        *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::addSourceContribution(fpDeq[k],otherSources...);
+                    }
                 }
-                
-                // Non-nearest-neighbor interaction
-                if(FieldType::use_multipole)
-                {
-                    typename SpatialCellType::CellMapType farCells(fpDeq[k].template farCells<_ParticleType>());
-                    //
-                    //                    fpDeq[k].template field<FieldType>() += FieldType::multipole(fpDeq[k],farCells);
-                    *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::multipole(fpDeq[k],farCells);
-                }
-                
-                // Add contribution of other sources
-                if(sizeof...(OtherSourceTypes))
-                {
-                    *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&fpDeq[k]) += FieldType::addSourceContribution(fpDeq[k],otherSources...);
-                }
-                
             }
         }
         

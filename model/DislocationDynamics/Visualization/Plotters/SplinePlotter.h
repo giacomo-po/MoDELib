@@ -29,6 +29,8 @@
 
 #include <model/Network/Readers/VertexReader.h>
 #include <model/Network/Readers/EdgeReader.h>
+#include <model/Utilities/IDreader.h>
+
 
 #include <model/openGL/BitmapPlotter.h>
 #include <model/openGL/RGBmap.h>
@@ -267,6 +269,7 @@ namespace model
 	/* inherits from   */ public VertexReader<'V',9,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ public EdgeReader  <'E',11,double>,
 	/*                 */ public VertexReader<'P',7,double>,
+    /* inherits from   */ public IDreader<'Q',3,8,double>,
     /* inherits from   */ private std::vector<SingleSplinePlotter<dim,Np,Nc> >
     { // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
 		
@@ -274,6 +277,8 @@ namespace model
 		typedef VertexReader<'V',9,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
 		typedef EdgeReader  <'E',11,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
         typedef VertexReader<'P',7,double> PKContainerType;
+        typedef IDreader<'Q',3,8,double> QuadContainerType;
+
 		typedef SingleSplinePlotter<dim,Np,Nc> SingleSplinePlotterType;
         typedef std::vector<SingleSplinePlotterType> SingleSplinePlotterVectorType;
 
@@ -294,11 +299,17 @@ namespace model
         bool showVertexID;
         static int colorScheme;
         static bool plotBoundarySegments;
+        static bool showQuadParticles;
 
         bool showSpecificVertex;
         int specificVertexID;
         bool showPK;
         double PKfactor;
+        
+        const QuadContainerType& quadContainer() const
+        {
+            return *this;
+        }
 		
         /* Constructor ********************************************************/
 		SplinePlotter() : showTubes(false),
@@ -335,6 +346,10 @@ namespace model
                 EdgeContainerType::read(frameN,true);
             }
             
+            if(showQuadParticles) // Show quadrature particles
+            {
+                QuadContainerType::read(frameN,true);
+            }
             
 			PKContainerType::read(frameN,true);
             
@@ -434,6 +449,25 @@ namespace model
 				gluDeleteQuadric(myQuad); // free myQuad pointer
 			}
             
+            if(showQuadParticles) // Show QuadParticles
+            {
+                GLfloat materialColor[] = {0.0, 1.0, 0.0, 1.0};
+                glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor);      // ambient color for the material
+                glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor);      // diffuse color for the material
+                glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor);  // specular color for the material
+
+                // Loop and plot spheres
+                GLUquadric* myQuad;
+                myQuad=gluNewQuadric();
+                for(const auto& quad : quadContainer())
+                {
+                    glTranslatef( quad.second[0], quad.second[1], quad.second[2] );
+                    gluSphere( myQuad , radius*1.2 , 10 , 10 );
+                    glTranslatef(-quad.second[0],-quad.second[1],-quad.second[2] );
+                }
+                gluDeleteQuadric(myQuad); // free myQuad pointer
+            }
+            
             if (showPK) // Show PK force
             {
                 for (typename PKContainerType::const_iterator vIter=PKContainerType::begin();vIter!=PKContainerType::end();++vIter)
@@ -495,6 +529,10 @@ namespace model
 
     template <int dim, int Np, int Nc>
     bool SplinePlotter<dim,Np,Nc>::plotBoundarySegments=false;
+    
+    template <int dim, int Np, int Nc>
+    bool SplinePlotter<dim,Np,Nc>::showQuadParticles=false;
+    
 
 }
 #endif

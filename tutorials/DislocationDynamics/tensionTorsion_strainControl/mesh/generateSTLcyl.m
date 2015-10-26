@@ -7,12 +7,12 @@
 clc
 close all
 clear all
-MODEL_DIR='/Users/giacomo/Documents/MODEL'
+MODEL_DIR='../../../..';
 
 addpath([MODEL_DIR '/matlab/']);
 filename='cylinder'; % this creates file cylinder.stl
-meshID=0;
-targetElements=1e4;
+meshID=1;
+targetElements=5e4;
 
 % (a) Cylinder diameter & length  r/l = [0.25:3] e.g. r X l = 250b X 1000b
 % (b) Twist & extension rates   dot E_12/dot E_11 = [0,inf] e.g. e_12/e_11 = 1e-9/1e-9
@@ -21,7 +21,7 @@ targetElements=1e4;
 % (e) Initial dislocation density & distribution ~ 1.e14-1.e15
 
 Burgers=0.2851e-9; % Burgers vector for Al [m]
-R=0.5e-6/2/Burgers % radius of cylinder (units of Burgers vector)
+R=1000 % radius of cylinder (units of Burgers vector)
 H=4*R;    % height of cylinder (units of Burgers vector)
 V=H*pi*R^2;
 x0=0;     % offset of cylinder axis 

@@ -558,8 +558,18 @@ namespace model
         /**********************************************************************/
         void move(const double & dt)
         {
+            const VectorDim P_old(this->get_P());
             
             VectorDim dX=velocity.template segment<dim>(0)*dt;
+            
+            //Limit dX for boundaryNodes bec
+            const double dXnorm(dX.norm());
+            if((isBoundaryNode() || isConnectedToBoundaryNodes()) && dXnorm>10.0)
+            {
+                dX*=10.0/dXnorm;
+            }
+            
+            
             switch (_confiningPlanes.size())
             {
                 case 1:
@@ -579,10 +589,10 @@ namespace model
                     break;
             }
             
-            if(isPureBoundaryNode())
-            {
-                dX.setZero();
-            }
+//            if(isPureBoundaryNode())
+//            {
+//                dX.setZero();
+//            }
             
             //			if (dX.squaredNorm()>0.0 && (meshLocation()!=onMeshBoundary || shared.use_bvp==0)) // move a node only if |v|!=0 and if not on mesh boundary
             if (dX.squaredNorm()>0.0) // move a node only if |v|!=0
@@ -701,6 +711,12 @@ namespace model
                     //                    L+=LatticeVectorType(dX);
                     //                    this->set(this->get_nodeDof()+dX);
                 }
+            }
+            
+            // Store actual velocity
+            if(dt>0.0)
+            {
+                velocity=(this->get_P()-P_old)/dt;
             }
         }
         

@@ -9,13 +9,13 @@ clc
 close all
 clear all
 
-modelDir='~/Documents/MODEL/';
-addpath([modelDir 'matlab/']);
+MODEL_DIR='../../../../';
+addpath([MODEL_DIR '/matlab/']);
 
 %% Define output file name
 meshID=0;
 filename='cube'; % this creates file cube.stl
-nElements=20000;
+nElements=2e4;
 
 %% Size and position of the cube
 L1=2000; % the side length of the cube, in units of Burgers vector
@@ -67,8 +67,8 @@ grid on
 writeSTL(Facets,filename)
 
 %% Run Tetgen 
-system([modelDir 'scripts/tetgenSTL.sh ' filename ' ' num2str(averageElementVolume)]);
+system([MODEL_DIR '/scripts/tetgenSTL.sh ' filename ' ' num2str(averageElementVolume)]);
 
 %% Create T and N files and clean tetgent output
-system([modelDir 'scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
+system([MODEL_DIR '/scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
 

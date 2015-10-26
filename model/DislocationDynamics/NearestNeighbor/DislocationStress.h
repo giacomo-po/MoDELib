@@ -230,10 +230,6 @@ namespace model
             Eigen::Matrix<double,_dim,1> r(field.P-source.P);
             const double R2(r.squaredNorm()+a2);
                 r/=sqrt(R2); // normalize r
-//                temp = -Material<Isotropic>::C1*source.T*(r.cross(source.B)).transpose()
-//                /*  */ -r*(source.B.cross(source.T)).transpose() // the factor 2.0 takes care of the C2 term in DislocationParticle::stress
-//                /*  */ +0.5*r.dot(source.B.cross(source.T)) * (3.0*r*r.transpose() + I);
-//            return temp/R2*source.quadWeight;
             return (-Material<Isotropic>::C1*source.T*(r.cross(source.B)).transpose()
             /*  */  -r*(source.B.cross(source.T)).transpose() // the factor 2.0 takes care of the C2 term in DislocationParticle::stress
             /*  */  +0.5*r.dot(source.B.cross(source.T)) * (3.0*r*r.transpose() + I))/R2*source.quadWeight;

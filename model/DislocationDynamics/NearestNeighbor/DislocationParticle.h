@@ -90,6 +90,11 @@ namespace model
         typedef typename PointSourceType::VectorDimD VectorDimD;
         
         //! The tangent vector of the parent DislocationSegment at this point
+        
+        const size_t&  sourceID;
+        const size_t&  sinkID;
+        const size_t   quadID;
+        
         const VectorDimD  T;
         
         //! A const reference to the Burgers vector of the parent DislocationSegment
@@ -103,12 +108,21 @@ namespace model
         
         /********************************************************/
         template <typename...EnabledFields>
-        DislocationParticle(const VectorDimD& Pin, const VectorDimD& Tin, const VectorDimD& Bin,
+        DislocationParticle(const VectorDimD& Pin,
+                            const size_t& sourceID_in, const size_t& sinkID_in, const size_t& quadID_in,
+                            const VectorDimD& Tin, const VectorDimD& Bin,
                             const double& qA,const double& qW,
-                            const EnabledFields&...enabled) :
-        /* base init     */ PointSourceType(Pin,enabled...),
+//                            const EnabledFields&...enabled
+                            const bool& enbStressSource,const bool& enbStressField,
+                            const bool& enbDispSource,  const bool&,
+                            const bool& enbEnrgSource,  const bool& enbEnrgField) :
+        /* base init     */ PointSourceType(Pin,enbStressSource,enbDispSource,enbEnrgSource),
+        /* base init     */ FieldPointType(enbStressField,enbEnrgField),
         //		/* base init     */  FieldPointType(Pin),
         //		/* base init     */  FieldPointType(PointSourceType::P),
+        /* init list     */ sourceID(sourceID_in),
+        /* init list     */ sinkID(sinkID_in),
+        /* init list     */ quadID(quadID_in),
         /* init list     */ T(Tin),
         /* init list     */ B(Bin),
         /* init list     */ quadAbscissa(qA),
@@ -188,6 +202,18 @@ namespace model
             return std::get<2>(*(this->pCell));
         }
         
+        /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const DislocationParticleType& p)
+        {
+            //os  << p.source->sID<<"\t"<< ds.sink->sID<<"\t"
+            os  << p.sourceID<< "\t"<< p.sinkID<<"\t"<<p.quadID<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<p.P.transpose()<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<p.B.transpose()<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<p.quadAbscissa<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<p.quadWeight;
+            return os;
+        }
         
     };
     

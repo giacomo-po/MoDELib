@@ -25,10 +25,10 @@
 namespace model
 {
     
-	/**************************************************************************/
-	/**************************************************************************/
+    /**************************************************************************/
+    /**************************************************************************/
     template <typename DislocationNetworkType>
-	struct DislocationNetworkIO
+    struct DislocationNetworkIO
     {
         
         enum {dim=DislocationNetworkType::dim};
@@ -44,7 +44,7 @@ namespace model
         typedef typename DislocationNetworkType::BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename DislocationNetworkType::BvpSolverType::TrialFunctionType TrialFunctionType;
         typedef LatticeVector<dim> LatticeVectorType;
-
+        
         enum {NdofXnode=NodeType::NdofXnode};
         
         static int  outputFrequency;
@@ -56,13 +56,15 @@ namespace model
         static bool outputMeshDisplacement;
         static bool outputDislocationLength;
         static bool outputPlasticDistortionRate;
+        static bool outputQuadratureParticles;
+        
         
         /* readVertices *******************************************************/
         static void readVertices(DislocationNetworkType& DN, const unsigned int& fileID)
         {/*! Reads file V/V_0.txt and creates DislocationNodes
           */
-			typedef VertexReader<'V',9,double> VertexReaderType;
-			VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
+            typedef VertexReader<'V',9,double> VertexReaderType;
+            VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
             if (vReader.isGood(fileID,false)) // bin file exists
             {
                 vReader.read(fileID,false);
@@ -83,26 +85,26 @@ namespace model
             }
             
             unsigned int kk(1);
-			for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
+            for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
             {
-				const size_t nodeIDinFile(vIter->first);
-				NodeType::set_count(nodeIDinFile);
+                const size_t nodeIDinFile(vIter->first);
+                NodeType::set_count(nodeIDinFile);
                 model::cout << "\r \r" << "Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<vReader.size()<<")"<<std::flush;
-
+                
                 LatticeVectorType L(VectorDimD(vIter->second.template segment<NdofXnode>(0)));
                 const size_t nodeID(DN.insertVertex(L).first->first);
-				assert(nodeID==nodeIDinFile);
+                assert(nodeID==nodeIDinFile);
                 kk++;
-			}
+            }
             model::cout<<std::endl;
-		}
+        }
         
         /* readEdges **********************************************************/
-		static void readEdges(DislocationNetworkType& DN, const unsigned int& fileID)
+        static void readEdges(DislocationNetworkType& DN, const unsigned int& fileID)
         {/*! Reads file E/E_0.txt and creates DislocationSegments
           */
-			typedef EdgeReader  <'E',11,double>	EdgeReaderType;
-			EdgeReaderType    eReader;	// sourceID,sinkID,Bx,By,Bz,Nx,Ny,Nz
+            typedef EdgeReader  <'E',11,double>	EdgeReaderType;
+            EdgeReaderType    eReader;	// sourceID,sinkID,Bx,By,Bz,Nx,Ny,Nz
             if (eReader.isGood(fileID,false)) // bin file exists
             {
                 eReader.read(fileID,false);
@@ -122,22 +124,22 @@ namespace model
             }
             
             unsigned int kk(1);
-			for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
+            for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
             {
-				VectorDimD B(eIter->second.template segment<dim>(0  ).transpose()); // Burgers vector
-				VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
-				const size_t sourceID(eIter->first.first );
-				const size_t   sinkID(eIter->first.second);
+                VectorDimD B(eIter->second.template segment<dim>(0  ).transpose()); // Burgers vector
+                VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
+                const size_t sourceID(eIter->first.first );
+                const size_t   sinkID(eIter->first.second);
                 model::cout << "\r \r" << "Creating DislocationSegment "<<sourceID<<"->"<<sinkID<<" ("<<kk<<" of "<<eReader.size()<<")              "<<std::flush;
                 const bool success=DN.connect(sourceID,sinkID,LatticeVectorType(B));
-				assert(success && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
+                assert(success && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
                 kk++;
-			}
+            }
             model::cout<<std::endl;
-		}
+        }
         
         /* outputTXT **********************************************************/
-		static void output(const DislocationNetworkType& DN, const unsigned int& runID)
+        static void output(const DislocationNetworkType& DN, const unsigned int& runID)
         {/*! Outputs DislocationNetwork data to the following files (x is the runID):
           * ./E/E_x.txt (DislocationSegment(s) are always outputted)
           * ./V/V_x.txt (DislocationNode(s) are always outputted)
@@ -148,7 +150,7 @@ namespace model
           */
             model::cout<<"		Writing to "<<std::flush;
             
-			//! 1- Outputs the Edge informations to file E_*.txt where * is the current simulation step
+            //! 1- Outputs the Edge informations to file E_*.txt where * is the current simulation step
             if (outputBinary)
             {
                 typedef std::pair<std::pair<int,int>,Eigen::Matrix<double,1,9> > BinEdgeType;
@@ -158,7 +160,7 @@ namespace model
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
                 {
                     Eigen::Matrix<double,1,9> temp( (Eigen::Matrix<double,1,9>()<< linkIter->second.flow.cartesian().transpose(),
-                    /*                                                          */ linkIter->second.glidePlaneNormal.transpose(),
+                                                     /*                                                          */ linkIter->second.glidePlaneNormal.transpose(),
                                                      /*                                                          */ linkIter->second.sourceTfactor,
                                                      /*                                                          */ linkIter->second.sinkTfactor,
                                                      /*                                                          */ linkIter->second.pSN()->sID).finished());
@@ -174,13 +176,12 @@ namespace model
                 //edgeFile << *(const NetworkLinkContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
                 {
-//                    edgeFile<< *(linkIter->second)<<"\n";
                     edgeFile<< linkIter->second<<"\n";
                 }
                 model::cout<<" E/E_"<<edgeFile.sID<<".txt"<<std::flush;
             }
             
-			//! 2- Outputs the Vertex informations to file V_*.txt where * is the current simulation step
+            //! 2- Outputs the Vertex informations to file V_*.txt where * is the current simulation step
             if (outputBinary)
             {
                 typedef Eigen::Matrix<double,1,8> VertexDataType;
@@ -188,7 +189,7 @@ namespace model
                 SequentialBinFile<'V',BinVertexType>::set_count(runID);
                 SequentialBinFile<'V',BinVertexType>::set_increment(outputFrequency);
                 SequentialBinFile<'V',BinVertexType> binVertexFile;
-//                for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
+                //                for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
                 for (const auto& node : DN.nodes())
                 {
                     VertexDataType temp( (VertexDataType()<< node.second.get_P().transpose(),
@@ -205,15 +206,13 @@ namespace model
                 SequentialOutputFile<'V',1>::set_increment(outputFrequency); // vertexFile;
                 SequentialOutputFile<'V',1> vertexFile;
                 //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
-//                for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
                 for (const auto& node : DN.nodes())
                 {
-//                    vertexFile << (nodeIter->second)<<"\n";
                     vertexFile << (node.second)<<"\n";
                 }
                 model::cout<<", V/V_"<<vertexFile.sID<<".txt"<<std::flush;
             }
-			
+            
             if(outputSpatialCells)
             {
                 //! 3- Outputs the nearest neighbor Cell structures to file C_*.txt where * is the current simulation step
@@ -230,7 +229,7 @@ namespace model
                 }
                 model::cout<<", C/C_"<<Cell_file.sID<<std::flush;
             }
-			
+            
             if(outputGlidePlanes)
             {
                 //! 4- Outputs the glide planes
@@ -252,11 +251,11 @@ namespace model
                     const int qOrder(linkIter->second.rgauss.cols());
                     for (int q=0;q<qOrder;++q)
                     {
-//                        p_file << ll*qOrder+q<<" "<< linkIter->second.rgauss.col(q).transpose()<<" "<<linkIter->second.pkGauss.col(q).transpose()<<"\n";
+                        //                        p_file << ll*qOrder+q<<" "<< linkIter->second.rgauss.col(q).transpose()<<" "<<linkIter->second.pkGauss.col(q).transpose()<<"\n";
                         p_file << ll<<" "<< linkIter->second.rgauss.col(q).transpose()<<" "<<linkIter->second.pkGauss.col(q).transpose()<<"\n";
                         ll++;
                     }
-//                    ll++;
+                    //                    ll++;
                 }
                 model::cout<<", P/P_"<<p_file.sID<<std::flush;
             }
@@ -288,10 +287,10 @@ namespace model
                 d_file<<DN.shared.bvpSolver.displacement();
                 
                 
-//                for(const auto& node : DN.shared.bvpSolver.finiteElement().nodes())
-//                {
-//                
-//                }
+                //                for(const auto& node : DN.shared.bvpSolver.finiteElement().nodes())
+                //                {
+                //
+                //                }
                 
                 /**************************************************************************/
                 // Output displacement and stress on external mesh faces
@@ -301,6 +300,19 @@ namespace model
                 s_file<<DN.shared.bvpSolver.stress();
                 
                 model::cout<<", D/D_"<<d_file.sID<<"(FINISH HERE)"<<std::flush;
+            }
+            
+            if (outputQuadratureParticles)
+            {
+                model::SequentialOutputFile<'Q',1>::set_count(runID); // Vertices_file;
+                model::SequentialOutputFile<'Q',1>::set_increment(outputFrequency); // Vertices_file;
+                model::SequentialOutputFile<'Q',true> q_file;
+                for (const auto& particle : DN.particles())
+                {
+                    q_file<<particle<<"\n";
+                }
+                
+                
             }
             
             // Output to F file
@@ -319,14 +331,14 @@ namespace model
                 Eigen::Matrix<double,dim,dim> pDR(DN.plasticDistortionRate());
                 f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" ";
             }
-
+            
 #ifdef userOutputFile
 #include userOutputFile
 #endif
             
             f_file<<std::endl;
-			
-		}
+            
+        }
         
     };
     
@@ -352,13 +364,17 @@ namespace model
     
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement=false;
-
+    
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength=false;
     
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortionRate=false;
-
+    
+    template <typename DislocationNetworkType>
+    bool DislocationNetworkIO<DislocationNetworkType>::outputQuadratureParticles=false;
+    
+    
     /**************************************************************************/
     /**************************************************************************/
 } // namespace model

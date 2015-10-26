@@ -23,14 +23,17 @@ namespace model
     {
         typedef typename DislocationNetworkType::DisplacementField DisplacementField;
         typedef typename DislocationNetworkType::ElementType::NodeType NodeType;
-
         constexpr static int dim=DisplacementField::dim;
+
+        typedef FieldPoint<BoundaryDisplacementPoint<DislocationNetworkType>,dim,DisplacementField> FieldPointType;
+        
         
         const size_t gID;
         const Eigen::Matrix<double,dim,1> P;
         const Eigen::Matrix<double,dim,1> S;
         
         BoundaryDisplacementPoint(const NodeType& node) :
+        /*   */ FieldPointType(true),
         /*   */ gID(node.gID),
         /*   */ P(node.P0),
         /*   */ S(node.outNormal())

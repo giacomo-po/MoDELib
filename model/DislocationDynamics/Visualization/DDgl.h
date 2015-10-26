@@ -729,6 +729,10 @@ namespace model {
 				case 'p':
 					splinePlotter.showPK=!splinePlotter.showPK;
 					break;
+                    
+                case 'q':
+                    splinePlotter.showQuadParticles=!splinePlotter.showQuadParticles;
+                    break;
 					
 //				case 's':
 //					saveTga=!saveTga;

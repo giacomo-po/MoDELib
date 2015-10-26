@@ -28,6 +28,7 @@ namespace model
         typedef BoundaryIntegrationPoint<ElementType> BoundaryIntegrationPointType;
         typedef typename DislocationNetworkType::StressField StressField;
         constexpr static int dim=StressField::dim;
+        typedef FieldPoint<BoundaryStressPoint<DislocationNetworkType>,dim,StressField> FieldPointType;
         
         const Eigen::Matrix<double,dim,1> P;
 
@@ -36,6 +37,7 @@ namespace model
         /*               */ const Eigen::Matrix<double,dim+1,1>& _domainBary,
         /*               */ const int& _boundaryFace,
         /*               */ const double& _weight) :
+        /*               */ FieldPointType(true),
         /*               */ BoundaryIntegrationPointType(_ele,_domainBary,_boundaryFace,_weight),
         /*               */ P(_ele.position(_domainBary))
         {

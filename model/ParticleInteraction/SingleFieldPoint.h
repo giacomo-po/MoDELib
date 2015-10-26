@@ -22,7 +22,12 @@ namespace model
     {
         const Eigen::Matrix<double,Field::dim,1> P;
         
-        SingleFieldPoint(const Eigen::Matrix<double,Field::dim,1>& Pin) : P(Pin){}
+        SingleFieldPoint(const Eigen::Matrix<double,Field::dim,1>& Pin, const bool& enabled) :
+        /* init */ FieldPoint<SingleFieldPoint<Field>,Field::dim,Field>(enabled),
+        /* init */ P(Pin)
+        {
+        
+        }
         
         
         typename Field::MatrixType field() const
