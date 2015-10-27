@@ -55,8 +55,11 @@ namespace model
         static bool outputElasticEnergy;
         static bool outputMeshDisplacement;
         static bool outputDislocationLength;
+        static bool outputPlasticDistortion;
         static bool outputPlasticDistortionRate;
         static bool outputQuadratureParticles;
+        static unsigned int _userOutputColumn;
+
         
         
         /* readVertices *******************************************************/
@@ -320,16 +323,21 @@ namespace model
             model::cout<<" F/F_0.txt"<<std::flush;
             f_file<< DN.runningID()<<" "<<DN.get_totalTime()<<" "<<DN.get_dt()<<" ";
             
-            if(outputDislocationLength)
+            if(outputPlasticDistortion)
             {
-                const auto length=DN.networkLength();
-                f_file<<length.first<<" "<<length.second<<" ";
+                f_file<<DN.plasticDistortion.row(0)<<" "<<DN.plasticDistortion.row(1)<<" "<<DN.plasticDistortion.row(2)<<" ";
             }
             
             if(outputPlasticDistortionRate)
             {
                 Eigen::Matrix<double,dim,dim> pDR(DN.plasticDistortionRate());
                 f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" ";
+            }
+            
+            if(outputDislocationLength)
+            {
+                const auto length=DN.networkLength();
+                f_file<<length.first<<" "<<length.second<<" ";
             }
             
 #ifdef userOutputFile
@@ -367,13 +375,18 @@ namespace model
     
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength=false;
+
+    template <typename DislocationNetworkType>
+    bool DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion=false;
     
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortionRate=false;
     
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputQuadratureParticles=false;
-    
+
+    template <typename DislocationNetworkType>
+    unsigned int DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn=3;
     
     /**************************************************************************/
     /**************************************************************************/

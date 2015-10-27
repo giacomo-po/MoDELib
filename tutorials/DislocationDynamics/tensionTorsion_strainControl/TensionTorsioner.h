@@ -128,6 +128,35 @@ struct TensionTorsioner
         return temp;
     }
     
+    /**************************************/
+    static void init(const long int& runID,const unsigned int& userOutputColumn)
+    {
+        VertexReader<'F',201,double> vReader;
+        if (vReader.isGood(0,true))
+        {
+            vReader.read(0,true);
+            const auto iter=vReader.find(runID);
+            if (iter!=vReader.end())
+            {
+                model::cout<<"Initializing TensionTorsioner at runID="<<runID<<std::endl;
+                initialDisplacement=iter->second(userOutputColumn-1);
+                model::cout<<"initialDisplacement="<<initialDisplacement<<std::endl;
+                initialTwist_Rad=iter->second(userOutputColumn);
+                model::cout<<"initialTwist_Rad="<<initialTwist_Rad<<std::endl;
+                
+            }
+            else
+            {
+                //                assert(0 && "TensionTorsioner::init runID not found inf F file");
+            }
+        }
+        else
+        {
+            model::cout<<"TensionTorsioner F/F_0.txt cannot be opened."<<std::endl;
+        }
+        
+    }
+    
 };
 
 // Static data

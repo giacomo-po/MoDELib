@@ -81,7 +81,7 @@ if(DN.shared.use_bvp)
 
 
 /******************************************************************************/
-// OUTPUT TO F_0.txt
+// OUTPUT TO F_0.txt, starting at column 4
 f_file <<avgDispZ<<" "<<avgRotZ<<" "<<force(2)<<" "<<torque(2);
 
 

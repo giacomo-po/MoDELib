@@ -20,12 +20,13 @@ velocityReductionFactor=0.75;
 outputFrequency=10;
 outputBinary=1;
 outputGlidePlanes=0;
-outputSpatialCells=1;
-outputPKforce=1;
+outputSpatialCells=0;
+outputPKforce=0;
 outputQuadratureParticles=1;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
-outputDislocationLength=1;
+outputDislocationLength=0;
+outputPlasticDistortion=1;
 outputPlasticDistortionRate=1;
 
 
@@ -94,6 +95,8 @@ use_bvp = 10;
 use_directSolver_FEM=1;
 solverTolerance=0.0001;
 use_virtualSegments=1;
+virtualSegmentDistance=200;
+
 ######################################
 # Impose that all dislocation nodes (but FR source/sink nodes) are balanced
 check_balance=1;

@@ -161,13 +161,14 @@ namespace model
         double dx, dt;
         double vmax;
         
+        
         /**********************************************************************/
         void formJunctions()
         {/*! Performs dislocation junction formation if use_junctions==true
           */
             if (use_junctions)
             {
-//                const double avoidNodeIntersection(0.05);
+                //                const double avoidNodeIntersection(0.05);
                 DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx);
             }
         }
@@ -294,7 +295,7 @@ namespace model
             /*                    */<< ", components="<<this->Naddresses()
             /*                    */<< defaultColor<<std::endl;
             
-
+            
             
             //! 1- Che;ck that all nodes are balanced
             checkBalance();
@@ -327,7 +328,7 @@ namespace model
             
             //! 6- Output the current configuration before changing it
             output(runID);
-
+            
             //! Update accumulated quantities
             totalTime+=dt;
             
@@ -336,9 +337,9 @@ namespace model
             
             const MatrixDimD pdr(plasticDistortionRate()); // move may limit velocity, so compute pdr after move
             plasticDistortion += pdr*dt;
-
+            
             DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
-
+            
             //! 8- Cross Slip (needs upated PK force)
             crossSlip();
             
@@ -350,14 +351,14 @@ namespace model
             
             //! 12- Node redistribution
             remesh();
-//            output(runID);
+            //            output(runID);
             
             // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
             
             //! 10- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeBoundarySegments();
-
+            
             
             //! 13 - Increment runID counter
             ++runID;     // increment the runID counter
@@ -379,7 +380,7 @@ namespace model
             }
         }
         
-
+        
         
     public:
         
@@ -479,6 +480,35 @@ namespace model
             // Create a file-reader object
             EigenDataReader EDR;
             
+            // IO
+            EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
+            EDR.readScalarInFile(fullName.str(),"outputBinary",DislocationNetworkIO<DislocationNetworkType>::outputBinary);
+            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes);
+            EDR.readScalarInFile(fullName.str(),"outputSpatialCells",DislocationNetworkIO<DislocationNetworkType>::outputSpatialCells);
+            EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
+            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
+            EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
+            
+            
+            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortion",DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion);
+            if(DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion)
+            {
+                DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=9;
+            }
+            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortionRate",DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortionRate);
+            if(DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortionRate)
+            {
+                DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=9;
+            }
+            
+            EDR.readScalarInFile(fullName.str(),"outputDislocationLength",DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength);
+            if(DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength)
+            {
+                DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=2;
+            }
+            
+            EDR.readScalarInFile(fullName.str(),"outputQuadratureParticles",DislocationNetworkIO<DislocationNetworkType>::outputQuadratureParticles);
+            
             // Parametrization exponent
             EDR.readScalarInFile(fullName.str(),"parametrizationExponent",LinkType::alpha);
             assert((LinkType::alpha)>=0.0 && "parametrizationExponent MUST BE >= 0.0");
@@ -497,7 +527,7 @@ namespace model
             
             // quadPerLength
             EDR.readScalarInFile(fullName.str(),"quadPerLength",LinkType::quadPerLength); // quadPerLength
-
+            
             // core size
             EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width
             assert((StressField::a)>0.0 && "coreSize MUST BE > 0.");
@@ -516,53 +546,79 @@ namespace model
             
             // Restart
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
-            if(runID<0)
-            {// restart from last in F/F_0.txt
-                model::cout<<"Restarting"<<std::endl;
-                const std::string restartFile="./F/F_0.txt";
-                std::ifstream ifs ( restartFile.c_str() , std::ifstream::in );
-                if (ifs.is_open())
+            VertexReader<'F',201,double> vReader;
+            Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
+            
+            
+            if (vReader.isGood(0,true))
+            {
+                
+                vReader.read(0,true);
+                
+                if(runID<0)
                 {
-                    std::string line;
-                    while (std::getline(ifs, line))
+                    if(vReader.size())
                     {
-                        std::stringstream ss(line);
-                        ss>>runID;
+                        runID=vReader.rbegin()->first;
+                        temp=vReader.rbegin()->second;
                     }
-                    if(runID<0)
+                    else
                     {
-                        model::cout<<"could not read runID from F/F_0.txt"<<std::endl;
                         runID=0;
                     }
-                    model::cout<<"starting at time step "<<runID<<std::endl;
-                    
                 }
                 else
                 {
-                    model::cout<<"undable to open "<<restartFile<<" for restart. Starting at time step 0."<<std::endl;
-                    runID=0;
+                    const auto iter=vReader.find(runID);
+                    if(iter!=vReader.end())
+                    {// runID has been found
+                        temp=iter->second;
+                    }
+                    else
+                    {
+                        assert(0 && "runID NOT FOUND IN F/F_0.txt");
+                    }
                 }
-            
+            }
+            else
+            {
+                model::cout<<"could not read runID from F/F_0.txt"<<std::endl;
+                runID=0;
             }
             
-            // IO
-            EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
-            EDR.readScalarInFile(fullName.str(),"outputBinary",DislocationNetworkIO<DislocationNetworkType>::outputBinary);
-            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes);
-            EDR.readScalarInFile(fullName.str(),"outputSpatialCells",DislocationNetworkIO<DislocationNetworkType>::outputSpatialCells);
-            EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
-            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
-            EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
-            EDR.readScalarInFile(fullName.str(),"outputDislocationLength",DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength);
-            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortionRate",DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortionRate);
-            EDR.readScalarInFile(fullName.str(),"outputQuadratureParticles",DislocationNetworkIO<DislocationNetworkType>::outputQuadratureParticles);
+            size_t curCol=0;
+            totalTime=temp(curCol);
+            curCol+=2;
+            
+            if (DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion)
+            {
+                std::cout<<"reading PD"<<std::endl;
+
+                for(int r=0;r<3;++r)
+                {
+                    for(int c=0;c<3;++c)
+                    {
+                        plasticDistortion(r,c)=temp(curCol);
+                        curCol+=1;
+                    }
+                }
+            }
+            
+            model::cout<<"starting at time step "<<runID<<std::endl;
+            model::cout<<"totalTime= "<<totalTime<<std::endl;
+            model::cout<<"plasticDistortion=\n "<<plasticDistortion<<std::endl;
+
+            
+
+            
+
             
             // time-stepping
             dt=0.0;
             EDR.readScalarInFile(fullName.str(),"dx",dx);
             assert(dx>0.0);
-//            EDR.readScalarInFile(fullName.str(),"shearWaveSpeedFraction",shearWaveSpeedFraction);
-//            assert(shearWaveSpeedFraction>=0.0);
+            //            EDR.readScalarInFile(fullName.str(),"shearWaveSpeedFraction",shearWaveSpeedFraction);
+            //            assert(shearWaveSpeedFraction>=0.0);
             EDR.readScalarInFile(fullName.str(),"use_velocityFilter",NodeType::use_velocityFilter);
             EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
             assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
@@ -592,9 +648,9 @@ namespace model
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
             EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
-//            EDR.readScalarInFile(fullName.str(),"thetaDeg",DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg);
-//            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg>=0.0);
-//            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg<=90.0);
+            //            EDR.readScalarInFile(fullName.str(),"thetaDeg",DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg);
+            //            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg>=0.0);
+            //            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg<=90.0);
             
             // Cross-Slip
             EDR.readScalarInFile(fullName.str(),"use_crossSlip",use_crossSlip);
@@ -602,8 +658,8 @@ namespace model
             {
                 EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
                 assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
-//                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
-//                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
+                //                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
+                //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
             }
             
             // Mesh and BVP
@@ -618,6 +674,10 @@ namespace model
                 assert(shared.mesh.size() && "MESH IS EMPTY.");
                 
                 EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
+                if(shared.use_virtualSegments)
+                {
+                    EDR.readScalarInFile(fullName.str(),"virtualSegmentDistance",LinkType::virtualSegmentDistance);
+                }
                 
                 EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
                 if(shared.use_bvp)
@@ -661,7 +721,7 @@ namespace model
             
             //! -1 Compute the interaction StressField between dislocation particles
             model::cout<<"		Computing dislocation-dislocation interactions ("<<nThreads<<" threads)..."<<std::flush;
-
+            
             this->template computeNeighborField<StressField>();
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             
@@ -691,20 +751,20 @@ namespace model
                 }
 #else
                 model::cout<<"(SimplicialLDLT)..."<<std::flush;
-    #ifdef _OPENMP // SimplicialLDLT is not multi-threaded. So parallelize loop over NetworkComponents.
-    #pragma omp parallel for
+#ifdef _OPENMP // SimplicialLDLT is not multi-threaded. So parallelize loop over NetworkComponents.
+#pragma omp parallel for
                 for (unsigned int k=0;k<this->Naddresses();++k)
                 {
                     typename NetworkComponentContainerType::iterator snIter(this->ABbegin());
                     std::advance(snIter,k);
                     DislocationNetworkComponentType(*snIter->second).directSolve();
                 }
-    #else
+#else
                 for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
                 {
                     DislocationNetworkComponentType(*snIter->second).directSolve();
                 }
-    #endif
+#endif
 #endif
             }
             else // iterative solver
@@ -877,7 +937,7 @@ namespace model
         
         /**********************************************************************/
         std::pair<double,double> networkLength() const
-        {/*!\returns the line length of *this DislocationNetwork. 
+        {/*!\returns the line length of *this DislocationNetwork.
           */
             double totalLength(0.0);
             double immobileLength(0.0);
@@ -935,6 +995,11 @@ namespace model
                 temp=shared.mesh.searchWithGuess(P0,guess);
             }
             return temp;
+        }
+        
+        static unsigned int& userOutputColumn()
+        {
+            return DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn;
         }
         
     };

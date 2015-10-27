@@ -41,18 +41,21 @@ namespace model  {
 
 	
 	template <typename T>
-	bool ScalarDataReader::readScalarInFile(const std::string & fileName_in, const std::string & varName_in, T & value){
+	bool ScalarDataReader::readScalarInFile(const std::string & fileName_in, const std::string & varName_in, T & value)
+    {
 	
 		return readScalarInFile(fileName_in, varName_in, 0, value);
 	}
 	
 	template <typename T>
-	bool ScalarDataReader::readScalarInFile(const std::string & fileName_in, const std::string & varName_in, const size_t & occurrence_in, T & value){
+	bool ScalarDataReader::readScalarInFile(const std::string & fileName_in, const std::string & varName_in, const size_t & occurrence_in, T & value)
+    {
 		
 		bool success=0;
 		DataReader::readInFile(fileName_in, varName_in, occurrence_in);
 		
-		if(get_table().size()==1 && get_table()[0].size()==1){
+		if(get_table().size()==1 && get_table()[0].size()==1)
+        {
 			value=get_table()[0][0];
 //			model::cout<<varName_in<<"="<<value<<" (scalar "<< typeid(value).name()<<")"<<std::endl;
 			model::cout<<varName_in<<"="<<value<<std::endl;

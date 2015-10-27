@@ -13,13 +13,16 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+//#include <algorithm>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 
 
-namespace model {
+namespace model
+{
 	
 	
-	class DataReader{
+	class DataReader
+    {
 		
 	private:
 		std::ifstream inputFile;
@@ -42,7 +45,7 @@ namespace model {
 		bool menage_occurences(const size_t & occurrence);
 		
 		void readLines();
-		bool check_name_equal();
+        bool check_name_equal(const std::string&);
 		
 		void line2row();
 		
@@ -60,7 +63,8 @@ namespace model {
 	
 	
 	//////////////////////////////////////////////////////////////////////////
-	bool DataReader::readInFile(const std::string & fileName_in, const std::string & varName_in, const size_t & occurrence){
+	bool DataReader::readInFile(const std::string & fileName_in, const std::string & varName_in, const size_t & occurrence)
+    {
 		
 		table.clear();		// VERY IMPORTANT
 		
@@ -72,7 +76,8 @@ namespace model {
 	}
 	
 	//////////////////////////////////////////////////////////////////////////
-	bool DataReader::readInFile(const std::string & fileName_in, const std::string & varName_in){
+	bool DataReader::readInFile(const std::string & fileName_in, const std::string & varName_in)
+    {
 		return readInFile(fileName_in, varName_in, 0);
 	}
 	
@@ -88,12 +93,13 @@ namespace model {
 		if(inputFile.good()){
 			
 			
-			while(count<int(occurrence)){
+			while(count<int(occurrence))
+            {
 				//! 1- get the next line
 				std::getline(inputFile, line);
 				
 				//! 2- check if the line contains the variable name and eventually increment counter
-				count+=check_name_equal();
+				count+=check_name_equal(varName);
 				//	model::cout<<"count="<<count<<std::endl;
 				
 				
@@ -134,12 +140,16 @@ namespace model {
 	
 	
 	//////////////////////////////////////////////////////////////////////////
-	bool DataReader::check_name_equal(){
-		return line.find(varName)==0 && line.find("=")!=std::string::npos;
+    bool DataReader::check_name_equal(const std::string& temp)
+    {
+//		return line.find(varName)==0 && line.find("=")!=std::string::npos;
+//        std::replace(temp,' ','');
+        return line.find(temp)==0 && (line[temp.size()/(sizeof 'a')]=='=' || (line[temp.size()/(sizeof 'a')]==' ' && line.find("=")!=std::string::npos));
 	}
 	
 	//////////////////////////////////////////////////////////////////////////
-	void DataReader::readLines(){
+	void DataReader::readLines()
+    {
 		
 		table.clear();
 		
@@ -150,16 +160,19 @@ namespace model {
 		line2row();
 		
 		//! Keep adding lines until ";" is found
-		while(line.find(";")==std::string::npos){  // read lines until you find a ";"
+		while(line.find(";")==std::string::npos)
+        {  // read lines until you find a ";"
 			
 			std::getline(inputFile, line);
 			line2row();
 			
-			if (inputFile.eof()){
+			if (inputFile.eof())
+            {
 				//model::cout<<"Error in reading the "<<occurrence<<"-th occurrence of "<<varName << " in "<<fileName;
 				model::cout<<"Error: file ended before ';'."<<std::endl;
 				exit (1);
-				break;}
+				break;
+            }
 		}
 		
 		

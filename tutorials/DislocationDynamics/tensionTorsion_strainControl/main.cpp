@@ -39,9 +39,11 @@ int main (int argc, char* argv[])
     EDR.readScalarInFile("./loadInput.txt","relaxSteps",TensionTorsioner::relaxSteps);
     EDR.readScalarInFile("./loadInput.txt","apply_tension",TensionTorsioner::apply_tension);
     EDR.readScalarInFile("./loadInput.txt","apply_torsion",TensionTorsioner::apply_torsion);
-//    EDR.readScalarInFile("./loadInput.txt","target_VonMisesStrain",TensionTorsioner::target_VonMisesStrain);
 
+    std::cout<<DN.userOutputColumn()<<std::endl;
     
+    TensionTorsioner::init(DN.runningID(),DN.userOutputColumn());
+
     
     
     // Run time steps

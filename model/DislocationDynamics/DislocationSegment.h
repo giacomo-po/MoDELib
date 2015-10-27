@@ -347,23 +347,27 @@ namespace model
             jgauss.setZero(qOrder);
             rlgauss.setZero(dim,qOrder);
             pkGauss.setZero(dim,qOrder);
-            
+
+            // Compute geometric quantities
+            for (unsigned int k=0;k<qOrder;++k)
+            {
+                //                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                SFgauss.row(k)=QuadPowDynamicType::uPow(qOrder).row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                //                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                jgauss(k)=rugauss.col(k).norm();
+                rlgauss.col(k)=rugauss.col(k)/jgauss(k);
+            }
             
             if(!is_boundarySegment())
             {
                 for (unsigned int k=0;k<qOrder;++k)
                 {
-                    //                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                    SFgauss.row(k)=QuadPowDynamicType::uPow(qOrder).row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                    rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                    //                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                    rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                    jgauss(k)=rugauss.col(k).norm();
-                    rlgauss.col(k)=rugauss.col(k)/jgauss(k);
-                    
                     quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
                                                                                      this->source->sID,this->sink->sID,k,
-                                                                                     rugauss.col(k),Burgers,
+                                                                                     rugauss.col(k),
+                                                                                     Burgers,
                                                                                      QuadratureDynamicType::abscissa(qOrder,k),
                                                                                      QuadratureDynamicType::weight(qOrder,k),
                                                                                      true,true,  // stressSource enabled, stressField enabled,
@@ -374,20 +378,12 @@ namespace model
             }
             else // bonudary segment
             {
-                if(shared.use_bvp)
+                if(shared.use_bvp) // using FEM correction
                 {
                     if(shared.use_virtualSegments)
                     {
                         for (unsigned int k=0;k<qOrder;++k)
                         {
-                            //                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                            SFgauss.row(k)=QuadPowDynamicType::uPow(qOrder).row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                            rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                            //                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                            rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                            jgauss(k)=rugauss.col(k).norm();
-                            rlgauss.col(k)=rugauss.col(k)/jgauss(k);
-                            
                             quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
                                                                                              this->source->sID,this->sink->sID,k,
                                                                                              rugauss.col(k),Burgers,
@@ -464,18 +460,10 @@ namespace model
                         }
                         
                     }
-                    else
+                    else // bnd segment, with bvp, without virtual segments
                     {
                         for (unsigned int k=0;k<qOrder;++k)
                         {
-                            //                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                            SFgauss.row(k)=QuadPowDynamicType::uPow(qOrder).row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                            rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                            //                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                            rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                            jgauss(k)=rugauss.col(k).norm();
-                            rlgauss.col(k)=rugauss.col(k)/jgauss(k);
-                            
                             quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
                                                                                              this->source->sID,this->sink->sID,k,
                                                                                              rugauss.col(k),Burgers,
