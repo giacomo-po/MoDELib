@@ -62,6 +62,7 @@ namespace model
         typedef Eigen::Matrix<double,NdofXnode,1> VectorDofType;
         typedef std::vector<VectorDim,Eigen::aligned_allocator<VectorDim> > VectorOfNormalsType;
         typedef std::deque<const LatticePlane*> LatticePlaneContainerType;
+        typedef std::deque<LatticePlane> SpecialLatticePlaneContainerType;
         
         typedef LatticeVector<dim> LatticeVectorType;
         typedef LatticeDirection<dim> LatticeDirectionType;
@@ -83,6 +84,7 @@ namespace model
         //! The std::vector containing the glidePlaneNormal(s) of the connected DislocationSegment(s)
         //		VectorOfNormalsType planenormals;
         LatticePlaneContainerType _confiningPlanes;
+        SpecialLatticePlaneContainerType specialConfiningPlanes;
         
         //! The current velocity vector of *this DislocationNode
         VectorDofType velocity;
@@ -370,6 +372,18 @@ namespace model
             
             //! 1- Clear and re-builds the std::vector planenormals
             _confiningPlanes.clear();
+            specialConfiningPlanes.clear();
+            
+            if (!this->is_balanced())
+            {
+                for(const auto& planeBase : CrystalOrientation<dim>::planeNormals())
+                {
+                    specialConfiningPlanes.emplace_back(L,planeBase);
+                }
+
+            }
+            
+            // add to _confiningPlanes the planes of the attached segments
             for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
             {
                 if (std::get<2>(neighborIter->second))
@@ -379,6 +393,13 @@ namespace model
                     _confiningPlanes.push_back(&(pL->sessilePlane));
                 }
             }
+            
+            // add to _confiningPlanes the special planes of this node
+            for(const auto& plane : specialConfiningPlanes)
+            {
+                _confiningPlanes.push_back(&plane);
+            }
+
             //std::cout<<"a"<<std::endl;
             
             GramSchmidt::makeUnique(_confiningPlanes);

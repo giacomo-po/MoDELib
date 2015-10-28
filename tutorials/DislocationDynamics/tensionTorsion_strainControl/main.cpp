@@ -29,7 +29,7 @@ int main (int argc, char* argv[])
     typedef DislocationNetwork<3,1,CatmullRom,UniformOpen> DislocationNetworkType;
     DislocationNetworkType DN(argc,argv);
     
-    // Read punch data
+    // Read TensionTorsioner data
     model::EigenDataReader EDR;
 
     EDR.readScalarInFile("./loadInput.txt","epsilonDot",TensionTorsioner::epsilonDot);
@@ -40,12 +40,9 @@ int main (int argc, char* argv[])
     EDR.readScalarInFile("./loadInput.txt","apply_tension",TensionTorsioner::apply_tension);
     EDR.readScalarInFile("./loadInput.txt","apply_torsion",TensionTorsioner::apply_torsion);
 
-    std::cout<<DN.userOutputColumn()<<std::endl;
-    
+    // Initialize TensionTorsioner
     TensionTorsioner::init(DN.runningID(),DN.userOutputColumn());
 
-    
-    
     // Run time steps
     DN.runSteps();
     

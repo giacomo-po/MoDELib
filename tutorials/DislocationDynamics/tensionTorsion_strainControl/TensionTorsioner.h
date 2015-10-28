@@ -129,7 +129,8 @@ struct TensionTorsioner
     }
     
     /**************************************/
-    static void init(const long int& runID,const unsigned int& userOutputColumn)
+    static void init(const long int& runID,
+                     const unsigned int& userOutputColumn)
     {
         VertexReader<'F',201,double> vReader;
         if (vReader.isGood(0,true))
@@ -143,6 +144,8 @@ struct TensionTorsioner
                 model::cout<<"initialDisplacement="<<initialDisplacement<<std::endl;
                 initialTwist_Rad=iter->second(userOutputColumn);
                 model::cout<<"initialTwist_Rad="<<initialTwist_Rad<<std::endl;
+                last_update_time=iter->second(0);
+                model::cout<<"last_update_time="<<last_update_time<<std::endl;
                 
             }
             else

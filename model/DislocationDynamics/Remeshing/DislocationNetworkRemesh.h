@@ -112,12 +112,23 @@ namespace model
             
             // Call Network::contract
             unsigned int Ncontracted(0);
-            for (std::set<std::pair<double,std::pair<size_t,size_t> > >::const_iterator smallIter =toBeContracted.begin();
-                 /*                                                                  */ smallIter!=toBeContracted.end();
-                 /*                                                                  */ smallIter++)
+//            for (std::set<std::pair<double,std::pair<size_t,size_t> > >::const_iterator smallIter =toBeContracted.begin();
+//                 /*                                                                  */ smallIter!=toBeContracted.end();
+//                 /*                                                                  */ smallIter++)
+//            {
+//                const size_t i(smallIter->second.first);
+//                const size_t j(smallIter->second.second);
+//                const typename EdgeFinder<LinkType>::isNetworkEdgeType Lij(DN.link(i,j));
+//                
+//                if (Lij.first )
+//                {
+//                    Ncontracted+=DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
+//                }
+//            }
+            for (const auto& smallIter : toBeContracted)
             {
-                const size_t i(smallIter->second.first);
-                const size_t j(smallIter->second.second);
+                const size_t i(smallIter.second.first);
+                const size_t j(smallIter.second.second);
                 const typename EdgeFinder<LinkType>::isNetworkEdgeType Lij(DN.link(i,j));
                 
                 if (Lij.first )
