@@ -59,7 +59,7 @@ namespace model {
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         
     private:
-		static DislocationSharedObjects<SegmentType> shared;
+		static DislocationSharedObjects<dim> shared;
         
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW

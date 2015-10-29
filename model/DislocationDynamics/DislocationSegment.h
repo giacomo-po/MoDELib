@@ -179,7 +179,7 @@ namespace model
         
         
         
-        DislocationSharedObjects<Derived> shared;
+        DislocationSharedObjects<dim> shared;
         
         
         //! A shared pointer to the GlidePlane of this segment

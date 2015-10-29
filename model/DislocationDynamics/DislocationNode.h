@@ -74,7 +74,7 @@ namespace model
         
     private:
         
-        DislocationSharedObjects<LinkType> shared;
+        DislocationSharedObjects<dim> shared;
         
         LatticeVectorType L;
         
@@ -104,15 +104,15 @@ namespace model
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
-            if (DislocationSharedObjects<LinkType>::use_boundary)
+            if (DislocationSharedObjects<dim>::use_boundary)
             {
                 if (guess==NULL)
                 {
-                    temp=DislocationSharedObjects<LinkType>::mesh.search(this->get_P());
+                    temp=DislocationSharedObjects<dim>::mesh.search(this->get_P());
                 }
                 else
                 {
-                    temp=DislocationSharedObjects<LinkType>::mesh.searchWithGuess(this->get_P(),guess);
+                    temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
                 }
                 
                 if(!temp.first) // DislocationNode not found inside mesh
@@ -158,11 +158,11 @@ namespace model
                         assert(dL.squaredNorm()>0.0);
                         
                         LatticeVectorType L0=L;
-                        if(!DislocationSharedObjects<LinkType>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first)
+                        if(!DislocationSharedObjects<dim>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first)
                         {
                             L0=LatticeVectorType(pL.E.glidePlane.snapToLattice(0.5*(pL.E.source->get_P()+pL.E.sink->get_P())));
                         }
-                        assert(DislocationSharedObjects<LinkType>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first && "L0 outside mesh");
+                        assert(DislocationSharedObjects<dim>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first && "L0 outside mesh");
                         
                         LatticeLine line(L0,dL);
                         LineMeshIntersection lmi(line,L+dL,shared.mesh,p_Simplex);
@@ -622,7 +622,7 @@ namespace model
                 {
                     // See if the new position is inside mesh
                     std::set<const Simplex<dim,dim>*> path;
-                    const std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<LinkType>::mesh.searchWithGuess(this->get_P()+dX,p_Simplex,path));
+                    const std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P()+dX,p_Simplex,path));
                     //p_Simplex=temp.second;
                     
                     

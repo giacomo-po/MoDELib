@@ -128,7 +128,7 @@ namespace model
         typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
         typedef typename ParticleSystemType::SpatialCellType SpatialCellType;
         typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
-        typedef DislocationSharedObjects<LinkType> DislocationSharedObjectsType;
+        typedef DislocationSharedObjects<dim> DislocationSharedObjectsType;
         typedef typename DislocationSharedObjectsType::BvpSolverType BvpSolverType;
         typedef typename DislocationSharedObjectsType::BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::ElementType ElementType;
