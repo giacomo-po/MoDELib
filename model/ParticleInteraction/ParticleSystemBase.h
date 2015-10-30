@@ -27,7 +27,7 @@ namespace model {
     class ParticleSystemBase :
     /* inheritance          */  protected std::deque<_ParticleType> // iteration and fast insertion are priority
     {
-                
+        
     public:
         
         typedef _ParticleType ParticleType; // make ParticleType available outside the class
@@ -35,7 +35,7 @@ namespace model {
         typedef SpatialCellObserver<_ParticleType,_ParticleType::dim> SpatialCellObserverType;
         typedef typename SpatialCellObserverType::SpatialCellType SpatialCellType;
         typedef std::deque<_ParticleType> ParticleContainerType;
-                        
+        
         /**********************************************************************/
         template <typename ...AdditionalConstructorTypes>
         ParticleType* addParticle(const PositionType& p, const AdditionalConstructorTypes&... args)
@@ -53,7 +53,7 @@ namespace model {
           */
             this->clear();
         }
-                
+        
         /**********************************************************************/
         const ParticleContainerType& particles() const
         {/*\returns the const base container of particles
@@ -71,7 +71,7 @@ namespace model {
         static void setCellSize(const double& cellSize)
         {
             assert(cellSize>0.0);
-//            SpatialCellObserverType::cellSize=cellSize;
+            //            SpatialCellObserverType::cellSize=cellSize;
             SpatialCellObserverType::setCellSize(cellSize);
         }
         
@@ -83,41 +83,45 @@ namespace model {
           * \brief computes the field FieldType for the only particle part,
           * without parallelization
           */
-            
-            // Nearest-neighbor interaction
-            typename SpatialCellType::CellMapType neighborCells(part.template neighborCells<_ParticleType>());
-            
-            //! -2 loop over neighbor cells of current particle
-            for (typename SpatialCellType::CellMapType::const_iterator cIter =neighborCells.begin();
-                 /*                                                 */ cIter!=neighborCells.end();
-                 /*                                               */ ++cIter)
+            if(static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&part)->enabled)
             {
-                //! -3 loop over particles in the current neighbor cell
-                for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
-                    /*                                                           */ qIter!=cIter->second->particleEnd();
-                    /*                                                         */ ++qIter)
+                // Nearest-neighbor interaction
+                typename SpatialCellType::CellMapType neighborCells(part.template neighborCells<_ParticleType>());
+                
+                //! -2 loop over neighbor cells of current particle
+                for (typename SpatialCellType::CellMapType::const_iterator cIter =neighborCells.begin();
+                     /*                                                 */ cIter!=neighborCells.end();
+                     /*                                               */ ++cIter)
                 {
-                    //part.template field<FieldType>() += FieldType::compute(**qIter,part);
-                    *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&part) += FieldType::compute(**qIter,part);
+                    //! -3 loop over particles in the current neighbor cell
+                    for(typename SpatialCellType::ParticleContainerType::const_iterator qIter =cIter->second->particleBegin();
+                        /*                                                           */ qIter!=cIter->second->particleEnd();
+                        /*                                                         */ ++qIter)
+                    {
+                        //part.template field<FieldType>() += FieldType::compute(**qIter,part);
+                        if(static_cast<const SingleSourcePoint<_ParticleType,FieldType>* const>(*qIter)->enabled)
+                        {// source is enabled
+                            *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&part) += FieldType::compute(**qIter,part);
+                        }
+                    }
+                }
+                
+                // Non-nearest-neighbor interaction
+                if(FieldType::use_multipole)
+                {
+                    typename SpatialCellType::CellMapType farCells(part.template farCells<_ParticleType>());
+                    //
+                    //                    part.template field<FieldType>() += FieldType::multipole(part,farCells);
+                    *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&part) += FieldType::multipole(part,farCells);
+                }
+                
+                // Add contribution of other sources
+                if(sizeof...(OtherSourceTypes))
+                {
+                    *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&part) += FieldType::addSourceContribution(part,otherSources...);
                 }
             }
             
-            // Non-nearest-neighbor interaction
-            if(FieldType::use_multipole)
-            {
-                typename SpatialCellType::CellMapType farCells(part.template farCells<_ParticleType>());
-                //
-                //                    part.template field<FieldType>() += FieldType::multipole(part,farCells);
-                *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&part) += FieldType::multipole(part,farCells);
-            }
-            
-            // Add contribution of other sources
-            if(sizeof...(OtherSourceTypes))
-            {
-                *static_cast<FieldPointBase<OtherParticleType,FieldType>* const>(&part) += FieldType::addSourceContribution(part,otherSources...);
-            }
-            
-            //            }
         }
         
         /**********************************************************************/

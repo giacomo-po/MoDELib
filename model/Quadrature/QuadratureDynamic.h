@@ -34,7 +34,7 @@ namespace model
     {
         typedef typename VectorDimTypeSelector<dim,order>::VectorDim VectorDim;
         
-        /* weight ********************************************/
+        /**********************************************************************/
         static const double& weight(const short unsigned int & N,
                                     const short unsigned int & k)
         {
@@ -42,7 +42,7 @@ namespace model
             return (N==order)? Quadrature<dim,order,QuadratureRule>::weight(k) : QuadratureDynamic<dim,QuadratureRule,otherOrders...>::weight(N,k);
         }
         
-        /* abscissa ******************************************/
+        /**********************************************************************/
         static const VectorDim abscissa(const short unsigned int & N,
                                         const short unsigned int & k)
         {
@@ -50,6 +50,7 @@ namespace model
             return (N==order)? Quadrature<dim,order,QuadratureRule>::abscissa(k) : QuadratureDynamic<dim,QuadratureRule,otherOrders...>::abscissa(N,k);
         }
         
+        /**********************************************************************/
         template<typename IntegrandType>
         static void integrate(const short unsigned int & N,
                               IntegrandType (*fp)(const double&),
@@ -65,6 +66,7 @@ namespace model
             }
         }
         
+        /**********************************************************************/
         template <typename AnyClass, typename IntegrandType, typename ...Args>
         static void integrate(const short unsigned int & N,
                               const AnyClass* const C, IntegrandType &intgrl,
@@ -81,6 +83,7 @@ namespace model
             }
         }
         
+        /**********************************************************************/
         template <typename AnyClass, typename IntegrandType, typename ...Args>
         static void integrate(const short unsigned int & N,
                               const AnyClass* const C, IntegrandType &intgrl,
@@ -263,7 +266,7 @@ namespace model
     template <short unsigned int, short unsigned int> class QuadratureRule,
     int order>
     const std::set<int> QuadratureDynamic<dim,QuadratureRule,order>::orderSet=QuadratureDynamic<dim,QuadratureRule,order>::fillSet();
-
+    
     
 } // namespace model
 #endif

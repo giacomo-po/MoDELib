@@ -65,15 +65,7 @@ namespace model
           * Constructor initializes SpatialCellParticle
           */
         }
-        
-//        /**********************************************************************/
-//        PointSource(const VectorDimD& Pin, const bool& enable) :
-//        /* base init */ SpatialCellParticleType(Pin),
-//        /* base init */ enabled(true)
-//        {/*! @param[in] Pin the position of this PointSource
-//          * Constructor initializes SpatialCellParticle
-//          */
-//        }
+        å
     };
     
     

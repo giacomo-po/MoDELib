@@ -101,8 +101,8 @@ namespace model
         const VectorDimD& B;
         
         //! A const reference to Quadrature abscissa corresponding to this particle
-        const double& quadAbscissa;
-        
+        const double quadAbscissa;
+//
         //! A const reference to Quadrature weight corresponding to this particle
         const double& quadWeight;
         
@@ -211,7 +211,13 @@ namespace model
             /**/<< std::setprecision(15)<<std::scientific<<p.P.transpose()<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<p.B.transpose()<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<p.quadAbscissa<<"\t"
-            /**/<< std::setprecision(15)<<std::scientific<<p.quadWeight;
+            /**/<< std::setprecision(15)<<std::scientific<<p.quadWeight<<"\t"
+            /**/<< static_cast<const SingleSourcePoint<DislocationParticleType,StressField>* const>(&p)->enabled<<"\t"
+            /**/<< static_cast<const FieldPointBase<DislocationParticleType,StressField>* const>(&p)->enabled<<"\t"
+            /**/<< static_cast<const SingleSourcePoint<DislocationParticleType,DisplacementField>* const>(&p)->enabled<<"\t"
+//            /**/<< static_cast<const FieldPointBase<DislocationParticleType,DisplacementField>* const>(&p)->enabled<<"\t"
+            /**/<< static_cast<const SingleSourcePoint<DislocationParticleType,ElasticEnergy>* const>(&p)->enabled<<"\t"
+            /**/<< static_cast<const FieldPointBase<DislocationParticleType,ElasticEnergy>* const>(&p)->enabled;
             return os;
         }
         
@@ -222,55 +228,3 @@ namespace model
 }	// close namespace
 #endif
 
-
-
-//        enum{FULL=0,CELL_PARTICLE=1,CELL_CELL=2};
-//
-//        static int nearCellStressApproximation;
-//        static int  farCellStressApproximation;
-//
-//        MatrixDim _stress;
-
-
-
-
-//            switch (nearCellStressApproximation)
-//            {
-//                case FULL: // quadrature-quadrature
-//                    // finish here
-//                    assert(0 && "FINISH HERE");
-//                    break;
-//                case CELL_PARTICLE: // cell-quadrature
-//                    for (typename CellMapType::const_iterator nearCellIter=this->nearCellsBegin();nearCellIter!=this->nearCellsEnd();++nearCellIter){
-//                        temp+= nearCellIter->second->multipoleStress(P);
-//                    }
-//                    break;
-//                case CELL_CELL: // cell-cell
-//                    //temp+= this->pCell->nearStress;
-//                    temp+= this->pCell->nearStress;
-//                    break;
-//
-//                default: // no computation
-//                    break;
-//            }
-
-
-//            switch (farCellStressApproximation)
-//            {
-//                case FULL: // quadrature-quadrature
-//                    // finish here
-//                    assert(0 && "FINISH HERE");
-//                    break;
-//                case CELL_PARTICLE: // cell-quadrature
-//                    for (typename CellMapType::const_iterator farCellIter=this->farCellsBegin();farCellIter!=this->farCellsEnd();++farCellIter){
-//                        temp+= farCellIter->second->multipoleStress(P);
-//                    }
-//                    break;
-//                case CELL_CELL: // cell-cell
-//                    //temp+= this->pCell->farStress;
-//                    temp+= this->pCell->farStress;
-//                    break;
-//
-//                default: // no computation
-//                    break;
-//            }

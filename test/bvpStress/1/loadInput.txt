@@ -1,0 +1,7 @@
+epsilonDot=1.0e-11;
+gammaDot=0.0e-11;
+initialDisplacement=0;
+initialTwist_Rad=0;
+relaxSteps=0;
+apply_tension=1;
+apply_torsion=0;

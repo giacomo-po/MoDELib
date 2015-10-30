@@ -136,10 +136,6 @@ namespace model
         
         enum {NdofXnode=NodeType::NdofXnode};
         
-        //#ifdef UpdateBoundaryConditionsFile
-        //#include UpdateBoundaryConditionsFile
-        //#endif
-        
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
 #endif
@@ -149,7 +145,6 @@ namespace model
         bool check_balance;
         short unsigned int use_redistribution;
         bool use_junctions;
-        //        bool useImplicitTimeIntegration;
         double shearWaveSpeedFraction;
         
         long int runID;

@@ -50,11 +50,6 @@ namespace model
             LatticeVectorType a2(VectorDimI(0,1,0));
             LatticeVectorType a3(VectorDimI(0,0,1));
             
-//            ReciprocalLatticeDirectionType alpha(VectorDimI( 0, 0,-1));
-//            ReciprocalLatticeDirectionType  beta(VectorDimI( 0,-1, 0));
-//            ReciprocalLatticeDirectionType gamma(VectorDimI(-1, 0, 0)); // is (-1,-1, 1) in cartesian
-//            ReciprocalLatticeDirectionType delta(VectorDimI( 1, 1, 1)); // is ( 1, 1, 1) in cartesian
-            
             std::vector<LatticePlaneBase> temp;
             temp.emplace_back(a1,a3);           // is (-1, 1,-1) in cartesian
             temp.emplace_back(a3,a2);           // is ( 1,-1,-1) in cartesian
@@ -74,11 +69,6 @@ namespace model
             LatticeVectorType a1(VectorDimI(1,0,0));
             LatticeVectorType a2(VectorDimI(0,1,0));
             LatticeVectorType a3(VectorDimI(0,0,1));
-            
-            //            ReciprocalLatticeDirectionType alpha(VectorDimI( 0, 0,-1));
-            //            ReciprocalLatticeDirectionType  beta(VectorDimI( 0,-1, 0));
-            //            ReciprocalLatticeDirectionType gamma(VectorDimI(-1, 0, 0)); // is (-1,-1, 1) in cartesian
-            //            ReciprocalLatticeDirectionType delta(VectorDimI( 1, 1, 1)); // is ( 1, 1, 1) in cartesian
             
             std::vector<SlipSystem> temp;
             temp.emplace_back(a1,a3, a1);           // is (-1, 1,-1) in cartesian
