@@ -45,15 +45,6 @@ namespace model
             }
         }
         
-//        BoundaryDisplacementPoint(const size_t gID_in,
-//                                  const Eigen::Matrix<double,dim,1>& P0,
-//                                  const Eigen::Matrix<double,dim,1>& s_in) :
-//        /*   */ gID(gID_in),
-//        /*   */ P(P0),
-//        /*   */ S(s_in)
-//        {
-//            assert(std::abs(S.norm()-1.0)>10.0*DBL_EPSILON && "S-vector has non-unit norm");
-//        }
         
     };
     

@@ -347,7 +347,7 @@ namespace model
             jgauss.setZero(qOrder);
             rlgauss.setZero(dim,qOrder);
             pkGauss.setZero(dim,qOrder);
-
+            
             // Compute geometric quantities
             for (unsigned int k=0;k<qOrder;++k)
             {
@@ -477,7 +477,7 @@ namespace model
                 }
                 else // bonudary segment without bvp, do not place quadrature particles
                 {
-                
+                    
                 }
                 
             }
@@ -785,31 +785,36 @@ namespace model
             return pkGauss.col(qOrder/2)*this->chord().norm();
         }
         
+
+        
+        
         /**********************************************************************/
         int lineTriangleIntersection(const VectorDim& X,const VectorDim& s,
                                      const VectorDim& P1,const VectorDim& P2,const VectorDim& P3) const
         {
+            
+            int temp=0;
+            
             const VectorDim v12(P2-P1);
             const VectorDim v13(P3-P1);
             
-            MatrixDim M(MatrixDim::Zero());
-            M.col(0)=v12;
-            M.col(1)=v13;
-            M.col(2)=-s;
+            VectorDim n(v12.cross(v13)); // right-handed norm to triangle P1->P2->P3
+            const double nNorm(n.norm());
+            assert(nNorm>FLT_EPSILON && "n has zero norm");
+            n/=nNorm; // normalize
+            const double nDots(n.dot(s));
             
-            const VectorDim a=M.inverse()*(P1-X);
-            
-            int temp=0;
-            if(   a(0)>=0.0 && a(0)<=1.0
-               && a(1)>=0.0 && a(0)+a(1)<=1.0
-               && a(2)>=0.0) // intersection with trignale exists
+            if(std::fabs(nDots)>FLT_EPSILON) // s in not parallel to triangle
             {
-                VectorDim n(v12.cross(v13)); // right-handed norm to triangle P1->P2->P3
-                const double nNorm(n.norm());
-                assert(nNorm>FLT_EPSILON && "n has zero norm");
-                n/=nNorm; // normalize
-                const double nDots(n.dot(s));
-                if(std::fabs(nDots)>FLT_EPSILON) // s in not parallel to triangle
+                MatrixDim M(MatrixDim::Zero());
+                M.col(0)=v12;
+                M.col(1)=v13;
+                M.col(2)=-s;
+                const VectorDim a=M.inverse()*(X-P1);
+                
+                if(   a(0)>=0.0 && a(0)<=1.0      // intersection with trignale exists
+                   && a(1)>=0.0 && a(0)+a(1)<=1.0 // intersection with trignale exists
+                   && a(2)>=0.0) //  intersection along positive S-vector
                 {
                     if(nDots>=0.0)
                     {
@@ -820,18 +825,19 @@ namespace model
                         temp=+1;
                     }
                 }
-                else // s is parallel to triangle
-                {
-                    if((P1-X).dot(n)>=0.0) // X is below the trianlge. Positive intersection at infinity
-                    {
-                        temp=-1;
-                    }
-                    else // X is above the trianlge. Negative intersection at infinity
-                    {
-                        temp=+1;
-                    }
-                }
             }
+//            else // s is parallel to triangle
+//            {
+//                assert(0 && "IMPLEMENT INTERSECTION AT INFINITY");
+////                if((P1-X).dot(n)>=0.0) // X is below the trianlge. Positive intersection at infinity
+////                {
+////                    temp=-1;
+////                }
+////                else // X is above the trianlge. Negative intersection at infinity
+////                {
+////                    temp=+1;
+////                }
+//            }
             
             return temp;
         }
@@ -853,41 +859,16 @@ namespace model
                 dispJump += Burgers*lineTriangleIntersection(Pf,Sf,P2,P4,P3);
                 
                 
-                
-                
-                
-                
-                //                    const double den(Sf.dot(boundaryLoopNormal));
-                //                    if(std::fabs(den)>FLT_EPSILON) // s direction intersects plane
-                //                    {
-                //                        const double u=(this->source->get_P()-Pf).dot(boundaryLoopNormal)/den;
-                //                        if(u>FLT_EPSILON) // intersection in the positive sense
-                //                        {
-                //                            const VectorDim P=Pf+u*Sf; // intersection point on plane
-                //                            const VectorDim C=(this->source->get_P()+this->sink->get_P())*0.5; // center of segment
-                //
-                //                            const double R=(this->source->get_P()-this->sink->get_P()).norm();
-                //                            const double PC=(P-C).norm();
-                //
-                //                            if(PC<=R) // intersection point is inside circle
-                //                            {
-                //                                const VectorDim n((this->source->bndNormal()+this->sink->bndNormal()).normalized());
-                //                                const double PCn=(P-C).dot(n);
-                //                                if(PCn>0.0) // external side of loop
-                //                                {
-                //                                    if(den>0.0)
-                //                                    {
-                //                                        dispJump -= Burgers;
-                //                                    }
-                //                                    else
-                //                                    {
-                //                                        dispJump += Burgers;
-                //                                    }
-                //                                }
-                //                            }
-                //
-                //                        }
-                //                    }
+//                if (dispJump.norm()>0.0)
+//                {
+//                    std::cout<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
+//                    std::cout<<Pf.transpose()<<std::endl;
+//                    std::cout<<Sf.transpose()<<std::endl;
+//                    std::cout<<P1.transpose()<<std::endl;
+//                    std::cout<<P2.transpose()<<std::endl;
+//                    std::cout<<P3.transpose()<<std::endl;
+//                    std::cout<<P4.transpose()<<std::endl;
+//                }
                 
             }
         }
@@ -929,6 +910,58 @@ namespace model
     
 } // namespace model
 #endif
+
+
+//        /**********************************************************************/
+//        int lineTriangleIntersection(const VectorDim& X,const VectorDim& s,
+//                                     const VectorDim& P1,const VectorDim& P2,const VectorDim& P3) const
+//        {
+//            const VectorDim v12(P2-P1);
+//            const VectorDim v13(P3-P1);
+//
+//            MatrixDim M(MatrixDim::Zero());
+//            M.col(0)=v12;
+//            M.col(1)=v13;
+//            M.col(2)=-s;
+//
+//            const VectorDim a=M.inverse()*(P1-X);
+//
+//            int temp=0;
+//            if(   a(0)>=0.0 && a(0)<=1.0
+//               && a(1)>=0.0 && a(0)+a(1)<=1.0
+//               && a(2)>=0.0) // intersection with trignale exists
+//            {
+//                VectorDim n(v12.cross(v13)); // right-handed norm to triangle P1->P2->P3
+//                const double nNorm(n.norm());
+//                assert(nNorm>FLT_EPSILON && "n has zero norm");
+//                n/=nNorm; // normalize
+//                const double nDots(n.dot(s));
+//                if(std::fabs(nDots)>FLT_EPSILON) // s in not parallel to triangle
+//                {
+//                    if(nDots>=0.0)
+//                    {
+//                        temp=-1;
+//                    }
+//                    else
+//                    {
+//                        temp=+1;
+//                    }
+//                }
+//                else // s is parallel to triangle
+//                {
+//                    if((P1-X).dot(n)>=0.0) // X is below the trianlge. Positive intersection at infinity
+//                    {
+//                        temp=-1;
+//                    }
+//                    else // X is above the trianlge. Negative intersection at infinity
+//                    {
+//                        temp=+1;
+//                    }
+//                }
+//            }
+//
+//            return temp;
+//        }
 
 //        /**********************************************************************/
 //        void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)

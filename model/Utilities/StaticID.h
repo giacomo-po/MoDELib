@@ -34,6 +34,7 @@ namespace model
 		
 		// The incremental counters
 		static size_t count;
+        static bool count_used;
 		
 	public:
 		
@@ -43,12 +44,14 @@ namespace model
         /**********************************************************************/
 		StaticID() : sID(count)
         {
+            count_used=true;
             count+=increment;
 		}
 		
         /**********************************************************************/
 		StaticID(const StaticID&) : sID(count)
         {
+            count_used=true;
             count+=increment;
 		}
         
@@ -63,19 +66,14 @@ namespace model
         {
 			model_checkInput(newCount>=count && "YOU ARE TRYING TO SET THE COUNTER TO A LOWER VALUE THAN THE CURRENT ONE.");
 			count =  newCount;
+            count_used=false;
 		}
-        
-//        /**********************************************************************/
-//        static void force_count(const size_t& newCount)
-//        {
-//            count =  newCount;
-//        }
 		
         /**********************************************************************/
 		static void set_increment(const size_t& newIncrement)
         {
 			model_checkInput(newIncrement>=1 && "newIncrement MUST BE >=1.");
-            if(count>=increment)
+            if(count_used)
             {
                 count-=increment;
                 count+=newIncrement;
@@ -91,6 +89,9 @@ namespace model
 
 	template<typename Derived>
 	size_t StaticID<Derived>::count = 0;
+
+    template<typename Derived>
+    bool StaticID<Derived>::count_used = false;
 	
 } // namespace model
 #endif

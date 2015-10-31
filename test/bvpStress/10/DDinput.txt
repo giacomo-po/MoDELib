@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=1000;
+Nsteps=5000;
 timeWindow=5.1e03;
 startAtTimeStep = -1;
 use_directSolver_DD=0;
@@ -20,7 +20,7 @@ velocityReductionFactor=0.75;
 outputFrequency=10;
 outputBinary=1;
 outputGlidePlanes=0;
-outputSpatialCells=0;
+outputSpatialCells=1;
 outputPKforce=0;
 outputQuadratureParticles=1;
 outputElasticEnergy=0;
@@ -57,7 +57,7 @@ externalStress = 0.0 0.0 0.0
 # The dislocation core size
 coreSize=2.0;
 # Use of multipole-expanded elastic fields for non-nearest neighbor cells
-dislocationCellSize=300;
+dislocationCellSize=1000000;
 use_DisplacementMultipole=1;
 use_StressMultipole = 1;
 use_EnergyMultipole = 0;

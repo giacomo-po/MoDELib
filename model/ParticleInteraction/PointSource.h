@@ -65,7 +65,7 @@ namespace model
           * Constructor initializes SpatialCellParticle
           */
         }
-        å
+        
     };
     
     

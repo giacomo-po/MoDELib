@@ -19,7 +19,8 @@
 #include <model/SpaceDecomposition/SpatialCellObserver.h>
 
 
-namespace model {
+namespace model
+{
     
     
     

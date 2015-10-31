@@ -584,16 +584,16 @@ namespace model
             VectorDim dX=velocity.template segment<dim>(0)*dt;
             
             //Limit dX for boundaryNodes bec
-//            const double dXnorm(dX.norm());
-//            if((isBoundaryNode() || isConnectedToBoundaryNodes()) && dXnorm>10.0)
-//            {
-//                dX*=10.0/dXnorm;
-//            }
-            
-            if(isPureBoundaryNode())
+            const double dXnorm(dX.norm());
+            if((isBoundaryNode() || isConnectedToBoundaryNodes()) && dXnorm>10.0)
             {
-                dX*=0.0;
+                dX*=10.0/dXnorm;
             }
+            
+//            if(isPureBoundaryNode())
+//            {
+//                dX*=0.0;
+//            }
             
             switch (_confiningPlanes.size())
             {

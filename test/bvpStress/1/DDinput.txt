@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=1000;
+Nsteps=5000;
 timeWindow=5.1e03;
 startAtTimeStep = -1;
 use_directSolver_DD=0;
