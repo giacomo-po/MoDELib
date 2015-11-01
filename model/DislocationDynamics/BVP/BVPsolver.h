@@ -9,8 +9,8 @@
 #ifndef model_BVPsolver_H_
 #define model_BVPsolver_H_
 
-#define _MODEL_TEST_DD_DISPLACEMENT_
-#define _MODEL_TEST_DD_STRESS_
+//#define _MODEL_TEST_DD_DISPLACEMENT_
+//#define _MODEL_TEST_DD_STRESS_
 
 #include <array>
 #include <deque>
