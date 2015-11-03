@@ -71,9 +71,14 @@ namespace model
                                 // average bnd-normals of parents
                                 for(const auto& parent : simplex.child(f).child(e).parents())
                                 {
-                                    if(parent->isBoundarySimplex())
+                                    if(parent->isBoundarySimplex()) // trinagle only has one parent tetrahedron
                                     {
-                                        temp+=simplex.nda.col(f).normalized();
+                                        const auto& grandParent(**parent->parents().begin());
+                                        
+                                        const size_t g(grandParent.childOrder(parent->xID));
+                                        temp+=grandParent.nda.col(g).normalized();
+                                        
+//                                        temp+=simplex.nda.col(f).normalized();
                                     }
                                 }
                             }
@@ -98,7 +103,27 @@ namespace model
                             {
                                 if((simplex.child(f).child(e).child(v).P0-P).norm()<dmax && simplex.child(f).child(e).child(v).isBoundarySimplex())
                                 {
-                                    temp+=simplex.nda.col(f).normalized();
+                                    for(const auto& parent : simplex.child(f).child(e).child(v).parents())
+                                    {
+                                        if(parent->isBoundarySimplex()) // edge is boundary
+                                        {
+                                            for(const auto& grandParent : parent->parents())
+                                            {
+                                                if(grandParent->isBoundarySimplex()) // face is boundary
+                                                {
+                                                    const auto& grandGrandParent(**grandParent->parents().begin());
+                                                    
+                                                    const size_t g(grandGrandParent.childOrder(grandParent->xID));
+                                                    temp+=grandGrandParent.nda.col(g).normalized();
+                                                    
+                                                    //                                        temp+=simplex.nda.col(f).normalized();
+                                                }
+                                            }
+                                            
+                                            //                                        temp+=simplex.nda.col(f).normalized();
+                                        }
+                                    }
+//                                    temp+=simplex.nda.col(f).normalized();
 
                                 }
                             }

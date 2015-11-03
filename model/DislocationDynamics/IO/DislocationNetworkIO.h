@@ -227,7 +227,10 @@ namespace model
                 //for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::cellBegin();cellIter!=SpatialCellObserverType::cellEnd();++cellIter)
                 for (const auto& cell : SpatialCellObserverType::cells())
                 {
-                    Cell_file<<cID<<"\t"<<cell.second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize()<<"\n";
+                    Cell_file<<cID<<"\t"<<cell.second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize()
+                    /*     */<<"\t"<<std::get<0>(*cell.second).row(0)
+                    /*     */<<"\t"<<std::get<0>(*cell.second).row(1)
+                    /*     */<<"\t"<<std::get<0>(*cell.second).row(2)<<"\n";
                     ++cID;
                 }
                 model::cout<<", C/C_"<<Cell_file.sID<<std::flush;

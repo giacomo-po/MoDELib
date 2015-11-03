@@ -32,24 +32,27 @@ namespace model
     
     /**************************************************************************/
 	/**************************************************************************/
-    /*! Class template that represents a LagrangeElement degree p, on a
-     * d-dimensional simplex.
-     
-     * Each LagrangeElement in a d-simplex is identified by a set of (d+1)
-     * integers \f$I_k\f$ which satisfy:
+    /*!\brief Class template for a Lagrange finite element of degree p on a
+     * d-dimensional Simplex.
+     *
+     * The degrees of freedom for a LagrangeElement are the functinal values 
+     * computed at the nodes (LagrangeNode). In a d-dimensional Simplex,
+     * each node is identified by a set of (d+1) positive integers \f$I_k\f$ 
+     * which satisfy the Diophantine equation:
      *	\f[
      *		\sum_{k=0}^{d+1}I_k=p
      *	\f]
+     * These integeres are found using the StarsAndBars algorithm.
      * The baricentric (area) coordinate of node \f$\{I_k\}\f$ are obtained as
      * \f$A_k=I_k/p\f$.
      *
      * The shape function of node \f$\{I_k\}\f$ are:
      *	\f[
-     *		N_{\{I_k\}}(A_0,\ldot A_{d})=\prod_{k=0}^{d+1}\frac{1}{I_k!}\prod_{i=0}^{I_k-1}\left(pA_k-i\right)
+     *		N_{\{I_k\}}(A_0,\dots A_{d})=\prod_{k=0}^{d+1}\frac{1}{I_k!}\prod_{i=0}^{I_k-1}\left(pA_k-i\right)
      *	\f]
      * This can also be written as:
      *	\f[
-     *		N_{\{I_k\}}(A_0,\ldot A_{d})=\prod_{i=0}^{d+1}\left([c_{i0},\ldots,c_{ip}]\cdot[A_i^0,\ldots,A_i^p]\right)
+     *		N_{\{I_k\}}(A_0,\dots A_{d})=\prod_{i=0}^{d+1}\left([c_{i0},\dots,c_{ip}]\cdot[A_i^0,\dots,A_i^p]\right)
      *	\f]
      * The matrix \f$c_{ij}\f$ is stored in the field sfCoeffs;
      */
@@ -260,7 +263,7 @@ namespace model
           *\returns a row vector of the the shape-functions, evaluated at bary.
           * This is:
           *	\f[
-          *		N_{\{I_k\}}(A_0,\ldot A_{d})=\prod_{i=0}^{d+1}\left([c_{i0},\ldots,c_{ip}]\cdot[A_i^0,\ldots,A_i^p]\right)
+          *		N_{\{I_k\}}(A_0,\dots A_{d})=\prod_{i=0}^{d+1}\left([c_{i0},\dots,c_{ip}]\cdot[A_i^0,\dots,A_i^p]\right)
           *	\f]
           */
             Eigen::Matrix<double,1,nodesPerElement> temp;
@@ -278,7 +281,7 @@ namespace model
           *\returns a row vector of the the shape-functions, evaluated at bary.
           * This is:
           *	\f[
-          *		N_{\{I_k\}}(A_0,\ldot A_{d})=\prod_{i=0}^{d+1}\left([c_{i0},\ldots,c_{ip}]\cdot[A_i^0,\ldots,A_i^p]\right)
+          *		N_{\{I_k\}}(A_0,\dots A_{d})=\prod_{i=0}^{d+1}\left([c_{i0},\dots,c_{ip}]\cdot[A_i^0,\dots,A_i^p]\right)
           *	\f]
           */
             return MulticomponentExpander<TypeTraits<TrialFunctionType>::nComponents>::expandSF(sf(bary));
@@ -290,7 +293,7 @@ namespace model
           *\returns the value of the derivatives of this shape-function
           * with respect to the baricentric coordinates, computed at bary. This is:
           *	\f[
-          *		dN_{\{I_k\}}/dA_j(A_0,\ldot A_{d})
+          *		dN_{\{I_k\}}/dA_j(A_0,\dots A_{d})
           *	\f]
           */
             Eigen::Matrix<double,dim+1,nodesPerElement> temp(Eigen::Matrix<double,dim+1,nodesPerElement>::Zero());
@@ -315,7 +318,7 @@ namespace model
           *\returns the gradient of this shape-function
           * with respect to the standard coordinates, computed at bary. This is:
           *	\f[
-          *		dN_{\{I_k\}}/dS_j(A_0,\ldot A_{d})
+          *		dN_{\{I_k\}}/dS_j(A_0,\dots A_{d})
           *	\f]
           */
             return BarycentricTraits<dim>::dLdX.transpose()*diff(bary);

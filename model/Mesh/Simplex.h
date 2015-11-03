@@ -152,6 +152,12 @@ namespace model
         }
         
         /**********************************************************************/
+        size_t childOrder(const ChildIDType& childID) const
+        {
+            return SimplexTraits<dim,dim>::faceOrder(this->xID,childID);
+        }
+        
+        /**********************************************************************/
         std::vector<int> boundaryFaces() const
         {
             std::vector<int> temp;
@@ -293,6 +299,12 @@ namespace model
             }
             assert(n!=nFaces && "CHILD NOT FOUND");
             return this->operator[](n);
+        }
+        
+        /**********************************************************************/
+        size_t childOrder(const ChildIDType& childID) const
+        {
+            return SimplexTraits<dim,dim>::faceOrder(this->xID,childID);
         }
         
         /**********************************************************************/
