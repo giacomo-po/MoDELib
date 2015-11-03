@@ -43,6 +43,10 @@ namespace model
         
         typedef Eigen::Matrix<double,_dim,_dim> MatrixDim;
         typedef typename CellPropertiesBase<MatrixDim,MatrixDim,MatrixDim>::SpatialCellProperties SpatialCellProperties;
+
+//        typedef std::array<MatrixDim,Pow<2,_dim>::value> VertexAlphaTensorType;
+//        typedef typename CellPropertiesBase<VertexAlphaTensorType,VertexAlphaTensorType,VertexAlphaTensorType>::SpatialCellProperties SpatialCellProperties;
+
         
         /**********************************************************************/
         static SpatialCellProperties init()
@@ -129,6 +133,10 @@ namespace model
         /* init list     */ quadWeight(qW)
         {/*! Constructor updates the alpha-tensor of the cell containing *this
           */
+            
+
+                Eigen::Matrix<double,1,Pow<2,dim>::value> weights=this->vertexWeigths();
+            assert(std::fabs(weights.sum()-1.0)<FLT_EPSILON);
             
             if(static_cast<SingleSourcePoint<DislocationParticleType,StressField>* const>(this)->enabled)
             {

@@ -16,12 +16,14 @@
 #include <memory> // std::shared_ptr (c++11)
 #include <map>
 #include <Eigen/Dense>
+#include <model/Math/CompileTimeMath/Pow.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
 #include <model/Utilities/modelMacros.h> // model_execAssert(
 #include <model/Utilities/CRTP.h>
 #include <model/SpaceDecomposition/CellShift.h>
 #include <model/Utilities/TypeTraits.h>
 #include <model/Utilities/NonCopyable.h>
+#include <model/Math/CompileTimeMath/PermutationWithRepetition.h>
 //#include <stdexcept>      // std::out_of_range
 
 
@@ -54,6 +56,10 @@ namespace model
         typedef std::set<const ParticleType*> ParticleContainerType; // PTR COMPARE IS NOT NECESSARY
         
         typedef typename TypeTraits<ParticleType>::SpatialCellProperties SpatialCellProperties;
+        
+        typedef Eigen::Matrix<double,dim,Pow<2,dim>::value> MatrixDimVerticesType;
+
+        typedef Eigen::Matrix<double,1,Pow<2,dim>::value> VectorVerticesType;
         
         enum{neighborLayer=1}; // = (1+2*1)^dim  cells = 27  cells in 3d
 //        enum{    nearLayer=2}; // = (1+2*3)^dim  cells = 343 cells in 3d
@@ -99,6 +105,8 @@ namespace model
         //! The position vector of the center of this SpatialCell
         const VectorDimD center;
         
+        static const MatrixDimVerticesType standardVertices;
+        
 		//! The cellID(s) of the neighboring SpatialCell(s) (in column)
 		const Eigen::Matrix<int,dim, CellShiftType::Nneighbors> neighborCellIDs;
         
@@ -109,7 +117,10 @@ namespace model
         /* base init */ SpatialCellProperties(TypeTraits<ParticleType>::init()),
         /* init list */ assignedRank(0),
         /* init list */ cellID(cellID_in),
-        /* init list */ center((cellID.template cast<double>().array()+0.5).matrix()*SpatialCellObserverType::cellSize()),
+//        /* init list */ center((cellID.template cast<double>().array()+0.5).matrix()*SpatialCellObserverType::cellSize()),
+        /* init list */ center(cellID.template cast<double>()*SpatialCellObserverType::cellSize()),
+//        /* init list */ vertices(PermutationWithRepetition<dim>::permute((Eigen::Matrix<double,1,2>()<<0.5,-0.5).finished()*SpatialCellObserverType::cellSize()).colwise()+center),
+//        /* init list */ vertices((PermutationWithRepetition<dim>::permute((Eigen::Matrix<double,1,2>()<<-0.5,0.5).finished())*SpatialCellObserverType::cellSize()).colwise()+center),
         /* init list */ neighborCellIDs(CellShiftType::neighborIDs(cellID))
         {/*! @param[in] cellID_in The ID of the current cell.
           * The constructor initializes cellID, center, neighborCellIDs, and
@@ -200,6 +211,24 @@ namespace model
             return particleContainer.size();
         }
         
+        /**********************************************************************/
+        MatrixDimVerticesType vertices() const
+        {
+            return (standardVertices*SpatialCellObserverType::cellSize()).colwise()+center;
+        }
+        
+//        /**********************************************************************/
+//        VectorVerticesType vertexWeigths(const VectorDimD& P) const
+//        {
+//            return VectorVerticesType::Constant(1.0)-(vertices().colwise()-P).colwise().prod().array().abs().matrix()/pow(SpatialCellObserverType::cellSize(),dim);
+//        }
+        
+        /**********************************************************************/
+        VectorVerticesType vertexWeigths(const VectorDimD& P) const
+        {            
+            return (standardVertices.colwise()+(P-center)/SpatialCellObserverType::cellSize()).colwise().prod().array().abs();
+        }
+        
 		/**********************************************************************/
         size_t neighborSize() const
         {
@@ -235,92 +264,9 @@ namespace model
         
 	};
     
+    template<typename ParticleType, short unsigned int dim>
+    const Eigen::Matrix<double,dim,Pow<2,dim>::value> SpatialCell<ParticleType,dim>::standardVertices=PermutationWithRepetition<dim>::permute((Eigen::Matrix<double,1,2>()<<-0.5,0.5).finished());
+    
 }	// close namespace model
 #endif
-
-
-
-
-//        /* isNearCell *********************************************************/
-//        bool isNearCell(const CellIdType& otherCellID) const
-//        {
-//            bool temp(false);
-//            for (int k=0;k<nearCellIDs.cols();++k)
-//            {
-//                if(nearCellIDs.col(k)==otherCellID)
-//                { // cell is a neighbor
-//                    temp=true;
-//                    break;
-//                }
-//            }
-//            return temp;
-//        }
-
-
-//            for (typename CellMapType::const_iterator cellIter=this->cellBegin();cellIter!=this->cellEnd();++cellIter)
-//            {
-//                if (isNearCell(cellIter->second->cellID))
-//                {
-//                    if (isNeighborCell(cellIter->second->cellID))
-//                    {
-//                        model_execAssert(                  neighborCells.insert(std::make_pair(cellIter->first,cellIter->second)).second,"CANNOT INSERT CELL IN NEIGHBORCELLS");
-//                        if(cellID!=cellIter->second->cellID)
-//                        {
-//                            model_execAssert(cellIter->second->neighborCells.insert(std::make_pair(cellID,this->p_derived())).second,"CANNOT INSERT THIS IN NEIGHBORCELLS");
-//                        }
-//                    }
-//                    else
-//                    {
-//                        model_execAssert(                  nearCells.insert(std::make_pair(cellIter->first,cellIter->second)).second,"CANNOT INSERT CELL IN NEARCELLS");
-//                        model_execAssert(cellIter->second->nearCells.insert(std::make_pair(cellID,this->p_derived())).second,"CANNOT INSERT THIS IN NEARCELLS");
-//                    }
-//                }
-//                else
-//                {
-//                    model_execAssert(                  farCells.insert(std::make_pair(cellIter->first, cellIter->second)).second,"CANNOT INSERT CELL IN FARCELLS");
-//                    model_execAssert(cellIter->second->farCells.insert(std::make_pair(cellID,this->p_derived())).second,"CANNOT INSERT THIS IN FARCELLS");
-//                }
-//            }
-
-
-
-
-//        template <DerivedProperty>
-//        const DerivedProperty& getProperty() const
-//        {
-//            return SpatialCellProperty<DerivedProperty>::get(this);
-//        }
-
-
-
-//    /////////////////////////////
-//	// Declare static data member
-//	template <typename ParticleType,short unsigned int dim>
-//	double SpatialCell<ParticleType,dim>::cellSize=1.0;
-
-
-
-//        /* nearCellBegin ******************************************************/
-//        typename CellMapType::const_iterator nearCellsBegin() const
-//        {
-//            return nearCells.begin();
-//        }
-//
-//        /* nearCellEnd ********************************************************/
-//        typename CellMapType::const_iterator nearCellsEnd() const
-//        {
-//            return nearCells.end();
-//        }
-//
-//        /* nearCellBegin ******************************************************/
-//        typename CellMapType::const_iterator farCellsBegin() const
-//        {
-//            return farCells.begin();
-//        }
-//
-//        /* nearCellEnd ********************************************************/
-//        typename CellMapType::const_iterator farCellsEnd() const
-//        {
-//            return farCells.end();
-//        }
 

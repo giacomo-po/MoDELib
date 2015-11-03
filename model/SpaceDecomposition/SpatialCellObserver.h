@@ -63,7 +63,7 @@ namespace model {
         {/*! \returns The CellIdType ID of the cell that contains P. The ID
           *  satisfies cellID <= P/cellSize < (cellID+1).
           */
-			return floorEigen<dim>(P/_cellSize);
+            return floorEigen<dim>(P/_cellSize+VectorDimD::Constant(0.5));
 		}
         
 		/**********************************************************************/

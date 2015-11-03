@@ -39,7 +39,8 @@ namespace model
         typedef  SpatialCell<Derived,_dim> SpatialCellType;
 
         typedef typename SpatialCellType::ParticleContainerType ParticleContainerType;
-		
+        typedef Eigen::Matrix<double,1,Pow<2,dim>::value> VectorVerticesType;
+
 				
 	public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -78,6 +79,12 @@ namespace model
         {/*!\returns a const iterator to the past-the-end neighbor SpatialCell
           */
             return pCell->neighborCellsEnd();
+        }
+        
+        /**********************************************************************/
+        VectorVerticesType vertexWeigths() const
+        {
+            return pCell->vertexWeigths(P);
         }
         
 	};
