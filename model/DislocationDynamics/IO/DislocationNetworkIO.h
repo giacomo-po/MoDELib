@@ -228,9 +228,12 @@ namespace model
                 for (const auto& cell : SpatialCellObserverType::cells())
                 {
                     Cell_file<<cID<<"\t"<<cell.second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize()
+#ifndef _MODEL_ENABLE_CELL_VERTEX_ALPHA_TENSORS_
                     /*     */<<"\t"<<std::get<0>(*cell.second).row(0)
                     /*     */<<"\t"<<std::get<0>(*cell.second).row(1)
-                    /*     */<<"\t"<<std::get<0>(*cell.second).row(2)<<"\n";
+                    /*     */<<"\t"<<std::get<0>(*cell.second).row(2)
+#endif
+                    <<"\n";
                     ++cID;
                 }
                 model::cout<<", C/C_"<<Cell_file.sID<<std::flush;

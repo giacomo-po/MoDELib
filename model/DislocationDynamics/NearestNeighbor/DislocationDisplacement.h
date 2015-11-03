@@ -178,14 +178,28 @@ namespace model
             MatrixType temp(MatrixType::Zero());
             for(auto cell : farCells)
             {
+#ifdef _MODEL_ENABLE_CELL_VERTEX_ALPHA_TENSORS_
+                for(size_t v=0;v<Pow<2,dim>::value;++v)
+                {
+                VectorDim r(field.P-cell.second->vertices().col(v));
+                const double R(r.norm());
+                r/=R; // normalize R;
+                const MatrixDim& alpha(std::get<1>(*cell.second)[v]);
+                const VectorDim a(DislocationStress<dim>::axialVector(alpha));
+                temp += (+2.0*Material<Isotropic>::C1/(1.0+r.dot(field.S))*alpha*(field.S.cross(r))
+                         /*    */ - Material<Isotropic>::C3*a
+                         /*    */ - a.dot(r)*r)/R;
+                }
+#else
                 VectorDim r(field.P-cell.second->center);
                 const double R(r.norm());
                 r/=R; // normalize R;
                 const MatrixDim& alpha(std::get<1>(*cell.second));
                 const VectorDim a(DislocationStress<dim>::axialVector(alpha));
                 temp += (+2.0*Material<Isotropic>::C1/(1.0+r.dot(field.S))*alpha*(field.S.cross(r))
-                /*    */ - Material<Isotropic>::C3*a
-                /*    */ - a.dot(r)*r)/R;
+                         /*    */ - Material<Isotropic>::C3*a
+                         /*    */ - a.dot(r)*r)/R;
+#endif
             }
             return Material<Isotropic>::C4*temp; // C4=1/(8*pi*(1-nu))
         }

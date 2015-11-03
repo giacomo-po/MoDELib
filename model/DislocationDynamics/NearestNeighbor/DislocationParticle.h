@@ -22,7 +22,6 @@
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Utilities/TypeTraits.h>
 
-
 namespace model
 {
     
@@ -40,21 +39,40 @@ namespace model
     template<short unsigned int _dim>
     struct TypeTraits<DislocationParticle<_dim>>
     {
-        
         typedef Eigen::Matrix<double,_dim,_dim> MatrixDim;
-        typedef typename CellPropertiesBase<MatrixDim,MatrixDim,MatrixDim>::SpatialCellProperties SpatialCellProperties;
-
-//        typedef std::array<MatrixDim,Pow<2,_dim>::value> VertexAlphaTensorType;
+        
+#ifdef _MODEL_ENABLE_CELL_VERTEX_ALPHA_TENSORS_
+        typedef std::array<MatrixDim,Pow<2,_dim>::value> CellAlphaType;
 //        typedef typename CellPropertiesBase<VertexAlphaTensorType,VertexAlphaTensorType,VertexAlphaTensorType>::SpatialCellProperties SpatialCellProperties;
-
+#else
+        typedef MatrixDim CellAlphaType;
+#endif
+        typedef typename CellPropertiesBase<CellAlphaType,CellAlphaType,CellAlphaType>::SpatialCellProperties SpatialCellProperties;
+        
+//        static const CellAlphaType emptyAlpha;
         
         /**********************************************************************/
         static SpatialCellProperties init()
         {
-            return std::make_tuple(MatrixDim::Zero(),MatrixDim::Zero(),MatrixDim::Zero());
+#ifdef _MODEL_ENABLE_CELL_VERTEX_ALPHA_TENSORS_
+            CellAlphaType temp;
+            temp.fill(MatrixDim::Zero());
+            return std::make_tuple(temp,
+                                   temp,
+                                   temp
+                                   );
+#else
+            return std::make_tuple(MatrixDim::Zero(),
+                                   MatrixDim::Zero(),
+                                   MatrixDim::Zero()
+                                   );
+#endif
         }
         
     };
+    
+//    template<short unsigned int _dim>
+//    struct TypeTraits<DislocationParticle<_dim>>
     
     /**************************************************************************/
     /**************************************************************************/
@@ -93,6 +111,7 @@ namespace model
         typedef FieldPoint <DislocationParticleType,_dim,StressField,ElasticEnergy> FieldPointType;
         typedef typename PointSourceType::VectorDimD VectorDimD;
         
+        typedef typename TypeTraits<DislocationParticleType>::CellAlphaType CellAlphaType;
         //! The tangent vector of the parent DislocationSegment at this point
         
         const size_t&  sourceID;
@@ -106,7 +125,7 @@ namespace model
         
         //! A const reference to Quadrature abscissa corresponding to this particle
         const double quadAbscissa;
-//
+        //
         //! A const reference to Quadrature weight corresponding to this particle
         const double& quadWeight;
         
@@ -116,7 +135,7 @@ namespace model
                             const size_t& sourceID_in, const size_t& sinkID_in, const size_t& quadID_in,
                             const VectorDimD& Tin, const VectorDimD& Bin,
                             const double& qA,const double& qW,
-//                            const EnabledFields&...enabled
+                            //                            const EnabledFields&...enabled
                             const bool& enbStressSource,const bool& enbStressField,
                             const bool& enbDispSource,  const bool&,
                             const bool& enbEnrgSource,  const bool& enbEnrgField) :
@@ -134,10 +153,26 @@ namespace model
         {/*! Constructor updates the alpha-tensor of the cell containing *this
           */
             
-
-                Eigen::Matrix<double,1,Pow<2,dim>::value> weights=this->vertexWeigths();
-            assert(std::fabs(weights.sum()-1.0)<FLT_EPSILON);
+#ifdef _MODEL_ENABLE_CELL_VERTEX_ALPHA_TENSORS_
+            Eigen::Matrix<double,1,Pow<2,dim>::value> cellWeights=this->vertexWeigths();
+            assert(std::fabs(cellWeights.sum()-1.0)<FLT_EPSILON);
+            for(size_t v=0;v<Pow<2,dim>::value;++v)
+            {
+                if(static_cast<SingleSourcePoint<DislocationParticleType,StressField>* const>(this)->enabled)
+                {
+                    cellAlphaTensorStress()[v] += B * T.transpose() * quadWeight * cellWeights[v]; // add to alpha tensor of the cell
+                }
+                if(static_cast<SingleSourcePoint<DislocationParticleType,DisplacementField>* const>(this)->enabled)
+                {
+                    cellAlphaTensorDisp()[v] += B * T.transpose() * quadWeight * cellWeights[v]; // add to alpha tensor of the cell
+                }
+                if(static_cast<SingleSourcePoint<DislocationParticleType,ElasticEnergy>* const>(this)->enabled)
+                {
+                    cellAlphaTensorEnergy()[v] += B * T.transpose() * quadWeight * cellWeights[v]; // add to alpha tensor of the cell
+                }
+            }
             
+#else
             if(static_cast<SingleSourcePoint<DislocationParticleType,StressField>* const>(this)->enabled)
             {
                 cellAlphaTensorStress() += B * T.transpose() * quadWeight; // add to alpha tensor of the cell
@@ -150,6 +185,8 @@ namespace model
             {
                 cellAlphaTensorEnergy() += B * T.transpose() * quadWeight; // add to alpha tensor of the cell
             }
+#endif
+            
         }
         
         
@@ -166,8 +203,8 @@ namespace model
 #endif
             
             // stress is in fraction of mu. Keep only resolution of 8 digits
-//            const double dig(1.0e+08);
-//            temp = ((temp*dig).template cast<long int>().template cast<double>()/dig);
+            //            const double dig(1.0e+08);
+            //            temp = ((temp*dig).template cast<long int>().template cast<double>()/dig);
             
             //            return Material<Isotropic>::C2*(temp+temp.transpose());
             return temp;
@@ -175,37 +212,37 @@ namespace model
         }
         
         /**********************************************************************/
-        Eigen::Matrix<double,_dim,_dim>& cellAlphaTensorStress()
+        CellAlphaType& cellAlphaTensorStress()
         {
             return std::get<0>(*(this->pCell));
         }
         
         /**********************************************************************/
-        const Eigen::Matrix<double,_dim,_dim>& cellAlphaTensorStress() const
+        const CellAlphaType& cellAlphaTensorStress() const
         {
             return std::get<0>(*(this->pCell));
         }
         
         /**********************************************************************/
-        Eigen::Matrix<double,_dim,_dim>& cellAlphaTensorDisp()
+        CellAlphaType& cellAlphaTensorDisp()
         {
             return std::get<1>(*(this->pCell));
         }
         
         /**********************************************************************/
-        const Eigen::Matrix<double,_dim,_dim>& cellAlphaTensorDisp() const
+        const CellAlphaType& cellAlphaTensorDisp() const
         {
             return std::get<1>(*(this->pCell));
         }
         
         /**********************************************************************/
-        Eigen::Matrix<double,_dim,_dim>& cellAlphaTensorEnergy()
+        CellAlphaType& cellAlphaTensorEnergy()
         {
             return std::get<2>(*(this->pCell));
         }
         
         /**********************************************************************/
-        const Eigen::Matrix<double,_dim,_dim>& cellAlphaTensorEnergy() const
+        const CellAlphaType& cellAlphaTensorEnergy() const
         {
             return std::get<2>(*(this->pCell));
         }
@@ -223,7 +260,7 @@ namespace model
             /**/<< static_cast<const SingleSourcePoint<DislocationParticleType,StressField>* const>(&p)->enabled<<"\t"
             /**/<< static_cast<const FieldPointBase<DislocationParticleType,StressField>* const>(&p)->enabled<<"\t"
             /**/<< static_cast<const SingleSourcePoint<DislocationParticleType,DisplacementField>* const>(&p)->enabled<<"\t"
-//            /**/<< static_cast<const FieldPointBase<DislocationParticleType,DisplacementField>* const>(&p)->enabled<<"\t"
+            //            /**/<< static_cast<const FieldPointBase<DislocationParticleType,DisplacementField>* const>(&p)->enabled<<"\t"
             /**/<< static_cast<const SingleSourcePoint<DislocationParticleType,ElasticEnergy>* const>(&p)->enabled<<"\t"
             /**/<< static_cast<const FieldPointBase<DislocationParticleType,ElasticEnergy>* const>(&p)->enabled;
             return os;

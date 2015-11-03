@@ -163,6 +163,19 @@ namespace model
             MatrixType temp(MatrixType::Zero());
             for(auto cell : farCells)
             {
+#ifdef _MODEL_ENABLE_CELL_VERTEX_ALPHA_TENSORS_
+                for(size_t v=0;v<Pow<2,dim>::value;++v)
+                {
+                    VectorDim R(field.P-cell.second->vertices().col(v));
+                    const double R2(R.squaredNorm());
+                    R/=sqrt(R2); // normalize R;
+                    const MatrixDim& alpha(std::get<0>(*cell.second)[v]);
+                    const VectorDim a(axialVector(alpha));
+                    const MatrixDim S(skewMatrix(R));
+                    temp += (Material<Isotropic>::C1*S*alpha-a*R.transpose()+0.5*R.dot(a)*(3.0*R*R.transpose()+I))/R2;
+
+                }
+#else
                 VectorDim R(field.P-cell.second->center);
                 const double R2(R.squaredNorm());
                 R/=sqrt(R2); // normalize R;
@@ -170,6 +183,7 @@ namespace model
                 const VectorDim a(axialVector(alpha));
                 const MatrixDim S(skewMatrix(R));
                 temp += (Material<Isotropic>::C1*S*alpha-a*R.transpose()+0.5*R.dot(a)*(3.0*R*R.transpose()+I))/R2;
+#endif
             }
             return temp;
         }
