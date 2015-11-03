@@ -53,32 +53,32 @@ namespace model {
 					float cellSize(cellIter->second(3));
 					
 					glBegin(GL_LINE_LOOP); 
-					glVertex3f((cellID(0)+0)*cellSize,(cellID(1)+0)*cellSize,(cellID(2)+0)*cellSize); 
-					glVertex3f((cellID(0)+1)*cellSize,(cellID(1)+0)*cellSize,(cellID(2)+0)*cellSize); //increase x 
-					glVertex3f((cellID(0)+1)*cellSize,(cellID(1)+1)*cellSize,(cellID(2)+0)*cellSize); //increase y 
-					glVertex3f((cellID(0)+0)*cellSize,(cellID(1)+1)*cellSize,(cellID(2)+0)*cellSize); //decrease x 
+					glVertex3f((cellID(0)-0.5)*cellSize,(cellID(1)-0.5)*cellSize,(cellID(2)-0.5)*cellSize);
+					glVertex3f((cellID(0)-0.5)*cellSize,(cellID(1)-0.5)*cellSize,(cellID(2)-0.5)*cellSize); //increase x
+					glVertex3f((cellID(0)+0.5)*cellSize,(cellID(1)+0.5)*cellSize,(cellID(2)-0.5)*cellSize); //increase y 
+					glVertex3f((cellID(0)-0.5)*cellSize,(cellID(1)+0.5)*cellSize,(cellID(2)-0.5)*cellSize); //decrease x 
 					glEnd();
 					
 					glBegin(GL_LINE_LOOP); 
-					glVertex3f((cellID(0)+0)*cellSize,(cellID(1)+0)*cellSize,(cellID(2)+1)*cellSize); 
-					glVertex3f((cellID(0)+1)*cellSize,(cellID(1)+0)*cellSize,(cellID(2)+1)*cellSize); //increase x 
-					glVertex3f((cellID(0)+1)*cellSize,(cellID(1)+1)*cellSize,(cellID(2)+1)*cellSize); //increase y 
-					glVertex3f((cellID(0)+0)*cellSize,(cellID(1)+1)*cellSize,(cellID(2)+1)*cellSize); //decrease x 
+					glVertex3f((cellID(0)-0.5)*cellSize,(cellID(1)-0.5)*cellSize,(cellID(2)+0.5)*cellSize); 
+					glVertex3f((cellID(0)+0.5)*cellSize,(cellID(1)-0.5)*cellSize,(cellID(2)+0.5)*cellSize); //increase x 
+					glVertex3f((cellID(0)+0.5)*cellSize,(cellID(1)+0.5)*cellSize,(cellID(2)+0.5)*cellSize); //increase y 
+					glVertex3f((cellID(0)-0.5)*cellSize,(cellID(1)+0.5)*cellSize,(cellID(2)+0.5)*cellSize); //decrease x 
 					glEnd();
 					
 					
 					glBegin(GL_LINES); 
-					glVertex3f((cellID(0)+0)*cellSize,(cellID(1)+0)*cellSize,(cellID(2)+0)*cellSize); 
-					glVertex3f((cellID(0)+0)*cellSize,(cellID(1)+0)*cellSize,(cellID(2)+1)*cellSize); //increase x 
+					glVertex3f((cellID(0)-0.5)*cellSize,(cellID(1)-0.5)*cellSize,(cellID(2)-0.5)*cellSize); 
+					glVertex3f((cellID(0)-0.5)*cellSize,(cellID(1)-0.5)*cellSize,(cellID(2)+0.5)*cellSize); //increase x 
 					
-					glVertex3f((cellID(0)+1)*cellSize,(cellID(1)+0)*cellSize,(cellID(2)+0)*cellSize); 
-					glVertex3f((cellID(0)+1)*cellSize,(cellID(1)+0)*cellSize,(cellID(2)+1)*cellSize); //increase x 
+					glVertex3f((cellID(0)+0.5)*cellSize,(cellID(1)-0.5)*cellSize,(cellID(2)-0.5)*cellSize); 
+					glVertex3f((cellID(0)+0.5)*cellSize,(cellID(1)-0.5)*cellSize,(cellID(2)+0.5)*cellSize); //increase x 
 					
-					glVertex3f((cellID(0)+1)*cellSize,(cellID(1)+1)*cellSize,(cellID(2)+0)*cellSize); 
-					glVertex3f((cellID(0)+1)*cellSize,(cellID(1)+1)*cellSize,(cellID(2)+1)*cellSize); //increase x 
+					glVertex3f((cellID(0)+0.5)*cellSize,(cellID(1)+0.5)*cellSize,(cellID(2)-0.5)*cellSize); 
+					glVertex3f((cellID(0)+0.5)*cellSize,(cellID(1)+0.5)*cellSize,(cellID(2)+0.5)*cellSize); //increase x 
 					
-					glVertex3f((cellID(0)+0)*cellSize,(cellID(1)+1)*cellSize,(cellID(2)+0)*cellSize); 
-					glVertex3f((cellID(0)+0)*cellSize,(cellID(1)+1)*cellSize,(cellID(2)+1)*cellSize); //increase x 
+					glVertex3f((cellID(0)-0.5)*cellSize,(cellID(1)+0.5)*cellSize,(cellID(2)-0.5)*cellSize); 
+					glVertex3f((cellID(0)-0.5)*cellSize,(cellID(1)+0.5)*cellSize,(cellID(2)+0.5)*cellSize); //increase x
 					
 					
 					glEnd();
