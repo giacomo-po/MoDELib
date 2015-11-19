@@ -2,7 +2,7 @@
 # Number of simulation steps 
 Nsteps=100000;
 timeWindow=5.1e03;
-startAtTimeStep = 0;
+startAtTimeStep = -1;
 use_directSolver_DD=0;
 quadPerLength=0.1;
 bndDistance=3;
@@ -22,12 +22,12 @@ outputBinary=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=0;
-outputQuadratureParticles=1;
+outputQuadratureParticles=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputDislocationLength=0;
-outputPlasticDistortion=1;
-outputPlasticDistortionRate=1;
+outputPlasticDistortion=0;
+outputPlasticDistortionRate=0;
 
 
 ######################################
@@ -57,7 +57,7 @@ externalStress = 0.0 0.0 0.0
 # The dislocation core size
 coreSize=2.0;
 # Use of multipole-expanded elastic fields for non-nearest neighbor cells
-dislocationCellSize=300;
+dislocationCellSize=500;
 use_DisplacementMultipole=1;
 use_StressMultipole = 1;
 use_EnergyMultipole = 0;
@@ -92,7 +92,7 @@ use_meshRegions=0;
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
 use_bvp = 10;
-use_directSolver_FEM=1;
+use_directSolver_FEM=0;
 solverTolerance=0.0001;
 use_virtualSegments=1;
 virtualSegmentDistance=10;
@@ -103,7 +103,7 @@ check_balance=0;
 
 ######################################
 # Enable/disable cross-slip
-use_crossSlip=0;
+use_crossSlip=1;
 crossSlipDeg=2.0;
 
 ######################################

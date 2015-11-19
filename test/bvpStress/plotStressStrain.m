@@ -12,7 +12,7 @@ R=1000
 A=pi*R^2;
 V=H*A;
 
-files=[1 10 50];
+files=[50];
 clrs=rand(length(files),3);
 
 
@@ -41,7 +41,7 @@ legend(num2str(files'))
 
 figure(2)
 hold on
-plot(u3/H,f3/A,'Color',clrs(k,:))
+plot(u3/H,f3/A,'Color',clrs(k,:),'Linewidth',2)
 legend(num2str(files'),'Location','NorthWest')
 %plot(u3/H,f3_DD/A,'--','Color',clrs(k,:))
 v=axis;

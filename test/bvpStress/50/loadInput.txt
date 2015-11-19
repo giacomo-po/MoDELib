@@ -1,4 +1,4 @@
-epsilonDot=1.0e-11;
+epsilonDot=1.0e-12;
 gammaDot=0.0e-11;
 initialDisplacement=0;
 initialTwist_Rad=0;

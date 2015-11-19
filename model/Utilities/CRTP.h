@@ -16,7 +16,8 @@ namespace model {
 		 * the base class.
 		 */
 		template <typename Derived>
-		class CRTP {
+		class CRTP
+    {
 			
 		protected:
 			

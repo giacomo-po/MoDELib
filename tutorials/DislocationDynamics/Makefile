@@ -87,6 +87,8 @@ all:
 	make DDomp \
 	or make DDmpi \
 	or make DDviewer \
+	or make dipoleGenerator \
+	or make DDconverter \
 	or make empty \
 
 ##########################################################

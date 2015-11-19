@@ -44,7 +44,7 @@ CFLAGS += -D _MODEL_NO_DEBUG_
 #disable model-input-checks
 CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 
-CFLAGS += -D _MODEL_ENABLE_CELL_VERTEX_ALPHA_TENSORS_
+#CFLAGS += -D _MODEL_ENABLE_CELL_VERTEX_ALPHA_TENSORS_
 
 ############################################
 # Compiler flags for MKL PARDISO

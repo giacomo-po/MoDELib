@@ -2,7 +2,7 @@
 # Number of simulation steps 
 Nsteps=500;
 timeWindow=5.1e03;
-startAtTimeStep = 0;
+startAtTimeStep = -1;
 use_directSolver_DD=0;
 quadPerLength=0.1;
 bndDistance=3;
@@ -21,9 +21,13 @@ outputFrequency=1;
 outputBinary=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=1;
+outputPKforce=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
+outputPlasticDistortion=0;
+outputPlasticDistortionRate=0;
+outputDislocationLength=0;
+outputQuadratureParticles=0;
 
 ######################################
 # MATERIAL

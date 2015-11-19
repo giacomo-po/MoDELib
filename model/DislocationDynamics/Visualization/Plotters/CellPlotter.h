@@ -25,7 +25,7 @@
 namespace model {
 	
 	
-	class CellPlotter : public VertexReader<'C',5,double> {
+	class CellPlotter : public VertexReader<'C',14,double> {
 		
 	public:
 		
@@ -48,7 +48,7 @@ namespace model {
 				
 				glColor4f(1.0f, 0.0f, 1.0f, 0.1);
 				
-				for (model::VertexReader<'C',5,double>::const_iterator cellIter=this->begin(); cellIter!=this->end(); ++cellIter){
+				for (model::VertexReader<'C',14,double>::const_iterator cellIter=this->begin(); cellIter!=this->end(); ++cellIter){
 					Eigen::Matrix<int,3,1> cellID(cellIter->second.segment<3>(0).cast<int>());
 					float cellSize(cellIter->second(3));
 					
