@@ -12,27 +12,13 @@
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
 #include <model/Math/RoundEigen.h>
-//#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
 #include <model/LatticeMath/LatticeBase.h>
 #include <model/LatticeMath/ReciprocalLatticeVector.h>
-
-//#include <model/LatticeMath/ContravariantCoordinate.h>
-
 
 namespace model
 {
     
-//    template <int dim, typename T>
-//    struct T2contra
-//    {
-//
-//    };
-//
-//    template <int dim>
-//    struct T2contra<dim,double>
-//    {
-//        
-//    };
+
 
     
     
@@ -64,25 +50,15 @@ namespace model
             
         }
         
-//        LatticeVector(const VectorDimI& I) :
-//        /* init */ contraVariant(I)
-//        //        /* init */ coVariant(d2cov(d))
-//        {/*!@param[in] d vector in real space
-//          * Constructs *this by mapping d to the lattice
-//          */
-//            
-//        }
-        
-        // This constructor allows  to construct LatticeVector from Eigen expressions
         template<typename OtherDerived>
         LatticeVector(const Eigen::MatrixBase<OtherDerived>& other) :
         /* base init */ BaseType(other)
-        { }
+        {// This constructor allows  to construct LatticeVector from Eigen expressions
+        }
         
-        // This method allows to assign Eigen expressions to LatticeVector
         template<typename OtherDerived>
         LatticeVector& operator=(const Eigen::MatrixBase <OtherDerived>& other)
-        {
+        {// This method allows to assign Eigen expressions to LatticeVector
             BaseType::operator=(other);
             return *this;
         }
