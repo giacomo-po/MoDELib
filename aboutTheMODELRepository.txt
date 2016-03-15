@@ -1,10 +1,21 @@
+# USING MERCURIAL (hg)
+
+1) Cloning initial repository
+hg clone https://model@bitbucket.org/model/model ./MODEL
+
+2) Changing working branch
+hg update ‘name of branch’
+
+3) Committing and pushing changes:
+cd MODEL
+(make local changes)
+hg commit -m ‘some description’
+hg push 
+
+4) Merging branches. For example merging B into A, keeping conflicting files from B:
+hg update A
+hg merge B --tool internal:other
+hg commit -m "Merged B into A”
 
 
-
-
-1) CLONE:
-hg clone https://model@bitbucket.org/model/model ./Model
-
-2) PUSH changes:
-hg push https://model@bitbucket.org/model/model
 
