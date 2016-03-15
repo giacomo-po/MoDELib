@@ -53,17 +53,15 @@ namespace model {
     /**************************************************************************/
     /**************************************************************************/
     template<short int dim>
-    struct BoundarySimplex<dim,1>
+    struct BoundarySimplex<dim,1>     // this is a Simplex<dim,dim-1>
     {
         /**********************************************************************/
-//        template<template <short int,short int> class SimplexChildType>
         static bool isBoundarySimplex(const SimplexChild<dim,dim-1>& simplexChild)
         {
             return simplexChild.parents().size()==1;
         }
         
         /**********************************************************************/
-//        template<template <short int,short int> class SimplexChildType>
         static bool isRegionBoundarySimplex(const SimplexChild<dim,dim-1>& simplexChild)
         {
             bool temp(false);
@@ -84,7 +82,7 @@ namespace model {
     /**************************************************************************/
     /**************************************************************************/
     template<short int dim>
-    struct BoundarySimplex<dim,0>
+    struct BoundarySimplex<dim,0> // this is a Simplex<dim,dim>
     {
         
         /**********************************************************************/

@@ -219,7 +219,7 @@ namespace model
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         
-        
+        //! Shared pointer to MeshRegioin containing *this
         const std::shared_ptr<MeshRegionType> region;
         
         //! The barycentric-coordinate to position transformation matrix
