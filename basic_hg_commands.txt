@@ -16,6 +16,8 @@ hg push
 hg update A
 hg merge B --tool internal:other
 hg commit -m "Merged B into A”
+hg checkout B
+hg commit --close-branch
 
 
 
