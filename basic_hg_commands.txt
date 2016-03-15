@@ -9,6 +9,7 @@ hg update ‘name of branch’
 3) Committing and pushing changes:
 cd MODEL
 (make local changes)
+hg addremove
 hg commit -m ‘some description’
 hg push 
 
