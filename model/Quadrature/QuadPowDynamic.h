@@ -24,15 +24,15 @@ namespace model
     /**************************************************************************/
     template<
     short unsigned int pOrder,
-    template <short unsigned int, short unsigned int> class QuadratureRule,
-    int...Orders>
+    template <short unsigned int, size_t> class QuadratureRule,
+    size_t...Orders>
     struct QuadPowDynamic;
 
     /**************************************************************************/
     template<short unsigned int pOrder,
-    template <short unsigned int, short unsigned int> class QuadratureRule,
-    int qOrder,
-    int... otherOrders>
+    template <short unsigned int, size_t> class QuadratureRule,
+    size_t qOrder,
+    size_t... otherOrders>
     struct QuadPowDynamic<pOrder,QuadratureRule,qOrder,otherOrders...> : public QuadPowDynamic<pOrder,QuadratureRule,otherOrders...>
     {
         static const Eigen::Matrix<double,Eigen::Dynamic,pOrder+1>& uPow(const int& N)
@@ -63,8 +63,8 @@ namespace model
     
     /**************************************************************************/
     template<short unsigned int pOrder,
-    template <short unsigned int, short unsigned int> class QuadratureRule,
-    int qOrder>
+    template <short unsigned int, size_t> class QuadratureRule,
+    size_t qOrder>
     struct QuadPowDynamic<pOrder,QuadratureRule,qOrder>
     {
         static const Eigen::Matrix<double,Eigen::Dynamic,pOrder+1>& uPow(const int& N)

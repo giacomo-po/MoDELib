@@ -234,14 +234,14 @@ namespace model
         }
         
         /**********************************************************************/
-        template <typename BndType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+        template <typename BndType, int qOrder, template <short unsigned int, size_t> class QuadratureRule>
         IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> boundary() const
         {
             return BndType::template boundary<FiniteElementType,qOrder,QuadratureRule>(*this);
         }
         
         /**********************************************************************/
-        template <typename DomainType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+        template <typename DomainType, int qOrder, template <short unsigned int, size_t> class QuadratureRule>
         IntegrationDomain<FiniteElementType,0,qOrder,QuadratureRule> domain() const
         {
             return DomainType::template domain<FiniteElementType,qOrder,QuadratureRule>(*this);

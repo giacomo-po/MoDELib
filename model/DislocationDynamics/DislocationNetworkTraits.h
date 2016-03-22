@@ -24,22 +24,22 @@ namespace model
 	/************************************************************/	
 	/*	Class Predeclarations ***********************************/
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
 	class DislocationNetwork;
 		
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
 	class DislocationNode;
 		
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
 	class DislocationSegment;
 	
 	
 	/********************************************************************/	
 	/*	DislocationNetworkTraitsBase: a base class for Dislocation Network Traits */
 	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
 	struct DislocationNetworkTraitsBase
     {
         enum{dim=_dim};
@@ -53,17 +53,17 @@ namespace model
     };
 
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
 	struct TypeTraits<DislocationNetwork<dim,corder,InterpolationType,QuadratureRule> > :
 	public DislocationNetworkTraitsBase <dim,corder,InterpolationType,QuadratureRule>{};
 
     template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
 	struct TypeTraits<DislocationNode<dim,corder,InterpolationType,QuadratureRule> > :
 	public DislocationNetworkTraitsBase <dim,corder,InterpolationType,QuadratureRule>{};
 
     template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
 	struct TypeTraits<DislocationSegment<dim,corder,InterpolationType,QuadratureRule> > :
 	public DislocationNetworkTraitsBase <dim,corder,InterpolationType,QuadratureRule>{};
 

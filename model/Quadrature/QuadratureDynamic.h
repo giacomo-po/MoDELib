@@ -18,16 +18,18 @@
 namespace model
 {
     /**************************************************************************/
+    /**************************************************************************/
     template<
     short unsigned int dim,
-    template <short unsigned int, short unsigned int> class QuadratureRule,
+    template <short unsigned int, size_t> class QuadratureRule,
     int...Orders>
     struct QuadratureDynamic;
     
     /**************************************************************************/
+    /**************************************************************************/
     template<
     short unsigned int dim,
-    template <short unsigned int, short unsigned int> class QuadratureRule,
+    template <short unsigned int, size_t> class QuadratureRule,
     int order,
     int... otherOrders>
     struct QuadratureDynamic<dim,QuadratureRule,order,otherOrders...>
@@ -46,6 +48,7 @@ namespace model
         static const VectorDim abscissa(const short unsigned int & N,
                                         const short unsigned int & k)
         {
+//            std::cout<<"order="<<order<<std::endl;
             assert(k < N          && "k must be less than N");
             return (N==order)? Quadrature<dim,order,QuadratureRule>::abscissa(k) : QuadratureDynamic<dim,QuadratureRule,otherOrders...>::abscissa(N,k);
         }
@@ -163,17 +166,17 @@ namespace model
     
     template<
     short unsigned int dim,
-    template <short unsigned int, short unsigned int> class QuadratureRule,
+    template <short unsigned int, size_t> class QuadratureRule,
     int order,
     int... otherOrders>
     const std::set<int> QuadratureDynamic<dim,QuadratureRule,order,otherOrders...>::orderSet=QuadratureDynamic<dim,QuadratureRule,order,otherOrders...>::fillSet();
     
     
-    
+    /**************************************************************************/
     /**************************************************************************/
     template<
     short unsigned int dim,
-    template <short unsigned int, short unsigned int> class QuadratureRule,
+    template <short unsigned int, size_t> class QuadratureRule,
     int order>
     struct QuadratureDynamic<dim,QuadratureRule,order>
     {
@@ -263,7 +266,7 @@ namespace model
     
     template<
     short unsigned int dim,
-    template <short unsigned int, short unsigned int> class QuadratureRule,
+    template <short unsigned int, size_t> class QuadratureRule,
     int order>
     const std::set<int> QuadratureDynamic<dim,QuadratureRule,order>::orderSet=QuadratureDynamic<dim,QuadratureRule,order>::fillSet();
     

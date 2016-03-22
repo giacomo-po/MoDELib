@@ -24,7 +24,7 @@ namespace model
     
     /**************************************************************************/
 	/**************************************************************************/
-	template <typename FiniteElementType, int dimMinusDomainDim, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+	template <typename FiniteElementType, int dimMinusDomainDim, int qOrder, template <short unsigned int, size_t> class QuadratureRule>
 	struct IntegrationDomain
     {
         
@@ -37,7 +37,7 @@ namespace model
     
     /**************************************************************************/
     /**************************************************************************/
-    template <typename FiniteElementType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    template <typename FiniteElementType, int qOrder, template <short unsigned int, size_t> class QuadratureRule>
 	struct IntegrationDomain<FiniteElementType,0,qOrder,QuadratureRule> : public std::deque<const typename FiniteElementType::ElementType*>
     {// Volume integration
         constexpr static int dim=FiniteElementType::dim;
@@ -53,7 +53,7 @@ namespace model
 
     /**************************************************************************/
     /**************************************************************************/
-    template <typename FiniteElementType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+    template <typename FiniteElementType, int qOrder, template <short unsigned int, size_t> class QuadratureRule>
 	struct IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> : public std::deque<std::pair<const typename FiniteElementType::ElementType* const,int> >
     {// Boundary integration
         constexpr static int dim=FiniteElementType::dim;

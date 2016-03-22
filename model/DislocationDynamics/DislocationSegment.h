@@ -86,7 +86,7 @@ namespace model
     };
     
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     class DislocationSegment : public PlanarDislocationSegment<_dim>,
     /*	                    */ public SplineSegmentBase<DislocationSegment<_dim,corder,InterpolationType,QuadratureRule>,
     /*                                              */ _dim, corder>,
@@ -896,15 +896,15 @@ namespace model
     
     // Static Data
     template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     const Eigen::Matrix<double,dim,dim> DislocationSegment<dim,corder,InterpolationType,QuadratureRule>::I=Eigen::Matrix<double,dim,dim>::Identity();
     
     template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     double DislocationSegment<dim,corder,InterpolationType,QuadratureRule>::quadPerLength=0.2;
     
     template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     double DislocationSegment<dim,corder,InterpolationType,QuadratureRule>::virtualSegmentDistance=200.0;
     
     

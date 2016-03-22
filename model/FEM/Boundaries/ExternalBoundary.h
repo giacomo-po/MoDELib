@@ -24,7 +24,7 @@ namespace model
 	struct ExternalBoundary //: public IntegrationDomain<dim,1,qOrder,QuadratureRule>
     {
         
-        template <typename FiniteElementType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+        template <typename FiniteElementType, int qOrder, template <short unsigned int, size_t> class QuadratureRule>
         static IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> boundary(const FiniteElementType& fe)
         {
             IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> temp;

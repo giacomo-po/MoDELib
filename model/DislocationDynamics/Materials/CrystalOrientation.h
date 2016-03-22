@@ -17,14 +17,17 @@
 #include <iterator>     // std::distance
 #include <Eigen/Dense>
 #include <model/Utilities/TerminalColors.h>
-#include <model/DislocationDynamics/Materials/CrystalStructures.h>
+//#include <model/DislocationDynamics/Materials/CrystalStructures.h>
 #include <model/MPI/MPIcout.h>
 #include <model/LatticeMath/LatticeBase.h>
+#include <model/DislocationDynamics/Materials/FCCcrystal.h>
+#include <model/DislocationDynamics/Materials/BCCcrystal.h>
 #include <model/DislocationDynamics/Materials/SlipSystem.h>
 
 
 
-namespace model {
+namespace model
+{
     
     /**************************************************************************/
     /**************************************************************************/

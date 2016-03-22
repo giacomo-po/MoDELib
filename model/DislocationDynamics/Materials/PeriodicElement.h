@@ -11,10 +11,12 @@
 
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/Materials/MaterialSymmetry.h>
-#include <model/DislocationDynamics/Materials/CrystalStructures.h>
+//#include <model/DislocationDynamics/Materials/CrystalStructures.h>
+#include <model/DislocationDynamics/Materials/FCCcrystal.h>
+#include <model/DislocationDynamics/Materials/BCCcrystal.h>
 
-
-namespace model {
+namespace model
+{
 
     /**************************************************************************/
     /**************************************************************************/

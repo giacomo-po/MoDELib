@@ -85,7 +85,7 @@ namespace model
 //        }
         
         /**********************************************************************/
-        //template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+        //template<int qOrder, template <short unsigned int, size_t> class QuadratureRule>
         std::vector<Eigen::Triplet<double> >  assembleOnDomain() const
         {
             
@@ -157,7 +157,7 @@ namespace model
     /**************************************************************************/
     // Operator *
     template <typename T1, typename T2, typename FiniteElementType, int qOrder, int dimMinusDomainDim,
-    /*     */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    /*     */ template <short unsigned int, size_t> class QuadratureRule>
     BilinearWeakForm<BilinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> > operator*(const BilinearForm<T1,T2>& bilinearForm,
                                                                                                                                   const IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule>& domain)
     {
@@ -197,7 +197,7 @@ namespace model
 
 
 //        /**********************************************************************/
-//        template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//        template<int qOrder, template <short unsigned int, size_t> class QuadratureRule>
 //        const BilinearWeakFormType& operator*(const ElementaryDomain<dim,qOrder,QuadratureRule>& dV)
 //        {
 //            assembleOnDomain<qOrder,QuadratureRule>();
@@ -206,7 +206,7 @@ namespace model
 
 
 //        /**********************************************************************/
-//        template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//        template<int qOrder, template <short unsigned int, size_t> class QuadratureRule>
 //        BilinearWeakFormType&& operator*(const ElementaryDomain<dim,qOrder,QuadratureRule>& dV)
 //        {/*
 //          * See section "Returning an explicit rvalue-reference from a function" in
@@ -217,7 +217,7 @@ namespace model
 //        }
 
 //        /**********************************************************************/
-//        template<int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+//        template<int qOrder, template <short unsigned int, size_t> class QuadratureRule>
 //        BilinearWeakFormType operator*(const ElementaryDomain<dim,qOrder,QuadratureRule>& dV)
 //        {
 //            assembleOnDomain<qOrder,QuadratureRule>();

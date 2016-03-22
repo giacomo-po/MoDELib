@@ -36,7 +36,7 @@ namespace model
 {
     
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     class DislocationNode : public SplineNode<DislocationNode<_dim,corder,InterpolationType,QuadratureRule>,
     /*                                         */ _dim,corder,InterpolationType>
     
@@ -892,15 +892,15 @@ namespace model
     
     // static data
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     bool DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::use_velocityFilter=true;
     
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::velocityReductionFactor=0.75;
 
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::bndDistance=2.0;
 
     

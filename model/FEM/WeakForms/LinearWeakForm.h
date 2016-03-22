@@ -172,7 +172,7 @@ namespace model
     /**************************************************************************/
     // Operator *
     template <typename T1, typename T2, typename FiniteElementType, int qOrder, int dimMinusDomainDim,
-    /*     */ template <short unsigned int, short unsigned int> class QuadratureRule>
+    /*     */ template <short unsigned int, size_t> class QuadratureRule>
     LinearWeakForm<LinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> > operator*(const LinearForm<T1,T2>& linearForm,
                              const IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule>& domain)
     {

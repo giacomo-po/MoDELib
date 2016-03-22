@@ -22,7 +22,7 @@ namespace model
 	/*! \brief Class template defining the GaussLegendre rules for determination 
 	 *	of quadrature abscissas and weights.
 	 */
-	template<short unsigned int dim, short unsigned int qOrder>
+	template<short unsigned int dim, size_t qOrder>
 	struct GaussLegendre
     {
 		
@@ -30,7 +30,7 @@ namespace model
     
     /* Template specialization for cases not included in includeGaussLegendre1D.h
      */
-    template<short unsigned int qOrder>
+    template<size_t qOrder>
     struct GaussLegendre<1,qOrder>
     {
         

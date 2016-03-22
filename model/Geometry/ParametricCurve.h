@@ -183,7 +183,7 @@ namespace model {
 		
 		
 		/*************************************************************/
-		template <short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+		template <short unsigned int qOrder, template <short unsigned int, size_t> class QuadratureRule>
 		double arcLength() const {
 			double L(0.0);
 			Quadrature<1,qOrder,QuadratureRule>::integrate(this,L,&Derived::get_j);
@@ -191,7 +191,7 @@ namespace model {
 		}
 
 		/*************************************************************/
-		template <short unsigned int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+		template <short unsigned int qOrder, template <short unsigned int, size_t> class QuadratureRule>
 		VectorDim rm() const {
 			VectorDim temp(VectorDim::Zero());
 			Quadrature<1,qOrder,QuadratureRule>::integrate(this,temp,&Derived::rm_integrand);

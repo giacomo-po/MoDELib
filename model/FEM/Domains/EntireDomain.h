@@ -24,7 +24,7 @@ namespace model
 	struct EntireDomain
     {
 
-        template <typename FiniteElementType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+        template <typename FiniteElementType, int qOrder, template <short unsigned int, size_t> class QuadratureRule>
         static IntegrationDomain<FiniteElementType,0,qOrder,QuadratureRule> domain(const FiniteElementType& fe)
         {
             IntegrationDomain<FiniteElementType,0,qOrder,QuadratureRule> temp;

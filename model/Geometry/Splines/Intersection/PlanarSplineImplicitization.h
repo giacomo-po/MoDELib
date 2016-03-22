@@ -533,48 +533,5 @@ namespace model
 #endif
 
 
-//std::set<std::pair<double,double> > intersectionParameters;
 
-
-//		static MatrixPolyDeg Z;
-//		static MatrixPolyDeg I;
-
-//	/////////////////////////////
-//	// Declare static data member
-//	template <short unsigned int polyDegree>
-//	Eigen::Matrix<double,polyDegree,polyDegree> PlanarSplineImplicitization<polyDegree>::Z=Eigen::Matrix<double,polyDegree,polyDegree>::Zero();
-//
-//	template <short unsigned int polyDegree>
-//	Eigen::Matrix<double,polyDegree,polyDegree> PlanarSplineImplicitization<polyDegree>::I=Eigen::Matrix<double,polyDegree,polyDegree>::Identity();
-
-
-
-// Assemble the eigenvalue problem
-//			SplineImplicitization<polyDegree> sImp(coeffs);
-
-//			FixedSizeArray<MatrixPolyDeg,otherPolyDegree+1> mV;
-//
-//			//std::vector<MatrixPolyDeg> mV(otherPolyDegree+1,Z);
-//			mV(0)=otherCoeffs(0,0)*Mx+otherCoeffs(1,0)*My+Mc; // p=0
-//			for (int p=1; p<otherPolyDegree+1;++p){
-//				mV(p)=otherCoeffs(0,p)*Mx+otherCoeffs(1,p)*My;
-//			}
-//MatrixPolyDeg M0=otherCoeffs(0,0)*Mx+otherCoeffs(1,0)*My+Mc;
-//MatrixPolyDeg M1=otherCoeffs(0,1)*Mx+otherCoeffs(1,1)*My;
-//MatrixPolyDeg M2=otherCoeffs(0,2)*Mx+otherCoeffs(1,2)*My;
-//MatrixPolyDeg M3=otherCoeffs(0,3)*Mx+otherCoeffs(1,3)*My;
-
-
-
-//			A<<   Z, Z, I,
-//			/**/   Z, I, Z,
-//			/**/ -mV[0], Z, Z;
-//			B<< Z,  I,  Z,
-//			/**/ I,  Z,  Z,
-//			/**/ mV[1], mV[2], mV[3];
-
-
-//B.block<polyDegree,polyDegree>(0,p*polyDegree)=mV(p);
-
-//A.block<polyDegree,polyDegree>(0,0)=-mV(0);
 
