@@ -227,7 +227,10 @@ namespace model
           */
         }
         
-
+        const NetworkComponentType& networkComponent() const
+        {
+            return NC;
+        }
         
         /************************************************************/
         void directSolve()

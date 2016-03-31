@@ -11,12 +11,12 @@ figure(1)
 hold on
 axis equal
 
-clrCol=4;
+clrCol=6;
 uMax=max(U(:,clrCol))
 uMin=min(U(:,clrCol))
 clrID=round((U(:,clrCol)-uMin)/(uMax-uMin)*size(colormap,1));
 
-def=100;
+def=10;
 
 for f=1:3:size(S,1)
 %    plot3(U(f:f+2,1),U(f:f+2,2),U(f:f+2,3),'Color',[0.5 0.5 0.5])

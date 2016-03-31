@@ -33,10 +33,11 @@ namespace model
     
     template<int _nComponents, typename _FiniteElementType>
     class TrialFunction : public TrialExpressionBase<TrialFunction<_nComponents,_FiniteElementType> >,
-    /*                 */ public Eigen::Matrix<double,Eigen::Dynamic,1>, // DofContainer
+//    /*                 */ private Eigen::Matrix<double,Eigen::Dynamic,1>, // DofContainer
     /*                 */ private std::map<size_t,double>, // DirichletConditionContainer
     /*                 */ private std::map<size_t,std::array<bool,TypeTraits<TrialFunction<_nComponents,_FiniteElementType>>::dofPerNode>> // DirichletNodeMap
     {
+     
         
     public:
         
@@ -67,21 +68,49 @@ namespace model
         
         //! A const reference of the FiniteElement over which *this is constructed.
         const FiniteElementType& fe;
+//        const size_t gSize;
+
+    private:
+
+        Eigen::Matrix<double,Eigen::Dynamic,1> dofvector;
+
+    public:
         
         /**********************************************************************/
         TrialFunction(const FiniteElementType& fe_in) :
         /* init list */ fe(fe_in)
+//        /* init list */ gSize(fe.nodeSize()*dofPerNode)
         {
             model::cout<<greenColor<<"Creating TrialFunction..."<<std::flush;
-            this->setZero(fe.nodeSize()*dofPerNode);
-            model::cout<<"("<<dofVector().size()<<" #dof)."<<defaultColor<<std::endl;
+//            this->setZero(fe.nodeSize()*dofPerNode);
+            dofvector.setZero(this->gSize());
+            model::cout<<"("<<this->gSize()<<" #dof)."<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/
-        const TrialFunction& operator=(const Eigen::VectorXd& temp)
+        TrialFunction& operator=(const Eigen::VectorXd& temp)
         {
-            assert(temp.size()==dofVector().size() && "DOF SIZE MISMATCH");
-            static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->operator=(temp);
+            assert(size_t(temp.size())==this->gSize() && "DOF SIZE MISMATCH");
+//            static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->operator=(temp);
+            dofvector=temp;
+            return *this;
+        }
+        
+        /**********************************************************************/
+        TrialFunction& operator+=(const Eigen::VectorXd& temp)
+        {
+            assert(size_t(temp.size())==this->gSize() && "DOF SIZE MISMATCH");
+//            static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->operator+=(temp);
+            dofvector+=temp;
+            return *this;
+        }
+        
+        /**********************************************************************/
+        TrialFunction& operator-=(const Eigen::VectorXd& temp)
+        {
+            assert(temp.size()==this->gSize() && "DOF SIZE MISMATCH");
+//            static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->operator-=(temp);
+            dofvector-=temp;
             return *this;
         }
         
@@ -231,7 +260,8 @@ namespace model
         const Eigen::Matrix<double,Eigen::Dynamic,1>& dofVector() const
         {/*!\returns A column vector of the DOFs of *this.
           */
-            return *this;
+//            return *this;
+            return dofvector;
         }
         
         /**********************************************************************/
@@ -242,7 +272,8 @@ namespace model
             Eigen::Matrix<double,dofPerElement,1> temp;
             for(int n=0;n<nodesPerElement;++n)
             {
-                temp.template segment<dofPerNode>(n*dofPerNode)=this->template segment<dofPerNode>(ele.node(n).gID*dofPerNode);
+//                temp.template segment<dofPerNode>(n*dofPerNode)=this->template segment<dofPerNode>(ele.node(n).gID*dofPerNode);
+                temp.template segment<dofPerNode>(n*dofPerNode)=dofvector.template segment<dofPerNode>(ele.node(n).gID*dofPerNode);
             }
             return temp;
         }

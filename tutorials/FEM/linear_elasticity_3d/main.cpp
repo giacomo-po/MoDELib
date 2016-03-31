@@ -73,24 +73,30 @@ int main(int argc, char** argv)
     
     /**************************************************************************/
     // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndA
-    Eigen::Matrix<double,3,1> f;
-    f<<0.0,0.001,0.00;
+    // f is a constant traction vector.
+    Eigen::Matrix<double,3,1> f((Eigen::Matrix<double,3,1>()<<0.0,0.000,0.00).finished());
     auto dA_1=fe.boundary<AtXmax<2>,3,GaussLegendre>();
     auto lWF_1=(u.test(),f)*dA_1;
     
     /**************************************************************************/
     // Create the LinearWeakForm lWF_2=int(test(u)^T*p)ndA
-    Eigen::Matrix<double,3,3> p(-1.0*Eigen::Matrix<double,3,3>::Identity());
+    // p is a constant hydrostatic tensor. The traction vector will be t=p*n;
+    Eigen::Matrix<double,3,3> p(-0.01*Eigen::Matrix<double,3,3>::Identity());
     auto ndA_2=fe.boundary<ExternalBoundary,3,GaussLegendre>();
     auto lWF_2=(u.test(),p)*ndA_2;
     
     /**************************************************************************/
+    // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndA
+    // a is a constant boby force vector.
+    Eigen::Matrix<double,3,1> a((Eigen::Matrix<double,3,1>()<<0.0,0.000,-0.005).finished());
+    auto lWF_3=(u.test(),a)*dV;
+    
+    /**************************************************************************/
     // Create the WeakProblem
-    auto weakProblem(bWF_u=lWF_1); //  weak problem
+    auto weakProblem(bWF_u=lWF_1+lWF_2+lWF_3); //  weak problem
     
     /**************************************************************************/
     // Set up Dirichlet boundary conditions
-    
     // Create a list of nodes having x(0)=x0_min, where x0_min is the minimum value among the fe nodes
     const size_t nodeList_0=fe.createNodeList<AtXmin<2>>();
     // Fix those those nodes

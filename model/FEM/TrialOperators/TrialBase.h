@@ -63,43 +63,12 @@ namespace model
             return tf;
         }
         
-        
-        /**/
-        
-//        /**********************************************************************/
-//        typename ElementContainerType::const_iterator elementBegin() const
-//        {
-//            return tf.fe.elementBegin();
-//        }
-//        
-//        /**********************************************************************/
-//        typename ElementContainerType::const_iterator elementEnd() const
-//        {
-//            return tf.fe.elementEnd();
-//        }
-        
         /**********************************************************************/
         size_t elementSize() const
         {/*!\returns the number of elements in the FiniteElement
           */
             return tf.fe.elementSize();
         }
-        
-//        /**********************************************************************/
-//        const ElementType& element(const size_t& n) const
-//        {/*!@param[in] n the node ID
-//          * \returns a const reference to the n-th node in the FiniteElement
-//          */
-//            return tf.fe.element(n);
-//        }
-//        
-//        /**********************************************************************/
-//        ElementType& element(const size_t& n)
-//        {/*!@param[in] n the node ID
-//          * \returns a reference to the n-th node in the FiniteElement
-//          */
-//            return tf.fe.element(n);
-//        }
         
         /**********************************************************************/
         typename FiniteElementType::ElementContainerType::const_iterator elementBegin() const
@@ -112,18 +81,6 @@ namespace model
         {
             return tf.fe.elementEnd();
         }
-
-        //        /**********************************************************************/
-        //        typename NodeContainerType::const_iterator nodeBegin() const
-        //        {
-        //            return tf.fe.nodeBegin();
-        //        }
-        //
-        //        /**********************************************************************/
-        //        typename NodeContainerType::const_iterator nodeEnd() const
-        //        {
-        //            return tf.fe.nodeEnd();
-        //        }
         
         /**********************************************************************/
         size_t nodeSize() const

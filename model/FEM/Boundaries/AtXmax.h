@@ -52,7 +52,7 @@ namespace model
         }
         
         /**********************************************************************/
-        template <typename FiniteElementType, int qOrder, template <short unsigned int, short unsigned int> class QuadratureRule>
+        template <typename FiniteElementType, size_t qOrder, template <short unsigned int, size_t> class QuadratureRule>
         static IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> boundary(const FiniteElementType& fe)
         {
 

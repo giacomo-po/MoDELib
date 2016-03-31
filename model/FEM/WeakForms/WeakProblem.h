@@ -206,6 +206,20 @@ namespace model
             }
             
         }
+
+        
+        
+        /**********************************************************************/
+        Eigen::VectorXd solveWithGuess(const double& tol, const TrialFunctionType& trial)
+        {
+            return solveWithGuess(tol,trial.dofVector());
+        }
+        
+        /**********************************************************************/
+        Eigen::VectorXd solve(const double& tol)
+        {
+            return solveWithGuess(tol,Eigen::VectorXd::Zero(gSize));
+        }
         
         /**********************************************************************/
         Eigen::VectorXd solveWithGuess(const double& tol, const Eigen::VectorXd& y)
@@ -312,6 +326,7 @@ namespace model
                     A1.prune(A1.norm()/A1.nonZeros(),FLT_EPSILON);
                     model::cout<<A1.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]"<<std::endl;
                     
+                    
                     const auto t1= std::chrono::system_clock::now();
 #ifdef _MODEL_PARDISO_SOLVER_
                     model::cout<<"Solving (PardisoLLT)..."<<std::flush;
@@ -329,6 +344,9 @@ namespace model
 #endif
                     model::cout<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
                     assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
+//                    std::cout<<std::setprecision(15)<<std::scientific<<x<<std::endl;
+//                    std::cout<<std::setprecision(15)<<std::scientific<<A.toDense()<<std::endl;
+//                    std::cout<<std::setprecision(15)<<std::scientific<<b<<std::endl;
                     break;
                 }
                     

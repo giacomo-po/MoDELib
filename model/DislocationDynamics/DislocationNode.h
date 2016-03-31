@@ -541,7 +541,7 @@ namespace model
             
             if(use_velocityFilter)
             {
-                if(velocity.dot(vOld)<0.0)
+                if(velocity.dot(vOld)<=0.0)
                 {
                     velocityReductionCoeff*=velocityReductionFactor;
                 }
