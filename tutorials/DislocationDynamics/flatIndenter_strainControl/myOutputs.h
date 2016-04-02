@@ -8,7 +8,8 @@ const size_t nodeListID=DN.shared.bvpSolver.finiteElement().template createNodeL
 // Sum FEM displacement of those nodes
 for(auto node : DN.shared.bvpSolver.finiteElement().nodeList(nodeListID))
 {
-    const Eigen::Matrix<double,dim,1> nodeDisp = DN.shared.bvpSolver.displacement().template segment<dim>(dim*node->gID);
+    const Eigen::Matrix<double,dim,1> nodeDisp = DN.shared.bvpSolver.displacement().dofs(*node);
+    //DN.shared.bvpSolver.displacement().template segment<dim>(dim*node->gID);
     disp += nodeDisp(2);
 }
 

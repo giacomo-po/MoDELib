@@ -55,7 +55,7 @@ int main(int argc, char** argv)
     // Create lhs (BilinearWeakForm) and rhs (LinearWeakForm)
     auto dV=fe.domain<EntireDomain,5,GaussLegendre>();
     auto bwf=(rhoDot.test(),rhoDot)*dV;
-    auto lwf=(rhoDot.test(),1)*dV;
+    auto lwf=(rhoDot.test(),-1.0)*dV;
     
     // Create the WeakProblem
     auto weakProblem(bwf=lwf); //  weak problem

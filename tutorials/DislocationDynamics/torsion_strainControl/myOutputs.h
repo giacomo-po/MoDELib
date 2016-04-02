@@ -18,7 +18,9 @@ if(DN.shared.use_bvp)
     // Sum FEM displacement of those nodes
     for(auto node : DN.shared.bvpSolver.finiteElement().nodeList(nodeListID))
     {
-        const Eigen::Matrix<double,dim,1> nodeDisp = DN.shared.bvpSolver.displacement().template segment<dim>(dim*node->gID);
+//        const Eigen::Matrix<double,dim,1> nodeDisp = DN.shared.bvpSolver.displacement().template segment<dim>(dim*node->gID);
+        const Eigen::Matrix<double,dim,1> nodeDisp = DN.shared.bvpSolver.displacement().dofs(*node);
+
         //dispZ += nodeDisp(2);
         
         const Eigen::Matrix<double,3,1> v0=(node->P0-tt.pivot).normalized();

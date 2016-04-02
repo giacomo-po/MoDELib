@@ -36,7 +36,7 @@ namespace model
     template<int _nComponents, typename _FiniteElementType>
     class TrialFunction : public TrialExpressionBase<TrialFunction<_nComponents,_FiniteElementType> >,
 //                          public NonCopyable,
-    /*                 */ public Eigen::Matrix<double,Eigen::Dynamic,1>, // DofContainer
+//    /*                 */ public Eigen::Matrix<double,Eigen::Dynamic,1>, // DofContainer
     /*                 */ private std::map<size_t,double>, // DirichletConditionContainer
     /*                 */ private std::map<size_t,std::array<bool,TypeTraits<TrialFunction<_nComponents,_FiniteElementType>>::dofPerNode>> // DirichletNodeMap
     {
@@ -75,9 +75,9 @@ namespace model
         const FiniteElementType& fe;
 //        const size_t gSize;
 
-//    private:
-//
-//        Eigen::Matrix<double,Eigen::Dynamic,1> dofvector;
+    private:
+
+        Eigen::Matrix<double,Eigen::Dynamic,1> dofvector;
 
     public:
         
@@ -87,8 +87,8 @@ namespace model
 //        /* init list */ gSize(fe.nodeSize()*dofPerNode)
         {
             model::cout<<greenColor<<"Creating TrialFunction..."<<std::flush;
-            this->setZero(fe.nodeSize()*dofPerNode);
-//            dofvector.setZero(this->gSize());
+//            this->setZero(fe.nodeSize()*dofPerNode);
+            dofvector.setZero(this->gSize());
             model::cout<<"("<<this->gSize()<<" #dof)."<<defaultColor<<std::endl;
             model::cout<<redColor<<"TO DO: avoid copy TrialFunction!!! ..."<<std::endl;
 
@@ -107,8 +107,8 @@ namespace model
         /**********************************************************************/
         TrialFunction& operator=(const double& c)
         {
-            static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->setConstant(c);
-            //dofvector.setConstant(c);
+//            static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->setConstant(c);
+            dofvector.setConstant(c);
             return *this;
         }
         
@@ -116,8 +116,8 @@ namespace model
         TrialFunction& operator=(const Eigen::VectorXd& temp)
         {
             assert(size_t(temp.size())==this->gSize() && "DOF SIZE MISMATCH");
-            static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->operator=(temp);
-//            dofvector=temp;
+//            static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->operator=(temp);
+            dofvector=temp;
             return *this;
         }
         
@@ -125,8 +125,8 @@ namespace model
         TrialFunction& operator+=(const Eigen::VectorXd& temp)
         {
             assert(size_t(temp.size())==this->gSize() && "DOF SIZE MISMATCH");
-            static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->operator+=(temp);
-//            dofvector+=temp;
+//            static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->operator+=(temp);
+            dofvector+=temp;
             return *this;
         }
         
@@ -134,8 +134,8 @@ namespace model
         TrialFunction& operator-=(const Eigen::VectorXd& temp)
         {
             assert(temp.size()==this->gSize() && "DOF SIZE MISMATCH");
-            static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->operator-=(temp);
-//            dofvector-=temp;
+//            static_cast<Eigen::Matrix<double,Eigen::Dynamic,1>*>(this)->operator-=(temp);
+            dofvector-=temp;
             return *this;
         }
         
@@ -285,8 +285,16 @@ namespace model
         const Eigen::Matrix<double,Eigen::Dynamic,1>& dofVector() const
         {/*!\returns A column vector of the DOFs of *this.
           */
-            return *this;
-//            return dofvector;
+//            return *this;
+            return dofvector;
+        }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dofPerNode,1> dofs(const NodeType& node) const
+        {/*!@param[in] node the FEM node
+          * \returns A vector of the degrees of freedom of the node
+          */
+            return dofvector.template segment<dofPerNode>(node.gID*dofPerNode);
         }
         
         /**********************************************************************/
@@ -297,8 +305,10 @@ namespace model
             Eigen::Matrix<double,dofPerElement,1> temp;
             for(int n=0;n<nodesPerElement;++n)
             {
-                temp.template segment<dofPerNode>(n*dofPerNode)=this->template segment<dofPerNode>(ele.node(n).gID*dofPerNode);
+//                temp.template segment<dofPerNode>(n*dofPerNode)=this->template segment<dofPerNode>(ele.node(n).gID*dofPerNode);
 //                temp.template segment<dofPerNode>(n*dofPerNode)=dofvector.template segment<dofPerNode>(ele.node(n).gID*dofPerNode);
+                temp.template segment<dofPerNode>(n*dofPerNode)=dofs(ele.node(n));
+
             }
             return temp;
         }

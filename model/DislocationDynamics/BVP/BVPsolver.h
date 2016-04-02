@@ -123,6 +123,12 @@ namespace model
             /***/ 0.0, 0.0, 0.0, 0.0, 0.0, C44;
             return temp;
         }
+
+        /**********************************************************************/
+        Eigen::VectorXd solve(const Eigen::VectorXd& b,const TrialFunctionType& guess)
+        {
+            return solve(b,guess.dofVector());
+        }
         
         /**********************************************************************/
         Eigen::VectorXd solve(const Eigen::VectorXd& b,const Eigen::VectorXd& y)

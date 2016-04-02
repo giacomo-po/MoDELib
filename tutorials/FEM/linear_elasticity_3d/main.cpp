@@ -74,7 +74,8 @@ int main(int argc, char** argv)
     /**************************************************************************/
     // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndA
     // f is a constant traction vector.
-    Eigen::Matrix<double,3,1> f((Eigen::Matrix<double,3,1>()<<0.0,0.000,0.00).finished());
+//    Eigen::Matrix<double,3,1> f((Eigen::Matrix<double,3,1>()<<0.0,0.000,0.00).finished());
+    auto f=make_constant((Eigen::Matrix<double,3,1>()<<0.0,0.000,0.00).finished());
     auto dA_1=fe.boundary<AtXmax<2>,3,GaussLegendre>();
     auto lWF_1=(u.test(),f)*dA_1;
     
@@ -82,13 +83,15 @@ int main(int argc, char** argv)
     // Create the LinearWeakForm lWF_2=int(test(u)^T*p)ndA
     // p is a constant hydrostatic tensor. The traction vector will be t=p*n;
     Eigen::Matrix<double,3,3> p(-0.01*Eigen::Matrix<double,3,3>::Identity());
+//    auto p=make_constant(-0.01*Eigen::Matrix<double,3,3>::Identity());
     auto ndA_2=fe.boundary<ExternalBoundary,3,GaussLegendre>();
-    auto lWF_2=(u.test(),p)*ndA_2;
+    auto lWF_2=(u.test(),make_constant(p))*ndA_2;
     
     /**************************************************************************/
     // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndA
     // a is a constant boby force vector.
-    Eigen::Matrix<double,3,1> a((Eigen::Matrix<double,3,1>()<<0.0,0.000,-0.00001).finished());
+//    Eigen::Matrix<double,3,1> a((Eigen::Matrix<double,3,1>()<<0.0,0.000,-0.00001).finished());
+    auto a=make_constant((Eigen::Matrix<double,3,1>()<<0.0,0.000,-0.00001).finished());
     auto lWF_3=(u.test(),a)*dV;
     
     /**************************************************************************/

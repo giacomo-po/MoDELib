@@ -72,10 +72,10 @@ namespace model
         
         /**********************************************************************/
         template <typename LinkType>
-        LatticePlaneBase find_glidePlane(const LatticeVectorType& sourceL,
+        static const LatticePlaneBase& find_glidePlane(const LatticeVectorType& sourceL,
                                          const LatticeVectorType& sinkL,
                                          const LatticeVectorType& Burgers,
-                                         const ExpandingEdge<LinkType>& ee)  const
+                                         const ExpandingEdge<LinkType>& ee)
         {
         
             const LatticeVectorType& linkSourceL=ee.E.source->get_L();
@@ -90,10 +90,10 @@ namespace model
         
         /**********************************************************************/
         template <typename LinkType>
-        LatticePlaneBase find_sessilePlane(const LatticeVectorType& sourceL,
+        static const LatticePlaneBase& find_sessilePlane(const LatticeVectorType& sourceL,
                                            const LatticeVectorType& sinkL,
                                            const LatticeVectorType& Burgers,
-                                           const ExpandingEdge<LinkType>& ee)  const
+                                           const ExpandingEdge<LinkType>& ee)
         {
             
             const LatticeVectorType& linkSourceL=ee.E.source->get_L();
