@@ -26,7 +26,9 @@ namespace model
 
     public:
         typedef typename TypeTraits<_TrialFunctionType>::FiniteElementType FiniteElementType;
+        typedef typename FiniteElementType::MeshType MeshType;
         typedef typename TypeTraits<_TrialFunctionType>::ElementType ElementType;
+        
         typedef typename TypeTraits<_TrialFunctionType>::NodeType NodeType;
         typedef _TrialFunctionType TrialFunctionType;
 
@@ -61,6 +63,18 @@ namespace model
         const TrialFunctionType& trial() const
         {
             return tf;
+        }
+        
+        /**********************************************************************/
+        const FiniteElementType& fe() const
+        {
+            return tf.fe;
+        }
+        
+        /**********************************************************************/
+        const MeshType& mesh() const
+        {
+            return tf.fe.mesh;
         }
         
         /**********************************************************************/

@@ -112,41 +112,7 @@ namespace model
             return U;
         }
         
-//        static Eigen::Matrix<double,3,qOrder*qOrder> abcsissasAndWeights()
-//        {
-//            
-//
-//            const unsigned int N2=qOrder*qOrder;
-//            const double w=0.5/N2; // constant weight
-//            
-//            Eigen::Matrix<double,3,N2> U;
-//            size_t m=0;
-//            
-//            // Triangles pointing up
-//            for(int i=0;i<qOrder;++i)
-//            {
-//                for(int j=0;j<qOrder-i;++j)
-//                {
-//                    U(0,m)= 1.0/qOrder*(i+1.0/3.0);	//1.0 forces double conversion
-//                    U(1,m)= 1.0/qOrder*(j+1.0/3.0);	//1.0 forces double conversion
-//                    U(2,m)= w;
-//                    m++;
-//                }
-//            }
-//            
-//            // Triangles pointing down
-//            for(int i=0;i<qOrder-1;++i)
-//            {
-//                for(int j=0;j<qOrder-1-i;++j)
-//                {
-//                    U(0,m)= 1.0/qOrder*(i+2.0/3.0);	//1.0 forces double conversion
-//                    U(1,m)= 1.0/qOrder*(j+2.0/3.0);	//1.0 forces double conversion
-//                    U(2,m)= w;
-//                    m++;
-//                }
-//            }
-//            return U;
-//        }
+
         
     };
 

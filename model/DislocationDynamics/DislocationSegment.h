@@ -60,11 +60,9 @@ namespace model
       */
         
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-        //        typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef LatticeVector<dim> LatticeVectorType;
         
         //! The glide plane unit normal vector
-        //        const LatticePlaneBase& glidePlaneReciprocal;
         const LatticePlane   glidePlane;
         const LatticePlane sessilePlane;
         
@@ -72,6 +70,43 @@ namespace model
         VectorDim sessilePlaneNormal;
         
         
+        /**********************************************************************/
+        template <typename LinkType>
+        LatticePlaneBase find_glidePlane(const LatticeVectorType& sourceL,
+                                         const LatticeVectorType& sinkL,
+                                         const LatticeVectorType& Burgers,
+                                         const ExpandingEdge<LinkType>& ee)  const
+        {
+        
+            const LatticeVectorType& linkSourceL=ee.E.source->get_L();
+            const LatticeVectorType& linkSinkL=ee.E.sink->get_L();
+            
+            const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
+            
+            
+            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  CrystalOrientation<dim>::find_glidePlane(sinkL-sourceL,Burgers) :
+            /*                                                           */  ee.E.glidePlane.n;
+        }
+        
+        /**********************************************************************/
+        template <typename LinkType>
+        LatticePlaneBase find_sessilePlane(const LatticeVectorType& sourceL,
+                                           const LatticeVectorType& sinkL,
+                                           const LatticeVectorType& Burgers,
+                                           const ExpandingEdge<LinkType>& ee)  const
+        {
+            
+            const LatticeVectorType& linkSourceL=ee.E.source->get_L();
+            const LatticeVectorType& linkSinkL=ee.E.sink->get_L();
+            
+            const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
+            
+            
+            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  CrystalOrientation<dim>::find_sessilePlane(sinkL-sourceL,Burgers) :
+            /*                                                           */  ee.E.sessilePlane.n;
+        }
+        
+        /**********************************************************************/
         PlanarDislocationSegment(const LatticeVectorType& sourceL,
                                  const LatticeVectorType& sinkL,
                                  const LatticeVectorType& Burgers) :
@@ -83,8 +118,25 @@ namespace model
             
         }
         
+        /**********************************************************************/
+        template <typename LinkType>
+        PlanarDislocationSegment(const LatticeVectorType& sourceL,
+                                 const LatticeVectorType& sinkL,
+                                 const LatticeVectorType& Burgers,
+                                 const ExpandingEdge<LinkType>& ee) :
+        /* init list       */   glidePlane(sourceL,  find_glidePlane(sourceL,sinkL,Burgers,ee)),
+        /* init list       */ sessilePlane(sourceL,find_sessilePlane(sourceL,sinkL,Burgers,ee)),
+        /* init list       */ glidePlaneNormal(glidePlane.n.cartesian().normalized()),
+        /* init list       */ sessilePlaneNormal(sessilePlane.n.cartesian().normalized())
+        {
+        
+        }
+
+        
     };
     
+    /******************************************************************/
+    /******************************************************************/
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     class DislocationSegment : public PlanarDislocationSegment<_dim>,
@@ -284,7 +336,8 @@ namespace model
         
         /* Constructor from EdgeExpansion) ************************************/
         DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const ExpandingEdge<LinkType>& ee) :
-        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow),
+//        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow),
+        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow,ee),
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
         /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),

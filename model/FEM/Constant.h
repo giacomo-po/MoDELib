@@ -19,7 +19,7 @@ namespace model
     /**************************************************************************/
 	/**************************************************************************/
     template <typename T, int _rows, int _cols>
-	struct Constant : public EvalExpression<Constant<T,_rows,_cols> >
+	struct Constant //: public EvalExpression<Constant<T,_rows,_cols> >
     {
 
         constexpr static int rows=_rows;
@@ -42,6 +42,12 @@ namespace model
           *\returns the constant c.
           */
             return c;
+        }
+        
+        /**********************************************************************/
+        EvalExpression<Constant<T,_rows,_cols>> eval() const
+        {
+            return EvalExpression<Constant<T,_rows,_cols>>(*this);
         }
         
     };

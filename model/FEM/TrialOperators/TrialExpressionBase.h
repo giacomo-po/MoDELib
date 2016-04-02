@@ -11,6 +11,7 @@
 
 #include <model/Utilities/TypeTraits.h>
 #include <model/FEM/TrialOperators/TestExpression.h>
+#include <model/FEM/TrialOperators/EvalExpression.h>
 #include <model/Mesh/Simplex.h>
 
 namespace model
@@ -66,6 +67,13 @@ namespace model
           */
             return TestExpression<Derived>(derived());
         }
+        
+        /**********************************************************************/
+        EvalExpression<Derived> eval() const
+        {
+            return EvalExpression<Derived>(derived());
+        }
+
         
         /**********************************************************************/
         size_t gSize() const

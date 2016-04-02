@@ -44,6 +44,9 @@ int main(int argc, char** argv)
     
     
     auto rho=fe.trial<1>();
+    rho=1.0;
+    
+    
     auto rhoDot=fe.trial<1>();
     
     //auto a=2.0*rhoDot;
@@ -52,7 +55,7 @@ int main(int argc, char** argv)
     // Create lhs (BilinearWeakForm) and rhs (LinearWeakForm)
     auto dV=fe.domain<EntireDomain,5,GaussLegendre>();
     auto bwf=(rhoDot.test(),rhoDot)*dV;
-    auto lwf=(rhoDot.test(),1.0)*dV;
+    auto lwf=(rhoDot.test(),1)*dV;
     
     // Create the WeakProblem
     auto weakProblem(bwf=lwf); //  weak problem
@@ -72,10 +75,15 @@ int main(int argc, char** argv)
     SequentialOutputFile<'D',1> uFile;
     uFile<<rhoDot;
     
+    
+    auto rho1 = 2.0*(2.0*rho);
+    
+    Eigen::Matrix<double,3,1> P;
+    P<<0.5,0.5,0.5;
+    
+    std::cout<<rho1(P)<<std::endl;
+    
     return 0;
 }
 
 
-// 5
-//0.0101852
-//-0.05

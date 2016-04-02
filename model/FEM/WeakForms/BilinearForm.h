@@ -30,6 +30,7 @@ namespace model
 
         typedef typename TestExpression<T1>::TestExpressionType TestExpressionType;
         typedef T2 TrialExpressionType;
+        
         typedef typename T2::TrialFunctionType TrialFunctionType;
         typedef typename TypeTraits<TrialFunctionType>::ElementType ElementType;
         typedef typename TypeTraits<TrialFunctionType>::FiniteElementType FiniteElementType;
@@ -38,8 +39,8 @@ namespace model
         constexpr static int nodesPerElement=TypeTraits<TrialFunctionType>::nodesPerElement;
         constexpr static int dofPerNode=TypeTraits<TrialFunctionType>::dofPerNode;
         
-        const TestExpressionType testExpr;
-        const T2 trialExpr;
+        const TestExpressionType   testExpr;
+        const TrialExpressionType trialExpr;
         const size_t gSize;
         
 

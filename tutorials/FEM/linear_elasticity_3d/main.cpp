@@ -88,7 +88,7 @@ int main(int argc, char** argv)
     /**************************************************************************/
     // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndA
     // a is a constant boby force vector.
-    Eigen::Matrix<double,3,1> a((Eigen::Matrix<double,3,1>()<<0.0,0.000,-0.005).finished());
+    Eigen::Matrix<double,3,1> a((Eigen::Matrix<double,3,1>()<<0.0,0.000,-0.00001).finished());
     auto lWF_3=(u.test(),a)*dV;
     
     /**************************************************************************/

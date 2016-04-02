@@ -1,7 +1,9 @@
 #include <iostream>
 #include <chrono>
 //#include <model/DislocationDynamics/SnapToLattice.h>
-#include <model/DislocationDynamics/Materials/CrystalStructures.h>
+//#include <model/DislocationDynamics/Materials/CrystalStructures.h>
+#include <model/DislocationDynamics/Materials/FCCCrystal.h>
+#include <model/DislocationDynamics/Materials/BCCCrystal.h>
 
 
 #include <model/LatticeMath/LatticeMath.h>
@@ -21,16 +23,16 @@ int main()
     const double b=0.5*sqrt(2.0)*a; // FCC
 //    const double b=0.5*sqrt(3.0)*a; // BCC
     
-//    LatticeBase<3>::setLatticeBasis(FCC::getLatticeBasis<3>());
-    LatticeBase<3>::setLatticeBasis(BCC::getLatticeBasis<3>());
+    LatticeBase<3>::setLatticeBasis(FCC::getLatticeBasis<3>());
+//    LatticeBase<3>::setLatticeBasis(BCC::getLatticeBasis<3>());
 
-    /*******************************************/
-    std::cout<<"slip normals are"<<std::endl;
-    std::vector<LatticePlaneBase> normals=FCC::template reciprocalPlaneNormals<3>();
-    for(unsigned int i=0;i<normals.size();++i)
-    {
-            std::cout<<normals[i].cartesian().transpose()<<std::endl;
-    }
+//    /*******************************************/
+//    std::cout<<"slip normals are"<<std::endl;
+//    std::vector<LatticePlaneBase> normals=FCC::template reciprocalPlaneNormals<3>();
+//    for(unsigned int i=0;i<normals.size();++i)
+//    {
+//            std::cout<<normals[i].cartesian().transpose()<<std::endl;
+//    }
     
 //    ReciprocalLatticeVector<3> n(VectorDimD(3*a/b,0*a/b,-3*a/b));
 //    std::cout<<n.transpose()<<std::endl;
@@ -73,6 +75,9 @@ int main()
 //    LineLineIntersection lli(l1,l2);
 //    std::cout<<lli<<std::endl<<std::endl;
     
+    LatticeVector<3>    v1(VectorDimD(-0.5*sqrt(2.0),-sqrt(2.0),-0.5*sqrt(2.0)));
+    std::cout<<v1<<std::endl;
+    std::cout<<v1.cartesian()<<std::endl;
     
     return 0;
 }

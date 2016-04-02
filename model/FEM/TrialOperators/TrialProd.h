@@ -59,6 +59,7 @@ namespace model
     public:
 
         constexpr static int rows=TrialProdRows<T1::rows,T1::cols,T2::rows>::rows;
+        constexpr static int cols=T2::cols;
 
         /**********************************************************************/
         TrialProd(const T1& x, const TrialExpressionBase<T2>& y) :
@@ -74,7 +75,9 @@ namespace model
         Eigen::Matrix<double,rows,dofPerElement> sfm(const _ElementType& ele,
                                                      const _BaryType& bary) const
         {
-            return op1.c*op2.sfm(ele,bary);
+//            return op1.c*op2.sfm(ele,bary);
+            return op1(ele,bary)*op2.sfm(ele,bary);
+
         }
         
 //        /**********************************************************************/
@@ -111,14 +114,14 @@ namespace model
             return val;
         }
         
-//        /**********************************************************************/
-//        Eigen::Matrix<double,rows,1> operator()(const Eigen::Matrix<double,dim,1>& P) const
-//        {/*!@param[in] P the position vector
-//          * @param[in] guess the Simplex where the search starts
-//          * \returns the value of the Derived expression at P.
-//          */
-//            return operator()(P,&(op2.trial.fe.mesh.begin()->second));
-//        }
+        /**********************************************************************/
+        Eigen::Matrix<double,rows,1> operator()(const Eigen::Matrix<double,dim,1>& P) const
+        {/*!@param[in] P the position vector
+          * @param[in] guess the Simplex where the search starts
+          * \returns the value of the Derived expression at P.
+          */
+            return operator()(P,&(this->mesh().begin()->second));
+        }
         
     };
     

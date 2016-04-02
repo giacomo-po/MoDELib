@@ -14,16 +14,23 @@ namespace model
     
     /**************************************************************************/
 	/**************************************************************************/
-	template<typename Derived>
-	struct EvalExpression
+	template<typename T>
+    struct EvalExpression
     {
         
-        /**********************************************************************/
-        const Derived& derived() const
-        {/*! A const reference to the Derived object
-          */
-            return *static_cast<const Derived*>(this);
+        const T wrappedExp;
+        
+        EvalExpression(const T& exp) : wrappedExp(exp)
+        {
+        
         }
+        
+//        /**********************************************************************/
+//        const Derived& derived() const
+//        {/*! A const reference to the Derived object
+//          */
+//            return *static_cast<const Derived*>(this);
+//        }
         
     };
     

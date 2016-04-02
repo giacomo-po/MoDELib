@@ -13,8 +13,8 @@
 #include <vector>
 #include <Eigen/SparseCore>
 
-#include <model/FEM/TrialOperators/EvalExpression.h>
-#include <model/FEM/TrialOperators/TestExpression.h>
+//#include <model/FEM/TrialOperators/EvalExpression.h>
+//#include <model/FEM/TrialOperators/TestExpression.h>
 //#include <model/Quadrature/Quadrature.h>
 //#include <model/Utilities/AreSameType.h>
 #include <model/Utilities/TerminalColors.h>
