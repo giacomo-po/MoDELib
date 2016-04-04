@@ -21,6 +21,36 @@ using namespace model;
 
 
 
+/**************************************************************************/
+/**************************************************************************/
+struct MyFunction //: public EvalExpression<Constant<T,_rows,_cols> >
+{
+    
+    constexpr static int rows=1;
+    constexpr static int cols=1;
+    
+    
+    /**********************************************************************/
+    template<typename ElementType, typename BaryType>
+    const double& operator() (const ElementType& ele, const BaryType& bary) const
+    {/*!@param[in] elem the element
+      * @param[in] bary the barycentric cooridinate
+      *\returns the constant c.
+      */
+        
+        const Eigen::Matrix<double,ElementType::dim,1> P=ele.position(bary);
+        
+        return P(0);
+    }
+    
+    /**********************************************************************/
+    EvalExpression<MyFunction> eval() const
+    {
+        return EvalExpression<MyFunction>(*this);
+    }
+    
+};
+
 int main(int argc, char** argv)
 {
     
@@ -51,11 +81,13 @@ int main(int argc, char** argv)
     
     //auto a=2.0*rhoDot;
     
+    MyFunction f;
+    
     /**************************************************************************/
     // Create lhs (BilinearWeakForm) and rhs (LinearWeakForm)
     auto dV=fe.domain<EntireDomain,5,GaussLegendre>();
     auto bwf=(rhoDot.test(),rhoDot)*dV;
-    auto lwf=(rhoDot.test(),-1.0)*dV;
+    auto lwf=(rhoDot.test(),f.eval())*dV;
     
     // Create the WeakProblem
     auto weakProblem(bwf=lwf); //  weak problem
