@@ -55,22 +55,21 @@ int main(int argc, char * argv[])
     
     // Generate straight dislocation along z, centered at origin
     LatticeDirection<3> lz((Eigen::Matrix<double,3,1>()<<0.0,0.0,1.0).finished()); // shortest lattice vector along z
-    const double dz=3.0*lz.cartesian().norm();  // spacing between vertices
-    const int nz=50;        // dislocation has 2*nz+1 vertices
-    const double Lz=dz*nz;  // dislocation extends along x3 from -Lz to Lz
+    const double Lz=150*lz.cartesian().norm();  // dislocation extends along x3 from -Lz to Lz
     std::cout<<"Dislocation extends from z="<<-Lz<<" to z="<<Lz<<std::endl;
     
-    size_t oldID(0);
-    for (int k=-nz;k<nz+1;++k)
-    {
-        Eigen::Matrix<double,3,1> P(0.0,0.0,k*dz); // position of current vertex
-        const size_t newID(DN.insertVertex(P).first->first); // insert vertex ind DislocationNetwork
-        if (k>-nz)
-        {
-            DN.connect(oldID,newID,b); // connect two vertices with a DislocationSegment
-        }
-        oldID=newID;
-    }
+    // Compute position of the two end nodes
+    const Eigen::Matrix<double,3,1> P0(0.0,0.0,-Lz); // position of current vertex
+    const Eigen::Matrix<double,3,1> P1(0.0,0.0,+Lz); // position of current vertex
+
+    // Create nodes
+    const size_t node0ID(DN.insertVertex(P0).first->first); // insert vertex ind DislocationNetwork
+    const size_t node1ID(DN.insertVertex(P1).first->first); // insert vertex ind DislocationNetwork
+
+    // Connect nodes (creates DislocationSegment)
+    DN.connect(node0ID,node1ID,b); // connect two vertices with a DislocationSegment
+
+    // Output V_1 and E_1
     DN.output(1);
     
     /**************************************************************************/
@@ -130,8 +129,6 @@ int main(int argc, char * argv[])
         model::SequentialOutputFile<'S',1>  analyticalFile; // this is file S/S_1.txt
         model::SequentialOutputFile<'S',1>  straightFile; // this is file S/S_2.txt
         
-        Eigen::Matrix<double,3,1> P0(0.0,0.0,-Lz); // position of current vertex
-        Eigen::Matrix<double,3,1> P1(0.0,0.0,+Lz); // position of current vertex
 
         StressStraight<3> stressStraight(P0,P1,b);
         
