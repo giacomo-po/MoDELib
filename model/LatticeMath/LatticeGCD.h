@@ -9,6 +9,8 @@
 #ifndef model_LatticeGCD_h_
 #define model_LatticeGCD_h_
 
+#include <Eigen/Dense>
+
 namespace model
 {
     template <int dim>

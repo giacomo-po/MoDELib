@@ -1,28 +1,34 @@
 ######################################
 # Number of simulation steps 
-Nsteps=0;
-timeWindow=0;
-startAtTimeStep = 0;
-equilibriumVelocity=0.01;
+Nsteps=1;
+timeWindow=5.1e03;
+startAtTimeStep = -1;
+use_directSolver_DD=0;
+quadPerLength=1;
+bndDistance=3;
+
 ######################################
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
-dx=1.0;
-# Time integration method:
-useImplicitTimeIntegration=0;
-
-check_balance=1;
+dx=10;
+use_velocityFilter=1;
+velocityReductionFactor=0.75;
 
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=10;
 outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=0;
-outputMeshDisplacement=0;
+outputQuadratureParticles=0;
 outputElasticEnergy=0;
+outputMeshDisplacement=0;
+outputDislocationLength=1;
+outputPlasticDistortion=0;
+outputPlasticDistortionRate=0;
+
 
 ######################################
 # MATERIAL
@@ -32,9 +38,9 @@ material=29;
 ######################################
 # CRYSTAL ORIENTATION
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
-C2G =                     0   0.707106781186547  -0.707106781186547
-   0.577350269189626   0.577350269189626   0.577350269189626
-   0.816496580927726  -0.408248290463863  -0.408248290463863;
+C2G =  0.7071067811865475 -0.7071067811865475  0.0
+	0.5773502691896258  0.5773502691896258  0.5773502691896258
+      -0.4082482904638631  -0.4082482904638631 0.8164965809277261;
 
 ######################################
 # TEMPERATURE in [K]
@@ -42,60 +48,63 @@ temperature = 300.0;
 
 ######################################
 # Set the remote external stress (a uniform stress felt by dislocations)
-externalStress = 0.0 0.0 0.00
+externalStress = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.00 0.0 0.0;
+		 0.0 0.0 0.0;
 
 ######################################
-# STRESS FIELD
-# The dislocation core width, used in the non-singular expression of the dislocation stress field
-coreSize=0.0001;
-# Use of multipole-expanded stress field for non-nearest neighbor cells
-dislocationCellSize=1000000;
-use_DisplacementMultipole=0;
-use_StressMultipole =0;
-use_EnergyMultipole =0;
+# ELASTIC FIELDS
+# The dislocation core size
+coreSize=1.0e-7;
+# Use of multipole-expanded elastic fields for non-nearest neighbor cells
+dislocationCellSize=500;
+use_DisplacementMultipole=1;
+use_StressMultipole = 1;
+use_EnergyMultipole = 0;
 
 ######################################
 # NETWORK REMESHING
 # Enable/disable node redistribution 
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
-use_redistribution=0;
-Lmax=500;
-Lmin=100;
-thetaDeg=45.0;
+use_redistribution=1;
+Lmax=300;
+Lmin=40;
 
 ######################################
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
-use_junctions=0;
+use_junctions=1;
 # Tolerance used in detecting collisions between dislocation segments in different planes
-collisionTol=20;
+collisionTol=3;
 
 ######################################
-# Enable/disable the use of a confining boundary.
-# boundary_type = 0 for no confining boundary. This automatically sets use_bvp=0 (see below)
-# boundary_type = 1 for shearable confining boundary. The file mesh.ele, mesh.face, mesh.neigh and mesh.node must be present in the working directory
-# boundary_type = 2 for unshearable confining boundary. The file mesh.ele, mesh.face, mesh.neigh and mesh.node must be present in the working directory
-use_boundary =0;
+# BOUNDARY MESH
+# use_boundary enables/disables the use of a confining boundary.
+# If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
+# T/T_meshID.txt must be present in the working directory.
+use_boundary=0;
+meshID=0;
+use_meshRegions=0;
 
 ######################################
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
 use_bvp = 0;
+use_directSolver_FEM=1;
+solverTolerance=0.0001;
+use_virtualSegments=1;
+virtualSegmentDistance=10;
+
+######################################
+# Impose that all dislocation nodes (but FR source/sink nodes) are balanced
+check_balance=0;
 
 ######################################
 # Enable/disable cross-slip
-use_crossSlip=0;
-crossSlipDeg=5.0;
-crossSlipLength=110.0;
+use_crossSlip=1;
+crossSlipDeg=2.0;
 
 ######################################
-# Don't assemble and solve SubNetworks with less than "minSNorderForSolve" nodes:
-minSNorderForSolve=0;
-
-######################################
-# parametrization of cubic splines 
 parametrizationExponent=0.5;

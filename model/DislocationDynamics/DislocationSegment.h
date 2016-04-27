@@ -933,6 +933,12 @@ namespace model
         }
         
         /**********************************************************************/
+        VectorDim velocity(const double& u) const
+        {
+            return this->source->get_V().template segment<dim>(0)*(1.0-u)+this->sink->get_V().template segment<dim>(0)*u;
+        }
+        
+        /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const Derived& ds)
         {

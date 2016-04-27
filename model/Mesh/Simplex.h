@@ -202,6 +202,7 @@ namespace model
             if(jFabs<FLT_EPSILON)
             {
                 std::cout<<this->xID<<", volume="<<jFabs<<std::endl;
+                std::cout<<F<<std::endl;
                 assert(0 && "SIMPLEX HAS ZERO VOLUME");
             }
             return jFabs*F.inverse().transpose()*BarycentricTraits<dim>::NdA;

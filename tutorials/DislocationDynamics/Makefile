@@ -10,7 +10,7 @@ MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
 ##########################################################
-IDIR  = -I/usr/local/include
+IDIR += -I/usr/local/include
 IDIR += -I./
 IDIR += -I$(MODEL_INCLUDE)
 

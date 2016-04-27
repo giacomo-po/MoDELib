@@ -26,7 +26,7 @@ namespace model
     
     template <typename _ParticleType>
     class ParticleSystemBase :
-    /* inheritance          */  protected std::deque<_ParticleType> // iteration and fast insertion are priority
+    /* inheritance          */  public std::deque<_ParticleType> // iteration and fast insertion are priority
     {
         
     public:

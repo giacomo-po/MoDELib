@@ -36,9 +36,15 @@ namespace model
         }
         
         LatticeDirection(const ReciprocalLatticeVectorType& r1,const ReciprocalLatticeVectorType& r2) :
-        /* delegating */ LatticeDirection(r1.cross(r2))
+        /* delegating */ LatticeDirection(LatticeVectorType(r1.cross(r2)))
         {
 //            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
+        }
+        
+        LatticeDirection(const VectorDimD& d) :
+        /* delegating */ LatticeDirection(LatticeVectorType(LatticeBaseType::latticeDirection(d)))
+        {
+            //            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
         }
         
 //        LatticeDirection(const VectorDimD& d):

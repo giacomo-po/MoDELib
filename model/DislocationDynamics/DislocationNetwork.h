@@ -997,6 +997,12 @@ namespace model
             return DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn;
         }
         
+        /**********************************************************************/
+        const ParticleSystemType& particleSystem() const
+        {
+            return *this;
+        }
+        
     };
     
 } // namespace model

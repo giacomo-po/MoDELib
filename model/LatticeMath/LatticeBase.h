@@ -9,6 +9,7 @@
 #ifndef model_LatticeBase_h_
 #define model_LatticeBase_h_
 
+#include <iostream>
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
 #include <model/Math/RoundEigen.h>
@@ -66,8 +67,8 @@ namespace model
         /**********************************************************************/
         static VectorDimI d2contra(const VectorDimD& d)
         {
-            VectorDimD nd(invA*d);
-            VectorDimD rd(RoundEigen<double,dim>::round(nd));
+            const VectorDimD nd(invA*d);
+            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
             if((nd-rd).norm()>roundTol)
             {
                 std::cout<<"d2contra, nd="<<nd.transpose()<<std::endl;
@@ -75,6 +76,30 @@ namespace model
                 assert(0 && "Input vector is not a lattice vector");
             }
             return rd.template cast<long int>();
+        }
+        
+        /**********************************************************************/
+        static VectorDimI latticeDirection(const VectorDimD& d)
+        {
+            bool found=false;
+            VectorDimD rdk(VectorDimD::Zero());
+
+            const VectorDimD nd(invA*d);
+            
+            
+            for(int k=0;k<dim;++k)
+            {
+                const VectorDimD ndk(nd/nd(k));
+                rdk=RoundEigen<double,dim>::round(ndk);
+                if((ndk-rdk).norm()<roundTol)
+                {
+                    found=true;
+                    break;
+                }
+
+            }
+            assert(found && "Input vector is not on a lattice direction");
+            return rdk.template cast<long int>();
         }
         
         /**********************************************************************/
@@ -87,13 +112,13 @@ namespace model
         /**********************************************************************/
         static VectorDimI d2cov(const VectorDimD& d)
         {
-            VectorDimD nd(AT*d);
-            VectorDimD rd(RoundEigen<double,dim>::round(nd));
+            const VectorDimD nd(AT*d);
+            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
             if((nd-rd).norm()>roundTol)
             {
                 std::cout<<"d2cov, nd="<<nd.transpose()<<std::endl;
                 std::cout<<"d2cov, rd="<<rd.transpose()<<std::endl;
-                assert(0 && "Input vector is not a lattice vector");
+                assert(0 && "Input vector is not a reciprocal lattice vector");
             }
             //            assert((nd-rd).norm()<roundTol && "Input vector is not a lattice vector");
             return rd.template cast<long int>();

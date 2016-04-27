@@ -7,6 +7,7 @@
 
 #include <stdlib.h> // atoi
 #include <chrono>
+#include <model/LatticeMath/LatticeMath.h>
 #include <model/DislocationDynamics/DislocationNetwork.h>
 #include <model/Utilities/SequentialOutputFile.h>
 #include <model/ParticleInteraction/SingleFieldPoint.h>
@@ -43,32 +44,34 @@ Eigen::Matrix<double,3,3> stressStraightEdge(const Eigen::Matrix<double,3,1>& P)
 int main(int argc, char * argv[])
 {
     // Some definitions
-    typedef  DislocationNetwork<3,1,CatmullRom,16,UniformOpen> DislocationNetworkType;
+    typedef  DislocationNetwork<3,1,CatmullRom,UniformOpen> DislocationNetworkType;
     typedef typename DislocationNetworkType::StressField StressField;
-    
     
     // Create DislocationNetwork
     DislocationNetworkType DN(argc,argv);
     
     // The (unitary) Burgers vector of the dislocation. Length units are in b.
-    Eigen::Matrix<double,3,1> b(1.0,0.0,0.0);
+    Eigen::Matrix<double,3,1> b(1.0,0.0,0.0); // b along x1
     
     // Generate straight dislocation along z, centered at origin
-    const double Lz=200.0;  // dislocation extends along x3 from -Lz to Lz
+    LatticeDirection<3> lz((Eigen::Matrix<double,3,1>()<<0.0,0.0,1.0).finished()); // shortest lattice vector along z
+    const double dz=3.0*lz.cartesian().norm();  // spacing between vertices
     const int nz=50;        // dislocation has 2*nz+1 vertices
-    const double dz=Lz/nz;  // spacing between vertices
+    const double Lz=dz*nz;  // dislocation extends along x3 from -Lz to Lz
+    std::cout<<"Dislocation extends from z="<<-Lz<<" to z="<<Lz<<std::endl;
     
     size_t oldID(0);
-    for (int k=0;k<2*nz+1;++k)
+    for (int k=-nz;k<nz+1;++k)
     {
-        Eigen::Matrix<double,3,1> P(0.0,0.0,k*dz-Lz); // position of current vertex
-        const size_t newID(DN.insertVertex(P)); // insert vertex ind DislocationNetwork
-        if (k>0)
+        Eigen::Matrix<double,3,1> P(0.0,0.0,k*dz); // position of current vertex
+        const size_t newID(DN.insertVertex(P).first->first); // insert vertex ind DislocationNetwork
+        if (k>-nz)
         {
             DN.connect(oldID,newID,b); // connect two vertices with a DislocationSegment
         }
         oldID=newID;
     }
+    DN.output(1);
     
     /**************************************************************************/
     // Construct a grid of field points on the plane z=0
@@ -103,7 +106,7 @@ int main(int argc, char * argv[])
         for (int j=-ny;j<ny+1;++j)
         {
             Eigen::Matrix<double,3,1> P(i*Lx/nx,j*Ly/ny,0.0); // position of current field point
-            fieldPoints.emplace_back(P);
+            fieldPoints.emplace_back(P,true);
         }
     }
     std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
@@ -114,7 +117,7 @@ int main(int argc, char * argv[])
     std::cout<<"Computing DislocationStress at field points..."<<std::flush;
     const auto t1= std::chrono::system_clock::now();
     DN.updateQuadraturePoints();
-    DN.computeField<FieldPointType,StressField>(fieldPoints, DN.shared.use_StressMultipole);
+    DN.computeField<FieldPointType,StressField>(fieldPoints);
     std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
     
     /**************************************************************************/
@@ -135,7 +138,7 @@ int main(int argc, char * argv[])
         for (unsigned int k=0;k<fieldPoints.size();++k)
         {
 //            Eigen::Matrix<double,3,3> temp(Material<Isotropic>::C2*(fieldPoints[k].field<StressField>()+fieldPoints[k].field<StressField>().transpose()));
-            Eigen::Matrix<double,3,3> temp(fieldPoints[k].field<StressField>());
+            Eigen::Matrix<double,3,3> temp(fieldPoints[k].field());
             
             
             numericalFile << fieldPoints[k].P.transpose()<<" "<<temp.row(0)

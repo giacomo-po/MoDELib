@@ -32,6 +32,19 @@
 
 namespace model
 {
+//    
+//    template <int rows>
+//    struct RowsSelectorType
+//    {
+//        typename Eigen::Matrix<double,rows,1> VectorRows;
+//    };
+//    
+//    template <>
+//    struct RowsSelectorType<1>
+//    {
+//        typename double VectorRows;
+//    };
+    
     
     template<int _nComponents, typename _FiniteElementType>
     class TrialFunction : public TrialExpressionBase<TrialFunction<_nComponents,_FiniteElementType> >,
