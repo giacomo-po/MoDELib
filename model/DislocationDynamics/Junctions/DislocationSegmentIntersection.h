@@ -110,8 +110,11 @@ namespace model
         /**********************************************************************/
         std::set<std::pair<double,double> > intersectWith(const LinkType& ds2,
                                                           const VectorDim& n2,
-                                                          const double& physTol) const
+                                                          const double& physTol,
+                                                          const double& avoidNodeIntersection) const
         {
+            const double OneMinusAvoidNodeIntersection=1.0-avoidNodeIntersection;
+            
             const MatrixDimPolyCoeff H2=ds2.hermiteCoefficients();
             
             std::set<std::pair<double,double> > intersectionParameters;
@@ -153,12 +156,12 @@ namespace model
                     {// intersectionIsSourceSource
                         std::pair<double,std::pair<double,VectorDim> > map1=ds1.closestPoint(ds2.sink->get_P());
                         std::pair<double,std::pair<double,VectorDim> > map2=ds2.closestPoint(ds1.sink->get_P());
-                        if(map1.first<=nodeTol && map2.first>nodeTol)
+                        if(map1.first<=nodeTol && map1.second.first>avoidNodeIntersection && map2.first>nodeTol)
                         {
                             //std::cout<<"DislocationSegmentIntersection case 1 "<<map1.second.first<<std::endl;
                             intersectionParameters.emplace(map1.second.first,1.0);
                         }
-                        else if(map1.first>nodeTol && map2.first<=nodeTol)
+                        else if(map1.first>nodeTol && map2.first<=nodeTol && map2.second.first>avoidNodeIntersection)
                         {
                             //std::cout<<"DislocationSegmentIntersection case 2 "<<map2.second.first<<std::endl;
                             intersectionParameters.emplace(1.0,map2.second.first);
@@ -177,12 +180,12 @@ namespace model
                     {// intersectionIsSourceSink
                         std::pair<double,std::pair<double,VectorDim> > map1=ds1.closestPoint(ds2.source->get_P());
                         std::pair<double,std::pair<double,VectorDim> > map2=ds2.closestPoint(ds1.sink->get_P());
-                        if(map1.first<=nodeTol && map2.first>nodeTol)
+                        if(map1.first<=nodeTol && map1.second.first>avoidNodeIntersection && map2.first>nodeTol)
                         {
                             //std::cout<<"DislocationSegmentIntersection case 4 "<<map1.second.first<<std::endl;
                             intersectionParameters.emplace(map1.second.first,0.0);
                         }
-                        else if(map1.first>nodeTol && map2.first<=nodeTol)
+                        else if(map1.first>nodeTol && map2.first<=nodeTol && map2.second.first<OneMinusAvoidNodeIntersection)
                         {
                             //std::cout<<"DislocationSegmentIntersection case 5 "<<map2.second.first<<std::endl;
                             intersectionParameters.emplace(1.0,map2.second.first);
@@ -201,12 +204,12 @@ namespace model
                     {// intersectionIsSinkSource
                         std::pair<double,std::pair<double,VectorDim> > map1=ds1.closestPoint(ds2.sink->get_P());
                         std::pair<double,std::pair<double,VectorDim> > map2=ds2.closestPoint(ds1.source->get_P());
-                        if(map1.first<=nodeTol && map2.first>nodeTol)
+                        if(map1.first<=nodeTol && map1.second.first<OneMinusAvoidNodeIntersection && map2.first>nodeTol)
                         {
                             //std::cout<<"DislocationSegmentIntersection case 7 "<<map1.second.first<<std::endl;
                             intersectionParameters.emplace(map1.second.first,1.0);
                         }
-                        else if(map1.first>nodeTol && map2.first<=nodeTol)
+                        else if(map1.first>nodeTol && map2.first<=nodeTol && map2.second.first>avoidNodeIntersection)
                         {
                             //std::cout<<"DislocationSegmentIntersection case 8 "<<map2.second.first<<std::endl;
                             intersectionParameters.emplace(0.0,map2.second.first);
@@ -225,12 +228,12 @@ namespace model
                     {//intersectionIsSinkSink
                         std::pair<double,std::pair<double,VectorDim> > map1=ds1.closestPoint(ds2.source->get_P());
                         std::pair<double,std::pair<double,VectorDim> > map2=ds2.closestPoint(ds1.source->get_P());
-                        if(map1.first<=nodeTol && map2.first>nodeTol)
+                        if(map1.first<=nodeTol && map1.second.first<OneMinusAvoidNodeIntersection && map2.first>nodeTol)
                         {
                             //std::cout<<"DislocationSegmentIntersection case 10 "<<map1.second.first<<std::endl;
                             intersectionParameters.emplace(map1.second.first,0.0);
                         }
-                        else if(map1.first>nodeTol && map2.first<=nodeTol)
+                        else if(map1.first>nodeTol && map2.first<=nodeTol && map2.second.first<OneMinusAvoidNodeIntersection)
                         {
                             //std::cout<<"DislocationSegmentIntersection case 11 "<<map2.second.first<<std::endl;
                             intersectionParameters.emplace(0.0,map2.second.first);

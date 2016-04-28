@@ -307,6 +307,9 @@ namespace model
 //            std::vector<int> threadVector(nThreads,0);
             
             
+            const double avoidNodeIntersection=0.1;
+
+            
             //! 2- loop over all links and determine their intersections
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -332,7 +335,7 @@ namespace model
                             
                             if (!L1isSessile && !L2isSessile) // both are glissile
                             {
-                                temp = dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol);
+                                temp = dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol,avoidNodeIntersection);
                             }
                             else if (!L1isSessile && L2isSessile) // L1 is glissile and L2 is sessile
                             {
@@ -345,11 +348,11 @@ namespace model
                                 }
                                 else if(gnAgnB && !gnAsnB)
                                 { // use planeNormal of A and planeNormal of B
-                                    temp = dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol);
+                                    temp = dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol,avoidNodeIntersection);
                                 }
                                 else if (!gnAgnB && gnAsnB)
                                 { // use planeNormal of A and sessileNormal of B
-                                    temp = dsi.intersectWith(linkIterB->second,linkIterB->second.sessilePlaneNormal,collisionTol);
+                                    temp = dsi.intersectWith(linkIterB->second,linkIterB->second.sessilePlaneNormal,collisionTol,avoidNodeIntersection);
                                 }
                                 else{
                                     assert(0 && "GLISSILE AND SESSILE PLANE NORMALS OF B MUST BE DISTINCT.");
@@ -366,12 +369,12 @@ namespace model
                                 }
                                 else if(gnBgnA && !gnBsnA)
                                 { // use planeNormal of A and planeNormal of B
-                                    temp = dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol);
+                                    temp = dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol,avoidNodeIntersection);
                                 }
                                 else if (!gnBgnA && gnBsnA)
                                 { // use sessileNormal of A and use planeNormal of B
                                     const DislocationSegmentIntersection<LinkType> dsi2(linkIterA->second,linkIterA->second.sessilePlaneNormal);
-                                    temp = dsi2.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol);
+                                    temp = dsi2.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol,avoidNodeIntersection);
                                 }
                                 else{
                                     assert(0 && "GLISSILE AND SESSILE PLANE NORMALS OF B MUST BE DISTINCT.");
@@ -382,7 +385,6 @@ namespace model
                                 // cannot intersect
                             }
                             
-                            const double avoidNodeIntersection=0.1;
                             
                             for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter)
                             {
