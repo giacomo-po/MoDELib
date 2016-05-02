@@ -16,6 +16,7 @@
 #include <model/FEM/Boundaries/AtXmin.h>
 #include <model/FEM/Boundaries/AtXmax.h>
 #include <model/FEM/BoundaryConditions/Fix.h>
+#include <model/FEM/Domains/SubDomain.h>
 
 using namespace model;
 

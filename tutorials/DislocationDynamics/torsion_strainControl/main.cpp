@@ -12,10 +12,7 @@
  * _MODEL_NON_SINGULAR_DD_ = 2 Lazar's regularization method
  */
 #define _MODEL_NON_SINGULAR_DD_ 0
-#define userBVPfile "./bvpFile.h"
-#define userOutputFile "./myOutputs.h" // declare the custom output file
-
-#include <./Torsioner.h>
+#define userLoadController "./LoadController.h"
 #include <model/DislocationDynamics/DislocationNetwork.h>
 
 using namespace model;
@@ -25,11 +22,6 @@ int main (int argc, char* argv[])
     // Create the DislocationNetwork object
     typedef DislocationNetwork<3,1,CatmullRom,UniformOpen> DislocationNetworkType;
     DislocationNetworkType DN(argc,argv);
-    
-    // Read Torsioner data
-
-    // Initialize Torsioner
-    Torsioner::init(DN.runningID(),DN.userOutputColumn());
 
     // Run time steps
     DN.runSteps();

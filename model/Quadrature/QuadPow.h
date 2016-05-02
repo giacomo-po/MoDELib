@@ -49,7 +49,7 @@ namespace model
 				}
 			}
 			
-			std::cout<< "Computing powers of abscissas:"<<std::endl;
+//			std::cout<< "Computing powers of abscissas:"<<std::endl;
 //			std::cout<<temp<<std::endl;
 			
 			
@@ -73,7 +73,7 @@ namespace model
 					temp(i,j-1)=j*std::pow(abscissas(i),j-1);
 				}
 			}
-			std::cout<< "Computing 1-st derivative of powers of abscissas:"<<std::endl;
+//			std::cout<< "Computing 1-st derivative of powers of abscissas:"<<std::endl;
 //			std::cout<<temp<<std::endl;
 			return temp;
 		}
@@ -95,7 +95,7 @@ namespace model
 					temp(i,j-2)=j*(j-1)*std::pow(abscissas(i),j-2);
 				}
 			}
-			std::cout<< "Computing 2-nd derivative of powers of abscissas:"<<std::endl;
+//			std::cout<< "Computing 2-nd derivative of powers of abscissas:"<<std::endl;
 //			std::cout<<temp<<std::endl;
 			return temp;
 		}

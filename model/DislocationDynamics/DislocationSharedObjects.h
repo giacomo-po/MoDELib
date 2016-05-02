@@ -19,7 +19,6 @@
 #include <model/Mesh/SimplicialMesh.h> // defines model::cout
 #include <model/DislocationDynamics/BVP/BVPsolver.h>
 
-
 namespace model
 {
 	
@@ -73,6 +72,7 @@ namespace model
     
     template <int dim>
 	BVPsolver<dim,2> DislocationSharedObjects<dim>::bvpSolver(DislocationSharedObjects<dim>::mesh);
+
     
 } // namespace model
 #endif

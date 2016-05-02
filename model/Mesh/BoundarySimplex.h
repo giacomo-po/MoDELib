@@ -9,7 +9,8 @@
 #ifndef model_BoundarySimplex_H_
 #define model_BoundarySimplex_H_
 
-namespace model {
+namespace model
+{
     
     /**************************************************************************/
     /**************************************************************************/
@@ -17,7 +18,6 @@ namespace model {
     struct BoundarySimplex
     {
         /**********************************************************************/
-//        template<template <short int,short int> class SimplexChildType>
         static bool isBoundarySimplex(const SimplexChild<dim,dim-dmo>& simplexChild)
         {
             bool temp(false);
@@ -33,7 +33,6 @@ namespace model {
         }
         
         /**********************************************************************/
-//        template<template <short int,short int> class SimplexChildType>
         static bool isRegionBoundarySimplex(const SimplexChild<dim,dim-dmo>& simplexChild)
         {
             bool temp(false);

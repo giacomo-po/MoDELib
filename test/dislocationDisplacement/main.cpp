@@ -21,13 +21,16 @@ template<typename Field>
 struct DisplacementFieldPoint :
 /* inheritance */ public FieldPoint<DisplacementFieldPoint<Field>,Field::dim,Field>
 {
+    
+    typedef FieldPoint<DisplacementFieldPoint<Field>,Field::dim,Field> FieldPointType;
     const Eigen::Matrix<double,Field::dim,1> P;
     const Eigen::Matrix<double,Field::dim,1> S;
     
     DisplacementFieldPoint(const Eigen::Matrix<double,Field::dim,1>& Pin,
                            const Eigen::Matrix<double,Field::dim,1>& Sin) :
-    P(Pin),
-    S(Sin)
+    /* init */ FieldPointType(true),
+    /* init */ P(Pin),
+    /* init */ S(Sin)
     {}
     
 };
@@ -73,7 +76,7 @@ Eigen::Matrix<double,3,1> displacementStraightEdge(const Eigen::Matrix<double,3,
 int main(int argc, char * argv[])
 {
     // Some definitions
-    typedef  DislocationNetwork<3,1,CatmullRom,16,UniformOpen> DislocationNetworkType;
+    typedef  DislocationNetwork<3,1,CatmullRom,UniformOpen> DislocationNetworkType;
     typedef typename DislocationNetworkType::DisplacementField DisplacementField;
     
     // Create DislocationNetwork
@@ -92,20 +95,20 @@ int main(int argc, char * argv[])
     Eigen::Matrix<double,3,1> P3( Lx,0.0,-Lz/2.0);
     
     // Connect four straight segments (do no create a loop to avoid curvature)
-    const size_t n0(DN.insertVertex(P0)); // insert vertex ind DislocationNetwork
-    const size_t n1(DN.insertVertex(P1)); // insert vertex ind DislocationNetwork
+    const size_t n0(DN.insertVertex(P0).first->first); // insert vertex ind DislocationNetwork
+    const size_t n1(DN.insertVertex(P1).first->first); // insert vertex ind DislocationNetwork
     DN.connect(n0,n1,b); // connect two vertices with a DislocationSegment
     
-    const size_t n2(DN.insertVertex(P1)); // insert vertex ind DislocationNetwork
-    const size_t n3(DN.insertVertex(P2)); // insert vertex ind DislocationNetwork
+    const size_t n2(DN.insertVertex(P1).first->first); // insert vertex ind DislocationNetwork
+    const size_t n3(DN.insertVertex(P2).first->first); // insert vertex ind DislocationNetwork
     DN.connect(n2,n3,b); // connect two vertices with a DislocationSegment
     
-    const size_t n4(DN.insertVertex(P2)); // insert vertex ind DislocationNetwork
-    const size_t n5(DN.insertVertex(P3)); // insert vertex ind DislocationNetwork
+    const size_t n4(DN.insertVertex(P2).first->first); // insert vertex ind DislocationNetwork
+    const size_t n5(DN.insertVertex(P3).first->first); // insert vertex ind DislocationNetwork
     DN.connect(n4,n5,b); // connect two vertices with a DislocationSegment
     
-    const size_t n6(DN.insertVertex(P3)); // insert vertex ind DislocationNetwork
-    const size_t n7(DN.insertVertex(P0)); // insert vertex ind DislocationNetwork
+    const size_t n6(DN.insertVertex(P3).first->first); // insert vertex ind DislocationNetwork
+    const size_t n7(DN.insertVertex(P0).first->first); // insert vertex ind DislocationNetwork
     DN.connect(n6,n7,b); // connect two vertices with a DislocationSegment
     
     // Reach a stable number of nodes

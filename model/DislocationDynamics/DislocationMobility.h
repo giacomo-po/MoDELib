@@ -20,7 +20,8 @@
 #include <model/DislocationDynamics/Materials/PeriodicElement.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 
-namespace model {
+namespace model
+{
     
     
     template <short unsigned int dim>  // non-type template

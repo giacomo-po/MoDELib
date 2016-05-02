@@ -494,43 +494,82 @@ namespace model
         //            return (this->is_simple() && constraintNormals().size()==1);
         //        }
         
+//        /**********************************************************************/
+//        void make_projectionMatrix()
+//        {
+//            
+//            // Add normal to glide and sessile planes
+//            Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
+//            VectorOfNormalsType  CN;
+//            for(const auto& plane : _confiningPlanes)
+//            {
+//                CN.push_back(plane->n.cartesian().normalized());
+//            }
+//            
+//            // Add normal to mesh boundary
+//            if(meshLocation()==onMeshBoundary)
+//            {
+//                const Eigen::Matrix<double,dim+1,1> bary(p_Simplex->pos2bary(this->get_P()));
+//                for (int i=0;i<dim+1;++i)
+//                {
+//                    if(std::fabs(bary(i))<FLT_EPSILON && p_Simplex->child(i).isBoundarySimplex())
+//                    {
+//                        CN.push_back(p_Simplex->nda.col(i));
+//                    }
+//                }
+//            }
+//            
+//            // Add normal to region boundary
+//            //            CN.push_back(regionBndNormal);
+//            
+//            // Find independent vectors
+//            GramSchmidt::orthoNormalize(CN);
+//            
+//            // Assemble projection matrix (prjM)
+//            this->prjM.setIdentity();
+//            for (size_t k=0;k<CN.size();++k)
+//            {
+//                this->prjM*=( I-CN[k]*CN[k].transpose() );
+//            }
+//        }
+
         /**********************************************************************/
         void make_projectionMatrix()
         {
             
-            // Add normal to glide and sessile planes
-            Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
-            VectorOfNormalsType  CN;
-            for(const auto& plane : _confiningPlanes)
-            {
-                CN.push_back(plane->n.cartesian().normalized());
-            }
+
             
             // Add normal to mesh boundary
             if(meshLocation()==onMeshBoundary)
             {
-                const Eigen::Matrix<double,dim+1,1> bary(p_Simplex->pos2bary(this->get_P()));
-                for (int i=0;i<dim+1;++i)
+                this->prjM.setZero();
+
+            }
+            else
+            {
+                // Add normal to glide and sessile planes
+                Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
+                VectorOfNormalsType  CN;
+                for(const auto& plane : _confiningPlanes)
                 {
-                    if(std::fabs(bary(i))<FLT_EPSILON && p_Simplex->child(i).isBoundarySimplex())
-                    {
-                        CN.push_back(p_Simplex->nda.col(i));
-                    }
+                    CN.push_back(plane->n.cartesian().normalized());
+                }
+                
+                // Add normal to region boundary
+                //            CN.push_back(regionBndNormal);
+                
+                // Find independent vectors
+                GramSchmidt::orthoNormalize(CN);
+                
+                // Assemble projection matrix (prjM)
+                this->prjM.setIdentity();
+                for (size_t k=0;k<CN.size();++k)
+                {
+                    this->prjM*=( I-CN[k]*CN[k].transpose() );
                 }
             }
             
-            // Add normal to region boundary
-            //            CN.push_back(regionBndNormal);
-            
-            // Find independent vectors
-            GramSchmidt::orthoNormalize(CN);
-            
-            // Assemble projection matrix (prjM)
-            this->prjM.setIdentity();
-            for (size_t k=0;k<CN.size();++k)
-            {
-                this->prjM*=( I-CN[k]*CN[k].transpose() );
-            }
+
         }
         
         /**********************************************************************/
@@ -541,13 +580,19 @@ namespace model
             
             if(use_velocityFilter)
             {
-                if(velocity.dot(vOld)<=0.0)
+                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
+//                const double VdotVold=
+                if(velocity.dot(vOld)<-filterThreshold)
                 {
                     velocityReductionCoeff*=velocityReductionFactor;
                 }
-                else
+                else if(velocity.dot(vOld)>filterThreshold)
                 {
                     velocityReductionCoeff/=velocityReductionFactor;
+                }
+                else
+                {
+                    // don't change velocityReductionCoeff
                 }
                 if(velocityReductionCoeff>1.0)
                 {
@@ -558,6 +603,7 @@ namespace model
                     velocityReductionCoeff=0.01;
                 }
                 velocity*=velocityReductionCoeff;
+                
             }
             
         }

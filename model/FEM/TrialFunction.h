@@ -85,8 +85,10 @@ namespace model
         typedef typename TypeTraits<TrialFunctionType>::ShapeFunctionDefMatrixType  ShapeFunctionDefMatrixType;
         
         //! A const reference of the FiniteElement over which *this is constructed.
-        const FiniteElementType& fe;
-//        const size_t gSize;
+//        const FiniteElementType& fe;
+        FiniteElementType& fe; // made non-const only to allow fe.createNodeList
+
+        //        const size_t gSize;
 
     private:
 
@@ -95,7 +97,8 @@ namespace model
     public:
         
         /**********************************************************************/
-        TrialFunction(const FiniteElementType& fe_in) :
+//        TrialFunction(const FiniteElementType& fe_in) :
+        TrialFunction(FiniteElementType& fe_in) : // made non-const only to allow fe.createNodeList
         /* init list */ fe(fe_in)
 //        /* init list */ gSize(fe.nodeSize()*dofPerNode)
         {

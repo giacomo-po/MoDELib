@@ -679,7 +679,7 @@ namespace model
                 {
                     EDR.readScalarInFile(fullName.str(),"use_directSolver_FEM",shared.bvpSolver.use_directSolver);
                     EDR.readScalarInFile(fullName.str(),"solverTolerance",shared.bvpSolver.tolerance);
-                    shared.bvpSolver.init();
+                    shared.bvpSolver.init(*this);
                 }
             }
             else{ // no boundary is used, DislocationNetwork is in inifinite medium

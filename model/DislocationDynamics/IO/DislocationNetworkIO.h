@@ -346,6 +346,11 @@ namespace model
                 f_file<<length.first<<" "<<length.second<<" ";
             }
             
+            if(DN.shared.use_bvp)
+            {
+                f_file<<DN.shared.bvpSolver.loadController().output(DN);
+            }
+            
 #ifdef userOutputFile
 #include userOutputFile
 #endif

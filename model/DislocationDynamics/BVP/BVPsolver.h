@@ -31,6 +31,12 @@
 //
 //#include <model/Utilities/RuntimeError.h>
 
+#ifndef userLoadController
+#define userLoadController "model/DislocationDynamics/BVP/DummyLoadController.h"
+#endif
+#include userLoadController
+
+
 namespace model
 {
     
@@ -60,6 +66,7 @@ namespace model
         
         typedef Eigen::SparseMatrix<double> SparseMatrixType;
         
+        typedef LoadController<TrialFunctionType> LoadControllerType;
         
         const SimplicialMesh<dim>& mesh;
         size_t gSize;
@@ -77,6 +84,8 @@ namespace model
         
         IntegrationDomainType dV;
         BilinearWeakFormType* bWF;
+        
+        LoadControllerType* lc;
         
         SparseMatrixType A;
         SparseMatrixType T;
@@ -320,8 +329,17 @@ namespace model
         }
         
         /**********************************************************************/
-        void init()
+        const LoadControllerType& loadController() const
         {
+            return *lc;
+        }
+        
+        /**********************************************************************/
+        template <typename DislocationNetworkType>
+        void init(const DislocationNetworkType& DN)
+        {
+            std::cout<<"Initializing BVPsolver"<<std::endl;
+
             fe = new FiniteElementType(mesh);
             u  = new TrialFunctionType(fe->template trial<dim>());
             b  = new TrialGradType(grad(*u));
@@ -340,6 +358,10 @@ namespace model
             A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
             A.prune(A.norm()/A.nonZeros(),FLT_EPSILON);
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+        
+            // Initialize LoadController
+            lc = new LoadControllerType(displacement());
+            lc ->init(DN);
         }
         
         
@@ -411,57 +433,46 @@ namespace model
         
         
         
-#ifdef userBVPfile
+//#ifdef userBVPfile
         /**********************************************************************/
         template <typename DislocationNetworkType,int qOrder>
         void assembleAndSolve(const DislocationNetworkType& DN)
         {
-            
-            
-            typedef typename DislocationNetworkType::StressField StressField;
-            typedef BoundaryStressPoint<DislocationNetworkType> FieldPointType;
-            
-            //LinearWeakFormType lwf(u->test(),ds);
-            //            const auto t0= std::chrono::system_clock::now();
-            
-            auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
-            
-            auto eb_list = ndA.template integrationList<FieldPointType>();
-            
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"Computing DD boundary traction..."<<std::flush;
-            DN.template computeField<FieldPointType,StressField>(eb_list);
-#ifdef _MODEL_TEST_DD_STRESS_
-            SequentialOutputFile<'Z',1>::set_count(DN.runningID());
-            SequentialOutputFile<'Z',1> dd_stress_file;
-            for (const auto& point : eb_list)
-            {
-            dd_stress_file<<point.P.transpose()<<"\t"<< point.template field<StressField>().row(0)<<"\t"
-                                                     << point.template field<StressField>().row(1)<<"\t"
-                                                     << point.template field<StressField>().row(2)<<"\n";
-            }
-            
-#endif
-            
-            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            
-            
-            auto dislocationTraction=(u->test(),eb_list);
-            
-            fe->clearNodeLists();
+            // Clear exisintg Dirichlet condition
             u->clearDirichletConditions();
             
-#include userBVPfile // userBVPfile defines additional loads, boundary conditions, and calls solver
+            // Update loadController
+            lc->update(DN);
+            
+            // Add Dirichlet conditions by loadController
+            lc->addDirichletConditions(DN);
+
+            // Modify Dirichlet conditions by subtracting dislocation displacement
+            modifyDirichletConditions(DN);
+            
+            // Compute dislocation traction
+            model::cout<<"Computing DD boundary traction..."<<std::flush;
+            typedef typename DislocationNetworkType::StressField StressField;
+            typedef BoundaryStressPoint<DislocationNetworkType> FieldPointType;
+            auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
+            auto eb_list = ndA.template integrationList<FieldPointType>(); // TO DO: make this a member data to be able to output
+            const auto t0= std::chrono::system_clock::now();
+            DN.template computeField<FieldPointType,StressField>(eb_list);
+            auto dislocationTraction=(u->test(),eb_list);
+            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            
+            // Assemble loadController and dislocaiton tractions and solve
+            displacement()=solve(lc->globalVector()-dislocationTraction.globalVector(),displacement());
             
         }
-#else
-        /**********************************************************************/
-        template <typename DislocationNetworkType,int qOrder>
-        void assembleAndSolve(const DislocationNetworkType& )
-        {
-            assert(0 && "YOU MUST #define THE userBVPfile to use BVPsolver.");
-        }
-#endif
+//#else
+//        /**********************************************************************/
+//        template <typename DislocationNetworkType,int qOrder>
+//        void assembleAndSolve(const DislocationNetworkType& )
+//        {
+//            assert(0 && "YOU MUST #define THE userBVPfile to use BVPsolver.");
+//        }
+//#endif
         
         
         
@@ -536,6 +547,22 @@ namespace model
             const Eigen::Matrix<double,dim+1,1> bary(face2domainBary(b1,boundaryFace));
             const VectorDim pos(ele.position(bary));
             return (pos-x0).cross(DN.stress(pos)*JGNselector<dim>::jGN(ele.jGN(bary,boundaryFace)));
+        }
+        
+        /**********************************************************************/
+        void output() const
+        {
+            //#ifdef _MODEL_TEST_DD_STRESS_
+            //            SequentialOutputFile<'Z',1>::set_count(DN.runningID());
+            //            SequentialOutputFile<'Z',1> dd_stress_file;
+            //            for (const auto& point : eb_list)
+            //            {
+            //            dd_stress_file<<point.P.transpose()<<"\t"<< point.template field<StressField>().row(0)<<"\t"
+            //                                                     << point.template field<StressField>().row(1)<<"\t"
+            //                                                     << point.template field<StressField>().row(2)<<"\n";
+            //            }
+            //            
+            //#endif
         }
         
     };

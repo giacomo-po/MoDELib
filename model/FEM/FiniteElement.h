@@ -40,18 +40,20 @@ namespace model
     /* inherits        */ public std::map<Eigen::Matrix<size_t,_ElementType::dim+1,1>, // key
     /*                                  */ _ElementType, // value
     /*                                  */ CompareVectorsByComponent<size_t,_ElementType::dim+1> // key compare
-    /*                                  */ >,
+    /*                                  */ >, // element container
     /* inherits        */ public std::deque<typename _ElementType::NodeType>, // node container
     /* inherits        */ public std::map<Eigen::Matrix<double,_ElementType::dim,1>, // key
     /*                                  */ typename _ElementType::NodeType* const, // value
     /*                                  */ CompareVectorsByComponent<double,_ElementType::dim,float> // key compare
     /*                                  */ >, // nodefinder
-    /* inherits        */ private std::map<size_t,std::deque<const typename _ElementType::NodeType*>> // node list container
+    /* inherits        */ private std::map<size_t,std::deque<const typename _ElementType::NodeType*>> // node-list container
     {
         
     private:
         Eigen::Matrix<double,_ElementType::dim,1> _xMin;
         Eigen::Matrix<double,_ElementType::dim,1> _xMax;
+        size_t nodeListID;
+
         
     public:
         
@@ -77,7 +79,6 @@ namespace model
         /*                                  */ > NodeFinderType;
         
         const MeshType& mesh;
-        size_t nodeListID;
         
         /**********************************************************************/
         FiniteElement(const SimplicialMesh<dim>& m) :
@@ -85,9 +86,9 @@ namespace model
 //        /* init list */ _xMax(Eigen::Matrix<double,ElementType::dim,1>::Constant(-DBL_MAX)),
         /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Zero()),
         /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Zero()),
-        /* init list */ mesh(m),
-        /* init list */ nodeListID(0)
-        {/*!@param[in] s A const reference to a SimplicialMesh on which *this 
+        /* init list */ nodeListID(0),
+        /* init list */ mesh(m)
+        {/*!@param[in] s A const reference to a SimplicialMesh on which *this
           * FiniteElement is constructed.
           */
             
@@ -152,12 +153,21 @@ namespace model
              model::cout<<"   xMax= "    <<_xMax.transpose()<<std::endl;
         }
         
+//        /**********************************************************************/
+//        template <int nComponents>
+//        TrialFunction<nComponents,FiniteElementType> trial() const
+//        {
+//            return TrialFunction<nComponents,FiniteElementType>(*this);
+//        }
+        
         /**********************************************************************/
         template <int nComponents>
-        TrialFunction<nComponents,FiniteElementType> trial() const
+        TrialFunction<nComponents,FiniteElementType> trial()  // made non-const only to allow fe.createNodeList
         {
             return TrialFunction<nComponents,FiniteElementType>(*this);
         }
+        
+       
         
         const ElementContainerType& elements() const
         {
