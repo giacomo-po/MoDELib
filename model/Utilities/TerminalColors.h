@@ -25,9 +25,16 @@ namespace model
 
     std::string greenColor      = "\033[0;32m";   // a bold green color
     std::string greenBoldColor  = "\033[1;32m";   // a bold green color
+    
+    std::string yellowColor       = "\033[0;33m";   // a yellow color
+    std::string yellowBoldColor   = "\033[1;33m";   // a bold yellow color
 
-    std::string magentaColor    = "\033[0;35m";   // a magenta color
+    std::string blueColor       = "\033[0;34m";   // a blue color
     std::string blueBoldColor   = "\033[1;34m";   // a bold blue color
+    
+    std::string magentaColor    = "\033[0;35m";   // a magenta color
+    std::string magentaBoldColor= "\033[1;35m";   // a bold magenta color
+    
 }
 
 

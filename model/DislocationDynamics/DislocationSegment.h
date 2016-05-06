@@ -45,7 +45,7 @@
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 
 //#include <model/DislocationDynamics/CrossSlip/CrossSlipSegment.h>
-#include <model/DislocationDynamics/DislocationMobility.h>
+//#include <model/DislocationDynamics/DislocationMobility.h>
 #include <model/Utilities/UniqueOutputFile.h>
 
 namespace model
@@ -237,7 +237,6 @@ namespace model
         //! A shared pointer to the GlidePlane of this segment
         const GlidePlaneSharedPtrType pGlidePlane;
         
-        const DislocationMobility<dim> dm;
         
         static double quadPerLength;
         size_t qOrder;
@@ -254,6 +253,9 @@ namespace model
         
         //! PK force corrersponding to the quadrature points
         MatrixDimQorder pkGauss;
+        
+//        const DislocationMobility<dim> dm;
+
         
     private:
         
@@ -292,7 +294,8 @@ namespace model
         /**********************************************************************/
         VectorDim radiativeVel(const VectorDim& pkF) const
         {
-            const VectorDim v0(Material<Isotropic>::Binv*pkF);
+//            const VectorDim v0(Material<Isotropic>::Binv*pkF);
+            const VectorDim v0(Material<Isotropic>::velocity(pkF));
             const double v0N(v0.norm());
             const double csf(0.7*Material<Isotropic>::cs);
             return (v0N>FLT_EPSILON)? csf*(1.0-std::exp(-v0N/csf))*v0/v0N : v0;
@@ -316,8 +319,8 @@ namespace model
         /* init list       */ conjugatePlaneNormals(CrystalOrientation<dim>::conjugatePlaneNormal(this->flow,this->glidePlane.n)),
         //        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
-        /* init list       */ dm(this->glidePlaneNormal,Burgers),
         /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
+//        /* init list       */ dm(this->glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
@@ -344,8 +347,8 @@ namespace model
         /* init list       */ conjugatePlaneNormals(CrystalOrientation<dim>::conjugatePlaneNormal(this->flow,this->glidePlane.n)),
         //        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
-        /* init list       */ dm(this->glidePlaneNormal,Burgers),
         /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
+//        /* init list       */ dm(this->glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and ExpandingEdge
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] ee the expanding edge

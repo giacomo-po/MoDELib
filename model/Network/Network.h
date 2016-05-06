@@ -27,9 +27,9 @@
 #include <model/Utilities/SequentialBinFile.h>
 
 
-namespace model {
-	
-	
+namespace model
+{
+		
 	template <typename Derived>
     class Network : public NonCopyable,
     /*          */  protected std::map<size_t,typename TypeTraits<Derived>::NodeType>,
@@ -59,58 +59,66 @@ namespace model {
 		
 	public:
 		
-		/************************************************************/
+        /**********************************************************************/
 		size_t nodeOrder() const
-        {/*! The number of vertices in the Network
+        {/*!\returns The number of vertices in the Network
           */
 			return NetworkNodeContainerType::size();
 		}
 		
-		/************************************************************/
-		// linkOrder
+        /**********************************************************************/
 		size_t linkOrder() const
-        {/*! The number of edges in the Network
+        {/*!\returns The number of edges in the Network
           */
 			return NetworkLinkContainerType::size();
 		}
         
-        /************************************************************/
+        /**********************************************************************/
         const NetworkNodeContainerType& nodes() const
-        {
+        {/*!\returns A const reference to the node container
+          */
             return *this;
         }
         
-        /************************************************************/
+        /**********************************************************************/
         NetworkNodeContainerType& nodes()
-        {
+        {/*!\returns A reference to the node container
+          */
             return *this;
         }
         
-        /************************************************************/
+        /**********************************************************************/
         const NetworkLinkContainerType& links() const
-        {
+        {/*!\returns A const reference to the link container
+          */
             return *this;
         }
         
-        /************************************************************/
+        /**********************************************************************/
         NetworkLinkContainerType& links()
-        {
+        {/*!\returns A reference to the link container
+          */
             return *this;
         }
         
-		/************************************************************/
-		// node
+        /**********************************************************************/
 		isNetworkNodeType node(const size_t & k)
-        {
+        {/*!\returns A <bool,NodeType* const> pair, where pair.first is true
+          * if node k is in the network, in which case pair.second is a pointer 
+          * the the node
+          */
 			return VertexFinder<NodeType>(*this).node(k);
 		}
 		
-		isConstNetworkNodeType node(const size_t & k) const {
+		isConstNetworkNodeType node(const size_t & k) const
+        {/*!\returns A <bool,const NodeType* const> pair, where pair.first is true
+          * if node k is in the network, in which case pair.second is a pointer
+          * the the node
+          */
 			return VertexFinder<NodeType>(*this).node(k);
 		}
 		
-		/************************************************************/
-		// link
+        /**********************************************************************/
 		isNetworkLinkType link(const size_t& i, const size_t& j)
         {
 			return EdgeFinder<LinkType>(*this).link(i,j);
@@ -121,7 +129,7 @@ namespace model {
 			return EdgeFinder<LinkType,true>(*this).link(i,j);
 		}
 		
-		/************************************************************/
+        /**********************************************************************/
 		typename NetworkNodeContainerType::iterator nodeBegin()
         {//!\returns An iterator to the first node in the network.
 			return NetworkNodeContainerType::begin();
@@ -132,7 +140,7 @@ namespace model {
 			return NetworkNodeContainerType::begin();
 		}
 		
-		/************************************************************/
+        /**********************************************************************/
 		typename NetworkNodeContainerType::iterator nodeEnd()
         {/*! @param[out] An iterator referring to the past-the-end vertex in
           *  the network.
@@ -147,7 +155,7 @@ namespace model {
 			return NetworkNodeContainerType::end();
 		}
 		
-		/************************************************************/
+        /**********************************************************************/
 		typename NetworkLinkContainerType::iterator linkBegin()
         {
 			return NetworkLinkContainerType::begin();
@@ -158,8 +166,7 @@ namespace model {
 			return NetworkLinkContainerType::begin();
 		}
 		
-		/************************************************************/
-		// linkEnd
+        /**********************************************************************/
 		typename NetworkLinkContainerType::iterator linkEnd()
         {
 			return NetworkLinkContainerType::end();
@@ -170,23 +177,20 @@ namespace model {
 			return NetworkLinkContainerType::end();
 		}
         
-        
-        /************************************************************/
+        /**********************************************************************/
         typename NetworkComponentContainerType::iterator componentBegin()
         {
             return this->ABbegin();
         }
         
-        /************************************************************/
+        /**********************************************************************/
         typename NetworkComponentContainerType::iterator componentEnd()
         {
             return this->ABend();
         }
-
         
-		/* insert (a new vertex) **************************************/
+        /**********************************************************************/
 		template <typename ...NodeArgTypes>
-//		size_t insertVertex(const NodeArgTypes&... nodeInput)
         std::pair<typename NetworkNodeContainerType::iterator,bool> insertVertex(const NodeArgTypes&... nodeInput)
         {/*! @param[in] nodeInput
           *  Inserts a new vertex in the Network using nodeInput as variable
@@ -195,7 +199,7 @@ namespace model {
 			return VertexInsertion<NodeType>(*this).insert(nodeInput...);
 		}
 		
-		/* connect ***************************************************/
+        /**********************************************************************/
         template <typename ...EdgeArgTypes>
         bool connect(const size_t& i, const size_t& j, const EdgeArgTypes&... edgeArgs)
         {/*! @param[in] i the StaticID of the source vertex
@@ -206,7 +210,7 @@ namespace model {
             return VertexConnection<NodeType,LinkType>(*this,*this).connect(i,j,edgeArgs...);
 		}
 		
-		/* disconnect ************************************************/
+        /**********************************************************************/
 		template<bool removeIsolatedNodes>
 		bool disconnect(const size_t& i, const size_t& j)
         {/*! @param[in] i the StaticID of the source vertex
@@ -216,8 +220,7 @@ namespace model {
 			return VertexConnection<NodeType,LinkType>(*this,*this).disconnect<removeIsolatedNodes>(i,j);
 		}
 		
-		/************************************************************/
-		// remove (a node)
+        /**********************************************************************/
 		template<bool removeIsolatedNodes>
 		bool removeVertex(const size_t& k)
         {/*! @param[in] k the StaticID of the vertex
@@ -226,29 +229,26 @@ namespace model {
 			return VertexConnection<NodeType,LinkType>(*this,*this).template remove<removeIsolatedNodes>(k);
 		}
 		
-		/************************************************************/
-		// disconnect_if
+        /**********************************************************************/
 		template<bool removeIsolatedNodes>
 		size_t disconnect_if(bool (LinkType::*Lfptr)(void) const)
         {
 			return VertexConnection<NodeType,LinkType>(*this,*this).disconnect_if<removeIsolatedNodes>(Lfptr);
 		}
 		
-		/************************************************************/
-		// disconnect_if
+        /**********************************************************************/
 		template<bool removeIsolatedNodes, typename T>
 		size_t disconnect_if(bool (LinkType::*Lfptr)(const T &) const, const T & input)
         {
 			return VertexConnection<NodeType,LinkType>(*this,*this).disconnect_if<removeIsolatedNodes,T>(Lfptr,input);
 		}
 		
-		/* expand ***************************************************/
+        /**********************************************************************/
 		template <typename ...NodeArgTypes>
 		std::pair<typename NetworkNodeContainerType::iterator,bool> expand(const size_t & i, const size_t & j, const NodeArgTypes&... Args)
         {
 			return EdgeExpansion<NodeType,LinkType>(*this,*this).expand(i,j,Args...);
 		}
-		
 		
 		/* multiExpand **************************************************/ // CLEAN THIS
 		template <typename T>
@@ -285,44 +285,40 @@ namespace model {
 			
 			return temp;
 		}
-        
 		
-		/* contract **************************************************/
+        /**********************************************************************/
 		template <typename ...NodeArgTypes>
 		void contract(const size_t& i, const size_t& j, const NodeArgTypes&... nodeInput)
         {
 			VertexContraction<NodeType,LinkType>(*this,*this).contract(i,j,nodeInput...);
 		}
 		
-        
-		/* contractSecond ********************************************/
+        /**********************************************************************/
 		void contractSecond(const size_t& i, const size_t& j)
         {
 			VertexContraction<NodeType,LinkType>(*this,*this).contractSecond(i,j);
 		}
         
-        
-		/*************************************************************/
+        /**********************************************************************/
 		void parallelExecute(void (LinkType::*Lfptr)(void))
         {
 			ParallelExecute<NodeType,LinkType>(*this,*this).execute(Lfptr);
 		}
         
-		/*************************************************************/
+        /**********************************************************************/
 		void parallelExecute(void (NodeType::*Vfptr)(void))
         {
 			ParallelExecute<NodeType,LinkType>(*this,*this).execute(Vfptr);
 		}
         
-		/*************************************************************/
+        /**********************************************************************/
 		template <typename T>
 		void parallelExecute(void (NodeType::*Vfptr)(const T&), const T& input)
         {
 			ParallelExecute<NodeType,LinkType>(*this,*this).execute(Vfptr,input);
 		}
         
-		/*************************************************************/
-		// friend T& operator <<
+        /**********************************************************************/
 		template <class T>
 		friend T& operator << (T& os, const NetworkNodeContainerType& nnC)
         {
@@ -333,8 +329,7 @@ namespace model {
             return os;
         }
         
-        /*************************************************************/
-        // friend T& operator <<
+        /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const NetworkLinkContainerType& nlC)
         {
@@ -348,34 +343,5 @@ namespace model {
         
     };	// end Network
     
-    
-    
-    /*************************************************************/
-    // friend T& operator <<
-    //		template <class T,typename key,typename value,typename compare,typename allocator>
-    //     T& operator << (T& os, const boost::ptr_map<key,value,compare,allocator>& pMap)
-    //        {
-    //			for (typename boost::ptr_map<key,value>::const_iterator iter=pMap.begin();iter!=pMap.end();++iter)
-    //            {
-    //				os << (*iter->second) << "\n";
-    //                }
-    //                return os;
-    //                }
-    
-    //                /*************************************************************/
-    //                // friend T& operator <<
-    //                template <class T>
-    //                friend T& operator << (T& os, const NetworkLinkContainerType& nlC)
-    //                {
-    //                    for (typename NetworkLinkContainerType::const_iterator linkIter=nlC.begin();linkIter!=nlC.end();++linkIter)
-    //                    {
-    //                        os << (*linkIter->second) << "\n";
-    //                    }
-    //                    return os;
-    //                }
-    
-    
-    /************************************************************/
-    /************************************************************/
 } // namespace model
 #endif

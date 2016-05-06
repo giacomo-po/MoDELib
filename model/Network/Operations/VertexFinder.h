@@ -10,7 +10,6 @@
 #define model_VERTEXFINDER_H_
 
 #include <utility> // for std::pair
-//#include <boost/ptr_container/ptr_map.hpp> // for boost::ptr_map
 #include <map> // for boost::ptr_map
 
 namespace model
@@ -20,40 +19,44 @@ namespace model
     class VertexFinder
     {
         
-        //		typedef boost::ptr_map<size_t,VertexType> NetworkVertexMapType;
         typedef std::map<size_t,VertexType> NetworkVertexMapType;
+        
         //! A reference to the network vertex map
         NetworkVertexMapType& networkVertexMapRef;
         
     public:
-        //typedef size_t ReturnType;
         
         typedef std::pair<bool,VertexType* const>		 isNetworkVertexType;
         typedef std::pair<bool,const VertexType* const>	 isConstNetworkVertexType;
         
         
-        /* Constructor ******************************/
-        VertexFinder(NetworkVertexMapType& networkVertexMapRef_in) : networkVertexMapRef(networkVertexMapRef_in) {}
+        /**********************************************************************/
+        VertexFinder(NetworkVertexMapType& networkVertexMapRef_in) :
+        /* init */ networkVertexMapRef(networkVertexMapRef_in)
+        {
         
-        /************************************************************/
-        // node
+        }
+        
+        /**********************************************************************/
         isNetworkVertexType node(const size_t & k)
-        {/*!If a node with static ID = k exists in the network the function returns the pair (true, node pointer).
-          * Otherwise returns the pair (false,NULL).
+        {/*!\returns A <bool,NodeType* const> pair, where pair.first is true
+          * if node k is in the network, in which case pair.second is a pointer
+          * the the node
           */
             typename NetworkVertexMapType::iterator nodeIter(networkVertexMapRef.find(k));
-            //			return (nodeIter!=networkVertexMapRef.end())? std::make_pair(true,nodeIter->second) : std::make_pair(false,(VertexType* const) NULL);
             return (nodeIter!=networkVertexMapRef.end())? std::make_pair(true,&nodeIter->second) : std::make_pair(false,(VertexType*) NULL);
         }
         
         isConstNetworkVertexType node(const size_t & k) const
-        {
+        {/*!\returns A <bool,const NodeType* const> pair, where pair.first is true
+          * if node k is in the network, in which case pair.second is a pointer
+          * the the node
+          */
             typename NetworkVertexMapType::const_iterator nodeIter(networkVertexMapRef.find(k));
             return (nodeIter!=networkVertexMapRef.end())? std::make_pair(true,&nodeIter->second) : std::make_pair(false,(const VertexType* const) NULL);
         }
         
     };
     
-    //////////////////////////////////////////////////////////////
 } // namespace model
 #endif
