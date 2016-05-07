@@ -83,7 +83,7 @@ namespace model
 		
 	public:
 		
-        enum{colorBurgers=0,colorSessile=1,colorNormal=2,colorComponent=3};
+        enum{colorBurgers=0,colorSessile=1,colorNormal=2,colorEdgeScrew=3,colorComponent=4};
         
         
 		/* Constructor ************************************************************/
@@ -151,44 +151,49 @@ namespace model
 			
             // 1- Define the color
             VectorDim colorVector;
-            switch (colorScheme)
-            {
-                case colorSessile:
-                    colorVector(0)= isSessile? 1.0 : 0.1;
-                    colorVector(1)= isSessile? 0.5 : 0.4;
-                    colorVector(2)= isSessile? 0.0 : 0.9;
-                    break;
-                    
-                case colorNormal:
-                    colorVector = planeNormal;
-                    flipColor(colorVector);
-                    break;
-                    
-                case colorComponent:
-                {
-                    RGBcolor rgb(RGBmap::getColor(ids,sIDmin,sIDmax));
-                    colorVector << rgb.r, rgb.g, rgb.b;
-                }
-                    break;
-                    
-                default:
-                    colorVector = burgers.normalized();
-                    flipColor(colorVector);
-                    break;
-            }
-            
-            //			glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
-            //			glEnable(GL_DEPTH_TEST);
-            GLfloat materialAmbient[]={colorVector(0), colorVector(1), colorVector(2), 1.0};
-            GLfloat materialEmission[]={colorVector(0)*0.1f, colorVector(1)*0.1f, colorVector(2)*0.1f, 1.0};
-
-            //			GLfloat materialSpecular[] = {specularity, specularity, specularity, 1.0f};
-            //			GLfloat materialEmission[] = {emissivity, emissivity, emissivity, 1.0f};
-            // note that glMaterialfv(...) works when GL_COLOR_MATERIAL is disabled
-			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialAmbient);      // ambient color for the material
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialAmbient);      // diffuse color for the material
-			glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialAmbient);  // specular color for the material
-            glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialEmission);  // emission color for the material
+//            switch (colorScheme)
+//            {
+//                case colorSessile:
+//                    colorVector(0)= isSessile? 1.0 : 0.1;
+//                    colorVector(1)= isSessile? 0.5 : 0.4;
+//                    colorVector(2)= isSessile? 0.0 : 0.9;
+//                    break;
+//                    
+//                case colorNormal:
+//                    colorVector = planeNormal;
+//                    flipColor(colorVector);
+//                    break;
+//                    
+//                case colorEdgeScrew:
+//                    colorVector = planeNormal;
+//                    flipColor(colorVector);
+//                    break;
+//                    
+//                case colorComponent:
+//                {
+//                    RGBcolor rgb(RGBmap::getColor(ids,sIDmin,sIDmax));
+//                    colorVector << rgb.r, rgb.g, rgb.b;
+//                }
+//                    break;
+//                    
+//                default:
+//                    colorVector = burgers.normalized();
+//                    flipColor(colorVector);
+//                    break;
+//            }
+//            
+//            //			glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
+//            //			glEnable(GL_DEPTH_TEST);
+//            GLfloat materialAmbient[]={colorVector(0), colorVector(1), colorVector(2), 1.0};
+//            GLfloat materialEmission[]={colorVector(0)*0.1f, colorVector(1)*0.1f, colorVector(2)*0.1f, 1.0};
+//
+//            //			GLfloat materialSpecular[] = {specularity, specularity, specularity, 1.0f};
+//            //			GLfloat materialEmission[] = {emissivity, emissivity, emissivity, 1.0f};
+//            // note that glMaterialfv(...) works when GL_COLOR_MATERIAL is disabled
+//			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialAmbient);      // ambient color for the material
+//			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialAmbient);      // diffuse color for the material
+//			glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialAmbient);  // specular color for the material
+//            glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialEmission);  // emission color for the material
 
             //			glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialEmission);  // emission color for the material
             //			glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess); //The shininess parameter
@@ -197,6 +202,52 @@ namespace model
             {
 				for (int k=1;k<Np;++k)
                 {
+                    switch (colorScheme)
+                    {
+                        case colorSessile:
+                            colorVector(0)= isSessile? 1.0 : 0.1;
+                            colorVector(1)= isSessile? 0.5 : 0.4;
+                            colorVector(2)= isSessile? 0.0 : 0.9;
+                            break;
+                            
+                        case colorNormal:
+                            colorVector = planeNormal;
+                            flipColor(colorVector);
+                            break;
+                            
+                        case colorComponent:
+                        {
+                            RGBcolor rgb(RGBmap::getColor(ids,sIDmin,sIDmax));
+                            colorVector << rgb.r, rgb.g, rgb.b;
+                        }
+                            break;
+                            
+                        case colorEdgeScrew:
+                        {
+                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
+                            colorVector << rgb.r, rgb.g, rgb.b;
+                        }
+                            break;
+                            
+                        default:
+                            colorVector = burgers.normalized();
+                            flipColor(colorVector);
+                            break;
+                    }
+                    
+                    //			glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
+                    //			glEnable(GL_DEPTH_TEST);
+                    GLfloat materialAmbient[]={colorVector(0), colorVector(1), colorVector(2), 1.0};
+                    GLfloat materialEmission[]={colorVector(0)*0.1f, colorVector(1)*0.1f, colorVector(2)*0.1f, 1.0};
+                    
+                    //			GLfloat materialSpecular[] = {specularity, specularity, specularity, 1.0f};
+                    //			GLfloat materialEmission[] = {emissivity, emissivity, emissivity, 1.0f};
+                    // note that glMaterialfv(...) works when GL_COLOR_MATERIAL is disabled
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialAmbient);      // ambient color for the material
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialAmbient);      // diffuse color for the material
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialAmbient);  // specular color for the material
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialEmission);  // emission color for the material
+                    
 					//					tubeCircles[k]=getCircle(k);
 					glBegin(GL_TRIANGLE_STRIP);
 					//glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
@@ -227,9 +278,57 @@ namespace model
 			}
 			else
             {
+
+                
 				glBegin(GL_LINE_STRIP);
 				for (int k=0;k<Np;++k)
                 {
+                    switch (colorScheme)
+                    {
+                        case colorSessile:
+                            colorVector(0)= isSessile? 1.0 : 0.1;
+                            colorVector(1)= isSessile? 0.5 : 0.4;
+                            colorVector(2)= isSessile? 0.0 : 0.9;
+                            break;
+                            
+                        case colorNormal:
+                            colorVector = planeNormal;
+                            flipColor(colorVector);
+                            break;
+                            
+                        case colorComponent:
+                        {
+                            RGBcolor rgb(RGBmap::getColor(ids,sIDmin,sIDmax));
+                            colorVector << rgb.r, rgb.g, rgb.b;
+                        }
+                            break;
+                            
+                        case colorEdgeScrew:
+                        {
+                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
+                            colorVector << rgb.r, rgb.g, rgb.b;
+                        }
+                            break;
+                            
+                        default:
+                            colorVector = burgers.normalized();
+                            flipColor(colorVector);
+                            break;
+                    }
+                    
+                    //			glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
+                    //			glEnable(GL_DEPTH_TEST);
+                    GLfloat materialAmbient[]={colorVector(0), colorVector(1), colorVector(2), 1.0};
+                    GLfloat materialEmission[]={colorVector(0)*0.1f, colorVector(1)*0.1f, colorVector(2)*0.1f, 1.0};
+                    
+                    //			GLfloat materialSpecular[] = {specularity, specularity, specularity, 1.0f};
+                    //			GLfloat materialEmission[] = {emissivity, emissivity, emissivity, 1.0f};
+                    // note that glMaterialfv(...) works when GL_COLOR_MATERIAL is disabled
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialAmbient);      // ambient color for the material
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialAmbient);      // diffuse color for the material
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialAmbient);  // specular color for the material
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialEmission);  // emission color for the material
+                    
 					glVertex3f(tubeAxis(0,k),tubeAxis(1,k),tubeAxis(2,k));
 				}
 				glEnd();

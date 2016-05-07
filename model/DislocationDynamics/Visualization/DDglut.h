@@ -129,6 +129,10 @@ namespace model
                 DDgl::SplinePlotterType::colorScheme=DDgl::SingleSplinePlotterType::colorNormal;
                 break;
                 
+            case DDgl::SingleSplinePlotterType::colorEdgeScrew:
+                DDgl::SplinePlotterType::colorScheme=DDgl::SingleSplinePlotterType::colorEdgeScrew;
+                break;
+                
             case DDgl::SingleSplinePlotterType::colorComponent:
                 DDgl::SplinePlotterType::colorScheme=DDgl::SingleSplinePlotterType::colorComponent;
                 break;
@@ -205,6 +209,7 @@ namespace model
         glutAddMenuEntry("Burgers vector", DDgl::SingleSplinePlotterType::colorBurgers);
         glutAddMenuEntry("Glissile-Sessile", DDgl::SingleSplinePlotterType::colorSessile);
         glutAddMenuEntry("Plane normal", DDgl::SingleSplinePlotterType::colorNormal);
+        glutAddMenuEntry("Edge-Screw", DDgl::SingleSplinePlotterType::colorEdgeScrew);
         glutAddMenuEntry("Network Component", DDgl::SingleSplinePlotterType::colorComponent);
 
 //        glutAddMenuEntry("Network Component", 3);
