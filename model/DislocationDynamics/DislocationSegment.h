@@ -267,9 +267,9 @@ namespace model
            *		\mathbf{K}^* = \mathbf{N}^T \mathbf{B} \mathbf{N} \frac{dl}{du}
            *	\f]
            */
-            MatrixDimNdof temp(SFgaussEx(k));
+            const MatrixDimNdof SFEx(SFgaussEx(k));
             //			return temp.transpose()*Material<Isotropic>::B*temp*jgauss(k);
-            return temp.transpose()*temp*jgauss(k); // inverse mobility law
+            return SFEx.transpose()*SFEx*jgauss(k); // inverse mobility law
         }
         
         /**********************************************************************/
@@ -285,21 +285,38 @@ namespace model
         { /*! The force vector integrand evaluated at the k-th quadrature point.
            *  @param[in] k the current quadrature point
            */
-            MatrixDimNdof temp(SFgaussEx(k));
+
+            
+            const VectorDim glideForce = pkGauss.col(k)-pkGauss.col(k).dot(this->glidePlaneNormal)*this->glidePlaneNormal;
+            const double glideForceNorm(glideForce.norm());
+            VectorDim vv=VectorDim::Zero();
+            if(glideForceNorm>FLT_EPSILON)
+            {
+                double v =  Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),this->glidePlaneNormal);
+                const bool useNonLinearVelocity=true;
+                if(useNonLinearVelocity && v>FLT_EPSILON)
+                {
+                    v= 1.0-std::exp(-v);
+                }
+                                
+                vv= v * glideForce/glideForceNorm;
+            }
+
             //return temp.transpose()*pkGauss.col(k)*jgauss(k);
-            return temp.transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
+            return SFgaussEx(k).transpose()*vv*jgauss(k); // inverse mobility law
+//            return SFgaussEx(k).transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
             //            return temp.transpose()*dm.getVelocity(stressGauss[k],rlgauss.col(k))*jgauss(k); // inverse mobility law
         }
         
-        /**********************************************************************/
-        VectorDim radiativeVel(const VectorDim& pkF) const
-        {
-//            const VectorDim v0(Material<Isotropic>::Binv*pkF);
-            const VectorDim v0(Material<Isotropic>::velocity(pkF));
-            const double v0N(v0.norm());
-            const double csf(0.7*Material<Isotropic>::cs);
-            return (v0N>FLT_EPSILON)? csf*(1.0-std::exp(-v0N/csf))*v0/v0N : v0;
-        }
+//        /**********************************************************************/
+//        VectorDim radiativeVel(const VectorDim& pkF) const
+//        {
+////            const VectorDim v0(Material<Isotropic>::Binv*pkF);
+//            const VectorDim v0(Material<Isotropic>::velocity(pkF));
+//            const double v0N(v0.norm());
+//            const double csf(0.7*Material<Isotropic>::cs);
+//            return (v0N>FLT_EPSILON)? csf*(1.0-std::exp(-v0N/csf))*v0/v0N : v0;
+//        }
         
         
         //#ifdef UserStressFile

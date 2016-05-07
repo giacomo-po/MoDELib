@@ -44,9 +44,9 @@ namespace model
             
             mu=1.0;     // mu is used to normalized stress
             b =1.0;     // b is used to normalized length
-            cs=1.0; // sc*=sqrt(mu*/rho*)
+            cs=1.0;     // sc*=sqrt(mu*/rho*)
             
-            //            b_real=PeriodicElement<Z,Isotropic>::b;
+            b_real=PeriodicElement<Z,Isotropic>::b;
             //            B =1.0;     // B=A*T [Pa*sec] is effectively used to normalize time
             //            Binv=1.0/B;
             //            rho=IM::mu*std::pow(IM::b/(IM::Ae*T),2)*IM::rho;  //! rho* = mu*(b/B)^2 * rho, B=A*T
@@ -91,6 +91,7 @@ namespace model
         };
         
         static double b;
+        static double b_real;
         static double mu;
         static double cs;
         //        static double b_real;
@@ -139,15 +140,14 @@ namespace model
                     selectedMaterial=Cu;
                     select<Cu>();
                     break;
+                    //                case Fe:
+                    //                    selectedMaterial=Fe;
+                    //                    select<Fe>();
+                    //                    break;
                 case W:
                     selectedMaterial=W;
                     select<W>();
                     break;
-                case Fe:
-                    selectedMaterial=Fe;
-                    select<Fe>();
-                    break;
-                    
                 default:
                     assert(0 && "Material not implemented.");
                     break;
@@ -179,9 +179,9 @@ namespace model
                 case W:
                     CrystalOrientation<dim>::template rotate<PeriodicElement<W,Isotropic>::CrystalStructure>(C2G);
                     break;
-                case Fe:
-                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
-                    break;
+                    //                case Fe:
+                    //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
+                    //                    break;
                 default:
                     assert(0 && "Material not implemented.");
                     break;
@@ -189,19 +189,26 @@ namespace model
         }
         
         /**********************************************************************/
-        static Eigen::Matrix<double,3,1> velocity(const Eigen::Matrix<double,3,1>& fPK)
+        static double velocity(const Eigen::Matrix<double,3,3>& S,
+                               const Eigen::Matrix<double,3,1>& b,
+                               const Eigen::Matrix<double,3,1>& xi,
+                               const Eigen::Matrix<double,3,1>& n)
         {
             switch (selectedMaterial)
             {
                 case Al:
-                    return PeriodicElement<Al,Isotropic>::dm.velocity(fPK,T);
+                    return PeriodicElement<Al,Isotropic>::dm.velocity(S,b,xi,n,T);
                 case Ni:
-                    return PeriodicElement<Ni,Isotropic>::dm.velocity(fPK,T);
+                    return PeriodicElement<Ni,Isotropic>::dm.velocity(S,b,xi,n,T);
                 case Cu:
-                    return PeriodicElement<Cu,Isotropic>::dm.velocity(fPK,T);
+                    return PeriodicElement<Cu,Isotropic>::dm.velocity(S,b,xi,n,T);
+                    //              case Fe:
+                    //                  return PeriodicElement<Cu,Isotropic>::dm.velocity(S,b,xi,n,T);
+                case W:
+                    return PeriodicElement<W,Isotropic>::dm.velocity(S,b,xi,n,T);
                 default:
                     assert(0 && "velocity function not implemented.");
-                    return Eigen::Matrix<double,3,1>::Zero();
+                    return 0.0;
             }
         }
         
@@ -210,6 +217,7 @@ namespace model
     // Static data
     int Material<Isotropic>::selectedMaterial=29;
     double Material<Isotropic>::b=1.0;    // dimensionless Burgers vector
+    double Material<Isotropic>::b_real=0.2556e-9;    // dimensionless Burgers vector
     double Material<Isotropic>::mu=1.0;
     double Material<Isotropic>::cs=1.0;
     double Material<Isotropic>::T=300.0;  // Temperature [K]

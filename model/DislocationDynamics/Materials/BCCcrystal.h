@@ -67,10 +67,46 @@ namespace model
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */
-            assert(0 && "FINISH HERE");
+            typedef Eigen::Matrix<long int,3,1> VectorDimI;
+            
+            typedef LatticeVector<3> LatticeVectorType;
+            LatticeVectorType a1(VectorDimI(1,0,0));
+            LatticeVectorType a2(VectorDimI(0,1,0));
+            LatticeVectorType a3(VectorDimI(0,0,1));
+            LatticeVectorType  y(VectorDimI(1,1,1));
             
             std::vector<SlipSystem> temp;
-
+            
+            temp.emplace_back(a3,a1, a3); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back(a3,a1,-a3); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back(a3,a1, a1); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back(a3,a1,-a1); // is ( 1, 0, 1) in cartesian
+            
+            temp.emplace_back( y,a2, y); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back( y,a2,-y); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back( y,a2, a2); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back( y,a2,-a2); // is ( 1, 0,-1) in cartesian
+            
+            temp.emplace_back(a2,a3, a2); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back(a2,a3,-a2); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back(a2,a3, a3); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back(a2,a3,-a3); // is ( 0, 1, 1) in cartesian
+            
+            temp.emplace_back( y,a1, y); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back( y,a1,-y); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back( y,a1, a1); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back( y,a1,-a1); // is ( 0,-1, 1) in cartesian
+            
+            temp.emplace_back(a1,a2, a1); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back(a1,a2,-a1); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back(a1,a2, a2); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back(a1,a2,-a2); // is ( 1, 1, 0) in cartesian
+            
+            temp.emplace_back( y,a3, y); // is (-1, 1, 0) in cartesian
+            temp.emplace_back( y,a3,-y); // is (-1, 1, 0) in cartesian
+            temp.emplace_back( y,a3, a3); // is (-1, 1, 0) in cartesian
+            temp.emplace_back( y,a3,-a3); // is (-1, 1, 0) in cartesian
+            
             return temp;
         }
 

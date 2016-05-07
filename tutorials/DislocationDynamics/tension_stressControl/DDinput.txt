@@ -18,7 +18,7 @@ velocityReductionFactor=0.75;
 # OUTPUT
 # Options for output files:
 outputFrequency=10;
-outputBinary=1;
+outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=1;
@@ -33,7 +33,7 @@ outputPlasticDistortionRate=0;
 ######################################
 # MATERIAL
 # Choose a material by its atomic number (Z), for example Al=13; Ni=28; Cu=29;
-material=29;
+material=74;
 
 ######################################
 # CRYSTAL ORIENTATION
@@ -50,7 +50,7 @@ temperature = 300.0;
 # Set the remote external stress (a uniform stress felt by dislocations)
 externalStress = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.0;
+		 0.0 0.0 0.01;
 
 ######################################
 # ELASTIC FIELDS
@@ -91,7 +91,7 @@ use_meshRegions=0;
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
-use_bvp = 1;
+use_bvp = 0;
 use_directSolver_FEM=1;
 solverTolerance=0.0001;
 use_virtualSegments=1;
