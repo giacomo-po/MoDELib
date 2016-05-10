@@ -26,6 +26,8 @@ namespace model
         typedef LatticeBase<dim> LatticeBaseType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
+        typedef Eigen::Matrix<double,dim,1> VectorDimD;
+
         
     public:
         
@@ -37,9 +39,15 @@ namespace model
         }
         
         ReciprocalLatticeDirection(const LatticeVectorType& v1,const LatticeVectorType& v2) :
-        /* delegating */ ReciprocalLatticeDirection(v1.cross(v2))
+        /* delegating */ ReciprocalLatticeDirection(ReciprocalLatticeVectorType(v1.cross(v2)))
         {
 //            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
+        }
+        
+        ReciprocalLatticeDirection(const VectorDimD& d) :
+        /* delegating */ ReciprocalLatticeDirection(ReciprocalLatticeVectorType(LatticeBaseType::reciprocalLatticeDirection(d)))
+        {
+            //            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
         }
         
 //        Eigen::Matrix<double,dim,1> cartesian() const

@@ -149,6 +149,9 @@ namespace model
 		/*********************************************************************/
 		void plot(const scalarType& radius, const bool& showTubes, const bool& showPlaneNormal, const bool& showBurgers, const int& colorScheme,const int& ids, const int& sIDmin,const int& sIDmax) const {
 			
+            VectorDim screwColor=VectorDim::UnitY();
+            VectorDim edgeColor=VectorDim::UnitZ();
+            
             // 1- Define the color
             VectorDim colorVector;
 //            switch (colorScheme)
@@ -224,8 +227,10 @@ namespace model
                             
                         case colorEdgeScrew:
                         {
-                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
-                            colorVector << rgb.r, rgb.g, rgb.b;
+                            const float u = std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized()));
+//                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
+//                            colorVector << rgb.r, rgb.g, rgb.b;
+                            colorVector=screwColor*u+edgeColor*(1-u);
                         }
                             break;
                             

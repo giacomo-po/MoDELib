@@ -31,9 +31,7 @@ namespace model
     template <>
     struct PeriodicElement<13,Isotropic>
     {
-        
         typedef FCC CrystalStructure;
-
         static constexpr int Z=13;
         static constexpr auto name="Aluminum";
         static constexpr double nu=0.347;               // Poisson ratio [-]
@@ -52,7 +50,6 @@ namespace model
     struct PeriodicElement<28,Isotropic>
     {
         typedef FCC CrystalStructure;
-        
         static constexpr int Z=28;
         static constexpr auto name="Nickel";
         static constexpr double nu=0.31;                // Poisson ratio [-]
@@ -71,7 +68,6 @@ namespace model
     struct PeriodicElement<29,Isotropic>
     {
         typedef FCC CrystalStructure;
-
         static constexpr int Z=29;
         static constexpr auto name="Copper";
         static constexpr double nu=0.34;                // Poisson ratio [-]
@@ -83,53 +79,31 @@ namespace model
         static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,3.3333e-07,3.3333e-07);
     };
     
-//    /**************************************************************************/
-//    /**************************************************************************/
-//    template <>
-//    struct PeriodicElement<26,Isotropic>
-//    {
-//        typedef BCC CrystalStructure;
-//
-//        
-//        static constexpr int Z=26;
-//        
-//        static constexpr auto name="Iron";
-//        static constexpr double nu=0.29;                // Poisson ratio [-]
-//        static constexpr double mu=82e9;                // Shear modulus [Pa]
-//        static constexpr double b=0.2482e-9;            // Burgers vector[m]
-//        static constexpr double rho=7874.0;             // Mass density [kg/m^3]
-//        static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
-//
-//        static constexpr double tauP=420.0e6; // Peierls stress [Pa]
-//        static constexpr double p=1.0;  // exponent in (1-(T/Ta)^p)^q [-]
-//        static constexpr double q=1.69;  // exponent in (1-(T/Ta)^p)^q [-]
-//        static constexpr double Ae=1.0e-6;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
-//        static constexpr double As=1.0e-6;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
-//        static constexpr double Ta=400.0;  // Athermal transition temperature [K]
-//        
-//        static const Eigen::Matrix<double,18,2> dH0; // activation energy prefactor for kink nucleation [J]
-//    };
-//    
-//    const Eigen::Matrix<double,18,2> PeriodicElement<26,Isotropic>::dH0=(Eigen::Matrix<double,18,2>()<<
-//                                                                         0.8,0.08, // (0,1,1)
-//                                                                         0.8,0.08, // (1,0,1)
-//                                                                         0.8,0.08, // (1,-1,0)
-//                                                                         0.8,0.08, // (0,1,-1)
-//                                                                         0.8,0.08, // (1,1,0)
-//                                                                         0.8,0.08, // (1,0,-1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8 // (2,-1,1)
-//                                                                         ).finished()*1.602e-19;
+    //    /**************************************************************************/
+    //    /**************************************************************************/
+    //    template <>
+    //    struct PeriodicElement<26,Isotropic>
+    //    {
+    //        typedef BCC CrystalStructure;
+    //
+    //
+    //        static constexpr int Z=26;
+    //
+    //        static constexpr auto name="Iron";
+    //        static constexpr double nu=0.29;                // Poisson ratio [-]
+    //        static constexpr double mu=82e9;                // Shear modulus [Pa]
+    //        static constexpr double b=0.2482e-9;            // Burgers vector[m]
+    //        static constexpr double rho=7874.0;             // Mass density [kg/m^3]
+    //        static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
+    //
+    //        static constexpr double tauP=420.0e6; // Peierls stress [Pa]
+    //        static constexpr double p=1.0;  // exponent in (1-(T/Ta)^p)^q [-]
+    //        static constexpr double q=1.69;  // exponent in (1-(T/Ta)^p)^q [-]
+    //        static constexpr double Ae=1.0e-6;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+    //        static constexpr double As=1.0e-6;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
+    //        static constexpr double Ta=400.0;  // Athermal transition temperature [K]
+    //
+    //    };
     
     /**************************************************************************/
     /**************************************************************************/
@@ -137,10 +111,7 @@ namespace model
     struct PeriodicElement<74,Isotropic>
     {
         typedef BCC CrystalStructure;
-        
         static constexpr int Z=74;
-
-        
         static constexpr auto name="Tungsten";
         static constexpr double nu=0.28;                // Poisson ratio [-]
         static constexpr double mu=161e9;               // Shear modulus [Pa]
@@ -148,47 +119,21 @@ namespace model
         static constexpr double rho=19250.0;            // Mass density [kg/m^3]
         static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
         static constexpr double Tm=3695.0;              // melting temperature [K]
-
-        static constexpr DislocationMobility<BCC> dm=DislocationMobility<BCC>(b,mu,cs,
-                                                                              4.26e-04,0.87e-06, // B0e [Pa*s], B1e [Pa*s/K]
-                                                                              46.5e-04,0.0, // B0s [Pa*s], B1s [Pa*s/K]
-                                                                              8.5e-05, // Bk [Pa*s]
-                                                                              1.63, // DH0 [eV]
-                                                                              0.86,1.69, // p,q
-                                                                              0.9*Tm);
-
         
-//        static constexpr double tauP=910.0e6;   // Peierls stress [Pa]
-//        static constexpr double p=0.86;          //
-//        static constexpr double q=1.69;         //
-//        //        static constexpr double A=1.0e-6;     // coefficient of v0=tau*b/(A*T) [Pa*s/K]
-//        static constexpr double Ae=3.3333e-07;   // coefficient of v0=tau*b/(A*T) [Pa*s/K]
-//        static constexpr double As=3.3333e-07;   // coefficient of v0=tau*b/(A*T) [Pa*s/K]
-//        static constexpr double Ta=800.0;       // Athermal transition temperature [K]
-//        
-//        static const Eigen::Matrix<double,18,2> dH0; // activation energy prefactor for kink nucleation [J]
+        static const DislocationMobility<BCC> dm;
+    
     };
     
-//    const Eigen::Matrix<double,18,2> PeriodicElement<74,Isotropic>::dH0=(Eigen::Matrix<double,18,2>()<<
-//                                                                         1.63,0.0, // (0,1,1)
-//                                                                         1.63,0.0, // (0,1,1)
-//                                                                         1.63,0.0, // (0,1,1)
-//                                                                         1.63,0.0, // (0,1,1)
-//                                                                         1.63,0.0, // (0,1,1)
-//                                                                         1.63,0.0, // (0,1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8, // (2,-1,1)
-//                                                                         2.8,2.8 // (2,-1,1)
-//                                                                         ).finished()*1.602e-19;
+    const DislocationMobility<BCC> PeriodicElement<74,Isotropic>::dm=DislocationMobility<BCC>(b,mu,cs,
+                                                                      4.26e-04,0.87e-06, // B0e [Pa*s], B1e [Pa*s/K]
+                                                                      9.8e-4,0.0,        // B0s [Pa*s], B1s [Pa*s/K]
+                                                                      8.3e-05,           // Bk [Pa*s]
+                                                                      1.63,              // dH0 [eV]
+                                                                      0.86,1.69,         // p,q
+                                                                      0.8*Tm,            // T0
+                                                                      2.03e9,            // tauC [Pa]
+                                                                      1.2943,1.1702,4.9087,9.3352,0.3107 // non-Schmid coefficients
+                                                                      );
     
 } // namespace model
 #endif

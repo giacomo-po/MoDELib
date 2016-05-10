@@ -254,9 +254,6 @@ namespace model
         //! PK force corrersponding to the quadrature points
         MatrixDimQorder pkGauss;
         
-//        const DislocationMobility<dim> dm;
-
-        
     private:
         
         /**********************************************************************/
@@ -285,8 +282,6 @@ namespace model
         { /*! The force vector integrand evaluated at the k-th quadrature point.
            *  @param[in] k the current quadrature point
            */
-
-            
             const VectorDim glideForce = pkGauss.col(k)-pkGauss.col(k).dot(this->glidePlaneNormal)*this->glidePlaneNormal;
             const double glideForceNorm(glideForce.norm());
             VectorDim vv=VectorDim::Zero();
@@ -301,7 +296,6 @@ namespace model
                                 
                 vv= v * glideForce/glideForceNorm;
             }
-
             //return temp.transpose()*pkGauss.col(k)*jgauss(k);
             return SFgaussEx(k).transpose()*vv*jgauss(k); // inverse mobility law
 //            return SFgaussEx(k).transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
@@ -337,7 +331,6 @@ namespace model
         //        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
-//        /* init list       */ dm(this->glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
@@ -365,7 +358,6 @@ namespace model
         //        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
-//        /* init list       */ dm(this->glidePlaneNormal,Burgers)
         {/*! Constructor with pointers to source and sink, and ExpandingEdge
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] ee the expanding edge
@@ -668,10 +660,17 @@ namespace model
             
             //! 1- Compute and store stress and PK-force at quadrature points
             stressGauss.clear();
-            for (unsigned int k=0;k<qOrder;++k)
+            if(!shared.use_bvp && is_boundarySegment())
             {
-                stressGauss.push_back(stressAtQuadrature(k));
-                pkGauss.col(k)=(stressGauss[k]*Burgers).cross(rlgauss.col(k));
+                pkGauss.setZero(dim,qOrder);
+            }
+            else
+            {
+                for (unsigned int k=0;k<qOrder;++k)
+                {
+                    stressGauss.push_back(stressAtQuadrature(k));
+                    pkGauss.col(k)=(stressGauss[k]*Burgers).cross(rlgauss.col(k));
+                }
             }
             
             /*! 2- Assemble the force vector of this segment
@@ -716,7 +715,6 @@ namespace model
                 segmentDOFs.insert(sinkDOFs(k));
             }
             
-            
             //const size_t N(segmentDOFs.size());
             
             // Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,N));
@@ -746,7 +744,6 @@ namespace model
                 unsigned int curCol(std::distance(segmentDOFs.begin(),f));
                 Mseg.template block<Ndof/2,1>(Ndof/2,curCol)=Msi.col(k);
             }
-            
         }
         
         
@@ -990,196 +987,3 @@ namespace model
 } // namespace model
 #endif
 
-
-//        /**********************************************************************/
-//        int lineTriangleIntersection(const VectorDim& X,const VectorDim& s,
-//                                     const VectorDim& P1,const VectorDim& P2,const VectorDim& P3) const
-//        {
-//            const VectorDim v12(P2-P1);
-//            const VectorDim v13(P3-P1);
-//
-//            MatrixDim M(MatrixDim::Zero());
-//            M.col(0)=v12;
-//            M.col(1)=v13;
-//            M.col(2)=-s;
-//
-//            const VectorDim a=M.inverse()*(P1-X);
-//
-//            int temp=0;
-//            if(   a(0)>=0.0 && a(0)<=1.0
-//               && a(1)>=0.0 && a(0)+a(1)<=1.0
-//               && a(2)>=0.0) // intersection with trignale exists
-//            {
-//                VectorDim n(v12.cross(v13)); // right-handed norm to triangle P1->P2->P3
-//                const double nNorm(n.norm());
-//                assert(nNorm>FLT_EPSILON && "n has zero norm");
-//                n/=nNorm; // normalize
-//                const double nDots(n.dot(s));
-//                if(std::fabs(nDots)>FLT_EPSILON) // s in not parallel to triangle
-//                {
-//                    if(nDots>=0.0)
-//                    {
-//                        temp=-1;
-//                    }
-//                    else
-//                    {
-//                        temp=+1;
-//                    }
-//                }
-//                else // s is parallel to triangle
-//                {
-//                    if((P1-X).dot(n)>=0.0) // X is below the trianlge. Positive intersection at infinity
-//                    {
-//                        temp=-1;
-//                    }
-//                    else // X is above the trianlge. Negative intersection at infinity
-//                    {
-//                        temp=+1;
-//                    }
-//                }
-//            }
-//
-//            return temp;
-//        }
-
-//        /**********************************************************************/
-//        void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
-//        {/*! @param[in] particleSystem the ParticleSystem of DislocationParticle
-//          *  Computes all geometric properties at the k-th quadrature point
-//          */
-//
-//            quadratureParticleContainer.clear();
-//            quadratureParticleContainer.reserve(qOrder);
-//
-//            for (unsigned int k=0;k<qOrder;++k)
-//            {
-//                MatrixNcoeff  SFCH(this->get_SFCH());
-//                MatrixNcoeffDim qH(this->get_qH());
-//                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-//                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-//                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-//                jgauss(k)=rugauss.col(k).norm();
-//                rlgauss.col(k)=rugauss.col(k)/jgauss(k);
-//
-//
-//                // Add the quadrature particles
-//                if (is_boundarySegment() && shared.use_bvp && shared.use_virtualSegments)
-//                {
-//                    // if bvp with virtualSegments is used, add particles with zero Burgers for segments on the boundary
-////                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),zeroDim,
-////                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
-////                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
-//                    asseert(0 && "FINISH HERE. PLACE GAUSS POINTS IN CIRCLE");
-//                    const VectorDim C((this->source->get_P()+this->sink->get_P())*0.5);
-//                    const VectorDim n((this->source->boundaryNormal+this->sink->boundaryNormal).normalized());
-//                    const MatrixDim R(Eigen::AngleAxisf(Quadrature<1,qOrder,QuadratureRule>::abscissas(k)*M_PI, glidePlaneNormal));
-//
-//                }
-//                else
-//                {
-//                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),Burgers,
-//                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
-//                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
-//                }
-//            }
-//
-//        }
-
-
-//        /**********************************************************************/
-//        void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
-//        {/*! @param[in] particleSystem the ParticleSystem of DislocationParticle
-//          *  Computes all geometric properties at the k-th quadrature point
-//          */
-//
-//            quadratureParticleContainer.clear();
-//            quadratureParticleContainer.reserve(qOrder);
-//
-//            const MatrixNcoeff  SFCH(this->get_SFCH());
-//            const MatrixNcoeffDim qH(this->get_qH());
-//            for (unsigned int k=0;k<qOrder;++k)
-//            {
-//                //                    const MatrixNcoeff  SFCH(this->get_SFCH());
-//                //                    const MatrixNcoeffDim qH(this->get_qH());
-//                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-//                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-//                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-//                jgauss(k)=rugauss.col(k).norm();
-//                rlgauss.col(k)=rugauss.col(k)/jgauss(k);
-//            }
-//
-//            // Add the quadrature particles
-//            if (is_boundarySegment() && shared.use_bvp && shared.use_virtualSegments)
-//            {
-//
-//                const VectorDim C((this->source->get_P()+this->sink->get_P())*0.5);
-//                const VectorDim vec(this->source->get_P()-C);
-//                const VectorDim n((this->source->bndNormal()+this->sink->bndNormal()).normalized());
-//                boundaryLoopNormal=this->glidePlaneNormal;
-//                const MatrixDim R(Eigen::AngleAxisd(0.5*M_PI,boundaryLoopNormal));
-//                const double dldu=vec.norm()*M_PI;
-//                //double sign_theta=1.0;
-//                if((R*vec).dot(n)<0.0)
-//                {
-//                    boundaryLoopNormal*=-1.0;
-//                }
-//
-//                for (unsigned int k=0;k<qOrder;++k)
-//                {
-//                    const MatrixDim Rk(Eigen::AngleAxisd(Quadrature<1,qOrder,QuadratureRule>::abscissas(k)*M_PI,boundaryLoopNormal));
-//                    const VectorDim rgauss_temp=C+Rk*vec;
-//                    const VectorDim rugauss_temp=boundaryLoopNormal.cross(Rk*vec).normalized()*dldu;
-//
-////                    k_file<<rgauss_temp.transpose()<<" "<<rugauss_temp.transpose()<<"\n";
-//
-//                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss_temp,rugauss_temp,Burgers,
-//                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
-//                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
-//                }
-//            }
-//            else
-//            { // segment inside mesh
-//                boundaryLoopNormal=this->glidePlaneNormal;
-//
-//                for (unsigned int k=0;k<qOrder;++k)
-//                {
-//                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),rugauss.col(k),Burgers,
-//                                                                                     Quadrature<1,qOrder,QuadratureRule>::abscissas(k),
-//                                                                                     Quadrature<1,qOrder,QuadratureRule>::weights(k)));
-//                }
-//            }
-//
-//
-//
-//        }
-
-
-//        /**********************************************************************/
-//        std::map<double,VectorDim> boundaryCollision() const
-//        {/*! The collision points with the glidePlane boundary polygon.
-//          */
-//            std::map<double,VectorDim> temp;
-//
-//            if (shared.boundary_type){
-//                VectorDim origin = this->source->get_P();
-//
-//                const Eigen::Matrix<double,dim-1,Ncoeff> C1L(polynomialLocalCoeff()); // the local polynomial coefficients of this
-//                PlanarSplineImplicitization<pOrder> psi(Coeff2Hermite<pOrder>::template h2c<dim-1>(C1L));
-//
-//                const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),this->glidePlaneNormal));
-//
-//                for (int k=0; k<pGlidePlane->segmentMeshCollisionPairContainer.size();++k)
-//                {
-//                    Eigen::Matrix<double,dim-1,2> H2L;
-//                    H2L.col(0)=(G2L*(pGlidePlane->segmentMeshCollisionPairContainer[k].first -origin)).template segment<dim-1>(0);
-//                    H2L.col(1)=(G2L*(pGlidePlane->segmentMeshCollisionPairContainer[k].second-origin)).template segment<dim-1>(0);
-//                    std::set<std::pair<double,double> > intersectinParameters = psi.template intersectWith<1>(Coeff2Hermite<1>::template h2c<dim-1>(H2L),FLT_EPSILON);
-//                    for (std::set<std::pair<double,double> >::const_iterator iter=intersectinParameters.begin();iter!=intersectinParameters.end();++iter)
-//                    {
-//                        temp.insert(std::make_pair(iter->first,this->get_r(iter->first)));
-//                    }
-//                }
-//            }
-//
-//            return temp;
-//        }

@@ -69,7 +69,13 @@ namespace model
 //                }
 //                assert(planeIDs.size()==2 && "ONLY FCC IS SUPPORTED AT THE MOMENT.");
                 
-                LatticeDirection<3> d1(LatticeVector<dim>(slipSystem.s.cross(slipSystem.n)));
+                ReciprocalLatticeDirection<3> sr(slipSystem.s.cartesian());
+                
+                LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)));
+                
+
+                
+                
 //                LatticeDirection<3> d2(LatticeVector<dim>(slipSystem.s.cross(CrystalOrientation<dim>::planeNormals()[*planeIDs.rbegin()])));
 //                if(density/targetDensity<fractionSessile)
 //                { // overwrite d2

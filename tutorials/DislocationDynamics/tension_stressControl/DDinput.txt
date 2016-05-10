@@ -44,13 +44,13 @@ C2G = 1.0   0.0  0.0
 
 ######################################
 # TEMPERATURE in [K]
-temperature = 300.0;
+temperature = 100.0;
 
 ######################################
 # Set the remote external stress (a uniform stress felt by dislocations)
 externalStress = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.01;
+		 0.0 0.0 0.005;
 
 ######################################
 # ELASTIC FIELDS

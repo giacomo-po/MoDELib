@@ -35,6 +35,11 @@ namespace model
         
         static int selectedMaterial;
         
+        static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
+        static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
+        static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
+        static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
+        
         
         /**********************************************************************/
         template<int Z>
@@ -82,21 +87,19 @@ namespace model
         
     public:
         
-        enum{
-            Al=13,
-            Fe=26,
-            Ni=28,
-            Cu=29,
-            W=74
-        };
+//        enum{
+//            _Al=13,
+//            _Fe=26,
+//            _Ni=28,
+//            _Cu=29,
+//            _W=74
+//        };
         
         static double b;
         static double b_real;
         static double mu;
         static double cs;
-        //        static double b_real;
-        //        static double B;
-        //        static double Binv;
+
         static double T;
         //        static double rho;
         static double nu;
@@ -106,15 +109,7 @@ namespace model
         static double C3;
         static double C4;
         static double kB;
-        //        static double tauIII;
-        //        static double vAct;
-        //
-        //        static double p;
-        //        static double q;
-        //        static double Be;
-        //        static double Bs;
-        //        static double tauP;
-        //        static double Ta;
+
         
         
         static Eigen::Matrix<double,Eigen::Dynamic,2> dH0;
@@ -128,25 +123,25 @@ namespace model
           */
             switch (Z)
             {
-                case Al:
-                    selectedMaterial=Al;
-                    select<Al>();
+                case Al.Z:
+                    selectedMaterial=Al.Z;
+                    select<Al.Z>();
                     break;
-                case Ni:
-                    selectedMaterial=Ni;
-                    select<Ni>();
+                case Ni.Z:
+                    selectedMaterial=Ni.Z;
+                    select<Ni.Z>();
                     break;
-                case Cu:
-                    selectedMaterial=Cu;
-                    select<Cu>();
+                case Cu.Z:
+                    selectedMaterial=Cu.Z;
+                    select<Cu.Z>();
                     break;
                     //                case Fe:
                     //                    selectedMaterial=Fe;
                     //                    select<Fe>();
                     //                    break;
-                case W:
-                    selectedMaterial=W;
-                    select<W>();
+                case W.Z:
+                    selectedMaterial=W.Z;
+                    select<W.Z>();
                     break;
                 default:
                     assert(0 && "Material not implemented.");
@@ -167,17 +162,17 @@ namespace model
             
             switch (selectedMaterial)
             {
-                case Al:
-                    CrystalOrientation<dim>::template rotate<PeriodicElement<Al,Isotropic>::CrystalStructure>(C2G);
+                case Al.Z:
+                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Al.Z,Isotropic>::CrystalStructure>(C2G);
                     break;
-                case Ni:
-                    CrystalOrientation<dim>::template rotate<PeriodicElement<Ni,Isotropic>::CrystalStructure>(C2G);
+                case Ni.Z:
+                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Ni.Z,Isotropic>::CrystalStructure>(C2G);
                     break;
-                case Cu:
-                    CrystalOrientation<dim>::template rotate<PeriodicElement<Cu,Isotropic>::CrystalStructure>(C2G);
+                case Cu.Z:
+                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Cu.Z,Isotropic>::CrystalStructure>(C2G);
                     break;
-                case W:
-                    CrystalOrientation<dim>::template rotate<PeriodicElement<W,Isotropic>::CrystalStructure>(C2G);
+                case W.Z:
+                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<W.Z,Isotropic>::CrystalStructure>(C2G);
                     break;
                     //                case Fe:
                     //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
@@ -187,7 +182,7 @@ namespace model
                     break;
             }
         }
-        
+
         /**********************************************************************/
         static double velocity(const Eigen::Matrix<double,3,3>& S,
                                const Eigen::Matrix<double,3,1>& b,
@@ -196,16 +191,17 @@ namespace model
         {
             switch (selectedMaterial)
             {
-                case Al:
-                    return PeriodicElement<Al,Isotropic>::dm.velocity(S,b,xi,n,T);
-                case Ni:
-                    return PeriodicElement<Ni,Isotropic>::dm.velocity(S,b,xi,n,T);
-                case Cu:
-                    return PeriodicElement<Cu,Isotropic>::dm.velocity(S,b,xi,n,T);
+                case Al.Z:
+                    return Al.dm.velocity(S,b,xi,n,T);
+                case Ni.Z:
+                    return Ni.dm.velocity(S,b,xi,n,T);
+                case Cu.Z:
+                    return Cu.dm.velocity(S,b,xi,n,T);
                     //              case Fe:
                     //                  return PeriodicElement<Cu,Isotropic>::dm.velocity(S,b,xi,n,T);
-                case W:
-                    return PeriodicElement<W,Isotropic>::dm.velocity(S,b,xi,n,T);
+                case W.Z:
+                    return W.dm.velocity(S,b,xi,n,T);
+                    
                 default:
                     assert(0 && "velocity function not implemented.");
                     return 0.0;
@@ -228,21 +224,34 @@ namespace model
     double Material<Isotropic>::C3=1.0-2.0*0.34; // 1-2*nu
     double Material<Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
     double Material<Isotropic>::kB=1.38e-23/48.0e9/pow(0.2556e-9,3);  // Boltzmann constant
-    //	double Material<Isotropic>::tauIII=0.667e-3;  // critical resovled shear stress in stage III
-    //	double Material<Isotropic>::vAct=300.0;  // Activation volume [b^3]
-    //
-    //    double Material<Isotropic>::p=PeriodicElement<29,Isotropic>::p;
-    //    double Material<Isotropic>::q=PeriodicElement<29,Isotropic>::q;
-    //    double Material<Isotropic>::Be=1.0;
-    //    double Material<Isotropic>::Bs=PeriodicElement<29,Isotropic>::As/PeriodicElement<29,Isotropic>::Ae;
-    //    double Material<Isotropic>::tauP=PeriodicElement<29,Isotropic>::tauP;
-    //    double Material<Isotropic>::Ta=PeriodicElement<29,Isotropic>::Ta;
-    //
-    //    Eigen::Matrix<double,Eigen::Dynamic,2> Material<Isotropic>::dH0=PeriodicElement<29,Isotropic>::dH0;
-    
-    
     
     /**************************************************************************/
     /**************************************************************************/
 } // namespace model
 #endif
+
+
+//        /**********************************************************************/
+//        static double velocity(const Eigen::Matrix<double,3,3>& S,
+//                               const Eigen::Matrix<double,3,1>& b,
+//                               const Eigen::Matrix<double,3,1>& xi,
+//                               const Eigen::Matrix<double,3,1>& n)
+//        {
+//            switch (selectedMaterial)
+//            {
+//                case Al:
+//                    return PeriodicElement<Al,Isotropic>::dm.velocity(S,b,xi,n,T);
+//                case Ni:
+//                    return PeriodicElement<Ni,Isotropic>::dm.velocity(S,b,xi,n,T);
+//                case Cu:
+//                    return PeriodicElement<Cu,Isotropic>::dm.velocity(S,b,xi,n,T);
+//                    //              case Fe:
+//                    //                  return PeriodicElement<Cu,Isotropic>::dm.velocity(S,b,xi,n,T);
+//                case W:
+//                    return PeriodicElement<W,Isotropic>::dm.velocity(S,b,xi,n,T);
+//
+//                default:
+//                    assert(0 && "velocity function not implemented.");
+//                    return 0.0;
+//            }
+//        }

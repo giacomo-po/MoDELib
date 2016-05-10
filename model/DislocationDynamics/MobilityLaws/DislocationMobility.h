@@ -15,6 +15,7 @@
 #include <cmath>
 #include <assert.h>
 #include <Eigen/Dense>
+#include <Eigen/Geometry>
 #include <model/DislocationDynamics/Materials/BCCcrystal.h>
 #include <model/DislocationDynamics/Materials/FCCcrystal.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
@@ -22,6 +23,11 @@
 
 namespace model
 {
+    
+    double sigmoid(const double & x)
+    {
+        return 1.0/(1.0+exp(-x));
+    }
     
     template <typename CrystalStructure>
     struct DislocationMobility
@@ -56,15 +62,15 @@ namespace model
         
         /**********************************************************************/
         double velocity(const MatrixDim& S,
-                                  const VectorDim& b,
-                                  const VectorDim& , // xi
-                                  const VectorDim& n,
-                                  const double& T) const
+                        const VectorDim& b,
+                        const VectorDim& , // xi
+                        const VectorDim& n,
+                        const double& T) const
         {
             return std::fabs(b.transpose()*S*n)/(B0+B1*T);
         }
         
-
+        
         
     };
     
@@ -77,15 +83,30 @@ namespace model
         typedef Eigen::Matrix<double,3,3> MatrixDim;
         typedef Eigen::Matrix<double,3,1> VectorDim;
         
+        //! Boltzmann constant in [eV]
+        static constexpr double kB=8.617e-5;
+        
+        const double h;
+        const double w;
         const double B0e;
         const double B1e;
         const double B0s;
         const double B1s;
         const double Bk;
-        const double DH0;
+        const double dH0;
         const double p;
         const double q;
         const double T0;
+        const double tauC;
+        //        const std::array<double,5> A;
+        const double a0;
+        const double a1;
+        const double a2;
+        const double a3;
+        const double a4;
+        //        const double a5;
+        
+        
         
         /**********************************************************************/
         constexpr DislocationMobility(const double& b_real,
@@ -94,45 +115,84 @@ namespace model
                                       const double& B0e_real, const double& B1e_real,
                                       const double& B0s_real, const double& B1s_real,
                                       const double& Bk_real,
-                                      const double& DH0_real,
+                                      const double& dH0_real,
                                       const double& p_in,
                                       const double& q_in,
-                                      const double& T0_in) :
+                                      const double& T0_in,
+                                      const double& tauC_in,
+                                      const double& a0_in,
+                                      const double& a1_in,
+                                      const double& a2_in,
+                                      const double& a3_in,
+                                      const double& a4_in) :
+        //                                      const std::array<double,5>& A_in) :
+        /* init */ h(2.0*sqrt(2.0)/3.0), // units of b
+        /* init */ w(25.0), // units of b
         /* init */ B0e(B0e_real*cs_real/(mu_real*b_real)),
         /* init */ B1e(B1e_real*cs_real/(mu_real*b_real)),
         /* init */ B0s(B0s_real*cs_real/(mu_real*b_real)),
         /* init */ B1s(B1s_real*cs_real/(mu_real*b_real)),
-        /* init */ Bk(Bk_real*cs_real/(mu_real*b_real)),
-        /* init */ DH0(DH0_real*0),
+        /* init */ Bk(  Bk_real*cs_real/(mu_real*b_real)),
+        /* init */ dH0(dH0_real),
         /* init */ p(p_in),
         /* init */ q(q_in),
-        /* init */ T0(T0_in)
+        /* init */ T0(T0_in),
+        /* init */ tauC(tauC_in/mu_real),
+        //        /* init */ A(A_in)
+        /* init */ a0(a0_in),
+        /* init */ a1(a1_in),
+        /* init */ a2(a2_in),
+        /* init */ a3(a3_in),
+        /* init */ a4(a4_in)
+        
         {/*! Empty constructor is required by constexpr
           */
         }
         
         /**********************************************************************/
         double velocity(const MatrixDim& S,
-                                  const VectorDim& b,
-                                  const VectorDim& xi,
-                                  const VectorDim& n,
-                                  const double& T) const
+                        const VectorDim& b,
+                        const VectorDim& xi,
+                        const VectorDim& n,
+                        const double& T) const
         {
             
-            // magnitude of resolved shear stress
-            const double taub=std::fabs(b.transpose()*S*n);
+            
+            const double bNorm=b.norm();
+            const VectorDim s = b/bNorm;
+            const VectorDim n1 = Eigen::AngleAxisd(M_PI/3.0,s)*n;
+            
+            //            // Compute components of non-Schmid model
+            const double tau=std::fabs(s.transpose()*S*n); // magnitude of resolved shear stress
+            const double tauOrt=n.cross(s).transpose()*S*n;
+            const double tau1=std::fabs(s.transpose()*S*n1); // resolved schear stress on
+            const double tauOrt1=n1.cross(s).transpose()*S*n1;
+            
+            const double num=tau+a1*tau1;
+            //
+                        assert(num>=0.0 && "num must be >= 0.");
+//            const double den=(1.0+0.5*A[1])*tauC*(A[4]+A[0]*sigmoid(-(A[2]*tauOrt+A[3]*tauOrt1)/tauC));
+            const double den=(1.0+0.5*a1)*tauC*(a4+a0*sigmoid(-(a2*tauOrt+a3*tauOrt1)/tauC));
+            assert(den>0.0 && "den must be > 0.");
+
+            const double Theta=num/den;
+            const double dg = (Theta<1.0)? (std::pow(1.0-std::pow(Theta,p),q)-T/T0) : 0.0;
+            const double dg1 = (dg>0.0)? dg : 0.0;
+            const double expCoeff = exp(-dH0*dg1/(kB*T));
+
+            // Compute screw drag coeff
+            const double sgm=sigmoid((0.05-dg1)/0.05);
+            const double Bs=Bk*w/(2.0*h)*(1.0-sgm)+(B0s+B1s*T)*sgm;
+            
+            // Compute screw velocity
+            const double vs=tau*bNorm/Bs*expCoeff;
             
             // Compute edge velocity
-            const double ve=taub/(B0e*B1e*T);
-
-            // Compute screw velocity
-            const double vs=ve/50.0;
-
+            const double ve=tau*bNorm/(B0e+B1e*T);
             
-            // Interpolate
+            // Interpolate ve and vs
             const double cos2=std::pow(b.normalized().dot(xi),2);
             const double sin2=1.0-cos2;
-
             return vs*cos2+ve*sin2;
         }
         
@@ -142,158 +202,4 @@ namespace model
 
 #endif
 
-
-
-//    template <short unsigned int dim>  // non-type template
-//    class DislocationMobility
-//    {
-//
-////        const double k_b ;  // boltzman's constant [ev/K]
-//
-////        enum{Z=74};
-//
-//
-//    public:
-//
-//        typedef Eigen::Matrix<double, dim, 1> VectorDim;
-//        typedef Eigen::Matrix<double, dim, dim> MatrixDim;
-//
-////        const double& dH0;
-//        const VectorDim& glidePlaneNormal;
-//        const VectorDim& Burgers;
-//        const Eigen::Matrix<double,1,2> dH0;
-//        const double& tauP; // Peierls stress [Pa]
-////        const double& Ta;
-//        const double& p;
-//        const double& q;
-//        const double Be;
-//        const double Bs;
-//        const double& Ta; // Peierls stress [Pa]
-//
-//
-//        /**********************************************************************/
-//        DislocationMobility(const VectorDim& pN,const VectorDim& b) :
-////        /* init list */ k_b(8.617e-5),
-//        /* init list */ glidePlaneNormal(pN),
-//        /* init list */ Burgers(b),
-////        /* init list */ dH0(PeriodicElement<Z,Isotropic>::dH0),
-//        /* init list       */ dH0(Material<Isotropic>::dH0.row(CrystalOrientation<dim>::planeID(glidePlaneNormal))),
-//        /* init list */ tauP(Material<Isotropic>::tauP),
-////        /* init list */ Ta(Material<Isotropic>::Ta),
-//        /* init list */ p(Material<Isotropic>::p),
-//        /* init list */ q(Material<Isotropic>::q),
-//        /* init list */ Be(Material<Isotropic>::Be),
-//        /* init list */ Bs(Material<Isotropic>::Bs),
-//        /* init list */ Ta(Material<Isotropic>::Ta)
-//        {/*! Contructor initializes data members.
-//          */
-//
-////            std::cout<<"planeNormal="<<glidePlaneNormal.transpose()<<"\n"
-////            <<", dH0="<<dH0<<"\n"
-////            <<", k_b*T="<<Material<Isotropic>::kT*Material<Isotropic>::T<<"\n"
-////            <<std::endl;
-//
-//        }
-//
-//        /**********************************************************************/
-//        VectorDim getVelocity(
-//                              //const VectorDim& pK,
-//                           const MatrixDim& sigma,
-////                           const VectorDim& b,
-//                           const VectorDim& t
-////                           const VectorDim& n,
-////                           const double& T
-//                           ) const
-//        {/*!@param[in] sigma the stress tensor
-//          * @param[in] b Burgers vector
-//          * @param[in] t tangent vector
-//          * @param[in] n normal vector
-//          * @param[in] T temperature
-//          \returns The dislocation velocity vector.
-//          */
-//
-//            VectorDim v(VectorDim::Zero()); // initialize velocity to 0-vector
-//
-////            const double pKn(pK.norm()); // norm of pK
-//
-//            const VectorDim pK=(sigma*Burgers).cross(t);
-//            const double pKnorm(pK.norm());
-//
-//            if(pKnorm>0.0 && Material<Isotropic>::T>0.0)
-//            {
-//                v = pK/pKnorm; // unit vector in the direction of pK
-//
-//                // 1- multiply by pre-exponential factor
-//                //v *= 1.0-exp(-sqrt(pKn/(A*Material<Isotropic>::T)));
-//
-//                const double cos2Theta=std::pow(t.dot(Burgers.normalized()),2);
-//
-//                const double vE=pKnorm/Be;
-//                      double vS=pKnorm/Bs;
-//
-//
-//
-//                // v *= pKn/(A*Material<Isotropic>::T);
-//                // 2- multiply by exponential factor
-//                // 2.1- compute activation energy
-//                const double dG(deltaG(sigma,t));
-//                if (dG>0.0)
-//                {
-//                        vS *= exp(-dG/(Material<Isotropic>::kb*Material<Isotropic>::T));
-//                }
-//
-//                v *= vS*cos2Theta+vE*(1.0-cos2Theta);
-//
-//
-//            }
-//
-//
-//            return v;
-//        }
-//
-//
-//        /**********************************************************************/
-//        double deltaG(const MatrixDim& sigma, const VectorDim& t) const
-//        {/*!
-//          */
-//
-////            const double trss = (sigma*Burgers.normalized()).dot(glidePlaneNormal);
-//            const double trss = std::fabs((sigma*Burgers.normalized()).dot(glidePlaneNormal));
-//
-//            const VectorDim m = glidePlaneNormal.cross(Burgers.normalized());
-//            const double s=(sigma*Burgers.normalized()).dot(m);
-//
-//
-//            double thetaTwin=M_PI/3.0;
-//
-//            const double BdotT = Burgers.dot(t);
-//
-//            if(BdotT<0.0)
-//            {// A "negative" dislocation
-//                thetaTwin*=-1.0;
-//            }
-//
-//            //const MatrixDim R = ;
-//            const VectorDim n1 = Eigen::AngleAxisd(thetaTwin, Burgers.normalized())*glidePlaneNormal;
-//            const double trss1 = (sigma*Burgers.normalized()).dot(n1);
-//
-//
-//            const VectorDim m1 = n1.cross(Burgers.normalized());
-//            const double s1=(sigma*Burgers.normalized()).dot(m1);
-//
-//
-//            const double a1=0.0;
-//            const double a2=0.56;
-//            const double a3=0.75;
-//
-//            const double tauS = std::fabs(trss+a1*trss1+a2*s+a3*s1)/tauP;
-//
-//            return dH0(0)*(std::pow(1.0-std::pow(tauS,p),q)-Material<Isotropic>::T/Ta);
-//
-//        }
-//
-//
-//
-//
-//    };
 

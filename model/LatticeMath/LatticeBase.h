@@ -124,6 +124,30 @@ namespace model
             return rd.template cast<long int>();
         }
         
+        /**********************************************************************/
+        static VectorDimI reciprocalLatticeDirection(const VectorDimD& d)
+        {
+            bool found=false;
+            VectorDimD rdk(VectorDimD::Zero());
+            
+            const VectorDimD nd(AT*d);
+            
+            
+            for(int k=0;k<dim;++k)
+            {
+                const VectorDimD ndk(nd/nd(k));
+                rdk=RoundEigen<double,dim>::round(ndk);
+                if((ndk-rdk).norm()<roundTol)
+                {
+                    found=true;
+                    break;
+                }
+                
+            }
+            assert(found && "Input vector is not on a lattice direction");
+            return rdk.template cast<long int>();
+        }
+        
         static const MatrixDimD& covBasis()
         {
             return A;
