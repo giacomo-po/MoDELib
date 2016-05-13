@@ -18,10 +18,10 @@ velocityReductionFactor=0.75;
 # OUTPUT
 # Options for output files:
 outputFrequency=10;
-outputBinary=0;
+outputBinary=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=1;
+outputPKforce=0;
 outputQuadratureParticles=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
@@ -44,13 +44,13 @@ C2G = 1.0   0.0  0.0
 
 ######################################
 # TEMPERATURE in [K]
-temperature = 100.0;
+temperature = 300.0;
 
 ######################################
 # Set the remote external stress (a uniform stress felt by dislocations)
 externalStress = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.005;
+		 0.0 0.0 0.0;
 
 ######################################
 # ELASTIC FIELDS
@@ -84,14 +84,14 @@ collisionTol=3;
 # If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
 # T/T_meshID.txt must be present in the working directory.
 use_boundary=1;
-meshID=0;
+meshID=1;
 use_meshRegions=0;
 
 ######################################
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
-use_bvp = 0;
+use_bvp = 10;
 use_directSolver_FEM=1;
 solverTolerance=0.0001;
 use_virtualSegments=1;

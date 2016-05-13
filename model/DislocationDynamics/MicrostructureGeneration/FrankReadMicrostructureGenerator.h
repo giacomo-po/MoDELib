@@ -44,11 +44,13 @@ namespace model
             double targetDensity=0.0;
             EDR.readScalarInFile("./microstructureInput.txt","targetDensity",targetDensity);
 
-//            double fractionEdge=0.0;
-//            EDR.readScalarInFile("./microstructureInput.txt","fractionSessile",fractionSessile);
+            double fractionEdge=0.0;
+            EDR.readScalarInFile("./microstructureInput.txt","fractionEdge",fractionEdge);
 
             std::cout<<"Generating Frank-Read sources..."<<std::endl;
             double density=0.0;
+            double edgeDensity=0.0;
+
             size_t nodeID=0;
             while(density<targetDensity)
             {
@@ -70,11 +72,24 @@ namespace model
 //                assert(planeIDs.size()==2 && "ONLY FCC IS SUPPORTED AT THE MOMENT.");
                 
                 ReciprocalLatticeDirection<3> sr(slipSystem.s.cartesian());
-                
-                LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)));
-                
+
+                bool isEdge=true;
 
                 
+
+                    LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)));
+                    double d1cNorm(d1.cartesian().norm());
+                    int a1=this->randomSize()/d1cNorm;
+                    LatticeVector<dim> L1=L0+d1*a1;
+                
+                if(edgeDensity>=fractionEdge*density) // overwrite with screw dislocaiton
+                {
+                    isEdge=false;
+                    d1cNorm=slipSystem.s.cartesian().norm();
+                    a1=this->randomSize()/d1cNorm;
+                    L1=L0+slipSystem.s*a1;
+                }
+
                 
 //                LatticeDirection<3> d2(LatticeVector<dim>(slipSystem.s.cross(CrystalOrientation<dim>::planeNormals()[*planeIDs.rbegin()])));
 //                if(density/targetDensity<fractionSessile)
@@ -82,19 +97,23 @@ namespace model
 //                    assert(0 && "SESSILE LOOPS NOT SUPPORTED YET.");
 //                }
                 
-                const double d1cNorm(d1.cartesian().norm());
 //                const double d2cNorm(d2.cartesian().norm());
                 
-                int a1=this->randomSize()/d1cNorm;
 //                int a2=this->randomSize()/d2cNorm;
 
-                LatticeVector<dim> L1=L0+d1*a1;
+                
 //                LatticeVector<dim> L2=L1+d2*a2;
 //                LatticeVector<dim> L3=L2-d1*a1;
                 
                 if(   mesh.search(L1.cartesian()).first)
                 {
                     density += d1cNorm*a1/this->mesh.volume()/pow(Material<Isotropic>::b_real,2);
+                    if(isEdge)
+                    {
+                        edgeDensity+=d1cNorm*a1/this->mesh.volume()/pow(Material<Isotropic>::b_real,2);
+                        std::cout<<"edgeDensity="<<edgeDensity<<std::endl;
+
+                    }
                     std::cout<<"density="<<density<<std::endl;
                     
                     vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\n";

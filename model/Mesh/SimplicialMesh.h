@@ -143,11 +143,11 @@ namespace model
                 else
                 {
                     model::cout<<"Mesh is empty."<<std::endl;
-
                 }
             }
             else
             {
+//                assert(0);
                 model::cout<<"Cannot read mesh file T/T_"<<meshID<<".txt . Mesh is empty."<<std::endl;
             }
 
@@ -335,7 +335,6 @@ namespace model
         {
             return vol0;
         }
-
         
     };
     

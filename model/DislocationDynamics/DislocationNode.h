@@ -474,7 +474,7 @@ namespace model
             }
             else if (meshLocation()==onMeshBoundary)
             { // DislocationNode is on mesh boundary, constrain by boundaryNormal
-                temp.push_back(boundaryNormal);
+              //  temp.push_back(boundaryNormal);
                 //showTemp(temp);
             }
             else

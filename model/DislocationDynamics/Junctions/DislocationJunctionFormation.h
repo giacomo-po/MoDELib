@@ -221,11 +221,6 @@ namespace model
                     }
                 }
                 
-//               //std::cout<<source.get_P().transpose()<<std::endl;
-//               //std::cout<<Pm.transpose()<<std::endl;
-//               //std::cout<<Pp.transpose()<<std::endl;
-//               //std::cout<<sink.get_P().transpose()<<std::endl;
-                
 //                if(   (Pm-source.get_P()).squaredNorm()>dx2
 //                   && insideMeshM)
 //                {
