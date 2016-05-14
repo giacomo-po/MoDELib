@@ -17,6 +17,11 @@ mesh.node
 
 # use glob syntax.
 syntax: glob
+
+#CMake files
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles
  
 # Executable
 DDcode
@@ -24,7 +29,7 @@ DDserial
 DDparallel
 DDomp
 DDmpi
-DDviewer
+#DDviewer
 tetgen
 
 # Folders
