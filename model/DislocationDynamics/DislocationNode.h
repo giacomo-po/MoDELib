@@ -317,6 +317,7 @@ namespace model
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from VertexContraction
           */
+            
         }
         
         /**********************************************************************/
@@ -462,8 +463,6 @@ namespace model
                     temp.push_back((VectorDim()<<1.0,0.0,0.0).finished());
                     temp.push_back((VectorDim()<<0.0,1.0,0.0).finished());
                     temp.push_back((VectorDim()<<0.0,0.0,1.0).finished());
-                    //                    //std::cout<<"case a"<<std::endl;
-                    //showTemp(temp);
                 }
                 //                if()
                 //                {
@@ -474,8 +473,7 @@ namespace model
             }
             else if (meshLocation()==onMeshBoundary)
             { // DislocationNode is on mesh boundary, constrain by boundaryNormal
-              //  temp.push_back(boundaryNormal);
-                //showTemp(temp);
+                temp.push_back(boundaryNormal);
             }
             else
             {
@@ -487,12 +485,6 @@ namespace model
             assert(temp.size()>=1 && "GLIDING NODE MUST HAVE AT LEAST ONE CONSTRAINT.");
             return temp;
         }
-        
-        //        /**********************************************************************/
-        //        bool is_removable() const
-        //        {
-        //            return (this->is_simple() && constraintNormals().size()==1);
-        //        }
         
 //        /**********************************************************************/
 //        void make_projectionMatrix()

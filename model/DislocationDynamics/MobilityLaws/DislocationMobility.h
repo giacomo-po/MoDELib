@@ -178,7 +178,7 @@ namespace model
             const double Theta=num/den;
             const double dg = (Theta<1.0)? (std::pow(1.0-std::pow(Theta,p),q)-T/T0) : 0.0;
             const double dg1 = (dg>0.0)? dg : 0.0;
-            const double expCoeff = exp(-dH0*dg1/(kB*T));
+            const double expCoeff = exp(-dH0*dg1/(2.0*kB*T));
 
             // Compute screw drag coeff
             const double sgm=sigmoid((0.05-dg1)/0.05);

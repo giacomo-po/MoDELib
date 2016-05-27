@@ -104,7 +104,8 @@ namespace model
 
                 if ((endsAreApproaching || segment.is_boundarySegment())// ends are approaching
                     && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
-                    && chordLength<Lmin)
+                    && chordLength<Lmin // segment is small
+                    )
                 {
                     assert(toBeContracted.insert(std::make_pair(chordLength,segment.nodeIDPair)).second && "COULD NOT INSERT IN SET.");
                 }

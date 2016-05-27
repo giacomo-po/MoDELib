@@ -344,16 +344,15 @@ namespace model
             //! 11- Form Junctions
             formJunctions();
             
+            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
+            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
+            
             //! 12- Node redistribution
             remesh();
             //            output(runID);
             
-            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
-            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
-            
             //! 10- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeBoundarySegments();
-            
             
             //! 13 - Increment runID counter
             ++runID;     // increment the runID counter

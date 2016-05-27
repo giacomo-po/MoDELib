@@ -22,6 +22,13 @@ namespace model
 {
     struct DislocationSegmentActor
     {
+        static constexpr int dim=3;
+        typedef Eigen::Matrix<float,dim,1>  VectorDim;
+
+        VectorDim planeNormal;
+        VectorDim burgers;
+        VectorDim chord;
+        
         //    http://www.vtk.org/Wiki/VTK/Examples/Cxx/VisualizationAlgorithms/TubesWithVaryingRadiusAndColors
         
         vtkSmartPointer<vtkPoints> points;
@@ -32,7 +39,7 @@ namespace model
         vtkSmartPointer<vtkPolyDataMapper> tubeMapper;
         
         
-        DislocationSegmentActor() :
+        DislocationSegmentActor(const Eigen::Matrix<float,dim,6>& P0T0P1T1BN) :
         /* init */ points(vtkSmartPointer<vtkPoints>::New()),
         /* init */ lines(vtkSmartPointer<vtkCellArray>::New()),
         /* init */ polyData(vtkSmartPointer<vtkPolyData>::New()),
@@ -40,31 +47,44 @@ namespace model
         /* init */ tubeFilter(vtkSmartPointer<vtkTubeFilter>::New()),
         /* init */ tubeMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         {
-            double vX, vY, vZ;
-            unsigned int nV = 256;      // No. of vertices
-            unsigned int nCyc = 5;      // No. of spiral cycles
-            double rT1 = 0.1, rT2 = 0.5;// Start/end tube radii
-            double rS = 2000;              // Spiral radius
-            double h = 10000;              // Height
-            unsigned int nTv = 8;       // No. of surface elements for each tube vertex
             
-            unsigned int i;
+            float alpha=0.5;
             
-            // Create points and cells for the spiral
-            for(i = 0; i < nV; i++)
+            chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
+            float g = std::pow(chord.norm(),alpha);
+            
+            unsigned int Np = 10;      // No. of vertices
+
+            for (int k=0;k<Np;++k)
             {
-                // Spiral coordinates
-                vX = rS * cos(2 * vtkMath::Pi() * nCyc * i / (nV - 1));
-                vY = rS * sin(2 * vtkMath::Pi() * nCyc * i / (nV - 1));
-                vZ = h * i / nV;
-                points->InsertPoint(i, vX, vY, vZ);
+                float u1=k*1.0/(Np-1);
+                float u2=u1*u1;
+                float u3=u2*u1;
+                
+                // Compute positions along axis
+                VectorDim P =   ( 2.0f*u3-3.0f*u2+1.0f) * P0T0P1T1BN.col(0)
+                /*************/ + g*(      u3-2.0f*u2+u1)   * P0T0P1T1BN.col(1)
+                /*************/ +   (-2.0f*u3+3.0f*u2)      * P0T0P1T1BN.col(2)
+                /*************/ + g*(      u3-u2)           * P0T0P1T1BN.col(3);
+                
+//                // Compute tangents along axis
+//                tubeTangents.col(k)= (     ( 6.0f*u2-6.0f*u1)      * P0T0P1T1BN.col(0)
+//                                      /*                  */ + g*( 3.0f*u2-4.0f*u1+1.0f) * P0T0P1T1BN.col(1)
+//                                      /*                  */ +   (-6.0f*u2+6.0f*u1)      * P0T0P1T1BN.col(2)
+//                                      /*                  */ + g*( 3.0f*u2-2.0f*u1)      * P0T0P1T1BN.col(3) ).normalized();
+//                
+//                // Compute unit vectors in radial direction orthogonal to axis
+//                tubeCircles.push_back(getCircle(k));
+                points->InsertPoint(k, P(0), P(1), P(2));
+
             }
             
-            lines->InsertNextCell(nV);
-            for (i = 0; i < nV; i++)
+            lines->InsertNextCell(Np);
+            for (int i = 0; i < Np; i++)
             {
                 lines->InsertCellPoint(i);
             }
+
             
             polyData->SetPoints(points);
             polyData->SetLines(lines);
@@ -72,13 +92,16 @@ namespace model
             //        lineMapper->SetInputConnection(lines->GetOutputPort());
             lineMapper->SetInputData(polyData);
             
+            if(false)
+            {
             tubeFilter->SetInputData(polyData);
-            tubeFilter->SetRadius(500); //default is .5
+            tubeFilter->SetRadius(10); //default is .5
             tubeFilter->SetNumberOfSides(50);
             tubeFilter->Update();
-            
             tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
             tubeMapper->ScalarVisibilityOn();
+            }
+            
             //        tubeMapper->SetScalarModeToUsePointFieldData();
             //        tubeMapper->SelectColorArray("Colors");
             
