@@ -9,6 +9,7 @@
 #ifndef _model_DummyLoadController_h
 #define _model_DummyLoadController_h
 
+#include <Eigen/Dense>
 #include <model/Utilities/TerminalColors.h>
 #include <model/MPI/MPIcout.h>
 
@@ -23,14 +24,38 @@ namespace model
         
         LoadController(const TrialFunctionType&)
         {
-        
         }
         
         /**********************************************************************/
         template <typename DislocationNetworkType>
-        void init(const DislocationNetworkType&)
+        void addDirichletConditions(const DislocationNetworkType& ) const
         {
-            std::cout<<greenColor<<"Initializing DummyLoadController"<<defaultColor<<std::endl;
+        }
+        
+        /**********************************************************************/
+        template <typename DislocationNetworkType>
+        void init(const DislocationNetworkType&) const
+        {
+        }
+        
+        /**********************************************************************/
+        template <typename DislocationNetworkType>
+        void update(const DislocationNetworkType& ) const
+        {
+        }
+        
+        /**********************************************************************/
+        Eigen::VectorXd globalVector() const
+        {
+            return Eigen::VectorXd();
+        }
+        
+        /**********************************************************************/
+        template <typename DislocationNetworkType>
+        std::string output(const DislocationNetworkType& ) const
+        {
+            std::stringstream os;
+            return os.str();
         }
         
     };
