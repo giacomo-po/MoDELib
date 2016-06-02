@@ -464,12 +464,7 @@ namespace model
                     temp.push_back((VectorDim()<<0.0,1.0,0.0).finished());
                     temp.push_back((VectorDim()<<0.0,0.0,1.0).finished());
                 }
-                //                if()
-                //                {
-                //
-                //                }
-                
-                //                temp.push_back(regionBndNormal);
+
             }
             else if (meshLocation()==onMeshBoundary)
             { // DislocationNode is on mesh boundary, constrain by boundaryNormal

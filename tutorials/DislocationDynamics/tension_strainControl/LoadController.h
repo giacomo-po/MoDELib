@@ -125,7 +125,6 @@ struct LoadController
     {
         
         // Fix bottom nodes
-        
         Fix fix;
         u.addDirichletCondition(nodeList_bottom,fix,{1,1,1}); // fix u1 u2 u3
         
