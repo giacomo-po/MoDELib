@@ -32,7 +32,7 @@ struct MyFunction //: public EvalExpression<Constant<T,_rows,_cols> >
     
     /**********************************************************************/
     template<typename ElementType, typename BaryType>
-    const double operator() (const ElementType& ele, const BaryType& bary) const
+    double operator() (const ElementType& ele, const BaryType& bary) const
     {/*!@param[in] elem the element
       * @param[in] bary the barycentric cooridinate
       *\returns the constant c.
@@ -40,7 +40,7 @@ struct MyFunction //: public EvalExpression<Constant<T,_rows,_cols> >
         
         const Eigen::Matrix<double,ElementType::dim,1> P=ele.position(bary);
         
-        return P(0);
+        return 1.0;
     }
     
     /**********************************************************************/
