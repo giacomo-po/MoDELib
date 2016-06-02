@@ -40,7 +40,7 @@ struct MyFunction //: public EvalExpression<Constant<T,_rows,_cols> >
         
         const Eigen::Matrix<double,ElementType::dim,1> P=ele.position(bary);
         
-        return 1.0;
+        return P(0);
     }
     
     /**********************************************************************/
