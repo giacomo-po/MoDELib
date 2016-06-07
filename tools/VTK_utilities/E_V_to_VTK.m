@@ -8,10 +8,23 @@ path_to_E_and_V = '.';
 step = 1;
 vtk_dir = '.';     
 
-%% get Burgers vectors of all simulation steps
-Burgers=[];
-for step = [0:10:100]
-    fprintf('step=%i\n',step)
+bfmt = '%+06.3f %+06.3f %+06.3f';
+%% get unique Burgers vector list of all simulation steps
+idx = 1;
+for step = [0:10:1000]
+    fprintf('sorting Burgers vectors, step=%i\n',step)
+    E=load(fullfile(path_to_E_and_V, ['/E/E_' num2str(step) '.txt']));
+    for e=1:size(E,1)
+        b=E(e,[3:5]);
+        bstring = sprintf(bfmt,b);
+        bb{idx} = [bstring];
+        idx = idx +1;
+    end
+end
+bb = unique(bb,'rows');
+
+for step = [0:10:1000]
+    fprintf('writing VTK files, step=%i\n',step)
     % read vertex data
     V=load(fullfile(path_to_E_and_V, ['/V/V_' num2str(step) '.txt']));
     
@@ -26,19 +39,17 @@ for step = [0:10:100]
     
     for e=1:size(E,1)
         b=E(e,[3:5]);
-        bstring = sprintf('%1.1f %1.1f %1.1f',b);
-        Burgers=[Burgers; b];
         vertex0 = round(E(e,1)) + 1;
         vertex1 = round(E(e,2)) + 1;
         polygon{e}.vertices = [vertex0, vertex1];
         polygon{e}.nvertices = 2;
-        polygon{e}.b_index = 1;
+        bstring = sprintf(bfmt,b);
+        polygon{e}.b_index = find(ismember(bb,bstring));
     end
     
     vtk_file = sprintf('%03i_polygones.vtk',step);
     write_VTK_polygone_file( vtk_dir, vtk_file , polygon, vertex);
 
 end
-Burgers = unique(Burgers,'rows');
 % 
 % find(norm(Burgers-b)<1e-6)

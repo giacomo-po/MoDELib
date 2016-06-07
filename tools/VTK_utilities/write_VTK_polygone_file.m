@@ -26,7 +26,7 @@ function write_VTK_polygone_file( vtk_dir, vtkfile, polygon, vertex )
     fprintf(fid,'%s\n','DATASET POLYDATA');
     fprintf(fid,'POINTS %i float\n',Nv);
     
-    % find valid vertex for filling up empty nodeIDs
+    % find valid vertex coordinates for filling up empty nodeIDs
     for nv=1:Nv
         if isempty(vertex{nv}); 
             continue;
