@@ -18,7 +18,6 @@ function write_VTK_polygone_file( vtk_dir, vtkfile, polygon, vertex )
 %         sprintf('b=%s,  idx=%i,  all_Burgers_vectors=%s\n',b_vector,idx,all_Burgers_vectors{idx})
 %     end
 
-    % Header
     fid=fopen(fullfile(vtk_dir,vtkfile),'w');
     fprintf(fid,'%s\n','# vtk DataFile Version 1.0');
     fprintf(fid,'%s\n','Dislocation data');
@@ -26,12 +25,25 @@ function write_VTK_polygone_file( vtk_dir, vtkfile, polygon, vertex )
     fprintf(fid,'\n');
     fprintf(fid,'%s\n','DATASET POLYDATA');
     fprintf(fid,'POINTS %i float\n',Nv);
-    %
+    
+    % find valid vertex for filling up empty nodeIDs
     for nv=1:Nv
-        fprintf(fid, '%1.15e %1.15e %1.15e \n', vertex{nv}.coords);
+        if isempty(vertex{nv}); 
+            continue;
+        end
+        dummy_coords = vertex{nv}.coords;
+        break;
     end
     
+    for nv=1:Nv
+        coords = vertex{nv}.coords;
+        if isempty(vertex{nv}); 
+            coords = dummy_coords; 
+        end
+        fprintf(fid, '%1.15e %1.15e %1.15e \n', coords);
+    end
     fprintf(fid,'\n');
+    
     fprintf(fid,'LINES %i %i\n',Nd,Nd + Nseg);
     b_id = zeros(Nd,1); % ids of all possible burgers vectors for each polygon
     for p=1:Nd
@@ -39,7 +51,7 @@ function write_VTK_polygone_file( vtk_dir, vtkfile, polygon, vertex )
         
         fprintf(fid,'%i ',polygon{p}.nvertices);
         for nv=1:polygon{p}.nvertices
-            fprintf(fid,'%i ', polygon{p}.vertex(nv)-1 );
+            fprintf(fid,'%i ', polygon{p}.vertices(nv)-1 );
         end
         fprintf(fid,'\n');
     end
