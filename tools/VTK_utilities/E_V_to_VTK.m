@@ -10,7 +10,8 @@ vtk_dir = '.';
 
 %% get Burgers vectors of all simulation steps
 Burgers=[];
-for step = [0:100]
+for step = [0:10:100]
+    fprintf('step=%i\n',step)
     % read vertex data
     V=load(fullfile(path_to_E_and_V, ['/V/V_' num2str(step) '.txt']));
     

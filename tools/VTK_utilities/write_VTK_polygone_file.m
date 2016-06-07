@@ -36,9 +36,10 @@ function write_VTK_polygone_file( vtk_dir, vtkfile, polygon, vertex )
     end
     
     for nv=1:Nv
-        coords = vertex{nv}.coords;
         if isempty(vertex{nv}); 
             coords = dummy_coords; 
+        else
+            coords = vertex{nv}.coords;
         end
         fprintf(fid, '%1.15e %1.15e %1.15e \n', coords);
     end
