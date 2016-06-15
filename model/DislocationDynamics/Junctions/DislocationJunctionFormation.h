@@ -221,20 +221,20 @@ namespace model
                     }
                 }
                 
-//                if(   (Pm-source.get_P()).squaredNorm()>dx2
-//                   && insideMeshM)
-//                {
-//                    std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(source.sID,sink.sID,Pm);
-//                    im=temp.first->first; // id of the node obtained expanding L1
-//                }
-//                
-//                if(   (Pp-  sink.get_P()).squaredNorm()>dx2
-//                   && (Pm-Pp).squaredNorm()>dx2
-//                   && insideMeshP)
-//                {
-//                    std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(im,sink.sID,Pp); // now L1.second is invalid
-//                    ip=temp.first->first; // id of the node obtained expanding L1
-//                }
+                //                if(   (Pm-source.get_P()).squaredNorm()>dx2
+                //                   && insideMeshM)
+                //                {
+                //                    std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(source.sID,sink.sID,Pm);
+                //                    im=temp.first->first; // id of the node obtained expanding L1
+                //                }
+                //
+                //                if(   (Pp-  sink.get_P()).squaredNorm()>dx2
+                //                   && (Pm-Pp).squaredNorm()>dx2
+                //                   && insideMeshP)
+                //                {
+                //                    std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(im,sink.sID,Pp); // now L1.second is invalid
+                //                    ip=temp.first->first; // id of the node obtained expanding L1
+                //                }
                 
                 if(   (Pm-source.get_P()).squaredNorm()>dx2
                    && (Pm-Pp).squaredNorm()>dx2
@@ -247,9 +247,9 @@ namespace model
                     
                     //std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(im,sink.sID,Pp); // now L1.second is invalid
                     ip=DN.expand(im,sink.sID,Pp).first->first; // id of the node obtained expanding L1
-
+                    
                 }
-            
+                
             }
             
             
@@ -283,27 +283,27 @@ namespace model
           *  Computes all the intersections between the edges of the DislocationNetwork
           */
             
-//                                        const double avoidNodeIntersection=0.2;
+            //                                        const double avoidNodeIntersection=0.2;
             
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"		Finding Junctions ("<<nThreads<<" threads)... "<<std::flush;
             
             // Create an EqualConstIteratorRange over links
-//            EqualConstIteratorRange<NetworkLinkContainerType> eir(DN.linkBegin(),DN.linkEnd(),nThreads);
+            //            EqualConstIteratorRange<NetworkLinkContainerType> eir(DN.linkBegin(),DN.linkEnd(),nThreads);
             N2IteratorRange<typename NetworkLinkContainerType::const_iterator> eir(DN.linkBegin(),DN.linkEnd(),nThreads);
-
             
-//            std::cout<<"#links="<<DN.linkOrder()<<std::endl;
-//            for(auto pair : eir)
-//            {
-//                std::cout<<std::distance(pair.first,pair.second)<<std::endl;
-//            }
-//            
-//            std::vector<int> threadVector(nThreads,0);
+            
+            //            std::cout<<"#links="<<DN.linkOrder()<<std::endl;
+            //            for(auto pair : eir)
+            //            {
+            //                std::cout<<std::distance(pair.first,pair.second)<<std::endl;
+            //            }
+            //
+            //            std::vector<int> threadVector(nThreads,0);
             
             
             const double avoidNodeIntersection=0.1;
-
+            
             
             //! 2- loop over all links and determine their intersections
 #ifdef _OPENMP
@@ -319,10 +319,10 @@ namespace model
                     {
                         if (linkIterA->second.sID!=linkIterB->second.sID) // don't intersect with itself
                         {
-//                            threadVector[omp_get_thread_num()]++;
+                            //                            threadVector[omp_get_thread_num()]++;
                             
                             //std::cout<< "Intersecting "<<linkIterA->second.nodeIDPair.first<<"->"<<linkIterA->second.nodeIDPair.second<<" " <<linkIterB->second.nodeIDPair.first<<"->"<<linkIterB->second.nodeIDPair.second<<std::flush;
-
+                            
                             const bool& L1isSessile(linkIterA->second.isSessile);
                             const bool& L2isSessile(linkIterB->second.isSessile);
                             
@@ -409,9 +409,9 @@ namespace model
                                     EdgeIntersectionType intersectionOnA(std::make_pair(linkIterA->second.nodeIDPair,paramIter->first ));
                                     EdgeIntersectionType intersectionOnB(std::make_pair(linkIterB->second.nodeIDPair,paramIter->second));
                                     const int dir(junctionDir(linkIterA->second,linkIterB->second,paramIter->first,paramIter->second));
-                                
-//                               //std::cout<<paramIter->first<<" "<<paramIter->second<<" "<<dir<<std::endl;
-                                
+                                    
+                                    //                               //std::cout<<paramIter->first<<" "<<paramIter->second<<" "<<dir<<std::endl;
+                                    
                                     if(dir!=0)
                                     {
 #ifdef _OPENMP
@@ -430,10 +430,10 @@ namespace model
             }// end loop ever threads
             
             
-//            for(int k=0;k<threadVector.size();++k)
-//            {
-//                std::cout<<"thread "<<k<<" computed "<<threadVector[k]<<" intersections"<<std::endl;
-//            }
+            //            for(int k=0;k<threadVector.size();++k)
+            //            {
+            //                std::cout<<"thread "<<k<<" computed "<<threadVector[k]<<" intersections"<<std::endl;
+            //            }
             
             int nIntersections=0;
             for (size_t tt=0;tt<intersectionContainer.size();++tt)
@@ -483,11 +483,11 @@ namespace model
                     const isNetworkLinkType L1(DN.link(key1.first,key1.second));
                     const isNetworkLinkType L2(DN.link(key2.first,key2.second));
                     
-                   //std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[tt][interID]. first.second<<","<<intersectionContainer[tt][interID]. second.second<<std::endl;
+                    //std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[tt][interID]. first.second<<","<<intersectionContainer[tt][interID]. second.second<<std::endl;
                     
                     if(L1.first && L2.first) // Links exist
                     {
-                       //std::cout<<"I'm here 1"<<std::endl;
+                        //std::cout<<"I'm here 1"<<std::endl;
                         
                         const std::pair<size_t,size_t> I=junctionIDs(*L1.second,intersectionContainer[tt][interID]. first.second,dx);
                         const size_t im=I.first;
@@ -503,15 +503,15 @@ namespace model
                         {
                             case +1:
                             {
-                               //std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
-                               //std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
+                                //std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
+                                //std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
                                 if(im!=jm)
                                 {
                                     const isNetworkNodeType N1=DN.node(im);
                                     const isNetworkNodeType N2=DN.node(jm);
                                     if(N1.first && N2.first)
                                     {
-                                      //std::cout<<"first contract +1 "<<std::endl;
+                                        //std::cout<<"first contract +1 "<<std::endl;
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -521,7 +521,7 @@ namespace model
                                     const isNetworkNodeType N2=DN.node(jp);
                                     if(N1.first && N2.first)
                                     {
-                                      //std::cout<<"second contract +1 "<<std::endl;
+                                        //std::cout<<"second contract +1 "<<std::endl;
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -530,15 +530,15 @@ namespace model
                                 
                             case -1:
                             {
-                               //std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
-                               //std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
+                                //std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
+                                //std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
                                 if(im!=jp)
                                 {
                                     const isNetworkNodeType N1=DN.node(im);
                                     const isNetworkNodeType N2=DN.node(jp);
                                     if(N1.first && N2.first)
                                     {
-                                       //std::cout<<"first contract -1 "<<std::endl;
+                                        //std::cout<<"first contract -1 "<<std::endl;
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -548,7 +548,7 @@ namespace model
                                     const isNetworkNodeType N2=DN.node(jm);
                                     if(N1.first && N2.first)
                                     {
-                                       //std::cout<<"second contract -1 "<<std::endl;
+                                        //std::cout<<"second contract -1 "<<std::endl;
                                         DN.contractWithConstraintCheck(N1,N2);
                                     }
                                 }
@@ -563,7 +563,7 @@ namespace model
                         
                     }
                     //std::cout<<"done forming Junction "<<std::endl;
-
+                    
                 }
             } // loop over threads
             model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -577,76 +577,136 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"		Breaking zero-length Junctions... "<<std::flush;
             
-            std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecomp;
+            std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecompFirst;
+            std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecompSecond;
             
-            //            for (auto& nodePair : DN.nodeContainer())
+            
+            // TO DO: PARALLELIZE THIS LOOP
             for (auto& nodePair : DN.nodes())
             {
-                std::deque<std::pair<size_t,size_t> > temp=nodePair.second.edgeDecomposition();
-                if(temp.size())
+                const auto temp=nodePair.second.edgeDecomposition();
+                //std::deque<std::pair<size_t,size_t> > temp=nodePair.second.edgeDecomposition();
+
+                if(temp.first.size() && temp.second.size())
                 {
-                    nodeDecomp.emplace_back(nodePair.second.sID,temp);
+                    nodeDecompFirst.emplace_back(nodePair.second.sID,temp.first);
+                    nodeDecompSecond.emplace_back(nodePair.second.sID,temp.second);
                 }
             }
             
             int broken=0;
             
-            for(size_t n=0;n<nodeDecomp.size();++n)
+            for(size_t n=0;n<nodeDecompFirst.size();++n)
             {
-                const size_t& i=nodeDecomp[n].first;
+                const size_t& i=nodeDecompFirst[n].first;
                 auto Ni=DN.node(i);
                 assert(Ni.first);
                 //                size_t m=DN.insertVertex(Ni.second->get_P());
                 
                 // Check that Links still exist
-                bool linksexist=true;
-                for(size_t d=0;d<nodeDecomp[n].second.size();++d)
+                //std::deque<VectorDimD> linkDirs;
+                
+                bool linksFirstexist=true;
+                VectorDimD avrFirst=VectorDimD::Zero();
+                for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
                 {
-                    const size_t& j=nodeDecomp[n].second[d].first;
-                    const size_t& k=nodeDecomp[n].second[d].second;
+                    const size_t& j=nodeDecompFirst[n].second[d].first;
+                    const size_t& k=nodeDecompFirst[n].second[d].second;
                     if(i==j)
                     {
                         auto Lik=DN.link(i,k);
-                        linksexist*=Lik.first;
+                        if(Lik.first)
+                        {
+                            avrFirst+=Lik.second->chord().normalized();
+                        }
+                        linksFirstexist*=Lik.first;
                     }
                     else if(i==k)
                     {
                         auto Lji=DN.link(j,i);
-                        linksexist*=Lji.first;
+                        if(Lji.first)
+                        {
+                            avrFirst-=Lji.second->chord().normalized();
+                        }
+                        linksFirstexist*=Lji.first;
                     }
                     else
                     {
                         assert(0 && "i must be equal to either j or k.");
                     }
                 }
-                
-                if(linksexist)
+                const double avrFirstNorm=avrFirst.norm();
+                if(avrFirstNorm>FLT_EPSILON)
                 {
-                    size_t m=DN.insertVertex(Ni.second->get_P()).first->first;
-                    
-                    for(size_t d=0;d<nodeDecomp[n].second.size();++d)
+                    avrFirst/=avrFirstNorm;
+                }
+                
+                bool linksSecondexist=true;
+                VectorDimD avrSecond=VectorDimD::Zero();
+                for(size_t d=0;d<nodeDecompSecond[n].second.size();++d)
+                {
+                    const size_t& j=nodeDecompSecond[n].second[d].first;
+                    const size_t& k=nodeDecompSecond[n].second[d].second;
+                    if(i==j)
                     {
-                        const size_t& j=nodeDecomp[n].second[d].first;
-                        const size_t& k=nodeDecomp[n].second[d].second;
-                        if(i==j)
+                        auto Lik=DN.link(i,k);
+                        if(Lik.first)
                         {
-                            auto Lik=DN.link(i,k);
-                            assert(Lik.first);
-                            DN.connect(m,k,Lik.second->Burgers);
-                            DN.template disconnect<0>(i,k);
+                            avrSecond+=Lik.second->chord().normalized();
                         }
-                        else if(i==k)
-                        {
-                            auto Lji=DN.link(j,i);
-                            assert(Lji.first);
-                            DN.connect(j,m,Lji.second->Burgers);
-                            DN.template disconnect<0>(j,i);
-                        }
-                        else
-                        {
-                            assert(0 && "i must be equal to either j or k.");
-                        }
+                        linksSecondexist*=Lik.first;
                     }
+                    else if(i==k)
+                    {
+                        auto Lji=DN.link(j,i);
+                        if(Lji.first)
+                        {
+                            avrSecond-=Lji.second->chord().normalized();
+                        }
+                        linksSecondexist*=Lji.first;
+                    }
+                    else
+                    {
+                        assert(0 && "i must be equal to either j or k.");
+                    }
+                }
+                const double avrSecondNorm=avrSecond.norm();
+                if(avrSecondNorm>FLT_EPSILON)
+                {
+                    avrSecond/=avrSecondNorm;
+                }
+                
+                
+                if(linksFirstexist && linksSecondexist && avrSecond.dot(avrFirst)<-0.0)
+                {
+                    std::cout<<"NodeBreaking "<<Ni.second->sID<<" "<<avrSecond.dot(avrFirst)<<std::endl;
+                    
+                        size_t m=DN.insertVertex(Ni.second->get_P()).first->first;
+                        
+                        for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
+                        {
+                            const size_t& j=nodeDecompFirst[n].second[d].first;
+                            const size_t& k=nodeDecompFirst[n].second[d].second;
+                            if(i==j)
+                            {
+                                auto Lik=DN.link(i,k);
+                                assert(Lik.first);
+                                DN.connect(m,k,Lik.second->Burgers);
+                                DN.template disconnect<0>(i,k);
+                            }
+                            else if(i==k)
+                            {
+                                auto Lji=DN.link(j,i);
+                                assert(Lji.first);
+                                DN.connect(j,m,Lji.second->Burgers);
+                                DN.template disconnect<0>(j,i);
+                            }
+                            else
+                            {
+                                assert(0 && "i must be equal to either j or k.");
+                            }
+                        }
+
                     
                     broken++;
                 }

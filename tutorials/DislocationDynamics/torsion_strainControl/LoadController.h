@@ -20,7 +20,8 @@ using namespace model;
 template <typename TrialFunctionType>
 struct LoadController
 {
-    
+    typedef typename TrialFunctionType::FiniteElementType FiniteElementType;
+   
     static constexpr int dim=TrialFunctionType::dim;
     
     TrialFunctionType& u;
@@ -53,6 +54,10 @@ struct LoadController
     
     const size_t nodeList_top;
     
+    const IntegrationDomain<FiniteElementType,1,3,GaussLegendre> loadedBnd;
+    
+//    const double topArea;
+    
     /**************************************************************************/
     LoadController(TrialFunctionType& u_in) :
     /* init list */ u(u_in),
@@ -66,8 +71,11 @@ struct LoadController
     /* init list */ deltaTheta(0.0),
     /* init list */ apply_torsion(true),
     /* init list */ nodeList_bottom(u.fe.template createNodeList<AtXmin<2>>()),
-    /* init list */ nodeList_top(u.fe.template createNodeList<AtXmax<2>>())
+    /* init list */ nodeList_top(u.fe.template createNodeList<AtXmax<2>>()),
+    /* init list */ loadedBnd(topBoundary(u.fe))
+//    /* init list */ topArea(loadedBnd.volume())
     {
+//        std::cout<<"LoadController: topArea="<<topArea<<std::endl;
     }
     
     /**************************************************************************/
@@ -264,7 +272,7 @@ struct LoadController
         double avgRotZ =  rotZ/DN.shared.bvpSolver.finiteElement().nodeList(nodeList_top).size();
         
         // COMPUTATION OF LOAD
-        auto loadedBnd = topBoundary(DN.shared.bvpSolver.finiteElement());
+//        auto loadedBnd = topBoundary(DN.shared.bvpSolver.finiteElement());
         
         typedef typename DislocationNetworkType::BvpSolverType BvpSolverType;
         Eigen::Matrix<double,3,1> torque(Eigen::Matrix<double,3,1>::Zero());

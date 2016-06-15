@@ -5,17 +5,13 @@ clc
 fontSize=16;
 
 Burgers=0.2556e-9; % Burgers vector for Cu [m]
-L1=2000 % radius of cylinder (units of Burgers vector)
-L2=2000
-H=4000
-%R=1000
+L1=2000 % side length of pillar
+L2=2000 % side length of pillar
+H=4000  % heigth of pillar
 A=L1*L2;
-%A=pi*R^2;
 V=H*A;
 
-%eDot=1.0e-11;
-%gDot=1.0e-11;
-dotTheta3=4e-11;
+dotTheta3=1e-9;
 
 fontSize=16;
 F=load('F_0.txt');

@@ -16,6 +16,7 @@
 #include <model/MPI/MPIcout.h>
 #include <model/FEM/BarycentricTraits.h>
 #include <model/FEM/Domains/IntegrationList.h>
+#include <model/FEM/WeakForms/JGNselector.h>
 
 
 namespace model
@@ -83,6 +84,25 @@ namespace model
             model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         }
         
+//        /**********************************************************************/
+//        double volumeKernel(const Eigen::Matrix<double,dim-1,1>& a1, const ElementType& ele, const int& boundaryFace) const
+//        {
+//            const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(a1));
+//            const Eigen::Matrix<double,dim+1,1> bary(face2domainBary(b1,boundaryFace));
+//            return JGNselector<1>::jGN(ele.jGN(bary,boundaryFace));
+//        }
+        
+        /**********************************************************************/
+        double volume() const
+        {
+            double temp=0.0;
+            for(const auto& pair : *this)
+            {
+                temp+=pair.first->simplex.child(pair.second).vol0;
+            }
+//            integrate(this,temp,&IntegrationDomainType::volumeKernel);
+            return temp;
+        }
 //        /**********************************************************************/
 //        template <typename PointType>
 //        void integrationList(std::deque<PointType>& deq) const

@@ -623,11 +623,6 @@ namespace model
                 dX*=10.0/dXnorm;
             }
             
-//            if(isPureBoundaryNode())
-//            {
-//                dX*=0.0;
-//            }
-            
             switch (_confiningPlanes.size())
             {
                 case 1:
@@ -828,10 +823,11 @@ namespace model
         }
         
         /**********************************************************************/
-        std::deque<std::pair<size_t,size_t> > edgeDecomposition() const
+        std::pair<std::deque<std::pair<size_t,size_t> >,std::deque<std::pair<size_t,size_t> >> edgeDecomposition() const
         {
             
             std::deque<std::pair<size_t,size_t> > firstLinkDeq;
+            std::deque<std::pair<size_t,size_t> > secondLinkDeq;
             
             if(this->Neighborhood.size()>2 && meshLocation()==insideMesh)
             {
@@ -854,10 +850,10 @@ namespace model
                     }
                 }
                 
-                if(temp.rows()>7)
-                {
-                    model::cout<<"Dislocation Node "<<this->sID<<std::endl;
-                }
+//                if(temp.rows()>7)
+//                {
+//                    model::cout<<"Dislocation Node "<<this->sID<<std::endl;
+//                }
                 auto vecVec=EdgePermutations::edgeStats(temp);
                 if(vecVec.size()==2)
                 {
@@ -876,13 +872,17 @@ namespace model
                             {
                                 firstLinkDeq.push_back(linkDeq[n]);
                             }
+                            else
+                            {
+                                secondLinkDeq.push_back(linkDeq[n]);
+                            }
                         }
                         
                     }
                 }
             }
             
-            return firstLinkDeq;
+            return make_pair(firstLinkDeq,secondLinkDeq);
         }
         
         /******************************************************************************/

@@ -89,6 +89,20 @@ namespace model
         }
         
         /*************************************************/
+        double neighborLinksLength() const
+        {
+            double temp=0.0;
+            for (constNeighborIteratorType neighborIter=this->neighborhood().begin();neighborIter!=this->neighborhood().end();++neighborIter)
+            {
+                if (std::get<2>(neighborIter->second)!=0)
+                {
+                    temp+=std::get<1>(neighborIter->second)->chordLength();
+                }
+            }
+            return temp;
+        }
+        
+        /*************************************************/
         void set(const VectorDim& P_in)
         {
             /*! Because of the CatmullRom rule for parametric tangents, changing the position of this

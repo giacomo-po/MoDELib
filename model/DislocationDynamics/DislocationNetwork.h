@@ -194,7 +194,7 @@ namespace model
             
             for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
             {
-                if(!nodeIter->second.isBoundaryNode())
+                if(!nodeIter->second.isBoundaryNode() && !nodeIter->second.isConnectedToBoundaryNodes() && nodeIter->second.confiningPlanes().size()<3)
                 {
                     const double vNorm(nodeIter->second.get_V().norm());
                     vmean +=vNorm;
@@ -354,6 +354,9 @@ namespace model
             //! 10- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeBoundarySegments();
             
+            removeSmallComponents(3.0*dx,4);
+            
+            
             //! 13 - Increment runID counter
             ++runID;     // increment the runID counter
         }
@@ -372,6 +375,31 @@ namespace model
                 this->template disconnect_if<1>(boundarySegment_Lmfp);
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
+        }
+        
+        /**********************************************************************/
+        void removeSmallComponents(const double& smallcritvalue,
+                                   const size_t& maxNodeSize)
+        {
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"		removeSmallComponents "<<std::flush;
+            size_t removed=0;
+            for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
+            {
+                if (DislocationNetworkComponentType(*snIter->second).isSmall(smallcritvalue,maxNodeSize))
+                {
+                    const auto nodes=DislocationNetworkComponentType(*snIter->second).networkComponent().nodes();
+                    for(const auto& node : nodes)
+                    {
+                        if(this->node(node.first).first)
+                        {
+                            this->template removeVertex<false>(node.first);
+                        }
+                    }
+                    removed++;
+                }
+            }
+            model::cout<<std::setprecision(3)<<std::scientific<<removed<<" removed) "<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }
         
         
@@ -587,7 +615,7 @@ namespace model
             if (DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion)
             {
                 std::cout<<"reading PD"<<std::endl;
-
+                
                 for(int r=0;r<3;++r)
                 {
                     for(int c=0;c<3;++c)
@@ -601,11 +629,11 @@ namespace model
             model::cout<<"starting at time step "<<runID<<std::endl;
             model::cout<<"totalTime= "<<totalTime<<std::endl;
             model::cout<<"plasticDistortion=\n "<<plasticDistortion<<std::endl;
-
             
-
             
-
+            
+            
+            
             
             // time-stepping
             dt=0.0;

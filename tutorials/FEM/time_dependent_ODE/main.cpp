@@ -68,7 +68,7 @@ int main(int argc, char** argv)
     
     
     // Create a FiniteElement object on the mesh
-    typedef LagrangeElement<3,2> ElementType;
+    typedef LagrangeElement<3,1> ElementType;
     typedef FiniteElement<ElementType> FiniteElementType;
     FiniteElementType fe(mesh);
     

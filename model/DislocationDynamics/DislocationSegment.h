@@ -288,6 +288,7 @@ namespace model
             if(glideForceNorm>FLT_EPSILON)
             {
                 double v =  Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),this->glidePlaneNormal);
+                assert(v>= 0.0 && "Velocity must be a positive scalar");
                 const bool useNonLinearVelocity=true;
                 if(useNonLinearVelocity && v>FLT_EPSILON)
                 {
@@ -954,6 +955,20 @@ namespace model
         {
             return this->source->get_V().template segment<dim>(0)*(1.0-u)+this->sink->get_V().template segment<dim>(0)*u;
         }
+        
+        /*************************************************************/
+        VectorDim integratedVelocity() const
+        {
+            VectorDim temp(VectorDim::Zero());
+            Quadrature<1,16,QuadratureRule>::integrate(this,temp,&Derived::rm_integrand);
+            return temp;
+        }
+        
+        VectorDim integratedVelocityKernel(const double& u) const
+        {
+            return velocity(u)*this->get_j(u);
+        }
+
         
         /**********************************************************************/
         template <class T>

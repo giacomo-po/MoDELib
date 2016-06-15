@@ -17,9 +17,11 @@ namespace model {
 	/**********************************************************************/
 	/**********************************************************************/
 	template <unsigned int N>
-	struct EdgeConfigs{
+	struct EdgeConfigs
+    {
 		
-		static Eigen::Matrix<int,Pow<2,N-1>::value,N> get_Ci(){
+		static Eigen::Matrix<int,Pow<2,N-1>::value,N> get_Ci()
+        {
 			Eigen::Matrix<int,Pow<2,N-1>::value,N> temp;
 			temp.template block<Pow<2,N-2>::value,N-1>(0,1)=EdgeConfigs<N-1>::get_Ci();
 			temp.template block<Pow<2,N-2>::value,N-1>(Pow<2,N-2>::value,1)=-EdgeConfigs<N-1>::get_Ci();
@@ -30,11 +32,13 @@ namespace model {
 	};	
 	
 	template <>
-	struct EdgeConfigs<1>{
+	struct EdgeConfigs<1>
+    {
 
 		enum {N=1};
 		
-		static Eigen::Matrix<int,Pow<2,N-1>::value,N> get_Ci(){
+		static Eigen::Matrix<int,Pow<2,N-1>::value,N> get_Ci()
+        {
 			return Eigen::Matrix<int,Pow<2,N-1>::value,N>::Ones();
 		}
 		
@@ -48,7 +52,8 @@ namespace model {
         
         static const size_t maxEdge;
 		
-		static Eigen::MatrixXi getCi(const unsigned int& n){
+		static Eigen::MatrixXi getCi(const unsigned int& n)
+        {
 			Eigen::MatrixXi Ci;
 			switch (n)
             {

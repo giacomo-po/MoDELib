@@ -460,6 +460,50 @@ namespace model
             return temp;
         }
         
+        /************************************************************/
+        bool isSmall(const double& smallcritvalue,
+                     const size_t& maxNodeSize) const
+        {
+            bool temp=false;
+            const double critvelocity=0.02;
+            if (NC.nodeOrder()<=maxNodeSize)
+            {
+                if( isLoop())
+                {
+                    VectorDim midpoint(VectorDim::Zero());
+                    double velocityloop=0.0;
+                    /////////////////to make sure that the loop is small is enough, distance to the middle point is small
+                    for (typename NodeContainerType::const_iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)
+                    {
+                        midpoint+=nodeIter->second->get_P();
+                        double velocitynode=nodeIter->second->get_V().norm();
+                        if (velocitynode>velocityloop)
+                        {
+                            velocityloop=velocitynode;
+                        };
+                    }
+                    midpoint/=NC.nodeOrder();
+                    double maxdis=0.0;
+                    for (typename NodeContainerType::const_iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)
+                    {
+                        double distance_to_mid=(nodeIter->second->get_P()-midpoint).norm();
+                        if (distance_to_mid>maxdis)
+                        {
+                            maxdis=distance_to_mid;
+                        }
+                    }                  
+                    
+                    if(maxdis<smallcritvalue && velocityloop>critvelocity)
+                    {
+                        temp=true;
+                    }
+                }
+                
+                
+            }
+            return temp;
+        }
+        
     };
     
     //Static data

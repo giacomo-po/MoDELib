@@ -17,7 +17,7 @@ velocityReductionFactor=0.75;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=10;
+outputFrequency=100;
 outputBinary=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
@@ -95,16 +95,16 @@ use_bvp = 10;
 use_directSolver_FEM=1;
 solverTolerance=0.0001;
 use_virtualSegments=1;
-virtualSegmentDistance=10;
+virtualSegmentDistance=100;
 
 ######################################
 # Impose that all dislocation nodes (but FR source/sink nodes) are balanced
-check_balance=0;
+check_balance=1;
 
 ######################################
 # Enable/disable cross-slip
 use_crossSlip=1;
-crossSlipDeg=2.0;
+crossSlipDeg=1.0;
 
 ######################################
 parametrizationExponent=0.5;

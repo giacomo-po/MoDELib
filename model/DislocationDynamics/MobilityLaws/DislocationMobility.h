@@ -24,10 +24,7 @@
 namespace model
 {
     
-    double sigmoid(const double & x)
-    {
-        return 1.0/(1.0+exp(-x));
-    }
+
     
     template <typename CrystalStructure>
     struct DislocationMobility
@@ -147,6 +144,11 @@ namespace model
         
         {/*! Empty constructor is required by constexpr
           */
+        }
+        
+        static double sigmoid(const double & x)
+        {
+            return 1.0/(1.0+exp(-x));
         }
         
         /**********************************************************************/

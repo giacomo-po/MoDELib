@@ -84,9 +84,11 @@ namespace model
                     
                     // 3- Change the sign of Ci according to the direction of the first neighbor
                     int sigCi=1;
-                    for (typename DislocationNodeType::constNeighborIteratorType neighborIter=dN.neighborhood().begin();neighborIter!=dN.neighborhood().end();++neighborIter){
+                    for (typename DislocationNodeType::constNeighborIteratorType neighborIter=dN.neighborhood().begin();neighborIter!=dN.neighborhood().end();++neighborIter)
+                    {
                         const int dir(std::get<2>(neighborIter->second));
-                        if (dir!=0){
+                        if (dir!=0)
+                        {
                             sigCi=dir;
                             break;
                         }
@@ -95,8 +97,10 @@ namespace model
                     
                     // 4- Store total chord parametric length
                     double gT(0.0);
-                    for (typename DislocationNodeType::constNeighborIteratorType neighborIter=dN.neighborhood().begin();neighborIter!=dN.neighborhood().end();++neighborIter){
-                        if (std::get<2>(neighborIter->second)!=0){
+                    for (typename DislocationNodeType::constNeighborIteratorType neighborIter=dN.neighborhood().begin();neighborIter!=dN.neighborhood().end();++neighborIter)
+                    {
+                        if (std::get<2>(neighborIter->second)!=0)
+                        {
                             gT+=std::get<1>(neighborIter->second)->chordParametricLength();
                         }
                     }
@@ -106,13 +110,16 @@ namespace model
                     
                     // 5- Compute and sort energy levels
                     std::multimap<double,Eigen::VectorXi> ELev{};	// MAP DOES NOT ACCEPT EQUAL VALUES SO multimap IS USED TO STORE  DEGENERATE STATES
-                    for (int k=0;k<Ci.rows();++k){
+                    for (int k=0;k<Ci.rows();++k)
+                    {
                         
                         // 5a- Compute the Catmull-Rom tangent using the current edge configuration
                         VectorDimD tTemp(VectorDimD::Zero());
                         int j(0);
-                        for (typename DislocationNodeType::constNeighborIteratorType neighborIter=dN.neighborhood().begin();neighborIter!=dN.neighborhood().end();++neighborIter){
-                            if (std::get<2>(neighborIter->second)!=0){
+                        for (typename DislocationNodeType::constNeighborIteratorType neighborIter=dN.neighborhood().begin();neighborIter!=dN.neighborhood().end();++neighborIter)
+                        {
+                            if (std::get<2>(neighborIter->second)!=0)
+                            {
                                 double gkj(std::get<1>(neighborIter->second)->chordParametricLength());
                                 tTemp+=Ci(k,j)*(std::get<0>(neighborIter->second)->get_P()-dN.get_P())/gkj*(gT-gkj)/gT;
                                 j++;
@@ -138,7 +145,8 @@ namespace model
                         
                         
                         bool isTrivialConfig(true);
-                        for (int c=0;c<Ci.cols();++c){
+                        for (int c=0;c<Ci.cols();++c)
+                        {
                             isTrivialConfig*=(Ci(k,c)==Ci(k,0));
                         }
                         
@@ -149,7 +157,8 @@ namespace model
                     //				// 5- reset edgeConfiguration
                     //				dN.edgeConfiguration.setZero(Ci.cols());
                     
-                    if (dN.is_balanced()){
+                    if (dN.is_balanced())
+                    {
                         assert(ELev.size()>1 && "MORE THAN ONE ENERGY LEVELS MUST BE FOUND FOR A BALANCED NODE");	
                         //std::multimap<double,Eigen::VectorXi>::const_iterator firstNonZero(ELev.lower_bound(FLT_EPSILON)); // the first element that compares >=FLT_EPSILON
                         //assert(firstNonZero!=ELev.end() && "AT LEAST ONE POSITIVE ENERGY LEVEL MUST EXIST");					

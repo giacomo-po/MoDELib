@@ -14,7 +14,7 @@
 
 //#include <Eigen/SparseCore>
 #include <Eigen/Sparse>
-
+#include <Eigen/SparseLU>
 
 
 #include <model/Utilities/SequentialOutputFile.h>
@@ -312,7 +312,7 @@ namespace model
                         col++;
                     }
                     
-                    
+
                     
                     SparseMatrixType T(gSize,tSize);
                     T.setFromTriplets(tTriplets.begin(),tTriplets.end());
@@ -326,6 +326,10 @@ namespace model
                     A1.prune(A1.norm()/A1.nonZeros(),FLT_EPSILON);
                     model::cout<<A1.nonZeros()<<" non-zeros ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]"<<std::endl;
                     
+//                    std::ofstream file("K.txt");
+//                    file<<std::setprecision(15)<<std::scientific<<A1.toDense()<<std::endl;
+//                    Eigen::SparseLU<SparseMatrixType>  lu(A1);
+//                    std::cout<<"lu.det="<<lu.determinant()<<std::endl;
                     
                     const auto t1= std::chrono::system_clock::now();
 #ifdef _MODEL_PARDISO_SOLVER_
