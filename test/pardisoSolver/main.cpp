@@ -72,12 +72,19 @@ int main()
     SparseMatType A(n,n);
     A.setFromTriplets(deqT.begin(),deqT.end());
     std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
+    std::cout<<"matrix size="<<n<<"x"<<n<<std::endl;
     std::cout<<"non-zeros="<<A.nonZeros()<<std::endl;
     std::cout<<"fill ratio="<<((double)A.nonZeros())/n/n<<std::endl;
     
     // Testing various solvers
+    std::cout<<"PardisoLLT"<<std::endl;
+    testSolver<Eigen::PardisoLLT<SparseMatType>>(A,b);
+    
     std::cout<<"PardisoLDLT"<<std::endl;
     testSolver<Eigen::PardisoLDLT<SparseMatType>>(A,b);
+
+    std::cout<<"SimplicialLLT"<<std::endl;
+    testSolver<Eigen::SimplicialLLT<SparseMatType>>(A,b);
     
     std::cout<<"SimplicialLDLT"<<std::endl;
     testSolver<Eigen::SimplicialLDLT<SparseMatType>>(A,b);
@@ -85,8 +92,7 @@ int main()
     std::cout<<"SparseLU"<<std::endl;
     testSolver<Eigen::SparseLU<SparseMatType>>(A,b);
     
-    std::cout<<"PardisoLLT"<<std::endl;
-    testSolver<Eigen::PardisoLLT<SparseMatType>>(A,b);
+
     
     return 0;
 }

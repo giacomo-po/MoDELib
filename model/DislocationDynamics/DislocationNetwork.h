@@ -378,15 +378,15 @@ namespace model
         }
         
         /**********************************************************************/
-        void removeSmallComponents(const double& smallcritvalue,
+        void removeSmallComponents(const double& smallCritValue,
                                    const size_t& maxNodeSize)
         {
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		removeSmallComponents "<<std::flush;
+            model::cout<<"		removing small NetworkComponents "<<std::flush;
             size_t removed=0;
             for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
             {
-                if (DislocationNetworkComponentType(*snIter->second).isSmall(smallcritvalue,maxNodeSize))
+                if (DislocationNetworkComponentType(*snIter->second).isSmall(smallCritValue,maxNodeSize))
                 {
                     const auto nodes=DislocationNetworkComponentType(*snIter->second).networkComponent().nodes();
                     for(const auto& node : nodes)
