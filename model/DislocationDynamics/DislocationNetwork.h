@@ -945,8 +945,8 @@ namespace model
         
         /**********************************************************************/
         std::pair<double,double> networkLength() const
-        {/*!\returns the line length of the DislocationNetwork. The return
-          * value is a pair, where pair.first is the lenght of bulk dislocation
+        {/*!\returns the total line length of the DislocationNetwork. The return
+          * value is a pair, where pair.first is the length of bulk dislocation
           * segments, while pair.second is the length of segments accumulated on
           * the mesh boundary.
           */
