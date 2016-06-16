@@ -283,16 +283,14 @@ namespace model
         void singleStep()
         {
             //! A simulation step consists of the following:
-            model::cout<<blueBoldColor<< "runID="<<runID
+            model::cout<<blueBoldColor<< "runID="<<runID<<" (of "<<Nsteps<<")"
             /*                    */<< ", time="<<totalTime
             /*                    */<< ": nodeOrder="<<this->nodeOrder()
             /*                    */<< ", linkOrder="<<this->linkOrder()
             /*                    */<< ", components="<<this->Naddresses()
             /*                    */<< defaultColor<<std::endl;
             
-            
-            
-            //! 1- Che;ck that all nodes are balanced
+            //! 1- Check that all nodes are balanced
             checkBalance();
             
             //! 2 - Update quadrature points
@@ -324,40 +322,40 @@ namespace model
             //! 6- Output the current configuration before changing it
             output(runID);
             
-            //! Update accumulated quantities
-            totalTime+=dt;
             
             //! 7- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
             move(dt);
-            
+
+            //! 8- Update accumulated quantities (totalTime and plasticDistortion)
+            totalTime+=dt;
             const MatrixDimD pdr(plasticDistortionRate()); // move may limit velocity, so compute pdr after move
             plasticDistortion += pdr*dt;
             
+            //! 9- Contract segments of zero-length
             DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
             
-            //! 8- Cross Slip (needs upated PK force)
+            //! 10- Cross Slip (needs upated PK force)
             crossSlip();
             
-            //! 9- detect loops that shrink to zero and expand as inverted loops
+            //! 11- detect loops that shrink to zero and expand as inverted loops
             DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
             
-            //! 11- Form Junctions
+            //! 12- Form Junctions
             formJunctions();
             
             // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
             
-            //! 12- Node redistribution
+            //! 13- Node redistribution
             remesh();
-            //            output(runID);
             
-            //! 10- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
+            //! 14- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeBoundarySegments();
-            
+
+            //! 15- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeSmallComponents(3.0*dx,4);
             
-            
-            //! 13 - Increment runID counter
+            //! 16 - Increment runID counter
             ++runID;     // increment the runID counter
         }
         
@@ -628,11 +626,6 @@ namespace model
             model::cout<<"totalTime= "<<totalTime<<std::endl;
             model::cout<<"plasticDistortion=\n "<<plasticDistortion<<std::endl;
             
-            
-            
-            
-            
-            
             // time-stepping
             dt=0.0;
             EDR.readScalarInFile(fullName.str(),"dx",dx);
@@ -664,13 +657,9 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_redistribution",use_redistribution);
             EDR.readScalarInFile(fullName.str(),"Lmin",DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
-            //            DislocationNetworkRemesh<DislocationNetworkType>::Lmin=2.0*dx;
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
             EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
-            //            EDR.readScalarInFile(fullName.str(),"thetaDeg",DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg);
-            //            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg>=0.0);
-            //            assert(DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg<=90.0);
             
             // Cross-Slip
             EDR.readScalarInFile(fullName.str(),"use_crossSlip",use_crossSlip);
@@ -866,34 +855,15 @@ namespace model
         {/*! Runs Nsteps simulation steps
           */
             const auto t0= std::chrono::system_clock::now();
-            for (int k=0;k<Nsteps;++k)
+            while (runID<Nsteps)
             {
                 model::cout<<std::endl; // leave a blank line
-                model::cout<<blueBoldColor<<"Step "<<k+1<<" of "<<Nsteps<<defaultColor<<std::endl;
                 singleStep();
             }
             updateQuadraturePoints(); // necessary if quadrature data are necessary in main
             model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
         }
-        
-//        /**********************************************************************/
-//        void runTime()
-//        {/*! Runs a number simulation steps corresponding to a total
-//          * dimensionless time timeWindow
-//          */
-//            const auto t0= std::chrono::system_clock::now();
-//            double elapsedTime(0.0);
-//            while (elapsedTime<timeWindow)
-//            {
-//                model::cout<<std::endl; // leave a blank line
-//                model::cout<<blueBoldColor<<"Time "<<elapsedTime<<" of "<<timeWindow<<defaultColor<<std::endl;
-//                singleStep();
-//                elapsedTime+=dt;
-//            }
-//            updateQuadraturePoints(); // necessary if quadrature data are necessary in main
-//            model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<timeWindow<< " simulation time completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
-//        }
-        
+                
         /**********************************************************************/
         void checkBalance() const
         {/*! Checks that each DislocationNode is balanced, and asserts otherwise
