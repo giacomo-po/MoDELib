@@ -412,8 +412,8 @@ namespace model
         //! The number of simulation steps taken by the next call to runSteps()
         int Nsteps;
         
-        //! The simulation time run run foby the next call to runTime()
-        double timeWindow;
+//        //! The simulation time run run foby the next call to runTime()
+//        double timeWindow;
         
         //! The accumulated plastic distortion
         MatrixDimD plasticDistortion;
@@ -432,7 +432,7 @@ namespace model
         /* init list  */ dt(0.0),
         /* init list  */ vmax(0.0),
         /* init list  */ Nsteps(0),
-        /* init list  */ timeWindow(0.0),
+//        /* init list  */ timeWindow(0.0),
         /* init list  */ plasticDistortion(MatrixDimD::Zero())
         {
             ParticleSystemType::initMPI(argc,argv);
@@ -650,8 +650,8 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
             assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
             
-            EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
-            assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
+//            EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
+//            assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
             
             // Check balance
             EDR.readScalarInFile(fullName.str(),"check_balance",check_balance);
@@ -876,23 +876,23 @@ namespace model
             model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
         }
         
-        /**********************************************************************/
-        void runTime()
-        {/*! Runs a number simulation steps corresponding to a total
-          * dimensionless time timeWindow
-          */
-            const auto t0= std::chrono::system_clock::now();
-            double elapsedTime(0.0);
-            while (elapsedTime<timeWindow)
-            {
-                model::cout<<std::endl; // leave a blank line
-                model::cout<<blueBoldColor<<"Time "<<elapsedTime<<" of "<<timeWindow<<defaultColor<<std::endl;
-                singleStep();
-                elapsedTime+=dt;
-            }
-            updateQuadraturePoints(); // necessary if quadrature data are necessary in main
-            model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<timeWindow<< " simulation time completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
-        }
+//        /**********************************************************************/
+//        void runTime()
+//        {/*! Runs a number simulation steps corresponding to a total
+//          * dimensionless time timeWindow
+//          */
+//            const auto t0= std::chrono::system_clock::now();
+//            double elapsedTime(0.0);
+//            while (elapsedTime<timeWindow)
+//            {
+//                model::cout<<std::endl; // leave a blank line
+//                model::cout<<blueBoldColor<<"Time "<<elapsedTime<<" of "<<timeWindow<<defaultColor<<std::endl;
+//                singleStep();
+//                elapsedTime+=dt;
+//            }
+//            updateQuadraturePoints(); // necessary if quadrature data are necessary in main
+//            model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<timeWindow<< " simulation time completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
+//        }
         
         /**********************************************************************/
         void checkBalance() const
