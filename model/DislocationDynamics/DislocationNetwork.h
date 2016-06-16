@@ -192,11 +192,11 @@ namespace model
             double vmean=0.0;
             double dt_mean=0.0;
             
-            for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
+            for (const auto& nodeIter : this->nodes())
             {
-                if(!nodeIter->second.isBoundaryNode() && !nodeIter->second.isConnectedToBoundaryNodes() && nodeIter->second.confiningPlanes().size()<3)
+                if(!nodeIter.second.isBoundaryNode() && !nodeIter.second.isConnectedToBoundaryNodes() && nodeIter.second.confiningPlanes().size()<3)
                 {
-                    const double vNorm(nodeIter->second.get_V().norm());
+                    const double vNorm(nodeIter.second.get_V().norm());
                     vmean +=vNorm;
                     nVmean++;
                     if (vNorm>vmax)
@@ -442,11 +442,9 @@ namespace model
         /**********************************************************************/
         ~DislocationNetwork()
         {
-            for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
-                 /*                                       */ linkIter!=this->linkEnd();
-                 /*                                       */ linkIter++)
+            for(auto& linkIter : this->links())
             {
-                linkIter->second.quadratureParticleContainer.clear();
+                linkIter.second.quadratureParticleContainer.clear();
             }
             
             this->clearParticles();
@@ -841,11 +839,9 @@ namespace model
             this->clearParticles(); // this also destroys all cells
             
             // Populate DislocationParticles
-            for (typename NetworkLinkContainerType::iterator linkIter =this->linkBegin();
-                 /*                                       */ linkIter!=this->linkEnd();
-                 /*                                       */ linkIter++)
+            for(auto& linkIter : this->links())
             {
-                linkIter->second.updateQuadraturePoints(*this);
+                linkIter.second.updateQuadraturePoints(*this);
             }
             model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
@@ -858,15 +854,9 @@ namespace model
           */
             model::cout<<"		Moving DislocationNodes (dt="<<dt_in<< ")... "<<std::flush;
             const auto t0= std::chrono::system_clock::now();
-            //			typedef void (NodeType::*NodeMemberFunctionPointerType)(const double&); // define type of Link member function
-            //			NodeMemberFunctionPointerType Nmfp(&NodeType::move); // Lmfp is a member function pointer to Link::assemble
-            //			const auto t0=std::chrono::system_clock::now();
-            //			this->parallelExecute(Nmfp,dt_in); // NOT POSSIBLE TO PARALLELIZE SINCE move exectuts tansmit::makeT
-            
-            for (typename NetworkNodeContainerType::iterator nodeIter=this->nodeBegin();nodeIter!=this->nodeEnd();++nodeIter)
+            for (auto& nodeIter : this->nodes())
             {
-                //				nodeIter->second.move(dt_in,dt_old);
-                nodeIter->second.move(dt_in);
+                nodeIter.second.move(dt_in);
             }
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }
@@ -914,18 +904,16 @@ namespace model
             {
                 model::cout<<"		Checking node balance..."<<std::flush;
                 const auto t0= std::chrono::system_clock::now();
-                for (typename NetworkNodeContainerType::const_iterator nodeIter =this->nodeBegin();
-                     /*                                             */ nodeIter!=this->nodeEnd();
-                     /*                                             */ nodeIter++)
+                for (const auto& nodeIter : this->nodes())
                 {
-                    if (nodeIter->second.neighborhood().size()>2)
+                    if (nodeIter.second.neighborhood().size()>2)
                     {
-                        const bool nodeIsBalanced(nodeIter->second.is_balanced());
-                        if (!nodeIsBalanced && nodeIter->second.meshLocation()==insideMesh)
+                        const bool nodeIsBalanced(nodeIter.second.is_balanced());
+                        if (!nodeIsBalanced && nodeIter.second.meshLocation()==insideMesh)
                         {
-                            model::cout<<"Node "<<nodeIter->second.sID<<" is not balanced:"<<std::endl;
-                            model::cout<<"    outflow="<<nodeIter->second.outFlow().transpose()<<std::endl;
-                            model::cout<<"     inflow="<<nodeIter->second.inFlow().transpose()<<std::endl;
+                            model::cout<<"Node "<<nodeIter.second.sID<<" is not balanced:"<<std::endl;
+                            model::cout<<"    outflow="<<nodeIter.second.outFlow().transpose()<<std::endl;
+                            model::cout<<"     inflow="<<nodeIter.second.inFlow().transpose()<<std::endl;
                             assert(0 && "NODE IS NOT BALANCED");
                         }
                     }
@@ -939,11 +927,9 @@ namespace model
         MatrixDimD plasticDistortionRate() const
         {
             MatrixDimD temp(MatrixDimD::Zero());
-            for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
-                 /*                                             */ linkIter!=this->linkEnd();
-                 /*                                             */ linkIter++)
+            for (const auto& linkIter : this->links())
             {
-                temp+= linkIter->second.plasticDistortionRate();
+                temp+= linkIter.second.plasticDistortionRate();
             }
             return temp;
         }
@@ -959,24 +945,28 @@ namespace model
         
         /**********************************************************************/
         std::pair<double,double> networkLength() const
-        {/*!\returns the line length of *this DislocationNetwork.
+        {/*!\returns the line length of the DislocationNetwork. The return
+          * value is a pair, where pair.first is the lenght of bulk dislocation
+          * segments, while pair.second is the length of segments accumulated on
+          * the mesh boundary.
           */
-            double totalLength(0.0);
-            double immobileLength(0.0);
+            double bulkLength(0.0);
+            double boundaryLength(0.0);
             
-            for (typename NetworkLinkContainerType::const_iterator linkIter =this->linkBegin();
-                 /*                                             */ linkIter!=this->linkEnd();
-                 /*                                             */ linkIter++)
+            for (const auto& linkIter : this->links())
             {
-                const double temp(linkIter->second.arcLength());
-                totalLength+=temp;
-                if(linkIter->second.is_boundarySegment() || linkIter->second.isSessile)
+                const double temp(linkIter.second.arcLength());
+                if(linkIter.second.is_boundarySegment())
                 {
-                    immobileLength+=temp;
+                    boundaryLength+=temp;
+                }
+                else
+                {
+                    bulkLength+=temp;
                 }
                 
             }
-            return std::make_pair(totalLength,immobileLength);
+            return std::make_pair(bulkLength,boundaryLength);
         }
         
         /**********************************************************************/
