@@ -5,24 +5,70 @@ namespace model {
 <a href="http://www.ucla.edu">UCLA</a>. If you are using MODEL-DD on Hoffman2, this page may contain useful information about the use of MODEL.
 
 ###########################################################
-\section hoffman2_login Login and Setup
+\section hoffman2_setup Setting up Hoffman2
+
+###########################################################
+\subsection hoffman2_login Login
 \verbatim
 ssh username@hoffman2.idre.ucla.edu
 \endverbatim
 
-First request a c++11-capable compiler:
+###########################################################
+\subsection hoffman2_compiler Setting up environment (only once)
+If a c++11-capable compiler is available (e.g. gcc5.3) add the
+following lines to your .bashrc to permanently set the environment
 \verbatim
-module load gcc/4.7.2
-\endverbatim
-Then, if you are building or running the MPI version of the code you also need to load the MPI library built with gcc/4.7.2:
-\verbatim
+module load gcc/5.3.0 > /dev/null 2>&1 
+module load intel/16.0.2 > /dev/null 2>&1
 module load openmpi
 \endverbatim
+Note that the second line is necessary to use the mkl-pardiso solver.
 
-Alternatively, you can add the following lines to your .bashrc file
+
+If the desired compiler is not available as a module, install a local version 
+of the compiler, for example in
 \verbatim
-module load gcc/4.7.2 > /dev/null 2>&1 
-module load openmpi > /dev/null 2>&1 
+$HOME/gcc5.3
+\endverbatim
+Then create the module file
+\verbatim
+$HOME/modulefiles/gcc5.3
+\endverbatim
+containing the following text:
+\verbatim
+#%Module
+#
+set  name         "gcc5.3"
+#set  version      "5"
+#set  release      "3"
+proc ModulesHelp { } {
+    global name
+    global version
+    global release
+    puts stderr ""
+}
+module-whatis "Adds the $name to user's environment"
+module-whatis "Name        : $name"
+
+set           home              [ set env(HOME)]
+set           base_dir          $home/$name
+prepend-path  PATH              $base_dir/bin
+prepend-path  LD_LIBRARY_PATH   $base_dir/lib:$base_dir/lib64
+prepend-path	 LIBRARY_PATH $base_dir/lib:$base_dir/lib64 
+prepend-path	 INCLUDE $base_dir/include 
+prepend-path	 MANPATH $base_dir/share/man 
+prepend-path	 INFOPATH $base_dir/share/info 
+setenv		 GCC_DIR $base_dir 
+setenv		 GCC_BIN $base_dir/bin 
+setenv		 GCC_INC $base_dir/include 
+setenv		 GCC_LIB $base_dir/lib 
+\endverbatim
+Finally, add the following lines to .bashrc
+\verbatim
+module use $HOME/modulefiles
+module load gcc5.3
+module load intel/16.0.2 > /dev/null 2>&1
+module load openmpi
 \endverbatim
 
 ###########################################################
@@ -72,7 +118,7 @@ After the node has been obtained, you can run DDomp as:
 
 ###########################
 \subsection hoffma2_dd_interactive_DDmpi DDmpi
-If you compiled DDmpi, <a href="http://www.open-mpi.org">Open-MPI</a> is used in combination with <a href="http://openmp.org">OpenMP</a> to speed up the most computationally-intensive loops. You can then request multiple nodes (machines) on the cluster which communicate using <a href="http://www.open-mpi.org">Open-MPI</a>, each of them internally using <a href="http://openmp.org">OpenMP</a>. Therefore, you must request "entire" nodes on the <a href="https://idre.ucla.edu/hoffman2">Hoffman2</a> cluster, where "entire" here that all cores on a specific machine will be reserved to run DDmpi. The parallel environment to be requested via qrsh is "-pe node*" in combination with the "exclusive" directive. For example:
+If you compiled DDmpi, <a href="http://www.open-mpi.org">Open-MPI</a> is used in combination with <a href="http://openmp.org">OpenMP</a> to speed up the most computationally-intensive loops. You can then request multiple nodes (machines) on the cluster which communicate using <a href="http://www.open-mpi.org">Open-MPI</a>, each of them internally using <a href="http://openmp.org">OpenMP</a>. Therefore, you must request "entire" nodes on the <a href="https://idre.ucla.edu/hoffman2">Hoffman2</a> cluster, where "entire" here means that all cores on a specific machine will be reserved to run DDmpi. The parallel environment to be requested via qrsh is "-pe node*" in combination with the "exclusive" directive. For example:
 \verbatim
 qrsh -l h_data=4g,h_rt=3:00:00,exclusive,highp -now n -pe node* 4
 \endverbatim
@@ -89,43 +135,18 @@ $MPI_BIN/mpirun -pernode DDmpi
 \endverbatim
 where "N" is the number of requested nodes. The "-pernode" flag is an alternative to using a hostfile.
 
-###########################
-\subsection hoffma2_dd_interactive_DDmpiOLD DDmpi (OLD)
-If you compiled DDmpi, <a href="http://www.open-mpi.org">Open-MPI</a> is used to speed up the most computationally-intensive loops. Therefore, you can request processors belonging to different nodes using the "-pe dc_* N" directive, where N is the number of nodes. For example:
-\verbatim
-qrsh -l h_data=4g,h_rt=4:00:00 -pe dc_* 96
-\endverbatim
-requests 96 processors. To use group resources (highp): 
-\verbatim
-qrsh -l h_data=4g,h_rt=48:00:00,highp -now n -pe dc_* 96
-\endverbatim
-request 96 processors of your resource group.
-
-After the processors have been obtained, you can run DDmpi using the "mpirun" command. However, in order to make sure that the correct version of "mpirun" is used, it is recommended to specify its full path using the environmental variable $MPI_BIN:
-\verbatim
-$MPI_BIN/mpirun -np N DDmpi
-\endverbatim
-where "N" is the number of requested processors. 
 
 ###########################################################
 \section hoffma2_dd_batch Running in batch mode
 
 ###########################
 \subsection hoffma2_dd_batch_DDomp DDomp
+In batch mode, DDomp is typically used in the case that multiple jobs are run at the same time. This is called a job-array. Each job in the array runs in a single node, using OpenMP.
 
-TO BE COMPLETED
-\verbatim
-openmp.q
-\endverbatim
-Answer the following questions
--
--
--
-- answer NO to the
+Suppose that the folder <JARRDIR> contains the Makefile and that DDomp is compiled in <JARRDIR>. <JARRDIR> also contains subfolders <A>, <B>, … <Z>, where each subfolder
+contains job-specific input files (DDinput, loadInput,…).
 
-Edit the file DDomp.cmd
-
-add the line "module load gcc/4.7.2"
+TO BE FINISHED
 
 ###########################
 \subsection hoffma2_dd_batch_DDmpi DDmpi
@@ -140,7 +161,7 @@ Once the above options have been selected, use the script as follows:
 \verbatim
 qsub -pe node* 10 submit_DDmpi.sh
 \endverbatim
-where, in this example, 10 is the number of requested nodes. Notice that by using "-pe node* 10" you are requesting 10 nodes on the cluster, each of them containing multiple cores. DDmpi will then create 10 mpi processes, each of them using openmp internally to fully take advantage of multithreading.
+where, in this example, 10 is the number of requested nodes. Note that by using "-pe node* 10" you are requesting 10 nodes on the cluster, each of them containing multiple cores. DDmpi will then create 10 mpi processes, each of them using openmp internally to fully take advantage of multithreading.
 
 The job should now be visible using 
 \verbatim

@@ -260,6 +260,9 @@ namespace model
             }
             else
             {
+                std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
+                std::ofstream KQQfile("KQQfailed.txt");
+                KQQfile<<KQQ.asDense()<<std::endl;
                 assert(0 && "LDLT DECOMPOSITION FAILED.");
             }
 
