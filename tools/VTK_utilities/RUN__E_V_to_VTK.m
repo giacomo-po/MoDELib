@@ -23,7 +23,7 @@ clear all
 
 %% these are the variables to be user defined
 path_to_E_and_V = 'ascii_data';
-steps = [0:500:1000];
+steps = [0 500 1000];
 vtk_outdir = '.';     
 vtk_basename = 'polygons';
 
