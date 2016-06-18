@@ -10,6 +10,9 @@
 %  =====
 %  - polygons are numbered from 1...
 %  - vertex number are taken from the V file and +1 (Matlab one based)
+%  - in ParaView use the "tube" filter for getting thicker, 3D-ish lines
+%    (see the screenshot in "paraview_screenshot.png" for some information
+%    about how to set up the visualization)
 %  
 %  ToDos:
 %  ======
