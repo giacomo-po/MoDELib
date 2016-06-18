@@ -1,19 +1,44 @@
-% polygons are numbered from 1...
-% vertex number are taken from the V file and +1 (Matlab one based)
-% TODO: replace 2-node polygons by only one polygon
+%% Takes data from the E and V directories and turns this into VTK data
+%  Usage:
+%  ======
+%  1. set the variable path_to_E_and_V to a valid location where the E and
+%     V directories are
+%  2. define the variable "step" as a list of step numbers
+%  3. define the output irectory for vtk data in the variable "vtk_dir"
+%
+%  Info:
+%  =====
+%  - polygons are numbered from 1...
+%  - vertex number are taken from the V file and +1 (Matlab one based)
+%  
+%  ToDos:
+%  ======
+%  - replace 2-node polygons by only one polygon in the vtk file for
+%    better performance
+%  - add option for binary input files
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all
 
-path_to_E_and_V = '.';
-step = 1;
+
+%% these are the variables to be user defined
+path_to_E_and_V = 'ascii_data';
+step = [0:10:1000];
 vtk_dir = '.';     
+
+
+
+% test if output dir exsits, create if it doesn't
+if ~exist(vtk_dir, 'dir')
+    mkdir(vtk_dir);
+end
 
 % format of Burgers vector string
 bfmt = '%+06.3f %+06.3f %+06.3f';
 
 %% get unique Burgers vector list of all simulation steps
 idx = 1;
-for step = [0:10:1000]
+for step = steps
     fprintf('sorting Burgers vectors, step=%i\n',step)
     E=load(fullfile(path_to_E_and_V, ['/E/E_' num2str(step) '.txt']));
     for e=1:size(E,1)
@@ -25,7 +50,7 @@ end
 b_list = unique(b_list,'rows');
 
 %% store data from E and V file into vertex and polygon cell array
-for step = [0:10:1000]
+for step = steps
     fprintf('writing VTK files, step=%i\n',step)
     % read vertex data
     V=load(fullfile(path_to_E_and_V, ['/V/V_' num2str(step) '.txt']));
