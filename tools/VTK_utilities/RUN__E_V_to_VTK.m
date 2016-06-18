@@ -4,7 +4,7 @@
 %  1. set the variable path_to_E_and_V to a valid location where the E and
 %     V directories are
 %  2. define the variable "step" as a list of step numbers
-%  3. define the output irectory for vtk data in the variable "vtk_dir"
+%  3. define the output irectory for vtk data in the variable "vtk_outdir"
 %
 %  Info:
 %  =====
@@ -24,13 +24,13 @@ clear all
 %% these are the variables to be user defined
 path_to_E_and_V = 'ascii_data';
 steps = [0:500:1000];
-vtk_dir = '.';     
-
+vtk_outdir = '.';     
+vtk_basename = 'polygons';
 
 
 % test if output dir exsits, create if it doesn't
-if ~exist(vtk_dir, 'dir')
-    mkdir(vtk_dir);
+if ~exist(vtk_outdir, 'dir')
+    mkdir(vtk_outdir);
 end
 
 % format of Burgers vector string
@@ -73,6 +73,6 @@ for step = steps
         polygon{e}.b_index = find(ismember(b_list,sprintf(bfmt,b)));
     end
     
-    vtk_file = sprintf('%03i_polygones.vtk',step);
-    write_VTK_polygone_file( vtk_dir, vtk_file , polygon, vertex);
+    vtk_file = sprintf('%03i_%s.vtk',step,vtk_basename);
+    write_VTK_polygone_file( vtk_outdir, vtk_file , polygon, vertex);
 end
