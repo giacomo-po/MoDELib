@@ -331,9 +331,6 @@ namespace model
             const MatrixDimD pdr(plasticDistortionRate()); // move may limit velocity, so compute pdr after move
             plasticDistortion += pdr*dt;
             
-            //! 9- Contract segments of zero-length
-            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
-            
             //! 10- Cross Slip (needs upated PK force)
             crossSlip();
             
@@ -348,6 +345,9 @@ namespace model
             
             //! 13- Node redistribution
             remesh();
+            
+            //! 9- Contract segments of zero-length
+            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
             
             //! 14- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeBoundarySegments();

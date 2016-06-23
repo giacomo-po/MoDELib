@@ -160,6 +160,7 @@ namespace model
             // collect all neighbors at Ni.get_P() (but j)
             std::set<size_t> neighbors;
             Nj.neighborsAt(Ni.get_L(),neighbors);
+            Ni.neighborsAt(Ni.get_L(),neighbors);
             
             // Remove all existing links among neighbors
             for (std::set<size_t>::const_iterator nIter1=neighbors.begin();nIter1!=neighbors.end();++nIter1)
