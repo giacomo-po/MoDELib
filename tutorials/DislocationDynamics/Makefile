@@ -1,11 +1,11 @@
 ##########################################################
 # EDIT HERE
 ##########################################################
-USE_ICC = 0
+USE_ICC = 1
 usePARDISO = 0
 MODEL_INCLUDE =../../../
-MKL_INCLUDE=#/opt/intel/composer_xe_2015.2.132/mkl/include
-MKL_LIB=#/opt/intel/composer_xe_2015.2.132/mkl/lib
+MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
+MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
