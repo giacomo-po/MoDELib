@@ -46,6 +46,11 @@ namespace model
             
         }
         
+        Grain<dim>& grain(const size_t& k)
+        {
+            return this->at(k);
+        }
+        
 	};	
 	
 

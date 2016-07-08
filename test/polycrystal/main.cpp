@@ -36,7 +36,8 @@ int main(int argc, char** argv)
     mesh.readMesh(meshID);
     
     Polycrystal<3> poly(mesh);
-
+    
+    std::cout<<poly.grain(6).region.regionID<<std::endl;
     
     return 0;
 }
