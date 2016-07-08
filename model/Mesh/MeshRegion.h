@@ -10,9 +10,11 @@
 #define model_MeshRegion_H_
 
 #include <set>
+#include <deque>
 #include <assert.h>
-#include <model/Mesh/MeshRegionObserver.h>
 #include <model/MPI/MPIcout.h>
+#include <model/Mesh/MeshRegionObserver.h>
+#include <model/Mesh/PlanarMeshFacet.h>
 
 namespace model
 {
@@ -21,7 +23,9 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template<typename _SimplexType>
-    struct MeshRegion : std::set<const _SimplexType*>
+    struct MeshRegion :
+    /* base */ public std::set<const _SimplexType*>,
+    /* base */ private std::deque<PlanarMeshFacet<_SimplexType::dim>>
     {
         typedef _SimplexType SimplexType;
         typedef MeshRegion<SimplexType> MeshRegionType;
@@ -43,6 +47,17 @@ namespace model
             const size_t n=MeshRegionObserverType::erase(regionID);
             assert(n==1 && "COULD NOT ERASE MeshRegion in MeshRegionObserver.");
             
+        }
+        
+        /**********************************************************************/
+        const std::set<const _SimplexType*>& simplices() const
+        {
+            return *this;
+        }
+        
+        std::set<const _SimplexType*>& simplices()
+        {
+            return *this;
         }
 
     };

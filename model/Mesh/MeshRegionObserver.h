@@ -38,7 +38,7 @@ namespace model
         static SharedPtrType getRegion(const int& k)
         {
             typename RegionMapType::const_iterator iter(regionMap.find(k));
-            return (iter!=regionMap.end())? (*(iter->second->begin()))->region : SharedPtrType(new RegionType(k));
+            return (iter!=regionMap.end())? (*(iter->second->simplices().begin()))->region : SharedPtrType(new RegionType(k));
         }
         
         /**********************************************************************/

@@ -157,7 +157,7 @@ namespace model
             
             for(auto rIter : MeshRegionObserverType::regions())
             {
-                std::cout<<"mesh region "<<rIter.second->regionID<<" contains "<<rIter.second->size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
+                std::cout<<"mesh region "<<rIter.second->regionID<<" contains "<<rIter.second->simplices().size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
             }
             
         }

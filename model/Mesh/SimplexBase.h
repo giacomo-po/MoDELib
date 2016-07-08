@@ -20,12 +20,13 @@ namespace model
 	
 	/**************************************************************************/
 	/**************************************************************************/	
-	template<short int dim, short int order>
+	template<short int _dim, short int order>
 	struct SimplexBase :
     /* inheritance    */ public NonCopyable,
-    /* inheritance    */ public StaticID<SimplexBase<dim,order> >
+    /* inheritance    */ public StaticID<SimplexBase<_dim,order> >
     {
-        
+     
+        static constexpr short int dim=_dim;
         typedef SimplexTraits<dim,order> SimplexTraitsType;
         typedef typename SimplexTraitsType::SimplexIDType SimplexIDType;
         

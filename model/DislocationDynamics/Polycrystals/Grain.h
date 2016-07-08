@@ -55,6 +55,14 @@ namespace model
         {
             model::cout<<"Creating Grain "<<region.regionID<<std::endl;
             
+//            for(const auto& simplex_p : region)
+//            {
+//            if(simplex_p)
+//            {
+//            
+//            }
+//            }
+            
         }
         
         /**********************************************************************/
