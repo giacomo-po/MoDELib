@@ -236,7 +236,7 @@ namespace model
           *
           * By default the search starts at this->begin()->second
           */
-            return searchWithGuess(P,&(this->begin()->second));
+            return searchWithGuess(P,&(simplices().begin()->second));
         }
 
         /**********************************************************************/
