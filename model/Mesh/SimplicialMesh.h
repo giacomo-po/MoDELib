@@ -170,19 +170,29 @@ namespace model
             }
             
             // Populate MeshRegionBoundaryContainerType
-            meshRegionBoundaries().clear();
+            regionBoundaries().clear();
             for (const auto& simpl : SimplexObserver<dim,dim-1>::simplices())
             {
                 if(simpl.second->isRegionBoundarySimplex())
                 {
                     std::set<int> regionIDset=simpl.second->regionIDs();
                     std::pair<size_t,size_t> regionIDs(std::make_pair(*regionIDset.begin(),*regionIDset.rbegin()));
-                    meshRegionBoundaries()[regionIDs].insert(simpl.second);
+                    const auto regionBndIter=regionBoundaries().find(regionIDs);
+                    if(regionBndIter!=regionBoundaries().end())
+                    {
+                        regionBndIter->second.insert(simpl.second);
+                    }
+                    else
+                    {
+                        regionBoundaries().emplace(regionIDs,regionIDs).first->second.insert(simpl.second);
+                    }
+                    
                 }
             }
             
-            std::cout<<"Mesh contains "<<meshRegionBoundaries().size()<<" mesh region boundaries"<<std::endl;
 
+            
+            
             model::cout<<"mesh xMin="<<_xMin.transpose()<<std::endl;
             model::cout<<"mesh xMax="<<_xMax.transpose()<<std::endl;
 //            model::cout<<"mesh volume="<<volume()<<std::endl;
@@ -190,6 +200,12 @@ namespace model
             for(auto rIter : MeshRegionObserverType::regions())
             {
                 std::cout<<"mesh region "<<rIter.second->regionID<<" contains "<<rIter.second->simplices().size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
+            }
+            
+            std::cout<<"Mesh contains "<<regionBoundaries().size()<<" mesh region boundaries"<<std::endl;
+            for(const auto& rgnBnd : regionBoundaries())
+            {
+                std::cout<<"    RegionBoundary ("<<rgnBnd.second.regionBndID.first<<","<<rgnBnd.second.regionBndID.second<<") contains "<<rgnBnd.second.size()<<" triangles"<<std::endl;
             }
             
         }
@@ -369,13 +385,13 @@ namespace model
         }
         
         /**********************************************************************/
-        const MeshRegionBoundaryContainerType& meshRegionBoundaries() const
+        const MeshRegionBoundaryContainerType& regionBoundaries() const
         {
             return *this;
         }
         
         /**********************************************************************/
-        MeshRegionBoundaryContainerType& meshRegionBoundaries()
+        MeshRegionBoundaryContainerType& regionBoundaries()
         {
             return *this;
         }

@@ -24,24 +24,28 @@ namespace model
     class GrainBoundary
     {
         
-        //typedef Simplex<dim,dim> SimplexType;
-//        typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
-//        typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
-//        
-//        
-//        typedef Eigen::Matrix<long int,dim,1> VectorDimI;
+        typedef MeshRegionBoundary<Simplex<dim,dim-1> > MeshRegionBoundaryType;
 
-        typedef Eigen::Matrix<  double,dim,1> VectorDimD;
-        typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
+
+//        typedef Eigen::Matrix<  double,dim,1> VectorDimD;
+//        typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
         
-        //! The static column matrix of lattice vectors
-//        MatrixDimD    A;
-//        MatrixDimD    AT;
-//        MatrixDimD invA;
-//        MatrixDimD invAT;
+        
+
         
     public:
+        
+        const MeshRegionBoundaryType& regionBoundary;
 
+
+        /**********************************************************************/
+        GrainBoundary(const MeshRegionBoundaryType& regionbnd_in) :
+        /* init */ regionBoundary(regionbnd_in)
+        {
+            model::cout<<"Creating GrainBoundary ("<<regionBoundary.regionBndID.first<<" "<<regionBoundary.regionBndID.second<<")"<<std::endl;
+            
+            
+        }
         
     };
     

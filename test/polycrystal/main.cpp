@@ -37,7 +37,10 @@ int main(int argc, char** argv)
     
     Polycrystal<3> poly(mesh);
     
-    std::cout<<poly.grain(6).region.regionID<<std::endl;
+    std::cout<<poly.grain(1).region.regionID<<std::endl;
+    
+    
+    std::cout<<poly.grainBoundary(1,2).regionBoundary.size()<<std::endl;
     
 //    poly.grainBoundary(3,5)
     

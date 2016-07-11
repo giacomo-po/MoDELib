@@ -31,15 +31,15 @@ namespace model
 //        typedef MeshRegion<SimplexType> MeshRegionType;
 //        typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         
-        const std::pair<size_t,size_t> regionIDs;
+        const std::pair<size_t,size_t> regionBndID;
         
-//        /**********************************************************************/
-//        MeshRegionBoundary(const int& rID) : regionID(rID)
-//        {
+        /**********************************************************************/
+        MeshRegionBoundary(const std::pair<size_t,size_t>& rbndID) : regionBndID(rbndID)
+        {
 //            const bool success=MeshRegionObserverType::emplace(regionID,this).second;
 //            assert(success && "COULD NOT INSERT MeshRegion in MeshRegionObserver.");
-//        }
-//        
+        }
+//
 //        /**********************************************************************/
 //        MeshRegionBoundary()
 //        {
