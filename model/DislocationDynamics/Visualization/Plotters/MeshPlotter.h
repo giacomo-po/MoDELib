@@ -113,14 +113,15 @@ namespace model
                     Eigen::Matrix<float,3,4> temp(Eigen::Matrix<float,3,4>::Zero());
                     temp.col(0)=sIter->second->child(0).P0.cast<float>();
                     temp.col(1)=sIter->second->child(1).P0.cast<float>();
-                    //					if (dispFileIsGood) {
-                    //						VertexReader<'D',4,float>::iterator iterD1(DispContainerType::find(iterE->first.first));
-                    //						VertexReader<'D',4,float>::iterator iterD2(DispContainerType::find(iterE->first.second));
-                    //						assert(iterD1!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-                    //						assert(iterD2!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-                    //						temp.col(2)=iterD1->second.segment<3>(0);
-                    //						temp.col(3)=iterD2->second.segment<3>(0);
-                    //					}
+					if (dispFileIsGood)
+                    {
+						VertexReader<'D',4,float>::iterator iterD1(DispContainerType::find(sIter->second->child(0).xID(0)));
+						VertexReader<'D',4,float>::iterator iterD2(DispContainerType::find(sIter->second->child(1).xID(0)));
+						assert(iterD1!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
+						assert(iterD2!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
+						temp.col(2)=iterD1->second.segment<3>(0);
+						temp.col(3)=iterD2->second.segment<3>(0);
+					}
                     edgeVector.push_back(temp);
                     
                 }
@@ -173,15 +174,15 @@ namespace model
             //				NodeContainerType::read(0,true);
             //			}
             
-            //			dispFileIsGood=DispContainerType::isGood(frameN,true);
-            //			if (dispFileIsGood)
-            //            {
-            //				DispContainerType::read(frameN,true);
-            //			}
-            //			else
-            //            {
-            //				DispContainerType::read(0,true);
-            //			}
+			dispFileIsGood=DispContainerType::isGood(frameN,true);
+			if (dispFileIsGood)
+            {
+				DispContainerType::read(frameN,true);
+			}
+			else
+            {
+				DispContainerType::read(0,true);
+			}
             
             //            quadFileIsGood=QuadContainerType::isGood(frameN,true);
             //            if (quadFileIsGood){
