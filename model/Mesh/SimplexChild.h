@@ -97,7 +97,7 @@ namespace model
             std::set<int> temp;
             for(const auto& parent : parents())
             {
-                const std::set<int> parentIDs(parent.regionIDs());
+                const std::set<int> parentIDs(parent->regionIDs());
                 for(const int& regionID : parentIDs)
                 {
                     temp.insert(regionID);

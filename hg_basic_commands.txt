@@ -13,7 +13,10 @@ hg addremove
 hg commit -m ‘some description’
 hg push 
 
-4) Merging branches. For example merging B into A, keeping conflicting files from B:
+4) Creating named branch
+hg branch BranchName
+
+5) Merging branches. For example merging B into A, keeping conflicting files from B:
 hg update A
 hg merge B --tool internal:other
 hg commit -m "Merged B into A”

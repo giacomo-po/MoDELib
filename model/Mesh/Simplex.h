@@ -252,7 +252,7 @@ namespace model
                 this->child(k).addToParents(this);
             }
             
-            region->emplace(this);
+            region->simplices().emplace(this);
             
         }
         
@@ -270,7 +270,7 @@ namespace model
                 this->child(k).removeFromParents(this);
             }
             
-            region->erase(this);
+            region->simplices().erase(this);
             
         }
         

@@ -43,6 +43,8 @@ namespace model
          * order of destruction of the static mesh and the static map in SimplexObserver.
          */
         
+        
+        
 //        static BoundaryDislocationNetwork<TypeTraits<LinkType>::dim> bdn;
         
         static BvpSolverType bvpSolver;
