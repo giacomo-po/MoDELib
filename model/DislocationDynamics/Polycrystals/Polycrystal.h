@@ -9,6 +9,8 @@
 #ifndef model_Polycrystal_H_
 #define model_Polycrystal_H_
 
+#include <utility>
+#include <tuple>
 #include <map>
 #include <Eigen/Core>
 #include <model/MPI/MPIcout.h>
@@ -46,7 +48,9 @@ namespace model
             
             for(const auto& rgnBnd : mesh.regionBoundaries())
             {
-                grainBoundaries().emplace(rgnBnd.first,rgnBnd.second);
+                grainBoundaries().emplace(std::piecewise_construct,
+                                          std::forward_as_tuple(rgnBnd.first),
+                                          std::forward_as_tuple(rgnBnd.second,grain(rgnBnd.first.first),grain(rgnBnd.first.second)));
                 //model::cout<<"mesh region "<<rIter.second->regionID<<" contains "<<rIter.second->size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
             }
             
@@ -56,6 +60,10 @@ namespace model
 //                <<"["<<gb.second.regionBoundary.regionBndID.first<<","<<gb.second.regionBoundary.regionBndID.second<<"] "
 //                <<gb.second.regionBoundary.size()<<std::endl;
 //            }
+            
+//            m.emplace(std::piecewise_construct,
+//                      std::forward_as_tuple("c"),
+//                      std::forward_as_tuple(10, 'c'));
             
         }
         

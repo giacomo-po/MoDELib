@@ -14,6 +14,7 @@
 #include <model/Math/RoundEigen.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Mesh/MeshRegionObserver.h>
+#include <model/DislocationDynamics/Polycrystals/Grain.h>
 
 namespace model
 {
@@ -35,12 +36,19 @@ namespace model
         
     public:
         
+        
         const MeshRegionBoundaryType& regionBoundary;
-
-
+        
+        const Grain<dim>& grainFirst;
+        const Grain<dim>& grainSecond;
+        
         /**********************************************************************/
-        GrainBoundary(const MeshRegionBoundaryType& regionbnd_in) :
-        /* init */ regionBoundary(regionbnd_in)
+        GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
+                      const Grain<dim>& grainFirst_in,
+                      const Grain<dim>& grainSecond_in) :
+        /* init */ regionBoundary(regionbnd_in),
+        /* init */ grainFirst(grainFirst_in),
+        /* init */ grainSecond(grainSecond_in)
         {
             model::cout<<"Creating GrainBoundary ("<<regionBoundary.regionBndID.first<<" "<<regionBoundary.regionBndID.second<<")"<<std::endl;
             
