@@ -6,15 +6,15 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_MeshRegion_H_
-#define model_MeshRegion_H_
+#ifndef model_MeshRegionBoundary_H_
+#define model_MeshRegionBoundary_H_
 
 #include <set>
 #include <deque>
 #include <assert.h>
 #include <model/MPI/MPIcout.h>
 #include <model/Mesh/MeshRegionObserver.h>
-//#include <model/Mesh/PlanarMeshFacet.h>
+#include <model/Mesh/PlanarMeshFacet.h>
 
 namespace model
 {
@@ -23,31 +23,31 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template<typename _SimplexType>
-    struct MeshRegion :
+    struct MeshRegionBoundary :
     /* base */ public std::set<const _SimplexType*>
 //    /* base */ private std::deque<PlanarMeshFacet<_SimplexType::dim>>
     {
         typedef _SimplexType SimplexType;
-        typedef MeshRegion<SimplexType> MeshRegionType;
-        typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
+//        typedef MeshRegion<SimplexType> MeshRegionType;
+//        typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         
-        const int regionID;
+        const std::pair<size_t,size_t> regionIDs;
         
-        /**********************************************************************/
-        MeshRegion(const int& rID) : regionID(rID)
-        {
-            const bool success=MeshRegionObserverType::emplace(regionID,this).second;
-            assert(success && "COULD NOT INSERT MeshRegion in MeshRegionObserver.");
-        }
-        
-        /**********************************************************************/
-        ~MeshRegion()
-        {
-            
-            const size_t n=MeshRegionObserverType::erase(regionID);
-            assert(n==1 && "COULD NOT ERASE MeshRegion in MeshRegionObserver.");
-            
-        }
+//        /**********************************************************************/
+//        MeshRegionBoundary(const int& rID) : regionID(rID)
+//        {
+//            const bool success=MeshRegionObserverType::emplace(regionID,this).second;
+//            assert(success && "COULD NOT INSERT MeshRegion in MeshRegionObserver.");
+//        }
+//        
+//        /**********************************************************************/
+//        MeshRegionBoundary()
+//        {
+//            
+//            const size_t n=MeshRegionObserverType::erase(regionID);
+//            assert(n==1 && "COULD NOT ERASE MeshRegion in MeshRegionObserver.");
+//            
+//        }
         
         /**********************************************************************/
         const std::set<const _SimplexType*>& simplices() const

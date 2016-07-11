@@ -39,6 +39,8 @@ int main(int argc, char** argv)
     
     std::cout<<poly.grain(6).region.regionID<<std::endl;
     
+//    poly.grainBoundary(3,5)
+    
     return 0;
 }
 

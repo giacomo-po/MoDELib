@@ -26,6 +26,7 @@
 #include <model/Mesh/MeshStats.h>
 #include <model/Mesh/MeshRegionObserver.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
+#include <model/Mesh/MeshRegionBoundary.h>
 
 
 namespace model
@@ -40,7 +41,8 @@ namespace model
     /*                                */ const Simplex<_dim,_dim>, // value
     /*                                */ CompareVectorsByComponent<typename SimplexTraits<_dim,_dim>::ScalarIDType,
     /*                                */ SimplexTraits<_dim,_dim>::nVertices> // key compare
-    /*                                */ >
+    /*                                */ >,
+    /*                  */ public std::map<std::pair<size_t,size_t>,MeshRegionBoundary<Simplex<_dim,_dim-1>>> // MeshRegionBonudary container
     {
         
         Eigen::Matrix<double,_dim,1> _xMin;
@@ -51,7 +53,7 @@ namespace model
         
     public:
         
-        enum {dim=_dim};
+        static constexpr int dim=_dim;
         
         
         typedef std::map<typename SimplexTraits<dim,dim>::SimplexIDType, // key
@@ -65,6 +67,10 @@ namespace model
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
 
+        typedef MeshRegionBoundary<Simplex<dim,dim-1>> MeshRegionBoundaryType;
+        typedef std::pair<size_t,size_t> MeshRegionIDType;
+        typedef std::map<MeshRegionIDType,MeshRegionBoundaryType> MeshRegionBoundaryContainerType;
+        
         /**********************************************************************/
         SimplicialMesh() :
         /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Zero()),
@@ -80,6 +86,18 @@ namespace model
         }
         
         /**********************************************************************/
+        const SimplexMapType& simplices() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        SimplexMapType& simplices()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
         void readMesh(const int& meshID)
         {/*!
           */
@@ -87,11 +105,11 @@ namespace model
             vol0=0.0;
             
             model::cout<<greenColor<<"Reading mesh "<<meshID<<defaultColor<<std::endl;
-            this->clear();
+            simplices().clear();
             
             SimplexReader<dim>::nodeReader.read(meshID,true);
             
-            this->clear();
+            simplices().clear();
 
 //            VertexReader<'T',dim+2,size_t> elementReader;
             ElementReaderType elementReader; // exaple in 3d: [elementID v1 v2 v3 v4 regionID]
@@ -118,7 +136,7 @@ namespace model
                 MeshStats<dim,dim>::stats();
                 SimplexReader<dim>::nodeReader.clear();
                 
-                if(this->size())
+                if(simplices().size())
                 {
                     _xMin=SimplexObserver<dim,0>::simplexBegin()->second->P0;
                     _xMax=SimplexObserver<dim,0>::simplexBegin()->second->P0;
@@ -150,6 +168,20 @@ namespace model
 //                assert(0);
                 model::cout<<"Cannot read mesh file T/T_"<<meshID<<".txt . Mesh is empty."<<std::endl;
             }
+            
+            // Populate MeshRegionBoundaryContainerType
+            meshRegionBoundaries().clear();
+            for (const auto& simpl : SimplexObserver<dim,dim-1>::simplices())
+            {
+                if(simpl.second->isRegionBoundarySimplex())
+                {
+                    std::set<int> regionIDset=simpl.second->regionIDs();
+                    std::pair<size_t,size_t> regionIDs(std::make_pair(*regionIDset.begin(),*regionIDset.rbegin()));
+                    meshRegionBoundaries()[regionIDs].insert(simpl.second);
+                }
+            }
+            
+            std::cout<<"Mesh contains "<<meshRegionBoundaries().size()<<" mesh region boundaries"<<std::endl;
 
             model::cout<<"mesh xMin="<<_xMin.transpose()<<std::endl;
             model::cout<<"mesh xMax="<<_xMax.transpose()<<std::endl;
@@ -169,7 +201,7 @@ namespace model
           * sorted array xIN.
           */
             const typename SimplexTraits<dim,dim>::SimplexIDType xID(SimplexTraits<dim,dim>::sortID(xIN));
-            const auto pair=this->emplace(std::piecewise_construct,
+            const auto pair=simplices().emplace(std::piecewise_construct,
                                              std::make_tuple(xID),
                                              std::make_tuple(xID, regionID)
                                              );
@@ -334,6 +366,18 @@ namespace model
         const double& volume() const
         {
             return vol0;
+        }
+        
+        /**********************************************************************/
+        const MeshRegionBoundaryContainerType& meshRegionBoundaries() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        MeshRegionBoundaryContainerType& meshRegionBoundaries()
+        {
+            return *this;
         }
         
     };
