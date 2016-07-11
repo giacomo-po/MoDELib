@@ -683,7 +683,7 @@ namespace model
                 int meshID(0);
                 EDR.readScalarInFile(fullName.str(),"meshID",meshID);
                 shared.mesh.readMesh(meshID);
-                assert(shared.mesh.size() && "MESH IS EMPTY.");
+                assert(shared.mesh.simplices().size() && "MESH IS EMPTY.");
                 
                 EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
                 if(shared.use_virtualSegments)

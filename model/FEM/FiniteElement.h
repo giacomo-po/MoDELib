@@ -98,9 +98,9 @@ namespace model
              model::cout<<"Element barycentric coordinates:\n"<<ElementType::baryNodalCoordinates<<std::endl;
             
             // Insert elements
-            for (typename SimplicialMesh<dim>::const_iterator eIter=mesh.begin();eIter!=mesh.end();++eIter)
+            for (const auto& simpl : mesh.simplices())
             {
-                auto temp=ElementContainerType::emplace(eIter->first,ElementType(eIter->second,*this,*this));
+                auto temp=ElementContainerType::emplace(simpl.first,ElementType(simpl.second,*this,*this));
                 assert(temp.second && "UNABLE TO INSERT ELEMENT IN ELEMENT CONTAINER.");
                 
                 // Add element pointer to each of its nodes
@@ -110,6 +110,18 @@ namespace model
                     assert(temp1.second && "UNABLE TO INSERT ELEMENT IN NODE.");
                 }
             }
+//            for (typename SimplicialMesh<dim>::const_iterator eIter=mesh.begin();eIter!=mesh.end();++eIter)
+//            {
+//                auto temp=ElementContainerType::emplace(eIter->first,ElementType(eIter->second,*this,*this));
+//                assert(temp.second && "UNABLE TO INSERT ELEMENT IN ELEMENT CONTAINER.");
+//                
+//                // Add element pointer to each of its nodes
+//                for(int n=0;n<ElementType::nodesPerElement;++n)
+//                {
+//                    auto temp1=temp.first->second.node(n).emplace(&temp.first->second);
+//                    assert(temp1.second && "UNABLE TO INSERT ELEMENT IN NODE.");
+//                }
+//            }
             
             // Check that node[k].gID==k;
             for(size_t n=0;n<nodes().size();++n)
