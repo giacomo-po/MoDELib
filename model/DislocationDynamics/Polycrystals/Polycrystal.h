@@ -34,6 +34,7 @@ namespace model
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         typedef LatticeVector<dim> LatticeVectorType;
+        typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
 
 
@@ -129,6 +130,22 @@ namespace model
         {
             return latticeVectorFromPosition(p,&(mesh.simplices().begin()->second));
         }
+        
+        /**********************************************************************/
+        ReciprocalLatticeVectorType reciprocalLatticeVectorFromPosition(const VectorDimD& p,
+                                                    const Simplex<dim,dim>* const guess) const
+        {
+            const std::pair<bool,const Simplex<dim,dim>*> temp(mesh.searchWithGuess(p,guess));
+            assert(temp.first && "Position not found in mesh");
+            return grain(temp.second->region->regionID).reciprocalLatticeVectorFromPosition(p);
+        }
+        
+        /**********************************************************************/
+        ReciprocalLatticeVectorType reciprocalLatticeVectorFromPosition(const VectorDimD& p) const
+        {
+            return reciprocalLatticeVectorFromPosition(p,&(mesh.simplices().begin()->second));
+        }
+        
         
     };
     

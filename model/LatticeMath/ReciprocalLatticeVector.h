@@ -11,53 +11,95 @@
 
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
-#include <model/LatticeMath/LatticeBase.h>
+#include <model/Math/RoundEigen.h>
 
+//#include <model/LatticeMath/LatticeBase.h>
+
+
+
+//template <int dim>
+//class ReciprocalLatticeVector;
 
 namespace model
 {
+    
+    template <int dim>
+    class LatticeVector;
+    
     template <int dim>
     struct ReciprocalLatticeVector : public Eigen::Matrix<long int,dim,1>
     {
         static_assert(dim>0,"dim must be > 0.");
 
         typedef Eigen::Matrix<long int,dim,1> BaseType;
-        typedef LatticeBase<dim> LatticeBaseType;
-        typedef LatticeVector<dim> LatticeVectorType;
-        typedef Eigen::Matrix<  double,dim,1> VectorDimD;
+//        typedef LatticeBase<dim> LatticeBaseType;
+//        typedef Eigen::Matrix<  double,dim,1> VectorDimD;
         
     public:
         
+        static constexpr double roundTol=FLT_EPSILON;
+        typedef Eigen::Matrix<  double,dim,1> VectorDimD;
+        typedef Eigen::Matrix<long int,dim,1> VectorDimI;
+        typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
+        typedef LatticeVector<dim> LatticeVectorType;
+        typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
+
+        const MatrixDimD& covBasis;
+        const MatrixDimD& contraBasis;
 
         
-        // Empty constructor
-        ReciprocalLatticeVector() :
-        /* init base */ BaseType(BaseType::Zero())
-        {
-            
-        }
+//        // Empty constructor
+//        ReciprocalLatticeVector() :
+//        /* init base */ BaseType(BaseType::Zero())
+//        {
+//            
+//        }
         
-        ReciprocalLatticeVector(const VectorDimD& d) :
-        /* init */ BaseType(LatticeBaseType::d2cov(d))
+        /**********************************************************************/
+        ReciprocalLatticeVector(const VectorDimD& d,
+                      const MatrixDimD& covBasis_in,
+                      const MatrixDimD& contraBasis_in) :
+        //                      const MatrixDimD& invA) :
+        /* init base */ BaseType(d2cov(d,covBasis_in)),
+        /* init base */ covBasis(covBasis_in),
+        /* init base */ contraBasis(contraBasis_in)
+        //        /* init base */ covBasisInv(Ainv)
+        ///* base init */ BaseType(LatticeBaseType::d2contra(d))
         {/*!@param[in] d vector in real space
           * Constructs *this by mapping d to the lattice
           */
             
         }
         
-        // This constructor allows  to construct LatticeVector from Eigen expressions
+        /**********************************************************************/
         template<typename OtherDerived>
-        ReciprocalLatticeVector(const Eigen::MatrixBase<OtherDerived>& other) :
-        /* base init */ BaseType(other)
-        { }
-        
-        // This method allows to assign Eigen expressions to LatticeVector
-        template<typename OtherDerived>
-        ReciprocalLatticeVector& operator=(const Eigen::MatrixBase <OtherDerived>& other)
-        {
-            BaseType::operator=(other);
-            return *this;
+        ReciprocalLatticeVector(const Eigen::MatrixBase<OtherDerived>& other,
+                      const MatrixDimD& covBasis_in,
+                      const MatrixDimD& contraBasis_in) :
+        /* init base */ BaseType(other),
+        /* init base */ covBasis(covBasis_in),
+        /* init base */ contraBasis(contraBasis_in)
+        //        /* init base */ covBasisInv(Ainv)
+        ///* base init */ BaseType(LatticeBaseType::d2contra(d))
+        {/*!@param[in] d vector in real space
+          * Constructs *this by mapping d to the lattice
+          */
+            
         }
+        
+//        // This constructor allows  to construct LatticeVector from Eigen expressions
+//        template<typename OtherDerived>
+//        ReciprocalLatticeVector(const Eigen::MatrixBase<OtherDerived>& other) :
+//        /* base init */ BaseType(other)
+//        { }
+//        
+//        // This method allows to assign Eigen expressions to LatticeVector
+//        template<typename OtherDerived>
+//        ReciprocalLatticeVector& operator=(const Eigen::MatrixBase <OtherDerived>& other)
+//        {
+//            BaseType::operator=(other);
+//            return *this;
+//        }
         
 //        ReciprocalLatticeVector& operator=(const ReciprocalLatticeVector& other)
 //        {
@@ -75,16 +117,42 @@ namespace model
 //            return contra().dot(other.cov());
 //        }
         
-        long int dot(const LatticeVectorType& other) const
-        {
-            return BaseType::dot(other);
-        }
+//        long int dot(const LatticeVectorType& other) const
+//        {
+//            return BaseType::dot(other);
+//        }
         
+        /**********************************************************************/
         VectorDimD cartesian() const
         {
-            return LatticeBaseType::contraBasis()*this->template cast<double>();
+            return contraBasis*this->template cast<double>();
         }
         
+        
+        /**********************************************************************/
+        LatticeVectorType cross(const ReciprocalLatticeVectorType& other) const
+        {
+            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+            return LatticeVectorType(static_cast<VectorDimI>(*this).cross(static_cast<VectorDimI>(other)),covBasis,covBasis);
+        }
+        
+        
+        /**********************************************************************/
+        static VectorDimI d2cov(const VectorDimD& d,
+                                const MatrixDimD& covBasis)
+        {
+            const VectorDimD nd(covBasis.transpose()*d);
+            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
+            if((nd-rd).norm()>roundTol)
+            {
+                std::cout<<"d2cov, nd="<<nd.transpose()<<std::endl;
+                std::cout<<"d2cov, rd="<<rd.transpose()<<std::endl;
+                assert(0 && "Input vector is not a reciprocal lattice vector");
+            }
+            //            assert((nd-rd).norm()<roundTol && "Input vector is not a lattice vector");
+            return rd.template cast<long int>();
+        }
         
     };
     

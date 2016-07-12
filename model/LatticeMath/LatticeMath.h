@@ -23,18 +23,18 @@ namespace model
 
 } // end namespace
 
-#include <model/LatticeMath/LatticeGCD.h>
-#include <model/LatticeMath/LatticeBase.h>
+//#include <model/LatticeMath/LatticeGCD.h>
+//#include <model/LatticeMath/LatticeBase.h>
 #include <model/LatticeMath/LatticeVector.h>
-#include <model/LatticeMath/LatticeDirection.h>
 #include <model/LatticeMath/ReciprocalLatticeVector.h>
+#include <model/LatticeMath/LatticeDirection.h>
 #include <model/LatticeMath/ReciprocalLatticeDirection.h>
 
 #include <model/LatticeMath/LatticePlaneBase.h>
 #include <model/LatticeMath/LatticePlane.h>
 #include <model/LatticeMath/LatticeLine.h>
-#include <model/LatticeMath/PlaneLineIntersection.h>
-#include <model/LatticeMath/PlanePlaneIntersection.h>
-#include <model/LatticeMath/LineLineIntersection.h>
+//#include <model/LatticeMath/PlaneLineIntersection.h>
+//#include <model/LatticeMath/PlanePlaneIntersection.h>
+//#include <model/LatticeMath/LineLineIntersection.h>
 
 #endif

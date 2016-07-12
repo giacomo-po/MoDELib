@@ -9,11 +9,10 @@
 #ifndef model_ReciprocalLatticeDirection_h_
 #define model_ReciprocalLatticeDirection_h_
 
-#include <model/LatticeMath/LatticeBase.h>
-#include <model/LatticeMath/LatticeGCD.h>
+//#include <model/LatticeMath/LatticeBase.h>
 #include <model/LatticeMath/LatticeVector.h>
-//#include <model/LatticeMath/LatticeDirection.h>
 #include <model/LatticeMath/ReciprocalLatticeVector.h>
+#include <model/LatticeMath/LatticeGCD.h>
 
 namespace model
 {
@@ -23,7 +22,7 @@ namespace model
     /* inherits */ public ReciprocalLatticeVector<dim>
     {
         typedef LatticeGCD<dim> LatticeGCDType;
-        typedef LatticeBase<dim> LatticeBaseType;
+//        typedef LatticeBase<dim> LatticeBaseType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
@@ -33,7 +32,7 @@ namespace model
         
         ReciprocalLatticeDirection(const ReciprocalLatticeVectorType& v) :
         /* base init */ LatticeGCDType(v),
-        /* base init */ ReciprocalLatticeVectorType( (v.squaredNorm()==0)? v : (v/this->gCD).eval() )
+        /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.covBasis,v.contraBasis)
         {
 //            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
         }
@@ -44,11 +43,11 @@ namespace model
 //            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
         }
         
-        ReciprocalLatticeDirection(const VectorDimD& d) :
-        /* delegating */ ReciprocalLatticeDirection(ReciprocalLatticeVectorType(LatticeBaseType::reciprocalLatticeDirection(d)))
-        {
-            //            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
-        }
+//        ReciprocalLatticeDirection(const VectorDimD& d) :
+//        /* delegating */ ReciprocalLatticeDirection(ReciprocalLatticeVectorType(LatticeBaseType::reciprocalLatticeDirection(d)))
+//        {
+//            //            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
+//        }
         
 //        Eigen::Matrix<double,dim,1> cartesian() const
 //        {

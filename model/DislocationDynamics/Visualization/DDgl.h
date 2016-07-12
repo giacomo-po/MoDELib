@@ -346,7 +346,7 @@ namespace model {
 			yMax=0.0f;
 			zMin=0.0f;
 			zMax=0.0f;
-            if(meshPlotter.p_mesh->size())
+            if(meshPlotter.p_mesh->simplices().size())
             {
                 
                 std::cout<<"mesh xMin="<<meshPlotter.p_mesh->xMin().transpose()<<std::endl;

@@ -57,7 +57,26 @@ int main(int argc, char** argv)
     LatticeVector<3> L2=L0;  // assignment operator
     LatticeVector<3> L3=L0+L1;  // assignment operator
     
-//    std::cout<<poly.latticeVectorFromPosition(p)<<std::endl;
+    ReciprocalLatticeVector<3> R0(poly.reciprocalLatticeVectorFromPosition(p0));  // assignment operator
+    ReciprocalLatticeVector<3> R1(poly.reciprocalLatticeVectorFromPosition(p1));  // assignment operator
+    
+    LatticeDirection<3> LD0=R0.cross(R1);  // assignment operator
+
+    
+    ReciprocalLatticeDirection<3> RD0=L0.cross(L1);  // assignment operator
+
+    
+    std::cout<<LD0.cartesian()<<std::endl;
+    std::cout<<LD0<<std::endl;
+//    
+    std::cout<<RD0.cartesian()<<std::endl;
+    std::cout<<RD0<<std::endl;
+    
+    
+    LatticeLine line0(L1,L1-L0);
+    line0.snapToLattice(p1);
+    std::cout<<"contains? "<<line0.contains(L0)<<std::endl;
+    
     
     return 0;
 }

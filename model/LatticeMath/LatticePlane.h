@@ -22,18 +22,26 @@ namespace model
         const LatticeVectorType P;
         const LatticePlaneBase& n;
         
+        /**********************************************************************/
         LatticePlane(const LatticeVectorType& P_in,const LatticePlaneBase& n_in) :
         /* init */ P(P_in),
         /* init */ n(n_in)
-        {}
+        {
+            assert(&P.covBasis==&n.covBasis && "LatticeVectors have different bases.");
+            assert(&P.contraBasis==&n.contraBasis && "LatticeVectors have different bases.");
+        }
         
+        /**********************************************************************/
         Eigen::Matrix<double,3,1> snapToLattice(const Eigen::Matrix<double,3,1>& P0) const
         {
             return P.cartesian()+n.snapToLattice(P0-P.cartesian());
         }
         
+        /**********************************************************************/
         bool contains(const LatticeVectorType& L) const
         {
+            assert(&P.covBasis==&L.covBasis && "LatticeVectors have different bases.");
+            assert(&P.contraBasis==&L.contraBasis && "LatticeVectors have different bases.");
             return (L-P).dot(n)==0;
         }
         

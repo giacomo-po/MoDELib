@@ -9,9 +9,10 @@
 #ifndef model_LatticeDirection_h_
 #define model_LatticeDirection_h_
 
-#include <model/LatticeMath/LatticeBase.h>
+//#include <model/LatticeMath/LatticeBase.h>
 #include <model/LatticeMath/LatticeVector.h>
 #include <model/LatticeMath/ReciprocalLatticeVector.h>
+#include <model/LatticeMath/LatticeGCD.h>
 
 namespace model
 {
@@ -21,7 +22,7 @@ namespace model
     /* inherits */ public LatticeVector<dim>
     {
         typedef LatticeGCD<dim> LatticeGCDType;
-        typedef LatticeBase<dim> LatticeBaseType;
+//        typedef LatticeBase<dim> LatticeBaseType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
@@ -30,7 +31,7 @@ namespace model
         
         LatticeDirection(const LatticeVectorType& v) :
         /* base init */ LatticeGCDType(v),
-        /* base init */ LatticeVectorType((v.squaredNorm()==0)? v : (v/this->gCD).eval())
+        /* base init */ LatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.covBasis,v.contraBasis)
         {
 //            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
         }
@@ -41,11 +42,11 @@ namespace model
 //            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
         }
         
-        LatticeDirection(const VectorDimD& d) :
-        /* delegating */ LatticeDirection(LatticeVectorType(LatticeBaseType::latticeDirection(d)))
-        {
-            //            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
-        }
+//        LatticeDirection(const VectorDimD& d) :
+//        /* delegating */ LatticeDirection(LatticeVectorType(LatticeBaseType::latticeDirection(d)))
+//        {
+//            //            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
+//        }
         
 //        LatticeDirection(const VectorDimD& d):
 //        /* delegating */ LatticeDirection(LatticeVectorType(d))

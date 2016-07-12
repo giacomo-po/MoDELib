@@ -13,14 +13,12 @@
 #include <Eigen/Dense>
 #include <model/Math/RoundEigen.h>
 //#include <model/LatticeMath/LatticeBase.h>
+//#include <model/LatticeMath/ReciprocalLatticeVector.h>
 #include <model/LatticeMath/ReciprocalLatticeVector.h>
+
 
 namespace model
 {
-    
-
-
-    
     
     template <int dim>
     struct LatticeVector : public Eigen::Matrix<long int,dim,1>
@@ -28,7 +26,7 @@ namespace model
         static_assert(dim>0,"dim must be > 0.");
         
         typedef Eigen::Matrix<long int,dim,1> BaseType;
-        typedef LatticeBase<dim> LatticeBaseType;
+//        typedef LatticeBase<dim> LatticeBaseType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
 //        typedef Eigen::Matrix<long int,dim,1> VectorDimI;
@@ -39,28 +37,21 @@ namespace model
     public:
         
         static constexpr double roundTol=FLT_EPSILON;
-        
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
-
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
         
         const MatrixDimD& covBasis;
-//        const MatrixDimD& covBasisInv;
-        
-//        LatticeVector() : //BaseType(VectorDimI::Zero())
-////        /* init base */ BaseType(BaseType::Zero())
-//        /* init base */ covBasis(A)
-//        {
-//            
-//        }
+        const MatrixDimD& contraBasis;
         
         /**********************************************************************/
         LatticeVector(const VectorDimD& d,
-                      const MatrixDimD& A,
-                      const MatrixDimD& invA) :
-        /* init base */ BaseType(d2contra(d,invA)),
-        /* init base */ covBasis(A)
+                      const MatrixDimD& covBasis_in,
+                      const MatrixDimD& contraBasis_in) :
+//                      const MatrixDimD& invA) :
+        /* init base */ BaseType(d2contra(d,contraBasis_in)),
+        /* init base */ covBasis(covBasis_in),
+        /* init base */ contraBasis(contraBasis_in)
 //        /* init base */ covBasisInv(Ainv)
         ///* base init */ BaseType(LatticeBaseType::d2contra(d))
         {/*!@param[in] d vector in real space
@@ -72,9 +63,11 @@ namespace model
         /**********************************************************************/
         template<typename OtherDerived>
         LatticeVector(const Eigen::MatrixBase<OtherDerived>& other,
-                      const MatrixDimD& A) :
+                      const MatrixDimD& covBasis_in,
+                      const MatrixDimD& contraBasis_in) :
         /* init base */ BaseType(other),
-        /* init base */ covBasis(A)
+        /* init base */ covBasis(covBasis_in),
+        /* init base */ contraBasis(contraBasis_in)
         //        /* init base */ covBasisInv(Ainv)
         ///* base init */ BaseType(LatticeBaseType::d2contra(d))
         {/*!@param[in] d vector in real space
@@ -84,22 +77,34 @@ namespace model
         }
         
         /**********************************************************************/
-        LatticeVectorType operator+(const LatticeVectorType& other)
+        LatticeVectorType operator+(const LatticeVectorType& other) const
         {
             assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
-            return LatticeVectorType(static_cast<VectorDimI>(*this)+static_cast<VectorDimI>(other),covBasis);
+            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+            return LatticeVectorType(static_cast<VectorDimI>(*this)+static_cast<VectorDimI>(other),covBasis,contraBasis);
         }
         
         /**********************************************************************/
-        LatticeVectorType operator-(const LatticeVectorType& other)
+        LatticeVectorType operator-(const LatticeVectorType& other) const
         {
             assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
-            return LatticeVectorType(static_cast<VectorDimI>(*this)-static_cast<VectorDimI>(other),covBasis);
+            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+            return LatticeVectorType(static_cast<VectorDimI>(*this)-static_cast<VectorDimI>(other),covBasis,contraBasis);
         }
         
-        long int dot(const ReciprocalLatticeVectorType& other) const
+//        /**********************************************************************/
+//        long int dot(const ReciprocalLatticeVectorType& other) const
+//        {
+//            return BaseType::dot(other);
+//        }
+        
+        /**********************************************************************/
+        ReciprocalLatticeVectorType cross(const LatticeVectorType& other) const
         {
-            return BaseType::dot(other);
+            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+//            static_cast<VectorDimI>(*this).cross(static_cast<VectorDimI>(other));
+            return ReciprocalLatticeVectorType(static_cast<VectorDimI>(*this).cross(static_cast<VectorDimI>(other)),covBasis,covBasis);
         }
 
         /**********************************************************************/
@@ -110,9 +115,9 @@ namespace model
         
         /**********************************************************************/
         static VectorDimI d2contra(const VectorDimD& d,
-                                   const MatrixDimD& invA)
+                                   const MatrixDimD& contraBasis_in)
         {
-            const VectorDimD nd(invA*d);
+            const VectorDimD nd(contraBasis_in.transpose()*d);
             const VectorDimD rd(RoundEigen<double,dim>::round(nd));
             if((nd-rd).norm()>roundTol)
             {
