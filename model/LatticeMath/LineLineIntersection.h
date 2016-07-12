@@ -96,7 +96,7 @@ namespace model
         /* init */ dPxd1(P12,l1.d), // (P1-P2)xd1
         /* init */ dPxd2(P12,l2.d), // (P1-P2)xd2
         /* init */ intersectionType(getIntersectionType(P12,d1xd2,dPxd1,dPxd2)),
-        /* init */ P(intersectionType==coincidentLines? l1.P : (intersectionType==intersectingLines? (l1.P-dPxd2.gCD/d1xd2.gCD*(1-2*((dPxd2+d1xd2).squaredNorm()==0))*l1.d).eval() : VectorDimI::Zero()))
+        /* init */ P(intersectionType==coincidentLines? l1.P : (intersectionType==intersectingLines? l1.P-l1.d*(dPxd2.gCD/d1xd2.gCD*(1-2*((dPxd2+d1xd2).squaredNorm()==0))) : LatticeVectorType(VectorDimI::Zero(),l1.P.covBasis,l1.P.contraBasis)))
         {
 
         }

@@ -77,6 +77,10 @@ int main(int argc, char** argv)
     line0.snapToLattice(p1);
     std::cout<<"contains? "<<line0.contains(L0)<<std::endl;
     
+    LatticeLine line1(L0,L0);
+
+    LineLineIntersection lli(line0,line1);
+    std::cout<<lli<<std::endl;
     
     return 0;
 }

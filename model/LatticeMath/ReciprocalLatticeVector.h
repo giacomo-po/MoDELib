@@ -130,6 +130,14 @@ namespace model
         
         
         /**********************************************************************/
+        long int dot(const LatticeVectorType& other) const
+        {
+            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+            return static_cast<VectorDimI>(*this).dot(static_cast<VectorDimI>(other));
+        }
+        
+        /**********************************************************************/
         LatticeVectorType cross(const ReciprocalLatticeVectorType& other) const
         {
             assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");

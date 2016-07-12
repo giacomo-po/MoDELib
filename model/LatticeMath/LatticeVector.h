@@ -92,11 +92,21 @@ namespace model
             return LatticeVectorType(static_cast<VectorDimI>(*this)-static_cast<VectorDimI>(other),covBasis,contraBasis);
         }
         
-//        /**********************************************************************/
-//        long int dot(const ReciprocalLatticeVectorType& other) const
-//        {
-//            return BaseType::dot(other);
-//        }
+        /**********************************************************************/
+        LatticeVectorType operator*(const long int& scalar) const
+        {
+//            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+//            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+            return LatticeVectorType(static_cast<VectorDimI>(*this)*scalar,covBasis,contraBasis);
+        }
+        
+        /**********************************************************************/
+        long int dot(const ReciprocalLatticeVectorType& other) const
+        {
+            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+            return static_cast<VectorDimI>(*this).dot(static_cast<VectorDimI>(other));
+        }
         
         /**********************************************************************/
         ReciprocalLatticeVectorType cross(const LatticeVectorType& other) const

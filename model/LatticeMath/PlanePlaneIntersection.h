@@ -106,14 +106,14 @@ namespace model
             assert(dir.dot(n1)==0);
             assert(dir.dot(n2)==0);
             
-            return temp;
+            return LatticeVector<3>(temp,p1.covBasis,p1.contraBasis);
         }
         
         /**********************************************************************/
         PlanePlaneIntersection(const LatticePlane& plane1, const LatticePlane& plane2) :
         /* init */ d(plane1.n,plane2.n),
         /* init */ intersectionType(d.squaredNorm()? incident : ((plane1.P-plane2.P).dot(plane1.n)? parallel : coincident)),
-        /* init */ P(intersectionType==incident? midPoint(plane1.P,plane1.n,plane2.P,plane2.n,d) : (intersectionType==coincident? plane1.P : VectorDimI::Zero()))
+        /* init */ P(intersectionType==incident? midPoint(plane1.P,plane1.n,plane2.P,plane2.n,d) : (intersectionType==coincident? plane1.P : LatticeVector<3>(VectorDimI::Zero(),plane1.P.covBasis,plane1.P.contraBasis)))
         {
 //         if(intersectionType==incident || intersectionType==coincident)
 //         {
