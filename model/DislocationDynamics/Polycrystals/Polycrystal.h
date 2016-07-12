@@ -17,6 +17,7 @@
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
 #include <model/DislocationDynamics/Polycrystals/GrainBoundary.h>
 #include <model/Mesh/SimplicialMesh.h>
+#include <model/LatticeMath/LatticeVector.h>
 
 namespace model
 {
@@ -32,7 +33,10 @@ namespace model
         typedef SimplicialMesh<dim> SimplicialMeshType;
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
-        
+        typedef LatticeVector<dim> LatticeVectorType;
+        typedef Eigen::Matrix<  double,dim,1> VectorDimD;
+
+
         const SimplicialMeshType& mesh;
         
         /**********************************************************************/
@@ -109,6 +113,21 @@ namespace model
         {
             assert(i!=j && "GrainBoundary IDs cannot be the same.");
             return (i<j)? grainBoundaries().at(std::make_pair(1,2)) : grainBoundaries().at(std::make_pair(2,1));
+        }
+        
+        /**********************************************************************/
+        LatticeVectorType latticeVectorFromPosition(const VectorDimD& p,
+                                                    const Simplex<dim,dim>* const guess) const
+        {
+            const std::pair<bool,const Simplex<dim,dim>*> temp(mesh.searchWithGuess(p,guess));
+            assert(temp.first && "Position not found in mesh");
+            return grain(temp.second->region->regionID).latticeVectorFromPosition(p);
+        }
+        
+        /**********************************************************************/
+        LatticeVectorType latticeVectorFromPosition(const VectorDimD& p) const
+        {
+            return latticeVectorFromPosition(p,&(mesh.simplices().begin()->second));
         }
         
     };

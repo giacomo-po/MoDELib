@@ -14,6 +14,7 @@
 #include <model/Math/RoundEigen.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Mesh/MeshRegionObserver.h>
+#include <model/LatticeMath/LatticeVector.h>
 
 namespace model
 {
@@ -33,6 +34,8 @@ namespace model
 
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
+        typedef LatticeVector<dim> LatticeVectorType;
+        
         
         //! The static column matrix of lattice vectors
         MatrixDimD    A;
@@ -163,24 +166,35 @@ namespace model
             return rdk.template cast<long int>();
         }
         
+        /**********************************************************************/
         const MatrixDimD& covBasis() const
         {
             return A;
         }
         
+        /**********************************************************************/
         const MatrixDimD& invCovBasis() const
         {
             return invA;
         }
         
+        /**********************************************************************/
         const MatrixDimD& contraBasis() const
         {
             return invAT;
         }
         
+        /**********************************************************************/
         const MatrixDimD& invContraBasis() const
         {
             return AT;
+        }
+        
+        /**********************************************************************/
+        LatticeVectorType latticeVectorFromPosition(const VectorDimD& p) const
+        {
+            std::cout<<"Grain "<<region.regionID<<" creating LatticeVector"<<std::endl;
+            return LatticeVectorType(p,A,invA);
         }
         
     };

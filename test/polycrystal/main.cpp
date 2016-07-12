@@ -14,6 +14,7 @@
 #include <model/Utilities/SequentialOutputFile.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/DislocationDynamics/Polycrystals/Polycrystal.h>
+#include <model/LatticeMath/LatticeVector.h>
 
 
 using namespace model;
@@ -43,6 +44,20 @@ int main(int argc, char** argv)
     std::cout<<poly.grainBoundary(1,2).regionBoundary.size()<<std::endl;
     
 //    poly.grainBoundary(3,5)
+    Eigen::Matrix<double,3,1> p0;
+    p0<<500.,500.0,499.0;
+    
+    Eigen::Matrix<double,3,1> p1;
+    p1<<500.,500.0,501.0;
+    
+//    LatticeVector<3> L(p,)
+    
+    LatticeVector<3> L0(poly.latticeVectorFromPosition(p0));
+    LatticeVector<3> L1(poly.latticeVectorFromPosition(p1));
+    LatticeVector<3> L2=L0;  // assignment operator
+    LatticeVector<3> L3=L0+L1;  // assignment operator
+    
+//    std::cout<<poly.latticeVectorFromPosition(p)<<std::endl;
     
     return 0;
 }
