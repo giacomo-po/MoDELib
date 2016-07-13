@@ -16,18 +16,18 @@
 
 namespace model
 {
-
+    
     template<short int dim,short int order>
     class SimplexChild : private std::set<const Simplex<dim,order+1>*,SimplexCompare<dim,order+1> >
     {
         
     public:
-//        typedef SimplexChild<dim,order> SimplexChildType;
+        //        typedef SimplexChild<dim,order> SimplexChildType;
         typedef Simplex<dim,order+1> ParentSimplexType;
         typedef typename SimplexTraits<dim,order+1>::SimplexIDType ParentSimplexIDType;
         typedef typename SimplexTraits<dim,order+1>::ScalarIDType ScalarIDType;
         typedef std::set<const ParentSimplexType*,SimplexCompare<dim,order+1> >  ParentContainerType;
-
+        
     public:
         
         /**********************************************************************/
@@ -37,12 +37,12 @@ namespace model
           *
           * Adds pP to the parentContainer.
           */
-//            const bool couldInsert(parentContainer.insert(pP).second);
+            //            const bool couldInsert(parentContainer.insert(pP).second);
             const bool couldInsert(this->insert(pP).second);
             assert(couldInsert && "COULD NOT INSERT PARENT IN parentContainer");
-
+            
             // HERE WE SHOULD LOOP OVER PARENTS AND ADD pP TO THEIR NEIGHBORS
-
+            
         }
         
         /**********************************************************************/
@@ -51,7 +51,7 @@ namespace model
           *
           * Removes pID from the parentContainer.
           */
-//            const int nRemoved(parentContainer.erase(pP));
+            //            const int nRemoved(parentContainer.erase(pP));
             const int nRemoved(this->erase(pP));
             assert(nRemoved==1 && "COULD NOT REMOVE PARENT IN parentContainer");
             
@@ -82,7 +82,7 @@ namespace model
         bool isBoundarySimplex() const
         {
             return BoundarySimplex<dim,dim-order>::isBoundarySimplex(*this);
-
+            
         }
         
         /**********************************************************************/
@@ -105,6 +105,32 @@ namespace model
             }
             return temp;
         }
+        
+//        /**********************************************************************/
+//        Eigen::Matrix<double,dim,1> outNormal() const
+//        {
+//            return BoundarySimplex<dim,dim-order>::outNormal(*this);
+//        }
+        
+        //        /**********************************************************************/
+        //        Eigen::Matrix<double,dim,1> outNormal() const
+        //        {
+        //            Eigen::Matrix<double,dim,1> temp(Eigen::Matrix<double,dim,1>::Zero());
+        //            for(auto ele : *this)
+        //            {
+        //                const Eigen::Matrix<double,dim+1,1> bary(ele->simplex.pos2bary(P0));
+        //                for(int k=0;k<dim+1;++k)
+        //                {
+        //                    if (std::fabs(bary(k))<FLT_EPSILON && ele->simplex.child(k).isBoundarySimplex())
+        //                    {
+        //                        temp += ele->simplex.nda.col(k).normalized();
+        //                    }
+        //                }
+        //            }
+        //            const double tempNorm(temp.norm());
+        //            return tempNorm>FLT_EPSILON? (temp/tempNorm).eval() : Eigen::Matrix<double,dim,1>::Zero();
+        //        }
+        
         
     };
     

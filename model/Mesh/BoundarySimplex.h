@@ -47,6 +47,21 @@ namespace model
             return temp;
         }
         
+        /**********************************************************************/
+        static Eigen::Matrix<double,dim,1> outNormal(const Simplex<dim,dim-dmo>& simplexChild)
+        {
+            Eigen::Matrix<double,dim,1> temp(Eigen::Matrix<double,dim,1>::Zero());
+            for(const auto& parent : simplexChild.parents())
+            {
+                if(parent->isBoundarySimplex())
+                {
+                    temp+=parent->outNormal();
+                }
+            }
+            const double tempNorm(temp.norm());
+            return (tempNorm>0.0)? (temp/tempNorm).eval() : temp;
+        }
+        
     };
     
     /**************************************************************************/
@@ -72,7 +87,18 @@ namespace model
                 }
                 
             }
-            
+            return temp;
+        }
+        
+        /**********************************************************************/
+        static Eigen::Matrix<double,dim,1> outNormal(const Simplex<dim,dim-1>& simplexChild)
+        {
+            Eigen::Matrix<double,dim,1> temp(Eigen::Matrix<double,dim,1>::Zero());
+            if(simplexChild.isBoundarySimplex())
+            {
+                const size_t faceID=(*simplexChild.parents().begin())->childOrder(simplexChild.xID);
+                temp=(*simplexChild.parents().begin())->nda.col(faceID).normalized();
+            }
             return temp;
         }
         
