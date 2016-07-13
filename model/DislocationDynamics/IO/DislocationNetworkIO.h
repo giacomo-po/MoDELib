@@ -54,12 +54,13 @@ namespace model
         static bool outputPKforce;
         static bool outputElasticEnergy;
         static bool outputMeshDisplacement;
+        static bool outputFEMsolution;
         static bool outputDislocationLength;
         static bool outputPlasticDistortion;
         static bool outputPlasticDistortionRate;
         static bool outputQuadratureParticles;
         static unsigned int _userOutputColumn;
-
+        
         
         
         /* readVertices *******************************************************/
@@ -288,27 +289,107 @@ namespace model
                 model::cout<<", W/W_"<<w_file.sID<<std::flush;
             }
             
-            if (DN.shared.use_bvp && outputMeshDisplacement && !(DN.runningID()%DN.shared.use_bvp))
+            typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
+            typedef typename FieldPointType::DisplacementField DisplacementField;
+
+            if(outputMeshDisplacement)
             {
-                model::SequentialOutputFile<'U',1>::set_count(runID); // Vertices_file;
-                model::SequentialOutputFile<'U',1>::set_increment(outputFrequency); // Vertices_file;
-                model::SequentialOutputFile<'U',true> d_file;
-                d_file<<DN.shared.bvpSolver.displacement();
-                
-                
-                //                for(const auto& node : DN.shared.bvpSolver.finiteElement().nodes())
-                //                {
-                //
-                //                }
-                
+                if(DN.shared.use_bvp)
+                {
+                    if (!(DN.runningID()%DN.shared.use_bvp))
+                    {
+                        model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
+                        model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
+                        model::SequentialOutputFile<'D',true> d_file;
+                        model::cout<<", D/D_"<<d_file.sID<<std::flush;
+
+                        std::deque<FieldPointType> fieldPoints; // the container of field points
+                        for (typename SimplexObserver<3,0>::const_iterator sIter=SimplexObserver<3,0>::simplexBegin();
+                             /*                                         */ sIter!=SimplexObserver<3,0>::simplexEnd();++sIter)
+                        {
+                            if(sIter->second->isBoundarySimplex())
+                            {
+                                fieldPoints.emplace_back(*(sIter->second));
+                            }
+                        }
+                        DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
+                        
+                        
+                        for(auto node : fieldPoints)
+                        {
+                            Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
+                            
+                            // Sum solid angle jump
+                            if (DN.shared.use_virtualSegments) // solid-angle jump of virtual segments
+                            {
+                                for(const auto& segment : DN.links())
+                                {
+                                    segment.second.addToSolidAngleJump(node.P,node.S,nodeDisp);
+                                }
+                            }
+                            
+                            // Sum FEM solution
+                            // FINISH HERE
+                            // nodeDisp+=shared.bvpSolver.displacement()
+                            
+                            // output
+                            d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
+                        }
+                    }
+                }
+//                else if(DN.shared.use_boundary)
+//                {
+//                    model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
+//                    model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
+//                    model::SequentialOutputFile<'D',true> d_file;
+//                    model::cout<<", D/D_"<<d_file.sID<<std::flush;
+//
+//                    std::deque<FieldPointType> fieldPoints; // the container of field points
+//                    for (typename SimplexObserver<3,0>::const_iterator sIter=SimplexObserver<3,0>::simplexBegin();
+//                         /*                                         */ sIter!=SimplexObserver<3,0>::simplexEnd();++sIter)
+//                    {
+//                        if(sIter->second->isBoundarySimplex())
+//                        {
+//                            fieldPoints.emplace_back(*(sIter->second));
+//                        }
+//                    }
+//                    DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
+//                    
+//                    // Sum solid angle jump and output
+//                    for(auto node : fieldPoints)
+//                    {
+//                        Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
+//                        if (DN.shared.use_virtualSegments) // solid-angle jump of virtual segments
+//                        {
+//                            for(const auto& segment : DN.links())
+//                            {
+//                                segment.second.addToSolidAngleJump(node.P,node.S,nodeDisp);
+//                            }
+//                        }
+//                        d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
+//                    }
+//                }
+//                else
+//                {
+//                    // no mesh used
+//                }
+            }
+
+            
+            if (DN.shared.use_bvp && outputFEMsolution && !(DN.runningID()%DN.shared.use_bvp))
+            {
                 /**************************************************************************/
                 // Output displacement and stress on external mesh faces
+                model::SequentialOutputFile<'U',1>::set_count(runID); // Vertices_file;
+                model::SequentialOutputFile<'U',1>::set_increment(outputFrequency); // Vertices_file;
+                model::SequentialOutputFile<'U',true> u_file;
+                u_file<<DN.shared.bvpSolver.displacement();
+                
+                
                 model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
                 model::SequentialOutputFile<'S',1>::set_increment(outputFrequency); // Vertices_file;
                 model::SequentialOutputFile<'S',true> s_file;
                 s_file<<DN.shared.bvpSolver.stress();
-                
-                model::cout<<", D/D_"<<d_file.sID<<"(FINISH HERE)"<<std::flush;
             }
             
             if (outputQuadratureParticles)
@@ -385,8 +466,11 @@ namespace model
     bool DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement=false;
     
     template <typename DislocationNetworkType>
+    bool DislocationNetworkIO<DislocationNetworkType>::outputFEMsolution=false;
+    
+    template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength=false;
-
+    
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion=false;
     
@@ -395,7 +479,7 @@ namespace model
     
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputQuadratureParticles=false;
-
+    
     template <typename DislocationNetworkType>
     unsigned int DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn=3;
     
