@@ -64,6 +64,11 @@ namespace model
             SimplexObserver<dim,order>::removeSimplex(*this);
         }
         
+        /**********************************************************************/
+        Eigen::Matrix<double,dim,1> outNormal() const
+        {
+            return BoundarySimplex<dim,dim-order>::outNormal(*this);
+        }
     };
     
     /**************************************************************************/
@@ -170,6 +175,12 @@ namespace model
                 }
             }
             return temp;
+        }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dim,1> outNormal() const
+        {
+            return BoundarySimplex<dim,dim-order>::outNormal(*this);
         }
         
     };

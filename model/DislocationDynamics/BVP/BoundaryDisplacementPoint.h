@@ -45,6 +45,19 @@ namespace model
             }
         }
         
+        BoundaryDisplacementPoint(const Simplex<dim,0>& node) :
+        /*   */ FieldPointType(true),
+        /*   */ gID(node.xID(0)),
+        /*   */ P(node.P0),
+        /*   */ S(node.outNormal())
+        {
+            if(std::abs(S.norm()-1.0)>=10.0*DBL_EPSILON)
+            {
+                model::cout<<"FEM node "<<gID<<"\n"<<"P="<<P.transpose()<<"\n"<<"S="<<S.transpose()<<"\n"<<"norm(S)="<<S.norm()<<std::endl;
+                assert(0 && "S-vector has non-unit norm");
+            }
+        }
+        
         
     };
     

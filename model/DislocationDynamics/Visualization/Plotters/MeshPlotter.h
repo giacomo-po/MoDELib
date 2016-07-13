@@ -27,6 +27,7 @@
 #include <float.h>
 #include <vector>
 #include <deque>
+#include <map>
 
 #include <Eigen/Core>
 
@@ -52,7 +53,9 @@ namespace model
         bool dispFileIsGood;
         //		bool quadFileIsGood;
         
-        typedef std::vector<Eigen::Matrix<float,3,4>,Eigen::aligned_allocator<Eigen::Matrix<float,3,4> > > EdgeVectoType;
+        //        typedef std::vector<Eigen::Matrix<float,3,4>,Eigen::aligned_allocator<Eigen::Matrix<float,3,4> > > EdgeVectoType;
+        
+        typedef std::map<std::pair<size_t,size_t>,Eigen::Matrix<float,3,2> > EdgeVectoType;
         EdgeVectoType edgeVector; // this is [P0 P1 D0 D1]
         
         typedef Simplex<3,3>::SimplexIDType SimplexIDType;
@@ -104,25 +107,32 @@ namespace model
         {
             
             edgeVector.clear();
-            edgeVector.reserve(SimplexObserver<3,1>::size()); // use reserve to speed-up push_back used later
+            //            edgeVector.reserve(SimplexObserver<3,1>::size()); // use reserve to speed-up push_back used later
             for (typename SimplexObserver<3,1>::const_iterator sIter=SimplexObserver<3,1>::simplexBegin();
                  /*                                         */ sIter!=SimplexObserver<3,1>::simplexEnd();++sIter)
             {
                 if(sIter->second->isBoundarySimplex())
                 {
-                    Eigen::Matrix<float,3,4> temp(Eigen::Matrix<float,3,4>::Zero());
+                    std::pair<size_t,size_t> key=std::make_pair(sIter->second->child(0).xID(0),
+                                                                sIter->second->child(1).xID(0));
+                    
+                    
+                    Eigen::Matrix<float,3,2> temp(Eigen::Matrix<float,3,2>::Zero());
                     temp.col(0)=sIter->second->child(0).P0.cast<float>();
                     temp.col(1)=sIter->second->child(1).P0.cast<float>();
-					if (dispFileIsGood)
-                    {
-						VertexReader<'D',4,float>::iterator iterD1(DispContainerType::find(sIter->second->child(0).xID(0)));
-						VertexReader<'D',4,float>::iterator iterD2(DispContainerType::find(sIter->second->child(1).xID(0)));
-						assert(iterD1!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-						assert(iterD2!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-						temp.col(2)=iterD1->second.segment<3>(0);
-						temp.col(3)=iterD2->second.segment<3>(0);
-					}
-                    edgeVector.push_back(temp);
+                    
+                    edgeVector.emplace(key,temp);
+                    
+                    //					if (dispFileIsGood)
+                    //                    {
+                    //						VertexReader<'D',4,float>::iterator iterD1(DispContainerType::find(sIter->second->child(0).xID(0)));
+                    //						VertexReader<'D',4,float>::iterator iterD2(DispContainerType::find(sIter->second->child(1).xID(0)));
+                    //						assert(iterD1!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
+                    //						assert(iterD2!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
+                    //						temp.col(2)=iterD1->second.segment<3>(0);
+                    //						temp.col(3)=iterD2->second.segment<3>(0);
+                    //					}
+                    //                    edgeVector.push_back(temp);
                     
                 }
             }
@@ -174,15 +184,15 @@ namespace model
             //				NodeContainerType::read(0,true);
             //			}
             
-			dispFileIsGood=DispContainerType::isGood(frameN,true);
-			if (dispFileIsGood)
+            dispFileIsGood=DispContainerType::isGood(frameN,true);
+            if (dispFileIsGood)
             {
-				DispContainerType::read(frameN,true);
-			}
-			else
+                DispContainerType::read(frameN,true);
+            }
+            else
             {
-				DispContainerType::read(0,true);
-			}
+                DispContainerType::read(0,true);
+            }
             
             //            quadFileIsGood=QuadContainerType::isGood(frameN,true);
             //            if (quadFileIsGood){
@@ -269,7 +279,7 @@ namespace model
                     
                     std::cout<<"sigma_min="<<sMin<<std::endl;
                     std::cout<<"sigma_max="<<sMax<<std::endl;
-
+                    
                 }
                 
                 std::cout<<fullName.str()<<" has "<<deq.size()<<"rows"<<std::endl;
@@ -334,11 +344,34 @@ namespace model
                 
                 for (auto& edge : edgeVector)
                 {
+                    Eigen::Matrix<float,3,2> disp=Eigen::Matrix<float,3,2>::Zero();
+                    
+                    if(dispFileIsGood)
+                    {
+                        VertexReader<'D',4,float>::const_iterator iterD1(DispContainerType::find(edge.first.first));
+                        VertexReader<'D',4,float>::const_iterator iterD2(DispContainerType::find(edge.first.second));
+                        assert(iterD1!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
+                        assert(iterD2!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
+                        disp.col(0)=iterD1->second.segment<3>(0);
+                        disp.col(1)=iterD2->second.segment<3>(0);
+                    }
+                    
                     glBegin(GL_LINES);
-                    glVertex3f(edge(0,0)+edge(0,2)*dispCorr, edge(1,0)+edge(1,2)*dispCorr,edge(2,0)+edge(2,2)*dispCorr);
-                    glVertex3f(edge(0,1)+edge(0,3)*dispCorr, edge(1,1)+edge(1,3)*dispCorr,edge(2,1)+edge(2,3)*dispCorr);
+                    glVertex3f(edge.second(0,0)+disp(0,0)*dispCorr, edge.second(1,0)+disp(1,0)*dispCorr,edge.second(2,0)+disp(2,0)*dispCorr);
+                    glVertex3f(edge.second(0,1)+disp(0,1)*dispCorr, edge.second(1,1)+disp(1,1)*dispCorr,edge.second(2,1)+disp(2,1)*dispCorr);
                     glEnd();
                 }
+                
+//                // test boundaryNormal
+//                for (typename SimplexObserver<3,0>::const_iterator sIter=SimplexObserver<3,0>::simplexBegin();
+//                     /*                                         */ sIter!=SimplexObserver<3,0>::simplexEnd();++sIter)
+//                {
+//                    Eigen::Matrix<double,3,1> outNormal=sIter->second->outNormal()*100.0;
+//                    glBegin(GL_LINES);
+//                    glVertex3f(sIter->second->P0(0),sIter->second->P0(1),sIter->second->P0(2));
+//                    glVertex3f(sIter->second->P0(0)+outNormal(0),sIter->second->P0(1)+outNormal(1),sIter->second->P0(2)+outNormal(2));
+//                    glEnd();
+//                }
                 
                 if(showSpecificSimplex)
                 {
