@@ -15,6 +15,7 @@
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Mesh/MeshRegionObserver.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
+#include <model/LatticeMath/LatticePlane.h>
 
 namespace model
 {
@@ -22,7 +23,7 @@ namespace model
     
     
     template <int dim>
-    class GrainBoundary
+    class GrainBoundary : std::map<int,LatticePlaneBase>
     {
         
         typedef MeshRegionBoundary<Simplex<dim,dim-1> > MeshRegionBoundaryType;
@@ -42,6 +43,8 @@ namespace model
         const Grain<dim>& grainFirst;
         const Grain<dim>& grainSecond;
         
+        
+        
         /**********************************************************************/
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
                       const Grain<dim>& grainFirst_in,
@@ -51,6 +54,17 @@ namespace model
         /* init */ grainSecond(grainSecond_in)
         {
             model::cout<<"Creating GrainBoundary ("<<regionBoundary.regionBndID.first<<" "<<regionBoundary.regionBndID.second<<")"<<std::endl;
+            
+        }
+        
+        /**********************************************************************/
+        void createLatticePlanes()
+        {
+            this->clear();
+            
+//            this->emplace(grainFirst.region.regionID,...);
+//            
+//            this->emplace(grainSecond.region.regionID,...);
             
             
         }

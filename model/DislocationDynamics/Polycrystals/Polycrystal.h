@@ -18,6 +18,8 @@
 #include <model/DislocationDynamics/Polycrystals/GrainBoundary.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/LatticeMath/LatticeVector.h>
+#include <model/DislocationDynamics/Materials/PeriodicElement.h>
+
 
 namespace model
 {

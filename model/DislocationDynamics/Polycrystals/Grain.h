@@ -17,7 +17,9 @@
 #include <model/LatticeMath/LatticeMath.h>
 //#include <model/LatticeMath/LatticeVector.h>
 //#include <model/LatticeMath/ReciprocalLatticeVector.h>
-
+#include <model/DislocationDynamics/Materials/PeriodicElement.h>
+#include <model/DislocationDynamics/Materials/FCCcrystal.h>
+#include <model/DislocationDynamics/Materials/BCCcrystal.h>
 
 namespace model
 {
@@ -40,65 +42,166 @@ namespace model
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         
+        typedef std::vector<LatticePlaneBase> PlaneNormalContainerType;
+
+        static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
+        static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
+        static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
+        static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
+
+        /**********************************************************************/
+        void setLatticeBasis()
+        {
+            model::cout<<"Grain"<<grainID<<", material="<<materialZ<<std::endl;
+
+            Eigen::Matrix<double,dim,dim,1> A(Eigen::Matrix<double,dim,dim,1>::Identity());
+            
+            switch (materialZ)
+            {
+                case Al.Z:
+                    A=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
+                    break;
+                case Ni.Z:
+                    A=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
+                    break;
+                case Cu.Z:
+                    A=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
+                    break;
+                case W.Z:
+                    A=PeriodicElement<W.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
+                    break;
+                    //                case Fe:
+                    //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
+                    //                    break;
+                default:
+                    assert(0 && "Material not implemented.");
+                    break;
+            }
+            
+            _covBasis=C2G*A;
+            _contraBasis=_covBasis.inverse().transpose();
+            
+            std::cout<<"Lattice basis (in columns) =\n"<<_covBasis<<std::endl;
+            std::cout<<"Lattice reciprocal basis (in columns) =\n"<<_contraBasis<<std::endl;
+        }
+        
+//        /**********************************************************************/
+//        void setLatticeBasis(const Eigen::Matrix<double,dim,dim,1>& A)
+//        {
+//            _covBasis=A;
+//            _contraBasis=A.inverse().transpose();
+//            
+//            std::cout<<"Lattice basis (in columns) =\n"<<_covBasis<<std::endl;
+//            std::cout<<"Lattice reciprocal basis (in columns) =\n"<<_contraBasis<<std::endl;
+//        }
+        
+//        /**********************************************************************/
+//        template<size_t Z>
+//        void select()
+//        {/*! Z is atomic number
+//          */
+//            setLatticeBasis(C2G*PeriodicElement<Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>());
+//            planeNormalContainer=CrystalStructure::template reciprocalPlaneNormals<dim>();
+//            //slipSystemContainer=CrystalStructure::slipSystems();
+//        }
+        
+        PlaneNormalContainerType planeNormalContainer;
         
         //! The static column matrix of lattice vectors
         MatrixDimD    _covBasis;
-//        MatrixDimD    AT;
-//        MatrixDimD invA;
         MatrixDimD _contraBasis;
+        
+        Eigen::Matrix<double,dim,dim> C2G;
+        
+        int materialZ;
         
     public:
         static constexpr double roundTol=FLT_EPSILON;
 
         const MeshRegionType& region;
+        const int& grainID;
         
         /**********************************************************************/
         Grain(const MeshRegionType& region_in) :
         /* init */ _covBasis(MatrixDimD::Identity()),
-//        /* init */ AT(A.transpose()),
-//        /* init */ invA(A.inverse()),
         /* init */ _contraBasis(MatrixDimD::Identity()),
-        /* init */ region(region_in)
+        /* init */ C2G(Eigen::Matrix<double,dim,dim>::Identity()),
+        /* init */ materialZ(29),
+        /* init */ region(region_in),
+        /* init */ grainID(region.regionID)
         {
-            model::cout<<"Creating Grain "<<region.regionID<<std::endl;
-            
-//            for(const auto& simplex_p : region)
-//            {
-//            if(simplex_p)
-//            {
-//            
-//            }
-//            }
-            
+            model::cout<<"Creating Grain "<<grainID<<std::endl;
+            selectMaterial(materialZ);
         }
         
         /**********************************************************************/
-        void setLatticeBasis(const Eigen::Matrix<double,dim,dim,1>& A)
+        void selectMaterial(const int& Z)
         {
-            _covBasis=A;
-//            AT=A.transpose();
-//            invA=A.inverse();
-            _contraBasis=A.inverse().transpose();
-            //            cofA=invA*A.determinant();
+            model::cout<<greenColor<<"Grain "<<grainID<<", selecting material"<<defaultColor<<std::endl;
+
+            materialZ=Z;
+            setLatticeBasis();
             
-            std::cout<<"Lattice basis (in columns) =\n"<<_covBasis<<std::endl;
-            std::cout<<"Lattice reciprocal basis (in columns) =\n"<<_contraBasis<<std::endl;
+            switch (materialZ)
+            {
+                case Al.Z:
+                    planeNormalContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
+                    break;
+                case Ni.Z:
+                    planeNormalContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
+//
+//                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Ni.Z,Isotropic>::CrystalStructure>(C2G);
+                    break;
+                case Cu.Z:
+                    planeNormalContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
+
+//                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Cu.Z,Isotropic>::CrystalStructure>(C2G);
+                    break;
+                case W.Z:
+                    planeNormalContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
+
+//                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<W.Z,Isotropic>::CrystalStructure>(C2G);
+                    break;
+                    //                case Fe:
+                    //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
+                    //                    break;
+                default:
+                    assert(0 && "Material not implemented.");
+                    break;
+            }
+            
+            model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
+            for (unsigned int k=0; k<planeNormalContainer.size();++k)
+            {
+                std::cout<<"    "<<planeNormalContainer[k].cartesian().normalized().transpose()<<std::endl;
+            }
+            model::cout<<defaultColor<<std::endl;
+
             
         }
         
-//        /**********************************************************************/
-//        VectorDimI d2contra(const VectorDimD& d) const
-//        {
-//            const VectorDimD nd(invA*d);
-//            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
-//            if((nd-rd).norm()>roundTol)
-//            {
-//                std::cout<<"d2contra, nd="<<nd.transpose()<<std::endl;
-//                std::cout<<"d2contra, rd="<<rd.transpose()<<std::endl;
-//                assert(0 && "Input vector is not a lattice vector");
-//            }
-//            return rd.template cast<long int>();
-//        }
+
+        
+        /**********************************************************************/
+        void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in)
+        {/*! Z is atomic number
+          */
+            model::cout<<greenColor<<"Grain "<<grainID<<", rotating"<<defaultColor<<std::endl;
+            
+            assert((C2G_in*C2G_in.transpose()-Eigen::Matrix<double,dim,dim>::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && "CRYSTAL TO GLOBAL ROTATION MATRIX IS NOT ORTHOGONAL.");
+            // make sure that C2G is proper
+            assert(std::fabs(C2G_in.determinant()-1.0) < FLT_EPSILON && "C2G IS NOT PROPER.");
+            // store C2G
+            C2G=C2G_in;
+            setLatticeBasis();
+            
+            model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
+            for (unsigned int k=0; k<planeNormalContainer.size();++k)
+            {
+                std::cout<<"    "<<planeNormalContainer[k].cartesian().normalized().transpose()<<std::endl;
+            }
+            model::cout<<defaultColor<<std::endl;
+        }
         
         /**********************************************************************/
         VectorDimI latticeDirection(const VectorDimD& d) const
@@ -176,23 +279,11 @@ namespace model
             return _covBasis;
         }
         
-//        /**********************************************************************/
-//        const MatrixDimD& invCovBasis() const
-//        {
-//            return invA;
-//        }
-        
         /**********************************************************************/
         const MatrixDimD& contraBasis() const
         {
             return _contraBasis;
         }
-        
-//        /**********************************************************************/
-//        const MatrixDimD& invContraBasis() const
-//        {
-//            return AT;
-//        }
         
         /**********************************************************************/
         LatticeVectorType latticeVectorFromPosition(const VectorDimD& p) const
