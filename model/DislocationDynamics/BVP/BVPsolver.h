@@ -475,6 +475,13 @@ namespace model
 //#endif
         
         
+
+        /**********************************************************************/
+        Eigen::Matrix<double,dim,1> displacement(const Eigen::Matrix<double,dim,1> P,
+                                             const Simplex<dim,dim>* guess) const
+        {
+            return (*u)(P,guess);
+        }
         
         /**********************************************************************/
         Eigen::Matrix<double,dim,dim> stress(const Eigen::Matrix<double,dim,1> P,
