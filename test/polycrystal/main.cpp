@@ -53,16 +53,25 @@ int main(int argc, char** argv)
     C2G1.row(1)<<0.0,1.0,0.0;
     C2G1.row(2)<<(Eigen::Matrix<double,1,3>()<<3.0,0.0,-1.0).finished().normalized();
     C2G1.row(0)<<C2G1.row(1).cross(C2G1.row(2));
+    std::cout<<C2G1<<std::endl;
     poly.grain(1).rotate(C2G1);
 
     Eigen::Matrix<double,3,3> C2G2;
     C2G2.row(1)<<0.0,1.0,0.0;
     C2G2.row(2)<<(Eigen::Matrix<double,1,3>()<<-3.0,0.0,-1.0).finished().normalized();
     C2G2.row(0)<<C2G2.row(1).cross(C2G2.row(2));
+        std::cout<<C2G2<<std::endl;
     poly.grain(2).rotate(C2G2);
 
     
-//    poly.grain(1).setLatticeBasis(C2G*A);
+    poly.grainBoundary(1,2).createLatticePlanes();
+    
+    Eigen::Matrix<double,3,1> p;
+    p<<0,11,10;
+    
+    std::cout<<poly.grainBoundary(1,2).latticePlane(1).snapToLattice(p)<<std::endl;
+    std::cout<<poly.grainBoundary(1,2).latticePlane(2).snapToLattice(p)<<std::endl;
+
     
 //    
 //    Eigen::Matrix<double,3,3> C2G2;

@@ -41,6 +41,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
+        typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         
         typedef std::vector<LatticePlaneBase> PlaneNormalContainerType;
 
@@ -250,12 +251,12 @@ namespace model
 //        }
         
         /**********************************************************************/
-        VectorDimI reciprocalLatticeDirection(const VectorDimD& d) const
+        ReciprocalLatticeDirectionType reciprocalLatticeDirection(const VectorDimD& d) const
         {
             bool found=false;
             VectorDimD rdk(VectorDimD::Zero());
             
-            const VectorDimD nd(_covBasis.tranpose()*d);
+            const VectorDimD nd(_covBasis.transpose()*d);
             
             
             for(int k=0;k<dim;++k)
@@ -270,7 +271,7 @@ namespace model
                 
             }
             assert(found && "Input vector is not on a lattice direction");
-            return rdk.template cast<long int>();
+            return ReciprocalLatticeVectorType(rdk.template cast<long int>(),_covBasis,_contraBasis);
         }
         
         /**********************************************************************/
@@ -297,6 +298,12 @@ namespace model
         {
             std::cout<<"Grain "<<region.regionID<<" creating ReciprocalLatticeVector"<<std::endl;
             return ReciprocalLatticeVectorType(p,_covBasis,_contraBasis);
+        }
+        
+        /**********************************************************************/
+        const MatrixDimD& get_C2G() const
+        {
+            return C2G;
         }
         
     };

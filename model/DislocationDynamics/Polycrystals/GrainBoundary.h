@@ -23,16 +23,55 @@ namespace model
     
     
     template <int dim>
-    class GrainBoundary : std::map<int,LatticePlaneBase>
+    class GrainBoundary : private std::map<int,LatticePlaneBase>
     {
         
         typedef MeshRegionBoundary<Simplex<dim,dim-1> > MeshRegionBoundaryType;
 
+        typedef Eigen::Matrix<long int,dim,1> VectorDimI;
+        
+        typedef Eigen::Matrix<  double,dim,1> VectorDimD;
+        typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
+        typedef LatticeVector<dim> LatticeVectorType;
+        typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
+        typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
 
-//        typedef Eigen::Matrix<  double,dim,1> VectorDimD;
+        //        typedef Eigen::Matrix<  double,dim,1> VectorDimD;
 //        typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
         
         
+        void storeLatticePlane(const Grain<dim>& grain,
+                               const VectorDimD& normal)
+        {
+            
+            ReciprocalLatticeDirectionType R=grain.reciprocalLatticeDirection(normal);
+            
+            model::cout<<"Grain boundary for grain"<< grain.grainID<<" is "<<R.transpose()<<std::endl;
+            model::cout<<"Cartesian Grain boundary for grain"<< grain.grainID<<" is "<<R.cartesian().transpose()<<std::endl;
+
+            VectorDimD v1;
+            VectorDimD v2;
+            if(grain.grainID==1)
+            {
+                v1<<-1.0,0.0,-3.0;
+                v2<< 0.0,1.0, 0.0;
+            }
+            else
+            {
+                v1<<-1.0,0.0, 3.0;
+                v2<< 0.0,1.0, 0.0;
+            }
+            v1=grain.get_C2G()*v1*sqrt(2.0);
+            v2=grain.get_C2G()*v2*sqrt(2.0);
+            
+            this->emplace(std::piecewise_construct,
+             std::forward_as_tuple(grain.grainID),
+             std::forward_as_tuple(LatticeVectorType(v1,grain.covBasis(),grain.contraBasis()),
+                                   LatticeVectorType(v2,grain.covBasis(),grain.contraBasis())
+                                   )
+                          );
+            
+        }
 
         
     public:
@@ -62,11 +101,19 @@ namespace model
         {
             this->clear();
             
-//            this->emplace(grainFirst.region.regionID,...);
-//            
-//            this->emplace(grainSecond.region.regionID,...);
+            const MatrixDimD vertexMatrix=(*regionBoundary.begin())->vertexPositionMatrix();
+            const VectorDimD normal((vertexMatrix.col(1)-vertexMatrix.col(0)).cross(vertexMatrix.col(2)-vertexMatrix.col(0)));
             
+            std::cout<<"cartesian BG normal="<<normal.transpose()<<std::endl;
             
+            storeLatticePlane(grainFirst,normal);
+            storeLatticePlane(grainSecond,normal);
+            
+        }
+        
+        const LatticePlaneBase& latticePlane(const int& k) const
+        {
+            return this->at(k);
         }
         
     };

@@ -119,6 +119,14 @@ namespace model
         }
         
         /**********************************************************************/
+        GrainBoundary<dim>& grainBoundary(const size_t& i,
+                                                const size_t& j)
+        {
+            assert(i!=j && "GrainBoundary IDs cannot be the same.");
+            return (i<j)? grainBoundaries().at(std::make_pair(1,2)) : grainBoundaries().at(std::make_pair(2,1));
+        }
+        
+        /**********************************************************************/
         LatticeVectorType latticeVectorFromPosition(const VectorDimD& p,
                                                     const Simplex<dim,dim>* const guess) const
         {
