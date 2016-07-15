@@ -67,7 +67,7 @@ int main(int argc, char** argv)
     poly.grainBoundary(1,2).createLatticePlanes();
     
     Eigen::Matrix<double,3,1> p;
-    p<<0,11,10;
+    p<<25.78,11,110.6;
     
     std::cout<<poly.grainBoundary(1,2).latticePlane(1).snapToLattice(p)<<std::endl;
     std::cout<<poly.grainBoundary(1,2).latticePlane(2).snapToLattice(p)<<std::endl;
