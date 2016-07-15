@@ -46,8 +46,8 @@ namespace model
             ReciprocalLatticeDirectionType R=grain.reciprocalLatticeDirection(normal);
             
             model::cout<<"Grain boundary for grain"<< grain.grainID<<" is "<<R.transpose()<<std::endl;
-//            model::cout<<"Cartesian Grain boundary for grain"<< grain.grainID<<" is "<<R.cartesian().transpose()<<std::endl;
-
+            //            model::cout<<"Cartesian Grain boundary for grain"<< grain.grainID<<" is "<<R.cartesian().transpose()<<std::endl;
+            
             VectorDimD v1;
             VectorDimD v2;
             if(grain.grainID==1)
@@ -64,14 +64,14 @@ namespace model
             v2=grain.get_C2G()*v2*sqrt(2.0);
             
             LatticePlaneContainerType::emplace(std::piecewise_construct,
-             std::forward_as_tuple(grain.grainID),
-             std::forward_as_tuple(LatticeVectorType(v1,grain.covBasis(),grain.contraBasis()),
-                                   LatticeVectorType(v2,grain.covBasis(),grain.contraBasis())
-                                   )
-                          );
+                                               std::forward_as_tuple(grain.grainID),
+                                               std::forward_as_tuple(LatticeVectorType(v1,grain.covBasis(),grain.contraBasis()),
+                                                                     LatticeVectorType(v2,grain.covBasis(),grain.contraBasis())
+                                                                     )
+                                               );
             
         }
-
+        
         
     public:
         
@@ -87,7 +87,7 @@ namespace model
             model::cout<<"Creating GrainBoundary ("<<regionBoundary.regionBndID.first<<" "<<regionBoundary.regionBndID.second<<")"<<std::endl;
             GrainContainerType::emplace(grainFirst.grainID,&grainFirst);
             GrainContainerType::emplace(grainSecond.grainID,&grainSecond);
-
+            
         }
         
         /**********************************************************************/
@@ -124,12 +124,12 @@ namespace model
                 const size_t faceID=tet->childOrder(triangle.xID);
                 const VectorDimD outNormal=tet->nda.col(faceID);
                 storeLatticePlane(grain(tet->region->regionID),outNormal);
-
+                
             }
-
+            
         }
         
-
+        
         
     };
     

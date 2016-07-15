@@ -9,6 +9,9 @@
 #ifndef model_Polycrystal_H_
 #define model_Polycrystal_H_
 
+#include <string>       // std::string
+#include <iostream>     // std::cout
+#include <sstream>
 #include <utility>
 #include <tuple>
 #include <map>
@@ -19,7 +22,7 @@
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/LatticeMath/LatticeVector.h>
 #include <model/DislocationDynamics/Materials/PeriodicElement.h>
-
+#include <model/Utilities/EigenDataReader.h>
 
 namespace model
 {
@@ -61,17 +64,29 @@ namespace model
                 //model::cout<<"mesh region "<<rIter.second->regionID<<" contains "<<rIter.second->size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
             }
             
-//            for(const auto& gb : grainBoundaries())
-//            {
-//                std::cout<<"("<<gb.first.first<<","<<gb.first.second<<")"
-//                <<"["<<gb.second.regionBoundary.regionBndID.first<<","<<gb.second.regionBoundary.regionBndID.second<<"] "
-//                <<gb.second.regionBoundary.size()<<std::endl;
-//            }
-            
-//            m.emplace(std::piecewise_construct,
-//                      std::forward_as_tuple("c"),
-//                      std::forward_as_tuple(10, 'c'));
-            
+        }
+        
+        /**********************************************************************/
+        void read(const std::string& fullName)
+        {
+            EigenDataReader EDR;
+            for(auto& gr : grains())
+            {
+                Eigen::Matrix<double,dim,dim> C2Gtemp(Eigen::Matrix<double,dim,dim>::Identity());
+                EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
+                gr.second.rotate(C2Gtemp);
+            }
+
+            createLatticePlanes();
+        }
+        
+        /**********************************************************************/
+        void createLatticePlanes()
+        {
+            for(auto& gb : grainBoundaries())
+            {
+                gb.second.createLatticePlanes();
+            }
         }
         
         /**********************************************************************/
