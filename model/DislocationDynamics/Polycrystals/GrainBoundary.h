@@ -118,15 +118,15 @@ namespace model
         void createLatticePlanes()
         {
             LatticePlaneContainerType::clear();
-            
-            const MatrixDimD vertexMatrix=(*regionBoundary.begin())->vertexPositionMatrix();
-            const VectorDimD normal((vertexMatrix.col(1)-vertexMatrix.col(0)).cross(vertexMatrix.col(2)-vertexMatrix.col(0)));
-            
-            std::cout<<"cartesian BG normal="<<normal.transpose()<<std::endl;
-            for (const auto& gr : grains())
+            const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
+            for(const auto& tet : triangle.parents())
             {
-                storeLatticePlane(*gr.second,normal);
+                const size_t faceID=tet->childOrder(triangle.xID);
+                const VectorDimD outNormal=tet->nda.col(faceID);
+                storeLatticePlane(grain(tet->region->regionID),outNormal);
+
             }
+
         }
         
 
