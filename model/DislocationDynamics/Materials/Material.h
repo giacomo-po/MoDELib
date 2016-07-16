@@ -12,7 +12,7 @@
 
 #include <cmath>
 #include <model/DislocationDynamics/Materials/PeriodicElement.h>
-#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
+//#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/Utilities/TerminalColors.h> // defines mode::cout
 
@@ -150,38 +150,38 @@ namespace model
             
         }
         
-        /**********************************************************************/
-        template <int dim>
-        static void rotateCrystal(const Eigen::Matrix<double,dim,dim>& C2G)
-        {/*!\param[in] C2G the crystal-to-global rotation matrix
-          *
-          * Rotates the default plane normals in
-          * PeriodicElement<Z,Isotropic>::CrystalStructure, where Z is the current
-          * selected material.
-          */
-            
-            switch (selectedMaterial)
-            {
-                case Al.Z:
-                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Al.Z,Isotropic>::CrystalStructure>(C2G);
-                    break;
-                case Ni.Z:
-                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Ni.Z,Isotropic>::CrystalStructure>(C2G);
-                    break;
-                case Cu.Z:
-                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Cu.Z,Isotropic>::CrystalStructure>(C2G);
-                    break;
-                case W.Z:
-                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<W.Z,Isotropic>::CrystalStructure>(C2G);
-                    break;
-                    //                case Fe:
-                    //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
-                    //                    break;
-                default:
-                    assert(0 && "Material not implemented.");
-                    break;
-            }
-        }
+//        /**********************************************************************/
+//        template <int dim>
+//        static void rotateCrystal(const Eigen::Matrix<double,dim,dim>& C2G)
+//        {/*!\param[in] C2G the crystal-to-global rotation matrix
+//          *
+//          * Rotates the default plane normals in
+//          * PeriodicElement<Z,Isotropic>::CrystalStructure, where Z is the current
+//          * selected material.
+//          */
+//            
+//            switch (selectedMaterial)
+//            {
+//                case Al.Z:
+//                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Al.Z,Isotropic>::CrystalStructure>(C2G);
+//                    break;
+//                case Ni.Z:
+//                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Ni.Z,Isotropic>::CrystalStructure>(C2G);
+//                    break;
+//                case Cu.Z:
+//                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Cu.Z,Isotropic>::CrystalStructure>(C2G);
+//                    break;
+//                case W.Z:
+//                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<W.Z,Isotropic>::CrystalStructure>(C2G);
+//                    break;
+//                    //                case Fe:
+//                    //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
+//                    //                    break;
+//                default:
+//                    assert(0 && "Material not implemented.");
+//                    break;
+//            }
+//        }
 
         /**********************************************************************/
         static double velocity(const Eigen::Matrix<double,3,3>& S,

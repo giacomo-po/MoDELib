@@ -63,10 +63,10 @@ namespace model
         /*            */ >  SimplexMapType;
         
         typedef VertexReader<'T',dim+3,size_t> ElementReaderType;
-
+        
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
-
+        
         typedef MeshRegionBoundary<Simplex<dim,dim-1>> MeshRegionBoundaryType;
         typedef std::pair<size_t,size_t> MeshRegionIDType;
         typedef std::map<MeshRegionIDType,MeshRegionBoundaryType> MeshRegionBoundaryContainerType;
@@ -110,8 +110,8 @@ namespace model
             SimplexReader<dim>::nodeReader.read(meshID,true);
             
             simplices().clear();
-
-//            VertexReader<'T',dim+2,size_t> elementReader;
+            
+            //            VertexReader<'T',dim+2,size_t> elementReader;
             ElementReaderType elementReader; // exaple in 3d: [elementID v1 v2 v3 v4 regionID]
             const bool success=elementReader.read(meshID,true);
             
@@ -120,19 +120,19 @@ namespace model
             if (success)
             {
                 const auto t0= std::chrono::system_clock::now();
-
+                
                 model::cout<<"Creating mesh..."<<std::flush;
                 for (typename ElementReaderType::const_iterator eIter =elementReader.begin();
                      /*                                       */ eIter!=elementReader.end();++eIter)
                 {
-//                    insertSimplex(eIter->second);
+                    //                    insertSimplex(eIter->second);
                     insertSimplex(eIter->second.template segment<dim+1>(0),eIter->second(dim+1));
                     
                     //                    binFile.write(std::make_pair(eIter->first,eIter->second));
                     
                 }
                 model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
-
+                
                 MeshStats<dim,dim>::stats();
                 SimplexReader<dim>::nodeReader.clear();
                 
@@ -165,7 +165,7 @@ namespace model
             }
             else
             {
-//                assert(0);
+                //                assert(0);
                 model::cout<<"Cannot read mesh file T/T_"<<meshID<<".txt . Mesh is empty."<<std::endl;
             }
             
@@ -190,12 +190,12 @@ namespace model
                 }
             }
             
-
+            
             
             
             model::cout<<"mesh xMin="<<_xMin.transpose()<<std::endl;
             model::cout<<"mesh xMax="<<_xMax.transpose()<<std::endl;
-//            model::cout<<"mesh volume="<<volume()<<std::endl;
+            //            model::cout<<"mesh volume="<<volume()<<std::endl;
             
             for(auto rIter : MeshRegionObserverType::regions())
             {
@@ -205,7 +205,7 @@ namespace model
             std::cout<<"Mesh contains "<<regionBoundaries().size()<<" mesh region boundaries"<<std::endl;
             for(const auto& rgnBnd : regionBoundaries())
             {
-                std::cout<<"    RegionBoundary ("<<rgnBnd.second.regionBndID.first<<","<<rgnBnd.second.regionBndID.second<<") contains "<<rgnBnd.second.size()<<" triangles"<<std::endl;
+                std::cout<<"    RegionBoundary ("<<rgnBnd.second.regionBndID.first<<","<<rgnBnd.second.regionBndID.second<<") contains "<<rgnBnd.second.size()<<" Simplex<"<<dim<<","<<dim-1<<">"<<std::endl;
             }
             
         }
@@ -218,10 +218,10 @@ namespace model
           */
             const typename SimplexTraits<dim,dim>::SimplexIDType xID(SimplexTraits<dim,dim>::sortID(xIN));
             const auto pair=simplices().emplace(std::piecewise_construct,
-                                             std::make_tuple(xID),
-                                             std::make_tuple(xID, regionID)
-                                             );
-
+                                                std::make_tuple(xID),
+                                                std::make_tuple(xID, regionID)
+                                                );
+            
             assert(pair.second);
             vol0+=pair.first->second.vol0;
         }
@@ -238,70 +238,6 @@ namespace model
           */
             return searchWithGuess(P,&(simplices().begin()->second));
         }
-
-        /**********************************************************************/
-        std::pair<bool,const Simplex<dim,dim>*> searchWithGuess(const Eigen::Matrix<double,dim,1>& P,
-                                                                const Simplex<dim,dim>* const guess,
-                                                                std::set<const Simplex<dim,dim>*>& searchSet) const
-        {/*!@param[in] P position to search for
-          * @param[in] guess Simplex* where the search starts
-          *\returns a pair, where:
-          * -pair.first is a boolean indicating whether the
-          * search succesfully found a Simplex<dim,dim> which includes P.
-          * -pair.second is a pointer to the last Simplex<dim,dim> searched.
-          */
-
-            searchSet.clear();
-            std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,NULL);
-            guess->convexDelaunaynSearch(P,lastSearched,searchSet);
-            
-            if(!(lastSearched.first || lastSearched.second->isBoundarySimplex()))
-            {
-                std::cout<<"P="<<std::setprecision(15)<<std::scientific<<P.transpose()<<std::endl;
-                std::cout<<"guess="<<guess->xID<<std::endl;
-                std::cout<<"lastSearched="<<lastSearched.second->xID<<std::endl;
-                assert(0 && "SEARCH DID NOT END ON BOUNDARY SIMPLEX");
-            }
-            
-            if(!lastSearched.first) // search not successful. Force search neighbors of last searched Simplex
-            {
-                const std::pair<bool,const Simplex<dim,dim>*> temp(lastSearched);
-                const Eigen::Matrix<double,dim+1,1> bary=temp.second->pos2bary(P);
-                for(int k=0;k<dim+1;++k)
-                {
-//                    if(bary(k)<=0.0)
-                    if(bary(k)<=FLT_EPSILON)
-                    {
-                        for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=temp.second->child(k).parentBegin();
-                            /*                                                            */ pIter!=temp.second->child(k).parentEnd();++pIter)
-                        {
-                            (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
-                            if (lastSearched.first)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                    
-                }
-                
-                if(!lastSearched.first && !lastSearched.second->isBoundarySimplex())
-                {
-                    lastSearched=temp;
-                }
-                
-            }
-            
-            if(!(lastSearched.first || lastSearched.second->isBoundarySimplex()))
-            {
-                std::cout<<"P="<<std::setprecision(15)<<std::scientific<<P.transpose()<<std::endl;
-                std::cout<<"guess="<<guess->xID<<std::endl;
-                std::cout<<"lastSearched="<<lastSearched.second->xID<<std::endl;
-                assert(0 && "SEARCH DID NOT END ON BOUNDARY SIMPLEX");
-            }
-
-            return lastSearched;
-        }
         
         /**********************************************************************/
         std::pair<bool,const Simplex<dim,dim>*> searchWithGuess(const Eigen::Matrix<double,dim,1>& P,
@@ -313,9 +249,131 @@ namespace model
           * search succesfully found a Simplex<dim,dim> which includes P.
           * -pair.second is a pointer to the last Simplex<dim,dim> searched.
           */
-
+            
             std::set<const Simplex<dim,dim>*> searchSet;
-            return searchWithGuess(P,guess,searchSet);
+            return searchWithGuess(true,P,guess,searchSet);
+        }
+        
+        /**********************************************************************/
+        std::pair<bool,const Simplex<dim,dim>*> searchRegion(const int& regionID,
+                                                             const Eigen::Matrix<double,dim,1>& P) const
+        {/*!@param[in] P position to search for
+          *\returns a pair, where:
+          * -pair.first is a boolean indicating whether the
+          * search succesfully found a Simplex<dim,dim> which includes P.
+          * -pair.second is a pointer to the last Simplex<dim,dim> searched.
+          *
+          * By default the search starts at this->begin()->second
+          */
+            return searchRegionWithGuess(P,*MeshRegionObserverType::getRegion(regionID)->begin());
+        }
+        
+        /**********************************************************************/
+        std::pair<bool,const Simplex<dim,dim>*> searchRegionWithGuess(const Eigen::Matrix<double,dim,1>& P,
+                                                                      const Simplex<dim,dim>* const guess) const
+        {/*!@param[in] P position to search for
+          * @param[in] guess Simplex* where the search starts
+          *\returns a pair, where:
+          * -pair.first is a boolean indicating whether the
+          * search succesfully found a Simplex<dim,dim> which includes P.
+          * -pair.second is a pointer to the last Simplex<dim,dim> searched.
+          */
+            std::set<const Simplex<dim,dim>*> searchSet;
+            return searchWithGuess(false,P,guess,searchSet);
+        }
+        
+        /**********************************************************************/
+        std::pair<bool,const Simplex<dim,dim>*> searchWithGuess(const bool& searchAllRegions,
+                                                                const Eigen::Matrix<double,dim,1>& P,
+                                                                const Simplex<dim,dim>* const guess,
+                                                                std::set<const Simplex<dim,dim>*>& searchSet) const
+        {/*!@param[in] P position to search for
+          * @param[in] guess Simplex* where the search starts
+          *\returns a pair, where:
+          * -pair.first is a boolean indicating whether the
+          * search succesfully found a Simplex<dim,dim> which includes P.
+          * -pair.second is a pointer to the last Simplex<dim,dim> searched.
+          */
+            
+            searchSet.clear();
+            std::pair<bool,const Simplex<dim,dim>*> lastSearched(false,NULL);
+            guess->convexDelaunaynSearch(searchAllRegions,P,lastSearched,searchSet);
+            checkSearch(searchAllRegions,P,guess,lastSearched);
+            
+            if(!lastSearched.first)
+            {// if search was not successful, try to search neighbors of last searched Simplex
+                const std::pair<bool,const Simplex<dim,dim>*> temp(lastSearched);
+                const Eigen::Matrix<double,dim+1,1> bary=temp.second->pos2bary(P);
+                for(int k=0;k<dim+1;++k)
+                {
+                    //                    if(bary(k)<=0.0)
+                    if(bary(k)<=FLT_EPSILON)
+                    {
+                        for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=temp.second->child(k).parentBegin();
+                            /*                                                            */ pIter!=temp.second->child(k).parentEnd();++pIter)
+                        {
+                            if((*pIter)->region->regionID==temp.second->region->regionID || searchAllRegions)
+                            {
+                                (*pIter)->convexDelaunaynSearch(searchAllRegions,P,lastSearched,searchSet);
+                                if (lastSearched.first)
+                                {
+                                    break;
+                                }
+                            }
+                            
+                        }
+                    }
+                    
+                }
+                
+                if(searchAllRegions)
+                {// if search is still unsuccessful, reset lastSearched to temp
+                    if(!lastSearched.first && !lastSearched.second->isBoundarySimplex())
+                    {
+                        lastSearched=temp;
+                    }
+                }
+                else
+                {// if search is still unsuccessful, reset lastSearched to temp
+                    if(!lastSearched.first && !lastSearched.second->isBoundarySimplex() && !lastSearched.second->isRegionBoundarySimplex())
+                    {
+                        lastSearched=temp;
+                    }
+                }
+                
+            }
+            
+            checkSearch(searchAllRegions,P,guess,lastSearched);
+            
+            return lastSearched;
+        }
+        
+        /**********************************************************************/
+        void checkSearch(const bool& searchAllRegions,
+                         const Eigen::Matrix<double,dim,1>& P,
+                         const Simplex<dim,dim>* const guess,
+                         const std::pair<bool,const Simplex<dim,dim>*>& lastSearched) const
+        {
+            if(searchAllRegions)
+            {// Check that search was successful, or that it ended on a boundary (point outside)
+                if(!(lastSearched.first || lastSearched.second->isBoundarySimplex()))
+                {
+                    std::cout<<"P="<<std::setprecision(15)<<std::scientific<<P.transpose()<<std::endl;
+                    std::cout<<"guess="<<guess->xID<<std::endl;
+                    std::cout<<"lastSearched="<<lastSearched.second->xID<<std::endl;
+                    assert(0 && "SEARCH DID NOT END ON BOUNDARY SIMPLEX");
+                }
+            }
+            else
+            {// Check that search was successful, or that it ended on a boundary or region-boundary
+                if(!(lastSearched.first || lastSearched.second->isBoundarySimplex() || lastSearched.second->isRegionBoundarySimplex()))
+                {
+                    std::cout<<"P="<<std::setprecision(15)<<std::scientific<<P.transpose()<<std::endl;
+                    std::cout<<"guess="<<guess->xID<<std::endl;
+                    std::cout<<"lastSearched="<<lastSearched.second->xID<<std::endl;
+                    assert(0 && "SEARCH DID NOT END ON BOUNDARY/REGION-BOUNDARY SIMPLEX");
+                }
+            }
         }
         
         /**********************************************************************/
@@ -377,7 +435,7 @@ namespace model
         {
             return _xMax(k);
         }
-
+        
         /**********************************************************************/
         const double& volume() const
         {

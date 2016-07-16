@@ -29,7 +29,7 @@
 #include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/Geometry/Splines/SplineSegmentBase.h>
 #include <model/DislocationDynamics/Materials/Material.h>
-#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
+//#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
 
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>

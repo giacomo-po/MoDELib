@@ -30,14 +30,13 @@ int main(int argc, char** argv)
         meshID=atoi(argv[1]);
     }
 
-
     // Create a 3d-SimplicialMesh object
     SimplicialMesh<3> mesh;
     // Read the mesh files ./T/T_meshID.txt and ./N/N_meshID.txt
     mesh.readMesh(meshID);
     
     Polycrystal<3> poly(mesh);
-    poly.read("./DDinput.txt");
+    poly.init("./DDinput.txt");
 
     poly.grain(1).selectMaterial(29);
     poly.grain(2).selectMaterial(13);
@@ -62,7 +61,7 @@ int main(int argc, char** argv)
     p<<25.78,11,110.6;
     
     std::cout<<poly.grainBoundary(1,2).latticePlane(1).snapToLattice(p)<<std::endl;
-    std::cout<<poly.grainBoundary(1,2).latticePlane(2).snapToLattice(p)<<std::endl;
+    std::cout<<poly.grainBoundary(2,1).latticePlane(2).snapToLattice(p)<<std::endl;
 
     
 

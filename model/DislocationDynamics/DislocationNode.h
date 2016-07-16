@@ -31,6 +31,7 @@
 #include <model/LatticeMath/LatticeMath.h>
 #include <model/LatticeMath/LineMeshIntersection.h>
 #include <model/DislocationDynamics/SimplexBndNormal.h>
+#include <model/DislocationDynamics/Polycrystals/Grain.h>
 
 namespace model
 {
@@ -76,6 +77,8 @@ namespace model
         
         DislocationSharedObjects<dim> shared;
         
+        const Grain<dim>& grain;
+        
         LatticeVectorType L;
         
         //! A pointer to the Simplex containing *this
@@ -100,20 +103,29 @@ namespace model
         //! The normal to the region boundary
         //        std::auto_ptr<LatticePlane> regionBndPlane;
         
+//        /**********************************************************************/
+//        const Grain<dim>& get_includingGrain(const VectorDim& Pin,const int& grainID) const
+//        {
+//        searchRegion
+//        }
+        
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
             if (DislocationSharedObjects<dim>::use_boundary)
             {
-                if (guess==NULL)
-                {
-                    temp=DislocationSharedObjects<dim>::mesh.search(this->get_P());
-                }
-                else
-                {
-                    temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
-                }
+//                if (guess==NULL)
+//                {
+//                    temp=DislocationSharedObjects<dim>::mesh.search(this->get_P());
+//                }
+//                else
+//                {
+//                    temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
+//                }
+                
+                temp=DislocationSharedObjects<dim>::mesh.searchRegionWithGuess(this->get_P(),guess);
+
                 
                 if(!temp.first) // DislocationNode not found inside mesh
                 {
@@ -128,6 +140,7 @@ namespace model
                         model::cout<<"bary "<<temp.second->pos2bary(this->get_P())<<std::endl;
                         model::cout<<"face of barymin is "<<temp.second->child(faceID).xID<<std::endl;
                         model::cout<<"face of barymin is boundary Simplex? "<<temp.second->child(faceID).isBoundarySimplex()<<std::endl;
+                        model::cout<<"face of barymin is region-boundary Simplex? "<<temp.second->child(faceID).isRegionBoundarySimplex()<<std::endl;
                         assert(0 && "DISLOCATION NODE CREATED OUTSIDE MESH.");
                     }
                 }
@@ -256,11 +269,13 @@ namespace model
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         /**********************************************************************/
-        DislocationNode(const LatticeVectorType& Lin,
-                        const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
-        /* base constructor */ NodeBaseType(Lin.cartesian()),
-        /* init list        */ L(Lin),
-        /* init list        */ p_Simplex(get_includingSimplex(guess)),
+        DislocationNode(const VectorDim& Pin,
+                        const int& grainID) :
+//                        const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
+                        /* base constructor */ NodeBaseType(Pin),
+        /* init list        */ grain(shared.poly.grain(grainID)),
+        /* init list        */ L(grain.latticeVectorFromPosition(Pin)),
+        /* init list        */ p_Simplex(get_includingSimplex(*grain.region->begin())),
         /* init list        */ velocity(VectorDofType::Zero()),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
@@ -270,10 +285,27 @@ namespace model
           */
         }
         
+//        /**********************************************************************/
+//        DislocationNode(const LatticeVectorType& Lin,
+//                        const int& grainID,
+//                        const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
+//        /* base constructor */ NodeBaseType(Lin.cartesian()),
+//        /* init list        */ L(Lin),
+//        /* init list        */ p_Simplex(get_includingSimplex(guess)),
+//        /* init list        */ velocity(VectorDofType::Zero()),
+//        /* init list        */ vOld(velocity),
+//        /* init list        */ velocityReductionCoeff(1.0),
+//        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
+//        //        /* init list        */ regionBndNormal(VectorDim::Zero())
+//        {/*! Constructor from DOF
+//          */
+//        }
+        
         /**********************************************************************/
         DislocationNode(const ExpandingEdge<LinkType>& pL,
                         const LatticeVectorType& Lin) :
         /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
+        /* init list        */ grain(pL.E.grain),
         /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity((pL.E.source->velocity+pL.E.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
@@ -292,6 +324,7 @@ namespace model
                         const LatticeVectorType& Lin,
                         const VectorDofType& Vin) :
         /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
+        /* init list        */ grain(pL.E.grain),
         /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.E.source->includingSimplex())),
         /* init list        */ velocity(Vin),
@@ -308,6 +341,7 @@ namespace model
         DislocationNode(const ContractingVertices<NodeType,LinkType>& cv,
                         const LatticeVectorType& Lin) :
         /* base constructor */ NodeBaseType(Lin.cartesian()),
+        /* init list        */ grain(cv.v0.grain),
         /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(cv.v0.includingSimplex())),
         /* init list        */ velocity(0.5*(cv.v0.get_V()+cv.v1.get_V())),
@@ -377,7 +411,7 @@ namespace model
             
             if (!this->is_balanced())
             {
-                for(const auto& planeBase : CrystalOrientation<dim>::planeNormals())
+                for(const auto& planeBase : grain.planeNormals())
                 {
                     specialConfiningPlanes.emplace_back(L,planeBase);
                 }

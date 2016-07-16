@@ -14,6 +14,7 @@ int main(int argc, char * argv[])
     Eigen::Matrix<double,2,1> P2(Eigen::Matrix<double,2,1>::Zero());
     
     int meshID(0);
+    int regionID(-1);
     
     if (argc>1)
     {
@@ -25,11 +26,32 @@ int main(int argc, char * argv[])
         P2<<atof(argv[2]),atof(argv[3]);
     }
     
+    if (argc>4)
+    {
+        regionID=atoi(argv[4]);
+        std::cout<<"regionID="<<regionID<<std::endl;
+    }
+    
     SimplicialMesh<2> mesh2;
     mesh2.readMesh(meshID);
     
     searchFile<<P2.transpose()<<" "<<Eigen::Matrix<double,1,3>::Zero()<<"\n";    //    auto p=mesh2.search(P2);
-    auto p=mesh2.searchWithGuess(P2,&(mesh2.rbegin()->second));
+    
+    std::cout<<"I'm here"<<std::endl;
+    
+    std::pair<bool,const Simplex<2,2>*> p;
+    if(regionID==-1)
+    {
+            std::cout<<"I'm here2"<<std::endl;
+        p=mesh2.search(P2);
+            std::cout<<"I'm here3"<<std::endl;
+    }
+    else
+    {
+            std::cout<<"I'm here4"<<std::endl;
+        p=mesh2.searchRegion(regionID,P2);
+    std::cout<<"I'm here5"<<std::endl;
+    }
     
     std::cout<<"Found? "<<p.first<<std::endl;
     if(!p.first)
@@ -49,7 +71,10 @@ int main(int argc, char * argv[])
     for (typename SimplexObserver<2,2>::const_iterator sIter=SimplexObserver<2,2>::simplexBegin();
          sIter!=SimplexObserver<2,2>::simplexEnd();++sIter)
     {
-        pFile<<sIter->second->vertexPositionMatrix()<<"\n";
+        Eigen::Matrix<double,2,4> outMatrix(Eigen::Matrix<double,2,4>::Zero());
+        outMatrix.block<2,3>(0,0)=sIter->second->vertexPositionMatrix();
+        outMatrix.col(3)=Eigen::Matrix<double,2,1>::Constant(sIter->second->region->regionID);
+        pFile<<outMatrix<<"\n";
     }
     
     return 0;

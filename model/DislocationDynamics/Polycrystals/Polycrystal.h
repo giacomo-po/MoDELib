@@ -31,8 +31,8 @@ namespace model
     
     template <int dim>
     struct Polycrystal :
-    /* base */ public std::map<size_t,Grain<dim>>,
-    /* base */ public std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>
+    /* base */ private std::map<size_t,Grain<dim>>,
+    /* base */ private std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>
     {
         
         typedef SimplicialMesh<dim> SimplicialMeshType;
@@ -50,10 +50,17 @@ namespace model
         mesh(mesh_in)
         {
             model::cout<<"Creating Polycrystal"<<std::endl;
+
+            
+        }
+        
+        /**********************************************************************/
+        void init(const std::string& fullName)
+        {
+            
             for(const auto& rIter : MeshRegionObserverType::regions())
             {
                 grains().emplace(rIter.second->regionID,*(rIter.second));
-                //model::cout<<"mesh region "<<rIter.second->regionID<<" contains "<<rIter.second->size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
             }
             
             for(const auto& rgnBnd : mesh.regionBoundaries())
@@ -64,11 +71,6 @@ namespace model
                 //model::cout<<"mesh region "<<rIter.second->regionID<<" contains "<<rIter.second->size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
             }
             
-        }
-        
-        /**********************************************************************/
-        void read(const std::string& fullName)
-        {
             EigenDataReader EDR;
             for(auto& gr : grains())
             {
@@ -130,7 +132,7 @@ namespace model
                                                 const size_t& j) const
         {
             assert(i!=j && "GrainBoundary IDs cannot be the same.");
-            return (i<j)? grainBoundaries().at(std::make_pair(1,2)) : grainBoundaries().at(std::make_pair(2,1));
+            return (i<j)? grainBoundaries().at(std::make_pair(i,j)) : grainBoundaries().at(std::make_pair(j,i));
         }
         
         /**********************************************************************/
@@ -138,7 +140,7 @@ namespace model
                                                 const size_t& j)
         {
             assert(i!=j && "GrainBoundary IDs cannot be the same.");
-            return (i<j)? grainBoundaries().at(std::make_pair(1,2)) : grainBoundaries().at(std::make_pair(2,1));
+            return (i<j)? grainBoundaries().at(std::make_pair(i,j)) : grainBoundaries().at(std::make_pair(j,i));
         }
         
         /**********************************************************************/

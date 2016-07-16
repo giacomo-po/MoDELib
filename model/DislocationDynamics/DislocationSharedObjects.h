@@ -9,6 +9,8 @@
 #ifndef model_DISLCATIONSHAREDOBJECTS_H_
 #define model_DISLCATIONSHAREDOBJECTS_H_
 
+#include <memory> // unique_ptr
+
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationConsts.h>
@@ -18,6 +20,8 @@
 
 #include <model/Mesh/SimplicialMesh.h> // defines model::cout
 #include <model/DislocationDynamics/BVP/BVPsolver.h>
+#include <model/DislocationDynamics/Polycrystals/Polycrystal.h>
+
 
 namespace model
 {
@@ -43,7 +47,7 @@ namespace model
          * order of destruction of the static mesh and the static map in SimplexObserver.
          */
         
-        
+        static Polycrystal<dim> poly;
         
 //        static BoundaryDislocationNetwork<TypeTraits<LinkType>::dim> bdn;
         
@@ -71,6 +75,9 @@ namespace model
 
     template <int dim>
 	SimplicialMesh<dim> DislocationSharedObjects<dim>::mesh;
+    
+    template <int dim>
+    Polycrystal<dim> DislocationSharedObjects<dim>::poly(mesh);
     
     template <int dim>
 	BVPsolver<dim,2> DislocationSharedObjects<dim>::bvpSolver(DislocationSharedObjects<dim>::mesh);

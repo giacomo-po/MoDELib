@@ -45,13 +45,22 @@ namespace model
 //            assert(&P.contraBasis==&d.contraBasis && "LatticeVectors have different bases.");
 //        }
         
+//        /**********************************************************************/
+//        VectorDimD snapToLattice(const VectorDimD& P0) const
+//        {
+//            const VectorDimD dc(d.cartesian());
+//            const VectorDimD Pc(P.cartesian());
+//            const double n=(P0-Pc).dot(dc)/dc.squaredNorm();
+//            return Pc+round(n)*dc;
+//        }
+        
         /**********************************************************************/
-        VectorDimD snapToLattice(const VectorDimD& P0) const
+        LatticeVectorType snapToLattice(const VectorDimD& P0) const
         {
             const VectorDimD dc(d.cartesian());
             const VectorDimD Pc(P.cartesian());
             const double n=(P0-Pc).dot(dc)/dc.squaredNorm();
-            return Pc+round(n)*dc;
+            return P+d*lround(n);
         }
         
 //        /**********************************************************************/
