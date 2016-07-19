@@ -42,7 +42,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef LatticeDirection<dim> LatticeDirectionType;
-
+        
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         
@@ -139,9 +139,6 @@ namespace model
         /* init */ grainID(region.regionID)
         {
             model::cout<<"Creating Grain "<<grainID<<std::endl;
-            model::cout<<"&covBasis="<<&_covBasis<<std::endl;
-            model::cout<<"&contraBasis="<<&_contraBasis<<std::endl;
-
             selectMaterial(materialZ);
         }
         
@@ -149,9 +146,7 @@ namespace model
         void selectMaterial(const int& Z)
         {
             model::cout<<greenColor<<"Grain "<<grainID<<", selecting material"<<defaultColor<<std::endl;
-            model::cout<<"&covBasis="<<&_covBasis<<std::endl;
-            model::cout<<"&contraBasis="<<&_contraBasis<<std::endl;
-
+            
             materialZ=Z;
             setLatticeBasis();
             
@@ -164,7 +159,7 @@ namespace model
                 case Ni.Z:
                     planeNormalContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
                     slipSystemContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::slipSystems(_covBasis,_contraBasis);
-                 break;
+                    break;
                 case Cu.Z:
                     planeNormalContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
                     slipSystemContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::slipSystems(_covBasis,_contraBasis);
@@ -214,7 +209,7 @@ namespace model
             model::cout<<defaultColor<<std::endl;
         }
         
-
+        
         
         /**********************************************************************/
         LatticeVectorType snapToLattice(const VectorDimD& d) const
@@ -249,14 +244,16 @@ namespace model
             
             for(int k=0;k<dim;++k)
             {
-                const VectorDimD ndk(nd/nd(k));
-                rdk=RoundEigen<double,dim>::round(ndk);
-                if((ndk-rdk).norm()<roundTol)
+                if(fabs(nd(k))>roundTol)
                 {
-                    found=true;
-                    break;
+                    const VectorDimD ndk(nd/nd(k));
+                    rdk=RoundEigen<double,dim>::round(ndk);
+                    if((ndk-rdk).norm()<roundTol)
+                    {
+                        found=true;
+                        break;
+                    }
                 }
-                
             }
             assert(found && "Input vector is not on a lattice direction");
             return LatticeDirectionType(rdk.template cast<long int>(),_covBasis,_contraBasis);
@@ -273,13 +270,21 @@ namespace model
             
             for(int k=0;k<dim;++k)
             {
-                const VectorDimD ndk(nd/nd(k));
-                rdk=RoundEigen<double,dim>::round(ndk);
-                if((ndk-rdk).norm()<roundTol)
+                if(fabs(nd(k))>roundTol)
                 {
-                    found=true;
-                    break;
+                    const VectorDimD ndk(nd/nd(k));
+                    rdk=RoundEigen<double,dim>::round(ndk);
+                    if((ndk-rdk).norm()<roundTol)
+                    {
+                        //                        std::cout<<"k="<<k<<std::endl;
+                        //                        std::cout<<"nd="<<nd.transpose()<<std::endl;
+                        //                        std::cout<<"ndk="<<ndk.transpose()<<std::endl;
+                        //                        std::cout<<"rdk="<<rdk.transpose()<<std::endl;
+                        found=true;
+                        break;
+                    }
                 }
+                
                 
             }
             assert(found && "Input vector is not on a lattice direction");

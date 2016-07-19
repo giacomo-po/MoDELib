@@ -77,7 +77,7 @@ namespace model
 
                 
                 ReciprocalLatticeDirection<3> sr(this->poly.grain(grainID).reciprocalLatticeDirection(slipSystem.s.cartesian()));
-
+                //std::cout<<sr.transpose()<<std::endl;
 
                 
                 LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(this->poly.grain(grainID).planeNormals()[*planeIDs.begin()])));
@@ -91,9 +91,15 @@ namespace model
                 
                 const double d1cNorm(d1.cartesian().norm());
                 const double d2cNorm(d2.cartesian().norm());
-                
+                assert(d1cNorm>0.0);
+                assert(d1cNorm>0.0);
+//                std::cout<<d1cNorm<<std::endl;
+//                std::cout<<d2cNorm<<std::endl;
+//                
                 int a1=this->randomSize()/d1cNorm;
                 int a2=this->randomSize()/d2cNorm;
+                assert(a1!=0);
+                assert(a2!=0);
 
                 LatticeVector<dim> L1=L0+d1*a1;
                 LatticeVector<dim> L2=L1+d2*a2;

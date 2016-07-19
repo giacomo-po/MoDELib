@@ -33,8 +33,9 @@ namespace model
         
         std::mt19937 generator;
         std::uniform_real_distribution<double> distribution;
-        std::uniform_real_distribution<double> sizeDistribution;
+        //std::uniform_real_distribution<double> sizeDistribution;
         double _minSize;
+        double _maxSize;
         
         /**********************************************************************/
         VectorDimD randomPoint()
@@ -55,6 +56,12 @@ namespace model
             return a<b? a : b;
         }
         
+        /**********************************************************************/
+        static double max(const double& a,const double& b)
+        {
+            return a>b? a : b;
+        }
+        
     public:
         
         SimplicialMesh<dim> mesh;
@@ -63,8 +70,9 @@ namespace model
         MicrostructureGenerator() :
         /* init list */ generator(std::chrono::system_clock::now().time_since_epoch().count()),
         /* init list */ distribution(0.0,1.0),
-        /* init list */ sizeDistribution(0.1,0.5),
-        /* init list */ _minSize(0),
+//        /* init list */ sizeDistribution(0.1,0.5),
+        /* init list */ _minSize(0.0),
+        /* init list */ _maxSize(0.0),
         /* init list */ poly(mesh)
         {
             int meshID(0);
@@ -80,7 +88,8 @@ namespace model
                 
                 EDR.readScalarInFile("./DDinput.txt","meshID",meshID);
                 mesh.readMesh(meshID);
-                _minSize=min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
+                _minSize=0.1*min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
+                _maxSize=max(mesh.xMax(0)-mesh.xMin(0),max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
                 
                 poly.init("./DDinput.txt");
                 
@@ -137,7 +146,10 @@ namespace model
         /**********************************************************************/
         double randomSize()
         {
-            return _minSize*sizeDistribution(generator);
+//            return _minSize+distribution(generator)*(_maxSize-_minSize);
+            std::uniform_real_distribution<double> dist(_minSize,_maxSize);
+            return dist(generator);
+        
         }
         
     };
