@@ -31,9 +31,15 @@ namespace model
         /* init */ d1(v1_in),
         /* init */ d2(v2_in)
         {
-            assert(d1.squaredNorm()>0.0);
-            assert(d2.squaredNorm()>0.0);
-            assert(d1.cross(d2).squaredNorm()>0.0);
+//            std::cout<<"Creating LatticePlaneBase "<<std::endl;
+//            std::cout<<"&v1.covBasis="<<&v1_in.covBasis<<std::endl;
+//            std::cout<<"&v1.contraBasis="<<&v1_in.contraBasis<<std::endl;
+//            std::cout<<"&v2.covBasis="<<&v2_in.covBasis<<std::endl;
+//            std::cout<<"&v2.contraBasis="<<&v2_in.contraBasis<<std::endl;
+
+            assert(d1.squaredNorm()>0);
+            assert(d2.squaredNorm()>0);
+            assert(d1.cross(d2).squaredNorm()>0);
         }
         
 //        /**********************************************************************/

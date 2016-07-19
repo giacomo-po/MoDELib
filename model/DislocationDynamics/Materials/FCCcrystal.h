@@ -39,31 +39,31 @@ namespace model
         
         /**********************************************************************/
         template <int dim>
-        static std::vector<LatticePlaneBase> reciprocalPlaneNormals(Eigen::Matrix<double,dim,dim>& covBasis,
-                                                                    Eigen::Matrix<double,dim,dim>& contraBasis)
+        static std::vector<LatticePlaneBase> reciprocalPlaneNormals(const Eigen::Matrix<double,dim,dim>& covBasis,
+                                                                    const Eigen::Matrix<double,dim,dim>& contraBasis)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */
+            
+
             typedef Eigen::Matrix<long int,dim,1> VectorDimI;
             
             typedef LatticeVector<dim> LatticeVectorType;
             LatticeVectorType a1(VectorDimI(1,0,0),covBasis,contraBasis);
             LatticeVectorType a2(VectorDimI(0,1,0),covBasis,contraBasis);
             LatticeVectorType a3(VectorDimI(0,0,1),covBasis,contraBasis);
-            
             std::vector<LatticePlaneBase> temp;
             temp.emplace_back(a1,a3);           // is (-1, 1,-1) in cartesian
             temp.emplace_back(a3,a2);           // is ( 1,-1,-1) in cartesian
             temp.emplace_back(a2,a1);           // is (-1,-1, 1) in cartesian
             temp.emplace_back(a1-a3,a2-a3);     // is ( 1, 1, 1) in cartesian
-            
             return temp;
         }
 //
         /**********************************************************************/
         template <int dim>
-        static std::vector<SlipSystem> slipSystems(Eigen::Matrix<double,dim,dim>& covBasis,
-                                                   Eigen::Matrix<double,dim,dim>& contraBasis)
+        static std::vector<SlipSystem> slipSystems(const Eigen::Matrix<double,dim,dim>& covBasis,
+                                                   const Eigen::Matrix<double,dim,dim>& contraBasis)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */
@@ -103,7 +103,6 @@ namespace model
             temp.emplace_back(a1-a3,a2-a3, a1-a2);     // is ( 1, 1, 1) in cartesian
             temp.emplace_back(a1-a3,a2-a3, a2-a1);     // is ( 1, 1, 1) in cartesian
 
-            
             return temp;
         }
 

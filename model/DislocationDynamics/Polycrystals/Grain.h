@@ -139,6 +139,9 @@ namespace model
         /* init */ grainID(region.regionID)
         {
             model::cout<<"Creating Grain "<<grainID<<std::endl;
+            model::cout<<"&covBasis="<<&_covBasis<<std::endl;
+            model::cout<<"&contraBasis="<<&_contraBasis<<std::endl;
+
             selectMaterial(materialZ);
         }
         
@@ -146,7 +149,9 @@ namespace model
         void selectMaterial(const int& Z)
         {
             model::cout<<greenColor<<"Grain "<<grainID<<", selecting material"<<defaultColor<<std::endl;
-            
+            model::cout<<"&covBasis="<<&_covBasis<<std::endl;
+            model::cout<<"&contraBasis="<<&_contraBasis<<std::endl;
+
             materialZ=Z;
             setLatticeBasis();
             
@@ -418,7 +423,7 @@ namespace model
         /**********************************************************************/
         const PlaneNormalContainerType& planeNormals() const
         {
-            return planeNormals();
+            return planeNormalContainer;
         }
         
         /**********************************************************************/

@@ -51,8 +51,8 @@ namespace model
             size_t nodeID=0;
             while(density<targetDensity)
             {
-                
                 std::pair<LatticeVector<dim>,int> rp=this->randomPointInMesh();
+
                 const LatticeVector<dim> L0=rp.first;
                 const int grainID=rp.second;
                 
@@ -61,6 +61,7 @@ namespace model
                 
                 const int rSS=distribution(generator); // a random SlipSystem
                 
+
                 const auto& slipSystem=this->poly.grain(grainID).slipSystems()[rSS];
                 
                 std::set<int> planeIDs;
@@ -73,7 +74,10 @@ namespace model
                 }
                 assert(planeIDs.size()==2 && "ONLY FCC IS SUPPORTED AT THE MOMENT.");
                 
+
+                
                 ReciprocalLatticeDirection<3> sr(this->poly.grain(grainID).reciprocalLatticeDirection(slipSystem.s.cartesian()));
+
 
                 
                 LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(this->poly.grain(grainID).planeNormals()[*planeIDs.begin()])));
@@ -83,6 +87,7 @@ namespace model
                 { // overwrite d2
                     assert(0 && "SESSILE LOOPS NOT SUPPORTED YET.");
                 }
+                
                 
                 const double d1cNorm(d1.cartesian().norm());
                 const double d2cNorm(d2.cartesian().norm());

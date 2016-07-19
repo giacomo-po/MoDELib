@@ -370,7 +370,7 @@ namespace model
 	/*************************************************************/
 	template <int dim, int Np, int Nc>
 	class SplinePlotter :
-	/* inherits from   */ public VertexReader<'V',9,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
+	/* inherits from   */ public VertexReader<'V',10,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ public EdgeReader  <'E',11,double>,
 	/*                 */ public VertexReader<'P',7,double>,
     /* inherits from   */ public IDreader<'Q',3,13,double>,
@@ -378,7 +378,7 @@ namespace model
     { // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
 		
 		typedef float scalarType;
-		typedef VertexReader<'V',9,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
+		typedef VertexReader<'V',10,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
 		typedef EdgeReader  <'E',11,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
         typedef VertexReader<'P',7,double> PKContainerType;
         typedef IDreader<'Q',3,13,double> QuadContainerType;

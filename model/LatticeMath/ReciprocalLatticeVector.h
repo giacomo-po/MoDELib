@@ -84,7 +84,9 @@ namespace model
         {/*!@param[in] d vector in real space
           * Constructs *this by mapping d to the lattice
           */
-            
+//            std::cout<<"Creating ReciprocalLatticeVector "<<this<<std::endl;
+//            std::cout<<"&covBasis="<<&covBasis_in<<std::endl;
+//            std::cout<<"&contraBasis="<<&contraBasis_in<<std::endl;
         }
         
         /**********************************************************************/
@@ -113,6 +115,11 @@ namespace model
         /**********************************************************************/
         long int dot(const LatticeVectorType& other) const
         {
+//            std::cout<<"ReciprocalLatticeVector "<<this<<std::endl;
+//            std::cout<<"&covBasis="<<&covBasis<<std::endl;
+//            std::cout<<"&contraBasis="<<&contraBasis<<std::endl;
+//            std::cout<<"&other.covBasis="<<&other.covBasis<<std::endl;
+//            std::cout<<"&other.contraBasis="<<&other.contraBasis<<std::endl;
             assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
             assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
             return static_cast<VectorDimI>(*this).dot(static_cast<VectorDimI>(other));
@@ -123,7 +130,7 @@ namespace model
         {
             assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
             assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
-            return LatticeVectorType(static_cast<VectorDimI>(*this).cross(static_cast<VectorDimI>(other)),covBasis,covBasis);
+            return LatticeVectorType(static_cast<VectorDimI>(*this).cross(static_cast<VectorDimI>(other)),covBasis,contraBasis);
         }
         
         
