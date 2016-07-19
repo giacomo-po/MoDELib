@@ -60,10 +60,14 @@ int main(int argc, char** argv)
     Eigen::Matrix<double,3,1> p;
     p<<25.78,11,110.6;
     
-    std::cout<<poly.grainBoundary(1,2).latticePlane(1).snapToLattice(p)<<std::endl;
-    std::cout<<poly.grainBoundary(2,1).latticePlane(2).snapToLattice(p)<<std::endl;
+//    std::cout<<poly.grainBoundary(1,2).latticePlane(1).snapToLattice(p)<<std::endl;
+//    std::cout<<poly.grainBoundary(2,1).latticePlane(2).snapToLattice(p)<<std::endl;
 
     
+    LatticeVector<3> L=poly.grainBoundary(1,2).latticePlane(1).snapToLattice(p);
+    std::cout<<"L="<<L<<std::endl;
+    L+=L;
+    std::cout<<L<<std::endl;
 
     
     return 0;

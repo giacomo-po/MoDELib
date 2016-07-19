@@ -189,10 +189,11 @@ namespace model {
         /**********************************************************************/
         FlowType outFlow() const
         {
-            //            FlowType Fout;
             FlowType Fout(this->derived().zeroFlow()); // generalize
-            //Fout*=0.0;
-            for (typename NeighborContainerType::const_iterator     NeighborIter=OutNeighborhood.begin();NeighborIter!=OutNeighborhood.end();++NeighborIter){
+            for (typename NeighborContainerType::const_iterator NeighborIter=OutNeighborhood.begin();
+                 NeighborIter!=OutNeighborhood.end();
+                 ++NeighborIter)
+            {
                 Fout+=std::get<1>(NeighborIter->second)->flow;
             }
             return Fout;
@@ -201,10 +202,11 @@ namespace model {
         /**********************************************************************/
         FlowType inFlow() const
         {
-            //            FlowType Fin;
             FlowType Fin(this->derived().zeroFlow());
-            //Fin*=0.0;
-            for (typename NeighborContainerType::const_iterator     NeighborIter=InNeighborhood.begin();NeighborIter!=InNeighborhood.end();++NeighborIter){
+            for (typename NeighborContainerType::const_iterator NeighborIter=InNeighborhood.begin();
+                 NeighborIter!=InNeighborhood.end();
+                 ++NeighborIter)
+            {
                 Fin+=std::get<1>(NeighborIter->second)->flow;
             }
             return Fin;

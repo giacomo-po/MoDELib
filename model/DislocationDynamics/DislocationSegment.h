@@ -332,7 +332,8 @@ namespace model
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
 //        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const VectorDim& Fin) :
-        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const LatticeVectorType& Fin) :
+        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair,
+                           const LatticeVectorType& Fin) :
         /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),Fin),
         /* base class initialization */ SegmentBaseType(nodePair,Fin),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
@@ -360,7 +361,8 @@ namespace model
         }
         
         /* Constructor from EdgeExpansion) ************************************/
-        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const ExpandingEdge<LinkType>& ee) :
+        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair,
+                           const ExpandingEdge<LinkType>& ee) :
 //        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow),
         /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow,ee),
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),

@@ -31,7 +31,15 @@ namespace model
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
 //        typedef Eigen::Matrix<long int,dim,1> VectorDimI;
 
-
+        Eigen::Matrix<long int,dim,1>& base()
+        {
+            return *this;
+        }
+        
+        const Eigen::Matrix<long int,dim,1>& base() const
+        {
+            return *this;
+        }
 
         
     public:
@@ -96,21 +104,7 @@ namespace model
         LatticeVector(const LatticeVectorType& other) = default;
         LatticeVector(LatticeVectorType&& other) =default;
         
-//        /**********************************************************************/
-//        LatticeVector(const LatticeVectorType& other) :
-//        /* base copy */ BaseType(static_cast<VectorDimI>(other))
-//        {
-//            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
-//            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
-//        }
-//        
-//        /**********************************************************************/
-//        LatticeVector(LatticeVectorType&& other) :
-//        /* base copy */ BaseType(std::move(static_cast<VectorDimI>(other)))
-//        {
-//            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
-//            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
-//        }
+
         
         /**********************************************************************/
         LatticeVectorType& operator=(const LatticeVectorType& other)
@@ -143,7 +137,7 @@ namespace model
         {
             assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
             assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
-            static_cast<VectorDimI>(*this)+=static_cast<VectorDimI>(other);
+            base()+=other.base();
             return *this;
         }
         
@@ -160,15 +154,13 @@ namespace model
         {
             assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
             assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
-            static_cast<VectorDimI>(*this)-=static_cast<VectorDimI>(other);
+            base()-=other.base();
             return *this;
         }
         
         /**********************************************************************/
         LatticeVectorType operator*(const long int& scalar) const
         {
-//            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
-//            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
             return LatticeVectorType(static_cast<VectorDimI>(*this)*scalar,covBasis,contraBasis);
         }
         
@@ -185,7 +177,6 @@ namespace model
         {
             assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
             assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
-//            static_cast<VectorDimI>(*this).cross(static_cast<VectorDimI>(other));
             return ReciprocalLatticeVectorType(static_cast<VectorDimI>(*this).cross(static_cast<VectorDimI>(other)),covBasis,contraBasis);
         }
 
@@ -210,28 +201,51 @@ namespace model
             return rd.template cast<long int>();
         }
         
-        //        template<typename OtherDerived>
-        //        LatticeVector(const Eigen::MatrixBase<OtherDerived>& other) :
-        //        /* base init */ BaseType(other)
-        //        {// This constructor allows  to construct LatticeVector from Eigen expressions
-        //
-        //
-        //        }
-        
-        //        template<typename OtherDerived>
-        //        LatticeVector& operator=(const Eigen::MatrixBase <OtherDerived>& other)
-        //        {// This method allows to assign Eigen expressions to LatticeVector
-        //            BaseType::operator=(other);
-        //            return *this;
-        //        }
-        
-        //        VectorDimD cartesian() const
-        //        {
-        //            return LatticeBaseType::covBasis()*this->template cast<double>();
-        //        }
-        
     };
     
+    template<int dim>
+    LatticeVector<dim> operator*(const long int& scalar, const LatticeVector<dim>& L)
+    {
+        return L*scalar;
+    }
     
 } // end namespace
 #endif
+
+
+//        /**********************************************************************/
+//        LatticeVector(const LatticeVectorType& other) :
+//        /* base copy */ BaseType(static_cast<VectorDimI>(other))
+//        {
+//            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+//            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+//        }
+//
+//        /**********************************************************************/
+//        LatticeVector(LatticeVectorType&& other) :
+//        /* base copy */ BaseType(std::move(static_cast<VectorDimI>(other)))
+//        {
+//            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+//            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+//        }
+
+
+//        template<typename OtherDerived>
+//        LatticeVector(const Eigen::MatrixBase<OtherDerived>& other) :
+//        /* base init */ BaseType(other)
+//        {// This constructor allows  to construct LatticeVector from Eigen expressions
+//
+//
+//        }
+
+//        template<typename OtherDerived>
+//        LatticeVector& operator=(const Eigen::MatrixBase <OtherDerived>& other)
+//        {// This method allows to assign Eigen expressions to LatticeVector
+//            BaseType::operator=(other);
+//            return *this;
+//        }
+
+//        VectorDimD cartesian() const
+//        {
+//            return LatticeBaseType::covBasis()*this->template cast<double>();
+//        }
