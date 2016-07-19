@@ -16,6 +16,7 @@
 #include <model/Mesh/SimplicialMesh.h> // defines mode::cout
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/LatticeMath/LatticeVector.h>
+#include <model/DislocationDynamics/Polycrystals/Polycrystal.h> // defines mode::cout
 
 namespace model
 {
@@ -26,15 +27,15 @@ namespace model
         
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
-
+        
         typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
         typedef Eigen::Matrix<long int,dim,dim>	MatrixDimI;
-
+        
         std::mt19937 generator;
         std::uniform_real_distribution<double> distribution;
         std::uniform_real_distribution<double> sizeDistribution;
         double _minSize;
-
+        
         /**********************************************************************/
         VectorDimD randomPoint()
         {
@@ -57,13 +58,14 @@ namespace model
     public:
         
         SimplicialMesh<dim> mesh;
-
+        Polycrystal<dim> poly;
         
         MicrostructureGenerator() :
         /* init list */ generator(std::chrono::system_clock::now().time_since_epoch().count()),
         /* init list */ distribution(0.0,1.0),
         /* init list */ sizeDistribution(0.1,0.5),
-        /* init list */ _minSize(0)
+        /* init list */ _minSize(0),
+        /* init list */ poly(mesh)
         {
             int meshID(0);
             EigenDataReader EDR;
@@ -80,6 +82,8 @@ namespace model
                 mesh.readMesh(meshID);
                 _minSize=min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
                 
+                poly.init("./DDinput.txt");
+                
             }
             else
             {
@@ -90,26 +94,46 @@ namespace model
             unsigned int materialZ;
             EDR.readScalarInFile("./DDinput.txt","material",materialZ); // material by atomic number Z
             Material<Isotropic>::select(materialZ);
-            MatrixDimD C2Gtemp;
-            EDR.readMatrixInFile("./DDinput.txt","C2G",C2Gtemp); // crystal-to-global orientation
-            Material<Isotropic>::rotateCrystal(C2Gtemp);
-
+//            MatrixDimD C2Gtemp;
+//            EDR.readMatrixInFile("./DDinput.txt","C2G",C2Gtemp); // crystal-to-global orientation
+//            Material<Isotropic>::rotateCrystal(C2Gtemp);
+            
             
         }
-
+        
         /**********************************************************************/
-        LatticeVector<dim> randomPointInMesh()
+        std::pair<LatticeVector<dim>,int> randomPointInMesh()
         {
-            LatticeVector<dim> L0=LatticeBase<dim>::snapToLattice(randomPoint());
-            bool inside=mesh.search(L0.cartesian()).first;
-            while(!inside)
-            {
-                L0=LatticeBase<dim>::snapToLattice(randomPoint());
-                inside=mesh.search(L0.cartesian()).first;
+            VectorDimD P0=randomPoint();
+            auto searchResult=mesh.search(P0);
+            if(searchResult.first)
+            {// point inside
+                LatticeVector<dim> L0 = poly.grain(searchResult.second->region->regionID).snapToLattice(P0);
+                searchResult=mesh.searchRegionWithGuess(L0.cartesian(),searchResult.second);
+                if(searchResult.first)
+                {// point inside
+                    return std::make_pair(L0,searchResult.second->region->regionID);
+                }
+                else
+                {
+                    return randomPointInMesh();
+                }
             }
-            return L0;
+            else
+            {
+                return randomPointInMesh();
+            }
+            
+            //            LatticeVector<dim> L0=LatticeBase<dim>::snapToLattice(randomPoint());
+            //            bool inside=mesh.search(L0.cartesian()).first;
+            //            while(!inside)
+            //            {
+            //                L0=LatticeBase<dim>::snapToLattice(randomPoint());
+            //                inside=mesh.search(L0.cartesian()).first;
+            //            }
+            //            return L0;
         }
-    
+        
         /**********************************************************************/
         double randomSize()
         {
@@ -117,6 +141,6 @@ namespace model
         }
         
     };
-
+    
 }
 #endif

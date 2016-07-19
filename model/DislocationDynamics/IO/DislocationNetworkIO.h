@@ -67,8 +67,8 @@ namespace model
         static void readVertices(DislocationNetworkType& DN, const unsigned int& fileID)
         {/*! Reads file V/V_0.txt and creates DislocationNodes
           */
-            typedef VertexReader<'V',9,double> VertexReaderType;
-            VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
+            typedef VertexReader<'V',10,double> VertexReaderType;
+            VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID,meshLocation,grainID
             if (vReader.isGood(fileID,false)) // bin file exists
             {
                 vReader.read(fileID,false);
@@ -95,8 +95,11 @@ namespace model
                 NodeType::set_count(nodeIDinFile);
                 model::cout << "\r \r" << "Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<vReader.size()<<")"<<std::flush;
                 
-                LatticeVectorType L(VectorDimD(vIter->second.template segment<NdofXnode>(0)));
-                const size_t nodeID(DN.insertVertex(L).first->first);
+                const VectorDimD P(vIter->second.template segment<NdofXnode>(0));
+                const int grainID(vIter->second(8));
+                //LatticeVectorType L(VectorDimD());
+                //const size_t nodeID(DN.insertVertex(L).first->first);
+                const size_t nodeID(DN.insertVertex(P,grainID).first->first);
                 assert(nodeID==nodeIDinFile);
                 kk++;
             }
@@ -134,8 +137,17 @@ namespace model
                 VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
                 const size_t sourceID(eIter->first.first );
                 const size_t   sinkID(eIter->first.second);
+//                std::pair<bool,VertexType* const>
                 model::cout << "\r \r" << "Creating DislocationSegment "<<sourceID<<"->"<<sinkID<<" ("<<kk<<" of "<<eReader.size()<<")              "<<std::flush;
-                const bool success=DN.connect(sourceID,sinkID,LatticeVectorType(B));
+                
+                const auto isSource=DN.node(sourceID);
+                assert(isSource.first && "Source node does not exist");
+                const auto isSink=DN.node(sinkID);
+                assert(isSink.first && "Sink node does not exist");
+                
+                assert(isSource.second->grain.grainID==isSink.second->grain.grainID && "Source and Sink are in different Grains");
+                
+                const bool success=DN.connect(sourceID,sinkID,isSource.second->grain.latticeVector(B));
                 assert(success && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
                 kk++;
             }
@@ -188,7 +200,7 @@ namespace model
             //! 2- Outputs the Vertex informations to file V_*.txt where * is the current simulation step
             if (outputBinary)
             {
-                typedef Eigen::Matrix<double,1,8> VertexDataType;
+                typedef Eigen::Matrix<double,1,9> VertexDataType;
                 typedef std::pair<int, VertexDataType> BinVertexType;
                 SequentialBinFile<'V',BinVertexType>::set_count(runID);
                 SequentialBinFile<'V',BinVertexType>::set_increment(outputFrequency);
@@ -199,7 +211,8 @@ namespace model
                     VertexDataType temp( (VertexDataType()<< node.second.get_P().transpose(),
                                           /*                                    */ node.second.get_T().transpose(),
                                           /*                                    */ node.second.pSN()->sID,
-                                          /*                                    */ (node.second.meshLocation()==onMeshBoundary)).finished());
+                                          /*                                    */ (node.second.meshLocation()==onMeshBoundary),
+                                          /*                                    */ node.second.grain.grainID).finished());
                     binVertexFile.write(std::make_pair(node.first,temp));
                 }
                 model::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;

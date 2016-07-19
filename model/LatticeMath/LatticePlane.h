@@ -31,10 +31,16 @@ namespace model
             assert(&P.contraBasis==&n.contraBasis && "LatticeVectors have different bases.");
         }
         
+//        /**********************************************************************/
+//        Eigen::Matrix<double,3,1> snapToLattice(const Eigen::Matrix<double,3,1>& P0) const
+//        {
+//            return P.cartesian()+n.snapToLattice(P0-P.cartesian());
+//        }
+        
         /**********************************************************************/
-        Eigen::Matrix<double,3,1> snapToLattice(const Eigen::Matrix<double,3,1>& P0) const
+        LatticeVectorType snapToLattice(const Eigen::Matrix<double,3,1>& P0) const
         {
-            return P.cartesian()+n.snapToLattice(P0-P.cartesian());
+            return P+n.snapToLattice(P0-P.cartesian());
         }
         
         /**********************************************************************/

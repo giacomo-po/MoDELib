@@ -238,26 +238,33 @@ namespace model
                 if(Lij.first)
                 {
                    //std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
-                    VectorDimD expandPoint(Lij.second->get_r(expand_at));
-                    
-                    if(!Lij.second->isSessile)
-                    {
-                        expandPoint=Lij.second->glidePlane.snapToLattice(expandPoint);
-                    }
-                    else
+                    //VectorDimD expandPoint(Lij.second->get_r(expand_at));
+                    LatticeVectorType expandPoint(Lij.second->glidePlane.snapToLattice(Lij.second->get_r(expand_at)));
+                    if(Lij.second->isSessile)
                     {
                         PlanePlaneIntersection ppi(Lij.second->glidePlane,Lij.second->sessilePlane);
                         LatticeLine line(ppi.P,ppi.d);
-                        expandPoint=line.snapToLattice(expandPoint);
+                        expandPoint=line.snapToLattice(expandPoint.cartesian());
                     }
+                    
+//                    if(!Lij.second->isSessile)
+//                    {
+//                        expandPoint=Lij.second->glidePlane.snapToLattice(expandPoint).cartesian();
+//                    }
+//                    else
+//                    {
+//                        PlanePlaneIntersection ppi(Lij.second->glidePlane,Lij.second->sessilePlane);
+//                        LatticeLine line(ppi.P,ppi.d);
+//                        expandPoint=line.snapToLattice(expandPoint).cartesian();
+//                    }
 
-                    if(  (LatticeVectorType(expandPoint)-DN.node(i).second->get_L()).squaredNorm()
-                       &&(LatticeVectorType(expandPoint)-DN.node(j).second->get_L()).squaredNorm() )
+                    if(  (expandPoint-DN.node(i).second->get_L()).squaredNorm()
+                       &&(expandPoint-DN.node(j).second->get_L()).squaredNorm() )
                     {
-                        if(DN.pointIsInsideMesh(expandPoint,Lij.second->source->includingSimplex()).first)
+                        if(DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex()).first)
                         {
                             //                        DN.expand(i,j,expandPoint);
-                            DN.expand(i,j,LatticeVectorType(expandPoint));
+                            DN.expand(i,j,expandPoint);
                             Nexpanded++;
                         }
                     }

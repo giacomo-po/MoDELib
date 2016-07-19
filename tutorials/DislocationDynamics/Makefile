@@ -34,6 +34,7 @@ else
 	CFLAGS += -msse4
 	CFLAGS += -fopenmp
 	CFLAGS += -std=c++11
+	CFLAGS += -ftemplate-backtrace-limit=0
 endif
 
 # enable warnings

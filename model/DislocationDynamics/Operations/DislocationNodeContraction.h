@@ -404,31 +404,31 @@ namespace model
                                 //                                const Eigen::Matrix<double,2,1> A((Eigen::Matrix<double,2,1>()<<P1.dot(n1),P2.dot(n2)).finished());
                                 //                                const Eigen::Matrix<double,2,1> lam=(N.transpose()*N).inverse()*(N.transpose()*P-2.0*A);
                                 
-                                VectorDimD v0=line.snapToLattice(0.5*(P1+P2));
-                                bool v0Inside=DN.shared.mesh.searchWithGuess(v0,N1.second->includingSimplex()).first;
+                                LatticeVectorType v0=line.snapToLattice(0.5*(P1+P2));
+                                bool v0Inside=DN.shared.mesh.searchWithGuess(v0.cartesian(),N1.second->includingSimplex()).first;
                                 if(!v0Inside)
                                 {
-                                    v0+=10.0*line.d.cartesian();
-                                    v0Inside=DN.shared.mesh.searchWithGuess(v0,N1.second->includingSimplex()).first;
+                                    v0+=line.d*10;
+                                    v0Inside=DN.shared.mesh.searchWithGuess(v0.cartesian(),N1.second->includingSimplex()).first;
                                 }
                                 if(!v0Inside)
                                 {
-                                    v0-=20.0*line.d.cartesian();
-                                    v0Inside=DN.shared.mesh.searchWithGuess(v0,N1.second->includingSimplex()).first;
+                                    v0-=line.d*20;
+                                    v0Inside=DN.shared.mesh.searchWithGuess(v0.cartesian(),N1.second->includingSimplex()).first;
                                 }
                                 if(v0Inside)
                                 {
-                                    const LatticeLine line2(LatticeVectorType(v0),line.d); // shift origin of line
-                                    VectorDimD v1=line.snapToLattice(v0+10.0*line.d.cartesian());
-                                    bool v1outside=!DN.shared.mesh.searchWithGuess(v1,N1.second->includingSimplex()).first;
+                                    const LatticeLine line2(v0,line.d); // shift origin of line
+                                    LatticeVectorType v1=line.snapToLattice((v0+line.d*10).cartesian());
+                                    bool v1outside=!DN.shared.mesh.searchWithGuess(v1.cartesian(),N1.second->includingSimplex()).first;
                                     if(!v1outside)
                                     {
-                                        v1=line.snapToLattice(v0-10.0*line.d.cartesian());
-                                        v1outside=!DN.shared.mesh.searchWithGuess(v1,N1.second->includingSimplex()).first;
+                                        v1=line.snapToLattice(v0.cartesian()-10.0*line.d.cartesian());
+                                        v1outside=!DN.shared.mesh.searchWithGuess(v1.cartesian(),N1.second->includingSimplex()).first;
                                     }
                                     if(v1outside)
                                     {
-                                        LineMeshIntersection lmi(line2,LatticeVectorType(v1),DN.shared.mesh,N1.second->includingSimplex());
+                                        LineMeshIntersection lmi(line2,v1,DN.shared.mesh,N1.second->includingSimplex());
                                         N1.second->set(lmi.L);
                                         contracted+=contractSecondWithCommonNeighborCheck(*N1.second,*N2.second);
                                         //contracted+=contractWithCommonNeighborCheck(*N1.second,*N2.second,lmi.L);

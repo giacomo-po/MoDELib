@@ -542,9 +542,9 @@ namespace model
             unsigned int materialZ;
             EDR.readScalarInFile(fullName.str(),"material",materialZ); // material by atomic number Z
             Material<Isotropic>::select(materialZ);
-            MatrixDimD C2Gtemp;
-            EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
-            Material<Isotropic>::rotateCrystal(C2Gtemp);
+//            MatrixDimD C2Gtemp;
+//            EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
+//            Material<Isotropic>::rotateCrystal(C2Gtemp);
             
             // quadPerLength
             EDR.readScalarInFile(fullName.str(),"quadPerLength",LinkType::quadPerLength); // quadPerLength
@@ -684,6 +684,9 @@ namespace model
                 EDR.readScalarInFile(fullName.str(),"meshID",meshID);
                 shared.mesh.readMesh(meshID);
                 assert(shared.mesh.simplices().size() && "MESH IS EMPTY.");
+                
+                // Initialize Polycrystal
+                shared.poly.init(fullName.str());
                 
                 EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
                 if(shared.use_virtualSegments)

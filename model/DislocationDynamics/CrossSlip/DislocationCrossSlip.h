@@ -166,8 +166,10 @@ namespace model
                 const double dirDotPK(dir.dot(css.pkForce));
                 const double sgnDir((dirDotPK > 0.0) ? 1.0 : ((dirDotPK < 0.0) ? -1.0 : 0.0));
                 const LatticePlane conjugatePlane(sourceL,css.conjugatePlaneBase);
-                const VectorDimD conjugatePoint=conjugatePlane.snapToLattice(midPoint+sgnDir*dir*(css.source.get_V()*0.5+css.sink.get_V()*0.5).norm()*DN.get_dt());
-                const LatticeVectorType conjugateL(conjugatePoint);
+//                const VectorDimD conjugatePoint=conjugatePlane.snapToLattice(midPoint+sgnDir*dir*(css.source.get_V()*0.5+css.sink.get_V()*0.5).norm()*DN.get_dt());
+//                const LatticeVectorType conjugateL(conjugatePoint);
+                const LatticeVectorType conjugateL(conjugatePlane.snapToLattice(midPoint+sgnDir*dir*(css.source.get_V()*0.5+css.sink.get_V()*0.5).norm()*DN.get_dt()));
+                const VectorDimD conjugatePoint=conjugateL.cartesian();
                 const VectorDimD crossSlipVelocity((conjugatePoint-midPoint)/DN.get_dt());
 
                 

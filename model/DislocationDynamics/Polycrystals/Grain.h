@@ -41,6 +41,8 @@ namespace model
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
         typedef LatticeVector<dim> LatticeVectorType;
+        typedef LatticeDirection<dim> LatticeDirectionType;
+
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         
@@ -111,7 +113,7 @@ namespace model
         //        }
         
         PlaneNormalContainerType planeNormalContainer;
-        static SlipSystemContainerType slipSystemContainer;
+        SlipSystemContainerType slipSystemContainer;
         
         //! The static column matrix of lattice vectors
         MatrixDimD    _covBasis;
@@ -152,21 +154,19 @@ namespace model
             {
                 case Al.Z:
                     planeNormalContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
+                    slipSystemContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::slipSystems(_covBasis,_contraBasis);
                     break;
                 case Ni.Z:
                     planeNormalContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
-                    //
-                    //                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Ni.Z,Isotropic>::CrystalStructure>(C2G);
-                    break;
+                    slipSystemContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::slipSystems(_covBasis,_contraBasis);
+                 break;
                 case Cu.Z:
                     planeNormalContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
-                    
-                    //                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Cu.Z,Isotropic>::CrystalStructure>(C2G);
+                    slipSystemContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::slipSystems(_covBasis,_contraBasis);
                     break;
                 case W.Z:
                     planeNormalContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
-                    
-                    //                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<W.Z,Isotropic>::CrystalStructure>(C2G);
+                    slipSystemContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::slipSystems(_covBasis,_contraBasis);
                     break;
                     //                case Fe:
                     //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
@@ -209,8 +209,32 @@ namespace model
             model::cout<<defaultColor<<std::endl;
         }
         
+
+        
         /**********************************************************************/
-        VectorDimI latticeDirection(const VectorDimD& d) const
+        LatticeVectorType snapToLattice(const VectorDimD& d) const
+        {
+            VectorDimD nd(_contraBasis.transpose()*d);
+            return LatticeVectorType(RoundEigen<double,dim>::round(nd).template cast<long int>(),_covBasis,_contraBasis);
+        }
+        
+        //        /**********************************************************************/
+        //        VectorDimI d2cov(const VectorDimD& d) const
+        //        {
+        //            const VectorDimD nd(AT*d);
+        //            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
+        //            if((nd-rd).norm()>roundTol)
+        //            {
+        //                std::cout<<"d2cov, nd="<<nd.transpose()<<std::endl;
+        //                std::cout<<"d2cov, rd="<<rd.transpose()<<std::endl;
+        //                assert(0 && "Input vector is not a reciprocal lattice vector");
+        //            }
+        //            //            assert((nd-rd).norm()<roundTol && "Input vector is not a lattice vector");
+        //            return rd.template cast<long int>();
+        //        }
+        
+        /**********************************************************************/
+        LatticeDirectionType latticeDirection(const VectorDimD& d) const
         {
             bool found=false;
             VectorDimD rdk(VectorDimD::Zero());
@@ -230,30 +254,8 @@ namespace model
                 
             }
             assert(found && "Input vector is not on a lattice direction");
-            return rdk.template cast<long int>();
+            return LatticeDirectionType(rdk.template cast<long int>(),_covBasis,_contraBasis);
         }
-        
-        /**********************************************************************/
-        VectorDimI snapToLattice(const VectorDimD& d) const
-        {
-            VectorDimD nd(_contraBasis.transpose()*d);
-            return RoundEigen<double,dim>::round(nd).template cast<long int>();
-        }
-        
-        //        /**********************************************************************/
-        //        VectorDimI d2cov(const VectorDimD& d) const
-        //        {
-        //            const VectorDimD nd(AT*d);
-        //            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
-        //            if((nd-rd).norm()>roundTol)
-        //            {
-        //                std::cout<<"d2cov, nd="<<nd.transpose()<<std::endl;
-        //                std::cout<<"d2cov, rd="<<rd.transpose()<<std::endl;
-        //                assert(0 && "Input vector is not a reciprocal lattice vector");
-        //            }
-        //            //            assert((nd-rd).norm()<roundTol && "Input vector is not a lattice vector");
-        //            return rd.template cast<long int>();
-        //        }
         
         /**********************************************************************/
         ReciprocalLatticeDirectionType reciprocalLatticeDirection(const VectorDimD& d) const
@@ -394,14 +396,14 @@ namespace model
         }
         
         /**********************************************************************/
-        LatticeVectorType latticeVectorFromPosition(const VectorDimD& p) const
+        LatticeVectorType latticeVector(const VectorDimD& p) const
         {
             //            std::cout<<"Grain "<<region.regionID<<" creating LatticeVector"<<std::endl;
             return LatticeVectorType(p,_covBasis,_contraBasis);
         }
         
         /**********************************************************************/
-        ReciprocalLatticeVectorType reciprocalLatticeVectorFromPosition(const VectorDimD& p) const
+        ReciprocalLatticeVectorType reciprocalLatticeVector(const VectorDimD& p) const
         {
             //            std::cout<<"Grain "<<region.regionID<<" creating ReciprocalLatticeVector"<<std::endl;
             return ReciprocalLatticeVectorType(p,_covBasis,_contraBasis);
@@ -417,6 +419,12 @@ namespace model
         const PlaneNormalContainerType& planeNormals() const
         {
             return planeNormals();
+        }
+        
+        /**********************************************************************/
+        const SlipSystemContainerType& slipSystems() const
+        {
+            return slipSystemContainer;
         }
         
     };

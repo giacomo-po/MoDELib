@@ -72,8 +72,15 @@ namespace model
             }
             
             EigenDataReader EDR;
+
+            unsigned int materialZ;
+            EDR.readScalarInFile(fullName,"material",materialZ); // material by atomic number Z
+            //Material<Isotropic>::select(materialZ);
+            
             for(auto& gr : grains())
             {
+                gr.second.selectMaterial(materialZ);
+                
                 Eigen::Matrix<double,dim,dim> C2Gtemp(Eigen::Matrix<double,dim,dim>::Identity());
                 EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
                 gr.second.rotate(C2Gtemp);
@@ -149,7 +156,7 @@ namespace model
         {
             const std::pair<bool,const Simplex<dim,dim>*> temp(mesh.searchWithGuess(p,guess));
             assert(temp.first && "Position not found in mesh");
-            return grain(temp.second->region->regionID).latticeVectorFromPosition(p);
+            return grain(temp.second->region->regionID).latticeVector(p);
         }
         
         /**********************************************************************/
@@ -164,7 +171,7 @@ namespace model
         {
             const std::pair<bool,const Simplex<dim,dim>*> temp(mesh.searchWithGuess(p,guess));
             assert(temp.first && "Position not found in mesh");
-            return grain(temp.second->region->regionID).reciprocalLatticeVectorFromPosition(p);
+            return grain(temp.second->region->regionID).reciprocalLatticeVector(p);
         }
         
         /**********************************************************************/

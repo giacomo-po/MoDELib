@@ -43,6 +43,19 @@ namespace model
         
         const MatrixDimD& covBasis;
         const MatrixDimD& contraBasis;
+
+        /**********************************************************************/
+        LatticeVector(const MatrixDimD& covBasis_in,
+                      const MatrixDimD& contraBasis_in) :
+        /* init base */ BaseType(VectorDimI::Zero()),
+        /* init      */ covBasis(covBasis_in),
+        /* init      */ contraBasis(contraBasis_in)
+        ///* base init */ BaseType(LatticeBaseType::d2contra(d))
+        {/*!@param[in] d vector in real space
+          * Constructs *this by mapping d to the lattice
+          */
+            
+        }
         
         /**********************************************************************/
         LatticeVector(const VectorDimD& d,
@@ -50,8 +63,8 @@ namespace model
                       const MatrixDimD& contraBasis_in) :
 //                      const MatrixDimD& invA) :
         /* init base */ BaseType(d2contra(d,contraBasis_in)),
-        /* init base */ covBasis(covBasis_in),
-        /* init base */ contraBasis(contraBasis_in)
+        /* init      */ covBasis(covBasis_in),
+        /* init      */ contraBasis(contraBasis_in)
 //        /* init base */ covBasisInv(Ainv)
         ///* base init */ BaseType(LatticeBaseType::d2contra(d))
         {/*!@param[in] d vector in real space
@@ -123,11 +136,29 @@ namespace model
         }
         
         /**********************************************************************/
+        LatticeVectorType& operator+=(const LatticeVectorType& other)
+        {
+            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+            static_cast<VectorDimI>(*this)+=static_cast<VectorDimI>(other);
+            return *this;
+        }
+        
+        /**********************************************************************/
         LatticeVectorType operator-(const LatticeVectorType& other) const
         {
             assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
             assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
             return LatticeVectorType(static_cast<VectorDimI>(*this)-static_cast<VectorDimI>(other),covBasis,contraBasis);
+        }
+        
+        /**********************************************************************/
+        LatticeVectorType& operator-=(const LatticeVectorType& other)
+        {
+            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+            static_cast<VectorDimI>(*this)-=static_cast<VectorDimI>(other);
+            return *this;
         }
         
         /**********************************************************************/

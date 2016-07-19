@@ -183,8 +183,8 @@ namespace model
                 {
                     um=1.0;
                 }
-                VectorDimD Pm(L.get_r(um));
-                Pm=L.glidePlane.snapToLattice(Pm);
+                //VectorDimD Pm(L.get_r(um));
+                LatticeVectorType Pm=L.glidePlane.snapToLattice(L.get_r(um));
                 
                 double up(u+du);
                 if(up<um)
@@ -195,8 +195,8 @@ namespace model
                 {
                     up=1.0;
                 }
-                VectorDimD Pp(L.get_r(up));
-                Pp=L.glidePlane.snapToLattice(Pp);
+//                VectorDimD Pp(L.get_r(up));
+                LatticeVectorType Pp=L.glidePlane.snapToLattice(L.get_r(up));
                 
                 bool insideMeshM=true;
                 bool insideMeshP=true;
@@ -204,20 +204,20 @@ namespace model
                 {
                     const Simplex<dim,dim>* S(source.includingSimplex());
                     
-                    insideMeshM=DN.shared.mesh.searchWithGuess(Pm,S).first;
+                    insideMeshM=DN.shared.mesh.searchWithGuess(Pm.cartesian(),S).first;
                     if(!insideMeshM)
                     {
-                        Pm=source.get_P()*(1.0-um)+sink.get_P()*um;
-                        Pm=L.glidePlane.snapToLattice(Pm);
-                        insideMeshM=DN.shared.mesh.searchWithGuess(Pm,S).first;
+                        //Pm=source.get_P()*(1.0-um)+sink.get_P()*um;
+                        Pm=L.glidePlane.snapToLattice(source.get_P()*(1.0-um)+sink.get_P()*um);
+                        insideMeshM=DN.shared.mesh.searchWithGuess(Pm.cartesian(),S).first;
                     }
                     
-                    insideMeshP=DN.shared.mesh.searchWithGuess(Pp,S).first;
+                    insideMeshP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).first;
                     if(!insideMeshP)
                     {
-                        Pp=source.get_P()*(1.0-up)+sink.get_P()*up;
-                        Pp=L.glidePlane.snapToLattice(Pp);
-                        insideMeshP=DN.shared.mesh.searchWithGuess(Pp,S).first;
+                        //Pp=source.get_P()*(1.0-up)+sink.get_P()*up;
+                        Pp=L.glidePlane.snapToLattice(source.get_P()*(1.0-up)+sink.get_P()*up);
+                        insideMeshP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).first;
                     }
                 }
                 
@@ -236,9 +236,9 @@ namespace model
                 //                    ip=temp.first->first; // id of the node obtained expanding L1
                 //                }
                 
-                if(   (Pm-source.get_P()).squaredNorm()>dx2
-                   && (Pm-Pp).squaredNorm()>dx2
-                   && (Pp-  sink.get_P()).squaredNorm()>dx2
+                if(   (Pm.cartesian()-source.get_P()).squaredNorm()>dx2
+                   && (Pm-Pp).cartesian().squaredNorm()>dx2
+                   && (Pp.cartesian()-  sink.get_P()).squaredNorm()>dx2
                    && insideMeshM
                    && insideMeshP)
                 {
@@ -317,7 +317,8 @@ namespace model
                     
                     for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.linkEnd();linkIterB++)
                     {
-                        if (linkIterA->second.sID!=linkIterB->second.sID) // don't intersect with itself
+                        if (   linkIterA->second.sID!=linkIterB->second.sID // don't intersect with itself
+                            && linkIterA->second.grain.grainID==linkIterB->second.grain.grainID) // allow juncitons only within grains
                         {
                             //                            threadVector[omp_get_thread_num()]++;
                             
@@ -681,7 +682,7 @@ namespace model
                 {
                     std::cout<<"NodeBreaking "<<Ni.second->sID<<" "<<avrSecond.dot(avrFirst)<<std::endl;
                     
-                        size_t m=DN.insertVertex(Ni.second->get_P()).first->first;
+                        size_t m=DN.insertVertex(Ni.second->get_P(),Ni.second->grain.grainID).first->first;
                         
                         for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
                         {
@@ -691,14 +692,14 @@ namespace model
                             {
                                 auto Lik=DN.link(i,k);
                                 assert(Lik.first);
-                                DN.connect(m,k,Lik.second->Burgers);
+                                DN.connect(m,k,Lik.second->flow);
                                 DN.template disconnect<0>(i,k);
                             }
                             else if(i==k)
                             {
                                 auto Lji=DN.link(j,i);
                                 assert(Lji.first);
-                                DN.connect(j,m,Lji.second->Burgers);
+                                DN.connect(j,m,Lji.second->flow);
                                 DN.template disconnect<0>(j,i);
                             }
                             else

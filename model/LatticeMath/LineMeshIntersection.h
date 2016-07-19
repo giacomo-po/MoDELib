@@ -38,7 +38,7 @@ namespace model
             
             assert((L1-L0).squaredNorm()>0 && "L0 and L1 are the same");
             
-            int n=(L1-L0).dot(line.d)/d2;
+            int n=lround((L1-L0).cartesian().dot(line.d.cartesian())/line.d.cartesian().squaredNorm());
             
             temp=mesh.searchWithGuess(L1.cartesian(),guess);
             while (temp.first) // repeat untile L1 is found outside

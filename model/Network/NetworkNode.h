@@ -190,8 +190,8 @@ namespace model {
         FlowType outFlow() const
         {
             //            FlowType Fout;
-            FlowType Fout(FlowType::Zero()); // generalize
-            Fout*=0.0;
+            FlowType Fout(this->derived().zeroFlow()); // generalize
+            //Fout*=0.0;
             for (typename NeighborContainerType::const_iterator     NeighborIter=OutNeighborhood.begin();NeighborIter!=OutNeighborhood.end();++NeighborIter){
                 Fout+=std::get<1>(NeighborIter->second)->flow;
             }
@@ -202,8 +202,8 @@ namespace model {
         FlowType inFlow() const
         {
             //            FlowType Fin;
-            FlowType Fin(FlowType::Zero());
-            Fin*=0.0;
+            FlowType Fin(this->derived().zeroFlow());
+            //Fin*=0.0;
             for (typename NeighborContainerType::const_iterator     NeighborIter=InNeighborhood.begin();NeighborIter!=InNeighborhood.end();++NeighborIter){
                 Fin+=std::get<1>(NeighborIter->second)->flow;
             }

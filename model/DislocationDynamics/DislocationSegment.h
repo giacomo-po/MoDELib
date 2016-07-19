@@ -62,6 +62,8 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef LatticeVector<dim> LatticeVectorType;
         
+        const Grain<dim>& grain;
+        
         //! The glide plane unit normal vector
         const LatticePlane   glidePlane;
         const LatticePlane sessilePlane;
@@ -72,7 +74,8 @@ namespace model
         
         /**********************************************************************/
         template <typename LinkType>
-        static const LatticePlaneBase& find_glidePlane(const LatticeVectorType& sourceL,
+        static const LatticePlaneBase& find_glidePlane(const Grain<dim>& grain_in,
+                                                       const LatticeVectorType& sourceL,
                                          const LatticeVectorType& sinkL,
                                          const LatticeVectorType& Burgers,
                                          const ExpandingEdge<LinkType>& ee)
@@ -84,13 +87,14 @@ namespace model
             const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
             
             
-            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  CrystalOrientation<dim>::find_glidePlane(sinkL-sourceL,Burgers) :
+            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_glidePlane(sinkL-sourceL,Burgers) :
             /*                                                           */  ee.E.glidePlane.n;
         }
         
         /**********************************************************************/
         template <typename LinkType>
-        static const LatticePlaneBase& find_sessilePlane(const LatticeVectorType& sourceL,
+        static const LatticePlaneBase& find_sessilePlane(const Grain<dim>& grain_in,
+                                                         const LatticeVectorType& sourceL,
                                            const LatticeVectorType& sinkL,
                                            const LatticeVectorType& Burgers,
                                            const ExpandingEdge<LinkType>& ee)
@@ -102,16 +106,18 @@ namespace model
             const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
             
             
-            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  CrystalOrientation<dim>::find_sessilePlane(sinkL-sourceL,Burgers) :
+            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_sessilePlane(sinkL-sourceL,Burgers) :
             /*                                                           */  ee.E.sessilePlane.n;
         }
         
         /**********************************************************************/
-        PlanarDislocationSegment(const LatticeVectorType& sourceL,
+        PlanarDislocationSegment(const Grain<dim>& grain_in,
+                                 const LatticeVectorType& sourceL,
                                  const LatticeVectorType& sinkL,
                                  const LatticeVectorType& Burgers) :
-        /* init list       */   glidePlane(sourceL,CrystalOrientation<dim>::find_glidePlane(sinkL-sourceL,Burgers)),
-        /* init list       */ sessilePlane(sourceL,CrystalOrientation<dim>::find_sessilePlane(sinkL-sourceL,Burgers)),
+        /* init list       */ grain(grain_in),
+        /* init list       */ glidePlane(sourceL,grain.find_glidePlane(sinkL-sourceL,Burgers)),
+        /* init list       */ sessilePlane(sourceL,grain.find_sessilePlane(sinkL-sourceL,Burgers)),
         /* init list       */ glidePlaneNormal(glidePlane.n.cartesian().normalized()),
         /* init list       */ sessilePlaneNormal(sessilePlane.n.cartesian().normalized())
         {
@@ -120,12 +126,14 @@ namespace model
         
         /**********************************************************************/
         template <typename LinkType>
-        PlanarDislocationSegment(const LatticeVectorType& sourceL,
+        PlanarDislocationSegment(const Grain<dim>& grain_in,
+                                 const LatticeVectorType& sourceL,
                                  const LatticeVectorType& sinkL,
                                  const LatticeVectorType& Burgers,
                                  const ExpandingEdge<LinkType>& ee) :
-        /* init list       */   glidePlane(sourceL,  find_glidePlane(sourceL,sinkL,Burgers,ee)),
-        /* init list       */ sessilePlane(sourceL,find_sessilePlane(sourceL,sinkL,Burgers,ee)),
+        /* init list       */ grain(grain_in),
+        /* init list       */ glidePlane(sourceL,  find_glidePlane(grain,sourceL,sinkL,Burgers,ee)),
+        /* init list       */ sessilePlane(sourceL,find_sessilePlane(grain,sourceL,sinkL,Burgers,ee)),
         /* init list       */ glidePlaneNormal(glidePlane.n.cartesian().normalized()),
         /* init list       */ sessilePlaneNormal(sessilePlane.n.cartesian().normalized())
         {
@@ -322,13 +330,14 @@ namespace model
     public: // member functions
         /******************************************************************/
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        
+  
+//        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const VectorDim& Fin) :
         DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const LatticeVectorType& Fin) :
-        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),Fin),
+        /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),Fin),
         /* base class initialization */ SegmentBaseType(nodePair,Fin),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
         /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
-        /* init list       */ conjugatePlaneNormals(CrystalOrientation<dim>::conjugatePlaneNormal(this->flow,this->glidePlane.n)),
+        /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
         //        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
@@ -336,6 +345,8 @@ namespace model
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
           */
+            
+            assert(nodePair.first->grain.grainID==nodePair.second->grain.grainID && "Souce and Sink BELONG TO DIFFERENT GRAINS");
             
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->source); // This should not be called in edge expansion or contraction
             this->source->make_T();
@@ -351,11 +362,11 @@ namespace model
         /* Constructor from EdgeExpansion) ************************************/
         DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const ExpandingEdge<LinkType>& ee) :
 //        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow),
-        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow,ee),
+        /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow,ee),
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
         /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
-        /* init list       */ conjugatePlaneNormals(CrystalOrientation<dim>::conjugatePlaneNormal(this->flow,this->glidePlane.n)),
+        /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
         //        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
@@ -363,6 +374,8 @@ namespace model
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] ee the expanding edge
           */
+            
+            assert(nodePair.first->grain.grainID==nodePair.second->grain.grainID && "Souce and Sink BELONG TO DIFFERENT GRAINS");
             
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->source); // This should not be called in edge expansion or contraction
             this->source->make_T();

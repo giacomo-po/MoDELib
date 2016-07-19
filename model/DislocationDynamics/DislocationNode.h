@@ -71,13 +71,13 @@ namespace model
         static bool use_velocityFilter;
         static double velocityReductionFactor;
         static double bndDistance;
-
+        
+        const Grain<dim>& grain;
         
     private:
         
         DislocationSharedObjects<dim> shared;
         
-        const Grain<dim>& grain;
         
         LatticeVectorType L;
         
@@ -217,7 +217,7 @@ namespace model
                 assert(0 && "outDir has zero norm");
             }
             
-            LatticeVectorType dL(LatticeVectorType::Zero());
+            LatticeVectorType dL(grain.latticeVector(VectorDim::Zero()));
             switch (_confiningPlanes.size())
             {
                 case 1:
@@ -239,7 +239,8 @@ namespace model
                 {
                     //std::cout<<"boundary motion case 2, DislocationNode "<<this->sID<<std::endl;
                     const PlanePlaneIntersection ppi(*_confiningPlanes[0],*_confiningPlanes[1]);
-                    dL=LatticeVectorType(ppi.d.snapToDirection(10.0*outDir));
+                    //dL=LatticeVectorType(ppi.d.snapToDirection(10.0*outDir));
+                    dL=ppi.d.snapToDirection(10.0*outDir);
                     break;
                 }
                     
@@ -247,7 +248,7 @@ namespace model
             
             if(dL.squaredNorm()>FLT_EPSILON) // a line direction could be found
             {
-                const LatticeVectorType L0((this->get_P()+dX*temp.first).eval());
+                const LatticeVectorType L0(grain.latticeVector((this->get_P()+dX*temp.first).eval()));
                 const LatticeLine line(L0,dL);
                 LineMeshIntersection lmi(line,L0+dL,shared.mesh,temp.second);
                 assert(lmi.search.first);
@@ -274,8 +275,8 @@ namespace model
 //                        const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
                         /* base constructor */ NodeBaseType(Pin),
         /* init list        */ grain(shared.poly.grain(grainID)),
-        /* init list        */ L(grain.latticeVectorFromPosition(Pin)),
-        /* init list        */ p_Simplex(get_includingSimplex(*grain.region->begin())),
+        /* init list        */ L(grain.latticeVector(Pin)),
+        /* init list        */ p_Simplex(get_includingSimplex(*grain.region.begin())),
         /* init list        */ velocity(VectorDofType::Zero()),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
@@ -660,14 +661,14 @@ namespace model
             switch (_confiningPlanes.size())
             {
                 case 1:
-                    dX=_confiningPlanes[0]->n.snapToLattice(dX);
+                    dX=_confiningPlanes[0]->n.snapToLattice(dX).cartesian();
                     break;
                     
                 case 2:
                 {
                     PlanePlaneIntersection ppi(*_confiningPlanes[0],*_confiningPlanes[1]);
                     LatticeLine line(ppi.P,ppi.d);
-                    dX=line.d.snapToDirection(dX);
+                    dX=line.d.snapToDirection(dX).cartesian();
                     break;
                 }
                     
@@ -688,7 +689,11 @@ namespace model
                 {
                     // See if the new position is inside mesh
                     std::set<const Simplex<dim,dim>*> path;
-                    const std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P()+dX,p_Simplex,path));
+                    const bool searchAllRegions=true; // CHANGE THIS FOR MULTIPLE REGIONS
+                    const std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<dim>::mesh.searchWithGuess(searchAllRegions,
+                                                                                                                           this->get_P()+dX,
+                                                                                                                           p_Simplex,
+                                                                                                                           path));
                     //p_Simplex=temp.second;
                     
                     
@@ -698,7 +703,7 @@ namespace model
                         if(temp.first && bndNrml.squaredNorm()>0.0) // new position is on boundary
                         {
                             p_Simplex=temp.second;
-                            set(L+LatticeVectorType(dX));
+                            set(L+grain.latticeVector(dX));
                             boundaryNormal=bndNrml;
                             assert(meshLocation()==onMeshBoundary);
                         }
@@ -777,7 +782,7 @@ namespace model
                             else // use_meshRegions disenabled or node not crossing regions
                             {
                                 p_Simplex=temp.second;
-                                set(L+LatticeVectorType(dX));
+                                set(L+grain.latticeVector(dX));
                                 //                                L+=LatticeVectorType(dX);
                                 //                                this->set(this->get_P()+dX); // move node
                                 //                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0); // check if node is now on a boundary
@@ -794,7 +799,7 @@ namespace model
                 }
                 else // move node freely
                 {
-                    set(L+LatticeVectorType(dX));
+                    set(L+grain.latticeVector(dX));
                     //                    L+=LatticeVectorType(dX);
                     //                    this->set(this->get_nodeDof()+dX);
                 }
@@ -950,10 +955,16 @@ namespace model
             /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<"\t"
             /**/<< ds.pSN()->sID<<"\t"
-            /**/<< (ds.meshLocation()==onMeshBoundary);
+            /**/<< (ds.meshLocation()==onMeshBoundary)<<"\t"
+            /**/<< ds.grain.grainID;
             return os;
         }
         
+        /**********************************************************************/
+        LatticeVectorType zeroFlow() const
+        {
+            return LatticeVectorType(grain.covBasis(),grain.contraBasis());
+        }
     };
     
     
