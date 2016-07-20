@@ -33,7 +33,7 @@ outputPlasticDistortionRate=0;
 ######################################
 # MATERIAL
 # Choose a material by its atomic number (Z), for example Al=13; Ni=28; Cu=29;
-material=74;
+material=29;
 
 ######################################
 # CRYSTAL ORIENTATION
@@ -95,7 +95,7 @@ use_bvp = 10;
 use_directSolver_FEM=1;
 solverTolerance=0.0001;
 use_virtualSegments=1;
-virtualSegmentDistance=10;
+virtualSegmentDistance=100;
 
 ######################################
 # Impose that all dislocation nodes (but FR source/sink nodes) are balanced

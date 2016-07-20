@@ -70,12 +70,12 @@ namespace model
                 if(eIter->second.isBoundaryElement())
                 {
                     const std::vector<int> boundaryFaces=eIter->second.boundaryFaces();
-                    for (int f=0;f<boundaryFaces.size();++f)
+                    for (unsigned int f=0;f<boundaryFaces.size();++f)
                     {
                         bool isExternalBoundaryFace(true);
                         
                         std::array<const Simplex<FiniteElementType::dim,0>*, SimplexTraits<FiniteElementType::dim,FiniteElementType::dim-1>::nVertices> vertices=eIter->second.simplex.child(boundaryFaces[f]).vertices();
-                        for(int v=0;v<vertices.size();++v)
+                        for(unsigned int v=0;v<vertices.size();++v)
                         {
                             isExternalBoundaryFace *= atx(vertices[v]->P0);
                         }

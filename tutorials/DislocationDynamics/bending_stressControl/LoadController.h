@@ -11,12 +11,55 @@
 #include <model/FEM/Domains/IntegrationDomain.h>
 #include <model/FEM/Boundaries/AtXmin.h>
 #include <model/FEM/Boundaries/AtXmax.h>
+#include <model/FEM/Boundaries/MidPlane.h>
 #include <model/FEM/Boundaries/BoundaryIntersection.h>
 #include <model/FEM/BoundaryConditions/Fix.h>
 #include <model/Utilities/EigenDataReader.h>
 
 using namespace model;
 
+/**************************************************************************/
+template<int comp,int gradDir>
+struct LinearTraction
+{
+    
+    constexpr static int rows=3;
+    constexpr static int cols=1;
+    
+    
+    const double stressGradient;
+    const double refCoordinate;
+
+    /**********************************************************************/
+    LinearTraction(const double& stressGradient_in,
+                   const double& refCoordinate_in=0.0) :
+    stressGradient(stressGradient_in),
+    refCoordinate(refCoordinate_in)
+    {
+        
+    }
+    
+    /**********************************************************************/
+    template<typename ElementType, typename BaryType>
+    const Eigen::Matrix<double,3,1> operator() (const ElementType& ele, const BaryType& bary) const
+    {/*!@param[in] elem the element
+      * @param[in] bary the barycentric cooridinate
+      *\returns the constant c.
+      */
+        Eigen::Matrix<double,3,1> temp(Eigen::Matrix<double,3,1>::Zero());
+        temp(comp)=stressGradient*(ele.simplex.bary2pos(bary)(gradDir)-refCoordinate);
+        return temp;
+    }
+    
+    /**********************************************************************/
+    EvalExpression<LinearTraction<comp,gradDir>> eval() const
+    {
+        return EvalExpression<LinearTraction<comp,gradDir>>(*this);
+    }
+    
+};
+
+/**************************************************************************/
 template <typename TrialFunctionType>
 struct LoadController
 {
@@ -69,8 +112,8 @@ struct LoadController
     /* init list */ last_update_time(0.0),
     /* init list */ deltaStress(0.0),
     /* init list */ apply_tension(true),
-    /* init list */ nodeList_left(u.fe.template createNodeList<BoundaryIntersection<AtXmin<1>,AtXmin<2>>>()),
-    /* init list */ nodeList_right(u.fe.template createNodeList<BoundaryIntersection<AtXmax<1>,AtXmin<2>>>()),
+    /* init list */ nodeList_left(u.fe.template createNodeList<BoundaryIntersection<AtXmin<1>,MidPlane<2>>>()),
+    /* init list */ nodeList_right(u.fe.template createNodeList<BoundaryIntersection<AtXmax<1>,MidPlane<2>>>()),
     /* init list */ nodeList_top(u.fe.template createNodeList<AtXmax<2>>()),
     /* init list */ loadedBnd(topBoundary(u.fe)),
     /* init list */ topArea(loadedBnd.volume())
@@ -135,10 +178,14 @@ struct LoadController
             
             if (apply_tension)
             {
-                auto f=make_constant((Eigen::Matrix<double,dim,1>()<<0.0,0.0,initialStress+deltaStress).finished());
-                auto dA=u.fe.template boundary<AtXmax<2>,3,GaussLegendre>();
-                auto lWF=(u.test(),f)*dA;
-                gv=lWF.globalVector();
+                LinearTraction<1,2> lt0(-(initialStress+deltaStress)/(u.fe.xMax()(2)-u.fe.xMin()(2)));
+                auto dA0=u.fe.template boundary<AtXmin<1>,3,GaussLegendre>();
+                auto lWF0=(u.test(),lt0.eval())*dA0;
+
+                LinearTraction<1,2> lt1((initialStress+deltaStress)/(u.fe.xMax()(2)-u.fe.xMin()(2)));
+                auto dA1=u.fe.template boundary<AtXmax<1>,3,GaussLegendre>();
+                auto lWF1=(u.test(),lt1.eval())*dA1;
+                gv=lWF0.globalVector()+lWF1.globalVector();
             }
             else
             {

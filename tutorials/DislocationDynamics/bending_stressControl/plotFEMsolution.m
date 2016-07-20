@@ -2,8 +2,8 @@ clc
 clear all
 close all
 
-U=load('U/U_10.txt');
-S=load('S/S_10.txt');
+U=load('U/U_100.txt');
+S=load('S/S_100.txt');
 
 %% Plot displacement
 comp={'x_1','x_2','x_3','u_1','u_2','u_3'};
@@ -16,7 +16,7 @@ uMax=max(U(:,clrCol))
 uMin=min(U(:,clrCol))
 clrID=round((U(:,clrCol)-uMin)/(uMax-uMin)*size(colormap,1));
 
-def=1;
+def=10;
 
 
 
