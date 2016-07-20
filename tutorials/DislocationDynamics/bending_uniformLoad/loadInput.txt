@@ -1,0 +1,3 @@
+sigmaDot=-1.0e-12;
+initialStress=0;
+apply_tension=1;
