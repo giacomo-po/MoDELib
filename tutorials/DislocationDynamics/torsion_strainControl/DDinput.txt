@@ -24,6 +24,7 @@ outputPKforce=0;
 outputQuadratureParticles=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
+outputFEMsolution=0;
 outputDislocationLength=1;
 outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
