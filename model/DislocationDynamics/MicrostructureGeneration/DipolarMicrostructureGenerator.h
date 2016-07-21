@@ -69,12 +69,21 @@ namespace model
                 }
                 assert(planeIDs.size()==2 && "ONLY FCC IS SUPPORTED AT THE MOMENT.");
                 
-                LatticeDirection<3> d1(LatticeVector<dim>(slipSystem.s.cross(CrystalOrientation<dim>::planeNormals()[*planeIDs.begin()])));
-                LatticeDirection<3> d2(LatticeVector<dim>(slipSystem.s.cross(CrystalOrientation<dim>::planeNormals()[*planeIDs.rbegin()])));
-                if(density/targetDensity<fractionSessile)
+                LatticeVector<3> v1(LatticeVector<dim>(slipSystem.s.cross(CrystalOrientation<dim>::planeNormals()[*planeIDs.begin()])));
+                LatticeVector<3> v2(LatticeVector<dim>(slipSystem.s.cross(CrystalOrientation<dim>::planeNormals()[*planeIDs.rbegin()])));
+                if(density<fractionSessile*targetDensity)
                 { // overwrite d2
-                    assert(0 && "SESSILE LOOPS NOT SUPPORTED YET.");
+                    for(const auto& slip : CrystalOrientation<dim>::slipSystems())
+                    if(fabs(slip.s.cartesian().dot(slipSystem.s.cartesian()))<FLT_EPSILON)
+                    {
+                        v2=(LatticeDirection<3>(slip.s));
+                        break;
+                    }
+//                        assert(0 && "SESSILE LOOPS NOT SUPPORTED YET.");
                 }
+                
+                const LatticeDirection<3> d1(v1);
+                const LatticeDirection<3> d2(v2);
                 
                 const double d1cNorm(d1.cartesian().norm());
                 const double d2cNorm(d2.cartesian().norm());
