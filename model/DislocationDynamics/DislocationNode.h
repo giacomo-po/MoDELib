@@ -112,6 +112,15 @@ namespace model
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
+            if(guess->region->regionID!=grain.grainID)
+            {
+                model::cout<<"DislocationNode "<<this->sID<<std::endl;
+                model::cout<<"grainID "<<grain.grainID<<std::endl;
+                model::cout<<"guess= "<<guess->xID<<std::endl;
+                model::cout<<"guess regionID "<<guess->region->regionID<<std::endl;
+                assert(0 && "guess does not belong to grain.");
+            }
+            
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
             if (DislocationSharedObjects<dim>::use_boundary)
             {

@@ -111,7 +111,7 @@ namespace model
         {
             assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
             assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
-            static_cast<VectorDimI>(*this)=static_cast<VectorDimI>(other);
+            base()=other.base();
             return *this;
         }
         
@@ -120,7 +120,7 @@ namespace model
         {
             assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
             assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
-            static_cast<VectorDimI>(*this)=std::move(static_cast<VectorDimI>(other));
+            base()=other.base();
             return *this;
         }
         
