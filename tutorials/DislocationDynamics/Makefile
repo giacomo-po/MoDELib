@@ -4,15 +4,16 @@
 USE_ICC = 0
 usePARDISO = 1
 MODEL_INCLUDE =../../../
+EIGEN_INCLUDE =/Users/giacomo/Documents/eigen
 MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
 MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
 ##########################################################
-IDIR += -I/usr/local/include
 IDIR += -I./
 IDIR += -I$(MODEL_INCLUDE)
+IDIR += -I$(EIGEN_INCLUDE)
 
 ##########################################################
 # COMPILER SETTINGS - DO NOT EDIT-
@@ -34,7 +35,6 @@ else
 	CFLAGS += -msse4
 	CFLAGS += -fopenmp
 	CFLAGS += -std=c++11
-	CFLAGS += -ftemplate-backtrace-limit=0
 endif
 
 # enable warnings

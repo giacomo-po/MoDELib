@@ -18,7 +18,7 @@
 
 
 #include <model/Utilities/SequentialOutputFile.h>
-#include <model/Math/MINRES.h>
+#include <unsupported/Eigen/IterativeSolvers>
 #include <model/MPI/MPIcout.h>
 
 
