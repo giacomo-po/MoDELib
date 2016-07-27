@@ -18,7 +18,8 @@
 
 //#include <model/Math/SchurComplementSolver.h>
 #include <Eigen/Sparse>
-#include <model/Math/MINRES.h>
+//#include <model/Math/MINRES.h>
+#include <unsupported/Eigen/IterativeSolvers>
 #include <Eigen/SparseCholesky> // simplicial DLDT
 
 //#include <model/Math/SparseNullSpace.h>

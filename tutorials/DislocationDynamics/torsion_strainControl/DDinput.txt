@@ -104,7 +104,7 @@ check_balance=1;
 ######################################
 # Enable/disable cross-slip
 use_crossSlip=1;
-crossSlipDeg=1.0;
+crossSlipDeg=2.0;
 
 ######################################
 parametrizationExponent=0.5;

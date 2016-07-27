@@ -11,6 +11,7 @@
 
 #include <math.h>       /* round, floor, ceil, trunc */
 #include <random>
+#include <vector>
 #include <model/DislocationDynamics/MicrostructureGeneration/MicrostructureGenerator.h>
 #include <model/LatticeMath/LatticeVector.h>
 #include <model/DislocationDynamics/Materials/CrystalOrientation.h>
@@ -50,6 +51,9 @@ namespace model
             std::cout<<"Generating dipoles..."<<std::endl;
             double density=0.0;
             size_t nodeID=0;
+            
+            std::vector<int> distVector(CrystalOrientation<dim>::slipSystems().size(),0);
+            
             while(density<targetDensity)
             {
                 
@@ -99,6 +103,9 @@ namespace model
                    && mesh.search(L2.cartesian()).first
                    && mesh.search(L3.cartesian()).first)
                 {
+                    distVector[rSS]++;
+
+                    
                     density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/this->mesh.volume()/pow(Material<Isotropic>::b_real,2);
                     std::cout<<"density="<<density<<std::endl;
                     
@@ -118,6 +125,12 @@ namespace model
                 }
             }
         
+            std::cout<<"Slip systems distributions:"<<std::endl;
+            for(unsigned int k=0;k<distVector.size();++k)
+            {
+                std::cout<<"    slip system "<<k<<": "<<distVector[k]<<std::endl;
+            }
+            
         }
         
     
