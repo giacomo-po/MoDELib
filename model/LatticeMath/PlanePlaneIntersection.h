@@ -74,7 +74,7 @@ namespace model
             LatticeVector<3> temp(p1);
             const Eigen::Matrix<double,3,1> dc=dir.cartesian();
             const int kMax=100;
-            for (int k=0;k<=kMax;++k)
+            for (int k=0;k<kMax;++k)
             {
                 temp=plane1.snapToLattice(C+k*1.0/kMax*dc);
                 if(plane2.contains(temp))
