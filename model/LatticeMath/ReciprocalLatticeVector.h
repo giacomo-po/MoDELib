@@ -9,6 +9,7 @@
 #ifndef model_ReciprocalLatticeVector_h_
 #define model_ReciprocalLatticeVector_h_
 
+#include <iostream>
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
 #include <model/Math/RoundEigen.h>
