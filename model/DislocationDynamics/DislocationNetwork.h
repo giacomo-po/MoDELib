@@ -344,7 +344,10 @@ namespace model
             formJunctions();
             
             // Remesh may contract juncitons to zero lenght. Remove those juncitons:
-            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
+            if(runID%5==0)
+            {
+                DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
+            }
             
             //! 13- Node redistribution
             remesh();

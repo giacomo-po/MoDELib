@@ -69,6 +69,7 @@ namespace model
         
         static bool use_velocityFilter;
         static double velocityReductionFactor;
+        static double velocityIncreaseFactor;
         static double bndDistance;
 
         
@@ -575,7 +576,7 @@ namespace model
                 }
                 else if(velocity.dot(vOld)>filterThreshold)
                 {
-                    velocityReductionCoeff/=velocityReductionFactor;
+                    velocityReductionCoeff*=velocityIncreaseFactor;
                 }
                 else
                 {
@@ -585,9 +586,9 @@ namespace model
                 {
                     velocityReductionCoeff=1.0;
                 }
-                if(velocityReductionCoeff<0.01)
+                if(velocityReductionCoeff<0.005)
                 {
-                    velocityReductionCoeff=0.01;
+                    velocityReductionCoeff=0.005;
                 }
                 velocity*=velocityReductionCoeff;
                 
@@ -931,6 +932,10 @@ namespace model
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::velocityReductionFactor=0.75;
+    
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
+    double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::velocityIncreaseFactor=1.1;
 
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ template <short unsigned int, size_t> class QuadratureRule>

@@ -27,7 +27,7 @@ namespace model
             coincidentLines=1,
             nonIntersectingLines=2,
             intersectingLines=3,
-            nonLatticeIntersection=4
+            offLattice=4
         };
 
         
@@ -81,7 +81,7 @@ namespace model
                     else
                     {
 //                        temp.first=false;
-                        temp=nonLatticeIntersection;
+                        temp=offLattice;
                     }
                 }
             }

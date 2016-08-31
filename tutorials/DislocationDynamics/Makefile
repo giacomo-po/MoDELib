@@ -224,3 +224,4 @@ ifeq ($(JPGexists),1)
 	@echo emptying folder jpg
 	@find jpg/ -name image_\*.jpg -exec rm {} +;
 endif
+
