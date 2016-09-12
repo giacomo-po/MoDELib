@@ -246,7 +246,7 @@ namespace model
             {
                 if(fabs(nd(k))>roundTol)
                 {
-                    const VectorDimD ndk(nd/nd(k));
+                    const VectorDimD ndk(nd/fabs(nd(k)));
                     rdk=RoundEigen<double,dim>::round(ndk);
                     if((ndk-rdk).norm()<roundTol)
                     {
@@ -272,7 +272,7 @@ namespace model
             {
                 if(fabs(nd(k))>roundTol)
                 {
-                    const VectorDimD ndk(nd/nd(k));
+                    const VectorDimD ndk(nd/fabs(nd(k)));
                     rdk=RoundEigen<double,dim>::round(ndk);
                     if((ndk-rdk).norm()<roundTol)
                     {
