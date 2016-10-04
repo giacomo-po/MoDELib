@@ -56,9 +56,10 @@ namespace model
         static double tol;
         
         /* rotate *************************************************************/
-        template <typename CrystalStructure>
+        template <typename MaterialType>
         static void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in)
         {
+            typedef typename MaterialType::CrystalStructure CrystalStructure;
             
             // make sure that C2G is orthogonal
             assert((C2G_in*C2G_in.transpose()-Eigen::Matrix<double,dim,dim>::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && "CRYSTAL TO GLOBAL ROTATION MATRIX IS NOT ORTHOGONAL.");
@@ -72,7 +73,7 @@ namespace model
             slipSystemContainer=CrystalStructure::slipSystems();
             
             // Rotate the LatticeBasis of the CrystalStructure using C2G
-            LatticeBase<dim>::setLatticeBasis(C2G*CrystalStructure::template getLatticeBasis<dim>());
+            LatticeBase<dim>::setLatticeBasis(C2G*CrystalStructure::template getLatticeBasis<dim,MaterialType>());
             
             model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
             for (unsigned int k=0; k<planeNormalContainer.size();++k)

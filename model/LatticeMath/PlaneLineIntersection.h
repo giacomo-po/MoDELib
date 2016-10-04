@@ -19,6 +19,9 @@ namespace model
     struct PlaneLineIntersection
     {
         typedef Eigen::Matrix<long int,3,1> VectorDimI;
+        typedef Eigen::Matrix<double,3,1> VectorDimD;
+        typedef LatticeVector<3> LatticeVectorType;
+
 
         enum IntersectionType
         {
@@ -38,7 +41,7 @@ namespace model
         /* init */ num(plane.P.dot(plane.n)-line.P.dot(plane.n)),
         /* init */ den(line.d.dot(plane.n)),
         /* init */ intersectionType(den!=0? ((num%den)==0? intersecting : offLattice) : (num==0? coincident : parallel)),
-        /* init */ P( (intersectionType==intersecting || intersectionType==offLattice )? (line.P+num/den*line.d).eval() : (intersectionType==coincident? line.P : VectorDimI::Zero() ))
+        /* init */ P( (intersectionType==intersecting || intersectionType==offLattice )? line.P+num/den*line.d : (intersectionType==coincident? line.P : LatticeVectorType() ))
         {
 //            std::cout<<"num="<<num<<std::endl;
 //            std::cout<<"den="<<den<<std::endl;

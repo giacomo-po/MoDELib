@@ -13,6 +13,8 @@
 #include <model/DislocationDynamics/Materials/MaterialSymmetry.h>
 #include <model/DislocationDynamics/Materials/FCCcrystal.h>
 #include <model/DislocationDynamics/Materials/BCCcrystal.h>
+#include <model/DislocationDynamics/Materials/HexLattice.h>
+
 #include <model/DislocationDynamics/MobilityLaws/DislocationMobility.h>
 
 namespace model
@@ -29,6 +31,29 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template <>
+    struct PeriodicElement<12,Isotropic>
+    {
+        typedef Hexagonal CrystalStructure;
+        static constexpr int Z=12;
+        static constexpr auto name="Magnesium";
+        static constexpr double nu=0.29;                // Poisson ratio [-]
+        static constexpr double mu=17.0e9;              // Shear modulus [Pa]
+        static constexpr double b=0.3210e-9;            // Burgers vector (basal lattice vector "a") [m]
+        static const double c2a;              // c/a ratio [-]
+        static constexpr double rho=1738.0;             // Mass density [kg/m^3]
+        static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
+        
+        static const DislocationMobility<Hexagonal> dm;
+        
+    };
+    
+    const DislocationMobility<Hexagonal> PeriodicElement<12,Isotropic>::dm=DislocationMobility<Hexagonal>(b,mu,cs,3.9e-08,7.5e-08);
+    const double PeriodicElement<12,Isotropic>::c2a=1.624;              // c/a ratio [-]
+
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    template <>
     struct PeriodicElement<13,Isotropic>
     {
         typedef FCC CrystalStructure;
@@ -41,9 +66,13 @@ namespace model
         static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
         
         //! FCC-mobility law with data from Olmsted MSMSE 13(3), 2005.
-        static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,3.9e-08,7.5e-08);
+//        static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,3.9e-08,7.5e-08);
+        static const DislocationMobility<FCC> dm;
+
     };
     
+    const DislocationMobility<FCC> PeriodicElement<13,Isotropic>::dm=DislocationMobility<FCC>(b,mu,cs,3.9e-08,7.5e-08);
+
     /**************************************************************************/
     /**************************************************************************/
     template <>
@@ -59,8 +88,12 @@ namespace model
         static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
         
         //! FCC mobility law with data from Olmsted MSMSE 13(3), 2005.
-        static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,5.0e-08,6.4e-08);
+//        static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,5.0e-08,6.4e-08);
+        static const DislocationMobility<FCC> dm;
+
     };
+    
+    const DislocationMobility<FCC> PeriodicElement<28,Isotropic>::dm=DislocationMobility<FCC>(b,mu,cs,5.0e-08,6.4e-08);
     
     /**************************************************************************/
     /**************************************************************************/
@@ -76,8 +109,13 @@ namespace model
         static constexpr double rho=8940.0;             // Mass density [kg/m^3]
         static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
         
-        static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,3.3333e-07,3.3333e-07);
+//        static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,3.3333e-07,3.3333e-07);
+        static const DislocationMobility<FCC> dm;
+        
     };
+    
+    const DislocationMobility<FCC> PeriodicElement<29,Isotropic>::dm=DislocationMobility<FCC>(b,mu,cs,3.3333e-07,3.3333e-07);
+    
     
     //    /**************************************************************************/
     //    /**************************************************************************/

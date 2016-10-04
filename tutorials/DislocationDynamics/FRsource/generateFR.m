@@ -13,21 +13,20 @@ v3=v3/norm(v3);
 C2G=[v1;cross(v3,v1); v3]
 
 A=C2G*A;  
-%invA=inv(A);
 
 g1=A(:,1)-A(:,3); % primitive lattice vector on the 111 plane
 g2=A(:,2)-A(:,3); % primitive lattice vector on the 111 plane
-G=[g1 g2];
+G=[g1 g2]; % Matrix of primitive lattice vectors
 
 %% Initial configuration
-b=[1 0 0];
-L=3000;
+b=[1 0 0]; % Burgers vector along x1 
+L=2000; % length of dislocation
 
 
 XL=[0 0;
     0 L;
     0 0];
-XL=G*round(inv(G'*G)*G'*XL); % snap to lattice
+XL=G*round(inv(G'*G)*G'*XL); % snap positions to lattice
 
 
 figure(1)

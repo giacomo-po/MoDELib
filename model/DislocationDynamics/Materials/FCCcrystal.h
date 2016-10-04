@@ -23,7 +23,7 @@ namespace model
     {
         
         /**********************************************************************/
-        template <int dim>
+        template <int dim,typename MaterialType>
         static Eigen::Matrix<double,dim,dim> getLatticeBasis()
         {/*!\returns The matrix of lattice vectors (cartesian cooridinates in columns), 
           * in units of the crystallographic Burgers vector.
