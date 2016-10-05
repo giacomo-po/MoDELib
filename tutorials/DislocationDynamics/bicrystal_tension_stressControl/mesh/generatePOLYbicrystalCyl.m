@@ -175,6 +175,6 @@ s=sqrt(1-c^2);  % sin(Theta)
 
 C2G1=eye(3)
 
-C2G2=[c 0 -s;
+C2G2=[c 0  s;
       0 1  0;
-      s 0  c]
+      -s 0  c]

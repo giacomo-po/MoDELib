@@ -42,10 +42,13 @@ namespace model
         void storeLatticePlane(const Grain<dim>& grain,
                                const VectorDimD& normal)
         {
-            std::cout<<std::setprecision(15)<<std::scientific<<normal<<std::endl;
+//            std::cout<<std::setprecision(15)<<std::scientific<<normal<<std::endl;
             ReciprocalLatticeDirectionType R=grain.reciprocalLatticeDirection(normal);
             
-            model::cout<<"Grain boundary for grain"<< grain.grainID<<" is "<<R.transpose()<<std::endl;
+            model::cout<<"Grain boundary normal for grain"<< grain.grainID<<std::endl;
+            model::cout<<"cartesian components="<<R.cartesian().transpose()<<std::endl;
+            model::cout<<"lattice components="<<R.transpose()<<std::endl;
+
             //            model::cout<<"Cartesian Grain boundary for grain"<< grain.grainID<<" is "<<R.cartesian().transpose()<<std::endl;
             
             VectorDimD v1;
