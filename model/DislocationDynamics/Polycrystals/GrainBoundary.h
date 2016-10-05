@@ -42,7 +42,7 @@ namespace model
         void storeLatticePlane(const Grain<dim>& grain,
                                const VectorDimD& normal)
         {
-            
+            std::cout<<std::setprecision(15)<<std::scientific<<normal<<std::endl;
             ReciprocalLatticeDirectionType R=grain.reciprocalLatticeDirection(normal);
             
             model::cout<<"Grain boundary for grain"<< grain.grainID<<" is "<<R.transpose()<<std::endl;
@@ -117,6 +117,7 @@ namespace model
         /**********************************************************************/
         void createLatticePlanes()
         {
+//            model::cout<<"Creating BG plane ("<<regionBoundary.regionBndID.first<<" "<<regionBoundary.regionBndID.second<<")"<<std::endl;
             LatticePlaneContainerType::clear();
             const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
             for(const auto& tet : triangle.parents())

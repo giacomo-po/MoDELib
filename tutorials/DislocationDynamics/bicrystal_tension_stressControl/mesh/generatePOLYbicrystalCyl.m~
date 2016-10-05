@@ -6,12 +6,14 @@ MODEL_DIR='../../../..';
 
 %% Define output file name
 meshID=0; % creates ../N/N_1.txt and ../T/T_1.txt
-targetElements=5e4;
+targetElements=1e4;
 
 filename='bicrystalCyl'; % this creates file cube.poly
 
 R=1000;      % radius of cyl
 H=4*R;       % height of cyl
+A=pi*R^2;    % cross section area
+V=A*H;       % volume
 np=20;       % number of points along circumference
 N=[1 0 3]';  % normal to GB plane
 N=N/norm(N);
@@ -149,11 +151,8 @@ fprintf(polyFile,'0 \n\n');
 fprintf(polyFile,'# Part 4 - the region list.\n');
 fprintf(polyFile,'%i \n',size(Xm,1));
 
-vL=t^3/6/sqrt(2);
-meshSize=ones(size(Xm,1),1)*vL;
-meshSize(1)=vL*10; % increase volume element in central cube
+meshSize=ones(size(Xm,1),1)*V/targetElements;
 for r=1:size(Xm,1)
-%fprintf(polyFile,'%i %d %d %d %d \n',[r Xm(r,:) meshSize(r)]);
 fprintf(polyFile,'%i %d %d %d %i %d \n',[r Xm(r,:) r meshSize(r)]);
 end
 
@@ -164,3 +163,18 @@ system([MODEL_DIR '/scripts/tetgenPOLY.sh ' filename]);
 
 %% Create T and N files and clean tetgent output
 system([MODEL_DIR '/scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
+
+%% Print C2G1 and C2G2 (paste in DDinput.txt)
+format long
+
+v1=cross([0 1 0]',N) % vector on GB plane in grain 1
+v2=[v1(1) v1(2) -v1(3)]';
+
+c=dot(v1,v2);   % cos(Theta)
+s=sqrt(1-c^2);  % sin(Theta)
+
+C2G1=eye(3)
+
+C2G2=[c 0 -s;
+      0 1  0;
+      s 0  c]

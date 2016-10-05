@@ -122,7 +122,7 @@ text(Xm(:,1),Xm(:,2),Xm(:,3),num2str([1:size(Xm,1)]'),'FontSize',16)
 polyFile = fopen([filename '.poly'],'w');
 
 % Part 1- the node list.
-pointFormat='%i %d %d %d \n';
+pointFormat='%i %.15e %.15e %.15e \n';
 fprintf(polyFile,'# Part 1 - the node list.\n');
 fprintf(polyFile,'%i 3 0 0 \n',size(P,1));  % number of nodes
 for k=1:size(P,1)
@@ -153,7 +153,7 @@ fprintf(polyFile,'%i \n',size(Xm,1));
 
 meshSize=ones(size(Xm,1),1)*V/targetElements;
 for r=1:size(Xm,1)
-fprintf(polyFile,'%i %d %d %d %i %d \n',[r Xm(r,:) r meshSize(r)]);
+fprintf(polyFile,'%i %.15e %.15e %.15e %i %.15e \n',[r Xm(r,:) r meshSize(r)]);
 end
 
 fclose(polyFile);
@@ -163,3 +163,18 @@ system([MODEL_DIR '/scripts/tetgenPOLY.sh ' filename]);
 
 %% Create T and N files and clean tetgent output
 system([MODEL_DIR '/scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
+
+%% Print C2G1 and C2G2 (paste in DDinput.txt)
+format long
+
+v1=cross([0 1 0]',N) % vector on GB plane in grain 1
+v2=[v1(1) v1(2) -v1(3)]';
+
+c=dot(v1,v2);   % cos(Theta)
+s=sqrt(1-c^2);  % sin(Theta)
+
+C2G1=eye(3)
+
+C2G2=[c 0 -s;
+      0 1  0;
+      s 0  c]

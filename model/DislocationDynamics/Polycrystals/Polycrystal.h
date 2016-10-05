@@ -92,6 +92,7 @@ namespace model
         /**********************************************************************/
         void createLatticePlanes()
         {
+            model::cout<<greenColor<<"Creating GB lattice planes"<<defaultColor<<std::endl;
             for(auto& gb : grainBoundaries())
             {
                 gb.second.createLatticePlanes();
