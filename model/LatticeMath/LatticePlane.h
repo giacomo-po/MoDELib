@@ -51,6 +51,12 @@ namespace model
             return (L-P).dot(n)==0;
         }
         
+        /**********************************************************************/
+        bool contains(const Eigen::Matrix<double,3,1>& P0) const
+        {
+            return fabs((P0-P.cartesian()).dot(n.cartesian()))<FLT_EPSILON;
+        }
+        
     };
     
 } // end namespace

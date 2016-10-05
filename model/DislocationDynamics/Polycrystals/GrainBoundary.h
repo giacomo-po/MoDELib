@@ -25,7 +25,7 @@ namespace model
     template <int dim>
     class GrainBoundary :
     /* base */ private std::map<int,const Grain<dim>* const>,
-    /* base */ private std::map<int,LatticePlaneBase>
+    /* base */ private std::map<int,LatticePlane>
     {
         typedef MeshRegionBoundary<Simplex<dim,dim-1> > MeshRegionBoundaryType;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
@@ -36,7 +36,7 @@ namespace model
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef Grain<dim> GrainType;
         typedef std::map<int,const GrainType* const> GrainContainerType;
-        typedef std::map<int,LatticePlaneBase> LatticePlaneContainerType;
+        typedef std::map<int,LatticePlane> LatticePlaneContainerType;
         
         /**********************************************************************/
         void storeLatticePlane(const Grain<dim>& grain,
@@ -51,27 +51,39 @@ namespace model
 
             //            model::cout<<"Cartesian Grain boundary for grain"<< grain.grainID<<" is "<<R.cartesian().transpose()<<std::endl;
             
+            
+            // CHENAGE THIS PART READING FROM TABLE OF GB CASES
             VectorDimD v1;
             VectorDimD v2;
+
+            v1<< 3.0,0.0,-1.0;
+            v1*=sqrt(2.0);
+            v2<< 0.0,1.0, 0.0;
+            v2*=sqrt(2.0);
+            
             if(grain.grainID==1)
             {
-                v1<<-1.0,0.0,-3.0;
-                v2<< 0.0,1.0, 0.0;
             }
             else
             {
-                v1<<-1.0,0.0, 3.0;
-                v2<< 0.0,1.0, 0.0;
+                v2*=-1.0; // when implementing GB table, normals must be opposite sign
             }
-            v1=grain.get_C2G()*v1*sqrt(2.0);
-            v2=grain.get_C2G()*v2*sqrt(2.0);
+//            v1=grain.get_C2G()*v1*sqrt(2.0);
+//            v2=grain.get_C2G()*v2*sqrt(2.0);
             
-            LatticePlaneContainerType::emplace(std::piecewise_construct,
+            LatticeVectorType O(grain.covBasis(),grain.contraBasis());
+            
+            // Here is ok
+            LatticePlaneBase pb(LatticeVectorType(v1,grain.covBasis(),grain.contraBasis()),
+                                LatticeVectorType(v2,grain.covBasis(),grain.contraBasis()));
+            
+            
+            const auto temp = LatticePlaneContainerType::emplace(std::piecewise_construct,
                                                std::forward_as_tuple(grain.grainID),
-                                               std::forward_as_tuple(LatticeVectorType(v1,grain.covBasis(),grain.contraBasis()),
-                                                                     LatticeVectorType(v2,grain.covBasis(),grain.contraBasis())
-                                                                     )
-                                               );
+                                               std::forward_as_tuple(O,pb));
+            
+            std::cout<<"GB plane normal="<<temp.first->second.n.cartesian().transpose()<<std::endl;
+
             
         }
         
@@ -106,13 +118,13 @@ namespace model
         }
         
         /**********************************************************************/
-        const std::map<int,LatticePlaneBase>& latticePlanes() const
+        const std::map<int,LatticePlane>& latticePlanes() const
         {
             return *this;
         }
         
         /**********************************************************************/
-        const LatticePlaneBase& latticePlane(const int& k) const
+        const LatticePlane& latticePlane(const int& k) const
         {
             return latticePlanes().at(k);
         }
@@ -120,7 +132,6 @@ namespace model
         /**********************************************************************/
         void createLatticePlanes()
         {
-//            model::cout<<"Creating BG plane ("<<regionBoundary.regionBndID.first<<" "<<regionBoundary.regionBndID.second<<")"<<std::endl;
             LatticePlaneContainerType::clear();
             const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
             for(const auto& tet : triangle.parents())
@@ -128,9 +139,22 @@ namespace model
                 const size_t faceID=tet->childOrder(triangle.xID);
                 const VectorDimD outNormal=tet->nda.col(faceID);
                 storeLatticePlane(grain(tet->region->regionID),outNormal);
-                
             }
             
+            // Check that all tringle vertices are contained by both GB planes
+            for(const auto& triangle : regionBoundary)
+            {
+                const auto Ps=triangle->vertexPositionMatrix();
+                for(int j=0;j<Ps.cols();++j)
+                {
+                    for(const auto& grain : grains())
+                    {
+                        assert(latticePlane(grain.second->grainID).contains(Ps.col(j)) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
+                    }
+//                    assert(latticePlane(grainFirst.grainID))
+                }
+                
+            }
         }
         
         
