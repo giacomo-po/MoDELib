@@ -17,7 +17,7 @@ using namespace model;
 int main()
 {
     
-    const double f=0.333333;
+    const double f=1.11022e-16;
     BestRationalApproximation bra(f,100);
     
     std::cout<<"num="<<bra.num<<std::endl;

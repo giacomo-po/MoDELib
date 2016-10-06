@@ -271,18 +271,18 @@ namespace model
             const double maxVal(nda.maxCoeff(&maxID));
             nd/=maxVal;
             
-//            std::cout<<nd<<std::endl<<std::endl;
+            
             
             Eigen::Array<long int,dim,1> nums=Eigen::Matrix<long int,dim,1>::Ones();
             Eigen::Array<long int,dim,1> dens=Eigen::Matrix<long int,dim,1>::Ones();
             long int denProd=1;
             
+            
+            
             for(int k=0;k<dim;++k)
             {
                 BestRationalApproximation bra(nd(k),100);
                 
-//                std::cout<<k<<std::endl;
-//                std::cout<<bra.num<<"/"<<bra.den<<std::endl;
                 nums(k)=bra.num;
                 dens(k)=bra.den;
                 denProd*=bra.den;
@@ -292,6 +292,7 @@ namespace model
             {
                 nums(k)*=(denProd/dens(k));
             }
+            
             
             const ReciprocalLatticeVectorType temp(nums.matrix(),_covBasis,_contraBasis);
             

@@ -151,9 +151,7 @@ namespace model
                     {
                         assert(latticePlane(grain.second->grainID).contains(Ps.col(j)) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
                     }
-//                    assert(latticePlane(grainFirst.grainID))
-                }
-                
+                }                
             }
         }
         
