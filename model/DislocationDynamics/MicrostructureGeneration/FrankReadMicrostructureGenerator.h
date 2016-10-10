@@ -54,19 +54,15 @@ namespace model
             size_t nodeID=0;
             while(density<targetDensity)
             {
-                //std::cout<<"I'm here 1"<<std::endl;
                 const std::pair<LatticeVector<dim>,int> L0=this->randomPointInMesh();
                 
                 std::uniform_int_distribution<> distribution(0,this->poly.grain(L0.second).slipSystems().size()-1);
                 
-                //std::cout<<"I'm here 2"<<std::endl;
                 const int rSS=distribution(generator); // a random SlipSystem
                 
                 const auto& slipSystem=this->poly.grain(L0.second).slipSystems()[rSS];
                 
-                //std::cout<<"I'm here 3"<<std::endl;
                 ReciprocalLatticeDirection<3> sr(this->poly.grain(L0.second).reciprocalLatticeDirection(slipSystem.s.cartesian()));
-                //std::cout<<"I'm here 3a"<<std::endl;
                 
                 bool isEdge=true;
                 
@@ -76,7 +72,6 @@ namespace model
                 double d1cNorm(d1.cartesian().norm());
                 int a1=this->randomSize()/d1cNorm;
                 LatticeVector<dim> L1=L0.first+d1*a1;
-                //std::cout<<"I'm here 3b"<<std::endl;
 
                 
                 if(edgeDensity>=fractionEdge*density) // overwrite with screw dislocaiton
@@ -87,14 +82,11 @@ namespace model
                     L1=L0.first+slipSystem.s*a1;
                 }
                 
-                //std::cout<<"I'm here 4"<<std::endl;
                 
                 const auto search1(mesh.search(L1.cartesian()));
                 
-                //std::cout<<"I'm here 5"<<std::endl;
                 if(search1.first && search1.second->region->regionID==L0.second)
                 {
-                    //std::cout<<"I'm here 6"<<std::endl;
                     density += d1cNorm*a1/this->mesh.volume()/pow(Material<Isotropic>::b_real,2);
                     if(isEdge)
                     {
@@ -106,18 +98,11 @@ namespace model
                     
                     vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.first.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<< L0.second<<"\n";
                     vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<L1.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\n";
-                    //                    vertexFile << nodeID+2<<"\t" << std::setprecision(15)<<std::scientific<<L2.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\n";
-                    //                    vertexFile << nodeID+3<<"\t" << std::setprecision(15)<<std::scientific<<L3.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\n";
-                    
                     
                     edgeFile << nodeID+0<<"\t"<< nodeID+1<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 1.0<<"\t"<< 1.0<<"\t"<< 0<<"\n";
-                    //                    edgeFile << nodeID+1<<"\t"<< nodeID+2<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 1.0<<"\t"<< 1.0<<"\t"<< 0<<"\n";
-                    //                    edgeFile << nodeID+2<<"\t"<< nodeID+3<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 1.0<<"\t"<< 1.0<<"\t"<< 0<<"\n";
-                    //                    edgeFile << nodeID+3<<"\t"<< nodeID+0<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 1.0<<"\t"<< 1.0<<"\t"<< 0<<"\n";
                     
                     nodeID+=2;
                     
-                    //std::cout<<"I'm here 7"<<std::endl;
                 }
             }
             
