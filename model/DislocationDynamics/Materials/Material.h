@@ -110,8 +110,6 @@ namespace model
         static double C4;
         static double kB;
 
-        
-        
         static Eigen::Matrix<double,Eigen::Dynamic,2> dH0;
         
         /**********************************************************************/
@@ -127,7 +125,6 @@ namespace model
                     selectedMaterial=Mg.Z;
                     select<Mg.Z>();
                     break;
-
                 case Al.Z:
                     selectedMaterial=Al.Z;
                     select<Al.Z>();

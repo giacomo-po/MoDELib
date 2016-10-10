@@ -38,7 +38,7 @@ namespace model
         static constexpr auto name="Magnesium";
         static constexpr double nu=0.29;                // Poisson ratio [-]
         static constexpr double mu=17.0e9;              // Shear modulus [Pa]
-        static constexpr double b=0.3210e-9;            // Burgers vector (basal lattice vector "a") [m]
+        static constexpr double b=0.321e-9;            // Burgers vector (basal lattice vector "a") [m]
         static const double c2a;              // c/a ratio [-]
         static constexpr double rho=1738.0;             // Mass density [kg/m^3]
         static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]

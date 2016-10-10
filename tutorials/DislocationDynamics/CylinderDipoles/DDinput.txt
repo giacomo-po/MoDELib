@@ -20,9 +20,9 @@ outputFrequency=10;
 outputBinary=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=0;
+outputPKforce=1;
 outputElasticEnergy=0;
-outputMeshDisplacement=1;
+outputMeshDisplacement=0;
 outputFEMsolution=0;
 outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
@@ -32,14 +32,14 @@ outputQuadratureParticles=0;
 ######################################
 # MATERIAL
 # Choose a material by its atomic number (Z), for example Al=13; Ni=28; Cu=29;
-material=13;
+material=12;
 
 ######################################
 # CRYSTAL ORIENTATION
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
-C2G = 1.0   0.0  0.0
-      0.0   1.0  0.0
-      0.0   0.0  1.0;
+C2G = 0.707106781186547  -0.707106781186547                   0
+      0.408248290463863   0.408248290463863  -0.816496580927726
+      0.577350269189626   0.577350269189626   0.577350269189626;
 
 ######################################
 # TEMPERATURE in [K]
