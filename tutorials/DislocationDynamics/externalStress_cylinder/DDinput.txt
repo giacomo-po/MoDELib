@@ -32,7 +32,7 @@ outputQuadratureParticles=0;
 ######################################
 # MATERIAL
 # Choose a material by its atomic number (Z), for example Al=13; Ni=28; Cu=29;
-material=12;
+material=13;
 
 ######################################
 # CRYSTAL ORIENTATION
