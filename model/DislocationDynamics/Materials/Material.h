@@ -34,7 +34,8 @@ namespace model
         
         
         static int selectedMaterial;
-        
+
+        static constexpr PeriodicElement<12,Isotropic> Mg=PeriodicElement<12,Isotropic>();
         static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
         static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
         static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
@@ -80,7 +81,6 @@ namespace model
             model::cout<<greenColor<<"  units of stress (shear modulus): mu="<<IM::mu<<" [Pa]"<<std::endl;
             model::cout<<greenColor<<"  units of length (Burgers vector): b="<<IM::b<<" [m]"<<std::endl;
             model::cout<<greenColor<<"  units of speed (shear-wave speed): cs="<<IM::cs<<" [m/s]"<<std::endl;
-            
             model::cout<<greenColor<<"  units of time: b/cs="<<IM::b/IM::cs<<" [sec]"<<defaultColor<<std::endl;
         }
         
@@ -110,8 +110,6 @@ namespace model
         static double C4;
         static double kB;
 
-        
-        
         static Eigen::Matrix<double,Eigen::Dynamic,2> dH0;
         
         /**********************************************************************/
@@ -123,6 +121,10 @@ namespace model
           */
             switch (Z)
             {
+                case Mg.Z:
+                    selectedMaterial=Mg.Z;
+                    select<Mg.Z>();
+                    break;
                 case Al.Z:
                     selectedMaterial=Al.Z;
                     select<Al.Z>();
@@ -162,17 +164,20 @@ namespace model
             
             switch (selectedMaterial)
             {
+                case Mg.Z:
+                    CrystalOrientation<dim>::template rotate<PeriodicElement<Mg.Z,Isotropic>>(C2G);
+                    break;
                 case Al.Z:
-                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Al.Z,Isotropic>::CrystalStructure>(C2G);
+                    CrystalOrientation<dim>::template rotate<PeriodicElement<Al.Z,Isotropic>>(C2G);
                     break;
                 case Ni.Z:
-                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Ni.Z,Isotropic>::CrystalStructure>(C2G);
+                    CrystalOrientation<dim>::template rotate<PeriodicElement<Ni.Z,Isotropic>>(C2G);
                     break;
                 case Cu.Z:
-                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Cu.Z,Isotropic>::CrystalStructure>(C2G);
+                    CrystalOrientation<dim>::template rotate<PeriodicElement<Cu.Z,Isotropic>>(C2G);
                     break;
                 case W.Z:
-                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<W.Z,Isotropic>::CrystalStructure>(C2G);
+                    CrystalOrientation<dim>::template rotate<PeriodicElement<W.Z,Isotropic>>(C2G);
                     break;
                     //                case Fe:
                     //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
@@ -191,6 +196,8 @@ namespace model
         {
             switch (selectedMaterial)
             {
+                case Mg.Z:
+                    return Mg.dm.velocity(S,b,xi,n,T);
                 case Al.Z:
                     return Al.dm.velocity(S,b,xi,n,T);
                 case Ni.Z:
