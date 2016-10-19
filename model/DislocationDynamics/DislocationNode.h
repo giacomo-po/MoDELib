@@ -700,8 +700,8 @@ namespace model
                         }
                         else // node is internal and remains internal
                         {
-                            if(shared.use_meshRegions && temp.second->region->regionID!=p_Simplex->region->regionID)
-                            {// use_meshRegions enabled and node is crossing regions
+                            if(temp.second->region->regionID!=p_Simplex->region->regionID)
+                            {// node is crossing regions
                                 assert(0 && "RE-ENABLE THIS");
                                 //                            //// ////std::cout<<"DislocationNode "<<this->sID<<" crossing region. Path size="<<path.size()<<std::endl;
                                 //
@@ -741,7 +741,7 @@ namespace model
                                 //                            this->set(regBndSimplex->bary2pos(faceInt)); // move node to intersction with region boundary
                                 //                            regionBndNormal=regBndSimplex->nda.col(faceID).normalized();
                             }
-                            else // use_meshRegions disenabled or node not crossing regions
+                            else // node not crossing regions
                             {
                                 p_Simplex=temp.second;
                                 set(L+LatticeVectorType(dX));

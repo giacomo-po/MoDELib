@@ -682,7 +682,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
             if (shared.use_boundary)
             {
-                EDR.readScalarInFile(fullName.str(),"use_meshRegions",shared.use_meshRegions);
+//                EDR.readScalarInFile(fullName.str(),"use_meshRegions",shared.use_meshRegions);
                 
                 int meshID(0);
                 EDR.readScalarInFile(fullName.str(),"meshID",meshID);
@@ -719,7 +719,7 @@ namespace model
             // Avoid that a processor starts writing before other are reading
             MPI_Barrier(MPI_COMM_WORLD);
 #endif
-            
+                        
             // Initializing configuration
             move(0.0);	// initial configuration
         }

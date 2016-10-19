@@ -29,7 +29,7 @@ namespace model
         typedef BVPsolver<dim,2> BvpSolverType;
         
 		static bool use_boundary;
-        static bool use_meshRegions;
+//        static bool use_meshRegions;
 
         static unsigned int use_bvp;
 		static bool use_virtualSegments;
@@ -48,15 +48,15 @@ namespace model
 //        static BoundaryDislocationNetwork<TypeTraits<LinkType>::dim> bdn;
         
         static BvpSolverType bvpSolver;
-    
+        
 	};
 	
 	// Static data members
     template <int dim>
 	bool DislocationSharedObjects<dim>::use_boundary=false;
 
-    template <int dim>
-    bool DislocationSharedObjects<dim>::use_meshRegions=false;
+//    template <int dim>
+//    bool DislocationSharedObjects<dim>::use_meshRegions=false;
 
     
     template <int dim>
