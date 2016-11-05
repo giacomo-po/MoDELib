@@ -29,23 +29,15 @@
 #include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/Geometry/Splines/SplineSegmentBase.h>
 #include <model/DislocationDynamics/Materials/Material.h>
-//#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
-
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/Geometry/Splines/Intersection/PlanarSplineImplicitization.h>
 #include <model/Geometry/Splines/Coeff2Hermite.h>
-
-//#include <model/DislocationDynamics/NearestNeighbor/DislocationQuadratureParticle.h>
 #include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
-
 #include <model/DislocationDynamics/DislocationLocalReference.h>
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
-
-//#include <model/DislocationDynamics/CrossSlip/CrossSlipSegment.h>
-//#include <model/DislocationDynamics/DislocationMobility.h>
 #include <model/Utilities/UniqueOutputFile.h>
 
 namespace model

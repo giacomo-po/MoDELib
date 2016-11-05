@@ -88,7 +88,6 @@ collisionTol=3;
 # T/T_meshID.txt must be present in the working directory.
 use_boundary=1;
 meshID=0;
-use_meshRegions=0;
 
 ######################################
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 

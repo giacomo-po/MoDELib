@@ -26,9 +26,9 @@ namespace model
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
         
         
-        const VectorDim& P0;
-        const VectorDim& P1;
-        const VectorDim& b;
+        const VectorDim P0;
+        const VectorDim P1;
+        const VectorDim b;
         const VectorDim t;
 
         /**********************************************************************/

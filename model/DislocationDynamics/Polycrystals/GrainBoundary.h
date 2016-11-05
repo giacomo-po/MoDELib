@@ -42,20 +42,20 @@ namespace model
         void storeLatticePlane(const Grain<dim>& grain,
                                const VectorDimD& normal)
         {
-//            std::cout<<std::setprecision(15)<<std::scientific<<normal<<std::endl;
+            //            std::cout<<std::setprecision(15)<<std::scientific<<normal<<std::endl;
             ReciprocalLatticeDirectionType R=grain.reciprocalLatticeDirection(normal);
             
             model::cout<<"Grain boundary normal for grain"<< grain.grainID<<std::endl;
             model::cout<<"cartesian components="<<R.cartesian().transpose()<<std::endl;
             model::cout<<"lattice components="<<R.transpose()<<std::endl;
-
+            
             //            model::cout<<"Cartesian Grain boundary for grain"<< grain.grainID<<" is "<<R.cartesian().transpose()<<std::endl;
             
             
             // CHENAGE THIS PART READING FROM TABLE OF GB CASES
             VectorDimD v1;
             VectorDimD v2;
-
+            
             v1<< 3.0,0.0,-1.0;
             v1*=sqrt(2.0);
             v2<< 0.0,1.0, 0.0;
@@ -68,10 +68,36 @@ namespace model
             {
                 v2*=-1.0; // when implementing GB table, normals must be opposite sign
             }
-//            v1=grain.get_C2G()*v1*sqrt(2.0);
-//            v2=grain.get_C2G()*v2*sqrt(2.0);
+            //            v1=grain.get_C2G()*v1*sqrt(2.0);
+            //            v2=grain.get_C2G()*v2*sqrt(2.0);
             
-            LatticeVectorType O(grain.covBasis(),grain.contraBasis());
+            LatticeVectorType L0(grain.covBasis(),grain.contraBasis());
+            bool latticePointFound=false;
+            
+            
+            for(const auto& simplexPtr : regionBoundary.simplices())
+            {
+                for(size_t d=0;d<dim;++d)
+                {
+                    const VectorDimD P0=simplexPtr->vertexPositionMatrix().col(d);
+                    L0=grain.snapToLattice(P0);
+                    
+                    if(fabs((L0.cartesian()-P0).dot(normal))<FLT_EPSILON) // L0 belongs to mesh plane
+                    {
+                        latticePointFound=true;
+                        break; //break inner loop
+                    }
+                }
+                
+                if(latticePointFound==true) // L0 belongs to mesh plane
+                {
+                    break; //break outer loop
+                }
+            }
+            
+            assert(latticePointFound && "None of the GB mesh vertices, snapped to the lattice, belongs to GB plane.");
+            
+            //LatticeVectorType O(grain.covBasis(),grain.contraBasis());
             
             // Here is ok
             LatticePlaneBase pb(LatticeVectorType(v1,grain.covBasis(),grain.contraBasis()),
@@ -79,11 +105,11 @@ namespace model
             
             
             const auto temp = LatticePlaneContainerType::emplace(std::piecewise_construct,
-                                               std::forward_as_tuple(grain.grainID),
-                                               std::forward_as_tuple(O,pb));
+                                                                 std::forward_as_tuple(grain.grainID),
+                                                                 std::forward_as_tuple(L0,pb));
             
             std::cout<<"GB plane normal="<<temp.first->second.n.cartesian().transpose()<<std::endl;
-
+            
             
         }
         
@@ -151,7 +177,7 @@ namespace model
                     {
                         assert(latticePlane(grain.second->grainID).contains(Ps.col(j)) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
                     }
-                }                
+                }
             }
         }
         

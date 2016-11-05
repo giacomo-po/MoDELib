@@ -329,7 +329,7 @@ namespace model
                             
                             std::set<std::pair<double,double> > temp; // the container of the roots
                             
-                            if (!L1isSessile && !L2isSessile) // both are glissile
+                            if (!L1isSessile && !L2isSessile) // both segments are glissile
                             {
                                 temp = dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol,avoidNodeIntersection);
                             }
@@ -343,14 +343,15 @@ namespace model
                                     // cannot intersect
                                 }
                                 else if(gnAgnB && !gnAsnB)
-                                { // use planeNormal of A and planeNormal of B
+                                { // glidePlaneNormal of A and glidePlaneNormal of B are the same
                                     temp = dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol,avoidNodeIntersection);
                                 }
                                 else if (!gnAgnB && gnAsnB)
-                                { // use planeNormal of A and sessileNormal of B
+                                { // glidePlaneNormal of A and sessilePlaneNormal of B are the same
                                     temp = dsi.intersectWith(linkIterB->second,linkIterB->second.sessilePlaneNormal,collisionTol,avoidNodeIntersection);
                                 }
-                                else{
+                                else
+                                {
                                     assert(0 && "GLISSILE AND SESSILE PLANE NORMALS OF B MUST BE DISTINCT.");
                                 }
                             }
@@ -377,8 +378,8 @@ namespace model
                                 }
                             }
                             else
-                            { // both are sessile
-                                // cannot intersect
+                            { // both are sessile, cannot intersect
+                                
                             }
                             
                             

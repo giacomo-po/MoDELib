@@ -99,7 +99,7 @@ namespace model
         //        /* init list */ edgeFileIsGood(false),
         //		/* init list */ nodeFileIsGood(false),
         rMax(0),
-        /* init list */ showMesh(0),
+        /* init list */ showMesh(1),
         //        /* init list */ showQuad(false),
         /* init list */ dispScale(1.0f)
         //        /* init list */ mesh(1) // read N/N_0.txt and T/T_0.txt
@@ -514,7 +514,7 @@ namespace model
     // Declare static data
     bool MeshPlotter::plotBndStress=false;
     unsigned int MeshPlotter::stressCol=0;
-    bool MeshPlotter::showRegionBoundaries=false;
+    bool MeshPlotter::showRegionBoundaries=true;
     bool MeshPlotter::showSpecificSimplex=false;
     Simplex<3,3>::SimplexIDType MeshPlotter::specificSimplexID;
     

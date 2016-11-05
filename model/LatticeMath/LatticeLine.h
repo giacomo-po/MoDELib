@@ -63,6 +63,12 @@ namespace model
             return P+d*lround(n);
         }
         
+        /**********************************************************************/
+        LatticeVectorType snapToLattice(const LatticeVectorType& P0) const
+        {
+            return snapToLattice(P0.cartesian());
+        }
+        
         
         /**********************************************************************/
         bool contains(const LatticeVectorType& P0) const

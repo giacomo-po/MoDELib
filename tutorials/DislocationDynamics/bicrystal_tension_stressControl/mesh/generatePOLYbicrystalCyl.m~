@@ -12,12 +12,10 @@ filename='bicrystalCyl'; % this creates file cube.poly
 
 R=1000;        % radius of cyl
 H=4*R;         % height of cyl
-V=pi*R^2*H;    % volume
+V=pi*R^2*H;         % volume
 np=20;         % number of points along circumference
 N=[1 0 3]';    % normal to GB plane
-P0=[0 0 100]'; % a point on the GB plane
-A=[0 1 1;1 0 1;1 1 0]/sqrt(2); % matrix of primitive lattice vectors for FCC
-P0=A*round(inv(A)*P0); % snap P0 to lattice
+P0=[0 0 100]'; % a point on the GB plane (must be a LatticePoint)
 N=N/norm(N);
 
 %% Define mesh vertices 

@@ -240,12 +240,29 @@ namespace model
                    //std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
                     //VectorDimD expandPoint(Lij.second->get_r(expand_at));
                     LatticeVectorType expandPoint(Lij.second->glidePlane.snapToLattice(Lij.second->get_r(expand_at)));
+                    auto simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
                     if(Lij.second->isSessile)
                     {
                         PlanePlaneIntersection ppi(Lij.second->glidePlane,Lij.second->sessilePlane);
                         LatticeLine line(ppi.P,ppi.d);
                         expandPoint=line.snapToLattice(expandPoint.cartesian());
+                        
                     }
+                    else
+                    {
+                        if(simplexCheckPair.first && simplexCheckPair.second->region->regionID!=DN.node(i).second->grain.grainID)
+                        {
+                            const LatticePlane& GBplane(DN.shared.poly.grainBoundary(simplexCheckPair.second->region->regionID,DN.node(i).second->grain.grainID).latticePlane(DN.node(i).second->grain.grainID));
+                            const LatticePlane& glidePlane(Lij.second->glidePlane);
+                            const PlanePlaneIntersection ppi(GBplane,glidePlane);
+                            const LatticeLine line(ppi.P,ppi.d);
+                            expandPoint=line.snapToLattice(expandPoint.cartesian());
+
+                        }
+                    }
+                    
+                    simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
+                    assert(simplexCheckPair.second->region->regionID==DN.node(i).second->grain.grainID && simplexCheckPair.second->region->regionID==DN.node(j).second->grain.grainID && "EXPAND POINT IN INCORRECT REGION.");
                     
 //                    if(!Lij.second->isSessile)
 //                    {
@@ -257,11 +274,13 @@ namespace model
 //                        LatticeLine line(ppi.P,ppi.d);
 //                        expandPoint=line.snapToLattice(expandPoint).cartesian();
 //                    }
+                    
+
 
                     if(  (expandPoint-DN.node(i).second->get_L()).squaredNorm()
                        &&(expandPoint-DN.node(j).second->get_L()).squaredNorm() )
                     {
-                        if(DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex()).first)
+                        if(simplexCheckPair.first)
                         {
                             //                        DN.expand(i,j,expandPoint);
                             DN.expand(i,j,expandPoint);

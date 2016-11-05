@@ -678,7 +678,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
             if (shared.use_boundary)
             {
-                EDR.readScalarInFile(fullName.str(),"use_meshRegions",shared.use_meshRegions);
+//                EDR.readScalarInFile(fullName.str(),"use_meshRegions",shared.use_meshRegions);
                 
                 int meshID(0);
                 EDR.readScalarInFile(fullName.str(),"meshID",meshID);
