@@ -16,6 +16,8 @@
 #include <model/Mesh/MeshRegionObserver.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
 #include <model/LatticeMath/LatticePlane.h>
+#include <Eigen/Eigenvalues>
+
 
 namespace model
 {
@@ -113,19 +115,24 @@ namespace model
             
         }
         
+        VectorDimD _rotationAxis;
+
         
     public:
         
         
         const MeshRegionBoundaryType& regionBoundary;
-        
+        const std::pair<size_t,size_t>& regionBndID;
+
         /**********************************************************************/
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
                       const Grain<dim>& grainFirst,
                       const Grain<dim>& grainSecond) :
-        /* init */ regionBoundary(regionbnd_in)
+        /* init */ regionBoundary(regionbnd_in),
+        /* init */ regionBndID(regionBoundary.regionBndID),
+        /* init */ _rotationAxis(VectorDimD::Zero())
         {
-            model::cout<<"Creating GrainBoundary ("<<regionBoundary.regionBndID.first<<" "<<regionBoundary.regionBndID.second<<")"<<std::endl;
+            model::cout<<"Creating GrainBoundary ("<<regionBndID.first<<" "<<regionBndID.second<<")"<<std::endl;
             GrainContainerType::emplace(grainFirst.grainID,&grainFirst);
             GrainContainerType::emplace(grainSecond.grainID,&grainSecond);
             
@@ -181,6 +188,40 @@ namespace model
             }
         }
         
+        /**********************************************************************/
+        void computeRotationAxis()
+        {
+            
+            // Compute the relative rotation matrix between grains
+            const MatrixDimD R(grain(regionBndID.first).get_C2G().transpose()*grain(regionBndID.second).get_C2G());
+            
+            // Eigen-decompose R
+            Eigen::EigenSolver<MatrixDimD> es(R);
+            
+            
+            
+            for(unsigned int j=0;j<dim;++j)
+            {
+                if(fabs(es.eigenvalues()(j).real()-1.0)<FLT_EPSILON && fabs(es.eigenvalues()(j).imag())<FLT_EPSILON)
+                {
+                    for(unsigned int d=0;d<dim;++d)
+                    {
+                        _rotationAxis=es.eigenvectors().col(j).real();
+                    }
+                }
+            }
+            const double axisNorm(_rotationAxis.norm());
+            assert(axisNorm>FLT_EPSILON);
+            _rotationAxis/=axisNorm;
+            
+            std::cout<<"Rotation axis="<<_rotationAxis.transpose()<<std::endl;
+        }
+        
+        /**********************************************************************/
+        const VectorDimD& rotationAxis() const
+        {
+            return _rotationAxis;
+        }
         
         
     };
