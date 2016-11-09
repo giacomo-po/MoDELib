@@ -358,8 +358,19 @@ namespace model
             //! 15- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeSmallComponents(3.0*dx,4);
             
+            make_bndNormals();
+            
             //! 16 - Increment runID counter
             ++runID;     // increment the runID counter
+        }
+        
+        /**********************************************************************/
+        void make_bndNormals()
+        {
+            for(auto& node : this->nodes())
+            {
+                node.second.make_bndNormal();
+            }
         }
         
         /**********************************************************************/

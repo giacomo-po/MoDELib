@@ -194,7 +194,8 @@ namespace model
                         {
                             p_Simplex=lmi.search.second;
                             set(lmi.L);
-                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
+                            make_bndNormal();
+//                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
                             if(!isBoundaryNode())
                             {
                                 //                                std::cout<<"DislocaitonNode "<<this->sID<<" not on mesh boundary"<<std::endl;
@@ -265,7 +266,8 @@ namespace model
                 assert(lmi.search.first);
                 p_Simplex=lmi.search.second;
                 set(lmi.L);
-                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
+                make_bndNormal();
+//                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
                 if(meshLocation()!=onMeshBoundary)
                 {
                     model::cout<<"DislocaitonNode "<<this->sID<<std::endl;
@@ -370,6 +372,12 @@ namespace model
         {/*! Constructor from VertexContraction
           */
             
+        }
+        
+        /**********************************************************************/
+        void make_bndNormal()
+        {
+            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
         }
         
         /**********************************************************************/
@@ -689,7 +697,8 @@ namespace model
                         {
                             p_Simplex=temp.second;
                             set(L+grain.latticeVector(dX));
-                            boundaryNormal=bndNrml;
+                            //boundaryNormal=bndNrml;
+                            make_bndNormal();
                             assert(meshLocation()==onMeshBoundary);
                         }
                         else // new position is not on boundary
@@ -834,7 +843,8 @@ namespace model
                             {
                                 p_Simplex=temp.second;
                                 set(L+grain.latticeVector(dX));
-                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
+                                make_bndNormal();
+//                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
                                 
                                 //                                L+=LatticeVectorType(dX);
                                 //                                this->set(this->get_P()+dX); // move node
