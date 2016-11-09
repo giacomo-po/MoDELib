@@ -86,12 +86,11 @@ namespace model
                 gr.second.rotate(C2Gtemp);
             }
 
-            // Updating GrainBoundaries
-            model::cout<<greenColor<<"Updating GrainBoundaries"<<defaultColor<<std::endl;
+            // Initialize GrainBoundaries
+            model::cout<<yellowBoldColor<<"Initializing GrainBoundaries"<<defaultColor<<std::endl;
             for(auto& gb : grainBoundaries())
             {
-                gb.second.computeRotationAxis();
-                gb.second.createLatticePlanes();
+                gb.second.initializeGrainBoundary();
             }
         }
         

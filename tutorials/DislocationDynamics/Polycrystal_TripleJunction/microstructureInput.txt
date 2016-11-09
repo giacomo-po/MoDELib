@@ -1,0 +1,8 @@
+targetDensity=1e15;
+fractionEdge=0;
+fractionSessile=0.0;
+gbdSpacing=2.23606797749979;//(310)		14.1;//(19 1 0)		3.6;//(5 1 0)		5.0;//(710)
+gbDim0=0;
+Dim1=0;//300;
+Dim2=0;//300;
+UseFRSource=0;

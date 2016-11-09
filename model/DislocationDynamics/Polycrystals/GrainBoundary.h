@@ -15,6 +15,7 @@
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Mesh/MeshRegionObserver.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
+#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTypes.h>
 #include <model/LatticeMath/LatticePlane.h>
 #include <Eigen/Eigenvalues>
 
@@ -39,7 +40,8 @@ namespace model
         typedef Grain<dim> GrainType;
         typedef std::map<int,const GrainType* const> GrainContainerType;
         typedef std::map<int,LatticePlane> LatticePlaneContainerType;
-        
+        typedef Eigen::Matrix<double,2*dim+1,1> BGkeyType;
+
         /**********************************************************************/
         void storeLatticePlane(const Grain<dim>& grain,
                                const VectorDimD& normal)
@@ -49,6 +51,7 @@ namespace model
             
             model::cout<<"Grain boundary normal for grain"<< grain.grainID<<std::endl;
             model::cout<<"cartesian components="<<R.cartesian().transpose()<<std::endl;
+            model::cout<<"cartesian crystal components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<std::endl;
             model::cout<<"lattice components="<<R.transpose()<<std::endl;
             
             //            model::cout<<"Cartesian Grain boundary for grain"<< grain.grainID<<" is "<<R.cartesian().transpose()<<std::endl;
@@ -58,20 +61,58 @@ namespace model
             VectorDimD v1;
             VectorDimD v2;
             
-            v1<< 3.0,0.0,-1.0;
-            v1*=sqrt(2.0);
-            v2<< 0.0,1.0, 0.0;
-            v2*=sqrt(2.0);
+//            v1<< 3.0,0.0,-1.0;
+//            v1*=sqrt(2.0);
+//            v2<< 0.0,1.0, 0.0;
+//            v2*=sqrt(2.0);
             
-            if(grain.grainID==1)
+            if(grainBndID.first==1 && grainBndID.second==2)
             {
+                if(grain.grainID==1)
+                {
+                    v1<<1.0, 0.0,1.0;
+                    v2<<0.0,1.0,1.0;
+
+                }
+                else
+                {
+                    v1<<1.0, 0.0,1.0;
+                    v2<<0.0,-1.0,1.0;
+
+                }
+            }
+            else if(grainBndID.first==1 && grainBndID.second==3)
+            {
+                if(grain.grainID==1)
+                {
+                    v1<<1.0, 0.0,1.0;
+                    v2<<0.0,11.0,-1.0;
+
+                }
+                else
+                {
+                    v1<<1.0,-1.0,0.0;
+                    v2<<1.0,0.0,1.0;
+                }
             }
             else
             {
-                v2*=-1.0; // when implementing GB table, normals must be opposite sign
+                if(grain.grainID==2)
+                {
+                    v1<<1.0, -1.0,0.0;
+                    v2<<1.0,0.0,1.0;
+                    
+                }
+                else
+                {
+                    v1<<1.0,1.0,0.0;
+                    v2<<1.0,0.0,1.0;
+                }
             }
-            //            v1=grain.get_C2G()*v1*sqrt(2.0);
-            //            v2=grain.get_C2G()*v2*sqrt(2.0);
+            v1=grain.get_C2G()*v1*sqrt(2.0);
+            v2=grain.get_C2G()*v2*sqrt(2.0);
+
+            //
             
             LatticeVectorType L0(grain.covBasis(),grain.contraBasis());
             bool latticePointFound=false;
@@ -111,31 +152,93 @@ namespace model
                                                                  std::forward_as_tuple(L0,pb));
             
             std::cout<<"GB plane normal="<<temp.first->second.n.cartesian().transpose()<<std::endl;
+        }
+        
+        /**********************************************************************/
+        void createLatticePlanes()
+        {
+            LatticePlaneContainerType::clear();
+            const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
+            for(const auto& tet : triangle.parents())
+            {
+                const size_t faceID=tet->childOrder(triangle.xID);
+                const VectorDimD outNormal=tet->nda.col(faceID);
+                const double outNorm(outNormal.norm());
+                assert(outNorm>FLT_EPSILON && "Simplex normal has zero norm.");
+                storeLatticePlane(grain(tet->region->regionID),outNormal/outNorm);
+            }
             
+            // Check that all tringle vertices are contained by both GB planes
+            for(const auto& triangle : regionBoundary)
+            {
+                const auto Ps=triangle->vertexPositionMatrix();
+                for(int j=0;j<Ps.cols();++j)
+                {
+                    for(const auto& grain : grains())
+                    {
+                        assert(latticePlane(grain.second->grainID).contains(Ps.col(j)) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
+                    }
+                }
+            }
+        }
+        
+        /**********************************************************************/
+        void computeRotationAxis()
+        {
             
+            // Compute the relative rotation matrix between grains
+            const MatrixDimD R(grain(grainBndID.first).get_C2G().transpose()*grain(grainBndID.second).get_C2G());
+            
+            // Eigen-decompose R
+            Eigen::EigenSolver<MatrixDimD> es(R);
+            
+            // Determine _rotationAxis as the eigenvector of R corresponding to eigenvalue=1
+            for(unsigned int j=0;j<dim;++j)
+            {
+                if(fabs(es.eigenvalues()(j).real()-1.0)<FLT_EPSILON && fabs(es.eigenvalues()(j).imag())<FLT_EPSILON)
+                {
+                    for(unsigned int d=0;d<dim;++d)
+                    {
+                        _rotationAxis=es.eigenvectors().col(j).real();
+                    }
+                    break;
+                }
+            }
+            const double axisNorm(_rotationAxis.norm());
+            assert(axisNorm>FLT_EPSILON);
+            _rotationAxis/=axisNorm;
+            
+            cosTheta=0.5*(R.trace()-1.0);
+            
+            std::cout<<yellowColor<<"   Rotation axis="<<_rotationAxis.transpose()<<std::endl;
+            std::cout<<yellowColor<<"   Rotation angle="<<acos(cosTheta)*180.0/M_PI<<" deg"<<defaultColor<<std::endl;
+
         }
         
         VectorDimD _rotationAxis;
-
+        double cosTheta; // cosine of relative rotation angle between grains
+        
         
     public:
         
-        
         const MeshRegionBoundaryType& regionBoundary;
-        const std::pair<size_t,size_t>& regionBndID;
+        const std::pair<size_t,size_t>& grainBndID;
+        
+        static const std::map<BGkeyType,GrainBoundaryType<dim>> gbTypeMap;
+
 
         /**********************************************************************/
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
                       const Grain<dim>& grainFirst,
                       const Grain<dim>& grainSecond) :
+        /* init */ _rotationAxis(VectorDimD::Zero()),
+        /* init */ cosTheta(1.0),
         /* init */ regionBoundary(regionbnd_in),
-        /* init */ regionBndID(regionBoundary.regionBndID),
-        /* init */ _rotationAxis(VectorDimD::Zero())
+        /* init */ grainBndID(regionBoundary.regionBndID)
         {
-            model::cout<<"Creating GrainBoundary ("<<regionBndID.first<<" "<<regionBndID.second<<")"<<std::endl;
+            model::cout<<"Creating GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<std::endl;
             GrainContainerType::emplace(grainFirst.grainID,&grainFirst);
             GrainContainerType::emplace(grainSecond.grainID,&grainSecond);
-            
         }
         
         /**********************************************************************/
@@ -163,58 +266,11 @@ namespace model
         }
         
         /**********************************************************************/
-        void createLatticePlanes()
+        void initializeGrainBoundary()
         {
-            LatticePlaneContainerType::clear();
-            const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
-            for(const auto& tet : triangle.parents())
-            {
-                const size_t faceID=tet->childOrder(triangle.xID);
-                const VectorDimD outNormal=tet->nda.col(faceID);
-                storeLatticePlane(grain(tet->region->regionID),outNormal);
-            }
-            
-            // Check that all tringle vertices are contained by both GB planes
-            for(const auto& triangle : regionBoundary)
-            {
-                const auto Ps=triangle->vertexPositionMatrix();
-                for(int j=0;j<Ps.cols();++j)
-                {
-                    for(const auto& grain : grains())
-                    {
-                        assert(latticePlane(grain.second->grainID).contains(Ps.col(j)) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
-                    }
-                }
-            }
-        }
-        
-        /**********************************************************************/
-        void computeRotationAxis()
-        {
-            
-            // Compute the relative rotation matrix between grains
-            const MatrixDimD R(grain(regionBndID.first).get_C2G().transpose()*grain(regionBndID.second).get_C2G());
-            
-            // Eigen-decompose R
-            Eigen::EigenSolver<MatrixDimD> es(R);
-            
-            
-            
-            for(unsigned int j=0;j<dim;++j)
-            {
-                if(fabs(es.eigenvalues()(j).real()-1.0)<FLT_EPSILON && fabs(es.eigenvalues()(j).imag())<FLT_EPSILON)
-                {
-                    for(unsigned int d=0;d<dim;++d)
-                    {
-                        _rotationAxis=es.eigenvectors().col(j).real();
-                    }
-                }
-            }
-            const double axisNorm(_rotationAxis.norm());
-            assert(axisNorm>FLT_EPSILON);
-            _rotationAxis/=axisNorm;
-            
-            std::cout<<"Rotation axis="<<_rotationAxis.transpose()<<std::endl;
+            model::cout<<yellowColor<<"GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
+            computeRotationAxis();
+            createLatticePlanes();
         }
         
         /**********************************************************************/
@@ -223,9 +279,41 @@ namespace model
             return _rotationAxis;
         }
         
+        /**********************************************************************/
+        double rotationAngle() const
+        {
+            return acos(cosTheta);
+        }
+        
+        /**********************************************************************/
+        static std::map<BGkeyType,GrainBoundaryType<dim>> get_GBtypes()
+        {
+        
+            std::map<BGkeyType,GrainBoundaryType<dim>> temp;
+            
+            VectorDimD u(VectorDimD::Zero());  // rotation axis
+            VectorDimD v1(VectorDimD::Zero()); // Vector on GrainBonudary 1
+            VectorDimD v2(VectorDimD::Zero()); // Vector on GrainBonudary 2, corresponding to v1 in rotation about u
+            double theta=0.0;
+            
+            // <100>(310) STGB,
+            u<<0.0,1.0,0.0;
+            v1<<3.0,0.0,+1.0;
+            v2<<3.0,0.0,+1.0;
+            
+            BGkeyType key(BGkeyType::Zero());
+//            key<<0.0,1.0,0.0,
+//                 1.0,0.0,3.0,
+//                 acos(v1.normalized().dot(v2.normalized()))
+//            temp.emplce()
+            
+            return temp;
+        }
         
     };
     
+    template <int dim>
+    const std::map<Eigen::Matrix<double,2*dim+1,1>,GrainBoundaryType<dim>> GrainBoundary<dim>::gbTypeMap=GrainBoundary<dim>::get_GBtypes();
     
 } // end namespace
 #endif

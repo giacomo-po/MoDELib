@@ -5,10 +5,10 @@ clear all
 MODEL_DIR='../../../..';
 
 %% Define output file name
-meshID=9; % creates ../N/N_meshID.txt and ../T/T_meshID.txt
+meshID=1; % creates ../N/N_meshID.txt and ../T/T_meshID.txt
 targetElements=1e4;
 
-filename='bicrystalCyl'; % this creates file bicrystalCyl.poly
+filename='verticalBicrystalCyl'; % this creates file bicrystalCyl.poly
 
 R=1000;      % radius of cyl
 H=4*R;       % height of cyl
@@ -24,19 +24,13 @@ for k=1:np
     theta=2*pi/np*(k-1);
     P(k,:)=[R*cos(theta) R*sin(theta) -H/2];
 end
-% GB plane
-%for k=1:np
-%    theta=2*pi/np*(k-1);
-%    P(np+k,:)=[R*cos(theta) R*sin(theta) -(R*cos(theta)*N(1)+R*sin(theta)*N(2))/N(3)];
-%end
+
 % top plane
 for k=1:np
     theta=2*pi/np*(k-1);
     P(np+k,:)=[R*cos(theta) R*sin(theta) +H/2];
 end
-%P(3*np+1,:)=[R 0 0];
-%P(3*np+2,:)=[0 0 0];
-%P(3*np+3,:)=[R 0 0];
+
 
 figure(1)
 clf
