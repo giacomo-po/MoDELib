@@ -71,7 +71,7 @@ namespace model
         static double velocityReductionFactor;
         static double velocityIncreaseFactor;
         static double bndDistance;
-
+        
         
     private:
         
@@ -149,10 +149,10 @@ namespace model
                     VectorDim outDir=nb-nb.dot(np)*np;
                     if(outDir.squaredNorm()>FLT_EPSILON)
                     {
-//                        std::cout<<"DislocationNode "<<this->sID<<", outDir="<<outDir.transpose()<<std::endl;
-//                        std::cout<<pL.E.source->get_P().transpose()<<std::endl;
-//                        std::cout<<pL.E.sink->get_P().transpose()<<std::endl;
-//                        std::cout<<this->get_P().transpose()<<std::endl;
+                        //                        std::cout<<"DislocationNode "<<this->sID<<", outDir="<<outDir.transpose()<<std::endl;
+                        //                        std::cout<<pL.E.source->get_P().transpose()<<std::endl;
+                        //                        std::cout<<pL.E.sink->get_P().transpose()<<std::endl;
+                        //                        std::cout<<this->get_P().transpose()<<std::endl;
                         
                         outDir.normalize();
                         LatticeVectorType dL(pL.E.glidePlane.n.snapToLattice(outDir));
@@ -171,11 +171,12 @@ namespace model
                         {
                             p_Simplex=lmi.search.second;
                             set(lmi.L);
-                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
+//                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
+                            make_bndNormal();
                             if(!isBoundaryNode())
                             {
-//                                std::cout<<"DislocaitonNode "<<this->sID<<" not on mesh boundary"<<std::endl;
-//                                std::cout<<"dL="<<dL.transpose()<<std::endl;
+                                //                                std::cout<<"DislocaitonNode "<<this->sID<<" not on mesh boundary"<<std::endl;
+                                //                                std::cout<<"dL="<<dL.transpose()<<std::endl;
                             }
                             assert(isBoundaryNode());
                         }
@@ -241,7 +242,8 @@ namespace model
                 assert(lmi.search.first);
                 p_Simplex=lmi.search.second;
                 set(lmi.L);
-                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
+//                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
+                make_bndNormal();
                 if(meshLocation()!=onMeshBoundary)
                 {
                     model::cout<<"DislocaitonNode "<<this->sID<<std::endl;
@@ -284,7 +286,7 @@ namespace model
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from ExpandingEdge and DOF
           */
-//            std::cout<<"DislocationNode from ExpadingLink A "<<this->sID<<std::endl;
+            //            std::cout<<"DislocationNode from ExpadingLink A "<<this->sID<<std::endl;
             forceBoundaryNode(pL);
         }
         
@@ -301,7 +303,7 @@ namespace model
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
         {
-//            std::cout<<"DislocationNode from ExpadingLink B "<<this->sID<<std::endl;
+            //            std::cout<<"DislocationNode from ExpadingLink B "<<this->sID<<std::endl;
             forceBoundaryNode(pL);
         }
         
@@ -319,6 +321,12 @@ namespace model
         {/*! Constructor from VertexContraction
           */
             
+        }
+        
+        /**********************************************************************/
+        void make_bndNormal()
+        {
+            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
         }
         
         /**********************************************************************/
@@ -376,13 +384,13 @@ namespace model
             _confiningPlanes.clear();
             specialConfiningPlanes.clear();
             
-            if (!this->is_balanced())
+            if (!this->is_balanced() && meshLocation()!=onMeshBoundary)
             {
                 for(const auto& planeBase : CrystalOrientation<dim>::planeNormals())
                 {
                     specialConfiningPlanes.emplace_back(L,planeBase);
                 }
-
+                
             }
             
             // add to _confiningPlanes the planes of the attached segments
@@ -401,7 +409,7 @@ namespace model
             {
                 _confiningPlanes.push_back(&plane);
             }
-
+            
             //std::cout<<"a"<<std::endl;
             
             GramSchmidt::makeUnique(_confiningPlanes);
@@ -465,7 +473,7 @@ namespace model
                     temp.push_back((VectorDim()<<0.0,1.0,0.0).finished());
                     temp.push_back((VectorDim()<<0.0,0.0,1.0).finished());
                 }
-
+                
             }
             else if (meshLocation()==onMeshBoundary)
             { // DislocationNode is on mesh boundary, constrain by boundaryNormal
@@ -482,82 +490,43 @@ namespace model
             return temp;
         }
         
-//        /**********************************************************************/
-//        void make_projectionMatrix()
-//        {
-//            
-//            // Add normal to glide and sessile planes
-//            Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
-//            VectorOfNormalsType  CN;
-//            for(const auto& plane : _confiningPlanes)
-//            {
-//                CN.push_back(plane->n.cartesian().normalized());
-//            }
-//            
-//            // Add normal to mesh boundary
-//            if(meshLocation()==onMeshBoundary)
-//            {
-//                const Eigen::Matrix<double,dim+1,1> bary(p_Simplex->pos2bary(this->get_P()));
-//                for (int i=0;i<dim+1;++i)
-//                {
-//                    if(std::fabs(bary(i))<FLT_EPSILON && p_Simplex->child(i).isBoundarySimplex())
-//                    {
-//                        CN.push_back(p_Simplex->nda.col(i));
-//                    }
-//                }
-//            }
-//            
-//            // Add normal to region boundary
-//            //            CN.push_back(regionBndNormal);
-//            
-//            // Find independent vectors
-//            GramSchmidt::orthoNormalize(CN);
-//            
-//            // Assemble projection matrix (prjM)
-//            this->prjM.setIdentity();
-//            for (size_t k=0;k<CN.size();++k)
-//            {
-//                this->prjM*=( I-CN[k]*CN[k].transpose() );
-//            }
-//        }
-
+        
+        
         /**********************************************************************/
         void make_projectionMatrix()
         {
             
-
             
-            // Add normal to mesh boundary
+            
+            // Add normal to glide and sessile planes
+            
+            Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
+            VectorOfNormalsType  CN;
+            for(const auto& plane : _confiningPlanes)
+            {
+                CN.push_back(plane->n.cartesian().normalized());
+            }
+            
             if(meshLocation()==onMeshBoundary)
             {
-                this->prjM.setZero();
-
-            }
-            else
-            {
-                // Add normal to glide and sessile planes
-                Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
-                VectorOfNormalsType  CN;
-                for(const auto& plane : _confiningPlanes)
-                {
-                    CN.push_back(plane->n.cartesian().normalized());
-                }
+                CN.push_back(boundaryNormal);
                 
-                // Add normal to region boundary
-                //            CN.push_back(regionBndNormal);
-                
-                // Find independent vectors
-                GramSchmidt::orthoNormalize(CN);
-                
-                // Assemble projection matrix (prjM)
-                this->prjM.setIdentity();
-                for (size_t k=0;k<CN.size();++k)
-                {
-                    this->prjM*=( I-CN[k]*CN[k].transpose() );
-                }
             }
             
-
+            // Add normal to region boundary
+            //            CN.push_back(regionBndNormal);
+            
+            // Find independent vectors
+            GramSchmidt::orthoNormalize(CN);
+            
+            // Assemble projection matrix (prjM)
+            this->prjM.setIdentity();
+            for (size_t k=0;k<CN.size();++k)
+            {
+                this->prjM*=( I-CN[k]*CN[k].transpose() );
+            }
+            
+            
         }
         
         /**********************************************************************/
@@ -569,7 +538,7 @@ namespace model
             if(use_velocityFilter)
             {
                 const double filterThreshold=0.05*velocity.norm()*vOld.norm();
-//                const double VdotVold=
+                //                const double VdotVold=
                 if(velocity.dot(vOld)<-filterThreshold)
                 {
                     velocityReductionCoeff*=velocityReductionFactor;
@@ -643,10 +612,10 @@ namespace model
                     break;
             }
             
-//            if(isPureBoundaryNode())
-//            {
-//                dX.setZero();
-//            }
+            //            if(isPureBoundaryNode())
+            //            {
+            //                dX.setZero();
+            //            }
             
             //			if (dX.squaredNorm()>0.0 && (meshLocation()!=onMeshBoundary || shared.use_bvp==0)) // move a node only if |v|!=0 and if not on mesh boundary
             if (dX.squaredNorm()>0.0) // move a node only if |v|!=0
@@ -666,7 +635,8 @@ namespace model
                         {
                             p_Simplex=temp.second;
                             set(L+LatticeVectorType(dX));
-                            boundaryNormal=bndNrml;
+//                            boundaryNormal=bndNrml;
+                            make_bndNormal();
                             assert(meshLocation()==onMeshBoundary);
                         }
                         else // new position is not on boundary
@@ -678,7 +648,7 @@ namespace model
                     {
                         if(!temp.first) // node moved outside or already on boundary
                         {
-
+                            
                             
                             VectorDim outDir=boundaryNormal;
                             if(outDir.squaredNorm()==0.0)
@@ -745,8 +715,8 @@ namespace model
                             {
                                 p_Simplex=temp.second;
                                 set(L+LatticeVectorType(dX));
-                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
-
+                                //boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
+                                make_bndNormal();
                                 //                                L+=LatticeVectorType(dX);
                                 //                                this->set(this->get_P()+dX); // move node
                                 //
@@ -812,7 +782,7 @@ namespace model
         /**********************************************************************/
         bool isConnectedToBoundaryNodes() const
         {
-            bool temp(!this->is_isolated()); 
+            bool temp(!this->is_isolated());
             for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
             {
                 if (std::get<2>(neighborIter->second)) // not self
@@ -852,10 +822,10 @@ namespace model
                     }
                 }
                 
-//                if(temp.rows()>7)
-//                {
-//                    model::cout<<"Dislocation Node "<<this->sID<<std::endl;
-//                }
+                //                if(temp.rows()>7)
+                //                {
+                //                    model::cout<<"Dislocation Node "<<this->sID<<std::endl;
+                //                }
                 auto vecVec=EdgePermutations::edgeStats(temp);
                 if(vecVec.size()==2)
                 {
@@ -937,11 +907,11 @@ namespace model
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::velocityIncreaseFactor=1.1;
-
+    
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::bndDistance=2.0;
-
+    
     
 } // close namespace
 #endif
@@ -1043,3 +1013,43 @@ namespace model
 //                                    }
 //                                }
 //                            }
+
+
+//        /**********************************************************************/
+//        void make_projectionMatrix()
+//        {
+//
+//            // Add normal to glide and sessile planes
+//            Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
+//            VectorOfNormalsType  CN;
+//            for(const auto& plane : _confiningPlanes)
+//            {
+//                CN.push_back(plane->n.cartesian().normalized());
+//            }
+//
+//            // Add normal to mesh boundary
+//            if(meshLocation()==onMeshBoundary)
+//            {
+//                const Eigen::Matrix<double,dim+1,1> bary(p_Simplex->pos2bary(this->get_P()));
+//                for (int i=0;i<dim+1;++i)
+//                {
+//                    if(std::fabs(bary(i))<FLT_EPSILON && p_Simplex->child(i).isBoundarySimplex())
+//                    {
+//                        CN.push_back(p_Simplex->nda.col(i));
+//                    }
+//                }
+//            }
+//
+//            // Add normal to region boundary
+//            //            CN.push_back(regionBndNormal);
+//
+//            // Find independent vectors
+//            GramSchmidt::orthoNormalize(CN);
+//
+//            // Assemble projection matrix (prjM)
+//            this->prjM.setIdentity();
+//            for (size_t k=0;k<CN.size();++k)
+//            {
+//                this->prjM*=( I-CN[k]*CN[k].transpose() );
+//            }
+//        }
