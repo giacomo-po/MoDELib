@@ -15,6 +15,7 @@
 #include <utility>
 #include <tuple>
 #include <map>
+#include <vector>
 #include <Eigen/Core>
 #include <model/MPI/MPIcout.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
@@ -23,6 +24,7 @@
 #include <model/LatticeMath/LatticeVector.h>
 #include <model/DislocationDynamics/Materials/PeriodicElement.h>
 #include <model/Utilities/EigenDataReader.h>
+#include <model/DislocationDynamics/StressStraight.h>
 
 namespace model
 {
@@ -32,7 +34,8 @@ namespace model
     template <int dim>
     struct Polycrystal :
     /* base */ private std::map<size_t,Grain<dim>>,
-    /* base */ private std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>
+    /* base */ private std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>,
+    /* base */ public std::vector<StressStraight<dim> >
     {
         
         typedef SimplicialMesh<dim> SimplicialMeshType;
@@ -87,10 +90,21 @@ namespace model
             }
 
             // Initialize GrainBoundaries
+            grainBoundaryDislocations().clear();
             model::cout<<yellowBoldColor<<"Initializing GrainBoundaries"<<defaultColor<<std::endl;
             for(auto& gb : grainBoundaries())
             {
-                gb.second.initializeGrainBoundary();
+                gb.second.initializeGrainBoundary(grainBoundaryDislocations());
+            }
+            
+            model::SequentialOutputFile<'L',1>::set_count(0); // Vertices_file;
+            model::SequentialOutputFile<'L',1>::set_increment(1); // Vertices_file;
+            model::SequentialOutputFile<'L',true> stressStraightFile;
+            size_t n=0;
+            for(const auto& sStraight : grainBoundaryDislocations())
+            {
+                stressStraightFile<<n<<"\t"<<sStraight.P0.transpose()<<"\t"<<sStraight.P1.transpose()<<"\t"<<sStraight.b.transpose()<<std::endl;
+                n++;
             }
         }
         
@@ -182,6 +196,17 @@ namespace model
             return reciprocalLatticeVectorFromPosition(p,&(mesh.simplices().begin()->second));
         }
         
+        /**********************************************************************/
+        std::vector<StressStraight<dim>>& grainBoundaryDislocations()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const std::vector<StressStraight<dim>>& grainBoundaryDislocations() const
+        {
+            return *this;
+        }
         
     };
     

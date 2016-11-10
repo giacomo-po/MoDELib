@@ -373,6 +373,7 @@ namespace model
 	/* inherits from   */ public VertexReader<'V',10,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ public EdgeReader  <'E',11,double>,
 	/*                 */ public VertexReader<'P',7,double>,
+    /*                 */ public VertexReader<'L',10,double>,
     /* inherits from   */ public IDreader<'Q',3,13,double>,
     /* inherits from   */ private std::vector<SingleSplinePlotter<dim,Np,Nc> >
     { // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
@@ -388,6 +389,7 @@ namespace model
 
         typedef typename SingleSplinePlotterType::VectorDim VectorDim;
         
+        typedef VertexReader<'L',10,double> GBDreaderType;
         
         std::set<int> SIDs; // use std::set to automatically sort sID's
         
@@ -428,6 +430,8 @@ namespace model
         /* init list   */ PKfactor(1000.0)
         {
         
+            GBDreaderType::read(0,true);
+            
         }
 		
 		/* isGood *************************************************************/
@@ -490,8 +494,29 @@ namespace model
 //                    SingleSplinePlotterVectorType::push_back(new SingleSplinePlotterType(P0T0P1T1BN,snID));
                 }
 			}
+            
+            Eigen::Matrix<scalarType,dim,6> P0T0P1T1BN;
+
+            for (const auto& gbd : GBdislocations())
+            {
+                //const Eigen::Matrix<double,1,3*dim> temp=gbd.second;
+                
+                P0T0P1T1BN.col(0) = gbd.second.template segment<dim>(0*dim).transpose().template cast<float>();	// source position
+                P0T0P1T1BN.col(2) = gbd.second.template segment<dim>(1*dim).transpose().template cast<float>();	// sink position
+                P0T0P1T1BN.col(1) = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);	// source tangent
+                P0T0P1T1BN.col(3) = P0T0P1T1BN.col(1);	// sink tangent
+                P0T0P1T1BN.col(4) = gbd.second.template segment<dim>(2*dim).transpose().template cast<float>();		// Burgers vector
+                P0T0P1T1BN.col(5) = P0T0P1T1BN.col(4);		// plane normal
+                
+                SingleSplinePlotterVectorType::emplace_back(P0T0P1T1BN,0);
+            }
 		}
 		
+        /**********************************************************************/
+        const GBDreaderType& GBdislocations() const
+        {
+            return *this;
+        }
         
 		/* plot ***************************************************************/
 		void plot(const scalarType& radius)

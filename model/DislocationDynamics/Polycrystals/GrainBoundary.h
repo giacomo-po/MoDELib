@@ -10,14 +10,16 @@
 #define model_GrainBoundary_H_
 
 #include <cfloat> // FLT_EPSILON
+#include <vector>
 #include <Eigen/Core>
+#include <Eigen/Eigenvalues>
 #include <model/Math/RoundEigen.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Mesh/MeshRegionObserver.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
 #include <model/DislocationDynamics/Polycrystals/GrainBoundaryTypes.h>
 #include <model/LatticeMath/LatticePlane.h>
-#include <Eigen/Eigenvalues>
+#include <model/DislocationDynamics/StressStraight.h>
 
 
 namespace model
@@ -49,10 +51,9 @@ namespace model
             //            std::cout<<std::setprecision(15)<<std::scientific<<normal<<std::endl;
             ReciprocalLatticeDirectionType R=grain.reciprocalLatticeDirection(normal);
             
-            model::cout<<"Grain boundary normal for grain"<< grain.grainID<<std::endl;
-            model::cout<<"cartesian components="<<R.cartesian().transpose()<<std::endl;
-            model::cout<<"cartesian crystal components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<std::endl;
-            model::cout<<"lattice components="<<R.transpose()<<std::endl;
+            model::cout<<"GB normal for grain "<< grain.grainID<<":"<<std::endl;
+            model::cout<<"  cartesian components="<<R.cartesian().transpose()<<std::endl;
+            model::cout<<"  crystallographic components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<std::endl;
             
             //            model::cout<<"Cartesian Grain boundary for grain"<< grain.grainID<<" is "<<R.cartesian().transpose()<<std::endl;
             
@@ -151,7 +152,9 @@ namespace model
                                                                  std::forward_as_tuple(grain.grainID),
                                                                  std::forward_as_tuple(L0,pb));
             
-            std::cout<<"GB plane normal="<<temp.first->second.n.cartesian().transpose()<<std::endl;
+            assert(temp.first->second.n.cartesian().normalized().cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
+            
+//            std::cout<<"GB plane normal="<<temp.first->second.n.cartesian().transpose()<<std::endl;
         }
         
         /**********************************************************************/
@@ -183,7 +186,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void computeRotationAxis()
+        void computeCrystallographicRotationAxis()
         {
             
             // Compute the relative rotation matrix between grains
@@ -192,30 +195,84 @@ namespace model
             // Eigen-decompose R
             Eigen::EigenSolver<MatrixDimD> es(R);
             
-            // Determine _rotationAxis as the eigenvector of R corresponding to eigenvalue=1
+            // Determine _crystallographicRotationAxis as the eigenvector of R corresponding to eigenvalue=1
             for(unsigned int j=0;j<dim;++j)
             {
                 if(fabs(es.eigenvalues()(j).real()-1.0)<FLT_EPSILON && fabs(es.eigenvalues()(j).imag())<FLT_EPSILON)
                 {
                     for(unsigned int d=0;d<dim;++d)
                     {
-                        _rotationAxis=es.eigenvectors().col(j).real();
+                        _crystallographicRotationAxis=es.eigenvectors().col(j).real();
                     }
                     break;
                 }
             }
-            const double axisNorm(_rotationAxis.norm());
+            const double axisNorm(_crystallographicRotationAxis.norm());
             assert(axisNorm>FLT_EPSILON);
-            _rotationAxis/=axisNorm;
+            _crystallographicRotationAxis/=axisNorm;
+            
+//            std::cout<<"DEBUGGING"<<std::endl;
+//            std::cout<<_crystallographicRotationAxis.transpose()<<std::endl;
+//            std::cout<<(grain(grainBndID.first).get_C2G()*_crystallographicRotationAxis).transpose()<<std::endl;
+//            std::cout<<(grain(grainBndID.first).get_C2G().transpose()*_crystallographicRotationAxis).transpose()<<std::endl;
+//            std::cout<<(grain(grainBndID.second).get_C2G()*_crystallographicRotationAxis).transpose()<<std::endl;
+//            std::cout<<(grain(grainBndID.second).get_C2G().transpose()*_crystallographicRotationAxis).transpose()<<std::endl;
+            
+            
+            _rotationAxis=grain(grainBndID.first).get_C2G()*_crystallographicRotationAxis;
+            assert((_rotationAxis-grain(grainBndID.second).get_C2G()*_crystallographicRotationAxis).norm()<FLT_EPSILON && "rotationAxis inconsistency.");
             
             cosTheta=0.5*(R.trace()-1.0);
             
-            std::cout<<yellowColor<<"   Rotation axis="<<_rotationAxis.transpose()<<std::endl;
+            std::cout<<yellowColor<<"   Rotation axis="<<_crystallographicRotationAxis.transpose()<<std::endl;
             std::cout<<yellowColor<<"   Rotation angle="<<acos(cosTheta)*180.0/M_PI<<" deg"<<defaultColor<<std::endl;
 
         }
         
+        /**********************************************************************/
+        void populateGBdislocations(std::vector<StressStraight<dim>>& vD) const
+        {
+
+            const VectorDimD dir=rotationAxis().normalized();
+            
+            const double spacing=10.0;
+
+            const VectorDimD p=dir.cross(latticePlane(grainBndID.first).n.cartesian()).normalized()*spacing;
+
+            
+            VectorDimD P0(VectorDimD::Zero());
+            VectorDimD P1(VectorDimD::Zero());
+            VectorDimD b(VectorDimD::Zero());
+
+            if(grainBndID.first==1 && grainBndID.second==2)
+            {
+                for(int k=0;k<10;++k)
+                {
+                    P0=latticePlane(grainBndID.first).P.cartesian()-100.0*dir+k*p;
+                    P1=latticePlane(grainBndID.first).P.cartesian()+100.0*dir+k*p;
+                    b=latticePlane(grainBndID.first).n.cartesian();
+                    vD.emplace_back(P0,P1,b);
+                }
+
+            }
+            else if(grainBndID.first==1 && grainBndID.second==3)
+            {
+
+//                vD.emplace_back(P0,P1,b);
+
+            }
+            else
+            {
+
+  //              vD.emplace_back(P0,P1,b);
+
+            }
+            
+        }
+        
+        VectorDimD _crystallographicRotationAxis;
         VectorDimD _rotationAxis;
+
         double cosTheta; // cosine of relative rotation angle between grains
         
         
@@ -231,7 +288,8 @@ namespace model
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
                       const Grain<dim>& grainFirst,
                       const Grain<dim>& grainSecond) :
-        /* init */ _rotationAxis(VectorDimD::Zero()),
+        /* init */ _crystallographicRotationAxis(VectorDimD::Zero()),
+        /* init */ _rotationAxis(_crystallographicRotationAxis),
         /* init */ cosTheta(1.0),
         /* init */ regionBoundary(regionbnd_in),
         /* init */ grainBndID(regionBoundary.regionBndID)
@@ -266,11 +324,18 @@ namespace model
         }
         
         /**********************************************************************/
-        void initializeGrainBoundary()
+        void initializeGrainBoundary(std::vector<StressStraight<dim>>& vD)
         {
             model::cout<<yellowColor<<"GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
-            computeRotationAxis();
+            computeCrystallographicRotationAxis();
             createLatticePlanes();
+            populateGBdislocations(vD);
+        }
+        
+        /**********************************************************************/
+        const VectorDimD& crystallographicRotationAxis() const
+        {
+            return _crystallographicRotationAxis;
         }
         
         /**********************************************************************/

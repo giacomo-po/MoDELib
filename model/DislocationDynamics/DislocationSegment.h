@@ -644,6 +644,12 @@ namespace model
                 temp += shared.bvpSolver.stress(rgauss.col(k),this->source->includingSimplex());
                 
             }
+            
+            for(const auto& sStraight : shared.poly.grainBoundaryDislocations() )
+            {
+                temp+=sStraight.stress(rgauss.col(k));
+            }
+            
             return temp;
             //            //            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
             //            return (shared.use_bvp) ? (quadratureParticleContainer[k]->stress()+shared.externalStress+shared.bvpSolver.stress(quadratureParticleContainer[k]->P,this->source->includingSimplex()))

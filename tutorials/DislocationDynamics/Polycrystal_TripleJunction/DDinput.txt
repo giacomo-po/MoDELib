@@ -3,7 +3,7 @@
 Nsteps=100000;
 startAtTimeStep = -1;
 use_directSolver_DD=0;
-quadPerLength=0.1;
+quadPerLength=0.5;
 bndDistance=3;
 
 ######################################
@@ -20,7 +20,7 @@ outputFrequency=1;
 outputBinary=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=0;
+outputPKforce=1;
 outputQuadratureParticles=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
