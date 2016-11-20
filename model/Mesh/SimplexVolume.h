@@ -34,7 +34,7 @@ namespace model
         static double volume(const Eigen::Matrix<double,dim,SimplexTraits<dim,order>::nVertices>& posM)
         {
             const Eigen::Matrix<double,dim,SimplexTraits<dim,order>::nVertices-1> B=edgeMatrix(posM);
-            return sqrt((B.transpose()*B).determinant())/Factorial<SimplexTraits<dim,order>::nVertices-1>::value;
+            return sqrt((B.transpose()*B).determinant())/factorial(SimplexTraits<dim,order>::nVertices-1);
         }
         
 	};

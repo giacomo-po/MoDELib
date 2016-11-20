@@ -160,6 +160,8 @@ namespace model
         void findGrainBoundRytypeID(const std::deque<GrainBoundaryType<dim>>&)
         {
         
+            // need permutation without repetition
+            
         }
         
         /**********************************************************************/
