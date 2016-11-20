@@ -490,8 +490,6 @@ namespace model
                     P0T0P1T1BN.col(5) = itEdge->second.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
 
                     SingleSplinePlotterVectorType::emplace_back(P0T0P1T1BN,snID);
-
-//                    SingleSplinePlotterVectorType::push_back(new SingleSplinePlotterType(P0T0P1T1BN,snID));
                 }
 			}
             

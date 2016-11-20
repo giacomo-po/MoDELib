@@ -58,61 +58,62 @@ namespace model
             //            model::cout<<"Cartesian Grain boundary for grain"<< grain.grainID<<" is "<<R.cartesian().transpose()<<std::endl;
             
             
-            // CHENAGE THIS PART READING FROM TABLE OF GB CASES
-            VectorDimD v1;
-            VectorDimD v2;
+//            // CHENAGE THIS PART READING FROM TABLE OF GB CASES
+//            VectorDimD v1;
+//            VectorDimD v2;
+//            
+////            v1<< 3.0,0.0,-1.0;
+////            v1*=sqrt(2.0);
+////            v2<< 0.0,1.0, 0.0;
+////            v2*=sqrt(2.0);
+//            
+//            if(grainBndID.first==1 && grainBndID.second==2)
+//            {
+//                if(grain.grainID==1)
+//                {
+//                    v1<<1.0, 0.0,1.0;
+//                    v2<<0.0,1.0,1.0;
+//
+//                }
+//                else
+//                {
+//                    v1<<1.0, 0.0,1.0;
+//                    v2<<0.0,-1.0,1.0;
+//
+//                }
+//            }
+//            else if(grainBndID.first==1 && grainBndID.second==3)
+//            {
+//                if(grain.grainID==1)
+//                {
+//                    v1<<1.0, 0.0,1.0;
+//                    v2<<0.0,11.0,-1.0;
+//
+//                }
+//                else
+//                {
+//                    v1<<1.0,-1.0,0.0;
+//                    v2<<1.0,0.0,1.0;
+//                }
+//            }
+//            else
+//            {
+//                if(grain.grainID==2)
+//                {
+//                    v1<<1.0, -1.0,0.0;
+//                    v2<<1.0,0.0,1.0;
+//                    
+//                }
+//                else
+//                {
+//                    v1<<1.0,1.0,0.0;
+//                    v2<<1.0,0.0,1.0;
+//                }
+//            }
+//            v1=grain.get_C2G()*v1*sqrt(2.0);
+//            v2=grain.get_C2G()*v2*sqrt(2.0);
+
             
-//            v1<< 3.0,0.0,-1.0;
-//            v1*=sqrt(2.0);
-//            v2<< 0.0,1.0, 0.0;
-//            v2*=sqrt(2.0);
-            
-            if(grainBndID.first==1 && grainBndID.second==2)
-            {
-                if(grain.grainID==1)
-                {
-                    v1<<1.0, 0.0,1.0;
-                    v2<<0.0,1.0,1.0;
-
-                }
-                else
-                {
-                    v1<<1.0, 0.0,1.0;
-                    v2<<0.0,-1.0,1.0;
-
-                }
-            }
-            else if(grainBndID.first==1 && grainBndID.second==3)
-            {
-                if(grain.grainID==1)
-                {
-                    v1<<1.0, 0.0,1.0;
-                    v2<<0.0,11.0,-1.0;
-
-                }
-                else
-                {
-                    v1<<1.0,-1.0,0.0;
-                    v2<<1.0,0.0,1.0;
-                }
-            }
-            else
-            {
-                if(grain.grainID==2)
-                {
-                    v1<<1.0, -1.0,0.0;
-                    v2<<1.0,0.0,1.0;
-                    
-                }
-                else
-                {
-                    v1<<1.0,1.0,0.0;
-                    v2<<1.0,0.0,1.0;
-                }
-            }
-            v1=grain.get_C2G()*v1*sqrt(2.0);
-            v2=grain.get_C2G()*v2*sqrt(2.0);
-
             //
             
             LatticeVectorType L0(grain.covBasis(),grain.contraBasis());
@@ -144,9 +145,15 @@ namespace model
             //LatticeVectorType O(grain.covBasis(),grain.contraBasis());
             
             // Here is ok
-            LatticePlaneBase pb(LatticeVectorType(v1,grain.covBasis(),grain.contraBasis()),
-                                LatticeVectorType(v2,grain.covBasis(),grain.contraBasis()));
+//            LatticePlaneBase pb(LatticeVectorType(v1,grain.covBasis(),grain.contraBasis()),
+//                                LatticeVectorType(v2,grain.covBasis(),grain.contraBasis()));
             
+            LatticePlaneBase pb(R);
+//            std::cout<<"Testing new LatticePlaneBase constructor"<<std::endl;
+//            std::cout<<(grain.get_C2G().transpose()*pb.primitiveVectors.first.cartesian()).transpose()<<std::endl;
+//            std::cout<<(grain.get_C2G().transpose()*pb.primitiveVectors.second.cartesian()).transpose()<<std::endl;
+//            std::cout<<(grain.get_C2G().transpose()*test.primitiveVectors.first.cartesian()).transpose()<<std::endl;
+//            std::cout<<(grain.get_C2G().transpose()*test.primitiveVectors.second.cartesian()).transpose()<<std::endl;
             
             const auto temp = LatticePlaneContainerType::emplace(std::piecewise_construct,
                                                                  std::forward_as_tuple(grain.grainID),
