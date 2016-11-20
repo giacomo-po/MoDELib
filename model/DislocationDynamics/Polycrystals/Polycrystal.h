@@ -16,6 +16,7 @@
 #include <tuple>
 #include <map>
 #include <vector>
+#include <deque>
 #include <Eigen/Core>
 #include <model/MPI/MPIcout.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
@@ -25,6 +26,7 @@
 #include <model/DislocationDynamics/Materials/PeriodicElement.h>
 #include <model/Utilities/EigenDataReader.h>
 #include <model/DislocationDynamics/StressStraight.h>
+#include <model/DislocationDynamics/Polycrystals/GrainBoundaryType.h>
 
 namespace model
 {
@@ -32,7 +34,7 @@ namespace model
     
     
     template <int dim>
-    struct Polycrystal :
+    class Polycrystal :
     /* base */ private std::map<size_t,Grain<dim>>,
     /* base */ private std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>,
     /* base */ public std::vector<StressStraight<dim> >
@@ -45,12 +47,21 @@ namespace model
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
 
+        static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
+        static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
+        static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
+        static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
 
+        unsigned int materialZ;
+        
+    public:
+        
         const SimplicialMeshType& mesh;
         
         /**********************************************************************/
         Polycrystal(const SimplicialMeshType& mesh_in) :
-        mesh(mesh_in)
+        /* init */ materialZ(0),
+        /* init */ mesh(mesh_in)
         {
             model::cout<<"Creating Polycrystal"<<std::endl;
 
@@ -76,7 +87,6 @@ namespace model
             
             EigenDataReader EDR;
 
-            unsigned int materialZ;
             EDR.readScalarInFile(fullName,"material",materialZ); // material by atomic number Z
             //Material<Isotropic>::select(materialZ);
             
@@ -88,13 +98,14 @@ namespace model
                 EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
                 gr.second.rotate(C2Gtemp);
             }
+            
 
-            // Initialize GrainBoundaries
+            // Initialize GrainBoundary objects
             grainBoundaryDislocations().clear();
             model::cout<<yellowBoldColor<<"Initializing GrainBoundaries"<<defaultColor<<std::endl;
             for(auto& gb : grainBoundaries())
             {
-                gb.second.initializeGrainBoundary(grainBoundaryDislocations());
+                gb.second.initializeGrainBoundary(*this);
             }
             
             model::SequentialOutputFile<'L',1>::set_count(0); // Vertices_file;
@@ -107,6 +118,21 @@ namespace model
                 n++;
             }
         }
+        
+        /**********************************************************************/
+        const std::deque<GrainBoundaryType<dim>>& grainBoundaryTypes() const
+        {
+            switch (materialZ)
+            {
+                case Cu.Z:
+                    return PeriodicElement<Cu.Z,Isotropic>::grainBoundaryTypes;
+                    break;
+                default:
+                    assert(0 && "grainBoundaryTypes not implemented.");
+                    break;
+            }
+        }
+
         
         /**********************************************************************/
         void createLatticePlanes()

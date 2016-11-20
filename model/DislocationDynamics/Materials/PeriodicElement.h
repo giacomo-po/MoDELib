@@ -9,14 +9,19 @@
 #ifndef model_PeriodicElement_H_
 #define model_PeriodicElement_H_
 
+//#include <list>
+#include <deque>
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/Materials/MaterialSymmetry.h>
 #include <model/DislocationDynamics/Materials/FCCcrystal.h>
 #include <model/DislocationDynamics/Materials/BCCcrystal.h>
 #include <model/DislocationDynamics/MobilityLaws/DislocationMobility.h>
+#include <model/DislocationDynamics/Polycrystals/GrainBoundaryType.h>
 
 namespace model
 {
+    
+    using Eigen::Vector3d;
     
     /**************************************************************************/
     /**************************************************************************/
@@ -77,7 +82,30 @@ namespace model
         static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
         
         static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,3.3333e-07,3.3333e-07);
+        
+        static const std::deque<GrainBoundaryType<3>> grainBoundaryTypes;
     };
+    
+    const std::deque<GrainBoundaryType<3>> PeriodicElement<29,Isotropic>::grainBoundaryTypes=
+    {
+        GrainBoundaryType<3>("symmetric-tilt [100](201) sigma 5",
+                             Vector3d(1,0,0),Vector3d(0,2,1),Vector3d(0,2,-1),
+                             0.0,
+                             10.0,Vector3d(0,0,0)),
+        GrainBoundaryType<3>("symmetric-tilt [100](301) sigma 5",
+                             Vector3d(1,0,0),Vector3d(0,3,1),Vector3d(0,3,-1),
+                             0.0,
+                             10.0, Vector3d(0,0,0)),
+        GrainBoundaryType<3>("symmetric-tilt [110](111) sigma ???",
+                             Vector3d(1,1,0),Vector3d(1,-1,1),Vector3d(1,-1,-1),
+                             0.0,
+                             10.0, Vector3d(0,0,0)),
+        GrainBoundaryType<3>("asymmetric-tilt [110](1,1,1)(11,11,1) sigma ???",
+                             Vector3d(1,1,0),Vector3d(1,-1,1),Vector3d(11,-11,1),
+                             0.0,
+                             10.0, Vector3d(0,0,0))
+    };
+    
     
     //    /**************************************************************************/
     //    /**************************************************************************/
@@ -121,19 +149,19 @@ namespace model
         static constexpr double Tm=3695.0;              // melting temperature [K]
         
         static const DislocationMobility<BCC> dm;
-    
+        
     };
     
     const DislocationMobility<BCC> PeriodicElement<74,Isotropic>::dm=DislocationMobility<BCC>(b,mu,cs,
-                                                                      4.26e-04,0.87e-06, // B0e [Pa*s], B1e [Pa*s/K]
-                                                                      9.8e-4,0.0,        // B0s [Pa*s], B1s [Pa*s/K]
-                                                                      8.3e-05,           // Bk [Pa*s]
-                                                                      1.63,              // dH0 [eV]
-                                                                      0.86,1.69,         // p,q
-                                                                      0.8*Tm,            // T0
-                                                                      2.03e9,            // tauC [Pa]
-                                                                      1.2943,1.1702,4.9087,9.3352,0.3107 // non-Schmid coefficients
-                                                                      );
+                                                                                              4.26e-04,0.87e-06, // B0e [Pa*s], B1e [Pa*s/K]
+                                                                                              9.8e-4,0.0,        // B0s [Pa*s], B1s [Pa*s/K]
+                                                                                              8.3e-05,           // Bk [Pa*s]
+                                                                                              1.63,              // dH0 [eV]
+                                                                                              0.86,1.69,         // p,q
+                                                                                              0.8*Tm,            // T0
+                                                                                              2.03e9,            // tauC [Pa]
+                                                                                              1.2943,1.1702,4.9087,9.3352,0.3107 // non-Schmid coefficients
+                                                                                              );
     
 } // namespace model
 #endif

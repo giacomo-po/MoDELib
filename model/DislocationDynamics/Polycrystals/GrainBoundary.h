@@ -11,13 +11,14 @@
 
 #include <cfloat> // FLT_EPSILON
 #include <vector>
+#include <deque>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 #include <model/Math/RoundEigen.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Mesh/MeshRegionObserver.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
-#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTypes.h>
+#include <model/DislocationDynamics/Polycrystals/GrainBoundaryType.h>
 #include <model/LatticeMath/LatticePlane.h>
 #include <model/DislocationDynamics/StressStraight.h>
 
@@ -48,73 +49,11 @@ namespace model
         void storeLatticePlane(const Grain<dim>& grain,
                                const VectorDimD& normal)
         {
-            //            std::cout<<std::setprecision(15)<<std::scientific<<normal<<std::endl;
             ReciprocalLatticeDirectionType R=grain.reciprocalLatticeDirection(normal);
             
             model::cout<<"GB normal for grain "<< grain.grainID<<":"<<std::endl;
             model::cout<<"  cartesian components="<<R.cartesian().transpose()<<std::endl;
             model::cout<<"  crystallographic components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<std::endl;
-            
-            //            model::cout<<"Cartesian Grain boundary for grain"<< grain.grainID<<" is "<<R.cartesian().transpose()<<std::endl;
-            
-            
-//            // CHENAGE THIS PART READING FROM TABLE OF GB CASES
-//            VectorDimD v1;
-//            VectorDimD v2;
-//            
-////            v1<< 3.0,0.0,-1.0;
-////            v1*=sqrt(2.0);
-////            v2<< 0.0,1.0, 0.0;
-////            v2*=sqrt(2.0);
-//            
-//            if(grainBndID.first==1 && grainBndID.second==2)
-//            {
-//                if(grain.grainID==1)
-//                {
-//                    v1<<1.0, 0.0,1.0;
-//                    v2<<0.0,1.0,1.0;
-//
-//                }
-//                else
-//                {
-//                    v1<<1.0, 0.0,1.0;
-//                    v2<<0.0,-1.0,1.0;
-//
-//                }
-//            }
-//            else if(grainBndID.first==1 && grainBndID.second==3)
-//            {
-//                if(grain.grainID==1)
-//                {
-//                    v1<<1.0, 0.0,1.0;
-//                    v2<<0.0,11.0,-1.0;
-//
-//                }
-//                else
-//                {
-//                    v1<<1.0,-1.0,0.0;
-//                    v2<<1.0,0.0,1.0;
-//                }
-//            }
-//            else
-//            {
-//                if(grain.grainID==2)
-//                {
-//                    v1<<1.0, -1.0,0.0;
-//                    v2<<1.0,0.0,1.0;
-//                    
-//                }
-//                else
-//                {
-//                    v1<<1.0,1.0,0.0;
-//                    v2<<1.0,0.0,1.0;
-//                }
-//            }
-//            v1=grain.get_C2G()*v1*sqrt(2.0);
-//            v2=grain.get_C2G()*v2*sqrt(2.0);
-
-            
-            //
             
             LatticeVectorType L0(grain.covBasis(),grain.contraBasis());
             bool latticePointFound=false;
@@ -142,18 +81,7 @@ namespace model
             
             assert(latticePointFound && "None of the GB mesh vertices, snapped to the lattice, belongs to GB plane.");
             
-            //LatticeVectorType O(grain.covBasis(),grain.contraBasis());
-            
-            // Here is ok
-//            LatticePlaneBase pb(LatticeVectorType(v1,grain.covBasis(),grain.contraBasis()),
-//                                LatticeVectorType(v2,grain.covBasis(),grain.contraBasis()));
-            
             LatticePlaneBase pb(R);
-//            std::cout<<"Testing new LatticePlaneBase constructor"<<std::endl;
-//            std::cout<<(grain.get_C2G().transpose()*pb.primitiveVectors.first.cartesian()).transpose()<<std::endl;
-//            std::cout<<(grain.get_C2G().transpose()*pb.primitiveVectors.second.cartesian()).transpose()<<std::endl;
-//            std::cout<<(grain.get_C2G().transpose()*test.primitiveVectors.first.cartesian()).transpose()<<std::endl;
-//            std::cout<<(grain.get_C2G().transpose()*test.primitiveVectors.second.cartesian()).transpose()<<std::endl;
             
             const auto temp = LatticePlaneContainerType::emplace(std::piecewise_construct,
                                                                  std::forward_as_tuple(grain.grainID),
@@ -218,14 +146,6 @@ namespace model
             assert(axisNorm>FLT_EPSILON);
             _crystallographicRotationAxis/=axisNorm;
             
-//            std::cout<<"DEBUGGING"<<std::endl;
-//            std::cout<<_crystallographicRotationAxis.transpose()<<std::endl;
-//            std::cout<<(grain(grainBndID.first).get_C2G()*_crystallographicRotationAxis).transpose()<<std::endl;
-//            std::cout<<(grain(grainBndID.first).get_C2G().transpose()*_crystallographicRotationAxis).transpose()<<std::endl;
-//            std::cout<<(grain(grainBndID.second).get_C2G()*_crystallographicRotationAxis).transpose()<<std::endl;
-//            std::cout<<(grain(grainBndID.second).get_C2G().transpose()*_crystallographicRotationAxis).transpose()<<std::endl;
-            
-            
             _rotationAxis=grain(grainBndID.first).get_C2G()*_crystallographicRotationAxis;
             assert((_rotationAxis-grain(grainBndID.second).get_C2G()*_crystallographicRotationAxis).norm()<FLT_EPSILON && "rotationAxis inconsistency.");
             
@@ -234,6 +154,12 @@ namespace model
             std::cout<<yellowColor<<"   Rotation axis="<<_crystallographicRotationAxis.transpose()<<std::endl;
             std::cout<<yellowColor<<"   Rotation angle="<<acos(cosTheta)*180.0/M_PI<<" deg"<<defaultColor<<std::endl;
 
+        }
+        
+        /**********************************************************************/
+        void findGrainBoundRytypeID(const std::deque<GrainBoundaryType<dim>>&)
+        {
+        
         }
         
         /**********************************************************************/
@@ -281,16 +207,13 @@ namespace model
         VectorDimD _rotationAxis;
 
         double cosTheta; // cosine of relative rotation angle between grains
-        
+        int gbTypeID;
         
     public:
         
         const MeshRegionBoundaryType& regionBoundary;
         const std::pair<size_t,size_t>& grainBndID;
         
-        static const std::map<BGkeyType,GrainBoundaryType<dim>> gbTypeMap;
-
-
         /**********************************************************************/
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
                       const Grain<dim>& grainFirst,
@@ -298,6 +221,7 @@ namespace model
         /* init */ _crystallographicRotationAxis(VectorDimD::Zero()),
         /* init */ _rotationAxis(_crystallographicRotationAxis),
         /* init */ cosTheta(1.0),
+        /* init */ gbTypeID(-1),
         /* init */ regionBoundary(regionbnd_in),
         /* init */ grainBndID(regionBoundary.regionBndID)
         {
@@ -331,12 +255,14 @@ namespace model
         }
         
         /**********************************************************************/
-        void initializeGrainBoundary(std::vector<StressStraight<dim>>& vD)
+        template<typename PolycrystalType>
+        void initializeGrainBoundary(PolycrystalType& poly)
         {
             model::cout<<yellowColor<<"GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
             computeCrystallographicRotationAxis();
             createLatticePlanes();
-            populateGBdislocations(vD);
+            findGrainBoundRytypeID(poly.grainBoundaryTypes());
+            populateGBdislocations(poly.grainBoundaryDislocations());
         }
         
         /**********************************************************************/
@@ -357,36 +283,91 @@ namespace model
             return acos(cosTheta);
         }
         
-        /**********************************************************************/
-        static std::map<BGkeyType,GrainBoundaryType<dim>> get_GBtypes()
-        {
-        
-            std::map<BGkeyType,GrainBoundaryType<dim>> temp;
-            
-            VectorDimD u(VectorDimD::Zero());  // rotation axis
-            VectorDimD v1(VectorDimD::Zero()); // Vector on GrainBonudary 1
-            VectorDimD v2(VectorDimD::Zero()); // Vector on GrainBonudary 2, corresponding to v1 in rotation about u
-            double theta=0.0;
-            
-            // <100>(310) STGB,
-            u<<0.0,1.0,0.0;
-            v1<<3.0,0.0,+1.0;
-            v2<<3.0,0.0,+1.0;
-            
-            BGkeyType key(BGkeyType::Zero());
-//            key<<0.0,1.0,0.0,
-//                 1.0,0.0,3.0,
-//                 acos(v1.normalized().dot(v2.normalized()))
-//            temp.emplce()
-            
-            return temp;
-        }
-        
     };
-    
-    template <int dim>
-    const std::map<Eigen::Matrix<double,2*dim+1,1>,GrainBoundaryType<dim>> GrainBoundary<dim>::gbTypeMap=GrainBoundary<dim>::get_GBtypes();
     
 } // end namespace
 #endif
 
+
+
+
+//        /**********************************************************************/
+//        static std::map<BGkeyType,GrainBoundaryType<dim>> get_GBtypes()
+//        {
+//
+//            std::map<BGkeyType,GrainBoundaryType<dim>> temp;
+//
+//            VectorDimD u(VectorDimD::Zero());  // rotation axis
+//            VectorDimD v1(VectorDimD::Zero()); // Vector on GrainBonudary 1
+//            VectorDimD v2(VectorDimD::Zero()); // Vector on GrainBonudary 2, corresponding to v1 in rotation about u
+//            double theta=0.0;
+//
+//            // <100>(310) STGB,
+//            u<<0.0,1.0,0.0;
+//            v1<<3.0,0.0,+1.0;
+//            v2<<3.0,0.0,+1.0;
+//
+//            BGkeyType key(BGkeyType::Zero());
+////            key<<0.0,1.0,0.0,
+////                 1.0,0.0,3.0,
+////                 acos(v1.normalized().dot(v2.normalized()))
+////            temp.emplce()
+//
+//            return temp;
+//        }
+
+
+//            // CHENAGE THIS PART READING FROM TABLE OF GB CASES
+//            VectorDimD v1;
+//            VectorDimD v2;
+//
+////            v1<< 3.0,0.0,-1.0;
+////            v1*=sqrt(2.0);
+////            v2<< 0.0,1.0, 0.0;
+////            v2*=sqrt(2.0);
+//
+//            if(grainBndID.first==1 && grainBndID.second==2)
+//            {
+//                if(grain.grainID==1)
+//                {
+//                    v1<<1.0, 0.0,1.0;
+//                    v2<<0.0,1.0,1.0;
+//
+//                }
+//                else
+//                {
+//                    v1<<1.0, 0.0,1.0;
+//                    v2<<0.0,-1.0,1.0;
+//
+//                }
+//            }
+//            else if(grainBndID.first==1 && grainBndID.second==3)
+//            {
+//                if(grain.grainID==1)
+//                {
+//                    v1<<1.0, 0.0,1.0;
+//                    v2<<0.0,11.0,-1.0;
+//
+//                }
+//                else
+//                {
+//                    v1<<1.0,-1.0,0.0;
+//                    v2<<1.0,0.0,1.0;
+//                }
+//            }
+//            else
+//            {
+//                if(grain.grainID==2)
+//                {
+//                    v1<<1.0, -1.0,0.0;
+//                    v2<<1.0,0.0,1.0;
+//
+//                }
+//                else
+//                {
+//                    v1<<1.0,1.0,0.0;
+//                    v2<<1.0,0.0,1.0;
+//                }
+//            }
+//            v1=grain.get_C2G()*v1*sqrt(2.0);
+//            v2=grain.get_C2G()*v2*sqrt(2.0);
