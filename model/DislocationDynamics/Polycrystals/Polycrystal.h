@@ -27,6 +27,7 @@
 #include <model/Utilities/EigenDataReader.h>
 #include <model/DislocationDynamics/StressStraight.h>
 #include <model/DislocationDynamics/Polycrystals/GrainBoundaryType.h>
+#include <model/Utilities/SequentialOutputFile.h>
 
 namespace model
 {

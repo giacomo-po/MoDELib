@@ -543,7 +543,7 @@ namespace model {
 			
             mouseAction=MOUSE_NONE;
             
-			showAxes=true;
+			showAxes=false;
 			
             //			showMeshStates=3; // 0=no mesh, 1= mesh, 2=deformed mesh
             //			showMesh=0;
