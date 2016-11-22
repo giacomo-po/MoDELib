@@ -252,7 +252,6 @@ namespace model
             {
                 P0=latticePlane(grainBndID.first).P.cartesian()-100.0*dir+k*p;
                 P1=latticePlane(grainBndID.first).P.cartesian()+100.0*dir+k*p;
-                b=latticePlane(grainBndID.first).n.cartesian();
                 vD.emplace_back(P0,P1,grainBoundaryType().Burgers);
             }
             
