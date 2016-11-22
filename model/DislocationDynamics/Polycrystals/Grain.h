@@ -58,6 +58,34 @@ namespace model
         static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
         
         /**********************************************************************/
+        static Eigen::Matrix<long int,dim,1> rationalApproximation(VectorDimD nd)
+        {
+            const Eigen::Array<double,dim,1> nda(nd.array().abs()); // vector of close-to-integer numbers corresponding to lattice coordinates
+            size_t maxID=0;
+            const double maxVal(nda.maxCoeff(&maxID));
+            nd/=maxVal; // make each value of nd in [-1:1]
+            
+            Eigen::Array<long int,dim,1> nums=Eigen::Matrix<long int,dim,1>::Ones();
+            Eigen::Array<long int,dim,1> dens=Eigen::Matrix<long int,dim,1>::Ones();
+            long int denProd=1;
+            
+            for(int k=0;k<dim;++k)
+            {
+                BestRationalApproximation bra(nd(k),100);
+                
+                nums(k)=bra.num;
+                dens(k)=bra.den;
+                denProd*=bra.den;
+            }
+            
+            for(int k=0;k<dim;++k)
+            {
+                nums(k)*=(denProd/dens(k));
+            }
+            return nums.matrix();
+        }
+        
+        /**********************************************************************/
         void setLatticeBasis()
         {
             model::cout<<"Grain"<<grainID<<", material="<<materialZ<<std::endl;
@@ -92,26 +120,6 @@ namespace model
             std::cout<<"Lattice basis (in columns) =\n"<<_covBasis<<std::endl;
             std::cout<<"Lattice reciprocal basis (in columns) =\n"<<_contraBasis<<std::endl;
         }
-        
-        //        /**********************************************************************/
-        //        void setLatticeBasis(const Eigen::Matrix<double,dim,dim,1>& A)
-        //        {
-        //            _covBasis=A;
-        //            _contraBasis=A.inverse().transpose();
-        //
-        //            std::cout<<"Lattice basis (in columns) =\n"<<_covBasis<<std::endl;
-        //            std::cout<<"Lattice reciprocal basis (in columns) =\n"<<_contraBasis<<std::endl;
-        //        }
-        
-        //        /**********************************************************************/
-        //        template<size_t Z>
-        //        void select()
-        //        {/*! Z is atomic number
-        //          */
-        //            setLatticeBasis(C2G*PeriodicElement<Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>());
-        //            planeNormalContainer=CrystalStructure::template reciprocalPlaneNormals<dim>();
-        //            //slipSystemContainer=CrystalStructure::slipSystems();
-        //        }
         
         PlaneNormalContainerType planeNormalContainer;
         SlipSystemContainerType slipSystemContainer;
@@ -184,10 +192,7 @@ namespace model
             }
             model::cout<<defaultColor<<std::endl;
             
-            
         }
-        
-        
         
         /**********************************************************************/
         void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in)
@@ -234,109 +239,67 @@ namespace model
         //            return rd.template cast<long int>();
         //        }
         
+//        /**********************************************************************/
+//        LatticeDirectionType latticeDirection(const VectorDimD& d) const
+//        {
+//            bool found=false;
+//            VectorDimD rdk(VectorDimD::Zero());
+//            
+//            const VectorDimD nd(_contraBasis.transpose()*d);
+//            
+//            
+//            for(int k=0;k<dim;++k)
+//            {
+//                if(fabs(nd(k))>roundTol)
+//                {
+//                    const VectorDimD ndk(nd/fabs(nd(k)));
+//                    rdk=RoundEigen<double,dim>::round(ndk);
+//                    if((ndk-rdk).norm()<roundTol)
+//                    {
+//                        found=true;
+//                        break;
+//                    }
+//                }
+//            }
+//            assert(found && "Input vector is not on a lattice direction");
+//            return LatticeDirectionType(rdk.template cast<long int>(),_covBasis,_contraBasis);
+//        }
+
         /**********************************************************************/
         LatticeDirectionType latticeDirection(const VectorDimD& d) const
         {
-            bool found=false;
-            VectorDimD rdk(VectorDimD::Zero());
             
             const VectorDimD nd(_contraBasis.transpose()*d);
+            const LatticeVectorType temp(rationalApproximation(nd),_covBasis,_contraBasis);
             
-            
-            for(int k=0;k<dim;++k)
+            if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
             {
-                if(fabs(nd(k))>roundTol)
-                {
-                    const VectorDimD ndk(nd/fabs(nd(k)));
-                    rdk=RoundEigen<double,dim>::round(ndk);
-                    if((ndk-rdk).norm()<roundTol)
-                    {
-                        found=true;
-                        break;
-                    }
-                }
+                std::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
+                std::cout<<"lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
+                assert(0 && "LATTICE DIRECTION NOT FOUND");
             }
-            assert(found && "Input vector is not on a lattice direction");
-            return LatticeDirectionType(rdk.template cast<long int>(),_covBasis,_contraBasis);
+            
+            return LatticeDirectionType(temp);
         }
         
         /**********************************************************************/
         ReciprocalLatticeDirectionType reciprocalLatticeDirection(const VectorDimD& d) const
         {
          
-            
-            VectorDimD nd(_covBasis.transpose()*d);
-            const Eigen::Array<double,dim,1> nda(nd.array().abs()); // vector of close-to-integer numbers corresponding to lattice coordinates
-            size_t maxID=0;
-            const double maxVal(nda.maxCoeff(&maxID));
-            nd/=maxVal;
-            
-            
-            
-            Eigen::Array<long int,dim,1> nums=Eigen::Matrix<long int,dim,1>::Ones();
-            Eigen::Array<long int,dim,1> dens=Eigen::Matrix<long int,dim,1>::Ones();
-            long int denProd=1;
-            
-            
-            
-            for(int k=0;k<dim;++k)
-            {
-                BestRationalApproximation bra(nd(k),100);
-                
-                nums(k)=bra.num;
-                dens(k)=bra.den;
-                denProd*=bra.den;
-            }
-            
-            for(int k=0;k<dim;++k)
-            {
-                nums(k)*=(denProd/dens(k));
-            }
-            
-            
-            const ReciprocalLatticeVectorType temp(nums.matrix(),_covBasis,_contraBasis);
-            
+            const VectorDimD nd(_covBasis.transpose()*d);
+            const ReciprocalLatticeVectorType temp(rationalApproximation(nd),_covBasis,_contraBasis);
+                        
             if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
             {
                 std::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
-                std::cout<<"lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
+                std::cout<<"reciprocal lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
                 assert(0 && "RECIPROCAL LATTICE DIRECTION NOT FOUND");
             }
             
-
-            
             return ReciprocalLatticeDirectionType(temp);
-            
-//            bool found=false;
-//            VectorDimD rdk(VectorDimD::Zero());
-//            
-//            for(int k=0;k<dim;++k)
-//            {
-//                if(fabs(nd(k))>roundTol)
-//                {
-//                    std::cout<<"k="<<k<<std::endl;
-//                    const VectorDimD ndk(nd/fabs(nd(k)));
-//                    rdk=RoundEigen<double,dim>::round(ndk);
-//                    std::cout<<"ndk="<<ndk.transpose()<<std::endl;
-//                    std::cout<<"rdk="<<rdk.transpose()<<std::endl;
-//                    
-//                    
-//                    if((ndk-rdk).norm()<roundTol)
-//                    {
-//                        //                        std::cout<<"k="<<k<<std::endl;
-//                        //                        std::cout<<"nd="<<nd.transpose()<<std::endl;
-//                        //                        std::cout<<"ndk="<<ndk.transpose()<<std::endl;
-//                        //                        std::cout<<"rdk="<<rdk.transpose()<<std::endl;
-//                        found=true;
-//                        break;
-//                    }
-//                }
-//                
-//                
-//            }
-//            assert(found && "Input vector is not on a lattice direction");
-//            return ReciprocalLatticeVectorType(rdk.template cast<long int>(),_covBasis,_contraBasis);
         }
+        
+
         
         /**********************************************************************/
         PlaneNormalIDContainerType find_slipSystem(const LatticeVectorType& chord,

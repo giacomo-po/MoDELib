@@ -88,22 +88,22 @@ namespace model
     
     const std::deque<GrainBoundaryType<3>> PeriodicElement<29,Isotropic>::grainBoundaryTypes=
     {
-        GrainBoundaryType<3>("symmetric-tilt [100](201) sigma 5",
-                             Vector3d(1,0,0),Vector3d(0,2,1),Vector3d(0,2,-1),
+        GrainBoundaryType<3>("symmetric-tilt [100](210) sigma 5",
+                             Vector3d(1,0,0),Vector3d(2,1,0),Vector3d(2,1,0),
                              0.0,
                              10.0,Vector3d(0,0,0)),
-        GrainBoundaryType<3>("symmetric-tilt [100](301) sigma 5",
-                             Vector3d(1,0,0),Vector3d(0,3,1),Vector3d(0,3,-1),
+        GrainBoundaryType<3>("symmetric-tilt [100](310) sigma 5",
+                             Vector3d(1,0,0),Vector3d(3,1,0),Vector3d(3,1,0),
                              0.0,
                              10.0, Vector3d(0,0,0)),
-        GrainBoundaryType<3>("symmetric-tilt [110](111) sigma ???",
-                             Vector3d(1,1,0),Vector3d(1,-1,1),Vector3d(1,-1,-1),
+        GrainBoundaryType<3>("symmetric-tilt [110](111) sigma 3",
+                             Vector3d(1,1,0),Vector3d(1,1,1),Vector3d(1,1,1),
                              0.0,
                              10.0, Vector3d(0,0,0)),
         GrainBoundaryType<3>("asymmetric-tilt [110](1,1,1)(11,11,1) sigma ???",
-                             Vector3d(1,1,0),Vector3d(1,-1,1),Vector3d(11,-11,1),
+                             Vector3d(1,1,0),Vector3d(1,1,1),Vector3d(11,11,1),
                              0.0,
-                             10.0, Vector3d(0,0,0))
+                             30.0, Vector3d(0,0,0))
     };
     
     
