@@ -86,23 +86,23 @@ namespace model
             assert(energyDensity>=0.0);
             assert(dislocationSpacing>0.0);
             
-            std::cout<<"AxisPermutations:"<<std::endl;
-            for(const auto& v : axisPermutations)
-            {
-                std::cout<<v.transpose()<<std::endl;
-            }
-            
-            std::cout<<"n1Permutations:"<<std::endl;
-            for(const auto& v : n1Permutations)
-            {
-                std::cout<<v.transpose()<<std::endl;
-            }
-            
-            std::cout<<"n2Permutations:"<<std::endl;
-            for(const auto& v : n2Permutations)
-            {
-                std::cout<<v.transpose()<<std::endl;
-            }
+//            std::cout<<"AxisPermutations:"<<std::endl;
+//            for(const auto& v : axisPermutations)
+//            {
+//                std::cout<<v.transpose()<<std::endl;
+//            }
+//            
+//            std::cout<<"n1Permutations:"<<std::endl;
+//            for(const auto& v : n1Permutations)
+//            {
+//                std::cout<<v.transpose()<<std::endl;
+//            }
+//            
+//            std::cout<<"n2Permutations:"<<std::endl;
+//            for(const auto& v : n2Permutations)
+//            {
+//                std::cout<<v.transpose()<<std::endl;
+//            }
 
         }
         

@@ -162,8 +162,6 @@ namespace model
             const VectorDimD n1=(grain(grainBndID.first).get_C2G().transpose()*latticePlane(grainBndID.first).n.cartesian()).normalized();
             const VectorDimD n2=(grain(grainBndID.second).get_C2G().transpose()*latticePlane(grainBndID.second).n.cartesian()).normalized();
 
-            std::cout<<"n1="<<n1.transpose()<<std::endl;
-            std::cout<<"n2="<<n2.transpose()<<std::endl;
             
             for (const auto& gbt : bgTypes)
             {
@@ -198,24 +196,38 @@ namespace model
                     }
                 }
                 
+                if(!n1Found && ! n2Found) // search n1 in n2Permutations and viceversa
+                {
+                    for(const auto& n : gbt.n2Permutations)
+                    {
+                        n1Found=( (n1-n.normalized()).norm()<FLT_EPSILON || (n1+n.normalized()).norm()<FLT_EPSILON );
+                        if(n1Found)
+                        {
+                            break;
+                        }
+                    }
+                    
+                    for(const auto& n : gbt.n1Permutations)
+                    {
+                        n2Found=( (n2-n.normalized()).norm()<FLT_EPSILON || (n2+n.normalized()).norm()<FLT_EPSILON );
+                        if(n2Found)
+                        {
+                            break;
+                        }
+                    }
+                }
+                
                 if(axisFound && n1Found && n2Found)
                 {
                     p_gbType=&gbt;
                     break;
                 }
-                else
-                {
-                    std::cout<<"axisFound"<<axisFound<<std::endl;
-                    std::cout<<"n1Found"<<n1Found<<std::endl;
-                    std::cout<<"n2Found"<<n2Found<<std::endl;
-                }
-
                 
             }
             
             if(p_gbType!=NULL)
             {
-                std::cout<<yellowColor<<"   GB type is "<<p_gbType->name<<std::endl;
+                std::cout<<yellowColor<<"   GB type is "<<p_gbType->name<<defaultColor<<std::endl;
             }
             else
             {
@@ -235,14 +247,13 @@ namespace model
             
             VectorDimD P0(VectorDimD::Zero());
             VectorDimD P1(VectorDimD::Zero());
-            VectorDimD b(VectorDimD::Zero());
             
             for(int k=0;k<10;++k)
             {
                 P0=latticePlane(grainBndID.first).P.cartesian()-100.0*dir+k*p;
                 P1=latticePlane(grainBndID.first).P.cartesian()+100.0*dir+k*p;
                 b=latticePlane(grainBndID.first).n.cartesian();
-                vD.emplace_back(P0,P1,b);
+                vD.emplace_back(P0,P1,grainBoundaryType().Burgers);
             }
             
         }
