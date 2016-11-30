@@ -59,7 +59,7 @@ namespace model
         const std::string name;
         const double energyDensity;
         const double dislocationSpacing;
-        const VectorDimD Burgers;
+        const double Burgers;//This only refers to the magnitude of the Burgers vector
         
         const std::deque<Eigen::Matrix<double,dim,1>> axisPermutations;
         const std::deque<Eigen::Matrix<double,dim,1>> n1Permutations;
@@ -74,7 +74,7 @@ namespace model
                           const VectorDimD& n2,
                           const double& energy_in,
                           const double& spacing_in,
-                          const VectorDimD& b_in) :
+                          const double& b_in) :
         /* init list */ name(name_in),
         /* init list */ energyDensity(energy_in),
         /* init list */ dislocationSpacing(spacing_in),
@@ -86,24 +86,24 @@ namespace model
             assert(energyDensity>=0.0);
             assert(dislocationSpacing>0.0);
             
-//            std::cout<<"AxisPermutations:"<<std::endl;
-//            for(const auto& v : axisPermutations)
-//            {
-//                std::cout<<v.transpose()<<std::endl;
-//            }
-//            
-//            std::cout<<"n1Permutations:"<<std::endl;
-//            for(const auto& v : n1Permutations)
-//            {
-//                std::cout<<v.transpose()<<std::endl;
-//            }
-//            
-//            std::cout<<"n2Permutations:"<<std::endl;
-//            for(const auto& v : n2Permutations)
-//            {
-//                std::cout<<v.transpose()<<std::endl;
-//            }
-
+            //            std::cout<<"AxisPermutations:"<<std::endl;
+            //            for(const auto& v : axisPermutations)
+            //            {
+            //                std::cout<<v.transpose()<<std::endl;grainBoundaryType().Burgers
+            //            }
+            //
+            //            std::cout<<"n1Permutations:"<<std::endl;
+            //            for(const auto& v : n1Permutations)
+            //            {
+            //                std::cout<<v.transpose()<<std::endl;
+            //            }
+            //
+            //            std::cout<<"n2Permutations:"<<std::endl;
+            //            for(const auto& v : n2Permutations)
+            //            {
+            //                std::cout<<v.transpose()<<std::endl;
+            //            }
+            
         }
         
         
@@ -111,4 +111,3 @@ namespace model
     
 } // end namespace
 #endif
-

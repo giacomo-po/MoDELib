@@ -67,6 +67,7 @@ namespace model
 		
         VectorDim planeNormal;
 		VectorDim burgers;
+        scalarType burgersNorm;
 		VectorDim chord;
         
         const bool isSessile;
@@ -91,6 +92,7 @@ namespace model
         /* init list */ snID(snID_in),
 		/* init list */ planeNormal(P0T0P1T1BN.col(5).normalized()),
 		/* init list */ burgers(P0T0P1T1BN.col(4)),
+        /* init list */ burgersNorm(burgers.norm()),
         /* init list */ isSessile(std::fabs(planeNormal.dot(burgers.normalized()))>FLT_EPSILON)
         {
             
@@ -258,20 +260,20 @@ namespace model
 					//glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
 					for (int c=0;c<Nc;++c){
 						glNormal3f(tubeCircles[k-1](0,c),tubeCircles[k-1](1,c),tubeCircles[k-1](2,c));
-						glVertex3f(tubeAxis(0,k-1)+radius*tubeCircles[k-1](0,c),tubeAxis(1,k-1)+radius*tubeCircles[k-1](1,c),tubeAxis(2,k-1)+radius*tubeCircles[k-1](2,c));
+						glVertex3f(tubeAxis(0,k-1)+burgersNorm*radius*tubeCircles[k-1](0,c),tubeAxis(1,k-1)+burgersNorm*radius*tubeCircles[k-1](1,c),tubeAxis(2,k-1)+burgersNorm*radius*tubeCircles[k-1](2,c));
 						glNormal3f(tubeCircles[k](0,c),tubeCircles[k](1,c),tubeCircles[k](2,c));
 						//if(showTubes==1){
-						glVertex3f(tubeAxis(0,k)+radius*tubeCircles[k](0,c),tubeAxis(1,k)+radius*tubeCircles[k](1,c),tubeAxis(2,k)+radius*tubeCircles[k](2,c));
+						glVertex3f(tubeAxis(0,k)+burgersNorm*radius*tubeCircles[k](0,c),tubeAxis(1,k)+burgersNorm*radius*tubeCircles[k](1,c),tubeAxis(2,k)+burgersNorm*radius*tubeCircles[k](2,c));
 						//}
 						//else{
 						//	glVertex3f(tubeAxis(0,k),tubeAxis(1,k),tubeAxis(2,k));
 						//}
 					}
 					glNormal3f(tubeCircles[k-1](0,0),tubeCircles[k-1](1,0),tubeCircles[k-1](2,0));
-					glVertex3f(tubeAxis(0,k-1)+radius*tubeCircles[k-1](0,0),tubeAxis(1,k-1)+radius*tubeCircles[k-1](1,0),tubeAxis(2,k-1)+radius*tubeCircles[k-1](2,0));
+					glVertex3f(tubeAxis(0,k-1)+burgersNorm*radius*tubeCircles[k-1](0,0),tubeAxis(1,k-1)+burgersNorm*radius*tubeCircles[k-1](1,0),tubeAxis(2,k-1)+burgersNorm*radius*tubeCircles[k-1](2,0));
 					glNormal3f(tubeCircles[k](0,0),tubeCircles[k](1,0),tubeCircles[k](2,0));
 					//if(showTubes==1){
-					glVertex3f(tubeAxis(0,k)+radius*tubeCircles[k](0,0),tubeAxis(1,k)+radius*tubeCircles[k](1,0),tubeAxis(2,k)+radius*tubeCircles[k](2,0));
+					glVertex3f(tubeAxis(0,k)+burgersNorm*radius*tubeCircles[k](0,0),tubeAxis(1,k)+burgersNorm*radius*tubeCircles[k](1,0),tubeAxis(2,k)+burgersNorm*radius*tubeCircles[k](2,0));
 					//}
 					//else{
 					glVertex3f(tubeAxis(0,k),tubeAxis(1,k),tubeAxis(2,k));
@@ -493,7 +495,7 @@ namespace model
                 }
 			}
             
-            Eigen::Matrix<scalarType,dim,6> P0T0P1T1BN;
+            Eigen::Matrix<scalarType,dim,6> P0T0P1T1BN(Eigen::Matrix<scalarType,dim,6>::Zero());
 
             for (const auto& gbd : GBdislocations())
             {
@@ -501,8 +503,8 @@ namespace model
                 
                 P0T0P1T1BN.col(0) = gbd.second.template segment<dim>(0*dim).transpose().template cast<float>();	// source position
                 P0T0P1T1BN.col(2) = gbd.second.template segment<dim>(1*dim).transpose().template cast<float>();	// sink position
-                P0T0P1T1BN.col(1) = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);	// source tangent
-                P0T0P1T1BN.col(3) = P0T0P1T1BN.col(1);	// sink tangent
+//                P0T0P1T1BN.col(1) = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);	// source tangent
+//                P0T0P1T1BN.col(3) = P0T0P1T1BN.col(1);	// sink tangent
                 P0T0P1T1BN.col(4) = gbd.second.template segment<dim>(2*dim).transpose().template cast<float>();		// Burgers vector
                 P0T0P1T1BN.col(5) = P0T0P1T1BN.col(4);		// plane normal
                 

@@ -904,6 +904,13 @@ namespace model
         }
         
         /**********************************************************************/
+        bool isGrainBoundaryNode() const
+        {
+            assert(0 && "FINISH HERE");
+            return false;
+        }
+        
+        /**********************************************************************/
         bool isPureBoundaryNode() const
         {
             return isBoundaryNode() && isConnectedToBoundaryNodes();
@@ -1009,6 +1016,8 @@ namespace model
         {
             return velocityReductionCoeff;
         }
+        
+        
         
         /**********************************************************************/
         template <class T>

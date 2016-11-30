@@ -845,6 +845,13 @@ namespace model
         }
         
         /**********************************************************************/
+        bool isGrainBoundarySegment() const
+        {
+            assert(0 && "FINISH HERE FOR TRIPLE JUNCTIONS");
+            return (this->source->isGrainBoundaryNode() && this->sink->isGrainBoundaryNode() );
+        }
+        
+        /**********************************************************************/
         Eigen::Matrix<double,dim-1,Ncoeff> hermiteLocalCoefficient() const
         {
             const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),this->glidePlaneNormal));

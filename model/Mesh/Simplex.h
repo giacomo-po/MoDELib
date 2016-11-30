@@ -12,6 +12,7 @@
 #include <memory> // shared_ptr
 #include <set>
 #include <map>
+#include <vector>
 #include <float.h>
 #include <Eigen/Dense>
 #include <model/Mesh/SimplexReader.h>
@@ -381,7 +382,7 @@ namespace model
                 //                }
                 
 #ifdef _MODEL_BENCH_BARYSEARCH_
-                std::cout<<"Searchig "<<this->xID<<std::endl;
+                std::cout<<"Searching "<<this->xID<<std::endl;
                 std::cout<<"bary= "<<pos2bary(P)<<std::endl;
                 searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<" "
                 /*      */<<this->xID<<"\n";

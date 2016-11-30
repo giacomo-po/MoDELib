@@ -95,7 +95,7 @@ namespace model
             //! 2- Loop over container of CrossSlipSegment(s) and perform cross-slip
             for (const auto& css : *this)
             {
-
+                
                 const size_t sourceCP=css.source.confiningPlanes().size();
                 const size_t   sinkCP=css.  sink.confiningPlanes().size();
                 
@@ -131,7 +131,7 @@ namespace model
                     //                            }
                     //                        }
                     //                    }
-
+                    
                     
                     const LatticeLine line(css.midPoint,css.Burgers);
                     sourceL=LatticeVectorType(line.snapToLattice(css.source.get_P()));
@@ -152,7 +152,7 @@ namespace model
                 }
                 else // if nodes cannot be moved, make sure that they are in perfect screw direction
                 {
-                                        //std::cout<<"CrossSlip case 4"<<std::endl;
+                    //std::cout<<"CrossSlip case 4"<<std::endl;
                     if((css.source.get_L()-css.sink.get_L()).cross(css.Burgers).squaredNorm()>0)
                     {// points perfectly aligned
                         nodesOk=false;
@@ -166,12 +166,12 @@ namespace model
                 const double dirDotPK(dir.dot(css.pkForce));
                 const double sgnDir((dirDotPK > 0.0) ? 1.0 : ((dirDotPK < 0.0) ? -1.0 : 0.0));
                 const LatticePlane conjugatePlane(sourceL,css.conjugatePlaneBase);
-//                const VectorDimD conjugatePoint=conjugatePlane.snapToLattice(midPoint+sgnDir*dir*(css.source.get_V()*0.5+css.sink.get_V()*0.5).norm()*DN.get_dt());
-//                const LatticeVectorType conjugateL(conjugatePoint);
+                //                const VectorDimD conjugatePoint=conjugatePlane.snapToLattice(midPoint+sgnDir*dir*(css.source.get_V()*0.5+css.sink.get_V()*0.5).norm()*DN.get_dt());
+                //                const LatticeVectorType conjugateL(conjugatePoint);
                 const LatticeVectorType conjugateL(conjugatePlane.snapToLattice(midPoint+sgnDir*dir*(css.source.get_V()*0.5+css.sink.get_V()*0.5).norm()*DN.get_dt()));
                 const VectorDimD conjugatePoint=conjugateL.cartesian();
                 const VectorDimD crossSlipVelocity((conjugatePoint-midPoint)/DN.get_dt());
-
+                
                 
                 //std::cout<<(conjugateL-sourceL).dot(css.conjugatePlaneBase)<<std::endl;
                 //std::cout<<(sinkL-conjugateL).dot(css.conjugatePlaneBase)<<std::endl;
@@ -185,12 +185,15 @@ namespace model
                 if (DN.shared.use_boundary)
                 {
                     nodesOk*=DN.shared.mesh.isStrictlyInsideMesh(sourceL.cartesian(), css.source.includingSimplex(),FLT_EPSILON).first;
+                    nodesOk*=DN.shared.mesh.isStrictlyInsideMesh(sourceL.cartesian(), css.source.includingSimplex(),FLT_EPSILON).second->region->regionID==css.grainID;
                     if (nodesOk)
                     {
                         nodesOk*=DN.shared.mesh.isStrictlyInsideMesh(sinkL.cartesian(),css.sink.includingSimplex(),FLT_EPSILON).first;
+                        nodesOk*=DN.shared.mesh.isStrictlyInsideMesh(sinkL.cartesian(), css.source.includingSimplex(),FLT_EPSILON).second->region->regionID==css.grainID;
                         if (nodesOk)
                         {
                             nodesOk*=DN.shared.mesh.isStrictlyInsideMesh(conjugatePoint,css.source.includingSimplex(),FLT_EPSILON).first;
+                            nodesOk*=DN.shared.mesh.isStrictlyInsideMesh(conjugatePoint, css.source.includingSimplex(),FLT_EPSILON).second->region->regionID==css.grainID;
                         }
                     }
                     
@@ -205,7 +208,7 @@ namespace model
                     // expand
                     std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(css.source.sID,css.sink.sID,conjugateL,crossSlipVelocity);
                     assert(temp.second && "COULD NOT DO THIRD EXPANSION IN CROSS SLIP");
-                     n_crossSlips++;
+                    n_crossSlips++;
                 }
                 
             } // end for loop
@@ -297,4 +300,3 @@ namespace model
 //                CSC.emplace_back(linkIter->second.isCrossSlipSegment(sinCrossSlipRad,crossSlipLength));
 //
 //			}
-

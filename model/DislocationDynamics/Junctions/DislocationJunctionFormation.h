@@ -146,7 +146,9 @@ namespace model
             
             //const bool frankRule(b1.dot(b2)*rl1.dot(rl2)<=0.0);
             const bool frankRule(b1.dot(b2)*sgnrl1rl2<=0.0);
-            const bool isValidJunction(frankRule || L1.is_boundarySegment() || L2.is_boundarySegment());
+            const bool isValidJunction(frankRule ||
+                                       L1.is_boundarySegment() || L2.is_boundarySegment() ||
+                                       L1.isGrainBoundarySegment() || L2.isGrainBoundarySegment());
             
             int dir(0);
             if (isValidJunction)

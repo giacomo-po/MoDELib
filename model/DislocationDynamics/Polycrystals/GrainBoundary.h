@@ -248,11 +248,14 @@ namespace model
             VectorDimD P0(VectorDimD::Zero());
             VectorDimD P1(VectorDimD::Zero());
             
+            VectorDimD Q(latticePlane(grainBndID.first).P.cartesian());
+            Q(1)=0.0;
+            
             for(int k=0;k<10;++k)
             {
-                P0=latticePlane(grainBndID.first).P.cartesian()-100.0*dir+k*p;
-                P1=latticePlane(grainBndID.first).P.cartesian()+100.0*dir+k*p;
-                vD.emplace_back(P0,P1,grainBoundaryType().Burgers);
+                P0=Q-100.0*dir+k*p;
+                P1=Q+100.0*dir+k*p;
+                vD.emplace_back(P0,P1,grainBoundaryType().Burgers*latticePlane(grainBndID.first).n.cartesian().normalized());
             }
             
         }
