@@ -68,18 +68,18 @@ namespace model
         template <typename LinkType>
         static const LatticePlaneBase& find_glidePlane(const Grain<dim>& grain_in,
                                                        const LatticeVectorType& sourceL,
-                                         const LatticeVectorType& sinkL,
-                                         const LatticeVectorType& Burgers,
-                                         const ExpandingEdge<LinkType>& ee)
+                                                       const LatticeVectorType& sinkL,
+                                                       const LatticeVectorType& Burgers,
+                                                       const ExpandingEdge<LinkType>& ee)
         {
-        
+            
             const LatticeVectorType& linkSourceL=ee.E.source->get_L();
             const LatticeVectorType& linkSinkL=ee.E.sink->get_L();
             
             const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
             
             
-            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_glidePlane(sinkL-sourceL,Burgers) :
+            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_glidePlane(sourceL,sinkL,Burgers) :
             /*                                                           */  ee.E.glidePlane.n;
         }
         
@@ -87,9 +87,9 @@ namespace model
         template <typename LinkType>
         static const LatticePlaneBase& find_sessilePlane(const Grain<dim>& grain_in,
                                                          const LatticeVectorType& sourceL,
-                                           const LatticeVectorType& sinkL,
-                                           const LatticeVectorType& Burgers,
-                                           const ExpandingEdge<LinkType>& ee)
+                                                         const LatticeVectorType& sinkL,
+                                                         const LatticeVectorType& Burgers,
+                                                         const ExpandingEdge<LinkType>& ee)
         {
             
             const LatticeVectorType& linkSourceL=ee.E.source->get_L();
@@ -98,7 +98,7 @@ namespace model
             const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
             
             
-            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_sessilePlane(sinkL-sourceL,Burgers) :
+            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_sessilePlane(sourceL,sinkL,Burgers) :
             /*                                                           */  ee.E.sessilePlane.n;
         }
         
@@ -108,8 +108,8 @@ namespace model
                                  const LatticeVectorType& sinkL,
                                  const LatticeVectorType& Burgers) :
         /* init list       */ grain(grain_in),
-        /* init list       */ glidePlane(sourceL,grain.find_glidePlane(sinkL-sourceL,Burgers)),
-        /* init list       */ sessilePlane(sourceL,grain.find_sessilePlane(sinkL-sourceL,Burgers)),
+        /* init list       */ glidePlane(sourceL,grain.find_glidePlane(sourceL,sinkL,Burgers)),
+        /* init list       */ sessilePlane(sourceL,grain.find_sessilePlane(sourceL,sinkL,Burgers)),
         /* init list       */ glidePlaneNormal(glidePlane.n.cartesian().normalized()),
         /* init list       */ sessilePlaneNormal(sessilePlane.n.cartesian().normalized())
         {
@@ -129,9 +129,9 @@ namespace model
         /* init list       */ glidePlaneNormal(glidePlane.n.cartesian().normalized()),
         /* init list       */ sessilePlaneNormal(sessilePlane.n.cartesian().normalized())
         {
-        
+            
         }
-
+        
         
     };
     
@@ -294,24 +294,24 @@ namespace model
                 {
                     v= 1.0-std::exp(-v);
                 }
-                                
+                
                 vv= v * glideForce/glideForceNorm;
             }
             //return temp.transpose()*pkGauss.col(k)*jgauss(k);
             return SFgaussEx(k).transpose()*vv*jgauss(k); // inverse mobility law
-//            return SFgaussEx(k).transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
+            //            return SFgaussEx(k).transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
             //            return temp.transpose()*dm.getVelocity(stressGauss[k],rlgauss.col(k))*jgauss(k); // inverse mobility law
         }
         
-//        /**********************************************************************/
-//        VectorDim radiativeVel(const VectorDim& pkF) const
-//        {
-////            const VectorDim v0(Material<Isotropic>::Binv*pkF);
-//            const VectorDim v0(Material<Isotropic>::velocity(pkF));
-//            const double v0N(v0.norm());
-//            const double csf(0.7*Material<Isotropic>::cs);
-//            return (v0N>FLT_EPSILON)? csf*(1.0-std::exp(-v0N/csf))*v0/v0N : v0;
-//        }
+        //        /**********************************************************************/
+        //        VectorDim radiativeVel(const VectorDim& pkF) const
+        //        {
+        ////            const VectorDim v0(Material<Isotropic>::Binv*pkF);
+        //            const VectorDim v0(Material<Isotropic>::velocity(pkF));
+        //            const double v0N(v0.norm());
+        //            const double csf(0.7*Material<Isotropic>::cs);
+        //            return (v0N>FLT_EPSILON)? csf*(1.0-std::exp(-v0N/csf))*v0/v0N : v0;
+        //        }
         
         
         //#ifdef UserStressFile
@@ -322,8 +322,8 @@ namespace model
     public: // member functions
         /******************************************************************/
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
-//        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const VectorDim& Fin) :
+        
+        //        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const VectorDim& Fin) :
         DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair,
                            const LatticeVectorType& Fin) :
         /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),Fin),
@@ -355,7 +355,7 @@ namespace model
         /* Constructor from EdgeExpansion) ************************************/
         DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair,
                            const ExpandingEdge<LinkType>& ee) :
-//        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow),
+        //        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow),
         /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow,ee),
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
@@ -876,7 +876,7 @@ namespace model
             return pkGauss.col(qOrder/2)*this->chord().norm();
         }
         
-
+        
         
         
         /**********************************************************************/
@@ -917,18 +917,18 @@ namespace model
                     }
                 }
             }
-//            else // s is parallel to triangle
-//            {
-//                assert(0 && "IMPLEMENT INTERSECTION AT INFINITY");
-////                if((P1-X).dot(n)>=0.0) // X is below the trianlge. Positive intersection at infinity
-////                {
-////                    temp=-1;
-////                }
-////                else // X is above the trianlge. Negative intersection at infinity
-////                {
-////                    temp=+1;
-////                }
-//            }
+            //            else // s is parallel to triangle
+            //            {
+            //                assert(0 && "IMPLEMENT INTERSECTION AT INFINITY");
+            ////                if((P1-X).dot(n)>=0.0) // X is below the trianlge. Positive intersection at infinity
+            ////                {
+            ////                    temp=-1;
+            ////                }
+            ////                else // X is above the trianlge. Negative intersection at infinity
+            ////                {
+            ////                    temp=+1;
+            ////                }
+            //            }
             
             return temp;
         }
@@ -950,16 +950,16 @@ namespace model
                 dispJump += Burgers*lineTriangleIntersection(Pf,Sf,P2,P4,P3);
                 
                 
-//                if (dispJump.norm()>0.0)
-//                {
-//                    std::cout<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
-//                    std::cout<<Pf.transpose()<<std::endl;
-//                    std::cout<<Sf.transpose()<<std::endl;
-//                    std::cout<<P1.transpose()<<std::endl;
-//                    std::cout<<P2.transpose()<<std::endl;
-//                    std::cout<<P3.transpose()<<std::endl;
-//                    std::cout<<P4.transpose()<<std::endl;
-//                }
+                //                if (dispJump.norm()>0.0)
+                //                {
+                //                    std::cout<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
+                //                    std::cout<<Pf.transpose()<<std::endl;
+                //                    std::cout<<Sf.transpose()<<std::endl;
+                //                    std::cout<<P1.transpose()<<std::endl;
+                //                    std::cout<<P2.transpose()<<std::endl;
+                //                    std::cout<<P3.transpose()<<std::endl;
+                //                    std::cout<<P4.transpose()<<std::endl;
+                //                }
                 
             }
         }
@@ -988,7 +988,7 @@ namespace model
         {
             return velocity(u)*this->get_j(u);
         }
-
+        
         
         /**********************************************************************/
         template <class T>

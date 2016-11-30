@@ -255,11 +255,108 @@ namespace model
             {
                 P0=Q-100.0*dir+k*p;
                 P1=Q+100.0*dir+k*p;
+                std::cout<<"GB DISLOCATIONS MAY BE WRONG SIGN"<<std::endl;
                 vD.emplace_back(P0,P1,grainBoundaryType().Burgers*latticePlane(grainBndID.first).n.cartesian().normalized());
             }
             
         }
         
+//        /**********************************************************************/
+//        void populateGBdislocations(std::vector<StressStraight<dim>>& vD, const SimplicialMesh<dim>& mesh) const
+//        {
+//            const int gbRegionID=grainBndID.second;
+//            
+//            const VectorDimD normal=latticePlane(gbRegionID).n.cartesian().normalized();
+//            const VectorDimD dir=rotationAxis().normalized();
+//            const VectorDimD p=dir.cross(latticePlane(gbRegionID).n.cartesian()).normalized()*grainBoundaryType().dislocationSpacing;
+//            
+//            std::cout<<"Grain boundary dislocations being added with spacing of "<<grainBoundaryType().dislocationSpacing<<" and along direction "<<p.normalized().transpose()<<std::endl;
+//            VectorDimD P0(VectorDimD::Zero());
+//            VectorDimD P1(VectorDimD::Zero());
+//            assert(mesh.search(P0).first    &&  mesh.search(P1).first && "Another method is needed to initialize the stress-straight segments if the mesh does not intersect the origin");
+//            
+//            bool check=false;
+//            if(grainBndID.second+grainBndID.first==4)
+//            {
+//                check=true;
+//            }
+//            for(int k=0;k<99999;++k)
+//            {
+//                LatticeDirection<dim> Dir(grain(gbRegionID).latticeDirection(dir));
+//                P0=latticePlane(gbRegionID).P.cartesian()*0-Dir.cartesian()+k*p;
+//                P1=latticePlane(gbRegionID).P.cartesian()*0+Dir.cartesian()+k*p;
+//                LatticeVectorType L0=latticePlane(gbRegionID).snapToLattice(P0);
+//                LatticeVectorType L1=latticePlane(gbRegionID).snapToLattice(P1);
+//                
+//                //The original points have to first be within the mesh!!
+//                if(  mesh.search(L0.cartesian()+Dir.cartesian()).first    &&
+//                		 mesh.search(L0.cartesian()-Dir.cartesian()).first    &&
+//                   mesh.search(L1.cartesian()+Dir.cartesian()).first    &&
+//                		 mesh.search(L1.cartesian()-Dir.cartesian()).first      )
+//                {
+//                    //Determine the dislocation line - mesh intersection at either end of the projected dislocation position, and snap positions to that lattice point.
+//                    LatticeVectorType L0=latticePlane(gbRegionID).snapToLattice(P0);
+//                    LatticeVectorType L1=latticePlane(gbRegionID).snapToLattice(P1);
+//                    
+//                    LatticeLine line(L0,Dir);
+//                    LineMeshIntersection lmi(line,L0+Dir,mesh,mesh.search(P0).second);
+//                    LatticeDirection<dim> negativeDir(grain(gbRegionID).latticeDirection((-1.0)*dir));
+//                    LatticeLine line2(L0,negativeDir);
+//                    LineMeshIntersection lmi2(line2,L0-Dir,mesh,mesh.search(P0).second);
+//                    
+//                    if(	mesh.search(lmi.L.cartesian()).first &&//.second->region->regionID==gbRegionID	&&
+//                       mesh.search(lmi2.L.cartesian()).first)//.second->region->regionID==gbRegionID)
+//                    {
+//                        check=true;
+//                        vD.emplace_back(lmi.L.cartesian(),lmi2.L.cartesian(),grainBoundaryType().Burgers*normal);
+//                    }
+//                    else
+//                    {
+//                        break;
+//                    }
+//                }
+//            }
+//            for(int k=0;k<99999;++k)
+//            {
+//                LatticeDirection<dim> Dir(grain(gbRegionID).latticeDirection(dir));
+//                P0=latticePlane(gbRegionID).P.cartesian()*0-Dir.cartesian()-k*p;
+//                P1=latticePlane(gbRegionID).P.cartesian()*0+Dir.cartesian()-k*p;
+//                LatticeVectorType L0=latticePlane(gbRegionID).snapToLattice(P0);
+//                LatticeVectorType L1=latticePlane(gbRegionID).snapToLattice(P1);
+//                //The original points have to first be within the mesh!!
+//                if(  mesh.search(L0.cartesian()+Dir.cartesian()).first    &&
+//                		 mesh.search(L0.cartesian()-Dir.cartesian()).first    &&
+//                   mesh.search(L1.cartesian()+Dir.cartesian()).first    &&
+//                		 mesh.search(L1.cartesian()-Dir.cartesian()).first      )
+//                {
+//                    //Determine the dislocation line - mesh intersection at either end of the projected dislocation position, and snap positions to that lattice point.
+//                    LatticeVectorType L0=latticePlane(gbRegionID).snapToLattice(P0);
+//                    LatticeVectorType L1=latticePlane(gbRegionID).snapToLattice(P1);
+//                    
+//                    LatticeLine line(L0,Dir);
+//                    LineMeshIntersection lmi(line,L0+Dir,mesh,mesh.search(P0).second);
+//                    LatticeDirection<dim> negativeDir(grain(gbRegionID).latticeDirection((-1.0)*dir));
+//                    LatticeLine line2(L0,negativeDir);
+//                    LineMeshIntersection lmi2(line2,L0-Dir,mesh,mesh.search(P0).second);
+//                    //
+//                    if(  mesh.search(lmi.L.cartesian()).second->region->regionID==gbRegionID  &&
+//                       mesh.search(lmi2.L.cartesian()).second->region->regionID==gbRegionID)
+//                    {
+//                        //VectorDimD V0(lmi.L.cartesian()-1*Dir.cartesian());
+//                        //VectorDimD V1(lmi2.L.cartesian()+1*Dir.cartesian());
+//                        //vD.emplace_back(V0,V1,grainBoundaryType().Burgers*normal);
+//                        vD.emplace_back(lmi.L.cartesian(),lmi2.L.cartesian(),grainBoundaryType().Burgers*normal);
+//                    }
+//                    else
+//                    {
+//                        
+//                        break;
+//                    }
+//                }
+//            }
+//            assert(check);
+//        }
+
         VectorDimD _crystallographicRotationAxis;
         VectorDimD _rotationAxis;
         

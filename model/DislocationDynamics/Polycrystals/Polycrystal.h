@@ -109,6 +109,12 @@ namespace model
                 gb.second.initializeGrainBoundary(*this);
             }
             
+            for(auto& gb : grainBoundaries())
+            {
+                grain(gb.first.first).emplace(gb.first,&gb.second);
+                grain(gb.first.second).emplace(gb.first,&gb.second);
+            }
+            
             model::SequentialOutputFile<'L',1>::set_count(0); // Vertices_file;
             model::SequentialOutputFile<'L',1>::set_increment(1); // Vertices_file;
             model::SequentialOutputFile<'L',true> stressStraightFile;

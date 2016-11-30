@@ -1,0 +1,44 @@
+/* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
+ *
+ * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
+ *
+ * model is distributed without any warranty under the
+ * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef model_Element_Al_H_
+#define model_Element_Al_H_
+
+#include <deque>
+#include <Eigen/Dense>
+#include <model/DislocationDynamics/Materials/MaterialSymmetry.h>
+#include <model/DislocationDynamics/Materials/FCCcrystal.h>
+#include <model/DislocationDynamics/Materials/BCCcrystal.h>
+#include <model/DislocationDynamics/MobilityLaws/DislocationMobility.h>
+#include <model/DislocationDynamics/Polycrystals/GrainBoundaryType.h>
+
+namespace model
+{
+    using Eigen::Vector3d;
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    template <>
+    struct PeriodicElement<13,Isotropic>
+    {
+        typedef FCC CrystalStructure;
+        static constexpr int Z=13;
+        static constexpr auto name="Aluminum";
+        static constexpr double nu=0.347;               // Poisson ratio [-]
+        static constexpr double mu=26.0e9;              // Shear modulus [Pa]
+        static constexpr double b=0.2851e-9;            // Burgers vector[m]
+        static constexpr double rho=2700.0;             // Mass density [kg/m^3]
+        static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
+        
+        //! FCC-mobility law with data from Olmsted MSMSE 13(3), 2005.
+        static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,3.9e-08,7.5e-08);
+    };
+    
+    
+} // namespace model
+#endif

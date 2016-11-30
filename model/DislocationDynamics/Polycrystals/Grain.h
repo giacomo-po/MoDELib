@@ -15,8 +15,6 @@
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Mesh/MeshRegionObserver.h>
 #include <model/LatticeMath/LatticeMath.h>
-//#include <model/LatticeMath/LatticeVector.h>
-//#include <model/LatticeMath/ReciprocalLatticeVector.h>
 #include <model/DislocationDynamics/Materials/PeriodicElement.h>
 #include <model/DislocationDynamics/Materials/FCCcrystal.h>
 #include <model/DislocationDynamics/Materials/BCCcrystal.h>
@@ -26,10 +24,12 @@
 namespace model
 {
     
-    
+    template <int dim>
+    class GrainBoundary;
     
     template <int dim>
-    class Grain
+    class Grain :
+    /* base */ public std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const>
     {
         
         //typedef Simplex<dim,dim> SimplexType;
@@ -152,6 +152,12 @@ namespace model
         }
         
         /**********************************************************************/
+        const std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const> grainBoundaries() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
         void selectMaterial(const int& Z)
         {
             model::cout<<greenColor<<"Grain "<<grainID<<", selecting material"<<defaultColor<<std::endl;
@@ -215,8 +221,6 @@ namespace model
             model::cout<<defaultColor<<std::endl;
         }
         
-        
-        
         /**********************************************************************/
         LatticeVectorType snapToLattice(const VectorDimD& d) const
         {
@@ -224,47 +228,6 @@ namespace model
             return LatticeVectorType(RoundEigen<double,dim>::round(nd).template cast<long int>(),_covBasis,_contraBasis);
         }
         
-        //        /**********************************************************************/
-        //        VectorDimI d2cov(const VectorDimD& d) const
-        //        {
-        //            const VectorDimD nd(AT*d);
-        //            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
-        //            if((nd-rd).norm()>roundTol)
-        //            {
-        //                std::cout<<"d2cov, nd="<<nd.transpose()<<std::endl;
-        //                std::cout<<"d2cov, rd="<<rd.transpose()<<std::endl;
-        //                assert(0 && "Input vector is not a reciprocal lattice vector");
-        //            }
-        //            //            assert((nd-rd).norm()<roundTol && "Input vector is not a lattice vector");
-        //            return rd.template cast<long int>();
-        //        }
-        
-//        /**********************************************************************/
-//        LatticeDirectionType latticeDirection(const VectorDimD& d) const
-//        {
-//            bool found=false;
-//            VectorDimD rdk(VectorDimD::Zero());
-//            
-//            const VectorDimD nd(_contraBasis.transpose()*d);
-//            
-//            
-//            for(int k=0;k<dim;++k)
-//            {
-//                if(fabs(nd(k))>roundTol)
-//                {
-//                    const VectorDimD ndk(nd/fabs(nd(k)));
-//                    rdk=RoundEigen<double,dim>::round(ndk);
-//                    if((ndk-rdk).norm()<roundTol)
-//                    {
-//                        found=true;
-//                        break;
-//                    }
-//                }
-//            }
-//            assert(found && "Input vector is not on a lattice direction");
-//            return LatticeDirectionType(rdk.template cast<long int>(),_covBasis,_contraBasis);
-//        }
-
         /**********************************************************************/
         LatticeDirectionType latticeDirection(const VectorDimD& d) const
         {
@@ -285,10 +248,10 @@ namespace model
         /**********************************************************************/
         ReciprocalLatticeDirectionType reciprocalLatticeDirection(const VectorDimD& d) const
         {
-         
+            
             const VectorDimD nd(_covBasis.transpose()*d);
             const ReciprocalLatticeVectorType temp(rationalApproximation(nd),_covBasis,_contraBasis);
-                        
+            
             if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
             {
                 std::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
@@ -299,11 +262,10 @@ namespace model
             return ReciprocalLatticeDirectionType(temp);
         }
         
-
-        
         /**********************************************************************/
         PlaneNormalIDContainerType find_slipSystem(const LatticeVectorType& chord,
-                                                   const LatticeVectorType& Burgers) const
+                                                   const LatticeVectorType& Burgers,
+                                                   const bool& isGBsegment) const
         {/*!
           */
             assert(  chord.squaredNorm()>0 && "CHORD HAS ZERO NORM");
@@ -323,7 +285,7 @@ namespace model
             }
             
             // If no planes are found, check only chord to detect possibly sessile segment
-            if(allowedSlipSystems.size()==0)
+            if(allowedSlipSystems.size()+isGBsegment==0)
             {
                 for (unsigned int k=0;k<planeNormalContainer.size();++k)
                 {
@@ -349,27 +311,73 @@ namespace model
         }
         
         /**********************************************************************/
-        const LatticePlaneBase& find_glidePlane(const LatticeVectorType& chord,
+        const LatticePlaneBase& find_glidePlane(const LatticeVectorType& sourceL,
+                                                const LatticeVectorType& sinkL,
                                                 const LatticeVectorType& Burgers) const
-        {/*!@param[in] chord the chord of a DislocationSegment
+        {/*!@param[in] sourceL the source node position of a DislocationSegment
+          * @param[in] sourceL the sink node position of a DislocationSegment
           * @param[in] Burgers the Burgers vector of a DislocationSegment
           *\returns A const reference to the first vector in planeNormalContainer
           * which is orthogonal to both chord and Burgers.
           */
-            const PlaneNormalIDContainerType allowedSlipSystems=find_slipSystem(chord,Burgers);
-            return planeNormalContainer[allowedSlipSystems[0]]; // RETURNING THE FIRST PLANE FOUND IS SOMEWHAT ARBITRARY
+            
+            bool isGBsegment=false;
+            const GrainBoundary<dim>* p_GB=NULL;
+            for(const auto& gb : grainBoundaries())
+            {
+                if(   gb.second->latticePlane(grainID).contains(sourceL)
+                   && gb.second->latticePlane(grainID).contains(sinkL)
+                   && gb.second->latticePlane(grainID).n.dot(Burgers)==0
+                   )
+                {
+                    isGBsegment=true;
+                    p_GB=gb.second;
+                    break;
+                }
+            }
+            
+            const PlaneNormalIDContainerType allowedSlipSystems=find_slipSystem(sinkL-sourceL,Burgers,isGBsegment);
+            
+            return allowedSlipSystems.size()>0? planeNormalContainer[allowedSlipSystems[0]] : p_GB->latticePlane(grainID).n ; // RETURNING THE FIRST PLANE FOUND IS SOMEWHAT ARBITRARY
         }
         
         /**********************************************************************/
-        const LatticePlaneBase& find_sessilePlane(const LatticeVectorType& chord,
+        const LatticePlaneBase& find_sessilePlane(const LatticeVectorType& sourceL,
+                                                  const LatticeVectorType& sinkL,
                                                   const LatticeVectorType& Burgers) const
-        {
-            const PlaneNormalIDContainerType allowedSlipSystems=find_slipSystem(chord,Burgers);
+        {/*!@param[in] sourceL the source node position of a DislocationSegment
+          * @param[in] sinkL the sink node position of a DislocationSegment
+          * @param[in] Burgers the Burgers vector of a DislocationSegment
+          *\returns A const reference to the a second LatticePlaneBase
+          * which contains the chord.
+          
+          * If both sourceL and sinkL are contained in one of the Grainboundaries
+          * of this Grain, then the corresponding LatticePlaneBase is returned.
+          * Otherwise, a search within the crystallographic planes is performed.
+          * If the search returns one plane, then the sessilePlane os the same as
+          * the glidePlane, and the segment is glissile on that plane. If the search
+          * returns two planes, then the glidePlane is returned for a screw segment,
+          * while the other plane is returned for a non-screw segment.
+          */
+            
+            // if the segment is on a GB, always return the GB as the sessile plane
+            for(const auto& gb : grainBoundaries())
+            {
+                if(   gb.second->latticePlane(grainID).contains(sourceL)
+                   && gb.second->latticePlane(grainID).contains(sinkL)
+                   && gb.second->latticePlane(grainID).n.dot(Burgers)==0
+                   )
+                {
+                    return gb.second->latticePlane(grainID).n;
+                }
+            }
+            
+            const PlaneNormalIDContainerType allowedSlipSystems=find_slipSystem(sinkL-sourceL,Burgers,false);
             
             int planeID(0);
             if (allowedSlipSystems.size()>=2)
             {
-                if (chord.cross(Burgers).squaredNorm()!=0) // a sessile segment
+                if ((sinkL-sourceL).cross(Burgers).squaredNorm()!=0) // a sessile segment
                 {
                     planeID=1;
                 }
@@ -378,17 +386,14 @@ namespace model
                     planeID=0; // allow glide on primary plane
                 }
             }
+            
             return planeNormalContainer[allowedSlipSystems[planeID]];
         }
-        
         
         /**********************************************************************/
         std::deque<const LatticePlaneBase*> conjugatePlaneNormal(const LatticeVectorType& B,
                                                                  const ReciprocalLatticeDirectionType& N) const
         {
-            //            assert(B.dot(N)==0 && "CANNOT DETERMINE CONJUGATE PLANE FOR SESSILE SEGMENT");
-            
-            
             std::deque<const LatticePlaneBase*> temp;
             if(B.dot(N)==0) // not sessile
             {
@@ -418,14 +423,12 @@ namespace model
         /**********************************************************************/
         LatticeVectorType latticeVector(const VectorDimD& p) const
         {
-            //            std::cout<<"Grain "<<region.regionID<<" creating LatticeVector"<<std::endl;
             return LatticeVectorType(p,_covBasis,_contraBasis);
         }
         
         /**********************************************************************/
         ReciprocalLatticeVectorType reciprocalLatticeVector(const VectorDimD& p) const
         {
-            //            std::cout<<"Grain "<<region.regionID<<" creating ReciprocalLatticeVector"<<std::endl;
             return ReciprocalLatticeVectorType(p,_covBasis,_contraBasis);
         }
         
@@ -453,3 +456,45 @@ namespace model
 } // end namespace
 #endif
 
+
+
+//        /**********************************************************************/
+//        VectorDimI d2cov(const VectorDimD& d) const
+//        {
+//            const VectorDimD nd(AT*d);
+//            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
+//            if((nd-rd).norm()>roundTol)
+//            {
+//                std::cout<<"d2cov, nd="<<nd.transpose()<<std::endl;
+//                std::cout<<"d2cov, rd="<<rd.transpose()<<std::endl;
+//                assert(0 && "Input vector is not a reciprocal lattice vector");
+//            }
+//            //            assert((nd-rd).norm()<roundTol && "Input vector is not a lattice vector");
+//            return rd.template cast<long int>();
+//        }
+
+//        /**********************************************************************/
+//        LatticeDirectionType latticeDirection(const VectorDimD& d) const
+//        {
+//            bool found=false;
+//            VectorDimD rdk(VectorDimD::Zero());
+//
+//            const VectorDimD nd(_contraBasis.transpose()*d);
+//
+//
+//            for(int k=0;k<dim;++k)
+//            {
+//                if(fabs(nd(k))>roundTol)
+//                {
+//                    const VectorDimD ndk(nd/fabs(nd(k)));
+//                    rdk=RoundEigen<double,dim>::round(ndk);
+//                    if((ndk-rdk).norm()<roundTol)
+//                    {
+//                        found=true;
+//                        break;
+//                    }
+//                }
+//            }
+//            assert(found && "Input vector is not on a lattice direction");
+//            return LatticeDirectionType(rdk.template cast<long int>(),_covBasis,_contraBasis);
+//        }
