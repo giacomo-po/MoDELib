@@ -156,8 +156,8 @@ namespace model
         
     };
     
-    /******************************************************************/
-    /******************************************************************/
+    /**************************************************************************/
+    /**************************************************************************/
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     class DislocationSegment : public PlanarDislocationSegment<_dim>,
@@ -572,81 +572,7 @@ namespace model
                 
             }
             
-            
-            
-            //            const MatrixNcoeff  SFCH(this->get_SFCH());
-            //            const MatrixNcoeffDim qH(this->get_qH());
-            //            SFgauss.setZero(qOrder,Ncoeff);
-            //            rgauss.setZero(dim,qOrder);
-            //            rugauss.setZero(dim,qOrder);
-            //            jgauss.setZero(qOrder);
-            //            rlgauss.setZero(dim,qOrder);
-            //            pkGauss.setZero(dim,qOrder);
-            //
-            //            for (unsigned int k=0;k<qOrder;++k)
-            //            {
-            //                //                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-            //                SFgauss.row(k)=QuadPowDynamicType::uPow(qOrder).row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-            //                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-            //                //                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-            //                rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-            //                jgauss(k)=rugauss.col(k).norm();
-            //                rlgauss.col(k)=rugauss.col(k)/jgauss(k);
-            //
-            //
-            //                if (!is_boundarySegment())
-            //                {// not a boundary segment: place gauss points as both source and field points
-            //                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
-            //                                                                                     this->source->sID,this->sink->sID,k,
-            //                                                                                     rugauss.col(k),Burgers,
-            //                                                                                     QuadratureDynamicType::abscissa(qOrder,k),
-            //                                                                                     QuadratureDynamicType::weight(qOrder,k),
-            //                                                                                     true,true,  // stressSource enabled, stressField enabled,
-            //                                                                                     true,true,  //   dispSource enabled,   dispField enabled,
-            //                                                                                     true,true));//   enrgSource enabled,   enrgField enabled,
-            //                }
-            //                else
-            //                {// a boundary segment
-            //                    if(shared.use_bvp)
-            //                    {
-            //                        if(shared.use_virtualSegments)
-            //                        {// a boundary segment with bvp and with virtual segments: place gauss points only as field
-            //                            quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
-            //                                                                                             this->source->sID,this->sink->sID,k,
-            //                                                                                             rugauss.col(k),Burgers,
-            //                                                                                             QuadratureDynamicType::abscissa(qOrder,k),
-            //                                                                                             QuadratureDynamicType::weight(qOrder,k),
-            //                                                                                             false,true,  // stressSource disabled, stressField enabled,
-            //                                                                                             false,true,   //   dispSource  enabled,   dispField enabled,
-            //                                                                                             false,true)); //   enrgSource  enabled,   enrgField enabled,
-            //                            // first triangle is P1->P2->P3, second triangle is P2->P4->P3
-            //
-            //
-            //                        }
-            //                        else
-            //                        {// a boundary segment with bvp and without virtual segments: place gauss points as both source and field points
-            //                            // disable stress source, enable displacement and energy source
-            //                            quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
-            //                                                                                             this->source->sID,this->sink->sID,k,
-            //                                                                                             rugauss.col(k),Burgers,
-            //                                                                                             QuadratureDynamicType::abscissa(qOrder,k),
-            //                                                                                             QuadratureDynamicType::weight(qOrder,k),
-            //                                                                                             true,true,  // stressSource enabled, stressField enabled,
-            //                                                                                             true,true,  //   dispSource enabled,   dispField enabled,
-            //                                                                                             true,true));//   enrgSource enabled,   enrgField enabled,
-            //                        }
-            //                    }
-            //                    else
-            //                    {// a boundary segment without bvp: don't place gauss points
-            //
-            //                    }
-            //                }
-            //            }
-            
-            
         }
-        
-        
         
         /**********************************************************************/
         MatrixDim stressAtQuadrature(const size_t & k)

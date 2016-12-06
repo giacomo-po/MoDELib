@@ -163,7 +163,7 @@ struct LoadController
 //        if(DN.runningID()>=relaxSteps)
 //        {
             const double deltaT = DN.get_totalTime() - last_update_time;
-            deltaStress += sigmaDot*deltaT*Lz;
+            deltaStress += sigmaDot*deltaT;
             //            deltaTheta += thetaDot*deltaT;
             last_update_time += deltaT;
 //        }

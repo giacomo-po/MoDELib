@@ -42,12 +42,9 @@ namespace model
             for (const auto& segment : DN.links() )
             {
                 
-                if (	!segment.second.source->isBoundaryNode() 	&&
-                    !segment.second.sink->isBoundaryNode()		&&
-                    segment.second.source->grainBoundary_rID2>0 &&
-                    segment.second.sink->grainBoundary_rID2>0	&&
-                    //&& !segment.second.isSessile
-                    segment.second.chord().norm()>chordTol*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                if (	!(segment.second.source->isBoundaryNode() && segment.second.sink->isBoundaryNode())
+                    && segment.second.isGrainBoundarySegment()
+                    && segment.second.chord().norm()>chordTol*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
                 {
                     Lmin=DislocationNetworkRemesh<DislocationNetworkType>::Lmin;
                     this->emplace_back(segment.second);
