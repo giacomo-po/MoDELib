@@ -73,6 +73,7 @@ namespace model
         static double bndDistance;
         
         const Grain<dim>& grain;
+        std::set<const Grain<dim>*> otherGrains;
         
     private:
         
@@ -328,6 +329,7 @@ namespace model
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(0.5*(pL.E.source->velocityReduction()+pL.E.sink->velocityReduction())),
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
+//        otherGrains
         /* init list        */ grainBoundary_rID2((pL.E.source->grainBoundary_rID2==pL.E.sink->grainBoundary_rID2 && pL.E.sink->grainBoundary_rID2>0)? pL.E.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from ExpandingEdge and DOF
@@ -355,24 +357,24 @@ namespace model
             forceBoundaryNode(pL);
         }
         
-        /**********************************************************************/
-        DislocationNode(const ContractingVertices<NodeType,LinkType>& cv,
-                        const LatticeVectorType& Lin) :
-        /* base constructor */ NodeBaseType(Lin.cartesian()),
-        /* init list        */ grain(cv.v0.grain),
-        /* init list        */ L(Lin),
-        /* init list        */ p_Simplex(get_includingSimplex(cv.v0.includingSimplex())),
-        /* init list        */ velocity(0.5*(cv.v0.get_V()+cv.v1.get_V())),
-        /* init list        */ vOld(velocity),
-        /* init list        */ velocityReductionCoeff(0.5*(cv.v0.velocityReduction()+cv.v1.velocityReduction())),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
-        /* init list        */ grainBoundary_rID2((cv.v0.grainBoundary_rID2==cv.v1.grainBoundary_rID2 && cv.v1.grainBoundary_rID2>0)? cv.v1.grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
-        
-        //        /* init list        */ regionBndNormal(VectorDim::Zero())
-        {/*! Constructor from VertexContraction
-          */
-            
-        }
+//        /**********************************************************************/
+//        DislocationNode(const ContractingVertices<NodeType,LinkType>& cv,
+//                        const LatticeVectorType& Lin) :
+//        /* base constructor */ NodeBaseType(Lin.cartesian()),
+//        /* init list        */ grain(cv.v0.grain),
+//        /* init list        */ L(Lin),
+//        /* init list        */ p_Simplex(get_includingSimplex(cv.v0.includingSimplex())),
+//        /* init list        */ velocity(0.5*(cv.v0.get_V()+cv.v1.get_V())),
+//        /* init list        */ vOld(velocity),
+//        /* init list        */ velocityReductionCoeff(0.5*(cv.v0.velocityReduction()+cv.v1.velocityReduction())),
+//        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
+//        /* init list        */ grainBoundary_rID2((cv.v0.grainBoundary_rID2==cv.v1.grainBoundary_rID2 && cv.v1.grainBoundary_rID2>0)? cv.v1.grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
+//        
+//        //        /* init list        */ regionBndNormal(VectorDim::Zero())
+//        {/*! Constructor from VertexContraction
+//          */
+//            
+//        }
         
         /**********************************************************************/
         void make_bndNormal()
