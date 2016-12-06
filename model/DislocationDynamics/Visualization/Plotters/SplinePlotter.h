@@ -374,7 +374,7 @@ namespace model
 	class SplinePlotter :
 	/* inherits from   */ public VertexReader<'V',10,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ public EdgeReader  <'E',11,double>,
-	/*                 */ public VertexReader<'P',7,double>,
+	/*                 */ public IDreader<'P',3,6,double>,
     /*                 */ public VertexReader<'L',10,double>,
     /* inherits from   */ public IDreader<'Q',3,13,double>,
     /* inherits from   */ private std::vector<SingleSplinePlotter<dim,Np,Nc> >
@@ -383,7 +383,7 @@ namespace model
 		typedef float scalarType;
 		typedef VertexReader<'V',10,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
 		typedef EdgeReader  <'E',11,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
-        typedef VertexReader<'P',7,double> PKContainerType;
+        typedef IDreader<'P',3,6,double> PKContainerType;
         typedef IDreader<'Q',3,13,double> QuadContainerType;
 
 		typedef SingleSplinePlotter<dim,Np,Nc> SingleSplinePlotterType;
@@ -603,8 +603,8 @@ namespace model
                 for (typename PKContainerType::const_iterator vIter=PKContainerType::begin();vIter!=PKContainerType::end();++vIter)
                 {
                     glBegin(GL_LINES);
-                    glVertex3f(vIter->second(0),vIter->second(1),vIter->second(2));
-                    glVertex3f(vIter->second(0)+vIter->second(3)*PKfactor,vIter->second(1)+vIter->second(4)*PKfactor,vIter->second(2)+vIter->second(5)*PKfactor);
+                    glVertex3f(vIter->second[0],vIter->second[1],vIter->second[2]);
+                    glVertex3f(vIter->second[0]+vIter->second[3]*PKfactor,vIter->second[1]+vIter->second[4]*PKfactor,vIter->second[2]+vIter->second[5]*PKfactor);
                     glEnd();
                 }
             }

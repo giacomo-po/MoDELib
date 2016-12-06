@@ -13,11 +13,11 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-#include <time.h> // clock()
+#include <chrono>
+//#include <time.h> // clock()
 #include <map>
 #include <assert.h>
 #include <utility>
-//#include <Eigen/Dense>
 #include <model/Utilities/BinaryFileReader.h>
 
 namespace model
@@ -45,7 +45,7 @@ namespace model
 			if (ifs.is_open())
             {
 				std::cout<<"Reading: "<<filename;
-				double t0(clock());
+                const auto t0= std::chrono::system_clock::now();
                 std::string line;
 
 
@@ -82,7 +82,7 @@ namespace model
 				
 				success=true;
 				
-                std::cout<<" ("<<this->size()<<" edges) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
+                std::cout<<" ("<<this->size()<<" entries) ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 			}
 			else
             {
@@ -92,31 +92,28 @@ namespace model
             return success;
 		}
 		
-//        /**********************************************************************/
-//		bool readBIN(const std::string& filename)
-//        {/*! Reads the binary file filename and stores its data in this
-//          */
-//            //bool success(false);
-//			std::cout<<"Reading: "<<filename;
-//			double t0(clock());
-//			typedef std::pair<std::pair<int,int>, Eigen::Matrix<scalar,1,cols-2> > BinEdgeType;
-//			BinaryFileReader<BinEdgeType> rE(filename);
-//			for (unsigned int k=0;k<rE.size();++k)
-//            {
-////				this->insert(std::make_pair(rE[k].first,rE[k].second));
-//				assert(this->insert(std::make_pair(rE[k].first,rE[k].second)).second && "COULD NOT INSERT EDGE AFTER BINARY READ.");
-//			}
-//			std::cout<<" ("<<this->size()<<" edges) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
-//            return rE.success();
-//		}
+        /**********************************************************************/
+		bool readBIN(const std::string& filename)
+        {/*! Reads the binary file filename and stores its data in this
+          */
+			std::cout<<"Reading: "<<filename;
+            const auto t0= std::chrono::system_clock::now();
+			typedef std::pair<KeyType,ValueType> BinType;
+			BinaryFileReader<BinType> rE(filename);
+			for (unsigned int k=0;k<rE.size();++k)
+            {
+//				this->insert(std::make_pair(rE[k].first,rE[k].second));
+				assert(this->insert(std::make_pair(rE[k].first,rE[k].second)).second && "COULD NOT INSERT ENTRY AFTER READING BINARY FILE.");
+			}
+			std::cout<<" ("<<this->size()<<" entries) ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            return rE.success();
+		}
 		
 	public:	
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
         /**********************************************************************/
 		IDreader () :
         /* init list */ currentFrame(-1)
- //       /* init list */ success(false)
         {/*! Constructor initializes currentFrame to -1 so that the statement
           *  frameN!=currentFrame will initially return false
           */

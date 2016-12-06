@@ -54,15 +54,17 @@ namespace model
             size_t nodeID=0;
             while(density<targetDensity)
             {
-                const std::pair<LatticeVector<dim>,int> L0=this->randomPointInMesh();
-                
-                std::uniform_int_distribution<> distribution(0,this->poly.grain(L0.second).slipSystems().size()-1);
+                const std::pair<LatticeVector<dim>,int> rp=this->randomPointInMesh();
+                const LatticeVector<dim> L0=rp.first;
+                const int grainID=rp.second;
+
+                std::uniform_int_distribution<> distribution(0,this->poly.grain(grainID).slipSystems().size()-1);
                 
                 const int rSS=distribution(generator); // a random SlipSystem
                 
-                const auto& slipSystem=this->poly.grain(L0.second).slipSystems()[rSS];
+                const auto& slipSystem=this->poly.grain(grainID).slipSystems()[rSS];
                 
-                ReciprocalLatticeDirection<3> sr(this->poly.grain(L0.second).reciprocalLatticeDirection(slipSystem.s.cartesian()));
+                ReciprocalLatticeDirection<3> sr(this->poly.grain(grainID).reciprocalLatticeDirection(slipSystem.s.cartesian()));
                 
                 bool isEdge=true;
                 
@@ -71,7 +73,7 @@ namespace model
                 LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)));
                 double d1cNorm(d1.cartesian().norm());
                 int a1=this->randomSize()/d1cNorm;
-                LatticeVector<dim> L1=L0.first+d1*a1;
+                LatticeVector<dim> L1=L0+d1*a1;
 
                 
                 if(edgeDensity>=fractionEdge*density) // overwrite with screw dislocaiton
@@ -79,13 +81,13 @@ namespace model
                     isEdge=false;
                     d1cNorm=slipSystem.s.cartesian().norm();
                     a1=this->randomSize()/d1cNorm;
-                    L1=L0.first+slipSystem.s*a1;
+                    L1=L0+slipSystem.s*a1;
                 }
                 
                 
                 const auto search1(mesh.search(L1.cartesian()));
                 
-                if(search1.first && search1.second->region->regionID==L0.second)
+                if(search1.first && search1.second->region->regionID==grainID)
                 {
                     density += d1cNorm*a1/this->mesh.volume()/pow(Material<Isotropic>::b_real,2);
                     if(isEdge)
@@ -96,8 +98,8 @@ namespace model
                     }
                     std::cout<<"density="<<density<<std::endl;
                     
-                    vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.first.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<< L0.second<<"\n";
-                    vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<L1.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<< grainID<<"\n";
+                    vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<L1.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<< grainID<<"\n";
                     
                     edgeFile << nodeID+0<<"\t"<< nodeID+1<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 1.0<<"\t"<< 1.0<<"\t"<< 0<<"\n";
                     
@@ -106,6 +108,15 @@ namespace model
                 }
             }
             
+//            // Testing GB dislocations
+//            int grainID=1;
+//            LatticeVector<dim> L0=this->poly.grainBoundaries().begin()->second.latticePlane(grainID).P;
+//            LatticeVector<dim> L1=L0+this->poly.grainBoundaries().begin()->second.latticePlane(grainID).n.primitiveVectors.first*50;
+//            LatticeVector<dim> b=this->poly.grainBoundaries().begin()->second.latticePlane(1).n.primitiveVectors.second;
+//            vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<< grainID<<"\n";
+//            vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<L1.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\n";
+//            edgeFile << nodeID+0<<"\t"<< nodeID+1<<"\t"<< std::setprecision(15)<<std::scientific<<b.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 1.0<<"\t"<< 1.0<<"\t"<< 0<<"\n";
+
         }
         
         

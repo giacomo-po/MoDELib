@@ -137,7 +137,6 @@ namespace model
                 VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
                 const size_t sourceID(eIter->first.first );
                 const size_t   sinkID(eIter->first.second);
-//                std::pair<bool,VertexType* const>
                 model::cout << "\r \r" << "Creating DislocationSegment "<<sourceID<<"->"<<sinkID<<" ("<<kk<<" of "<<eReader.size()<<")              "<<std::flush;
                 
                 const auto isSource=DN.node(sourceID);
@@ -162,6 +161,7 @@ namespace model
           * ./C/C_x.txt (DislocationCell(s) only if outputSpatialCells==true)
           * ./G/G_x.txt (GlidePlane(s) only if outputGlidePlanes==true)
           * ./P/P_x.txt (PK forces only if outputPKforce==true)
+          * ./W/W_x.txt (elastic energy only if outputElasticEnergy==true)
           * ./D/D_x.txt (mesh displacement only if outputMeshDisplacement==true)
           */
             model::cout<<"		Writing to "<<std::flush;
@@ -268,17 +268,13 @@ namespace model
                 SequentialOutputFile<'P',1>::set_count(runID); // Edges_file;
                 SequentialOutputFile<'P',1>::set_increment(outputFrequency); // Edges_file;
                 SequentialOutputFile<'P',1> p_file;
-                int ll=0;
                 for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
                 {
                     const int qOrder(linkIter->second.rgauss.cols());
                     for (int q=0;q<qOrder;++q)
                     {
-                        //                        p_file << ll*qOrder+q<<" "<< linkIter->second.rgauss.col(q).transpose()<<" "<<linkIter->second.pkGauss.col(q).transpose()<<"\n";
-                        p_file << ll<<" "<< linkIter->second.rgauss.col(q).transpose()<<" "<<linkIter->second.pkGauss.col(q).transpose()<<"\n";
-                        ll++;
+                        p_file << linkIter->second.source->sID<<" "<<linkIter->second.source->sID<<" "<<q<<" "<< linkIter->second.rgauss.col(q).transpose()<<" "<<linkIter->second.pkGauss.col(q).transpose()<<"\n";
                     }
-                    //                    ll++;
                 }
                 model::cout<<", P/P_"<<p_file.sID<<std::flush;
             }
