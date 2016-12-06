@@ -39,6 +39,7 @@
 #include <model/DislocationDynamics/DislocationLocalReference.h>
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 #include <model/Utilities/UniqueOutputFile.h>
+#include <model/DislocationDynamics/Polycrystals/GrainBoundary.h>
 
 namespace model
 {
@@ -55,7 +56,8 @@ namespace model
         typedef LatticeVector<dim> LatticeVectorType;
         
         const Grain<dim>& grain;
-        
+        const std::set<const GrainBoundary<dim>*> grainBoundarySet;
+
         //! The glide plane unit normal vector
         const LatticePlane   glidePlane;
         const LatticePlane sessilePlane;
@@ -63,6 +65,23 @@ namespace model
         VectorDim   glidePlaneNormal;
         VectorDim sessilePlaneNormal;
         
+        /**********************************************************************/
+        static std::set<const GrainBoundary<dim>* > find_grainBoundarySet(const Grain<dim>& grain,
+                                                                          const LatticeVectorType& sourceL,
+                                                                          const LatticeVectorType& sinkL)
+        {
+            std::set<const GrainBoundary<dim>* > temp;
+            for(const auto& gb : grain.grainBoundaries())
+            {
+                if(   gb.second->latticePlane(grain.grainID).contains(sourceL)
+                   && gb.second->latticePlane(grain.grainID).contains(sinkL)
+                   )
+                {
+                    temp.insert(gb.second);
+                }
+            }
+            return temp;
+        }
         
         /**********************************************************************/
         template <typename LinkType>
@@ -108,6 +127,7 @@ namespace model
                                  const LatticeVectorType& sinkL,
                                  const LatticeVectorType& Burgers) :
         /* init list       */ grain(grain_in),
+        /* init list       */ grainBoundarySet(find_grainBoundarySet(grain_in,sourceL,sinkL)),
         /* init list       */ glidePlane(sourceL,grain.find_glidePlane(sourceL,sinkL,Burgers)),
         /* init list       */ sessilePlane(sourceL,grain.find_sessilePlane(sourceL,sinkL,Burgers)),
         /* init list       */ glidePlaneNormal(glidePlane.n.cartesian().normalized()),
@@ -124,6 +144,7 @@ namespace model
                                  const LatticeVectorType& Burgers,
                                  const ExpandingEdge<LinkType>& ee) :
         /* init list       */ grain(grain_in),
+        /* init list       */ grainBoundarySet(ee.E.grainBoundarySet),
         /* init list       */ glidePlane(sourceL,  find_glidePlane(grain,sourceL,sinkL,Burgers,ee)),
         /* init list       */ sessilePlane(sourceL,find_sessilePlane(grain,sourceL,sinkL,Burgers,ee)),
         /* init list       */ glidePlaneNormal(glidePlane.n.cartesian().normalized()),
@@ -254,6 +275,8 @@ namespace model
         //! PK force corrersponding to the quadrature points
         MatrixDimQorder pkGauss;
         
+  
+        
     private:
         
         /**********************************************************************/
@@ -303,20 +326,14 @@ namespace model
             //            return temp.transpose()*dm.getVelocity(stressGauss[k],rlgauss.col(k))*jgauss(k); // inverse mobility law
         }
         
-        //        /**********************************************************************/
-        //        VectorDim radiativeVel(const VectorDim& pkF) const
-        //        {
-        ////            const VectorDim v0(Material<Isotropic>::Binv*pkF);
-        //            const VectorDim v0(Material<Isotropic>::velocity(pkF));
-        //            const double v0N(v0.norm());
-        //            const double csf(0.7*Material<Isotropic>::cs);
-        //            return (v0N>FLT_EPSILON)? csf*(1.0-std::exp(-v0N/csf))*v0/v0N : v0;
-        //        }
+
         
         
         //#ifdef UserStressFile
         //#include UserStressFile
         //#endif
+        
+
         
         /******************************************************************/
     public: // member functions
@@ -847,8 +864,7 @@ namespace model
         /**********************************************************************/
         bool isGrainBoundarySegment() const
         {
-            assert(0 && "FINISH HERE FOR TRIPLE JUNCTIONS");
-            return (this->source->isGrainBoundaryNode() && this->sink->isGrainBoundaryNode() );
+            return this->grainBoundarySet.size();
         }
         
         /**********************************************************************/

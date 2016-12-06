@@ -103,15 +103,6 @@ namespace model
         
         int grainBoundary_rID2;
         
-        //! The normal to the region boundary
-        //        std::auto_ptr<LatticePlane> regionBndPlane;
-        
-        //        /**********************************************************************/
-        //        const Grain<dim>& get_includingGrain(const VectorDim& Pin,const int& grainID) const
-        //        {
-        //        searchRegion
-        //        }
-        
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
@@ -127,24 +118,15 @@ namespace model
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
             if (DislocationSharedObjects<dim>::use_boundary)
             {
-                //                if (guess==NULL)
-                //                {
-                //                    temp=DislocationSharedObjects<dim>::mesh.search(this->get_P());
-                //                }
-                //                else
-                //                {
-                //                    temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
-                //                }
                 
                 temp=DislocationSharedObjects<dim>::mesh.searchRegionWithGuess(this->get_P(),guess);
-                
                 
                 if(!temp.first) // DislocationNode not found inside mesh
                 {
                     // Detect if the DislocationNode is sligtly outside the boundary
                     int faceID;
                     const double baryMin(temp.second->pos2bary(this->get_P()).minCoeff(&faceID));
-                    const bool isApproxOnBoundary(std::fabs(baryMin)<1000.0*FLT_EPSILON && temp.second->child(faceID).isBoundarySimplex());
+                    const bool isApproxOnBoundary(std::fabs(baryMin)<1.0e3*FLT_EPSILON && temp.second->child(faceID).isBoundarySimplex());
                     if(!isApproxOnBoundary)
                     {
                         model::cout<<"DislocationNode "<<this->sID<<" @ "<<this->get_P().transpose()<<std::endl;
