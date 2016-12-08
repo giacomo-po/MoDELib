@@ -59,11 +59,15 @@ namespace model
         const std::set<const GrainBoundary<dim>*> grainBoundarySet;
 
         //! The glide plane unit normal vector
-        const LatticePlane   glidePlane;
-        const LatticePlane sessilePlane;
         
-        VectorDim   glidePlaneNormal;
-        VectorDim sessilePlaneNormal;
+        const std::pair<LatticePlane,LatticePlane> confiningPlanes;
+        //        const LatticePlane   glidePlane;
+        //        const LatticePlane sessilePlane;
+        const LatticePlane&   glidePlane;
+        const LatticePlane& sessilePlane;
+
+        const VectorDim   glidePlaneNormal;
+        const VectorDim sessilePlaneNormal;
         
         /**********************************************************************/
         static std::set<const GrainBoundary<dim>* > find_grainBoundarySet(const Grain<dim>& grain,
@@ -128,8 +132,11 @@ namespace model
                                  const LatticeVectorType& Burgers) :
         /* init list       */ grain(grain_in),
         /* init list       */ grainBoundarySet(find_grainBoundarySet(grain_in,sourceL,sinkL)),
-        /* init list       */ glidePlane(sourceL,grain.find_glidePlane(sourceL,sinkL,Burgers)),
-        /* init list       */ sessilePlane(sourceL,grain.find_sessilePlane(sourceL,sinkL,Burgers)),
+        /* init list       */ confiningPlanes(grain.find_confiningPlanes(sourceL,sinkL,Burgers)),
+        /* init list       */ glidePlane(confiningPlanes.first),
+        /* init list       */ sessilePlane(confiningPlanes.second),
+        //        /* init list       */ glidePlane(sourceL,grain.find_glidePlane(sourceL,sinkL,Burgers)),
+        //        /* init list       */ sessilePlane(sourceL,grain.find_sessilePlane(sourceL,sinkL,Burgers)),
         /* init list       */ glidePlaneNormal(glidePlane.n.cartesian().normalized()),
         /* init list       */ sessilePlaneNormal(sessilePlane.n.cartesian().normalized())
         {
@@ -145,8 +152,11 @@ namespace model
                                  const ExpandingEdge<LinkType>& ee) :
         /* init list       */ grain(grain_in),
         /* init list       */ grainBoundarySet(ee.E.grainBoundarySet),
-        /* init list       */ glidePlane(sourceL,  find_glidePlane(grain,sourceL,sinkL,Burgers,ee)),
-        /* init list       */ sessilePlane(sourceL,find_sessilePlane(grain,sourceL,sinkL,Burgers,ee)),
+        /* init list       */ confiningPlanes(grain.find_confiningPlanes(sourceL,sinkL,Burgers)),
+        /* init list       */ glidePlane(confiningPlanes.first),
+        /* init list       */ sessilePlane(confiningPlanes.second),
+//        /* init list       */ glidePlane(sourceL,  find_glidePlane(grain,sourceL,sinkL,Burgers,ee)),
+//        /* init list       */ sessilePlane(sourceL,find_sessilePlane(grain,sourceL,sinkL,Burgers,ee)),
         /* init list       */ glidePlaneNormal(glidePlane.n.cartesian().normalized()),
         /* init list       */ sessilePlaneNormal(sessilePlane.n.cartesian().normalized())
         {
@@ -242,6 +252,8 @@ namespace model
         
         QuadratureParticleContainerType quadratureParticleContainer;
         
+        
+        const Grain<dim>& grain;
         
         //! The Burgers vector
         const VectorDim Burgers;
@@ -345,6 +357,7 @@ namespace model
                            const LatticeVectorType& Fin) :
         /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),Fin),
         /* base class initialization */ SegmentBaseType(nodePair,Fin),
+        /* init list       */ grain(nodePair.first->grain),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
         /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
         /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
@@ -375,6 +388,7 @@ namespace model
         //        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow),
         /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow,ee),
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
+        /* init list       */ grain(ee.E.grain),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
         /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
         /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
@@ -931,6 +945,12 @@ namespace model
             return velocity(u)*this->get_j(u);
         }
         
+        
+        /**********************************************************************/
+        const MatrixDim& midPointStress() const
+        {/*!\returns The stress matrix for the centre point over this segment.*/
+            return stressGauss[qOrder/2];
+        }
         
         /**********************************************************************/
         template <class T>

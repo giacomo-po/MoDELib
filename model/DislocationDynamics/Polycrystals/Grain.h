@@ -263,132 +263,221 @@ namespace model
         }
         
         /**********************************************************************/
-        PlaneNormalIDContainerType find_slipSystem(const LatticeVectorType& chord,
-                                                   const LatticeVectorType& Burgers,
-                                                   const bool& isGBsegment) const
-        {/*!
-          */
-            assert(  chord.squaredNorm()>0 && "CHORD HAS ZERO NORM");
-            assert(Burgers.squaredNorm()>0 && "BURGERS HAS ZERO NORM");
+        std::pair<LatticePlane,LatticePlane> find_confiningPlanes(const LatticeVectorType& sourceL,
+                                                                  const LatticeVectorType& sinkL,
+                                                                  const LatticeVectorType& Burgers) const
+        {
             
+            const LatticeVectorType chord(sinkL-sourceL);
             
-            PlaneNormalIDContainerType allowedSlipSystems;
-            
-            // Try to find a plane which has normal orthogonal to both the chord and the Burgers
-            for (unsigned int k=0;k<planeNormalContainer.size();++k)
-            {
-                if(planeNormalContainer[k].dot(chord)==0
-                   && planeNormalContainer[k].dot(Burgers)==0)
-                {
-                    allowedSlipSystems.push_back(k);
-                }
-            }
-            
-            // If no planes are found, check only chord to detect possibly sessile segment
-            if(allowedSlipSystems.size()+isGBsegment==0)
-            {
-                for (unsigned int k=0;k<planeNormalContainer.size();++k)
-                {
-                    if(	planeNormalContainer[k].dot(chord)==0)
-                    {
-                        allowedSlipSystems.push_back(k);
-                    }
-                }
-                if (allowedSlipSystems.size()<2)
-                {
-                    std::cout<<"chord="<<chord.cartesian().transpose()<<std::endl;
-                    std::cout<<"Burgers="<<Burgers.cartesian().transpose()<<std::endl;
-                    for (const auto& planeNormal : planeNormalContainer)
-                    {
-                        
-                        std::cout<<"n="<<planeNormal.cartesian().normalized().transpose()<<" c*n="<< planeNormal.dot(chord)<<" b*n="<< planeNormal.dot(Burgers) <<std::endl;
-                    }
-                    assert(allowedSlipSystems.size()>=2 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO CRYSTALLOGRAPHIC PLANES.");
-                }
-            }
-            
-            return allowedSlipSystems;
-        }
-        
-        /**********************************************************************/
-        const LatticePlaneBase& find_glidePlane(const LatticeVectorType& sourceL,
-                                                const LatticeVectorType& sinkL,
-                                                const LatticeVectorType& Burgers) const
-        {/*!@param[in] sourceL the source node position of a DislocationSegment
-          * @param[in] sourceL the sink node position of a DislocationSegment
-          * @param[in] Burgers the Burgers vector of a DislocationSegment
-          *\returns A const reference to the first vector in planeNormalContainer
-          * which is orthogonal to both chord and Burgers.
-          */
-            
-            bool isGBsegment=false;
+            bool isOnGB=false;
             const GrainBoundary<dim>* p_GB=NULL;
             for(const auto& gb : grainBoundaries())
             {
                 if(   gb.second->latticePlane(grainID).contains(sourceL)
                    && gb.second->latticePlane(grainID).contains(sinkL)
-                   && gb.second->latticePlane(grainID).n.dot(Burgers)==0
                    )
                 {
-                    isGBsegment=true;
+                    isOnGB=true;
                     p_GB=gb.second;
                     break;
                 }
             }
             
-            const PlaneNormalIDContainerType allowedSlipSystems=find_slipSystem(sinkL-sourceL,Burgers,isGBsegment);
             
-            return allowedSlipSystems.size()>0? planeNormalContainer[allowedSlipSystems[0]] : p_GB->latticePlane(grainID).n ; // RETURNING THE FIRST PLANE FOUND IS SOMEWHAT ARBITRARY
-        }
-        
-        /**********************************************************************/
-        const LatticePlaneBase& find_sessilePlane(const LatticeVectorType& sourceL,
-                                                  const LatticeVectorType& sinkL,
-                                                  const LatticeVectorType& Burgers) const
-        {/*!@param[in] sourceL the source node position of a DislocationSegment
-          * @param[in] sinkL the sink node position of a DislocationSegment
-          * @param[in] Burgers the Burgers vector of a DislocationSegment
-          *\returns A const reference to the a second LatticePlaneBase
-          * which contains the chord.
-          
-          * If both sourceL and sinkL are contained in one of the Grainboundaries
-          * of this Grain, then the corresponding LatticePlaneBase is returned.
-          * Otherwise, a search within the crystallographic planes is performed.
-          * If the search returns one plane, then the sessilePlane os the same as
-          * the glidePlane, and the segment is glissile on that plane. If the search
-          * returns two planes, then the glidePlane is returned for a screw segment,
-          * while the other plane is returned for a non-screw segment.
-          */
-            
-            // if the segment is on a GB, always return the GB as the sessile plane
-            for(const auto& gb : grainBoundaries())
+            // Find the crystallographic planes which may contain chord and Burgers
+            PlaneNormalContainerType allowedGLidePlanes;
+            for (const auto& planeBase : planeNormals()) // Loop over crystal planes
             {
-                if(   gb.second->latticePlane(grainID).contains(sourceL)
-                   && gb.second->latticePlane(grainID).contains(sinkL)
-                   && gb.second->latticePlane(grainID).n.dot(Burgers)==0
+                if(planeBase.dot(chord)==0
+                   && planeBase.dot(Burgers)==0)
+                {
+                    allowedGLidePlanes.push_back(planeBase);
+                }
+            }
+            if(isOnGB)
+            {
+                if(   p_GB->latticePlane(grainID).n.dot(chord)==0
+                   && p_GB->latticePlane(grainID).n.dot(Burgers)==0
                    )
                 {
-                    return gb.second->latticePlane(grainID).n;
+                    allowedGLidePlanes.push_back(p_GB->latticePlane(grainID).n);
                 }
             }
             
-            const PlaneNormalIDContainerType allowedSlipSystems=find_slipSystem(sinkL-sourceL,Burgers,false);
-            
-            int planeID(0);
-            if (allowedSlipSystems.size()>=2)
+            // Find the crystallographic planes which may contain chord and Burgers
+            PlaneNormalContainerType allowedSessilePlanes;
+            for (const auto& planeBase : planeNormals()) // Loop over crystal planes
             {
-                if ((sinkL-sourceL).cross(Burgers).squaredNorm()!=0) // a sessile segment
+                if(planeBase.dot(chord)==0)
                 {
-                    planeID=1;
+                    allowedSessilePlanes.push_back(planeBase);
                 }
-                else // a screw segment
+            }
+            if(isOnGB)
+            {
+                allowedSessilePlanes.push_back(p_GB->latticePlane(grainID).n);
+            }
+            
+            // Return the two planes based on the following conditions:
+            if(allowedGLidePlanes.size()) // At least glide plane found
+            {
+                if(isOnGB) // possibly glissile segmento on GB, or sessile at the intersection of GP and GB
                 {
-                    planeID=0; // allow glide on primary plane
+                    return std::make_pair(LatticePlane(sourceL,allowedGLidePlanes[0]),LatticePlane(p_GB->latticePlane(grainID)));
+                }
+                else // bulk segment, purely glissile
+                {
+                    return std::make_pair(LatticePlane(sourceL,allowedGLidePlanes[0]),LatticePlane(sourceL,allowedGLidePlanes[0]));
+                }
+            }
+            else // No glide planes found. Check for possibly sessile segment
+            {
+                if(allowedSessilePlanes.size()>=2)
+                {
+                    return std::make_pair(LatticePlane(sourceL,allowedSessilePlanes[0]),LatticePlane(sourceL,allowedSessilePlanes[1]));
+                }
+                else
+                {
+                    assert(0 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO PLANES.");
                 }
             }
             
-            return planeNormalContainer[allowedSlipSystems[planeID]];
         }
+        
+        
+//        /**********************************************************************/
+//        PlaneNormalIDContainerType find_slipSystem(const LatticeVectorType& chord,
+//                                                   const LatticeVectorType& Burgers,
+//                                                   const bool& isGBsegment) const
+//        {/*!
+//          */
+//            assert(  chord.squaredNorm()>0 && "CHORD HAS ZERO NORM");
+//            assert(Burgers.squaredNorm()>0 && "BURGERS HAS ZERO NORM");
+//            
+//            
+//            PlaneNormalIDContainerType allowedSlipSystems;
+//            
+//            // Try to find a plane which has normal orthogonal to both the chord and the Burgers
+//            for (unsigned int k=0;k<planeNormalContainer.size();++k)
+//            {
+//                if(planeNormalContainer[k].dot(chord)==0
+//                   && planeNormalContainer[k].dot(Burgers)==0)
+//                {
+//                    allowedSlipSystems.push_back(k);
+//                }
+//            }
+//            
+//            // If no planes are found, check only chord to detect possibly sessile segment
+//            if(allowedSlipSystems.size()+isGBsegment==0)
+//            {
+//                for (unsigned int k=0;k<planeNormalContainer.size();++k)
+//                {
+//                    if(	planeNormalContainer[k].dot(chord)==0)
+//                    {
+//                        allowedSlipSystems.push_back(k);
+//                    }
+//                }
+//                if (allowedSlipSystems.size()<2)
+//                {
+//                    std::cout<<"chord="<<chord.cartesian().transpose()<<std::endl;
+//                    std::cout<<"Burgers="<<Burgers.cartesian().transpose()<<std::endl;
+//                    for (const auto& planeNormal : planeNormalContainer)
+//                    {
+//                        
+//                        std::cout<<"n="<<planeNormal.cartesian().normalized().transpose()<<" c*n="<< planeNormal.dot(chord)<<" b*n="<< planeNormal.dot(Burgers) <<std::endl;
+//                    }
+//                    assert(allowedSlipSystems.size()>=2 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO CRYSTALLOGRAPHIC PLANES.");
+//                }
+//            }
+//            
+//            return allowedSlipSystems;
+//        }
+//        
+//        /**********************************************************************/
+//        const LatticePlaneBase& find_glidePlane(const LatticeVectorType& sourceL,
+//                                                const LatticeVectorType& sinkL,
+//                                                const LatticeVectorType& Burgers) const
+//        {/*!@param[in] sourceL the source node position of a DislocationSegment
+//          * @param[in] sourceL the sink node position of a DislocationSegment
+//          * @param[in] Burgers the Burgers vector of a DislocationSegment
+//          *\returns A const reference to the first vector in planeNormalContainer
+//          * which is orthogonal to both chord and Burgers.
+//          */
+//            
+//            bool isGBsegment=false;
+//            const GrainBoundary<dim>* p_GB=NULL;
+//            for(const auto& gb : grainBoundaries())
+//            {
+//                //                std::cout<<"CHECKING GRAINBOUNDARIES"<<std::endl;
+//                //                std::cout<<gb.second->latticePlane(grainID).contains(sourceL)<<std::endl;
+//                //                std::cout<<gb.second->latticePlane(grainID).contains(sinkL)<<std::endl;
+//                //                std::cout<<gb.second->latticePlane(grainID).n.dot(Burgers)<<std::endl;
+//                
+//                if(   gb.second->latticePlane(grainID).contains(sourceL)
+//                   && gb.second->latticePlane(grainID).contains(sinkL)
+//                   && gb.second->latticePlane(grainID).n.dot(Burgers)==0
+//                   )
+//                {
+//                    isGBsegment=true;
+//                    p_GB=gb.second;
+//                    break;
+//                }
+//            }
+//            
+//            const PlaneNormalIDContainerType allowedSlipSystems=find_slipSystem(sinkL-sourceL,Burgers,isGBsegment);
+//            
+//            return allowedSlipSystems.size()>0? planeNormalContainer[allowedSlipSystems[0]] : p_GB->latticePlane(grainID).n ; // RETURNING THE FIRST PLANE FOUND IS SOMEWHAT ARBITRARY
+//        }
+//        
+//        /**********************************************************************/
+//        const LatticePlaneBase& find_sessilePlane(const LatticeVectorType& sourceL,
+//                                                  const LatticeVectorType& sinkL,
+//                                                  const LatticeVectorType& Burgers) const
+//        {/*!@param[in] sourceL the source node position of a DislocationSegment
+//          * @param[in] sinkL the sink node position of a DislocationSegment
+//          * @param[in] Burgers the Burgers vector of a DislocationSegment
+//          *\returns A const reference to the a second LatticePlaneBase
+//          * which contains the chord.
+//          
+//          * If both sourceL and sinkL are contained in one of the Grainboundaries
+//          * of this Grain, then the corresponding LatticePlaneBase is returned.
+//          * Otherwise, a search within the crystallographic planes is performed.
+//          * If the search returns one plane, then the sessilePlane os the same as
+//          * the glidePlane, and the segment is glissile on that plane. If the search
+//          * returns two planes, then the glidePlane is returned for a screw segment,
+//          * while the other plane is returned for a non-screw segment.
+//          */
+//            
+//            // if the segment is on a GB, always return the GB as the sessile plane
+//            for(const auto& gb : grainBoundaries())
+//            {
+//                if(   gb.second->latticePlane(grainID).contains(sourceL)
+//                   && gb.second->latticePlane(grainID).contains(sinkL)
+//                   //                   && gb.second->latticePlane(grainID).n.dot(Burgers)==0
+//                   )
+//                {
+//                    return gb.second->latticePlane(grainID).n;
+//                }
+//            }
+//            
+//            const PlaneNormalIDContainerType allowedSlipSystems=find_slipSystem(sinkL-sourceL,Burgers,false);
+//            
+//            int planeID(0);
+//            if (allowedSlipSystems.size()>=2)
+//            {
+//                if ((sinkL-sourceL).cross(Burgers).squaredNorm()!=0) // a sessile segment
+//                {
+//                    planeID=1;
+//                }
+//                else // a screw segment
+//                {
+//                    planeID=0; // allow glide on primary plane
+//                }
+//            }
+//            
+//            return planeNormalContainer[allowedSlipSystems[planeID]];
+//        }
         
         /**********************************************************************/
         std::deque<const LatticePlaneBase*> conjugatePlaneNormal(const LatticeVectorType& B,

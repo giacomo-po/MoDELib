@@ -206,6 +206,9 @@ namespace model
                     css.  sink.set(sinkL);
                     
                     // expand
+                    
+                    assert(0 && "REMOVE EXPAND OPERATION AND USE ONE VERTEX INSERTIONS AND TWO VERTEX CONNECTIONS");
+                    
                     std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(css.source.sID,css.sink.sID,conjugateL,crossSlipVelocity);
                     assert(temp.second && "COULD NOT DO THIRD EXPANSION IN CROSS SLIP");
                     n_crossSlips++;

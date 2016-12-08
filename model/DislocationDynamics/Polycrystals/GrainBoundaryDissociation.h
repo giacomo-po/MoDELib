@@ -7,27 +7,22 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_GrainBoundaryTransmission_H_
-#define model_GrainBoundaryTransmission_H_
+#ifndef model_GrainBoundaryDissociation_H_
+#define model_GrainBoundaryDissociation_H_
 
 #include <deque>
 #include <utility>
 #include <math.h>
 #include <model/Utilities/TerminalColors.h>
-#include <model/DislocationDynamics/Polycrystals/TransmitSegment.h>
+#include <model/DislocationDynamics/Polycrystals/DissociateSegment.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 
 
 namespace model
 {
     
-    
-    
     template <typename DislocationNetworkType>
-    class GrainBoundaryTransmission : private std::deque<TransmitSegment<typename DislocationNetworkType::LinkType> >
-    //    :
-    //    /* base */ private std::map<int,const Grain<dim>* const>,
-    //    /* base */ private std::map<int,LatticePlane>
+    class GrainBoundaryDissociation : private std::deque<DissociateSegment<typename DislocationNetworkType::LinkType> >
     {
         
         DislocationNetworkType& DN;
@@ -37,7 +32,7 @@ namespace model
     public:
         
         /**********************************************************************/
-        GrainBoundaryTransmission(DislocationNetworkType& DN_in) :
+        GrainBoundaryDissociation(DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
         {
             
@@ -48,7 +43,6 @@ namespace model
                     && segment.second.isGrainBoundarySegment()
                     && segment.second.chord().norm()>chordTol*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
                 {
-                    //Lmin=DislocationNetworkRemesh<DislocationNetworkType>::Lmin;
                     this->emplace_back(segment.second);
                 }
             }
@@ -56,34 +50,31 @@ namespace model
         }
         
         /**********************************************************************/
-        size_t transmit()
+        size_t dissociate()
         {
-            model::cout<<"		grain-boundary transmission..."<<std::flush;
+            model::cout<<"		grain-boundary dissociation..."<<std::flush;
             
             const auto t0= std::chrono::system_clock::now();
-            size_t nTransmitted=0;
+            size_t nDissociateted=0;
             for(const auto& gbSegment : *this)
             {
                 if(DN.link(gbSegment.sourceID,gbSegment.sinkID).first)
                 {
-                 if(gbSegment.isValidTransmission)
+                 if(gbSegment.isValidDissociation)
                  {
                      DN.template disconnect<false>(gbSegment.sourceID,gbSegment.sinkID);
                      DN.connect(gbSegment.sourceID,gbSegment.sinkID,gbSegment.residualBurgers);
-                     const size_t newNodeID(DN.insertVertex(gbSegment.transmitMidpoint.cartesian(),gbSegment.grain.grainID).first->first);
-                     DN.connect(gbSegment.sinkID,newNodeID,gbSegment.transmitBurgers);
-                     DN.connect(newNodeID,gbSegment.sourceID,gbSegment.transmitBurgers);
-                     nTransmitted++;
+                     const size_t newNodeID(DN.insertVertex(gbSegment.dissociateMidpoint.cartesian(),gbSegment.grain.grainID).first->first);
+                     DN.connect(gbSegment.sinkID,newNodeID,gbSegment.dissociateBurgers);
+                     DN.connect(newNodeID,gbSegment.sourceID,gbSegment.dissociateBurgers);
+                     nDissociateted++;
                  }
                 }
             }
             
+            model::cout<<"("<<nDissociateted<<" dissociations)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
-            
-            model::cout<<"("<<nTransmitted<<" transmissions)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            
-            
-            return nTransmitted;
+            return nDissociateted;
         }
         
     };

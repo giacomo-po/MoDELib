@@ -1,7 +1,7 @@
 ######################################
 # Number of simulation steps 
 Nsteps=100000;
-startAtTimeStep = -1;
+startAtTimeStep = 100;
 use_directSolver_DD=0;
 quadPerLength=0.1;
 bndDistance=3;
@@ -77,7 +77,7 @@ Lmin=40;
 ######################################
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
-use_junctions=1;
+use_junctions=0;
 # Tolerance used in detecting collisions between dislocation segments in different planes
 collisionTol=3;
 

@@ -97,7 +97,8 @@
 #include <model/ParticleInteraction/SingleFieldPoint.h>
 #include <model/DislocationDynamics/Operations/DislocationNodeContraction.h>
 #include <model/Threads/EqualIteratorRange.h>
-
+#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
+#include <model/DislocationDynamics/Polycrystals/GrainBoundaryDissociation.h>
 
 
 namespace model
@@ -336,6 +337,10 @@ namespace model
             
             //! 10- Cross Slip (needs upated PK force)
             crossSlip();
+            
+            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
+
+//            GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
             
             //! 11- detect loops that shrink to zero and expand as inverted loops
             DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);

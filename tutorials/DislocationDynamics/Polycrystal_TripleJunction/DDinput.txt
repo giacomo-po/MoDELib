@@ -19,7 +19,7 @@ velocityReductionFactor=0.75;
 outputFrequency=1;
 outputBinary=1;
 outputGlidePlanes=0;
-outputSpatialCells=0;
+outputSpatialCells=1;
 outputPKforce=1;
 outputQuadratureParticles=1;
 outputElasticEnergy=0;
@@ -77,8 +77,8 @@ use_EnergyMultipole = 0;
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
-Lmax=300;
-Lmin=40;
+Lmax=22;
+Lmin=20;
 
 ######################################
 # DISLOCATION JUNCTIONS
