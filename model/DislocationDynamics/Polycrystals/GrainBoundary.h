@@ -366,7 +366,7 @@ namespace model
     public:
         
         const MeshRegionBoundaryType& regionBoundary;
-        const std::pair<size_t,size_t>& grainBndID;
+        const std::pair<int,int>& grainBndID;
         
         /**********************************************************************/
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,

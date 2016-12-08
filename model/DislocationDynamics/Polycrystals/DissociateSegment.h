@@ -80,7 +80,7 @@ namespace model
             {
                 isValidDissociation=true;
                 VectorDim dir=chord.cross(primitiveMap.begin()->second.second->latticePlane(ds.grain.grainID).n.cartesian()).normalized();
-                VectorDim pkForce=(ds.midPointStress()*dissociateBurgers.cartesian()).cross(-chord);
+                const VectorDim pkForce=(ds.midPointStress()*dissociateBurgers.cartesian()).cross(-chord);
                 if(dir.dot(pkForce)<0.0)
                 {
                     dir*=-1.0;

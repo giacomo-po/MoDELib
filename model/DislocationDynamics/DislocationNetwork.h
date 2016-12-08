@@ -338,9 +338,11 @@ namespace model
             //! 10- Cross Slip (needs upated PK force)
             crossSlip();
             
+            GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
+            
             GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
 
-//            GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
+
             
             //! 11- detect loops that shrink to zero and expand as inverted loops
             DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);

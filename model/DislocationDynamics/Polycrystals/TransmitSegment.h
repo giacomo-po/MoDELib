@@ -22,6 +22,8 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <memory> // unique_ptr
+#include <tuple>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/DislocationDynamics/Polycrystals/GrainBoundary.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
@@ -40,66 +42,73 @@ namespace model
         typedef typename DislocationSegmentType::VectorDim VectorDim;
         typedef LatticeVector<DislocationSegmentType::dim> LatticeVectorType;
         typedef typename DislocationSegmentType::NodeType NodeType;
+        typedef std::map<double,std::pair<SlipSystem,const GrainBoundary<dim>* const>> MapType;
         
         DislocationSharedObjects<dim> shared;
         const size_t sourceID;
         const size_t sinkID;
-        const Grain<dim>& grain;
         bool isValidTransmission;
-//        VectorDim transmitSourceP;
-//        VectorDim transmitSinkP;
-        LatticeVectorType transmitMidpoint;
-        LatticeVectorType transmitBurgers;
-        LatticeVectorType residualBurgers;
+        VectorDim transmitSourceP;
+        VectorDim transmitSinkP;
+        const Grain<dim>* transmitGrain;
+        std::unique_ptr<LatticeVectorType> transmitBurgers;
+        std::unique_ptr<LatticeVectorType> transmitMidpoint;
+
+//        std::unique_ptr<LatticeVectorType> residualBurgers;
         
         /**********************************************************************/
         TransmitSegment(const DislocationSegmentType& ds) :
         /* init list */ sourceID(ds.source->sID),
         /* init list */ sinkID(ds.sink->sID),
-        /* init list */ grain(ds.grain),
+//        /* init list */ grain(ds.grain),
         /* init list */ isValidTransmission(false),
-//        /* init list */ transmitSourceP(ds.source->get_P()),
-//        /* init list */ transmitSinkP(ds.sink->get_P()),
-        /* init list */ transmitMidpoint(ds.source->get_L()),
-        /* init list */ transmitBurgers(ds.flow),
-        /* init list */ residualBurgers(transmitBurgers)
+        /* init list */ transmitSourceP(ds.source->get_P()),
+        /* init list */ transmitSinkP(ds.sink->get_P())
+//        /* init list */ transmitMidpoint(ds.source->get_L())
+//        /* init list */ transmitBurgers(ds.flow),
+//        /* init list */ residualBurgers(transmitBurgers)
         {
             
             const VectorDim chord(ds.sink->get_P()-ds.source->get_P());
  //           const double chorNorm=chord.norm();
             
-            std::map<double,std::pair<LatticeVectorType,const GrainBoundary<dim>* const>> primitiveMap;
+            MapType slipSystemMap;
 
+            // Nucleation into other grains
             for(const auto& gb : ds.grainBoundarySet)
             {
-                const std::pair<LatticeVectorType,LatticeVectorType>& primitiveVectors(gb->latticePlane(ds.grain.grainID).n.primitiveVectors);
-                
-                
-//                primitiveMap.emplace(ds.Burgers.dot(primitiveVectors.first.cartesian()),std::make_pair(primitiveVectors.first,gb));
-//                primitiveMap.emplace(ds.Burgers.dot(-primitiveVectors.first.cartesian()),std::make_pair(primitiveVectors.first*-1,gb));
-//                primitiveMap.emplace(ds.Burgers.dot(primitiveVectors.second.cartesian()),std::make_pair(primitiveVectors.second,gb));
-//                primitiveMap.emplace(ds.Burgers.dot(-primitiveVectors.second.cartesian()),std::make_pair(primitiveVectors.second*-1,gb));
-                
-                primitiveMap.emplace(ds.Burgers.dot(primitiveVectors.first.cartesian())+primitiveVectors.first.cartesian().squaredNorm(),std::make_pair(primitiveVectors.first,gb));
-                primitiveMap.emplace(ds.Burgers.dot(-primitiveVectors.first.cartesian())+primitiveVectors.first.cartesian().squaredNorm(),std::make_pair(primitiveVectors.first*-1,gb));
-                primitiveMap.emplace(ds.Burgers.dot(primitiveVectors.second.cartesian())+primitiveVectors.second.cartesian().squaredNorm(),std::make_pair(primitiveVectors.second,gb));
-                primitiveMap.emplace(ds.Burgers.dot(-primitiveVectors.second.cartesian())+primitiveVectors.second.cartesian().squaredNorm(),std::make_pair(primitiveVectors.second*-1,gb));
+
+                const size_t otherGrainID=(gb->grainBndID.first==ds.grain.grainID)? gb->grainBndID.second : gb->grainBndID.first;
+                for(const auto& slipSystem : gb->grain(otherGrainID).slipSystems())
+                {
+                    //                const std::pair<LatticeVectorType,LatticeVectorType>& primitiveVectors(gb->latticePlane(ds.grain.grainID).n.primitiveVectors);
+                    if(fabs(slipSystem.n.cartesian().dot(chord))<FLT_EPSILON) // slip system contains chord
+                    {
+                        const VectorDim pkForce=(ds.midPointStress()*slipSystem.s.cartesian()).cross(-chord);
+                        if(pkForce.dot(gb->latticePlane(otherGrainID).n.cartesian())<0.0) // PK force points inside the grain
+                        {
+                            slipSystemMap.emplace(ds.Burgers.dot(slipSystem.s.cartesian())+slipSystem.s.cartesian().squaredNorm(),std::make_pair(slipSystem,gb));
+                        }
+                    }
+                }
 
                 
             }
             
-            transmitBurgers=primitiveMap.begin()->second.first;
-            residualBurgers=transmitBurgers+ds.flow;
-            if(primitiveMap.begin()->first<0.0 && residualBurgers.squaredNorm()>0)
+            if(slipSystemMap.size())
             {
-                isValidTransmission=true;
-                VectorDim dir=chord.cross(primitiveMap.begin()->second.second->latticePlane(ds.grain.grainID).n.cartesian()).normalized();
-                VectorDim pkForce=(ds.midPointStress()*transmitBurgers.cartesian()).cross(-chord);
-                if(dir.dot(pkForce)<0.0)
+                if(slipSystemMap.begin()->first<0.0)
                 {
-                    dir*=-1.0;
+                    const GrainBoundary<dim>* const gb=slipSystemMap.begin()->second.second;
+                    const size_t otherGrainID=(gb->grainBndID.first==ds.grain.grainID)? gb->grainBndID.second : gb->grainBndID.first;
+                    isValidTransmission=true;
+                    transmitGrain=&(gb->grain(otherGrainID));
+                    transmitBurgers.reset(new LatticeVectorType(slipSystemMap.begin()->second.first.s));
+                    transmitSourceP=gb->latticePlane(otherGrainID).snapToLattice(transmitSourceP).cartesian();
+                    transmitSinkP=gb->latticePlane(otherGrainID).snapToLattice(transmitSinkP).cartesian();
                 }
-                transmitMidpoint=primitiveMap.begin()->second.second->latticePlane(ds.grain.grainID).snapToLattice(0.5*(ds.source->get_P()+ds.sink->get_P())+dir*10.0);
+
+                
             }
             
         }
