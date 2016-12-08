@@ -36,6 +36,8 @@ namespace model
         
     public:
         
+        static bool use_GBtransmission;
+
         /**********************************************************************/
         GrainBoundaryTransmission(DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
@@ -87,6 +89,10 @@ namespace model
         }
         
     };
+    
+    template <typename DislocationNetworkType>
+    bool GrainBoundaryTransmission<DislocationNetworkType>::use_GBtransmission=false;
+
     
 } // end namespace
 #endif

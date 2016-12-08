@@ -722,6 +722,10 @@ namespace model
                 shared.use_bvp=0;	// never comupute boundary correction
             }
             
+            // Grain Boundary flags
+            EDR.readScalarInFile(fullName.str(),"use_GBdissociation",GrainBoundaryDissociation<DislocationNetworkType>::use_GBdissociation);
+            EDR.readScalarInFile(fullName.str(),"use_GBtransmission",GrainBoundaryTransmission<DislocationNetworkType>::use_GBtransmission);
+
             // Read Vertex and Edge information
             DislocationNetworkIO<DislocationNetworkType>::readVertices(*this,runID); // this requires mesh to be up-to-date
             DislocationNetworkIO<DislocationNetworkType>::readEdges(*this,runID);    // this requires mesh to be up-to-date

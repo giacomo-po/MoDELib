@@ -31,53 +31,60 @@ namespace model
         
     public:
         
+        static bool use_GBdissociation;
+        
         /**********************************************************************/
         GrainBoundaryDissociation(DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
         {
-            
-            for (const auto& segment : DN.links() )
+            if(use_GBdissociation)
             {
-                
-                if ( !(segment.second.source->isBoundaryNode() && segment.second.sink->isBoundaryNode())
-                    && segment.second.isGrainBoundarySegment()
-                    && segment.second.chord().norm()>chordTol*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                for (const auto& segment : DN.links() )
                 {
-                    this->emplace_back(segment.second);
+                    
+                    if ( !(segment.second.source->isBoundaryNode() && segment.second.sink->isBoundaryNode())
+                        && segment.second.isGrainBoundarySegment()
+                        && segment.second.chord().norm()>chordTol*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                    {
+                        this->emplace_back(segment.second);
+                    }
                 }
             }
-            
         }
         
         /**********************************************************************/
-        size_t dissociate()
+        void dissociate()
         {
-            model::cout<<"		grain-boundary dissociation..."<<std::flush;
-            
-            const auto t0= std::chrono::system_clock::now();
-            size_t nDissociateted=0;
-            for(const auto& gbSegment : *this)
+            if(use_GBdissociation)
             {
-                if(DN.link(gbSegment.sourceID,gbSegment.sinkID).first)
+                model::cout<<"		grain-boundary dissociation..."<<std::flush;
+                
+                const auto t0= std::chrono::system_clock::now();
+                size_t nDissociateted=0;
+                for(const auto& gbSegment : *this)
                 {
-                 if(gbSegment.isValidDissociation)
-                 {
-                     DN.template disconnect<false>(gbSegment.sourceID,gbSegment.sinkID);
-                     DN.connect(gbSegment.sourceID,gbSegment.sinkID,gbSegment.residualBurgers);
-                     const size_t newNodeID(DN.insertVertex(gbSegment.dissociateMidpoint.cartesian(),gbSegment.grain.grainID).first->first);
-                     DN.connect(gbSegment.sinkID,newNodeID,gbSegment.dissociateBurgers);
-                     DN.connect(newNodeID,gbSegment.sourceID,gbSegment.dissociateBurgers);
-                     nDissociateted++;
-                 }
+                    if(DN.link(gbSegment.sourceID,gbSegment.sinkID).first)
+                    {
+                        if(gbSegment.isValidDissociation)
+                        {
+                            DN.template disconnect<false>(gbSegment.sourceID,gbSegment.sinkID);
+                            DN.connect(gbSegment.sourceID,gbSegment.sinkID,gbSegment.residualBurgers);
+                            const size_t newNodeID(DN.insertVertex(gbSegment.dissociateMidpoint.cartesian(),gbSegment.grain.grainID).first->first);
+                            DN.connect(gbSegment.sinkID,newNodeID,gbSegment.dissociateBurgers);
+                            DN.connect(newNodeID,gbSegment.sourceID,gbSegment.dissociateBurgers);
+                            nDissociateted++;
+                        }
+                    }
                 }
+                
+                model::cout<<"("<<nDissociateted<<" dissociations)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
-            
-            model::cout<<"("<<nDissociateted<<" dissociations)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            
-            return nDissociateted;
         }
         
     };
+    
+    template <typename DislocationNetworkType>
+    bool GrainBoundaryDissociation<DislocationNetworkType>::use_GBdissociation=false;
     
 } // end namespace
 #endif
