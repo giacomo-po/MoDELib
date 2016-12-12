@@ -77,7 +77,7 @@ Lmin=40;
 ######################################
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
-use_junctions=0;
+use_junctions=1;
 # Tolerance used in detecting collisions between dislocation segments in different planes
 collisionTol=3;
 
@@ -91,8 +91,8 @@ meshID=0;
 
 ######################################
 # GRAIN BOUNDARY FLAGS
-use_GBdissociation=0;
-use_GBtransmission=1;
+use_GBdissociation=1;
+use_GBtransmission=0;
 
 ######################################
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
@@ -110,7 +110,7 @@ check_balance=0;
 
 ######################################
 # Enable/disable cross-slip
-use_crossSlip=0;
+use_crossSlip=1;
 crossSlipDeg=0.5;
 
 ######################################

@@ -58,11 +58,14 @@ namespace model
         /* init list */ residualBurgers(dissociateBurgers)
         {
             
+            assert(ds.grainBoundarySet.size() && "grainBoundarySet has zero size.");
+            
             const VectorDim chord(ds.sink->get_P()-ds.source->get_P());
  //           const double chorNorm=chord.norm();
             
             std::map<double,std::pair<LatticeVectorType,const GrainBoundary<dim>* const>> primitiveMap;
 
+            
             for(const auto& gb : ds.grainBoundarySet)
             {
                 const std::pair<LatticeVectorType,LatticeVectorType>& primitiveVectors(gb->latticePlane(ds.grain.grainID).n.primitiveVectors);
@@ -74,8 +77,11 @@ namespace model
 
             }
             
+            
             dissociateBurgers=primitiveMap.begin()->second.first;
             residualBurgers=dissociateBurgers+ds.flow;
+            
+            
             if(primitiveMap.begin()->first<0.0 && residualBurgers.squaredNorm()>0)
             {
                 isValidDissociation=true;

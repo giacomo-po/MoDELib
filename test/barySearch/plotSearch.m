@@ -36,10 +36,18 @@ figure(1)
 hold on
 grid on
 axis equal
-clrs={'r','g','b'}
+
+
+clrs={[255 229 204]/255,[153 255 153]/255,[102 178 255]/255}
 for t=1:dim:size(P,1)
 fill(P(t,1:dim+1),P(t+1,1:dim+1),clrs{P(t,dim+2)+1})
 end
 
 plot(S(1,1),S(1,2),'wo','Linewidth',2)
 plot(S(2:end,1),S(2:end,2),'w','Linewidth',2)
+
+
+set(gca,'Visible','off')
+
+%%
+legend('search path','grain 0','grain 1','grain 2')

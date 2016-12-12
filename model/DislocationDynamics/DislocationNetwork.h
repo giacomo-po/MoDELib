@@ -150,7 +150,7 @@ namespace model
         
         long int runID;
         
-        bool use_crossSlip;
+//        bool use_crossSlip;
         
         double totalTime;
         
@@ -238,19 +238,19 @@ namespace model
             model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
         
-        /**********************************************************************/
-        void crossSlip()
-        {/*! Performs dislocation cross-slip if use_crossSlip==true
-          */
-            if(use_crossSlip)
-            {
-                const auto t0= std::chrono::system_clock::now();
-                model::cout<<"		performing cross-slip ... ("<<std::flush;
-                size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip());
-                model::cout<<crossSlipEvents<<" cross-slip events) ";
-                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            }
-        }
+//        /**********************************************************************/
+//        void crossSlip()
+//        {/*! Performs dislocation cross-slip if use_crossSlip==true
+//          */
+//            if(use_crossSlip)
+//            {
+//                const auto t0= std::chrono::system_clock::now();
+//                model::cout<<"		performing cross-slip ... ("<<std::flush;
+//                size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip());
+//                model::cout<<crossSlipEvents<<" cross-slip events) ";
+//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            }
+//        }
         
         /**********************************************************************/
         void update_BVP_Solution()
@@ -332,16 +332,20 @@ namespace model
             const MatrixDimD pdr(plasticDistortionRate()); // move may limit velocity, so compute pdr after move
             plasticDistortion += pdr*dt;
             
+            
             //! 9- Contract segments of zero-length
             DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
             
             //! 10- Cross Slip (needs upated PK force)
-            crossSlip();
+//            crossSlip();
+            DislocationCrossSlip<DislocationNetworkType>(*this);
+
             
             GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
             
             GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
 
+            shared.poly.reConnectGrainBoundarySegments(*this); // this makes stressGauss invalid, so must follw other GB operations
 
             
             //! 11- detect loops that shrink to zero and expand as inverted loops
@@ -362,7 +366,6 @@ namespace model
             //! 14- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeBoundarySegments();
 
-            //! 15- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeSmallComponents(3.0*dx,4);
             
             make_bndNormals();
@@ -445,7 +448,7 @@ namespace model
         //		/* init list  */ useImplicitTimeIntegration(false),
         /* init list  */ shearWaveSpeedFraction(0.0001),
         /* init list  */ runID(0),
-        /* init list  */ use_crossSlip(false),
+//        /* init list  */ use_crossSlip(false),
         /* init list  */ totalTime(0.0),
         /* init list  */ dx(0.0),
         /* init list  */ dt(0.0),
@@ -683,8 +686,8 @@ namespace model
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             
             // Cross-Slip
-            EDR.readScalarInFile(fullName.str(),"use_crossSlip",use_crossSlip);
-            if(use_crossSlip)
+            EDR.readScalarInFile(fullName.str(),"use_crossSlip",DislocationCrossSlip<DislocationNetworkType>::use_crossSlip);
+            if(DislocationCrossSlip<DislocationNetworkType>::use_crossSlip)
             {
                 EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
                 assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
@@ -1007,6 +1010,7 @@ namespace model
             return temp;
         }
         
+        /**********************************************************************/
         static unsigned int& userOutputColumn()
         {
             return DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn;

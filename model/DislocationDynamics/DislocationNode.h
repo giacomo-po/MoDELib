@@ -175,10 +175,18 @@ namespace model
                         LineMeshIntersection lmi(line,L+dL,shared.mesh,p_Simplex);
                         if(lmi.search.first)
                         {
+                           if(lmi.search.second->region->regionID!=grain.grainID)
+                           {
+//                           WORK THIS OUT
+                           }
+                           else
+                           {
+                           
+                           }
                             p_Simplex=lmi.search.second;
                             set(lmi.L);
                             make_bndNormal();
-//                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
+                            //                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
                             if(!isBoundaryNode())
                             {
                                 //                                std::cout<<"DislocaitonNode "<<this->sID<<" not on mesh boundary"<<std::endl;
@@ -247,16 +255,26 @@ namespace model
                 const LatticeLine line(L0,dL);
                 LineMeshIntersection lmi(line,L0+dL,shared.mesh,temp.second);
                 assert(lmi.search.first);
-                p_Simplex=lmi.search.second;
-                set(lmi.L);
-                make_bndNormal();
-//                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
-                if(meshLocation()!=onMeshBoundary)
+                
+                if(lmi.search.second->region->regionID!=grain.grainID)
                 {
-                    model::cout<<"DislocaitonNode "<<this->sID<<std::endl;
-                    assert(0 && "NODE MUST BE ON MESH-BOUNDARY");
+//                 WORK THIS OUT
                 }
-            }
+                else
+                {
+                    p_Simplex=lmi.search.second;
+                    set(lmi.L);
+                    make_bndNormal();
+                    //                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
+                    if(meshLocation()!=onMeshBoundary)
+                    {
+                        model::cout<<"DislocaitonNode "<<this->sID<<std::endl;
+                        assert(0 && "NODE MUST BE ON MESH-BOUNDARY");
+                    }
+
+                }
+                
+                            }
             
         }
         
@@ -267,13 +285,14 @@ namespace model
         
         /**********************************************************************/
         DislocationNode(const VectorDim& Pin,
-                        const int& grainID) :
+                        const int& grainID,
+                        const VectorDofType& Vin=VectorDofType::Zero()) :
         //                        const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
         /* base constructor */ NodeBaseType(Pin),
         /* init list        */ grain(shared.poly.grain(grainID)),
         /* init list        */ L(grain.latticeVector(Pin)),
         /* init list        */ p_Simplex(get_includingSimplex(*grain.region.begin())),
-        /* init list        */ velocity(VectorDofType::Zero()),
+        /* init list        */ velocity(Vin),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
@@ -311,7 +330,7 @@ namespace model
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(0.5*(pL.E.source->velocityReduction()+pL.E.sink->velocityReduction())),
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
-//        otherGrains
+        //        otherGrains
         /* init list        */ grainBoundary_rID2((pL.E.source->grainBoundary_rID2==pL.E.sink->grainBoundary_rID2 && pL.E.sink->grainBoundary_rID2>0)? pL.E.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from ExpandingEdge and DOF
@@ -339,24 +358,24 @@ namespace model
             forceBoundaryNode(pL);
         }
         
-//        /**********************************************************************/
-//        DislocationNode(const ContractingVertices<NodeType,LinkType>& cv,
-//                        const LatticeVectorType& Lin) :
-//        /* base constructor */ NodeBaseType(Lin.cartesian()),
-//        /* init list        */ grain(cv.v0.grain),
-//        /* init list        */ L(Lin),
-//        /* init list        */ p_Simplex(get_includingSimplex(cv.v0.includingSimplex())),
-//        /* init list        */ velocity(0.5*(cv.v0.get_V()+cv.v1.get_V())),
-//        /* init list        */ vOld(velocity),
-//        /* init list        */ velocityReductionCoeff(0.5*(cv.v0.velocityReduction()+cv.v1.velocityReduction())),
-//        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
-//        /* init list        */ grainBoundary_rID2((cv.v0.grainBoundary_rID2==cv.v1.grainBoundary_rID2 && cv.v1.grainBoundary_rID2>0)? cv.v1.grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
-//        
-//        //        /* init list        */ regionBndNormal(VectorDim::Zero())
-//        {/*! Constructor from VertexContraction
-//          */
-//            
-//        }
+        //        /**********************************************************************/
+        //        DislocationNode(const ContractingVertices<NodeType,LinkType>& cv,
+        //                        const LatticeVectorType& Lin) :
+        //        /* base constructor */ NodeBaseType(Lin.cartesian()),
+        //        /* init list        */ grain(cv.v0.grain),
+        //        /* init list        */ L(Lin),
+        //        /* init list        */ p_Simplex(get_includingSimplex(cv.v0.includingSimplex())),
+        //        /* init list        */ velocity(0.5*(cv.v0.get_V()+cv.v1.get_V())),
+        //        /* init list        */ vOld(velocity),
+        //        /* init list        */ velocityReductionCoeff(0.5*(cv.v0.velocityReduction()+cv.v1.velocityReduction())),
+        //        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
+        //        /* init list        */ grainBoundary_rID2((cv.v0.grainBoundary_rID2==cv.v1.grainBoundary_rID2 && cv.v1.grainBoundary_rID2>0)? cv.v1.grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
+        //
+        //        //        /* init list        */ regionBndNormal(VectorDim::Zero())
+        //        {/*! Constructor from VertexContraction
+        //          */
+        //
+        //        }
         
         /**********************************************************************/
         void make_bndNormal()
@@ -525,7 +544,7 @@ namespace model
             return temp;
         }
         
-
+        
         
         /**********************************************************************/
         void make_projectionMatrix()
@@ -668,9 +687,9 @@ namespace model
                     std::set<const Simplex<dim,dim>*> path;
                     const bool searchAllRegions=true; // CHANGE THIS FOR MULTIPLE REGIONS
                     std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<dim>::mesh.searchWithGuess(searchAllRegions,
-                                                                                                                           this->get_P()+dX,
-                                                                                                                           p_Simplex,
-                                                                                                                           path));
+                                                                                                                     this->get_P()+dX,
+                                                                                                                     p_Simplex,
+                                                                                                                     path));
                     //p_Simplex=temp.second;
                     
                     
@@ -679,8 +698,15 @@ namespace model
                         const VectorDim bndNrml=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*temp.second,bndDistance); // boundary normal at new position
                         if(temp.first && bndNrml.squaredNorm()>0.0) // new position is on boundary
                         {
-                            p_Simplex=temp.second;
-                            set(L+grain.latticeVector(dX));
+                            if(temp.second->region->regionID!=grain.grainID)
+                            {
+//                                CANT CROSS REGION INTERFACE
+                            }
+                            else
+                            {
+                                p_Simplex=temp.second;
+                                set(L+grain.latticeVector(dX));
+                            }
                             //boundaryNormal=bndNrml;
                             make_bndNormal();
                             assert(meshLocation()==onMeshBoundary);
@@ -828,7 +854,7 @@ namespace model
                                 p_Simplex=temp.second;
                                 set(L+grain.latticeVector(dX));
                                 make_bndNormal();
-//                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
+                                //                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
                                 
                                 //                                L+=LatticeVectorType(dX);
                                 //                                this->set(this->get_P()+dX); // move node
@@ -890,9 +916,15 @@ namespace model
         /**********************************************************************/
         bool isGrainBoundaryNode() const
         {
-            assert(0 && "FINISH HERE");
-            return false;
+            //assert(0 && "FINISH HERE");
+            return grainBoundary_rID2>=0;
         }
+        
+        const int& rID2() const
+        {
+            return grainBoundary_rID2;
+        }
+        
         
         /**********************************************************************/
         bool isPureBoundaryNode() const

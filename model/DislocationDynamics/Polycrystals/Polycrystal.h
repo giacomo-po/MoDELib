@@ -17,6 +17,7 @@
 #include <map>
 #include <vector>
 #include <deque>
+#include <tuple>
 #include <Eigen/Core>
 #include <model/MPI/MPIcout.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
@@ -47,12 +48,12 @@ namespace model
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
-
+        
         static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
         static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
         static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
         static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
-
+        
         unsigned int materialZ;
         
     public:
@@ -65,7 +66,7 @@ namespace model
         /* init */ mesh(mesh_in)
         {
             model::cout<<"Creating Polycrystal"<<std::endl;
-
+            
             
         }
         
@@ -87,7 +88,7 @@ namespace model
             }
             
             EigenDataReader EDR;
-
+            
             EDR.readScalarInFile(fullName,"material",materialZ); // material by atomic number Z
             //Material<Isotropic>::select(materialZ);
             
@@ -100,7 +101,7 @@ namespace model
                 gr.second.rotate(C2Gtemp);
             }
             
-
+            
             // Initialize GrainBoundary objects
             grainBoundaryDislocations().clear();
             model::cout<<yellowBoldColor<<"Initializing GrainBoundaries"<<defaultColor<<std::endl;
@@ -131,6 +132,12 @@ namespace model
         {
             switch (materialZ)
             {
+                case Al.Z:
+                    return PeriodicElement<Al.Z,Isotropic>::grainBoundaryTypes;
+                    break;
+                case Ni.Z:
+                    return PeriodicElement<Ni.Z,Isotropic>::grainBoundaryTypes;
+                    break;
                 case Cu.Z:
                     return PeriodicElement<Cu.Z,Isotropic>::grainBoundaryTypes;
                     break;
@@ -139,13 +146,13 @@ namespace model
                     break;
             }
         }
-
         
-//        /**********************************************************************/
-//        void createLatticePlanes()
-//        {
-//
-//        }
+        
+        //        /**********************************************************************/
+        //        void createLatticePlanes()
+        //        {
+        //
+        //        }
         
         /**********************************************************************/
         Grain<dim>& grain(const size_t& k)
@@ -193,7 +200,7 @@ namespace model
         
         /**********************************************************************/
         GrainBoundary<dim>& grainBoundary(const size_t& i,
-                                                const size_t& j)
+                                          const size_t& j)
         {
             assert(i!=j && "GrainBoundary IDs cannot be the same.");
             return (i<j)? grainBoundaries().at(std::make_pair(i,j)) : grainBoundaries().at(std::make_pair(j,i));
@@ -216,7 +223,7 @@ namespace model
         
         /**********************************************************************/
         ReciprocalLatticeVectorType reciprocalLatticeVectorFromPosition(const VectorDimD& p,
-                                                    const Simplex<dim,dim>* const guess) const
+                                                                        const Simplex<dim,dim>* const guess) const
         {
             const std::pair<bool,const Simplex<dim,dim>*> temp(mesh.searchWithGuess(p,guess));
             assert(temp.first && "Position not found in mesh");
@@ -239,6 +246,40 @@ namespace model
         const std::vector<StressStraight<dim>>& grainBoundaryDislocations() const
         {
             return *this;
+        }
+        
+        /**********************************************************************/
+        template <typename DislocationNetworkType>
+        void reConnectGrainBoundarySegments(DislocationNetworkType& DN) const
+        {
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"		re-connecting GrainBoundarySegments ("<<std::flush;
+            std::map<std::pair<size_t,size_t>,LatticeVectorType> disconnectMap;
+            for (const auto& link : DN.links())
+            {
+//                if(link.second.source->isGrainBoundaryNode() && link.second.sink->isGrainBoundaryNode())
+//                {
+                    if(link.second.source->rID2()>=0 &&
+                       link.second.sink->rID2()>=0 &&
+                       link.second.source->rID2()==link.second.sink->rID2())
+                    {
+                        disconnectMap.emplace(std::piecewise_construct,
+                                              std::forward_as_tuple(link.second.source->sID,link.second.sink->sID),
+                                              std::forward_as_tuple(link.second.flow));
+                    }
+//                }
+            }
+            
+            model::cout<<disconnectMap.size()<<std::flush;
+            
+            for(const auto& segment : disconnectMap)
+            {
+                DN.template disconnect<false>(segment.first.first,segment.first.second);
+                DN.template connect(segment.first.first,segment.first.second,segment.second);
+//                assert(DN.link(std::get<0>(tuple),std::get<1>(tuple)).second->isGrainBoundarySegment() && "SEGMENT IS NOT A GB SEGMENT");
+            }
+            
+            model::cout<<std::setprecision(3)<<magentaColor<<" reconnected) ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }
         
     };

@@ -87,43 +87,43 @@ namespace model
             return temp;
         }
         
-        /**********************************************************************/
-        template <typename LinkType>
-        static const LatticePlaneBase& find_glidePlane(const Grain<dim>& grain_in,
-                                                       const LatticeVectorType& sourceL,
-                                                       const LatticeVectorType& sinkL,
-                                                       const LatticeVectorType& Burgers,
-                                                       const ExpandingEdge<LinkType>& ee)
-        {
-            
-            const LatticeVectorType& linkSourceL=ee.E.source->get_L();
-            const LatticeVectorType& linkSinkL=ee.E.sink->get_L();
-            
-            const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
-            
-            
-            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_glidePlane(sourceL,sinkL,Burgers) :
-            /*                                                           */  ee.E.glidePlane.n;
-        }
-        
-        /**********************************************************************/
-        template <typename LinkType>
-        static const LatticePlaneBase& find_sessilePlane(const Grain<dim>& grain_in,
-                                                         const LatticeVectorType& sourceL,
-                                                         const LatticeVectorType& sinkL,
-                                                         const LatticeVectorType& Burgers,
-                                                         const ExpandingEdge<LinkType>& ee)
-        {
-            
-            const LatticeVectorType& linkSourceL=ee.E.source->get_L();
-            const LatticeVectorType& linkSinkL=ee.E.sink->get_L();
-            
-            const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
-            
-            
-            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_sessilePlane(sourceL,sinkL,Burgers) :
-            /*                                                           */  ee.E.sessilePlane.n;
-        }
+//        /**********************************************************************/
+//        template <typename LinkType>
+//        static const LatticePlaneBase& find_glidePlane(const Grain<dim>& grain_in,
+//                                                       const LatticeVectorType& sourceL,
+//                                                       const LatticeVectorType& sinkL,
+//                                                       const LatticeVectorType& Burgers,
+//                                                       const ExpandingEdge<LinkType>& ee)
+//        {
+//            
+//            const LatticeVectorType& linkSourceL=ee.E.source->get_L();
+//            const LatticeVectorType& linkSinkL=ee.E.sink->get_L();
+//            
+//            const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
+//            
+//            
+//            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_glidePlane(sourceL,sinkL,Burgers) :
+//            /*                                                           */  ee.E.glidePlane.n;
+//        }
+//        
+//        /**********************************************************************/
+//        template <typename LinkType>
+//        static const LatticePlaneBase& find_sessilePlane(const Grain<dim>& grain_in,
+//                                                         const LatticeVectorType& sourceL,
+//                                                         const LatticeVectorType& sinkL,
+//                                                         const LatticeVectorType& Burgers,
+//                                                         const ExpandingEdge<LinkType>& ee)
+//        {
+//            
+//            const LatticeVectorType& linkSourceL=ee.E.source->get_L();
+//            const LatticeVectorType& linkSinkL=ee.E.sink->get_L();
+//            
+//            const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
+//            
+//            
+//            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_sessilePlane(sourceL,sinkL,Burgers) :
+//            /*                                                           */  ee.E.sessilePlane.n;
+//        }
         
         /**********************************************************************/
         PlanarDislocationSegment(const Grain<dim>& grain_in,

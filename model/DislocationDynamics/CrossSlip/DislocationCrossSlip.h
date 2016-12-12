@@ -49,43 +49,6 @@ namespace model
         // A reference to the DislocationNetwork
         DislocationNetworkType& DN;
         
-    public:
-        
-        enum{dim=3};
-        typedef LatticeVector<dim> LatticeVectorType;
-        
-        
-        static double crossSlipDeg;
-        static double crossSlipLength;
-        
-        /* Constructor *******************************************************/
-        DislocationCrossSlip(DislocationNetworkType& dislocationNetwork_in) :
-        /* init list */ DN(dislocationNetwork_in)
-        {/* @param[in] dislocationNetwork_in A reference to the DislocationNetwork
-          * Constructor finds and stores DislocationSegments that must cross-slip
-          */
-            const double sinCrossSlipRad(std::sin(crossSlipDeg*M_PI/180.0));
-            
-            //! 1-Loop over DislocationSegment(s), check cross-slip criterion and store CrossSlipSegment(s)
-            for (typename NetworkLinkContainerType::iterator linkIter =DN.linkBegin();
-                 /*                                       */ linkIter!=DN.linkEnd();
-                 /*                                       */ linkIter++)
-            {
-                
-                if ( !linkIter->second.source->isBoundaryNode() && !linkIter->second.sink->isBoundaryNode()
-                    && linkIter->second.chord().normalized().cross(linkIter->second.Burgers.normalized()).norm()<=sinCrossSlipRad
-                    && !linkIter->second.isSessile
-                    && linkIter->second.chord().norm()>2.5*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
-                {
-                    const LatticePlaneBase& conjugatePlaneBase=CrossSlipModels::maxRSS(linkIter->second);
-                    if(conjugatePlaneBase != linkIter->second.glidePlane.n)
-                    {
-                        this->emplace_back(linkIter->second,conjugatePlaneBase);
-                    }
-                }
-            }
-        }
-        
         /* crossSlip *******************************************************/
         size_t crossSlip()
         {
@@ -207,10 +170,15 @@ namespace model
                     
                     // expand
                     
-                    assert(0 && "REMOVE EXPAND OPERATION AND USE ONE VERTEX INSERTIONS AND TWO VERTEX CONNECTIONS");
+                    //assert(0 && "REMOVE EXPAND OPERATION AND USE ONE VERTEX INSERTIONS AND TWO VERTEX CONNECTIONS");
+                    const size_t newNodeID(DN.insertVertex(conjugateL.cartesian(),css.source.grain.grainID,crossSlipVelocity).first->first);
+                    DN.connect(css.source.sID,newNodeID,css.Burgers);
+                    DN.connect(newNodeID,css.sink.sID,css.Burgers);
+                    DN.template disconnect<false>(css.source.sID,css.sink.sID);
                     
-                    std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(css.source.sID,css.sink.sID,conjugateL,crossSlipVelocity);
-                    assert(temp.second && "COULD NOT DO THIRD EXPANSION IN CROSS SLIP");
+                    
+                    //                    std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(css.source.sID,css.sink.sID,conjugateL,crossSlipVelocity);
+                    //                   assert(temp.second && "COULD NOT DO THIRD EXPANSION IN CROSS SLIP");
                     n_crossSlips++;
                 }
                 
@@ -218,9 +186,64 @@ namespace model
             return  n_crossSlips;
         }
         
+    public:
+        
+        enum{dim=3};
+        typedef LatticeVector<dim> LatticeVectorType;
+        
+        static bool use_crossSlip;
+        static double crossSlipDeg;
+        static double crossSlipLength;
+        
+        /* Constructor *******************************************************/
+        DislocationCrossSlip(DislocationNetworkType& dislocationNetwork_in) :
+        /* init list */ DN(dislocationNetwork_in)
+        {/* @param[in] dislocationNetwork_in A reference to the DislocationNetwork
+          * Constructor finds and stores DislocationSegments that must cross-slip
+          */
+            
+            if(use_crossSlip)
+            {
+                const auto t0= std::chrono::system_clock::now();
+                model::cout<<"		performing cross-slip ... ("<<std::flush;
+                
+                const double sinCrossSlipRad(std::sin(crossSlipDeg*M_PI/180.0));
+                
+                //! 1-Loop over DislocationSegment(s), check cross-slip criterion and store CrossSlipSegment(s)
+                for (typename NetworkLinkContainerType::iterator linkIter =DN.linkBegin();
+                     /*                                       */ linkIter!=DN.linkEnd();
+                     /*                                       */ linkIter++)
+                {
+                    
+                    if ( !linkIter->second.source->isBoundaryNode() && !linkIter->second.sink->isBoundaryNode()
+                        && linkIter->second.chord().normalized().cross(linkIter->second.Burgers.normalized()).norm()<=sinCrossSlipRad
+                        && !linkIter->second.isSessile
+                        && linkIter->second.chord().norm()>2.5*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                    {
+                        const LatticePlaneBase& conjugatePlaneBase=CrossSlipModels::maxRSS(linkIter->second);
+                        if(conjugatePlaneBase != linkIter->second.glidePlane.n)
+                        {
+                            this->emplace_back(linkIter->second,conjugatePlaneBase);
+                        }
+                    }
+                }
+                
+                size_t crossSlipEvents=crossSlip();
+                model::cout<<crossSlipEvents<<" cross-slip events) ";
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+                
+            }
+        }
+        
+
+        
     };
     
     // Static data
+    template <typename DislocationNetworkType>
+    bool DislocationCrossSlip<DislocationNetworkType>::use_crossSlip=false;
+
+    
     template <typename DislocationNetworkType>
     double DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg=2.0;
     
