@@ -92,15 +92,33 @@ namespace model
             EDR.readScalarInFile(fullName,"material",materialZ); // material by atomic number Z
             //Material<Isotropic>::select(materialZ);
             
+//            for(auto& gr : grains())
+//            {
+//                gr.second.selectMaterial(materialZ);
+//                
+//                Eigen::Matrix<double,dim,dim> C2Gtemp(Eigen::Matrix<double,dim,dim>::Identity());
+//                EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
+//                gr.second.rotate(C2Gtemp);
+//            }
+
             for(auto& gr : grains())
             {
                 gr.second.selectMaterial(materialZ);
                 
                 Eigen::Matrix<double,dim,dim> C2Gtemp(Eigen::Matrix<double,dim,dim>::Identity());
+//                EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
                 EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
+                for(int i=0;i<3;i++)
+                {
+                    double c2gNorm(C2Gtemp.row(i).norm());
+                    for(int j=0;j<3;j++)
+                    {
+                        assert(C2Gtemp(i,j)-std::round(C2Gtemp(i,j))==0&&"User must pass C2G matrix in integer form to limit rounding errors");
+                        C2Gtemp(i,j)=C2Gtemp(i,j)/c2gNorm;
+                    }
+                }
                 gr.second.rotate(C2Gtemp);
             }
-            
             
             // Initialize GrainBoundary objects
             grainBoundaryDislocations().clear();

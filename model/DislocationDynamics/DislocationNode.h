@@ -135,7 +135,7 @@ namespace model
                         model::cout<<"face of barymin is "<<temp.second->child(faceID).xID<<std::endl;
                         model::cout<<"face of barymin is boundary Simplex? "<<temp.second->child(faceID).isBoundarySimplex()<<std::endl;
                         model::cout<<"face of barymin is region-boundary Simplex? "<<temp.second->child(faceID).isRegionBoundarySimplex()<<std::endl;
-                        assert(0 && "DISLOCATION NODE CREATED OUTSIDE MESH.");
+                        assert(0 && "DISLOCATION NODE CREATED OUTSIDE REGION.");
                     }
                 }
             }

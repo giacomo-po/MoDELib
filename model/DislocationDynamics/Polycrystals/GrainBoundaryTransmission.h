@@ -70,6 +70,9 @@ namespace model
                         {
                             //                     DN.template disconnect<false>(gbSegment.sourceID,gbSegment.sinkID);
                             //                     DN.connect(gbSegment.sourceID,gbSegment.sinkID,gbSegment.residualBurgers);
+                            std::cout<<"segment GB ID="<<DN.link(gbSegment.sourceID,gbSegment.sinkID).second->grain.grainID<<std::endl;
+
+                            std::cout<<"transmit GB ID="<<gbSegment.transmitGrain->grainID<<std::endl;
                             const size_t newSourceID(DN.insertVertex(gbSegment.transmitSourceP,gbSegment.transmitGrain->grainID).first->first);
                             const size_t newSinkID(DN.insertVertex(gbSegment.transmitSinkP,gbSegment.transmitGrain->grainID).first->first);
                             DN.connect(newSourceID,newSinkID,*gbSegment.transmitBurgers);

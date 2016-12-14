@@ -41,9 +41,9 @@ C2G1 = 1 0 0
        0 1 0
        0 0 1;
 
-C2G2 =  0.8 0 0.6
-        0   1 0
-       -0.6 0 0.8;
+C2G2 =  4 0 3
+        0 1 0
+       -3 0 4;
 
 ######################################
 # TEMPERATURE in [K]
@@ -93,6 +93,7 @@ meshID=0;
 # GRAIN BOUNDARY FLAGS
 use_GBdissociation=0;
 use_GBtransmission=1;
+use_GBdislocations=0;
 
 ######################################
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 

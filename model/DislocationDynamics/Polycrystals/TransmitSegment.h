@@ -44,7 +44,7 @@ namespace model
         typedef typename DislocationSegmentType::NodeType NodeType;
         typedef std::map<double,std::pair<SlipSystem,const GrainBoundary<dim>* const>> MapType;
         
-        DislocationSharedObjects<dim> shared;
+//        DislocationSharedObjects<dim> shared;
         const size_t sourceID;
         const size_t sinkID;
         bool isValidTransmission;
@@ -108,11 +108,34 @@ namespace model
                     transmitSourceP=gb->latticePlane(otherGrainID).snapToLattice(transmitSourceP).cartesian();
                     transmitSinkP=gb->latticePlane(otherGrainID).snapToLattice(transmitSinkP).cartesian();
                     
-                    LatticeVectorType  P1(ds.source->get_P(),transmitGrain->covBasis(),transmitGrain->contraBasis());
-                    LatticePlane snapPlane(P1,(slipSystemMap.begin()->second).first.n);
-                    transmitMidpoint.reset(new LatticeVectorType(snapPlane.snapToLattice(0.5*(transmitSourceP+transmitSinkP)+chord.cross(slipSystemMap.begin()->second.first.n.cartesian()).normalized()*10.0)));
+                    LatticeVectorType P1(transmitGrain->snapToLattice(ds.source->get_P()));
+//                    std::cout<<"Here 0.25"<<std::endl;
+//                    std::cout<<"ds.source->get_P()="<<std::setprecision(15)<<std::scientific<<ds.source->get_P().transpose()<<std::endl;
+//                    std::cout<<"P1="<<std::setprecision(15)<<std::scientific<<P1.cartesian().transpose()<<std::endl;
 
+//                    LatticeVectorType  P2(ds.source->get_P(),transmitGrain->covBasis(),transmitGrain->contraBasis());
+//                    std::cout<<"Here 0.5"<<std::endl;
+
+                    LatticePlane snapPlane(P1,(slipSystemMap.begin()->second).first.n);
+                    
+                    
+
+                    VectorDim midD=0.5*(transmitSourceP+transmitSinkP)-chord.cross(slipSystemMap.begin()->second.first.n.cartesian()).normalized()*10.0;
+                    auto temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(midD,ds.source->includingSimplex());
+
+                    if(temp.second->region->regionID!=otherGrainID)
+                    {
+                        midD=0.5*(transmitSourceP+transmitSinkP)+chord.cross(slipSystemMap.begin()->second.first.n.cartesian()).normalized()*10.0;
+                    }
+                    
+                    temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(midD,ds.source->includingSimplex());
+                    assert(temp.first);
+                    
+                    transmitMidpoint.reset(new LatticeVectorType(snapPlane.snapToLattice(midD)));
                 
+                    transmitSourceP=transmitGrain->snapToLattice(transmitSourceP).cartesian();
+                    transmitSinkP=transmitGrain->snapToLattice(transmitSinkP).cartesian();
+
                 }
 
                 
