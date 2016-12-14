@@ -96,16 +96,29 @@ namespace model
 
             for (const auto& linkIter : DN.links())
             {
+                
                 const LinkType& segment(linkIter.second);
+//                bool automaticContract=false;
+//                if(segment.isSessile)
+//                {
+//                    if(segment.source->is_simple() && segment.sink->is_simple())
+//                    {
+//                    if(segment.source->openNeighborLink(0).isSessile)
+//                    {
+//                    
+//                    }
+//                    }
+//                }
                 const VectorDimD chord(segment.chord()); // this is sink->get_P() - source->get_P()
                 const double chordLength(chord.norm());
                 const VectorDimD dv(segment.sink->get_V()-segment.source->get_V());
                 bool endsAreApproaching( chord.dot(dv) < 0.0 );
 
-                if ((endsAreApproaching || segment.is_boundarySegment())// ends are approaching
+                if (((endsAreApproaching || segment.is_boundarySegment())// ends are approaching
                     && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
                     && chordLength<Lmin // segment is small
-                    )
+                     )
+                    || segment.isSimpleSessile())
                 {
                     assert(toBeContracted.insert(std::make_pair(chordLength,segment.nodeIDPair)).second && "COULD NOT INSERT IN SET.");
                 }
@@ -152,7 +165,8 @@ namespace model
             // Store the segments to be expanded
             for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
             {
-                
+                if(!linkIter->second.isSimpleSessile())
+                {
                 const VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
                 const double chordLength(chord.norm());
                 //				const VectorDimD dv(linkIter->second.sink->get_V()-linkIter->second.source->get_V());
@@ -223,7 +237,8 @@ namespace model
                         }
                     }
                 }
-                
+            }
+            
             }
             
             

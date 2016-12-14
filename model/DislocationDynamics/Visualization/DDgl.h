@@ -733,7 +733,11 @@ namespace model {
                 case 'q':
                     splinePlotter.showQuadParticles=!splinePlotter.showQuadParticles;
                     break;
-					
+                    
+                case 'r':
+                    SingleSplinePlotterType::use_BurgersNorm=!SingleSplinePlotterType::use_BurgersNorm;
+                    break;
+                    
 //				case 's':
 //					saveTga=!saveTga;
 //					break;

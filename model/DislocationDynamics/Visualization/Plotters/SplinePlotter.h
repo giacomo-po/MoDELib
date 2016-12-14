@@ -49,6 +49,7 @@ namespace model
 	public:
         
         static float alpha;
+        static bool use_BurgersNorm;
         
 		typedef float scalarType;
 		typedef Eigen::Matrix<scalarType,dim,Np> MatrixDimNp;
@@ -92,7 +93,7 @@ namespace model
         /* init list */ snID(snID_in),
 		/* init list */ planeNormal(P0T0P1T1BN.col(5).normalized()),
 		/* init list */ burgers(P0T0P1T1BN.col(4)),
-        /* init list */ burgersNorm(burgers.norm()),
+        /* init list */ burgersNorm(use_BurgersNorm? burgers.norm() : 1.0),
         /* init list */ isSessile(std::fabs(planeNormal.dot(burgers.normalized()))>FLT_EPSILON)
         {
             
@@ -365,7 +366,9 @@ namespace model
     
     template <int dim, int Np, int Nc>
 	float SingleSplinePlotter<dim,Np,Nc>::alpha=0.5;
-	
+
+    template <int dim, int Np, int Nc>
+    bool SingleSplinePlotter<dim,Np,Nc>::use_BurgersNorm=false;
 	
 	
 	/*************************************************************/

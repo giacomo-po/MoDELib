@@ -97,7 +97,8 @@ namespace model
             
             if(slipSystemMap.size())
             {
-                if(slipSystemMap.begin()->first<0.0)
+//                if(slipSystemMap.begin()->first<0.0)
+                    if(true)
                 {
                     const GrainBoundary<dim>* const gb=slipSystemMap.begin()->second.second;
                     const size_t otherGrainID=(gb->grainBndID.first==ds.grain.grainID)? gb->grainBndID.second : gb->grainBndID.first;
@@ -106,6 +107,12 @@ namespace model
                     transmitBurgers.reset(new LatticeVectorType(slipSystemMap.begin()->second.first.s));
                     transmitSourceP=gb->latticePlane(otherGrainID).snapToLattice(transmitSourceP).cartesian();
                     transmitSinkP=gb->latticePlane(otherGrainID).snapToLattice(transmitSinkP).cartesian();
+                    
+                    LatticeVectorType  P1(ds.source->get_P(),transmitGrain->covBasis(),transmitGrain->contraBasis());
+                    LatticePlane snapPlane(P1,(slipSystemMap.begin()->second).first.n);
+                    transmitMidpoint.reset(new LatticeVectorType(snapPlane.snapToLattice(0.5*(transmitSourceP+transmitSinkP)+chord.cross(slipSystemMap.begin()->second.first.n.cartesian()).normalized()*10.0)));
+
+                
                 }
 
                 

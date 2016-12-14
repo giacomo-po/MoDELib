@@ -73,10 +73,12 @@ namespace model
                             const size_t newSourceID(DN.insertVertex(gbSegment.transmitSourceP,gbSegment.transmitGrain->grainID).first->first);
                             const size_t newSinkID(DN.insertVertex(gbSegment.transmitSinkP,gbSegment.transmitGrain->grainID).first->first);
                             DN.connect(newSourceID,newSinkID,*gbSegment.transmitBurgers);
-                            
-                            //                     DN.connect(gbSegment.sinkID,newNodeID,gbSegment.transmitBurgers);
-                            //                     DN.connect(newNodeID,gbSegment.sourceID,gbSegment.transmitBurgers);
-                            //                     nTransmitted++;
+
+                            const size_t newMidpointID(DN.insertVertex(gbSegment.transmitMidpoint->cartesian(),gbSegment.transmitGrain->grainID).first->first);
+                            DN.connect(newSinkID,newMidpointID,*gbSegment.transmitBurgers);
+                            DN.connect(newMidpointID,newSourceID,*gbSegment.transmitBurgers);
+
+                            nTransmitted++;
                         }
                     }
                 }

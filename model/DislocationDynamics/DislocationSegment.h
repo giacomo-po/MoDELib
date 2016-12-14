@@ -57,7 +57,7 @@ namespace model
         
         const Grain<dim>& grain;
         const std::set<const GrainBoundary<dim>*> grainBoundarySet;
-
+        
         //! The glide plane unit normal vector
         
         const std::pair<LatticePlane,LatticePlane> confiningPlanes;
@@ -65,7 +65,7 @@ namespace model
         //        const LatticePlane sessilePlane;
         const LatticePlane&   glidePlane;
         const LatticePlane& sessilePlane;
-
+        
         const VectorDim   glidePlaneNormal;
         const VectorDim sessilePlaneNormal;
         
@@ -87,43 +87,43 @@ namespace model
             return temp;
         }
         
-//        /**********************************************************************/
-//        template <typename LinkType>
-//        static const LatticePlaneBase& find_glidePlane(const Grain<dim>& grain_in,
-//                                                       const LatticeVectorType& sourceL,
-//                                                       const LatticeVectorType& sinkL,
-//                                                       const LatticeVectorType& Burgers,
-//                                                       const ExpandingEdge<LinkType>& ee)
-//        {
-//            
-//            const LatticeVectorType& linkSourceL=ee.E.source->get_L();
-//            const LatticeVectorType& linkSinkL=ee.E.sink->get_L();
-//            
-//            const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
-//            
-//            
-//            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_glidePlane(sourceL,sinkL,Burgers) :
-//            /*                                                           */  ee.E.glidePlane.n;
-//        }
-//        
-//        /**********************************************************************/
-//        template <typename LinkType>
-//        static const LatticePlaneBase& find_sessilePlane(const Grain<dim>& grain_in,
-//                                                         const LatticeVectorType& sourceL,
-//                                                         const LatticeVectorType& sinkL,
-//                                                         const LatticeVectorType& Burgers,
-//                                                         const ExpandingEdge<LinkType>& ee)
-//        {
-//            
-//            const LatticeVectorType& linkSourceL=ee.E.source->get_L();
-//            const LatticeVectorType& linkSinkL=ee.E.sink->get_L();
-//            
-//            const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
-//            
-//            
-//            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_sessilePlane(sourceL,sinkL,Burgers) :
-//            /*                                                           */  ee.E.sessilePlane.n;
-//        }
+        //        /**********************************************************************/
+        //        template <typename LinkType>
+        //        static const LatticePlaneBase& find_glidePlane(const Grain<dim>& grain_in,
+        //                                                       const LatticeVectorType& sourceL,
+        //                                                       const LatticeVectorType& sinkL,
+        //                                                       const LatticeVectorType& Burgers,
+        //                                                       const ExpandingEdge<LinkType>& ee)
+        //        {
+        //
+        //            const LatticeVectorType& linkSourceL=ee.E.source->get_L();
+        //            const LatticeVectorType& linkSinkL=ee.E.sink->get_L();
+        //
+        //            const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
+        //
+        //
+        //            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_glidePlane(sourceL,sinkL,Burgers) :
+        //            /*                                                           */  ee.E.glidePlane.n;
+        //        }
+        //
+        //        /**********************************************************************/
+        //        template <typename LinkType>
+        //        static const LatticePlaneBase& find_sessilePlane(const Grain<dim>& grain_in,
+        //                                                         const LatticeVectorType& sourceL,
+        //                                                         const LatticeVectorType& sinkL,
+        //                                                         const LatticeVectorType& Burgers,
+        //                                                         const ExpandingEdge<LinkType>& ee)
+        //        {
+        //
+        //            const LatticeVectorType& linkSourceL=ee.E.source->get_L();
+        //            const LatticeVectorType& linkSinkL=ee.E.sink->get_L();
+        //
+        //            const ReciprocalLatticeVector<dim> triagleNormal=(sourceL-linkSourceL).cross(sinkL-linkSourceL)+(sourceL-linkSinkL).cross(sinkL-linkSinkL);
+        //
+        //
+        //            return (triagleNormal.cross(ee.E.glidePlane.n).squaredNorm()) ?  grain_in.find_sessilePlane(sourceL,sinkL,Burgers) :
+        //            /*                                                           */  ee.E.sessilePlane.n;
+        //        }
         
         /**********************************************************************/
         PlanarDislocationSegment(const Grain<dim>& grain_in,
@@ -155,8 +155,8 @@ namespace model
         /* init list       */ confiningPlanes(grain.find_confiningPlanes(sourceL,sinkL,Burgers)),
         /* init list       */ glidePlane(confiningPlanes.first),
         /* init list       */ sessilePlane(confiningPlanes.second),
-//        /* init list       */ glidePlane(sourceL,  find_glidePlane(grain,sourceL,sinkL,Burgers,ee)),
-//        /* init list       */ sessilePlane(sourceL,find_sessilePlane(grain,sourceL,sinkL,Burgers,ee)),
+        //        /* init list       */ glidePlane(sourceL,  find_glidePlane(grain,sourceL,sinkL,Burgers,ee)),
+        //        /* init list       */ sessilePlane(sourceL,find_sessilePlane(grain,sourceL,sinkL,Burgers,ee)),
         /* init list       */ glidePlaneNormal(glidePlane.n.cartesian().normalized()),
         /* init list       */ sessilePlaneNormal(sessilePlane.n.cartesian().normalized())
         {
@@ -287,7 +287,7 @@ namespace model
         //! PK force corrersponding to the quadrature points
         MatrixDimQorder pkGauss;
         
-  
+        
         
     private:
         
@@ -338,14 +338,14 @@ namespace model
             //            return temp.transpose()*dm.getVelocity(stressGauss[k],rlgauss.col(k))*jgauss(k); // inverse mobility law
         }
         
-
+        
         
         
         //#ifdef UserStressFile
         //#include UserStressFile
         //#endif
         
-
+        
         
         /******************************************************************/
     public: // member functions
@@ -359,7 +359,8 @@ namespace model
         /* base class initialization */ SegmentBaseType(nodePair,Fin),
         /* init list       */ grain(nodePair.first->grain),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
-        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
+//        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
+        /* init list       */ isSessile(this->glidePlane.n.cross(this->sessilePlane.n).squaredNorm()!=0),
         /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
         //        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
@@ -390,7 +391,8 @@ namespace model
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
         /* init list       */ grain(ee.E.grain),
         /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
-        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
+//        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
+        /* init list       */ isSessile(this->glidePlane.n.cross(this->sessilePlane.n).squaredNorm()!=0),
         /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
         //        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
@@ -950,6 +952,27 @@ namespace model
         const MatrixDim& midPointStress() const
         {/*!\returns The stress matrix for the centre point over this segment.*/
             return stressGauss[qOrder/2];
+        }
+        
+        /**********************************************************************/
+        bool isSimpleSessile() const
+        {
+            bool temp=false;
+            if(isSessile)
+            {
+                if(this->source->is_simple() && this->sink->is_simple())
+                {
+                    if(   this->source->openNeighborLink(0)->isSessile
+                       && this->source->openNeighborLink(1)->isSessile
+                       && this->sink->openNeighborLink(0)->isSessile
+                       && this->sink->openNeighborLink(1)->isSessile
+                       )
+                    {
+                        temp=true;
+                    }
+                }
+            }
+            return temp;
         }
         
         /**********************************************************************/
