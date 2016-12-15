@@ -69,6 +69,9 @@ namespace model
 //        /* init list */ residualBurgers(transmitBurgers)
         {
             
+            const double alpha=0.5;
+            const VectorDim& b1=ds.Burgers;
+            
             const VectorDim chord(ds.sink->get_P()-ds.source->get_P());
  //           const double chorNorm=chord.norm();
             
@@ -84,10 +87,30 @@ namespace model
                     //                const std::pair<LatticeVectorType,LatticeVectorType>& primitiveVectors(gb->latticePlane(ds.grain.grainID).n.primitiveVectors);
                     if(fabs(slipSystem.n.cartesian().dot(chord))<FLT_EPSILON) // slip system contains chord
                     {
-                        const VectorDim pkForce=(ds.midPointStress()*slipSystem.s.cartesian()).cross(-chord);
+                        const VectorDim pkForce=(ds.midPointStress()*slipSystem.s.cartesian()).cross(-chord.normalized());
+                        
                         if(pkForce.dot(gb->latticePlane(otherGrainID).n.cartesian())<0.0) // PK force points inside the grain
                         {
-                            slipSystemMap.emplace(ds.Burgers.dot(slipSystem.s.cartesian())+slipSystem.s.cartesian().squaredNorm(),std::make_pair(slipSystem,gb));
+                            const VectorDim b2=slipSystem.s.cartesian();
+
+                            const double theta=acos(gb->rotationAxis().normalized().dot(chord.normalized()));
+                            
+                            assert(theta>FLT_EPSILON && "PARALLEL DISLOCATION AND GB-DISLOCATION");
+                            
+                            const double R=0.5*(gb->grainBoundaryType().dislocationSpacing/sin(theta));
+                            
+                            const double tau2= (pkForce-pkForce.dot(slipSystem.n.cartesian())*slipSystem.n.cartesian()).norm();
+                            
+                            
+                            const double deltaE = alpha*(2.0*R*(b1+b2).squaredNorm()+M_PI*R*b2.squaredNorm()-2.0*R*b1.squaredNorm()); // elastic energy change using line tension
+                            const double deltaEgb=0.0;
+                            const double work = tau2*0.5*M_PI*R*R*b2.norm(); // work done in loop expansion
+                            
+                            std::cout<<"deltaE="<<deltaE<<std::endl;
+                            std::cout<<"work="<<work<<std::endl;
+                            
+                            
+                            slipSystemMap.emplace(deltaE+deltaEgb-work,std::make_pair(slipSystem,gb));
                         }
                     }
                 }
@@ -97,8 +120,8 @@ namespace model
             
             if(slipSystemMap.size())
             {
-//                if(slipSystemMap.begin()->first<0.0)
-                    if(true)
+                if(slipSystemMap.begin()->first<0.0)
+//                    if(true)
                 {
                     const GrainBoundary<dim>* const gb=slipSystemMap.begin()->second.second;
                     const size_t otherGrainID=(gb->grainBndID.first==ds.grain.grainID)? gb->grainBndID.second : gb->grainBndID.first;

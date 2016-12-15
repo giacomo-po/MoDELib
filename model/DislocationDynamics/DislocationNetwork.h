@@ -366,7 +366,7 @@ namespace model
             //! 14- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeBoundarySegments();
 
-            removeSmallComponents(3.0*dx,4);
+//            removeSmallComponents(3.0*dx,4);
             
             make_bndNormals();
             
@@ -401,7 +401,7 @@ namespace model
         
         /**********************************************************************/
         void removeSmallComponents(const double& smallCritValue,
-                                   const size_t& maxNodeSize)
+                                   const size_t& maxNodeSize) __attribute__ ((deprecated))
         {
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"		removing small NetworkComponents "<<std::flush;
