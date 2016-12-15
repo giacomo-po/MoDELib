@@ -95,7 +95,7 @@ namespace model
         GrainBoundaryType<3>("symmetric-tilt [100](3 1 0) sigma 5",
                              Vector3d(1,0,0),Vector3d(3,1,0),Vector3d(-3,1,0), // axis, normal1, normal2
                              905.0, // GB energy
-                             0.9999973204,	0.632455532 // GB dislocation spacing and Burgers vector MAGNITUDE
+                             2.2361,	0.632455532 // GB dislocation spacing and Burgers vector MAGNITUDE
                              ),
         GrainBoundaryType<3>("symmetric-tilt [100](11 4 0) sigma 137",
                              Vector3d(1,0,0),Vector3d(11,4,0),Vector3d(-11,4,0), // axis, normal1, normal2
