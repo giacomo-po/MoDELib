@@ -273,7 +273,7 @@ namespace model
                     const int qOrder(linkIter->second.rgauss.cols());
                     for (int q=0;q<qOrder;++q)
                     {
-                        p_file << linkIter->second.source->sID<<" "<<linkIter->second.source->sID<<" "<<q<<" "<< linkIter->second.rgauss.col(q).transpose()<<" "<<linkIter->second.pkGauss.col(q).transpose()<<"\n";
+                        p_file << linkIter->second.source->sID<<" "<<linkIter->second.sink->sID<<" "<<q<<" "<< linkIter->second.rgauss.col(q).transpose()<<" "<<linkIter->second.pkGauss.col(q).transpose()<<"\n";
                     }
                 }
                 model::cout<<", P/P_"<<p_file.sID<<std::flush;

@@ -49,8 +49,6 @@ namespace model
         //! GB energy values obtained with LAMMPs data from Ercolessi and Adams, MSMSE 12(665-670), 2004
         
         
-        
-        
         //These are the "Special" grain boundaries - low angle GBs and high angle GBs : Defined by a total number of 2 SUM units per nominal periodic dimension.
         
         /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ LOW ANGLE 0-18.4 degrees   START           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -217,6 +215,57 @@ namespace model
                              461.0, // GB energy
                              3.041381265,1 // GB dislocation spacing and Burgers vector
                              ),
+        
+        
+        
+        
+        
+        
+        //[110] STGBs:
+        GrainBoundaryType<3>("symmetric-tilt [110](	1	1	20	)sigma     	201	",Vector3d(1,1,0),Vector3d(	1	,	1	,	20	),Vector3d(	-20	,	1	,	1	),	314	,	14.17744688	, 	1.4	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	1	1	12	)sigma     	73	",Vector3d(1,1,0),Vector3d(	1	,	1	,	12	),Vector3d(	-12	,	1	,	1	),	393	,	8.544003745	, 	1.4	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	1	1	8	)sigma     	33	",Vector3d(1,1,0),Vector3d(	1	,	1	,	8	),Vector3d(	-8	,	1	,	1	),	412	,	5.67364731	, 	1.4	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	1	1	6	)sigma     	19	",Vector3d(1,1,0),Vector3d(	1	,	1	,	6	),Vector3d(	-6	,	1	,	1	),	407	,	4.305087639	, 	1.4	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	1	1	5	)sigma     	27	",Vector3d(1,1,0),Vector3d(	1	,	1	,	5	),Vector3d(	-5	,	1	,	1	),	372	,	3.628873647	, 	1.4	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	1	1	4	)sigma     	9	",Vector3d(1,1,0),Vector3d(	1	,	1	,	4	),Vector3d(	-4	,	1	,	1	),	331	,	2.962962963	, 	1.4	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	2	2	7	)sigma     	57	",Vector3d(1,1,0),Vector3d(	2	,	2	,	7	),Vector3d(	-7	,	2	,	2	),	325	,	2.636317635	, 	1.4	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	1	1	3	)sigma     	11	",Vector3d(1,1,0),Vector3d(	1	,	1	,	3	),Vector3d(	-3	,	1	,	1	),	151	,	2.316256668	, 	1.4	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	5	5	14	)sigma     	123	",Vector3d(1,1,0),Vector3d(	5	,	5	,	14	),Vector3d(	-14	,	5	,	5	),	260	,	1.564801533	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	2	2	5	)sigma     	33	",Vector3d(1,1,0),Vector3d(	2	,	2	,	5	),Vector3d(	-5	,	2	,	2	),	330	,	2.005938119	, 	1.4	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	5	5	11	)sigma     	171	",Vector3d(1,1,0),Vector3d(	5	,	5	,	11	),Vector3d(	-11	,	5	,	5	),	374	,	1.304637359	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	1	1	2	)sigma     	3	",Vector3d(1,1,0),Vector3d(	1	,	1	,	2	),Vector3d(	-2	,	1	,	1	),	242	,	1.710666057	, 	1.4	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	4	4	7	)sigma     	81	",Vector3d(1,1,0),Vector3d(	4	,	4	,	7	),Vector3d(	-7	,	4	,	4	),	419	,	1.57134888	, 	1.4	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	5	5	8	)sigma     	57	",Vector3d(1,1,0),Vector3d(	5	,	5	,	8	),Vector3d(	-8	,	5	,	5	),	422	,	1.065233087	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	2	2	3	)sigma     	17	",Vector3d(1,1,0),Vector3d(	2	,	2	,	3	),Vector3d(	-3	,	2	,	2	),	404	,	1.439743941	, 	1.4	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	3	3	4	)sigma     	17	",Vector3d(1,1,0),Vector3d(	3	,	3	,	4	),Vector3d(	-4	,	3	,	3	),	344	,	1.018052126	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	4	4	5	)sigma     	57	",Vector3d(1,1,0),Vector3d(	4	,	4	,	5	),Vector3d(	-5	,	4	,	4	),	330	,	1.054527054	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	7	7	8	)sigma     	81	",Vector3d(1,1,0),Vector3d(	7	,	7	,	8	),Vector3d(	-8	,	7	,	7	),	278	,	1.111111111	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	11	11	10	)sigma     	171	",Vector3d(1,1,0),Vector3d(	11	,	11	,	10	),Vector3d(	-10	,	11	,	11	),	251	,	1.291522634	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	5	5	4	)sigma     	33	",Vector3d(1,1,0),Vector3d(	5	,	5	,	4	),Vector3d(	-4	,	5	,	5	),	350	,	1.418411827	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	7	7	5	)sigma     	123	",Vector3d(1,1,0),Vector3d(	7	,	7	,	5	),Vector3d(	-5	,	7	,	7	),	393	,	1.549076055	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	3	3	2	)sigma     	11	",Vector3d(1,1,0),Vector3d(	3	,	3	,	2	),Vector3d(	-2	,	3	,	3	),	388	,	1.637841792	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	11	11	7	)sigma     	291	",Vector3d(1,1,0),Vector3d(	11	,	11	,	7	),Vector3d(	-7	,	11	,	11	),	419	,	1.70191652	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	7	7	4	)sigma     	57	",Vector3d(1,1,0),Vector3d(	7	,	7	,	4	),Vector3d(	-4	,	7	,	7	),	466	,	1.864157903	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	2	2	1	)sigma     	9	",Vector3d(1,1,0),Vector3d(	2	,	2	,	1	),Vector3d(	-1	,	2	,	2	),	447	,	2.09513184	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	11	11	5	)sigma     	267	",Vector3d(1,1,0),Vector3d(	11	,	11	,	5	),Vector3d(	-5	,	11	,	11	),	487	,	2.282315501	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	5	5	2	)sigma     	27	",Vector3d(1,1,0),Vector3d(	5	,	5	,	2	),Vector3d(	-2	,	5	,	5	),	504	,	2.565999086	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	3	3	1	)sigma     	19	",Vector3d(1,1,0),Vector3d(	3	,	3	,	1	),Vector3d(	-1	,	3	,	3	),	472	,	3.044157903	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	4	4	1	)sigma     	33	",Vector3d(1,1,0),Vector3d(	4	,	4	,	1	),Vector3d(	-1	,	4	,	4	),	427	,	4.011876238	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	6	6	1	)sigma     	73	",Vector3d(1,1,0),Vector3d(	6	,	6	,	1	),Vector3d(	-1	,	6	,	6	),	366	,	5.96693187	, 	1.0	),
+        GrainBoundaryType<3>("symmetric-tilt [110](	10	10	1	)sigma     	201	",Vector3d(1,1,0),Vector3d(	10	,	10	,	1	),Vector3d(	-1	,	10	,	10	),	286	,	9.901197988	, 	1.0	),
+        
+                
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         //THESE ARE EXPERIMENTAL BENCHMARK "general" asymmetric tilt GBS
         
