@@ -322,7 +322,8 @@ namespace model
             VectorDim vv=VectorDim::Zero();
             if(glideForceNorm>FLT_EPSILON)
             {
-                double v =  Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),this->glidePlaneNormal);
+                double v =  (this->grainBoundarySet.size()==1) ? (*(this->grainBoundarySet.begin()))->grainBoundaryType().gbMobility.velocity(stressGauss[k],Burgers,rlgauss.col(k),this->glidePlaneNormal,Material<Isotropic>::T) :
+                /*                                              */ Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),this->glidePlaneNormal);
                 assert(v>= 0.0 && "Velocity must be a positive scalar");
                 const bool useNonLinearVelocity=true;
                 if(useNonLinearVelocity && v>FLT_EPSILON)

@@ -31,12 +31,16 @@ namespace model
         {
             incident=0,
             parallel=1,
-            coincident=2
+            coincident=2,
+            offLattice=3
         };
-        
         const LatticeDirection<3> d;
-        const IntersectionType intersectionType;
         const LatticeVector<3> P;
+        const bool L1contains;
+        const bool L2contains;
+        
+        const IntersectionType intersectionType;
+        
         
         
 
@@ -83,8 +87,8 @@ namespace model
                 }
             }
             
-            assert((temp-p1).dot(n1)==0);
-            assert((temp-p2).dot(n2)==0);
+            //assert((temp-p1).dot(n1)==0);
+            //assert((temp-p2).dot(n2)==0);
 
             
             return temp;
@@ -97,9 +101,12 @@ namespace model
         /**********************************************************************/
         PlanePlaneIntersection(const LatticePlane& plane1, const LatticePlane& plane2) :
         /* init */ d(plane1.n,plane2.n),
-        /* init */ intersectionType(d.squaredNorm()? incident : ((plane1.P-plane2.P).dot(plane1.n)? parallel : coincident)),
+        /* init */ P(d.squaredNorm()? midPoint(plane1,plane2,d) : ((plane1.P-plane2.P).dot(plane1.n)==0? plane1.P : LatticeVector<3>(VectorDimI::Zero(),plane1.P.covBasis,plane1.P.contraBasis))),
+        /* init */ L1contains((P-plane1.P).dot(plane1.n)==0),
+        /* init */ L2contains((P-plane2.P).dot(plane2.n)==0),
+        /* init */ intersectionType(d.squaredNorm()*L1contains*L2contains? incident : d.squaredNorm()? offLattice : ((plane1.P-plane2.P).dot(plane1.n)? parallel : coincident))
 //        /* init */ P(intersectionType==incident? midPoint(plane1.P,plane1.n,plane2.P,plane2.n,d) : (intersectionType==coincident? plane1.P : LatticeVector<3>(VectorDimI::Zero(),plane1.P.covBasis,plane1.P.contraBasis)))
-        /* init */ P(intersectionType==incident? midPoint(plane1,plane2,d) : (intersectionType==coincident? plane1.P : LatticeVector<3>(VectorDimI::Zero(),plane1.P.covBasis,plane1.P.contraBasis)))
+        
         {
 
         }

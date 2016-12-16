@@ -160,7 +160,7 @@ namespace model
         
         
         /**********************************************************************/
-        std::pair<size_t,size_t> junctionIDs(const LinkType& L,const double& u,const double& dx)
+        std::pair<size_t,size_t> junctionIDs(const LinkType& L,const double& u,const double& dx) __attribute__ ((deprecated)) // USE SEARCH REGION!!
         {
             const int dx2=pow(dx,2);
             
@@ -202,6 +202,8 @@ namespace model
                 
                 bool insideMeshM=true;
                 bool insideMeshP=true;
+                bool insideRegionM=true;
+                bool insideRegionP=true;
                 if(DN.shared.use_boundary)
                 {
                     const Simplex<dim,dim>* S(source.includingSimplex());
@@ -221,6 +223,33 @@ namespace model
                         Pp=L.glidePlane.snapToLattice(source.get_P()*(1.0-up)+sink.get_P()*up);
                         insideMeshP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).first;
                     }
+                    
+                    insideRegionM=DN.shared.mesh.searchWithGuess(Pm.cartesian(),S).second->region->regionID==source.grain.grainID;
+                    if(!insideRegionM)
+                    {
+                        //Pp=source.get_P()*(1.0-up)+sink.get_P()*up;
+                        if(source.isGrainBoundaryNode())
+                        {
+				                    PlanePlaneIntersection ppi(source.grainBoundaryPlane(),L.glidePlane);
+				                    LatticeLine gbLine(ppi.P,ppi.d);
+				                    Pm=gbLine.snapToLattice(source.get_P()*(1.0-up)+sink.get_P()*up);
+				                    insideRegionM=DN.shared.mesh.searchWithGuess(Pm.cartesian(),S).second->region->regionID==source.grain.grainID;
+				                }
+                    }
+                    insideRegionP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).second->region->regionID==source.grain.grainID;
+                    if(!insideRegionP)
+                    {
+                        //Pp=source.get_P()*(1.0-up)+sink.get_P()*up;
+                        if(source.isGrainBoundaryNode())
+                        {
+				                    PlanePlaneIntersection ppi(source.grainBoundaryPlane(),L.glidePlane);
+				                    LatticeLine gbLine(ppi.P,ppi.d);
+				                    Pp=gbLine.snapToLattice(source.get_P()*(1.0-up)+sink.get_P()*up);
+				                    insideRegionP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).second->region->regionID==source.grain.grainID;
+				                }
+                    }
+                    
+                    
                 }
                 
                 //                if(   (Pm-source.get_P()).squaredNorm()>dx2
@@ -242,7 +271,9 @@ namespace model
                    && (Pm-Pp).cartesian().squaredNorm()>dx2
                    && (Pp.cartesian()-  sink.get_P()).squaredNorm()>dx2
                    && insideMeshM
-                   && insideMeshP)
+                   && insideMeshP
+                   &&	insideRegionM
+                   &&	insideRegionP)
                 {
                     //std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(source.sID,sink.sID,Pm);
                     im=DN.expand(source.sID,sink.sID,Pm).first->first; // id of the node obtained expanding L1

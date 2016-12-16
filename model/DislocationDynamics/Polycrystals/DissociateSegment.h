@@ -36,6 +36,8 @@ namespace model
     {
         
         static constexpr int dim=DislocationSegmentType::dim;
+        static constexpr double dissociateDistance=5.0;
+
         typedef typename DislocationSegmentType::VectorDim VectorDim;
         typedef LatticeVector<DislocationSegmentType::dim> LatticeVectorType;
         
@@ -91,7 +93,7 @@ namespace model
                 {
                     dir*=-1.0;
                 }
-                dissociateMidpoint=primitiveMap.begin()->second.second->latticePlane(ds.grain.grainID).snapToLattice(0.5*(ds.source->get_P()+ds.sink->get_P())+dir*10.0);
+                dissociateMidpoint=primitiveMap.begin()->second.second->latticePlane(ds.grain.grainID).snapToLattice(0.5*(ds.source->get_P()+ds.sink->get_P())+dir*dissociateDistance);
             }
             
         }

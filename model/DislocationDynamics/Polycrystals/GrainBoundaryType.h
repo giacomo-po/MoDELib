@@ -15,6 +15,7 @@
 #include <deque>
 #include <model/LatticeMath/LatticeDirection.h>
 #include <model/Math/CompileTimeMath/PermutationWithoutRepetition.h>
+#include <model/DislocationDynamics/MobilityLaws/GrainBoundaryMobility.h>
 
 
 namespace model
@@ -64,24 +65,27 @@ namespace model
         const std::deque<Eigen::Matrix<double,dim,1>> axisPermutations;
         const std::deque<Eigen::Matrix<double,dim,1>> n1Permutations;
         const std::deque<Eigen::Matrix<double,dim,1>> n2Permutations;
-        
+        const GrainBoundaryMobility gbMobility;
         
         
         /**********************************************************************/
+        template<typename CrystalStructureType>
         GrainBoundaryType(const std::string& name_in,
                           const VectorDimD& axis,
                           const VectorDimD& n1,
                           const VectorDimD& n2,
                           const double& energy_in,
                           const double& spacing_in,
-                          const double& b_in) :
+                          const double& b_in,
+                          const DislocationMobility<CrystalStructureType>& dm) :
         /* init list */ name(name_in),
         /* init list */ energyDensity(energy_in),
         /* init list */ dislocationSpacing(spacing_in),
         /* init list */ Burgers(b_in),
         /* init list */ axisPermutations(reducePermutations(PermutationWithoutRepetition<dim>::permuteWithPlusMinusSign(axis))),
         /* init list */ n1Permutations(reducePermutations(PermutationWithoutRepetition<dim>::permuteWithPlusMinusSign(n1))),
-        /* init list */ n2Permutations(reducePermutations(PermutationWithoutRepetition<dim>::permuteWithPlusMinusSign(n2)))
+        /* init list */ n2Permutations(reducePermutations(PermutationWithoutRepetition<dim>::permuteWithPlusMinusSign(n2))),
+        /* init list */ gbMobility(dm,dislocationSpacing,energyDensity)
         {
             assert(energyDensity>=0.0);
             assert(dislocationSpacing>0.0);
