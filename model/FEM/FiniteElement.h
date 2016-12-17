@@ -111,6 +111,8 @@ namespace model
                     assert(temp1.second && "UNABLE TO INSERT ELEMENT IN NODE.");
                 }
             }
+            
+            assert(mesh2femIDmap().size==SimplexObserver<dim,0>::size() && "mesh2femIDmap has wrong size.");
 //            for (typename SimplicialMesh<dim>::const_iterator eIter=mesh.begin();eIter!=mesh.end();++eIter)
 //            {
 //                auto temp=ElementContainerType::emplace(eIter->first,ElementType(eIter->second,*this,*this));
