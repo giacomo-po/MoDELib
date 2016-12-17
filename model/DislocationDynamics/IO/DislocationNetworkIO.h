@@ -340,7 +340,8 @@ namespace model
                             }
                             
                             // Sum FEM solution
-                            nodeDisp+=DN.shared.bvpSolver.displacement().dofs(node.gID);
+                            const size_t femID=DN.shared().bvpSolver.fe.mesh2femIDmap().at(node.gID)->gID;
+                            nodeDisp+=DN.shared.bvpSolver.displacement().dofs(femID);
                             
                             // output
                             d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";

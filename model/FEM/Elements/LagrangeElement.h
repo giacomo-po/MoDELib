@@ -206,7 +206,9 @@ namespace model
         /**********************************************************************/
         LagrangeElement(const Simplex<dim,dim>& s,
                         std::deque<NodeType>& nodeContainer,
-                        std::map<Eigen::Matrix<double,dim,1>, NodeType* const, CompareVectorsByComponent<double,dim,float> >& nodeFinder) :
+                        std::map<Eigen::Matrix<double,dim,1>, NodeType* const,
+                        CompareVectorsByComponent<double,dim,float> >& nodeFinder,
+                        std::map<size_t,const NodeType* const>& mesh2femIDmap) :
         /* init list */ simplex(s)
         {/*!@param[in] s A const reference to a Simplex<dim,dim>
           */
@@ -237,11 +239,23 @@ namespace model
 
                     const bool success(nodeFinder.insert(std::make_pair(P,pN)).second); // insert pointer in nodeFinder
                     assert(success && "NODE NOT INSERTED");
+                    
+                    size_t maxID=0;
+                    const double maxVal(baryNodalCoordinates.row(n).maxCoeff(&maxID));
+                    if(maxVal==1.0)
+                    {
+                        mesh2femIDmap.emplace(simplex.vertices()[maxID]->xID(0),pN);
+                    }
+                    
                 }
                 
                 this->emplace_back(pN); // add node to this
                 
                 Xe.col(n)=P; // insert node poision in matrix Xe
+                
+                
+
+                
             }
             
         }

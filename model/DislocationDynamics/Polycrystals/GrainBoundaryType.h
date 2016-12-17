@@ -85,7 +85,7 @@ namespace model
         /* init list */ name(name_in),
         /* init list */ FrankBilby_dislocationSpacing(0.0),
         /* init list */ dislocationSpacing(spacing_in),
-        /* init list */ ReadShockley_energyDensity(0.0),
+        /* init list */ ReadShockley_energyDensity(0.0), // see Balluffi's book p. 358
         /* init list */ energyDensity(energy_in),
         /* init list */ Burgers(b_in),
         /* init list */ axisPermutations(reducePermutations(PermutationWithoutRepetition<dim>::permuteWithPlusMinusSign(axis))),

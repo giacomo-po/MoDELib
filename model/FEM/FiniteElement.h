@@ -46,7 +46,8 @@ namespace model
     /*                                  */ typename _ElementType::NodeType* const, // value
     /*                                  */ CompareVectorsByComponent<double,_ElementType::dim,float> // key compare
     /*                                  */ >, // nodefinder
-    /* inherits        */ private std::map<size_t,std::deque<const typename _ElementType::NodeType*>> // node-list container
+    /* inherits        */ private std::map<size_t,std::deque<const typename _ElementType::NodeType*>>,// node-list container
+    /* inherits        */ private std::map<size_t,const typename _ElementType::NodeType* const>
     {
         
     private:
@@ -100,7 +101,7 @@ namespace model
             // Insert elements
             for (const auto& simpl : mesh.simplices())
             {
-                auto temp=ElementContainerType::emplace(simpl.first,ElementType(simpl.second,*this,*this));
+                auto temp=ElementContainerType::emplace(simpl.first,ElementType(simpl.second,*this,*this,mesh2femIDmap()));
                 assert(temp.second && "UNABLE TO INSERT ELEMENT IN ELEMENT CONTAINER.");
                 
                 // Add element pointer to each of its nodes
@@ -267,6 +268,18 @@ namespace model
         IntegrationDomain<FiniteElementType,0,qOrder,QuadratureRule> domain() const
         {
             return DomainType::template domain<FiniteElementType,qOrder,QuadratureRule>(*this);
+        }
+        
+        /**********************************************************************/
+        const std::map<size_t,const typename _ElementType::NodeType* const>& mesh2femIDmap() const
+        {
+            return *this;
+        }
+
+        /**********************************************************************/
+        std::map<size_t,const typename _ElementType::NodeType* const>& mesh2femIDmap()
+        {
+            return *this;
         }
         
 //        /**********************************************************************/
