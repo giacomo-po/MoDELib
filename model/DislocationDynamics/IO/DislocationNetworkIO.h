@@ -307,8 +307,8 @@ namespace model
             {
                 if(DN.shared.use_bvp)
                 {
-                    if (!(DN.runningID()%DN.shared.use_bvp))
-                    {
+//                    if (!(DN.runningID()%DN.shared.use_bvp))
+//                    {
                         model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
                         model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
                         model::SequentialOutputFile<'D',true> d_file;
@@ -346,7 +346,7 @@ namespace model
                             // output
                             d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
                         }
-                    }
+//                    }
                 }
 //                else if(DN.shared.use_boundary)
 //                {
