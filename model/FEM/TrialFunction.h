@@ -314,6 +314,14 @@ namespace model
         }
         
         /**********************************************************************/
+        Eigen::Matrix<double,dofPerNode,1> dofs(const size_t& gID) const
+        {/*!@param[in] node the FEM node
+          * \returns A vector of the degrees of freedom of the node
+          */
+            return dofvector.template segment<dofPerNode>(gID*dofPerNode);
+        }
+        
+        /**********************************************************************/
         Eigen::Matrix<double,dofPerElement,1> dofs(const ElementType& ele) const
         {/*!@param[in] ele the element
           * \returns A vector of the degrees of freedom of *this on ele

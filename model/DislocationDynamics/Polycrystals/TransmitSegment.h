@@ -47,6 +47,7 @@ namespace model
 //        DislocationSharedObjects<dim> shared;
         const size_t sourceID;
         const size_t sinkID;
+        const LatticeVectorType originalBurgers;
         bool isValidTransmission;
         VectorDim transmitSourceP;
         VectorDim transmitSinkP;
@@ -60,6 +61,7 @@ namespace model
         TransmitSegment(const DislocationSegmentType& ds) :
         /* init list */ sourceID(ds.source->sID),
         /* init list */ sinkID(ds.sink->sID),
+        /* init list */ originalBurgers(ds.flow),
 //        /* init list */ grain(ds.grain),
         /* init list */ isValidTransmission(false),
         /* init list */ transmitSourceP(ds.source->get_P()),
@@ -81,41 +83,46 @@ namespace model
             for(const auto& gb : ds.grainBoundarySet)
             {
 
-                const size_t otherGrainID=(gb->grainBndID.first==ds.grain.grainID)? gb->grainBndID.second : gb->grainBndID.first;
-                for(const auto& slipSystem : gb->grain(otherGrainID).slipSystems())
-                {
-                    //                const std::pair<LatticeVectorType,LatticeVectorType>& primitiveVectors(gb->latticePlane(ds.grain.grainID).n.primitiveVectors);
-                    if(fabs(slipSystem.n.cartesian().dot(chord))<FLT_EPSILON) // slip system contains chord
-                    {
-                        const VectorDim pkForce=(ds.midPointStress()*slipSystem.s.cartesian()).cross(-chord.normalized());
-                        
-                        if(pkForce.dot(gb->latticePlane(otherGrainID).n.cartesian())<0.0) // PK force points inside the grain
-                        {
-                            const VectorDim b2=slipSystem.s.cartesian();
+                //const size_t otherGrainID=(gb->grainBndID.first==ds.grain.grainID)? gb->grainBndID.second : gb->grainBndID.first;
+                std::deque<int> gbIDdeq;
+                gbIDdeq.push_back(gb->grainBndID.first);
+                gbIDdeq.push_back(gb->grainBndID.second);
 
-                            const double theta=acos(gb->rotationAxis().normalized().dot(chord.normalized()));
+                for(const int& otherGrainID : gbIDdeq)
+                {
+                    for(const auto& slipSystem : gb->grain(otherGrainID).slipSystems())
+                    {
+                        //                const std::pair<LatticeVectorType,LatticeVectorType>& primitiveVectors(gb->latticePlane(ds.grain.grainID).n.primitiveVectors);
+                        if(fabs(slipSystem.n.cartesian().dot(chord))<FLT_EPSILON) // slip system contains chord
+                        {
+                            const VectorDim pkForce=(ds.midPointStress()*slipSystem.s.cartesian()).cross(-chord.normalized());
                             
-                            assert(theta>FLT_EPSILON && "PARALLEL DISLOCATION AND GB-DISLOCATION");
-                            
-                            const double R=0.5*(gb->grainBoundaryType().dislocationSpacing/sin(theta));
-                            
-                            const double tau2= (pkForce-pkForce.dot(slipSystem.n.cartesian())*slipSystem.n.cartesian()).norm();
-                            
-                            
-                            const double deltaE = alpha*(2.0*R*(b1+b2).squaredNorm()+M_PI*R*b2.squaredNorm()-2.0*R*b1.squaredNorm()); // elastic energy change using line tension
-                            const double deltaEgb=0.0;
-                            const double work = tau2*0.5*M_PI*R*R*b2.norm(); // work done in loop expansion
-                            
-                            std::cout<<"deltaE="<<deltaE<<std::endl;
-                            std::cout<<"work="<<work<<std::endl;
-                            
-                            
-                            slipSystemMap.emplace(deltaE+deltaEgb-work,std::make_pair(slipSystem,gb));
+                            if(pkForce.dot(gb->latticePlane(otherGrainID).n.cartesian())<0.0) // PK force points inside the grain
+                            {
+                                const VectorDim b2=slipSystem.s.cartesian();
+                                
+                                const double theta=acos(gb->rotationAxis().normalized().dot(chord.normalized()));
+                                
+                                assert(theta>FLT_EPSILON && "PARALLEL DISLOCATION AND GB-DISLOCATION");
+                                
+                                const double R=0.5*(gb->grainBoundaryType().dislocationSpacing/sin(theta));
+                                
+                                const double tau2= (pkForce-pkForce.dot(slipSystem.n.cartesian())*slipSystem.n.cartesian()).norm();
+                                
+                                
+                                const double deltaE = alpha*(2.0*R*(b1+b2).squaredNorm()+M_PI*R*b2.squaredNorm()-2.0*R*b1.squaredNorm()); // elastic energy change using line tension
+                                const double deltaEgb=0.0;
+                                const double work = tau2*0.5*M_PI*R*R*b2.norm(); // work done in loop expansion
+                                
+                                std::cout<<"deltaE="<<deltaE<<std::endl;
+                                std::cout<<"work="<<work<<std::endl;
+                                
+                                
+                                slipSystemMap.emplace(deltaE+deltaEgb-work,std::make_pair(slipSystem,gb));
+                            }
                         }
                     }
                 }
-
-                
             }
             
             if(slipSystemMap.size())

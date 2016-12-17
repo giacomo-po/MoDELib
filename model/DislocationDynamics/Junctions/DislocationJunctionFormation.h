@@ -89,7 +89,7 @@ namespace model
         /**********************************************************************/
         //		int junctionDir(const EdgeIntersectionPairType& intersectionPair) const
         int junctionDir(const LinkType& L1, const LinkType& L2,
-                        const double& u1, const double& u2) const
+                        const double& u1, const double& u2) const __attribute__ ((deprecated)) // FIX GB-MESH junctions
         {
             //            const double u1(intersectionPair.first.second);
             //            const double u2(intersectionPair.second.second);

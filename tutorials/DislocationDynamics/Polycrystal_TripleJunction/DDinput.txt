@@ -19,7 +19,7 @@ velocityReductionFactor=0.75;
 outputFrequency=1;
 outputBinary=1;
 outputGlidePlanes=0;
-outputSpatialCells=1;
+outputSpatialCells=0;
 outputPKforce=1;
 outputQuadratureParticles=1;
 outputElasticEnergy=0;
@@ -37,19 +37,23 @@ material=29;
 ######################################
 # CRYSTAL ORIENTATION
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
-C2G1 = 0.192450089729875  -0.962250448649376  -0.192450089729875
-   0.707106781186547                   0   0.707106781186547
-  -0.680413817439772  -0.272165526975909   0.680413817439772;
+C2G1 = 1  -5  -1
+1 0 1
+-5  -2 5;
+#   0.707106781186547                   0   0.707106781186547
+#  -0.680413817439772  -0.272165526975909   0.680413817439772;
+#C2G1 = 0.192450089729875  -0.962250448649376  -0.192450089729875
+#   0.707106781186547                   0   0.707106781186547
+#  -0.680413817439772  -0.272165526975909   0.680413817439772;
+
+C2G2 =  1 1 -1
+   1 0 1
+   1 -2 -1;
 
 
-C2G2 =  0.577350269189626   0.577350269189626  -0.577350269189626
-   0.707106781186547                   0   0.707106781186547
-   0.408248290463863  -0.816496580927726  -0.408248290463863;
-
-
-C2G3 =    -0.577350269189626   0.577350269189626   0.577350269189626
-   0.707106781186547                   0   0.707106781186547
-   0.408248290463863   0.816496580927726  -0.408248290463863;
+C2G3 =    -1 1 1
+   1 0 1
+   1 2 -1;
 
 ######################################
 # TEMPERATURE in [K]
@@ -95,6 +99,11 @@ collisionTol=3;
 use_boundary=1;
 meshID=0;
 
+######################################
+# GRAIN BOUNDARY FLAGS
+use_GBdissociation=1;
+use_GBtransmission=1;
+use_GBdislocations=0;
 ######################################
 # Enable/disable the image correction solving the elastic Boundary Value Problem. 
 # use_bvp = 0 for no BVP solution

@@ -68,19 +68,31 @@ namespace model
                     {
                         if(gbSegment.isValidTransmission)
                         {
-                            //                     DN.template disconnect<false>(gbSegment.sourceID,gbSegment.sinkID);
-                            //                     DN.connect(gbSegment.sourceID,gbSegment.sinkID,gbSegment.residualBurgers);
+                            const int originalGrainID=DN.link(gbSegment.sourceID,gbSegment.sinkID).second->grain.grainID;
+                            const int      newGrainID=gbSegment.transmitGrain->grainID;
+                            
                             std::cout<<"segment GB ID="<<DN.link(gbSegment.sourceID,gbSegment.sinkID).second->grain.grainID<<std::endl;
-
                             std::cout<<"transmit GB ID="<<gbSegment.transmitGrain->grainID<<std::endl;
-                            const size_t newSourceID(DN.insertVertex(gbSegment.transmitSourceP,gbSegment.transmitGrain->grainID).first->first);
-                            const size_t newSinkID(DN.insertVertex(gbSegment.transmitSinkP,gbSegment.transmitGrain->grainID).first->first);
-                            DN.connect(newSourceID,newSinkID,*gbSegment.transmitBurgers);
-
+                            
+                            size_t newSourceID=gbSegment.sourceID;
+                            size_t newSinkID=gbSegment.sinkID;
+                            
+                            if(originalGrainID==newGrainID)
+                            {
+                                DN.template disconnect<false>(newSourceID,newSinkID);
+                                DN.connect(newSourceID,newSinkID,gbSegment.originalBurgers+*gbSegment.transmitBurgers);
+                            }
+                            else
+                            {
+                                newSourceID=DN.insertVertex(gbSegment.transmitSourceP,gbSegment.transmitGrain->grainID).first->first;
+                                newSinkID=DN.insertVertex(gbSegment.transmitSinkP,gbSegment.transmitGrain->grainID).first->first;
+                                DN.connect(newSourceID,newSinkID,*gbSegment.transmitBurgers);
+                            }
+                            
                             const size_t newMidpointID(DN.insertVertex(gbSegment.transmitMidpoint->cartesian(),gbSegment.transmitGrain->grainID).first->first);
                             DN.connect(newSinkID,newMidpointID,*gbSegment.transmitBurgers);
                             DN.connect(newMidpointID,newSourceID,*gbSegment.transmitBurgers);
-
+                            
                             nTransmitted++;
                         }
                     }

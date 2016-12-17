@@ -21,6 +21,8 @@
 #include <model/MPI/MPIcout.h>
 #include <model/LatticeMath/LatticeMath.h>
 #include <model/LatticeMath/LatticeMath.h>
+#include <model/DislocationDynamics/BVP/BoundaryDisplacementPoint.h>
+
 
 namespace model
 {
@@ -338,8 +340,7 @@ namespace model
                             }
                             
                             // Sum FEM solution
-                            // FINISH HERE
-                            // nodeDisp+=shared.bvpSolver.displacement()
+                            nodeDisp+=DN.shared.bvpSolver.displacement().dofs(node.gID);
                             
                             // output
                             d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
