@@ -619,7 +619,7 @@ namespace model {
 					if (keyStates['r']){
 						radius*=.95;
 					}
-					if (keyStates['q']){
+					if (keyStates['d']){
 						meshPlotter.dispScale*=0.75f;;
 					}
 					if (keyStates['p']){
@@ -641,7 +641,7 @@ namespace model {
 					if (keyStates['r']){
 						radius*=1.05;
 					}
-					if (keyStates['q']){
+					if (keyStates['d']){
 						meshPlotter.dispScale*=1.5f;;
 					}
 					if (keyStates['p']){
