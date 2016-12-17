@@ -320,13 +320,14 @@ namespace model
         
         /**********************************************************************/
         DislocationNode(const VectorDim& Pin,
-                        const int& grainID) :
+                        const int& grainID,
+                        const VectorDofType& Vin=VectorDofType::Zero()) :
         //                        const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
         /* base constructor */ NodeBaseType(Pin),
         /* init list        */ grain(shared.poly.grain(grainID)),
         /* init list        */ L(grain.latticeVector(Pin)),
         /* init list        */ p_Simplex(get_includingSimplex(*grain.region.begin())),
-        /* init list        */ velocity(VectorDofType::Zero()),
+        /* init list        */ velocity(Vin),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
