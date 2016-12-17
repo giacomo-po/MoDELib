@@ -112,7 +112,7 @@ namespace model
                 }
             }
             
-            assert(mesh2femIDmap().size==SimplexObserver<dim,0>::size() && "mesh2femIDmap has wrong size.");
+            assert((mesh2femIDmap().size()==SimplexObserver<dim,0>::size()) && "mesh2femIDmap has wrong size.");
 //            for (typename SimplicialMesh<dim>::const_iterator eIter=mesh.begin();eIter!=mesh.end();++eIter)
 //            {
 //                auto temp=ElementContainerType::emplace(eIter->first,ElementType(eIter->second,*this,*this));
