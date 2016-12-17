@@ -58,8 +58,12 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         
         const std::string name;
-        const double energyDensity;
+
+        const double FrankBilby_dislocationSpacing;
         const double dislocationSpacing;
+        const double ReadShockley_energyDensity;
+        const double energyDensity;
+        
         const double Burgers;//This only refers to the magnitude of the Burgers vector
         
         const std::deque<Eigen::Matrix<double,dim,1>> axisPermutations;
@@ -79,8 +83,10 @@ namespace model
                           const double& b_in,
                           const DislocationMobility<CrystalStructureType>& dm) :
         /* init list */ name(name_in),
-        /* init list */ energyDensity(energy_in),
+        /* init list */ FrankBilby_dislocationSpacing(0.0),
         /* init list */ dislocationSpacing(spacing_in),
+        /* init list */ ReadShockley_energyDensity(0.0),
+        /* init list */ energyDensity(energy_in),
         /* init list */ Burgers(b_in),
         /* init list */ axisPermutations(reducePermutations(PermutationWithoutRepetition<dim>::permuteWithPlusMinusSign(axis))),
         /* init list */ n1Permutations(reducePermutations(PermutationWithoutRepetition<dim>::permuteWithPlusMinusSign(n1))),

@@ -229,6 +229,15 @@ namespace model
             if(p_gbType!=NULL)
             {
                 std::cout<<yellowColor<<"   GB type is "<<p_gbType->name<<defaultColor<<std::endl;
+                std::cout<<yellowColor<<"   GB energy= "<<p_gbType->energyDensity<<defaultColor<<std::endl;
+                std::cout<<yellowColor<<"   GB dislocation spacing= "<<p_gbType->dislocationSpacing<<defaultColor<<std::endl;
+                std::cout<<yellowColor<<"   Frank-Bilby dislocation spacing= "<<p_gbType->FrankBilby_dislocationSpacing<<defaultColor<<std::endl;
+                std::cout<<yellowColor<<"   Read-Shockley_energyDensity= "<<p_gbType->ReadShockley_energyDensity<<defaultColor<<std::endl;
+
+                
+                //
+//                const double energyDensity;
+//                const double dislocationSpacing;
             }
             else
             {

@@ -81,8 +81,6 @@ namespace model
             EDR.readScalarInFile("./DDinput.txt","use_boundary",use_boundary);
             
             
-            
-            
             if (use_boundary)
             {
                 
@@ -103,10 +101,6 @@ namespace model
             unsigned int materialZ;
             EDR.readScalarInFile("./DDinput.txt","material",materialZ); // material by atomic number Z
             Material<Isotropic>::select(materialZ);
-//            MatrixDimD C2Gtemp;
-//            EDR.readMatrixInFile("./DDinput.txt","C2G",C2Gtemp); // crystal-to-global orientation
-//            Material<Isotropic>::rotateCrystal(C2Gtemp);
-            
             
         }
         
@@ -133,14 +127,6 @@ namespace model
                 return randomPointInMesh();
             }
             
-            //            LatticeVector<dim> L0=LatticeBase<dim>::snapToLattice(randomPoint());
-            //            bool inside=mesh.search(L0.cartesian()).first;
-            //            while(!inside)
-            //            {
-            //                L0=LatticeBase<dim>::snapToLattice(randomPoint());
-            //                inside=mesh.search(L0.cartesian()).first;
-            //            }
-            //            return L0;
         }
         
         /**********************************************************************/
