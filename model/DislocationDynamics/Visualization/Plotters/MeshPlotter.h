@@ -335,6 +335,7 @@ namespace model
             if (showMesh>0)
             {
                 float dispCorr(dispScale*(showMesh>1));
+                                
                 glDisable(GL_COLOR_MATERIAL); // use glMaterialfv(...) to set material colors
                 GLfloat materialColor[]={0.0, 0.0, 0.0, 0.1};
                 glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor);      // ambient color for the material

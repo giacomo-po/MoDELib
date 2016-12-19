@@ -19,7 +19,7 @@
 #include <model/DislocationDynamics/Materials/FCCcrystal.h>
 #include <model/DislocationDynamics/Materials/BCCcrystal.h>
 #include <model/DislocationDynamics/Materials/SlipSystem.h>
-#include <model/Math/BestRationalApproximation.h>
+//#include <model/Math/BestRationalApproximation.h>
 
 namespace model
 {
@@ -28,8 +28,8 @@ namespace model
     class GrainBoundary;
     
     template <int dim>
-    class Grain :
-    /* base */ public std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const>
+    class Grain : public Lattice<dim>,
+    /* base    */ public std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const>
     {
         
         //typedef Simplex<dim,dim> SimplexType;
@@ -57,33 +57,33 @@ namespace model
         static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
         static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
         
-        /**********************************************************************/
-        static Eigen::Matrix<long int,dim,1> rationalApproximation(VectorDimD nd)
-        {
-            const Eigen::Array<double,dim,1> nda(nd.array().abs()); // vector of close-to-integer numbers corresponding to lattice coordinates
-            size_t maxID=0;
-            const double maxVal(nda.maxCoeff(&maxID));
-            nd/=maxVal; // make each value of nd in [-1:1]
-            
-            Eigen::Array<long int,dim,1> nums=Eigen::Matrix<long int,dim,1>::Ones();
-            Eigen::Array<long int,dim,1> dens=Eigen::Matrix<long int,dim,1>::Ones();
-            long int denProd=1;
-            
-            for(int k=0;k<dim;++k)
-            {
-                BestRationalApproximation bra(nd(k),100);
-                
-                nums(k)=bra.num;
-                dens(k)=bra.den;
-                denProd*=bra.den;
-            }
-            
-            for(int k=0;k<dim;++k)
-            {
-                nums(k)*=(denProd/dens(k));
-            }
-            return nums.matrix();
-        }
+//        /**********************************************************************/
+//        static Eigen::Matrix<long int,dim,1> rationalApproximation(VectorDimD nd)
+//        {
+//            const Eigen::Array<double,dim,1> nda(nd.array().abs()); // vector of close-to-integer numbers corresponding to lattice coordinates
+//            size_t maxID=0;
+//            const double maxVal(nda.maxCoeff(&maxID));
+//            nd/=maxVal; // make each value of nd in [-1:1]
+//            
+//            Eigen::Array<long int,dim,1> nums=Eigen::Matrix<long int,dim,1>::Ones();
+//            Eigen::Array<long int,dim,1> dens=Eigen::Matrix<long int,dim,1>::Ones();
+//            long int denProd=1;
+//            
+//            for(int k=0;k<dim;++k)
+//            {
+//                BestRationalApproximation bra(nd(k),100);
+//                
+//                nums(k)=bra.num;
+//                dens(k)=bra.den;
+//                denProd*=bra.den;
+//            }
+//            
+//            for(int k=0;k<dim;++k)
+//            {
+//                nums(k)*=(denProd/dens(k));
+//            }
+//            return nums.matrix();
+//        }
         
         /**********************************************************************/
         void setLatticeBasis()
@@ -114,19 +114,20 @@ namespace model
                     break;
             }
             
-            _covBasis=C2G*A;
-            _contraBasis=_covBasis.inverse().transpose();
-            
-            std::cout<<"Lattice basis (in columns) =\n"<<_covBasis<<std::endl;
-            std::cout<<"Lattice reciprocal basis (in columns) =\n"<<_contraBasis<<std::endl;
+            Lattice<dim>::setLatticeBasis(C2G*A);
+//            _covBasis=C2G*A;
+//            _contraBasis=_covBasis.inverse().transpose();
+//            
+//            std::cout<<"Lattice basis (in columns) =\n"<<_covBasis<<std::endl;
+//            std::cout<<"Lattice reciprocal basis (in columns) =\n"<<_contraBasis<<std::endl;
         }
         
         PlaneNormalContainerType planeNormalContainer;
         SlipSystemContainerType slipSystemContainer;
         
         //! The static column matrix of lattice vectors
-        MatrixDimD    _covBasis;
-        MatrixDimD _contraBasis;
+//        MatrixDimD    _covBasis;
+//        MatrixDimD _contraBasis;
         
         Eigen::Matrix<double,dim,dim> C2G;
         
@@ -140,8 +141,8 @@ namespace model
         
         /**********************************************************************/
         Grain(const MeshRegionType& region_in) :
-        /* init */ _covBasis(MatrixDimD::Identity()),
-        /* init */ _contraBasis(MatrixDimD::Identity()),
+//        /* init */ _covBasis(MatrixDimD::Identity()),
+//        /* init */ _contraBasis(MatrixDimD::Identity()),
         /* init */ C2G(Eigen::Matrix<double,dim,dim>::Identity()),
         /* init */ materialZ(29),
         /* init */ region(region_in),
@@ -168,20 +169,20 @@ namespace model
             switch (materialZ)
             {
                 case Al.Z:
-                    planeNormalContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
-                    slipSystemContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::slipSystems(_covBasis,_contraBasis);
+                    planeNormalContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(this->covBasis(),this->contraBasis());
+                    slipSystemContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::slipSystems(this->covBasis(),this->contraBasis());
                     break;
                 case Ni.Z:
-                    planeNormalContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
-                    slipSystemContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::slipSystems(_covBasis,_contraBasis);
+                    planeNormalContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(this->covBasis(),this->contraBasis());
+                    slipSystemContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::slipSystems(this->covBasis(),this->contraBasis());
                     break;
                 case Cu.Z:
-                    planeNormalContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
-                    slipSystemContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::slipSystems(_covBasis,_contraBasis);
+                    planeNormalContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(this->covBasis(),this->contraBasis());
+                    slipSystemContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::slipSystems(this->covBasis(),this->contraBasis());
                     break;
                 case W.Z:
-                    planeNormalContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(_covBasis,_contraBasis);
-                    slipSystemContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::slipSystems(_covBasis,_contraBasis);
+                    planeNormalContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(this->covBasis(),this->contraBasis());
+                    slipSystemContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::slipSystems(this->covBasis(),this->contraBasis());
                     break;
                     //                case Fe:
                     //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
@@ -221,46 +222,46 @@ namespace model
             model::cout<<defaultColor<<std::endl;
         }
         
-        /**********************************************************************/
-        LatticeVectorType snapToLattice(const VectorDimD& d) const
-        {
-            VectorDimD nd(_contraBasis.transpose()*d);
-            return LatticeVectorType(RoundEigen<double,dim>::round(nd).template cast<long int>(),_covBasis,_contraBasis);
-        }
+//        /**********************************************************************/
+//        LatticeVectorType snapToLattice(const VectorDimD& d) const
+//        {
+//            VectorDimD nd(_contraBasis.transpose()*d);
+//            return LatticeVectorType(RoundEigen<double,dim>::round(nd).template cast<long int>(),_covBasis,_contraBasis);
+//        }
         
-        /**********************************************************************/
-        LatticeDirectionType latticeDirection(const VectorDimD& d) const
-        {
-            
-            const VectorDimD nd(_contraBasis.transpose()*d);
-            const LatticeVectorType temp(rationalApproximation(nd),_covBasis,_contraBasis);
-            
-            if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
-            {
-                std::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
-                std::cout<<"lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
-                assert(0 && "LATTICE DIRECTION NOT FOUND");
-            }
-            
-            return LatticeDirectionType(temp);
-        }
+//        /**********************************************************************/
+//        LatticeDirectionType latticeDirection(const VectorDimD& d) const
+//        {
+//            
+//            const VectorDimD nd(_contraBasis.transpose()*d);
+//            const LatticeVectorType temp(rationalApproximation(nd),_covBasis,_contraBasis);
+//            
+//            if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
+//            {
+//                std::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
+//                std::cout<<"lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
+//                assert(0 && "LATTICE DIRECTION NOT FOUND");
+//            }
+//            
+//            return LatticeDirectionType(temp);
+//        }
         
-        /**********************************************************************/
-        ReciprocalLatticeDirectionType reciprocalLatticeDirection(const VectorDimD& d) const
-        {
-            
-            const VectorDimD nd(_covBasis.transpose()*d);
-            const ReciprocalLatticeVectorType temp(rationalApproximation(nd),_covBasis,_contraBasis);
-            
-            if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
-            {
-                std::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
-                std::cout<<"reciprocal lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
-                assert(0 && "RECIPROCAL LATTICE DIRECTION NOT FOUND");
-            }
-            
-            return ReciprocalLatticeDirectionType(temp);
-        }
+//        /**********************************************************************/
+//        ReciprocalLatticeDirectionType reciprocalLatticeDirection(const VectorDimD& d) const
+//        {
+//            
+//            const VectorDimD nd(_covBasis.transpose()*d);
+//            const ReciprocalLatticeVectorType temp(rationalApproximation(nd),_covBasis,_contraBasis);
+//            
+//            if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
+//            {
+//                std::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
+//                std::cout<<"reciprocal lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
+//                assert(0 && "RECIPROCAL LATTICE DIRECTION NOT FOUND");
+//            }
+//            
+//            return ReciprocalLatticeDirectionType(temp);
+//        }
         
         /**********************************************************************/
         std::pair<LatticePlane,LatticePlane> find_confiningPlanes(const LatticeVectorType& sourceL,
@@ -497,29 +498,29 @@ namespace model
             return temp;
         }
         
-        /**********************************************************************/
-        const MatrixDimD& covBasis() const
-        {
-            return _covBasis;
-        }
+//        /**********************************************************************/
+//        const MatrixDimD& covBasis() const
+//        {
+//            return _covBasis;
+//        }
+//        
+//        /**********************************************************************/
+//        const MatrixDimD& contraBasis() const
+//        {
+//            return _contraBasis;
+//        }
         
-        /**********************************************************************/
-        const MatrixDimD& contraBasis() const
-        {
-            return _contraBasis;
-        }
-        
-        /**********************************************************************/
-        LatticeVectorType latticeVector(const VectorDimD& p) const
-        {
-            return LatticeVectorType(p,_covBasis,_contraBasis);
-        }
-        
-        /**********************************************************************/
-        ReciprocalLatticeVectorType reciprocalLatticeVector(const VectorDimD& p) const
-        {
-            return ReciprocalLatticeVectorType(p,_covBasis,_contraBasis);
-        }
+//        /**********************************************************************/
+//        LatticeVectorType latticeVector(const VectorDimD& p) const
+//        {
+//            return LatticeVectorType(p,_covBasis,_contraBasis);
+//        }
+//        
+//        /**********************************************************************/
+//        ReciprocalLatticeVectorType reciprocalLatticeVector(const VectorDimD& p) const
+//        {
+//            return ReciprocalLatticeVectorType(p,_covBasis,_contraBasis);
+//        }
         
         /**********************************************************************/
         const MatrixDimD& get_C2G() const

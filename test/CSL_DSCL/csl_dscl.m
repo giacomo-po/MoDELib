@@ -4,7 +4,7 @@ clc
 Ap=eye(3);
 Af=[0 1 1;
    1 0 1;
-   1 1 0]/2;
+   1 1 0]/sqrt(2);
 
 A=Ap;
 
@@ -15,12 +15,66 @@ A=Ap;
 Q=[5 0 0;0 4 -3; 0 3 4]
 p=5
 R=Q/p;
+% Lord 2006
+%W=p*(inv(A)*R*A-eye(3))
+%B=[p*eye(3) inv(A)*Q*A]
+
+B=[A R*A]
+
+%return
+%if(norm(B-round(B))>1e-7)
+%error('B is not integer')
+%end
+%B=round(B);
+M=B'*B
+
+step=0;
+while 1
+    
+absMabV=0;
+colA=0;
+colB=0;
+sg=0;
+
+    for a=1:size(M,1)
+    for b=1:size(M,2)
+        absMab=abs(M(a,b));
+        if(b~=a && 2*absMab>M(a,a) && M(a,a)<=M(b,b) && absMab>absMabV)
+        absMabV=absMab;
+            %M1(:,a)= M1(:,a)-sign(M(a,b))*M1(:,b)
+        colA=a;
+        colB=b;
+        sg=sign(M(a,b));
+        end
+    end
+    end
+if(colA>0)
+    absMabV
+colA
+colB
+sg
+    B(:,colA)= B(:,colA)-sg*B(:,colB);
+    if(norm(B(:,colA))==0)
+    B=B(:,setdiff([1:size(B,2)],colA));
+    end
+    step
+    B
+    M=B'*B
+step=step+1
+else
+    break;
+end
+pause(1)
+end
+
+
+return
 A1=R*A;
-s=[0 1 0]';
-n=[0 0 1]';
+s=[1/2 0 0]';
+n=[0 1/2 1/2]';
 U=eye(3)+s*n';
 %U=[1 0 1;0 1 0;0 1 1];
-det(U)
+detU=det(U)
 
 T=eye(3)-U*inv(A)*R'*A
 sigma=2/det(T)
