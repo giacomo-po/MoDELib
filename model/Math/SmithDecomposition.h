@@ -14,29 +14,27 @@
 #include <assert.h>
 #include <Eigen/Core>
 
-/* see GEORGE HAVAS† AND BOHDAN S. MAJEWSKI, Integer Matrix Diagonalization,
- * J. Symbolic Computation (1997) 24, 399–408
- */
+
 
 namespace model
 {
     template <int N>
     class SmithDecomposition
     {
-        
-        typedef Eigen::Matrix<int,N,N> MatrixNi;
+        typedef long long int IntValueType;
+        typedef Eigen::Matrix<IntValueType,N,N> MatrixNi;
         
         /**********************************************************************/
-        static int gcd(const size_t& a,const size_t& b)
+        static IntValueType gcd(const IntValueType& a,const IntValueType& b)
         {
             return b>0? gcd(b, a % b) : a;
         }
         
         /**********************************************************************/
         template <typename Derived>
-        static int gcd(const Eigen::MatrixBase<Derived>& v)
+        static IntValueType gcd(const Eigen::MatrixBase<Derived>& v)
         {
-            int g=v(0);
+            IntValueType g=v(0);
             for(int n=1;n<v.size();++n)
             {
                 g=gcd(g,v(n));
@@ -64,7 +62,7 @@ namespace model
         void  row_signChange(const int& ID)
         {/* unimodular matrix changing the sign of row/col ID
           */
-            Eigen::Matrix<int,N,N> T(Eigen::Matrix<int,N,N>::Identity());
+            MatrixNi T(MatrixNi::Identity());
             T(ID,ID)=-1;
             U=T*U;
             D=T*D;
@@ -74,7 +72,7 @@ namespace model
         void  col_signChange(const int& ID)
         {/* unimodular matrix changing the sign of row/col ID
           */
-            Eigen::Matrix<int,N,N> T(Eigen::Matrix<int,N,N>::Identity());
+            MatrixNi T(MatrixNi::Identity());
             T(ID,ID)=-1;
             V=V*T;
             D=D*T;
@@ -84,7 +82,7 @@ namespace model
         void row_swap(const int& i, const int& j)
         {/* unimodular matrix swapping rows/cols i and j
           */
-            Eigen::Matrix<int,N,N> T(Eigen::Matrix<int,N,N>::Identity());
+            MatrixNi T(MatrixNi::Identity());
             T(i,i)=0;
             T(j,j)=0;
             T(i,j)=1;
@@ -97,7 +95,7 @@ namespace model
         void col_swap(const int& i, const int& j)
         {/* unimodular matrix swapping rows/cols i and j
           */
-            Eigen::Matrix<int,N,N> T(Eigen::Matrix<int,N,N>::Identity());
+            MatrixNi T(MatrixNi::Identity());
             T(i,i)=0;
             T(j,j)=0;
             T(i,j)=1;
@@ -107,22 +105,22 @@ namespace model
         }
         
         /**********************************************************************/
-        void row_add_multiply(const int& i, const int& j,const int& n)
+        void row_add_multiply(const int& i, const int& j,const IntValueType& n)
         {/* unimodular matrix adding n times row (col) j to row (col) i
           */
             // note that add applied to colums needs transpose!
-            Eigen::Matrix<int,N,N> T(Eigen::Matrix<int,N,N>::Identity());
+            MatrixNi T(MatrixNi::Identity());
             T(i,j)=n;
             U=T*U;
             D=T*D;
         }
         
         /**********************************************************************/
-        void col_add_multiply(const int& i, const int& j,const int& n)
+        void col_add_multiply(const int& i, const int& j,const IntValueType& n)
         {/* unimodular matrix adding n times row (col) j to row (col) i
           */
             // note that add applied to colums needs transpose!
-            Eigen::Matrix<int,N,N> T(Eigen::Matrix<int,N,N>::Identity());
+            MatrixNi T(MatrixNi::Identity());
             T(j,i)=n;
             V=V*T;
             D=D*T;
@@ -136,8 +134,8 @@ namespace model
             int j=1;
             while (j<N)
             {
-                const int r=D(0,j)%D(0,0);
-                const int q=D(0,j)/D(0,0);
+                const IntValueType r=D(0,j)%D(0,0);
+                const IntValueType q=D(0,j)/D(0,0);
                 if(r)
                 {
                     col_add_multiply(j,0,-q);
@@ -161,8 +159,8 @@ namespace model
             int j=1;
             while (j<N)
             {
-                const int r=D(j,0)%D(0,0);
-                const int q=D(j,0)/D(0,0);
+                const IntValueType r=D(j,0)%D(0,0);
+                const IntValueType q=D(j,0)/D(0,0);
                 if(r)
                 {
                     row_add_multiply(j,0,-q);
@@ -183,13 +181,22 @@ namespace model
         MatrixNi V;
         
     public:
+
+//        /**********************************************************************/
+//        SmithDecomposition(const Eigen::Matrix<int,N,N>& A) :
+//        /* delegate constructor */ SmithDecomposition(A.template cast<IntValueType>())
+//        {
+//        }
         
         /**********************************************************************/
-        SmithDecomposition(const Eigen::Matrix<int,N,N>& A) :
-        /* init */ U(Eigen::Matrix<int,N,N>::Identity()),
+        SmithDecomposition(const MatrixNi& A) :
+        /* init */ U(MatrixNi::Identity()),
         /* init */ D(A),
-        /* init */ V(Eigen::Matrix<int,N,N>::Identity())
-        {
+        /* init */ V(MatrixNi::Identity())
+        {/*! The algorithm follows section 2 in GEORGE HAVAS AND BOHDAN S. MAJEWSKI,
+          * Integer Matrix Diagonalization,
+          * J. Symbolic Computation (1997) 24, 399–408.
+          */
             
             // Find a non-zero value of A and make it D(0,0)
             std::pair<int,int> ij=findNonZero(D);
@@ -228,22 +235,30 @@ namespace model
                     col_add_multiply(j,0,-q);
                 }
                 
-                std::cout<<matrixD()<<std::endl<<std::endl;
                 
-                //
+                // Recursive iteration
                 const SmithDecomposition<N-1> sd(D.template block<N-1,N-1>(1,1));
                 
+//                std::cout<<"U old="<<std::endl<<U<<std::endl;
+//                std::cout<<"sd.U="<<std::endl<<sd.matrixU()<<std::endl;
+
+//                std::cout<<"V old="<<std::endl<<V<<std::endl;
+//                std::cout<<"sd.V="<<std::endl<<sd.matrixV()<<std::endl;
+
                 
-                //                            D.template block<N-1,N-1>(1,1)=sd.matrixD();
-                //                            U.template block<N-1,N-1>(1,1)=sd.matrixU()*U.template block<N-1,N-1>(1,1);
-                //                            V.template block<N-1,N-1>(1,1)=V.template block<N-1,N-1>(1,1)*sd.matrixV();
+                D.template block<N-1,N-1>(1,1)=sd.matrixD();
+                U.template block<N-1,N>(1,0)=sd.matrixU()*U.template block<N-1,N>(1,0);
+                V.template block<1,N-1>(0,1)=V.template block<1,N-1>(0,1)*sd.matrixV();
+                V.template block<N-1,N-1>(1,1)=V.template block<N-1,N-1>(1,1)*sd.matrixV();
                 
-//                std::cout<<matrixD()<<std::endl<<std::endl;
+//                std::cout<<"U new="<<std::endl<<U<<std::endl;
+//                std::cout<<"V new="<<std::endl<<V<<std::endl;
+
                 
             }
             
             
-            assert((U*A*V-D).squaredNorm()==0);
+//            assert((U*A*V-D).squaredNorm()==0);
         }
         
         /**********************************************************************/
@@ -266,15 +281,17 @@ namespace model
         
     };
     
-    
+    /**************************************************************************/
+    /**************************************************************************/
     template <>
     class SmithDecomposition<1>
     {
-        typedef Eigen::Matrix<int,1,1> MatrixNi;
+        typedef long long int IntValueType;
+        typedef Eigen::Matrix<IntValueType,1,1> MatrixNi;
         
-        MatrixNi U;
-        MatrixNi D;
-        MatrixNi V;
+        const MatrixNi U;
+        const MatrixNi D;
+        const MatrixNi V;
         
     public:
         
