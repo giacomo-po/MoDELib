@@ -11,6 +11,7 @@
 
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
+#include <model/Utilities/StaticID.h>
 #include <model/Math/RoundEigen.h>
 //#include <model/LatticeMath/LatticeBase.h>
 //#include <model/LatticeMath/ReciprocalLatticeVector.h>
@@ -25,7 +26,7 @@ namespace model
 {
     
     template <int dim>
-    class Lattice
+    class Lattice : StaticID<Lattice<dim>>
     {
         static_assert(dim>0,"dim must be > 0.");
         static constexpr double roundTol=FLT_EPSILON;
@@ -45,17 +46,12 @@ namespace model
         
     public:
         
-
-//        Eigen::Matrix<double,dim,dim> C2G;
-
         /**********************************************************************/
         Lattice() :
         /* init */ _covBasis(MatrixDimD::Identity()),
         /* init */ _contraBasis(MatrixDimD::Identity())
- //       /* init */ C2G(Eigen::Matrix<double,dim,dim>::Identity())
         {
-//            model::cout<<"Creating Grain "<<grainID<<std::endl;
-//            selectMaterial(materialZ);
+
         }
         
         /**********************************************************************/
