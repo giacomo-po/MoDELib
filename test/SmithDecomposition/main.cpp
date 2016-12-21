@@ -12,6 +12,11 @@ int main()
 
     const int N=4;
     Eigen::Matrix<long long int,N,N> A=Eigen::Matrix<long long int,N,N>::Random()/100000000;
+
+//    const int N=2;
+//    Eigen::Matrix<long long int,N,N> A;
+//    A<<4,-3,3,4;
+
     
     std::cout<<"matrix A="<<std::endl<<A<<std::endl<<std::endl;
     
@@ -21,5 +26,12 @@ int main()
     std::cout<<"unimodular matrix U="<<std::endl<<sd.matrixU()<<std::endl;
     std::cout<<"unimodular matrix V="<<std::endl<<sd.matrixV()<<std::endl;
     std::cout<<"diagonal matrix D="<<std::endl<<sd.matrixD()<<std::endl;
-      return 0;
+
+    std::cout<<"Smith decomposition X*D*Y=A"<<std::endl;
+    std::cout<<"unimodular matrix X="<<std::endl<<sd.matrixX()<<std::endl;
+    std::cout<<"unimodular matrix Y="<<std::endl<<sd.matrixY()<<std::endl;
+    std::cout<<"diagonal matrix D="<<std::endl<<sd.matrixD()<<std::endl;
+
+    
+    return 0;
 }
