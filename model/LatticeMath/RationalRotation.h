@@ -49,7 +49,7 @@ namespace model
             return a*b/gcd(a,b);
         }
         
-        long int _sigma;
+        IntValueType _sigma;
         MatrixInt im;
         
     public:
@@ -92,14 +92,10 @@ namespace model
          
             assert((im.template cast<double>()/_sigma-R).norm()<2.0*DBL_EPSILON*dim*dim && "Rational Matrix failed, check maxDen.");
             
-            std::cout<<nums<<std::endl<<std::endl;
-            std::cout<<dens<<std::endl<<std::endl;
-            std::cout<<im<<std::endl<<std::endl;
-
         }
         
         /**********************************************************************/
-        const long int& sigma() const
+        const IntValueType& sigma() const
         {
             return _sigma;
         }

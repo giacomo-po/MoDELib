@@ -13,7 +13,6 @@
 #include <Eigen/Dense>
 #include <model/Math/RoundEigen.h>
 #include <model/Math/SmithDecomposition.h>
-//#include <model/Math/BestRationalApproximation.h>
 #include <model/LatticeMath/Lattice.h>
 #include <model/LatticeMath/RationalRotation.h>
 
@@ -38,7 +37,13 @@ namespace model
         typedef Eigen::Matrix<IntValueType,dim,dim> MatrixInt;
 
         
-        int _sigma;
+        IntValueType _sigma;
+        
+        /**********************************************************************/
+        static IntValueType gcd(const IntValueType& a,const IntValueType& b)
+        {
+            return b>0? gcd(b, a % b) : a;
+        }
 
     public:
         
@@ -86,18 +91,21 @@ namespace model
             // c_i=sigma/gcd(sigma,D(i,i))*b1_i=D(i,i)/gcd(sigma,D(i,i))*a1_i
             MatrixInt M(MatrixInt::Identity());
             MatrixInt N(MatrixInt::Identity());
-            for(i=0;i<dim;++i)
+            for(int i=0;i<dim;++i)
             {
                 const IntValueType& dii=sd.matrixD()(i,i);
                 M(i,i)=dii/gcd(_sigma,dii);
                 N(i,i)=_sigma/gcd(_sigma,dii);
             }
-            std::cout<<(M*sd.matrixY()).template cast<double>()*A.covBasis()<<std::endl;
             
+            const MatrixDimD C1=(M*sd.matrixY()).template cast<double>()*A.covBasis();
+            const MatrixDimD C2=(N*sd.matrixU()).template cast<double>()*B.covBasis();
+            assert((C1-C2).norm()<FLT_EPSILON && "CSL calculation failed.");
+            this->setLatticeBasis(0.5*(C1+C2));
         }
 
         /**********************************************************************/
-        const long int& sigma() const
+        const IntValueType& sigma() const
         {
             return _sigma;
         }

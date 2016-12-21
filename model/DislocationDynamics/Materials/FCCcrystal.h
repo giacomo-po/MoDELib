@@ -21,6 +21,7 @@ namespace model
     
     struct FCC
     {
+        static constexpr auto name="FCC";
         
         /**********************************************************************/
         template <int dim>

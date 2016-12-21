@@ -22,6 +22,8 @@ namespace model
      struct BCC
     {
     
+        static constexpr auto name="BCC";
+
         /**********************************************************************/
         template <int dim>
         static Eigen::Matrix<double,dim,dim> getLatticeBasis()
