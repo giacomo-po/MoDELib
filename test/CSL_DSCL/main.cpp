@@ -17,9 +17,11 @@ using namespace model;
 void fillMap(std::deque<Eigen::Matrix<double,3,3>>& gbMap)
 {
     // Rotation matrices from Grimmer, Acta Cryst. (1974). A30, 197, table 1
-    
-    gbMap.push_back((Eigen::Matrix<double,3,3>()<<2,-1,2,2,2,-1,-1,2,2).finished()/3);
+
+    // [100]
+//    gbMap.push_back((Eigen::Matrix<double,3,3>()<<2,-1,2,2,2,-1,-1,2,2).finished()/3);
     gbMap.push_back((Eigen::Matrix<double,3,3>()<<5,0,0,0,4,-3,0,3,4).finished()/5);
+//    gbMap.push_back((Eigen::Matrix<double,3,3>()<<13,0,0,0,12,-5,0,5,12).finished()/13);
     
 }
 
@@ -50,13 +52,13 @@ int main()
     for (const auto& R : gbMap)
     {
         
-        // SimpleCubic
+//        // SimpleCubic
         out_csl<SimpleCubic>(R);
         
-//        // FCC
-//        out_csl<FCC>(R);
-//        
-//        // BCC
+        // FCC
+        out_csl<FCC>(R);
+        
+        // BCC
 //        out_csl<BCC>(R);
         
     }

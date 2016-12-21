@@ -55,6 +55,14 @@ namespace model
         }
         
         /**********************************************************************/
+        Lattice(const MatrixDimD& cov) :
+        /* init */ _covBasis(cov),
+        /* init */ _contraBasis(_covBasis.inverse().transpose())
+        {
+            
+        }
+        
+        /**********************************************************************/
         void setLatticeBasis(const MatrixDimD& A)
         {
             _covBasis=A;
@@ -154,6 +162,12 @@ namespace model
         ReciprocalLatticeVectorType reciprocalLatticeVector(const VectorDimD& p) const
         {
             return ReciprocalLatticeVectorType(p,_covBasis,_contraBasis);
+        }
+        
+        /**********************************************************************/
+        Lattice<dim> reciprocal() const
+        {
+            return Lattice<dim>(_contraBasis);
         }
         
     };

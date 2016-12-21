@@ -14,7 +14,8 @@
 #include <model/Math/RoundEigen.h>
 #include <model/Math/SmithDecomposition.h>
 #include <model/LatticeMath/Lattice.h>
-#include <model/LatticeMath/RationalRotation.h>
+#include <model/LatticeMath/RationalMatrix.h>
+#include <model/LatticeMath/LLL.h>
 
 
 namespace model
@@ -59,36 +60,62 @@ namespace model
         {
             update();
         }
-        
+
         /**********************************************************************/
         void update()
         {
             // Suppose that lattice B is obtained from A through a rotaion R, that is B=R*A
-            // The rotation matrix is R=B*inv(A)
+            // then R_ij=dot(b_i,a'_j), where ' indicates the reciprocal basis
+            // The rotation matrix is R=B^T*inv(A^T)
             const MatrixDimD R(B.covBasis()*A.contraBasis().transpose());
+            
+            // Check that R is a proper rotation
+            const MatrixDimD RRT=R*R.transpose();
+            const double RRTmInorm=(RRT-Eigen::Matrix<double,dim,dim>::Identity()).norm()/Eigen::Matrix<double,dim,dim>::Identity().norm();
+            if(RRTmInorm>FLT_EPSILON)
+            {
+                std::cout<<"R="<<std::endl<<R<<std::endl;
+                std::cout<<"R*R^T="<<std::endl<<RRT<<std::endl;
+                std::cout<<"norm(R*R^T-I)/norm(I)="<<RRTmInorm<<", tol="<<FLT_EPSILON<<std::endl;
+                assert(0 && "R IS NOT ORTHOGONAL.");
+            }
+            // make sure that C2G is proper
+            assert(std::fabs(R.determinant()-1.0) < FLT_EPSILON && "R IS NOT PROPER.");
 
+            
+            // Compute the transitio matrix T=inv(A)*B
+            const MatrixDimD T=A.contraBasis().transpose()*B.covBasis();
+            
             // For the two lattices to have coincident sites, R must be a rational matrix
-            // Compute the integer matrix P and the integer sigma such that R=P/sigma
-            RationalRotation<dim> rr(R);
-            const MatrixInt& P=rr.integerMatrix();
-            _sigma=rr.sigma();
+            // Compute the integer matrix P and the integer sigma such that T=P/sigma
+            RationalMatrix<dim> rm(T);
+            const MatrixInt& P=rm.integerMatrix;
+            _sigma=rm.den;
             
             // The integer matrix P can be decomposed as P=X*D*Y using the Smith decomposition.
             // X and Y are unimodular, and D is diagonal with D(k,k) dividing D(k+1,k+1)
             // The decopmosition also computes the matices U and V such that D=U*P*V
             SmithDecomposition<dim> sd(P);
-
-            // From R=B*inv(A)=P/sigma=X*D*Y/sigma=inv(U)*D*inv(V)/sigma, we have
-            // U*B*inv(A)*V=U*B*inv(A)*inv(Y)=(U*B)*inv(Y*A)=D/sigma
-            // Since U and Y are unimodular matrices, they define a change in basis,
-            // and therefore the bases B1=U*B and A1=Y*A satisfy
-            // B1*inv(A1)=D/sigma
-            // Since D is diagonal, B1 and A1 are simply scaled bases, with different
-            // scaling in different directions. Therefore their primitive vectors
-            // (columns of B1 and A1) satisfy
-            // sigma*b1_i=D(i,i)*a1_i
-            // Therefore, the primitive vectors of the CSL are
-            // c_i=sigma/gcd(sigma,D(i,i))*b1_i=D(i,i)/gcd(sigma,D(i,i))*a1_i
+            
+            // From T=inv(A)*B=P/sigma=X*D*Y/sigma=X*D*inv(V)/sigma, we have
+            // B1*(sigma*I)=A1*D
+            // where
+            // B1=B*V
+            // A1=A*X
+            // Since V and X are unimodular matrices, B1 and A1 are new bases
+            // of the lattices B and A, respectively. Moreover, since
+            // (sigma*I) and D are diagonal, the columns of B1 and A1 are
+            // proportional, with rational proportionality factors different for each column.
+            // For example, columns "i" read
+            // b1_i*sigma=a1_i*D(i,i)
+            // Therefore, the i-th primitive vectors of the CSL is
+            // c_i=b1_i*sigma/gcd(sigma,D(i,i))=a1_i*D(i,i)/gcd(sigma,D(i,i))
+            // or, in matrix form
+            // C=B1*N=A1*M, that is
+            // C=B*V*N=A*X*M
+            // where M=diag(D(i,i)/gcd(sigma,D(i,i))) and
+            //       N=diag(sigma/gcd(sigma,D(i,i))) and
+            
             MatrixInt M(MatrixInt::Identity());
             MatrixInt N(MatrixInt::Identity());
             for(int i=0;i<dim;++i)
@@ -98,12 +125,16 @@ namespace model
                 N(i,i)=_sigma/gcd(_sigma,dii);
             }
             
-            const MatrixDimD C1=(M*sd.matrixY()).template cast<double>()*A.covBasis();
-            const MatrixDimD C2=(N*sd.matrixU()).template cast<double>()*B.covBasis();
+            const MatrixDimD C1=A.covBasis()*(sd.matrixX()*M).template cast<double>();
+            const MatrixDimD C2=B.covBasis()*(sd.matrixV()*N).template cast<double>();
+            
             assert((C1-C2).norm()<FLT_EPSILON && "CSL calculation failed.");
             this->setLatticeBasis(0.5*(C1+C2));
+            
+            
+//            LLL lll(this->covBasis().template cast<int>().eval());
         }
-
+        
         /**********************************************************************/
         const IntValueType& sigma() const
         {
