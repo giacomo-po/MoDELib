@@ -1,7 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <Eigen/Dense>
-#include <model/Math/SmithDecomposition.h>
+#include <model/LatticeMath/LatticePair.h>
 
 using namespace model;
 
