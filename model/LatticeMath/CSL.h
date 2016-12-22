@@ -26,14 +26,14 @@ namespace model
      * [1] Coincidence Lattices and Associated Shear Transformations
      */
     template <int dim>
-    class CSL : public Lattice<dim>
+    class CSL : public Lattice<dim,dim>
     {
         static_assert(dim>0,"dim must be > 0.");
         //        static constexpr double roundTol=FLT_EPSILON;
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
-        typedef Lattice<dim> LatticeType;
+        typedef Lattice<dim,dim> LatticeType;
         typedef long long int IntValueType;
         typedef Eigen::Matrix<IntValueType,dim,dim> MatrixInt;
 

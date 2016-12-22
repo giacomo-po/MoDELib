@@ -28,7 +28,7 @@ namespace model
     class GrainBoundary;
     
     template <int dim>
-    class Grain : public Lattice<dim>,
+    class Grain : public Lattice<dim,dim>,
     /* base    */ public std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const>
     {
         
@@ -114,7 +114,7 @@ namespace model
                     break;
             }
             
-            Lattice<dim>::setLatticeBasis(C2G*A);
+            Lattice<dim,dim>::setLatticeBasis(C2G*A);
 //            _covBasis=C2G*A;
 //            _contraBasis=_covBasis.inverse().transpose();
 //            
