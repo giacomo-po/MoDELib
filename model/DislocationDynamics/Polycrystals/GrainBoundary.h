@@ -21,6 +21,8 @@
 #include <model/DislocationDynamics/Polycrystals/GrainBoundaryType.h>
 #include <model/LatticeMath/LatticePlane.h>
 #include <model/LatticeMath/LineMeshIntersection.h>
+#include <model/LatticeMath/CSL.h>
+#include <model/LatticeMath/DSCL.h>
 #include <model/DislocationDynamics/StressStraight.h>
 
 
@@ -233,11 +235,11 @@ namespace model
                 std::cout<<yellowColor<<"   GB dislocation spacing= "<<p_gbType->dislocationSpacing<<defaultColor<<std::endl;
                 std::cout<<yellowColor<<"   Frank-Bilby dislocation spacing= "<<p_gbType->FrankBilby_dislocationSpacing<<defaultColor<<std::endl;
                 std::cout<<yellowColor<<"   Read-Shockley_energyDensity= "<<p_gbType->ReadShockley_energyDensity<<defaultColor<<std::endl;
-
+                
                 
                 //
-//                const double energyDensity;
-//                const double dislocationSpacing;
+                //                const double energyDensity;
+                //                const double dislocationSpacing;
             }
             else
             {
@@ -247,31 +249,7 @@ namespace model
             
         }
         
-        //        /**********************************************************************/
-        //        void populateGBdislocations(std::vector<StressStraight<dim>>& vD) const
-        //        {
-        //            if(use_GBdislocations)
-        //            {
-        //            const VectorDimD dir=rotationAxis().normalized();
-        //            const VectorDimD p=dir.cross(latticePlane(grainBndID.first).n.cartesian()).normalized()*grainBoundaryType().dislocationSpacing;
-        //
-        //
-        //            VectorDimD P0(VectorDimD::Zero());
-        //            VectorDimD P1(VectorDimD::Zero());
-        //
-        //            VectorDimD Q(latticePlane(grainBndID.first).P.cartesian());
-        //            Q(1)=0.0;
-        //
-        //            for(int k=0;k<10;++k)
-        //            {
-        //                P0=Q-100.0*dir+k*p;
-        //                P1=Q+100.0*dir+k*p;
-        //                std::cout<<"GB DISLOCATIONS MAY BE WRONG SIGN"<<std::endl;
-        //                vD.emplace_back(P0,P1,grainBoundaryType().Burgers*latticePlane(grainBndID.first).n.cartesian().normalized());
-        //            }
-        //            }
-        //
-        //        }
+
         
         /**********************************************************************/
         void populateGBdislocations(std::vector<StressStraight<dim>>& vD, const SimplicialMesh<dim>& mesh) const __attribute__ ((deprecated))
@@ -366,7 +344,8 @@ namespace model
         }
         
         
-        
+        CSL<dim> _csl;
+        DSCL<dim> _dscl;
         VectorDimD _crystallographicRotationAxis;
         VectorDimD _rotationAxis;
         
@@ -379,10 +358,13 @@ namespace model
         const MeshRegionBoundaryType& regionBoundary;
         const std::pair<int,int>& grainBndID;
         
+        
         /**********************************************************************/
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
                       const Grain<dim>& grainFirst,
                       const Grain<dim>& grainSecond) :
+        /* init */ _csl(grainFirst,grainSecond),
+        /* init */ _dscl(grainFirst,grainSecond),
         /* init */ _crystallographicRotationAxis(VectorDimD::Zero()),
         /* init */ _rotationAxis(_crystallographicRotationAxis),
         /* init */ cosTheta(1.0),
@@ -424,6 +406,8 @@ namespace model
         void initializeGrainBoundary(PolycrystalType& poly)
         {
             model::cout<<yellowColor<<"GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
+            _csl.update();
+            _dscl.update();
             computeCrystallographicRotationAxis();
             createLatticePlanes();
             findGrainBoundaryType(poly.grainBoundaryTypes());
@@ -453,6 +437,18 @@ namespace model
         {
             return *p_gbType;
         }
+        
+        /**********************************************************************/
+        const CSL<dim>& csl() const
+        {
+            return _csl;
+        }
+        
+        /**********************************************************************/
+        const DSCL<dim>& dscl() const
+        {
+            return _dscl;
+        }
     };
     
     template <int dim>
@@ -461,3 +457,29 @@ namespace model
 } // end namespace
 #endif
 
+                
+                //        /**********************************************************************/
+                //        void populateGBdislocations(std::vector<StressStraight<dim>>& vD) const
+                //        {
+                //            if(use_GBdislocations)
+                //            {
+                //            const VectorDimD dir=rotationAxis().normalized();
+                //            const VectorDimD p=dir.cross(latticePlane(grainBndID.first).n.cartesian()).normalized()*grainBoundaryType().dislocationSpacing;
+                //
+                //
+                //            VectorDimD P0(VectorDimD::Zero());
+                //            VectorDimD P1(VectorDimD::Zero());
+                //
+                //            VectorDimD Q(latticePlane(grainBndID.first).P.cartesian());
+                //            Q(1)=0.0;
+                //
+                //            for(int k=0;k<10;++k)
+                //            {
+                //                P0=Q-100.0*dir+k*p;
+                //                P1=Q+100.0*dir+k*p;
+                //                std::cout<<"GB DISLOCATIONS MAY BE WRONG SIGN"<<std::endl;
+                //                vD.emplace_back(P0,P1,grainBoundaryType().Burgers*latticePlane(grainBndID.first).n.cartesian().normalized());
+                //            }
+                //            }
+                //
+                //        }
