@@ -47,6 +47,7 @@ namespace model
         
         Eigen::Matrix<double,_dim,1> _xMin;
         Eigen::Matrix<double,_dim,1> _xMax;
+        Eigen::Matrix<double,_dim,1> _xMean;
         
         
         double vol0;
@@ -74,7 +75,8 @@ namespace model
         /**********************************************************************/
         SimplicialMesh() :
         /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Zero()),
-        /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Zero())
+        /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Zero()),
+        /* init list */ _xMean(Eigen::Matrix<double,dim,1>::Zero())
         {
         }
         
@@ -157,6 +159,7 @@ namespace model
                             }
                         }
                     }
+                    _xMean=0.5*(_xMin+_xMax);
                 }
                 else
                 {
@@ -376,6 +379,18 @@ namespace model
         const double& xMax(const int& k) const
         {
             return _xMax(k);
+        }
+        
+        /**********************************************************************/
+        const Eigen::Matrix<double,dim,1>& xMean() const
+        {
+            return _xMean;
+        }
+        
+        /**********************************************************************/
+        const double& xMean(const int& k) const
+        {
+            return _xMean(k);
         }
 
         /**********************************************************************/

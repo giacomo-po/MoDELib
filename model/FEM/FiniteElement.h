@@ -52,6 +52,8 @@ namespace model
     private:
         Eigen::Matrix<double,_ElementType::dim,1> _xMin;
         Eigen::Matrix<double,_ElementType::dim,1> _xMax;
+        Eigen::Matrix<double,_ElementType::dim,1> _xMean;
+
         size_t nodeListID;
 
         
@@ -150,6 +152,7 @@ namespace model
                         }
                     }
                 }
+                _xMean=0.5*(_xMin+_xMax);
                 
             }
             
@@ -250,9 +253,33 @@ namespace model
         }
         
         /**********************************************************************/
+        const double& xMin(const int& k) const
+        {
+            return _xMin(k);
+        }
+        
+        /**********************************************************************/
         const Eigen::Matrix<double,dim,1>& xMax() const
         {
             return _xMax;
+        }
+        
+        /**********************************************************************/
+        const double& xMax(const int& k) const
+        {
+            return _xMax(k);
+        }
+        
+        /**********************************************************************/
+        const Eigen::Matrix<double,dim,1>& xMean() const
+        {
+            return _xMean;
+        }
+        
+        /**********************************************************************/
+        const double& xMean(const int& k) const
+        {
+            return _xMean(k);
         }
         
         /**********************************************************************/

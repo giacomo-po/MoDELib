@@ -56,10 +56,10 @@ namespace model
 					const int dir=std::get<2>(neighborIter->second);
 					switch ( dir ) {
 						case   1:
-							BsV.push_back(+1.0*(std::get<1>(neighborIter->second)->flow));
+							BsV.push_back((std::get<1>(neighborIter->second)->flow)*(+1));
 							break;
 						case  -1:
-							BsV.push_back(-1.0*(std::get<1>(neighborIter->second)->flow));
+							BsV.push_back((std::get<1>(neighborIter->second)->flow)*(-1));
 							break;
 						default:	// self
 							break;

@@ -1,0 +1,3 @@
+thetaDot=-1.0e-11;
+initialRotation=0;
+apply_bending=1;
