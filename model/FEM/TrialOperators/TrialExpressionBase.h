@@ -12,6 +12,7 @@
 #include <model/Utilities/TypeTraits.h>
 #include <model/FEM/TrialOperators/TestExpression.h>
 #include <model/FEM/TrialOperators/EvalExpression.h>
+#include <model/FEM/TrialOperators/TrialDomainView.h>
 #include <model/Mesh/Simplex.h>
 
 namespace model
@@ -81,6 +82,12 @@ namespace model
             return derived().trial().fe.nodeSize()*derived().trial().dofPerNode;
         }
 
+        /**********************************************************************/
+        TrialDomainView<Derived> domainView() const
+        {
+            return TrialDomainView<Derived>(*this);
+        }
+        
     };
     
     

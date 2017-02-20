@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_LagrangeElement_H_
-#define model_LagrangeElement_H_
+#ifndef model_DiscontinuousLagrangeElement_H_
+#define model_DiscontinuousLagrangeElement_H_
 
 #include <vector>
 #include <map>
@@ -57,10 +57,10 @@ namespace model
      * The matrix \f$c_{ij}\f$ is stored in the field sfCoeffs;
      */
     template<int _dim,int degree, template<typename T> class MappingType=IsoparametricMapping>
-	class LagrangeElement : private std::vector<LagrangeNode<LagrangeElement<_dim,degree,MappingType>>*>
+	class DiscontinuousLagrangeElement : private std::vector<LagrangeNode<DiscontinuousLagrangeElement<_dim,degree,MappingType>>*>
     {
         
-        typedef LagrangeElement<_dim,degree,MappingType> ElementType;
+        typedef DiscontinuousLagrangeElement<_dim,degree,MappingType> ElementType;
         
     public:
         
@@ -205,7 +205,7 @@ namespace model
         
         
         /**********************************************************************/
-        LagrangeElement(const Simplex<dim,dim>& s,
+        DiscontinuousLagrangeElement(const Simplex<dim,dim>& s,
                         std::deque<NodeType>& nodeContainer,
                         std::map<Eigen::Matrix<double,dim,1>, NodeType* const,
                         CompareVectorsByComponent<double,dim,float> >& nodeFinder,
@@ -225,30 +225,30 @@ namespace model
                 // Place nodes linearly
                 const Eigen::Matrix<double,dim,1> P(FL*BarycentricTraits<dim>::l2x(baryNodalCoordinates.row(n))+(SimplexObserver<dim,0>::pSimplex(last))->P0);
                 
-                typename std::map<Eigen::Matrix<double,dim,1>, NodeType* const, CompareVectorsByComponent<double,dim,float> >::const_iterator nIter(nodeFinder.find(P));
+//                typename std::map<Eigen::Matrix<double,dim,1>, NodeType* const, CompareVectorsByComponent<double,dim,float> >::const_iterator nIter(nodeFinder.find(P));
                 
-                NodeType* pN;
+//                NodeType* pN;
                 
-                if (nIter!=nodeFinder.end())
-                {// A node already exists at P.
-                    pN=nIter->second; // grab its pointer.
-                }
-                else
-                {// No nodes exist at P.
+//                if (nIter!=nodeFinder.end())
+//                {// A node already exists at P.
+//                    pN=nIter->second; // grab its pointer.
+//                }
+//                else
+//                {// No nodes exist at P.
                     nodeContainer.emplace_back(P,nodeContainer.size()); // create a new one in nodeContainer
-                    pN=&*nodeContainer.rbegin(); // grab node pointer
+                    NodeType* pN=&*nodeContainer.rbegin(); // grab node pointer
 
-                    const bool success(nodeFinder.insert(std::make_pair(P,pN)).second); // insert pointer in nodeFinder
-                    assert(success && "NODE NOT INSERTED");
-                    
-                    size_t maxID=0;
-                    const double maxVal(baryNodalCoordinates.row(n).maxCoeff(&maxID));
-                    if(maxVal==1.0)
-                    {
-                        mesh2femIDmap.emplace(simplex.vertices()[maxID]->xID(0),pN);
-                    }
-                    
-                }
+//                    const bool success(nodeFinder.insert(std::make_pair(P,pN)).second); // insert pointer in nodeFinder
+//                    assert(success && "NODE NOT INSERTED");
+                
+//                    size_t maxID=0;
+//                    const double maxVal(baryNodalCoordinates.row(n).maxCoeff(&maxID));
+//                    if(maxVal==1.0)
+//                    {
+//                        mesh2femIDmap.emplace(simplex.vertices()[maxID]->xID(0),pN);
+//                    }
+                
+//                }
                 
                 this->emplace_back(pN); // add node to this
                 
@@ -442,13 +442,13 @@ namespace model
     
     // Declare static data members
     template<int dim,int degree, template<typename T> class MappingType>
-    const Eigen::Matrix<int   ,LagrangeElement<dim,degree,MappingType>::nodesPerElement,dim+1> LagrangeElement<dim,degree,MappingType>::baryStarsAndBars=StarsAndBars<dim+1,degree>::sAb();
+    const Eigen::Matrix<int   ,DiscontinuousLagrangeElement<dim,degree,MappingType>::nodesPerElement,dim+1> DiscontinuousLagrangeElement<dim,degree,MappingType>::baryStarsAndBars=StarsAndBars<dim+1,degree>::sAb();
     
     template<int dim,int degree, template<typename T> class MappingType>
-    const Eigen::Matrix<double,LagrangeElement<dim,degree,MappingType>::nodesPerElement,dim+1> LagrangeElement<dim,degree,MappingType>::baryNodalCoordinates=LagrangeElement<dim,degree>::baryStarsAndBars.template cast<double>()/degree;
+    const Eigen::Matrix<double,DiscontinuousLagrangeElement<dim,degree,MappingType>::nodesPerElement,dim+1> DiscontinuousLagrangeElement<dim,degree,MappingType>::baryNodalCoordinates=DiscontinuousLagrangeElement<dim,degree>::baryStarsAndBars.template cast<double>()/degree;
     
     template<int dim,int degree, template<typename T> class MappingType>
-    const std::vector<Eigen::Matrix<double,dim+1,degree+1> >  LagrangeElement<dim,degree,MappingType>::sfCoeffsVector=LagrangeElement<dim,degree,MappingType>::get_sfCoeffsVector();
+    const std::vector<Eigen::Matrix<double,dim+1,degree+1> >  DiscontinuousLagrangeElement<dim,degree,MappingType>::sfCoeffsVector=DiscontinuousLagrangeElement<dim,degree,MappingType>::get_sfCoeffsVector();
     
 }	// close namespace
 #endif

@@ -424,7 +424,18 @@ namespace model
             model::cout<<std::setprecision(3)<<std::scientific<<removed<<" removed) "<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }
         
-        
+//            for(const auto& segment : this->links())
+//            {
+//            if(segment.second.is_boundarySegment())
+//            {
+//                const LatticeVector<dim>& b(segment.second.flow);
+//                const VectorDimD P0(some position here);
+//                const VectorDimD P1(some position here);
+//                const size_t nodeID0(DN.insertVertex(P0).first->first);
+//                const size_t nodeID1(DN.insertVertex(P1).first->first);
+//                this->connect(nodeID0,nodeID1,b);
+//            }
+//            }
         
     public:
         

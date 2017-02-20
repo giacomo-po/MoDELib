@@ -14,6 +14,7 @@
 #include <model/Math/RoundEigen.h>
 //#include <model/LatticeMath/LatticeBase.h>
 //#include <model/LatticeMath/ReciprocalLatticeVector.h>
+#include <model/LatticeMath/Lattice.h>
 #include <model/LatticeMath/ReciprocalLatticeVector.h>
 
 
@@ -24,7 +25,8 @@ namespace model
     struct LatticeVector : public Eigen::Matrix<long int,dim,1>
     {
         static_assert(dim>0,"dim must be > 0.");
-        
+
+        typedef Lattice<dim> LatticeType;
         typedef Eigen::Matrix<long int,dim,1> BaseType;
 //        typedef LatticeBase<dim> LatticeBaseType;
         typedef LatticeVector<dim> LatticeVectorType;
@@ -49,13 +51,16 @@ namespace model
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
         
+        const LatticeType& lattice;
         const MatrixDimD& covBasis;
         const MatrixDimD& contraBasis;
 
         /**********************************************************************/
-        LatticeVector(const MatrixDimD& covBasis_in,
+        LatticeVector(const LatticeType& lat
+                      const MatrixDimD& covBasis_in,
                       const MatrixDimD& contraBasis_in) :
         /* init base */ BaseType(VectorDimI::Zero()),
+        /* init      */ lattice(lat),
         /* init      */ covBasis(covBasis_in),
         /* init      */ contraBasis(contraBasis_in)
         ///* base init */ BaseType(LatticeBaseType::d2contra(d))
@@ -67,10 +72,12 @@ namespace model
         
         /**********************************************************************/
         LatticeVector(const VectorDimD& d,
+                      const LatticeType& lat,
                       const MatrixDimD& covBasis_in,
                       const MatrixDimD& contraBasis_in) :
 //                      const MatrixDimD& invA) :
         /* init base */ BaseType(d2contra(d,contraBasis_in)),
+        /* init      */ lattice(lat),
         /* init      */ covBasis(covBasis_in),
         /* init      */ contraBasis(contraBasis_in)
 //        /* init base */ covBasisInv(Ainv)

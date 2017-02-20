@@ -9,8 +9,8 @@ for s=1:length(SIGMA)
     sigma=SIGMA(s);
     
     %fileName=['SimpleCubic_sigma_' num2str(sigma)];
-    %fileName=['FCC_sigma_' num2str(sigma)];
-    fileName=['BCC_sigma_' num2str(sigma)];
+    fileName=['FCC_sigma_' num2str(sigma)];
+    %fileName=['BCC_sigma_' num2str(sigma)];
 
     M=load([fileName '.txt']);
     A=M(1:3,:);
@@ -22,7 +22,7 @@ for s=1:length(SIGMA)
     figure(2*s)
     clf
     
-    %plotLattice(DSCL,L,'k.',1)
+    plotLattice(DSCL,L,'k.',1)
     plotLattice(CSL,L,'g.',2)    
     plotLattice(A,L,'bo',1)
     plotLattice(B,L,'rx',1)

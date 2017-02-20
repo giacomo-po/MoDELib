@@ -967,6 +967,9 @@ namespace model
                        && this->source->openNeighborLink(1)->isSessile
                        && this->sink->openNeighborLink(0)->isSessile
                        && this->sink->openNeighborLink(1)->isSessile
+                       && this->souce->openNeighborLink(0)->glidePlane.n.cross(this->souce->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
+                       && this->souce->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(0)->glidePlane.n).squaredNorm()==0
+                       && this->sink->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
                        )
                     {
                         temp=true;

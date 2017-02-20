@@ -234,6 +234,19 @@ namespace model
             switch (assembleCase)
             {
                     /************/
+                case NO_CONSTRAINTS:
+                {// A is SPsD, so use ConjugateGradients sover
+                    
+                    const auto t0= std::chrono::system_clock::now();
+                    model::cout<<"Solving (ConjugateGradient)..."<<std::flush;
+                    Eigen::ConjugateGradient<SparseMatrixType> solver(A);
+                    solver.setTolerance(tol);
+                    x=solver.solveWithGuess(b,x);
+                    model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                    assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
+                    break;
+                }
+                
                 case LAGRANGE:
                 {// A is SPsD, so use MINRES sover
                     
@@ -335,14 +348,14 @@ namespace model
 #ifdef _MODEL_PARDISO_SOLVER_
                     model::cout<<"Solving (PardisoLLT)..."<<std::flush;
                     Eigen::PardisoLLT<SparseMatrixType> solver(A1);
-                    x=T*solver.solve(b1)+g;
+                    x=T*solver.solve(b1).eval()+g;
 #else
                     model::cout<<"Solving (ConjugateGradient)..."<<std::flush;
                     Eigen::ConjugateGradient<SparseMatrixType> solver(A1);
 //                    Eigen::ConjugateGradient<SparseMatrixType> solver(T.transpose()*A*T); // this gives a segmentation fault
                     solver.setTolerance(tol);
                     //                    x=T*solver.solve(T.transpose()*(b-A*g))+g;
-                    x=T*solver.solveWithGuess(b1,guess)+g;
+                    x=T*solver.solveWithGuess(b1,guess).eval()+g;
 //                    x=T*solver.solve(b1)+g;
                     model::cout<<" (relative error ="<<solver.error()<<", tolerance="<<solver.tolerance();
 #endif

@@ -17,11 +17,13 @@
 
 #include <Eigen/Dense>
 
+#include <model/Utilities/AreSameType.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/FEM/Elements/LagrangeElement.h>
+#include <model/FEM/Elements/DiscontinuousLagrangeElement.h>
 #include <model/FEM/TrialFunction.h>
 #include <model/FEM/WeakForms/LinearWeakForm.h>
 #include <model/FEM/WeakForms/BilinearWeakForm.h>
@@ -112,7 +114,11 @@ namespace model
                 }
             }
             
-            assert((mesh2femIDmap().size()==SimplexObserver<dim,0>::size()) && "mesh2femIDmap has wrong size.");
+            if(AreSameType<ElementType,LagrangeElement<ElementType::dim,ElementType::order>>::value)
+            {
+                assert((mesh2femIDmap().size()==SimplexObserver<dim,0>::size()) && "mesh2femIDmap has wrong size.");
+            
+            }
 //            for (typename SimplicialMesh<dim>::const_iterator eIter=mesh.begin();eIter!=mesh.end();++eIter)
 //            {
 //                auto temp=ElementContainerType::emplace(eIter->first,ElementType(eIter->second,*this,*this));

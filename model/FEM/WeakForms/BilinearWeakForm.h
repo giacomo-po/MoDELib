@@ -31,9 +31,9 @@ namespace model
 {
     
     /**************************************************************************/
-	/**************************************************************************/
+    /**************************************************************************/
     template <typename _BilinearFormType,typename _IntegrationDomainType>
-	struct BilinearWeakForm
+    struct BilinearWeakForm
     {
         
         typedef _BilinearFormType BilinearFormType;
@@ -71,7 +71,7 @@ namespace model
         /* init list */ trialExpr(bf.trialExpr),
         /* init list */ gSize(bilinearForm.gSize)
         {
-             model::cout<<greenColor<<"Creating BilinearWeakForm: gSize="<<gSize<<defaultColor<<std::endl;
+            model::cout<<greenColor<<"Creating BilinearWeakForm: gSize="<<gSize<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/
@@ -79,13 +79,10 @@ namespace model
         std::vector<Eigen::Triplet<double> >  assembleOnDomain() const
         {
             
-             model::cout<<"Assembling BilinearWeakForm on domain..."<<std::flush;
+            model::cout<<"Assembling BilinearWeakForm on domain..."<<std::flush;
             
             std::vector<Eigen::Triplet<double> > globalTriplets;
-            //            globalTriplets.clear();
-            globalTriplets.reserve(dofPerElement*dofPerElement*trialExpr.elementSize());
-//            maxAbsValue=0.0;
-            
+            globalTriplets.reserve(dofPerElement*dofPerElement*trialExpr.elementSize());            
             
             const auto t0= std::chrono::system_clock::now();
             for (size_t k=0;k<domain.size();++k)
@@ -109,23 +106,22 @@ namespace model
                             const size_t gJ=ele.node(nodeID_J).gID*dofPerNode+nodeDof_J;
                             
                             globalTriplets.emplace_back(gI,gJ,ke(i,j));
-                            
                         }
                     }
                 }
             }
             
-             model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             return globalTriplets;
         }
         
         /**********************************************************************/
-		template <typename AbscissaType>
+        template <typename AbscissaType>
         ElementMatrixType elementAssemblyKernel(const AbscissaType& a, const ElementType& ele) const
         {
             const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::x2l(a));
             return testExpr.sfm(ele,bary).transpose()*trialExpr.sfm(ele,bary)*ele.absJ(bary);
-		}
+        }
         
         /**********************************************************************/
         template< typename T3>
