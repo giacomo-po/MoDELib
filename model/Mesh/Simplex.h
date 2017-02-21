@@ -12,6 +12,7 @@
 #include <memory> // shared_ptr
 #include <set>
 #include <map>
+#include <vector>
 #include <float.h>
 #include <Eigen/Dense>
 #include <model/Mesh/SimplexReader.h>

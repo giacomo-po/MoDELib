@@ -145,6 +145,15 @@ $(dipoleOBJS):
 	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/MicrostructureGeneration/frGenerator.cpp -o frGenerator -O3 -std=c++11 $(IDIR)
 
 ##########################################################
+# MAKE FRANKREADGENERATOR
+##########################################################
+b2bOBJS = b2bGenerator
+
+$(b2bOBJS):
+	@echo making b2bGenerator
+	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/MicrostructureGeneration/b2bGenerator.cpp -o b2bGenerator -O3 -std=c++11 $(IDIR)
+
+##########################################################
 # MAKE DDCONVERTER
 ##########################################################
 converterOBJS = DDconverter
