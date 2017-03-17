@@ -17,6 +17,7 @@
 #include <model/Quadrature/Quadrature.h>
 //#include <model/Utilities/AreSameType.h>
 #include <model/Utilities/TerminalColors.h>
+#include <model/FEM/TrialOperators/TrialBase.h>
 //#include <model/FEM/Domains/IntegrationDomain.h>
 //#include <model/FEM/WeakForms/LinearWeakExpression.h>
 //#include <model/FEM/WeakForms/LinearForm.h>
@@ -83,7 +84,16 @@ namespace model
             model::cout<<"Assembling LinearWeakForm on domain ("<<lwf.domain.size()<<" elements) ..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             
-            Eigen::Matrix<double,Eigen::Dynamic,1> _globalVector(Eigen::Matrix<double,Eigen::Dynamic,1>::Zero(lwf.linearForm.testExp.gSize()));
+//            std::cout<<"lwf.gSize()="<<lwf.gSize()<<std::endl;
+
+//            std::cout<<"lwf.domain.size()="<<lwf.domain.size()<<std::endl;
+////            std::cout<<"lwf.linearForm.testExp.gSize()="<<lwf.linearForm.testExp.gSize()<<std::endl;
+//
+//            std::cout<<"lwf.linearForm.evalExp.rows="<<lwf.linearForm.evalExp.rows<<std::endl;
+//
+//            std::cout<<"lwf.linearForm.testExp.trial.gSize()"<<lwf.linearForm.testExp.trial().gSize()<<std::endl;
+            
+            Eigen::Matrix<double,Eigen::Dynamic,1> _globalVector(Eigen::Matrix<double,Eigen::Dynamic,1>::Zero(TrialBase<TrialFunctionType>::gSize()));
             
             for (size_t k=0;k<lwf.domain.size();++k)
             {
@@ -109,7 +119,7 @@ namespace model
         ElementVectorType assemblyKernel(const AbscissaType& a, const ElementType& ele) const
         {
             const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::x2l(a));
-            return lwf.linearForm(ele,bary)*ele.absJ(bary);
+            return lwf.linearForm()(ele,bary)*ele.absJ(bary);
         }
 
         
@@ -151,8 +161,8 @@ namespace model
         {
             model::cout<<"Assembling LinearWeakForm on faces ("<<lwf.domain.size()<<" faces) ..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
-
-            Eigen::Matrix<double,Eigen::Dynamic,1> _globalVector(Eigen::Matrix<double,Eigen::Dynamic,1>::Zero(lwf.linearForm.testExp.gSize()));
+            
+            Eigen::Matrix<double,Eigen::Dynamic,1> _globalVector(Eigen::Matrix<double,Eigen::Dynamic,1>::Zero(lwf.gSize()));
 
             for (size_t k=0;k<lwf.domain.size();++k)
             {
@@ -179,7 +189,7 @@ namespace model
         {
             const Eigen::Matrix<double,dim,1> b1(BarycentricTraits<dim-1>::x2l(a1));
             const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::face2domainBary(b1,boundaryFace));
-            return lwf.linearForm(ele,bary)*JGNselector<evalCols>::jGN(ele.jGN(bary,boundaryFace));
+            return lwf.linearForm()(ele,bary)*JGNselector<evalCols>::jGN(ele.jGN(bary,boundaryFace));
         }
         
     };

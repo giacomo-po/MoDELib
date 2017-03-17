@@ -10,30 +10,26 @@
 #define model_TrialDomainView_H_
 
 //#include <model/Utilities/TypeTraits.h>
-//#include <model/FEM/TrialOperators/TrialExpressionBase.h>
+#include <model/FEM/TrialOperators/EvalExpression.h>
 
 
 namespace model
 {
     
-    template<typename Derived>
+    template<typename TrialExpressionType>
     struct TrialExpressionBase;
     
     /**************************************************************************/
 	/**************************************************************************/
-    /*!\brief A class template that provides the base for all the expressions
-     * involving a TrialFunction. The expression-template mechanism is based
-     * on the CRTP pattern.
-     */
-	template<typename Derived>
+	template<typename TrialExpressionType,int DimMinusDomainDim>
 	struct TrialDomainView
     {
         
-        const TrialExpressionBase<Derived>& trialBase;
+        const EvalExpression<TrialExpressionType>& evalExp;
         
         
-        TrialDomainView(const TrialExpressionBase<Derived>& te) :
-        trialBase(te)
+        TrialDomainView(const EvalExpression<TrialExpressionType>& ee) :
+        evalExp(ee)
         {
         
         }
@@ -42,41 +38,68 @@ namespace model
     };
     
     
+
+    
     /**************************************************************************/
-    template <typename T, typename Derived>
-    T& operator << (T& os, const TrialDomainView<Derived>& dv)
+    template <typename T, typename TrialExpressionType>
+    T& operator << (T& os, const TrialDomainView<TrialExpressionType,0>& dv)
+    {/*!@param[in] os the stream object
+      * @param[in] expr the expression
+      *
+      * Outputs the value of TrialExpressionType on the mesh
+      */
+        constexpr int dim=TrialExpressionType::TrialFunctionType::dim;
+        const Eigen::Matrix<double,dim+1,dim+1> vertexBary(Eigen::Matrix<double,dim+1,dim+1>::Identity());
+        
+        
+        
+        for(const auto& ele : TrialBase<typename TrialExpressionType::TrialFunctionType>::fe().elements())
+        {
+            for (int v=0;v<dim+1;++v)
+            {
+                os<<ele.second.position(vertexBary.col(v)).transpose()<<" "
+                <<dv.evalExp(ele.second,vertexBary.col(v)).transpose()<<"\n";
+            }
+        }
+        
+        return os;
+    }
+    
+    /**************************************************************************/
+    template <typename T, typename TrialExpressionType>
+    T& operator << (T& os, const TrialDomainView<TrialExpressionType,1>& dv)
     {/*!@param[in] os the stream object
       * @param[in] expr the expression
       *
       * Outputs the value of Derived on the faces of the mesh
       */
-        constexpr int dim=Derived::TrialFunctionType::dim;
+        constexpr int dim=TrialExpressionType::TrialFunctionType::dim;
         const Eigen::Matrix<double,dim+1,dim+1> vertexBary(Eigen::Matrix<double,dim+1,dim+1>::Identity());
         
-        
-        for (typename Derived::FiniteElementType::ElementContainerType::const_iterator eIter =dv.trialBase.derived().trial().fe.elementBegin();
-             /*                                                                     */ eIter!=dv.trialBase.derived().trial().fe.elementEnd();
-             /*                                                                   */ ++eIter)
+        for(const auto& ele : TrialBase<typename TrialExpressionType::TrialFunctionType>::fe().elements())
         {
-//            if(eIter->second.isBoundaryElement())
-//            {
-//                const std::vector<int> boundaryFaces=eIter->second.boundaryFaces();
-//                for (size_t f=0;f<boundaryFaces.size();++f)
-//                {
+            if(ele.second.isBoundaryElement())
+            {
+                const std::vector<int> boundaryFaces=ele.second.boundaryFaces();
+                for (size_t f=0;f<boundaryFaces.size();++f)
+                {
                     for (int v=0;v<dim+1;++v)
                     {
-//                        if (v!=boundaryFaces[f])
-//                        {
-                            os<<eIter->second.position(vertexBary.col(v)).transpose()<<" "
-                            <<dv.trialBase.derived()(eIter->second,vertexBary.col(v)).transpose()<<"\n";
-//                        }
-//                    }
+                        if (v!=boundaryFaces[f])
+                        {
+                            os<<std::setprecision(15)<<std::scientific<<ele.second.position(vertexBary.col(v)).transpose()<<" "
+                            <<dv.evalExp(ele.second,vertexBary.col(v)).transpose()<<"\n";
+                        }
+                    }
                 }
-//            }
+            }
         }
+        
         return os;
     }
+
     
     
 }	// close namespace
 #endif
+

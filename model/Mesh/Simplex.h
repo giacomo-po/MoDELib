@@ -257,6 +257,7 @@ namespace model
         /* init */ vol0(SimplexVolume<dim,order>::volume(this->vertexPositionMatrix()))
         {/*!
           */
+            
             SimplexObserver<dim,order>::insertSimplex(*this);
             
             for (int k=0;k<nFaces;++k)

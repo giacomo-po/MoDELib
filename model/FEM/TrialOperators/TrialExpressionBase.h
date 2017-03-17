@@ -9,24 +9,29 @@
 #ifndef model_TrialExpressionBase_H_
 #define model_TrialExpressionBase_H_
 
+#include <iostream>
+#include <iomanip>
 #include <model/Utilities/TypeTraits.h>
 #include <model/FEM/TrialOperators/TestExpression.h>
 #include <model/FEM/TrialOperators/EvalExpression.h>
 #include <model/FEM/TrialOperators/TrialDomainView.h>
-#include <model/Mesh/Simplex.h>
 
 namespace model
 {
     
     /**************************************************************************/
-	/**************************************************************************/
+    /**************************************************************************/
     /*!\brief A class template that provides the base for all the expressions
      * involving a TrialFunction. The expression-template mechanism is based
      * on the CRTP pattern.
      */
-	template<typename Derived>
-	struct TrialExpressionBase
+    template<typename Derived>
+    struct TrialExpressionBase
     {
+        TrialExpressionBase()= default;
+        TrialExpressionBase(const TrialExpressionBase<Derived>& other) = delete; // do not copy TrialExpressionBase
+        TrialExpressionBase(TrialExpressionBase<Derived>&& other) = default;
+        
         /**********************************************************************/
         Derived& derived()
         {/*!\returns A reference to the Derived object
@@ -63,69 +68,69 @@ namespace model
         }
         
         /**********************************************************************/
-        TestExpression<Derived> test() const
-        {/*!\returns A TestExpression of the Derived expression.
-          */
-            return TestExpression<Derived>(derived());
+        TrialDomainView<Derived,0> onDomain() const
+        {
+            return TrialDomainView<Derived,0>(eval(*this));
         }
         
         /**********************************************************************/
-        EvalExpression<Derived> eval() const
+        TrialDomainView<Derived,1> onBoundary() const
         {
-            return EvalExpression<Derived>(derived());
-        }
-
-        
-        /**********************************************************************/
-        size_t gSize() const
-        {
-            return derived().trial().fe.nodeSize()*derived().trial().dofPerNode;
-        }
-
-        /**********************************************************************/
-        TrialDomainView<Derived> domainView() const
-        {
-            return TrialDomainView<Derived>(*this);
+            return TrialDomainView<Derived,1>(eval(*this));
         }
         
     };
     
-    
     /**************************************************************************/
-    template <typename T, typename Derived>
-    T& operator << (T& os, const TrialExpressionBase<Derived>& expr)
-    {/*!@param[in] os the stream object
-      * @param[in] expr the expression
-      *
-      * Outputs the value of Derived on the faces of the mesh
-      */
-        constexpr int dim=Derived::TrialFunctionType::dim;
-        const Eigen::Matrix<double,dim+1,dim+1> vertexBary(Eigen::Matrix<double,dim+1,dim+1>::Identity());
+    template<typename Derived>
+    TestExpression<Derived> test(const TrialExpressionBase<Derived>& trial)
+    {
+        std::cout<<"test function 1"<<std::endl;
         
-        
-        for (typename Derived::FiniteElementType::ElementContainerType::const_iterator eIter =expr.derived().trial().fe.elementBegin();
-             /*                                                                     */ eIter!=expr.derived().trial().fe.elementEnd();
-             /*                                                                   */ ++eIter)
-        {
-            if(eIter->second.isBoundaryElement())
-            {
-                const std::vector<int> boundaryFaces=eIter->second.boundaryFaces();
-                for (size_t f=0;f<boundaryFaces.size();++f)
-                {
-                    for (int v=0;v<dim+1;++v)
-                    {
-                        if (v!=boundaryFaces[f])
-                        {
-                            os<<eIter->second.position(vertexBary.col(v)).transpose()<<" "
-                            <<expr.derived()(eIter->second,vertexBary.col(v)).transpose()<<"\n";
-                        }
-                    }
-                }
-            }
-        }
-        return os;
+        return TestExpression<Derived>(trial.derived());
     }
     
+    template<typename Derived>
+    TestExpression<Derived> test(TrialExpressionBase<Derived>&& trial)
+    {
+        std::cout<<"test function 2"<<std::endl;
+        
+        return TestExpression<Derived>(std::move(trial.derived()));
+    }
     
+    /**************************************************************************/
+    template<typename Derived>
+    EvalExpression<Derived> eval(const TrialExpressionBase<Derived>& trial)
+    {
+        std::cout<<"eval function 1"<<std::endl;
+        return EvalExpression<Derived>(trial.derived());
+    }
+    
+    template<typename Derived>
+    EvalExpression<Derived> eval(TrialExpressionBase<Derived>&& trial)
+    {
+        std::cout<<"eval function 2"<<std::endl;
+        return EvalExpression<Derived>(std::move(trial.derived()));
+    }
+
 }	// close namespace
 #endif
+
+
+//    template<typename Derived>
+//    TestExpression<typename std::remove_reference<Derived>::type> test(Derived&& trial)
+//    {
+//    EXPERIMENTING WITH STD::FORWARD TO REMOVE ALL OPERATOR AND CONSTRUCTOR OVERLOADS
+//        std::cout<<"test function 2"<<std::endl;
+//
+//        return TestExpression<typename std::remove_reference<Derived>::type>(std::forward<Derived>(trial));
+//    }
+//
+//
+
+
+//        /**********************************************************************/
+//        EvalExpression<Derived> eval() const
+//        {
+//            return EvalExpression<Derived>(derived());
+//        }

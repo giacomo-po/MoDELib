@@ -20,6 +20,7 @@
 #include <model/Utilities/SequentialOutputFile.h>
 #include <unsupported/Eigen/IterativeSolvers>
 #include <model/MPI/MPIcout.h>
+#include <model/FEM/TrialOperators/ExpressionRef.h>
 
 
 #ifdef _MODEL_PARDISO_SOLVER_
@@ -37,19 +38,22 @@ namespace model
     
     /**************************************************************************/
 	/**************************************************************************/
-    template <typename BilinearWeakFormType, typename LinearWeakFormType>
+    template <typename LHS, typename RHS>
 	class WeakProblem
     {
         
         //typedef WeakForm<T1,T2,TF> BilinearWeakFormType;
         
-        typedef typename BilinearWeakFormType::TrialFunctionType TrialFunctionType;
-        typedef typename TrialFunctionType::DirichletConditionContainerType DirichletConditionContainerType;
+        typedef typename LHS::TrialFunctionType TrialFunctionType;
+//        typedef typename TrialFunctionType::DirichletConditionContainerType DirichletConditionContainerType;
+        typedef typename TrialBase<TrialFunctionType>::DirichletConditionContainerType DirichletConditionContainerType;
         
         
-        const BilinearWeakFormType& lhs;
-        const LinearWeakFormType&   rhs;
+//        const LHS& lhs;
+//        const RHS&   rhs;
         
+        ExpressionRef<LHS> lhs;
+        ExpressionRef<RHS> rhs;
         
         enum {NO_CONSTRAINTS,LAGRANGE,PENALTY,MASTERSLAVE};
         int assembleCase;
@@ -67,26 +71,56 @@ namespace model
         Eigen::VectorXd  x;
         
         /**********************************************************************/
-        WeakProblem(const BilinearWeakFormType& lhs_in, const LinearWeakFormType& rhs_in) :
+        WeakProblem(const LHS& lhs_in, const RHS& rhs_in) :
         /* init list */ lhs(lhs_in),
         /* init list */ rhs(rhs_in),
         /* init list */ assembleCase(NO_CONSTRAINTS),
 //        /* init list */ maxAbsValue(0.0),
-        /* init list */ gSize(lhs.gSize)
+//        /* init list */ gSize(lhs.gSize)
+        /* init list */ gSize(TrialBase<TrialFunctionType>::gSize())
+
         {
-            
             model::cout<<greenColor<<"Creating WeakProblem "<<defaultColor<<std::endl;
-            
-            
-            
-            //            if(lhs.gSize!=rhs.gSize())
-            //            {
-            //                 model::cout<<"LHS and RHS OF WEAKPROBLEM HAVE DIFERENT GLOBAL SIZE. Exiting."<<std::endl;
-            //                std::exit(EXIT_FAILURE);
-            //            }
-            
         }
         
+        /**********************************************************************/
+        WeakProblem(LHS&& lhs_in, const RHS& rhs_in) :
+        /* init list */ lhs(std::move(lhs_in)),
+        /* init list */ rhs(rhs_in),
+        /* init list */ assembleCase(NO_CONSTRAINTS),
+        //        /* init list */ maxAbsValue(0.0),
+        //        /* init list */ gSize(lhs.gSize)
+        /* init list */ gSize(TrialBase<TrialFunctionType>::gSize())
+        
+        {
+            model::cout<<greenColor<<"Creating WeakProblem "<<defaultColor<<std::endl;
+        }
+        
+        /**********************************************************************/
+        WeakProblem(const LHS& lhs_in, RHS&& rhs_in) :
+        /* init list */ lhs(lhs_in),
+        /* init list */ rhs(std::move(rhs_in)),
+        /* init list */ assembleCase(NO_CONSTRAINTS),
+        //        /* init list */ maxAbsValue(0.0),
+        //        /* init list */ gSize(lhs.gSize)
+        /* init list */ gSize(TrialBase<TrialFunctionType>::gSize())
+        
+        {
+            model::cout<<greenColor<<"Creating WeakProblem "<<defaultColor<<std::endl;
+        }
+        
+        /**********************************************************************/
+        WeakProblem(LHS&& lhs_in, RHS&& rhs_in) :
+        /* init list */ lhs(std::move(lhs_in)),
+        /* init list */ rhs(std::move(rhs_in)),
+        /* init list */ assembleCase(NO_CONSTRAINTS),
+        //        /* init list */ maxAbsValue(0.0),
+        //        /* init list */ gSize(lhs.gSize)
+        /* init list */ gSize(TrialBase<TrialFunctionType>::gSize())
+        
+        {
+            model::cout<<greenColor<<"Creating WeakProblem "<<defaultColor<<std::endl;
+        }
         
         /**********************************************************************/
         void assemble()
@@ -95,7 +129,7 @@ namespace model
             
             // Get global triplets
 //            maxAbsValue=0.0;
-            std::vector<Eigen::Triplet<double> > globalTriplets(lhs.assembleOnDomain());
+            std::vector<Eigen::Triplet<double> > globalTriplets(lhs().globalTriplets());
             
             // Create sparse matrix from global triplets
             model::cout<<"Creating matrix from triplets..."<<std::flush;
@@ -105,7 +139,7 @@ namespace model
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             
             // Assemble b
-            b=rhs.globalVector();
+            b=rhs().globalVector();
             
             // Resize x
             x.setZero(gSize);
@@ -131,12 +165,13 @@ namespace model
             const double K(pf*A.norm()/A.nonZeros());
             const size_t cSize(lhs.trialExpr.trial().dirichletConditions().size());
             
-            for (typename DirichletConditionContainerType::const_iterator cIter =lhs.trialExpr.trial().dirichletConditions().begin();
-                 /*                                                    */ cIter!=lhs.trialExpr.trial().dirichletConditions().end();
-                 /*                                                    */ cIter++)
+//            for (typename DirichletConditionContainerType::const_iterator cIter =lhs.trialExpr.trial().dirichletConditions().begin();
+//                 /*                                                    */ cIter!=lhs.trialExpr.trial().dirichletConditions().end();
+//                 /*                                                    */ cIter++)
+            for (const auto& cIter : TrialBase<TrialFunctionType>::dirichletConditions())
             {
-                const size_t& i(cIter->first);
-                const double& val(cIter->second);
+                const size_t& i(cIter.first);
+                const double& val(cIter.second);
                 A.coeffRef(i,i) += K;
                 b(i) += K*val;
                 x(i)=val;
@@ -176,12 +211,14 @@ namespace model
                 //                    x(lhs.trialExpr.trial().dcContainer[c].first)=lhs.trialExpr.trial().dcContainer[c].second;
                 //                }
                 size_t c=0;
-                for (typename DirichletConditionContainerType::const_iterator cIter =lhs.trialExpr.trial().dirichletConditions().begin();
-                     /*                                                    */ cIter!=lhs.trialExpr.trial().dirichletConditions().end();
-                     /*                                                    */ cIter++)
+//                for (typename DirichletConditionContainerType::const_iterator cIter =lhs.trialExpr.trial().dirichletConditions().begin();
+//                     /*                                                    */ cIter!=lhs.trialExpr.trial().dirichletConditions().end();
+//                     /*                                                    */ cIter++)
+//                {
+                for (const auto& cIter : TrialBase<TrialFunctionType>::dirichletConditions())
                 {
-                    const size_t& i(cIter->first);
-                    const double& val(cIter->second);
+                    const size_t& i(cIter.first);
+                    const double& val(cIter.second);
                     globalTriplets.emplace_back(gSize+c,i,1.0);
                     globalTriplets.emplace_back(i,gSize+c,1.0);
                     b(gSize+c)=val;
@@ -242,6 +279,12 @@ namespace model
                     Eigen::ConjugateGradient<SparseMatrixType> solver(A);
                     solver.setTolerance(tol);
                     x=solver.solveWithGuess(b,x);
+//                    Eigen::SimplicialLDLT<SparseMatrixType> solver(A);
+//                    x=solver.solve(b);
+//                    Eigen::SparseLU<SparseMatrixType> solver(A);
+//                    x=solver.solve(b);
+
+                    
                     model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                     assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
                     break;
@@ -291,7 +334,7 @@ namespace model
                     model::cout<<"Setting up master-slave constraints..."<<std::flush;
                     const auto t0= std::chrono::system_clock::now();
                     
-                    const size_t cSize(lhs.trialExpr.trial().dirichletConditions().size());
+                    const size_t cSize(TrialBase<TrialFunctionType>::dirichletConditions().size());
                     const size_t tSize = gSize-cSize;
                     
                     std::vector<Eigen::Triplet<double> > tTriplets;
@@ -303,12 +346,13 @@ namespace model
                     size_t startRow=0;
                     size_t col=0;
                     
-                    for (typename DirichletConditionContainerType::const_iterator cIter =lhs.trialExpr.trial().dirichletConditions().begin();
-                         /*                                                    */ cIter!=lhs.trialExpr.trial().dirichletConditions().end();
-                         /*                                                    */ cIter++)
+//                    for (typename DirichletConditionContainerType::const_iterator cIter =lhs.trialExpr.trial().dirichletConditions().begin();
+//                         /*                                                    */ cIter!=lhs.trialExpr.trial().dirichletConditions().end();
+//                         /*                                                    */ cIter++)
+                    for(const auto& cIter : TrialBase<TrialFunctionType>::dirichletConditions())
                     {
-                        const size_t& endRow = cIter->first;
-                        g(endRow)= cIter->second;
+                        const size_t& endRow = cIter.first;
+                        g(endRow)= cIter.second;
                         for (size_t row=startRow;row!=endRow;++row)
                         {
                             tTriplets.emplace_back(row,col,1.0);

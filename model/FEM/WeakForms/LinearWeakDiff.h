@@ -9,26 +9,28 @@
 #ifndef model_LinearWeakDiff_H_
 #define model_LinearWeakDiff_H_
 
-#include <model/Utilities/AreSameType.h>
+//#include <model/Utilities/AreSameType.h>
+#include <type_traits> // std::is_same
 #include <model/FEM/WeakForms/LinearWeakExpression.h>
+#include <model/FEM/TrialOperators/ExpressionRef.h>
 
 namespace model
 {
- 	/**************************************************************************/
-	/**************************************************************************/
-	/*! \brief A class template that performs the sum of two TrialExpressionBase.
-	 */
+    /**************************************************************************/
+    /**************************************************************************/
+    /*! \brief A class template that performs the sum of two TrialExpressionBase.
+     */
     template <typename T1,typename T2>
-	struct  LinearWeakDiff : public LinearWeakExpression<LinearWeakDiff<T1,T2> >
+    struct  LinearWeakDiff : public LinearWeakExpression<LinearWeakDiff<T1,T2> >
     {
         
-        static_assert(AreSameType<typename T1::TrialFunctionType,typename T2::TrialFunctionType>::value,"YOU ARE SUMMING TrialExpressionBase OF DIFFERENT TRIALFUNCTIONS.");
+        static_assert(std::is_same<typename T1::TrialFunctionType,typename T2::TrialFunctionType>::value,"YOU ARE SUMMING TrialExpressionBase OF DIFFERENT TRIALFUNCTIONS.");
         typedef typename T1::TrialFunctionType TrialFunctionType;
         
         //! first operand
-        const T1 op1; // expression could be a temporary, so copy by value
+        ExpressionRef<T1> op1;
         //! second operand
-        const T2 op2; // expression could be a temporary, so copy by value
+        ExpressionRef<T2> op2;
         
         /**********************************************************************/
         LinearWeakDiff(const T1& x, const T2& y) :
@@ -40,9 +42,36 @@ namespace model
         }
         
         /**********************************************************************/
+        LinearWeakDiff(T1&& x, const T2& y) :
+        /* init list           */ op1(std::move(x)),
+        /* init list           */ op2(y)
+        {/*!
+          */
+            
+        }
+        
+        /**********************************************************************/
+        LinearWeakDiff(const T1& x, T2&& y) :
+        /* init list           */ op1(x),
+        /* init list           */ op2(std::move(y))
+        {/*!
+          */
+            
+        }
+        
+        /**********************************************************************/
+        LinearWeakDiff(T1&& x, T2&& y) :
+        /* init list           */ op1(std::move(x)),
+        /* init list           */ op2(std::move(y))
+        {/*!
+          */
+            
+        }
+        
+        /**********************************************************************/
         Eigen::Matrix<double,Eigen::Dynamic,1> globalVector() const
         {
-            return op1.globalVector()-op2.globalVector();
+            return op1().globalVector()-op2().globalVector();
         }
         
     };
@@ -52,8 +81,31 @@ namespace model
     template <typename T1, typename T2>
     LinearWeakDiff<T1,T2> operator-(const LinearWeakExpression<T1>& op1,const LinearWeakExpression<T2>& op2)
     {
-        return  LinearWeakDiff<T1,T2>(op1,op2);
+        return  LinearWeakDiff<T1,T2>(op1.derived(),op2.derived());
     }
+    
+    /**************************************************************************/
+    template <typename T1, typename T2>
+    LinearWeakDiff<T1,T2> operator-(LinearWeakExpression<T1>&& op1,const LinearWeakExpression<T2>& op2)
+    {
+        return  LinearWeakDiff<T1,T2>(std::move(op1.derived()),op2.derived());
+    }
+    
+    /**************************************************************************/
+    template <typename T1, typename T2>
+    LinearWeakDiff<T1,T2> operator-(const LinearWeakExpression<T1>& op1,LinearWeakExpression<T2>&& op2)
+    {
+        return  LinearWeakDiff<T1,T2>(op1.derived(),std::move(op2.derived()));
+    }
+    
+    /**************************************************************************/
+    template <typename T1, typename T2>
+    LinearWeakDiff<T1,T2> operator-(LinearWeakExpression<T1>&& op1,LinearWeakExpression<T2>&& op2)
+    {
+        return  LinearWeakDiff<T1,T2>(std::move(op1.derived()),std::move(op2.derived()));
+    }
+    
+    
     
 }	// close namespace
 #endif

@@ -28,7 +28,7 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template <int dim,int k>
-    class LatticeBase : StaticID<LatticeBase<dim,k>>
+    class LatticeBase : public StaticID<LatticeBase<dim,k>>
     {
         static_assert(dim>0,"dim must be > 0.");
         static_assert(k>0,"k must be > 0.");
@@ -71,7 +71,7 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template <int dim,int k>
-    class Lattice : LatticeBase<dim,k>
+    class Lattice : public LatticeBase<dim,k>
     {
 
         public:

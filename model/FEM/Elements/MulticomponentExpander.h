@@ -118,7 +118,7 @@ namespace model
         }
         
         template<typename T, int N>
-        static Eigen::Matrix<T,1,N>& expandSFdef(const Eigen::Matrix<T,1,N>& m)
+        static const Eigen::Matrix<T,1,N>& expandSFdef(const Eigen::Matrix<T,1,N>& m)
         {
             return m;
         }

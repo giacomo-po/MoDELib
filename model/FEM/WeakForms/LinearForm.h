@@ -11,27 +11,29 @@
 
 #include <Eigen/Dense>
 #include <model/FEM/TrialOperators/EvalExpression.h>
+#include <model/FEM/TrialOperators/EvalFunction.h>
 #include <model/FEM/TrialOperators/TestExpression.h>
+#include <model/FEM/TrialOperators/ExpressionRef.h>
 
 namespace model
 {
     
     /**************************************************************************/
     /**************************************************************************/
-    template <typename DerivedTest,typename DerivedEval>
-    class LinearForm : public LinearWeakExpression<LinearForm<DerivedTest,DerivedEval>>
+    template <typename TestType,typename EvalType>
+    struct LinearForm : public LinearWeakExpression<LinearForm<TestType,EvalType>>
     {
         
-        static_assert(DerivedTest::rows==DerivedEval::rows,"YOU ARE CREATING A LinearForm BETWEEN EXPRESSIONS WITH DIFFERENT NUMBER OF ROWS");
+        static_assert(TestType::rows==EvalType::rows,"YOU ARE CREATING A LinearForm BETWEEN EXPRESSIONS WITH DIFFERENT NUMBER OF ROWS");
         
-    public:
+        //    public:
         
-        typedef typename DerivedTest::TrialFunctionType  TrialFunctionType;
-        constexpr static int evalCols=DerivedEval::cols;
+        typedef typename TestType::TrialFunctionType  TrialFunctionType;
+        constexpr static int evalCols=EvalType::cols;
         
         
-    private:
-        typedef LinearForm<DerivedTest,DerivedEval> LinearFormType;
+        //    private:
+        typedef LinearForm<TestType,EvalType> LinearFormType;
         typedef typename TypeTraits<TrialFunctionType>::ElementType ElementType;
         typedef typename TypeTraits<TrialFunctionType>::BaryType BaryType;
         
@@ -39,43 +41,46 @@ namespace model
         constexpr static int dofPerNode=TypeTraits< TrialFunctionType>::dofPerNode;
         constexpr static int dofPerElement=TypeTraits< TrialFunctionType>::dofPerElement;
         
-        
-        
-        
-        
-    public:
-        
-        const DerivedTest  testExp;
-        const DerivedEval  evalExp;
-        
-        //        /**********************************************************************/
-        //        LinearForm(const TestExpression<DerivedTest>& testE, const EvalExpression<DerivedEval>& evalE) :
-        //        /* init list */ testExp(testE.trial()),
-        //        /* init list */ evalExp(evalE.derived())
-        //        {
-        //
-        //        }
+        ExpressionRef<TestExpression<TestType>> testExp;
+        ExpressionRef<EvalType> evalExp;
         
         /**********************************************************************/
-        LinearForm(const TestExpression<DerivedTest>& test, const EvalExpression<DerivedEval>& eval) :
-        //        /* init list */ testExp(testE.trial()),
+        LinearForm(const TestExpression<TestType>& test, const EvalType& eval) :
         /* init list */ testExp(test),
-        /* init list */ evalExp(eval.wrappedExp)
+        /* init list */ evalExp(eval)
         {
             
         }
         
         /**********************************************************************/
-        // Do not allow construction from temporary evalE
-        //        LinearForm(const TestExpression<DerivedTest>& testE, EvalExpression<DerivedEval>&& evalE) = delete ;
-        
-        //        LinearForm(const TestExpression<DerivedTest>& testE, const DerivedEval&& evalE) = delete ;
-        
+        LinearForm(TestExpression<TestType>&& test, const EvalType& eval) :
+        /* init list */ testExp(std::move(test)),
+        /* init list */ evalExp(eval)
+        {
+            
+        }
         
         /**********************************************************************/
-        Eigen::Matrix<double,dofPerElement,evalCols> operator()(const ElementType& ele, const BaryType& bary) const
+        LinearForm(const TestExpression<TestType>& test, EvalType&& eval) :
+        /* init list */ testExp(test),
+        /* init list */ evalExp(std::move(eval))
         {
-            return testExp.sfm(ele,bary).transpose()*evalExp(ele,bary);
+            
+        }
+        
+        /**********************************************************************/
+        LinearForm(TestExpression<TestType>&& test, EvalType&& eval) :
+        /* init list */ testExp(std::move(test)),
+        /* init list */ evalExp(std::move(eval))
+        {
+            
+        }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dofPerElement,evalCols> operator()(const ElementType& ele,
+                                                                const BaryType& bary) const
+        {
+            return testExp().sfm(ele,bary).transpose()*evalExp()(ele,bary);
         }
         
     };
@@ -83,34 +88,35 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     // Operators
+    template <typename T1,typename T2>
+    LinearForm<T1,T2> operator, (const TestExpression<T1>& testExp,
+                                 const   EvalFunction<T2>& evalFunc)
+    {
+        return LinearForm<T1,T2>(testExp,evalFunc.derived());
+    }
     
     template <typename T1,typename T2>
-    LinearForm<T1,T2> operator, (const TestExpression<T1>& testExp, const EvalExpression<T2>& evalExp)
+    LinearForm<T1,T2> operator, (/**/ TestExpression<T1>&& testExp,
+                                 const  EvalFunction<T2>& evalFunc)
     {
-        return LinearForm<T1,T2>(testExp,evalExp);
+        return LinearForm<T1,T2>(std::move(testExp),evalFunc.derived());
     }
     
-    template <typename T1>
-    LinearForm<T1,Constant<double,1,1> > operator, (const TestExpression<T1>& testE, const double& c)
+    template <typename T1,typename T2>
+    LinearForm<T1,T2> operator, (const TestExpression<T1>&  testExp,
+                                 /*   */ EvalFunction<T2>&& evalFunc)
     {
-        return LinearForm<T1,Constant<double,1,1> >(testE,make_constant(c).eval());
+        return LinearForm<T1,T2>(testExp,std::move(evalFunc.derived()));
     }
     
-//    template <typename T1, int rows, int cols>
-//    LinearForm<T1,Constant<Eigen::Matrix<double,rows,cols>,rows,cols> > operator, (const TestExpression<T1>& testE,
-//                                                                                   const Eigen::Matrix<double,rows,cols>& c)
-//    {
-//        return LinearForm<T1,Constant<Eigen::Matrix<double,rows,cols>,rows,cols> >(testE,make_constant(c).eval());
-//    }
-    
-    template <typename T1, int rows, int cols>
-    LinearForm<T1,Constant<Eigen::Matrix<double,rows,cols>,rows,cols> > operator, (const TestExpression<T1>& testE,
-                                                                                   const Constant<Eigen::Matrix<double,rows,cols>,rows,cols>& c)
+    template <typename T1,typename T2>
+    LinearForm<T1,T2> operator, (TestExpression<T1>&& testExp,
+                                 EvalFunction<T2>&& evalFunc)
     {
-        return LinearForm<T1,Constant<Eigen::Matrix<double,rows,cols>,rows,cols> >(testE,c.eval());
+        return LinearForm<T1,T2>(std::move(testExp),std::move(evalFunc.derived()));
     }
     
-}	// close namespace
+}
 #endif
 
 

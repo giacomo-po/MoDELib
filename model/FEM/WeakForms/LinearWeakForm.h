@@ -26,7 +26,7 @@
 #include <model/FEM/WeakForms/LinearWeakAssembler.h>
 //#include <model/FEM/WeakForms/JGNselector.h>
 #include <model/MPI/MPIcout.h>
-
+#include <model/FEM/TrialOperators/ExpressionRef.h>
 
 namespace model
 {
@@ -48,8 +48,8 @@ namespace model
         constexpr static int domainDim=IntegrationDomainType::domainDim;
         static_assert(domainDim==dim || domainDim==dim-1, "DOMAIN DIMENSIONALITY MUST BE EITHER dim (volume integration) OR dim-1 (boundary integration)");
 
-        
-        const LinearFormType linearForm;
+        ExpressionRef<LinearFormType> linearForm;
+//        const LinearFormType& linearForm;
         const IntegrationDomainType& domain;
         
         /**********************************************************************/
@@ -58,14 +58,23 @@ namespace model
         /*init list */ linearForm(lF),
         /*init list */ domain(dom)
         {
-             model::cout<<greenColor<<"Creating LinearWeakForm "<<defaultColor<<std::endl;
+             model::cout<<greenColor<<"Creating LinearWeakForm 1"<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/
-        size_t gSize() const
+        LinearWeakForm(LinearFormType&& lF,
+                       const IntegrationDomainType& dom) :
+        /*init list */ linearForm(std::move(lF)),
+        /*init list */ domain(dom)
         {
-            return linearForm.testExp.gSize();
+            model::cout<<greenColor<<"Creating LinearWeakForm 2"<<defaultColor<<std::endl;
         }
+        
+//        /**********************************************************************/
+//        size_t gSize() const
+//        {
+//            return linearForm().testExp().gSize();
+//        }
 
         
         /**********************************************************************/
@@ -85,6 +94,14 @@ namespace model
                              const IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule>& domain)
     {
         return LinearWeakForm<LinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> >(linearForm,domain);
+    }
+    
+    template <typename T1, typename T2, typename FiniteElementType, int qOrder, int dimMinusDomainDim,
+    /*     */ template <short unsigned int, size_t> class QuadratureRule>
+    LinearWeakForm<LinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> > operator*(LinearForm<T1,T2>&& linearForm,
+                                                                                                                              const IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule>& domain)
+    {
+        return LinearWeakForm<LinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> >(std::move(linearForm),domain);
     }
     
 }	// close namespace

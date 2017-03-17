@@ -13,11 +13,12 @@
 #include <map>
 #include <list>
 #include <stdexcept>      // std::out_of_range
+#include <type_traits> // std::is_same
 
 
 #include <Eigen/Dense>
 
-#include <model/Utilities/AreSameType.h>
+//#include <model/Utilities/AreSameType.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
@@ -114,7 +115,7 @@ namespace model
                 }
             }
             
-            if(AreSameType<ElementType,LagrangeElement<ElementType::dim,ElementType::order>>::value)
+            if(std::is_same<ElementType,LagrangeElement<ElementType::dim,ElementType::order>>::value)
             {
                 assert((mesh2femIDmap().size()==SimplexObserver<dim,0>::size()) && "mesh2femIDmap has wrong size.");
             
@@ -182,10 +183,10 @@ namespace model
 //        }
         
         /**********************************************************************/
-        template <int nComponents>
-        TrialFunction<nComponents,FiniteElementType> trial()  // made non-const only to allow fe.createNodeList
+        template <char name,int nComponents>
+        TrialFunction<name,nComponents,FiniteElementType> trial()  // made non-const only to allow fe.createNodeList
         {
-            return TrialFunction<nComponents,FiniteElementType>(*this);
+            return TrialFunction<name,nComponents,FiniteElementType>(*this);
         }
         
        
@@ -195,17 +196,17 @@ namespace model
             return *this;
         }
         
-        /**********************************************************************/
-        typename ElementContainerType::const_iterator elementBegin() const
-        {
-            return ElementContainerType::begin();
-        }
-        
-        /**********************************************************************/
-        typename ElementContainerType::const_iterator elementEnd() const
-        {
-            return ElementContainerType::end();
-        }
+//        /**********************************************************************/
+//        typename ElementContainerType::const_iterator elementBegin() const
+//        {
+//            return ElementContainerType::begin();
+//        }
+//        
+//        /**********************************************************************/
+//        typename ElementContainerType::const_iterator elementEnd() const
+//        {
+//            return ElementContainerType::end();
+//        }
         
         /**********************************************************************/
         size_t elementSize() const
@@ -214,17 +215,17 @@ namespace model
             return ElementContainerType::size();
         }
         
-        /**********************************************************************/
-        typename NodeContainerType::const_iterator nodeBegin() const
-        {
-            return NodeContainerType::begin();
-        }
-        
-        /**********************************************************************/
-        typename NodeContainerType::const_iterator nodeEnd() const
-        {
-            return NodeContainerType::end();
-        }
+//        /**********************************************************************/
+//        typename NodeContainerType::const_iterator nodeBegin() const
+//        {
+//            return NodeContainerType::begin();
+//        }
+//        
+//        /**********************************************************************/
+//        typename NodeContainerType::const_iterator nodeEnd() const
+//        {
+//            return NodeContainerType::end();
+//        }
         
         /**********************************************************************/
         const NodeContainerType& nodes() const
@@ -355,7 +356,7 @@ namespace model
           *
           * By default the search starts at this->begin()->second
           */
-            return searchWithGuess(P,&(elementBegin()->second.simplex));
+            return searchWithGuess(P,&(elements().begin()->second.simplex));
         }
         
         /**********************************************************************/
@@ -369,7 +370,7 @@ namespace model
           */
             const std::pair<bool,const Simplex<dim,dim>*> temp(mesh.searchWithGuess(P,guess));
             const typename ElementContainerType::const_iterator eIter(ElementContainerType::find(temp.second->xID));
-            assert(eIter!=elementEnd() && "ELEMENT NOT FOUND");
+            assert(eIter!=elements().end() && "ELEMENT NOT FOUND");
             return std::pair<bool,const ElementType*>(temp.first,&(eIter->second));
         }
         

@@ -67,6 +67,15 @@ namespace model {
 			typename SimplexMapType::const_iterator iter(simplexMap.find(xID));
 			return (iter!=simplexMap.end())? (*(iter->second->parentBegin()))->child(xID) : SharedPtrType(new SimplexType(xID));
 		}
+        
+        /**********************************************************************/
+        static const SimplexType& simplex(const SimplexIDType& xID)
+        {
+            typename SimplexMapType::const_iterator iter(simplexMap.find(xID));
+            assert(iter!=simplexMap.end() && "Simplex not in simplexMap");
+            return *(iter->second);
+//            return (iter!=simplexMap.end())? (*(iter->second->parentBegin()))->child(xID) : SharedPtrType(new SimplexType(xID));
+        }
 		
         
         /**********************************************************************/

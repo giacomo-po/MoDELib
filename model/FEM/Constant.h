@@ -9,8 +9,11 @@
 #ifndef model_Constatnt_H_
 #define model_Constatnt_H_
 
+#include <utility> // for std::move
+
 #include <Eigen/Dense>
-#include <model/FEM/TrialOperators/EvalExpression.h>
+//#include <model/FEM/TrialOperators/EvalExpression.h>
+#include <model/FEM/TrialOperators/EvalFunction.h>
 
 
 namespace model
@@ -19,7 +22,7 @@ namespace model
     /**************************************************************************/
 	/**************************************************************************/
     template <typename T, int _rows, int _cols>
-	struct Constant //: public EvalExpression<Constant<T,_rows,_cols> >
+	struct Constant : public EvalFunction<Constant<T,_rows,_cols> >
     {
 
         constexpr static int rows=_rows;
@@ -27,12 +30,21 @@ namespace model
 
         
         const T c;
+//        internal::ExpressionRef<T> c;
+
         
         /**********************************************************************/
         Constant(const T& c_in) : c(c_in)
         {
-        
+//            std::cout<<"Constant Constructor 1"<<std::endl;
+//            std::cout<<"c="<<c<<std::endl;
         }
+        
+//        /**********************************************************************/
+//        Constant(T&& c_in) : c(std::move(c_in))
+//        {
+//            std::cout<<"Constant Constructor 2"<<std::endl;
+//        }
         
         /**********************************************************************/
         template<typename ElementType, typename BaryType>
@@ -41,14 +53,15 @@ namespace model
           * @param[in] bary the barycentric cooridinate
           *\returns the constant c.
           */
+
             return c;
         }
         
-        /**********************************************************************/
-        EvalExpression<Constant<T,_rows,_cols>> eval() const
-        {
-            return EvalExpression<Constant<T,_rows,_cols>>(*this);
-        }
+//        /**********************************************************************/
+//        EvalExpression<Constant<T,_rows,_cols>> eval() const
+//        {
+//            return EvalExpression<Constant<T,_rows,_cols>>(*this);
+//        }
         
     };
     
@@ -58,11 +71,42 @@ namespace model
     {
         return Constant<Eigen::Matrix<double,rows,cols>,rows,cols>(c);
     }
+    
+//    template <int rows, int cols>
+//    Constant<Eigen::Matrix<double,rows,cols>,rows,cols> make_constant(Eigen::Matrix<double,rows,cols>&& c)
+//    {
+//        return Constant<Eigen::Matrix<double,rows,cols>,rows,cols>(std::move(c));
+//    }
 
     Constant<double,1,1> make_constant(const double& c)
     {
         return Constant<double,1,1>(c);
     }
+    
+    Constant<double,1,1> make_constant(double&& c)
+    {
+        return Constant<double,1,1>(std::move(c));
+    }
+    
+//    /**************************************************************************/
+//    template <typename T,int rows,int cols>
+//    EvalExpression<Constant<T,rows,cols>> eval(const Constant<T,rows,cols>& con)
+//    {
+//        return EvalExpression<Constant<T,rows,cols>>(con);
+//    }
+//
+//    template <typename T,int rows,int cols>
+//    EvalExpression<Constant<T,rows,cols>> eval(Constant<T,rows,cols>&& con)
+//    {
+//        return EvalExpression<Constant<T,rows,cols>>(con);
+//    }
+    
+//    Constant<double,1,1> operator()(const double& c)
+//    {
+//        return Constant<double,1,1>(c);
+//
+//    }
+    
     
 }	// close namespace
 #endif
