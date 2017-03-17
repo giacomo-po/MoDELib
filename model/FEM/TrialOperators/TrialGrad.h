@@ -36,7 +36,7 @@ namespace model
     public:
         
         typedef typename T::TrialFunctionType TrialFunctionType;
-        typedef TrialBase<TrialFunctionType> TrialBaseType;
+//        typedef TrialBase<TrialFunctionType> TrialBaseType;
         typedef typename TypeTraits<TrialFunctionType>::ElementType ElementType;
         typedef typename TypeTraits<TrialFunctionType>::BaryType BaryType;
         constexpr static int dim=TypeTraits<TrialFunctionType>::dim;

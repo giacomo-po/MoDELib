@@ -97,7 +97,7 @@ int main(int argc, char** argv)
     
     /**************************************************************************/
     // Create the WeakProblem
-    auto weakProblem(bWF_u=lWF_1+lWF_2+lWF_3); //  weak problem
+    auto weakProblem(bWF_u==lWF_1+lWF_2+lWF_3); //  weak problem
     
     /**************************************************************************/
     // Set up Dirichlet boundary conditions
@@ -126,10 +126,10 @@ int main(int argc, char** argv)
     /**************************************************************************/
     // Output displacement and stress on external mesh faces
     SequentialOutputFile<'U',1> uFile;
-    uFile<<u;
+    uFile<<u.onBoundary();
     
     SequentialOutputFile<'S',1> sFile;
-    sFile<<s;
+    sFile<<s.onBoundary();
     
     return 0;
 }

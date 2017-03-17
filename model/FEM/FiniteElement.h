@@ -86,8 +86,6 @@ namespace model
         
         /**********************************************************************/
         FiniteElement(const SimplicialMesh<dim>& m) :
-//        /* init list */ _xMin(Eigen::Matrix<double,ElementType::dim,1>::Constant( DBL_MAX)),
-//        /* init list */ _xMax(Eigen::Matrix<double,ElementType::dim,1>::Constant(-DBL_MAX)),
         /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Zero()),
         /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Zero()),
         /* init list */ nodeListID(0),
@@ -120,18 +118,6 @@ namespace model
                 assert((mesh2femIDmap().size()==SimplexObserver<dim,0>::size()) && "mesh2femIDmap has wrong size.");
             
             }
-//            for (typename SimplicialMesh<dim>::const_iterator eIter=mesh.begin();eIter!=mesh.end();++eIter)
-//            {
-//                auto temp=ElementContainerType::emplace(eIter->first,ElementType(eIter->second,*this,*this));
-//                assert(temp.second && "UNABLE TO INSERT ELEMENT IN ELEMENT CONTAINER.");
-//                
-//                // Add element pointer to each of its nodes
-//                for(int n=0;n<ElementType::nodesPerElement;++n)
-//                {
-//                    auto temp1=temp.first->second.node(n).emplace(&temp.first->second);
-//                    assert(temp1.second && "UNABLE TO INSERT ELEMENT IN NODE.");
-//                }
-//            }
             
             // Check that node[k].gID==k;
             for(size_t n=0;n<nodes().size();++n)
@@ -163,24 +149,11 @@ namespace model
                 
             }
             
-//            SequentialOutputFile<'M',1> nodeFile;
-//            for (const auto& node : nodeFinder())
-//            {
-//                nodeFile<<std::setprecision(15)<<std::scientific<<node.second->P0.transpose()<<"\n";
-//            }
-            
              model::cout<<"   # elements: "<<elementSize()    <<"\n";
              model::cout<<"   # nodes: "   <<nodeSize()       <<"\n";
              model::cout<<"   xMin= "    <<_xMin.transpose()<<"\n";
              model::cout<<"   xMax= "    <<_xMax.transpose()<<std::endl;
         }
-        
-//        /**********************************************************************/
-//        template <int nComponents>
-//        TrialFunction<nComponents,FiniteElementType> trial() const
-//        {
-//            return TrialFunction<nComponents,FiniteElementType>(*this);
-//        }
         
         /**********************************************************************/
         template <char name,int nComponents>
@@ -189,24 +162,11 @@ namespace model
             return TrialFunction<name,nComponents,FiniteElementType>(*this);
         }
         
-       
-        
+        /**********************************************************************/
         const ElementContainerType& elements() const
         {
             return *this;
         }
-        
-//        /**********************************************************************/
-//        typename ElementContainerType::const_iterator elementBegin() const
-//        {
-//            return ElementContainerType::begin();
-//        }
-//        
-//        /**********************************************************************/
-//        typename ElementContainerType::const_iterator elementEnd() const
-//        {
-//            return ElementContainerType::end();
-//        }
         
         /**********************************************************************/
         size_t elementSize() const
@@ -214,18 +174,6 @@ namespace model
           */
             return ElementContainerType::size();
         }
-        
-//        /**********************************************************************/
-//        typename NodeContainerType::const_iterator nodeBegin() const
-//        {
-//            return NodeContainerType::begin();
-//        }
-//        
-//        /**********************************************************************/
-//        typename NodeContainerType::const_iterator nodeEnd() const
-//        {
-//            return NodeContainerType::end();
-//        }
         
         /**********************************************************************/
         const NodeContainerType& nodes() const
@@ -290,22 +238,6 @@ namespace model
         {
             return *this;
         }
-        
-//        /**********************************************************************/
-//        template <typename NodeSelectorType, typename... NodeSelectorArgs>
-//        NodeList<FiniteElementType> getNodeList(const NodeSelectorArgs&... args) const
-//        {
-//            NodeList<FiniteElementType> temp(*this);
-//            const NodeSelectorType nodeSelector(*this,args...);
-//            for(auto& node : nodes())
-//            {
-//                if(nodeSelector(node))
-//                {
-//                    temp.emplace_back(&node);
-//                }
-//            }
-//            return temp;
-//        }
         
         /**********************************************************************/
         template <typename NodeSelectorType, typename... NodeSelectorArgs>

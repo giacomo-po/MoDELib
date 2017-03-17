@@ -162,7 +162,7 @@ namespace model
             model::cout<<"Assembling LinearWeakForm on faces ("<<lwf.domain.size()<<" faces) ..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             
-            Eigen::Matrix<double,Eigen::Dynamic,1> _globalVector(Eigen::Matrix<double,Eigen::Dynamic,1>::Zero(lwf.gSize()));
+            Eigen::Matrix<double,Eigen::Dynamic,1> _globalVector(Eigen::Matrix<double,Eigen::Dynamic,1>::Zero(TrialBase<TrialFunctionType>::gSize()));
 
             for (size_t k=0;k<lwf.domain.size();++k)
             {

@@ -83,10 +83,10 @@ namespace model
         return Constant<double,1,1>(c);
     }
     
-    Constant<double,1,1> make_constant(double&& c)
-    {
-        return Constant<double,1,1>(std::move(c));
-    }
+//    Constant<double,1,1> make_constant(double&& c)
+//    {
+//        return Constant<double,1,1>(std::move(c));
+//    }
     
 //    /**************************************************************************/
 //    template <typename T,int rows,int cols>

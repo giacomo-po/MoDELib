@@ -29,11 +29,15 @@ namespace model
     {
         
         typedef typename T::TrialFunctionType TrialFunctionType;
-        typedef TrialBase<TrialFunctionType> TrialBaseType;
+//        typedef TrialBase<TrialFunctionType> TrialBaseType;
         typedef typename TypeTraits<TrialFunctionType>::ElementType ElementType;
         typedef typename TypeTraits<TrialFunctionType>::BaryType BaryType;
         constexpr static int dim=TypeTraits<TrialFunctionType>::dim;
         constexpr static int dofPerElement=TypeTraits<TrialFunctionType>::dofPerElement;
+        constexpr static int rows=(TrialFunctionType::dim*(TrialFunctionType::dim+1))/2;
+        constexpr static int cols=T::cols;
+        typedef Eigen::Matrix<double,rows,dofPerElement> ShapeFunctionMatrixType;
+        typedef Eigen::Matrix<double,rows,1> EvalMatrixType;
 
 
         static_assert(TypeTraits<TrialFunctionType>::dim==TypeTraits<TrialFunctionType>::nComponents,"SYMMETRIC GRADIENT (DEF) CAN ONLY BE COMPUTED IF nComponents==dim.");
@@ -44,7 +48,6 @@ namespace model
         
     //public:
         
-        constexpr static int rows=(TrialFunctionType::dim*(TrialFunctionType::dim+1))/2;
 
         /**********************************************************************/
         TrialDef(const T& x) :
@@ -75,36 +78,6 @@ namespace model
         //        {
         //            static_assert(0,"SECOND GRADIENTS ARE NOT SUPPORTED YET.");
         //        }
-        
-        
-//        /**********************************************************************/
-//        Eigen::Matrix<double,rows,1> operator()(const ElementType& ele,
-//                                                const BaryType& bary) const
-//        {/*!@param[in] ele the element
-//          * @param[in] bary the vector of barycentric coordinates
-//          * \returns the value of the Derived expression at bary.
-//          *
-//          * \todo: in order to be optimized, this function should be Derived-specific
-//          */
-//            return sfm(ele,bary)*this->trial().dofs(ele);
-//        }
-//        
-//        /**********************************************************************/
-//        Eigen::Matrix<double,rows,1> operator()(const Eigen::Matrix<double,dim,1>& P,
-//                                                const Simplex<dim,dim>* guess) const
-//        {/*!@param[in] P the position vector
-//          * @param[in] guess the Simplex where the search starts
-//          * \returns the value of the Derived expression at P.
-//          */
-//            const std::pair<bool,const ElementType*> temp=this->trial().fe.searchWithGuess(P,guess);
-//            //            return (temp.first? sfm(*(temp.second),temp.second->simplex.pos2bary(P))*this->trial().dofs(*(temp.second)) : Eigen::Matrix<double,rows,1>::Zero());
-//            Eigen::Matrix<double,rows,1> val(Eigen::Matrix<double,rows,1>::Zero());
-//            if(temp.first)
-//            {
-//                val=sfm(*(temp.second),temp.second->simplex.pos2bary(P))*this->trial().dofs(*(temp.second));
-//            }
-//            return val;
-//        }
 
     };
     
