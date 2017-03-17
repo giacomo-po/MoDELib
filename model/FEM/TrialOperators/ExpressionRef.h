@@ -34,8 +34,8 @@ namespace model
             /* init */ temp(nullptr),
             /* init */ ref(t)
             {
-                std::cout<<typeid(t).name()<<std::endl;
-                std::cout<<"ExpressionRef from const&"<<std::endl;
+//                std::cout<<typeid(t).name()<<std::endl;
+//                std::cout<<"ExpressionRef from const&"<<std::endl;
             }
             
             ExpressionRef(T&& t):
@@ -43,8 +43,8 @@ namespace model
 //          /* init */ temp((std::move(in))),
             /* init */ ref(*temp)
             {
-                std::cout<<typeid(*temp).name()<<std::endl;
-                std::cout<<"ExpressionRef from &&"<<std::endl;
+//                std::cout<<typeid(*temp).name()<<std::endl;
+//                std::cout<<"ExpressionRef from &&"<<std::endl;
             }
             
 //            ExpressionRef(const ExpressionRef<T>& other)=delete;

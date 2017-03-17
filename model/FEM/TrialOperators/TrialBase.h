@@ -48,13 +48,13 @@ namespace model
         
     private:
         static Eigen::Matrix<double,Eigen::Dynamic,1> dofvector;
-        static const FiniteElementType* p_fe;
+        static FiniteElementType* p_fe;
         static DirichletNodeMapType _dirichletNodeMap; // DirichletNodeMap
         static DirichletConditionContainerType _dirichletConditionContainer;
     public:
         
         /**********************************************************************/
-        static void init(const FiniteElementType& fe_in)
+        static void init(FiniteElementType& fe_in)
         {
             p_fe=&fe_in;
             dofvector.setZero(gSize());
@@ -62,7 +62,7 @@ namespace model
         }
         
         /**********************************************************************/
-        static const FiniteElementType& fe()
+        static FiniteElementType& fe()
         {
             return *p_fe;
         }
@@ -159,7 +159,7 @@ namespace model
         //        }
         //
         /**********************************************************************/
-        static const DirichletNodeMapType& dirichletNodeMap()
+        static DirichletNodeMapType& dirichletNodeMap()
         {/*!\returns A map of the nodes having a DirichletCondition. The key is
           * the global ID of the node (gID), and the value is an array of bool
           * indicating which component is constrained.
@@ -174,7 +174,7 @@ namespace model
         //        }
         
         /**********************************************************************/
-        static const DirichletConditionContainerType& dirichletConditions()
+        static DirichletConditionContainerType& dirichletConditions()
         {
             return _dirichletConditionContainer;
         }
@@ -238,7 +238,7 @@ namespace model
     Eigen::Matrix<double,Eigen::Dynamic,1> TrialBase<TrialFunctionType>::dofvector;
     
     template<typename TrialFunctionType>
-    const typename TypeTraits<TrialFunctionType>::FiniteElementType* TrialBase<TrialFunctionType>::p_fe;
+    typename TypeTraits<TrialFunctionType>::FiniteElementType* TrialBase<TrialFunctionType>::p_fe;
     
     template<typename TrialFunctionType>
     typename std::map<size_t,std::array<bool,TypeTraits<TrialFunctionType>::dofPerNode>> TrialBase<TrialFunctionType>::_dirichletNodeMap;

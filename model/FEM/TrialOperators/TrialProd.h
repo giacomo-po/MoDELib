@@ -81,7 +81,7 @@ namespace model
         /* init list           */ op2(y)
         {/*!
           */
-            std::cout<<"TrialProd constructor 1"<<std::endl;
+//            std::cout<<"TrialProd constructor 1"<<std::endl;
             //          std::cout<<"op1.c="<<op1.c<<std::endl;
             
         }
@@ -94,7 +94,7 @@ namespace model
         /* init list           */ op2(y)
         {/*!
           */
-            std::cout<<"TrialProd constructor 2"<<std::endl;
+//            std::cout<<"TrialProd constructor 2"<<std::endl;
         }
         
         /**********************************************************************/
@@ -105,7 +105,7 @@ namespace model
         /* init list           */ op2(std::move(y))
         {/*!
           */
-            std::cout<<"TrialProd constructor 3"<<std::endl;
+//            std::cout<<"TrialProd constructor 3"<<std::endl;
         }
         
         /**********************************************************************/
@@ -116,7 +116,7 @@ namespace model
         /* init list           */ op2(std::move(y))
         {/*!
           */
-            std::cout<<"TrialProd constructor 4"<<std::endl;
+//            std::cout<<"TrialProd constructor 4"<<std::endl;
         }
         //
         //        /**********************************************************************/

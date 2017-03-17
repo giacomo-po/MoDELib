@@ -24,8 +24,7 @@ namespace model
     /**************************************************************************/
 	/**************************************************************************/
     template <typename T>
-    struct TrialDef : //public TrialBase<typename T::TrialFunctionType>,
-    /*            */ public TrialExpressionBase<TrialDef<T> >
+    struct TrialDef : public TrialExpressionBase<TrialDef<T> >
     {
         
         typedef typename T::TrialFunctionType TrialFunctionType;
@@ -86,14 +85,14 @@ namespace model
     template <typename T>
     TrialDef<T> def(const TrialExpressionBase<T>& x)
     {
-        return TrialDef<T>(x);
+        return TrialDef<T>(x.derived());
     }
     
     /**************************************************************************/
     template <typename T>
     TrialDef<T> def(TrialExpressionBase<T>&& x)
     {
-        return TrialDef<T>(std::move(x));
+        return TrialDef<T>(std::move(x.derived()));
     }
     
 }	// close namespace

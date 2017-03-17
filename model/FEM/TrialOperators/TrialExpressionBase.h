@@ -85,16 +85,12 @@ namespace model
     template<typename Derived>
     TestExpression<Derived> test(const TrialExpressionBase<Derived>& trial)
     {
-        std::cout<<"test function 1"<<std::endl;
-        
         return TestExpression<Derived>(trial.derived());
     }
     
     template<typename Derived>
     TestExpression<Derived> test(TrialExpressionBase<Derived>&& trial)
     {
-        std::cout<<"test function 2"<<std::endl;
-        
         return TestExpression<Derived>(std::move(trial.derived()));
     }
     
@@ -102,14 +98,12 @@ namespace model
     template<typename Derived>
     EvalExpression<Derived> eval(const TrialExpressionBase<Derived>& trial)
     {
-        std::cout<<"eval function 1"<<std::endl;
         return EvalExpression<Derived>(trial.derived());
     }
     
     template<typename Derived>
     EvalExpression<Derived> eval(TrialExpressionBase<Derived>&& trial)
     {
-        std::cout<<"eval function 2"<<std::endl;
         return EvalExpression<Derived>(std::move(trial.derived()));
     }
 

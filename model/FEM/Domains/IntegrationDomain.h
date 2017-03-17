@@ -75,13 +75,13 @@ namespace model
         template <typename AnyClass, typename IntegrandType, typename ...Args>
         void integrate(const AnyClass* const C, IntegrandType &intgrl, IntegrandType (AnyClass::*mfp)(const AbscissaType&,const ElementType&, const int&, const Args&...) const, const Args&...args) const
         {
-            model::cout<<"Integrating on boundary ("<<this->size()<<" faces) ..."<<std::flush;
-            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"Integrating on boundary ("<<this->size()<<" faces) ..."<<std::flush;
+//            const auto t0= std::chrono::system_clock::now();
             for (size_t k=0;k<this->size();++k)
             {
                 QuadratureType::integrate(C,intgrl,mfp,*(this->operator[](k)).first,this->operator[](k).second,args...);
             }
-            model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+//            model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         }
         
 //        /**********************************************************************/

@@ -11,27 +11,35 @@
 
 //#include <model/Utilities/TypeTraits.h>
 #include <model/FEM/TrialOperators/EvalExpression.h>
+#include <model/FEM/TrialOperators/ExpressionRef.h>
 
 
 namespace model
 {
     
-    template<typename TrialExpressionType>
-    struct TrialExpressionBase;
+//    template<typename TrialExpressionType>
+//    struct TrialExpressionBase;
     
     /**************************************************************************/
 	/**************************************************************************/
-	template<typename TrialExpressionType,int DimMinusDomainDim>
+	template<typename EvalType,int DimMinusDomainDim>
 	struct TrialDomainView
     {
         
-        const EvalExpression<TrialExpressionType>& evalExp;
+//        const EvalExpression<EvalType>& evalExp;
         
+        ExpressionRef<EvalExpression<EvalType>> evalExp;
         
-        TrialDomainView(const EvalExpression<TrialExpressionType>& ee) :
+        TrialDomainView(const EvalExpression<EvalType>& ee) :
         evalExp(ee)
         {
         
+        }
+        
+        TrialDomainView(EvalExpression<EvalType>&& ee) :
+        evalExp(std::move(ee))
+        {
+            
         }
         
 
@@ -58,7 +66,7 @@ namespace model
             for (int v=0;v<dim+1;++v)
             {
                 os<<ele.second.position(vertexBary.col(v)).transpose()<<" "
-                <<dv.evalExp(ele.second,vertexBary.col(v)).transpose()<<"\n";
+                <<dv.evalExp()(ele.second,vertexBary.col(v)).transpose()<<"\n";
             }
         }
         
@@ -75,7 +83,6 @@ namespace model
       */
         constexpr int dim=TrialExpressionType::TrialFunctionType::dim;
         const Eigen::Matrix<double,dim+1,dim+1> vertexBary(Eigen::Matrix<double,dim+1,dim+1>::Identity());
-        
         for(const auto& ele : TrialBase<typename TrialExpressionType::TrialFunctionType>::fe().elements())
         {
             if(ele.second.isBoundaryElement())
@@ -88,13 +95,12 @@ namespace model
                         if (v!=boundaryFaces[f])
                         {
                             os<<std::setprecision(15)<<std::scientific<<ele.second.position(vertexBary.col(v)).transpose()<<" "
-                            <<dv.evalExp(ele.second,vertexBary.col(v)).transpose()<<"\n";
+                            <<dv.evalExp()(ele.second,vertexBary.col(v)).transpose()<<"\n";
                         }
                     }
                 }
             }
         }
-        
         return os;
     }
 

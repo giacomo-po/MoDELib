@@ -68,8 +68,8 @@ namespace model
         
 //        typedef typename TypeTraits<TrialFunctionType>::NodeContainerType NodeContainerType;
         
-//        typedef std::map<size_t,double> DirichletConditionContainerType;
-//        typedef std::map<size_t,std::array<bool,dofPerNode>>  DirichletNodeMapType;
+        typedef std::map<size_t,double> DirichletConditionContainerType;
+        typedef std::map<size_t,std::array<bool,dofPerNode>>  DirichletNodeMapType;
         
         
         typedef typename TypeTraits<TrialFunctionType>::BaryType BaryType;
@@ -90,7 +90,7 @@ namespace model
     public:
         
         /**********************************************************************/
-        TrialFunction(const FiniteElementType& fe)
+        TrialFunction(FiniteElementType& fe)
 //        /* init list */ fe(fe_in)
         {
             model::cout<<greenColor<<"Creating TrialFunction..."<<std::flush;
@@ -103,6 +103,12 @@ namespace model
         TrialFunction(const TrialFunctionType& other) = delete; // do not copy trial functions
         TrialFunction(TrialFunctionType&& other) = default; // do not copy trial functions
 
+        /**********************************************************************/
+        FiniteElementType& fe() const
+        {
+            return TrialBase<TrialFunctionType>::fe();
+        }
+        
         /**********************************************************************/
         TrialFunctionType& operator=(const double& c)
         {
@@ -145,6 +151,13 @@ namespace model
 //        {
 //            return *this;
 //        }
+
+        /**********************************************************************/
+        size_t gSize() const
+        {/*!\returns the number of elements in the FiniteElement
+          */
+            return TrialBase<TrialFunctionType>::gSize();
+        }
         
         /**********************************************************************/
         size_t elementSize() const
@@ -271,11 +284,11 @@ namespace model
 //            return *this;
 //        }
 //        
-//        /**********************************************************************/
-//        const DirichletConditionContainerType& dirichletConditions() const
-//        {
-//            return *this;
-//        }
+        /**********************************************************************/
+        DirichletConditionContainerType& dirichletConditions() const
+        {
+            return TrialBase<TrialFunctionType>::dirichletConditions();
+        }
         
 //        /**********************************************************************/
 //        DirichletNodeMapType& dirichletNodeMap()
@@ -286,14 +299,14 @@ namespace model
 //            return *this;
 //        }
 //        
-//        /**********************************************************************/
-//        const DirichletNodeMapType& dirichletNodeMap() const
-//        {/*!\returns A map of the nodes having a DirichletCondition. The key is
-//          * the global ID of the node (gID), and the value is an array of bool
-//          * indicating which component is constrained.
-//          */
-//            return *this;
-//        }
+        /**********************************************************************/
+        DirichletNodeMapType& dirichletNodeMap() const
+        {/*!\returns A map of the nodes having a DirichletCondition. The key is
+          * the global ID of the node (gID), and the value is an array of bool
+          * indicating which component is constrained.
+          */
+            return TrialBase<TrialFunctionType>::dirichletNodeMap();
+        }
         
         /**********************************************************************/
         const Eigen::Matrix<double,Eigen::Dynamic,1>& dofVector() const
