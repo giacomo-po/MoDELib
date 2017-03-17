@@ -1,11 +1,12 @@
 MODEL_INCLUDE = ../../../
+EIGEN_INCLUDE =/Users/giacomo/Documents/eigen
 usePARDISO = 0
 MKL_PATH=/opt/intel/composer_xe_2013.3.171/mkl
 
 ##############################
 IDIR += -I ./
-IDIR += -I /usr/local/include
 IDIR += -I $(MODEL_INCLUDE)
+IDIR += -I $(EIGEN_INCLUDE)
 
 ##############################
 CFLAGS += -std=c++11  

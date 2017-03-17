@@ -38,13 +38,13 @@ namespace model
         }
         
         /**************************************/
-        template <typename NodeType,typename TrialFunctionType>
-        Eigen::Matrix<typename TrialFunctionType::Scalar,TrialFunctionType::dofPerNode,1>
-        operator()(const NodeType& node, const TrialFunctionType&) const
+        template <typename NodeType,int dofPerNode>
+        Eigen::Matrix<double,dofPerNode,1>& operator()(const NodeType& node,
+                                                       Eigen::Matrix<double,dofPerNode,1>& val) const
         {
-            return P-node.P0+R*(node.P0-P);
+            val=P-node.P0+R*(node.P0-P);
+            return val;
         }
-        
         
     };
     

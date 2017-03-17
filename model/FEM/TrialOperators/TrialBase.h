@@ -11,122 +11,246 @@
 
 //#include <model/FEM/TrialOperators/TestExpression.h>
 
+#include <type_traits> // std::is_same
+#include <map>
+#include <Eigen/Dense>
+#include <model/Utilities/TypeTraits.h>
+
 namespace model
 {
-    	
+    
     /**************************************************************************/
-	/**************************************************************************/
+    /**************************************************************************/
     /*!\brief A class template that provides the base for all the expressions
-     * involving a TrialFunction. The expression-template mechanism is based 
+     * involving a TrialFunction. The expression-template mechanism is based
      * on the CRTP pattern.
      */
-	template<typename _TrialFunctionType>
-	class TrialBase
+    template<typename _TrialFunctionType>
+    class TrialBase
     {
-
+        
     public:
+        typedef double Scalar;
         typedef typename TypeTraits<_TrialFunctionType>::FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::MeshType MeshType;
         typedef typename TypeTraits<_TrialFunctionType>::ElementType ElementType;
+        typedef typename TypeTraits<_TrialFunctionType>::BaryType BaryType;
         
         typedef typename TypeTraits<_TrialFunctionType>::NodeType NodeType;
         typedef _TrialFunctionType TrialFunctionType;
-
-        //        const FiniteElementType& fe;
+        constexpr static int dim=ElementType::dim;
+        constexpr static int nodesPerElement=ElementType::nodesPerElement;
+        constexpr static int dofPerNode=TypeTraits<TrialFunctionType>::dofPerNode;
+        constexpr static int dofPerElement=TypeTraits<TrialFunctionType>::dofPerElement;
+        
+        typedef std::map<size_t,std::array<bool,TypeTraits<TrialFunctionType>::dofPerNode>> DirichletNodeMapType;
+        typedef std::map<size_t,double> DirichletConditionContainerType;
+        
     private:
-        
-        const _TrialFunctionType& tf;
-
-        
+        static Eigen::Matrix<double,Eigen::Dynamic,1> dofvector;
+        static FiniteElementType* p_fe;
+        static DirichletNodeMapType _dirichletNodeMap; // DirichletNodeMap
+        static DirichletConditionContainerType _dirichletConditionContainer;
     public:
         
-//        const TrialFunctionType& tf;
-
-        
         /**********************************************************************/
-        TrialBase(const TrialFunctionType& tf_in) : tf(tf_in)
-        {/*!\param[in] tf_in a const reference to a TrialFunction
-          * Constructor initializes tf.
-          */
-            
+        static void init(FiniteElementType& fe_in)
+        {
+            p_fe=&fe_in;
+            dofvector.setZero(gSize());
+            model::cout<<"("<<dofvector.size()<<" dof)."<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/
-        const ElementType& element(const size_t& n) const
+        static FiniteElementType& fe()
+        {
+            return *p_fe;
+        }
+        
+        /**********************************************************************/
+        static size_t gSize()
+        {
+            return nodeSize()*dofPerNode;
+        }
+        
+        /**********************************************************************/
+        static Eigen::Matrix<double,Eigen::Dynamic,1>& dofVector()
+        {/*!\returns A column vector of the DOFs of *this.
+          */
+            return dofvector;
+        }
+        
+        /**********************************************************************/
+        static Eigen::Matrix<double,dofPerNode,1> dofs(const NodeType& node)
+        {/*!@param[in] node the FEM node
+          * \returns A vector of the degrees of freedom of the node
+          */
+            return dofvector.template segment<dofPerNode>(node.gID*dofPerNode);
+        }
+        
+        /**********************************************************************/
+        static Eigen::Matrix<double,dofPerNode,1> dofs(const size_t& gID)
+        {/*!@param[in] node the FEM node
+          * \returns A vector of the degrees of freedom of the node
+          */
+            return dofvector.template segment<dofPerNode>(gID*dofPerNode);
+        }
+        
+        /**********************************************************************/
+        static Eigen::Matrix<double,dofPerElement,1> dofs(const ElementType& ele)
+        {/*!@param[in] ele the element
+          * \returns A vector of the degrees of freedom of *this on ele
+          */
+            Eigen::Matrix<double,dofPerElement,1> temp;
+            for(int n=0;n<nodesPerElement;++n)
+            {
+                temp.template segment<dofPerNode>(n*dofPerNode)=dofs(ele.node(n));
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        static const ElementType& element(const size_t& n)
         {/*!@param[in] n the node ID
           * \returns a const reference to the n-th node in the FiniteElement
           */
-            return tf.fe.element(n);
-        }
-
-        /**********************************************************************/
-        const TrialFunctionType& trial() const
-        {
-            return tf;
+            return fe().element(n);
         }
         
         /**********************************************************************/
-        const FiniteElementType& fe() const
+        static const MeshType& mesh()
         {
-            return tf.fe;
+            return fe().mesh;
         }
         
         /**********************************************************************/
-        const MeshType& mesh() const
-        {
-            return tf.fe.mesh;
-        }
-        
-        /**********************************************************************/
-        size_t elementSize() const
+        static size_t elementSize()
         {/*!\returns the number of elements in the FiniteElement
           */
-            return tf.fe.elementSize();
+            return fe().elementSize();
         }
         
         /**********************************************************************/
-        typename FiniteElementType::ElementContainerType::const_iterator elementBegin() const
+        static size_t nodeSize()
         {
-            return tf.fe.elementBegin();
+            return fe().nodeSize();
         }
         
         /**********************************************************************/
-        typename FiniteElementType::ElementContainerType::const_iterator elementEnd() const
+        static const NodeType& node(const size_t& n)
         {
-            return tf.fe.elementEnd();
+            return fe().node(n);
         }
         
         /**********************************************************************/
-        size_t nodeSize() const
+        static void clearDirichletConditions()
         {
-            return tf.fe.nodeSize();
+            _dirichletNodeMap.clear();
+            _dirichletConditionContainer.clear();
         }
-
+        
+        //        /**********************************************************************/
+        //        static DirichletNodeMapType& dirichletNodeMap()
+        //        {/*!\returns A map of the nodes having a DirichletCondition. The key is
+        //          * the global ID of the node (gID), and the value is an array of bool
+        //          * indicating which component is constrained.
+        //          */
+        //            return _dirichletNodeMap;
+        //        }
+        //
         /**********************************************************************/
-        const NodeType& node(const size_t& n) const
-        {
-            return tf.fe.node(n);
+        static DirichletNodeMapType& dirichletNodeMap()
+        {/*!\returns A map of the nodes having a DirichletCondition. The key is
+          * the global ID of the node (gID), and the value is an array of bool
+          * indicating which component is constrained.
+          */
+            return _dirichletNodeMap;
         }
-
+        
+        //        /**********************************************************************/
+        //        static DirichletConditionContainerType& dirichletConditions()
+        //        {
+        //            return _dirichletConditionContainer;
+        //        }
+        
+        /**********************************************************************/
+        static DirichletConditionContainerType& dirichletConditions()
+        {
+            return _dirichletConditionContainer;
+        }
+        
+        /**********************************************************************/
+        template<typename Condition>
+        static void addDirichletCondition(const size_t& nodeListID,
+                                          const Condition& cond,
+                                          const std::array<bool,dofPerNode>& constrainDof)
+        {/*!@param[in] nodeListID ID of the FiniteElement nodeList to which this DirichletCondition applies
+          * @param[in] cond the condition object
+          * @param[in] constrainDof array of booleans indicating which dofs are to be constrained
+          */
+            
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"Adding Dirichlet condition..."<<std::flush;
+            // Check that at least one constrainDof is true
+            bool isConstrained(false);
+            for(int dof=0;dof<dofPerNode;++dof)
+            {
+                isConstrained+=constrainDof[dof];
+            }
+            
+            if(isConstrained)
+            {
+                // Add to dirichletConditions
+                for(const auto& pNode :  TrialBase<TrialFunctionType>::fe().nodeList(nodeListID))
+                {
+                    //const Eigen::Matrix<double,dofPerNode,1> value(cond(*pNode,*this));
+                    Eigen::Matrix<double,dofPerNode,1> value(Eigen::Matrix<double,dofPerNode,1>::Zero());
+                    cond(*pNode,value);
+                    //assert(0 && "RE-ENABLE ABOVE");
+                    // DirichletBoundaryCondition<TrialFunctionType> value(*pNode); // TO DO , implement this
+                    // cond(value); // TO DO , implement this
+                    for(int dof=0;dof<dofPerNode;++dof)
+                    {
+                        _dirichletNodeMap[pNode->gID][dof]+=constrainDof[dof];
+                        
+                        if(constrainDof[dof])
+                        {
+                            const auto temp=_dirichletConditionContainer.emplace(dofPerNode*(pNode->gID)+dof,value(dof));
+                            // assert that the condition has been inserted, or that an equivalent condition already existed
+                            if(!(temp.second || std::abs(temp.first->second-value(dof))<FLT_EPSILON ))
+                            {
+                                model::cout<<"FEM node "<<pNode->gID<<", dof "<<dof<<std::endl;
+                                model::cout<<"exising dirichlet-condition= "<<temp.first->second<<std::endl;
+                                model::cout<<"    new dirichlet-condition= "<<value(dof)<<std::endl;
+                                assert(0 && "CONFLICTING DIRICHLET CONDITIONS");
+                            }
+                        }
+                    }
+                }
+            }
+            
+            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+        }
         
     };
+    
+    template<typename TrialFunctionType>
+    Eigen::Matrix<double,Eigen::Dynamic,1> TrialBase<TrialFunctionType>::dofvector;
+    
+    template<typename TrialFunctionType>
+    typename TypeTraits<TrialFunctionType>::FiniteElementType* TrialBase<TrialFunctionType>::p_fe;
+    
+    template<typename TrialFunctionType>
+    typename std::map<size_t,std::array<bool,TypeTraits<TrialFunctionType>::dofPerNode>> TrialBase<TrialFunctionType>::_dirichletNodeMap;
+    
+    template<typename TrialFunctionType>
+    std::map<size_t,double> TrialBase<TrialFunctionType>::_dirichletConditionContainer;
+    
+    
     
     
     
 }	// close namespace
 #endif
 
-//        /**********************************************************************/
-//        void operator()(const Eigen::Matrix<double,TypeTraits<TrialFunctionType>::dim,1>& p) const
-//        {
-//            std::cout<<"Finish implementation here"<<std::endl;
-//        }
 
-
-//        template <typename ElementType>
-//        Eigen::Matrix<double,rows,derived::nodesPerElement> at(const typename Derived::ElementType& ele, const Eigen::Matrix<double,Derived::dim+1,1>& bary) const
-//        {
-//
-//            return derived().template sfm(ele,bary);
-//
-//        }

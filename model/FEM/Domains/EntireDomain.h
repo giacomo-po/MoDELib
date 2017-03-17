@@ -29,11 +29,9 @@ namespace model
         {
             IntegrationDomain<FiniteElementType,0,qOrder,QuadratureRule> temp;
 
-            for (typename FiniteElementType::ElementContainerType::const_iterator eIter =fe.elementBegin();
-                 /*                                                            */ eIter!=fe.elementEnd();
-                 /*                                                            */ eIter++)
+            for (const auto& ele : fe.elements())
             {
-                temp.emplace_back(&eIter->second);
+                temp.emplace_back(&ele.second);
             }
             
             return temp;

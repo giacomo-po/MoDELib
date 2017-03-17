@@ -31,7 +31,7 @@ namespace model
 //        typedef MeshRegion<SimplexType> MeshRegionType;
 //        typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         
-        const std::pair<size_t,size_t> regionBndID;
+        const std::pair<int,int> regionBndID;
         
         /**********************************************************************/
         MeshRegionBoundary(const std::pair<size_t,size_t>& rbndID) : regionBndID(rbndID)

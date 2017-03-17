@@ -36,17 +36,17 @@ namespace model
         /**********************************************************************/
         MeshRegion(const int& rID) : regionID(rID)
         {
+//            model::cout<<"Creating Mesh Region "<<rID<<std::flush;
             const bool success=MeshRegionObserverType::emplace(regionID,this).second;
             assert(success && "COULD NOT INSERT MeshRegion in MeshRegionObserver.");
+//            model::cout<<" done"<<std::endl;
         }
         
         /**********************************************************************/
         ~MeshRegion()
         {
-            
             const size_t n=MeshRegionObserverType::erase(regionID);
             assert(n==1 && "COULD NOT ERASE MeshRegion in MeshRegionObserver.");
-            
         }
         
         /**********************************************************************/

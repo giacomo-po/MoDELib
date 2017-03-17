@@ -49,6 +49,7 @@ namespace model
 	public:
         
         static float alpha;
+        static bool use_BurgersNorm;
         
 		typedef float scalarType;
 		typedef Eigen::Matrix<scalarType,dim,Np> MatrixDimNp;
@@ -67,6 +68,7 @@ namespace model
 		
         VectorDim planeNormal;
 		VectorDim burgers;
+        scalarType burgersNorm;
 		VectorDim chord;
         
         const bool isSessile;
@@ -91,6 +93,7 @@ namespace model
         /* init list */ snID(snID_in),
 		/* init list */ planeNormal(P0T0P1T1BN.col(5).normalized()),
 		/* init list */ burgers(P0T0P1T1BN.col(4)),
+        /* init list */ burgersNorm(use_BurgersNorm? burgers.norm() : 1.0),
         /* init list */ isSessile(std::fabs(planeNormal.dot(burgers.normalized()))>FLT_EPSILON)
         {
             
@@ -258,20 +261,20 @@ namespace model
 					//glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
 					for (int c=0;c<Nc;++c){
 						glNormal3f(tubeCircles[k-1](0,c),tubeCircles[k-1](1,c),tubeCircles[k-1](2,c));
-						glVertex3f(tubeAxis(0,k-1)+radius*tubeCircles[k-1](0,c),tubeAxis(1,k-1)+radius*tubeCircles[k-1](1,c),tubeAxis(2,k-1)+radius*tubeCircles[k-1](2,c));
+						glVertex3f(tubeAxis(0,k-1)+burgersNorm*radius*tubeCircles[k-1](0,c),tubeAxis(1,k-1)+burgersNorm*radius*tubeCircles[k-1](1,c),tubeAxis(2,k-1)+burgersNorm*radius*tubeCircles[k-1](2,c));
 						glNormal3f(tubeCircles[k](0,c),tubeCircles[k](1,c),tubeCircles[k](2,c));
 						//if(showTubes==1){
-						glVertex3f(tubeAxis(0,k)+radius*tubeCircles[k](0,c),tubeAxis(1,k)+radius*tubeCircles[k](1,c),tubeAxis(2,k)+radius*tubeCircles[k](2,c));
+						glVertex3f(tubeAxis(0,k)+burgersNorm*radius*tubeCircles[k](0,c),tubeAxis(1,k)+burgersNorm*radius*tubeCircles[k](1,c),tubeAxis(2,k)+burgersNorm*radius*tubeCircles[k](2,c));
 						//}
 						//else{
 						//	glVertex3f(tubeAxis(0,k),tubeAxis(1,k),tubeAxis(2,k));
 						//}
 					}
 					glNormal3f(tubeCircles[k-1](0,0),tubeCircles[k-1](1,0),tubeCircles[k-1](2,0));
-					glVertex3f(tubeAxis(0,k-1)+radius*tubeCircles[k-1](0,0),tubeAxis(1,k-1)+radius*tubeCircles[k-1](1,0),tubeAxis(2,k-1)+radius*tubeCircles[k-1](2,0));
+					glVertex3f(tubeAxis(0,k-1)+burgersNorm*radius*tubeCircles[k-1](0,0),tubeAxis(1,k-1)+burgersNorm*radius*tubeCircles[k-1](1,0),tubeAxis(2,k-1)+burgersNorm*radius*tubeCircles[k-1](2,0));
 					glNormal3f(tubeCircles[k](0,0),tubeCircles[k](1,0),tubeCircles[k](2,0));
 					//if(showTubes==1){
-					glVertex3f(tubeAxis(0,k)+radius*tubeCircles[k](0,0),tubeAxis(1,k)+radius*tubeCircles[k](1,0),tubeAxis(2,k)+radius*tubeCircles[k](2,0));
+					glVertex3f(tubeAxis(0,k)+burgersNorm*radius*tubeCircles[k](0,0),tubeAxis(1,k)+burgersNorm*radius*tubeCircles[k](1,0),tubeAxis(2,k)+burgersNorm*radius*tubeCircles[k](2,0));
 					//}
 					//else{
 					glVertex3f(tubeAxis(0,k),tubeAxis(1,k),tubeAxis(2,k));
@@ -363,24 +366,27 @@ namespace model
     
     template <int dim, int Np, int Nc>
 	float SingleSplinePlotter<dim,Np,Nc>::alpha=0.5;
-	
+
+    template <int dim, int Np, int Nc>
+    bool SingleSplinePlotter<dim,Np,Nc>::use_BurgersNorm=false;
 	
 	
 	/*************************************************************/
 	/*************************************************************/
 	template <int dim, int Np, int Nc>
 	class SplinePlotter :
-	/* inherits from   */ public VertexReader<'V',9,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
+	/* inherits from   */ public VertexReader<'V',10,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ public EdgeReader  <'E',11,double>,
-	/*                 */ public VertexReader<'P',7,double>,
+	/*                 */ public IDreader<'P',3,6,double>,
+    /*                 */ public VertexReader<'L',10,double>,
     /* inherits from   */ public IDreader<'Q',3,13,double>,
     /* inherits from   */ private std::vector<SingleSplinePlotter<dim,Np,Nc> >
     { // ptr_vector::push_back doesn't use copy constructor so creation of SingleSplinePlotter will be faster // CHANGE THIS DOUBLE TO SCALARTYPE
 		
 		typedef float scalarType;
-		typedef VertexReader<'V',9,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
+		typedef VertexReader<'V',10,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
 		typedef EdgeReader  <'E',11,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
-        typedef VertexReader<'P',7,double> PKContainerType;
+        typedef IDreader<'P',3,6,double> PKContainerType;
         typedef IDreader<'Q',3,13,double> QuadContainerType;
 
 		typedef SingleSplinePlotter<dim,Np,Nc> SingleSplinePlotterType;
@@ -388,6 +394,7 @@ namespace model
 
         typedef typename SingleSplinePlotterType::VectorDim VectorDim;
         
+        typedef VertexReader<'L',10,double> GBDreaderType;
         
         std::set<int> SIDs; // use std::set to automatically sort sID's
         
@@ -428,6 +435,8 @@ namespace model
         /* init list   */ PKfactor(1000.0)
         {
         
+            GBDreaderType::read(0,true);
+            
         }
 		
 		/* isGood *************************************************************/
@@ -486,12 +495,31 @@ namespace model
                     P0T0P1T1BN.col(5) = itEdge->second.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
 
                     SingleSplinePlotterVectorType::emplace_back(P0T0P1T1BN,snID);
-
-//                    SingleSplinePlotterVectorType::push_back(new SingleSplinePlotterType(P0T0P1T1BN,snID));
                 }
 			}
+            
+            Eigen::Matrix<scalarType,dim,6> P0T0P1T1BN(Eigen::Matrix<scalarType,dim,6>::Zero());
+
+            for (const auto& gbd : GBdislocations())
+            {
+                //const Eigen::Matrix<double,1,3*dim> temp=gbd.second;
+                
+                P0T0P1T1BN.col(0) = gbd.second.template segment<dim>(0*dim).transpose().template cast<float>();	// source position
+                P0T0P1T1BN.col(2) = gbd.second.template segment<dim>(1*dim).transpose().template cast<float>();	// sink position
+//                P0T0P1T1BN.col(1) = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);	// source tangent
+//                P0T0P1T1BN.col(3) = P0T0P1T1BN.col(1);	// sink tangent
+                P0T0P1T1BN.col(4) = gbd.second.template segment<dim>(2*dim).transpose().template cast<float>();		// Burgers vector
+                P0T0P1T1BN.col(5) = P0T0P1T1BN.col(4);		// plane normal
+                
+                SingleSplinePlotterVectorType::emplace_back(P0T0P1T1BN,0);
+            }
 		}
 		
+        /**********************************************************************/
+        const GBDreaderType& GBdislocations() const
+        {
+            return *this;
+        }
         
 		/* plot ***************************************************************/
 		void plot(const scalarType& radius)
@@ -578,8 +606,8 @@ namespace model
                 for (typename PKContainerType::const_iterator vIter=PKContainerType::begin();vIter!=PKContainerType::end();++vIter)
                 {
                     glBegin(GL_LINES);
-                    glVertex3f(vIter->second(0),vIter->second(1),vIter->second(2));
-                    glVertex3f(vIter->second(0)+vIter->second(3)*PKfactor,vIter->second(1)+vIter->second(4)*PKfactor,vIter->second(2)+vIter->second(5)*PKfactor);
+                    glVertex3f(vIter->second[0],vIter->second[1],vIter->second[2]);
+                    glVertex3f(vIter->second[0]+vIter->second[3]*PKfactor,vIter->second[1]+vIter->second[4]*PKfactor,vIter->second[2]+vIter->second[5]*PKfactor);
                     glEnd();
                 }
             }

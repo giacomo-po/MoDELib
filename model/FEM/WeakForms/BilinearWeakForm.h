@@ -19,11 +19,14 @@
 
 #include <Eigen/Sparse>
 
+#include <model/FEM/TrialOperators/TrialBase.h>
 #include <model/FEM/WeakForms/LinearWeakForm.h>
-#include <model/FEM/WeakForms/WeakProblem.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/FEM/WeakForms/BilinearForm.h>
 #include <model/MPI/MPIcout.h>
+#include <model/FEM/WeakForms/BilinearWeakExpression.h>
+#include <model/FEM/WeakForms/BilinearWeakSum.h>
+#include <model/FEM/WeakForms/WeakProblem.h>
 
 
 
@@ -31,9 +34,9 @@ namespace model
 {
     
     /**************************************************************************/
-	/**************************************************************************/
+    /**************************************************************************/
     template <typename _BilinearFormType,typename _IntegrationDomainType>
-	struct BilinearWeakForm
+    struct BilinearWeakForm : public BilinearWeakExpression<BilinearWeakForm<_BilinearFormType,_IntegrationDomainType> >
     {
         
         typedef _BilinearFormType BilinearFormType;
@@ -55,37 +58,51 @@ namespace model
         
         typedef Eigen::Matrix<double,dofPerElement,dofPerElement> ElementMatrixType;
         
-        const BilinearFormType bilinearForm;
+//        const BilinearFormType& bilinearForm;
+        ExpressionRef<BilinearFormType> bilinearForm;
+
         const IntegrationDomainType& domain;
-        const TestExpressionType testExpr;
-        const TrialExpressionType trialExpr;
-        const size_t gSize;
+//        const TestExpressionType& testExpr;
+//        const TrialExpressionType& trialExpr;
+////        const TrialFunctionType& trial;
+//        const size_t& gSize;
         
         
         
         /**********************************************************************/
-        BilinearWeakForm(const BilinearFormType& bf, const IntegrationDomainType& dom) :
+        BilinearWeakForm(const BilinearFormType& bf,
+                         const IntegrationDomainType& dom) :
         /* init list */ bilinearForm(bf), // cast testE to its base T2 type
-        /* init list */ domain(dom), // cast trialE to its derived T1 type
-        /* init list */ testExpr(bf.testExpr),
-        /* init list */ trialExpr(bf.trialExpr),
-        /* init list */ gSize(bilinearForm.gSize)
+        /* init list */ domain(dom) // cast trialE to its derived T1 type
+//        /* init list */ testExpr(bf.testExpr),
+//        /* init list */ trialExpr(bf.trialExpr),
+////        /* init list */ trial(trialExpr.trial),
+//        /* init list */ gSize(bilinearForm.gSize)
         {
-             model::cout<<greenColor<<"Creating BilinearWeakForm: gSize="<<gSize<<defaultColor<<std::endl;
+//            model::cout<<greenColor<<"Creating BilinearWeakForm: gSize="<<gSize<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/
-        //template<int qOrder, template <short unsigned int, size_t> class QuadratureRule>
-        std::vector<Eigen::Triplet<double> >  assembleOnDomain() const
+        BilinearWeakForm(BilinearFormType&& bf,
+                         const IntegrationDomainType& dom) :
+        /* init list */ bilinearForm(std::move(bf)), // cast testE to its base T2 type
+        /* init list */ domain(dom) // cast trialE to its derived T1 type
+        //        /* init list */ testExpr(bf.testExpr),
+        //        /* init list */ trialExpr(bf.trialExpr),
+        ////        /* init list */ trial(trialExpr.trial),
+        //        /* init list */ gSize(bilinearForm.gSize)
+        {
+//            model::cout<<greenColor<<"Creating BilinearWeakForm: gSize="<<gSize<<defaultColor<<std::endl;
+        }
+        
+        /**********************************************************************/
+        std::vector<Eigen::Triplet<double> >  globalTriplets() const
         {
             
-             model::cout<<"Assembling BilinearWeakForm on domain..."<<std::flush;
+            model::cout<<"Assembling BilinearWeakForm on domain..."<<std::flush;
             
-            std::vector<Eigen::Triplet<double> > globalTriplets;
-            //            globalTriplets.clear();
-            globalTriplets.reserve(dofPerElement*dofPerElement*trialExpr.elementSize());
-//            maxAbsValue=0.0;
-            
+            std::vector<Eigen::Triplet<double> > glbtrip;
+            glbtrip.reserve(dofPerElement*dofPerElement*TrialBase<TrialFunctionType>::elementSize());
             
             const auto t0= std::chrono::system_clock::now();
             for (size_t k=0;k<domain.size();++k)
@@ -93,8 +110,8 @@ namespace model
                 const ElementType& ele(domain.element(k));
                 ElementMatrixType ke(ElementMatrixType::Zero());
                 QuadratureType::integrate(this,ke,&BilinearWeakFormType::elementAssemblyKernel<AbscissaType>,ele);
-                //Assemble into global array of triplets
-                for (int i=0;i<dofPerElement;++i)
+                
+                for (int i=0;i<dofPerElement;++i) //Assemble ke into global array of triplets
                 {
                     for (int j=0;j<dofPerElement;++j)
                     {
@@ -108,31 +125,31 @@ namespace model
                             const size_t nodeDof_J(j%dofPerNode);
                             const size_t gJ=ele.node(nodeID_J).gID*dofPerNode+nodeDof_J;
                             
-                            globalTriplets.emplace_back(gI,gJ,ke(i,j));
-                            
+                            glbtrip.emplace_back(gI,gJ,ke(i,j));
                         }
                     }
                 }
             }
             
-             model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
-            return globalTriplets;
+            model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            return glbtrip;
         }
         
         /**********************************************************************/
-		template <typename AbscissaType>
+        template <typename AbscissaType>
         ElementMatrixType elementAssemblyKernel(const AbscissaType& a, const ElementType& ele) const
         {
             const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::x2l(a));
-            return testExpr.sfm(ele,bary).transpose()*trialExpr.sfm(ele,bary)*ele.absJ(bary);
-		}
-        
-        /**********************************************************************/
-        template< typename T3>
-        WeakProblem<BilinearWeakFormType,T3> operator=(const LinearWeakExpression<T3>& lwf) const
-        {
-            return WeakProblem<BilinearWeakFormType,T3>(*this,lwf);
+     //       return testExpr.sfm(ele,bary).transpose()*trialExpr.sfm(ele,bary)*ele.absJ(bary);
+            return bilinearForm()(ele,bary)*ele.absJ(bary);
         }
+        
+//        /**********************************************************************/
+//        template< typename T3>
+//        WeakProblem<BilinearWeakFormType,T3> operator=(const LinearWeakExpression<T3>& lwf) const
+//        {
+//            return WeakProblem<BilinearWeakFormType,T3>(*this,lwf);
+//        }
         
     };
     
@@ -142,10 +159,18 @@ namespace model
     // Operator *
     template <typename T1, typename T2, typename FiniteElementType, int qOrder, int dimMinusDomainDim,
     /*     */ template <short unsigned int, size_t> class QuadratureRule>
-    BilinearWeakForm<BilinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> > operator*(const BilinearForm<T1,T2>& bilinearForm,
+    BilinearWeakForm<BilinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> > operator*(const BilinearForm<T1,T2>& biForm,
                                                                                                                                   const IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule>& domain)
     {
-        return BilinearWeakForm<BilinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> >(bilinearForm,domain);
+        return BilinearWeakForm<BilinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> >(biForm,domain);
+    }
+    
+    template <typename T1, typename T2, typename FiniteElementType, int qOrder, int dimMinusDomainDim,
+    /*     */ template <short unsigned int, size_t> class QuadratureRule>
+    BilinearWeakForm<BilinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> > operator*(BilinearForm<T1,T2>&& biForm,
+                                                                                                                                  const IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule>& domain)
+    {
+        return BilinearWeakForm<BilinearForm<T1,T2>,IntegrationDomain<FiniteElementType,dimMinusDomainDim,qOrder,QuadratureRule> >(std::move(biForm),domain);
     }
     
 }	// close namespace

@@ -108,8 +108,8 @@ struct LoadController
     /**************************************************************************/
     LoadController(TrialFunctionType& u_in) :
     /* init list */ u(u_in),
-    //    /* init list */ zFace(u.fe.xMax()(2)), // zFace is the one at x(2)= max among finite element node coordinates
-    /* init list */ Lz(u.fe.xMax()(2)-u.fe.xMin()(2)),
+    //    /* init list */ zFace(u.fe().xMax()(2)), // zFace is the one at x(2)= max among finite element node coordinates
+    /* init list */ Lz(u.fe().xMax()(2)-u.fe().xMin()(2)),
     /* init list */ geometricTol(0.01),
     /* init list */ thetaDot(1.0e-9),
     /* init list */ initialRotation(0.0),
@@ -117,14 +117,14 @@ struct LoadController
     /* init list */ last_update_time(0.0),
     /* init list */ deltaTheta(0.0),
     /* init list */ apply_bending(true),
-//    /* init list */ nodeList_left(u.fe.template createNodeList<BoundaryIntersection<AtXmin<1>,MidPlane<2>>>()),
-//    /* init list */ nodeList_right(u.fe.template createNodeList<BoundaryIntersection<AtXmax<1>,MidPlane<2>>>()),
-    /* init list */ nodeList_left (u.fe.template createNodeList<AtXmin<1>>()),
-    /* init list */ nodeList_right(u.fe.template createNodeList<AtXmax<1>>()),
-    /* init list */ Pleft((VectorDim()<<u.fe.xMean(0),u.fe.xMin(1),u.fe.xMean(2)).finished()),
-    /* init list */ Pright((VectorDim()<<u.fe.xMean(0),u.fe.xMax(1),u.fe.xMean(2)).finished()),
-    /* init list */ nodeList_top(u.fe.template createNodeList<AtXmax<2>>()),
-    /* init list */ loadedBnd(topBoundary(u.fe)),
+//    /* init list */ nodeList_left(u.fe().template createNodeList<BoundaryIntersection<AtXmin<1>,MidPlane<2>>>()),
+//    /* init list */ nodeList_right(u.fe().template createNodeList<BoundaryIntersection<AtXmax<1>,MidPlane<2>>>()),
+    /* init list */ nodeList_left (u.fe().template createNodeList<AtXmin<1>>()),
+    /* init list */ nodeList_right(u.fe().template createNodeList<AtXmax<1>>()),
+    /* init list */ Pleft((VectorDim()<<u.fe().xMean(0),u.fe().xMin(1),u.fe().xMean(2)).finished()),
+    /* init list */ Pright((VectorDim()<<u.fe().xMean(0),u.fe().xMax(1),u.fe().xMean(2)).finished()),
+    /* init list */ nodeList_top(u.fe().template createNodeList<AtXmax<2>>()),
+    /* init list */ loadedBnd(topBoundary(u.fe())),
     /* init list */ topArea(loadedBnd.volume())
     {
         std::cout<<"LoadController: topArea="<<topArea<<std::endl;
@@ -187,12 +187,12 @@ struct LoadController
             
 //            if (apply_bending)
 //            {
-//                LinearTraction<1,2> lt0(-(initialRotation+deltaTheta)/(u.fe.xMax()(2)-u.fe.xMin()(2)));
-//                auto dA0=u.fe.template boundary<AtXmin<1>,3,GaussLegendre>();
+//                LinearTraction<1,2> lt0(-(initialRotation+deltaTheta)/(u.fe().xMax()(2)-u.fe().xMin()(2)));
+//                auto dA0=u.fe().template boundary<AtXmin<1>,3,GaussLegendre>();
 //                auto lWF0=(u.test(),lt0.eval())*dA0;
 //
-//                LinearTraction<1,2> lt1((initialRotation+deltaTheta)/(u.fe.xMax()(2)-u.fe.xMin()(2)));
-//                auto dA1=u.fe.template boundary<AtXmax<1>,3,GaussLegendre>();
+//                LinearTraction<1,2> lt1((initialRotation+deltaTheta)/(u.fe().xMax()(2)-u.fe().xMin()(2)));
+//                auto dA1=u.fe().template boundary<AtXmax<1>,3,GaussLegendre>();
 //                auto lWF1=(u.test(),lt1.eval())*dA1;
 //                gv=lWF0.globalVector()+lWF1.globalVector();
 //            }
@@ -244,24 +244,22 @@ struct LoadController
         IntegrationDomain<FiniteElementType,1,3,GaussLegendre> temp;
         
         // loop ever Elements
-        for (typename FiniteElementType::ElementContainerType::const_iterator eIter =fe.elementBegin();
-             /*                                                            */ eIter!=fe.elementEnd();
-             /*                                                            */ eIter++)
+        for (const auto& eIter : fe.elements())
         {
-            if(eIter->second.isBoundaryElement())
+            if(eIter.second.isBoundaryElement())
             {
-                const std::vector<int> boundaryFaces=eIter->second.boundaryFaces();
+                const std::vector<int> boundaryFaces=eIter.second.boundaryFaces();
                 for (unsigned int f=0;f<boundaryFaces.size();++f) // loop ever bonudary faces of the current Elements
                 {
                     bool isExternalBoundaryFace(true);
-                    std::array<const Simplex<FiniteElementType::dim,0>*, SimplexTraits<FiniteElementType::dim,FiniteElementType::dim-1>::nVertices> vertices=eIter->second.simplex.child(boundaryFaces[f]).vertices();
+                    std::array<const Simplex<FiniteElementType::dim,0>*, SimplexTraits<FiniteElementType::dim,FiniteElementType::dim-1>::nVertices> vertices=eIter.second.simplex.child(boundaryFaces[f]).vertices();
                     for(unsigned int v=0;v<vertices.size();++v) // loop over vertices of the current face
                     {
-                        isExternalBoundaryFace *= (std::fabs(vertices[v]->P0(2)-u.fe.xMax()(2))<geometricTol); // check if the current vertices satisfies operator()
+                        isExternalBoundaryFace *= (std::fabs(vertices[v]->P0(2)-u.fe().xMax()(2))<geometricTol); // check if the current vertices satisfies operator()
                     }
                     if(isExternalBoundaryFace)
                     {
-                        temp.emplace_back(&eIter->second,boundaryFaces[f]);
+                        temp.emplace_back(&eIter.second,boundaryFaces[f]);
                     }
                 }
             }
@@ -278,7 +276,7 @@ struct LoadController
         // COMPUTATION OF DISPLACEMENT
         double dispZ = 0.0;
         // Sum FEM displacement of nodes in nodeList_top
-        for(auto node : u.fe.nodeList(nodeList_top))
+        for(auto node : u.fe().nodeList(nodeList_top))
         {
             const Eigen::Matrix<double,dim,1> nodeDisp = DN.shared.bvpSolver.displacement().dofs(*node);
             dispZ += nodeDisp(2);
@@ -288,7 +286,7 @@ struct LoadController
         typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
         typedef typename FieldPointType::DisplacementField DisplacementField;
         std::deque<FieldPointType> fieldPoints; // the container of field points
-        for (auto node : u.fe.nodeList(nodeList_top)) // range-based for loop (C++11)
+        for (auto node : u.fe().nodeList(nodeList_top)) // range-based for loop (C++11)
         {
             fieldPoints.emplace_back(*node);
         }
@@ -309,7 +307,7 @@ struct LoadController
         }
         
         // Average displacement
-        const double avgDispZ = dispZ/u.fe.nodeList(nodeList_top).size();
+        const double avgDispZ = dispZ/u.fe().nodeList(nodeList_top).size();
         
         // COMPUTATION OF LOAD
 //        auto loadedBnd = topBoundary(u.fe);
@@ -335,7 +333,7 @@ struct LoadController
 //      *\returns true if the node coordinate is under the LoadController
 //      */
 //
-//        return (std::fabs(node.P0(2)-u.fe.xMax()(2))<geometricTol);
+//        return (std::fabs(node.P0(2)-u.fe().xMax()(2))<geometricTol);
 //
 //    }
 

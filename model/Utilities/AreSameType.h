@@ -16,13 +16,13 @@ namespace model {
     template <typename A, typename B>
     struct AreSameType{
         enum{value=0};
-    };
+    } __attribute__ ((deprecated));
     
     
     template <typename A>
     struct AreSameType<A,A>{
         enum{value=1};
-    };
+    } __attribute__ ((deprecated));
 	
 	//////////////////////////////////////////////////////////////
 } // namespace model

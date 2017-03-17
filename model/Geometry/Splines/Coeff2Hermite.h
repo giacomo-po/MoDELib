@@ -32,7 +32,7 @@ namespace model {
 	struct FillC2H0<P,i,i> : public FillC2H0<P,i,i-1>{
 		enum {j=i};
 		FillC2H0(Eigen::Matrix<double,(P+1)/2,(P+1)>& C2H0) : FillC2H0<P,i,j-1>::FillC2H0(C2H0){
-				C2H0(i,j) = Factorial<i>::value;
+				C2H0(i,j) = factorial(i);
 		}
 	};
 	
@@ -51,7 +51,7 @@ namespace model {
 		enum {i=0};
 		enum {j=0};		
 		FillC2H0(Eigen::Matrix<double,(P+1)/2,(P+1)>& C2H0){
-				C2H0(i,j) = Factorial<i>::value;
+				C2H0(i,j) = factorial(i);
 		}
 	};
 	
@@ -60,7 +60,7 @@ namespace model {
 	template<short unsigned int P,short unsigned int i, short unsigned int j>
 	struct FillC2H1 : public FillC2H1<P,i,j-1>{		
 		FillC2H1(Eigen::Matrix<double,(P+1)/2,(P+1)>& C2H1) : FillC2H1<P,i,j-1>::FillC2H1(C2H1){
-			C2H1(i,j) = PermutationWithoutRepetition<j,i>::value*(j>=i);
+			C2H1(i,j) = PermutationWithoutRepetition<i>::value(j)*(j>=i);
 		}
 	};
 	
@@ -69,7 +69,7 @@ namespace model {
 	struct FillC2H1<P,i,0> : public FillC2H1<P,i-1,P>{
 		enum {j=0};		
 		FillC2H1(Eigen::Matrix<double,(P+1)/2,(P+1)>& C2H1) : FillC2H1<P,i-1,P>::FillC2H1(C2H1){
-			C2H1(i,j) = PermutationWithoutRepetition<j,i>::value*(j>=i);
+			C2H1(i,j) = PermutationWithoutRepetition<i>::value(j)*(j>=i);
 		}
 	};
 	
@@ -78,7 +78,7 @@ namespace model {
 	struct FillC2H1<P,0,0>{
 		enum {i=0, j=0};	
 		FillC2H1(Eigen::Matrix<double,(P+1)/2,(P+1)>& C2H1){
-			C2H1(i,j) = PermutationWithoutRepetition<j,i>::value*(j>=i);
+			C2H1(i,j) = PermutationWithoutRepetition<i>::value(j)*(j>=i);
 		}
 	};
 	

@@ -822,7 +822,7 @@ namespace model
           */
             if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency))
             {
-                const auto t0=std::chrono::system_clock::now();
+//                const auto t0=std::chrono::system_clock::now();
 #ifdef _MODEL_DD_MPI_
                 if(ModelMPIbase::mpiRank()==0)
                 {
@@ -831,7 +831,7 @@ namespace model
 #else
                 DislocationNetworkIO<DislocationNetworkType>::output(*this,fileID);
 #endif
-                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
         }
         

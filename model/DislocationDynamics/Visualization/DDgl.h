@@ -543,7 +543,7 @@ namespace model {
 			
             mouseAction=MOUSE_NONE;
             
-			showAxes=true;
+			showAxes=false;
 			
             //			showMeshStates=3; // 0=no mesh, 1= mesh, 2=deformed mesh
             //			showMesh=0;
@@ -619,7 +619,7 @@ namespace model {
 					if (keyStates['r']){
 						radius*=.95;
 					}
-					if (keyStates['q']){
+					if (keyStates['d']){
 						meshPlotter.dispScale*=0.75f;;
 					}
 					if (keyStates['p']){
@@ -641,7 +641,7 @@ namespace model {
 					if (keyStates['r']){
 						radius*=1.05;
 					}
-					if (keyStates['q']){
+					if (keyStates['d']){
 						meshPlotter.dispScale*=1.5f;;
 					}
 					if (keyStates['p']){
@@ -733,7 +733,11 @@ namespace model {
                 case 'q':
                     splinePlotter.showQuadParticles=!splinePlotter.showQuadParticles;
                     break;
-					
+                    
+                case 'r':
+                    SingleSplinePlotterType::use_BurgersNorm=!SingleSplinePlotterType::use_BurgersNorm;
+                    break;
+                    
 //				case 's':
 //					saveTga=!saveTga;
 //					break;

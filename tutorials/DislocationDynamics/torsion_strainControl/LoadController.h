@@ -61,8 +61,8 @@ struct LoadController
     /**************************************************************************/
     LoadController(TrialFunctionType& u_in) :
     /* init list */ u(u_in),
-    /* init list */ Lz(u.fe.xMax()(2)-u.fe.xMin()(2)),
-    /* init list */ pivot((u.fe.xMax()(0)+u.fe.xMin()(0))*0.5,(u.fe.xMax()(1)+u.fe.xMin()(1))*0.5,u.fe.xMax()(2)),
+    /* init list */ Lz(u.fe().xMax()(2)-u.fe().xMin()(2)),
+    /* init list */ pivot((u.fe().xMax()(0)+u.fe().xMin()(0))*0.5,(u.fe().xMax()(1)+u.fe().xMin()(1))*0.5,u.fe().xMax()(2)),
     /* init list */ thetaDot(1.0e-12),
     /* init list */ geometricTol(0.01),
     /* init list */ initialTwist_Rad(0.0),
@@ -70,9 +70,9 @@ struct LoadController
     /* init list */ last_update_time(0.0),
     /* init list */ deltaTheta(0.0),
     /* init list */ apply_torsion(true),
-    /* init list */ nodeList_bottom(u.fe.template createNodeList<AtXmin<2>>()),
-    /* init list */ nodeList_top(u.fe.template createNodeList<AtXmax<2>>()),
-    /* init list */ loadedBnd(topBoundary(u.fe))
+    /* init list */ nodeList_bottom(u.fe().template createNodeList<AtXmin<2>>()),
+    /* init list */ nodeList_top(u.fe().template createNodeList<AtXmax<2>>()),
+    /* init list */ loadedBnd(topBoundary(u.fe()))
 //    /* init list */ topArea(loadedBnd.volume())
     {
 //        std::cout<<"LoadController: topArea="<<topArea<<std::endl;
@@ -158,14 +158,24 @@ struct LoadController
     }
     
     /**************************************/
-    template <typename NodeType>
-    Eigen::Matrix<double,3,1> operator()(const NodeType& node,const TrialFunctionType&) const
-    {/*!@param[in] node the FiniteElement node to be displaced
-      *\returns the displacement of node
-      */
+    template <typename NodeType,int dofPerNode>
+    Eigen::Matrix<double,dofPerNode,1>& operator()(const NodeType& node,
+                                                   Eigen::Matrix<double,dofPerNode,1>& val) const
+    {
         Eigen::Matrix<double,3,3> rot(Eigen::AngleAxisd(initialTwist_Rad+deltaTheta, Eigen::Vector3d::UnitZ()));
-        return (Eigen::Matrix<double,3,1>()<<(rot*(node.P0-pivot)-(node.P0-pivot)).template segment<2>(0),0.0).finished();
+        val=(Eigen::Matrix<double,3,1>()<<(rot*(node.P0-pivot)-(node.P0-pivot)).template segment<2>(0),0.0).finished();
+        return val;
     }
+    
+//    /**************************************/
+//    template <typename NodeType>
+//    Eigen::Matrix<double,3,1> operator()(const NodeType& node,const TrialFunctionType&) const
+//    {/*!@param[in] node the FiniteElement node to be displaced
+//      *\returns the displacement of node
+//      */
+//        Eigen::Matrix<double,3,3> rot(Eigen::AngleAxisd(initialTwist_Rad+deltaTheta, Eigen::Vector3d::UnitZ()));
+//        return (Eigen::Matrix<double,3,1>()<<(rot*(node.P0-pivot)-(node.P0-pivot)).template segment<2>(0),0.0).finished();
+//    }
     
     /**************************************/
     template <typename DislocationNetworkType>
@@ -190,24 +200,25 @@ struct LoadController
         IntegrationDomain<FiniteElementType,1,3,GaussLegendre> temp;
         
         // loop ever Elements
-        for (typename FiniteElementType::ElementContainerType::const_iterator eIter =fe.elementBegin();
-             /*                                                            */ eIter!=fe.elementEnd();
-             /*                                                            */ eIter++)
+//        for (typename FiniteElementType::ElementContainerType::const_iterator eIter =fe.elementBegin();
+//             /*                                                            */ eIter!=fe.elementEnd();
+//             /*                                                            */ eIter++)
+        for(const auto& eIter : fe.elements())
         {
-            if(eIter->second.isBoundaryElement())
+            if(eIter.second.isBoundaryElement())
             {
-                const std::vector<int> boundaryFaces=eIter->second.boundaryFaces();
+                const std::vector<int> boundaryFaces=eIter.second.boundaryFaces();
                 for (unsigned int f=0;f<boundaryFaces.size();++f) // loop ever bonudary faces of the current Elements
                 {
                     bool isExternalBoundaryFace(true);
-                    std::array<const Simplex<FiniteElementType::dim,0>*, SimplexTraits<FiniteElementType::dim,FiniteElementType::dim-1>::nVertices> vertices=eIter->second.simplex.child(boundaryFaces[f]).vertices();
+                    std::array<const Simplex<FiniteElementType::dim,0>*, SimplexTraits<FiniteElementType::dim,FiniteElementType::dim-1>::nVertices> vertices=eIter.second.simplex.child(boundaryFaces[f]).vertices();
                     for(unsigned int v=0;v<vertices.size();++v) // loop over vertices of the current face
                     {
-                        isExternalBoundaryFace *= (std::fabs(vertices[v]->P0(2)-u.fe.xMax()(2))<geometricTol); // check if the current vertices satisfies operator()
+                        isExternalBoundaryFace *= (std::fabs(vertices[v]->P0(2)-u.fe().xMax()(2))<geometricTol); // check if the current vertices satisfies operator()
                     }
                     if(isExternalBoundaryFace)
                     {
-                        temp.emplace_back(&eIter->second,boundaryFaces[f]);
+                        temp.emplace_back(&eIter.second,boundaryFaces[f]);
                     }
                 }
             }

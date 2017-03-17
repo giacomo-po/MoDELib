@@ -29,16 +29,14 @@ namespace model
         {
             IntegrationDomain<FiniteElementType,1,qOrder,QuadratureRule> temp;
 
-            for (typename FiniteElementType::ElementContainerType::const_iterator eIter =fe.elementBegin();
-                 /*                                                            */ eIter!=fe.elementEnd();
-                 /*                                                            */ eIter++)
+            for (const auto& eIter : fe.elements())
             {
-                if(eIter->second.isBoundaryElement())
+                if(eIter.second.isBoundaryElement())
                 {
-                    const std::vector<int> boundaryFaces=eIter->second.boundaryFaces();
+                    const std::vector<int> boundaryFaces=eIter.second.boundaryFaces();
                     for (size_t f=0;f<boundaryFaces.size();++f)
                     {
-                        temp.emplace_back(&eIter->second,boundaryFaces[f]);
+                        temp.emplace_back(&eIter.second,boundaryFaces[f]);
                     }
                 }
             }

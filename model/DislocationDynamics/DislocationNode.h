@@ -624,7 +624,7 @@ namespace model
                 {
                     // See if the new position is inside mesh
                     std::set<const Simplex<dim,dim>*> path;
-                    const std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P()+dX,p_Simplex,path));
+                    const std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<dim>::mesh.searchWithGuess(true,this->get_P()+dX,p_Simplex,path));
                     //p_Simplex=temp.second;
                     
                     

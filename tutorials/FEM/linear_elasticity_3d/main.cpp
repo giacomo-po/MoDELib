@@ -62,7 +62,7 @@ int main(int argc, char** argv)
     
     /**************************************************************************/
     // Define trial function (displacement field) u and related expressions
-    auto u=fe.trial<3>();       // displacement field u=[u1; u2; u3]
+    auto u=fe.trial<'u',3>();       // displacement field u=[u1; u2; u3]
     auto b=grad(u);             // displacement gradient b=[u1,1; u1,2; u2,1; u2,2]
     auto e=def(u);              // engineering strain e=[u1,1; u2,2; u3,3; u1,2+u2,1; u2,3+u3,2; u1,3+u3,1]
     auto s=C*e;                 // stress field s=[s11; s22; s33; s12; s23; s13]
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
     /**************************************************************************/
     // Create the BilinearWeakForm bWF_u=int(test(e)^T*s)dV
     auto dV=fe.domain<EntireDomain,4,GaussLegendre>();
-    auto bWF_u=(e.test(),s)*dV;
+    auto bWF_u=(test(e),s)*dV;
     
     /**************************************************************************/
     // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndA
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 //    Eigen::Matrix<double,3,1> f((Eigen::Matrix<double,3,1>()<<0.0,0.000,0.00).finished());
     auto f=make_constant((Eigen::Matrix<double,3,1>()<<0.0,0.000,0.00).finished());
     auto dA_1=fe.boundary<AtXmax<2>,3,GaussLegendre>();
-    auto lWF_1=(u.test(),f)*dA_1;
+    auto lWF_1=(test(u),f)*dA_1;
     
     /**************************************************************************/
     // Create the LinearWeakForm lWF_2=int(test(u)^T*p)ndA
@@ -86,18 +86,18 @@ int main(int argc, char** argv)
     Eigen::Matrix<double,3,3> p(-0.01*Eigen::Matrix<double,3,3>::Identity());
 //    auto p=make_constant(-0.01*Eigen::Matrix<double,3,3>::Identity());
     auto ndA_2=fe.boundary<ExternalBoundary,3,GaussLegendre>();
-    auto lWF_2=(u.test(),make_constant(p))*ndA_2;
+    auto lWF_2=(test(u),make_constant(p))*ndA_2;
     
     /**************************************************************************/
     // Create the LinearWeakForm lWF_1=int(test(u)^T*f)ndA
     // a is a constant boby force vector.
 //    Eigen::Matrix<double,3,1> a((Eigen::Matrix<double,3,1>()<<0.0,0.000,-0.00001).finished());
     auto a=make_constant((Eigen::Matrix<double,3,1>()<<0.0,0.000,-0.00001).finished());
-    auto lWF_3=(u.test(),a)*dV;
+    auto lWF_3=(test(u),a)*dV;
     
     /**************************************************************************/
     // Create the WeakProblem
-    auto weakProblem(bWF_u=lWF_1+lWF_2+lWF_3); //  weak problem
+    auto weakProblem(bWF_u==lWF_1+lWF_2+lWF_3); //  weak problem
     
     /**************************************************************************/
     // Set up Dirichlet boundary conditions
@@ -126,10 +126,10 @@ int main(int argc, char** argv)
     /**************************************************************************/
     // Output displacement and stress on external mesh faces
     SequentialOutputFile<'U',1> uFile;
-    uFile<<u;
+    uFile<<u.onBoundary();
     
     SequentialOutputFile<'S',1> sFile;
-    sFile<<s;
+    sFile<<s.onBoundary();
     
     return 0;
 }

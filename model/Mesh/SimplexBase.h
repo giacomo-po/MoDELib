@@ -36,7 +36,8 @@ namespace model
         SimplexBase(const SimplexIDType& vIN) :
         /* init */ xID(SimplexTraitsType::sortID(vIN))
         {/*!
-          */            
+          */
+
         }
         
 		/**********************************************************************/
@@ -60,7 +61,9 @@ namespace model
             {
                 typename SimplexTraits<dim,0>::SimplexIDType vID;
                 vID<<xID(v);
-                temp.col(v)=SimplexObserver<dim,0>::pSimplex(vID)->P0;
+//                temp.col(v)=SimplexObserver<dim,0>::pSimplex(vID)->P0;
+                temp.col(v)=SimplexObserver<dim,0>::simplex(vID).P0;
+
             }
             return temp;
         }

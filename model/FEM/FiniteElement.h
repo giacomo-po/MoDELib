@@ -13,15 +13,18 @@
 #include <map>
 #include <list>
 #include <stdexcept>      // std::out_of_range
+#include <type_traits> // std::is_same
 
 
 #include <Eigen/Dense>
 
+//#include <model/Utilities/AreSameType.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/FEM/Elements/LagrangeElement.h>
+#include <model/FEM/Elements/DiscontinuousLagrangeElement.h>
 #include <model/FEM/TrialFunction.h>
 #include <model/FEM/WeakForms/LinearWeakForm.h>
 #include <model/FEM/WeakForms/BilinearWeakForm.h>
@@ -46,7 +49,8 @@ namespace model
     /*                                  */ typename _ElementType::NodeType* const, // value
     /*                                  */ CompareVectorsByComponent<double,_ElementType::dim,float> // key compare
     /*                                  */ >, // nodefinder
-    /* inherits        */ private std::map<size_t,std::deque<const typename _ElementType::NodeType*>> // node-list container
+    /* inherits        */ private std::map<size_t,std::deque<const typename _ElementType::NodeType*>>,// node-list container
+    /* inherits        */ private std::map<size_t,const typename _ElementType::NodeType* const>
     {
         
     private:
@@ -84,8 +88,6 @@ namespace model
         
         /**********************************************************************/
         FiniteElement(const SimplicialMesh<dim>& m) :
-//        /* init list */ _xMin(Eigen::Matrix<double,ElementType::dim,1>::Constant( DBL_MAX)),
-//        /* init list */ _xMax(Eigen::Matrix<double,ElementType::dim,1>::Constant(-DBL_MAX)),
         /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Zero()),
         /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Zero()),
         /* init list */ nodeListID(0),
@@ -102,7 +104,7 @@ namespace model
             // Insert elements
             for (const auto& simpl : mesh.simplices())
             {
-                auto temp=ElementContainerType::emplace(simpl.first,ElementType(simpl.second,*this,*this));
+                auto temp=ElementContainerType::emplace(simpl.first,ElementType(simpl.second,*this,*this,mesh2femIDmap()));
                 assert(temp.second && "UNABLE TO INSERT ELEMENT IN ELEMENT CONTAINER.");
                 
                 // Add element pointer to each of its nodes
@@ -112,18 +114,12 @@ namespace model
                     assert(temp1.second && "UNABLE TO INSERT ELEMENT IN NODE.");
                 }
             }
-//            for (typename SimplicialMesh<dim>::const_iterator eIter=mesh.begin();eIter!=mesh.end();++eIter)
-//            {
-//                auto temp=ElementContainerType::emplace(eIter->first,ElementType(eIter->second,*this,*this));
-//                assert(temp.second && "UNABLE TO INSERT ELEMENT IN ELEMENT CONTAINER.");
-//                
-//                // Add element pointer to each of its nodes
-//                for(int n=0;n<ElementType::nodesPerElement;++n)
-//                {
-//                    auto temp1=temp.first->second.node(n).emplace(&temp.first->second);
-//                    assert(temp1.second && "UNABLE TO INSERT ELEMENT IN NODE.");
-//                }
-//            }
+            
+            if(std::is_same<ElementType,LagrangeElement<ElementType::dim,ElementType::order>>::value)
+            {
+                assert((mesh2femIDmap().size()==SimplexObserver<dim,0>::size()) && "mesh2femIDmap has wrong size.");
+            
+            }
             
             // Check that node[k].gID==k;
             for(size_t n=0;n<nodes().size();++n)
@@ -153,14 +149,8 @@ namespace model
                     }
                 }
                 _xMean=0.5*(_xMin+_xMax);
-                
+
             }
-            
-//            SequentialOutputFile<'M',1> nodeFile;
-//            for (const auto& node : nodeFinder())
-//            {
-//                nodeFile<<std::setprecision(15)<<std::scientific<<node.second->P0.transpose()<<"\n";
-//            }
             
              model::cout<<"   # elements: "<<elementSize()    <<"\n";
              model::cout<<"   # nodes: "   <<nodeSize()       <<"\n";
@@ -168,37 +158,17 @@ namespace model
              model::cout<<"   xMax= "    <<_xMax.transpose()<<std::endl;
         }
         
-//        /**********************************************************************/
-//        template <int nComponents>
-//        TrialFunction<nComponents,FiniteElementType> trial() const
-//        {
-//            return TrialFunction<nComponents,FiniteElementType>(*this);
-//        }
-        
         /**********************************************************************/
-        template <int nComponents>
-        TrialFunction<nComponents,FiniteElementType> trial()  // made non-const only to allow fe.createNodeList
+        template <char name,int nComponents>
+        TrialFunction<name,nComponents,FiniteElementType> trial()  // made non-const only to allow fe.createNodeList
         {
-            return TrialFunction<nComponents,FiniteElementType>(*this);
+            return TrialFunction<name,nComponents,FiniteElementType>(*this);
         }
         
-       
-        
+        /**********************************************************************/
         const ElementContainerType& elements() const
         {
             return *this;
-        }
-        
-        /**********************************************************************/
-        typename ElementContainerType::const_iterator elementBegin() const
-        {
-            return ElementContainerType::begin();
-        }
-        
-        /**********************************************************************/
-        typename ElementContainerType::const_iterator elementEnd() const
-        {
-            return ElementContainerType::end();
         }
         
         /**********************************************************************/
@@ -206,18 +176,6 @@ namespace model
         {/*!\returns the number of elements in the FiniteElement
           */
             return ElementContainerType::size();
-        }
-        
-        /**********************************************************************/
-        typename NodeContainerType::const_iterator nodeBegin() const
-        {
-            return NodeContainerType::begin();
-        }
-        
-        /**********************************************************************/
-        typename NodeContainerType::const_iterator nodeEnd() const
-        {
-            return NodeContainerType::end();
         }
         
         /**********************************************************************/
@@ -296,21 +254,17 @@ namespace model
             return DomainType::template domain<FiniteElementType,qOrder,QuadratureRule>(*this);
         }
         
-//        /**********************************************************************/
-//        template <typename NodeSelectorType, typename... NodeSelectorArgs>
-//        NodeList<FiniteElementType> getNodeList(const NodeSelectorArgs&... args) const
-//        {
-//            NodeList<FiniteElementType> temp(*this);
-//            const NodeSelectorType nodeSelector(*this,args...);
-//            for(auto& node : nodes())
-//            {
-//                if(nodeSelector(node))
-//                {
-//                    temp.emplace_back(&node);
-//                }
-//            }
-//            return temp;
-//        }
+        /**********************************************************************/
+        const std::map<size_t,const typename _ElementType::NodeType* const>& mesh2femIDmap() const
+        {
+            return *this;
+        }
+
+        /**********************************************************************/
+        std::map<size_t,const typename _ElementType::NodeType* const>& mesh2femIDmap()
+        {
+            return *this;
+        }
         
         /**********************************************************************/
         template <typename NodeSelectorType, typename... NodeSelectorArgs>
@@ -361,7 +315,7 @@ namespace model
           *
           * By default the search starts at this->begin()->second
           */
-            return searchWithGuess(P,&(elementBegin()->second.simplex));
+            return searchWithGuess(P,&(elements().begin()->second.simplex));
         }
         
         /**********************************************************************/
@@ -375,7 +329,7 @@ namespace model
           */
             const std::pair<bool,const Simplex<dim,dim>*> temp(mesh.searchWithGuess(P,guess));
             const typename ElementContainerType::const_iterator eIter(ElementContainerType::find(temp.second->xID));
-            assert(eIter!=elementEnd() && "ELEMENT NOT FOUND");
+            assert(eIter!=elements().end() && "ELEMENT NOT FOUND");
             return std::pair<bool,const ElementType*>(temp.first,&(eIter->second));
         }
         

@@ -19,7 +19,7 @@ namespace model
 	struct Binomial
     {
 //		enum { value = Factorial<N>::value / (Factorial<N-k>::value * Factorial<k>::value)};
-        static constexpr int value = Factorial<N>::value / (Factorial<N-k>::value * Factorial<k>::value);
+        static constexpr int value = factorial(N) / (factorial(N-k) * factorial(k));
 		
 	};
 

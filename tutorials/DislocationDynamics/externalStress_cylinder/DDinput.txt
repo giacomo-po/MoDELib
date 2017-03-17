@@ -20,9 +20,9 @@ outputFrequency=10;
 outputBinary=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=0;
+outputPKforce=1;
 outputElasticEnergy=0;
-outputMeshDisplacement=1;
+outputMeshDisplacement=0;
 outputFEMsolution=0;
 outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
@@ -49,7 +49,7 @@ temperature = 300.0;
 # Set the remote external stress (a uniform stress felt by dislocations)
 externalStress = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.005;
+		 0.0 0.0 0.001;
 
 ######################################
 # STRESS FIELD

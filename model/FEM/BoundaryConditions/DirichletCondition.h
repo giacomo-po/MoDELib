@@ -24,14 +24,23 @@ namespace model
         {
         
         }
-                
+
         /**************************************/
-        template <typename NodeType,typename TrialFunctionType>
-        Eigen::Matrix<typename TrialFunctionType::Scalar,TrialFunctionType::dofPerNode,1>
-        operator()(const NodeType&, const TrialFunctionType&) const
+        template <typename NodeType,int dofPerNode>
+        Eigen::Matrix<double,dofPerNode,1>& operator()(const NodeType&,
+                                                       Eigen::Matrix<double,dofPerNode,1>& val) const
         {
-            return Eigen::Matrix<typename TrialFunctionType::Scalar,TrialFunctionType::dofPerNode,1>::Constant(value);
+            val.setConstant(value);
+            return val;
         }
+        
+//        /**************************************/
+//        template <typename NodeType,typename TrialFunctionType>
+//        Eigen::Matrix<typename TrialFunctionType::Scalar,TrialFunctionType::dofPerNode,1>
+//        operator()(const NodeType&, const TrialFunctionType&) const
+//        {
+//            return Eigen::Matrix<typename TrialFunctionType::Scalar,TrialFunctionType::dofPerNode,1>::Constant(value);
+//        }
         
     };
     

@@ -50,8 +50,8 @@ namespace model
         
         typedef LagrangeElement<dim,sfOrder> ElementType;
         typedef FiniteElement<ElementType> FiniteElementType;
-        typedef TrialFunction<dim,FiniteElementType> TrialFunctionType;
-        typedef typename TrialFunctionType::DirichletConditionContainerType DirichletConditionContainerType;
+        typedef TrialFunction<'u',dim,FiniteElementType> TrialFunctionType;
+//        typedef typename TrialFunctionType::DirichletConditionContainerType DirichletConditionContainerType;
         constexpr static int dofPerNode=TrialFunctionType::dofPerNode;
         typedef TrialGrad<TrialFunctionType> TrialGradType;
         typedef TrialDef<TrialFunctionType> TrialDefType;
@@ -341,19 +341,19 @@ namespace model
             std::cout<<"Initializing BVPsolver"<<std::endl;
 
             fe = new FiniteElementType(mesh);
-            u  = new TrialFunctionType(fe->template trial<dim>());
+            u  = new TrialFunctionType(fe->template trial<'u',dim>());
             b  = new TrialGradType(grad(*u));
             e  = new TrialDefType(def(*u));
             C=get_C(); // Material<Isotropic>  may have changed since construction
             s  = new TrialStressType(C**e);
             dV = fe->template domain<EntireDomain,4,GaussLegendre>();
-            bWF = new BilinearWeakFormType((e->test(),*s),dV);
-            gSize=bWF->gSize;
+            bWF = new BilinearWeakFormType((test(*e),*s),dV);
+            gSize=TrialBase<TrialFunctionType>::gSize();
             
             // Compute and store stiffness matrix
             const auto t0= std::chrono::system_clock::now();
             std::cout<<"Computing stiffness matrix: gSize="<<gSize<<std::endl;
-            std::vector<Eigen::Triplet<double> > globalTriplets(bWF->assembleOnDomain());
+            std::vector<Eigen::Triplet<double> > globalTriplets(bWF->globalTriplets());
             A.resize(gSize,gSize);
             A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
             A.prune(A.norm()/A.nonZeros(),FLT_EPSILON);
@@ -458,7 +458,7 @@ namespace model
             auto eb_list = ndA.template integrationList<FieldPointType>(); // TO DO: make this a member data to be able to output
             const auto t0= std::chrono::system_clock::now();
             DN.template computeField<FieldPointType,StressField>(eb_list);
-            auto dislocationTraction=(u->test(),eb_list);
+            auto dislocationTraction=(test(*u),eb_list);
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
             // Assemble loadController and dislocaiton tractions and solve
@@ -480,14 +480,14 @@ namespace model
         Eigen::Matrix<double,dim,1> displacement(const Eigen::Matrix<double,dim,1> P,
                                              const Simplex<dim,dim>* guess) const
         {
-            return (*u)(P,guess);
+            return eval(*u)(P,guess);
         }
         
         /**********************************************************************/
         Eigen::Matrix<double,dim,dim> stress(const Eigen::Matrix<double,dim,1> P,
                                              const Simplex<dim,dim>* guess) const
         {
-            Eigen::Matrix<double,6,1> tempV((*s)(P,guess));
+            Eigen::Matrix<double,6,1> tempV(eval(*s)(P,guess));
             Eigen::Matrix<double,dim,dim> tempM;
             tempM(0,0)=tempV(0); // s11
             tempM(1,1)=tempV(1); // s22
@@ -506,7 +506,7 @@ namespace model
         Eigen::Matrix<double,dim,dim> stress(const ElementType& ele,
                                              const Eigen::Matrix<double,dim+1,1>& bary) const
         {
-            Eigen::Matrix<double,6,1> tempV((*s)(ele,bary));
+            Eigen::Matrix<double,6,1> tempV(eval(*s)(ele,bary));
             Eigen::Matrix<double,dim,dim> tempM;
             tempM(0,0)=tempV(0); // s11
             tempM(1,1)=tempV(1); // s22
