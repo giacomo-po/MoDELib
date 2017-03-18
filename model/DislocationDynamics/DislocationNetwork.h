@@ -325,7 +325,7 @@ namespace model
             
             //! 7- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
             move(dt);
-
+            
             //! 8- Update accumulated quantities (totalTime and plasticDistortion)
             totalTime+=dt;
             const MatrixDimD pdr(plasticDistortionRate()); // move may limit velocity, so compute pdr after move
@@ -357,7 +357,7 @@ namespace model
             
             //! 14- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeBoundarySegments();
-
+            
             //! 15- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
             removeSmallComponents(3.0*dx,4);
             
@@ -427,8 +427,8 @@ namespace model
         //! The number of simulation steps taken by the next call to runSteps()
         int Nsteps;
         
-//        //! The simulation time run run foby the next call to runTime()
-//        double timeWindow;
+        //        //! The simulation time run run foby the next call to runTime()
+        //        double timeWindow;
         
         //! The accumulated plastic distortion
         MatrixDimD plasticDistortion;
@@ -447,7 +447,7 @@ namespace model
         /* init list  */ dt(0.0),
         /* init list  */ vmax(0.0),
         /* init list  */ Nsteps(0),
-//        /* init list  */ timeWindow(0.0),
+        //        /* init list  */ timeWindow(0.0),
         /* init list  */ plasticDistortion(MatrixDimD::Zero())
         {
             ParticleSystemType::initMPI(argc,argv);
@@ -661,8 +661,8 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
             assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
             
-//            EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
-//            assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
+            //            EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
+            //            assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
             
             // Check balance
             EDR.readScalarInFile(fullName.str(),"check_balance",check_balance);
@@ -693,7 +693,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
             if (shared.use_boundary)
             {
-//                EDR.readScalarInFile(fullName.str(),"use_meshRegions",shared.use_meshRegions);
+                //                EDR.readScalarInFile(fullName.str(),"use_meshRegions",shared.use_meshRegions);
                 
                 int meshID(0);
                 EDR.readScalarInFile(fullName.str(),"meshID",meshID);
@@ -730,7 +730,7 @@ namespace model
             // Avoid that a processor starts writing before other are reading
             MPI_Barrier(MPI_COMM_WORLD);
 #endif
-                        
+            
             // Initializing configuration
             move(0.0);	// initial configuration
         }
@@ -822,7 +822,7 @@ namespace model
           */
             if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency))
             {
-//                const auto t0=std::chrono::system_clock::now();
+                //                const auto t0=std::chrono::system_clock::now();
 #ifdef _MODEL_DD_MPI_
                 if(ModelMPIbase::mpiRank()==0)
                 {
@@ -831,7 +831,7 @@ namespace model
 #else
                 DislocationNetworkIO<DislocationNetworkType>::output(*this,fileID);
 #endif
-//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+                //                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
         }
         
@@ -881,7 +881,7 @@ namespace model
             updateQuadraturePoints(); // necessary if quadrature data are necessary in main
             model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
         }
-                
+        
         /**********************************************************************/
         void checkBalance() const
         {/*! Checks that each DislocationNode is balanced, and asserts otherwise
@@ -1007,6 +1007,32 @@ namespace model
         {
             return *this;
         }
+        
+        
+        /**********************************************************************/
+        template <FEMfunctionType>
+        void femIntegralLoop(FEMfunctionType& femObj) const
+        {
+            for (const auto& segment : this->links())
+            {
+                const Simplex<dim,dim>* guess=segment.second.source->includingSimplex();
+                for (size_t k=0;k<segment.second.qOrder;++k)
+                {
+                    const auto& x=segment.second.rgauss.col(k);
+                    
+                    std::pair<bool,const ElementType*> elem=DN.bvpSolver.fe2().searcWithGuess(x,guess);
+                    
+                    if(elem.first)
+                    {
+                        guess=&elem.second->simplex;
+                        
+                        const Eigen::Matrix<int,1,dim+1> bary=elem.second->simplex.pos2bary(x);
+                        femObj(segment.second,k,elem,bary);
+                    }
+                }
+            }
+        }
+        
         
     };
     
