@@ -68,7 +68,7 @@ namespace model
         static void readVertices(DislocationNetworkType& DN, const unsigned int& fileID)
         {/*! Reads file V/V_0.txt and creates DislocationNodes
           */
-            typedef VertexReader<'V',9,double> VertexReaderType;
+            typedef VertexReader<'V',10,double> VertexReaderType;
             VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID
             if (vReader.isGood(fileID,false)) // bin file exists
             {

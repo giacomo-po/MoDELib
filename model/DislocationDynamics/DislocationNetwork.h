@@ -1009,29 +1009,31 @@ namespace model
         }
         
         
-        /**********************************************************************/
-        template <FEMfunctionType>
-        void femIntegralLoop(FEMfunctionType& femObj) const
-        {
-            for (const auto& segment : this->links())
-            {
-                const Simplex<dim,dim>* guess=segment.second.source->includingSimplex();
-                for (size_t k=0;k<segment.second.qOrder;++k)
-                {
-                    const auto& x=segment.second.rgauss.col(k);
-                    
-                    std::pair<bool,const ElementType*> elem=DN.bvpSolver.fe2().searcWithGuess(x,guess);
-                    
-                    if(elem.first)
-                    {
-                        guess=&elem.second->simplex;
-                        
-                        const Eigen::Matrix<int,1,dim+1> bary=elem.second->simplex.pos2bary(x);
-                        femObj(segment.second,k,elem,bary);
-                    }
-                }
-            }
-        }
+//        /**********************************************************************/
+//        template <typename FEMfunctionType,typename ...Args>
+//        void femIntegralLoop(FEMfunctionType& femObj,
+//                             
+//                             const Args&... args) const
+//        {
+//            for (const auto& segment : this->links())
+//            {
+//                const Simplex<dim,dim>* guess=segment.second.source->includingSimplex();
+//                for (size_t k=0;k<segment.second.qOrder;++k)
+//                {
+//                    const auto& x=segment.second.rgauss.col(k);
+//                    
+//                    std::pair<bool,const ElementType*> elem=DN.bvpSolver.fe2().searcWithGuess(x,guess);
+//                    
+//                    if(elem.first)
+//                    {
+//                        guess=&elem.second->simplex;
+//                        
+//                        const Eigen::Matrix<int,1,dim+1> bary=elem.second->simplex.pos2bary(x);
+//                        femObj(segment.second,k,elem.second,bary,args...);
+//                    }
+//                }
+//            }
+//        }
         
         
     };
