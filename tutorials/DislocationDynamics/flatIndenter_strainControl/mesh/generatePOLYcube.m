@@ -139,7 +139,7 @@ text(Xm(:,1),Xm(:,2),Xm(:,3),num2str([1:size(Xm,1)]'),'FontSize',16)
 polyFile = fopen([filename '.poly'],'w');
 
 % Part 1- the node list.
-pointFormat='%i %.15e %.15e %.15e \n';
+pointFormat='%i %d %d %d \n';
 fprintf(polyFile,'# Part 1 - the node list.\n');
 fprintf(polyFile,'%i 3 0 0 \n',size(P,1));  % number of nodes
 for k=1:size(P,1)
@@ -168,7 +168,8 @@ vL=t^3/6/sqrt(2);
 meshSize=ones(size(Xm,1),1)*vL;
 meshSize(1)=vL*10; % increase volume element in central cube
 for r=1:size(Xm,1)
-fprintf(polyFile,'%i %.15e %.15e %.15e %i %d \n',[r Xm(r,:) r meshSize(r)]);
+%fprintf(polyFile,'%i %d %d %d %d \n',[r Xm(r,:) meshSize(r)]);
+fprintf(polyFile,'%i %d %d %d %i %d \n',[r Xm(r,:) r meshSize(r)]);
 end
 
 fclose(polyFile);
