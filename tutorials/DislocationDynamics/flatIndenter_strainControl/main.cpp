@@ -12,13 +12,13 @@
  * _MODEL_NON_SINGULAR_DD_ = 2 Lazar's regularization method
  */
 #define _MODEL_NON_SINGULAR_DD_ 0
-#define userBVPfile "./bvpFile.h"
-#define userOutputFile "./myOutputs.h" // declare the custom output file
-
-#include <model/FEM/Boundaries/AtXmin.h>
-#include <model/FEM/Boundaries/AtXmax.h>
-#include <./FlatPunch.h>
-#include <model/FEM/BoundaryConditions/Fix.h>
+#define userLoadController "./LoadController.h"
+//#define userBVPfile "./bvpFile.h"
+//#define userOutputFile "./myOutputs.h" // declare the custom output file
+//#include <model/FEM/Boundaries/AtXmin.h>
+//#include <model/FEM/Boundaries/AtXmax.h>
+//#include <./FlatPunch.h>
+//#include <model/FEM/BoundaryConditions/Fix.h>
 #include <model/DislocationDynamics/DislocationNetwork.h>
 
 using namespace model;
@@ -29,13 +29,13 @@ int main (int argc, char* argv[])
     typedef DislocationNetwork<3,1,CatmullRom,UniformOpen> DislocationNetworkType;
     DislocationNetworkType DN(argc,argv);
     
-    // Read punch data
-    model::EigenDataReader EDR;
-    EDR.readScalarInFile("./punchInput.txt","punchSize",FlatPunch::punchSize);
-
-    EDR.readScalarInFile("./punchInput.txt","strainRate",FlatPunch::strainRate);
-    EDR.readScalarInFile("./punchInput.txt","initialDisplacement",FlatPunch::initialDisplacement);
-    EDR.readScalarInFile("./punchInput.txt","relaxSteps",FlatPunch::relaxSteps);
+//    // Read punch data
+//    model::EigenDataReader EDR;
+//    EDR.readScalarInFile("./punchInput.txt","punchSize",FlatPunch::punchSize);
+//
+//    EDR.readScalarInFile("./punchInput.txt","strainRate",FlatPunch::strainRate);
+//    EDR.readScalarInFile("./punchInput.txt","initialDisplacement",FlatPunch::initialDisplacement);
+//    EDR.readScalarInFile("./punchInput.txt","relaxSteps",FlatPunch::relaxSteps);
     
     // Run time steps
     DN.runSteps();
