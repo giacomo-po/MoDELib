@@ -4,10 +4,10 @@ namespace model {
 \section macosxGCC Updating gcc
 At the time of writing this guide, the version of gcc that ships with <a href="https://developer.apple.com/xcode/">Xcode</a> is unable to compile MODEL. However, you can easily install a more recent version of gcc in your <a href="http://www.apple.com/osx/">Mac OsX</a>  using <a href="http://www.macports.org">MacPorts</a>. After installing  <a href="http://www.macports.org">MacPorts</a>, run the following in Terminal:
 \verbatim
-sudo port install gcc5
+sudo port install gcc6
 \endverbatim
 
-This installs gcc5 in your system. Now make sure  to select gcc5 as the default gcc compiler. You can select a particular version of  gcc by first installing gcc_select, again via <a href="http://www.macports.org">MacPorts</a>:
+This installs gcc6 in your system. Now make sure  to select gcc6 as the default gcc compiler. You can select a particular version of  gcc by first installing gcc_select, again via <a href="http://www.macports.org">MacPorts</a>:
 \verbatim
 sudo port install gcc_select
 \endverbatim
@@ -15,10 +15,24 @@ Then, list the available gcc versions in your system:
 \verbatim
 port select --list gcc
 \endverbatim
-And finally select the most current version, say mp-gcc5:
+And finally select the most current version, say mp-gcc6:
 \verbatim
-sudo port select --set gcc mp-gcc5
+sudo port select --set gcc mp-gcc6
 \endverbatim
+
+For DDmpi, also install the following
+\verbatim
+sudo port install openmpi-gcc6
+sudo port install mpi_select
+\endverbatim
+and select the current mpi version
+\verbatim
+port select --list mpi
+sudo port select --set mpi openmpi-gcc6-fortran
+sudo port install openmpi
+\endverbatim
+
+
 
 Make sure to complete these steps before installing \ref openmpi.
 
