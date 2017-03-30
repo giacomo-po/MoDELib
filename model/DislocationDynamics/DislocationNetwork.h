@@ -306,9 +306,9 @@ namespace model
                     numberNucleated=SurfaceNucleation<1>::nucleateDislocations(*this);
                     break;
                     
-//                case 2:
-//                    numberNucleated=SurfaceNucleation<2>::nucleateDislocations(*this);
-//                    break;
+                case 2:
+                    numberNucleated=SurfaceNucleation<2>::nucleateDislocations(*this);
+                    break;
                     
                 default:
                     break;
@@ -378,7 +378,7 @@ namespace model
             removeBoundarySegments();
             
             //! 15- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
-            removeSmallComponents(3.0*dx,4);
+//            removeSmallComponents(3.0*dx,4);
             
             make_bndNormals();
             
