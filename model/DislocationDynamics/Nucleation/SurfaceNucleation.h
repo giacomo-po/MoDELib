@@ -18,7 +18,7 @@ namespace model
         {
             return 0;
         }
-
+        
     };
     
     /**************************************************************************/
@@ -30,25 +30,25 @@ namespace model
         /**********************************************************************/
         template <typename DislocationNetworkType>
         static size_t nucleateLoop(DislocationNetworkType& DN,
-                            const Simplex<DislocationNetworkType::dim,DislocationNetworkType::dim>& simplex,
-                          const LatticeVector<3>& L,
-                          const LatticePlaneBase& n,
-                          const LatticeVector<3>& b,
-                          const double R)
+                                   const Simplex<DislocationNetworkType::dim,DislocationNetworkType::dim>& simplex,
+                                   const LatticeVector<3>& L,
+                                   const LatticePlaneBase& n,
+                                   const LatticeVector<3>& b,
+                                   const double R)
         {
             size_t numberNucleated=0;
-
+            
             constexpr int dim=DislocationNetworkType::dim;
-
+            
             LatticePlane plane(L,n);
-
+            
             const Eigen::Matrix<double,dim,1> P0(L.cartesian());
             const size_t N=8;
             const double dTheta=2.0*M_PI/N;
             const Eigen::Matrix<double,dim,1> v=R*b.cartesian().normalized();
-
+            
             std::deque<LatticeVector<3>> deq;
-
+            
             for(size_t i=0;i<N;++i)
             {
                 const double theta=i*dTheta;
@@ -60,17 +60,17 @@ namespace model
                     deq.emplace_back(P);
                 }
             }
-
+            
             if (deq.size()==N) // all points inside
             {
                 std::cout<<"NUCLEATING LOOP"<<std::endl;
-
+                
                 std::deque<size_t> vIDs;
                 for(size_t i=0;i<N;++i)
                 {
                     vIDs.push_back(DN.insertVertex(deq[i]).first->first);
                 }
-
+                
                 for(size_t i=0;i<N-1;++i)
                 {
                     DN.connect(vIDs[i],vIDs[i+1],b);
@@ -91,9 +91,9 @@ namespace model
             
             size_t numberNucleated=0;
             const double tauCR=0.07; // critica nucleation stress
-            const double R(10.0);     // nucleation radius
-
-
+            const double R(5.0);     // nucleation radius
+            
+            
             for (const auto& ele : DN.shared.bvpSolver.finiteElement().elements())
             {
                 if(ele.second.simplex.isBoundarySimplex())
@@ -101,7 +101,7 @@ namespace model
                     const Eigen::Matrix<double,dim+1,1> bary(0.25*Eigen::Matrix<double,dim+1,1>::Ones()); // center of the element in barycentric coordinates
                     const Eigen::Matrix<double,dim,1> pos(ele.second.simplex.bary2pos(bary));
                     const Eigen::Matrix<double,dim,dim> sigma(DN.shared.bvpSolver.stress(ele.second,bary)+DN.stress(pos));
-
+                    
                     std::map<double,int> tauMap;
 
                     size_t k=0;
@@ -119,12 +119,34 @@ namespace model
                         const auto& slipSystem(CrystalOrientation<dim>::slipSystems()[tauMap.rbegin()->second]);
                         numberNucleated+=nucleateLoop(DN,ele.second.simplex,L,slipSystem.n,slipSystem.s,R);
                     }
+                    
+//                    LatticeVector<3> L(LatticeBase<dim>::snapToLattice(pos));
+//                    for (const auto& slipSystem : CrystalOrientation<dim>::slipSystems())
+//                    {
+//                        Eigen::Matrix<double,dim,1> n(slipSystem.n.cartesian().normalized());
+//                        Eigen::Matrix<double,dim,1> b(slipSystem.s.cartesian().normalized());
+//                        if(-(sigma*n).dot(b)>tauCR)
+//                        {
+//                            numberNucleated+=nucleateLoop(DN,ele.second.simplex,L,slipSystem.n,slipSystem.s,R);
+//                            
+//                        }
+//                    }
+                    
                 }
             }
             return numberNucleated;
         }
-
+        
+        
     };
+    
+    
+    //    /**************************************************************************/
+    //    /**************************************************************************/
+    //    template<>
+    //    struct SurfaceNucleation<2>
+    //    {
+    //    };
 }
 
 

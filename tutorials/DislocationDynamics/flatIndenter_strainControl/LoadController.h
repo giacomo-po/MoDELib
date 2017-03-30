@@ -66,6 +66,7 @@ template <typename TrialFunctionType>
 struct LoadController
 {
     typedef typename TrialFunctionType::FiniteElementType FiniteElementType;
+    typedef typename FiniteElementType::ElementType ElementType;
     
     static constexpr int dim=TrialFunctionType::dim;
     
@@ -290,6 +291,20 @@ struct LoadController
     template <typename DislocationNetworkType>
     std::string output(const DislocationNetworkType& DN) const
     {
+        // OUTPUT contact triangles
+        SequentialOutputFile<'I',1>::set_count(DN.runningID());
+//        SequentialOutputFile<'I',1>::set_increment(DN.outputFrequency);
+        SequentialOutputFile<'I',1> indenterFile;
+
+        int kk=0;
+        for (const auto& pair : punchBnd)
+        {
+            const ElementType& ele(*pair.first);
+            const int& boundaryFaceID(pair.second);
+            indenterFile<<kk<<" "<<ele.simplex.child(boundaryFaceID).xID<<"\n";
+            ++kk;
+        }
+        
         
         // COMPUTATION OF DISPLACEMENT
         double dispZ = 0.0;
