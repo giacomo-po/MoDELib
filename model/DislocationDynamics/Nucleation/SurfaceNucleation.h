@@ -1,0 +1,133 @@
+#ifndef model_SurfaceNucleation_H_
+#define model_SurfaceNucleation_H_
+
+#include <map>
+#include <Eigen/Dense>
+#include <Model/LatticeMath/LatticeMath.h>
+
+
+namespace model
+{
+    /**************************************************************************/
+    /**************************************************************************/
+    template<int SurfaceNucleationModel>
+    struct SurfaceNucleation
+    {
+        template <typename DislocationNetworkType>
+        static size_t nucleateDislocations(DislocationNetworkType& )
+        {
+            return 0;
+        }
+
+    };
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    template<>
+    struct SurfaceNucleation<1>
+    {
+        
+        /**********************************************************************/
+        template <typename DislocationNetworkType>
+        static size_t nucleateLoop(DislocationNetworkType& DN,
+                            const Simplex<DislocationNetworkType::dim,DislocationNetworkType::dim>& simplex,
+                          const LatticeVector<3>& L,
+                          const LatticePlaneBase& n,
+                          const LatticeVector<3>& b,
+                          const double R)
+        {
+            size_t numberNucleated=0;
+
+            constexpr int dim=DislocationNetworkType::dim;
+
+            LatticePlane plane(L,n);
+
+            const Eigen::Matrix<double,dim,1> P0(L.cartesian());
+            const size_t N=8;
+            const double dTheta=2.0*M_PI/N;
+            const Eigen::Matrix<double,dim,1> v=R*b.cartesian().normalized();
+
+            std::deque<LatticeVector<3>> deq;
+
+            for(size_t i=0;i<N;++i)
+            {
+                const double theta=i*dTheta;
+                const Eigen::Matrix<double,dim,dim> rot(Eigen::AngleAxisd(theta,n.cartesian()));
+                Eigen::Matrix<double,dim,1> P(P0+rot*v);
+                P=plane.snapToLattice(P);
+                if(DN.shared.mesh.searchWithGuess(P,&simplex).first)
+                {
+                    deq.emplace_back(P);
+                }
+            }
+
+            if (deq.size()==N) // all points inside
+            {
+                std::cout<<"NUCLEATING LOOP"<<std::endl;
+
+                std::deque<size_t> vIDs;
+                for(size_t i=0;i<N;++i)
+                {
+                    vIDs.push_back(DN.insertVertex(deq[i]).first->first);
+                }
+
+                for(size_t i=0;i<N-1;++i)
+                {
+                    DN.connect(vIDs[i],vIDs[i+1],b);
+                }
+                DN.connect(vIDs[N-1],vIDs[0],b);
+                
+                ++numberNucleated;
+            }
+            return numberNucleated;
+        }
+        
+        /**********************************************************************/
+        template <typename DislocationNetworkType>
+        static size_t nucleateDislocations(DislocationNetworkType& DN)
+        {
+            
+            constexpr int dim=DislocationNetworkType::dim;
+            
+            size_t numberNucleated=0;
+            const double tauCR=0.07; // critica nucleation stress
+            const double R(10.0);     // nucleation radius
+
+
+            for (const auto& ele : DN.shared.bvpSolver.finiteElement().elements())
+            {
+                if(ele.second.simplex.isBoundarySimplex())
+                {
+                    const Eigen::Matrix<double,dim+1,1> bary(0.25*Eigen::Matrix<double,dim+1,1>::Ones()); // center of the element in barycentric coordinates
+                    const Eigen::Matrix<double,dim,1> pos(ele.second.simplex.bary2pos(bary));
+                    const Eigen::Matrix<double,dim,dim> sigma(DN.shared.bvpSolver.stress(ele.second,bary)+DN.stress(pos));
+
+                    std::map<double,int> tauMap;
+
+                    size_t k=0;
+                    for (const auto& slipSystem : CrystalOrientation<dim>::slipSystems())
+                    {
+                        Eigen::Matrix<double,dim,1> n(slipSystem.n.cartesian().normalized());
+                        Eigen::Matrix<double,dim,1> b(slipSystem.s.cartesian().normalized());
+                        tauMap.emplace(-(sigma*n).dot(b),k); // tauRSS=-(sigma*n).dot(b) is the stress expanding loop of current slip system
+                        k++;
+                    }
+
+                    if(tauMap.rbegin()->first>tauCR)
+                    {
+                        LatticeVector<3> L(LatticeBase<dim>::snapToLattice(pos));
+                        const auto& slipSystem(CrystalOrientation<dim>::slipSystems()[tauMap.rbegin()->second]);
+                        numberNucleated+=nucleateLoop(DN,ele.second.simplex,L,slipSystem.n,slipSystem.s,R);
+                    }
+                }
+            }
+            return numberNucleated;
+        }
+
+    };
+}
+
+
+#endif
+
+

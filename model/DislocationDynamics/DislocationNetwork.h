@@ -97,7 +97,7 @@
 #include <model/ParticleInteraction/SingleFieldPoint.h>
 #include <model/DislocationDynamics/Operations/DislocationNodeContraction.h>
 #include <model/Threads/EqualIteratorRange.h>
-
+#include <model/DislocationDynamics/Nucleation/SurfaceNucleation.h>
 
 
 namespace model
@@ -136,9 +136,9 @@ namespace model
         
         enum {NdofXnode=NodeType::NdofXnode};
         
-#ifdef DislocationNucleationFile
-#include DislocationNucleationFile
-#endif
+//#ifdef DislocationNucleationFile
+//#include DislocationNucleationFile
+//#endif
         
     private:
         
@@ -155,7 +155,7 @@ namespace model
         
         double dx, dt;
         double vmax;
-        
+        int surfaceNucleationModel;
         
         /**********************************************************************/
         void formJunctions()
@@ -299,13 +299,28 @@ namespace model
             //! 3- Calculate BVP correction
             update_BVP_Solution();
             
-#ifdef DislocationNucleationFile
-            if(shared.use_bvp && !(runID%shared.use_bvp))
+            size_t numberNucleated=0;
+            switch (surfaceNucleationModel)
             {
-                nucleateDislocations(); // needs to be called before updateQuadraturePoints()
+                case 1:
+                    numberNucleated=SurfaceNucleation<1>::nucleateDislocations(*this);
+                    break;
+                    
+                default:
+                    break;
+            }
+            if(numberNucleated)
+            {
                 updateQuadraturePoints();
             }
-#endif
+            
+//#ifdef DislocationNucleationFile
+//            if(shared.use_bvp && !(runID%shared.use_bvp))
+//            {
+//                nucleateDislocations(); // needs to be called before updateQuadraturePoints()
+//                updateQuadraturePoints();
+//            }
+//#endif
             
             //! 4- Solve the equation of motion
             assembleAndSolve();
@@ -393,30 +408,36 @@ namespace model
         }
         
         /**********************************************************************/
-        void removeSmallComponents(const double& smallCritValue,
+        void removeSmallComponents(const double& smallcritvalue,
                                    const size_t& maxNodeSize)
         {
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		removing small NetworkComponents "<<std::flush;
+            model::cout<<"        removeSmallComponents "<<std::flush;
             size_t removed=0;
+            std::deque<int> nodesToBeRemoved;
             for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
             {
-                if (DislocationNetworkComponentType(*snIter->second).isSmall(smallCritValue,maxNodeSize))
+                if (DislocationNetworkComponentType(*snIter->second).isSmall(smallcritvalue,maxNodeSize))
                 {
                     const auto nodes=DislocationNetworkComponentType(*snIter->second).networkComponent().nodes();
                     for(const auto& node : nodes)
                     {
                         if(this->node(node.first).first)
                         {
-                            this->template removeVertex<false>(node.first);
+                            nodesToBeRemoved.push_back(node.first);
                         }
                     }
-                    removed++;
                 }
+            }
+            for(int k:nodesToBeRemoved)
+            {
+                this->template removeVertex<false>(k);
+                removed++;
+//
+//                model::cout<<"  node "<<K<<" is deleted!!!!"<<std::endl;
             }
             model::cout<<std::setprecision(3)<<std::scientific<<removed<<" removed) "<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }
-        
         
         
     public:
@@ -446,6 +467,7 @@ namespace model
         /* init list  */ dx(0.0),
         /* init list  */ dt(0.0),
         /* init list  */ vmax(0.0),
+        /* init list  */ surfaceNucleationModel(0),
         /* init list  */ Nsteps(0),
         //        /* init list  */ timeWindow(0.0),
         /* init list  */ plasticDistortion(MatrixDimD::Zero())
@@ -540,7 +562,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"outputDislocationLength",DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength);
             if(DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength)
             {
-                DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=2;
+                DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=3;
             }
             
             EDR.readScalarInFile(fullName.str(),"outputQuadratureParticles",DislocationNetworkIO<DislocationNetworkType>::outputQuadratureParticles);
@@ -725,6 +747,9 @@ namespace model
             //#ifdef DislocationNucleationFile
             //            EDR.readScalarInFile(fullName.str(),"nucleationFreq",nucleationFreq);
             //#endif
+            
+            EDR.readScalarInFile(fullName.str(),"surfaceNucleationModel",surfaceNucleationModel);
+
             
 #ifdef _MODEL_MPI_
             // Avoid that a processor starts writing before other are reading
@@ -932,13 +957,15 @@ namespace model
         }
         
         /**********************************************************************/
-        std::pair<double,double> networkLength() const
+        std::tuple<double,double,double> networkLength() const
         {/*!\returns the total line length of the DislocationNetwork. The return
-          * value is a pair, where pair.first is the length of bulk dislocation
-          * segments, while pair.second is the length of segments accumulated on
+          * value is a tuple, where the first value is the length of bulk glissile 
+          * dislocations, the second value is the length of bulk sessile 
+          * dislocations, and the third value is the length accumulated on
           * the mesh boundary.
           */
-            double bulkLength(0.0);
+            double bulkGlissileLength(0.0);
+            double bulkSessileLength(0.0);
             double boundaryLength(0.0);
             
             for (const auto& linkIter : this->links())
@@ -950,11 +977,20 @@ namespace model
                 }
                 else
                 {
-                    bulkLength+=temp;
+                    if(linkIter.second.isSessile)
+                    {
+                        bulkSessileLength+=temp;
+                    }
+                    else
+                    {
+                        bulkGlissileLength+=temp;
+
+                    }
                 }
                 
             }
-            return std::make_pair(bulkLength,boundaryLength);
+            return std::make_tuple(bulkGlissileLength,bulkSessileLength,boundaryLength);
+
         }
         
         /**********************************************************************/

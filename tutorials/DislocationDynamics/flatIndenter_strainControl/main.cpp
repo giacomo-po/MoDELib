@@ -13,6 +13,7 @@
  */
 #define _MODEL_NON_SINGULAR_DD_ 0
 #define userLoadController "./LoadController.h"
+//#define DislocationNucleationFile
 //#define userBVPfile "./bvpFile.h"
 //#define userOutputFile "./myOutputs.h" // declare the custom output file
 //#include <model/FEM/Boundaries/AtXmin.h>
