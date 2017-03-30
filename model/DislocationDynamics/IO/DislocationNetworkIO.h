@@ -434,8 +434,11 @@ namespace model
             
             if(outputDislocationLength)
             {
-                const auto length=DN.networkLength();
-                f_file<<length.first<<" "<<length.second<<" ";
+                const std::tuple<double,double,double> length=DN.networkLength();
+                //                const auto length=DN.networkLength();
+                //                f_file<<length.first<<" "<<length.second<<" ";
+                f_file<<std::get<0>(length)<<" "<<std::get<1>(length)<<" "<<std::get<2>(length)<<" ";
+                
             }
             
             if(DN.shared.use_bvp)
