@@ -9,6 +9,7 @@
 #ifndef model_DISLOCATIONJUNCTIONFORMATION_H_
 #define model_DISLOCATIONJUNCTIONFORMATION_H_
 
+#include <iostream>
 #include <utility> // for std::pair
 #include <vector>
 #include <Eigen/Dense>
@@ -18,6 +19,7 @@
 #include <model/MPI/MPIcout.h>
 #include <model/Threads/EqualIteratorRange.h>
 #include <model/Threads/N2IteratorRange.h>
+#define VerboseJunctions(N,x) if(verboseJunctions>=N){model::cout<<x;}
 
 namespace model
 {
@@ -265,6 +267,7 @@ namespace model
         static double collisionTol;
         //        static bool useVertexEdgeJunctions;
         
+        static int verboseJunctions;
         
         /* Constructor ********************************************************/
         DislocationJunctionFormation(DislocationNetworkType& DN_in) :
@@ -321,6 +324,7 @@ namespace model
                         {
                             //                            threadVector[omp_get_thread_num()]++;
                             
+                            VerboseJunctions(1,"Intersecting "<<linkIterA->second.nodeIDPair.first<<"->"<<linkIterA->second.nodeIDPair.second<<" " <<linkIterB->second.nodeIDPair.first<<"->"<<linkIterB->second.nodeIDPair.second<<std::flush)
                             //std::cout<< "Intersecting "<<linkIterA->second.nodeIDPair.first<<"->"<<linkIterA->second.nodeIDPair.second<<" " <<linkIterB->second.nodeIDPair.first<<"->"<<linkIterB->second.nodeIDPair.second<<std::flush;
                             
                             const bool& L1isSessile(linkIterA->second.isSessile);
@@ -586,7 +590,7 @@ namespace model
             {
                 const auto temp=nodePair.second.edgeDecomposition();
                 //std::deque<std::pair<size_t,size_t> > temp=nodePair.second.edgeDecomposition();
-
+                
                 if(temp.first.size() && temp.second.size())
                 {
                     nodeDecompFirst.emplace_back(nodePair.second.sID,temp.first);
@@ -681,32 +685,32 @@ namespace model
                 {
                     std::cout<<"NodeBreaking "<<Ni.second->sID<<" "<<avrSecond.dot(avrFirst)<<std::endl;
                     
-                        size_t m=DN.insertVertex(Ni.second->get_P()).first->first;
-                        
-                        for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
+                    size_t m=DN.insertVertex(Ni.second->get_P()).first->first;
+                    
+                    for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
+                    {
+                        const size_t& j=nodeDecompFirst[n].second[d].first;
+                        const size_t& k=nodeDecompFirst[n].second[d].second;
+                        if(i==j)
                         {
-                            const size_t& j=nodeDecompFirst[n].second[d].first;
-                            const size_t& k=nodeDecompFirst[n].second[d].second;
-                            if(i==j)
-                            {
-                                auto Lik=DN.link(i,k);
-                                assert(Lik.first);
-                                DN.connect(m,k,Lik.second->Burgers);
-                                DN.template disconnect<0>(i,k);
-                            }
-                            else if(i==k)
-                            {
-                                auto Lji=DN.link(j,i);
-                                assert(Lji.first);
-                                DN.connect(j,m,Lji.second->Burgers);
-                                DN.template disconnect<0>(j,i);
-                            }
-                            else
-                            {
-                                assert(0 && "i must be equal to either j or k.");
-                            }
+                            auto Lik=DN.link(i,k);
+                            assert(Lik.first);
+                            DN.connect(m,k,Lik.second->Burgers);
+                            DN.template disconnect<0>(i,k);
                         }
-
+                        else if(i==k)
+                        {
+                            auto Lji=DN.link(j,i);
+                            assert(Lji.first);
+                            DN.connect(j,m,Lji.second->Burgers);
+                            DN.template disconnect<0>(j,i);
+                        }
+                        else
+                        {
+                            assert(0 && "i must be equal to either j or k.");
+                        }
+                    }
+                    
                     
                     broken++;
                 }
@@ -720,6 +724,11 @@ namespace model
     // Declare Static Data
     template <typename DislocationNetworkType>
     double DislocationJunctionFormation<DislocationNetworkType>::collisionTol=10.0;
+    
+    // Declare Static Data
+    template <typename DislocationNetworkType>
+    int DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions=0;
+    
     
 } // namespace model
 #endif

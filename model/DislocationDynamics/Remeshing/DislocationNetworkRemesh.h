@@ -22,6 +22,7 @@
 #include <model/MPI/MPIcout.h>
 #include <model/Mesh/Simplex.h>
 #include <model/LatticeMath/LatticeMath.h>
+#define VerboseRemesh(N,x) if(verboseRemesh>=N){model::cout<<x;}
 
 namespace model
 {
@@ -48,6 +49,7 @@ namespace model
         static double Lmin;
         static double thetaDeg;
         static double neighborRadius;
+        static int verboseRemesh;
         
         /**********************************************************************/
         DislocationNetworkRemesh(DislocationNetworkType& DN_in) :
@@ -107,6 +109,7 @@ namespace model
                     && chordLength<Lmin // segment is small
                     )
                 {
+                    VerboseRemesh(1,"contract candidate "<<segment.nodeIDPair.first<<" "<<segment.nodeIDPair.second<<std::endl;);
                     assert(toBeContracted.insert(std::make_pair(chordLength,segment.nodeIDPair)).second && "COULD NOT INSERT IN SET.");
                 }
             }
@@ -134,6 +137,7 @@ namespace model
                 
                 if (Lij.first )
                 {
+                    VerboseRemesh(1,"contracting "<<i<<" "<<j<<std::endl;);
                     Ncontracted+=DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
                 }
             }
@@ -161,6 +165,7 @@ namespace model
                 // Always expand single FR source segment
                 if (linkIter->second.source->openOrder()==1 && linkIter->second.sink->openOrder()==1)
                 {
+                    VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
@@ -169,18 +174,21 @@ namespace model
                     && linkIter->second.  sink->constraintNormals().size()>2
                     && chordLength>3.0*Lmin)
                 {
+                    VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
                 if (!linkIter->second.source->is_simple() && !linkIter->second.sink->is_simple()
                     /*&& chord.dot(dv)>vTolexp*chordLength*dv.norm()*/ && chordLength>3.0*Lmin)
                 { // also expands a straight line to generate glissile segment
+                    VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
                 // Expand segments shorter than Lmax
                 if (chordLength>Lmax)
                 {
+                    VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
@@ -195,11 +203,13 @@ namespace model
                     {
                         if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
                         {
+                            VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                             toBeExpanded.insert(linkIter->second.source->openNeighborLink(0)->nodeIDPair);
                         }
                         
                         if (c1norm>3.0*Lmin /*&& c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
                         {
+                            VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                             toBeExpanded.insert(linkIter->second.source->openNeighborLink(1)->nodeIDPair);
                         }
                     }
@@ -214,11 +224,13 @@ namespace model
                     {
                         if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
                         {
+                            VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                             toBeExpanded.insert(linkIter->second.sink->openNeighborLink(0)->nodeIDPair);
                         }
                         if (c1norm>3.0*Lmin/* && c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
                         {
                             //														model::cout<<"Expanding 4"<<std::endl;
+                            VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                             toBeExpanded.insert(linkIter->second.sink->openNeighborLink(1)->nodeIDPair);
                         }
                     }
@@ -257,6 +269,7 @@ namespace model
                         if(DN.pointIsInsideMesh(expandPoint,Lij.second->source->includingSimplex()).first)
                         {
                             //                        DN.expand(i,j,expandPoint);
+                            VerboseRemesh(1,"Expanding "<<i<<"->"<<j<<std::endl;);
                             DN.expand(i,j,LatticeVectorType(expandPoint));
                             Nexpanded++;
                         }
@@ -345,6 +358,11 @@ namespace model
     
     template <typename DislocationNetworkType>
     double DislocationNetworkRemesh<DislocationNetworkType>::neighborRadius=0.001;
+    
+    // Declare Static Data
+    template <typename DislocationNetworkType>
+    int DislocationNetworkRemesh<DislocationNetworkType>::verboseRemesh=0;
+
     
 } // namespace model
 #endif

@@ -760,6 +760,11 @@ namespace model
             MPI_Barrier(MPI_COMM_WORLD);
 #endif
             
+            
+            // Debugging
+            EDR.readScalarInFile(fullName.str(),"verboseJunctions",DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions);
+            EDR.readScalarInFile(fullName.str(),"verboseRemesh",DislocationNetworkRemesh<DislocationNetworkType>::verboseRemesh);
+            
             // Initializing configuration
             move(0.0);	// initial configuration
         }

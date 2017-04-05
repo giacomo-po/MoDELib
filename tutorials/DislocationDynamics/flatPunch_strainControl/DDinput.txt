@@ -114,5 +114,10 @@ parametrizationExponent=0.5;
 
 #####################################
 # Surface nucleation model (0=no nucleation)
-surfaceNucleationModel=2;
+surfaceNucleationModel=0;
+
+#####################################
+# DEBUGGING
+verboseJunctions=0;
+verboseRemesh=0;
 
