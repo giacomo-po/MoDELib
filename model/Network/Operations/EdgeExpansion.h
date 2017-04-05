@@ -13,8 +13,13 @@
 #include <model/Network/Operations/EdgeFinder.h>
 #include <model/Network/Operations/VertexInsertion.h>
 #include <model/Network/Operations/VertexConnection.h>
+#include <model/MPI/MPIcout.h>
 
-namespace model {
+#define VerboseExpand(N,x) if(verboseExpand>=N){model::cout<<x;}
+
+
+namespace model
+{
 	
 	/****************************************************************/
 	/****************************************************************/
@@ -48,7 +53,11 @@ namespace model {
 		//! A reference to the network Edge map
 		NetworkEdgeMapType& networkEdgeMapRef;
 		
-	public:		
+	public:
+        
+        static int verboseExpand;
+
+        
 		/* Constructor **********************************************/
 		EdgeExpansion(NetworkVertexMapType& networkVertexMapRef_in,
 		/*         */ NetworkEdgeMapType&     networkEdgeMapRef_in) :
@@ -62,6 +71,7 @@ namespace model {
 		template <typename ...NodeArgTypes>
 		std::pair<typename NetworkVertexMapType::iterator,bool> expand(const size_t& i, const size_t& j, const NodeArgTypes&... Args)
         {
+            VerboseExpand(1,"expanding "<<i<<"->"<<j<<std::endl;);
 			isConstNetworkEdgeType Lij(EdgeFinder<EdgeType>(networkEdgeMapRef).link(i,j));
 			assert(Lij.first && "EXPANDING NON-EXISTING LINK.");
             const std::pair<typename NetworkVertexMapType::iterator,bool> temp(VertexInsertion<VertexType>(networkVertexMapRef).insert(ExpandingEdge<EdgeType>(*Lij.second),Args...));
@@ -73,6 +83,9 @@ namespace model {
 		}
 		
 	};
+    
+    template <typename VertexType, typename EdgeType>
+    int EdgeExpansion<VertexType,EdgeType>::verboseExpand=0;
 	
 	/****************************************************************/
 	/****************************************************************/

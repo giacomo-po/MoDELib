@@ -137,7 +137,6 @@ namespace model
                 
                 if (Lij.first )
                 {
-                    VerboseRemesh(1,"contracting "<<i<<" "<<j<<std::endl;);
                     Ncontracted+=DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
                 }
             }
@@ -165,7 +164,7 @@ namespace model
                 // Always expand single FR source segment
                 if (linkIter->second.source->openOrder()==1 && linkIter->second.sink->openOrder()==1)
                 {
-                    VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
+                    VerboseRemesh(1,"expand candidate (FR) "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
@@ -174,21 +173,21 @@ namespace model
                     && linkIter->second.  sink->constraintNormals().size()>2
                     && chordLength>3.0*Lmin)
                 {
-                    VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
+                    VerboseRemesh(1,"expand candidate (pinned points)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
                 if (!linkIter->second.source->is_simple() && !linkIter->second.sink->is_simple()
                     /*&& chord.dot(dv)>vTolexp*chordLength*dv.norm()*/ && chordLength>3.0*Lmin)
                 { // also expands a straight line to generate glissile segment
-                    VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
+                    VerboseRemesh(1,"expand candidate (not simple vertices)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
                 // Expand segments shorter than Lmax
                 if (chordLength>Lmax)
                 {
-                    VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
+                    VerboseRemesh(1,"expand candidate (long)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
@@ -203,13 +202,13 @@ namespace model
                     {
                         if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
                         {
-                            VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
+                            VerboseRemesh(1,"expand candidate (angle 1)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                             toBeExpanded.insert(linkIter->second.source->openNeighborLink(0)->nodeIDPair);
                         }
                         
                         if (c1norm>3.0*Lmin /*&& c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
                         {
-                            VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
+                            VerboseRemesh(1,"expand candidate (angle 2)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                             toBeExpanded.insert(linkIter->second.source->openNeighborLink(1)->nodeIDPair);
                         }
                     }
@@ -224,13 +223,13 @@ namespace model
                     {
                         if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
                         {
-                            VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
+                            VerboseRemesh(1,"expand candidate (angle 3)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                             toBeExpanded.insert(linkIter->second.sink->openNeighborLink(0)->nodeIDPair);
                         }
                         if (c1norm>3.0*Lmin/* && c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
                         {
                             //														model::cout<<"Expanding 4"<<std::endl;
-                            VerboseRemesh(1,"expand candidate "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
+                            VerboseRemesh(1,"expand candidate (angle 4)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                             toBeExpanded.insert(linkIter->second.sink->openNeighborLink(1)->nodeIDPair);
                         }
                     }
@@ -269,7 +268,6 @@ namespace model
                         if(DN.pointIsInsideMesh(expandPoint,Lij.second->source->includingSimplex()).first)
                         {
                             //                        DN.expand(i,j,expandPoint);
-                            VerboseRemesh(1,"Expanding "<<i<<"->"<<j<<std::endl;);
                             DN.expand(i,j,LatticeVectorType(expandPoint));
                             Nexpanded++;
                         }
@@ -293,6 +291,7 @@ namespace model
                 double chordLength(chord.norm());
                 if (chordLength<=FLT_EPSILON)
                 {// toBeContracted part
+                    VerboseRemesh(1,"0-chord contract candidate "<<linkIter->second.nodeIDPair.first<<" "<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeContracted.insert(std::make_pair(chordLength,linkIter->second.nodeIDPair));
                 }
             }

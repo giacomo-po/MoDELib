@@ -73,6 +73,7 @@
 #endif
 
 #include <chrono>
+#include <algorithm>
 #include <Eigen/Dense>
 
 #include <model/Network/Network.h>
@@ -764,6 +765,8 @@ namespace model
             // Debugging
             EDR.readScalarInFile(fullName.str(),"verboseJunctions",DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions);
             EDR.readScalarInFile(fullName.str(),"verboseRemesh",DislocationNetworkRemesh<DislocationNetworkType>::verboseRemesh);
+            VertexContraction<NodeType,LinkType>::verboseContract=std::max(DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions,DislocationNetworkRemesh<DislocationNetworkType>::verboseRemesh);
+            EdgeExpansion<NodeType,LinkType>::verboseExpand=VertexContraction<NodeType,LinkType>::verboseContract;
             
             // Initializing configuration
             move(0.0);	// initial configuration

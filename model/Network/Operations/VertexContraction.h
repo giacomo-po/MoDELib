@@ -17,6 +17,10 @@
 #include <model/Network/Operations/EdgeFinder.h>
 #include <model/Network/Operations/VertexInsertion.h>
 #include <model/Network/Operations/VertexConnection.h>
+#include <model/MPI/MPIcout.h>
+
+#define VerboseContract(N,x) if(verboseContract>=N){model::cout<<x;}
+
 
 namespace model
 {
@@ -152,6 +156,8 @@ namespace model
 		
 	public:
 
+        static int verboseContract;
+        
         /**********************************************************************/
 		VertexContraction(NetworkVertexMapType& networkVertexMapRef_in,
 		/*             */   NetworkEdgeMapType& networkEdgeMapRef_in) : networkVertexMapRef(networkVertexMapRef_in),
@@ -162,7 +168,7 @@ namespace model
 		template <typename ...NodeArgTypes>
 		void contract(const size_t& i, const size_t& j, const NodeArgTypes&... NodeInput)
         {
-			
+            VerboseContract(1,"contracting "<<i<<" "<<j<<std::flush;);
             const isConstNetworkVertexType Vi(VertexFinder<VertexType>(networkVertexMapRef).node(i));
             assert(Vi.first && "CONTRACTING NON EXISTING VERTEX i");
             const isConstNetworkVertexType Vj(VertexFinder<VertexType>(networkVertexMapRef).node(j));
@@ -173,7 +179,8 @@ namespace model
             const isConstNetworkEdgeType tempE2(tempE1.first? tempE1 : EdgeFinder<EdgeType>(networkEdgeMapRef).link(j,i));
             
 			const size_t newID(VertexInsertion<VertexType>(networkVertexMapRef).insert(ContractingVertices<VertexType,EdgeType>(*Vi.second,*Vj.second,tempE2),NodeInput...).first->first); // CHANGE THIS LIKE EXPAND
-			
+			VerboseContract(1," into "<<newID<<std::endl;);
+            
 			/* - Call contractHelper with removeIsolatedNodes=0 to make sure that j survives
 			 * - This will not create isolated nodes
 			 * - if i was connected to j now newID is connected to j
@@ -202,7 +209,8 @@ namespace model
         /**********************************************************************/
 		void contractSecond(const size_t& i, const size_t& j)
         {
-			
+            VerboseContract(1,"contracting second of "<<i<<" "<<j<<std::endl;);
+
 			// If i->j (or reverse) exists and is the only connection this will remove both i and j
 			// If i->j (and reverse) do not exists, then i will survive
 			contractHelper<1>(i,j);
@@ -220,6 +228,9 @@ namespace model
 		}
 		
 	};
+    
+    template <typename VertexType, typename EdgeType>
+    int VertexContraction<VertexType,EdgeType>::verboseContract=0;
 	
 } // namespace model
 #endif
