@@ -211,7 +211,7 @@ namespace model
             Eigen::Matrix<double,dim,dim> F(vP.template block<dim,dim>(0,0));
             F.colwise() -= vP.col(dim);
             const double jFabs(std::fabs(F.determinant()));
-            if(jFabs<FLT_EPSILON)
+            if(jFabs<DBL_EPSILON)
             {
                 std::cout<<this->xID<<", volume="<<jFabs<<std::endl;
                 std::cout<<F<<std::endl;
