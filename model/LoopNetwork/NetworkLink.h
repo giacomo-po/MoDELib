@@ -61,7 +61,7 @@ namespace model
         /**********************************************************************/
         ~NetworkLink()
         {
-            //            std::cout<<"Destroying NetworkLink "<<source->sID<<" "<<sink->sID<<std::endl;
+//                        std::cout<<"Destroying NetworkLink "<<source->sID<<" "<<sink->sID<<std::endl;
             NetworkLinkObserver<LinkType>::removeLink(this->p_derived());
             
 //            const int sourceErased=source->erase(this->p_derived());

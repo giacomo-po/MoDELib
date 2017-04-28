@@ -43,21 +43,21 @@ namespace model
         
         /**********************************************************************/
 
-                LoopNode(const LoopNode&) =delete;
-//        const std::shared_ptr<LoopType>& pLoop;
+        LoopNode(const LoopNode&) =delete;
     
         /**********************************************************************/
         LoopNode()
         {
-            std::cout<<"Constructing LoopNode "<<this->sID<<std::endl;
+//            std::cout<<"Constructing LoopNode "<<this->sID<<std::endl;
             NodeObserver<Derived>::addNode(this->p_derived());
         }
         
         /**********************************************************************/
         ~LoopNode()
         {
-//            std::cout<<"Constructing LoopNode "<<this->sID<<std::endl;
             NodeObserver<Derived>::removeNode(this->p_derived());
+            
+            assert(loopLinks().empty());
         }
     
         /**********************************************************************/
@@ -69,6 +69,7 @@ namespace model
         /**********************************************************************/
         void addLoopLink(LoopLinkType* const pL)
         {
+//            std::cout<<"LoopNode "<<this->sID<<" adding Link "<<pL->source->sID<<"->"<<pL->sink->sID<<std::endl;
             // Store the connecting link
             const bool inserted=this->insert(pL).second;
             assert(inserted);
@@ -76,16 +77,30 @@ namespace model
             // form the prev/next structure
             for(const auto& other : loopLinks())
             {
+
+
                 if(pL->pLoop.get()==other->pLoop.get() && pL!=other) //two links in same loop
                 {
-                    
+//                std::cout<<"other is "<<other->source->sID<<"->"<<other->sink->sID<<std::endl;
                     if(pL->source.get()==other->sink.get())
                     {
+                        assert(pL->prev==nullptr || pL->prev==other);
+                        assert(other->next==nullptr || other->next==pL);
                         pL->prev=other;
                         other->next=pL;
                     }
                     if (pL->sink.get()==other->source.get())
                     {
+//                        if(pL->next!=nullptr)
+//                        {
+//                        std::cout<<"pL->next="<<pL->next->source->sID<<"->"<<pL->next->sink->sID<<std::endl;
+//                        }
+//                        if(other->prev!=nullptr)
+//                        {
+//                            std::cout<<"other->prev="<<other->prev->source->sID<<"->"<<other->prev->sink->sID<<std::endl;
+//                        }
+                        assert(pL->next==nullptr || pL->next==other);
+                        assert(other->prev==nullptr || other->prev==pL);
                         pL->next=other;
                         other->prev=pL;
                     }
@@ -93,11 +108,6 @@ namespace model
                     {
                         assert(0 && "Not a Loop");
                     }
-//                    else
-//                    {
-//                        assert(pL->source.get()!=other->source.get());
-//                        assert(pL->sink.get()!=other->sink.get());
-//                    }
                 }
 
             }
@@ -111,10 +121,19 @@ namespace model
             const int erased=this->erase(pL);
             assert(erased==1);
             
+            if(pL->next!=nullptr)
+            {
+                pL->next->prev=nullptr;
+                pL->next=nullptr;
+            }
+
+            if(pL->prev!=nullptr)
+            {
+                pL->prev->next=nullptr;
+                pL->prev=nullptr;
+            }
+
         }
-        
-        
-//        void addNetworkLink(LinkType* const pL
         
     };
     

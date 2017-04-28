@@ -134,7 +134,7 @@ int main()
     std::cout<<"# networkLinks="<<DN.links().size()<<std::endl;
     
     std::cout<<"Expanding"<<std::endl;
-    DN.expand(0,3);
+    DN.expand(4,3);
     
     std::cout<<"# nodes="<<DN.nodes().size()<<std::endl;
     std::cout<<"# loopLinks="<<DN.loopLinks().size()<<std::endl;
