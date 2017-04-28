@@ -31,29 +31,31 @@ namespace model
         typedef LoopLink<Derived> LoopLinkType;
         typedef std::set<const LoopLinkType*> LoopLinkContainerType;
         
-        /**********************************************************************/
-        Derived&   derived()
-        {//!\returns A reference to the derived object (CRTP)
-            return *static_cast<Derived*>(this);
-        }
         
-        const Derived&   derived() const
-        {//!\returns A  reference to the const derived object (CRTP)
-            return *static_cast<const Derived*>(this);
-        }
-        
-        const NodeType* const source;
-        const NodeType* const sink;
+//        const NodeType* const source;
+//        const NodeType* const sink;
+        std::shared_ptr<NodeType> source;
+        std::shared_ptr<NodeType> sink;
+
         
         /**********************************************************************/
-        NetworkLink(const NodeType* const nI,
-                    const NodeType* const nJ) :
+//        NetworkLink(const NodeType* const nI,
+//                    const NodeType* const nJ) :
+//        /* init */ source(nI->sID<nJ->sID? nI : nJ),
+//        /* init */ sink(nI->sID<nJ->sID? nJ : nI)
+        NetworkLink(const std::shared_ptr<NodeType>& nI,
+                    const std::shared_ptr<NodeType>& nJ) :
         /* init */ source(nI->sID<nJ->sID? nI : nJ),
         /* init */ sink(nI->sID<nJ->sID? nJ : nI)
         {
 //                        std::cout<<"Constructing NetworkLink ("<<source->sID<<","<<sink->sID<<")"<<std::endl;
             NetworkLinkObserver<LinkType>::addLink(this->p_derived());
-            
+         
+//            const bool sourceInserted=source->insert(this->p_derived()).second;
+//            assert(sourceInserted);
+//            const bool sinkInserted=sink->insert(this->p_derived()).second;
+//            assert(sinkInserted);
+
         }
         
         /**********************************************************************/
@@ -61,6 +63,12 @@ namespace model
         {
             //            std::cout<<"Destroying NetworkLink "<<source->sID<<" "<<sink->sID<<std::endl;
             NetworkLinkObserver<LinkType>::removeLink(this->p_derived());
+            
+//            const int sourceErased=source->erase(this->p_derived());
+//            assert(sourceErased==1);
+//            const bool sinkErased=sink->erase(this->p_derived());
+//            assert(sinkErased==1);
+
         }
         
         /**********************************************************************/

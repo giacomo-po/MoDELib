@@ -39,6 +39,11 @@ namespace model
         typedef std::list<const LoopLinkType*> LoopLinkSequenceType;
         typedef LoopObserver<Derived> LoopObserverType;
         
+    private:
+        
+        LoopLinkSequenceType linkSeq;
+        
+    public:
         
         const LoopNetworkType& loopNetwork;
         
@@ -73,6 +78,12 @@ namespace model
         {
             const bool success=links().insert(std::make_pair(std::make_pair(pL->source->sID,pL->sink->sID),pL)).second;
             assert(success && "Could not insert in linkMap");
+            
+//            if(linkSeq.isempty())
+//            {
+//                linkSeq.insert(linkSeq.end(),pL);
+//            }
+            
         }
         
         /**********************************************************************/
@@ -81,6 +92,12 @@ namespace model
             const size_t erased=links().erase(std::make_pair(pL->source->sID,pL->sink->sID));
             assert(erased==1 && "Could not erase from linkMap");
         }
+
+//        /**********************************************************************/
+//        const LoopLinkSequenceType& linkSequence() const
+//        {
+//            return linkSeq;
+//        }
         
         /**********************************************************************/
         LoopLinkSequenceType linkSequence() const

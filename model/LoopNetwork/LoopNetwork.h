@@ -15,6 +15,7 @@
 #include <tuple>
 #include <map>
 #include <vector>
+#include <deque>
 #include <utility>
 #include <algorithm>
 
@@ -53,9 +54,11 @@ namespace model
         typedef typename NetworkLinkObserverType::IsConstNetworkLinkType IsConstNetworkLinkType;
         typedef LoopObserver<LoopType> LoopObserverType;
         
-        typedef std::pair<bool,std::shared_ptr<NodeType> const>          IsNodeType;
+        typedef std::pair<bool,std::shared_ptr<NodeType>>          IsNodeType;
         typedef std::pair<bool,const std::shared_ptr<const NodeType>>	 IsConstNodeType;
         
+        typedef std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,std::shared_ptr<LoopType>> ExpandTupleType;
+
         
         /**********************************************************************/
         LoopNodeContainerType& danglingNodes()
@@ -118,7 +121,7 @@ namespace model
         }
         
         /**********************************************************************/
-        std::shared_ptr<LinkType> pLink(const NodeType* const nI, const NodeType* const nJ) const
+        std::shared_ptr<LinkType> pLink(const std::shared_ptr<NodeType>& nI, const std::shared_ptr<NodeType>& nJ) const
         {
             typename LoopLinkContainerType::const_iterator iterIJ(loopLinks().find(std::make_pair(nI->sID,nJ->sID)));
             if(iterIJ!=loopLinks().end())
@@ -169,9 +172,7 @@ namespace model
             return inserted;
             
         }
-        
-//        'model::LoopLink<model::Dlink>::LoopLink(std::shared_ptr<const model::Dnode>, std::shared_ptr<const model::Dnode>, std::shared_ptr<model::Dloop>)'
-        
+                
         /**********************************************************************/
         template <typename ...LoopArgTypes>
         void insertLoop(const std::vector<size_t> nodeIDs,const LoopArgTypes&... loopInput)
@@ -182,20 +183,10 @@ namespace model
             {
                 const size_t next=k+1<nodeIDs.size()? k+1 : 0;
                 
-//                std::cout<<nodeIDs[k]<<" "<<nodeIDs[next]<<std::endl;
-
                 IsNodeType n0=danglingNode(nodeIDs[k]);
                 IsNodeType n1=danglingNode(nodeIDs[next]);
                 
-                
                 connect(n0,n1,tempLoop);
-//                std::cout<<"done connecting"<<std::endl;
-//                loopLinks().emplace(std::piecewise_construct,
-//                                    std::make_tuple(n0.second->sID,n1.second->sID),
-//                                    std::make_tuple(n0.second,n1.second, tempLoop) );
-//            
-//                danglingNodes().erase(n0.second->sID); // remove temporary shared_ptr
-//                danglingNodes().erase(n1.second->sID); // remove temporary shared_ptr
             }
             
             assert(tempLoop->isLoop() && "Not a loop.");
@@ -209,19 +200,16 @@ namespace model
         {
             assert(n0.first && "Node not found");
             assert(n1.first && "Node not found");
+            assert(n0.second->sID!=n1.second->sID && "Cannot connect a node to itself");
 
             loopLinks().emplace(std::piecewise_construct,
                                 std::make_tuple(n0.second->sID,n1.second->sID),
                                 std::make_tuple(n0.second,n1.second, tempLoop) );
-            
-//            danglingNodes().erase(n0.second->sID); // remove temporary shared_ptr
-//            danglingNodes().erase(n1.second->sID); // remove temporary shared_ptr
-
         }
         
         /**********************************************************************/
         template <typename ...NodeArgTypes>
-        std::pair<typename LoopNodeContainerType::iterator,bool> expand(const size_t& a, const size_t& b, const NodeArgTypes&... Args)
+        std::shared_ptr<NodeType> expand(const size_t& a, const size_t& b, const NodeArgTypes&... Args)
         {
             
             assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
@@ -233,49 +221,44 @@ namespace model
             const IsConstNetworkLinkType Lij(this->link(i,j));
             assert(Lij.first && "Expanding non-existing link");
             
-            // Insert new node
-            std::pair<typename LoopNodeContainerType::iterator,bool> newNode=insertDanglingNode(Args...);
-            const size_t newID=newNode.first->first;
+            // Create new node
+            std::shared_ptr<NodeType> newNode=std::shared_ptr<NodeType>(new NodeType(Args...));
+            const size_t newID=newNode->sID;
             
-            typename LinkType::LoopLinkContainerType loopLinksIJ=Lij.second->loopLinks();
-            for(const auto& llink : loopLinksIJ)
+            // Store what needs to be connected (i,new,j,Loop), or (j,new,i,Loop). This also holds temporarily disconnected nodes
+            std::deque<ExpandTupleType> expandDeq;
+            for(const auto& llink : Lij.second->loopLinks())
             {
-                if(llink->source->sID==i && llink->sink->sID==j) // same direction
-                {
-                    loopLinks().emplace(std::piecewise_construct,
-                                        std::make_tuple(i,newID),
-                                        std::make_tuple(llink->source,newNode.first->second, llink->pLoop) );
+                expandDeq.emplace_back(llink->source,llink->sink,llink->pLoop);
 
-                    loopLinks().emplace(std::piecewise_construct,
-                                        std::make_tuple(newID,j),
-                                        std::make_tuple(newNode.first->second,llink->sink,llink->pLoop) );
-                }
-                else if(llink->source->sID==j && llink->sink->sID==i) // opposite direction
-                {
-                    loopLinks().emplace(std::piecewise_construct,
-                                        std::make_tuple(j,newID),
-                                        std::make_tuple(llink->source,newNode.first->second, llink->pLoop) );
-
-                    loopLinks().emplace(std::piecewise_construct,
-                                        std::make_tuple(newID,i),
-                                        std::make_tuple(newNode.first->second,llink->sink,llink->pLoop) );
-                }
-                else
-                {
-                    assert(0 && "LoopLink must connect i->j or viceversa");
-                }
             }
             
-            danglingNodes().erase(newID);
+            // Delete all LoopLinks of type i->j or j->i
             loopLinks().erase(std::make_pair(i,j));
             loopLinks().erase(std::make_pair(j,i));
+            
+            for (const auto& tup : expandDeq)
+            {
+//                std::cout<<std::get<0>(tup)->sID<<"->"<<std::get<1>(tup)->sID<<", loop "<<std::get<2>(tup)->sID<<std::endl;
+                loopLinks().emplace(std::piecewise_construct,
+                                    std::make_tuple(std::get<0>(tup)->sID,newID),
+                                    std::make_tuple(std::get<0>(tup),newNode, std::get<2>(tup)) );
+
+                loopLinks().emplace(std::piecewise_construct,
+                                    std::make_tuple(newID,std::get<1>(tup)->sID),
+                                    std::make_tuple(newNode,std::get<1>(tup), std::get<2>(tup)) );
+
+            }
             
             return newNode;
         }
         
         /**********************************************************************/
-        void contractSecond(const size_t& a, const size_t& b)
-        {
+        void contract(const size_t& a, const size_t& b)
+        {/*! Performs a contract operation in which the nodes of a NetworkLink
+          * (a,b) are merged. Node a survives the merge, while node b is 
+          * destroyed
+          */
             
             const size_t i=std::min(a,b);
             const size_t j=std::max(a,b);
@@ -283,6 +266,21 @@ namespace model
             // Find NetworkLink i->j
             const IsConstNetworkLinkType Lij(this->link(i,j));
             assert(Lij.first && "Contracting non-existing link");
+            
+            
+            if(i==a && j==b) // j is destroyed
+            {
+                for(const auto& loopLink:Lij.second->loopLinks())
+                {
+                
+                }
+            }
+            else // i is destroyed
+            {
+            
+            
+            }
+            
 //            FINISH HERE
 //            typename LinkType::LoopLinkContainerType loopLinksIJ=Lij.second->loopLinks();
 //            for(const auto& llink : loopLinksIJ)
@@ -329,6 +327,24 @@ namespace model
         
         }
         
+        void printLoopLinks() const
+        {
+            for(const auto& link : loopLinks())
+            {
+                std::cout<<"link "<<link.second.source->sID<<"->"<<link.second.sink->sID
+                <<" (prev "<<link.second.prev->source->sID<<"->"<<link.second.prev->sink->sID<<")"
+                <<" (next "<<link.second.next->source->sID<<"->"<<link.second.next->sink->sID<<")"
+                <<std::endl;
+            }
+        }
+        
+        void printNodes() const
+        {
+            for(const auto& node : this->nodes())
+            {
+                std::cout<<"node "<<node.second->sID<<" neighbor-size="<<node.second->loopLinks().size()<<std::endl;
+            }
+        }
     };
     
     

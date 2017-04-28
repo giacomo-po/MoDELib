@@ -30,10 +30,14 @@ namespace model
 //        const LoopNodeType* const sink;
         std::shared_ptr<LoopNodeType> source;
         std::shared_ptr<LoopNodeType> sink;
-
-        const std::shared_ptr<LoopType> pLoop;
-        const std::shared_ptr<LinkType> pLink;
         
+
+        std::shared_ptr<LoopType> pLoop;
+        std::shared_ptr<LinkType> pLink;
+
+        LoopLink* prev;
+        LoopLink* next;
+
 //        /**********************************************************************/
 //        LoopLink(const LoopNodeType* const so,
 //                 const LoopNodeType* const si,
@@ -56,12 +60,16 @@ namespace model
         /* init */ source(so),
         /* init */ sink(si),
         /* init */ pLoop(pL),
-        /* init */ pLink(pLoop->loopNetwork.pLink(source.get(),sink.get()))
+        /* init */ pLink(pLoop->loopNetwork.pLink(source,sink)),
+        /* init */ prev(nullptr),
+        /* init */ next(nullptr)
         {
 //                        std::cout<<"Constructing LoopLink "<<source->sID<<"->"<<sink->sID<<std::endl;
             pLoop->addLink(this);
             pLink->addLink(this);
             
+            source->addLoopLink(this);
+            sink->addLoopLink(this);
         }
         
         /**********************************************************************/
@@ -70,6 +78,10 @@ namespace model
 //            std::cout<<"Destroying LoopLink "<<source->sID<<" "<<sink->sID<<std::endl;
             pLoop->removeLink(this);
             pLink->removeLink(this);
+            
+            source->removeLoopLink(this);
+            sink->removeLoopLink(this);
+
         }
         
 //        /**********************************************************************/

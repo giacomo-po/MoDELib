@@ -88,7 +88,8 @@ namespace model
     struct Dlink : public NetworkLink<Dlink>
     {
     
-        Dlink(const Dnode* const Ni,const Dnode* const Nj) : NetworkLink<Dlink>(Ni,Nj){}
+        Dlink(const std::shared_ptr<Dnode>& Ni,
+              const std::shared_ptr<Dnode>& Nj) : NetworkLink<Dlink>(Ni,Nj){}
         
     };
     
@@ -111,7 +112,7 @@ int main()
     Dnetwork DN;
     
     
-    for(int i=0;i<6;++i)
+    for(int i=0;i<8;++i)
     {
         DN.insertDanglingNode();
 //        nodeIDs.push_back(id);
@@ -119,10 +120,13 @@ int main()
     
     std::vector<size_t> loop0={0,1,2,3};
     std::vector<size_t> loop1={0,3,4,5};
+    std::vector<size_t> loop2={6,7};
     
     
     DN.insertLoop(loop0);
     DN.insertLoop(loop1);
+    DN.insertLoop(loop2);
+
     DN.clearDanglingNodes();
     
     std::cout<<"# nodes="<<DN.nodes().size()<<std::endl;
@@ -137,6 +141,17 @@ int main()
     std::cout<<"# networkLinks="<<DN.links().size()<<std::endl;
     
     DN.checkLoops();
+    
+    
+    for(const auto& node : DN.nodes())
+    {
+        std::cout<<"node "<<node.second->sID<<" neighbor-size="<<node.second->loopLinks().size()<<std::endl;
+    }
+
+    DN.nodes();
+
+    DN.printLoopLinks();
+
     
 
     return 0;
