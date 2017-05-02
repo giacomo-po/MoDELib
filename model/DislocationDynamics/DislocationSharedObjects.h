@@ -18,6 +18,7 @@
 
 #include <model/Mesh/SimplicialMesh.h> // defines model::cout
 #include <model/DislocationDynamics/BVP/BVPsolver.h>
+#include <model/DislocationDynamics/ExternalStressFieldController.h>
 
 namespace model
 {
@@ -27,13 +28,15 @@ namespace model
     {
         
         typedef BVPsolver<dim,2> BvpSolverType;
+        typedef ExternalStressFieldController<dim> ExternalStressFieldControllerType;
         
-		static bool use_boundary;
+	static bool use_boundary;
+	static bool use_externalStress;
 //        static bool use_meshRegions;
 
         static unsigned int use_bvp;
 		static bool use_virtualSegments;
-		static Eigen::Matrix<double,dim,dim> externalStress;
+//		static Eigen::Matrix<double,dim,dim> externalStress;
 
         static SimplicialMesh<dim> mesh;
         /*!\todo Fix the Segmentation fault that takes place when mesh is destroyed.
@@ -48,12 +51,17 @@ namespace model
 //        static BoundaryDislocationNetwork<TypeTraits<LinkType>::dim> bdn;
         
         static BvpSolverType bvpSolver;
+        static ExternalStressFieldControllerType extStressController;
+        
         
 	};
 	
 	// Static data members
     template <int dim>
 	bool DislocationSharedObjects<dim>::use_boundary=false;
+
+    template <int dim>
+	bool DislocationSharedObjects<dim>::use_externalStress=false;
 
 //    template <int dim>
 //    bool DislocationSharedObjects<dim>::use_meshRegions=false;
@@ -62,12 +70,14 @@ namespace model
     template <int dim>
 	unsigned int DislocationSharedObjects<dim>::use_bvp=0;
 
+
+
     template <int dim>
 	bool DislocationSharedObjects<dim>::use_virtualSegments=true;
 
     
-    template <int dim>
-	Eigen::Matrix<double,dim,dim> DislocationSharedObjects<dim>::externalStress=Eigen::Matrix<double,dim,dim>::Zero();
+//    template <int dim>
+//	Eigen::Matrix<double,dim,dim> DislocationSharedObjects<dim>::externalStress=Eigen::Matrix<double,dim,dim>::Zero();
 
     template <int dim>
 	SimplicialMesh<dim> DislocationSharedObjects<dim>::mesh;
@@ -75,6 +85,8 @@ namespace model
     template <int dim>
 	BVPsolver<dim,2> DislocationSharedObjects<dim>::bvpSolver(DislocationSharedObjects<dim>::mesh);
 
+    template <int dim>
+	ExternalStressFieldController<dim> DislocationSharedObjects<dim>::extStressController;
     
 } // namespace model
 #endif

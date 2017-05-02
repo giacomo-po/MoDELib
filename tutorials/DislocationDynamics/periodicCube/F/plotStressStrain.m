@@ -11,6 +11,9 @@ ddLength=F(:,3);
 u3=F(:,4);
 f3=F(:,5);
 
+externalstrain33=F(:,end-9);
+externalstress33=F(:,end);
+
 L=1000; % cube side length
 V=L^3;
 A=L^2;

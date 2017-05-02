@@ -47,11 +47,8 @@ C2G = 1.0   0.0  0.0
 temperature = 300.0;
 
 ######################################
-# Set the remote external stress (a uniform stress felt by dislocations)
-externalStress = 0.0 0.0 0.0
-		 0.0 0.0 0.0
-		 0.0 0.0 0.0;
-
+# using chaning remote external stress field
+use_externalStress=0;
 ######################################
 # ELASTIC FIELDS
 # The dislocation core size

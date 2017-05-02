@@ -630,7 +630,7 @@ namespace model
           *\returns the stress field at the k-th quandrature point
           */
             
-            MatrixDim temp(quadratureParticleContainer[k]->stress()+shared.externalStress);
+            MatrixDim temp(quadratureParticleContainer[k]->stress()+shared.extStressController.externalStress());
             if(shared.use_bvp)
             {
                 //                temp += shared.bvpSolver.stress(quadratureParticleContainer[k]->P,this->source->includingSimplex());

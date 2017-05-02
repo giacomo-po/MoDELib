@@ -156,6 +156,8 @@ namespace model
         
         double dx, dt;
         double vmax;
+        int vmaxnodenumber;
+        double vmaxfilter;
         int surfaceNucleationModel;
         
         /**********************************************************************/
@@ -203,6 +205,8 @@ namespace model
                     if (vNorm>vmax)
                     {
                         vmax=vNorm;
+                        vmaxnodenumber=nodeIter.second.sID;
+                        vmaxfilter=nodeIter.second.velocityReduction();
                     }
                 }
             }
@@ -232,6 +236,7 @@ namespace model
             }
             
             model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
+            model::cout<<" vmaxNodenumber="<<vmaxnodenumber;
             model::cout<<std::setprecision(3)<<std::scientific<<" vmax/cs="<<vmax/Material<Isotropic>::cs;
             model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<dt;
             model::cout<<std::setprecision(3)<<std::scientific<<" eta_dt="<<dt/dt_mean;
@@ -276,6 +281,10 @@ namespace model
                     shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,37>(*this);
                 }
                 
+            }
+            if (shared.use_externalStress)
+            {
+               shared.extStressController.update(*this);
             }
             
         }
@@ -472,6 +481,8 @@ namespace model
         /* init list  */ dx(0.0),
         /* init list  */ dt(0.0),
         /* init list  */ vmax(0.0),
+        /* init list  */ vmaxnodenumber(0),
+        /* init list  */ vmaxfilter(0.0),
         /* init list  */ surfaceNucleationModel(0),
         /* init list  */ Nsteps(0),
         //        /* init list  */ timeWindow(0.0),
@@ -528,7 +539,12 @@ namespace model
           */
             return totalTime;
         }
-        
+       /**********************************************************************/
+       std::pair<int,double> get_vmaxnodenumber() const
+        {/*! The elapsed simulation time step in dimensionless units
+          */
+            return std::make_pair(vmaxnodenumber,vmaxfilter);
+        }      
         /**********************************************************************/
         void read(const std::string& inputDirectoryName_in, std::string inputFileName)
         { // TO DO: move this to DislocationNetworkIO.h
@@ -605,7 +621,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",DislocationEnergy<dim>::use_multipole);
             
             // Eternal Stress
-            EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
+          //  EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
             
             // Restart
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
@@ -715,7 +731,14 @@ namespace model
                 //                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
                 //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
             }
-            
+
+            // Use Changing external stress field. 
+            EDR.readScalarInFile(fullName.str(),"use_externalStress",shared.use_externalStress);
+            if (shared.use_externalStress)
+            {
+                 DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=18;  //put here in order for right bvp restart
+            } 
+           
             // Mesh and BVP
             EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
             if (shared.use_boundary)
@@ -744,7 +767,11 @@ namespace model
             else{ // no boundary is used, DislocationNetwork is in inifinite medium
                 shared.use_bvp=0;	// never comupute boundary correction
             }
-            
+
+            if (shared.use_externalStress)
+            {
+                 shared.extStressController.init(*this);  // have to initialize it after mesh!
+            } 
             // Read Vertex and Edge information
             DislocationNetworkIO<DislocationNetworkType>::readVertices(*this,runID); // this requires mesh to be up-to-date
             DislocationNetworkIO<DislocationNetworkType>::readEdges(*this,runID);    // this requires mesh to be up-to-date
@@ -870,6 +897,9 @@ namespace model
 #endif
                 //                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
+
+           // this is used to output the VmaxID and Vmaxfilter information to 'C_0' files for efficiency checking. 
+           // DislocationNetworkIO<DislocationNetworkType>::outputforcheck(*this);
         }
         
         

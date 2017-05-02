@@ -22,17 +22,16 @@ runID=F(:,1);
 time=F(:,2);
 dt=F(:,3);
 
-dc=18;
-u3=F(:,3+dc+1);
-theta3=F(:,3+dc+2);
-f3=F(:,3+dc+3);
-t3=F(:,3+dc+4);
+ 
+u3=F(:,end-1);
+Stress33=F(:,end);
+ 
 
 figure(1)
 plot(runID,dt,'r')
 
 figure(2)
-plot(u3/H,f3/A)
+plot(u3/H,Stress33)
 
 figure(3)
-plot(runID,f3/A)
+plot(runID,Stress33)

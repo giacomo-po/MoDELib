@@ -50,10 +50,8 @@ C2G = 0.707106781186547  -0.707106781186547                   0
 temperature = 300.0;
 
 ######################################
-# Set the remote external stress (a uniform stress felt by dislocations)
-externalStress = 0.0 0.0 0.0
-		 0.0 0.0 0.0
-		 0.0 0.0 0.0;
+# using chaning remote external stress field
+use_externalStress=0;
 
 ######################################
 # ELASTIC FIELDS

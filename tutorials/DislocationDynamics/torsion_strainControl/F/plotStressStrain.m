@@ -20,11 +20,9 @@ runID=F(:,1);
 time=F(:,2);
 dt=F(:,3);
 
-dc=2;
-%u3=F(:,3+dc+1);
-theta3=F(:,3+dc+1);
-%f3=F(:,3+dc+3);
-t3=F(:,3+dc+2);
+
+theta3=F(:,end-1);
+t3=F(:,end);
 
 figure(1)
 plot(time,theta3,'r')

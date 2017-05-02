@@ -22,18 +22,16 @@ runID=F(:,1);
 time=F(:,2);
 dt=F(:,3);
 
-dc=4;
-u3=F(:,dc);
-%theta3=F(:,3+dc+2);
-f3=F(:,dc+1);
-%t3=F(:,3+dc+4);
+
+u3=F(:,end-1);
+S33=F(:,end);
+
 
 figure(1)
 plot(runID,dt,'r')
 
 figure(2)
-plot(u3,f3)
+plot(u3,S33)
 grid on
 
-% figure(3)
-% plot(runID,f3/A)
+ 

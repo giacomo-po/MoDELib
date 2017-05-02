@@ -44,13 +44,9 @@ C2G =  0.7071067811865475 -0.7071067811865475  0.0
 ######################################
 # TEMPERATURE in [K]
 temperature = 300.0;
-
 ######################################
-# Set the remote external stress (a uniform stress felt by dislocations)
-externalStress = 0.0 0.0 0.01
-		 0.0 0.0 0.0
-		 0.01 0.0 0.0;
-
+# using chaning remote external stress field
+use_externalStress=0;
 ######################################
 # STRESS FIELD
 # The dislocation core width, used in the non-singular expression of the dislocation stress field

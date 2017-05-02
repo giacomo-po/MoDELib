@@ -8,15 +8,26 @@ F=load('F_0.txt');
 runID=F(:,1);
 dt=F(:,2);
 ddLength=F(:,3);
-u3=F(:,4);
-f3=F(:,5);
+ 
+if size(F,2)>=24 % using remote stress field
+	externalstrain33=F(:,end-12);
+	externalstress33=F(:,end-3);
+	figure(10)
+	plot(externalstrain33,externalstress33);
+end
+
+u3=F(:,end-2);
+stress33=F(:,end-1);
+stress33DD=F(:,end);
+
+ 
 
 L=1000; % cube side length
 V=L^3;
 A=L^2;
 
 e33=u3/L;
-s33=f3/A;
+s33=stress33;
 
 figure(1)
 subplot(2,1,1)

@@ -142,7 +142,17 @@ namespace model
             }
             model::cout<<std::endl;
         }
-        
+
+        /* outputTXT **********************************************************/
+        static void outputforcheck(const DislocationNetworkType& DN)
+        {
+         // just for checking, required to be put in F file. 
+            UniqueOutputFile<'C'> C_file;
+            model::cout<<" C/C_0.txt"<<std::flush;
+            const auto Vmaxinfo=DN.get_vmaxnodenumber();
+            C_file<< DN.runningID()<<" "<<DN.get_dt()<<" "<<Vmaxinfo.first<<" "<<Vmaxinfo.second<<std::endl; 
+         //////*********************************************************************************/// 
+        }        
         /* outputTXT **********************************************************/
         static void output(const DislocationNetworkType& DN, const unsigned int& runID)
         {/*! Outputs DislocationNetwork data to the following files (x is the runID):
@@ -417,11 +427,18 @@ namespace model
                 f_file<<std::get<0>(length)<<" "<<std::get<1>(length)<<" "<<std::get<2>(length)<<" ";
 
             }
-            
+
+            if (DN.shared.use_externalStress)
+            {
+               f_file<<DN.shared.extStressController.output();
+            }
+     
             if(DN.shared.use_bvp)
             {
                 f_file<<DN.shared.bvpSolver.loadController().output(DN);
             }
+
+
 
 #ifdef userOutputFile
 #include userOutputFile

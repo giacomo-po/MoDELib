@@ -1,20 +1,13 @@
-######################################
-# Settings for BVP controller
-# square (punchShape=0), circular (punchShape=1)
-punchShape=1;
-punchSize=300;
-epsilonDot=-1.0e-9;
-initialDisplacement=0;
-relaxSteps=0;
-apply_load=1;
+ 
+
 ######################################
 # Settings for  ExternalStressController (a uniform stress felt by dislocations)
-ExternalStress0 = 0.0 0.0 0.0
+ExternalStress0 = 0.0 0.0 0.01
 		 0.0 0.0 0.0
-		 0.0 0.0 0.0;
+		 0.01 0.0 0.0;
 ExternalStressRate = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 1e-10;
+		 0.0 0.0 0.0;
 ExternalStrain0 = 0.0 0.0 0.0
 		 0.0 0.0 0.0
 		 0.0 0.0 0.0;
@@ -23,4 +16,5 @@ ExternalStrainRate = 0.0 0.0 0.0
 		 0.0 0.0 0.0;
 ###MachineStiffnessRatio=0 means pure stress control,  MachineStiffnessRatio=infinity (such as 1e20) means pure strain control
 MachineStiffnessRatio=0.0;
+relaxSteps=0;
 ######################################
