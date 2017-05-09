@@ -14,7 +14,7 @@ ExternalStress0 = 0.0 0.0 0.0
 		 0.0 0.0 0.0;
 ExternalStressRate = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 1e-10;
+		 0.0 0.0 0.0;
 ExternalStrain0 = 0.0 0.0 0.0
 		 0.0 0.0 0.0
 		 0.0 0.0 0.0;
