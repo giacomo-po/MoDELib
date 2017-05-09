@@ -20,7 +20,7 @@ outputFrequency=10;
 outputBinary=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=1;
+outputPKforce=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
@@ -46,8 +46,9 @@ C2G = 0.707106781186547  -0.707106781186547                   0
 temperature = 300.0;
 
 ######################################
-# using chaning remote external stress field
-use_externalStress=0;
+# Use remote external stress field (defined in loadInput.txt)
+use_externalStress=1;
+
 ######################################
 # STRESS FIELD
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
