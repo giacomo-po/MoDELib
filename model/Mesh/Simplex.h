@@ -32,7 +32,7 @@ namespace model
     /**************************************************************************/
     template<short int dim>
     class Simplex<dim,0> :
-    /* inheritance      */ public SimplexBase<dim,0>,
+//    /* inheritance      */ public SimplexBase<dim,0>,
     /* inheritance      */ public SimplexChild <dim,0>
     {
         
@@ -42,12 +42,15 @@ namespace model
         enum{nVertices=SimplexTraits<dim,order>::nVertices};
         enum{nFaces=SimplexTraits<dim,order>::nFaces};
         typedef typename SimplexTraits<dim,order>::SimplexIDType SimplexIDType;
+//        typedef SimplexChild<dim,order> SimplexChildType;
+
         
         const Eigen::Matrix<double,dim,1> P0;
         
         /**********************************************************************/
         Simplex(const SimplexIDType& vIN) :
-        /* init list */ SimplexBase<dim,order>(vIN),
+//        /* init list */ SimplexBase<dim,order>(vIN),
+        /* init list */ SimplexChild<dim,order>(vIN),
         //        /* init list */ P0(get_P0())
         /* init list */ P0(SimplexReader<dim>::get_P0(this->xID))
         {/*!@param[in] vIN the (possibly unsorted) ID of this Simplex
@@ -66,23 +69,31 @@ namespace model
         }
         
         /**********************************************************************/
-        Eigen::Matrix<double,dim,1> outNormal() const
+        void updateBndNormal()
         {
-            return BoundarySimplex<dim,dim-order>::outNormal(*this);
+            // Update normal of this SImplex
+            this->outN=BoundarySimplex<dim,dim-order>::outNormal(*this);
         }
+        
+//        /**********************************************************************/
+//        Eigen::Matrix<double,dim,1> outNormal() const
+//        {
+//            return BoundarySimplex<dim,dim-order>::outNormal(*this);
+//        }
     };
     
     /**************************************************************************/
     /**************************************************************************/
     template<short int dim, short int order>
     class Simplex :
-    /* inheritance */ public SimplexBase<dim,order>,
-    /* inheritance */ public SimplexTraits<dim,order>::BaseArrayType,
-    /* inheritance */ public SimplexChild <dim,order>
+//    /* inheritance */ public SimplexBase<dim,order>,
+    /* inheritance */ public SimplexChild <dim,order>,
+    /* inheritance */ public SimplexTraits<dim,order>::BaseArrayType
     {
         
         typedef typename SimplexTraits<dim,order>::BaseArrayType BaseArrayType;
-        
+        //typedef SimplexChild<dim,order> SimplexChildType;
+
         
     public:
         enum{nVertices=SimplexTraits<dim,order>::nVertices};
@@ -96,7 +107,8 @@ namespace model
         
         /**********************************************************************/
         Simplex(const SimplexIDType& vIN) :
-        /* init list */ SimplexBase<dim,order>(vIN),
+//        /* init list */ SimplexBase<dim,order>(vIN),
+        /* init list */ SimplexChild<dim,order>(vIN),
         /* init list */ BaseArrayType(SimplexObserver<dim,order>::faces(vIN))
         //        /* init */ vol0(SimplexVolume<dim,order>::volume(this->vertexPositionMatrix())) // THIS GIVES SEGMENTATION FAULT, WHY?
         {/*!@param[in] vIN the (possibly unsorted) ID of this
@@ -109,7 +121,7 @@ namespace model
             //! -2 inserts this into children Simplices
             for (int k=0;k<nFaces;++k)
             {
-                this->child(k).addToParents(this);
+                child(k).addToParents(this);
             }
             
             vol0=SimplexVolume<dim,order>::volume(this->vertexPositionMatrix());
@@ -125,7 +137,7 @@ namespace model
             //! -2 remove this fomr children parentContainers
             for (int k=0;k<nFaces;++k)
             {
-                this->child(k).removeFromParents(this);
+                child(k).removeFromParents(this);
             }
         }
         
@@ -179,10 +191,23 @@ namespace model
         }
         
         /**********************************************************************/
-        Eigen::Matrix<double,dim,1> outNormal() const
+        void updateBndNormal()
         {
-            return BoundarySimplex<dim,dim-order>::outNormal(*this);
+            // Update normal of this SImplex
+            this->outN=BoundarySimplex<dim,dim-order>::outNormal(*this);
+            
+            // Update normals of children
+            for (int k=0;k<nFaces;++k)
+            {
+                child(k).updateBndNormal();
+            }
         }
+        
+//        /**********************************************************************/
+//        Eigen::Matrix<double,dim,1> outNormal() const
+//        {
+//            return BoundarySimplex<dim,dim-order>::outNormal(*this);
+//        }
         
     };
     
@@ -218,6 +243,15 @@ namespace model
                 assert(0 && "SIMPLEX HAS ZERO VOLUME");
             }
             return jFabs*F.inverse().transpose()*BarycentricTraits<dim>::NdA;
+        }
+        
+        /**********************************************************************/
+        void updateBndNormal()
+        {
+            for (int k=0;k<nFaces;++k)
+            {
+                child(k).updateBndNormal();
+            }
         }
         
     public:
@@ -262,11 +296,11 @@ namespace model
             
             for (int k=0;k<nFaces;++k)
             {
-                this->child(k).addToParents(this);
+                child(k).addToParents(this);
             }
             
             region->simplices().emplace(this);
-            
+            updateBndNormal();
         }
         
         /**********************************************************************/
@@ -280,11 +314,11 @@ namespace model
             //! -2 remove this fomr children parentContainers
             for (int k=0;k<nFaces;++k)
             {
-                this->child(k).removeFromParents(this);
+                child(k).removeFromParents(this);
             }
             
             region->simplices().erase(this);
-            
+            updateBndNormal();
         }
         
         /**********************************************************************/
@@ -377,7 +411,7 @@ namespace model
                 int kMin;
                 const double baryMin=pos2bary(P).minCoeff(&kMin);
                 //                double tol=0.0;
-                //                if(this->child(kMin).isBoundarySimplex())
+                //                if(child(kMin).isBoundarySimplex())
                 //                {
                 //                    tol=-FLT_EPSILON;
                 //                }
@@ -399,7 +433,7 @@ namespace model
                 else
                 {
                     
-                    for(auto& pParent : this->child(kMin).parents())
+                    for(auto& pParent : child(kMin).parents())
                     {
                         if(pParent->region->regionID==region->regionID || searchAllRegions)
                         {
@@ -488,10 +522,10 @@ namespace model
 //                }
 //                else
 //                {
-////                    for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
-////                        /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
+////                    for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=child(kMin).parentBegin();
+////                        /*                                                            */ pIter!=child(kMin).parentEnd();++pIter)
 ////                    {
-//                    for(auto& pParent : this->child(kMin).parents())
+//                    for(auto& pParent : child(kMin).parents())
 //                    {
 ////                        (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
 //                    pParent->convexDelaunaynSearch(P,lastSearched,searchSet);

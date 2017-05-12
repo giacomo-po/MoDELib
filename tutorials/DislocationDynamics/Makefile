@@ -2,11 +2,12 @@
 # EDIT HERE
 ##########################################################
 USE_ICC = 0
-usePARDISO = 0
+usePARDISO = 1
 MODEL_INCLUDE =../../../
-EIGEN_INCLUDE =/Users/giacomo/Documents/eigen
-MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
-MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
+EIGEN_INCLUDE=/Users/giacomo/Documents/eigen
+MKL_INCLUDE=/opt/intel/mkl/include
+MKL_LIB=/opt/intel/mkl/lib
+INTEL_LIB=/opt/intel/lib
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
@@ -51,9 +52,10 @@ ifeq ($(usePARDISO), 1)
 	CFLAGS += -D _MODEL_PARDISO_SOLVER_
 	IDIR += -I $(MKL_INCLUDE)
 	LIBS += -L $(MKL_LIB)
+	LIBS += -L $(INTEL_LIB)
 
 	ifeq ($(OS),Darwin)
-		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread
+		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -liomp5 -lpthread -lm -ldl
 	endif
 
 	ifeq ($(OS),Linux)
