@@ -101,7 +101,7 @@ namespace model
         /**********************************************************************/
         PlanePlaneIntersection(const LatticePlane& plane1, const LatticePlane& plane2) :
         /* init */ d(plane1.n,plane2.n),
-        /* init */ P(d.squaredNorm()? midPoint(plane1,plane2,d) : ((plane1.P-plane2.P).dot(plane1.n)==0? plane1.P : LatticeVector<3>(VectorDimI::Zero(),plane1.P.covBasis,plane1.P.contraBasis))),
+        /* init */ P(d.squaredNorm()? midPoint(plane1,plane2,d) : ((plane1.P-plane2.P).dot(plane1.n)==0? plane1.P : LatticeVector<3>(VectorDimI::Zero(),plane1.P.lattice))),
         /* init */ L1contains((P-plane1.P).dot(plane1.n)==0),
         /* init */ L2contains((P-plane2.P).dot(plane2.n)==0),
         /* init */ intersectionType(d.squaredNorm()*L1contains*L2contains? incident : d.squaredNorm()? offLattice : ((plane1.P-plane2.P).dot(plane1.n)? parallel : coincident))

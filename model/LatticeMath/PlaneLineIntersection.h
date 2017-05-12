@@ -40,7 +40,7 @@ namespace model
         /* init */ num(plane.P.dot(plane.n)-line.P.dot(plane.n)),
         /* init */ den(line.d.dot(plane.n)),
         /* init */ intersectionType(den!=0? ((num%den)==0? intersecting : offLattice) : (num==0? coincident : parallel)),
-        /* init */ P( (intersectionType==intersecting || intersectionType==offLattice )? line.P+num/den*line.d : (intersectionType==coincident? line.P : LatticeVectorType(line.P.covBasis,line.P.contraBasis) ))
+        /* init */ P( (intersectionType==intersecting || intersectionType==offLattice )? line.P+num/den*line.d : (intersectionType==coincident? line.P : LatticeVectorType(line.P.lattice) ))
         {
 //            std::cout<<"num="<<num<<std::endl;
 //            std::cout<<"den="<<den<<std::endl;

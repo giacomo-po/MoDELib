@@ -1,4 +1,0 @@
-thetaDot=1e-9;
-initialTwist_Rad=0;
-relaxSteps=0;
-apply_torsion=1;

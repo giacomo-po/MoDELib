@@ -371,7 +371,7 @@ namespace model
           *  @param[in] Flow_in the input flow
           */
             
-            assert(nodePair.first->grain.grainID==nodePair.second->grain.grainID && "Souce and Sink BELONG TO DIFFERENT GRAINS");
+            assert(nodePair.first->grain.grainID==nodePair.second->grain.grainID && "source and Sink BELONG TO DIFFERENT GRAINS");
             
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->source); // This should not be called in edge expansion or contraction
             this->source->make_T();
@@ -403,7 +403,7 @@ namespace model
           *  @param[in] ee the expanding edge
           */
             
-            assert(nodePair.first->grain.grainID==nodePair.second->grain.grainID && "Souce and Sink BELONG TO DIFFERENT GRAINS");
+            assert(nodePair.first->grain.grainID==nodePair.second->grain.grainID && "source and Sink BELONG TO DIFFERENT GRAINS");
             
             DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->source); // This should not be called in edge expansion or contraction
             this->source->make_T();
@@ -956,7 +956,7 @@ namespace model
         }
         
         /**********************************************************************/
-        bool isSimpleSessile() const
+        bool isSimpleSessile() const __attribute__ ((deprecated))
         {
             bool temp=false;
             if(isSessile)
@@ -967,8 +967,8 @@ namespace model
                        && this->source->openNeighborLink(1)->isSessile
                        && this->sink->openNeighborLink(0)->isSessile
                        && this->sink->openNeighborLink(1)->isSessile
-                       && this->souce->openNeighborLink(0)->glidePlane.n.cross(this->souce->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
-                       && this->souce->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(0)->glidePlane.n).squaredNorm()==0
+                       && this->source->openNeighborLink(0)->glidePlane.n.cross(this->source->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
+                       && this->source->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(0)->glidePlane.n).squaredNorm()==0
                        && this->sink->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
                        )
                     {

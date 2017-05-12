@@ -28,11 +28,12 @@ namespace model
     class GrainBoundary;
     
     template <int dim>
-    class Grain : public Lattice<dim,dim>,
+    class Grain : public Lattice<dim>,
     /* base    */ public std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const>
     {
         
         //typedef Simplex<dim,dim> SimplexType;
+        typedef Lattice<dim> LatticeType;
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         
@@ -114,7 +115,7 @@ namespace model
                     break;
             }
             
-            Lattice<dim,dim>::setLatticeBasis(C2G*A);
+            Lattice<dim>::setLatticeBasis(C2G*A);
 //            _covBasis=C2G*A;
 //            _contraBasis=_covBasis.inverse().transpose();
 //            
@@ -152,6 +153,11 @@ namespace model
             selectMaterial(materialZ);
         }
         
+        const LatticeType& lattice() const
+        {
+            return *this;
+        }
+        
         /**********************************************************************/
         const std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const> grainBoundaries() const
         {
@@ -169,20 +175,20 @@ namespace model
             switch (materialZ)
             {
                 case Al.Z:
-                    planeNormalContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(this->covBasis(),this->contraBasis());
-                    slipSystemContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::slipSystems(this->covBasis(),this->contraBasis());
+                    planeNormalContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(lattice());
+                    slipSystemContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::slipSystems(lattice());
                     break;
                 case Ni.Z:
-                    planeNormalContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(this->covBasis(),this->contraBasis());
-                    slipSystemContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::slipSystems(this->covBasis(),this->contraBasis());
+                    planeNormalContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(lattice());
+                    slipSystemContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::slipSystems(lattice());
                     break;
                 case Cu.Z:
-                    planeNormalContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(this->covBasis(),this->contraBasis());
-                    slipSystemContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::slipSystems(this->covBasis(),this->contraBasis());
+                    planeNormalContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(lattice());
+                    slipSystemContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::slipSystems(lattice());
                     break;
                 case W.Z:
-                    planeNormalContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(this->covBasis(),this->contraBasis());
-                    slipSystemContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::slipSystems(this->covBasis(),this->contraBasis());
+                    planeNormalContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(lattice());
+                    slipSystemContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::slipSystems(lattice());
                     break;
                     //                case Fe:
                     //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);

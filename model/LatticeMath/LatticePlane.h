@@ -27,8 +27,9 @@ namespace model
         /* init */ P(P_in),
         /* init */ n(n_in)
         {
-            assert(&P.covBasis==&n.covBasis && "LatticeVectors have different bases.");
-            assert(&P.contraBasis==&n.contraBasis && "LatticeVectors have different bases.");
+            assert(&P.lattice==&n.lattice && "LatticeVectors have different bases.");
+//            assert(&P.covBasis==&n.covBasis && "LatticeVectors have different bases.");
+//            assert(&P.contraBasis==&n.contraBasis && "LatticeVectors have different bases.");
         }
         
 //        /**********************************************************************/
@@ -46,8 +47,9 @@ namespace model
         /**********************************************************************/
         bool contains(const LatticeVectorType& L) const
         {
-            assert(&P.covBasis==&L.covBasis && "LatticeVectors have different bases.");
-            assert(&P.contraBasis==&L.contraBasis && "LatticeVectors have different bases.");
+            assert(&P.lattice==&L.lattice && "LatticeVectors have different bases.");
+//            assert(&P.covBasis==&L.covBasis && "LatticeVectors have different bases.");
+//            assert(&P.contraBasis==&L.contraBasis && "LatticeVectors have different bases.");
             return (L-P).dot(n)==0;
         }
         

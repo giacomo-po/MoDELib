@@ -307,83 +307,49 @@ namespace model
             {
                 if(DN.shared.use_bvp)
                 {
-//                    if (!(DN.runningID()%DN.shared.use_bvp))
-//                    {
-                        model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
-                        model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
-                        model::SequentialOutputFile<'D',true> d_file;
-                        model::cout<<", D/D_"<<d_file.sID<<std::flush;
-
-                        std::deque<FieldPointType> fieldPoints; // the container of field points
-                        for (typename SimplexObserver<3,0>::const_iterator sIter=SimplexObserver<3,0>::simplexBegin();
-                             /*                                         */ sIter!=SimplexObserver<3,0>::simplexEnd();++sIter)
+                    //                    if (!(DN.runningID()%DN.shared.use_bvp))
+                    //                    {
+                    const auto t0=std::chrono::system_clock::now();
+                    model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
+                    model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
+                    model::SequentialOutputFile<'D',true> d_file;
+                    model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
+                    
+                    std::deque<FieldPointType> fieldPoints; // the container of field points
+                    for (typename SimplexObserver<3,0>::const_iterator sIter=SimplexObserver<3,0>::simplexBegin();
+                         /*                                         */ sIter!=SimplexObserver<3,0>::simplexEnd();++sIter)
+                    {
+                        if(sIter->second->isBoundarySimplex())
                         {
-                            if(sIter->second->isBoundarySimplex())
+                            fieldPoints.emplace_back(*(sIter->second));
+                        }
+                    }
+                    DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
+                    
+                    
+                    for(auto node : fieldPoints)
+                    {
+                        Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
+                        
+                        // Sum solid angle jump
+                        if (DN.shared.use_virtualSegments) // solid-angle jump of virtual segments
+                        {
+                            for(const auto& segment : DN.links())
                             {
-                                fieldPoints.emplace_back(*(sIter->second));
+                                segment.second.addToSolidAngleJump(node.P,node.S,nodeDisp);
                             }
                         }
-                        DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
                         
+                        // Sum FEM solution
+                        const size_t femID=DN.shared.bvpSolver.finiteElement().mesh2femIDmap().at(node.gID)->gID;
+                        nodeDisp+=DN.shared.bvpSolver.displacement().dofs(femID);
                         
-                        for(auto node : fieldPoints)
-                        {
-                            Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
-                            
-                            // Sum solid angle jump
-                            if (DN.shared.use_virtualSegments) // solid-angle jump of virtual segments
-                            {
-                                for(const auto& segment : DN.links())
-                                {
-                                    segment.second.addToSolidAngleJump(node.P,node.S,nodeDisp);
-                                }
-                            }
-                            
-                            // Sum FEM solution
-                            const size_t femID=DN.shared.bvpSolver.finiteElement().mesh2femIDmap().at(node.gID)->gID;
-                            nodeDisp+=DN.shared.bvpSolver.displacement().dofs(femID);
-                            
-                            // output
-                            d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
-                        }
-//                    }
+                        // output
+                        d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
+                    }
+                    model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
                 }
-//                else if(DN.shared.use_boundary)
-//                {
-//                    model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
-//                    model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
-//                    model::SequentialOutputFile<'D',true> d_file;
-//                    model::cout<<", D/D_"<<d_file.sID<<std::flush;
-//
-//                    std::deque<FieldPointType> fieldPoints; // the container of field points
-//                    for (typename SimplexObserver<3,0>::const_iterator sIter=SimplexObserver<3,0>::simplexBegin();
-//                         /*                                         */ sIter!=SimplexObserver<3,0>::simplexEnd();++sIter)
-//                    {
-//                        if(sIter->second->isBoundarySimplex())
-//                        {
-//                            fieldPoints.emplace_back(*(sIter->second));
-//                        }
-//                    }
-//                    DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
-//                    
-//                    // Sum solid angle jump and output
-//                    for(auto node : fieldPoints)
-//                    {
-//                        Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
-//                        if (DN.shared.use_virtualSegments) // solid-angle jump of virtual segments
-//                        {
-//                            for(const auto& segment : DN.links())
-//                            {
-//                                segment.second.addToSolidAngleJump(node.P,node.S,nodeDisp);
-//                            }
-//                        }
-//                        d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
-//                    }
-//                }
-//                else
-//                {
-//                    // no mesh used
-//                }
+                
             }
 
             
@@ -391,16 +357,21 @@ namespace model
             {
                 /**************************************************************************/
                 // Output displacement and stress on external mesh faces
+                const auto t0=std::chrono::system_clock::now();
                 model::SequentialOutputFile<'U',1>::set_count(runID); // Vertices_file;
                 model::SequentialOutputFile<'U',1>::set_increment(outputFrequency); // Vertices_file;
                 model::SequentialOutputFile<'U',true> u_file;
-                u_file<<DN.shared.bvpSolver.displacement();
+                model::cout<<"		writing to U/U_"<<u_file.sID<<".txt"<<std::flush;
+                u_file<<DN.shared.bvpSolver.displacement().onBoundary();
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
                 
-                
+                const auto t1=std::chrono::system_clock::now();
                 model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
                 model::SequentialOutputFile<'S',1>::set_increment(outputFrequency); // Vertices_file;
                 model::SequentialOutputFile<'S',true> s_file;
-                s_file<<DN.shared.bvpSolver.stress();
+                model::cout<<"		writing to S/S_"<<s_file.sID<<".txt"<<std::flush;
+                s_file<<DN.shared.bvpSolver.stress().onBoundary();
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
             }
             
             if (outputQuadratureParticles)

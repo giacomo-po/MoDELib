@@ -11,6 +11,10 @@
 
 namespace model
 {
+
+    template <int dim>
+    class Lattice;
+    
     template <int dim>
     class LatticeVector;
 

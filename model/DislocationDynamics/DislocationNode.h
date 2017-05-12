@@ -1101,7 +1101,7 @@ namespace model
         /**********************************************************************/
         LatticeVectorType zeroFlow() const
         {
-            return LatticeVectorType(grain.covBasis(),grain.contraBasis());
+            return LatticeVectorType(grain.lattice());
         }
                                                     
                                                     /**********************************************************************/

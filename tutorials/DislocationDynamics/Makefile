@@ -4,9 +4,10 @@
 USE_ICC = 0
 usePARDISO = 1
 MODEL_INCLUDE =../../../
-EIGEN_INCLUDE =/Users/giacomo/Documents/eigen
-MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
-MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
+EIGEN_INCLUDE=/Users/giacomo/Documents/eigen
+MKL_INCLUDE=/opt/intel/mkl/include
+MKL_LIB=/opt/intel/mkl/lib
+INTEL_LIB=/opt/intel/lib
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
@@ -51,9 +52,10 @@ ifeq ($(usePARDISO), 1)
 	CFLAGS += -D _MODEL_PARDISO_SOLVER_
 	IDIR += -I $(MKL_INCLUDE)
 	LIBS += -L $(MKL_LIB)
+	LIBS += -L $(INTEL_LIB)
 
 	ifeq ($(OS),Darwin)
-		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread
+		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -liomp5 -lpthread -lm -ldl
 	endif
 
 	ifeq ($(OS),Linux)
@@ -145,6 +147,15 @@ $(dipoleOBJS):
 	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/MicrostructureGeneration/frGenerator.cpp -o frGenerator -O3 -std=c++11 $(IDIR)
 
 ##########################################################
+# MAKE Boundary2BonudaryGENERATOR
+##########################################################
+b2bOBJS = b2bGenerator
+
+$(b2bOBJS):
+	@echo making b2bGenerator
+	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/MicrostructureGeneration/b2bGenerator.cpp -o b2bGenerator -O3 -std=c++11 $(IDIR)
+
+##########################################################
 # MAKE DDCONVERTER
 ##########################################################
 converterOBJS = DDconverter
@@ -224,3 +235,4 @@ ifeq ($(JPGexists),1)
 	@echo emptying folder jpg
 	@find jpg/ -name image_\*.jpg -exec rm {} +;
 endif
+

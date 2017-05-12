@@ -38,7 +38,9 @@ namespace model
                 {
                     for(long int k=-N;k<=N;++k) // THIS LOOP MAY BE REMOVED BY CHOOSING k SUCH THAT P.dot(rd)==0
                     {
-                        const LatticeDirectionType P(LatticeVectorType((VectorDimI()<<i,j,k).finished(),rd.covBasis,rd.contraBasis));
+//                        const LatticeDirectionType P(LatticeVectorType((VectorDimI()<<i,j,k).finished(),rd.covBasis,rd.contraBasis));
+                        const LatticeDirectionType P(LatticeVectorType((VectorDimI()<<i,j,k).finished(),rd.lattice));
+
                         const size_t latticeNorm2=P.squaredNorm();
                         if(P.dot(rd)==0 && latticeNorm2>0)
                         {
@@ -96,7 +98,9 @@ namespace model
             const Eigen::Matrix<double,3,2> B((Eigen::Matrix<double,2,3>()<<primitiveVectors.first.cartesian().transpose(),primitiveVectors.second.cartesian().transpose()).finished().transpose());
             const Eigen::Matrix<double,2,1> nd=(B.transpose()*B).inverse()*B.transpose()*P;
             const Eigen::Matrix<double,3,1>  p=B*RoundEigen<double,2>::round(nd);
-            return LatticeVectorType(p,primitiveVectors.first.covBasis,primitiveVectors.second.contraBasis);
+//            return LatticeVectorType(p,primitiveVectors.first.covBasis,primitiveVectors.second.contraBasis);
+            return LatticeVectorType(p,primitiveVectors.first.lattice);
+
         }
         
         

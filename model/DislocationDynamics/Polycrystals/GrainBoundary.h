@@ -58,7 +58,7 @@ namespace model
             model::cout<<"  cartesian components="<<R.cartesian().transpose()<<std::endl;
             model::cout<<"  crystallographic components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<std::endl;
             
-            LatticeVectorType L0(grain.covBasis(),grain.contraBasis());
+            LatticeVectorType L0(grain.lattice());
             bool latticePointFound=false;
             
             
