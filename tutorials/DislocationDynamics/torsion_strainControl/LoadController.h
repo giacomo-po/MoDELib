@@ -291,7 +291,7 @@ struct LoadController
         loadedBnd.integrate(&DN.shared.bvpSolver,torque,&BvpSolverType::ddMoment ,pivot,DN); // integrate  dd moment about tt.pivot
         
         std::stringstream os;
-        os<<" "<<avgRotZ<<" "<<" "<<torque(2);
+        os<<std::setprecision(15)<<std::scientific<<" "<<avgRotZ<<" "<<" "<<torque(2);
         return os.str();
         
     }

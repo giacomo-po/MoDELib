@@ -301,7 +301,7 @@ struct LoadController
         loadedBnd.integrate(&DN.shared.bvpSolver,force,&BvpSolverType::ddTraction,DN);  // integrate the dd traction
         
         std::stringstream os;
-        os<<avgDispZ<<" "<<force(2)/topArea<<" ";
+        os<<std::setprecision(15)<<std::scientific<<avgDispZ<<" "<<force(2)/topArea<<" ";
         return os.str();
     }
     

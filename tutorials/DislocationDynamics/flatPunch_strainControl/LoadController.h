@@ -375,7 +375,7 @@ struct LoadController
         punchBnd.integrate(&DN.shared.bvpSolver,DDforce,&BvpSolverType::ddTraction,DN);  // integrate the dd traction
         
         std::stringstream os;
-        os<<avgDispZ<<" "<<FEMforce(2)/punchArea<<" "<<DDforce(2)/punchArea<<" ";
+        os<<std::setprecision(15)<<std::scientific<<avgDispZ<<" "<<FEMforce(2)/punchArea<<" "<<DDforce(2)/punchArea<<" ";
         return os.str();
     }
     
