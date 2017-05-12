@@ -414,7 +414,7 @@ namespace model
             
             if(DN.shared.use_bvp)
             {
-                f_file<<DN.shared.bvpSolver.loadController().output(DN);
+                f_file<<std::setprecision(15)<<std::scientific<<DN.shared.bvpSolver.loadController().output(DN);
             }
             
 #ifdef userOutputFile
