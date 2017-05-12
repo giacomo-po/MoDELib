@@ -9,6 +9,8 @@
 #ifndef model_MeshStats_H_
 #define model_MeshStats_H_
 
+#include <cmath>
+#include <cfloat>
 #include <iostream>
 #include <model/Mesh/SimplexObserver.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
@@ -45,6 +47,11 @@ namespace model
                 {
                     nB++;
                     volB+=pSimplex.second->vol0;
+                    assert(fabs(pSimplex.second->outNormal().norm()-1.0)<FLT_EPSILON);
+                }
+                else
+                {
+                    assert(pSimplex.second->outNormal().norm()<FLT_EPSILON);
                 }
             }
             
@@ -54,6 +61,44 @@ namespace model
         }
 
 	};
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    template<int dim>
+    struct MeshStats<dim,dim>
+    {
+        enum{k=dim};
+        typedef SimplexObserver<dim,k> SimplexObserverType;
+        typedef typename SimplexObserverType::SimplexMapType SimplexMapType;
+        
+        /**********************************************************************/
+        static void stats()
+        {
+            MeshStats<dim,k-1>::stats();
+            
+            size_t nT(0);
+            size_t nB(0);
+            double volT=0.0;
+            double volB=0.0;
+            
+            for (auto& pSimplex : SimplexObserverType::simplices())
+            {
+                nT++;
+                volT+=pSimplex.second->vol0;
+                
+                if(pSimplex.second->isBoundarySimplex())
+                {
+                    nB++;
+                    volB+=pSimplex.second->vol0;
+                }
+            }
+            
+            model::cout<<"    Simplex<"<<dim<<","<<k  <<"> #="<<nT<<", vol="<<volT;
+            model::cout<<"     (boundary #="<<nB<<", vol="<<volB<<")\n";
+            
+        }
+        
+    };
     
     /**************************************************************************/
 	/**************************************************************************/
@@ -74,9 +119,15 @@ namespace model
             for (auto& pSimplex : SimplexObserverType::simplices())
             {
                 nT++;
+                
                 if(pSimplex.second->isBoundarySimplex())
                 {
                     nB++;
+                    assert(fabs(pSimplex.second->outNormal().norm()-1.0)<FLT_EPSILON);
+                }
+                else
+                {
+                    assert(pSimplex.second->outNormal().norm()<FLT_EPSILON);
                 }
             }
             

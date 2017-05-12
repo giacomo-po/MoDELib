@@ -32,112 +32,85 @@ namespace model
             
             //std::cout<<simplex.xID<<std::endl;
             VectorDim temp(VectorDim::Zero());
+            bool found=false;
             
-                const Eigen::Matrix<double,dim+1,1> bary(simplex.pos2bary(P));
-            
-            
-                // 1) check if P is close to a boundary face
-                for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
+            // 1) check if P is close to a boundary vertex
+            for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
+            {
+                for(int e=0;e<3;++e)
                 {
-                    
-                    const double h=3.0*simplex.vol0/simplex.child(f).vol0*bary(f); // distance from f-th face
-                    
-                    //std::cout<<h<<std::endl;
-                    if(simplex.child(f).isBoundarySimplex() && std::fabs(h)<dmax)
+                    for(int v=0;v<2;++v)
                     {
-                        temp=simplex.nda.col(f).normalized();
+                        if((simplex.child(f).child(e).child(v).P0-P).norm()<dmax && simplex.child(f).child(e).child(v).isBoundarySimplex())
+                        {
+                            temp=simplex.child(f).child(e).child(v).outNormal();
+                            found=true;
+                        }
+                        if(found)
+                        {
+                            break;
+                        }
+                    }
+                    if(found)
+                    {
                         break;
                     }
                 }
-                
-                
-                // 2) check if P is close to a boundary edge
-                if(temp.squaredNorm()==0.0) // no boundary face was found
+                if(found)
                 {
-                    for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
+                    break;
+                }
+            }
+            
+            // 2) check if P is close to a boundary edge
+            if(!found) // no boundary face was found
+            {
+                for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
+                {
+                    for(int e=0;e<3;++e)
                     {
+                        const VectorDim& x1=simplex.child(f).child(e).child(0).P0;
+                        const VectorDim& x2=simplex.child(f).child(e).child(1).P0;
+                        const double d=(P-x1).cross(P-x2).norm()/(x2-x1).norm(); // distance to edge
                         
-                        for(int e=0;e<3;++e)
+                        if(d<dmax && simplex.child(f).child(e).isBoundarySimplex()) // point close to edge, and edge is on boundary
                         {
-                            
-                            const VectorDim& x1=simplex.child(f).child(e).child(0).P0;
-                            const VectorDim& x2=simplex.child(f).child(e).child(1).P0;
-                            const double d=(P-x1).cross(P-x2).norm()/(x2-x1).norm(); // distance to edge
-                            
-                            //std::cout<<d<<" to edge "<<simplex.child(f).child(e).child(0).xID<<" "<<simplex.child(f).child(e).child(1).xID<<std::endl;
-                            
-                            if(d<dmax && simplex.child(f).child(e).isBoundarySimplex()) // point close to edge, and edge is on boundary
-                            {
-                                // average bnd-normals of parents
-                                for(const auto& parent : simplex.child(f).child(e).parents())
-                                {
-                                    if(parent->isBoundarySimplex()) // trinagle only has one parent tetrahedron
-                                    {
-                                        const auto& grandParent(**parent->parents().begin());
-                                        
-                                        const size_t g(grandParent.childOrder(parent->xID));
-                                        temp+=grandParent.nda.col(g).normalized();
-                                        
-//                                        temp+=simplex.nda.col(f).normalized();
-                                    }
-                                }
-                            }
+                            temp=simplex.child(f).child(e).outNormal();
+                            found=true;
+                        }
+                        if(found)
+                        {
+                            break;
                         }
                     }
-                    const double tempNorm(temp.norm());
-                    if(tempNorm)
+                    if(found)
                     {
-                        temp.normalize();
+                        break;
                     }
-                    
                 }
+            }
+            
+            // 3) check if P is close to a boundary face
+            if(!found) // no boundary face was found
+            {
+                const Eigen::Matrix<double,dim+1,1> bary(simplex.pos2bary(P));
                 
-                // check if P is close to a boundary vertex
-                if(temp.squaredNorm()==0.0) // no boundary face was found
+                for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
                 {
-                    for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
-                    {
-                        for(int e=0;e<3;++e)
-                        {
-                            for(int v=0;v<2;++v)
-                            {
-                                if((simplex.child(f).child(e).child(v).P0-P).norm()<dmax && simplex.child(f).child(e).child(v).isBoundarySimplex())
-                                {
-                                    for(const auto& parent : simplex.child(f).child(e).child(v).parents())
-                                    {
-                                        if(parent->isBoundarySimplex()) // edge is boundary
-                                        {
-                                            for(const auto& grandParent : parent->parents())
-                                            {
-                                                if(grandParent->isBoundarySimplex()) // face is boundary
-                                                {
-                                                    const auto& grandGrandParent(**grandParent->parents().begin());
-                                                    
-                                                    const size_t g(grandGrandParent.childOrder(grandParent->xID));
-                                                    temp+=grandGrandParent.nda.col(g).normalized();
-                                                    
-                                                    //                                        temp+=simplex.nda.col(f).normalized();
-                                                }
-                                            }
-                                            
-                                            //                                        temp+=simplex.nda.col(f).normalized();
-                                        }
-                                    }
-//                                    temp+=simplex.nda.col(f).normalized();
-
-                                }
-                            }
-                        }
-                    }
+                    const double h=3.0*simplex.vol0/simplex.child(f).vol0*bary(f); // distance from f-th face
                     
-                    const double tempNorm(temp.norm());
-                    if(tempNorm)
+                    if(simplex.child(f).isBoundarySimplex() && std::fabs(h)<dmax)
                     {
-                        temp.normalize();
+//                        temp=simplex.nda.col(f).normalized();
+                        temp=simplex.child(f).outNormal();
+                        found=true;
+                    }
+                    if(found)
+                    {
+                        break;
                     }
                 }
-                
-//            }
+            }
             
             return temp;
         }

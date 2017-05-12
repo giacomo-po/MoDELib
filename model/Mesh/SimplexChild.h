@@ -13,22 +13,41 @@
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Mesh/SimplexCompare.h>
 #include <model/Mesh/BoundarySimplex.h>
+#include <model/Mesh/SimplexBase.h>
 
 namespace model
 {
     
     template<short int dim,short int order>
-    class SimplexChild : private std::set<const Simplex<dim,order+1>*,SimplexCompare<dim,order+1> >
+    class SimplexChild : public SimplexBase<dim,order>,
+    /*                */ private std::set<const Simplex<dim,order+1>*,SimplexCompare<dim,order+1> >
     {
+        
+    protected:
+        Eigen::Matrix<double,dim,1> outN;
         
     public:
         //        typedef SimplexChild<dim,order> SimplexChildType;
+
+        typedef Simplex<dim,order> SimplexType;
+        typedef typename SimplexTraits<dim,order>::SimplexIDType SimplexIDType;
+        
+        typedef SimplexBase<dim,order> SimplexBaseType;
+        
         typedef Simplex<dim,order+1> ParentSimplexType;
         typedef typename SimplexTraits<dim,order+1>::SimplexIDType ParentSimplexIDType;
         typedef typename SimplexTraits<dim,order+1>::ScalarIDType ScalarIDType;
         typedef std::set<const ParentSimplexType*,SimplexCompare<dim,order+1> >  ParentContainerType;
         
     public:
+        
+        /**********************************************************************/
+        SimplexChild(const SimplexIDType& xID) :
+        /* init */ SimplexBaseType(xID),
+        /* init */ outN(Eigen::Matrix<double,dim,1>::Zero())
+        {
+        
+        }
         
         /**********************************************************************/
         void addToParents(const ParentSimplexType* const pP)
@@ -43,6 +62,7 @@ namespace model
             
             // HERE WE SHOULD LOOP OVER PARENTS AND ADD pP TO THEIR NEIGHBORS
             
+            //updateOutNormal();
         }
         
         /**********************************************************************/
@@ -57,7 +77,7 @@ namespace model
             
             
             // HERE WE SHOULD LOOP OVER PARENTS AND REMOVE pP FROM THEIR NEIGHBORS
-            
+            //updateOutNormal();
         }
         
         /**********************************************************************/
@@ -105,6 +125,25 @@ namespace model
             }
             return temp;
         }
+        
+//        /**********************************************************************/
+//        void updateOutNormal()
+//        {
+//            outN=BoundarySimplex<dim,dim-order>::outNormal(*this);
+//
+//        }
+        
+        /**********************************************************************/
+        const Eigen::Matrix<double,dim,1>& outNormal() const
+        {
+            return outN;
+        }
+        
+//        /**********************************************************************/
+//        Eigen::Matrix<double,dim,1> outNormal() const
+//        {
+//            return BoundarySimplex<dim,dim-order>::outNormal(*this);
+//        }
         
 //        /**********************************************************************/
 //        Eigen::Matrix<double,dim,1> outNormal() const
