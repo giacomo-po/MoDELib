@@ -625,7 +625,7 @@ namespace model
         
         
         /**********************************************************************/
-        MatrixDim stressAtQuadrature(const size_t & k)
+        MatrixDim stressAtQuadrature(const size_t & k) const
         {/*!@param[in] k the k-th quandrature point
           *\returns the stress field at the k-th quandrature point
           */
