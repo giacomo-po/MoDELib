@@ -171,7 +171,7 @@ namespace model
                         {
                             p_Simplex=lmi.search.second;
                             set(lmi.L);
-//                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
+                            //                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
                             make_bndNormal();
                             if(!isBoundaryNode())
                             {
@@ -242,7 +242,7 @@ namespace model
                 assert(lmi.search.first);
                 p_Simplex=lmi.search.second;
                 set(lmi.L);
-//                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
+                //                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
                 make_bndNormal();
                 if(meshLocation()!=onMeshBoundary)
                 {
@@ -474,6 +474,17 @@ namespace model
                     temp.push_back((VectorDim()<<0.0,0.0,1.0).finished());
                 }
                 
+                // Constrain simple nodes to move normal to tangent
+                if(this->is_simple() && temp.size()==1) // simple node on one glide plane
+                {
+                    Eigen::Matrix<double,dim,1> T(this->get_T());
+                    double normT(T.norm());
+                    if (normT>FLT_EPSILON)
+                    {
+                        temp.push_back(T/normT);
+                    }
+                }
+                
             }
             else if (meshLocation()==onMeshBoundary)
             { // DislocationNode is on mesh boundary, constrain by boundaryNormal
@@ -635,7 +646,7 @@ namespace model
                         {
                             p_Simplex=temp.second;
                             set(L+LatticeVectorType(dX));
-//                            boundaryNormal=bndNrml;
+                            //                            boundaryNormal=bndNrml;
                             make_bndNormal();
                             assert(meshLocation()==onMeshBoundary);
                         }
@@ -670,59 +681,59 @@ namespace model
                         }
                         else // node is internal and remains internal
                         {
-//                            if(temp.second->region->regionID!=p_Simplex->region->regionID)
-//                            {// node is crossing regions
-//                                assert(0 && "RE-ENABLE THIS");
-//                                //                            //// ////std::cout<<"DislocationNode "<<this->sID<<" crossing region. Path size="<<path.size()<<std::endl;
-//                                //
-//                                //                            int faceID=-1;
-//                                ////                            const Simplex<dim,dim>* regBndSimplex=(const Simplex<dim,dim>*) NULL;
-//                                //                            const Simplex<dim,dim>* regBndSimplex(NULL);
-//                                //
-//                                //                            Eigen::Matrix<double,dim+1,1> faceInt(Eigen::Matrix<double,dim+1,1>::Zero());
-//                                //
-//                                //                            for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
-//                                //                            {
-//                                //                                const Eigen::Matrix<double,dim+1,1> baryOld(simplex->pos2bary(this->get_P()));
-//                                //                                const Eigen::Matrix<double,dim+1,1> baryNew(simplex->pos2bary(this->get_P()+dX));
-//                                //                                for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
-//                                //                                {
-//                                //                                    if(simplex->child(f).isRegionBoundarySimplex())
-//                                //                                    {
-//                                //                                        faceInt=simplex->faceLineIntersection(baryOld,baryNew,f);
-//                                //                                        //                                    //////std::cout<<"DislocationNode "<<this->sID<<", baryMin="<<faceInt.minCoeff()<<std::endl;
-//                                //
-//                                //                                        if(faceInt.minCoeff()>=-FLT_EPSILON) // faceInt belongs to triangle
-//                                //                                        {
-//                                //                                            regBndSimplex=simplex; // current simplex is the region boundary simplex wanted
-//                                //                                            faceID=f; // intersection face is f
-//                                //                                            break;
-//                                //                                        }
-//                                //                                    }
-//                                //                                }
-//                                //
-//                                //                                if(faceID>=0)
-//                                //                                {
-//                                //                                    break;
-//                                //                                }
-//                                //                            }
-//                                //
-//                                //                            assert(faceID>=0 && "FACE INTERSECTION NOT FOUND");
-//                                //                            this->set(regBndSimplex->bary2pos(faceInt)); // move node to intersction with region boundary
-//                                //                            regionBndNormal=regBndSimplex->nda.col(faceID).normalized();
-//                            }
-//                            else // node not crossing regions
-//                            {
-                                p_Simplex=temp.second;
-                                set(L+LatticeVectorType(dX));
-                                //boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
-                                make_bndNormal();
-//                                //                                L+=LatticeVectorType(dX);
-//                                //                                this->set(this->get_P()+dX); // move node
-//                                //
-//                                //                            PROBLEM HERE, BOUNDSARY NODES ARE ASSIGNED ZERO NORMAL
-//                                
-//                            }
+                            //                            if(temp.second->region->regionID!=p_Simplex->region->regionID)
+                            //                            {// node is crossing regions
+                            //                                assert(0 && "RE-ENABLE THIS");
+                            //                                //                            //// ////std::cout<<"DislocationNode "<<this->sID<<" crossing region. Path size="<<path.size()<<std::endl;
+                            //                                //
+                            //                                //                            int faceID=-1;
+                            //                                ////                            const Simplex<dim,dim>* regBndSimplex=(const Simplex<dim,dim>*) NULL;
+                            //                                //                            const Simplex<dim,dim>* regBndSimplex(NULL);
+                            //                                //
+                            //                                //                            Eigen::Matrix<double,dim+1,1> faceInt(Eigen::Matrix<double,dim+1,1>::Zero());
+                            //                                //
+                            //                                //                            for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
+                            //                                //                            {
+                            //                                //                                const Eigen::Matrix<double,dim+1,1> baryOld(simplex->pos2bary(this->get_P()));
+                            //                                //                                const Eigen::Matrix<double,dim+1,1> baryNew(simplex->pos2bary(this->get_P()+dX));
+                            //                                //                                for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
+                            //                                //                                {
+                            //                                //                                    if(simplex->child(f).isRegionBoundarySimplex())
+                            //                                //                                    {
+                            //                                //                                        faceInt=simplex->faceLineIntersection(baryOld,baryNew,f);
+                            //                                //                                        //                                    //////std::cout<<"DislocationNode "<<this->sID<<", baryMin="<<faceInt.minCoeff()<<std::endl;
+                            //                                //
+                            //                                //                                        if(faceInt.minCoeff()>=-FLT_EPSILON) // faceInt belongs to triangle
+                            //                                //                                        {
+                            //                                //                                            regBndSimplex=simplex; // current simplex is the region boundary simplex wanted
+                            //                                //                                            faceID=f; // intersection face is f
+                            //                                //                                            break;
+                            //                                //                                        }
+                            //                                //                                    }
+                            //                                //                                }
+                            //                                //
+                            //                                //                                if(faceID>=0)
+                            //                                //                                {
+                            //                                //                                    break;
+                            //                                //                                }
+                            //                                //                            }
+                            //                                //
+                            //                                //                            assert(faceID>=0 && "FACE INTERSECTION NOT FOUND");
+                            //                                //                            this->set(regBndSimplex->bary2pos(faceInt)); // move node to intersction with region boundary
+                            //                                //                            regionBndNormal=regBndSimplex->nda.col(faceID).normalized();
+                            //                            }
+                            //                            else // node not crossing regions
+                            //                            {
+                            p_Simplex=temp.second;
+                            set(L+LatticeVectorType(dX));
+                            //boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
+                            make_bndNormal();
+                            //                                //                                L+=LatticeVectorType(dX);
+                            //                                //                                this->set(this->get_P()+dX); // move node
+                            //                                //
+                            //                                //                            PROBLEM HERE, BOUNDSARY NODES ARE ASSIGNED ZERO NORMAL
+                            //
+                            //                            }
                             
                         }
                     }

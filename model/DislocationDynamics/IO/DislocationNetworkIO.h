@@ -50,6 +50,7 @@ namespace model
         
         static int  outputFrequency;
         static bool outputBinary;
+        static bool outputNodalVelocity;
         static bool outputGlidePlanes;
         static bool outputSpatialCells;
         static bool outputPKforce;
@@ -236,6 +237,22 @@ namespace model
                     vertexFile << (node.second)<<"\n";
                 }
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            }
+            
+            if(outputNodalVelocity)
+            {
+                const auto t0=std::chrono::system_clock::now();
+                SequentialOutputFile<'Y',1>::set_count(runID); // vertexFile;
+                SequentialOutputFile<'Y',1>::set_increment(outputFrequency); // vertexFile;
+                SequentialOutputFile<'Y',1> velocityFile;
+                model::cout<<"		writing to Y/Y_"<<velocityFile.sID<<".txt"<<std::flush;
+                //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
+                for (const auto& node : DN.nodes())
+                {
+                    velocityFile << node.second.sID<<"\t"<<node.second.get_V().transpose()*DN.get_dt()<<"\n";
+                }
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+
             }
             
             if(outputSpatialCells)
@@ -459,6 +476,9 @@ namespace model
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputBinary=false;
     
+    template <typename DislocationNetworkType>
+    bool DislocationNetworkIO<DislocationNetworkType>::outputNodalVelocity=false;
+
     
     template <typename DislocationNetworkType>
     bool DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes=false;

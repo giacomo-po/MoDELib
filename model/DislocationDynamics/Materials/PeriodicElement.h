@@ -117,31 +117,33 @@ namespace model
     const DislocationMobility<FCC> PeriodicElement<29,Isotropic>::dm=DislocationMobility<FCC>(b,mu,cs,3.3333e-07,3.3333e-07);
     
     
-    //    /**************************************************************************/
-    //    /**************************************************************************/
-    //    template <>
-    //    struct PeriodicElement<26,Isotropic>
-    //    {
-    //        typedef BCC CrystalStructure;
-    //
-    //
-    //        static constexpr int Z=26;
-    //
-    //        static constexpr auto name="Iron";
-    //        static constexpr double nu=0.29;                // Poisson ratio [-]
-    //        static constexpr double mu=82e9;                // Shear modulus [Pa]
-    //        static constexpr double b=0.2482e-9;            // Burgers vector[m]
-    //        static constexpr double rho=7874.0;             // Mass density [kg/m^3]
-    //        static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
-    //
-    //        static constexpr double tauP=420.0e6; // Peierls stress [Pa]
-    //        static constexpr double p=1.0;  // exponent in (1-(T/Ta)^p)^q [-]
-    //        static constexpr double q=1.69;  // exponent in (1-(T/Ta)^p)^q [-]
-    //        static constexpr double Ae=1.0e-6;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
-    //        static constexpr double As=1.0e-6;  // coefficient of v0=tau*b/(A*T) [Pa*s/K]
-    //        static constexpr double Ta=400.0;  // Athermal transition temperature [K]
-    //
-    //    };
+    template <>
+    struct PeriodicElement<26,Isotropic>
+    {
+        typedef BCC CrystalStructure;
+        static constexpr int Z=26;
+        static constexpr auto name="Iron";
+        static constexpr double nu=0.291;                // Poisson ratio [-]
+        static constexpr double mu=86e9;               // Shear modulus [Pa]
+        static constexpr double b=0.2482e-9;            // Burgers vector[m]
+        static constexpr double rho=7865.8;            // Mass density [kg/m^3]
+        static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
+        static constexpr double Tm=1181.0;              // melting temperature [K]
+        
+        static const DislocationMobility<BCC> dm;
+        
+    };
+    
+    const DislocationMobility<BCC> PeriodicElement<26,Isotropic>::dm=DislocationMobility<BCC>(b,mu,cs,
+                                                                                              1.05e-04,0.0, // B0e [Pa*s], B1e [Pa*s/K]
+                                                                                              9.8e-4,0.0,        // B0s [Pa*s], B1s [Pa*s/K]
+                                                                                              8.3e-05,           // Bk [Pa*s]
+                                                                                              0.86,              // dH0 [eV]
+                                                                                              0.71,1.85,         // p,q
+                                                                                              350.0,            // T0
+                                                                                              542e6,            // tauC [Pa]
+                                                                                              1.0,0.61,0.23,0.55,1.0 // non-Schmid coefficients
+                                                                                              );
     
     /**************************************************************************/
     /**************************************************************************/

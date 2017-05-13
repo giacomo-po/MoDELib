@@ -30,7 +30,7 @@
 #include <vector>
 #include <time.h>
 
-#include <model/Utilities/modelMacros.h> // model_checkInput
+//#include <model/Utilities/modelMacros.h> // model_checkInput
 #include <model/Utilities/SequentialOutputFile.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
 #include <model/ParticleInteraction/PointSource.h>

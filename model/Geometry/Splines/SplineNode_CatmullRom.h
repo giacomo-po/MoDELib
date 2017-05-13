@@ -348,23 +348,29 @@ namespace model
             
             
             
-            if (this->is_isolated()){
+            if (this->is_isolated())
+            {
                 //            std::cout<<"Node "<<this->sID<<" is isolated"<<std::endl;
                 CR2H.template block<dim,dim>(0,0).setIdentity();
                 CR2H.template block<dim,dim>(dim,0).setZero();
             }
-            else{
-                if (this->is_balanced()){
+            else
+            {
+                if (this->is_balanced())
+                {
                     //                        std::cout<<"Node "<<this->sID<<" is not isolated and balanced "<<std::endl;
                     make_CR2H_central();
                 }
-                else{
+                else
+                {
                     //             std::cout<<"Node "<<this->sID<<" is not isolated and not balanced "<<std::endl;
                     
                     int k=0;
-                    for (constNeighborIteratorType neighborIter=this->neighborhood().begin();neighborIter!=this->neighborhood().end();++neighborIter){
+                    for (constNeighborIteratorType neighborIter=this->neighborhood().begin();neighborIter!=this->neighborhood().end();++neighborIter)
+                    {
                         const short int dir(std::get<2>(neighborIter->second));
-                        switch ( dir ) {
+                        switch ( dir )
+                        {
                             case  0:	// self
                                 CR2H.template block<dim,dim>(0,k*dim).setIdentity();
                                 //							CR2H.template block<dim,dim>(dim,k*dim)=this->prjM*( (int(this->outOrder())-int(this->inOrder() ))/CPLT - CPLDPinv + CPLARinv)/(CRneighbors.size()-2);

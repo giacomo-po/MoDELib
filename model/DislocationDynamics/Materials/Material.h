@@ -34,11 +34,12 @@ namespace model
         
         
         static int selectedMaterial;
-
+        
         static constexpr PeriodicElement<12,Isotropic> Mg=PeriodicElement<12,Isotropic>();
         static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
         static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
         static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
+        static constexpr PeriodicElement<26,Isotropic>  Fe=PeriodicElement<26,Isotropic>();
         static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
         
         
@@ -87,19 +88,19 @@ namespace model
         
     public:
         
-//        enum{
-//            _Al=13,
-//            _Fe=26,
-//            _Ni=28,
-//            _Cu=29,
-//            _W=74
-//        };
+        //        enum{
+        //            _Al=13,
+        //            _Fe=26,
+        //            _Ni=28,
+        //            _Cu=29,
+        //            _W=74
+        //        };
         
         static double b;
         static double b_real;
         static double mu;
         static double cs;
-
+        
         static double T;
         //        static double rho;
         static double nu;
@@ -109,7 +110,7 @@ namespace model
         static double C3;
         static double C4;
         static double kB;
-
+        
         static Eigen::Matrix<double,Eigen::Dynamic,2> dH0;
         
         /**********************************************************************/
@@ -137,10 +138,10 @@ namespace model
                     selectedMaterial=Cu.Z;
                     select<Cu.Z>();
                     break;
-                    //                case Fe:
-                    //                    selectedMaterial=Fe;
-                    //                    select<Fe>();
-                    //                    break;
+                case Fe.Z:
+                    selectedMaterial=Fe.Z;
+                    select<Fe.Z>();
+                    break;
                 case W.Z:
                     selectedMaterial=W.Z;
                     select<W.Z>();
@@ -176,18 +177,19 @@ namespace model
                 case Cu.Z:
                     CrystalOrientation<dim>::template rotate<PeriodicElement<Cu.Z,Isotropic>>(C2G);
                     break;
+                case Fe.Z:
+                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe.Z,Isotropic>>(C2G);
+                    break;
                 case W.Z:
                     CrystalOrientation<dim>::template rotate<PeriodicElement<W.Z,Isotropic>>(C2G);
                     break;
-                    //                case Fe:
-                    //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
-                    //                    break;
+                    
                 default:
                     assert(0 && "Material not implemented.");
                     break;
             }
         }
-
+        
         /**********************************************************************/
         static double velocity(const Eigen::Matrix<double,3,3>& S,
                                const Eigen::Matrix<double,3,1>& b,
@@ -204,8 +206,8 @@ namespace model
                     return Ni.dm.velocity(S,b,xi,n,T);
                 case Cu.Z:
                     return Cu.dm.velocity(S,b,xi,n,T);
-                    //              case Fe:
-                    //                  return PeriodicElement<Cu,Isotropic>::dm.velocity(S,b,xi,n,T);
+                case Fe.Z:
+                    return Fe.dm.velocity(S,b,xi,n,T);
                 case W.Z:
                     return W.dm.velocity(S,b,xi,n,T);
                     

@@ -2,12 +2,13 @@
 # Settings for BVP controller
 thetaDot=-1.0e-11;
 initialRotation=0;
+relaxSteps=0;
 apply_bending=1;
 ######################################
 # Settings for  ExternalStressController (a uniform stress felt by dislocations)
 ExternalStress0 = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.0;
+		 0.0 0.0 0.00;
 ExternalStressRate = 0.0 0.0 0.0
 		 0.0 0.0 0.0
 		 0.0 0.0 0.0;

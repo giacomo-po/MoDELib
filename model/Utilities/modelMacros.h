@@ -59,15 +59,15 @@
 #endif
 
 /* model_execAssert ***********************************************************/
-#ifndef model_checkInput
-#ifdef _MODEL_NO_BAD_INPUT_CHECK_
-// if function inputs are not checked, model_checkInput(x) removes x from the code
-#define model_checkInput(x)
-#else
-// if function inputs are checked, model_checkInput(x)=assert(x)
-// TO DO: CHANGE THIS DEFINITION BECAUSE assert(x) CAN BE REMOVED BY NDEBUG!!! MUST USE mode::assert_fail
-#define model_checkInput(x) assert(x)
-#endif
-#endif
+//#ifndef model_checkInput
+//#ifdef _MODEL_NO_BAD_INPUT_CHECK_
+//// if function inputs are not checked, model_checkInput(x) removes x from the code
+//#define model_checkInput(x)
+//#else
+//// if function inputs are checked, model_checkInput(x)=assert(x)
+//// TO DO: CHANGE THIS DEFINITION BECAUSE assert(x) CAN BE REMOVED BY NDEBUG!!! MUST USE mode::assert_fail
+//#define model_checkInput(x) assert(x)
+//#endif
+//#endif
 
 #endif // _model_macros_h_

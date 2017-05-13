@@ -378,6 +378,7 @@ namespace model
 	/* inherits from   */ public VertexReader<'V',10,double>, // CHANGE THIS DOUBLE TO SCALARTYPE
 	/* inherits from   */ public EdgeReader  <'E',11,double>,
 	/*                 */ public IDreader<'P',3,6,double>,
+    /*                 */ public IDreader<'Y',1,3,double>,
     /*                 */ public VertexReader<'L',10,double>,
     /* inherits from   */ public IDreader<'Q',3,13,double>,
     /* inherits from   */ private std::vector<SingleSplinePlotter<dim,Np,Nc> >
@@ -396,6 +397,8 @@ namespace model
         
         typedef VertexReader<'L',10,double> GBDreaderType;
         
+        typedef IDreader<'Y',1,3,double> VelocityReader;
+        
         std::set<int> SIDs; // use std::set to automatically sort sID's
         
         
@@ -411,6 +414,7 @@ namespace model
         static int colorScheme;
         static bool plotBoundarySegments;
         static bool showQuadParticles;
+        static bool showVelocity;
 
         bool showSpecificVertex;
         int specificVertexID;
@@ -462,6 +466,11 @@ namespace model
             if(showQuadParticles) // Show quadrature particles
             {
                 QuadContainerType::read(frameN,true);
+            }
+            
+            if(showVelocity)
+            {
+                VelocityReader::read(frameN,true);
             }
             
 			PKContainerType::read(frameN,true);
@@ -546,11 +555,46 @@ namespace model
             // Plot Nodes
 			if(showVertices) // Show vertices
             {
+                GLfloat materialColor[] = {0.0, 0.0, 0.0, 1.0};
+                glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor);      // ambient color for the material
+                glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor);      // diffuse color for the material
+                glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialColor);  // specular color for the material
+
+                for (typename VertexContainerType::const_iterator vIter=VertexContainerType::begin();vIter!=VertexContainerType::end();++vIter)
+                {
+                if(showVelocity)
+                {
+                    float vf=10.0;
+                    const auto velIter=VelocityReader::find(std::array<int, 1>{ {vIter->first}});
+                    if(velIter!=VelocityReader::end())
+                    {
+//                        std::cout<<vIter->first<<" "<<vIter->second[0]<<" "<<vIter->second[1]<<" "<<vIter->second[2]<<std::endl;
+//                        
+//                        std::cout<<vIter->first<<" "<<velIter->second[0]<<" "<<velIter->second[1]<<" "<<velIter->second[2]<<std::endl;
+                        
+                        glColor3f(1.0f, 0.0f, 0.0f);
+                        
+                        glBegin(GL_LINES);
+                        glVertex3f(vIter->second[0],vIter->second[1],vIter->second[2]);
+                        glVertex3f(vIter->second[0]+velIter->second[0]*vf,vIter->second[1]+velIter->second[1]*vf,vIter->second[2]+velIter->second[2]*vf);
+                        glEnd();
+                    }
+                    else
+                    {
+                        std::cout<<vIter->first<<" not found"<<std::endl;
+                    }
+                }
+                }
+                
 				// Loop and plot spheres
 				GLUquadric* myQuad;
 				myQuad=gluNewQuadric();
 				for (typename VertexContainerType::const_iterator vIter=VertexContainerType::begin();vIter!=VertexContainerType::end();++vIter)
                 {
+                    
+
+                    
+                    
                     GLfloat materialColor[] = {0.0, 0.0, 0.0, 1.0};
                     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialColor);      // ambient color for the material
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialColor);      // diffuse color for the material
@@ -573,6 +617,8 @@ namespace model
                         }
                         
                     }
+                    
+
                     
 
                     
@@ -665,7 +711,11 @@ namespace model
     
     template <int dim, int Np, int Nc>
     bool SplinePlotter<dim,Np,Nc>::showQuadParticles=false;
+
     
+    template <int dim, int Np, int Nc>
+    bool SplinePlotter<dim,Np,Nc>::showVelocity=true;
+
 
 }
 #endif
