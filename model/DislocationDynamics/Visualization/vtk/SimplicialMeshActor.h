@@ -14,6 +14,8 @@
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
+#include <vtkProperty.h>
+
 
 #include <model/Mesh/SimplicialMesh.h>
 
@@ -77,8 +79,9 @@ namespace model
         {
             vtkSmartPointer<vtkActor> a =  vtkSmartPointer<vtkActor>::New();
             a->SetMapper ( mapper );
-            a->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh
-            a->GetProperty()->SetOpacity(0.5); //Make the tube have some transparency.
+            a->GetProperty()->SetLineWidth(0.1);
+            a->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh. (1,1,1) is white
+            a->GetProperty()->SetOpacity(0.15); //Make the tube have some transparency.
             return a;
         }
     };

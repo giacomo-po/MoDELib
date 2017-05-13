@@ -48,10 +48,10 @@ RM = /opt/local/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/giacomo/Documents/MODEL/tools/DDviewer
+CMAKE_SOURCE_DIR = /Users/giacomo/Documents/MODEL/tools/DDvtk
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/giacomo/Documents/MODEL/tools/DDviewer
+CMAKE_BINARY_DIR = /Users/giacomo/Documents/MODEL/tools/DDvtk
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MODEL/tools/DDviewer/CMakeFiles /Users/giacomo/Documents/MODEL/tools/DDviewer/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MODEL/tools/DDvtk/CMakeFiles /Users/giacomo/Documents/MODEL/tools/DDvtk/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MODEL/tools/DDviewer/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MODEL/tools/DDvtk/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -111,44 +111,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named DDviewer
+# Target rules for targets named DDvtk
 
 # Build rule for target.
-DDviewer: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 DDviewer
-.PHONY : DDviewer
+DDvtk: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 DDvtk
+.PHONY : DDvtk
 
 # fast build rule for target.
-DDviewer/fast:
-	$(MAKE) -f CMakeFiles/DDviewer.dir/build.make CMakeFiles/DDviewer.dir/build
-.PHONY : DDviewer/fast
+DDvtk/fast:
+	$(MAKE) -f CMakeFiles/DDvtk.dir/build.make CMakeFiles/DDvtk.dir/build
+.PHONY : DDvtk/fast
 
-DDviewer.o: DDviewer.cxx.o
+DDvtk.o: DDvtk.cxx.o
 
-.PHONY : DDviewer.o
+.PHONY : DDvtk.o
 
 # target to build an object file
-DDviewer.cxx.o:
-	$(MAKE) -f CMakeFiles/DDviewer.dir/build.make CMakeFiles/DDviewer.dir/DDviewer.cxx.o
-.PHONY : DDviewer.cxx.o
+DDvtk.cxx.o:
+	$(MAKE) -f CMakeFiles/DDvtk.dir/build.make CMakeFiles/DDvtk.dir/DDvtk.cxx.o
+.PHONY : DDvtk.cxx.o
 
-DDviewer.i: DDviewer.cxx.i
+DDvtk.i: DDvtk.cxx.i
 
-.PHONY : DDviewer.i
+.PHONY : DDvtk.i
 
 # target to preprocess a source file
-DDviewer.cxx.i:
-	$(MAKE) -f CMakeFiles/DDviewer.dir/build.make CMakeFiles/DDviewer.dir/DDviewer.cxx.i
-.PHONY : DDviewer.cxx.i
+DDvtk.cxx.i:
+	$(MAKE) -f CMakeFiles/DDvtk.dir/build.make CMakeFiles/DDvtk.dir/DDvtk.cxx.i
+.PHONY : DDvtk.cxx.i
 
-DDviewer.s: DDviewer.cxx.s
+DDvtk.s: DDvtk.cxx.s
 
-.PHONY : DDviewer.s
+.PHONY : DDvtk.s
 
 # target to generate assembly for a file
-DDviewer.cxx.s:
-	$(MAKE) -f CMakeFiles/DDviewer.dir/build.make CMakeFiles/DDviewer.dir/DDviewer.cxx.s
-.PHONY : DDviewer.cxx.s
+DDvtk.cxx.s:
+	$(MAKE) -f CMakeFiles/DDvtk.dir/build.make CMakeFiles/DDvtk.dir/DDvtk.cxx.s
+.PHONY : DDvtk.cxx.s
 
 # Help Target
 help:
@@ -158,10 +158,10 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... DDviewer"
-	@echo "... DDviewer.o"
-	@echo "... DDviewer.i"
-	@echo "... DDviewer.s"
+	@echo "... DDvtk"
+	@echo "... DDvtk.o"
+	@echo "... DDvtk.i"
+	@echo "... DDvtk.s"
 .PHONY : help
 
 

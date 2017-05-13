@@ -29,7 +29,7 @@ namespace model
         typedef EdgeReader  <'E',11,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
         
         
-        long int currentFrameID;
+//        long int currentFrameID;
         bool showTubes;
         bool showVertices;
         //		bool deformedConfig;
@@ -58,7 +58,7 @@ namespace model
         
         /*************************************************************************/
         DislocationActors() :
-        /* init list   */ currentFrameID(-1),
+//        /* init list   */ currentFrameID(-1),
         /* init list   */ showTubes(false),
         /* init list   */ showVertices(false),
         //		/* init list   */ deformedConfig(false),
@@ -181,15 +181,16 @@ namespace model
         void update(long int& frameID,vtkRenderer* renderer)
         
         {
-            std::cout<<"frameID="<<frameID<<std::endl;
-            if(currentFrameID!=frameID)
-            {
-                            std::cout<<"here1"<<std::endl;
-                if(isGood(frameID,false) || isGood(frameID,true))
-                {
-                    std::cout<<"here2"<<std::endl;
+//            std::cout<<"frameID="<<frameID<<std::endl;
+//            if(currentFrameID!=frameID)
+//            {
+//                if(isGood(frameID,false) || isGood(frameID,true))
+//                {
 
-                    currentFrameID=frameID;
+//                    currentFrameID=frameID;
+                    
+ //                   std::cout<<"loading frame "<<currentFrameID<<std::endl;
+
                     
                     // Remove current actors from renderer
                     //renderer->RemoveAllViewProps();
@@ -212,15 +213,15 @@ namespace model
                         //                renderer->AddActor(actor.lineActor());
                     }
                     
-                }
-                else
-                {
-                    std::cout<<"here3"<<std::endl;
-
-                    // frameID is not a valid ID, return to last read
-                    frameID=currentFrameID;
-                }
-            }
+//                }
+//                else
+//                {
+//                    std::cout<<"frame "<<frameID<<" not found. Reverting to "<<currentFrameID<<std::endl;
+//
+//                    // frameID is not a valid ID, return to last read
+//                    frameID=currentFrameID;
+//                }
+//            }
             
             
         }

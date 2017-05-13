@@ -14,6 +14,10 @@
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
+#include <vtkMath.h>
+#include <vtkProperty.h>
+#include <vtkTubeFilter.h>
+
 
 //#include <model/Mesh/SimplicialMesh.h>
 
@@ -44,19 +48,62 @@ namespace model
         
         vtkSmartPointer<vtkActor> line;
         vtkSmartPointer<vtkActor> tube;
-        
+        static double tubeRadius;
+        static ColorScheme clr;
+
         /*********************************************************************/
-        void flipColor(VectorDim& colorVector) const
+        void setColor()
         {
-            if(colorVector(0)<0.0){
+            
+            switch (clr)
+            {
+                    //                case colorSessile:
+                    //                    colorVector(0)= isSessile? 1.0 : 0.1;
+                    //                    colorVector(1)= isSessile? 0.5 : 0.4;
+                    //                    colorVector(2)= isSessile? 0.0 : 0.9;
+                    //                    break;
+                    
+                case colorNormal:
+                    colorVector = planeNormal;
+//                    flipColor(colorVector);
+                    break;
+                    
+                    //                case colorComponent:
+                    //                {
+                    //                    RGBcolor rgb(RGBmap::getColor(ids,sIDmin,sIDmax));
+                    //                    colorVector << rgb.r, rgb.g, rgb.b;
+                    //                }
+                    //                    break;
+                    
+                    //                case colorEdgeScrew:
+                    //                {
+                    //                    const float u = std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized()));
+                    //                    //                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
+                    //                    //                            colorVector << rgb.r, rgb.g, rgb.b;
+                    //                    colorVector=screwColor*u+edgeColor*(1-u);
+                    //                }
+                    //                    break;
+                    
+                default:
+                    colorVector = burgers.normalized();
+//                    flipColor(colorVector);
+                    break;
+            }
+            
+            if(colorVector(0)<0.0)
+            {
                 colorVector*=-1;
             }
-            else if(colorVector(0)==0.0){
-                if(colorVector(1)<0.0){
+            else if(colorVector(0)==0.0)
+            {
+                if(colorVector(1)<0.0)
+                {
                     colorVector*=-1;
                 }
-                else if(colorVector(1)==0.0){
-                    if(colorVector(2)<0.0){
+                else if(colorVector(1)==0.0)
+                {
+                    if(colorVector(2)<0.0)
+                    {
                         colorVector*=-1;
                     }
                 }
@@ -67,6 +114,9 @@ namespace model
             
             //		colorVector << 0.0f,0.6f,0.4f;
             colorVector.normalize();
+            
+            tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
+
         }
         
         /************************************************************************/
@@ -90,11 +140,11 @@ namespace model
             
             unsigned int Np = 10;      // No. of vertices
 
-            for (int k=0;k<Np;++k)
+            for (int k=0;k<Np;++k) // this may have to go to Np+1
             {
-                float u1=k*1.0/(Np-1);
-                float u2=u1*u1;
-                float u3=u2*u1;
+                const float u1=k*1.0/(Np-1);
+                const float u2=u1*u1;
+                const float u3=u2*u1;
                 
                 // Compute positions along axis
                 VectorDim P =   ( 2.0f*u3-3.0f*u2+1.0f) * P0T0P1T1BN.col(0)
@@ -126,79 +176,40 @@ namespace model
             
             //        lineMapper->SetInputConnection(lines->GetOutputPort());
             lineMapper->SetInputData(polyData);
-            
+            line->GetProperty()->SetColor(0.0,1.0,0.0); // Give some color to the tube
+            line->SetMapper ( lineMapper );
+
             if(true)
             {
-            tubeFilter->SetInputData(polyData);
-            tubeFilter->SetRadius(5); //default is .5
-            tubeFilter->SetNumberOfSides(10);
-            tubeFilter->Update();
-            tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
-            tubeMapper->ScalarVisibilityOn();
+                tubeFilter->SetInputData(polyData);
+                tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
+                tubeFilter->SetNumberOfSides(10);
+                tubeFilter->Update();
+                tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
+                tubeMapper->ScalarVisibilityOn();
+                tube->SetMapper(tubeMapper);
+                tube->GetProperty()->SetOpacity(1.0); //Make the tube have some transparency.
+                setColor();
             }
-            
-            ColorScheme clr=colorBurgers;
-            switch (clr)
-            {
-//                case colorSessile:
-//                    colorVector(0)= isSessile? 1.0 : 0.1;
-//                    colorVector(1)= isSessile? 0.5 : 0.4;
-//                    colorVector(2)= isSessile? 0.0 : 0.9;
-//                    break;
-                    
-                case colorNormal:
-                    colorVector = planeNormal;
-                    flipColor(colorVector);
-                    break;
-                    
-//                case colorComponent:
-//                {
-//                    RGBcolor rgb(RGBmap::getColor(ids,sIDmin,sIDmax));
-//                    colorVector << rgb.r, rgb.g, rgb.b;
-//                }
-//                    break;
-                    
-//                case colorEdgeScrew:
-//                {
-//                    const float u = std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized()));
-//                    //                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
-//                    //                            colorVector << rgb.r, rgb.g, rgb.b;
-//                    colorVector=screwColor*u+edgeColor*(1-u);
-//                }
-//                    break;
-                    
-                default:
-                    colorVector = burgers.normalized();
-                    flipColor(colorVector);
-                    break;
-            }
-            //        tubeMapper->SetScalarModeToUsePointFieldData();
-            //        tubeMapper->SelectColorArray("Colors");
             
         }
         
         /**************************************************************************/
         vtkSmartPointer<vtkActor> lineActor() const
         {
-//            line =  vtkSmartPointer<vtkActor>::New();
-            line->GetProperty()->SetColor(0.0,1.0,0.0); // Give some color to the tube
-            line->SetMapper ( lineMapper );
             return line;
         }
         
         /**************************************************************************/
         vtkSmartPointer<vtkActor> tubeActor() const
         {
-//            vtkSmartPointer<vtkActor> a = vtkSmartPointer<vtkActor>::New();
-            tube->SetMapper(tubeMapper);
-            tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
-            tube->GetProperty()->SetOpacity(1.0); //Make the tube have some transparency.
-            return tube;
+             return tube;
         }
         
     };
     
-	
+    double DislocationSegmentActor::tubeRadius=5.0;
+    DislocationSegmentActor::ColorScheme DislocationSegmentActor::clr=DislocationSegmentActor::colorBurgers;
 } // namespace model
 #endif
 
