@@ -6,9 +6,10 @@ relaxSteps=0;
 apply_bending=1;
 ######################################
 # Settings for  ExternalStressController (a uniform stress felt by dislocations)
+use_externalStress=0;
 ExternalStress0 = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.00;
+		 0.0 0.0 0.0;
 ExternalStressRate = 0.0 0.0 0.0
 		 0.0 0.0 0.0
 		 0.0 0.0 0.0;

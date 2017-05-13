@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     {
         const size_t fileID=file.first;
         
-        VertexReader<'V',9,double> vReader;
+        VertexReader<'V',10,double> vReader;
         if(vReader.isGood(fileID,0)) // V_fileID.bin is good to read
         {
             vReader.read(fileID,0);

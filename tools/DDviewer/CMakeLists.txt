@@ -10,8 +10,8 @@ include(${VTK_USE_FILE})
 
 add_executable(DDviewer DDviewer)
 
-include_directories(/usr/local/include)
-include_directories(../..)
+include_directories(/Users/Giacomo/Documents/eigen)
+include_directories(../../)
 
 
 set(CMAKE_BUILD_TYPE Release)

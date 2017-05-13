@@ -28,16 +28,22 @@ namespace model
         vtkSmartPointer<vtkPolyData> polydata;
         vtkSmartPointer<vtkPolyDataMapper> mapper;
         
+        SimplicialMesh<3> mesh;
+        
         /**************************************************************************/
-        SimplicialMeshActor(const SimplicialMesh<3>& mesh) :
+//        SimplicialMeshActor(const SimplicialMesh<3>& mesh) :
+        SimplicialMeshActor(const int& meshID) :
         //    vtkSmartPointer<vtkActor>(vtkSmartPointer<vtkActor>::New()),
         /* init */ pts(vtkSmartPointer<vtkPoints>::New()),
         /* init */ polydata(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ mapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         {
+            
+            mesh.readMesh(meshID);
+            
             polydata->Allocate();
             
-            size_t connectivityID=2;
+            size_t connectivityID=0;
             for (const auto& edge : SimplexObserver<3,1>::simplices())
             {
                 if(edge.second->isBoundarySimplex())
@@ -71,7 +77,8 @@ namespace model
         {
             vtkSmartPointer<vtkActor> a =  vtkSmartPointer<vtkActor>::New();
             a->SetMapper ( mapper );
-            a->GetProperty()->SetColor(0.0,0.0,0.0); // Give some color to the mesh
+            a->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh
+            a->GetProperty()->SetOpacity(0.5); //Make the tube have some transparency.
             return a;
         }
     };

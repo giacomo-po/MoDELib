@@ -1,3 +1,7 @@
+// compile as cmake .
+// make
+// Examples:
+// https://sites.google.com/site/siggraphasia2015democontest/vtk-tutorial
 #include <vtkPolyDataMapper.h>
 #include <vtkObjectFactory.h>
 #include <vtkActor.h>
@@ -16,11 +20,14 @@
 
 #include <vtkWindowToImageFilter.h>
 #include <vtkPNGWriter.h>
+#include <vtkBMPWriter.h>
+#include <vtkJPEGWriter.h>
 
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/DislocationDynamics/Visualization/vtk/SimplicialMeshActor.h>
 #include <model/DislocationDynamics/Visualization/vtk/DislocationSegmentActor.h>
-#include <model/DislocationDynamics/Visualization/vtk/DislocationRenderer.h>
+#include <model/DislocationDynamics/Visualization/vtk/DislocationActors.h>
+#include <model/Utilities/EigenDataReader.h>
 
 
 //To update the display once you get new data, you would just update the
@@ -28,7 +35,8 @@
 //                                                                call Modified() on it if necessary) and the renderer would
 //automatically display the new points.
 
-int frameID=0;
+long int frameID=0;
+model::DislocationActors ddActors;
 
 // Define interaction style
 class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
@@ -49,33 +57,39 @@ public:
         // Handle an arrow key
         if(key == "Up")
         {
-            for(int n=0;n<299;n++){
+            //for(int n=0;n<299;n++){
             frameID+=10;
-            std::cout << "The up arrow was pressed." << std::endl;
+//            std::cout << "The up arrow was pressed." << std::endl;
             ////            this->CurrentRenderer->ResetCamera();
-            this->CurrentRenderer->Clear();
-            this->CurrentRenderer->RemoveAllViewProps();
+            //this->CurrentRenderer->Clear();
+//            this->CurrentRenderer->RemoveAllViewProps();
             
 //            model::SimplicialMesh<3> mesh;
 //            mesh.readMesh(1);
 //            model::SimplicialMeshActor meshActor(mesh);
 //            this->CurrentRenderer->AddActor(meshActor.actor());
             
-            model::DislocationRenderer DDrenderer;
-            DDrenderer.read(frameID);
-            DDrenderer.addActors(this->CurrentRenderer);
+            //model::DislocationActors ddActors;
+//            ddActors.clear();
+//            ddActors.read(frameID);
+            ddActors.update(frameID,this->CurrentRenderer);
+//            for(auto& segmentActor : ddActors.segmentActors())
+//            {
+//                this->CurrentRenderer->AddActor(segmentActor.tubeActor());
+//            }
+//            ddActors.addToRenderer(this->CurrentRenderer);
             
             rwi->Render();
-            }
+            //}
         }
         
         if(key == "Down")
         {
             frameID-=10;
-            std::cout << "The up arrow was pressed." << std::endl;
+//            std::cout << "The up arrow was pressed." << std::endl;
             ////            this->CurrentRenderer->ResetCamera();
-            this->CurrentRenderer->Clear();
-            this->CurrentRenderer->RemoveAllViewProps();
+            //this->CurrentRenderer->Clear();
+ //           this->CurrentRenderer->RemoveAllViewProps();
             
 //            model::SimplicialMesh<3> mesh;
 //            mesh.readMesh(0);
@@ -83,11 +97,49 @@ public:
 //            this->CurrentRenderer->AddActor(meshActor.actor());
 //
             
-            model::DislocationRenderer DDrenderer;
-            DDrenderer.read(frameID);
-            DDrenderer.addActors(this->CurrentRenderer);
+//            model::DislocationActors ddActors;
+//            ddActors.clear();
+//            ddActors.read(frameID);
+            ddActors.update(frameID,this->CurrentRenderer);
+
+//            for(auto& segmentActor : ddActors.segmentActors())
+//            {
+//                this->CurrentRenderer->AddActor(segmentActor.tubeActor());
+//            }
+//            ddActors.addToRenderer(this->CurrentRenderer);
 
             rwi->Render();
+        }
+        
+        if(key == "Right")
+        {
+            //for(int n=0;n<299;n++){
+            while (std::cin.get()=='n')
+            {
+            frameID+=10;
+            //            std::cout << "The up arrow was pressed." << std::endl;
+            ////            this->CurrentRenderer->ResetCamera();
+            //this->CurrentRenderer->Clear();
+            //            this->CurrentRenderer->RemoveAllViewProps();
+            
+            //            model::SimplicialMesh<3> mesh;
+            //            mesh.readMesh(1);
+            //            model::SimplicialMeshActor meshActor(mesh);
+            //            this->CurrentRenderer->AddActor(meshActor.actor());
+            
+            //model::DislocationActors ddActors;
+            //            ddActors.clear();
+            //            ddActors.read(frameID);
+            ddActors.update(frameID,this->CurrentRenderer);
+            //            for(auto& segmentActor : ddActors.segmentActors())
+            //            {
+            //                this->CurrentRenderer->AddActor(segmentActor.tubeActor());
+            //            }
+            //            ddActors.addToRenderer(this->CurrentRenderer);
+            
+            rwi->Render();
+            }
+            //}
         }
         
         // Handle a "normal" key
@@ -104,11 +156,44 @@ public:
             windowToImageFilter->ReadFrontBufferOff(); // read from the back buffer
             windowToImageFilter->Update();
             
-            vtkSmartPointer<vtkPNGWriter> writer = vtkSmartPointer<vtkPNGWriter>::New();
-            writer->SetFileName("screenshot2.png");
-            writer->SetInputConnection(windowToImageFilter->GetOutputPort());
-            writer->Write();
-            rwi->Render();
+            int imageType=2;
+            switch (imageType)
+            {
+                case 0:
+                {
+                    vtkSmartPointer<vtkPNGWriter> writer = vtkSmartPointer<vtkPNGWriter>::New();
+                    writer->SetFileName("screenshot2.png");
+                    writer->SetInputConnection(windowToImageFilter->GetOutputPort());
+                    writer->Write();
+                    rwi->Render();
+                    break;
+
+                }
+                case 1:
+                {
+                    vtkSmartPointer<vtkBMPWriter> writer = vtkSmartPointer<vtkBMPWriter>::New();
+                    writer->SetFileName("screenshot2.bmp");
+                    writer->SetInputConnection(windowToImageFilter->GetOutputPort());
+                    writer->Write();
+                    rwi->Render();
+                    break;
+
+                }
+                case 2:
+                {
+                    vtkSmartPointer<vtkJPEGWriter> writer = vtkSmartPointer<vtkJPEGWriter>::New();
+                    writer->SetFileName("screenshot2.jpg");
+                    writer->SetInputConnection(windowToImageFilter->GetOutputPort());
+                    writer->Write();
+                    rwi->Render();
+                    break;
+
+                }
+                    
+                default:
+                    break;
+            }
+
 
         }
         
@@ -126,43 +211,61 @@ int main(int, char *[])
     // so that one SegmentRenderer can be cleared of all actors while
     // MeshRenderer stays intact
     
-//    model::SimplicialMesh<3> mesh;
-//    mesh.readMesh(0);
+    // Define the actors
+    int meshID(0);
+    model::EigenDataReader EDR;
+    bool use_boundary=false;
+    EDR.readScalarInFile("./DDinput.txt","use_boundary",use_boundary);
+    if (use_boundary)
+    {
+        EDR.readScalarInFile("./DDinput.txt","meshID",meshID);
+    }
+    model::SimplicialMeshActor meshActor(meshID);
     
-    model::SimplicialMeshActor meshActor(model::SimplicialMesh<3>(0));
+//    ddActors.read(frameID);
     
-//    model::DislocationSegmentActor sa;
-    
-    model::DislocationRenderer DDrenderer;
-    
-    DDrenderer.read(0);
-    
-    // A renderer and render window
+    // Define a renderer and add actors
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+    renderer->SetBackground(1,1,1); // Background color white
+
+    renderer->AddActor(meshActor.actor());
+//    ddActors.clear();
+//    ddActors.read(frameID);
+    ddActors.update(frameID,renderer);
+
+//    for(auto& segmentActor : ddActors.segmentActors())
+//    {
+//        renderer->AddActor(segmentActor.tubeActor());
+//    }
+//    ddActors.addToRenderer(renderer);
+    //renderer->AddActor(actor);
+
+    // Define a render window and add the renderer
     vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
     renderWindow->AddRenderer(renderer);
+    renderWindow->SetSize(1024,768); //(width, height)
+
     
-    // An interactor
+    renderWindow->LineSmoothingOn();
+    renderWindow->PolygonSmoothingOn();
+    renderWindow->PointSmoothingOn();
+    renderWindow->SetMultiSamples(1);
+
+    renderWindow->Render();
+
+    
+    // Define the  window interactor
     vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
     renderWindowInteractor->SetRenderWindow(renderWindow);
-    
+
+    // Add interaction styles to the window
     vtkSmartPointer<KeyPressInteractorStyle> style = vtkSmartPointer<KeyPressInteractorStyle>::New();
     renderWindowInteractor->SetInteractorStyle(style);
     style->SetCurrentRenderer(renderer);
-    
-    //renderer->AddActor(actor);
-    renderer->AddActor(meshActor.actor());
-    DDrenderer.addActors(renderer);
 
-//    renderer->AddActor(sa.lineActor());
-//    renderer->AddActor(sa.tubeActor());
-    
-    renderer->SetBackground(1,1,1); // Background color white
-    
-    renderWindow->Render();
-    
+    // Start
     renderWindowInteractor->Start();
-    
+
     return EXIT_SUCCESS;
 }
 

@@ -455,9 +455,9 @@ namespace model
                                                                                              rugauss.col(k),Burgers,
                                                                                              QuadratureDynamicType::abscissa(qOrder,k),
                                                                                              QuadratureDynamicType::weight(qOrder,k),
-                                                                                             false,true,  // stressSource enabled, stressField enabled,
-                                                                                             false,true,  //   dispSource enabled,   dispField enabled,
-                                                                                             false,true));//   enrgSource enabled,   enrgField enabled,
+                                                                                             false,true,  // stressSource disabled, stressField enabled,
+                                                                                             false,true,  //   dispSource disabled,   dispField enabled,
+                                                                                             false,true));//   enrgSource disabled,   enrgField enabled,
                         }
                         
                         const VectorDim P1(this->source->get_P());
@@ -481,8 +481,8 @@ namespace model
                                                            Burgers,
                                                            QuadratureDynamicType::abscissa(qOrder12,k),
                                                            QuadratureDynamicType::weight(qOrder12,k),
-                                                           true,false,  // stressSource disabled, stressField enabled,
-                                                           true,false,   //   dispSource  enabled,   dispField enabled,
+                                                           true,false,  // stressSource enabled, stressField disabled,
+                                                           true,false,   //   dispSource  enabled,   dispField disabled,
                                                            true,false);
                             }
                             
@@ -500,8 +500,8 @@ namespace model
                                                        Burgers,
                                                        QuadratureDynamicType::abscissa(qOrder24,k),
                                                        QuadratureDynamicType::weight(qOrder24,k),
-                                                       true,false,  // stressSource disabled, stressField enabled,
-                                                       true,false,   //   dispSource  enabled,   dispField enabled,
+                                                       true,false,  // stressSource enabled, stressField disabled,
+                                                       true,false,   //   dispSource  enabled,   dispField disabled,
                                                        true,false);
                         }
                         
@@ -518,8 +518,8 @@ namespace model
                                                            Burgers,
                                                            QuadratureDynamicType::abscissa(qOrder12,k),
                                                            QuadratureDynamicType::weight(qOrder12,k),
-                                                           true,false,  // stressSource disabled, stressField enabled,
-                                                           true,false,   //   dispSource  enabled,   dispField enabled,
+                                                           true,false,  // stressSource enabled, stressField disabled,
+                                                           true,false,   //   dispSource  enabled,   dispField disabled,
                                                            true,false);
                             }
                             
