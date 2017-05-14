@@ -178,7 +178,7 @@ namespace model
         }
         
         /*************************************************************************/
-        void update(long int& frameID,vtkRenderer* renderer)
+        void update(const long int& frameID,vtkRenderer* renderer)
         
         {
 //            std::cout<<"frameID="<<frameID<<std::endl;

@@ -15,6 +15,7 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
 #include <vtkProperty.h>
+#include <vtkRenderer.h>
 
 
 #include <model/Mesh/SimplicialMesh.h>
@@ -29,18 +30,26 @@ namespace model
         vtkSmartPointer<vtkPoints> pts;
         vtkSmartPointer<vtkPolyData> polydata;
         vtkSmartPointer<vtkPolyDataMapper> mapper;
-        
+        vtkSmartPointer<vtkActor> actor;
         SimplicialMesh<3> mesh;
         
         /**************************************************************************/
 //        SimplicialMeshActor(const SimplicialMesh<3>& mesh) :
-        SimplicialMeshActor(const int& meshID) :
+        SimplicialMeshActor() :
         //    vtkSmartPointer<vtkActor>(vtkSmartPointer<vtkActor>::New()),
         /* init */ pts(vtkSmartPointer<vtkPoints>::New()),
         /* init */ polydata(vtkSmartPointer<vtkPolyData>::New()),
-        /* init */ mapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+        /* init */ mapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
+        /* init */ actor(vtkSmartPointer<vtkActor>::New())
         {
             
+
+            
+            //        this->SetMapper ( mapper );
+        }
+        
+        void update(const int& meshID,vtkRenderer* renderer)
+        {
             mesh.readMesh(meshID);
             
             polydata->Allocate();
@@ -71,19 +80,21 @@ namespace model
             
             mapper->SetInputData(polydata);
             
-            //        this->SetMapper ( mapper );
+            actor->SetMapper ( mapper );
+            actor->GetProperty()->SetLineWidth(0.1);
+            actor->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh. (1,1,1) is white
+            actor->GetProperty()->SetOpacity(0.15); //Make the tube have some transparency.
+
+            renderer->AddActor(actor);
+            
         }
         
-        /**************************************************************************/
-        vtkSmartPointer<vtkActor> actor() const
-        {
-            vtkSmartPointer<vtkActor> a =  vtkSmartPointer<vtkActor>::New();
-            a->SetMapper ( mapper );
-            a->GetProperty()->SetLineWidth(0.1);
-            a->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh. (1,1,1) is white
-            a->GetProperty()->SetOpacity(0.15); //Make the tube have some transparency.
-            return a;
-        }
+//        /**************************************************************************/
+//        vtkSmartPointer<vtkActor> actor() const
+//        {
+//            vtkSmartPointer<vtkActor> a =  vtkSmartPointer<vtkActor>::New();
+//                        return a;
+//        }
     };
 	
 	

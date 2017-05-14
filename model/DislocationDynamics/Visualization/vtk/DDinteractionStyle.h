@@ -25,19 +25,25 @@
 #include <model/DislocationDynamics/Visualization/vtk/DislocationSegmentActor.h>
 #include <model/DislocationDynamics/Visualization/vtk/DislocationActors.h>
 
-long int frameID=0;
-model::DislocationActors ddActors;
-bool saveImage=false;
 
 
 namespace model
 {
     
+    //To update the display once you get new data, you would just update the
+    //PolyData that is already attached to a mapper->actor->renderer (and
+    //                                                                call Modified() on it if necessary) and the renderer would
+    //automatically display the new points.
     
     class DDinteractionStyle : public vtkInteractorStyleTrackballCamera
     {
-        
+    private:
+
+        bool saveImage=false;
+        long int frameID;
         long int currentFrameID;
+        vtkActor    *LastPickedActor;
+        vtkProperty *LastPickedProperty;
         
         
         void loadFrame()
@@ -129,13 +135,28 @@ namespace model
     public:
         static DDinteractionStyle* New();
         vtkTypeMacro(DDinteractionStyle, vtkInteractorStyleTrackballCamera);
+
+        SimplicialMeshActor meshActor;
+        DislocationActors ddActors;
+
+
         
         DDinteractionStyle() :
+        /* init list   */ frameID(0),
         /* init list   */ currentFrameID(-1)
         {
             LastPickedActor = NULL;
             LastPickedProperty = vtkProperty::New();
         }
+        
+//        void init(const int& meshID)
+//        {
+//            //loadFrame();
+//            meshActor.read(meshID);
+//            ddActors.update(0,this->CurrentRenderer);
+//
+//
+//        }
         
         virtual ~DDinteractionStyle()
         {
@@ -211,11 +232,7 @@ namespace model
             // Forward events
             vtkInteractorStyleTrackballCamera::OnKeyPress();// use base class OnKeyPress()
         }
-        
-        
-    private:
-        vtkActor    *LastPickedActor;
-        vtkProperty *LastPickedProperty;
+                
     };
     vtkStandardNewMacro(DDinteractionStyle);
     

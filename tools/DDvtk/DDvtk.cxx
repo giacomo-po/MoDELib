@@ -32,10 +32,6 @@
 #include <model/Utilities/EigenDataReader.h>
 
 
-//To update the display once you get new data, you would just update the
-//PolyData that is already attached to a mapper->actor->renderer (and
-//                                                                call Modified() on it if necessary) and the renderer would
-//automatically display the new points.
 
 
 
@@ -57,7 +53,8 @@ int main(int, char *[])
     {
         EDR.readScalarInFile("./DDinput.txt","meshID",meshID);
     }
-    model::SimplicialMeshActor meshActor(meshID);
+//    model::SimplicialMeshActor meshActor();
+//    meshActor.updated(meshID,renderer);
     
 //    ddActors.read(frameID);
     
@@ -65,10 +62,10 @@ int main(int, char *[])
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
     renderer->SetBackground(1,1,1); // Background color white
 
-    renderer->AddActor(meshActor.actor());
+//    renderer->AddActor(meshActor.actor());
 //    ddActors.clear();
 //    ddActors.read(frameID);
-    ddActors.update(frameID,renderer);
+//    ddActors.update(frameID,renderer);
 
 //    for(auto& segmentActor : ddActors.segmentActors())
 //    {
@@ -83,12 +80,8 @@ int main(int, char *[])
     renderWindow->SetSize(1024,768); //(width, height)
 
     
-    renderWindow->LineSmoothingOn();
-    renderWindow->PolygonSmoothingOn();
-    renderWindow->PointSmoothingOn();
-    renderWindow->SetMultiSamples(1);
 
-    renderWindow->Render();
+//    renderWindow->Render();
 
     
     // Define the  window interactor
@@ -105,7 +98,21 @@ int main(int, char *[])
     renderWindowInteractor->SetInteractorStyle(style);
     style->SetDefaultRenderer(renderer);
 
+    // Pupulate initial actors
+    style->meshActor.update(meshID,renderer);
+    style->ddActors.update(0,renderer);
+    
+//    model::SimplicialMeshActor meshActor;
+//    meshActor.update(meshID,renderer);
+
+    
     // Start
+    renderWindow->LineSmoothingOn();
+    renderWindow->PolygonSmoothingOn();
+    renderWindow->PointSmoothingOn();
+    renderWindow->SetMultiSamples(1);
+
+    renderWindow->Render();
     renderWindowInteractor->Start();
 
     return EXIT_SUCCESS;
