@@ -19,13 +19,18 @@
 
 
 #include <model/Mesh/SimplicialMesh.h>
+#include <model/Network/Readers/VertexReader.h>
 
 
 namespace model
 {
 
-    struct SimplicialMeshActor //: public vtkSmartPointer<vtkActor>
+    struct SimplicialMeshActor : public VertexReader<'D',4,float>//: public vtkSmartPointer<vtkActor>
     {
+        
+        typedef VertexReader<'D',4,float> DispContainerType;
+
+        static double dispCorr;
         
         vtkSmartPointer<vtkPoints> pts;
         vtkSmartPointer<vtkPolyData> polydata;
@@ -48,7 +53,7 @@ namespace model
             //        this->SetMapper ( mapper );
         }
         
-        void update(const int& meshID,vtkRenderer* renderer)
+        void init(const int& meshID,vtkRenderer* renderer)
         {
             mesh.readMesh(meshID);
             
@@ -83,10 +88,61 @@ namespace model
             actor->SetMapper ( mapper );
             actor->GetProperty()->SetLineWidth(0.1);
             actor->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh. (1,1,1) is white
-            actor->GetProperty()->SetOpacity(0.15); //Make the tube have some transparency.
+            actor->GetProperty()->SetOpacity(0.15); //Make the mesh have some transparency.
 
             renderer->AddActor(actor);
             
+        }
+        
+        /**************************************************************************/
+        void update(const long int& frameID)
+        {
+            
+//            double dispCorr=100000.0;
+            
+            if(DispContainerType::isGood(frameID,true))
+            {
+                DispContainerType::read(frameID,true);
+                
+                modifyPts();
+
+
+            }
+
+            
+        }
+        
+        void modifyPts()
+        {
+            size_t k=0;
+            for (const auto& edge : SimplexObserver<3,1>::simplices())
+            {
+                if(edge.second->isBoundarySimplex())
+                {
+                    DispContainerType::const_iterator iterD1(DispContainerType::find(edge.second->child(0).xID(0)));
+                    DispContainerType::const_iterator iterD2(DispContainerType::find(edge.second->child(1).xID(0)));
+                    //                        VertexReader<'D',4,float>::const_iterator iterD3(DispContainerType::find(triangleID.second[2]));
+                    
+                    assert(iterD1!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
+                    assert(iterD2!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
+                    //                        assert(iterD3!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
+                    
+                    
+                    const float x1=edge.second->child(0).P0(0)+dispCorr*iterD1->second(0);
+                    const float y1=edge.second->child(0).P0(1)+dispCorr*iterD1->second(1);
+                    const float z1=edge.second->child(0).P0(2)+dispCorr*iterD1->second(2);
+                    pts->SetPoint(k,x1,y1,z1);
+                    
+                    const float x2=edge.second->child(1).P0(0)+dispCorr*iterD2->second(0);
+                    const float y2=edge.second->child(1).P0(1)+dispCorr*iterD2->second(1);
+                    const float z2=edge.second->child(1).P0(2)+dispCorr*iterD2->second(2);
+                    pts->SetPoint(k+1,x2,y2,z2);
+                    
+                    k=k+2;
+                }
+            }
+            
+            pts->Modified();
         }
         
 //        /**************************************************************************/
@@ -97,7 +153,8 @@ namespace model
 //        }
     };
 	
-	
+    double SimplicialMeshActor::dispCorr=1.0;
+    
 } // namespace model
 #endif
 

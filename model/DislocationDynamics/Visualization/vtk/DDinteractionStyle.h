@@ -38,9 +38,11 @@ namespace model
     class DDinteractionStyle : public vtkInteractorStyleTrackballCamera
     {
     private:
-
+        
+        std::string selectedKey;
         bool saveImage=false;
         long int frameID;
+        long int frameIncrement;
         long int currentFrameID;
         vtkActor    *LastPickedActor;
         vtkProperty *LastPickedProperty;
@@ -66,6 +68,7 @@ namespace model
                     
                     // Update ddActors
                     ddActors.update(frameID,this->CurrentRenderer);
+                    meshActor.update(frameID);
                     
                     // Update renderer
                     rwi->Render();
@@ -85,6 +88,7 @@ namespace model
                             case 0:
                             {
                                 const std::string fileName="png/image_"+std::to_string(frameID)+".png";
+                                                                std::cout<<"saving image "<<fileName<<std::endl;
                                 vtkSmartPointer<vtkPNGWriter> writer = vtkSmartPointer<vtkPNGWriter>::New();
                                 writer->SetFileName(fileName.c_str());
                                 writer->SetInputConnection(windowToImageFilter->GetOutputPort());
@@ -96,6 +100,7 @@ namespace model
                             case 1:
                             {
                                 const std::string fileName="bmp/image_"+std::to_string(frameID)+".bmp";
+                                std::cout<<"saving image "<<fileName<<std::endl;
                                 vtkSmartPointer<vtkBMPWriter> writer = vtkSmartPointer<vtkBMPWriter>::New();
                                 writer->SetFileName(fileName.c_str());
                                 writer->SetInputConnection(windowToImageFilter->GetOutputPort());
@@ -107,6 +112,7 @@ namespace model
                             case 2:
                             {
                                 const std::string fileName="jpg/image_"+std::to_string(frameID)+".jpg";
+                                                                std::cout<<"saving image "<<fileName<<std::endl;
                                 vtkSmartPointer<vtkJPEGWriter> writer = vtkSmartPointer<vtkJPEGWriter>::New();
                                 writer->SetFileName(fileName.c_str());
                                 writer->SetInputConnection(windowToImageFilter->GetOutputPort());
@@ -135,28 +141,29 @@ namespace model
     public:
         static DDinteractionStyle* New();
         vtkTypeMacro(DDinteractionStyle, vtkInteractorStyleTrackballCamera);
-
+        
         SimplicialMeshActor meshActor;
         DislocationActors ddActors;
-
-
+        
+        
         
         DDinteractionStyle() :
         /* init list   */ frameID(0),
-        /* init list   */ currentFrameID(-1)
+        /* init list   */ frameIncrement(1),
+        /* init list   */ currentFrameID(0)
         {
             LastPickedActor = NULL;
             LastPickedProperty = vtkProperty::New();
         }
         
-//        void init(const int& meshID)
-//        {
-//            //loadFrame();
-//            meshActor.read(meshID);
-//            ddActors.update(0,this->CurrentRenderer);
-//
-//
-//        }
+        //        void init(const int& meshID)
+        //        {
+        //            //loadFrame();
+        //            meshActor.read(meshID);
+        //            ddActors.update(0,this->CurrentRenderer);
+        //
+        //
+        //        }
         
         virtual ~DDinteractionStyle()
         {
@@ -201,20 +208,36 @@ namespace model
             std::string key = rwi->GetKeySym();
             
             // Output the key that was pressed
-            //       std::cout << "Pressed " << key << std::endl;
+             //      std::cout << "Pressed " << key << std::endl;
             
             // Handle an arrow key
             if(key == "Up")
             {
-                frameID-=10;
+                frameID-=frameIncrement;
                 loadFrame();
             }
             
             if(key == "Down")
             {
-                frameID+=10;
+                frameID+=frameIncrement;
                 loadFrame();
             }
+            
+            if(key == "i")
+            {
+                std::cout<<"Enter frame increment (>0):"<<std::endl;
+                long int temp;
+                std::cin>>temp;
+                if(temp>0)
+                {
+                    frameIncrement=temp;
+                }
+                else
+                {
+                    std::cout<<"frame increment must be >0. Reverting to frame increment="<<frameIncrement<<std::endl;
+                }
+            }
+            
             
             if(key == "l")
             {
@@ -223,16 +246,47 @@ namespace model
                 loadFrame();
             }
             
+            if(key == "m")
+            {
+                selectedKey="m";
+                std::cout<<"selecting mesh"<<std::endl;
+                //                std::cout<<"Enter frame# to load:"<<std::endl;
+                //                std::cin>>frameID;
+                //                loadFrame();
+            }
+            
+            
+            
             if(key == "s")
             {
                 saveImage=!saveImage;
                 std::cout<<"Saving image="<<saveImage<<std::endl;
             }
             
+            
+            if(selectedKey=="m")
+            {
+                if(key == "equal")
+                {
+                    SimplicialMeshActor::dispCorr*=2.0;
+                    meshActor.modifyPts();
+                    this->Interactor->Render();
+                }
+                if(key == "minus")
+                {
+                    SimplicialMeshActor::dispCorr*=0.5;
+                    meshActor.modifyPts();
+                                        this->Interactor->Render();
+                }
+
+            }
+            
+
+            
             // Forward events
             vtkInteractorStyleTrackballCamera::OnKeyPress();// use base class OnKeyPress()
         }
-                
+        
     };
     vtkStandardNewMacro(DDinteractionStyle);
     

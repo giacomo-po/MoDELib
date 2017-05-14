@@ -40,9 +40,7 @@
 int main(int, char *[])
 {
     
-    // May be better to create: MeshRenderer, SegmentRenderer, and so on
-    // so that one SegmentRenderer can be cleared of all actors while
-    // MeshRenderer stays intact
+
     
     // Define the actors
     int meshID(0);
@@ -99,7 +97,7 @@ int main(int, char *[])
     style->SetDefaultRenderer(renderer);
 
     // Pupulate initial actors
-    style->meshActor.update(meshID,renderer);
+    style->meshActor.init(meshID,renderer);
     style->ddActors.update(0,renderer);
     
 //    model::SimplicialMeshActor meshActor;
