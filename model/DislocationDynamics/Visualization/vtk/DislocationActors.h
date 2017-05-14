@@ -14,6 +14,7 @@
 #include <model/Network/Readers/VertexReader.h>
 #include <model/Network/Readers/EdgeReader.h>
 #include <model/DislocationDynamics/Visualization/vtk/DislocationSegmentActor.h>
+#include <model/DislocationDynamics/Visualization/vtk/DislocationNodeActor.h>
 
 
 
@@ -22,14 +23,15 @@ namespace model
     struct DislocationActors :
     /* inherits from   */ public VertexReader<'V',10,double>,
     /* inherits from   */ public EdgeReader  <'E',11,double>,
-    std::deque<DislocationSegmentActor>
+    /* inherits from   */ std::deque<DislocationSegmentActor>,
+    /* inherits from   */ std::deque<DislocationNodeActor>
     {
         static constexpr int dim=3;
         typedef VertexReader<'V',10,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
         typedef EdgeReader  <'E',11,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
         
         
-//        long int currentFrameID;
+        //        long int currentFrameID;
         bool showTubes;
         bool showVertices;
         //		bool deformedConfig;
@@ -58,7 +60,7 @@ namespace model
         
         /*************************************************************************/
         DislocationActors() :
-//        /* init list   */ currentFrameID(-1),
+        //        /* init list   */ currentFrameID(-1),
         /* init list   */ showTubes(false),
         /* init list   */ showVertices(false),
         //		/* init list   */ deformedConfig(false),
@@ -77,6 +79,11 @@ namespace model
         void clear()
         {
             segmentActors().clear();
+        }
+        
+        std::deque<DislocationNodeActor>& nodeActors()
+        {
+            return *this;
         }
         
         std::deque<DislocationSegmentActor>& segmentActors()
@@ -175,53 +182,50 @@ namespace model
                 }
             }
             
+            for(const auto& node : vertexContainer())
+            {
+                nodeActors().emplace_back(node.second.segment<3>(0).template cast<float>());
+            }
+            
         }
         
         /*************************************************************************/
         void update(const long int& frameID,vtkRenderer* renderer)
         
         {
-//            std::cout<<"frameID="<<frameID<<std::endl;
-//            if(currentFrameID!=frameID)
-//            {
-//                if(isGood(frameID,false) || isGood(frameID,true))
-//                {
-
-//                    currentFrameID=frameID;
-                    
- //                   std::cout<<"loading frame "<<currentFrameID<<std::endl;
-
-                    
-                    // Remove current actors from renderer
-                    //renderer->RemoveAllViewProps();
-                    for(auto& actor : segmentActors())
-                    {
-                        renderer->RemoveActor(actor.tubeActor());
-                        //                renderer->AddActor(actor.lineActor());
-                    }
-
-                    // Clear current actors
-                    clear();
-                    
-                    // Read new frame and store new actors
-                    read(frameID);
-
-                    // Add new actors to renderer
-                    for(auto& actor : segmentActors())
-                    {
-                        renderer->AddActor(actor.tubeActor());
-                        //                renderer->AddActor(actor.lineActor());
-                    }
-                    
-//                }
-//                else
-//                {
-//                    std::cout<<"frame "<<frameID<<" not found. Reverting to "<<currentFrameID<<std::endl;
-//
-//                    // frameID is not a valid ID, return to last read
-//                    frameID=currentFrameID;
-//                }
-//            }
+            
+            
+            // Remove current actors from renderer
+            //renderer->RemoveAllViewProps();
+            for(auto& segment : segmentActors())
+            {
+                renderer->RemoveActor(segment.tubeActor());
+                //                renderer->AddActor(actor.lineActor());
+            }
+            
+            for(auto& node : nodeActors())
+            {
+                renderer->RemoveActor(node.actor);
+                //                renderer->AddActor(actor.lineActor());
+            }
+            
+            // Clear current actors
+            clear();
+            
+            // Read new frame and store new actors
+            read(frameID);
+            
+            // Add new actors to renderer
+            for(auto& segment : segmentActors())
+            {
+                renderer->AddActor(segment.tubeActor());
+                //                renderer->AddActor(actor.lineActor());
+            }
+            
+            for(auto& node : nodeActors())
+            {
+                renderer->AddActor(node.actor);
+            }
             
             
         }

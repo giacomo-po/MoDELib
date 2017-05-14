@@ -39,18 +39,13 @@ namespace model
         SimplicialMesh<3> mesh;
         
         /**************************************************************************/
-//        SimplicialMeshActor(const SimplicialMesh<3>& mesh) :
         SimplicialMeshActor() :
-        //    vtkSmartPointer<vtkActor>(vtkSmartPointer<vtkActor>::New()),
         /* init */ pts(vtkSmartPointer<vtkPoints>::New()),
         /* init */ polydata(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ mapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ actor(vtkSmartPointer<vtkActor>::New())
         {
             
-
-            
-            //        this->SetMapper ( mapper );
         }
         
         void init(const int& meshID,vtkRenderer* renderer)

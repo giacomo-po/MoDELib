@@ -18,6 +18,7 @@
 #include <vtkProperty.h>
 #include <vtkTubeFilter.h>
 
+//#include <model/DislocationDynamics/Visualization/vtk/vtkActorWrapper.h>
 
 //#include <model/Mesh/SimplicialMesh.h>
 
@@ -48,6 +49,8 @@ namespace model
         
         vtkSmartPointer<vtkActor> line;
         vtkSmartPointer<vtkActor> tube;
+//        vtkSmartPointer<vtkActorWrapper<double>> tube;
+        
         static double tubeRadius;
         static ColorScheme clr;
 
