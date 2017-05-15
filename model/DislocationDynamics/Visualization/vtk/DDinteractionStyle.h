@@ -13,7 +13,7 @@
 
 #include <vtkRenderWindowInteractor.h>
 #include <vtkInteractorStyleTrackballCamera.h>
-#include <vtkInteractorStyleMultiTouchCamera.h>
+//#include <vtkInteractorStyleMultiTouchCamera.h>
 #include <vtkWindowToImageFilter.h>
 #include <vtkPNGWriter.h>
 #include <vtkBMPWriter.h>
@@ -225,7 +225,7 @@ namespace model
             
             if(key == "Escape")
             {
-                std::cout << "Exiting DDvtk, bye." << std::endl;
+                std::cout << "Exiting DDvtk, goodbye!" << std::endl;
                 exit(0);
             }
             

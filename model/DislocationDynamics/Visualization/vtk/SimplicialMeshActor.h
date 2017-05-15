@@ -16,7 +16,8 @@
 #include <vtkActor.h>
 #include <vtkProperty.h>
 #include <vtkRenderer.h>
-
+#include <vtkTriangle.h>
+#include <vtkCellData.h>
 
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Network/Readers/VertexReader.h>
@@ -36,6 +37,15 @@ namespace model
         vtkSmartPointer<vtkPolyData> polydata;
         vtkSmartPointer<vtkPolyDataMapper> mapper;
         vtkSmartPointer<vtkActor> actor;
+        
+        vtkSmartPointer<vtkUnsignedCharArray> gbColors;
+        vtkSmartPointer<vtkPoints> gbPoints;
+        vtkSmartPointer<vtkCellArray> gbTriangles;
+        vtkSmartPointer<vtkPolyData> gbTrianglePolyData;
+        vtkSmartPointer<vtkPolyDataMapper> gbMapper;
+        vtkSmartPointer<vtkActor> gbActor;
+        
+        
         SimplicialMesh<3> mesh;
         bool dispFileIsGood;
         
@@ -45,6 +55,12 @@ namespace model
         /* init */ polydata(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ mapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ actor(vtkSmartPointer<vtkActor>::New()),
+        gbColors(vtkSmartPointer<vtkUnsignedCharArray>::New()),
+        gbPoints(vtkSmartPointer<vtkPoints>::New()),
+        gbTriangles(vtkSmartPointer<vtkCellArray>::New()),
+        gbTrianglePolyData(vtkSmartPointer<vtkPolyData>::New()),
+        gbMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
+        gbActor(vtkSmartPointer<vtkActor>::New()),
         /* init */ dispFileIsGood(false)
         {
             
@@ -88,8 +104,63 @@ namespace model
             actor->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh. (1,1,1) is white
             actor->GetProperty()->SetOpacity(0.15); //Make the mesh have some transparency.
 
+            
+            // grain-boundaries
+            bool showRegionBoundaries=true;
+            if(showRegionBoundaries)
+            {
+                unsigned char clr[3] = {0, 100, 100};
+                gbColors->SetNumberOfComponents(3);
+                gbColors->SetName("Colors");
+//                gbColors->InsertNextTypedTuple(red);
+                size_t triPtID=0;
+                for(const auto& meshTriangle : SimplexObserver<3,2>::simplices())
+                {
+                    if(meshTriangle.second->isRegionBoundarySimplex())
+                    {
+                        const Eigen::Matrix<double,3,3> vM(meshTriangle.second->vertexPositionMatrix());
+                        
+                        gbPoints->InsertNextPoint ( vM(0,0), vM(1,0), vM(2,0) );
+                        gbPoints->InsertNextPoint ( vM(0,1), vM(1,1), vM(2,1) );
+                        gbPoints->InsertNextPoint ( vM(0,2), vM(1,2), vM(2,2) );
+
+                        vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
+//                        triangle->GetPointIds()->SetId (triPtID+0,triPtID+0);
+//                        triangle->GetPointIds()->SetId (triPtID+1,triPtID+1);
+//                        triangle->GetPointIds()->SetId (triPtID+2,triPtID+2);
+
+                        triangle->GetPointIds()->SetId (0,triPtID+0);
+                        triangle->GetPointIds()->SetId (1,triPtID+1);
+                        triangle->GetPointIds()->SetId (2,triPtID+2);
+
+                        gbColors->InsertNextTypedTuple(clr);
+                        gbColors->InsertNextTypedTuple(clr);
+                        gbColors->InsertNextTypedTuple(clr);
+
+                        
+                        
+                        triPtID+=3;
+                        
+                        gbTriangles->InsertNextCell ( triangle );
+                        
+                    }
+                }
+                gbTrianglePolyData->SetPoints ( gbPoints );
+                gbTrianglePolyData->SetPolys ( gbTriangles );
+                gbTrianglePolyData->GetCellData()->SetScalars(gbColors);
+
+                gbMapper->SetInputData(gbTrianglePolyData);
+                gbActor->SetMapper(gbMapper);
+                gbActor->GetProperty()->SetOpacity(0.1);
+
+                renderer->AddActor(gbActor);
+            }
+
+
+            // Update
             update(meshID);
             
+            // Render
             renderer->AddActor(actor);
             
         }
