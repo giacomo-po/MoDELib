@@ -20,9 +20,9 @@ namespace model
         
         typedef typename TypeTraits<LinkType>::NodeType LoopNodeType;
         typedef typename TypeTraits<LinkType>::LoopType LoopType;
-
         
     public:
+        
         
         LoopLink(const LoopLink&) =delete;
         

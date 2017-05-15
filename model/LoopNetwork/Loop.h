@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <list>
+#include <deque>
 #include <map>
 #include <memory>
 #include <iterator>
@@ -36,8 +37,9 @@ namespace model
         typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef LoopLink<LinkType> LoopLinkType;
         typedef std::map<std::pair<size_t,size_t>,const LoopLinkType* const> LoopLinkContainerType;
-        typedef std::list<const LoopLinkType*> LoopLinkSequenceType;
+        typedef std::deque<const LoopLinkType*> LoopLinkSequenceType;
         typedef LoopObserver<Derived> LoopObserverType;
+        typedef typename TypeTraits<LinkType>::FlowType FlowType;
         
     private:
         
@@ -46,10 +48,13 @@ namespace model
     public:
         
         const LoopNetworkType& loopNetwork;
-        
+        const FlowType flow;
+
         /**********************************************************************/
-        Loop(const LoopNetworkType& loopNetwork_in) :
-        /* init */ loopNetwork(loopNetwork_in)
+        Loop(const LoopNetworkType& loopNetwork_in,
+             const FlowType& f) :
+        /* init */ loopNetwork(loopNetwork_in),
+        /* init */ flow(f)
         {
             std::cout<<"Constructing Loop "<<this->sID<<std::endl;
             LoopObserverType::addLoop(this->p_derived());
@@ -58,6 +63,7 @@ namespace model
         /**********************************************************************/
         ~Loop()
         {
+            std::cout<<"Destorying Loop "<<this->sID<<std::endl;
             LoopObserverType::removeLoop(this->p_derived());
         }
         
@@ -102,21 +108,24 @@ namespace model
         /**********************************************************************/
         LoopLinkSequenceType linkSequence() const
         {
+            //RECODE THIS USING prev/next
             //typename LoopLinkContainerType::const_iterator iter;
             LoopLinkSequenceType temp;
-            for(const auto& link : links())
+            const LoopLinkType* pL=links().begin()->second;
+            for(size_t k=0;k<links().size();++k)
             {
-                typename LoopLinkSequenceType::const_iterator iter;
-                for(iter=temp.begin();
-                    iter!=temp.end();
-                    ++iter)
-                {
-                    if((*iter)->source->sID==link.second->sink->sID)
-                    {
-                        break;
-                    }
-                }
-                temp.insert(iter,link.second);
+//                typename LoopLinkSequenceType::const_iterator iter;
+//                for(iter=temp.begin();
+//                    iter!=temp.end();
+//                    ++iter)
+//                {
+//                    if((*iter)->source->sID==link.second->sink->sID)
+//                    {
+//                        break;
+//                    }
+//                }
+                temp.push_back(pL);
+                pL=pL->next;
             }
             return temp;
         }

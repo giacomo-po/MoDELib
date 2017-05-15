@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-//#include <TypeTraits.h>
+//#include <Eigen/Dense>
 #include <model/Utilities/TypeTraits.h>
 #include <model/Utilities/StaticID.h>
 
@@ -29,7 +29,7 @@ namespace model
 //        typedef DLnode LoopNodeType;
         typedef Dlink LinkType;
         typedef Dloop LoopType;
-        
+        typedef double FlowType;
     };
     
     template<>
@@ -97,7 +97,7 @@ namespace model
     struct Dloop : public Loop<Dloop>
     {
     
-        Dloop(const Dnetwork& net) : Loop<Dloop>(net){}
+        Dloop(const Dnetwork& net, const double& flow) : Loop<Dloop>(net,flow){}
     };
 
 
@@ -118,14 +118,15 @@ int main()
 //        nodeIDs.push_back(id);
     }
     
+    
     std::vector<size_t> loop0={0,1,2,3};
     std::vector<size_t> loop1={0,3,4,5};
     std::vector<size_t> loop2={6,7};
     
     
-    DN.insertLoop(loop0);
-    DN.insertLoop(loop1);
-    DN.insertLoop(loop2);
+    DN.insertLoop(loop0,0.2);
+    DN.insertLoop(loop1,4.5);
+    DN.insertLoop(loop2,2.3);
 
     DN.clearDanglingNodes();
     
@@ -134,7 +135,14 @@ int main()
     std::cout<<"# networkLinks="<<DN.links().size()<<std::endl;
     
     std::cout<<"Expanding"<<std::endl;
-    DN.expand(4,3);
+    DN.expand(3,4);
+    
+    DN.contract(0,1);
+    DN.contract(0,2);
+    
+    DN.contract(0,5);
+    DN.contract(0,4);
+    DN.contract(0,8);
     
     std::cout<<"# nodes="<<DN.nodes().size()<<std::endl;
     std::cout<<"# loopLinks="<<DN.loopLinks().size()<<std::endl;
