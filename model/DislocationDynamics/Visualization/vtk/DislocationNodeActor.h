@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
  *
- * model is distributed without any warranty under the 
+ * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
@@ -20,111 +20,21 @@
 
 #include <model/DislocationDynamics/Visualization/vtk/DislocationSegmentActor.h>
 
-//#include <model/Mesh/SimplicialMesh.h>
-
 
 namespace model
 {
+    
+    /************************************************************************/
+    /************************************************************************/
     struct DislocationNodeActor
     {
         static constexpr int dim=3;
         typedef Eigen::Matrix<float,dim,1>  VectorDim;
-
-//        enum ColorScheme {colorBurgers=0,colorSessile=1,colorNormal=2,colorEdgeScrew=3,colorComponent=4};
-//
-//        
-//        VectorDim planeNormal;
-//        VectorDim burgers;
-//        VectorDim chord;
-//        VectorDim colorVector;
-//        
-//        //    http://www.vtk.org/Wiki/VTK/Examples/Cxx/VisualizationAlgorithms/TubesWithVaryingRadiusAndColors
-//        
-//        vtkSmartPointer<vtkPoints> points;
-//        vtkSmartPointer<vtkCellArray> lines;
-//        vtkSmartPointer<vtkPolyData> polyData;
+        
         vtkSmartPointer<vtkSphereSource> sphereSource;
         vtkSmartPointer<vtkPolyDataMapper> mapper;
         vtkSmartPointer<vtkActor> actor;
-//        vtkSmartPointer<vtkTubeFilter> tubeFilter;
-//        vtkSmartPointer<vtkPolyDataMapper> tubeMapper;
-        
-        
-//        vtkSmartPointer<vtkActor> line;
-//        vtkSmartPointer<vtkActor> tube;
-//        vtkSmartPointer<vtkActorWrapper<double>> tube;
-        
-//        static double tubeRadius;
-//        static ColorScheme clr;
 
-//        /*********************************************************************/
-//        void setColor()
-//        {
-//            
-//            switch (clr)
-//            {
-//                    //                case colorSessile:
-//                    //                    colorVector(0)= isSessile? 1.0 : 0.1;
-//                    //                    colorVector(1)= isSessile? 0.5 : 0.4;
-//                    //                    colorVector(2)= isSessile? 0.0 : 0.9;
-//                    //                    break;
-//                    
-//                case colorNormal:
-//                    colorVector = planeNormal;
-////                    flipColor(colorVector);
-//                    break;
-//                    
-//                    //                case colorComponent:
-//                    //                {
-//                    //                    RGBcolor rgb(RGBmap::getColor(ids,sIDmin,sIDmax));
-//                    //                    colorVector << rgb.r, rgb.g, rgb.b;
-//                    //                }
-//                    //                    break;
-//                    
-//                    //                case colorEdgeScrew:
-//                    //                {
-//                    //                    const float u = std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized()));
-//                    //                    //                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
-//                    //                    //                            colorVector << rgb.r, rgb.g, rgb.b;
-//                    //                    colorVector=screwColor*u+edgeColor*(1-u);
-//                    //                }
-//                    //                    break;
-//                    
-//                default:
-//                    colorVector = burgers.normalized();
-////                    flipColor(colorVector);
-//                    break;
-//            }
-//            
-//            if(colorVector(0)<0.0)
-//            {
-//                colorVector*=-1;
-//            }
-//            else if(colorVector(0)==0.0)
-//            {
-//                if(colorVector(1)<0.0)
-//                {
-//                    colorVector*=-1;
-//                }
-//                else if(colorVector(1)==0.0)
-//                {
-//                    if(colorVector(2)<0.0)
-//                    {
-//                        colorVector*=-1;
-//                    }
-//                }
-//            }
-//            
-//            //			VectorDim colorVector = burgers + VectorDim::Ones(dim) * burgers.norm();
-//            colorVector = (colorVector + VectorDim::Ones(dim) * colorVector.norm()).eval();
-//            
-//            //		colorVector << 0.0f,0.6f,0.4f;
-//            colorVector.normalize();
-//            
-//            tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
-//
-//        }
-        
         /************************************************************************/
         DislocationNodeActor(const Eigen::Matrix<float,dim,1>& P) :
         /* init */ sphereSource(vtkSmartPointer<vtkSphereSource>::New()),
@@ -132,93 +42,22 @@ namespace model
         /* init */ actor(vtkSmartPointer<vtkActor>::New())
         {
             
-            
             sphereSource->SetCenter(P(0), P(1), P(2));
             sphereSource->SetRadius(DislocationSegmentActor::tubeRadius*1.2);
-//            sphereSource->SetRadius(10);
             mapper->SetInputConnection(sphereSource->GetOutputPort());
             actor->SetMapper(mapper);
-
             
-//            float alpha=0.5;
-//            
-//            chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
-//            burgers=P0T0P1T1BN.col(4);
-//            planeNormal=P0T0P1T1BN.col(5);
-//            float g = std::pow(chord.norm(),alpha);
-//            
-//            unsigned int Np = 10;      // No. of vertices
-//
-//            for (int k=0;k<Np;++k) // this may have to go to Np+1
-//            {
-//                const float u1=k*1.0/(Np-1);
-//                const float u2=u1*u1;
-//                const float u3=u2*u1;
-//                
-//                // Compute positions along axis
-//                VectorDim P =   ( 2.0f*u3-3.0f*u2+1.0f) * P0T0P1T1BN.col(0)
-//                /*************/ + g*(      u3-2.0f*u2+u1)   * P0T0P1T1BN.col(1)
-//                /*************/ +   (-2.0f*u3+3.0f*u2)      * P0T0P1T1BN.col(2)
-//                /*************/ + g*(      u3-u2)           * P0T0P1T1BN.col(3);
-//                
-////                // Compute tangents along axis
-////                tubeTangents.col(k)= (     ( 6.0f*u2-6.0f*u1)      * P0T0P1T1BN.col(0)
-////                                      /*                  */ + g*( 3.0f*u2-4.0f*u1+1.0f) * P0T0P1T1BN.col(1)
-////                                      /*                  */ +   (-6.0f*u2+6.0f*u1)      * P0T0P1T1BN.col(2)
-////                                      /*                  */ + g*( 3.0f*u2-2.0f*u1)      * P0T0P1T1BN.col(3) ).normalized();
-////                
-////                // Compute unit vectors in radial direction orthogonal to axis
-////                tubeCircles.push_back(getCircle(k));
-//                points->InsertPoint(k, P(0), P(1), P(2));
-//
-//            }
-//            
-//            lines->InsertNextCell(Np);
-//            for (int i = 0; i < Np; i++)
-//            {
-//                lines->InsertCellPoint(i);
-//            }
-//
-//            
-//            polyData->SetPoints(points);
-//            polyData->SetLines(lines);
-//            
-//            //        mapper->SetInputConnection(lines->GetOutputPort());
-//            mapper->SetInputData(polyData);
-//            line->GetProperty()->SetColor(0.0,1.0,0.0); // Give some color to the tube
-//            line->SetMapper ( mapper );
-//
-//            if(true)
-//            {
-//                tubeFilter->SetInputData(polyData);
-//                tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
-//                tubeFilter->SetNumberOfSides(10);
-//                tubeFilter->Update();
-//                tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
-//                tubeMapper->ScalarVisibilityOn();
-//                tube->SetMapper(tubeMapper);
-//                tube->GetProperty()->SetOpacity(1.0); //Make the tube have some transparency.
-//                setColor();
-//            }
-//            
         }
         
-//        /**************************************************************************/
-//        vtkSmartPointer<vtkActor> lineActor() const
-//        {
-//            return line;
-//        }
-//        
-//        /**************************************************************************/
-//        vtkSmartPointer<vtkActor> tubeActor() const
-//        {
-//             return tube;
-//        }
-        
+        /************************************************************************/
+        void modify()
+        {
+            sphereSource->SetRadius(DislocationSegmentActor::tubeRadius*1.2);
+//            sphereSource->Modified();
+        }
+
     };
     
-//    double DislocationNodeActor::tubeRadius=5.0;
-//    DislocationNodeActor::ColorScheme DislocationNodeActor::clr=DislocationNodeActor::colorBurgers;
 } // namespace model
 #endif
 

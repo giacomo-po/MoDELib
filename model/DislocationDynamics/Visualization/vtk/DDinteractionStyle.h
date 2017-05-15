@@ -13,6 +13,7 @@
 
 #include <vtkRenderWindowInteractor.h>
 #include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkInteractorStyleMultiTouchCamera.h>
 #include <vtkWindowToImageFilter.h>
 #include <vtkPNGWriter.h>
 #include <vtkBMPWriter.h>
@@ -35,7 +36,9 @@ namespace model
     //                                                                call Modified() on it if necessary) and the renderer would
     //automatically display the new points.
     
-    class DDinteractionStyle : public vtkInteractorStyleTrackballCamera
+    class DDinteractionStyle :
+    /* inherit */ public vtkInteractorStyleTrackballCamera
+//    public vtkInteractorStyleMultiTouchCamera
     {
     private:
         
@@ -47,7 +50,7 @@ namespace model
         vtkActor    *LastPickedActor;
         vtkProperty *LastPickedProperty;
         
-        
+        /*************************************************************************/
         void loadFrame()
         {
             
@@ -88,7 +91,7 @@ namespace model
                             case 0:
                             {
                                 const std::string fileName="png/image_"+std::to_string(frameID)+".png";
-                                                                std::cout<<"saving image "<<fileName<<std::endl;
+                                std::cout<<"saving image "<<fileName<<std::endl;
                                 vtkSmartPointer<vtkPNGWriter> writer = vtkSmartPointer<vtkPNGWriter>::New();
                                 writer->SetFileName(fileName.c_str());
                                 writer->SetInputConnection(windowToImageFilter->GetOutputPort());
@@ -112,7 +115,7 @@ namespace model
                             case 2:
                             {
                                 const std::string fileName="jpg/image_"+std::to_string(frameID)+".jpg";
-                                                                std::cout<<"saving image "<<fileName<<std::endl;
+                                std::cout<<"saving image "<<fileName<<std::endl;
                                 vtkSmartPointer<vtkJPEGWriter> writer = vtkSmartPointer<vtkJPEGWriter>::New();
                                 writer->SetFileName(fileName.c_str());
                                 writer->SetInputConnection(windowToImageFilter->GetOutputPort());
@@ -146,7 +149,7 @@ namespace model
         DislocationActors ddActors;
         
         
-        
+        /*************************************************************************/
         DDinteractionStyle() :
         /* init list   */ frameID(0),
         /* init list   */ frameIncrement(1),
@@ -165,11 +168,13 @@ namespace model
         //
         //        }
         
+        /*************************************************************************/
         virtual ~DDinteractionStyle()
         {
             LastPickedProperty->Delete();
         }
         
+        /*************************************************************************/
         virtual void OnLeftButtonDown()
         {
             int* clickPos = this->GetInteractor()->GetEventPosition();
@@ -200,6 +205,14 @@ namespace model
             vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
         }
         
+        /*************************************************************************/
+        virtual void OnChar()
+        {/*! Overrides vtkInteractorStyleTrackballCamera::OnChar()
+          * to avoid exiting the program on pressing "e"
+          */
+        }
+        
+        /*************************************************************************/
         virtual void OnKeyPress()
         {
             // Get the keypress
@@ -208,7 +221,13 @@ namespace model
             std::string key = rwi->GetKeySym();
             
             // Output the key that was pressed
-             //      std::cout << "Pressed " << key << std::endl;
+            //      std::cout << "Pressed " << key << std::endl;
+            
+            if(key == "Escape")
+            {
+                std::cout << "Exiting DDvtk, bye." << std::endl;
+                exit(0);
+            }
             
             // Handle an arrow key
             if(key == "Up")
@@ -221,6 +240,13 @@ namespace model
             {
                 frameID+=frameIncrement;
                 loadFrame();
+            }
+            
+            if(key == "e")
+            {
+                selectedKey="e";
+                std::cout<<"selecting objects: dislocation segments"<<std::endl;
+                std::cout<<"    +/- to increase tube radius"<<std::endl;
             }
             
             if(key == "i")
@@ -249,7 +275,9 @@ namespace model
             if(key == "m")
             {
                 selectedKey="m";
-                std::cout<<"selecting mesh"<<std::endl;
+                std::cout<<"selecting objects: mesh"<<std::endl;
+                std::cout<<"    +/- to increase mesh displacement"<<std::endl;
+
                 //                std::cout<<"Enter frame# to load:"<<std::endl;
                 //                std::cin>>frameID;
                 //                loadFrame();
@@ -264,27 +292,68 @@ namespace model
             }
             
             
+            if(selectedKey=="e")
+            {
+//                std::cout<<"I'm here -1"<<std::endl;
+
+                if(key == "equal")
+                {
+//                    std::cout<<"I'm here 0"<<std::endl;
+                    DislocationSegmentActor::tubeRadius*=2.0;
+//                    std::cout<<"I'm here 1"<<std::endl;
+                    std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
+                    ddActors.modify();
+                    this->Interactor->Render();
+                }
+                if(key == "minus")
+                {
+                    DislocationSegmentActor::tubeRadius*=0.5;
+                    std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
+                    ddActors.modify();
+                    this->Interactor->Render();
+                }
+                
+            }
+            
             if(selectedKey=="m")
             {
                 if(key == "equal")
                 {
                     SimplicialMeshActor::dispCorr*=2.0;
+                    std::cout<<"displacement amplification="<<SimplicialMeshActor::dispCorr<<std::endl;
                     meshActor.modifyPts();
                     this->Interactor->Render();
                 }
                 if(key == "minus")
                 {
                     SimplicialMeshActor::dispCorr*=0.5;
+                    std::cout<<"displacement amplification="<<SimplicialMeshActor::dispCorr<<std::endl;
                     meshActor.modifyPts();
-                                        this->Interactor->Render();
+                    this->Interactor->Render();
                 }
-
+                
             }
             
-
+            
             
             // Forward events
             vtkInteractorStyleTrackballCamera::OnKeyPress();// use base class OnKeyPress()
+            /*
+             http://www.vtk.org/doc/nightly/html/classvtkInteractorStyle.htmlf
+             Keypress j / Keypress t: toggle between joystick (position sensitive) and trackball (motion sensitive) styles. In joystick style, motion occurs continuously as long as a mouse button is pressed. In trackball style, motion occurs when the mouse button is pressed and the mouse pointer moves.
+             Keypress c / Keypress a: toggle between camera and actor modes. In camera mode, mouse events affect the camera position and focal point. In actor mode, mouse events affect the actor that is under the mouse pointer.
+             Button 1: rotate the camera around its focal point (if camera mode) or rotate the actor around its origin (if actor mode). The rotation is in the direction defined from the center of the renderer's viewport towards the mouse position. In joystick mode, the magnitude of the rotation is determined by the distance the mouse is from the center of the render window.
+             Button 2: pan the camera (if camera mode) or translate the actor (if actor mode). In joystick mode, the direction of pan or translation is from the center of the viewport towards the mouse position. In trackball mode, the direction of motion is the direction the mouse moves. (Note: with 2-button mice, pan is defined as <Shift>-Button 1.)
+             Button 3: zoom the camera (if camera mode) or scale the actor (if actor mode). Zoom in/increase scale if the mouse position is in the top half of the viewport; zoom out/decrease scale if the mouse position is in the bottom half. In joystick mode, the amount of zoom is controlled by the distance of the mouse pointer from the horizontal centerline of the window.
+             Keypress 3: toggle the render window into and out of stereo mode. By default, red-blue stereo pairs are created. Some systems support Crystal Eyes LCD stereo glasses; you have to invoke SetStereoTypeToCrystalEyes() on the rendering window.
+             Keypress e: exit the application.
+             Keypress f: fly to the picked point
+             Keypress p: perform a pick operation. The render window interactor has an internal instance of vtkCellPicker that it uses to pick.
+             Keypress r: reset the camera view along the current view direction. Centers the actors and moves the camera so that all actors are visible.
+             Keypress s: modify the representation of all actors so that they are surfaces.
+             Keypress u: invoke the user-defined function. Typically, this keypress will bring up an interactor that you can type commands in. Typing u calls UserCallBack() on the vtkRenderWindowInteractor, which invokes a vtkCommand::UserEvent. In other words, to define a user-defined callback, just add an observer to the vtkCommand::UserEvent on the vtkRenderWindowInteractor object.
+             Keypress w: modify the representation of all actors so that they are wireframe.
+             */
         }
         
     };

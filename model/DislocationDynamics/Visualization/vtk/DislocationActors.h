@@ -79,6 +79,8 @@ namespace model
         void clear()
         {
             segmentActors().clear();
+            nodeActors().clear();
+
         }
         
         std::deque<DislocationNodeActor>& nodeActors()
@@ -228,6 +230,21 @@ namespace model
             }
             
             
+        }
+        
+        /*************************************************************************/
+        void modify()
+        {
+            
+            for(auto& segment : segmentActors())
+            {
+                segment.modify();
+            }
+            
+            for(auto& node : nodeActors())
+            {
+                node.modify();
+            }
         }
         
     };

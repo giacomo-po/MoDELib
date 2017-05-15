@@ -51,11 +51,11 @@ namespace model
         vtkSmartPointer<vtkActor> tube;
 //        vtkSmartPointer<vtkActorWrapper<double>> tube;
         
-        static double tubeRadius;
+        static float tubeRadius;
         static ColorScheme clr;
 
         /*********************************************************************/
-        void setColor()
+        void computeColor()
         {
             
             switch (clr)
@@ -118,7 +118,6 @@ namespace model
             //		colorVector << 0.0f,0.6f,0.4f;
             colorVector.normalize();
             
-            tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
 
         }
         
@@ -192,7 +191,9 @@ namespace model
                 tubeMapper->ScalarVisibilityOn();
                 tube->SetMapper(tubeMapper);
                 tube->GetProperty()->SetOpacity(1.0); //Make the tube have some transparency.
-                setColor();
+                computeColor();
+                tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
+
             }
             
         }
@@ -209,9 +210,21 @@ namespace model
              return tube;
         }
         
+        void modify()
+        {
+            line->GetProperty()->SetColor(0.0,1.0,0.0); // Give some color to the tube
+//            line->Modified();
+            
+            tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
+            computeColor();
+            tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
+//            tube->Modified();
+
+        }
+        
     };
     
-    double DislocationSegmentActor::tubeRadius=5.0;
+    float DislocationSegmentActor::tubeRadius=5.0;
     DislocationSegmentActor::ColorScheme DislocationSegmentActor::clr=DislocationSegmentActor::colorBurgers;
 } // namespace model
 #endif
