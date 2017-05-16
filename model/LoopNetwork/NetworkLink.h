@@ -19,7 +19,7 @@ namespace model
 {
     template<typename Derived>
     class NetworkLink : public CRTP<Derived>,
-    /*               */ private std::set<const LoopLink<Derived>*>
+    /*               */ private std::set<LoopLink<Derived>*>
     {
         
         public:
@@ -29,7 +29,8 @@ namespace model
         typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef typename TypeTraits<Derived>::LoopType LoopType;
         typedef LoopLink<Derived> LoopLinkType;
-        typedef std::set<const LoopLinkType*> LoopLinkContainerType;
+//        typedef std::set<const LoopLinkType*> LoopLinkContainerType;
+        typedef std::set<LoopLinkType*> LoopLinkContainerType;
         
         
 //        const NodeType* const source;
@@ -89,14 +90,14 @@ namespace model
         
         
         /**********************************************************************/
-        void addLink(const LoopLinkType* const pL)
+        void addLink(LoopLinkType* const pL)
         {
             const bool success=loopLinks().insert(pL).second;
             assert(success && "Could not insert LoopLink in NetworkLink");
         }
         
         /**********************************************************************/
-        void removeLink(const LoopLinkType* const pL)
+        void removeLink(LoopLinkType* const pL)
         {
             const size_t erased=loopLinks().erase(pL);
             assert(erased==1 && "Could not erase LoopLink from NetworkLink");

@@ -111,44 +111,59 @@ int main()
 
     Dnetwork DN;
     
-    
-    for(int i=0;i<8;++i)
+    int nNodes=4;
+    for(int i=0;i<nNodes;++i)
     {
         DN.insertDanglingNode();
 //        nodeIDs.push_back(id);
     }
     
     
+//    std::vector<size_t> loop0={0,1,2,3,4,5,6,7};
     std::vector<size_t> loop0={0,1,2,3};
-    std::vector<size_t> loop1={0,3,4,5};
-    std::vector<size_t> loop2={6,7};
-    
-    
-    DN.insertLoop(loop0,0.2);
-    DN.insertLoop(loop1,4.5);
-    DN.insertLoop(loop2,2.3);
+//        std::vector<size_t> loop2={8,9,10,11};
+    //  std::vector<size_t> loop1={};
 
+    DN.insertLoop(loop0,0.2);
+//    DN.insertLoop(loop1,0.2);
+//    DN.insertLoop(loop2,0.2);
+   
     DN.clearDanglingNodes();
+
     
+//    DN.merge(0,1,4,5);
+    DN.merge(0,1,3,2);
+    
+//    std::vector<size_t> loop1={0,3,4,5};
+//    std::vector<size_t> loop2={6,7};
+//    
+//    
+//    DN.insertLoop(loop0,0.2);
+//    DN.insertLoop(loop1,4.5);
+//    DN.insertLoop(loop2,2.3);
+//
+//
+    
+    std::cout<<"# loops="<<DN.loops().size()<<std::endl;
     std::cout<<"# nodes="<<DN.nodes().size()<<std::endl;
     std::cout<<"# loopLinks="<<DN.loopLinks().size()<<std::endl;
     std::cout<<"# networkLinks="<<DN.links().size()<<std::endl;
-    
-    std::cout<<"Expanding"<<std::endl;
-    DN.expand(3,4);
-    
-    DN.contract(0,1);
-    DN.contract(0,2);
-    
-    DN.contract(0,5);
-    DN.contract(0,4);
-    DN.contract(0,8);
-    
-    std::cout<<"# nodes="<<DN.nodes().size()<<std::endl;
-    std::cout<<"# loopLinks="<<DN.loopLinks().size()<<std::endl;
-    std::cout<<"# networkLinks="<<DN.links().size()<<std::endl;
-    
-    DN.checkLoops();
+//
+//    std::cout<<"Expanding"<<std::endl;
+//    DN.expand(3,4);
+//    
+//    DN.contract(0,1);
+//    DN.contract(0,2);
+//    
+//    DN.contract(0,5);
+//    DN.contract(0,4);
+//    DN.contract(0,8);
+//    
+//    std::cout<<"# nodes="<<DN.nodes().size()<<std::endl;
+//    std::cout<<"# loopLinks="<<DN.loopLinks().size()<<std::endl;
+//    std::cout<<"# networkLinks="<<DN.links().size()<<std::endl;
+//    
+//    DN.checkLoops();
     
     
     for(const auto& node : DN.nodes())

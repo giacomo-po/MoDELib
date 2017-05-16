@@ -11,6 +11,9 @@
 
 #include <memory>
 #include <iterator>
+#include <model/MPI/MPIcout.h>
+
+#define VerboseLoopLink(N,x) if(verboseLevel>=N){model::cout<<x;}
 
 namespace model
 {
@@ -23,35 +26,36 @@ namespace model
         
     public:
         
+        static int verboseLevel;
         
         LoopLink(const LoopLink&) =delete;
         
-//        const LoopNodeType* const source;
-//        const LoopNodeType* const sink;
+        //        const LoopNodeType* const source;
+        //        const LoopNodeType* const sink;
         std::shared_ptr<LoopNodeType> source;
         std::shared_ptr<LoopNodeType> sink;
         
-
+        
         std::shared_ptr<LoopType> pLoop;
         std::shared_ptr<LinkType> pLink;
-
+        
         LoopLink* prev;
         LoopLink* next;
-
-//        /**********************************************************************/
-//        LoopLink(const LoopNodeType* const so,
-//                 const LoopNodeType* const si,
-//                 const std::shared_ptr<LoopType>& pL) :
-//        /* init */ source(so),
-//        /* init */ sink(si),
-//        /* init */ pLoop(pL),
-//        /* init */ pLink(pLoop->loopNetwork.pLink(source,sink))
-//        {
-////            std::cout<<"Constructing LoopLink "<<source->sID<<" "<<sink->sID<<std::endl;
-//            pLoop->addLink(this);
-//            pLink->addLink(this);
-//            
-//        }
+        
+        //        /**********************************************************************/
+        //        LoopLink(const LoopNodeType* const so,
+        //                 const LoopNodeType* const si,
+        //                 const std::shared_ptr<LoopType>& pL) :
+        //        /* init */ source(so),
+        //        /* init */ sink(si),
+        //        /* init */ pLoop(pL),
+        //        /* init */ pLink(pLoop->loopNetwork.pLink(source,sink))
+        //        {
+        ////            std::cout<<"Constructing LoopLink "<<source->sID<<" "<<sink->sID<<std::endl;
+        //            pLoop->addLink(this);
+        //            pLink->addLink(this);
+        //
+        //        }
         
         /**********************************************************************/
         LoopLink(const std::shared_ptr<LoopNodeType>& so,
@@ -64,7 +68,7 @@ namespace model
         /* init */ prev(nullptr),
         /* init */ next(nullptr)
         {
-//                        std::cout<<"Constructing LoopLink "<<source->sID<<"->"<<sink->sID<<std::endl;
+            VerboseLoopLink(1,"Constructing LoopLink "<<source->sID<<"->"<<sink->sID<<std::endl);
             pLoop->addLink(this);
             pLink->addLink(this);
             
@@ -75,33 +79,60 @@ namespace model
         /**********************************************************************/
         ~LoopLink()
         {
-//            std::cout<<"Destroying LoopLink "<<source->sID<<" "<<sink->sID<<std::endl;
+            VerboseLoopLink(1,"Destroying LoopLink "<<source->sID<<" "<<sink->sID<<std::endl);
             pLoop->removeLink(this);
             pLink->removeLink(this);
             
             source->removeLoopLink(this);
             sink->removeLoopLink(this);
-
+            
         }
         
-//        /**********************************************************************/
-//        const LoopLink* const previous() const
-//        {
-//            const auto iter=pLoop->links().find(std::make_pair(source->sID,source->sID));
-//            assert(iter!=pLoop->links().end() && "LoopLink not found in Loop.");
-//            return (iter==pLoop->links().begin())? pLoop->links().rbegin()->second : std::prev(iter)->second;
-//        }
-//
-//        /**********************************************************************/
-//        const LoopLink* const next() const
-//        {
-//            const auto iter=pLoop->links().find(std::make_pair(source->sID,source->sID));
-//            assert(iter!=pLoop->links().end() && "LoopLink not found in Loop.");
-//            return (iter==pLoop->links().rbegin())? pLoop->links().begin()->second : std::next(iter)->second;
-//        }
-
+        /**********************************************************************/
+        void resetLoop(const std::shared_ptr<LoopType>& pL)
+        {
+            if(pL.get()!=pLoop.get())
+            {
+                VerboseLoopLink(1,"LoopLink "<<source->sID<<"->"<<sink->sID<<", resetting loop"<<std::endl);
+                
+                pLoop->removeLink(this);
+                pLoop=pL;
+                pLoop->addLink(this);
+                if(next!=nullptr)
+                {
+                    next->resetLoop(pLoop);
+                }
+                else
+                {
+                    if(prev!=nullptr)
+                    {
+                        prev->resetLoop(pLoop);
+                    }
+                }
+            }
+            
+        }
+        
+        //        /**********************************************************************/
+        //        const LoopLink* const previous() const
+        //        {
+        //            const auto iter=pLoop->links().find(std::make_pair(source->sID,source->sID));
+        //            assert(iter!=pLoop->links().end() && "LoopLink not found in Loop.");
+        //            return (iter==pLoop->links().begin())? pLoop->links().rbegin()->second : std::prev(iter)->second;
+        //        }
+        //
+        //        /**********************************************************************/
+        //        const LoopLink* const next() const
+        //        {
+        //            const auto iter=pLoop->links().find(std::make_pair(source->sID,source->sID));
+        //            assert(iter!=pLoop->links().end() && "LoopLink not found in Loop.");
+        //            return (iter==pLoop->links().rbegin())? pLoop->links().begin()->second : std::next(iter)->second;
+        //        }
+        
     };
     
+    template<typename LinkType>
+    int LoopLink<LinkType>::verboseLevel=1;
     
 }
 #endif
