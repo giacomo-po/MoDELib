@@ -48,7 +48,8 @@ namespace model
 			for (size_t k=0;k<rV.size();++k)
             {
 				//this->insert(std::make_pair(rV[k].first,rV[k].second));
-                assert(this->insert(std::make_pair(rV[k].first,rV[k].second)).second && "COULD NOT INSERT VERTEX AFTER BINARY READ.");
+                const bool inserted=this->insert(std::make_pair(rV[k].first,rV[k].second)).second;
+                assert(inserted && "COULD NOT INSERT VERTEX AFTER BINARY READ.");
 			}
 			std::cout<<" ("<<this->size()<<" vertices) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
 		}

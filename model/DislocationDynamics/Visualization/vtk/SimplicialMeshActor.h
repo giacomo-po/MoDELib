@@ -125,35 +125,41 @@ namespace model
                         gbPoints->InsertNextPoint ( vM(0,2), vM(1,2), vM(2,2) );
 
                         vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
-//                        triangle->GetPointIds()->SetId (triPtID+0,triPtID+0);
-//                        triangle->GetPointIds()->SetId (triPtID+1,triPtID+1);
-//                        triangle->GetPointIds()->SetId (triPtID+2,triPtID+2);
-
                         triangle->GetPointIds()->SetId (0,triPtID+0);
                         triangle->GetPointIds()->SetId (1,triPtID+1);
                         triangle->GetPointIds()->SetId (2,triPtID+2);
 
-                        gbColors->InsertNextTypedTuple(clr);
-                        gbColors->InsertNextTypedTuple(clr);
-                        gbColors->InsertNextTypedTuple(clr);
+//                        gbColors->InsertNextTypedTuple(clr); // use this to assig color to each vertex
+//                        gbColors->InsertNextTypedTuple(clr); // use this to assig color to each vertex
+//                        gbColors->InsertNextTypedTuple(clr); // use this to assig color to each vertex
 
-                        
-                        
-                        triPtID+=3;
-                        
                         gbTriangles->InsertNextCell ( triangle );
-                        
+
+                        triPtID+=3;
                     }
                 }
                 gbTrianglePolyData->SetPoints ( gbPoints );
                 gbTrianglePolyData->SetPolys ( gbTriangles );
-                gbTrianglePolyData->GetCellData()->SetScalars(gbColors);
+//                gbTrianglePolyData->GetCellData()->SetScalars(gbColors); // use this to assig color to each vertex
 
                 gbMapper->SetInputData(gbTrianglePolyData);
                 gbActor->SetMapper(gbMapper);
                 gbActor->GetProperty()->SetOpacity(0.1);
+                gbActor->GetProperty()->SetColor(0.0,0.4,0.4);
+
 
                 renderer->AddActor(gbActor);
+                
+                // to show triangle edges:
+                // http://stackoverflow.com/questions/7548966/how-to-display-only-triangle-boundaries-on-textured-surface-in-vtk
+                // or loop over SimplexObserver<3,1>
+//                for(const auto& edge : SimplexObserver<3,1>::simplices())
+//                {
+//                    if(edge.second->isRegionBoundarySimplex())
+//                    {
+//                        
+//                    }
+//                }
             }
 
 

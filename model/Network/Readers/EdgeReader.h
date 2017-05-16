@@ -111,7 +111,8 @@ namespace model
 			for (unsigned int k=0;k<rE.size();++k)
             {
 //				this->insert(std::make_pair(rE[k].first,rE[k].second));
-				assert(this->insert(std::make_pair(rE[k].first,rE[k].second)).second && "COULD NOT INSERT EDGE AFTER BINARY READ.");
+                const bool inserted=this->insert(std::make_pair(rE[k].first,rE[k].second)).second;
+				assert(inserted && "COULD NOT INSERT EDGE AFTER BINARY READ.");
 			}
 			std::cout<<" ("<<this->size()<<" edges) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
             return rE.success();
