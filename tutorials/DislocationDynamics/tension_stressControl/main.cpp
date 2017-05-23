@@ -24,7 +24,8 @@ int main (int argc, char* argv[])
     DislocationNetworkType DN(argc,argv);
     
     // Run time steps
-    DN.runSteps();
+    //DN.runSteps();
+    DN.runDDD();
     
     return 0;
 }

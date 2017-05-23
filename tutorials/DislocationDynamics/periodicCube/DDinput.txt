@@ -1,5 +1,7 @@
 ######################################
 # Number of simulation steps 
+timeWindow=1e10;
+fix_totalstep=1;
 Nsteps=100000;
 startAtTimeStep = -1;
 use_directSolver_DD=0;
@@ -28,7 +30,7 @@ outputDislocationLength=1;
 outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
 outputQuadratureParticles=0;
-
+outputNodalVelocity=0;
 ######################################
 # MATERIAL
 # Choose a material by its atomic number (Z), for example Al=13; Ni=28; Cu=29;

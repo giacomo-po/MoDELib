@@ -23,7 +23,8 @@ int main (int argc, char* argv[])
     //DislocationNetwork<3,1,CatmullRom,16,GaussLegendre> DN(argc,argv);
 
     // Run time steps
-    DN.runSteps();
+    //DN.runSteps();
+    DN.runDDD();
     
 
 	

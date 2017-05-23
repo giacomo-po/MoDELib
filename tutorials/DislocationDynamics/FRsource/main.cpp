@@ -18,7 +18,8 @@ int main (int argc, char* argv[])
     DislocationNetwork<3,1,CatmullRom,UniformOpen> DN(argc,argv);
 
     // Run the simulation
-    DN.runSteps();
+    //DN.runSteps();
+    DN.runDDD();
     
     return 0;
 }

@@ -39,7 +39,8 @@ int main (int argc, char* argv[])
 //    EDR.readScalarInFile("./punchInput.txt","relaxSteps",FlatPunch::relaxSteps);
     
     // Run time steps
-    DN.runSteps();
+    //DN.runSteps();
+    DN.runDDD();
     
     return 0;
 }

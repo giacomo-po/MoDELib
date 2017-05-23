@@ -1,5 +1,7 @@
 ######################################
 # Number of simulation steps 
+timeWindow=1e10;
+fix_totalstep=1;
 Nsteps=100000;
 startAtTimeStep = -1;
 use_directSolver_DD=0;
@@ -17,7 +19,7 @@ velocityReductionFactor=0.75;
 # OUTPUT
 # Options for output files:
 outputFrequency=10;
-outputBinary=1;
+outputBinary=0;
 outputNodalVelocity=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
@@ -29,6 +31,7 @@ outputFEMsolution=0;
 outputDislocationLength=0;
 outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
+outputNodalVelocity=0;
 
 
 ######################################
