@@ -19,7 +19,7 @@
 #include <vtkBMPWriter.h>
 #include <vtkJPEGWriter.h>
 #include <vtkPropPicker.h>
-
+#include <vtkRendererCollection.h>
 
 #include <model/Network/Readers/VertexReader.h>
 #include <model/Network/Readers/EdgeReader.h>
@@ -41,6 +41,11 @@ namespace model
 //    public vtkInteractorStyleMultiTouchCamera
     {
     private:
+        
+        int xCol;
+        int yCol;
+        
+        double winFrac;
         
         std::string selectedKey;
         bool saveImage=false;
@@ -151,6 +156,9 @@ namespace model
         
         /*************************************************************************/
         DDinteractionStyle() :
+        xCol(0),
+        yCol(0),
+        winFrac(0.5),
         /* init list   */ frameID(0),
         /* init list   */ frameIncrement(1),
         /* init list   */ currentFrameID(0)
@@ -242,6 +250,40 @@ namespace model
                 loadFrame();
             }
             
+            if(key == "Right")
+            {
+                winFrac+=0.1;
+                if(winFrac>1.0)
+                {
+                    winFrac=1.0;
+                }
+                this->CurrentRenderer->SetViewport(0.0,0,winFrac,1);
+                rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->SetViewport(winFrac,0,1,1);
+//                rwi->GetRenderWindow()->GetRenderers()->GetNextItem()->SetViewport(0.0,0,1.0-winFrac,1);
+
+                //loadFrame();
+                this->CurrentRenderer->Render();
+                rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->Render();
+
+                this->Interactor->Render();
+            }
+            
+            if(key == "Left")
+            {                winFrac-=0.1;
+                if(winFrac<0.0)
+                {
+                    winFrac=0.0;
+                }
+                    
+                this->CurrentRenderer->SetViewport(0.0,0,winFrac,1);
+                rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->SetViewport(winFrac,0,1,1);
+//                rwi->GetRenderWindow()->GetRenderers()->GetNextItem()->SetViewport(0.0,0,1.0-winFrac,1);
+                //this->CurrentRenderer->SetViewport(0.0,0,winFrac,1);
+                this->CurrentRenderer->Render();
+                rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->Render();
+                this->Interactor->Render();
+            }
+            
             if(key == "e")
             {
                 selectedKey="e";
@@ -290,7 +332,32 @@ namespace model
                 saveImage=!saveImage;
                 std::cout<<"Saving image="<<saveImage<<std::endl;
             }
+
             
+            if(key == "x")
+            {
+                std::cout<<"Enter column of x-axis data:"<<std::endl;
+                int temp;
+                std::cin>>temp;
+                if(temp>0)
+                {
+                    xCol=temp;
+                }
+//                loadFrame();
+            }
+            
+            if(key == "y")
+            {
+                std::cout<<"Enter column of y-axis data:"<<std::endl;
+                int temp;
+                std::cin>>temp;
+                if(temp>0)
+                {
+                    yCol=temp;
+                }
+                //                loadFrame();
+            }
+
             
             if(selectedKey=="e")
             {
