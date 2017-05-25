@@ -459,12 +459,12 @@ namespace model
         
         //! The object conataing shared data
         DislocationSharedObjectsType shared;
-        bool fix_totalstep;
+        int runType;
         //! The number of simulation steps taken by the next call to runSteps()
         int Nsteps;
         
         //! The simulation time run run foby the next call to runTime()
-        double timeWindow;
+        double targetTime;
         
         //! The accumulated plastic distortion
         MatrixDimD plasticDistortion;
@@ -485,9 +485,9 @@ namespace model
         /* init list  */ vmaxnodenumber(0),
         /* init list  */ vmaxfilter(0.0),
         /* init list  */ surfaceNucleationModel(0),
-        /* init list  */ fix_totalstep(true),
+        /* init list  */ runType(0),
         /* init list  */ Nsteps(0),
-        /* init list  */ timeWindow(0.0),
+        /* init list  */ targetTime(0.0),
         /* init list  */ plasticDistortion(MatrixDimD::Zero())
         {
             ParticleSystemType::initMPI(argc,argv);
@@ -628,7 +628,7 @@ namespace model
             
             // Restart
 
-            EDR.readScalarInFile(fullName.str(),"fix_totalstep",fix_totalstep);
+            EDR.readScalarInFile(fullName.str(),"runType",runType);
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
             VertexReader<'F',201,double> vReader;
             Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
@@ -707,12 +707,11 @@ namespace model
             
             
             EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
-            EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
-
+            EDR.readScalarInFile(fullName.str(),"targetTime",targetTime);
+            assert(targetTime>=0.0 && "targetTime MUST BE >= 0");
             assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
             
-            //            EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
-            //            assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
+           
             
             // Check balance
             EDR.readScalarInFile(fullName.str(),"check_balance",check_balance);
@@ -740,7 +739,7 @@ namespace model
             }
 
             // Use Changing external stress field. 
-            EDR.readScalarInFile(fullName.str(),"use_externalStress",shared.use_externalStress);
+            EDR.readScalarInFile('./loadInput.txt',"use_externalStress",shared.use_externalStress);
             if (shared.use_externalStress)
             {
                  DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=18;  //put here in order for right bvp restart
@@ -945,14 +944,19 @@ namespace model
         /**********************************************************************/
         void runDDD()
         {
-           if (fix_totalstep)
-           {
-                 runSteps();
-           }
-           else
-           {
-                 runTimes();
-            }
+			switch (runType)
+			{
+				case 1:
+				{
+					runTimes();
+					break;
+				}
+				default:
+				{
+					runSteps();
+					break;
+				}
+			}
 
         }
         /**********************************************************************/
@@ -974,13 +978,13 @@ namespace model
         {/*! Runs specific simulation times 
           */
             const auto t0= std::chrono::system_clock::now();
-            while (totalTime<timeWindow)
+            while (totalTime<targetTime)
             {
                 model::cout<<std::endl; // leave a blank line
                 singleStep();
             }
             updateQuadraturePoints(); // necessary if quadrature data are necessary in main
-            model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<timeWindow<< " simulation time is reached in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
+            model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<targetTime<< " simulation time is reached in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
         }       
         /**********************************************************************/
         void checkBalance() const

@@ -1,18 +1,20 @@
 ######################################
 # Settings for  ExternalStressController (a uniform stress felt by dislocations)
+use_externalStress=0; 
 ExternalStress0 = 0.0 0.0 0.0
-		  0.0 0.0 0.0
-		  0.0 0.0 0.01;
+		 0.0 0.0 0.0
+		 0.0 0.0 0.0;
 ExternalStressRate = 0.0 0.0 0.0
-		     0.0 0.0 0.0
-		     0.0 0.0 0.0;
+		 0.0 0.0 0.0
+		 0.0 0.0 0.0;
 ExternalStrain0 = 0.0 0.0 0.0
-		  0.0 0.0 0.0
-		  0.0 0.0 0.0;
+		 0.0 0.0 0.0
+		 0.0 0.0 0.0;
 ExternalStrainRate = 0.0 0.0 0.0
-		     0.0 0.0 0.0
-		     0.0 0.0 0.0;
-#MachineStiffnessRatio=0 means pure stress control,  MachineStiffnessRatio=infinity (such as 1e20) means pure strain control
+		 0.0 0.0 0.0
+		 0.0 0.0 0.0;
+# MachineStiffnessRatio=0 means pure stress control,  
+# MachineStiffnessRatio=infinity (such as 1e20) means pure strain control
 MachineStiffnessRatio=0.0;
 relaxSteps=0;
 ######################################

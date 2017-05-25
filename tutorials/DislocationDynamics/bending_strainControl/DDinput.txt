@@ -1,8 +1,9 @@
 ######################################
-# Number of simulation steps 
-timeWindow=1e10;
-fix_totalstep=1;
+# runType=0 runs a number of DD steps defined by Nsteps. 
+# runType=1 runs as many DD steps as needed to reach a simulation time totalTime
+runType=0;
 Nsteps=100000;
+targetTime=1e10;
 startAtTimeStep = -1;
 use_directSolver_DD=0;
 quadPerLength=0.1;
@@ -19,7 +20,7 @@ velocityReductionFactor=0.75;
 # OUTPUT
 # Options for output files:
 outputFrequency=10;
-outputBinary=0;
+outputBinary=1;
 outputNodalVelocity=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
