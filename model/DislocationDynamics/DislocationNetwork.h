@@ -400,12 +400,14 @@ namespace model
         /**********************************************************************/
         void make_bndNormals()
         {
-            for(auto& node : this->nodes())
+            if (shared.use_boundary)
             {
-                node.second.make_bndNormal();
+		    for(auto& node : this->nodes())
+		    {
+		        node.second.make_bndNormal();
+		    }
             }
         }
-        
         /**********************************************************************/
         void removeBoundarySegments()
         {/*! Removes DislocationSegment(s) on the mesh boundary
