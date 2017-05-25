@@ -739,7 +739,7 @@ namespace model
             }
 
             // Use Changing external stress field. 
-            EDR.readScalarInFile('./loadInput.txt',"use_externalStress",shared.use_externalStress);
+            EDR.readScalarInFile("./loadInput.txt","use_externalStress",shared.use_externalStress);
             if (shared.use_externalStress)
             {
                  DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=18;  //put here in order for right bvp restart
