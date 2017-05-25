@@ -138,7 +138,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void forceBoundaryNode(const ExpandingEdge<LinkType>& pL)
+        void forceBoundaryNode(const EdgeRef<LinkType>& pL)
         {
             if(shared.use_boundary)
             {
@@ -274,7 +274,7 @@ namespace model
         }
         
         /**********************************************************************/
-        DislocationNode(const ExpandingEdge<LinkType>& pL,
+        DislocationNode(const EdgeRef<LinkType>& pL,
                         const LatticeVectorType& Lin) :
         /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
         /* init list        */ L(Lin),
@@ -284,14 +284,14 @@ namespace model
         /* init list        */ velocityReductionCoeff(0.5*(pL.E.source->velocityReduction()+pL.E.sink->velocityReduction())),
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
-        {/*! Constructor from ExpandingEdge and DOF
+        {/*! Constructor from EdgeRef and DOF
           */
             //            std::cout<<"DislocationNode from ExpadingLink A "<<this->sID<<std::endl;
             forceBoundaryNode(pL);
         }
         
         /**********************************************************************/
-        DislocationNode(const ExpandingEdge<LinkType>& pL,
+        DislocationNode(const EdgeRef<LinkType>& pL,
                         const LatticeVectorType& Lin,
                         const VectorDofType& Vin) :
         /* base constructor */ NodeBaseType(pL,Lin.cartesian()),

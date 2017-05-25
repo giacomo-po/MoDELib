@@ -138,9 +138,9 @@ namespace model
 			makeTopologyChange();
         }
 		
-		/* Constructor from ExpandingEdge *************************************/
+		/* Constructor from EdgeRef *************************************/
 		NetworkLink(const std::pair<NodeType* const,NodeType* const> & NodePair_in,
-		/*       */ const ExpandingEdge<LinkType>& ee) :
+		/*       */ const EdgeRef<LinkType>& ee) :
 		/* init list */ source(NodePair_in.first), 
 		/* init list */ sink(NodePair_in.second),
 		/* init list */ nodeIDPair(std::make_pair(source->sID,sink->sID)),

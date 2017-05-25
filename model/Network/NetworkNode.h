@@ -148,7 +148,7 @@ namespace model {
         }
         
         /**********************************************************************/
-        NetworkNode(const ExpandingEdge<LinkType>& ee) :
+        NetworkNode(const EdgeRef<LinkType>& ee) :
         /* init list */ psn(ee.E.pSN())
         {/*! Costructor from EdgeExpansion
           */

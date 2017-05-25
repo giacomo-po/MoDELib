@@ -70,7 +70,7 @@ namespace model
             set(this->get_P()); // trigger calculation of tangents
         }
         
-        SplineNode(const ExpandingEdge<LinkType>& pL, const double& u) :
+        SplineNode(const EdgeRef<LinkType>& pL, const double& u) :
         /* init list */ NetworkNode<Derived>::NetworkNode(pL),
         /* init list */ SplineNodeBaseType(pL.E.get_r(u),VectorDim::Zero())
         {
@@ -78,7 +78,7 @@ namespace model
             set(this->get_P()); // trigger calculation of tangents
         }
         
-        SplineNode(const ExpandingEdge<LinkType>& pL, const VectorDim& P_in) :
+        SplineNode(const EdgeRef<LinkType>& pL, const VectorDim& P_in) :
         /* init list */ NetworkNode<Derived>::NetworkNode(pL),
         /* init list */ SplineNodeBaseType(P_in,VectorDim::Zero())
         {

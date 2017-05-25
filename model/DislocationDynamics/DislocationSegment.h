@@ -75,7 +75,7 @@ namespace model
         static const LatticePlaneBase& find_glidePlane(const LatticeVectorType& sourceL,
                                          const LatticeVectorType& sinkL,
                                          const LatticeVectorType& Burgers,
-                                         const ExpandingEdge<LinkType>& ee)
+                                         const EdgeRef<LinkType>& ee)
         {
         
             const LatticeVectorType& linkSourceL=ee.E.source->get_L();
@@ -93,7 +93,7 @@ namespace model
         static const LatticePlaneBase& find_sessilePlane(const LatticeVectorType& sourceL,
                                            const LatticeVectorType& sinkL,
                                            const LatticeVectorType& Burgers,
-                                           const ExpandingEdge<LinkType>& ee)
+                                           const EdgeRef<LinkType>& ee)
         {
             
             const LatticeVectorType& linkSourceL=ee.E.source->get_L();
@@ -123,7 +123,7 @@ namespace model
         PlanarDislocationSegment(const LatticeVectorType& sourceL,
                                  const LatticeVectorType& sinkL,
                                  const LatticeVectorType& Burgers,
-                                 const ExpandingEdge<LinkType>& ee) :
+                                 const EdgeRef<LinkType>& ee) :
         /* init list       */   glidePlane(sourceL,  find_glidePlane(sourceL,sinkL,Burgers,ee)),
         /* init list       */ sessilePlane(sourceL,find_sessilePlane(sourceL,sinkL,Burgers,ee)),
         /* init list       */ glidePlaneNormal(glidePlane.n.cartesian().normalized()),
@@ -349,7 +349,7 @@ namespace model
         }
         
         /* Constructor from EdgeExpansion) ************************************/
-        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const ExpandingEdge<LinkType>& ee) :
+        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const EdgeRef<LinkType>& ee) :
 //        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow),
         /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow,ee),
         /* base class initialization */ SegmentBaseType::SplineSegmentBase(nodePair,ee),
@@ -359,7 +359,7 @@ namespace model
         //        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
-        {/*! Constructor with pointers to source and sink, and ExpandingEdge
+        {/*! Constructor with pointers to source and sink, and EdgeRef
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] ee the expanding edge
           */

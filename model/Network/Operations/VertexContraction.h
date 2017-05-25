@@ -107,8 +107,9 @@ namespace model
 						}
 						else
                         {
-							VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(i,k,fjk);
-						}					
+//							VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(i,k,fjk);
+                            VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(i,k,EdgeRef<EdgeType>(*std::get<1>(nIter->second)));
+                        }
 					}
 				}
 			}
@@ -143,8 +144,9 @@ namespace model
 						}
 						else
                         {
-							VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(k,i,fkj);
-						}					
+//							VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(k,i,fkj);
+                            VertexConnection<VertexType,EdgeType>(networkVertexMapRef,networkEdgeMapRef).connect(k,i,EdgeRef<EdgeType>(*std::get<1>(nIter->second)));
+                        }
 					}
 				}
 			}

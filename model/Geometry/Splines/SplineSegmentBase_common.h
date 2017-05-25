@@ -90,9 +90,9 @@ SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in,
 
 /******************************************************************************/
 SplineSegmentBase(const std::pair<NodeType*,NodeType*> & nodePair_in,
-/*             */ const ExpandingEdge<LinkType>& ee) :
+/*             */ const EdgeRef<LinkType>& ee) :
 /* init list */ NetworkLink<Derived>::NetworkLink(nodePair_in, ee)
-{/*! Constructor from ExpandingEdge
+{/*! Constructor from EdgeRef
   */
     
     
