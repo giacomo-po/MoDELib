@@ -508,34 +508,31 @@ namespace model
         {
             
             
-            
-            // Add normal to glide and sessile planes
-            
-            Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
-            VectorOfNormalsType  CN;
-            for(const auto& plane : _confiningPlanes)
-            {
-                CN.push_back(plane->n.cartesian().normalized());
-            }
-            
-            if(meshLocation()==onMeshBoundary)
-            {
-                CN.push_back(boundaryNormal);
+                // Add normal to glide and sessile planes
+                Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
+                VectorOfNormalsType  CN;
+                for(const auto& plane : _confiningPlanes)
+                {
+                    CN.push_back(plane->n.cartesian().normalized());
+                }
+                if(meshLocation()==onMeshBoundary)
+                {
+                    CN.push_back(boundaryNormal);
+                }
                 
-            }
-            
-            // Add normal to region boundary
-            //            CN.push_back(regionBndNormal);
-            
-            // Find independent vectors
-            GramSchmidt::orthoNormalize(CN);
-            
-            // Assemble projection matrix (prjM)
-            this->prjM.setIdentity();
-            for (size_t k=0;k<CN.size();++k)
-            {
-                this->prjM*=( I-CN[k]*CN[k].transpose() );
-            }
+                // Add normal to region boundary
+                //            CN.push_back(regionBndNormal);
+                
+                // Find independent vectors
+                GramSchmidt::orthoNormalize(CN);
+                
+                // Assemble projection matrix (prjM)
+                this->prjM.setIdentity();
+                for (size_t k=0;k<CN.size();++k)
+                {
+                    this->prjM*=( I-CN[k]*CN[k].transpose() );
+                }
+
             
             
         }
@@ -545,11 +542,12 @@ namespace model
         {
             vOld=velocity; // store current value of velocity before updating
             velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
-            
+           
+
             if(use_velocityFilter)
             {
                 const double filterThreshold=0.05*velocity.norm()*vOld.norm();
-                //                const double VdotVold=
+ 
                 if(velocity.dot(vOld)<-filterThreshold)
                 {
                     velocityReductionCoeff*=velocityReductionFactor;

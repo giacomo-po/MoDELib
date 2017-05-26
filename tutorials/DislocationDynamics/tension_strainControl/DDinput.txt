@@ -13,7 +13,7 @@ bndDistance=3;
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
 dx=10;
-use_velocityFilter=1;
+use_velocityFilter=0;
 velocityReductionFactor=0.75;
 
 ######################################
@@ -65,7 +65,7 @@ use_EnergyMultipole = 0;
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
 Lmax=300;
-Lmin=40;
+Lmin=80;
 
 ######################################
 # DISLOCATION JUNCTIONS
@@ -91,7 +91,7 @@ use_bvp = 10;
 use_directSolver_FEM=1;
 solverTolerance=0.0001;
 use_virtualSegments=1;
-virtualSegmentDistance=10;
+virtualSegmentDistance=200;
 
 ######################################
 # Impose that all dislocation nodes (but FR source/sink nodes) are balanced

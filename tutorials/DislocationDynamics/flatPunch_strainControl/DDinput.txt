@@ -68,7 +68,7 @@ use_EnergyMultipole = 0;
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
 Lmax=200;
-Lmin=41;
+Lmin=80;
 
 ######################################
 # DISLOCATION JUNCTIONS
@@ -98,7 +98,7 @@ solverTolerance=0.0001;
 
 ######################################
 # Impose that all dislocation nodes (but FR source/sink nodes) are balanced
-check_balance=1;
+check_balance=0;
 
 ######################################
 # Enable/disable cross-slip

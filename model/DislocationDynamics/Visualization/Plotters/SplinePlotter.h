@@ -579,10 +579,10 @@ namespace model
                         glVertex3f(vIter->second[0]+velIter->second[0]*vf,vIter->second[1]+velIter->second[1]*vf,vIter->second[2]+velIter->second[2]*vf);
                         glEnd();
                     }
-                    else
-                    {
-                        std::cout<<vIter->first<<" not found"<<std::endl;
-                    }
+                  //  else
+                  //  {
+                        //std::cout<<vIter->first<<" not found"<<std::endl;
+                   // }
                 }
                 }
                 
