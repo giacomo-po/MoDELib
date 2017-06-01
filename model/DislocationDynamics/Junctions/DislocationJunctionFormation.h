@@ -331,7 +331,24 @@ namespace model
                             const bool& L2isSessile(linkIterB->second.isSessile);
                             
                             std::set<std::pair<double,double> > temp; // the container of the roots
-                            
+                            bool checkJunction(true);
+                            if (linkIterA->second.is_boundarySegment() && linkIterB->second.is_boundarySegment())
+                            {
+								if ((linkIterA->second.glidePlaneNormal.cross(linkIterB->second.glidePlaneNormal)).norm()>FLT_EPSILON)
+								{
+									 checkJunction=false; // don't check junction between bnd segments on different planes
+								}
+								else
+								{
+									if((linkIterA->second.source->get_P()-linkIterB->second.source->get_P()).dot(linkIterA->second.glidePlaneNormal)>FLT_EPSILON)
+									{
+										checkJunction=false; // don't check junction between bnd segments on parallel offset planes
+									}
+								}
+			              }
+			              if (checkJunction)
+			              {
+
                             if (!L1isSessile && !L2isSessile) // both are glissile
                             {
                                 temp = dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol,avoidNodeIntersection);
@@ -384,7 +401,7 @@ namespace model
                                 // cannot intersect
                             }
                             
-                            
+                         }    
                             for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter)
                             {
                                 //                            if (   paramIter->first >avoidNodeIntersection && paramIter-> first<1.0-avoidNodeIntersection // THIS IS CHECKED LATER
