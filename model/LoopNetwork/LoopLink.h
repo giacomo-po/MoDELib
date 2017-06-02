@@ -23,6 +23,8 @@ namespace model
         
         typedef typename TypeTraits<LinkType>::NodeType LoopNodeType;
         typedef typename TypeTraits<LinkType>::LoopType LoopType;
+        typedef typename TypeTraits<LinkType>::FlowType FlowType;
+
         
     public:
         
@@ -32,30 +34,15 @@ namespace model
         
         //        const LoopNodeType* const source;
         //        const LoopNodeType* const sink;
-        std::shared_ptr<LoopNodeType> source;
-        std::shared_ptr<LoopNodeType> sink;
+        const std::shared_ptr<LoopNodeType> source;
+        const std::shared_ptr<LoopNodeType> sink;
         
         
         std::shared_ptr<LoopType> pLoop;
-        std::shared_ptr<LinkType> pLink;
+        const std::shared_ptr<LinkType> pLink;
         
         LoopLink* prev;
         LoopLink* next;
-        
-        //        /**********************************************************************/
-        //        LoopLink(const LoopNodeType* const so,
-        //                 const LoopNodeType* const si,
-        //                 const std::shared_ptr<LoopType>& pL) :
-        //        /* init */ source(so),
-        //        /* init */ sink(si),
-        //        /* init */ pLoop(pL),
-        //        /* init */ pLink(pLoop->loopNetwork.pLink(source,sink))
-        //        {
-        ////            std::cout<<"Constructing LoopLink "<<source->sID<<" "<<sink->sID<<std::endl;
-        //            pLoop->addLink(this);
-        //            pLink->addLink(this);
-        //
-        //        }
         
         /**********************************************************************/
         LoopLink(const std::shared_ptr<LoopNodeType>& so,
@@ -68,7 +55,7 @@ namespace model
         /* init */ prev(nullptr),
         /* init */ next(nullptr)
         {
-            VerboseLoopLink(1,"Constructing LoopLink "<<source->sID<<"->"<<sink->sID<<std::endl);
+            VerboseLoopLink(1,"Constructing LoopLink "<<source->sID<<"->"<<sink->sID<<" (loop "<<pLoop->sID<<")"<<std::endl);
             pLoop->addLink(this);
             pLink->addLink(this);
             
@@ -79,7 +66,7 @@ namespace model
         /**********************************************************************/
         ~LoopLink()
         {
-            VerboseLoopLink(1,"Destroying LoopLink "<<source->sID<<" "<<sink->sID<<std::endl);
+            VerboseLoopLink(1,"Destroying LoopLink "<<source->sID<<" "<<sink->sID<<" (loop "<<pLoop->sID<<")"<<std::endl);
             pLoop->removeLink(this);
             pLink->removeLink(this);
             
@@ -93,24 +80,35 @@ namespace model
         {
             if(pL.get()!=pLoop.get())
             {
-                VerboseLoopLink(1,"LoopLink "<<source->sID<<"->"<<sink->sID<<", resetting loop"<<std::endl);
+                VerboseLoopLink(1,"LoopLink "<<source->sID<<"->"<<sink->sID<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
                 
                 pLoop->removeLink(this);
                 pLoop=pL;
                 pLoop->addLink(this);
+                VerboseLoopLink(1,", new loop="<<pLoop->sID<<std::endl);
+
                 if(next!=nullptr)
                 {
                     next->resetLoop(pLoop);
                 }
-                else
+                
+                if(prev!=nullptr)
                 {
-                    if(prev!=nullptr)
-                    {
-                        prev->resetLoop(pLoop);
-                    }
+                    prev->resetLoop(pLoop);
                 }
+//                else
+//                {
+//  
+//                }
+
             }
             
+        }
+        
+        /**********************************************************************/
+        const FlowType& flow() const
+        {
+            return pLoop->flow();
         }
         
         //        /**********************************************************************/

@@ -38,23 +38,27 @@ namespace model
         typedef LoopLink<LinkType> LoopLinkType;
         typedef std::map<std::pair<size_t,size_t>,const LoopLinkType* const> LoopLinkContainerType;
         typedef std::deque<const LoopLinkType*> LoopLinkSequenceType;
+        typedef std::deque<std::pair<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>>> LoopNodeSequenceType;
+
+        
+        
         typedef LoopObserver<Derived> LoopObserverType;
         typedef typename TypeTraits<LinkType>::FlowType FlowType;
         
     private:
         
         LoopLinkSequenceType linkSeq;
-        
+        FlowType _flow;
+
     public:
         
         const LoopNetworkType& loopNetwork;
-        const FlowType flow;
 
         /**********************************************************************/
         Loop(const LoopNetworkType& loopNetwork_in,
              const FlowType& f) :
-        /* init */ loopNetwork(loopNetwork_in),
-        /* init */ flow(f)
+        /* init */ _flow(f),
+        /* init */ loopNetwork(loopNetwork_in)
         {
             std::cout<<"Constructing Loop "<<this->sID<<std::endl;
             LoopObserverType::addLoop(this->p_derived());
@@ -65,6 +69,18 @@ namespace model
         {
             std::cout<<"Destorying Loop "<<this->sID<<std::endl;
             LoopObserverType::removeLoop(this->p_derived());
+        }
+        
+        /**********************************************************************/
+        void flipFlow()
+        {
+            flow*=-1;
+        }
+        
+        /**********************************************************************/
+        const FlowType& flow()
+        {
+            return _flow;
         }
         
         /**********************************************************************/
@@ -131,6 +147,17 @@ namespace model
         }
         
         /**********************************************************************/
+        LoopNodeSequenceType nodeSequence() const
+        {
+            LoopNodeSequenceType temp;
+            for(const auto& link : linkSequence())
+            {
+                temp.emplace_back(link->source,link->sink);
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
         bool isLoop() const
         {
             std::cout<<"Loop "<<this->sID<<std::endl;
@@ -150,6 +177,22 @@ namespace model
                 
             }
             return temp;
+        }
+        
+        /**********************************************************************/
+        void printLoop() const
+        {
+            std::cout<<"Loop "<<this->sID<<std::endl;
+            const LoopLinkSequenceType linkSeq(linkSequence());
+            for(typename LoopLinkSequenceType::const_iterator iter=linkSeq.begin();iter!=linkSeq.end();++iter)
+            {
+                std::cout<<"    "<<(*iter)->source->sID<<"->"<<(*iter)->sink->sID
+                <<" (prev "<<(*iter)->prev->source->sID<<"->"<<(*iter)->prev->sink->sID<<")"
+                <<" (next "<<(*iter)->next->source->sID<<"->"<<(*iter)->next->sink->sID<<")"<<std::endl;
+
+                
+                
+            }
         }
         
     };

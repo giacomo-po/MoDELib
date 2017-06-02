@@ -22,54 +22,64 @@ namespace model
     /*               */ private std::set<LoopLink<Derived>*>
     {
         
-        public:
+    public:
         
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
         typedef typename TypeTraits<Derived>::NodeType NodeType;
         typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef typename TypeTraits<Derived>::LoopType LoopType;
+        typedef typename TypeTraits<Derived>::FlowType FlowType;
+
         typedef LoopLink<Derived> LoopLinkType;
-//        typedef std::set<const LoopLinkType*> LoopLinkContainerType;
+        //        typedef std::set<const LoopLinkType*> LoopLinkContainerType;
         typedef std::set<LoopLinkType*> LoopLinkContainerType;
         
+    private:
         
-//        const NodeType* const source;
-//        const NodeType* const sink;
-        std::shared_ptr<NodeType> source;
-        std::shared_ptr<NodeType> sink;
-
+        FlowType _flow;
+        
+    public:
+        
+        
+        
+        //        const NodeType* const source;
+        //        const NodeType* const sink;
+        const std::shared_ptr<NodeType> source;
+        const std::shared_ptr<NodeType> sink;
+        
         
         /**********************************************************************/
-//        NetworkLink(const NodeType* const nI,
-//                    const NodeType* const nJ) :
-//        /* init */ source(nI->sID<nJ->sID? nI : nJ),
-//        /* init */ sink(nI->sID<nJ->sID? nJ : nI)
+        //        NetworkLink(const NodeType* const nI,
+        //                    const NodeType* const nJ) :
+        //        /* init */ source(nI->sID<nJ->sID? nI : nJ),
+        //        /* init */ sink(nI->sID<nJ->sID? nJ : nI)
         NetworkLink(const std::shared_ptr<NodeType>& nI,
                     const std::shared_ptr<NodeType>& nJ) :
+                /* init */ _flow(TypeTraits<Derived>::zeroFlow),
         /* init */ source(nI->sID<nJ->sID? nI : nJ),
         /* init */ sink(nI->sID<nJ->sID? nJ : nI)
         {
-//                        std::cout<<"Constructing NetworkLink ("<<source->sID<<","<<sink->sID<<")"<<std::endl;
+            //                        std::cout<<"Constructing NetworkLink ("<<source->sID<<","<<sink->sID<<")"<<std::endl;
             NetworkLinkObserver<LinkType>::addLink(this->p_derived());
-         
-//            const bool sourceInserted=source->insert(this->p_derived()).second;
-//            assert(sourceInserted);
-//            const bool sinkInserted=sink->insert(this->p_derived()).second;
-//            assert(sinkInserted);
-
+            
+            //            const bool sourceInserted=source->insert(this->p_derived()).second;
+            //            assert(sourceInserted);
+            //            const bool sinkInserted=sink->insert(this->p_derived()).second;
+            //            assert(sinkInserted);
+            
         }
         
         /**********************************************************************/
         ~NetworkLink()
         {
-//                        std::cout<<"Destroying NetworkLink "<<source->sID<<" "<<sink->sID<<std::endl;
+            //                        std::cout<<"Destroying NetworkLink "<<source->sID<<" "<<sink->sID<<std::endl;
             NetworkLinkObserver<LinkType>::removeLink(this->p_derived());
             
-//            const int sourceErased=source->erase(this->p_derived());
-//            assert(sourceErased==1);
-//            const bool sinkErased=sink->erase(this->p_derived());
-//            assert(sinkErased==1);
-
+            //            const int sourceErased=source->erase(this->p_derived());
+            //            assert(sourceErased==1);
+            //            const bool sinkErased=sink->erase(this->p_derived());
+            //            assert(sinkErased==1);
+            
         }
         
         /**********************************************************************/
@@ -94,6 +104,17 @@ namespace model
         {
             const bool success=loopLinks().insert(pL).second;
             assert(success && "Could not insert LoopLink in NetworkLink");
+            
+            if(pL->source==source)
+            {
+                _flow+=pL->flow();
+            }
+            else
+            {
+                _flow-=pL->flow();
+            }
+
+        
         }
         
         /**********************************************************************/
@@ -101,6 +122,11 @@ namespace model
         {
             const size_t erased=loopLinks().erase(pL);
             assert(erased==1 && "Could not erase LoopLink from NetworkLink");
+        }
+        
+        const FlowType& flow() const
+        {
+            return _flow;
         }
         
     };

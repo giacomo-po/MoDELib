@@ -30,6 +30,8 @@ namespace model
         typedef Dlink LinkType;
         typedef Dloop LoopType;
         typedef double FlowType;
+        
+        static constexpr FlowType zeroFlow=0.0;
     };
     
     template<>
@@ -111,7 +113,7 @@ int main()
 
     Dnetwork DN;
     
-    int nNodes=4;
+    int nNodes=8;
     for(int i=0;i<nNodes;++i)
     {
         DN.insertDanglingNode();
@@ -120,19 +122,19 @@ int main()
     
     
 //    std::vector<size_t> loop0={0,1,2,3,4,5,6,7};
-    std::vector<size_t> loop0={0,1,2,3};
-//        std::vector<size_t> loop2={8,9,10,11};
+    std::vector<size_t> loop0={0,1,2,3,4,};
+        std::vector<size_t> loop1={5,1,2,7,6};
     //  std::vector<size_t> loop1={};
 
     DN.insertLoop(loop0,0.2);
-//    DN.insertLoop(loop1,0.2);
+    DN.insertLoop(loop1,0.2);
 //    DN.insertLoop(loop2,0.2);
    
     DN.clearDanglingNodes();
 
     
 //    DN.merge(0,1,4,5);
-    DN.merge(0,1,3,2);
+    DN.merge(0,1,5,1);
     
 //    std::vector<size_t> loop1={0,3,4,5};
 //    std::vector<size_t> loop2={6,7};
@@ -173,7 +175,7 @@ int main()
 
     DN.nodes();
 
-    DN.printLoopLinks();
+    DN.printLoops();
 
     
 
