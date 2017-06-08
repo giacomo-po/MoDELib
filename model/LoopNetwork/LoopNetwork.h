@@ -70,6 +70,19 @@ namespace model
         
         typedef std::tuple<SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>> ExpandTupleType;
         
+        typedef std::tuple<SharedNodePtrType, // A node, preceding B in loop being merged
+        /*              */ SharedNodePtrType, // B node in loop being merged, which will become node E
+        /*              */ SharedNodePtrType, // C node in loop being merged, which will become node F
+        /*              */ SharedNodePtrType, // D node, after C in loop being merged
+        /*              */ std::shared_ptr<LoopType>, // loop being merged
+        /*              */ SharedNodePtrType, // E node, will replace B
+        /*              */ SharedNodePtrType, // F node, will replace C
+        /*              */ std::shared_ptr<LoopType> // loop being merged
+        > AMTtupleType;
+        
+        
+        //        typedef std::map<int,AMTtupleType> MergeMapType; // map is sorted by operation priority
+        typedef std::deque<AMTtupleType> AMTdequeType;
         
         /**********************************************************************/
         LoopNodeContainerType& danglingNodes()
@@ -77,11 +90,10 @@ namespace model
             return *this;
         }
         
-        //        /**********************************************************************/
-        //        const LoopNodeContainerType& danglingNodes() const
-        //        {
-        //            return *this;
-        //        }
+        const LoopNodeContainerType& danglingNodes() const
+        {
+            return *this;
+        }
         
         /**********************************************************************/
         IsNodeType danglingNode(const size_t & k)
@@ -89,7 +101,6 @@ namespace model
           * if node k is in the network, in which case pair.second is a pointer
           * the the node
           */
-            //            std::cout<<"finding "<<k<<std::endl;
             typename LoopNodeContainerType::iterator nodeIter(danglingNodes().find(k));
             return (nodeIter!=danglingNodes().end())? std::make_pair(true,nodeIter->second) : std::make_pair(false,SharedNodePtrType(nullptr));
         }
@@ -102,32 +113,40 @@ namespace model
                      const std::shared_ptr<LoopType>& tempLoop)
         {
             VerboseLoopNetwork(1,"connecting "<<n0->sID<<"->"<<n1->sID<<std::endl);
-            assert(n0->sID!=n1->sID && "Cannot connect a node to itself");
+//            assert(n0->sID!=n1->sID && "Cannot connect a node to itself");
             
-            //check if n1->n0 exist for the same loop
-            const auto iterPair = loopLinks().equal_range(std::pair<size_t,size_t>(n1->sID,n0->sID));
-            typename LoopLinkContainerType::const_iterator loopIter=iterPair.second;
-            for (loopIter=iterPair.first;loopIter!=iterPair.second;++loopIter)
+            if(n0->sID!=n1->sID)
             {
-                if(loopIter->second.pLoop.get()==tempLoop.get()) // opposite link exists
+                //check if n1->n0 exist for the same loop
+                //            const auto iterPair = loopLinks().equal_range(std::pair<size_t,size_t>(n1->sID,n0->sID));
+                const auto key=LoopLinkType::getKey(n0,n1);
+                const auto iterPair = loopLinks().equal_range(key);
+                
+                typename LoopLinkContainerType::const_iterator loopIter=iterPair.second;
+                for (loopIter=iterPair.first;loopIter!=iterPair.second;++loopIter)
                 {
-                    break;
+                    if(loopIter->second.loop().get()==tempLoop.get() && // link in same loop
+                       loopIter->second.source()->sID==n1->sID && loopIter->second.sink()->sID==n0->sID) // opposite link exists
+                    {
+                        break;
+                    }
+                    
                 }
                 
+                if(loopIter!=iterPair.second)
+                {// opposite link exists, disconnect it
+                    loopLinks().erase(loopIter);
+                }
+                else
+                {// opposite link does not exists, connect n0->n1
+                    loopLinks().emplace(std::piecewise_construct,
+                                        //                                    std::make_tuple(n0->sID,n1->sID),
+                                        std::make_tuple(key.first,key.second),
+                                        std::make_tuple(n0,n1, tempLoop) );
+                    
+                }
             }
-            
-            if(loopIter!=iterPair.second)
-            {// opposite link exists, disconnect it
-                loopLinks().erase(loopIter);
-            }
-            else
-            {// opposite link does not exists, connect n0->n1
-                loopLinks().emplace(std::piecewise_construct,
-                                    std::make_tuple(n0->sID,n1->sID),
-                                    std::make_tuple(n0,n1, tempLoop) );
-                
-            }
-            
+
         }
         
         /**********************************************************************/
@@ -136,12 +155,14 @@ namespace model
             
             IsLoopLinkType temp=IsLoopLinkType(false,nullptr);
             
-            const auto iterPair = loopLinks().equal_range(std::pair<size_t,size_t>(n0->sID,n1->sID));
+            const auto key=LoopLinkType::getKey(n0,n1);
+            const auto iterPair = loopLinks().equal_range(key);
             for(typename LoopLinkContainerType::iterator loopIter=iterPair.first;
                 /*                                          */ loopIter!=iterPair.second;
                 /*                                          */ loopIter++)
             {
-                if(loopIter->second.pLoop.get()==loop.get())
+                if(loopIter->second.loop().get()==loop.get() &&
+                   loopIter->second.source()->sID==n0->sID && loopIter->second.sink()->sID==n1->sID)
                 {
                     temp=IsLoopLinkType(true,&loopIter->second);
                     break;
@@ -155,13 +176,15 @@ namespace model
         {
             VerboseLoopNetwork(1,"disconnecting "<<n0->sID<<"->"<<n1->sID<<std::endl);
             size_t nDisconnected=0;
-            const auto iterPair = loopLinks().equal_range(std::pair<size_t,size_t>(n0->sID,n1->sID));
+            const auto key=LoopLinkType::getKey(n0,n1);
+            const auto iterPair = loopLinks().equal_range(key);
             
             for(typename LoopLinkContainerType::const_iterator loopIter=iterPair.first;
                 /*                                          */ loopIter!=iterPair.second;
                 /*                                          */ loopIter++)
             {
-                if(loopIter->second.pLoop.get()==loop.get())
+                if(loopIter->second.loop().get()==loop.get() &&
+                   loopIter->second.source()->sID==n0->sID && loopIter->second.sink()->sID==n1->sID)
                 {
                     loopLinks().erase(loopIter);
                     nDisconnected=1;
@@ -177,8 +200,6 @@ namespace model
     public:
         
         static int verboseLevel;
-        
-        
         
         
         /**********************************************************************/
@@ -221,14 +242,6 @@ namespace model
                 }
             }
         }
-        
-        //        /**********************************************************************/
-        //        const LoopContainerType& loops() const
-        //        {//!\returns the loop container
-        //            return *this;
-        //        }
-        
-        
         
         /**********************************************************************/
         template <typename ...NodeArgTypes>
@@ -283,27 +296,15 @@ namespace model
         
         /**********************************************************************/
         void removeLoop(const std::shared_ptr<LoopType>& pL)
-        {
+        {/*!\param[in] pL a shared_ptr to the loop to be removed
+          *
+          * Disconnects all segments in loop pL, therefore removing the loop itself.
+          */
             for(const auto& lLink : pL->linkSequence())
             {
                 disconnect(pL->source,pL->sink,pL);
             }
         }
-        
-        /**********************************************************************/
-        void flipLoop(const std::shared_ptr<LoopType>& pL)
-        {
-            
-            const auto& nodeSequence=pL->nodeSequence();
-            removeLoop(pL); // this will remove all exisitng links, but pL will survive because of the shared_ptr above
-            pL->flipFlow();
-            for(const auto& nodePair : nodeSequence)
-            {
-                connect(nodePair.second,nodePair.first,pL);
-            }
-            
-        }
-        
         
         /**********************************************************************/
         template <typename ...NodeArgTypes>
@@ -312,8 +313,11 @@ namespace model
             VerboseLoopNetwork(1,"expanding "<<a<<","<<b<<std::endl);
             assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
             
-            const size_t i=std::min(a,b);
-            const size_t j=std::max(a,b);
+            const auto key=LoopLinkType::getKey(a,b);
+            const size_t& i=key.first;
+            const size_t& j=key.second;
+            //            const size_t i=std::min(a,b);
+            //            const size_t j=std::max(a,b);
             
             // Find NetworkLink i->j
             const IsConstNetworkLinkType Lij(this->link(i,j));
@@ -330,12 +334,15 @@ namespace model
             std::deque<ExpandTupleType> expandDeq;
             for(const auto& llink : Lij.second->loopLinks())
             {
-                expandDeq.emplace_back(llink->source,llink->sink,llink->pLoop);
+                expandDeq.emplace_back(llink->source,llink->sink,llink->loop());
             }
             
             // Delete all LoopLinks of type i->j or j->i
-            loopLinks().erase(std::make_pair(i,j));
-            loopLinks().erase(std::make_pair(j,i));
+            //            const auto key=LoopLinkType::getKey(a,b);
+            loopLinks().erase(key);
+            
+            //            loopLinks().erase(std::make_pair(i,j));
+            //            loopLinks().erase(std::make_pair(j,i));
             
             for (const auto& tup : expandDeq)
             {
@@ -348,297 +355,783 @@ namespace model
             return newNode;
         }
         
+//        /**********************************************************************/
+//        void contract(const size_t& a, const size_t& b)
+//        {/*! Performs a contract operation in which the nodes of a NetworkLink
+//          * (a,b) are merged. Node a survives the merge, while node b is
+//          * destroyed
+//          */
+//            
+//            THIS FUNCTION IS WRONG. IF THERE IS A LOOP ATTACHED TO EITHER I OR J (NOT BOTH), THEN THAT NODE SURVIVES!
+//            
+//            VerboseLoopNetwork(1,"contracting "<<a<<","<<b<<std::endl);
+//            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
+//            
+//            const auto key=LoopLinkType::getKey(a,b);
+//            const size_t& i=key.first;
+//            const size_t& j=key.second;
+//            //            const size_t i=std::min(a,b);
+//            //            const size_t j=std::max(a,b);
+//            
+//            
+//            // Find NetworkLink i->j
+//            const IsConstNetworkLinkType Lij(this->link(i,j));
+//            assert(Lij.first && "Contracting non-existing link");
+//            
+//            typedef std::pair<size_t,size_t> DisconnectPairType;
+//            std::deque<DisconnectPairType> disconnectDeq;
+//            
+//            
+//            typedef std::tuple<SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>> ReconnectTupleType;
+//            std::deque<ReconnectTupleType> reconnectDeq;
+//            
+//            for(const auto& loopLink : Lij.second->loopLinks())
+//            {
+//                if(loopLink->source()->sID==b)
+//                {
+//                    assert(loopLink->source()->sID==b && loopLink->sink()->sID==a);
+//                    disconnectDeq.emplace_back(loopLink->prev->source()->sID,b);
+//                    disconnectDeq.emplace_back(b,a);
+//                    reconnectDeq.emplace_back(loopLink->prev->source(),loopLink->sink(),loopLink->loop());
+//                }
+//                else
+//                {
+//                    assert(loopLink->source()->sID==a && loopLink->sink()->sID==b);
+//                    disconnectDeq.emplace_back(a,b);
+//                    disconnectDeq.emplace_back(b,loopLink->next->sink()->sID);
+//                    reconnectDeq.emplace_back(loopLink->source(),loopLink->next->sink(),loopLink->loop());
+//                }
+//                
+//            }
+//            
+//            for (const auto& pair : disconnectDeq)
+//            {
+//                loopLinks().erase(pair);
+//            }
+//            
+//            for (const auto& tup : reconnectDeq)
+//            {
+//                connect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
+//            }
+//            
+//        }
+        
+        
         /**********************************************************************/
-        void contract(const size_t& a, const size_t& b)
-        {/*! Performs a contract operation in which the nodes of a NetworkLink
-          * (a,b) are merged. Node a survives the merge, while node b is
-          * destroyed
-          */
-            VerboseLoopNetwork(1,"contracting "<<a<<","<<b<<std::endl);
-            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
-            
-            const size_t i=std::min(a,b);
-            const size_t j=std::max(a,b);
-            
-            // Find NetworkLink i->j
-            const IsConstNetworkLinkType Lij(this->link(i,j));
-            assert(Lij.first && "Contracting non-existing link");
-            
-            typedef std::pair<size_t,size_t> DisconnectPairType;
-            std::deque<DisconnectPairType> disconnectDeq;
-            
-            
-            typedef std::tuple<SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>> ReconnectTupleType;
-            std::deque<ReconnectTupleType> reconnectDeq;
-            
-            for(const auto& loopLink : Lij.second->loopLinks())
+        void cutLoop(const size_t& L,
+                     const size_t& i,const size_t &j)
+        {
+            const auto loop=this->loop(L);
+            if(loop.first && i!=j)
             {
-                if(loopLink->source->sID==b)
-                {
-                    assert(loopLink->source->sID==b && loopLink->sink->sID==a);
-                    disconnectDeq.emplace_back(loopLink->prev->source->sID,b);
-                    disconnectDeq.emplace_back(b,a);
-                    reconnectDeq.emplace_back(loopLink->prev->source,loopLink->sink,loopLink->pLoop);
-                }
-                else
-                {
-                    assert(loopLink->source->sID==a && loopLink->sink->sID==b);
-                    disconnectDeq.emplace_back(a,b);
-                    disconnectDeq.emplace_back(b,loopLink->next->sink->sID);
-                    reconnectDeq.emplace_back(loopLink->source,loopLink->next->sink,loopLink->pLoop);
-                }
+//                const auto nodeSeq=loop.seocond->nodeIDSequence();
+                const auto linkAtI=loop.second->linkStartingAt(i);
+                const auto linkAtJ=loop.second->linkStartingAt(j);
                 
+                if(linkAtI.first && linkAtJ.first)
+                {
+                    if(linkAtI.second->sink()->sID!=j && linkAtJ.second->sink()->sID!=i)
+                    {
+                        VerboseLoopNetwork(1,"cutting loop "<<L<<" between "<<i<<","<<j<<std::endl);
+
+                        std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),linkAtI.second->flow());
+                        linkAtI.second->resetLoop(tempLoop,i,j);
+                        
+//                        std::cout<<"linkAtI is "<<linkAtI.second->name()<<std::endl;
+//                        std::cout<<"linkAtI->prev is "<<linkAtI.second->prev->name()<<std::endl;
+//                        std::cout<<"linkAtJ is "<<linkAtJ.second->name()<<std::endl;
+//                        std::cout<<"linkAtJ->prev is "<<linkAtJ.second->prev->name()<<std::endl;
+
+                        
+                        linkAtI.second->prev->next=nullptr;
+                        linkAtI.second->prev=nullptr;
+
+                        //
+                        linkAtJ.second->prev->next=nullptr;
+                        linkAtJ.second->prev=nullptr;
+
+                        
+                        connect(linkAtJ.second->source(),linkAtI.second->source(),tempLoop);
+                        connect(linkAtI.second->source(),linkAtJ.second->source(),linkAtJ.second->loop());
+
+                    }
+                    
+                }
+//                const auto linkSeq=loop.second->linkSequence();
             }
-            
-            for (const auto& pair : disconnectDeq)
-            {
-                loopLinks().erase(pair);
-            }
-            
-            for (const auto& tup : reconnectDeq)
-            {
-                connect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
-            }
-            
         }
         
         /**********************************************************************/
-        void merge(const size_t& a, const size_t& b,const size_t& a1, const size_t& b1)
+        bool contractSecond(const size_t& a,const size_t &b)
         {
-            VerboseLoopNetwork(1,"merging ("<<a<<","<<b<<") and ("<<a1<<","<<b1<<")"<<std::endl);
+            VerboseLoopNetwork(1,"contracting "<<a<<","<<b<<std::endl);
             assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
-            
-            if(a!=a1 || b!=b1) // avoid trivia merge
-            {
-                // Find NetworkLink i->j
-                const size_t i=std::min(a,b);
-                const size_t j=std::max(a,b);
-                const IsConstNetworkLinkType Lij(this->link(i,j));
-                assert(Lij.first && "Merging non-existing link");
-                const SharedNodePtrType nA((Lij.second->source->sID==a)? Lij.second->source : Lij.second->sink);
-                const SharedNodePtrType nB((Lij.second->source->sID==b)? Lij.second->source : Lij.second->sink);
-                
-                // Find NetworkLink i1->j1
-                const size_t i1=std::min(a1,b1);
-                const size_t j1=std::max(a1,b1);
-                const IsConstNetworkLinkType Li1j1(this->link(i1,j1));
-                assert(Li1j1.first && "Merging non-existing link");
-                //          const  SharedNodePtrType nA1((Li1j1.second->source->sID==a1)? Li1j1.second->source : Li1j1.second->sink);
-                //          const  SharedNodePtrType nB1((Li1j1.second->source->sID==b1)? Li1j1.second->source : Li1j1.second->sink);
-                
-                typedef std::tuple<SharedNodePtrType, // A node, preceding B in loop being merged
-                /*              */ SharedNodePtrType, // B node in loop being merged, which will become node E
-                /*              */ SharedNodePtrType, // C node in loop being merged, which will become node F
-                /*              */ SharedNodePtrType, // D node, after C in loop being merged
-                /*              */ std::shared_ptr<LoopType>, // loop being merged
-                /*              */ SharedNodePtrType, // E node, will replace B
-                /*              */ SharedNodePtrType, // F node, will replace C
-                /*              */ int // operation type: 0=annhilation, 1= loop merge, 2=simple merging
-                > MergeTupleType;
-                
-                std::deque<MergeTupleType> mergeDeq;
-                
-                // Store links to be merged in mergeDeq
-                for (const auto& loopLink1 : Li1j1.second->loopLinks())
-                {
-                    size_t nAnnihilations=0;
-                    
-                    for (const auto& loopLink : Lij.second->loopLinks())
-                    {
-                        if(loopLink1->pLoop.get()==loopLink->pLoop.get()) // annihilation
-                        {
-                            
-                            if(loopLink->source->sID==b && loopLink->sink->sID==a &&
-                               loopLink1->source->sID==a1 && loopLink1->sink->sID==b1)
-                            {
-                                // loopLink :   ...-> x->b ->a ->y-> ...|
-                                //             ^                        |
-                                //  loopLink1: |...<-y1<-b1<-a1<-x1<-...|
-                                mergeDeq.emplace_back(loopLink1->prev->source,  // x1
-                                                      loopLink1->source,        // a1
-                                                      loopLink1->sink,          // b1
-                                                      loopLink1->next->sink,    // y1
-                                                      loopLink1->pLoop,
-                                                      nA,                       // b
-                                                      nB,                       // a
-                                                      0);
-                            }
-                            else if(loopLink->source->sID==a && loopLink->sink->sID==b &&
-                                    loopLink1->source->sID==b1 && loopLink1->sink->sID==a1)
-                            {
-                                // loopLink :   ...-> x->a ->b ->y-> ...|
-                                //             ^                        |
-                                //  loopLink1: |...<-y1<-a1<-b1<-x1<-...|
-                                mergeDeq.emplace_back(loopLink1->prev->source,
-                                                      loopLink1->source,
-                                                      loopLink1->sink,
-                                                      loopLink1->next->sink,
-                                                      loopLink1->pLoop,
-                                                      nB,
-                                                      nA,
-                                                      0);
-                            }
-                            else
-                            {
-                                assert(0 && "Invalid merge, same link direction.");
-                            }
-                            nAnnihilations++;
-                        }
-                        else // merge
-                        {
-                            if(false) // same flow, perform loop merging
-                            {
-                                
-                            }
-                            else // different flow, perform simple merging
-                            {
-                                if(loopLink1->source->sID==a1 && loopLink1->sink->sID==b1)
-                                {
-                                    mergeDeq.emplace_back(loopLink1->prev->source,
-                                                          loopLink1->source,
-                                                          loopLink1->sink,
-                                                          loopLink1->next->sink,
-                                                          loopLink1->pLoop,
-                                                          nA,
-                                                          nB,
-                                                          2);
-                                    
-                                }
-                                else if(loopLink1->source->sID==b1 && loopLink1->sink->sID==a1)
-                                {
-                                    mergeDeq.emplace_back(loopLink1->prev->source,
-                                                          loopLink1->source,
-                                                          loopLink1->sink,
-                                                          loopLink1->next->sink,
-                                                          loopLink1->pLoop,
-                                                          nB,
-                                                          nA,
-                                                          2);
-                                }
-                                else
-                                {
-                                    assert(0);
-                                }
-                            }
-                        }
-                        
-                    }
-                    
-                    assert(nAnnihilations<=1);
-                }
-                
-                // Perform merging
-                for(const auto& tup : mergeDeq)
-                {
-                    switch (std::get<7>(tup))
-                    {
-                        case 0: // annhilation
-                        {
-                            
-                            if(std::get<0>(tup)->sID==std::get<6>(tup)->sID || std::get<0>(tup)->sID==std::get<5>(tup)->sID)
-                            {// part of the loop is pinched off, no need to create another loop
-                                disconnect(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
-                                disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
-                                disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
-                                disconnect(std::get<6>(tup),std::get<5>(tup),std::get<4>(tup)); // note 6->5, not 5->6 as in merge
-                                connect(std::get<6>(tup),std::get<3>(tup),std::get<4>(tup));
-                            }
-                            else if(std::get<3>(tup)->sID==std::get<6>(tup)->sID || std::get<3>(tup)->sID==std::get<5>(tup)->sID)
-                            {// part of the loop is pinched off, no need to create another loop
-                                disconnect(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
-                                disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
-                                disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
-                                disconnect(std::get<6>(tup),std::get<5>(tup),std::get<4>(tup)); // note 6->5, not 5->6 as in merge
-                                connect(std::get<0>(tup),std::get<5>(tup),std::get<4>(tup));
-                            }
-                            else
-                            {
-                                // Break the loop in two parts
-                                disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
-                                disconnect(std::get<6>(tup),std::get<5>(tup),std::get<4>(tup)); // note 6->5, not 5->6 as in merge
-                                
-                                // links 0->1 and 2->3 should still exist, but now they are disconnected, so reset the loop ptr on on of them
-                                IsLoopLinkType link01=loopLink(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
-                                assert(link01.first && "LoopLink must exist");
-                                
-                                IsLoopLinkType link23=loopLink(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
-                                assert(link23.first && "LoopLink must exist");
-                                
-                                std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),std::get<4>(tup)->flow());
-                                link01.second->resetLoop(tempLoop);
-                                
-                                // Finish disconnecting
-                                disconnect(std::get<0>(tup),std::get<1>(tup),tempLoop); // after resetLoop link01 is in loop tempLoop
-                                disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
-                                
-                                connect(std::get<0>(tup),std::get<5>(tup),tempLoop);
-                                connect(std::get<6>(tup),std::get<3>(tup),std::get<4>(tup));
-                                
-                            }
-                            break;
-                        }
-                            
-                        case 1: // loop merge
-                        {
 
-                            
-                            break;
-                        }
-                            
-                        case 2: // simple merge
+            
+            bool success=false;
+            const auto nA=this->sharedNode(a);
+            const auto nB=this->sharedNode(b);
+            
+            if(nA.first && nB.first)
+            {
+                
+
+                
+                // Collect IDs of all loops passing through both A and B
+                std::set<size_t> loopIDs;
+                for(const auto& loopLinkA : nA.second->loopLinks())
+                {
+                    for(const auto& loopLinkB : nB.second->loopLinks())
+                    {
+                        
+                        if(loopLinkA->loop()->sID==loopLinkB->loop()->sID)
                         {
-                            disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
-                            connect(std::get<5>(tup),std::get<6>(tup),std::get<4>(tup));
-                            
-                            if(std::get<1>(tup)->sID!=std::get<5>(tup)->sID)
-                            {
-                                disconnect(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
-                                connect(std::get<0>(tup),std::get<5>(tup),std::get<4>(tup));
-                            }
-                            
-                            if(std::get<2>(tup)->sID!=std::get<6>(tup)->sID)
-                            {
-                                disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
-                                connect(std::get<6>(tup),std::get<3>(tup),std::get<4>(tup));
-                            }
-                            
-                            break;
+                            loopIDs.insert(loopLinkA->loop()->sID);
                         }
-                            
-                        default:
-                            assert(0 && "More than one loop links found in other network link.");
-                            break;
                     }
-                    
-                    
-                    //                if(std::get<7>(tup)) // annihilation
-                    //                {
-                    //                    disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
-                    //                    disconnect(std::get<5>(tup),std::get<6>(tup),std::get<4>(tup));
-                    //
-                    //                    std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),std::get<4>(tup)->flow());
-                    //
-                    //                    std::get<8>(tup)->resetLoop(tempLoop);
-                    //
-                    //                    connect(std::get<5>(tup),std::get<2>(tup),tempLoop);
-                    //                    connect(std::get<1>(tup),std::get<6>(tup),std::get<4>(tup));
-                    //                }
-                    //                else
-                    //                {
-                    //                    disconnect(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
-                    //                    disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
-                    //                    disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
-                    //
-                    //                    connect(std::get<0>(tup),std::get<5>(tup),std::get<4>(tup));
-                    //                    connect(std::get<5>(tup),std::get<6>(tup),std::get<4>(tup));
-                    //                    connect(std::get<6>(tup),std::get<3>(tup),std::get<4>(tup));
-                    //                }
                 }
+                
+                for(const auto loopID : loopIDs)
+                {
+                    cutLoop(loopID,a,b);
+                }
+                
+                
+                typedef std::tuple<SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>,bool> ContractTupleType;
+                typedef std::deque<ContractTupleType> ContractDequeType;
+                ContractDequeType contractDeq;
+                
+                for(const auto& loopLink : nB.second->loopLinks())
+                {
+                
+                    if(loopLink->source()->sID==b)
+                    {
+                        contractDeq.emplace_back(loopLink->source(),loopLink->sink(),loopLink->loop(),0);
+                    }
+                    else if(loopLink->sink()->sID==b)
+                    {
+                        contractDeq.emplace_back(loopLink->source(),loopLink->sink(),loopLink->loop(),1);
+                    }
+                    else
+                    {
+                        assert(0 && "source or sink must be b.");
+                    }
+
+                    
+                }
+                
+                // Disconnect
+                for(const auto& tup : contractDeq)
+                {
+                    disconnect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
+                }
+
+                // Re-connect replacing b with a
+                for(const auto& tup : contractDeq)
+                {
+                    if(std::get<3>(tup))
+                    {
+                        connect(std::get<0>(tup),nA.second,std::get<2>(tup));
+                    }
+                    else
+                    {
+                        connect(nA.second,std::get<1>(tup),std::get<2>(tup));
+                    }
+                }
+
+                
+                
             }
             
-            VerboseLoopNetwork(1,"done merging ("<<a<<","<<b<<") and ("<<a1<<","<<b1<<")"<<std::endl);
-            
+            return success;
         }
+        
+        
+        
+        
+//        /**********************************************************************/
+//        void annihilateTransfer(const size_t& a, const size_t& b,const size_t& a1, const size_t& b1)
+//        {
+//            annihilate(a,b,a1,b1);
+//            transfer(a,b,a1,b1);
+//        }
+//        
+//        /**********************************************************************/
+//        void annihilate(const size_t& a, const size_t& b,const size_t& a1, const size_t& b1)
+//        {
+//            VerboseLoopNetwork(1,"annihilating ("<<a<<","<<b<<") and ("<<a1<<","<<b1<<")"<<std::endl);
+//            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
+//            
+//            if(a!=a1 || b!=b1) // avoid trivia merge
+//            {
+//                // Find NetworkLink i->j
+//                const auto key=LoopLinkType::getKey(a,b);
+//                const size_t& i=key.first;
+//                const size_t& j=key.second;
+//                const IsConstNetworkLinkType Lij(this->link(i,j));
+//                
+//                // Find NetworkLink i1->j1
+//                const auto key1=LoopLinkType::getKey(a1,b1);
+//                const size_t& i1=key1.first;
+//                const size_t& j1=key1.second;
+//                const IsConstNetworkLinkType Li1j1(this->link(i1,j1));
+//                
+//                if(Lij.first && Li1j1.first)
+//                {
+//                    const SharedNodePtrType nA((Lij.second->source->sID==a)? Lij.second->source : Lij.second->sink);
+//                    const SharedNodePtrType nB((Lij.second->source->sID==b)? Lij.second->source : Lij.second->sink);
+//                    
+//                    AMTdequeType deq;
+//                    
+//                    // For each loop link in Li1j1, store merge operations in a MergeMapType
+//                    for (const auto& loopLink1 : Li1j1.second->loopLinks())
+//                    {
+//                        
+//                        size_t nAnnihilations=0;
+//                        
+//                        for (const auto& loopLink : Lij.second->loopLinks())
+//                        {
+//                            if(loopLink1->loop().get()==loopLink->loop().get()) // annihilation
+//                            {
+//                                
+//                                if(loopLink->source()->sID==b && loopLink->sink()->sID==a &&
+//                                   loopLink1->source()->sID==a1 && loopLink1->sink()->sID==b1)
+//                                {
+//                                    
+//                                    deq.emplace_back(loopLink1->prev->source(),
+//                                                     loopLink1->source(),
+//                                                     loopLink1->sink(),
+//                                                     loopLink1->next->sink(),
+//                                                     loopLink1->loop(),
+//                                                     nA,
+//                                                     nB,
+//                                                     loopLink->loop() // unused
+//                                                     );
+//                                    
+//                                }
+//                                else if(loopLink->source()->sID==a && loopLink->sink()->sID==b &&
+//                                        loopLink1->source()->sID==b1 && loopLink1->sink()->sID==a1)
+//                                {
+//                                    
+//                                    deq.emplace_back(loopLink1->prev->source(),
+//                                                     loopLink1->source(),
+//                                                     loopLink1->sink(),
+//                                                     loopLink1->next->sink(),
+//                                                     loopLink1->loop(),
+//                                                     nB,
+//                                                     nA,
+//                                                     loopLink->loop() // unused
+//                                                     );
+//                                }
+//                                else
+//                                {
+//                                    assert(0 && "Invalid annihilation, same link direction.");
+//                                }
+//                                nAnnihilations++;
+//                            }
+//                            
+//                        }
+//                        
+//                        assert(nAnnihilations<=1);
+//                    }
+//                    
+//                    // Perform annihilate
+//                    for(const auto tup : deq)
+//                    {
+//                        if(std::get<0>(tup)->sID==std::get<6>(tup)->sID || std::get<0>(tup)->sID==std::get<5>(tup)->sID)
+//                        {// part of the loop is pinched off, no need to create another loop
+//                            disconnect(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
+//                            disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
+//                            disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+//                            connect(std::get<6>(tup),std::get<3>(tup),std::get<4>(tup));
+//                            disconnect(std::get<6>(tup),std::get<5>(tup),std::get<4>(tup)); // note 6->5, not 5->6 as in merge
+//                        }
+//                        else if(std::get<3>(tup)->sID==std::get<6>(tup)->sID || std::get<3>(tup)->sID==std::get<5>(tup)->sID)
+//                        {// part of the loop is pinched off, no need to create another loop
+//                            disconnect(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
+//                            disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
+//                            disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+//                            connect(std::get<0>(tup),std::get<5>(tup),std::get<4>(tup));
+//                            disconnect(std::get<6>(tup),std::get<5>(tup),std::get<4>(tup)); // note 6->5, not 5->6 as in merge
+//                        }
+//                        else
+//                        {
+//                            // Break the loop in two parts
+//                            disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
+//                            disconnect(std::get<6>(tup),std::get<5>(tup),std::get<4>(tup)); // note 6->5, not 5->6 as in merge
+//                            
+//                            // links 0->1 and 2->3 should still exist, but now they are disconnected, so reset the loop ptr on on of them
+//                            IsLoopLinkType link01=loopLink(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
+//                            assert(link01.first && "LoopLink must exist");
+//                            
+//                            IsLoopLinkType link23=loopLink(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+//                            assert(link23.first && "LoopLink must exist");
+//                            
+//                            std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),std::get<4>(tup)->flow());
+//                            link01.second->resetLoop(tempLoop);
+//                            
+//                            // Finish disconnecting
+//                            disconnect(std::get<0>(tup),std::get<1>(tup),tempLoop); // after resetLoop link01 is in loop tempLoop
+//                            disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+//                            
+//                            connect(std::get<0>(tup),std::get<5>(tup),tempLoop);
+//                            connect(std::get<6>(tup),std::get<3>(tup),std::get<4>(tup));
+//                            
+//                        }
+//                    }
+//                    
+//                }
+//                
+//            }
+//            
+//            //                assert(Li1j1.first && "Merging non-existing link");
+//            
+//            
+//            VerboseLoopNetwork(1,"done annhilating ("<<a<<","<<b<<") and ("<<a1<<","<<b1<<")"<<std::endl);
+//            
+//        }
+        
+//        /**********************************************************************/
+//        void transfer(const size_t& a, const size_t& b,const size_t& a1, const size_t& b1)
+//        {
+//            VerboseLoopNetwork(1,"transfering ("<<a<<","<<b<<") and ("<<a1<<","<<b1<<")"<<std::endl);
+//            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
+//            
+//            if(a!=a1 || b!=b1) // avoid trivia merge
+//            {
+//                // Find NetworkLink i->j
+//                const auto key=LoopLinkType::getKey(a,b);
+//                const size_t& i=key.first;
+//                const size_t& j=key.second;
+//                const IsConstNetworkLinkType Lij(this->link(i,j));
+//                
+//                // Find NetworkLink i1->j1
+//                const auto key1=LoopLinkType::getKey(a1,b1);
+//                const size_t& i1=key1.first;
+//                const size_t& j1=key1.second;
+//                const IsConstNetworkLinkType Li1j1(this->link(i1,j1));
+//                
+//                
+//                if(Lij.first && Li1j1.first)
+//                {
+//                    std::cout<<"I'm here!"<<std::endl;
+//                    const SharedNodePtrType nA((Lij.second->source->sID==a)? Lij.second->source : Lij.second->sink);
+//                    const SharedNodePtrType nB((Lij.second->source->sID==b)? Lij.second->source : Lij.second->sink);
+//                    
+//                    AMTdequeType deq;
+//                    
+//                    // For each loop link in Li1j1, store merge operations in a MergeMapType
+//                    for (const auto& loopLink1 : Li1j1.second->loopLinks())
+//                    {
+//                        
+//                        if(loopLink1->source()->sID==a1 && loopLink1->sink()->sID==b1)
+//                        {
+//                            deq.emplace_back(loopLink1->prev->source(),
+//                                             loopLink1->source(),
+//                                             loopLink1->sink(),
+//                                             loopLink1->next->sink(),
+//                                             loopLink1->loop(),
+//                                             nA,
+//                                             nB,
+//                                             loopLink1->loop() // unused
+//                                             );
+//                            
+//                        }
+//                        else if(loopLink1->source()->sID==b1 && loopLink1->sink()->sID==a1)
+//                        {
+//                            deq.emplace_back(loopLink1->prev->source(),
+//                                             loopLink1->source(),
+//                                             loopLink1->sink(),
+//                                             loopLink1->next->sink(),
+//                                             loopLink1->loop(),
+//                                             nB,
+//                                             nA,
+//                                             loopLink1->loop() // unused
+//                                             );
+//                        }
+//                        else
+//                        {
+//                            assert(0);
+//                        }
+//                        
+//                    }
+//                    
+//                    // Perform merging
+//                    for(const auto tup : deq)
+//                    {
+//                        disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
+//                        connect(std::get<5>(tup),std::get<6>(tup),std::get<4>(tup));
+//                        
+//                        if(std::get<1>(tup)->sID!=std::get<5>(tup)->sID)
+//                        {
+//                            disconnect(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
+//                            connect(std::get<0>(tup),std::get<5>(tup),std::get<4>(tup));
+//                        }
+//                        
+//                        if(std::get<2>(tup)->sID!=std::get<6>(tup)->sID)
+//                        {
+//                            disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+//                            connect(std::get<6>(tup),std::get<3>(tup),std::get<4>(tup));
+//                        }
+//                        
+//                    }
+//                    
+//                }
+//                
+//            }
+//            
+//            VerboseLoopNetwork(1,"done transfer ("<<a<<","<<b<<") and ("<<a1<<","<<b1<<")"<<std::endl);
+//            
+//        }
+        
+//        /**********************************************************************/
+//        void mergeOLD(const size_t& a, const size_t& b,const size_t& a1, const size_t& b1)
+//        {
+//            VerboseLoopNetwork(1,"merging ("<<a<<","<<b<<") and ("<<a1<<","<<b1<<")"<<std::endl);
+//            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
+//            
+//            if(a!=a1 || b!=b1) // avoid trivia merge
+//            {
+//                // Find NetworkLink i->j
+//                //                const size_t i=std::min(a,b);
+//                //                const size_t j=std::max(a,b);
+//                const auto key=LoopLinkType::getKey(a,b);
+//                const size_t& i=key.first;
+//                const size_t& j=key.second;
+//                const IsConstNetworkLinkType Lij(this->link(i,j));
+//                assert(Lij.first && "Merging non-existing link");
+//                const SharedNodePtrType nA((Lij.second->source->sID==a)? Lij.second->source : Lij.second->sink);
+//                const SharedNodePtrType nB((Lij.second->source->sID==b)? Lij.second->source : Lij.second->sink);
+//                
+//                // Find NetworkLink i1->j1
+//                const auto key1=LoopLinkType::getKey(a1,b1);
+//                const size_t& i1=key1.first;
+//                const size_t& j1=key1.second;
+//                //                const size_t i1=std::min(a1,b1);
+//                //                const size_t j1=std::max(a1,b1);
+//                const IsConstNetworkLinkType Li1j1(this->link(i1,j1));
+//                assert(Li1j1.first && "Merging non-existing link");
+//                //          const  SharedNodePtrType nA1((Li1j1.second->source()->sID==a1)? Li1j1.second->source : Li1j1.second->sink);
+//                //          const  SharedNodePtrType nB1((Li1j1.second->source()->sID==b1)? Li1j1.second->source : Li1j1.second->sink);
+//                
+//                
+//                //                MergeDequeType mergeDeq;
+//                AMTdequeType deq;
+//                
+//                // For each loop link in Li1j1, store merge operations in a MergeMapType
+//                for (const auto& loopLink1 : Li1j1.second->loopLinks())
+//                {
+//                    //                    mergeDeq.push_back(MergeMapType());
+//                    
+//                    size_t nAnnihilations=0;
+//                    
+//                    for (const auto& loopLink : Lij.second->loopLinks())
+//                    {
+//                        if(loopLink1->loop().get()==loopLink->loop().get()) // annihilation
+//                        {
+//                            
+//                            if(loopLink->source()->sID==b && loopLink->sink()->sID==a &&
+//                               loopLink1->source()->sID==a1 && loopLink1->sink()->sID==b1)
+//                            {
+//                                //                                mergeDeq.back().emplace(std::piecewise_construct,
+//                                //                                                        std::make_tuple(0),
+//                                //                                                        std::make_tuple(loopLink1->prev->source(),
+//                                //                                                                        loopLink1->source(),
+//                                //                                                                        loopLink1->sink(),
+//                                //                                                                        loopLink1->next->sink(),
+//                                //                                                                        loopLink1->loop(),
+//                                //                                                                        nA,
+//                                //                                                                        nB,
+//                                //                                                                        loopLink->loop())
+//                                //                                                        );
+//                                
+//                                deq.emplace_back(loopLink1->prev->source(),
+//                                                 loopLink1->source(),
+//                                                 loopLink1->sink(),
+//                                                 loopLink1->next->sink(),
+//                                                 loopLink1->loop(),
+//                                                 nA,
+//                                                 nB,
+//                                                 loopLink->loop()
+//                                                 );
+//                                
+//                            }
+//                            else if(loopLink->source()->sID==a && loopLink->sink()->sID==b &&
+//                                    loopLink1->source()->sID==b1 && loopLink1->sink()->sID==a1)
+//                            {
+//                                //                                mergeDeq.back().emplace(std::piecewise_construct,
+//                                //                                                        std::make_tuple(0),
+//                                //                                                        std::make_tuple(loopLink1->prev->source(),
+//                                //                                                                        loopLink1->source(),
+//                                //                                                                        loopLink1->sink(),
+//                                //                                                                        loopLink1->next->sink(),
+//                                //                                                                        loopLink1->loop(),
+//                                //                                                                        nB,
+//                                //                                                                        nA,
+//                                //                                                                        loopLink->loop())
+//                                //                                                        );
+//                                
+//                                deq.emplace_back(loopLink1->prev->source(),
+//                                                 loopLink1->source(),
+//                                                 loopLink1->sink(),
+//                                                 loopLink1->next->sink(),
+//                                                 loopLink1->loop(),
+//                                                 nB,
+//                                                 nA,
+//                                                 loopLink->loop()
+//                                                 );
+//                            }
+//                            else
+//                            {
+//                                assert(0 && "Invalid merge, same link direction.");
+//                            }
+//                            nAnnihilations++;
+//                        }
+//                        //                        else // merge or transfer
+//                        //                        {
+//                        //                            if(loopLink->source()->sID==a && loopLink->sink()->sID==b &&
+//                        //                               loopLink1->source()->sID==b1 && loopLink1->sink()->sID==a1 &&
+//                        //                               loopLink->flow() == loopLink1->flow()) // opposite direction, same flow
+//                        //                            {
+//                        //                                mergeDeq.back().emplace(std::piecewise_construct,
+//                        //                                                        std::make_tuple(1),
+//                        //                                                        std::make_tuple(loopLink1->prev->source(),
+//                        //                                                                        loopLink1->source(),
+//                        //                                                                        loopLink1->sink(),
+//                        //                                                                        loopLink1->next->sink(),
+//                        //                                                                        loopLink1->loop(),
+//                        //                                                                        nB,
+//                        //                                                                        nA,
+//                        //                                                                        loopLink->loop())
+//                        //                                                        );
+//                        //                            }
+//                        //                            else if(loopLink->source()->sID==b && loopLink->sink()->sID==a &&
+//                        //                                    loopLink1->source()->sID==a1 && loopLink1->sink()->sID==b1 &&
+//                        //                                    loopLink->flow() == loopLink1->flow()) // opposite direction, same flow
+//                        //                            {
+//                        //                                mergeDeq.back().emplace(std::piecewise_construct,
+//                        //                                                        std::make_tuple(1),
+//                        //                                                        std::make_tuple(loopLink1->prev->source(),
+//                        //                                                                        loopLink1->source(),
+//                        //                                                                        loopLink1->sink(),
+//                        //                                                                        loopLink1->next->sink(),
+//                        //                                                                        loopLink1->loop(),
+//                        //                                                                        nA,
+//                        //                                                                        nB,
+//                        //                                                                        loopLink->loop())
+//                        //                                                        );
+//                        //                            }
+//                        //                            else if(loopLink->source()->sID==a && loopLink->sink()->sID==b &&
+//                        //                                    loopLink1->source()->sID==a1 && loopLink1->sink()->sID==b1 &&
+//                        //                                    loopLink->flow() == -loopLink1->flow()) // same direction, opposite flow
+//                        //                            {
+//                        //                                loopLink1->loop()->flip(); // flip second loop
+//                        //                                mergeDeq.back().emplace(std::piecewise_construct,
+//                        //                                                        std::make_tuple(1),
+//                        //                                                        std::make_tuple(loopLink1->prev->source(),
+//                        //                                                                        loopLink1->source(),
+//                        //                                                                        loopLink1->sink(),
+//                        //                                                                        loopLink1->next->sink(),
+//                        //                                                                        loopLink1->loop(),
+//                        //                                                                        nB,
+//                        //                                                                        nA,
+//                        //                                                                        loopLink->loop())
+//                        //                                                        );
+//                        //                            }
+//                        //                            else if(loopLink->source()->sID==b && loopLink->sink()->sID==a &&
+//                        //                                    loopLink1->source()->sID==b1 && loopLink1->sink()->sID==a1 &&
+//                        //                                    loopLink->flow() == -loopLink1->flow()) // same direction, opposite flow
+//                        //                            {
+//                        //                                loopLink1->loop()->flip(); // flip second loop
+//                        //                                mergeDeq.back().emplace(std::piecewise_construct,
+//                        //                                                        std::make_tuple(1),
+//                        //                                                        std::make_tuple(loopLink1->prev->source(),
+//                        //                                                                        loopLink1->source(),
+//                        //                                                                        loopLink1->sink(),
+//                        //                                                                        loopLink1->next->sink(),
+//                        //                                                                        loopLink1->loop(),
+//                        //                                                                        nA,
+//                        //                                                                        nB,
+//                        //                                                                        loopLink->loop())
+//                        //                                                        );
+//                        //                            }
+//                        //                            else // different flow, perform transfer
+//                        //                            {
+//                        //                                if(loopLink1->source()->sID==a1 && loopLink1->sink()->sID==b1)
+//                        //                                {
+//                        //                                    mergeDeq.back().emplace(std::piecewise_construct,
+//                        //                                                            std::make_tuple(2),
+//                        //                                                            std::make_tuple(loopLink1->prev->source(),
+//                        //                                                                            loopLink1->source(),
+//                        //                                                                            loopLink1->sink(),
+//                        //                                                                            loopLink1->next->sink(),
+//                        //                                                                            loopLink1->loop(),
+//                        //                                                                            nA,
+//                        //                                                                            nB)
+//                        //                                                            );
+//                        //
+//                        //                                }
+//                        //                                else if(loopLink1->source()->sID==b1 && loopLink1->sink()->sID==a1)
+//                        //                                {
+//                        //                                    mergeDeq.back().emplace(std::piecewise_construct,
+//                        //                                                            std::make_tuple(2),
+//                        //                                                            std::make_tuple(loopLink1->prev->source(),
+//                        //                                                                            loopLink1->source(),
+//                        //                                                                            loopLink1->sink(),
+//                        //                                                                            loopLink1->next->sink(),
+//                        //                                                                            loopLink1->loop(),
+//                        //                                                                            nB,
+//                        //                                                                            nA)
+//                        //                                                            );
+//                        //                                }
+//                        //                                else
+//                        //                                {
+//                        //                                    assert(0);
+//                        //                                }
+//                        //                            }
+//                        //                        }
+//                        
+//                    }
+//                    
+//                    assert(nAnnihilations<=1);
+//                }
+//                
+//                // Perform merging
+//                for(const auto tup : deq)
+//                {
+//                    //                    for(const auto& pair : mergeMap)
+//                    //                    {
+//                    //                        const auto& pair(mergeMap)
+//                    //                        const int&   op(mergeMap.begin()->first);   // only perform first operation for each element of mergeDeq
+//                    //                        const auto& tup(mergeMap.begin()->second);  // only perform first operation for each element of mergeDeq
+//                    
+//                    //                    assert(op==0);
+//                    loopLinkAnnihilate(tup);
+//                    
+//                    //                        switch (op)
+//                    //                        {
+//                    //                            case 0: // annhilation
+//                    //                            {
+//                    //
+//                    ////                                if(std::get<0>(tup)->sID==std::get<6>(tup)->sID || std::get<0>(tup)->sID==std::get<5>(tup)->sID)
+//                    ////                                {// part of the loop is pinched off, no need to create another loop
+//                    ////                                    disconnect(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
+//                    ////                                    disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
+//                    ////                                    disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+//                    ////                                    connect(std::get<6>(tup),std::get<3>(tup),std::get<4>(tup));
+//                    ////                                    disconnect(std::get<6>(tup),std::get<5>(tup),std::get<4>(tup)); // note 6->5, not 5->6 as in merge
+//                    ////                                }
+//                    ////                                else if(std::get<3>(tup)->sID==std::get<6>(tup)->sID || std::get<3>(tup)->sID==std::get<5>(tup)->sID)
+//                    ////                                {// part of the loop is pinched off, no need to create another loop
+//                    ////                                    disconnect(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
+//                    ////                                    disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
+//                    ////                                    disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+//                    ////                                    connect(std::get<0>(tup),std::get<5>(tup),std::get<4>(tup));
+//                    ////                                    disconnect(std::get<6>(tup),std::get<5>(tup),std::get<4>(tup)); // note 6->5, not 5->6 as in merge
+//                    ////                                }
+//                    ////                                else
+//                    ////                                {
+//                    ////                                    // Break the loop in two parts
+//                    ////                                    disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
+//                    ////                                    disconnect(std::get<6>(tup),std::get<5>(tup),std::get<4>(tup)); // note 6->5, not 5->6 as in merge
+//                    ////
+//                    ////                                    // links 0->1 and 2->3 should still exist, but now they are disconnected, so reset the loop ptr on on of them
+//                    ////                                    IsLoopLinkType link01=loopLink(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
+//                    ////                                    assert(link01.first && "LoopLink must exist");
+//                    ////
+//                    ////                                    IsLoopLinkType link23=loopLink(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+//                    ////                                    assert(link23.first && "LoopLink must exist");
+//                    ////
+//                    ////                                    std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),std::get<4>(tup)->flow());
+//                    ////                                    link01.second->resetLoop(tempLoop);
+//                    ////
+//                    ////                                    // Finish disconnecting
+//                    ////                                    disconnect(std::get<0>(tup),std::get<1>(tup),tempLoop); // after resetLoop link01 is in loop tempLoop
+//                    ////                                    disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+//                    ////
+//                    ////                                    connect(std::get<0>(tup),std::get<5>(tup),tempLoop);
+//                    ////                                    connect(std::get<6>(tup),std::get<3>(tup),std::get<4>(tup));
+//                    ////
+//                    ////                                }
+//                    //                                break;
+//                    //                            }
+//                    //
+//                    //                            case 1: // loop merge
+//                    //                            {
+//                    //                                disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
+//                    //                                connect(std::get<5>(tup),std::get<6>(tup),std::get<4>(tup));
+//                    //
+//                    //                                if(std::get<1>(tup)->sID!=std::get<5>(tup)->sID)
+//                    //                                {
+//                    //                                    disconnect(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
+//                    //                                    connect(std::get<0>(tup),std::get<5>(tup),std::get<4>(tup));
+//                    //                                }
+//                    //
+//                    //                                if(std::get<2>(tup)->sID!=std::get<6>(tup)->sID)
+//                    //                                {
+//                    //                                    disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+//                    //                                    connect(std::get<6>(tup),std::get<3>(tup),std::get<4>(tup));
+//                    //                                }
+//                    //
+//                    //                                break;
+//                    //                            }
+//                    //
+//                    //                            case 2: // simple merge
+//                    //                            {
+//                    //                                disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
+//                    //                                connect(std::get<5>(tup),std::get<6>(tup),std::get<4>(tup));
+//                    //
+//                    //                                if(std::get<1>(tup)->sID!=std::get<5>(tup)->sID)
+//                    //                                {
+//                    //                                    disconnect(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
+//                    //                                    connect(std::get<0>(tup),std::get<5>(tup),std::get<4>(tup));
+//                    //                                }
+//                    //
+//                    //                                if(std::get<2>(tup)->sID!=std::get<6>(tup)->sID)
+//                    //                                {
+//                    //                                    disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+//                    //                                    connect(std::get<6>(tup),std::get<3>(tup),std::get<4>(tup));
+//                    //                                }
+//                    //
+//                    //                                break;
+//                    //                            }
+//                    //
+//                    //                            default:
+//                    //                                assert(0 && "More than one loop links found in other network link.");
+//                    //                                break;
+//                    //                        }
+//                    
+//                    
+//                    //                if(std::get<7>(tup)) // annihilation
+//                    //                {
+//                    //                    disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
+//                    //                    disconnect(std::get<5>(tup),std::get<6>(tup),std::get<4>(tup));
+//                    //
+//                    //                    std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),std::get<4>(tup)->flow());
+//                    //
+//                    //                    std::get<8>(tup)->resetLoop(tempLoop);
+//                    //
+//                    //                    connect(std::get<5>(tup),std::get<2>(tup),tempLoop);
+//                    //                    connect(std::get<1>(tup),std::get<6>(tup),std::get<4>(tup));
+//                    //                }
+//                    //                else
+//                    //                {
+//                    //                    disconnect(std::get<0>(tup),std::get<1>(tup),std::get<4>(tup));
+//                    //                    disconnect(std::get<1>(tup),std::get<2>(tup),std::get<4>(tup));
+//                    //                    disconnect(std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+//                    //
+//                    //                    connect(std::get<0>(tup),std::get<5>(tup),std::get<4>(tup));
+//                    //                    connect(std::get<5>(tup),std::get<6>(tup),std::get<4>(tup));
+//                    //                    connect(std::get<6>(tup),std::get<3>(tup),std::get<4>(tup));
+//                    //                }
+//                    //                    }
+//                }
+//                
+//            }
+//            
+//            VerboseLoopNetwork(1,"done merging ("<<a<<","<<b<<") and ("<<a1<<","<<b1<<")"<<std::endl);
+//            
+//        }
         
         
         /**********************************************************************/
@@ -655,11 +1148,9 @@ namespace model
         /**********************************************************************/
         void printLoops() const
         {
-//            std::cout<<"Checking "<<LoopObserverType::loops().size()<<" loops"<<std::endl;
             for(const auto& loop : LoopObserverType::loops())
             {
                 loop.second->printLoop();
-//                assert(loop.second->isLoop() && "not a closed loop");
             }
             
         }
@@ -668,9 +1159,9 @@ namespace model
         {
             for(const auto& link : loopLinks())
             {
-                std::cout<<"link "<<link.second.source->sID<<"->"<<link.second.sink->sID
-                <<" (prev "<<link.second.prev->source->sID<<"->"<<link.second.prev->sink->sID<<")"
-                <<" (next "<<link.second.next->source->sID<<"->"<<link.second.next->sink->sID<<")"
+                std::cout<<"link "<<link.second.source()->sID<<"->"<<link.second.sink()->sID
+                <<" (prev "<<link.second.prev->source()->sID<<"->"<<link.second.prev->sink()->sID<<")"
+                <<" (next "<<link.second.next->source()->sID<<"->"<<link.second.next->sink()->sID<<")"
                 <<std::endl;
             }
         }

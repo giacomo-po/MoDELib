@@ -22,11 +22,22 @@ namespace model
         
         typedef std::map<size_t,const LoopType* const> LoopContainerType;
         
+        typedef std::pair<bool, const LoopType* const> IsConstLoopType;
+        
     private:
         
         static LoopContainerType loopMap;
         
     public:
+        
+        static IsConstLoopType loop(const size_t& i)
+        {
+            typename LoopContainerType::const_iterator loopIter(loopMap.find(i));
+            return (loopIter==loopMap.end())?  std::make_pair(false,static_cast<const LoopType* const>(nullptr)) :
+            /*                              */ std::make_pair(true,loopIter->second);
+            
+        }
+
         
         /**********************************************************************/
         static LoopContainerType& loops()

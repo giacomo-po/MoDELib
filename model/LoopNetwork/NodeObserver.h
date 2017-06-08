@@ -22,17 +22,80 @@ namespace model
         
         typedef std::map<size_t,const NodeType* const> NodeContainerType;
         
+        typedef std::pair<bool,const NodeType* const> IsConstNodeType;
+        
+//        typedef std::map<size_t,std::shared_ptr<NodeType> > SharedNodePtrMapType;
+//
+//        
+        typedef std::pair<bool,std::shared_ptr<NodeType>> IsSharedNodeType;
+
+        
     private:
         
         static NodeContainerType nodeMap;
+
+//        static SharedNodePtrMapType sharedNodePtrMap;
+        
         
     public:
+        
+        
+        static IsConstNodeType node(const size_t& i)
+        {
+            typename NodeContainerType::const_iterator nodeIter(nodeMap.find(i));
+            return (nodeIter==nodeMap.end())?  std::make_pair(false,static_cast<const NodeType* const>(nullptr)) :
+            /*                              */ std::make_pair(true,nodeIter->second);
+
+        }
+        
+        /**********************************************************************/
+        static IsSharedNodeType sharedNode(const size_t& i)
+        {
+            IsSharedNodeType temp=std::make_pair(false,std::shared_ptr<NodeType>(nullptr));
+
+            
+            const IsConstNodeType ni=node(i);
+            if(ni.first)
+            {
+                if(ni.second->loopLinks().size())
+                {
+                    const auto pL=*ni.second->loopLinks().begin();
+                    if(pL->source()->sID==i)
+                    {
+                        temp=std::make_pair(true,pL->source());
+                    }
+                    else if(pL->sink()->sID==i)
+                    {
+                        temp=std::make_pair(true,pL->sink());
+
+                    }
+                    else
+                    {
+                        assert(0 && "source or sink must be i");
+                    }
+                }
+                
+            }
+            
+            return temp;
+            
+//            typename SharedNodePtrMapType::const_iterator nodeIter(sharedNodePtrMap.find(i));
+//            return (nodeIter==sharedNodePtrMap.end())?  std::make_pair(false,std::shared_ptr<NodeType>(nullptr)) :
+//            /*                              */ std::make_pair(true,nodeIter->second);
+//            
+        }
         
         /**********************************************************************/
         static NodeContainerType& nodes()
         {
             return nodeMap;
         }
+        
+//        /**********************************************************************/
+//        static SharedNodePtrMapType& sharedNodes()
+//        {
+//            return sharedNodePtrMap;
+//        }
         
         /**********************************************************************/
         static void addNode(const NodeType* const pL)
@@ -46,12 +109,33 @@ namespace model
         {
             const size_t erased=nodeMap.erase(pL->sID);
             assert(erased==1 && "Could not erase from NodeMap");
+
+//            const size_t erased1=sharedNodePtrMap.erase(pL->sID);
+//            assert(erased1==1 && "Could not erase from sharedNodePtrMap");
+
         }
+        
+//        /**********************************************************************/
+//        static void addNode(const std::shared_ptr<NodeType>& pL)
+//        {
+//            sharedNodePtrMap.insert(std::make_pair(pL->sID,pL)).second;
+////            assert(success && "Could not insert in NodeMap");
+//        }
+        
+//        /**********************************************************************/
+//        static void removeNode(const NodeType& pL)
+//        {
+//                const size_t erased=sharedNodePtrMap.erase(pL->sID);
+//                assert(erased==1 && "Could not erase from NodeMap");
+//        }
         
     };
     
     template<typename NodeType>
     std::map<size_t,const NodeType* const> NodeObserver<NodeType>::nodeMap;
-    
+
+//    template<typename NodeType>
+//    std::map<size_t,std::shared_ptr<NodeType> > NodeObserver<NodeType>::sharedNodePtrMap;
+
 }
 #endif

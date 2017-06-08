@@ -113,7 +113,7 @@ int main()
 
     Dnetwork DN;
     
-    int nNodes=8;
+    int nNodes=20;
     for(int i=0;i<nNodes;++i)
     {
         DN.insertDanglingNode();
@@ -122,20 +122,37 @@ int main()
     
     
 //    std::vector<size_t> loop0={0,1,2,3,4,5,6,7};
-    std::vector<size_t> loop0={0,1,2,3,4,};
-        std::vector<size_t> loop1={5,1,2,7,6};
+    std::vector<size_t> loop0={0,1,2,3,4,5,6,7,8,9,10,11};
+        std::vector<size_t> loop1={1,2,12,13,7,8,14,15};
+    std::vector<size_t> loop2={8,7,16,17,18,19};
+
     //  std::vector<size_t> loop1={};
 
     DN.insertLoop(loop0,0.2);
-    DN.insertLoop(loop1,0.2);
-//    DN.insertLoop(loop2,0.2);
+    DN.insertLoop(loop1,0.3);
+    DN.insertLoop(loop2,0.5);
+
+    //    DN.insertLoop(loop2,0.2);
    
     DN.clearDanglingNodes();
 
+    DN.printLoops();
+
     
 //    DN.merge(0,1,4,5);
-    DN.merge(0,1,5,1);
+//    DN.annihilateTransfer(1,2,8,7); // this creates a mess with loops
+//    DN.transfer(1,2,8,7); // this creates a mess with loops
+
+//    DN.cutLoop(0,1,8);
     
+        DN.contractSecond(1,8);
+//    DN.contractSecond(2,7);
+    
+    DN.printLoops();
+
+ //   DN.contract(2,12);
+//    DN.printLoops();
+
 //    std::vector<size_t> loop1={0,3,4,5};
 //    std::vector<size_t> loop2={6,7};
 //    
@@ -168,14 +185,13 @@ int main()
 //    DN.checkLoops();
     
     
-    for(const auto& node : DN.nodes())
-    {
-        std::cout<<"node "<<node.second->sID<<" neighbor-size="<<node.second->loopLinks().size()<<std::endl;
-    }
+//    for(const auto& node : DN.nodes())
+//    {
+//        std::cout<<"node "<<node.second->sID<<" neighbor-size="<<node.second->loopLinks().size()<<std::endl;
+//    }
+//
+//    DN.nodes();
 
-    DN.nodes();
-
-    DN.printLoops();
 
     
 

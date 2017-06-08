@@ -26,7 +26,7 @@ namespace model
     template<typename Derived>
     class Loop : public CRTP<Derived>,
     /*        */ public StaticID<Derived>,
-    /*        */ private std::map<std::pair<size_t,size_t>,const LoopLink<typename TypeTraits<Derived>::LinkType>* const>
+    /*        */ private std::map<std::pair<size_t,size_t>,LoopLink<typename TypeTraits<Derived>::LinkType>* const>
     {
         
     public:
@@ -36,7 +36,7 @@ namespace model
         typedef typename TypeTraits<Derived>::NodeType NodeType;
         typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef LoopLink<LinkType> LoopLinkType;
-        typedef std::map<std::pair<size_t,size_t>,const LoopLinkType* const> LoopLinkContainerType;
+        typedef std::map<std::pair<size_t,size_t>,LoopLinkType* const> LoopLinkContainerType;
         typedef std::deque<const LoopLinkType*> LoopLinkSequenceType;
         typedef std::deque<std::pair<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>>> LoopNodeSequenceType;
 
@@ -72,9 +72,13 @@ namespace model
         }
         
         /**********************************************************************/
-        void flipFlow()
+        void flip()
         {
-            flow*=-1;
+            _flow*=-1;
+            for(auto link : links())
+            {
+                link.second->flip();
+            }
         }
         
         /**********************************************************************/
@@ -96,9 +100,11 @@ namespace model
         }
         
         /**********************************************************************/
-        void addLink(const LoopLinkType* const pL)
+        void addLink(LoopLinkType* const pL)
         {
-            const bool success=links().insert(std::make_pair(std::make_pair(pL->source->sID,pL->sink->sID),pL)).second;
+//            const auto key=;
+            const bool success=links().insert(std::make_pair(LoopLinkType::getKey(pL->source()->sID,pL->sink()->sID),pL)).second;
+//            const bool success=links().insert(std::make_pair(std::make_pair(pL->source()->sID,pL->sink()->sID),pL)).second;
             assert(success && "Could not insert in linkMap");
             
 //            if(linkSeq.isempty())
@@ -109,9 +115,9 @@ namespace model
         }
         
         /**********************************************************************/
-        void removeLink(const LoopLinkType* const pL)
+        void removeLink(LoopLinkType* const pL)
         {
-            const size_t erased=links().erase(std::make_pair(pL->source->sID,pL->sink->sID));
+            const size_t erased=links().erase(LoopLinkType::getKey(pL->source()->sID,pL->sink()->sID));
             assert(erased==1 && "Could not erase from linkMap");
         }
 
@@ -152,7 +158,34 @@ namespace model
             LoopNodeSequenceType temp;
             for(const auto& link : linkSequence())
             {
-                temp.emplace_back(link->source,link->sink);
+                temp.emplace_back(link->source(),link->sink());
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        std::deque<size_t> nodeIDSequence() const
+        {
+            std::deque<size_t> temp;
+            for(const auto& link : linkSequence())
+            {
+                temp.emplace_back(link->source()->sID);
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        std::pair<bool,LoopLinkType*> linkStartingAt(const size_t& i) const
+        {
+            
+            std::pair<bool,LoopLinkType*> temp=std::make_pair(false,static_cast<LoopLinkType*>(nullptr));
+            for(const auto& link : links())
+            {
+                if(link.second->source()->sID==i)
+                {
+                    temp=std::make_pair(true,link.second);
+                    break;
+                }
             }
             return temp;
         }
@@ -165,7 +198,7 @@ namespace model
             const LoopLinkSequenceType linkSeq(linkSequence());
             for(typename LoopLinkSequenceType::const_iterator iter=linkSeq.begin();iter!=linkSeq.end();++iter)
             {
-                std::cout<<(*iter)->source->sID<<"->"<<(*iter)->sink->sID<<std::endl;
+                std::cout<<(*iter)->source()->sID<<"->"<<(*iter)->sink()->sID<<std::endl;
                 
                 auto next=std::next(iter,1);
                 if(next==linkSeq.end())
@@ -173,7 +206,7 @@ namespace model
                     next=linkSeq.begin();
                 }
                 
-                temp*=((*iter)->sink->sID==(*next)->source->sID);
+                temp*=((*iter)->sink()->sID==(*next)->source()->sID);
                 
             }
             return temp;
@@ -186,9 +219,9 @@ namespace model
             const LoopLinkSequenceType linkSeq(linkSequence());
             for(typename LoopLinkSequenceType::const_iterator iter=linkSeq.begin();iter!=linkSeq.end();++iter)
             {
-                std::cout<<"    "<<(*iter)->source->sID<<"->"<<(*iter)->sink->sID
-                <<" (prev "<<(*iter)->prev->source->sID<<"->"<<(*iter)->prev->sink->sID<<")"
-                <<" (next "<<(*iter)->next->source->sID<<"->"<<(*iter)->next->sink->sID<<")"<<std::endl;
+                std::cout<<"    "<<(*iter)->source()->sID<<"->"<<(*iter)->sink()->sID
+                <<" (prev "<<(*iter)->prev->source()->sID<<"->"<<(*iter)->prev->sink()->sID<<")"
+                <<" (next "<<(*iter)->next->source()->sID<<"->"<<(*iter)->next->sink()->sID<<")"<<std::endl;
 
                 
                 

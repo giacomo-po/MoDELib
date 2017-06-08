@@ -105,7 +105,7 @@ namespace model
             const bool success=loopLinks().insert(pL).second;
             assert(success && "Could not insert LoopLink in NetworkLink");
             
-            if(pL->source==source)
+            if(pL->source()->sID==source->sID)
             {
                 _flow+=pL->flow();
             }
@@ -122,6 +122,15 @@ namespace model
         {
             const size_t erased=loopLinks().erase(pL);
             assert(erased==1 && "Could not erase LoopLink from NetworkLink");
+            
+            if(pL->source()->sID==source->sID)
+            {
+                _flow-=pL->flow();
+            }
+            else
+            {
+                _flow+=pL->flow();
+            }
         }
         
         const FlowType& flow() const
