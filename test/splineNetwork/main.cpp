@@ -180,7 +180,18 @@ int main()
         }
     }
 
+    DN.node(0).second->set_P((Eigen::Vector3d()<<-1.0,-2.0,0.0).finished());
     
+    
+    SequentialOutputFile<'P',true> file2;
+    
+    for(const auto& link : DN.networkLinks())
+    {
+        for(int i=0;i<np;++i)
+        {
+            file2<<link.second->get_r(i*du).transpose()<<std::endl;
+        }
+    }
     
     //
 //    DN.printLoops();
