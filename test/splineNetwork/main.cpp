@@ -60,7 +60,7 @@ namespace model
 
 
 #include <model/LoopNetwork/LoopNetwork.h>
-#include <model/Geometry/Splines/CatmullRomNode.h>
+#include <model/Geometry/Splines/SplineNode.h>
 #include <model/Geometry/Splines/SplineSegment.h>
 #include <model/Utilities/SequentialOutputFile.h>
 
@@ -72,10 +72,10 @@ namespace model
 {
     struct Dnetwork : public LoopNetwork<Dnetwork>{};
     
-    struct Dnode : public CatmullRomNode<Dnode,3>
+    struct Dnode : public SplineNode<Dnode,3,1>
     {
     
-        Dnode(const Eigen::Vector3d& P ) : CatmullRomNode<Dnode,3>(P){}
+        Dnode(const Eigen::Vector3d& P ) : SplineNode<Dnode,3,1>(P){}
         
 //    Node(const int& a)
 //        {

@@ -62,6 +62,9 @@ namespace model
             //                        std::cout<<"Constructing NetworkLink ("<<source->sID<<","<<sink->sID<<")"<<std::endl;
             NetworkLinkObserver<LinkType>::addLink(this->p_derived());
             
+            
+            source->addToNeighborhood(this->p_derived());
+            sink->addToNeighborhood(this->p_derived());
             //            const bool sourceInserted=source->insert(this->p_derived()).second;
             //            assert(sourceInserted);
             //            const bool sinkInserted=sink->insert(this->p_derived()).second;
@@ -74,6 +77,9 @@ namespace model
         {
             //                        std::cout<<"Destroying NetworkLink "<<source->sID<<" "<<sink->sID<<std::endl;
             NetworkLinkObserver<LinkType>::removeLink(this->p_derived());
+            
+            source->removeFromNeighborhood(this->p_derived());
+            sink->removeFromNeighborhood(this->p_derived());
             
             //            const int sourceErased=source->erase(this->p_derived());
             //            assert(sourceErased==1);

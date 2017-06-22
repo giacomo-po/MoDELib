@@ -14,6 +14,7 @@
 #include <set>
 #include <memory>
 #include <assert.h>
+#include <tuple>
 
 //#include <iterator>
 
@@ -35,7 +36,8 @@ namespace model
     template<typename Derived>
     class LoopNode : public StaticID<Derived>,
     /*            */ public CRTP<Derived>,
-    /*            */ private std::set<LoopLink<typename TypeTraits<Derived>::LinkType>*>
+    /*            */ private std::set<LoopLink<typename TypeTraits<Derived>::LinkType>*>,
+    /*            */ private std::map<size_t,std::tuple<Derived* const ,typename TypeTraits<Derived>::LinkType* const,short int>>
     {
         
     public:
@@ -44,7 +46,9 @@ namespace model
         typedef LoopLink<LinkType> LoopLinkType;
         typedef std::set<LoopLinkType*> LoopLinkContainerType;
         typedef std::map<size_t,LoopLinkContainerType> LinkByLoopContainerType;
-        
+        typedef std::tuple<Derived* const ,LinkType* const,short int>				NeighborType;
+        typedef std::map<size_t,NeighborType>						    	NeighborContainerType;
+
         
         static int verboseLevel;
         
@@ -77,6 +81,12 @@ namespace model
             return *this;
         }
         
+        /**********************************************************************/
+        LoopLinkContainerType& loopLinks()
+        {
+            return *this;
+        }
+        
         
         /**********************************************************************/
         LinkByLoopContainerType linksByLoopID() const
@@ -90,11 +100,68 @@ namespace model
         }
         
         /**********************************************************************/
+        const NeighborContainerType& neighbors() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        NeighborContainerType& neighbors()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        void addToNeighborhood(LinkType* const pL)
+        {/*!@param[in] pL a pointer to a LinkType edge
+          */
+            
+            if (pL->source->sID==this->sID)
+            {// this vertex is the source of edge *pL
+                const NeighborType temp(pL->sink.get(),pL,1);
+                const bool success=neighbors().insert( std::make_pair(pL->sink->sID,temp) ).second;
+                assert(success && "CANNOT INSERT IN NEIGHBORHOOD.");
+            }
+            else if (pL->sink->sID==this->sID)
+            {// this vertex is the sink of edge *pL
+                const NeighborType temp(pL->source.get(),pL,-1);
+                const bool success=neighbors().insert( std::make_pair(pL->source->sID,temp) ).second;
+                assert(success  && "CANNOT INSERT IN NEIGHBORHOOD.");
+            }
+            else
+            {
+                assert(0 && "CANNOT INSERT NON-INCIDENT EDGE");
+            }
+            
+        }
+        
+        /**********************************************************************/
+        void removeFromNeighborhood(LinkType* const pL)
+        {
+            if (pL->source->sID==this->sID)
+            {
+                const size_t key=pL->sink->sID;
+                int success=neighbors().erase(key);
+                assert(success==1);
+            }
+            else if (pL->sink->sID==this->sID)
+            {
+                const size_t key=pL->source->sID;
+                int success=neighbors().erase(key);
+                assert(success==1);
+            }
+            else
+            {
+                assert(0 && "CANNOT REMOVE FROM NEIGHBORS");
+            }
+        }
+        
+        /**********************************************************************/
         void addLoopLink(LoopLinkType* const pL)
         {
 //            std::cout<<"LoopNode "<<this->sID<<" adding Link "<<pL->source->sID<<"->"<<pL->sink->sID<<std::endl;
             // Store the connecting link
-            const bool inserted=this->insert(pL).second;
+            const bool inserted=loopLinks().insert(pL).second;
             assert(inserted);
 
 //            NodeObserver<Derived>::addNode(pL->source());
@@ -149,7 +216,7 @@ namespace model
         /**********************************************************************/
         void removeLoopLink(LoopLinkType* const pL)
         {
-            const int erased=this->erase(pL);
+            const int erased=loopLinks().erase(pL);
             assert(erased==1);
             
             if(pL->next!=nullptr)
