@@ -108,7 +108,8 @@ namespace model {
 	
 	
 	template <typename Derived, short unsigned int dim>
-	class ParametricCurve {
+	class ParametricCurve
+    {
 		
 		typedef Eigen::Matrix<double, dim, 1>		VectorDim;
 

@@ -9,15 +9,16 @@
 #ifndef model_SPLINECONSTS_H_
 #define model_SPLINECONSTS_H_
 
-namespace model {
+namespace model
+{
 	
 	double chordal    =1.0;
 	double centripetal=0.5;
 	double uniform    =0.0;
 	
 	
-	class Hermite{};
-	class CatmullRom{};
+//	class Hermite{};
+//	class CatmullRom{};
 	
 }
 

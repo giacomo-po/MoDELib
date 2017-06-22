@@ -130,7 +130,7 @@ int main()
 
     DN.insertLoop(loop0,0.2);
     DN.insertLoop(loop1,0.3);
-    DN.insertLoop(loop2,0.5);
+   // DN.insertLoop(loop2,0.5);
 
     //    DN.insertLoop(loop2,0.2);
    
@@ -146,7 +146,7 @@ int main()
 //    DN.cutLoop(0,1,8);
     
         DN.contractSecond(1,8);
-//    DN.contractSecond(2,7);
+    DN.contractSecond(2,7);
     
     DN.printLoops();
 

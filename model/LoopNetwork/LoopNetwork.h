@@ -56,6 +56,7 @@ namespace model
         typedef std::multimap<std::pair<size_t,size_t>,LoopLinkType> LoopLinkContainerType;
         //        typedef std::map<size_t,const LoopType* const> LoopContainerType;
         typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
+        typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;
         typedef typename NetworkLinkObserverType::IsNetworkLinkType IsNetworkLinkType;
         typedef typename NetworkLinkObserverType::IsConstNetworkLinkType IsConstNetworkLinkType;
         typedef LoopObserver<LoopType> LoopObserverType;
@@ -219,6 +220,11 @@ namespace model
         const LoopLinkContainerType& loopLinks() const
         {
             return *this;
+        }
+        
+        const NetworkLinkContainerType networkLinks() const
+        {
+            return NetworkLinkObserverType::links();
         }
         
         /**********************************************************************/
@@ -432,16 +438,10 @@ namespace model
                 {
                     if(linkAtI.second->sink()->sID!=j && linkAtJ.second->sink()->sID!=i)
                     {
-                        VerboseLoopNetwork(1,"cutting loop "<<L<<" between "<<i<<","<<j<<std::endl);
+                        VerboseLoopNetwork(1,"cutting loop "<<L<<" at "<<i<<" and "<<j<<std::endl);
 
                         std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),linkAtI.second->flow());
                         linkAtI.second->resetLoop(tempLoop,i,j);
-                        
-//                        std::cout<<"linkAtI is "<<linkAtI.second->name()<<std::endl;
-//                        std::cout<<"linkAtI->prev is "<<linkAtI.second->prev->name()<<std::endl;
-//                        std::cout<<"linkAtJ is "<<linkAtJ.second->name()<<std::endl;
-//                        std::cout<<"linkAtJ->prev is "<<linkAtJ.second->prev->name()<<std::endl;
-
                         
                         linkAtI.second->prev->next=nullptr;
                         linkAtI.second->prev=nullptr;
@@ -477,7 +477,7 @@ namespace model
                 
 
                 
-                // Collect IDs of all loops passing through both A and B
+                // Collect IDs of all loops passing through both a and b
                 std::set<size_t> loopIDs;
                 for(const auto& loopLinkA : nA.second->loopLinks())
                 {
@@ -491,12 +491,14 @@ namespace model
                     }
                 }
                 
+                // Cut those loops
                 for(const auto loopID : loopIDs)
                 {
                     cutLoop(loopID,a,b);
                 }
                 
                 
+                // Store links connected to b
                 typedef std::tuple<SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>,bool> ContractTupleType;
                 typedef std::deque<ContractTupleType> ContractDequeType;
                 ContractDequeType contractDeq;
@@ -520,7 +522,7 @@ namespace model
                     
                 }
                 
-                // Disconnect
+                // Disconnect links from b
                 for(const auto& tup : contractDeq)
                 {
                     disconnect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));

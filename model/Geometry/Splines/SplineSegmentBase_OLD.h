@@ -78,7 +78,7 @@ namespace model {
 	/************************************************************************/
 	template <typename Derived, short unsigned int dim> 
 	class SplineSegmentBase<Derived,dim,0> : public NetworkLink<Derived>,
-	/*	                                        */ public ParametricCurve<Derived, dim>
+	/*	                                  */ public ParametricCurve<Derived, dim>
     {
 		
 		

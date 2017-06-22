@@ -38,15 +38,15 @@ namespace model
     /*            */ private std::set<LoopLink<typename TypeTraits<Derived>::LinkType>*>
     {
         
-        
+    public:
+
         typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef LoopLink<LinkType> LoopLinkType;
         typedef std::set<LoopLinkType*> LoopLinkContainerType;
+        typedef std::map<size_t,LoopLinkContainerType> LinkByLoopContainerType;
         
-    public:
         
         static int verboseLevel;
-
         
         /**********************************************************************/
 
@@ -75,6 +75,18 @@ namespace model
         const LoopLinkContainerType& loopLinks() const
         {
             return *this;
+        }
+        
+        
+        /**********************************************************************/
+        LinkByLoopContainerType linksByLoopID() const
+        {
+            LinkByLoopContainerType temp;
+            for(const auto& link : loopLinks())
+            {
+                temp[link->loop()->sID].insert(link);
+            }
+            return temp;
         }
         
         /**********************************************************************/
@@ -166,6 +178,7 @@ namespace model
     template<typename Derived>
     int LoopNode<Derived>::verboseLevel=1;
 
+    
     
 }
 #endif
