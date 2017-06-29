@@ -12,6 +12,7 @@
 #include <tuple>
 #include <model/ParticleInteraction/FieldBase.h>
 #include <model/ParticleInteraction/FieldPoint.h>
+#include <model/DislocationDynamics/StressStraight.h>
 //#include <model/DislocationDynamics/BVP/BoundaryDislocationNetwork.h>
 
 
@@ -67,7 +68,18 @@ namespace model
         {
             return Material<Isotropic>::C2 * (temp+temp.transpose());
         }
-        
+  
+        template <typename ParticleType>
+        static MatrixType addSourceContribution(const ParticleType& field, const std::vector<StressStraight<dim>>& ssdeq)
+        {
+			MatrixType temp(MatrixType::Zero());
+			for (const auto& sStaight: ssdeq)
+			{
+			    temp +=sStaight.stress(field.P);
+	        }
+	        return temp;
+        }
+              
         template <typename ParticleType>
         static MatrixType addSourceContribution(const ParticleType&)
         {

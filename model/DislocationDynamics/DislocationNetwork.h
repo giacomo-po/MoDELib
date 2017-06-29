@@ -740,6 +740,29 @@ namespace model
                 //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
             }
 
+            // Use Changing external stress field induced by straight dislocations. 
+            EDR.readScalarInFile("./loadInput.txt","use_externaldislocationstressfield",shared.use_externaldislocationstressfield); 
+            if (shared.use_externaldislocationstressfield)
+            {
+				shared.ssdeq.clear();
+				typedef VertexReader<'B',10,double> VertexReaderType;
+				VertexReaderType vReader;
+				if (vReader.isGood(0,true))
+				{ 
+					vReader.read(0,true);
+					for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
+                    {
+                        VectorDimD P0(vIter->second.template segment<dim>(0  ).transpose()); // P0 position
+                        VectorDimD P1(vIter->second.template segment<dim>(dim).transpose()); // P1 position
+                        VectorDimD B(vIter->second.template segment<dim>(dim*2).transpose());  // Burgers vector 
+                        shared.ssdeq.emplace_back(StressStraight<dim>(P0,P1,B));                      
+					}
+				}
+				else
+				{
+					model::cout<<"could not read runID from B/B_0.txt"<<std::endl;
+				}					
+			}
             // Use Changing external stress field. 
             EDR.readScalarInFile("./loadInput.txt","use_externalStress",shared.use_externalStress);
             if (shared.use_externalStress)
@@ -821,7 +844,14 @@ namespace model
             //! -1 Compute the interaction StressField between dislocation particles
             model::cout<<"		Computing dislocation-dislocation interactions ("<<nThreads<<" threads)..."<<std::flush;
             
-            this->template computeNeighborField<StressField>();
+            if (shared.use_externaldislocationstressfield)
+            {
+                this->template computeNeighborField<StressField>(shared.ssdeq);
+            }
+            else
+            {
+                this->template computeNeighborField<StressField>();
+            }
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             
             //! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector

@@ -32,6 +32,7 @@ namespace model
         
 	static bool use_boundary;
 	static bool use_externalStress;
+	static bool use_externaldislocationstressfield;
 //        static bool use_meshRegions;
 
         static unsigned int use_bvp;
@@ -52,7 +53,7 @@ namespace model
         
         static BvpSolverType bvpSolver;
         static ExternalStressFieldControllerType extStressController;
-        
+        static std::vector<StressStraight<dim>> ssdeq;
         
 	};
 	
@@ -62,6 +63,9 @@ namespace model
 
     template <int dim>
 	bool DislocationSharedObjects<dim>::use_externalStress=false;
+
+    template <int dim>
+	bool DislocationSharedObjects<dim>::use_externaldislocationstressfield=false;
 
 //    template <int dim>
 //    bool DislocationSharedObjects<dim>::use_meshRegions=false;
@@ -87,7 +91,9 @@ namespace model
 
     template <int dim>
 	ExternalStressFieldController<dim> DislocationSharedObjects<dim>::extStressController;
-    
+
+    template <int dim>
+	std::vector<StressStraight<dim>> DislocationSharedObjects<dim>::ssdeq;    
 } // namespace model
 #endif
 
