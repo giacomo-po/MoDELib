@@ -39,7 +39,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef           LatticeVector<dim>              LatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
-        //        typedef LatticePlaneBase ReciprocalLatticeDirectionType;
+//        typedef LatticePlaneBase ReciprocalLatticeDirectionType;
         typedef std::vector<LatticePlaneBase> PlaneNormalContainerType;
         typedef std::vector<SlipSystem> SlipSystemContainerType;
         typedef std::vector<unsigned int> PlaneNormalIDContainerType;
@@ -56,10 +56,9 @@ namespace model
         static double tol;
         
         /* rotate *************************************************************/
-        template <typename MaterialType>
+        template <typename CrystalStructure>
         static void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in)
         {
-            typedef typename MaterialType::CrystalStructure CrystalStructure;
             
             // make sure that C2G is orthogonal
             assert((C2G_in*C2G_in.transpose()-Eigen::Matrix<double,dim,dim>::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && "CRYSTAL TO GLOBAL ROTATION MATRIX IS NOT ORTHOGONAL.");
@@ -73,7 +72,7 @@ namespace model
             slipSystemContainer=CrystalStructure::slipSystems();
             
             // Rotate the LatticeBasis of the CrystalStructure using C2G
-            LatticeBase<dim>::setLatticeBasis(C2G*CrystalStructure::template getLatticeBasis<dim,MaterialType>());
+            LatticeBase<dim>::setLatticeBasis(C2G*CrystalStructure::template getLatticeBasis<dim>());
             
             model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
             for (unsigned int k=0; k<planeNormalContainer.size();++k)
@@ -127,13 +126,13 @@ namespace model
                     assert(allowedSlipSystems.size()>=2 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO CRYSTALLOGRAPHIC PLANES.");
                 }
             }
-            
+        
             return allowedSlipSystems;
         }
         
         /**********************************************************************/
         static const LatticePlaneBase& find_glidePlane(const LatticeVectorType& chord,
-                                                       const LatticeVectorType& Burgers)
+                                                        const LatticeVectorType& Burgers)
         {/*!@param[in] chord the chord of a DislocationSegment
           * @param[in] Burgers the Burgers vector of a DislocationSegment
           *\returns A const reference to the first vector in planeNormalContainer
@@ -167,21 +166,21 @@ namespace model
         
         /**********************************************************************/
         static std::deque<const LatticePlaneBase*> conjugatePlaneNormal(const LatticeVectorType& B,
-                                                                        const ReciprocalLatticeDirectionType& N)
+                                                           const ReciprocalLatticeDirectionType& N)
         {
-            //            assert(B.dot(N)==0 && "CANNOT DETERMINE CONJUGATE PLANE FOR SESSILE SEGMENT");
-            
+//            assert(B.dot(N)==0 && "CANNOT DETERMINE CONJUGATE PLANE FOR SESSILE SEGMENT");
+
             
             std::deque<const LatticePlaneBase*> temp;
             if(B.dot(N)==0) // not sessile
             {
-                for (const auto& planeNormal : planeNormalContainer)
+            for (const auto& planeNormal : planeNormalContainer)
+            {
+                if(	 B.dot(planeNormal)==0 && N.cross(planeNormal).squaredNorm()>0)
                 {
-                    if(	 B.dot(planeNormal)==0 && N.cross(planeNormal).squaredNorm()>0)
-                    {
-                        temp.push_back(&planeNormal);
-                    }
+                    temp.push_back(&planeNormal);
                 }
+            }
             }
             return temp;
         }
@@ -228,10 +227,10 @@ namespace model
     
     template <int dim>
     std::vector<LatticePlaneBase> CrystalOrientation<dim>::planeNormalContainer=FCC::reciprocalPlaneNormals<dim>();
-    
+
     template <int dim>
     std::vector<SlipSystem> CrystalOrientation<dim>::slipSystemContainer=FCC::slipSystems();
-    
+
     
     template <int dim>
     Eigen::Matrix<double,dim,dim> CrystalOrientation<dim>::C2G=Eigen::Matrix<double,dim,dim>::Identity();

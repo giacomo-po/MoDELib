@@ -11,7 +11,7 @@
 
 #include <Eigen/Dense>
 #include <model/MPI/MPIcout.h> // defines mode::cout
-#include <model/Utilities/ScalarDataReader.h>
+#include <model/IO/ScalarDataReader.h>
 
 
 namespace model {

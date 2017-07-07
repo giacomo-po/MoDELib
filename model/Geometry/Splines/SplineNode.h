@@ -12,6 +12,7 @@
 #include <Eigen/Dense>
 #include <model/LoopNetwork/LoopNode.h>
 #include <model/Geometry/Splines/CatmullRom.h>
+#include <model/Geometry/Splines/Hermite.h>
 
 //#include <model/Math/RoundEigen.h>
 //#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
@@ -26,7 +27,7 @@ namespace model
     
     /**************************************************************************/
     /**************************************************************************/
-    template <typename Derived,	short unsigned int dim, short unsigned int corder>
+    template <typename Derived,	short unsigned int dim, short unsigned int corder,typename InterpolationType>
     class SplineNode
     {
         
@@ -36,7 +37,7 @@ namespace model
     /* Template specialization for corder=0                                   */
     /**************************************************************************/
     template <typename Derived, short unsigned int dim>
-    class SplineNode<Derived, dim,0> : public LoopNode<Derived>
+    class SplineNode<Derived, dim,0,Hermite> : public LoopNode<Derived>
     {
         
     public:
@@ -76,8 +77,8 @@ namespace model
     /* Template specialization for corder=1                                   */
     /**************************************************************************/
     template <typename Derived, short unsigned int dim>
-    class SplineNode<Derived, dim,1> :
-    /*                              */ public SplineNode<Derived, dim,0>
+    class SplineNode<Derived, dim,1,CatmullRom> :
+    /*                              */ public SplineNode<Derived, dim,0,Hermite>
     {
         
     public:
@@ -88,7 +89,9 @@ namespace model
 
         
         constexpr static int corder=1;
-        typedef SplineNode<Derived, dim,0> Base;
+        constexpr static int NdofXnode=dim;
+
+        typedef SplineNode<Derived, dim,0,Hermite> Base;
         typedef typename Base::VectorDim VectorDim;
         typedef typename Base::MatrixDim MatrixDim;
         
@@ -104,24 +107,7 @@ namespace model
             const LinkByLoopContainerType temp=this->linksByLoopID();
             for(const auto& pair : temp)
             {
-
-                loopTangents.emplace(pair.first,CatmullRom<dim>::loopTangent(pair));
-                
-//                loopTangents.emplace(pair.first,VectorDim::Zero());
-                
-//                double cT=0.0;
-//                for(const auto& link : pair.second)
-//                {
-//                    const double cL=link->pLink->parametricChordLength();
-//                    cT+=cL;
-//                }
-//                
-//                for(const auto& link : pair.second)
-//                {
-//                    const double cL=link->pLink->parametricChordLength();
-//                    loopTangents[pair.first]+=(link->sink()->get_P()-link->source()->get_P())/cL*(cT-cL)/cT;
-//                }
-                
+                loopTangents.emplace(pair.first,prjM*CatmullRom::loopTangent(pair.second));
             }
         }
         
@@ -165,7 +151,10 @@ namespace model
             Base::set_P(P_in); // forward to base class
 
             // Tangents of neighbors may change due to change in P, so updated them
-            
+            for(const auto& neighboor : this->neighbors())
+            {
+                std::get<0>(neighboor.second)->computeLoopTangents();
+            }
         }
         
         /**********************************************************************/

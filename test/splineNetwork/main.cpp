@@ -12,6 +12,9 @@
 #include <model/Utilities/TypeTraits.h>
 #include <model/Utilities/StaticID.h>
 
+
+const int corder=1;
+
 namespace model
 {
     struct Dnetwork;
@@ -62,7 +65,7 @@ namespace model
 #include <model/LoopNetwork/LoopNetwork.h>
 #include <model/Geometry/Splines/SplineNode.h>
 #include <model/Geometry/Splines/SplineSegment.h>
-#include <model/Utilities/SequentialOutputFile.h>
+#include <model/IO/SequentialOutputFile.h>
 
 //#include <Loop.h>
 
@@ -72,10 +75,10 @@ namespace model
 {
     struct Dnetwork : public LoopNetwork<Dnetwork>{};
     
-    struct Dnode : public SplineNode<Dnode,3,1>
+    struct Dnode : public SplineNode<Dnode,3,corder,CatmullRom>
     {
     
-        Dnode(const Eigen::Vector3d& P ) : SplineNode<Dnode,3,1>(P){}
+        Dnode(const Eigen::Vector3d& P ) : SplineNode<Dnode,3,corder,CatmullRom>(P){}
         
 //    Node(const int& a)
 //        {
@@ -92,11 +95,11 @@ namespace model
 //        
 //    };
     
-    struct Dlink : public SplineSegment<Dlink,3,1>//NetworkLink<Dlink>
+    struct Dlink : public SplineSegment<Dlink,3,corder>//NetworkLink<Dlink>
     {
     
         Dlink(const std::shared_ptr<Dnode>& Ni,
-              const std::shared_ptr<Dnode>& Nj) : SplineSegment<Dlink,3,1>(Ni,Nj){}
+              const std::shared_ptr<Dnode>& Nj) : SplineSegment<Dlink,3,corder>(Ni,Nj){}
         
     };
     
@@ -209,10 +212,12 @@ int main()
 ////
 ////
 //    
-//    std::cout<<"# loops="<<DN.loops().size()<<std::endl;
-//    std::cout<<"# nodes="<<DN.nodes().size()<<std::endl;
-//    std::cout<<"# loopLinks="<<DN.loopLinks().size()<<std::endl;
-//    std::cout<<"# networkLinks="<<DN.links().size()<<std::endl;
+    std::cout<<"# loops="<<DN.loops().size()<<std::endl;
+    std::cout<<"# nodes="<<DN.nodes().size()<<std::endl;
+    std::cout<<"# loopLinks="<<DN.loopLinks().size()<<std::endl;
+    std::cout<<"# networkLinks="<<DN.links().size()<<std::endl;
+//    std::cout<<"# networkComponents="<<DN.networkComponents().size()<<std::endl;
+
 ////
 ////    std::cout<<"Expanding"<<std::endl;
 ////    DN.expand(3,4);

@@ -13,7 +13,7 @@
 #include <random>
 #include <model/DislocationDynamics/MicrostructureGeneration/MicrostructureGenerator.h>
 #include <model/LatticeMath/LatticeVector.h>
-#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
+//#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
 #include <model/Utilities/SequentialOutputFile.h>
 
 
@@ -35,10 +35,10 @@ namespace model
         
     public:
         FrankReadMicrostructureGenerator() :
-        /* init list */ generator(rd()),
-        /* init list */ distribution(0,CrystalOrientation<dim>::slipSystems().size()-1)
+        /* init list */ generator(rd())
+        //        /* init list */ distribution(0,CrystalOrientation<dim>::slipSystems().size()-1)
         {
-            
+            //        this->poly.grains().
             EigenDataReader EDR;
             
             double targetDensity=0.0;
@@ -54,24 +54,17 @@ namespace model
             size_t nodeID=0;
             while(density<targetDensity)
             {
-                
-                LatticeVector<dim> L0=this->randomPointInMesh();
+                const std::pair<LatticeVector<dim>,int> rp=this->randomPointInMesh();
+                const LatticeVector<dim> L0=rp.first;
+                const int grainID=rp.second;
+
+                std::uniform_int_distribution<> distribution(0,this->poly.grain(grainID).slipSystems().size()-1);
                 
                 const int rSS=distribution(generator); // a random SlipSystem
                 
-                const auto& slipSystem=CrystalOrientation<dim>::slipSystems()[rSS];
+                const auto& slipSystem=this->poly.grain(grainID).slipSystems()[rSS];
                 
-                //                std::set<int> planeIDs;
-                //                for (unsigned int k=0;k<CrystalOrientation<dim>::planeNormals().size();++k)
-                //                {
-                //                    if(slipSystem.s.dot(CrystalOrientation<dim>::planeNormals()[k])==0)
-                //                    {
-                //                        planeIDs.insert(k);
-                //                    }
-                //                }
-                //                assert(planeIDs.size()==2 && "ONLY FCC IS SUPPORTED AT THE MOMENT.");
-                
-                ReciprocalLatticeDirection<3> sr(slipSystem.s.cartesian());
+                ReciprocalLatticeDirection<3> sr(this->poly.grain(grainID).reciprocalLatticeDirection(slipSystem.s.cartesian()));
                 
                 bool isEdge=true;
                 
@@ -81,6 +74,7 @@ namespace model
                 double d1cNorm(d1.cartesian().norm());
                 int a1=this->randomSize()/d1cNorm;
                 LatticeVector<dim> L1=L0+d1*a1;
+
                 
                 if(edgeDensity>=fractionEdge*density) // overwrite with screw dislocaiton
                 {
@@ -91,21 +85,9 @@ namespace model
                 }
                 
                 
-                //                LatticeDirection<3> d2(LatticeVector<dim>(slipSystem.s.cross(CrystalOrientation<dim>::planeNormals()[*planeIDs.rbegin()])));
-                //                if(density/targetDensity<fractionSessile)
-                //                { // overwrite d2
-                //                    assert(0 && "SESSILE LOOPS NOT SUPPORTED YET.");
-                //                }
+                const auto search1(mesh.search(L1.cartesian()));
                 
-                //                const double d2cNorm(d2.cartesian().norm());
-                
-                //                int a2=this->randomSize()/d2cNorm;
-                
-                
-                //                LatticeVector<dim> L2=L1+d2*a2;
-                //                LatticeVector<dim> L3=L2-d1*a1;
-                
-                if(   mesh.search(L1.cartesian()).first)
+                if(search1.first && search1.second->region->regionID==grainID)
                 {
                     density += d1cNorm*a1/this->mesh.volume()/pow(Material<Isotropic>::b_real,2);
                     if(isEdge)
@@ -116,22 +98,25 @@ namespace model
                     }
                     std::cout<<"density="<<density<<std::endl;
                     
-                    vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\n";
-                    vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<L1.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\n";
-                    //                    vertexFile << nodeID+2<<"\t" << std::setprecision(15)<<std::scientific<<L2.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\n";
-                    //                    vertexFile << nodeID+3<<"\t" << std::setprecision(15)<<std::scientific<<L3.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\n";
-                    
+                    vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<< grainID<<"\n";
+                    vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<L1.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<< grainID<<"\n";
                     
                     edgeFile << nodeID+0<<"\t"<< nodeID+1<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 1.0<<"\t"<< 1.0<<"\t"<< 0<<"\n";
-                    //                    edgeFile << nodeID+1<<"\t"<< nodeID+2<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 1.0<<"\t"<< 1.0<<"\t"<< 0<<"\n";
-                    //                    edgeFile << nodeID+2<<"\t"<< nodeID+3<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 1.0<<"\t"<< 1.0<<"\t"<< 0<<"\n";
-                    //                    edgeFile << nodeID+3<<"\t"<< nodeID+0<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 1.0<<"\t"<< 1.0<<"\t"<< 0<<"\n";
                     
                     nodeID+=2;
                     
                 }
             }
             
+//            // Testing GB dislocations
+//            int grainID=1;
+//            LatticeVector<dim> L0=this->poly.grainBoundaries().begin()->second.latticePlane(grainID).P;
+//            LatticeVector<dim> L1=L0+this->poly.grainBoundaries().begin()->second.latticePlane(grainID).n.primitiveVectors.first*50;
+//            LatticeVector<dim> b=this->poly.grainBoundaries().begin()->second.latticePlane(1).n.primitiveVectors.second;
+//            vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<< grainID<<"\n";
+//            vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<L1.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\n";
+//            edgeFile << nodeID+0<<"\t"<< nodeID+1<<"\t"<< std::setprecision(15)<<std::scientific<<b.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 1.0<<"\t"<< 1.0<<"\t"<< 0<<"\n";
+
         }
         
         

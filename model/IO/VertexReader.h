@@ -17,7 +17,7 @@
 #include <time.h> // clock()
 #include <assert.h>
 #include <Eigen/Dense>
-#include <model/Utilities/BinaryFileReader.h>
+#include <model/IO/BinaryFileReader.h>
 
 namespace model
 {

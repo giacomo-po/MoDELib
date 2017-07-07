@@ -415,7 +415,7 @@ namespace model
                     VectorDim dispJump(VectorDim::Zero());
                     for (const auto& segment : DN.links())
                     {
-                        segment.second.addToSolidAngleJump(fieldPoint.P,fieldPoint.S,dispJump);
+                        segment.second->addToSolidAngleJump(fieldPoint.P,fieldPoint.S,dispJump);
                     }
                     
                     for(int dof=0;dof<dofPerNode;++dof)

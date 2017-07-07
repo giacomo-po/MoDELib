@@ -34,29 +34,23 @@
 #include <model/Network/Readers/VertexReader.h>
 #include <model/Network/Readers/EdgeReader.h>
 #include <model/Mesh/SimplicialMesh.h>
-#include <model/Utilities/IDreader.h>
 
 
 namespace model
 {
     
     class MeshPlotter :
-    /*               */ public VertexReader<'D',4,float>,
-    /*               */ public IDreader<'I',1,3,int>
+    /*               */ public VertexReader<'D',4,float>
     {
         
         //		typedef VertexReader<'N',5,float> NodeContainerType;
         typedef VertexReader<'D',4,float> DispContainerType;
-        typedef IDreader<'I',1,3,int> SpecialTrianglesContainerType;
-
         //		typedef VertexReader<'Q',4,float> QuadContainerType;
         //		typedef   EdgeReader<'T',3,float> EdgeContainerType;
         
         //		bool edgeFileIsGood;
         //		bool nodeFileIsGood;
         bool dispFileIsGood;
-        bool specialTrianglesFileIsGood;
-
         //		bool quadFileIsGood;
         
         //        typedef std::vector<Eigen::Matrix<float,3,4>,Eigen::aligned_allocator<Eigen::Matrix<float,3,4> > > EdgeVectoType;
@@ -75,18 +69,10 @@ namespace model
         std::deque<std::pair<int,int>> regionsBndIDDeq;
         
         
-        std::deque<Eigen::Matrix<float,3,3> > specialTrianglesDeq;
-
-        
         Eigen::Matrix<float,6,1> sMin;
         Eigen::Matrix<float,6,1> sMax;
         
         int rMax;
-        
-        const SpecialTrianglesContainerType& specialTriangles() const
-        {
-            return *this;
-        }
         
     public:
         
@@ -109,7 +95,6 @@ namespace model
         /* Constructor ******************************************/
         MeshPlotter(const SimplicialMesh<3>* const p_mesh_in) :
         /* init list */ dispFileIsGood(false),
-        /* init list */ specialTrianglesFileIsGood(false),
         /* init list */ p_mesh(p_mesh_in),
         //        /* init list */ edgeFileIsGood(false),
         //		/* init list */ nodeFileIsGood(false),
@@ -208,57 +193,6 @@ namespace model
             {
                 DispContainerType::read(0,true);
             }
-            
-            specialTrianglesDeq.clear();
-            specialTrianglesFileIsGood=SpecialTrianglesContainerType::isGood(frameN,true);
-            if(specialTrianglesFileIsGood)
-            {
-                float dispCorr(dispScale*(showMesh>1));
-
-                
-                SpecialTrianglesContainerType::read(frameN,true);
-                
-                for(const auto& triangleID : specialTriangles())
-                {
-                    const Eigen::Matrix<size_t,3,1> xID=(Eigen::Matrix<size_t,3,1>()<<triangleID.second[0],triangleID.second[1],triangleID.second[2]).finished();
-                    
-                    
-                    Eigen::Matrix<float,3,3> vertexPositions=SimplexObserver<3,2>::simplex(xID).vertexPositionMatrix().template cast<float>();
-                    
-                    if(dispFileIsGood)
-                    {
-                        VertexReader<'D',4,float>::const_iterator iterD1(DispContainerType::find(triangleID.second[0]));
-                        VertexReader<'D',4,float>::const_iterator iterD2(DispContainerType::find(triangleID.second[1]));
-                        VertexReader<'D',4,float>::const_iterator iterD3(DispContainerType::find(triangleID.second[2]));
-
-                        assert(iterD1!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-                        assert(iterD2!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-                        assert(iterD3!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-
-                        vertexPositions.col(0)+=dispCorr*iterD1->second.segment<3>(0);
-                        vertexPositions.col(1)+=dispCorr*iterD2->second.segment<3>(0);
-                        vertexPositions.col(2)+=dispCorr*iterD3->second.segment<3>(0);
-                    }
-
-                    
-                    
-                    specialTrianglesDeq.emplace_back(vertexPositions);
-//                    
-//                    
-//                    glBegin(GL_TRIANGLES);
-//                    glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
-//                    glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
-//                    glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
-//                    glEnd();
-                    
-                }
-                
-                
-            }
-//            else
-//            {
-//                specialTrianglesDeq.clear();
-//            }
             
             //            quadFileIsGood=QuadContainerType::isGood(frameN,true);
             //            if (quadFileIsGood){
@@ -566,24 +500,6 @@ namespace model
                 }
             }
             
-            if(specialTrianglesFileIsGood)
-            {
-                glEnable(GL_COLOR_MATERIAL); // use glColor4f to set color
-
-                glColor4f(0.0, 1.0, 0.5,0.5);
-
-                
-                for(const auto& mat : specialTrianglesDeq)
-                {
-                    glBegin(GL_TRIANGLES);
-                    glVertex3f(mat.col(0)(0),mat.col(0)(1),mat.col(0)(2));
-                    glVertex3f(mat.col(1)(0),mat.col(1)(1),mat.col(1)(2));
-                    glVertex3f(mat.col(2)(0),mat.col(2)(1),mat.col(2)(2));
-                    glEnd();
-                
-                }
-            }
-            
             glDisable(GL_BLEND);
             
             glEnable(GL_DEPTH_TEST); //Makes 3D drawing work when something is in front of something else
@@ -599,7 +515,7 @@ namespace model
     // Declare static data
     bool MeshPlotter::plotBndStress=false;
     unsigned int MeshPlotter::stressCol=0;
-    bool MeshPlotter::showRegionBoundaries=false;
+    bool MeshPlotter::showRegionBoundaries=true;
     bool MeshPlotter::showSpecificSimplex=false;
     Simplex<3,3>::SimplexIDType MeshPlotter::specificSimplexID;
     

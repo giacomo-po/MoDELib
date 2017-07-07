@@ -18,7 +18,7 @@
 #include <assert.h>
 #include <utility>
 #include <Eigen/Dense>
-#include <model/Utilities/BinaryFileReader.h>
+#include <model/IO/BinaryFileReader.h>
 
 namespace model
 {

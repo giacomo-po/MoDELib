@@ -49,43 +49,6 @@ namespace model
         // A reference to the DislocationNetwork
         DislocationNetworkType& DN;
         
-    public:
-        
-        enum{dim=3};
-        typedef LatticeVector<dim> LatticeVectorType;
-        
-        
-        static double crossSlipDeg;
-        static double crossSlipLength;
-        
-        /* Constructor *******************************************************/
-        DislocationCrossSlip(DislocationNetworkType& dislocationNetwork_in) :
-        /* init list */ DN(dislocationNetwork_in)
-        {/* @param[in] dislocationNetwork_in A reference to the DislocationNetwork
-          * Constructor finds and stores DislocationSegments that must cross-slip
-          */
-            const double sinCrossSlipRad(std::sin(crossSlipDeg*M_PI/180.0));
-            
-            //! 1-Loop over DislocationSegment(s), check cross-slip criterion and store CrossSlipSegment(s)
-            for (typename NetworkLinkContainerType::iterator linkIter =DN.linkBegin();
-                 /*                                       */ linkIter!=DN.linkEnd();
-                 /*                                       */ linkIter++)
-            {
-                
-                if ( !linkIter->second.source->isBoundaryNode() && !linkIter->second.sink->isBoundaryNode()
-                    && linkIter->second.chord().normalized().cross(linkIter->second.Burgers.normalized()).norm()<=sinCrossSlipRad
-                    && !linkIter->second.isSessile
-                    && linkIter->second.chord().norm()>2.5*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
-                {
-                    const LatticePlaneBase& conjugatePlaneBase=CrossSlipModels::maxRSS(linkIter->second);
-                    if(conjugatePlaneBase != linkIter->second.glidePlane.n)
-                    {
-                        this->emplace_back(linkIter->second,conjugatePlaneBase);
-                    }
-                }
-            }
-        }
-        
         /* crossSlip *******************************************************/
         size_t crossSlip()
         {
@@ -95,7 +58,7 @@ namespace model
             //! 2- Loop over container of CrossSlipSegment(s) and perform cross-slip
             for (const auto& css : *this)
             {
-
+                
                 const size_t sourceCP=css.source.confiningPlanes().size();
                 const size_t   sinkCP=css.  sink.confiningPlanes().size();
                 
@@ -131,7 +94,7 @@ namespace model
                     //                            }
                     //                        }
                     //                    }
-
+                    
                     
                     const LatticeLine line(css.midPoint,css.Burgers);
                     sourceL=LatticeVectorType(line.snapToLattice(css.source.get_P()));
@@ -152,7 +115,7 @@ namespace model
                 }
                 else // if nodes cannot be moved, make sure that they are in perfect screw direction
                 {
-                                        //std::cout<<"CrossSlip case 4"<<std::endl;
+                    //std::cout<<"CrossSlip case 4"<<std::endl;
                     if((css.source.get_L()-css.sink.get_L()).cross(css.Burgers).squaredNorm()>0)
                     {// points perfectly aligned
                         nodesOk=false;
@@ -166,10 +129,12 @@ namespace model
                 const double dirDotPK(dir.dot(css.pkForce));
                 const double sgnDir((dirDotPK > 0.0) ? 1.0 : ((dirDotPK < 0.0) ? -1.0 : 0.0));
                 const LatticePlane conjugatePlane(sourceL,css.conjugatePlaneBase);
-                const VectorDimD conjugatePoint=conjugatePlane.snapToLattice(midPoint+sgnDir*dir*(css.source.get_V()*0.5+css.sink.get_V()*0.5).norm()*DN.get_dt());
-                const LatticeVectorType conjugateL(conjugatePoint);
+                //                const VectorDimD conjugatePoint=conjugatePlane.snapToLattice(midPoint+sgnDir*dir*(css.source.get_V()*0.5+css.sink.get_V()*0.5).norm()*DN.get_dt());
+                //                const LatticeVectorType conjugateL(conjugatePoint);
+                const LatticeVectorType conjugateL(conjugatePlane.snapToLattice(midPoint+sgnDir*dir*(css.source.get_V()*0.5+css.sink.get_V()*0.5).norm()*DN.get_dt()));
+                const VectorDimD conjugatePoint=conjugateL.cartesian();
                 const VectorDimD crossSlipVelocity((conjugatePoint-midPoint)/DN.get_dt());
-
+                
                 
                 //std::cout<<(conjugateL-sourceL).dot(css.conjugatePlaneBase)<<std::endl;
                 //std::cout<<(sinkL-conjugateL).dot(css.conjugatePlaneBase)<<std::endl;
@@ -183,12 +148,15 @@ namespace model
                 if (DN.shared.use_boundary)
                 {
                     nodesOk*=DN.shared.mesh.isStrictlyInsideMesh(sourceL.cartesian(), css.source.includingSimplex(),FLT_EPSILON).first;
+                    nodesOk*=DN.shared.mesh.isStrictlyInsideMesh(sourceL.cartesian(), css.source.includingSimplex(),FLT_EPSILON).second->region->regionID==css.grainID;
                     if (nodesOk)
                     {
                         nodesOk*=DN.shared.mesh.isStrictlyInsideMesh(sinkL.cartesian(),css.sink.includingSimplex(),FLT_EPSILON).first;
+                        nodesOk*=DN.shared.mesh.isStrictlyInsideMesh(sinkL.cartesian(), css.source.includingSimplex(),FLT_EPSILON).second->region->regionID==css.grainID;
                         if (nodesOk)
                         {
                             nodesOk*=DN.shared.mesh.isStrictlyInsideMesh(conjugatePoint,css.source.includingSimplex(),FLT_EPSILON).first;
+                            nodesOk*=DN.shared.mesh.isStrictlyInsideMesh(conjugatePoint, css.source.includingSimplex(),FLT_EPSILON).second->region->regionID==css.grainID;
                         }
                     }
                     
@@ -201,18 +169,81 @@ namespace model
                     css.  sink.set(sinkL);
                     
                     // expand
-                    std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(css.source.sID,css.sink.sID,conjugateL,crossSlipVelocity);
-                    assert(temp.second && "COULD NOT DO THIRD EXPANSION IN CROSS SLIP");
-                     n_crossSlips++;
+                    
+                    //assert(0 && "REMOVE EXPAND OPERATION AND USE ONE VERTEX INSERTIONS AND TWO VERTEX CONNECTIONS");
+                    const size_t newNodeID(DN.insertVertex(conjugateL.cartesian(),css.source.grain.grainID,crossSlipVelocity).first->first);
+                    DN.connect(css.source.sID,newNodeID,css.Burgers);
+                    DN.connect(newNodeID,css.sink.sID,css.Burgers);
+                    DN.template disconnect<false>(css.source.sID,css.sink.sID);
+                    
+                    
+                    //                    std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(css.source.sID,css.sink.sID,conjugateL,crossSlipVelocity);
+                    //                   assert(temp.second && "COULD NOT DO THIRD EXPANSION IN CROSS SLIP");
+                    n_crossSlips++;
                 }
                 
             } // end for loop
             return  n_crossSlips;
         }
         
+    public:
+        
+        enum{dim=3};
+        typedef LatticeVector<dim> LatticeVectorType;
+        
+        static bool use_crossSlip;
+        static double crossSlipDeg;
+        static double crossSlipLength;
+        
+        /* Constructor *******************************************************/
+        DislocationCrossSlip(DislocationNetworkType& dislocationNetwork_in) :
+        /* init list */ DN(dislocationNetwork_in)
+        {/* @param[in] dislocationNetwork_in A reference to the DislocationNetwork
+          * Constructor finds and stores DislocationSegments that must cross-slip
+          */
+            
+            if(use_crossSlip)
+            {
+                const auto t0= std::chrono::system_clock::now();
+                model::cout<<"		performing cross-slip ... ("<<std::flush;
+                
+                const double sinCrossSlipRad(std::sin(crossSlipDeg*M_PI/180.0));
+                
+                //! 1-Loop over DislocationSegment(s), check cross-slip criterion and store CrossSlipSegment(s)
+                for (typename NetworkLinkContainerType::iterator linkIter =DN.linkBegin();
+                     /*                                       */ linkIter!=DN.linkEnd();
+                     /*                                       */ linkIter++)
+                {
+                    
+                    if ( !linkIter->second.source->isBoundaryNode() && !linkIter->second.sink->isBoundaryNode()
+                        && linkIter->second.chord().normalized().cross(linkIter->second.Burgers.normalized()).norm()<=sinCrossSlipRad
+                        && !linkIter->second.isSessile
+                        && linkIter->second.chord().norm()>2.5*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                    {
+                        const LatticePlaneBase& conjugatePlaneBase=CrossSlipModels::maxRSS(linkIter->second);
+                        if(conjugatePlaneBase != linkIter->second.glidePlane.n)
+                        {
+                            this->emplace_back(linkIter->second,conjugatePlaneBase);
+                        }
+                    }
+                }
+                
+                size_t crossSlipEvents=crossSlip();
+                model::cout<<crossSlipEvents<<" cross-slip events) ";
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+                
+            }
+        }
+        
+
+        
     };
     
     // Static data
+    template <typename DislocationNetworkType>
+    bool DislocationCrossSlip<DislocationNetworkType>::use_crossSlip=false;
+
+    
     template <typename DislocationNetworkType>
     double DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg=2.0;
     
@@ -295,4 +326,3 @@ namespace model
 //                CSC.emplace_back(linkIter->second.isCrossSlipSegment(sinCrossSlipRad,crossSlipLength));
 //
 //			}
-

@@ -14,11 +14,10 @@
 #include <deque>
 #include <float.h>
 #include <Eigen/Dense>
-#include <model/Network/NetworkComponent.h>
+#include <model/LoopNetwork/NetworkComponent.h>
 
 //#include <model/Math/SchurComplementSolver.h>
 #include <Eigen/Sparse>
-//#include <model/Math/MINRES.h>
 #include <unsupported/Eigen/IterativeSolvers>
 #include <Eigen/SparseCholesky> // simplicial DLDT
 

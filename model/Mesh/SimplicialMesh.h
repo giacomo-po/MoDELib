@@ -17,9 +17,9 @@
 #include <set>
 
 #include <map>
-#include <model/Network/Readers/VertexReader.h>
+#include <model/IO/VertexReader.h>
 #include <model/Utilities/TerminalColors.h>
-#include <model/Utilities/SequentialBinFile.h>
+#include <model/IO/SequentialBinFile.h>
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Mesh/Simplex.h>
 #include <model/Mesh/SimplexReader.h>

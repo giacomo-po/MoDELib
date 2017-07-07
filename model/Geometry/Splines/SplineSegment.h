@@ -24,7 +24,7 @@
 //#include <model/Geometry/Splines/Intersection/SplineIntersection.h>
 #include <model/Geometry/Splines/Coeff2Hermite.h>
 #include <model/Geometry/Splines/SplineShapeFunction.h>
-#include <model/Network/Operations/EdgeFinder.h>
+//#include <model/Network/Operations/EdgeFinder.h>
 //#include <Eigen/Sparse>
 #include <model/Math/MatrixCompanion.h>
 
@@ -72,17 +72,18 @@ namespace model
     /************************************************************************/
     /* SplineSegment, general case **************************************/
     /************************************************************************/
-    template <typename Derived, short unsigned int dim,short unsigned int corder>
+    template <typename Derived, short unsigned int _dim,short unsigned int corder>
     class SplineSegment : public NetworkLink<Derived>,
-    /*                 */ public ParametricCurve<Derived,dim>
+    /*                 */ public ParametricCurve<Derived,_dim>
     {
         
-        static_assert(dim>=1 && dim <=3,"DIMENSION MUST BE 1, 2 or 3."); // requires c++11
+        static_assert(_dim>=1 && _dim <=3,"DIMENSION MUST BE 1, 2 or 3."); // requires c++11
         static_assert(corder>=0 && corder <=2,"CONTINUITY ORDER MUST BE 0, 1 or 2."); // requires c++11
         
         
     public:
         //enum  {dim=_dim};
+        static constexpr int dim= _dim;
         static constexpr int Ncoeff= 2*(corder+1);
         static constexpr int pOrder= 2*corder+1;
         static constexpr int Ndof  = dim*Ncoeff;
@@ -112,75 +113,6 @@ namespace model
         typedef SplineShapeFunction<dim,corder> SplineShapeFunctionType;
         typedef ParametricCurve<Derived,dim> ParametricCurveType;
         
-        //#include<model/Geometry/Splines/SplineEnums.h>
-        
-        
-        
-        //protected:
-        //
-        //Eigen::Matrix<double,qOrder,Ncoeff> SFgauss;
-        
-        //        int sourceTfactor; // LEAVE THIS UNINITIALIZED: this is calculated in TopologyChangeActions of source node, which happens before constructor of this
-        //        int sinkTfactor;   // LEAVE THIS UNINITIALIZED: this is calculated in TopologyChangeActions of   sink node, which happens before constructor of this
-        //
-        //
-        /**********************************************************************/
-        VectorDim sourceT() const
-        {
-            VectorDim temp=VectorDim::Zero();
-            int n=0;
-            for(const auto& link : this->loopLinks())
-            {
-                if(this->source->sID==link->source()->sID && this->sink->sID==link->sink()->sID)
-                {
-                    temp+=this->source->tangents().at(link->loop()->sID);
-                    n++;
-                }
-                else if(this->source->sID==link->sink()->sID && this->sink->sID==link->source()->sID)
-                {
-                    temp-=this->source->tangents().at(link->loop()->sID);
-                    n++;
-                }
-                else
-                {
-                    assert(0);
-                }
-            }
-            
-            return n==0? temp : temp/n;
-            
-//            return this->source->get_T()*sourceTfactor;
-        }
-        
-        /**********************************************************************/
-        VectorDim sinkT() const
-        {
-            VectorDim temp=VectorDim::Zero();
-            int n=0;
-            for(const auto& link : this->loopLinks())
-            {
-                if(this->source->sID==link->source()->sID && this->sink->sID==link->sink()->sID)
-                {
-                    temp+=this->sink->tangents().at(link->loop()->sID);
-                    n++;
-                }
-                else if(this->source->sID==link->sink()->sID && this->sink->sID==link->source()->sID)
-                {
-                    temp-=this->sink->tangents().at(link->loop()->sID);
-                    n++;
-                }
-                else
-                {
-                    assert(0);
-                }
-            }
-            
-            return n==0? temp : temp/n;
-            //AFTER INTRODUCING THE ENERGY CRITERION CHANGE THIS IN A -1
-            //return -this->sink->get_T()*sinkTfactor;
-            //return this->sink->get_T()*sinkTfactor;
-        }
-        
     public:
         
         static double alpha;
@@ -198,16 +130,16 @@ namespace model
         }
         
         /**********************************************************************/
-        MatrixNcoeffDim get_qH() const
-        {/*!\returns The matrix of Hermite dof of this spline segment.
-          *  [P0x P0y P0z;T0x T0y T0z;P1x P1y P1z;T1x T1y T1z]
-          */
-            return (MatrixNcoeffDim()<< this->source->get_P().transpose(),
-                    /*            */	sourceT().transpose(),
-                    /*            */	this->  sink->get_P().transpose(),
-                    /*            */	sinkT().transpose()).finished();
+        MatrixNcoeffDim hermiteDofs() const
+        {
+            return SplineShapeFunctionType::hermiteDofs(*this);
         }
         
+        /**********************************************************************/
+        MatrixNcoeff sfCoeffs() const
+        {
+            return SplineShapeFunctionType::sfCoeffs(parametricChordLength());
+        }
         
         /******************************************************************************/
         VectorDim chord() const
@@ -229,8 +161,6 @@ namespace model
             return std::pow(chordLength(),alpha);
         }
         
-        
-        
         /******************************************************************************/
         VectorDim get_r(const double & u) const
         {/*!\returns The position vector at parameter u
@@ -242,13 +172,13 @@ namespace model
           * with i=0..dim-1, k,m = 0... Ncoeff
           * ACTUALLY IN THE CODE WE HAVE THE TRANSPOSE OF THIS !!!!
           */
-            return SplineShapeFunctionType::sf(u,parametricChordLength())*get_qH();
+            return SplineShapeFunctionType::sf(u,parametricChordLength())*hermiteDofs();
         }
         
         /******************************************************************************/
         VectorDim get_ru(const double & uin) const
         {
-            return SplineShapeFunctionType::sfDiff1(uin,parametricChordLength())*get_qH();
+            return SplineShapeFunctionType::sfDiff1(uin,parametricChordLength())*hermiteDofs();
         }
         
         /******************************************************************************/
@@ -260,7 +190,7 @@ namespace model
         /******************************************************************************/
         VectorDim get_ruu(const double & uin) const
         {
-            return SplineShapeFunctionType::sfDiff2(uin,parametricChordLength())*get_qH();
+            return SplineShapeFunctionType::sfDiff2(uin,parametricChordLength())*hermiteDofs();
         }
         
         /******************************************************************************/
@@ -371,8 +301,6 @@ namespace model
     //static data
     template <typename Derived, short unsigned int dim,short unsigned int corder>
     double SplineSegment<Derived,dim,corder>::alpha=0.5;
-    
-    
     
 }
 #endif

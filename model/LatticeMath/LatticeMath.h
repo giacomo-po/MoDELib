@@ -11,6 +11,10 @@
 
 namespace model
 {
+
+    template <int dim>
+    class Lattice;
+    
     template <int dim>
     class LatticeVector;
 
@@ -23,11 +27,12 @@ namespace model
 
 } // end namespace
 
-#include <model/LatticeMath/LatticeGCD.h>
-#include <model/LatticeMath/LatticeBase.h>
+//#include <model/LatticeMath/LatticeGCD.h>
+//#include <model/LatticeMath/LatticeBase.h>
+#include <model/LatticeMath/Lattice.h>
 #include <model/LatticeMath/LatticeVector.h>
-#include <model/LatticeMath/LatticeDirection.h>
 #include <model/LatticeMath/ReciprocalLatticeVector.h>
+#include <model/LatticeMath/LatticeDirection.h>
 #include <model/LatticeMath/ReciprocalLatticeDirection.h>
 
 #include <model/LatticeMath/LatticePlaneBase.h>

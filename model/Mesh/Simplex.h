@@ -21,7 +21,7 @@
 #include <model/Mesh/SimplexBase.h>
 #include <model/Mesh/SimplexChild.h>
 #include <model/Mesh/MeshRegion.h>
-#include <model/Network/Readers/VertexReader.h>
+#include <model/IO/VertexReader.h>
 #include <model/FEM/BarycentricTraits.h>
 #include <model/Mesh/SimplexVolume.h>
 

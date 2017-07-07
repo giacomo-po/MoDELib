@@ -20,21 +20,43 @@ namespace model
         typedef LatticeVector<3>    LatticeVectorType;
         
         const LatticeVectorType P;
-        const LatticePlaneBase& n;
+        const LatticePlaneBase n;
         
+        /**********************************************************************/
         LatticePlane(const LatticeVectorType& P_in,const LatticePlaneBase& n_in) :
         /* init */ P(P_in),
         /* init */ n(n_in)
-        {}
-        
-        Eigen::Matrix<double,3,1> snapToLattice(const Eigen::Matrix<double,3,1>& P0) const
         {
-            return P.cartesian()+n.snapToLattice(P0-P.cartesian());
+            assert(&P.lattice==&n.lattice && "LatticeVectors have different bases.");
+//            assert(&P.covBasis==&n.covBasis && "LatticeVectors have different bases.");
+//            assert(&P.contraBasis==&n.contraBasis && "LatticeVectors have different bases.");
         }
         
+//        /**********************************************************************/
+//        Eigen::Matrix<double,3,1> snapToLattice(const Eigen::Matrix<double,3,1>& P0) const
+//        {
+//            return P.cartesian()+n.snapToLattice(P0-P.cartesian());
+//        }
+        
+        /**********************************************************************/
+        LatticeVectorType snapToLattice(const Eigen::Matrix<double,3,1>& P0) const
+        {
+            return P+n.snapToLattice(P0-P.cartesian());
+        }
+        
+        /**********************************************************************/
         bool contains(const LatticeVectorType& L) const
         {
+            assert(&P.lattice==&L.lattice && "LatticeVectors have different bases.");
+//            assert(&P.covBasis==&L.covBasis && "LatticeVectors have different bases.");
+//            assert(&P.contraBasis==&L.contraBasis && "LatticeVectors have different bases.");
             return (L-P).dot(n)==0;
+        }
+        
+        /**********************************************************************/
+        bool contains(const Eigen::Matrix<double,3,1>& P0) const
+        {
+            return fabs((P0-P.cartesian()).dot(n.cartesian()))<FLT_EPSILON;
         }
         
     };

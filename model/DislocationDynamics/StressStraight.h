@@ -25,12 +25,6 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
         
-        
-        const VectorDim P0;
-        const VectorDim P1;
-        const VectorDim b;
-        const VectorDim t;
-
         /**********************************************************************/
         MatrixDim stress_kernel(const VectorDim& r) const
         {
@@ -59,6 +53,12 @@ namespace model
         }
         
     public:
+        
+        const VectorDim P0;
+        const VectorDim P1;
+        const VectorDim b;
+        const VectorDim t;
+        
         /**********************************************************************/
         StressStraight(const VectorDim& _P0,const VectorDim& _P1, const VectorDim& _b) :
         /* init list */ P0(_P0),

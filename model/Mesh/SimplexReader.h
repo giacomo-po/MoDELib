@@ -12,7 +12,7 @@
 #include <iostream>
 #include <Eigen/Dense>
 #include <model/Mesh/SimplexTraits.h>
-#include <model/Network/Readers/VertexReader.h>
+#include <model/IO/VertexReader.h>
 
 namespace model {
     

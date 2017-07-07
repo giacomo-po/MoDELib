@@ -21,9 +21,10 @@ namespace model
     
     struct FCC
     {
+        static constexpr auto name="FCC";
         
         /**********************************************************************/
-        template <int dim,typename MaterialType>
+        template <int dim>
         static Eigen::Matrix<double,dim,dim> getLatticeBasis()
         {/*!\returns The matrix of lattice vectors (cartesian cooridinates in columns), 
           * in units of the crystallographic Burgers vector.
@@ -39,57 +40,63 @@ namespace model
         
         /**********************************************************************/
         template <int dim>
-        static std::vector<LatticePlaneBase> reciprocalPlaneNormals()
+//        static std::vector<LatticePlaneBase> reciprocalPlaneNormals(const Eigen::Matrix<double,dim,dim>& covBasis,
+//                                                                    const Eigen::Matrix<double,dim,dim>& contraBasis)
+        static std::vector<LatticePlaneBase> reciprocalPlaneNormals(const Lattice<dim>& lat)
+
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */
+            
+
             typedef Eigen::Matrix<long int,dim,1> VectorDimI;
             
             typedef LatticeVector<dim> LatticeVectorType;
-            LatticeVectorType a1(VectorDimI(1,0,0));
-            LatticeVectorType a2(VectorDimI(0,1,0));
-            LatticeVectorType a3(VectorDimI(0,0,1));
-            
+            LatticeVectorType a1(VectorDimI(1,0,0),lat); // [011]
+            LatticeVectorType a2(VectorDimI(0,1,0),lat); // [101]
+            LatticeVectorType a3(VectorDimI(0,0,1),lat); // [110]
             std::vector<LatticePlaneBase> temp;
             temp.emplace_back(a1,a3);           // is (-1, 1,-1) in cartesian
             temp.emplace_back(a3,a2);           // is ( 1,-1,-1) in cartesian
             temp.emplace_back(a2,a1);           // is (-1,-1, 1) in cartesian
             temp.emplace_back(a1-a3,a2-a3);     // is ( 1, 1, 1) in cartesian
-            
             return temp;
         }
-        
+//
         /**********************************************************************/
-        static std::vector<SlipSystem> slipSystems()
+        template <int dim>
+//        static std::vector<SlipSystem> slipSystems(const Eigen::Matrix<double,dim,dim>& covBasis,
+//                                                   const Eigen::Matrix<double,dim,dim>& contraBasis)
+        static std::vector<SlipSystem> slipSystems(const Lattice<dim>& lat)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */
             typedef Eigen::Matrix<long int,3,1> VectorDimI;
             
             typedef LatticeVector<3> LatticeVectorType;
-            LatticeVectorType a1(VectorDimI(1,0,0));
-            LatticeVectorType a2(VectorDimI(0,1,0));
-            LatticeVectorType a3(VectorDimI(0,0,1));
+            LatticeVectorType a1(VectorDimI(1,0,0),lat);
+            LatticeVectorType a2(VectorDimI(0,1,0),lat);
+            LatticeVectorType a3(VectorDimI(0,0,1),lat);
             
             std::vector<SlipSystem> temp;
             temp.emplace_back(a1,a3, a1);           // is (-1, 1,-1) in cartesian
-            temp.emplace_back(a1,a3,-a1);           // is (-1, 1,-1) in cartesian
+            temp.emplace_back(a1,a3,a1*(-1));           // is (-1, 1,-1) in cartesian
             temp.emplace_back(a1,a3, a3);           // is (-1, 1,-1) in cartesian
-            temp.emplace_back(a1,a3,-a3);           // is (-1, 1,-1) in cartesian
+            temp.emplace_back(a1,a3,a3*(-1));           // is (-1, 1,-1) in cartesian
             temp.emplace_back(a1,a3,a1-a3);           // is (-1, 1,-1) in cartesian
             temp.emplace_back(a1,a3,a3-a1);           // is (-1, 1,-1) in cartesian
 
             temp.emplace_back(a3,a2, a3);           // is ( 1,-1,-1) in cartesian
-            temp.emplace_back(a3,a2,-a3);           // is ( 1,-1,-1) in cartesian
+            temp.emplace_back(a3,a2,a3*(-1));           // is ( 1,-1,-1) in cartesian
             temp.emplace_back(a3,a2, a2);           // is ( 1,-1,-1) in cartesian
-            temp.emplace_back(a3,a2,-a2);           // is ( 1,-1,-1) in cartesian
+            temp.emplace_back(a3,a2,a2*(-1));           // is ( 1,-1,-1) in cartesian
             temp.emplace_back(a3,a2,a3-a2);           // is ( 1,-1,-1) in cartesian
             temp.emplace_back(a3,a2,a2-a3);           // is ( 1,-1,-1) in cartesian
 
             temp.emplace_back(a2,a1, a2);           // is (-1,-1, 1) in cartesian
-            temp.emplace_back(a2,a1,-a2);           // is (-1,-1, 1) in cartesian
+            temp.emplace_back(a2,a1,a2*(-1));           // is (-1,-1, 1) in cartesian
             temp.emplace_back(a2,a1, a1);           // is (-1,-1, 1) in cartesian
-            temp.emplace_back(a2,a1,-a1);           // is (-1,-1, 1) in cartesian
+            temp.emplace_back(a2,a1,a1*(-1));           // is (-1,-1, 1) in cartesian
             temp.emplace_back(a2,a1,a2-a1);           // is (-1,-1, 1) in cartesian
             temp.emplace_back(a2,a1,a1-a2);           // is (-1,-1, 1) in cartesian
 
@@ -100,7 +107,6 @@ namespace model
             temp.emplace_back(a1-a3,a2-a3, a1-a2);     // is ( 1, 1, 1) in cartesian
             temp.emplace_back(a1-a3,a2-a3, a2-a1);     // is ( 1, 1, 1) in cartesian
 
-            
             return temp;
         }
 

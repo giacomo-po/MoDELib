@@ -15,7 +15,7 @@
 #include <memory>
 #include <assert.h>
 #include <tuple>
-
+#include <limits.h>
 //#include <iterator>
 
 #include <model/Utilities/StaticID.h>
@@ -24,6 +24,7 @@
 //#include <vector>
 //#include <Eigen/Dense>
 //#include <Eigen/StdVector>
+#include <model/LoopNetwork/NetworkComponent.h>
 #include <model/MPI/MPIcout.h>
 #include <model/LoopNetwork/NodeObserver.h>
 #include <model/LoopNetwork/LoopLink.h>
@@ -41,13 +42,58 @@ namespace model
     {
         
     public:
-
+        
+        typedef Derived NodeType;
         typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef LoopLink<LinkType> LoopLinkType;
         typedef std::set<LoopLinkType*> LoopLinkContainerType;
         typedef std::map<size_t,LoopLinkContainerType> LinkByLoopContainerType;
         typedef std::tuple<Derived* const ,LinkType* const,short int>				NeighborType;
         typedef std::map<size_t,NeighborType>						    	NeighborContainerType;
+
+        typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
+
+        friend class NetworkLink<LinkType>; // allow NetworkLink to call private NetworkNode::formNetworkComponent
+
+    private:
+        
+        std::shared_ptr<NetworkComponentType> psn;
+
+        /**********************************************************************/
+        void resetPSN()
+        {
+            //! 1- Removes this from the current NetworkComponent
+            this->psn->remove(this->p_derived());
+            //! 2- Creates a new NetworkComponent containing this
+            this->psn.reset(new NetworkComponentType(this->p_derived()));
+            //! 3- Transmits 'formNetworkComponent' to the neighbors
+            typedef void (Derived::*node_member_function_pointer_type)(const std::shared_ptr<NetworkComponentType>&);
+            node_member_function_pointer_type Nmfp(&Derived::formNetworkComponent);
+            //			Nmfp=&Derived::formNetworkComponent;
+            typedef void (LinkType::*link_member_function_pointer_type)(const std::shared_ptr<NetworkComponentType>&);
+            link_member_function_pointer_type Lmfp(&LinkType::formNetworkComponent);
+            //			Lmfp=&LinkType::formNetworkComponent;
+            depthFirstExecute(Nmfp,Lmfp,this->psn);
+        }
+        
+        /**********************************************************************/
+        void formNetworkComponent(const std::shared_ptr<NetworkComponentType> & psnOther)
+        {/*!@param[in] psnOther a shared_ptr to another NetworkComponent
+          *
+          * If the shared_ptr to the NetworkComponent of *this is different from
+          * psnOther, the former is reset (this may destroy the NetworkComponent)
+          * and reassigned to psnOther.
+          */
+            if (psn!=psnOther)
+            {
+                psn->remove(this->p_derived());
+                psn=psnOther;		// redirect psn to the new NetworkComponent
+                psn->add(this->p_derived());	// add this in the new NetworkComponent
+            }
+        }
+        
+    public:
+
 
         
         static int verboseLevel;
@@ -57,7 +103,8 @@ namespace model
         LoopNode(const LoopNode&) =delete;
     
         /**********************************************************************/
-        LoopNode()
+        LoopNode() :
+        /* init list */ psn(new NetworkComponentType(this->p_derived()))
         {
             VerboseLoopNode(1,"Contructing LoopNode "<<name()<<std::endl);
 
@@ -73,6 +120,9 @@ namespace model
             NodeObserver<Derived>::removeNode(this->p_derived());
             
             assert(loopLinks().empty());
+            
+            this->psn->remove(this->p_derived());
+
         }
     
         /**********************************************************************/
@@ -234,10 +284,86 @@ namespace model
         }
         
         /**********************************************************************/
+        const std::shared_ptr<NetworkComponentType> & pSN() const
+        {/*!\returns A const reference to the shared-pointer to the
+          * NetworkComponent containing this.
+          */
+            return psn;
+        }
+        
+        /**********************************************************************/
         std::string name() const
         {/*!\returns the string "i" where i is this->sID
           */
             return std::to_string(this->sID) ;
+        }
+        
+        /**********************************************************************/
+        template <typename T>
+        void depthFirstExecute(void (Derived::*Nfptr)(const T&),void (LinkType::*Lfptr)(const T&), const T & input, const size_t& N = ULONG_MAX)
+        {
+            std::set<size_t> searchedNodes;
+            std::set<std::pair<size_t,size_t> > searchedLinks;
+            depthFirstExecute(searchedNodes,searchedLinks,Nfptr,Lfptr,input, N);
+        }
+        
+        /**********************************************************************/
+        template <typename T>
+        void depthFirstExecute(std::set<size_t>& searchedNodes,
+                               std::set<std::pair<size_t,size_t> >& searchedLinks,
+                               void (Derived::*Nfptr)(const T&),void (LinkType::*Lfptr)(const T&),
+                               const T & input,
+                               const size_t& N = ULONG_MAX)
+        {
+            (this->p_derived()->*Nfptr)(input); // execute Nfptr on this node
+            if (N!=0)
+            {
+                assert(searchedNodes.insert(this->sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
+                for (const auto& neighborIter : neighbors())
+                {
+                    if (!std::get<2>(neighborIter.second)==0)
+                    {
+                        if (searchedLinks.find(std::get<1>(neighborIter.second)->nodeIDPair)==searchedLinks.end())
+                        {  // neighbor not searched
+                            (std::get<1>(neighborIter.second)->*Lfptr)(input); // execute Lfptr on connecting link
+                            assert(searchedLinks.insert(std::get<1>(neighborIter.second)->nodeIDPair).second && "CANNOT INSERT CURRENT LINK IN SEARCHED LINKS"); // this node has been searched
+                        }
+                    }
+                    if (searchedNodes.find(std::get<0>(neighborIter.second)->sID)==searchedNodes.end())
+                    {  // neighbor not searched
+                        std::get<0>(neighborIter.second)->depthFirstExecute(searchedNodes,searchedLinks,Nfptr,Lfptr,input, N-1); // continue executing on neighbor
+                    }
+                }
+            }
+        }
+        
+        /**********************************************************************/
+        bool depthFirstSearch (const size_t& ID, const size_t& N = ULONG_MAX) const
+        {
+            std::set<size_t> searchedNodes;
+            return depthFirstSearch(searchedNodes,ID,N);
+        }
+        
+        /**********************************************************************/
+        bool depthFirstSearch (std::set<size_t>& searchedNodes, const size_t& ID, const size_t& N = ULONG_MAX) const
+        {
+            bool reached(this->sID==ID);
+            if (N!=0 && !reached)
+            {
+                assert(searchedNodes.insert(this->sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
+                for (const auto& neighborIter : neighbors())
+                {
+                    if (searchedNodes.find(std::get<0>(neighborIter.second)->sID)==searchedNodes.end())
+                    {  // neighbor not searched
+                        reached=std::get<0>(neighborIter.second)->depthFirstSearch(searchedNodes,ID,N-1); // ask if neighbor can reach
+                        if (reached)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            return reached;
         }
         
     };

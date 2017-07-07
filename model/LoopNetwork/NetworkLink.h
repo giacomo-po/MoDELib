@@ -13,6 +13,7 @@
 #include <model/Utilities/CRTP.h>
 #include <model/LoopNetwork/LoopLink.h>
 #include <model/LoopNetwork/NetworkLinkObserver.h>
+#include <model/LoopNetwork/NetworkComponent.h>
 
 
 namespace model
@@ -24,52 +25,119 @@ namespace model
         
     public:
         
-        typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
+//        typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
         typedef typename TypeTraits<Derived>::NodeType NodeType;
         typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef typename TypeTraits<Derived>::LoopType LoopType;
         typedef typename TypeTraits<Derived>::FlowType FlowType;
-
+        
         typedef LoopLink<Derived> LoopLinkType;
         //        typedef std::set<const LoopLinkType*> LoopLinkContainerType;
         typedef std::set<LoopLinkType*> LoopLinkContainerType;
         
+        typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
+        
+        
+        friend class LoopNode<NodeType>; // allow NetworkNode to call private NetworkLink::formNetworkComponent
+        
     private:
         
-        FlowType _flow;
+        std::shared_ptr<NetworkComponentType> psn;
+//        FlowType _flow;
+        
+        
+        /* formNetworkComponent ***********************************************/
+        void formNetworkComponent(const std::shared_ptr<NetworkComponentType> & psnOther)
+        {
+            if (psn!=psnOther)
+            {
+                psn->remove(this->p_derived());
+                psn=psnOther;		// redirect psn to the new NetworkComponent
+                psn->add(this->p_derived());    // add this in the new NetworkComponent
+            }
+        }
+        
+        /**********************************************************************/
+        void changeSN(const NetworkComponent<NodeType,LinkType>& SN)
+        {
+            
+            const std::map<size_t,NodeType* const> tempNodeMap(SN);
+            const std::map<std::pair<size_t,size_t>,LinkType* const> tempLinkMap(SN);
+            
+            for (typename std::map<size_t,NodeType* const>::const_iterator vIter=tempNodeMap.begin();vIter!=tempNodeMap.end();++vIter)
+            {
+                vIter->second->formNetworkComponent(psn);
+            }
+            
+            for (typename std::map<std::pair<size_t,size_t>,LinkType* const>::const_iterator lIter=tempLinkMap.begin();lIter!=tempLinkMap.end();++lIter)
+            {
+                lIter->second->formNetworkComponent(psn);
+            }
+            
+        }
+        
+        /**********************************************************************/
+        void makeTopologyChange()
+        {
+            std::cout<<"1"<<std::endl;
+            // Add this to NetworkLinkObserver
+            NetworkLinkObserver<LinkType>::addLink(this->p_derived());
+
+                        std::cout<<"2"<<std::endl;
+            // Add this to neighobors of source and sink
+            source->addToNeighborhood(this->p_derived());
+            sink  ->addToNeighborhood(this->p_derived());
+            
+            //! 2 - Joins source and sink NetworkComponents
+            if (source->pSN()==sink->pSN()) // source and sink are already in the same NetworkComponent
+            {
+                            std::cout<<"3"<<std::endl;
+                psn=source->pSN();				// redirect psn to the source psn
+                psn->add(this->p_derived());	// add this to the existing NetworkComponent
+            }
+            else // source and sink are in different NetworkComponents
+            {
+                            std::cout<<"4"<<std::endl;
+                // find the size of the source and sink
+                size_t sourceSNsize(source->pSN()->nodeOrder());
+                size_t   sinkSNsize(  sink->pSN()->nodeOrder());
+                if (sourceSNsize>=sinkSNsize)
+                {
+                    psn=source->pSN();					   // redirect psn to the source psn
+                    psn->add(this->p_derived());		   // add this to the source NetworkComponent
+                    changeSN(*(sink->psn.get()));
+                }
+                else
+                {
+                    psn=sink->pSN();				       // redirect psn to the sink psn
+                    psn->add(this->p_derived());	       // add this to the source NetworkComponent
+                    changeSN(*(source->psn.get()));
+                }
+            }
+                     std::cout<<"end"<<std::endl;
+        }
         
     public:
         
-        
-        
-        //        const NodeType* const source;
-        //        const NodeType* const sink;
         const std::shared_ptr<NodeType> source;
         const std::shared_ptr<NodeType> sink;
+        const std::pair<size_t,size_t> nodeIDPair;
         
         
         /**********************************************************************/
-        //        NetworkLink(const NodeType* const nI,
-        //                    const NodeType* const nJ) :
-        //        /* init */ source(nI->sID<nJ->sID? nI : nJ),
-        //        /* init */ sink(nI->sID<nJ->sID? nJ : nI)
         NetworkLink(const std::shared_ptr<NodeType>& nI,
                     const std::shared_ptr<NodeType>& nJ) :
-                /* init */ _flow(TypeTraits<Derived>::zeroFlow),
+//        /* init */ _flow(TypeTraits<Derived>::zeroFlow),
         /* init */ source(nI->sID<nJ->sID? nI : nJ),
-        /* init */ sink(nI->sID<nJ->sID? nJ : nI)
+        /* init */ sink(nI->sID<nJ->sID? nJ : nI),
+        /* init */ nodeIDPair(std::make_pair(source->sID,sink->sID))
         {
             //                        std::cout<<"Constructing NetworkLink ("<<source->sID<<","<<sink->sID<<")"<<std::endl;
-            NetworkLinkObserver<LinkType>::addLink(this->p_derived());
-            
-            
-            source->addToNeighborhood(this->p_derived());
-            sink->addToNeighborhood(this->p_derived());
             //            const bool sourceInserted=source->insert(this->p_derived()).second;
             //            assert(sourceInserted);
             //            const bool sinkInserted=sink->insert(this->p_derived()).second;
             //            assert(sinkInserted);
-            
+            makeTopologyChange();
         }
         
         /**********************************************************************/
@@ -81,10 +149,16 @@ namespace model
             source->removeFromNeighborhood(this->p_derived());
             sink->removeFromNeighborhood(this->p_derived());
             
-            //            const int sourceErased=source->erase(this->p_derived());
-            //            assert(sourceErased==1);
-            //            const bool sinkErased=sink->erase(this->p_derived());
-            //            assert(sinkErased==1);
+            this->psn->remove(this->p_derived());
+            
+            //! 3- If Now Source and Sink are disconnected then reset the NetworkComponent in the sink
+            const bool sourceCanReachSink(source->depthFirstSearch(sink->sID));
+            
+            if (!sourceCanReachSink)
+            {
+                sink -> resetPSN();
+            }
+
             
         }
         
@@ -111,16 +185,16 @@ namespace model
             const bool success=loopLinks().insert(pL).second;
             assert(success && "Could not insert LoopLink in NetworkLink");
             
-            if(pL->source()->sID==source->sID)
-            {
-                _flow+=pL->flow();
-            }
-            else
-            {
-                _flow-=pL->flow();
-            }
-
-        
+//            if(pL->source()->sID==source->sID)
+//            {
+//                _flow+=pL->flow();
+//            }
+//            else
+//            {
+//                _flow-=pL->flow();
+//            }
+            
+            
         }
         
         /**********************************************************************/
@@ -129,20 +203,20 @@ namespace model
             const size_t erased=loopLinks().erase(pL);
             assert(erased==1 && "Could not erase LoopLink from NetworkLink");
             
-            if(pL->source()->sID==source->sID)
-            {
-                _flow-=pL->flow();
-            }
-            else
-            {
-                _flow+=pL->flow();
-            }
+//            if(pL->source()->sID==source->sID)
+//            {
+//                _flow-=pL->flow();
+//            }
+//            else
+//            {
+//                _flow+=pL->flow();
+//            }
         }
         
-        const FlowType& flow() const
-        {
-            return _flow;
-        }
+//        const FlowType& flow() const
+//        {
+//            return _flow;
+//        }
         
     };
     

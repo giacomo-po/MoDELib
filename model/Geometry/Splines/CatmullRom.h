@@ -10,31 +10,34 @@
 #ifndef model_CatmullRom_H_
 #define model_CatmullRom_H_
 
+#include <set>
 #include <Eigen/Dense>
+#include <model/Geometry/Splines/SplineSegment.h>
+#include <model/LoopNetwork/LoopLink.h>
 
 namespace model
 {
     
-    template <int dim>
+//    template <int dim>
     struct CatmullRom
     {
         
-        typedef Eigen::Matrix<double,dim,1> VectorDim;
+//        typedef  VectorDim;
         
         /**********************************************************************/
         template <typename T>
-        static VectorDim loopTangent(const T& pair)
+        static Eigen::Matrix<double,T::dim,1> loopTangent(const std::set<LoopLink<T>*>& segmentSet)
         {
             
             double cT=0.0;
-            for(const auto& link : pair.second)
+            for(const auto& link : segmentSet)
             {
                 const double cL=link->pLink->parametricChordLength();
                 cT+=cL;
             }
             
-            VectorDim temp=VectorDim::Zero();
-            for(const auto& link : pair.second)
+            Eigen::Matrix<double,T::dim,1> temp=Eigen::Matrix<double,T::dim,1>::Zero();
+            for(const auto& link : segmentSet)
             {
                 const double cL=link->pLink->parametricChordLength();
                 temp+=(link->sink()->get_P()-link->source()->get_P())/cL*(cT-cL)/cT;

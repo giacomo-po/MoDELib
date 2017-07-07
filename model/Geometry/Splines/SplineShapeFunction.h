@@ -25,6 +25,96 @@ namespace model
     class SplineShapeFunction {};
     
     
+
+
+    
+    
+    /************************************************************************/
+    /* SplineShapeFunction, template specialization corder=0 ******************/
+    /************************************************************************/
+    template <short unsigned int dim>
+    struct SplineShapeFunction<dim,0>
+    {
+        
+        
+        static constexpr int corder = 0;
+        static constexpr int Ncoeff= 2*(corder+1);
+        typedef Eigen::Matrix<double, 1, Ncoeff> RowNcoeff;
+        typedef Eigen::Matrix<double, 1, Ncoeff-1> RowNcoeffu;
+        typedef Eigen::Matrix<double, 1, Ncoeff-2> RowNcoeffuu;
+        typedef Eigen::Matrix<double, Ncoeff, Ncoeff> MatrixNcoeff;
+        typedef Eigen::Matrix<double, Ncoeff, dim> MatrixNcoeffDim;
+        
+        
+        
+        /**********************************************************************/
+        static RowNcoeff powers(const double & uin)
+        {
+            return (RowNcoeff()<<1.0, uin).finished();
+        }
+        
+        /**********************************************************************/
+        static RowNcoeffu powersDiff1(const double & uin)
+        {
+            return (RowNcoeffu()<<1.0).finished();
+        }
+        
+        /**********************************************************************/
+        static RowNcoeffuu powersDiff2(const double & uin)
+        {
+            return RowNcoeffuu::Zero();
+        }
+        
+        /**********************************************************************/
+        static MatrixNcoeff sfCoeffs(const double&)
+        {/*! The matrix of shape function coefficients in Hermite form of this
+             *  spline segment.
+             */
+            /*                         P0   P1 */
+            return (MatrixNcoeff()<<  1.0, 0.0,             // u^0
+                    /*            */ -1.0, 1.0).finished(); // u^1;
+        }
+        
+        /**********************************************************************/
+        static RowNcoeff sf(const double& uin,const double& g)
+        {/*\param[in] uin parameter value in [0,1]
+          *\returns The row vector of shape function at uin
+          */
+            return powers(uin)*sfCoeffs(g);
+        }
+        
+        /**********************************************************************/
+        template<typename LinkType>
+        static MatrixNcoeffDim hermiteDofs(const LinkType& link)
+        {/*!\returns The matrix of Hermite dofs of this spline segment.
+          *  [P0x P0y P0z;P1x P1y P1z]
+          */
+            return (MatrixNcoeffDim()<< link.source->get_P().transpose(),
+                    /*            */	link.  sink->get_P().transpose()).finished();
+        }
+        
+//        MatrixNcoeffDim get_qH() const {
+//            return (MatrixNcoeffDim()<< link.source->get_P().transpose(),
+//                    /*               */ link.  sink->get_P().transpose()).finished();
+//        }
+        
+        
+        
+//        //////////////////////////////////////////////////////////////
+//        //BezierCoefficients: Bezier coefficients (uniform parametrization)
+//        Eigen::Matrix<double,dim+1,Ncoeff> BezierCoefficients() const {
+//            Eigen::Matrix<double,dim+1,Ncoeff> BzCf;
+//            double w =1.0;
+//            BzCf.col(0)<< link.source->get_P(), w;
+//            BzCf.col(2)<< link.sink  ->get_P(), w;
+//            return BzCf;
+//        }
+        
+        
+    };
+    
+    
+    
     /************************************************************************/
     /* SplineShapeFunction, template specialization corder=1 ******************/
     /************************************************************************/
@@ -39,7 +129,8 @@ namespace model
         typedef Eigen::Matrix<double, 1, Ncoeff-2> RowNcoeffuu;
         typedef Eigen::Matrix<double, Ncoeff, Ncoeff> MatrixNcoeff;
         typedef Eigen::Matrix<double, Ncoeff, dim> MatrixNcoeffDim;
-        
+        typedef Eigen::Matrix<double,dim,1>   VectorDim;
+
         /**********************************************************************/
         static RowNcoeff powers(const double & uin)
         {
@@ -55,7 +146,6 @@ namespace model
         {
             return (RowNcoeffuu()<<2.0, 6.0*uin).finished();
         }
-        
         
         /**********************************************************************/
         static MatrixNcoeff sfCoeffs(const double& g)
@@ -87,6 +177,72 @@ namespace model
             return  powersDiff2(uin)*sfCoeffs(g).template block<Ncoeff-2,Ncoeff>(2,0);
         }
         
+        /**********************************************************************/
+        template<typename LinkType>
+        static MatrixNcoeffDim hermiteDofs(const LinkType& link)
+        {/*!\returns The matrix of Hermite dof of this spline segment.
+          *  [P0x P0y P0z;T0x T0y T0z;P1x P1y P1z;T1x T1y T1z]
+          */
+            return (MatrixNcoeffDim()<< link.source->get_P().transpose(),
+                    /*            */	sourceT(link).transpose(),
+                    /*            */	link.  sink->get_P().transpose(),
+                    /*            */	sinkT(link).transpose()).finished();
+        }
+        
+        /**********************************************************************/
+        template<typename LinkType>
+        static VectorDim sourceT(const LinkType& link)
+        {
+            VectorDim temp=VectorDim::Zero();
+            int n=0;
+            for(const auto& loopLink : link.loopLinks())
+            {
+                if(link.source->sID==loopLink->source()->sID && link.sink->sID==loopLink->sink()->sID)
+                {
+                    temp+=link.source->tangents().at(loopLink->loop()->sID);
+                    n++;
+                }
+                else if(link.source->sID==loopLink->sink()->sID && link.sink->sID==loopLink->source()->sID)
+                {
+                    temp-=link.source->tangents().at(loopLink->loop()->sID);
+                    n++;
+                }
+                else
+                {
+                    assert(0);
+                }
+            }
+            
+            return n==0? temp : temp/n;
+        }
+        
+        /**********************************************************************/
+        template<typename LinkType>
+        static VectorDim sinkT(const LinkType& link)
+        {
+            VectorDim temp=VectorDim::Zero();
+            int n=0;
+            for(const auto& loopLink : link.loopLinks())
+            {
+                if(link.source->sID==loopLink->source()->sID && link.sink->sID==loopLink->sink()->sID)
+                {
+                    temp+=link.sink->tangents().at(loopLink->loop()->sID);
+                    n++;
+                }
+                else if(link.source->sID==loopLink->sink()->sID && link.sink->sID==loopLink->source()->sID)
+                {
+                    temp-=link.sink->tangents().at(loopLink->loop()->sID);
+                    n++;
+                }
+                else
+                {
+                    assert(0);
+                }
+            }
+            
+            return n==0? temp : temp/n;
+        }
+        
         //
         //        /**********************************************************************/
         //        Eigen::Matrix<double,dim+1,Ncoeff> BezierCoefficients() const {
@@ -95,10 +251,10 @@ namespace model
         //             */
         //            Eigen::Matrix<double,dim+1,Ncoeff> BzCf;
         //            double w =1.0;
-        //            BzCf.col(0)<< this->source->get_P(), w;
-        //            BzCf.col(1)<< this->source->get_P()+sourceT()/3.0*chordParametricLength(), w;
-        //            BzCf.col(2)<< this->sink  ->get_P()-  sinkT()/3.0*chordParametricLength(), w;
-        //            BzCf.col(3)<< this->sink  ->get_P(), w;
+        //            BzCf.col(0)<< link.source->get_P(), w;
+        //            BzCf.col(1)<< link.source->get_P()+sourceT()/3.0*chordParametricLength(), w;
+        //            BzCf.col(2)<< link.sink  ->get_P()-  sinkT()/3.0*chordParametricLength(), w;
+        //            BzCf.col(3)<< link.sink  ->get_P(), w;
         //            return BzCf;
         //        }
         //
@@ -106,9 +262,9 @@ namespace model
         //        Eigen::Matrix<double,dim,Ncoeff> hermiteCoefficients() const
         //        {
         //            Eigen::Matrix<double,dim,Ncoeff> HrCf;
-        //            HrCf.col(0)= this->source->get_P();
+        //            HrCf.col(0)= link.source->get_P();
         //            HrCf.col(1)= sourceT()*chordParametricLength();
-        //            HrCf.col(2)= this->sink->get_P();
+        //            HrCf.col(2)= link.sink->get_P();
         //            HrCf.col(3)= sinkT()*chordParametricLength();
         //            return HrCf;
         //        }
@@ -123,84 +279,6 @@ namespace model
         //        }
         
     };
-    
-    //    //static data
-    //    template <typename Derived, short unsigned int dim>
-    //    double SplineShapeFunction<Derived,dim,1>::alpha=0.5;
-    
-    
-    //	/************************************************************************/
-    //	/* SplineShapeFunction, template specialization corder=0 ******************/
-    //	/************************************************************************/
-    //	template <typename Derived, short unsigned int dim>
-    //	class SplineShapeFunction<Derived,dim,0> : public NetworkLink<Derived>,
-    //    /*	                              */ public ParametricCurve<Derived, dim>
-    //    /*	                              */ public ParametricCurve<Derived, dim>
-    //    {
-    //
-    //
-    //		enum {corder=0};
-    //#include<model/Geometry/Splines/SplineEnums.h>
-    //
-    //
-    //        ////////////////////////////////////////////////////////////////
-    //        //! Returns the length of the chord vector to the power alpha
-    //        double chordParametricLength() const
-    //        {
-    //        	return chordLength();
-    //        }
-    //
-    //	public:
-    //		RowNcoeff powers(const double & uin) const {
-    //			return (RowNcoeff()<<1.0, uin).finished();
-    //		}
-    //
-    //		//////////////////////////////////////////////////////////////
-    //
-    //		RowNcoeffu powersu(const double & uin) const {
-    //			return (RowNcoeffu()<<1.0).finished();
-    //		}
-    //
-    //
-    //
-    //		RowNcoeffuu powersuu(const double & uin) const {
-    //			// ????????????????????????
-    //		}
-    //
-    //		static MatrixNcoeff get_SFCH()
-    //        {
-    //			/*! The matrix of shape function coefficients in Hermite form of this
-    //			 *  spline segment.
-    //			 */
-    //			/*                         P0   P1 */
-    //			return (MatrixNcoeff()<<  1.0, 0.0,             // u^0
-    //					/*            */ -1.0, 1.0).finished(); // u^1;
-    //		}
-    //
-    //		MatrixNcoeffDim get_qH() const {
-    //			return (MatrixNcoeffDim()<< this->source->get_P().transpose(),
-    //					/*               */ this->  sink->get_P().transpose()).finished();
-    //		}
-    //
-    //
-    //
-    //		//////////////////////////////////////////////////////////////
-    //		//BezierCoefficients: Bezier coefficients (uniform parametrization)
-    //		Eigen::Matrix<double,dim+1,Ncoeff> BezierCoefficients() const {
-    //			Eigen::Matrix<double,dim+1,Ncoeff> BzCf;
-    //			double w =1.0;
-    //			BzCf.col(0)<< this->source->get_P(), w;
-    //			BzCf.col(2)<< this->sink  ->get_P(), w;
-    //			return BzCf;
-    //		}
-    //
-    //#include "SplineShapeFunction_common.h"
-    //
-    //	};
-    
-    
-    
-    
     
     
     
@@ -254,16 +332,16 @@ namespace model
     //			assert(0);
     //			return MatrixNcoeff::Zero();
     //		}
-    //		
+    //
     //		MatrixNcoeffDim get_qH() const {
-    //			return (MatrixNcoeffDim()<< this->source->get_P().transpose(),
-    //					/*               */ sourceT().transpose(), 
-    //					/*               */ this->source->get_K().transpose(),
-    //					/*               */ this->  sink->get_P().transpose(),
+    //			return (MatrixNcoeffDim()<< link.source->get_P().transpose(),
+    //					/*               */ sourceT().transpose(),
+    //					/*               */ link.source->get_K().transpose(),
+    //					/*               */ link.  sink->get_P().transpose(),
     //					/*               */ sinkT().transpose(),
-    //					/*               */ this->  sink->get_K().transpose()).finished();
+    //					/*               */ link.  sink->get_K().transpose()).finished();
     //		}
-    //		
+    //
     //#include "SplineShapeFunction_common.h"
     //		
     //	};

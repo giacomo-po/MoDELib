@@ -9,7 +9,6 @@
 #ifndef model_DISLOCATIONJUNCTIONFORMATION_H_
 #define model_DISLOCATIONJUNCTIONFORMATION_H_
 
-#include <iostream>
 #include <utility> // for std::pair
 #include <vector>
 #include <Eigen/Dense>
@@ -19,7 +18,6 @@
 #include <model/MPI/MPIcout.h>
 #include <model/Threads/EqualIteratorRange.h>
 #include <model/Threads/N2IteratorRange.h>
-#define VerboseJunctions(N,x) if(verboseJunctions>=N){model::cout<<x;}
 
 namespace model
 {
@@ -91,7 +89,7 @@ namespace model
         /**********************************************************************/
         //		int junctionDir(const EdgeIntersectionPairType& intersectionPair) const
         int junctionDir(const LinkType& L1, const LinkType& L2,
-                        const double& u1, const double& u2) const
+                        const double& u1, const double& u2) const __attribute__ ((deprecated)) // FIX GB-MESH junctions
         {
             //            const double u1(intersectionPair.first.second);
             //            const double u2(intersectionPair.second.second);
@@ -148,7 +146,9 @@ namespace model
             
             //const bool frankRule(b1.dot(b2)*rl1.dot(rl2)<=0.0);
             const bool frankRule(b1.dot(b2)*sgnrl1rl2<=0.0);
-            const bool isValidJunction(frankRule || L1.is_boundarySegment() || L2.is_boundarySegment());
+            const bool isValidJunction(frankRule ||
+                                       L1.is_boundarySegment() || L2.is_boundarySegment() ||
+                                       L1.isGrainBoundarySegment() || L2.isGrainBoundarySegment());
             
             int dir(0);
             if (isValidJunction)
@@ -160,7 +160,7 @@ namespace model
         
         
         /**********************************************************************/
-        std::pair<size_t,size_t> junctionIDs(const LinkType& L,const double& u,const double& dx)
+        std::pair<size_t,size_t> junctionIDs(const LinkType& L,const double& u,const double& dx) __attribute__ ((deprecated)) // USE SEARCH REGION!!
         {
             const int dx2=pow(dx,2);
             
@@ -185,8 +185,8 @@ namespace model
                 {
                     um=1.0;
                 }
-                VectorDimD Pm(L.get_r(um));
-                Pm=L.glidePlane.snapToLattice(Pm);
+                //VectorDimD Pm(L.get_r(um));
+                LatticeVectorType Pm=L.glidePlane.snapToLattice(L.get_r(um));
                 
                 double up(u+du);
                 if(up<um)
@@ -197,30 +197,59 @@ namespace model
                 {
                     up=1.0;
                 }
-                VectorDimD Pp(L.get_r(up));
-                Pp=L.glidePlane.snapToLattice(Pp);
+//                VectorDimD Pp(L.get_r(up));
+                LatticeVectorType Pp=L.glidePlane.snapToLattice(L.get_r(up));
                 
                 bool insideMeshM=true;
                 bool insideMeshP=true;
+                bool insideRegionM=true;
+                bool insideRegionP=true;
                 if(DN.shared.use_boundary)
                 {
                     const Simplex<dim,dim>* S(source.includingSimplex());
                     
-                    insideMeshM=DN.shared.mesh.searchWithGuess(Pm,S).first;
+                    insideMeshM=DN.shared.mesh.searchWithGuess(Pm.cartesian(),S).first;
                     if(!insideMeshM)
                     {
-                        Pm=source.get_P()*(1.0-um)+sink.get_P()*um;
-                        Pm=L.glidePlane.snapToLattice(Pm);
-                        insideMeshM=DN.shared.mesh.searchWithGuess(Pm,S).first;
+                        //Pm=source.get_P()*(1.0-um)+sink.get_P()*um;
+                        Pm=L.glidePlane.snapToLattice(source.get_P()*(1.0-um)+sink.get_P()*um);
+                        insideMeshM=DN.shared.mesh.searchWithGuess(Pm.cartesian(),S).first;
                     }
                     
-                    insideMeshP=DN.shared.mesh.searchWithGuess(Pp,S).first;
+                    insideMeshP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).first;
                     if(!insideMeshP)
                     {
-                        Pp=source.get_P()*(1.0-up)+sink.get_P()*up;
-                        Pp=L.glidePlane.snapToLattice(Pp);
-                        insideMeshP=DN.shared.mesh.searchWithGuess(Pp,S).first;
+                        //Pp=source.get_P()*(1.0-up)+sink.get_P()*up;
+                        Pp=L.glidePlane.snapToLattice(source.get_P()*(1.0-up)+sink.get_P()*up);
+                        insideMeshP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).first;
                     }
+                    
+                    insideRegionM=DN.shared.mesh.searchWithGuess(Pm.cartesian(),S).second->region->regionID==source.grain.grainID;
+                    if(!insideRegionM)
+                    {
+                        //Pp=source.get_P()*(1.0-up)+sink.get_P()*up;
+                        if(source.isGrainBoundaryNode())
+                        {
+				                    PlanePlaneIntersection ppi(source.grainBoundaryPlane(),L.glidePlane);
+				                    LatticeLine gbLine(ppi.P,ppi.d);
+				                    Pm=gbLine.snapToLattice(source.get_P()*(1.0-up)+sink.get_P()*up);
+				                    insideRegionM=DN.shared.mesh.searchWithGuess(Pm.cartesian(),S).second->region->regionID==source.grain.grainID;
+				                }
+                    }
+                    insideRegionP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).second->region->regionID==source.grain.grainID;
+                    if(!insideRegionP)
+                    {
+                        //Pp=source.get_P()*(1.0-up)+sink.get_P()*up;
+                        if(source.isGrainBoundaryNode())
+                        {
+				                    PlanePlaneIntersection ppi(source.grainBoundaryPlane(),L.glidePlane);
+				                    LatticeLine gbLine(ppi.P,ppi.d);
+				                    Pp=gbLine.snapToLattice(source.get_P()*(1.0-up)+sink.get_P()*up);
+				                    insideRegionP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).second->region->regionID==source.grain.grainID;
+				                }
+                    }
+                    
+                    
                 }
                 
                 //                if(   (Pm-source.get_P()).squaredNorm()>dx2
@@ -238,11 +267,13 @@ namespace model
                 //                    ip=temp.first->first; // id of the node obtained expanding L1
                 //                }
                 
-                if(   (Pm-source.get_P()).squaredNorm()>dx2
-                   && (Pm-Pp).squaredNorm()>dx2
-                   && (Pp-  sink.get_P()).squaredNorm()>dx2
+                if(   (Pm.cartesian()-source.get_P()).squaredNorm()>dx2
+                   && (Pm-Pp).cartesian().squaredNorm()>dx2
+                   && (Pp.cartesian()-  sink.get_P()).squaredNorm()>dx2
                    && insideMeshM
-                   && insideMeshP)
+                   && insideMeshP
+                   &&	insideRegionM
+                   &&	insideRegionP)
                 {
                     //std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(source.sID,sink.sID,Pm);
                     im=DN.expand(source.sID,sink.sID,Pm).first->first; // id of the node obtained expanding L1
@@ -267,7 +298,6 @@ namespace model
         static double collisionTol;
         //        static bool useVertexEdgeJunctions;
         
-        static int verboseJunctions;
         
         /* Constructor ********************************************************/
         DislocationJunctionFormation(DislocationNetworkType& DN_in) :
@@ -320,11 +350,11 @@ namespace model
                     
                     for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.linkEnd();linkIterB++)
                     {
-                        if (linkIterA->second.sID!=linkIterB->second.sID) // don't intersect with itself
+                        if (   linkIterA->second.sID!=linkIterB->second.sID // don't intersect with itself
+                            && linkIterA->second.grain.grainID==linkIterB->second.grain.grainID) // allow juncitons only within grains
                         {
                             //                            threadVector[omp_get_thread_num()]++;
                             
-                            VerboseJunctions(1,"Intersecting "<<linkIterA->second.nodeIDPair.first<<"->"<<linkIterA->second.nodeIDPair.second<<" " <<linkIterB->second.nodeIDPair.first<<"->"<<linkIterB->second.nodeIDPair.second<<std::flush)
                             //std::cout<< "Intersecting "<<linkIterA->second.nodeIDPair.first<<"->"<<linkIterA->second.nodeIDPair.second<<" " <<linkIterB->second.nodeIDPair.first<<"->"<<linkIterB->second.nodeIDPair.second<<std::flush;
                             
                             const bool& L1isSessile(linkIterA->second.isSessile);
@@ -332,7 +362,7 @@ namespace model
                             
                             std::set<std::pair<double,double> > temp; // the container of the roots
                             
-                            if (!L1isSessile && !L2isSessile) // both are glissile
+                            if (!L1isSessile && !L2isSessile) // both segments are glissile
                             {
                                 temp = dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol,avoidNodeIntersection);
                             }
@@ -346,14 +376,15 @@ namespace model
                                     // cannot intersect
                                 }
                                 else if(gnAgnB && !gnAsnB)
-                                { // use planeNormal of A and planeNormal of B
+                                { // glidePlaneNormal of A and glidePlaneNormal of B are the same
                                     temp = dsi.intersectWith(linkIterB->second,linkIterB->second.glidePlaneNormal,collisionTol,avoidNodeIntersection);
                                 }
                                 else if (!gnAgnB && gnAsnB)
-                                { // use planeNormal of A and sessileNormal of B
+                                { // glidePlaneNormal of A and sessilePlaneNormal of B are the same
                                     temp = dsi.intersectWith(linkIterB->second,linkIterB->second.sessilePlaneNormal,collisionTol,avoidNodeIntersection);
                                 }
-                                else{
+                                else
+                                {
                                     assert(0 && "GLISSILE AND SESSILE PLANE NORMALS OF B MUST BE DISTINCT.");
                                 }
                             }
@@ -380,8 +411,8 @@ namespace model
                                 }
                             }
                             else
-                            { // both are sessile
-                                // cannot intersect
+                            { // both are sessile, cannot intersect
+                                
                             }
                             
                             
@@ -590,7 +621,7 @@ namespace model
             {
                 const auto temp=nodePair.second.edgeDecomposition();
                 //std::deque<std::pair<size_t,size_t> > temp=nodePair.second.edgeDecomposition();
-                
+
                 if(temp.first.size() && temp.second.size())
                 {
                     nodeDecompFirst.emplace_back(nodePair.second.sID,temp.first);
@@ -685,32 +716,32 @@ namespace model
                 {
                     std::cout<<"NodeBreaking "<<Ni.second->sID<<" "<<avrSecond.dot(avrFirst)<<std::endl;
                     
-                    size_t m=DN.insertVertex(Ni.second->get_P()).first->first;
-                    
-                    for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
-                    {
-                        const size_t& j=nodeDecompFirst[n].second[d].first;
-                        const size_t& k=nodeDecompFirst[n].second[d].second;
-                        if(i==j)
+                        size_t m=DN.insertVertex(Ni.second->get_P(),Ni.second->grain.grainID).first->first;
+                        
+                        for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
                         {
-                            auto Lik=DN.link(i,k);
-                            assert(Lik.first);
-                            DN.connect(m,k,Lik.second->Burgers);
-                            DN.template disconnect<0>(i,k);
+                            const size_t& j=nodeDecompFirst[n].second[d].first;
+                            const size_t& k=nodeDecompFirst[n].second[d].second;
+                            if(i==j)
+                            {
+                                auto Lik=DN.link(i,k);
+                                assert(Lik.first);
+                                DN.connect(m,k,Lik.second->flow);
+                                DN.template disconnect<0>(i,k);
+                            }
+                            else if(i==k)
+                            {
+                                auto Lji=DN.link(j,i);
+                                assert(Lji.first);
+                                DN.connect(j,m,Lji.second->flow);
+                                DN.template disconnect<0>(j,i);
+                            }
+                            else
+                            {
+                                assert(0 && "i must be equal to either j or k.");
+                            }
                         }
-                        else if(i==k)
-                        {
-                            auto Lji=DN.link(j,i);
-                            assert(Lji.first);
-                            DN.connect(j,m,Lji.second->Burgers);
-                            DN.template disconnect<0>(j,i);
-                        }
-                        else
-                        {
-                            assert(0 && "i must be equal to either j or k.");
-                        }
-                    }
-                    
+
                     
                     broken++;
                 }
@@ -724,11 +755,6 @@ namespace model
     // Declare Static Data
     template <typename DislocationNetworkType>
     double DislocationJunctionFormation<DislocationNetworkType>::collisionTol=10.0;
-    
-    // Declare Static Data
-    template <typename DislocationNetworkType>
-    int DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions=0;
-    
     
 } // namespace model
 #endif

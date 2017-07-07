@@ -34,18 +34,18 @@ namespace model
             assert(temp.first && "LINE-MESH-INTERSECTION, STARTING POINT NOT INSIDE MESH");
             
             //  Bring L1 to line
-            L1=LatticeVectorType(line.snapToLattice(L1.cartesian()));
+            L1=LatticeVectorType(line.snapToLattice(L1.cartesian()),L1.lattice);
             
             assert((L1-L0).squaredNorm()>0 && "L0 and L1 are the same");
             
-            int n=(L1-L0).dot(line.d)/d2;
+            int n=lround((L1-L0).cartesian().dot(line.d.cartesian())/line.d.cartesian().squaredNorm());
             
             temp=mesh.searchWithGuess(L1.cartesian(),guess);
             while (temp.first) // repeat untile L1 is found outside
             {
                 L0=L1;
                 n*=2;
-                L1=line.P+n*line.d;
+                L1=line.P+line.d*n;
                 temp=mesh.searchWithGuess(L1.cartesian(),temp.second);
             }
             

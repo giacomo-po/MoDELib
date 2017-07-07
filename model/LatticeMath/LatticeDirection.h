@@ -9,9 +9,10 @@
 #ifndef model_LatticeDirection_h_
 #define model_LatticeDirection_h_
 
-#include <model/LatticeMath/LatticeBase.h>
+//#include <model/LatticeMath/LatticeBase.h>
 #include <model/LatticeMath/LatticeVector.h>
 #include <model/LatticeMath/ReciprocalLatticeVector.h>
+#include <model/LatticeMath/LatticeGCD.h>
 
 namespace model
 {
@@ -21,44 +22,60 @@ namespace model
     /* inherits */ public LatticeVector<dim>
     {
         typedef LatticeGCD<dim> LatticeGCDType;
-        typedef LatticeBase<dim> LatticeBaseType;
+//        typedef LatticeBase<dim> LatticeBaseType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         
     public:
         
+        /**********************************************************************/
         LatticeDirection(const LatticeVectorType& v) :
         /* base init */ LatticeGCDType(v),
-        /* base init */ LatticeVectorType((v.squaredNorm()==0)? v : (v/this->gCD).eval())
+//        /* base init */ LatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.covBasis,v.contraBasis)
+        /* base init */ LatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.lattice)
         {
-//            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
         }
         
+        /**********************************************************************/
         LatticeDirection(const ReciprocalLatticeVectorType& r1,const ReciprocalLatticeVectorType& r2) :
         /* delegating */ LatticeDirection(LatticeVectorType(r1.cross(r2)))
         {
-//            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
         }
-        
-        LatticeDirection(const VectorDimD& d) :
-        /* delegating */ LatticeDirection(LatticeVectorType(LatticeBaseType::latticeDirection(d)))
-        {
-            //            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
-        }
-        
-//        LatticeDirection(const VectorDimD& d):
-//        /* delegating */ LatticeDirection(LatticeVectorType(d))
-//        {}
         
         /**********************************************************************/
-        VectorDimD snapToDirection(const VectorDimD& dP) const
-        {
+        LatticeVectorType snapToDirection(const VectorDimD& dP) const
+        {/*!@param[in] dP a cartesian input vector
+          *\returns the closest lattice vector corresponding to the projection
+          * of dP on *this LatticeDirection.
+          */
             const VectorDimD dc(this->cartesian());
-            return round(dP.dot(dc)/dc.squaredNorm())*dc;
+//            return LatticeVectorType((round(dP.dot(dc)/dc.squaredNorm())*dc).eval(),
+//                                     this->covBasis,
+//                                     this->contraBasis);
+            return LatticeVectorType((round(dP.dot(dc)/dc.squaredNorm())*dc).eval(),
+                                     this->lattice);
+
         }
         
     };
     
 } // end namespace
 #endif
+
+//        LatticeDirection(const VectorDimD& d) :
+//        /* delegating */ LatticeDirection(LatticeVectorType(LatticeBaseType::latticeDirection(d)))
+//        {
+//            //            assert(this->squaredNorm() && "LatticeDirection has Zero Norm");
+//        }
+
+//        LatticeDirection(const VectorDimD& d):
+//        /* delegating */ LatticeDirection(LatticeVectorType(d))
+//        {}
+
+//        /**********************************************************************/
+//        VectorDimD snapToDirection(const VectorDimD& dP) const
+//        {
+//            const VectorDimD dc(this->cartesian());
+//            return round(dP.dot(dc)/dc.squaredNorm())*dc;
+//        }

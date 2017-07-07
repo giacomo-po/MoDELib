@@ -31,34 +31,54 @@ namespace model
         LatticeLine(const LatticeVectorType& P_in,const LatticeVectorType& d_in) :
         /* init */ P(P_in),
         /* init */ d(d_in)
-        {}
+        {
+            assert(&P.lattice==&d.lattice && "LatticeVectors have different bases.");
+//
+//            assert(&P.covBasis==&d.covBasis && "LatticeVectors have different bases.");
+//            assert(&P.contraBasis==&d.contraBasis && "LatticeVectors have different bases.");
+        }
         
         
-        LatticeLine(const LatticeVectorType& P_in,const LatticeDirectionType& d_in) :
-        /* init */ P(P_in),
-        /* init */ d(d_in)
-        {}
+//        LatticeLine(const LatticeVectorType& P_in,const LatticeDirectionType& d_in) :
+//        /* init */ P(P_in),
+//        /* init */ d(d_in)
+//        {
+//            assert(&P.covBasis==&d.covBasis && "LatticeVectors have different bases.");
+//            assert(&P.contraBasis==&d.contraBasis && "LatticeVectors have different bases.");
+//        }
+        
+//        /**********************************************************************/
+//        VectorDimD snapToLattice(const VectorDimD& P0) const
+//        {
+//            const VectorDimD dc(d.cartesian());
+//            const VectorDimD Pc(P.cartesian());
+//            const double n=(P0-Pc).dot(dc)/dc.squaredNorm();
+//            return Pc+round(n)*dc;
+//        }
         
         /**********************************************************************/
-        VectorDimD snapToLattice(const VectorDimD& P0) const
+        LatticeVectorType snapToLattice(const VectorDimD& P0) const
         {
             const VectorDimD dc(d.cartesian());
             const VectorDimD Pc(P.cartesian());
             const double n=(P0-Pc).dot(dc)/dc.squaredNorm();
-            return Pc+round(n)*dc;
+            return P+d*lround(n);
         }
         
-//        /**********************************************************************/
-//        VectorDimD snapToDirection(const VectorDimD& DP) const
-//        {
-//            const VectorDimD dc(d.cartesian());
-////            const double n=;
-//            return round(DP.dot(dc)/dc.squaredNorm())*dc;
-//        }
+        /**********************************************************************/
+        LatticeVectorType snapToLattice(const LatticeVectorType& P0) const
+        {
+            return snapToLattice(P0.cartesian());
+        }
+        
         
         /**********************************************************************/
         bool contains(const LatticeVectorType& P0) const
         {
+            assert(&P.lattice==&P0.lattice && "LatticeVectors have different bases.");
+
+//            assert(&P.covBasis==&P0.covBasis && "LatticeVectors have different bases.");
+//            assert(&P.contraBasis==&P0.contraBasis && "LatticeVectors have different bases.");
             return LatticeDirectionType(LatticeVectorType(P0-P)).cross(d).squaredNorm()==0;
         }
         

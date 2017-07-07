@@ -22,7 +22,6 @@
 #include <model/MPI/MPIcout.h>
 #include <model/Mesh/Simplex.h>
 #include <model/LatticeMath/LatticeMath.h>
-#define VerboseRemesh(N,x) if(verboseRemesh>=N){model::cout<<x;}
 
 namespace model
 {
@@ -49,7 +48,6 @@ namespace model
         static double Lmin;
         static double thetaDeg;
         static double neighborRadius;
-        static int verboseRemesh;
         
         /**********************************************************************/
         DislocationNetworkRemesh(DislocationNetworkType& DN_in) :
@@ -98,18 +96,30 @@ namespace model
 
             for (const auto& linkIter : DN.links())
             {
+                
                 const LinkType& segment(linkIter.second);
+//                bool automaticContract=false;
+//                if(segment.isSessile)
+//                {
+//                    if(segment.source->is_simple() && segment.sink->is_simple())
+//                    {
+//                    if(segment.source->openNeighborLink(0).isSessile)
+//                    {
+//                    
+//                    }
+//                    }
+//                }
                 const VectorDimD chord(segment.chord()); // this is sink->get_P() - source->get_P()
                 const double chordLength(chord.norm());
                 const VectorDimD dv(segment.sink->get_V()-segment.source->get_V());
                 bool endsAreApproaching( chord.dot(dv) < 0.0 );
 
-                if ((endsAreApproaching || segment.is_boundarySegment())// ends are approaching
+                if (((endsAreApproaching || segment.is_boundarySegment())// ends are approaching
                     && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
                     && chordLength<Lmin // segment is small
-                    )
+                     )
+                    || segment.isSimpleSessile())
                 {
-                    VerboseRemesh(1,"contract candidate "<<segment.nodeIDPair.first<<" "<<segment.nodeIDPair.second<<std::endl;);
                     assert(toBeContracted.insert(std::make_pair(chordLength,segment.nodeIDPair)).second && "COULD NOT INSERT IN SET.");
                 }
             }
@@ -155,7 +165,8 @@ namespace model
             // Store the segments to be expanded
             for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
             {
-                
+                if(!linkIter->second.isSimpleSessile())
+                {
                 const VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
                 const double chordLength(chord.norm());
                 //				const VectorDimD dv(linkIter->second.sink->get_V()-linkIter->second.source->get_V());
@@ -164,7 +175,6 @@ namespace model
                 // Always expand single FR source segment
                 if (linkIter->second.source->openOrder()==1 && linkIter->second.sink->openOrder()==1)
                 {
-                    VerboseRemesh(1,"expand candidate (FR) "<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
@@ -173,21 +183,18 @@ namespace model
                     && linkIter->second.  sink->constraintNormals().size()>2
                     && chordLength>3.0*Lmin)
                 {
-                    VerboseRemesh(1,"expand candidate (pinned points)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
                 if (!linkIter->second.source->is_simple() && !linkIter->second.sink->is_simple()
                     /*&& chord.dot(dv)>vTolexp*chordLength*dv.norm()*/ && chordLength>3.0*Lmin)
                 { // also expands a straight line to generate glissile segment
-                    VerboseRemesh(1,"expand candidate (not simple vertices)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
                 // Expand segments shorter than Lmax
                 if (chordLength>Lmax)
                 {
-                    VerboseRemesh(1,"expand candidate (long)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
                 
@@ -202,13 +209,11 @@ namespace model
                     {
                         if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
                         {
-                            VerboseRemesh(1,"expand candidate (angle 1)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                             toBeExpanded.insert(linkIter->second.source->openNeighborLink(0)->nodeIDPair);
                         }
                         
                         if (c1norm>3.0*Lmin /*&& c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
                         {
-                            VerboseRemesh(1,"expand candidate (angle 2)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                             toBeExpanded.insert(linkIter->second.source->openNeighborLink(1)->nodeIDPair);
                         }
                     }
@@ -223,18 +228,17 @@ namespace model
                     {
                         if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
                         {
-                            VerboseRemesh(1,"expand candidate (angle 3)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                             toBeExpanded.insert(linkIter->second.sink->openNeighborLink(0)->nodeIDPair);
                         }
                         if (c1norm>3.0*Lmin/* && c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
                         {
                             //														model::cout<<"Expanding 4"<<std::endl;
-                            VerboseRemesh(1,"expand candidate (angle 4)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                             toBeExpanded.insert(linkIter->second.sink->openNeighborLink(1)->nodeIDPair);
                         }
                     }
                 }
-                
+            }
+            
             }
             
             
@@ -249,26 +253,52 @@ namespace model
                 if(Lij.first)
                 {
                    //std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
-                    VectorDimD expandPoint(Lij.second->get_r(expand_at));
-                    
-                    if(!Lij.second->isSessile)
-                    {
-                        expandPoint=Lij.second->glidePlane.snapToLattice(expandPoint);
-                    }
-                    else
+                    //VectorDimD expandPoint(Lij.second->get_r(expand_at));
+                    LatticeVectorType expandPoint(Lij.second->glidePlane.snapToLattice(Lij.second->get_r(expand_at)));
+                    auto simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
+                    if(Lij.second->isSessile)
                     {
                         PlanePlaneIntersection ppi(Lij.second->glidePlane,Lij.second->sessilePlane);
                         LatticeLine line(ppi.P,ppi.d);
-                        expandPoint=line.snapToLattice(expandPoint);
+                        expandPoint=line.snapToLattice(expandPoint.cartesian());
+                        
                     }
-
-                    if(  (LatticeVectorType(expandPoint)-DN.node(i).second->get_L()).squaredNorm()
-                       &&(LatticeVectorType(expandPoint)-DN.node(j).second->get_L()).squaredNorm() )
+                    else
                     {
-                        if(DN.pointIsInsideMesh(expandPoint,Lij.second->source->includingSimplex()).first)
+                        if(simplexCheckPair.first && simplexCheckPair.second->region->regionID!=DN.node(i).second->grain.grainID)
+                        {
+                            const LatticePlane& GBplane(DN.shared.poly.grainBoundary(simplexCheckPair.second->region->regionID,DN.node(i).second->grain.grainID).latticePlane(DN.node(i).second->grain.grainID));
+                            const LatticePlane& glidePlane(Lij.second->glidePlane);
+                            const PlanePlaneIntersection ppi(GBplane,glidePlane);
+                            const LatticeLine line(ppi.P,ppi.d);
+                            expandPoint=line.snapToLattice(expandPoint.cartesian());
+
+                        }
+                    }
+                    
+                    simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
+                    assert(simplexCheckPair.second->region->regionID==DN.node(i).second->grain.grainID && simplexCheckPair.second->region->regionID==DN.node(j).second->grain.grainID && "EXPAND POINT IN INCORRECT REGION.");
+                    
+//                    if(!Lij.second->isSessile)
+//                    {
+//                        expandPoint=Lij.second->glidePlane.snapToLattice(expandPoint).cartesian();
+//                    }
+//                    else
+//                    {
+//                        PlanePlaneIntersection ppi(Lij.second->glidePlane,Lij.second->sessilePlane);
+//                        LatticeLine line(ppi.P,ppi.d);
+//                        expandPoint=line.snapToLattice(expandPoint).cartesian();
+//                    }
+                    
+
+
+                    if(  (expandPoint-DN.node(i).second->get_L()).squaredNorm()
+                       &&(expandPoint-DN.node(j).second->get_L()).squaredNorm() )
+                    {
+                        if(simplexCheckPair.first)
                         {
                             //                        DN.expand(i,j,expandPoint);
-                            DN.expand(i,j,LatticeVectorType(expandPoint));
+                            DN.expand(i,j,expandPoint);
                             Nexpanded++;
                         }
                     }
@@ -291,7 +321,6 @@ namespace model
                 double chordLength(chord.norm());
                 if (chordLength<=FLT_EPSILON)
                 {// toBeContracted part
-                    VerboseRemesh(1,"0-chord contract candidate "<<linkIter->second.nodeIDPair.first<<" "<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeContracted.insert(std::make_pair(chordLength,linkIter->second.nodeIDPair));
                 }
             }
@@ -357,11 +386,6 @@ namespace model
     
     template <typename DislocationNetworkType>
     double DislocationNetworkRemesh<DislocationNetworkType>::neighborRadius=0.001;
-    
-    // Declare Static Data
-    template <typename DislocationNetworkType>
-    int DislocationNetworkRemesh<DislocationNetworkType>::verboseRemesh=0;
-
     
 } // namespace model
 #endif

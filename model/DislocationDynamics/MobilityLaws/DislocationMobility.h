@@ -18,8 +18,6 @@
 #include <Eigen/Geometry>
 #include <model/DislocationDynamics/Materials/BCCcrystal.h>
 #include <model/DislocationDynamics/Materials/FCCcrystal.h>
-#include <model/DislocationDynamics/Materials/HexLattice.h>
-
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/Utilities/TerminalColors.h> // defines mode::cout
 
@@ -32,47 +30,6 @@ namespace model
     struct DislocationMobility
     {
         //        static_assert(false, "CrystalStructure must be FCC or BCC");
-    };
-
-
-
-    /**************************************************************************/
-    /**************************************************************************/
-    template <>
-    struct DislocationMobility<Hexagonal>
-    {
-        
-        typedef Eigen::Matrix<double,3,3> MatrixDim;
-        typedef Eigen::Matrix<double,3,1> VectorDim;
-        
-        const double B0;
-        const double B1;
-        
-        /**********************************************************************/
-        constexpr DislocationMobility(const double& b_real,
-                                      const double& mu_real,
-                                      const double& cs_real,
-                                      const double& B1e_real,
-                                      const double& B1s_real) :
-        
-        /* init */ B0(0.0),
-        /* init */ B1(0.5*(B1e_real+B1s_real)*cs_real/(mu_real*b_real))
-        {/*! Empty constructor is required by constexpr
-          */
-        }
-        
-        /**********************************************************************/
-        double velocity(const MatrixDim& S,
-                        const VectorDim& b,
-                        const VectorDim& , // xi
-                        const VectorDim& n,
-                        const double& T) const
-        {
-            return std::fabs(b.transpose()*S*n)/(B0+B1*T);
-        }
-        
-        
-        
     };
     
     /**************************************************************************/
@@ -113,49 +70,6 @@ namespace model
         
         
     };
-    
-    //    /**************************************************************************/
-    //    /**************************************************************************/
-    //    template <>
-    //    struct DislocationMobility<FCC>
-    //    {
-    //
-    //        typedef Eigen::Matrix<double,3,3> MatrixDim;
-    //        typedef Eigen::Matrix<double,3,1> VectorDim;
-    //
-    //        const double B0;
-    //        const double B1e;
-    //        const double B1s;
-    //
-    //        /**********************************************************************/
-    //        constexpr DislocationMobility(const double& b_real,
-    //                                      const double& mu_real,
-    //                                      const double& cs_real,
-    //                                      const double& B1e_real,
-    //                                      const double& B1s_real) :
-    //
-    //        /* init */ B0(0.0),
-    //        /* init */ B1e(B1e_real*cs_real/(mu_real*b_real)),
-    //        /* init */ B1s(B1s_real*cs_real/(mu_real*b_real))
-    //        {/*! Empty constructor is required by constexpr
-    //          */
-    //        }
-    //
-    //        /**********************************************************************/
-    //        double velocity(const MatrixDim& S,
-    //                        const VectorDim& b,
-    //                        const VectorDim& xi, // tangent vector
-    //                        const VectorDim& n,
-    //                        const double& T) const
-    //        {
-    //            const double ve=std::fabs(b.transpose()*S*n)/(B1e*T);
-    //            const double vs=std::fabs(b.transpose()*S*n)/(B1s*T);
-    //            const double cos2=std::pow(b.normalized().dot(xi),2);
-    //            const double sin2=1.0-cos2;
-    //            return vs*cos2+ve*sin2;
-    //        }
-    //        
-    //    };
     
     /**************************************************************************/
     /**************************************************************************/

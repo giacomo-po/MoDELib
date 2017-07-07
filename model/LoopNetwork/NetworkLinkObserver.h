@@ -30,7 +30,7 @@ namespace model
         typedef std::pair<bool,const LinkType* const>	IsConstNetworkLinkType;
         
         
-        typedef std::map<std::pair<size_t,size_t>,const LinkType* const> LinkContainerType;
+        typedef std::map<std::pair<size_t,size_t>,LinkType* const> LinkContainerType;
         
         typedef std::pair<bool,LinkType* const>			IsNetworkEdgeType;
         typedef std::pair<bool,const LinkType* const>	IsConstNetworkEdgeType;
@@ -56,14 +56,14 @@ namespace model
         }
         
         /**********************************************************************/
-        static void addLink(const LinkType* const pL)
+        static void addLink(LinkType* const pL)
         {
             const bool success=linkMap.insert(std::make_pair(std::make_pair(pL->source->sID,pL->sink->sID),pL)).second;
             assert(success && "Could not insert in linkMap");
         }
         
         /**********************************************************************/
-        static void removeLink(const LinkType* const pL)
+        static void removeLink(LinkType* const pL)
         {
             const size_t erased=linkMap.erase(std::make_pair(pL->source->sID,pL->sink->sID));
             assert(erased==1 && "Could not erase from linkMap");
@@ -72,7 +72,7 @@ namespace model
     };
     
     template<typename LinkType>
-    std::map<std::pair<size_t,size_t>,const LinkType* const> NetworkLinkObserver<LinkType>::linkMap;
+    std::map<std::pair<size_t,size_t>,LinkType* const> NetworkLinkObserver<LinkType>::linkMap;
     
 }
 #endif
