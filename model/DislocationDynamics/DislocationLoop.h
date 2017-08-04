@@ -30,6 +30,7 @@ namespace model
     public:
         
         const LatticePlane glidePlane;
+        const bool isSessile;
         
         /**********************************************************************/
         DislocationLoop(const LoopNetworkType& dn,
@@ -37,7 +38,8 @@ namespace model
                         const LatticePlaneBase& N,
                         const LatticeVector<dim>& P) :
         /* base init */ LoopType(dn,flow),
-        /* base init */ glidePlane(P,N)
+        /*      init */ glidePlane(P,N),
+        /*      init */ isSessile(flow.dot(N)!=0)
         {
         
         }

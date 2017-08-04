@@ -988,7 +988,7 @@ namespace model
                 }
                 else
                 {
-                    if(linkIter.second->isSessile)
+                    if(linkIter.second->isSessile())
                     {
                         bulkSessileLength+=temp;
                     }
