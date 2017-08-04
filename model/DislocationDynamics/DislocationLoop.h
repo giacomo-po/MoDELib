@@ -23,7 +23,8 @@ namespace model
     
         typedef DislocationLoop<dim,corder,InterpolationType,QuadratureRule> DislocationLoopType;
         typedef Loop<DislocationLoopType> LoopType;
-        typedef typename TypeTraits<DislocationLoopType>::FlowType FlowType;
+//        typedef typename TypeTraits<DislocationLoopType>::FlowType FlowType;
+        typedef typename TypeTraits<DislocationLoopType>::LoopNetworkType LoopNetworkType;
         
         
     public:
@@ -31,10 +32,11 @@ namespace model
         const LatticePlane glidePlane;
         
         /**********************************************************************/
-        DislocationLoop(const FlowType& flow,
-                        const LatticeVector<dim>& P,
-                        const LatticePlaneBase& N) :
-        /* base init */ LoopType(flow),
+        DislocationLoop(const LoopNetworkType& dn,
+                        const LatticeVector<dim>& flow,
+                        const LatticePlaneBase& N,
+                        const LatticeVector<dim>& P) :
+        /* base init */ LoopType(dn,flow),
         /* base init */ glidePlane(P,N)
         {
         

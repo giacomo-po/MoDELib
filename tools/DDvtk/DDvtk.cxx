@@ -48,8 +48,8 @@
 //#include <model/DislocationDynamics/Visualization/vtk/DislocationActors.h>
 #include <model/DislocationDynamics/Visualization/vtk/DDinteractionStyle.h>
 
-#include <model/Utilities/EigenDataReader.h>
-#include <model/Network/Readers/VertexReader.h>
+#include <model/IO/EigenDataReader.h>
+#include <model/IO/VertexReader.h>
 
 
 

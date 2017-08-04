@@ -57,6 +57,7 @@ namespace model
         
         
         typedef SplineNode<NodeType,dim,corder,InterpolationType> NodeBaseType;
+        typedef typename NodeBaseType::LoopLinkType LoopLinkType;
         
         //        using NodeBaseType::NdofXnode;
         constexpr static int NdofXnode=NodeBaseType::NdofXnode;
@@ -105,7 +106,7 @@ namespace model
         //! The normal unit vector of the boundary on which *this DislocationNode is moving on
         VectorDim boundaryNormal;
         
-                int grainBoundary_rID2;
+        int grainBoundary_rID2;
         
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
@@ -488,18 +489,23 @@ namespace model
             }
             
             // add to _confiningPlanes the planes of the attached segments
-            for (const auto& neighborIter : this->neighbors())
+            //            for (const auto& neighborIter : this->neighbors())
+            //            {
+            //                if (std::get<2>(neighborIter.second))
+            //                {
+            //                    LinkType* pL(std::get<1>(neighborIter.second));
+            //                    for(const auto& loopLink : pL->loopLinks())
+            //                    {
+            //                        _confiningPlanes.push_back(&(loopLink->loop()->glidePlane));
+            //                    }
+            ////                    _confiningPlanes.push_back(&(pL->glidePlane));
+            ////                    _confiningPlanes.push_back(&(pL->sessilePlane));
+            //                }
+            //            }
+            
+            for(const auto& loopLink : this->loopLinks())
             {
-                if (std::get<2>(neighborIter.second))
-                {
-                    LinkType* pL(std::get<1>(neighborIter.second));
-                    for(const auto& loopLink : pL->loopLinks())
-                    {
-                        _confiningPlanes.push_back(&(loopLink->loop()->glidePlane));
-                    }
-//                    _confiningPlanes.push_back(&(pL->glidePlane));
-//                    _confiningPlanes.push_back(&(pL->sessilePlane));
-                }
+                _confiningPlanes.push_back(&(loopLink->loop()->glidePlane));
             }
             
             // add to _confiningPlanes the special planes of this node
@@ -521,35 +527,58 @@ namespace model
             
         }
         
+        
         /**********************************************************************/
-        void removeFromNeighborhood(LinkType* const pL)
-        {/*!@param[in] pL A pointer to the DislocationSegment being disconnected
-          * from this node.
+        void addLoopLink(LoopLinkType* const pL)
+        {/*@param[in] pL LoopLink pointer
           *
-          *  Overwrites NetworkNode::removeFromNeighborhood in order to modify
-          *  planeNormals and tangent after the DislocationSegment is disconnected
+          * This functin overrides LoopNode::addLoopLink
           */
-            NodeBaseType::removeFromNeighborhood(pL);
-            //            make_planeNormals();
+            NodeBaseType::addLoopLink(pL); // forward to base class
             make_confiningPlanes();
-            //            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
-            NodeBaseType::make_T();
+            
         }
         
         /**********************************************************************/
-        void addToNeighborhood(LinkType* const pL)
-        {/*!@param[in] pL A pointer to the DislocationSegment being connected
-          * to this node.
+        void removeLoopLink(LoopLinkType* const pL)
+        {/*@param[in] pL LoopLink pointer
           *
-          *  Overwrites NetworkNode::addToNeighborhood in order to modify
-          *  planeNormals and tangent after the DislocationSegment is disconnected
+          * This functin overrides LoopNode::removeLoopLink
           */
-            NodeBaseType::addToNeighborhood(pL);
-            //            make_planeNormals();
+            NodeBaseType::removeLoopLink(pL); // forward to base class
             make_confiningPlanes();
-            //            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
-            NodeBaseType::make_T();
+            
         }
+        
+        //        /**********************************************************************/
+        //        void removeFromNeighborhood(LinkType* const pL)
+        //        {/*!@param[in] pL A pointer to the DislocationSegment being disconnected
+        //          * from this node.
+        //          *
+        //          *  Overwrites NetworkNode::removeFromNeighborhood in order to modify
+        //          *  planeNormals and tangent after the DislocationSegment is disconnected
+        //          */
+        //            NodeBaseType::removeFromNeighborhood(pL);
+        //            //            make_planeNormals();
+        //            make_confiningPlanes();
+        //            //            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
+        ////            NodeBaseType::make_T();
+        //        }
+        //
+        //        /**********************************************************************/
+        //        void addToNeighborhood(LinkType* const pL)
+        //        {/*!@param[in] pL A pointer to the DislocationSegment being connected
+        //          * to this node.
+        //          *
+        //          *  Overwrites NetworkNode::addToNeighborhood in order to modify
+        //          *  planeNormals and tangent after the DislocationSegment is disconnected
+        //          */
+        //            NodeBaseType::addToNeighborhood(pL);
+        //            //            make_planeNormals();
+        //            make_confiningPlanes();
+        //            //            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this);
+        ////            NodeBaseType::make_T();
+        //        }
         
         /**********************************************************************/
         VectorOfNormalsType constraintNormals() const
@@ -565,12 +594,12 @@ namespace model
             
             if (meshLocation()==insideMesh)
             { // DislocationNode is inside mesh
-//                if (!this->is_balanced())
-//                { // DislocationNode is not balanced, fix it
-//                    temp.push_back((VectorDim()<<1.0,0.0,0.0).finished());
-//                    temp.push_back((VectorDim()<<0.0,1.0,0.0).finished());
-//                    temp.push_back((VectorDim()<<0.0,0.0,1.0).finished());
-//                }
+                //                if (!this->is_balanced())
+                //                { // DislocationNode is not balanced, fix it
+                //                    temp.push_back((VectorDim()<<1.0,0.0,0.0).finished());
+                //                    temp.push_back((VectorDim()<<0.0,1.0,0.0).finished());
+                //                    temp.push_back((VectorDim()<<0.0,0.0,1.0).finished());
+                //                }
                 
             }
             else if (meshLocation()==onMeshBoundary)
@@ -1099,7 +1128,8 @@ namespace model
                                                     {
                                                         os  << ds.sID<<"\t"
                                                         /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<"\t"
-                                                        /**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<"\t"
+                                                        //                                                        /**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<"\t"
+                                                        /**/<< VectorDim::Zero().transpose()<<"\t"
                                                         /**/<< ds.pSN()->sID<<"\t"
                                                         /**/<< (ds.meshLocation()==onMeshBoundary)<<"\t"
                                                         /**/<< ds.grain.grainID;

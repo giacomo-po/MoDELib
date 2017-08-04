@@ -20,7 +20,7 @@
 #include <vtkCellData.h>
 
 #include <model/Mesh/SimplicialMesh.h>
-#include <model/Network/Readers/VertexReader.h>
+#include <model/IO/VertexReader.h>
 
 
 namespace model

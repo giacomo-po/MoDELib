@@ -92,21 +92,21 @@ namespace model
             EDR.readScalarInFile(fullName,"material",materialZ); // material by atomic number Z
             //Material<Isotropic>::select(materialZ);
             
-//            for(auto& gr : grains())
-//            {
-//                gr.second.selectMaterial(materialZ);
-//                
-//                Eigen::Matrix<double,dim,dim> C2Gtemp(Eigen::Matrix<double,dim,dim>::Identity());
-//                EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
-//                gr.second.rotate(C2Gtemp);
-//            }
-
+            //            for(auto& gr : grains())
+            //            {
+            //                gr.second.selectMaterial(materialZ);
+            //
+            //                Eigen::Matrix<double,dim,dim> C2Gtemp(Eigen::Matrix<double,dim,dim>::Identity());
+            //                EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
+            //                gr.second.rotate(C2Gtemp);
+            //            }
+            
             for(auto& gr : grains())
             {
                 gr.second.selectMaterial(materialZ);
                 
                 Eigen::Matrix<double,dim,dim> C2Gtemp(Eigen::Matrix<double,dim,dim>::Identity());
-//                EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
+                //                EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
                 EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
                 for(int i=0;i<3;i++)
                 {
@@ -134,14 +134,17 @@ namespace model
                 grain(gb.first.second).emplace(gb.first,&gb.second);
             }
             
-            model::SequentialOutputFile<'L',1>::set_count(0); // Vertices_file;
-            model::SequentialOutputFile<'L',1>::set_increment(1); // Vertices_file;
-            model::SequentialOutputFile<'L',true> stressStraightFile;
-            size_t n=0;
-            for(const auto& sStraight : grainBoundaryDislocations())
+            if(grainBoundaryDislocations().size())
             {
-                stressStraightFile<<n<<"\t"<<sStraight.P0.transpose()<<"\t"<<sStraight.P1.transpose()<<"\t"<<sStraight.b.transpose()<<std::endl;
-                n++;
+                model::SequentialOutputFile<'B',1>::set_count(0);
+                model::SequentialOutputFile<'B',1>::set_increment(1);
+                model::SequentialOutputFile<'B',true> stressStraightFile;
+                size_t n=0;
+                for(const auto& sStraight : grainBoundaryDislocations())
+                {
+                    stressStraightFile<<n<<"\t"<<sStraight.P0.transpose()<<"\t"<<sStraight.P1.transpose()<<"\t"<<sStraight.b.transpose()<<std::endl;
+                    n++;
+                }
             }
         }
         
@@ -266,39 +269,39 @@ namespace model
             return *this;
         }
         
-//        /**********************************************************************/
-//        template <typename DislocationNetworkType>
-//        void reConnectGrainBoundarySegments(DislocationNetworkType& DN) const
-//        {
-//            const auto t0= std::chrono::system_clock::now();
-//            model::cout<<"		re-connecting GrainBoundarySegments ("<<std::flush;
-//            std::map<std::pair<size_t,size_t>,LatticeVectorType> disconnectMap;
-//            for (const auto& link : DN.links())
-//            {
-////                if(link.second->source->isGrainBoundaryNode() && link.second->sink->isGrainBoundaryNode())
-////                {
-//                    if(link.second->source->rID2()>=0 &&
-//                       link.second->sink->rID2()>=0 &&
-//                       link.second->source->rID2()==link.second->sink->rID2())
-//                    {
-//                        disconnectMap.emplace(std::piecewise_construct,
-//                                              std::forward_as_tuple(link.second->source->sID,link.second->sink->sID),
-//                                              std::forward_as_tuple(link.second->flow));
-//                    }
-////                }
-//            }
-//            
-//            model::cout<<disconnectMap.size()<<std::flush;
-//            
-//            for(const auto& segment : disconnectMap)
-//            {
-//                DN.template disconnect<false>(segment.first.first,segment.first.second);
-//                DN.template connect(segment.first.first,segment.first.second,segment.second);
-////                assert(DN.link(std::get<0>(tuple),std::get<1>(tuple)).second->isGrainBoundarySegment() && "SEGMENT IS NOT A GB SEGMENT");
-//            }
-//            
-//            model::cout<<std::setprecision(3)<<magentaColor<<" reconnected) ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-//        }
+        //        /**********************************************************************/
+        //        template <typename DislocationNetworkType>
+        //        void reConnectGrainBoundarySegments(DislocationNetworkType& DN) const
+        //        {
+        //            const auto t0= std::chrono::system_clock::now();
+        //            model::cout<<"		re-connecting GrainBoundarySegments ("<<std::flush;
+        //            std::map<std::pair<size_t,size_t>,LatticeVectorType> disconnectMap;
+        //            for (const auto& link : DN.links())
+        //            {
+        ////                if(link.second->source->isGrainBoundaryNode() && link.second->sink->isGrainBoundaryNode())
+        ////                {
+        //                    if(link.second->source->rID2()>=0 &&
+        //                       link.second->sink->rID2()>=0 &&
+        //                       link.second->source->rID2()==link.second->sink->rID2())
+        //                    {
+        //                        disconnectMap.emplace(std::piecewise_construct,
+        //                                              std::forward_as_tuple(link.second->source->sID,link.second->sink->sID),
+        //                                              std::forward_as_tuple(link.second->flow));
+        //                    }
+        ////                }
+        //            }
+        //
+        //            model::cout<<disconnectMap.size()<<std::flush;
+        //
+        //            for(const auto& segment : disconnectMap)
+        //            {
+        //                DN.template disconnect<false>(segment.first.first,segment.first.second);
+        //                DN.template connect(segment.first.first,segment.first.second,segment.second);
+        ////                assert(DN.link(std::get<0>(tuple),std::get<1>(tuple)).second->isGrainBoundarySegment() && "SEGMENT IS NOT A GB SEGMENT");
+        //            }
+        //            
+        //            model::cout<<std::setprecision(3)<<magentaColor<<" reconnected) ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+        //        }
         
     };
     

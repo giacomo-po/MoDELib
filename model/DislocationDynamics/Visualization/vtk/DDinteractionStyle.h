@@ -21,8 +21,8 @@
 #include <vtkPropPicker.h>
 #include <vtkRendererCollection.h>
 
-#include <model/Network/Readers/VertexReader.h>
-#include <model/Network/Readers/EdgeReader.h>
+#include <model/IO/VertexReader.h>
+#include <model/IO/EdgeReader.h>
 #include <model/DislocationDynamics/Visualization/vtk/DislocationSegmentActor.h>
 #include <model/DislocationDynamics/Visualization/vtk/DislocationActors.h>
 

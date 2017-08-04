@@ -79,11 +79,11 @@ namespace model
         /**********************************************************************/
         void makeTopologyChange()
         {
-            std::cout<<"1"<<std::endl;
+//            std::cout<<"1"<<std::endl;
             // Add this to NetworkLinkObserver
             NetworkLinkObserver<LinkType>::addLink(this->p_derived());
 
-                        std::cout<<"2"<<std::endl;
+//                        std::cout<<"2"<<std::endl;
             // Add this to neighobors of source and sink
             source->addToNeighborhood(this->p_derived());
             sink  ->addToNeighborhood(this->p_derived());
@@ -91,13 +91,13 @@ namespace model
             //! 2 - Joins source and sink NetworkComponents
             if (source->pSN()==sink->pSN()) // source and sink are already in the same NetworkComponent
             {
-                            std::cout<<"3"<<std::endl;
+//                            std::cout<<"3"<<std::endl;
                 psn=source->pSN();				// redirect psn to the source psn
                 psn->add(this->p_derived());	// add this to the existing NetworkComponent
             }
             else // source and sink are in different NetworkComponents
             {
-                            std::cout<<"4"<<std::endl;
+//                            std::cout<<"4"<<std::endl;
                 // find the size of the source and sink
                 size_t sourceSNsize(source->pSN()->nodeOrder());
                 size_t   sinkSNsize(  sink->pSN()->nodeOrder());
@@ -114,7 +114,7 @@ namespace model
                     changeSN(*(source->psn.get()));
                 }
             }
-                     std::cout<<"end"<<std::endl;
+//                     std::cout<<"end"<<std::endl;
         }
         
     public:

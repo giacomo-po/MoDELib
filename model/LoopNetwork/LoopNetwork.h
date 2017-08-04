@@ -60,12 +60,15 @@ namespace model
     /*               */ private std::map<size_t,const typename TypeTraits<Derived>::LoopType* const>
     {
         
+    public:
         typedef typename TypeTraits<Derived>::NodeType NodeType;
         //        typedef typename TypeTraits<Derived>::NodeType NodeType;
         typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef LoopLink<typename TypeTraits<Derived>::LinkType> LoopLinkType;
         typedef typename TypeTraits<Derived>::LoopType LoopType;
         typedef typename TypeTraits<Derived>::FlowType FlowType;
+        
+    private:
         
         //        typedef std::map<size_t,NodeType>     LoopNodeContainerType;
         
@@ -288,7 +291,7 @@ namespace model
         
         /**********************************************************************/
         template <typename ...LoopArgTypes>
-        void insertLoop(const std::vector<size_t> nodeIDs,
+        std::shared_ptr<LoopType> insertLoop(const std::vector<size_t> nodeIDs,
                         const FlowType& f,
                         const LoopArgTypes&... loopInput)
         {/*!@param[in] nodeIDs IDs of the nodes in the loop
@@ -314,6 +317,8 @@ namespace model
             }
             
             assert(tempLoop->isLoop() && "Not a loop.");
+            
+            return tempLoop;
         }
         
         /**********************************************************************/

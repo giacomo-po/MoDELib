@@ -12,7 +12,7 @@
 #include <chrono>
 #include <random>
 #include <assert.h>
-#include <model/Utilities/EigenDataReader.h>
+#include <model/IO/EigenDataReader.h>
 #include <model/Mesh/SimplicialMesh.h> // defines mode::cout
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/LatticeMath/LatticeVector.h>

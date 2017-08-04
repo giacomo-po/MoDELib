@@ -17,7 +17,7 @@ velocityReductionFactor=0.75;
 # OUTPUT
 # Options for output files:
 outputFrequency=10;
-outputBinary=1;
+outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=1;
@@ -37,9 +37,9 @@ material=13;
 ######################################
 # CRYSTAL ORIENTATION
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
-C2G = 0.707106781186547  -0.707106781186547                   0
-      0.408248290463863   0.408248290463863  -0.816496580927726
-      0.577350269189626   0.577350269189626   0.577350269189626;
+C2G0 = 1  -1 0
+      1   1  -2
+      1   1   1;
 
 ######################################
 # TEMPERATURE in [K]

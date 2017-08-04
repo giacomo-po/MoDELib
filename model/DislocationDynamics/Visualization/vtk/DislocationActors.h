@@ -11,8 +11,8 @@
 
 #include <vtkRenderer.h>
 
-#include <model/Network/Readers/VertexReader.h>
-#include <model/Network/Readers/EdgeReader.h>
+#include <model/IO/VertexReader.h>
+#include <model/IO/EdgeReader.h>
 #include <model/DislocationDynamics/Visualization/vtk/DislocationSegmentActor.h>
 #include <model/DislocationDynamics/Visualization/vtk/DislocationNodeActor.h>
 
@@ -22,13 +22,13 @@ namespace model
 {
     struct DislocationActors :
     /* inherits from   */ public VertexReader<'V',10,double>,
-    /* inherits from   */ public EdgeReader  <'E',11,double>,
+    /* inherits from   */ public EdgeReader  <'K',15,double>,
     /* inherits from   */ std::deque<DislocationSegmentActor>,
     /* inherits from   */ std::deque<DislocationNodeActor>
     {
         static constexpr int dim=3;
         typedef VertexReader<'V',10,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
-        typedef EdgeReader  <'E',11,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
+        typedef EdgeReader  <'K',15,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
         
         
         //        long int currentFrameID;
@@ -166,8 +166,10 @@ namespace model
                     
                     P0T0P1T1BN.col(0) = itSource->second.segment<dim>(0*dim).transpose().template cast<float>();	// source position
                     P0T0P1T1BN.col(2) =   itSink->second.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
-                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
-                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
+//                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
+//                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
+                    P0T0P1T1BN.col(1) = edge.second.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
+                    P0T0P1T1BN.col(3) = edge.second.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
                     P0T0P1T1BN.col(4) = edge.second.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
                     P0T0P1T1BN.col(5) = edge.second.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
                     

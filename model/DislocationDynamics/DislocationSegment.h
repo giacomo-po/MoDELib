@@ -265,7 +265,7 @@ namespace model
         QuadratureParticleContainerType quadratureParticleContainer;
         
         
-        const Grain<dim>& grain;
+//        const Grain<dim>& grain;
         
         //! The Burgers vector
         VectorDim Burgers;
@@ -370,11 +370,12 @@ namespace model
                            const std::shared_ptr<NodeType>& nJ) :
         //        /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),Fin),
         /* base class initialization */ SplineSegmentType(nI,nJ),
-        /* init list       */ grain(nI->grain),
+//        /* init list       */ grain(nI->grain),
         /* init list       */ Burgers(VectorDim::Zero()),
         //        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
-        /* init list       */ isSessile(this->glidePlane.n.cross(this->sessilePlane.n).squaredNorm()!=0),
-//        /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
+        /* init list       */ isSessile(false),
+//        /* init list       */ isSessile(this->glidePlane.n.cross(this->sessilePlane.n).squaredNorm()!=0),
+        //        /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
         //        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
         //        /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
         /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
@@ -383,7 +384,10 @@ namespace model
           *  @param[in] Flow_in the input flow
           */
             
-            assert(nI->grain.grainID==nJ->grain.grainID && "source and Sink BELONG TO DIFFERENT GRAINS");
+            std::cout<<"NEED TO REDEFINE ISSESSILE"<<std::endl;
+//            std::cout<<"NEED TO REDEFINE GRAIN"<<std::endl;
+            
+//            assert(nI->grain.grainID==nJ->grain.grainID && "source and Sink BELONG TO DIFFERENT GRAINS");
             
             //            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->source); // This should not be called in edge expansion or contraction
             //            this->source->make_T();
@@ -1036,10 +1040,14 @@ namespace model
         {
             os  << ds.source->sID<<"\t"<< ds.sink->sID<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.Burgers.transpose()<<"\t"
-            /**/<< std::setprecision(15)<<std::scientific<<ds.glidePlaneNormal.transpose()<<"\t"
-            /**/<< ds.sourceTfactor<<"\t"
-            /**/<< ds.sinkTfactor<<"\t"
-            /**/<< ds.pSN()->sID;
+//            /**/<< std::setprecision(15)<<std::scientific<<ds.glidePlaneNormal.transpose()<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<VectorDim::Zero().transpose()<<"\t"
+//            /**/<< ds.sourceTfactor<<"\t"
+//            /**/<< ds.sinkTfactor<<"\t"
+            /**/<<SplineShapeFunction<dim,1>::sourceT(ds).transpose()<<"\t"
+            /**/<<SplineShapeFunction<dim,1>::sinkT(ds).transpose()<<"\t"
+            //            /**/<< ds.pSN()->sID;
+            <<0;
             return os;
         }
         

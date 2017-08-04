@@ -3,7 +3,7 @@
 ##########################################################
 USE_ICC = 0
 usePARDISO = 0
-MODEL_INCLUDE =../../../
+MODEL_INCLUDE =../../..
 EIGEN_INCLUDE =/Users/giacomo/Documents/eigen
 MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
 MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
@@ -133,7 +133,7 @@ dipoleOBJS = dipoleGenerator
 
 $(dipoleOBJS):
 	@echo making dipoleGenerator
-	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/MicrostructureGeneration/dipoleGenerator.cpp -o dipoleGenerator -O3 -std=c++11 $(IDIR)
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/dipoleGenerator.cpp -o dipoleGenerator -O3 -std=c++11 $(IDIR)
 
 ##########################################################
 # MAKE FRANKREADGENERATOR

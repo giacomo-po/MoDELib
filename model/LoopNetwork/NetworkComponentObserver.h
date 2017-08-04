@@ -58,19 +58,19 @@ namespace model
 		
 	public:
         
-        void addComponent(NetworkComponentType* const pNC)
+        static void addComponent(NetworkComponentType* const pNC)
         {
             const bool success=networkComponentMap.insert(std::make_pair(pNC->sID,pNC)).second;
             assert(success && "COULD NOT INSERT NetworkComponent");
         }
         
-        void removeComponent(NetworkComponentType* const pNC)
+        static void removeComponent(NetworkComponentType* const pNC)
         {
             const int erased=networkComponentMap.erase(pNC->sID);
             assert(erased==1 && "COULD NOT ERASE NetworkComponent");
         }
 		
-        const NetworkComponentContainerType& components()
+        static const NetworkComponentContainerType& components()
         {
             return networkComponentMap;
         }
