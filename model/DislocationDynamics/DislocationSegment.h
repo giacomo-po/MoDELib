@@ -180,12 +180,12 @@ namespace model
     public:
         
         static constexpr int dim=_dim; // make dim available outside class
-        typedef SplineShapeFunction<dim,corder> SplineShapeFunctionType;
+        typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
         typedef DislocationSegment<dim,corder,InterpolationType,QuadratureRule> LinkType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
         typedef LoopLink<LinkType> LoopLinkType;
         typedef DislocationNode<dim,corder,InterpolationType,QuadratureRule> NodeType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
         typedef SplineSegment<LinkType,dim,corder> SplineSegmentType;
-        static constexpr int Ncoeff=SplineShapeFunctionType::Ncoeff;
+        static constexpr int Ncoeff=SplineSegmentBaseType::Ncoeff;
         static constexpr int Ndof=SplineSegmentType::Ndof;
         typedef typename SplineSegmentType::MatrixNdof MatrixNdof;
         typedef typename SplineSegmentType::VectorNdof VectorNdof;
@@ -1098,8 +1098,8 @@ namespace model
  //           /**/<< std::setprecision(15)<<std::scientific<<VectorDim::Zero().transpose()<<"\t"
             //            /**/<< ds.sourceTfactor<<"\t"
             //            /**/<< ds.sinkTfactor<<"\t"
-            /**/<<SplineShapeFunction<dim,1>::sourceT(ds).transpose()<<"\t"
-            /**/<<SplineShapeFunction<dim,1>::sinkT(ds).transpose()<<"\t"
+            /**/<<SplineSegmentBase<dim,1>::sourceT(ds).transpose()<<"\t"
+            /**/<<SplineSegmentBase<dim,1>::sinkT(ds).transpose()<<"\t"
             //            /**/<< ds.pSN()->sID;
             <<0;
             return os;

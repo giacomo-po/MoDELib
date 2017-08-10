@@ -784,7 +784,6 @@ namespace model
             
             //! -1 Compute the interaction StressField between dislocation particles
             model::cout<<"		Computing dislocation-dislocation interactions ("<<nThreads<<" threads)..."<<std::flush;
-            
             this->template computeNeighborField<StressField>();
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             
@@ -794,14 +793,11 @@ namespace model
             typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
             LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
             this->parallelExecute(Lmfp);
-            
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]."<<defaultColor<<std::endl;
             
             //! -3 Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve
             model::cout<<"		Assembling NetworkComponents and solving "<<std::flush;
             const auto t3= std::chrono::system_clock::now();
-            
-            
             
             if(DislocationNetworkComponentType::use_directSolver)
             {

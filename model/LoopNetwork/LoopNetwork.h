@@ -30,6 +30,10 @@ class NetworkLink;
 #include <utility>
 #include <algorithm>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include <model/Utilities/CRTP.h>
 #include <model/MPI/MPIcout.h>
 #include <model/LoopNetwork/LoopNode.h>

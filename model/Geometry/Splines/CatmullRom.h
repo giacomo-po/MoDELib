@@ -46,6 +46,41 @@ namespace model
             return temp;
         }
         
+        /**********************************************************************/
+        template <typename T>
+        static std::map<size_t,std::pair<double,Eigen::Matrix<double,T::dim,1>>> loopTangentCoeffs(const std::set<LoopLink<T>*>& segmentSet)
+        {/*!\returns a map<snID,pair>, where snID is the NetworkComponent ID of
+          * a node, pair.second is the position of a neighbor node, and pair.first
+          * is the scalar coefficient which multiplies the position of the 
+          * neighbor node in the calculation of the loop tangent at the node snID.
+          */
+            
+            double cT=0.0;
+            for(const auto& link : segmentSet)
+            {
+                const double cL=link->pLink->parametricChordLength();
+                cT+=cL;
+            }
+            
+            //Eigen::Matrix<double,T::dim,1> temp=Eigen::Matrix<double,T::dim,1>::Zero();
+            std::map<size_t,std::pair<double,Eigen::Matrix<double,T::dim,1>>> temp;
+            
+            for(const auto& link : segmentSet)
+            {
+                temp[link->source()->snID()]=std::make_pair(0.0,link->source()->get_P());;
+                temp[link->  sink()->snID()]=std::make_pair(0.0,link->  sink()->get_P());
+            }
+            
+            for(const auto& link : segmentSet)
+            {
+                const double cL=link->pLink->parametricChordLength();
+                temp[link->source()->snID()].first-=1.0/cL*(cT-cL)/cT;
+                temp[link->  sink()->snID()].first+=1.0/cL*(cT-cL)/cT;
+            }
+            
+            return temp;
+        }
+        
     };
     
 }

@@ -110,6 +110,10 @@ namespace model
 
 //            std::cout<<"Constructing LoopNode "<<this->sID<<std::endl;
             NodeObserver<Derived>::addNode(this->p_derived());
+            
+            const bool success=neighbors().emplace(std::make_pair(this->sID, NeighborType(this->p_derived(),(LinkType*) NULL,0) )).second;
+            assert(success && "CANNOT INSERT SELF IN NEIGHBORHOOD.");
+
         }
         
         /**********************************************************************/
@@ -123,6 +127,17 @@ namespace model
             
             this->psn->remove(this->p_derived());
 
+            const int success=neighbors().erase(this->sID);
+            assert(success==1 && "CANNOT ERESE SELF FROM NEIGHBORHOOD.");
+
+        }
+        
+        /**********************************************************************/
+        size_t snID() const
+        {/*!\returns The NetworkComponent::snID() of the component
+          * containing this.
+          */
+            return psn->snID(this->p_derived());
         }
     
         /**********************************************************************/
@@ -165,17 +180,17 @@ namespace model
         void addToNeighborhood(LinkType* const pL)
         {/*!@param[in] pL a pointer to a LinkType edge
           */
-            
+                        
             if (pL->source->sID==this->sID)
             {// this vertex is the source of edge *pL
                 const NeighborType temp(pL->sink.get(),pL,1);
-                const bool success=neighbors().insert( std::make_pair(pL->sink->sID,temp) ).second;
+                const bool success=neighbors().emplace( pL->sink->sID,temp).second;
                 assert(success && "CANNOT INSERT IN NEIGHBORHOOD.");
             }
             else if (pL->sink->sID==this->sID)
             {// this vertex is the sink of edge *pL
                 const NeighborType temp(pL->source.get(),pL,-1);
-                const bool success=neighbors().insert( std::make_pair(pL->source->sID,temp) ).second;
+                const bool success=neighbors().emplace( pL->source->sID,temp).second;
                 assert(success  && "CANNOT INSERT IN NEIGHBORHOOD.");
             }
             else
@@ -191,13 +206,13 @@ namespace model
             if (pL->source->sID==this->sID)
             {
                 const size_t key=pL->sink->sID;
-                int success=neighbors().erase(key);
+                const int success=neighbors().erase(key);
                 assert(success==1);
             }
             else if (pL->sink->sID==this->sID)
             {
                 const size_t key=pL->source->sID;
-                int success=neighbors().erase(key);
+                const int success=neighbors().erase(key);
                 assert(success==1);
             }
             else

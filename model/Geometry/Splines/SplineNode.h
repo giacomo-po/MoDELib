@@ -110,9 +110,10 @@ namespace model
                 loopTangents.emplace(pair.first,prjM*CatmullRom::loopTangent(pair.second));
             }
         }
+
+        std::map<size_t,VectorDim> loopTangents;
         
     public:
-        std::map<size_t,VectorDim> loopTangents;
         MatrixDim prjM;	//! the projection matrix. THIS SHOULD BE PRIVATE
         
         SplineNode(const VectorDim& P_in) :
@@ -148,6 +149,8 @@ namespace model
           *
           * This functin overrides SplineNode<Derived, dim,0>::set_P
           */
+            std::cout<<"node "<<this->sID<<"set_P"<<std::endl;
+            
             Base::set_P(P_in); // forward to base class
 
             // Tangents of neighbors may change due to change in P, so updated them
@@ -163,6 +166,20 @@ namespace model
             return loopTangents;
         }
         
+        /**********************************************************************/
+        std::map<size_t,std::map<size_t,std::pair<double,VectorDim>>> loopTangentCoeffs() const
+        {
+            
+            std::map<size_t,std::map<size_t,std::pair<double,VectorDim>>> temp;
+            
+            std::map<size_t,std::set<LoopLinkType*>> linksbyID=this->linksByLoopID();
+            for(const auto& pair : linksbyID)
+            {
+                temp.emplace(pair.first,CatmullRom::loopTangentCoeffs(pair.second));
+            }
+            
+            return temp;
+        }
     };
     
 //    /**************************************************************************/

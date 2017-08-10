@@ -23,7 +23,7 @@
 #include <model/Geometry/ParametricCurve.h>
 //#include <model/Geometry/Splines/Intersection/SplineIntersection.h>
 #include <model/Geometry/Splines/Coeff2Hermite.h>
-#include <model/Geometry/Splines/SplineShapeFunction.h>
+#include <model/Geometry/Splines/SplineSegmentBase.h>
 //#include <model/Network/Operations/EdgeFinder.h>
 //#include <Eigen/Sparse>
 #include <model/Math/MatrixCompanion.h>
@@ -84,9 +84,9 @@ namespace model
     public:
         //enum  {dim=_dim};
         static constexpr int dim= _dim;
-        static constexpr int Ncoeff= 2*(corder+1);
+        static constexpr int Ncoeff= 2*(corder+1);      // number of Hermite coefficients
         static constexpr int pOrder= 2*corder+1;
-        static constexpr int Ndof  = dim*Ncoeff;
+        static constexpr int Ndof  = dim*Ncoeff;        // number of Hermite dofs
         static constexpr int eigenSize=pOrder*pOrder;
         
         typedef Eigen::Matrix<double, 1, Ncoeff> RowNcoeff;
@@ -110,7 +110,7 @@ namespace model
         //typedef SplineSegment<Derived,dim,corder,alpha> SplineSegmentType;
         //typedef SplineSegment<Derived,dim,corder> SplineSegmentType;
         
-        typedef SplineShapeFunction<dim,corder> SplineShapeFunctionType;
+        typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
         typedef ParametricCurve<Derived,dim> ParametricCurveType;
         
     public:
@@ -132,13 +132,33 @@ namespace model
         /**********************************************************************/
         MatrixNcoeffDim hermiteDofs() const
         {
-            return SplineShapeFunctionType::hermiteDofs(*this);
+            return SplineSegmentBaseType::hermiteDofs(*this);
         }
+        
+//        /**********************************************************************/
+//        Eigen::Matrix<double,Eigen::Dynamic,dim> positionDofs() const
+//        {
+//            return SplineSegmentBaseType::positionDofs(*this);
+//
+//        }
+        
+        /**********************************************************************/
+        std::pair<Eigen::Matrix<double,Ncoeff,Eigen::Dynamic>,Eigen::Matrix<double,Eigen::Dynamic,dim>> hermite2posMatrix() const
+        {
+            return SplineSegmentBaseType::hermite2posMatrix(*this);
+        }
+        
+        /**********************************************************************/
+        std::map<size_t,std::pair<VectorNcoeff,VectorDim>> hermite2posMap() const
+        {
+            return SplineSegmentBaseType::hermite2posMap(*this);
+        }
+
         
         /**********************************************************************/
         MatrixNcoeff sfCoeffs() const
         {
-            return SplineShapeFunctionType::sfCoeffs(parametricChordLength());
+            return SplineSegmentBaseType::sfCoeffs(parametricChordLength());
         }
         
         /******************************************************************************/
@@ -172,13 +192,21 @@ namespace model
           * with i=0..dim-1, k,m = 0... Ncoeff
           * ACTUALLY IN THE CODE WE HAVE THE TRANSPOSE OF THIS !!!!
           */
-            return SplineShapeFunctionType::sf(u,parametricChordLength())*hermiteDofs();
+            return sf(u)*hermiteDofs();
+        }
+        
+        /**********************************************************************/
+        RowNcoeff sf(const double& u) const
+        {/*\param[in] uin parameter value in [0,1]
+          *\returns The row vector of shape function at uin
+          */
+            return SplineSegmentBaseType::sf(u,parametricChordLength());
         }
         
         /******************************************************************************/
         VectorDim get_ru(const double & uin) const
         {
-            return SplineShapeFunctionType::sfDiff1(uin,parametricChordLength())*hermiteDofs();
+            return SplineSegmentBaseType::sfDiff1(uin,parametricChordLength())*hermiteDofs();
         }
         
         /******************************************************************************/
@@ -190,7 +218,7 @@ namespace model
         /******************************************************************************/
         VectorDim get_ruu(const double & uin) const
         {
-            return SplineShapeFunctionType::sfDiff2(uin,parametricChordLength())*hermiteDofs();
+            return SplineSegmentBaseType::sfDiff2(uin,parametricChordLength())*hermiteDofs();
         }
         
         /******************************************************************************/

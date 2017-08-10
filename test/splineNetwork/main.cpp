@@ -196,6 +196,30 @@ int main()
         }
     }
     
+    SequentialOutputFile<'P',true> file3;
+    
+    for(const auto& link : DN.networkLinks())
+    {
+        const auto pair=link.second->hermite2posMatrix();
+
+        if((pair.first*pair.second-link.second->hermiteDofs()).norm()>FLT_EPSILON)
+        {
+            std::cout<<pair.first<<std::endl<<std::endl;
+            std::cout<<pair.second<<std::endl<<std::endl;
+            std::cout<<pair.first*pair.second<<std::endl<<std::endl;
+            std::cout<<link.second->hermiteDofs()<<std::endl<<std::endl;
+
+            assert(0);
+            //std::cout<<"WARNING"<<std::endl;
+        }
+        
+
+        for(int i=0;i<np;++i)
+        {
+            file3<<link.second->sf(i*du)*pair.first*pair.second<<std::endl<<std::endl;
+        }
+    }
+    
     //
 //    DN.printLoops();
 //
