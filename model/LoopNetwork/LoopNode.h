@@ -352,6 +352,7 @@ namespace model
             }
         }
         
+        
         /**********************************************************************/
         bool depthFirstSearch (const size_t& ID, const size_t& N = ULONG_MAX) const
         {

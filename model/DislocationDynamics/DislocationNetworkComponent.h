@@ -112,31 +112,31 @@ namespace model
                 n++;
             }
             
-            //Constrain simple nodes to move normal to tangent
-            for (typename NodeContainerType::const_iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)
-            {
-                if(nodeIter->second->constraintNormals().size()==1)
-                {
-                    Eigen::Matrix<int,dim,1> node_dofID(nodeIter->second->node_dofID());
-                    Eigen::Matrix<double,dim,1> T(nodeIter->second->get_T());
-                    double normT(T.norm());
-                    if (normT>FLT_EPSILON)
-                    {
-                        T/=normT;
-                        for(size_t d=0;d<dim;++d)
-                        {
-//                            vT.push_back(Eigen::Triplet<double>(KPQ_row,node_dofID(d),T(d)));
-                            vT.emplace_back(KPQ_row,node_dofID(d),T(d));
-                            if (symmetricConstraint)
-                            {
-//                                vT.push_back(Eigen::Triplet<double>(node_dofID(d),KPQ_row,T(d)));
-                                vT.emplace_back(node_dofID(d),KPQ_row,T(d));
-                            }
-                        }
-                        ++KPQ_row;
-                    }
-                }
-            }
+//            //Constrain simple nodes to move normal to tangent
+//            for (typename NodeContainerType::const_iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)
+//            {
+//                if(nodeIter->second->constraintNormals().size()==1)
+//                {
+//                    Eigen::Matrix<int,dim,1> node_dofID(nodeIter->second->node_dofID());
+//                    Eigen::Matrix<double,dim,1> T(nodeIter->second->get_T());
+//                    double normT(T.norm());
+//                    if (normT>FLT_EPSILON)
+//                    {
+//                        T/=normT;
+//                        for(size_t d=0;d<dim;++d)
+//                        {
+////                            vT.push_back(Eigen::Triplet<double>(KPQ_row,node_dofID(d),T(d)));
+//                            vT.emplace_back(KPQ_row,node_dofID(d),T(d));
+//                            if (symmetricConstraint)
+//                            {
+////                                vT.push_back(Eigen::Triplet<double>(node_dofID(d),KPQ_row,T(d)));
+//                                vT.emplace_back(node_dofID(d),KPQ_row,T(d));
+//                            }
+//                        }
+//                        ++KPQ_row;
+//                    }
+//                }
+//            }
             
             
             // loop over each segment and add segment contributions to kqqT and Fq

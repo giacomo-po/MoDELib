@@ -25,10 +25,6 @@ namespace model
     class SplineSegmentBase {};
     
     
-    
-    
-    
-    
     /************************************************************************/
     /* SplineSegmentBase, template specialization corder=0 ******************/
     /************************************************************************/
@@ -39,12 +35,15 @@ namespace model
         
         static constexpr int corder = 0;
         static constexpr int Ncoeff= 2*(corder+1);
+        typedef Eigen::Matrix<double,Ncoeff,1>     VectorNcoeff;
         typedef Eigen::Matrix<double, 1, Ncoeff> RowNcoeff;
         typedef Eigen::Matrix<double, 1, Ncoeff-1> RowNcoeffu;
         typedef Eigen::Matrix<double, 1, Ncoeff-2> RowNcoeffuu;
         typedef Eigen::Matrix<double, Ncoeff, Ncoeff> MatrixNcoeff;
         typedef Eigen::Matrix<double, Ncoeff, dim> MatrixNcoeffDim;
-        
+        typedef Eigen::Matrix<double,dim,1>     VectorDim;
+        typedef Eigen::Matrix<double,dim,dim>   MatrixDim;
+
         
         
         /**********************************************************************/
@@ -83,6 +82,19 @@ namespace model
             return powers(uin)*sfCoeffs(g);
         }
         
+        /******************************************************************************/
+        static RowNcoeff sfDiff1(const double& uin,const double& g)
+        {
+            return powersDiff1(uin)*sfCoeffs(g).template block<Ncoeff-1,Ncoeff>(1,0);
+        }
+        
+        /******************************************************************************/
+        static RowNcoeff sfDiff2(const double& uin,const double& g)
+        {
+            return  powersDiff2(uin)*sfCoeffs(g).template block<Ncoeff-2,Ncoeff>(2,0);
+        }
+
+        
         /**********************************************************************/
         template<typename LinkType>
         static MatrixNcoeffDim hermiteDofs(const LinkType& link)
@@ -91,6 +103,39 @@ namespace model
           */
             return (MatrixNcoeffDim()<< link.source->get_P().transpose(),
                     /*            */	link.  sink->get_P().transpose()).finished();
+        }
+        
+        /**********************************************************************/
+        template<typename LinkType>
+        static VectorDim sourceT(const LinkType&)
+        {
+            return VectorDim::Zero();
+        }
+        
+        /**********************************************************************/
+        template<typename LinkType>
+        static VectorDim sinkT(const LinkType&)
+        {
+            return VectorDim::Zero();
+        }
+        
+        /**********************************************************************/
+        template<typename LinkType>
+        static std::map<size_t,std::pair<VectorNcoeff,VectorDim>> hermite2posMap(const LinkType& link) // move to CatmullRom?
+        {
+            
+            //            std::cout<<link.source->sID<<"->"<<link.sink->sID<<std::endl;
+            
+            //            std::map<size_t,VectorDim> posMap;
+            //            std::map<size_t,std::pair<double,double>> temp;
+            
+            std::map<size_t,std::pair<VectorNcoeff,VectorDim>> temp;
+            temp.emplace(link.source->snID(),std::make_pair((VectorNcoeff()<<1.0,0.0).finished(),link.source->get_P()));
+            temp.emplace(link.  sink->snID(),std::make_pair((VectorNcoeff()<<0.0,1.0).finished(),link.  sink->get_P()));
+            
+            
+            
+            return temp;
         }
         
         //        MatrixNcoeffDim get_qH() const {
@@ -272,7 +317,7 @@ namespace model
         static std::map<size_t,std::pair<VectorNcoeff,VectorDim>> hermite2posMap(const LinkType& link) // move to CatmullRom?
         {
             
-//            std::cout<<link.source->sID<<"->"<<link.sink->sID<<std::endl;
+            //            std::cout<<link.source->sID<<"->"<<link.sink->sID<<std::endl;
             
             //            std::map<size_t,VectorDim> posMap;
             //            std::map<size_t,std::pair<double,double>> temp;
@@ -294,13 +339,11 @@ namespace model
                 
                 for(const auto& pair : sourceMap)
                 {
-                    
-                    // initialize if not exixtent
+                    // initialize if not existent
                     const auto mapIter=temp.find(pair.first);
                     if(mapIter==temp.end())
                     {
                         temp.emplace(pair.first,std::make_pair(VectorNcoeff::Zero(),pair.second.second));
-                        //posMap.emplace(pair.first,pair.second.second);
                     }
                     
                     if(link.source->sID==loopLink->source()->sID && link.sink->sID==loopLink->sink()->sID)
@@ -315,15 +358,12 @@ namespace model
                     {
                         assert(0);
                     }
-                    
-                    //                    std::cout<<"source:"<<pair.first<<std::endl;
-                    
                 }
                 
                 for(const auto& pair : sinkMap)
                 {
                     
-                    // initialize if not exixtent
+                    // initialize if not existent
                     const auto mapIter=temp.find(pair.first);
                     if(mapIter==temp.end())
                     {
@@ -342,209 +382,12 @@ namespace model
                     {
                         assert(0);
                     }
-                    
-                    //                    std::cout<<"sink:"<<pair.first<<std::endl;
-                    
-                    
                 }
                 
             }
             
             return temp;
         }
-        
-        //        /**********************************************************************/
-        //        template<typename LinkType>
-        //        static Eigen::Matrix<double,Eigen::Dynamic,dim> positionDofs(const LinkType& link)
-        //        {/*!\returns The [N x dim] matrix of nodal positions of the neighbor nodes
-        //          * which control the shape of this segment. Nodes are ordered according
-        //          * to their snID.
-        //          */
-        //
-        //            std::cout<<"positionDofs"<<std::endl;
-        //
-        //            std::map<size_t,VectorDim> map;
-        //
-        //            for(const auto& tup : link.source->neighbors())
-        //            {
-        //                map.emplace(std::get<0>(tup.second)->snID(),std::get<0>(tup.second)->get_P());
-        //            }
-        //
-        //            for(const auto& tup : link.sink->neighbors())
-        //            {
-        //                map.emplace(std::get<0>(tup.second)->snID(),std::get<0>(tup.second)->get_P());
-        //            }
-        //
-        //
-        //            Eigen::Matrix<double,Eigen::Dynamic,dim> temp(map.size(),dim);
-        //
-        //            size_t n=0;
-        //            for (const auto& pair : map)
-        //            {
-        //                std::cout<<pair.first<<std::endl;
-        //                temp.row(n)=pair.second.transpose();
-        //                n++;
-        //            }
-        //
-        //            return temp;
-        //        }
-        
-        //        /**********************************************************************/
-        //        template<typename LinkType>
-        //        static std::pair<Eigen::Matrix<double,Ncoeff,Eigen::Dynamic>,Eigen::Matrix<double,Eigen::Dynamic,dim>> hermite2posMatrix(const LinkType& link) // move to CatmullRom?
-        //        {
-        //
-        //            std::cout<<link.source->sID<<"->"<<link.sink->sID<<std::endl;
-        //
-        //            std::map<size_t,VectorDim> posMap;
-        //            std::map<size_t,std::pair<double,double>> temp;
-        //
-        //            const std::map<size_t,std::map<size_t,std::pair<double,VectorDim>>> sourceMapMap=link.source->loopTangentCoeffs();
-        //            const std::map<size_t,std::map<size_t,std::pair<double,VectorDim>>>   sinkMapMap=link.  sink->loopTangentCoeffs();
-        //
-        //
-        //            for(const auto& loopLink : link.loopLinks())
-        //            {
-        //
-        //                const auto& sourceMap=sourceMapMap.at(loopLink->loop()->sID);
-        //                const auto&   sinkMap=  sinkMapMap.at(loopLink->loop()->sID);
-        //
-        //                for(const auto& pair : sourceMap)
-        //                {
-        //
-        //                    // initialize if not exixtent
-        //                    const auto mapIter=temp.find(pair.first);
-        //                    if(mapIter==temp.end())
-        //                    {
-        //                        temp.emplace(pair.first,std::make_pair(0.0,0.0));
-        //                        posMap.emplace(pair.first,pair.second.second);
-        //                    }
-        //
-        //                    if(link.source->sID==loopLink->source()->sID && link.sink->sID==loopLink->sink()->sID)
-        //                    {
-        //                        temp[pair.first].first+=pair.second.first/link.loopLinks().size();
-        //                    }
-        //                    else if(link.source->sID==loopLink->sink()->sID && link.sink->sID==loopLink->source()->sID)
-        //                    {
-        //                        temp[pair.first].first-=pair.second.first/link.loopLinks().size();
-        //                    }
-        //                    else
-        //                    {
-        //                        assert(0);
-        //                    }
-        //
-        ////                    std::cout<<"source:"<<pair.first<<std::endl;
-        //
-        //                }
-        //
-        //                for(const auto& pair : sinkMap)
-        //                {
-        //
-        //                    // initialize if not exixtent
-        //                    const auto mapIter=temp.find(pair.first);
-        //                    if(mapIter==temp.end())
-        //                    {
-        //                        temp.emplace(pair.first,std::make_pair(0.0,0.0));
-        //                        posMap.emplace(pair.first,pair.second.second);
-        //                    }
-        //
-        //                    if(link.source->sID==loopLink->source()->sID && link.sink->sID==loopLink->sink()->sID)
-        //                    {
-        //                        temp[pair.first].second+=pair.second.first/link.loopLinks().size();
-        //                    }
-        //                    else if(link.source->sID==loopLink->sink()->sID && link.sink->sID==loopLink->source()->sID)
-        //                    {
-        //                        temp[pair.first].second-=pair.second.first/link.loopLinks().size();
-        //                    }
-        //                    else
-        //                    {
-        //                        assert(0);
-        //                    }
-        //
-        ////                    std::cout<<"sink:"<<pair.first<<std::endl;
-        //
-        //
-        //                }
-        //
-        //            }
-        //
-        ////                        std::cout<<"done 0"<<std::endl;
-        //
-        //            Eigen::Matrix<double,Ncoeff,Eigen::Dynamic> m(Ncoeff,temp.size());
-        ////            m.resize(4*dim,temp.size()*dim);
-        //
-        //            size_t n1=0;
-        //            for (const auto& ele : temp)
-        //            {
-        //                m(0,n1)=(ele.first==link.source->sID? 1.0 : 0.0);
-        //                m(1,n1)=ele.second.first*0;
-        //                m(2,n1)=(ele.first==link.sink->sID? 1.0 : 0.0);;
-        //                m(3,n1)=ele.second.second*0;
-        //                n1++;
-        //            }
-        //
-        ////            std::cout<<"done 1"<<std::endl;
-        //
-        //            Eigen::Matrix<double,Eigen::Dynamic,dim> posMatrix(temp.size(),dim);
-        //            //            m.resize(4*dim,temp.size()*dim);
-        //
-        //            size_t n2=0;
-        //            for (const auto& ele : posMap)
-        //            {
-        //                posMatrix.row(n2)=ele.second.transpose();
-        //                n2++;
-        //            }
-        //
-        ////                        std::cout<<"done 2"<<std::endl;
-        //
-        //
-        //            return std::make_pair(m,posMatrix);
-        //        }
-        
-        //        /**********************************************************************/
-        //        template<typename LinkType>
-        //        static VectorDim sinkTmatrix(const LinkType& link)
-        //        {
-        //
-        //            std::map<size_t,MatrixDim> temp;
-        //
-        //            std::map<size_t,std::map<size_t,MatrixDim>> mapMap=link.sink->loopTangentMatrixMap();
-        //
-        //
-        //            for(const auto& loopLink : link.loopLinks())
-        //            {
-        //
-        //                const auto& matrixMap=mapMap.at(loopLink->loop()->sID);
-        //
-        //                for(const auto& pair : matrixMap)
-        //                {
-        //
-        //                    // initialize if not exixtent
-        //                    const auto mapIter=temp.find(pair.first);
-        //                    if(mapIter==temp.end())
-        //                    {
-        //                        temp.emplace(pair.first,MatrixDim::Zero());
-        //                    }
-        //
-        //                    if(link.source->sID==loopLink->source()->sID && link.sink->sID==loopLink->sink()->sID)
-        //                    {
-        //                        temp[pair.first]+=pair.second/link.loopLinks().size();
-        //                    }
-        //                    else if(link.source->sID==loopLink->sink()->sID && link.sink->sID==loopLink->source()->sID)
-        //                    {
-        //                        temp[pair.first]-=pair.second/link.loopLinks().size();
-        //                    }
-        //                    else
-        //                    {
-        //                        assert(0);
-        //                    }
-        //
-        //                }
-        //
-        //            }
-        //
-        //            return temp;
-        //        }
         
         //
         //        /**********************************************************************/
@@ -654,7 +497,7 @@ namespace model
     //	double SplineSegmentBase<Derived,dim,2>::alpha=0.5;
     ////	double SplineSegmentBase<Derived,dim,2>::alpha=1.0;
     //
-    //	
+    //
     //	//////////////////////////////////////////////////////////////s
     //} // namespace model
 }

@@ -10,8 +10,8 @@
 #define model_DISLOCATIONNODECONTRACTION_H_
 
 #include <Eigen/Dense>
-#include <model/Network/Operations/EdgeFinder.h>
-#include <model/Network/Operations/VertexContraction.h>
+//#include <model/Network/Operations/EdgeFinder.h>
+//#include <model/Network/Operations/VertexContraction.h>
 #include <model/LatticeMath/LatticeMath.h>
 #include <model/LatticeMath/LineMeshIntersection.h>
 #include <model/DislocationDynamics/SimplexBndNormal.h>
@@ -28,10 +28,10 @@ namespace model
         
         typedef typename DislocationNetworkType::LinkType LinkType;
         typedef typename DislocationNetworkType::NodeType NodeType;
-        typedef VertexContraction<NodeType,LinkType> VertexContractionType;
+//        typedef VertexContraction<NodeType,LinkType> VertexContractionType;
         
-        typedef typename EdgeFinder<LinkType>::isNetworkEdgeType isNetworkLinkType;
-        typedef typename DislocationNetworkType::isNetworkNodeType isNetworkNodeType;
+//        typedef typename DislocationNetworkType::IsNetworkEdgeType IsNetworkLinkType;
+        typedef typename DislocationNetworkType::IsNetworkNodeType IsNetworkNodeType;
         typedef typename DislocationNetworkType::VectorDimD VectorDimD;
         
         static constexpr int dim=DislocationNetworkType::dim;
@@ -211,18 +211,18 @@ namespace model
           * occupies the position of i.
           */
             
-            const typename DislocationNetworkType::isNetworkNodeType Ni(DN.node(i));
+            const typename DislocationNetworkType::IsNetworkNodeType Ni(DN.node(i));
             assert(Ni.first && "NODE i DOES NOT EXIST");
             
-            const typename DislocationNetworkType::isNetworkNodeType Nj(DN.node(j));
+            const typename DislocationNetworkType::IsNetworkNodeType Nj(DN.node(j));
             assert(Nj.first && "NODE j DOES NOT EXIST");
             
             return contractSecondWithCommonNeighborCheck(*Ni.second,*Nj.second);
         }
         
         /**********************************************************************/
-        std::pair<isNetworkNodeType,isNetworkNodeType>  selectSecond(const isNetworkNodeType& N1,
-                                                                     const isNetworkNodeType& N2)
+        std::pair<IsNetworkNodeType,IsNetworkNodeType>  selectSecond(const IsNetworkNodeType& N1,
+                                                                     const IsNetworkNodeType& N2)
         {
             
             if(N1.second->isBoundaryNode() && !N2.second->isBoundaryNode())
@@ -277,13 +277,12 @@ namespace model
         
         /**********************************************************************/
         DislocationNodeContraction(DislocationNetworkType& DN_in) :
-        // REENABLE THIS LATER        /* base init */ VertexContractionType(DN,DN),
         /* init list */ DN(DN_in)
         {}
         
         /**********************************************************************/
         //        size_t contractWithConstraintCheck(const size_t& i, const size_t& j)
-        size_t contractWithConstraintCheck(const isNetworkNodeType& N1, const isNetworkNodeType& N2)
+        size_t contractWithConstraintCheck(const IsNetworkNodeType& N1, const IsNetworkNodeType& N2)
         {
             
             //std::cout<<"contractWithConstraintCheck "<<N1.second->sID<<" "<<N2.second->sID<<std::endl;

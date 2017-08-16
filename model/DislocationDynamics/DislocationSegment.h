@@ -14,14 +14,12 @@
 #ifndef model_DISLOCATIONSEGMENT_H
 #define model_DISLOCATIONSEGMENT_H
 
+#include <memory>
+#include <set>
+
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/Sparse>
-#include <set>
-
-
-//#include <model/Network/Operations/EdgeExpansion.h>
-
 
 #include <model/Quadrature/Quadrature.h>
 #include <model/Quadrature/QuadPow.h>
@@ -168,18 +166,19 @@ namespace model
     
     /**************************************************************************/
     /**************************************************************************/
-    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+    template <short unsigned int _dim, short unsigned int _corder, typename InterpolationType,
     /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     class DislocationSegment : //public PlanarDislocationSegment<_dim>,
-    /*	                    */ public SplineSegment<DislocationSegment<_dim,corder,InterpolationType,QuadratureRule>,
-    /*                                              */ _dim, corder>,
-    /*	                    */ public GlidePlaneObserver<DislocationSegment<_dim,corder,InterpolationType,QuadratureRule> >
+    /*	                    */ public SplineSegment<DislocationSegment<_dim,_corder,InterpolationType,QuadratureRule>,
+    /*                                              */ _dim, _corder>,
+    /*	                    */ public GlidePlaneObserver<DislocationSegment<_dim,_corder,InterpolationType,QuadratureRule> >
     {
         
         
     public:
         
         static constexpr int dim=_dim; // make dim available outside class
+        static constexpr int corder=_corder; // make dim available outside class
         typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
         typedef DislocationSegment<dim,corder,InterpolationType,QuadratureRule> LinkType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
         typedef LoopLink<LinkType> LoopLinkType;
@@ -195,6 +194,8 @@ namespace model
         typedef typename SplineSegmentType::MatrixNcoeff MatrixNcoeff;
         typedef typename SplineSegmentType::MatrixNcoeffDim MatrixNcoeffDim;
         static constexpr int pOrder=SplineSegmentType::pOrder;
+        typedef Eigen::Matrix<double,Ncoeff,1>     VectorNcoeff;
+        
         
         //#include <model/Network/NetworkTypedefs.h>
         //#include <model/Geometry/Splines/SplineEnums.h>
@@ -239,7 +240,9 @@ namespace model
         
         //enum {Nslips=MaterialType::Nslips};
         
-        std::set<size_t> segmentDOFs;
+        //std::set<size_t> segmentDOFs;
+        std::map<size_t,std::pair<VectorNcoeff,VectorDim>> h2posMap;
+        
         Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg;
         
         //! Matrix of PK-force at quadrature points
@@ -258,18 +261,23 @@ namespace model
         
         VectorDim Burgers;
         VectorDim _glidePlaneNormal;
+
+        
         bool _isSessile;
         
+        const std::set<const GrainBoundary<dim>*> grainBoundarySet;
         
         /******************************************************************/
     public: //  data members
         /******************************************************************/
         
-        
+
+        std::unique_ptr<LatticePlane> glidePlane;
+
         QuadratureParticleContainerType quadratureParticleContainer;
         
         
-        //        const Grain<dim>& grain;
+                const Grain<dim>& grain;
         
         //! The Burgers vector
         
@@ -332,13 +340,13 @@ namespace model
         { /*! The force vector integrand evaluated at the k-th quadrature point.
            *  @param[in] k the current quadrature point
            */
-            const VectorDim glideForce = pkGauss.col(k)-pkGauss.col(k).dot(this->glidePlaneNormal)*this->glidePlaneNormal;
+            const VectorDim glideForce = pkGauss.col(k)-pkGauss.col(k).dot(_glidePlaneNormal)*_glidePlaneNormal;
             const double glideForceNorm(glideForce.norm());
             VectorDim vv=VectorDim::Zero();
             if(glideForceNorm>FLT_EPSILON)
             {
-                double v =  (this->grainBoundarySet.size()==1) ? (*(this->grainBoundarySet.begin()))->grainBoundaryType().gbMobility.velocity(stressGauss[k],Burgers,rlgauss.col(k),this->glidePlaneNormal,Material<Isotropic>::T) :
-                /*                                              */ Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),this->glidePlaneNormal);
+                double v =  (this->grainBoundarySet.size()==1) ? (*(this->grainBoundarySet.begin()))->grainBoundaryType().gbMobility.velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal,Material<Isotropic>::T) :
+                /*                                              */ Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal);
                 assert(v>= 0.0 && "Velocity must be a positive scalar");
                 const bool useNonLinearVelocity=true;
                 if(useNonLinearVelocity && v>FLT_EPSILON)
@@ -360,17 +368,28 @@ namespace model
         //#ifdef UserStressFile
         //#include UserStressFile
         //#endif
+        
+        /**********************************************************************/
+        LatticePlane findGlidePlane() const
+        {
+            std::cout<<"findGlidePlane normal="<<_glidePlaneNormal.transpose()<<std::endl;
+            
+            LatticeVectorType P(this->source->get_L());
+            LatticePlaneBase  n(P.lattice.reciprocalLatticeDirection(_glidePlaneNormal));
+            return LatticePlane(P,n);
+        }
+        
         /**********************************************************************/
         void updateGlidePlaneNormal()
         {
             
             _glidePlaneNormal.setZero();
             _isSessile=true;
-
+            
             if(Burgers.squaredNorm()>FLT_EPSILON)
             {
                 _isSessile=false;
-//                _glidePlaneNormal.setZero();
+                //                _glidePlaneNormal.setZero();
                 
                 const VectorDim referenceNormal=(*this->loopLinks().begin())->loop()->glidePlane.n.cartesian();
                 for(const auto& loopLink : this->loopLinks())
@@ -388,8 +407,8 @@ namespace model
                     _glidePlaneNormal=referenceNormal.normalized();
                 }
             }
-
             
+            glidePlane.reset(new LatticePlane(findGlidePlane()));
         }
         
         
@@ -403,15 +422,16 @@ namespace model
                            const std::shared_ptr<NodeType>& nJ) :
         //        /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),Fin),
         /* base class initialization */ SplineSegmentType(nI,nJ),
-        //        /* init list       */ grain(nI->grain),
+                /* init list       */ grain(nI->grain),
         /* init list       */ Burgers(VectorDim::Zero()),
         /* init list       */ _glidePlaneNormal(VectorDim::Zero()),
+                        glidePlane(new LatticePlane(findGlidePlane())),
         //        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
         /* init list       */ _isSessile(false),
         //        /* init list       */ isSessile(this->glidePlane.n.cross(this->sessilePlane.n).squaredNorm()!=0),
         //        /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
-        //        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
-        //        /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
+        //        /* init list       */ boundaryLoopNormal(_glidePlaneNormal),
+        //        /* init list       */ pGlidePlane(this->findExistingGlidePlane(_glidePlaneNormal,this->source->get_P().dot(_glidePlaneNormal))), // change this
         /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
@@ -445,8 +465,8 @@ namespace model
         ////        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
         //        /* init list       */ isSessile(this->glidePlane.n.cross(this->sessilePlane.n).squaredNorm()!=0),
         //        /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
-        //        //        /* init list       */ boundaryLoopNormal(this->glidePlaneNormal),
-        //        /* init list       */ pGlidePlane(this->findExistingGlidePlane(this->glidePlaneNormal,this->source->get_P().dot(this->glidePlaneNormal))), // change this
+        //        //        /* init list       */ boundaryLoopNormal(_glidePlaneNormal),
+        //        /* init list       */ pGlidePlane(this->findExistingGlidePlane(_glidePlaneNormal,this->source->get_P().dot(_glidePlaneNormal))), // change this
         //        /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
         //        {/*! Constructor with pointers to source and sink, and ExpandingEdge
         //          *  @param[in] NodePair_in the pair of source and sink pointers
@@ -784,49 +804,61 @@ namespace model
             //! 4-
             
             //            std::set<size_t> segmentDOFs;
-            segmentDOFs.clear();
             
-            const Eigen::VectorXi sourceDOFs(this->source->dofID());
-            for(int k=0;k<sourceDOFs.rows();++k)
-            {
-                segmentDOFs.insert(sourceDOFs(k));
-            }
+            h2posMap=this->hermite2posMap();
             
-            const Eigen::VectorXi   sinkDOFs(this->sink->dofID());
-            for(int k=0;k<sinkDOFs.rows();++k)
-            {
-                segmentDOFs.insert(sinkDOFs(k));
-            }
+            //            segmentDOFs.clear();
+            //
+            //            const Eigen::VectorXi sourceDOFs(this->source->dofID());
+            //            for(int k=0;k<sourceDOFs.rows();++k)
+            //            {
+            //                segmentDOFs.insert(sourceDOFs(k));
+            //            }
+            //
+            //            const Eigen::VectorXi   sinkDOFs(this->sink->dofID());
+            //            for(int k=0;k<sinkDOFs.rows();++k)
+            //            {
+            //                segmentDOFs.insert(sinkDOFs(k));
+            //            }
             
             //const size_t N(segmentDOFs.size());
             
             // Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,N));
-            Mseg.setZero(Ndof,segmentDOFs.size());
+            Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
             
-            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2H());
-            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2Ht());
-            Mso.block(dim,0,dim,Mso.cols())*=this->sourceTfactor;
-            
-            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2H());
-            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2Ht());
-            Msi.block(dim,0,dim,Msi.cols())*=-this->sinkTfactor;
-            
-            
-            for (int k=0;k<Mso.cols();++k)
+            size_t c=0;
+            for(const auto& pair : h2posMap)
             {
-                const std::set<size_t>::const_iterator f(segmentDOFs.find(sourceDOFs(k)));
-                assert(f!=segmentDOFs.end());
-                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
-                Mseg.template block<Ndof/2,1>(0,curCol)=Mso.col(k);
+                for(int r=0;r<Ncoeff;++r)
+                {
+                    Mseg.template block<dim,dim>(r*dim,c*dim)=pair.second.first(r)*MatrixDim::Identity();
+                }
+                c++;
             }
-            
-            for (int k=0;k<Msi.cols();++k)
-            {
-                const std::set<size_t>::const_iterator f(segmentDOFs.find(sinkDOFs(k)));
-                assert(f!=segmentDOFs.end());
-                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
-                Mseg.template block<Ndof/2,1>(Ndof/2,curCol)=Msi.col(k);
-            }
+            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2H());
+            //            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2Ht());
+            //            Mso.block(dim,0,dim,Mso.cols())*=this->sourceTfactor;
+            //
+            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2H());
+            //            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2Ht());
+            //            Msi.block(dim,0,dim,Msi.cols())*=-this->sinkTfactor;
+            //
+            //
+            //            for (int k=0;k<Mso.cols();++k)
+            //            {
+            //                const std::set<size_t>::const_iterator f(segmentDOFs.find(sourceDOFs(k)));
+            //                assert(f!=segmentDOFs.end());
+            //                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
+            //                Mseg.template block<Ndof/2,1>(0,curCol)=Mso.col(k);
+            //            }
+            //
+            //            for (int k=0;k<Msi.cols();++k)
+            //            {
+            //                const std::set<size_t>::const_iterator f(segmentDOFs.find(sinkDOFs(k)));
+            //                assert(f!=segmentDOFs.end());
+            //                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
+            //                Mseg.template block<Ndof/2,1>(Ndof/2,curCol)=Msi.col(k);
+            //            }
         }
         
         
@@ -846,28 +878,71 @@ namespace model
           */
             
             const Eigen::MatrixXd tempKqq(Mseg.transpose()*Kqq*Mseg); // Create the temporaty stiffness matrix and push into triplets
-            for (unsigned int i=0;i<segmentDOFs.size();++i)
+            
+            
+            size_t localI=0;
+            for(const auto& pairI : h2posMap)
             {
-                std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
-                std::advance(iterI,i);
-                for (unsigned int j=0;j<segmentDOFs.size();++j)
+                for(int dI=0;dI<dim;++dI)
                 {
-                    std::set<size_t>::const_iterator iterJ(segmentDOFs.begin());
-                    std::advance(iterJ,j);
-                    if (std::fabs(tempKqq(i,j))>FLT_EPSILON)
+                    const size_t globalI=pairI.first*dim+dI;
+                    
+                    size_t localJ=0;
+                    for(const auto& pairJ : h2posMap)
                     {
-                        kqqT.push_back(Eigen::Triplet<double>(*iterI,*iterJ,tempKqq(i,j)));
+                        for(int dJ=0;dJ<dim;++dJ)
+                        {
+                            const size_t globalJ=pairJ.first*dim+dJ;
+                            
+                            if (std::fabs(tempKqq(localI,localJ))>FLT_EPSILON)
+                            {
+                                kqqT.push_back(Eigen::Triplet<double>(globalI,globalJ,tempKqq(localI,localJ)));
+                            }
+                            
+                            localJ++;
+                        }
                     }
+                    
+                    localI++;
                 }
             }
             
+            //            for (unsigned int i=0;i<segmentDOFs.size();++i)
+            //            {
+            //                std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
+            //                std::advance(iterI,i);
+            //                for (unsigned int j=0;j<segmentDOFs.size();++j)
+            //                {
+            //                    std::set<size_t>::const_iterator iterJ(segmentDOFs.begin());
+            //                    std::advance(iterJ,j);
+            //                    if (std::fabs(tempKqq(i,j))>FLT_EPSILON)
+            //                    {
+            //                        kqqT.push_back(Eigen::Triplet<double>(*iterI,*iterJ,tempKqq(i,j)));
+            //                    }
+            //                }
+            //            }
+            
             const Eigen::VectorXd tempFq(Mseg.transpose()*Fq); // Create temporary force vector and add to global FQ
-            for (unsigned int i=0;i<segmentDOFs.size();++i)
+            
+            localI=0;
+            for(const auto& pairI : h2posMap)
             {
-                std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
-                std::advance(iterI,i);
-                FQ(*iterI)+=tempFq(i);
+                for(int dI=0;dI<dim;++dI)
+                {
+                    const size_t globalI=pairI.first*dim+dI;
+                    
+                    FQ(globalI)+=tempFq(localI);
+                    
+                    localI++;
+                }
             }
+            
+            //            for (unsigned int i=0;i<segmentDOFs.size();++i)
+            //            {
+            //                std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
+            //                std::advance(iterI,i);
+            //                FQ(*iterI)+=tempFq(i);
+            //            }
         }
         
         /**********************************************************************/
@@ -922,7 +997,7 @@ namespace model
         /**********************************************************************/
         Eigen::Matrix<double,dim-1,Ncoeff> hermiteLocalCoefficient() const
         {
-            const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),this->glidePlaneNormal));
+            const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),_glidePlaneNormal));
             Eigen::Matrix<double,dim-1,Ncoeff> HrCf = Eigen::Matrix<double,dim-1,Ncoeff>::Zero();
             HrCf.col(1)= (G2L*this->sourceT()*this->chordParametricLength()).template segment<dim-1>(0);
             HrCf.col(2)= (G2L*(this->sink->get_P()-this->source->get_P())).template segment<dim-1>(0);
@@ -1064,29 +1139,29 @@ namespace model
             return stressGauss[qOrder/2];
         }
         
-        /**********************************************************************/
-        bool isSimpleSessile() const __attribute__ ((deprecated))
-        {
-            bool temp=false;
-            if(_isSessile)
-            {
-                if(this->source->is_simple() && this->sink->is_simple())
-                {
-                    if(   this->source->openNeighborLink(0)->isSessile()
-                       && this->source->openNeighborLink(1)->isSessile()
-                       && this->sink->openNeighborLink(0)->isSessile()
-                       && this->sink->openNeighborLink(1)->isSessile()
-                       && this->source->openNeighborLink(0)->glidePlane.n.cross(this->source->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
-                       && this->source->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(0)->glidePlane.n).squaredNorm()==0
-                       && this->sink->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
-                       )
-                    {
-                        temp=true;
-                    }
-                }
-            }
-            return temp;
-        }
+//        /**********************************************************************/
+//        bool isSimpleSessile() const __attribute__ ((deprecated))
+//        {
+//            bool temp=false;
+//            if(_isSessile)
+//            {
+//                if(this->source->is_simple() && this->sink->is_simple())
+//                {
+//                    if(   this->source->openNeighborLink(0)->isSessile()
+//                       && this->source->openNeighborLink(1)->isSessile()
+//                       && this->sink->openNeighborLink(0)->isSessile()
+//                       && this->sink->openNeighborLink(1)->isSessile()
+//                       && this->source->openNeighborLink(0)->glidePlane.n.cross(this->source->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
+//                       && this->source->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(0)->glidePlane.n).squaredNorm()==0
+//                       && this->sink->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
+//                       )
+//                    {
+//                        temp=true;
+//                    }
+//                }
+//            }
+//            return temp;
+//        }
         
         /**********************************************************************/
         template <class T>
@@ -1094,12 +1169,12 @@ namespace model
         {
             os  << ds.source->sID<<"\t"<< ds.sink->sID<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.Burgers.transpose()<<"\t"
-                        /**/<< std::setprecision(15)<<std::scientific<<ds.glidePlaneNormal().transpose()<<"\t"
- //           /**/<< std::setprecision(15)<<std::scientific<<VectorDim::Zero().transpose()<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<ds.glidePlaneNormal().transpose()<<"\t"
+            //           /**/<< std::setprecision(15)<<std::scientific<<VectorDim::Zero().transpose()<<"\t"
             //            /**/<< ds.sourceTfactor<<"\t"
             //            /**/<< ds.sinkTfactor<<"\t"
-            /**/<<SplineSegmentBase<dim,1>::sourceT(ds).transpose()<<"\t"
-            /**/<<SplineSegmentBase<dim,1>::sinkT(ds).transpose()<<"\t"
+            /**/<<SplineSegmentBase<dim,corder>::sourceT(ds).transpose()<<"\t"
+            /**/<<SplineSegmentBase<dim,corder>::sinkT(ds).transpose()<<"\t"
             //            /**/<< ds.pSN()->sID;
             <<0;
             return os;

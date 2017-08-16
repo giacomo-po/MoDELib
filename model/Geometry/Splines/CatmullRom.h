@@ -18,11 +18,8 @@
 namespace model
 {
     
-//    template <int dim>
     struct CatmullRom
-    {
-        
-//        typedef  VectorDim;
+    {        
         
         /**********************************************************************/
         template <typename T>
@@ -37,13 +34,20 @@ namespace model
             }
             
             Eigen::Matrix<double,T::dim,1> temp=Eigen::Matrix<double,T::dim,1>::Zero();
-            for(const auto& link : segmentSet)
+            if(cT>0.0)
             {
-                const double cL=link->pLink->parametricChordLength();
-                temp+=(link->sink()->get_P()-link->source()->get_P())/cL*(cT-cL)/cT;
+                for(const auto& link : segmentSet)
+                {
+                    const double cL=link->pLink->parametricChordLength();
+                    if(cL>0.0)
+                    {
+                        temp+=(link->sink()->get_P()-link->source()->get_P())/cL*(cT-cL)/cT;
+                    }
+                }
             }
+
             
-            return temp;
+            return temp*0.0;
         }
         
         /**********************************************************************/
@@ -71,12 +75,19 @@ namespace model
                 temp[link->  sink()->snID()]=std::make_pair(0.0,link->  sink()->get_P());
             }
             
-            for(const auto& link : segmentSet)
+            if(cT>0.0)
             {
-                const double cL=link->pLink->parametricChordLength();
-                temp[link->source()->snID()].first-=1.0/cL*(cT-cL)/cT;
-                temp[link->  sink()->snID()].first+=1.0/cL*(cT-cL)/cT;
+                for(const auto& link : segmentSet)
+                {
+                    const double cL=link->pLink->parametricChordLength();
+                    if(cL>0.0)
+                    {
+                        temp[link->source()->snID()].first-=1.0/cL*(cT-cL)/cT*0.0;
+                        temp[link->  sink()->snID()].first+=1.0/cL*(cT-cL)/cT*0.0;
+                    }
+                }
             }
+
             
             return temp;
         }

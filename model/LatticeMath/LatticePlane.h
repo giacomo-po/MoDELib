@@ -14,10 +14,13 @@
 
 namespace model
 {
-    struct LatticePlane
+    class LatticePlane
     {
         
         typedef LatticeVector<3>    LatticeVectorType;
+        
+       
+    public:
         
         const LatticeVectorType P;
         const LatticePlaneBase n;
@@ -32,11 +35,23 @@ namespace model
 //            assert(&P.contraBasis==&n.contraBasis && "LatticeVectors have different bases.");
         }
         
+//        const LatticeVectorType& origin() const
+//        {
+//            return P;
+//        }
+//
+//        const LatticePlaneBase& normal() const
+//        {
+//            return n;
+//        }
+
+        
 //        /**********************************************************************/
 //        Eigen::Matrix<double,3,1> snapToLattice(const Eigen::Matrix<double,3,1>& P0) const
 //        {
 //            return P.cartesian()+n.snapToLattice(P0-P.cartesian());
 //        }
+        
         
         /**********************************************************************/
         LatticeVectorType snapToLattice(const Eigen::Matrix<double,3,1>& P0) const

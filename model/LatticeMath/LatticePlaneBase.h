@@ -68,6 +68,7 @@ namespace model
                 }
             }
             
+            std::cout<<"normal="<<rd.cartesian().transpose()<<std::endl;
             assert(0 && "PRIMITIVE VECTORS NOT FOUND");
         }
         

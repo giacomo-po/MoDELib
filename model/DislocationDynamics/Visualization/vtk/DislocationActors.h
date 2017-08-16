@@ -13,8 +13,10 @@
 
 #include <model/IO/VertexReader.h>
 #include <model/IO/EdgeReader.h>
+#include <model/IO/IDReader.h>
 #include <model/DislocationDynamics/Visualization/vtk/DislocationSegmentActor.h>
 #include <model/DislocationDynamics/Visualization/vtk/DislocationNodeActor.h>
+#include <model/DislocationDynamics/Visualization/vtk/PKActor.h>
 
 
 
@@ -23,13 +25,16 @@ namespace model
     struct DislocationActors :
     /* inherits from   */ public VertexReader<'V',10,double>,
     /* inherits from   */ public EdgeReader  <'K',15,double>,
+    /* inherits from   */ public IDreader<'P',3,6,double>,
     /* inherits from   */ std::deque<DislocationSegmentActor>,
-    /* inherits from   */ std::deque<DislocationNodeActor>
+    /* inherits from   */ std::deque<DislocationNodeActor>,
+    /* inherits from   */ std::deque<PKActor>
     {
         static constexpr int dim=3;
         typedef VertexReader<'V',10,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
         typedef EdgeReader  <'K',15,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
-        
+        typedef IDreader<'P',3,6,double> PKContainerType;
+
         
         //        long int currentFrameID;
         bool showTubes;
@@ -70,7 +75,7 @@ namespace model
         /* init list   */ plotBoundarySegments(true),
         /* init list   */ showSpecificVertex(false),
         /* init list   */ specificVertexID(0),
-        /* init list   */ showPK(false),
+        /* init list   */ showPK(true),
         /* init list   */ PKfactor(1000.0)
         {
             
@@ -80,7 +85,12 @@ namespace model
         {
             segmentActors().clear();
             nodeActors().clear();
-
+            pkActors().clear();
+        }
+        
+        std::deque<PKActor>& pkActors()
+        {
+            return *this;
         }
         
         std::deque<DislocationNodeActor>& nodeActors()
@@ -113,6 +123,17 @@ namespace model
             return *this;
         }
         
+        const PKContainerType& pkContainer() const
+        {
+            return *this;
+        }
+
+         PKContainerType& pkContainer()
+        {
+            return *this;
+        }
+
+        
         /*************************************************************************/
         bool isGood(const int& frameN, const bool& useTXT) const
         {
@@ -138,7 +159,7 @@ namespace model
             //                QuadContainerType::read(frameN,true);
             //            }
             
-            //            PKContainerType::read(frameN,true);
+                        PKContainerType::read(frameN,true);
             
             //            SingleSplinePlotterVectorType::clear(); // clear the current content of sspVector
             //            SingleSplinePlotterVectorType::reserve(EdgeContainerType::size()); // reserve to speed-up push_back
@@ -191,6 +212,15 @@ namespace model
                 nodeActors().emplace_back(node.second.segment<3>(0).template cast<float>());
             }
             
+            if (showPK) // Show PK force
+            {
+                for(const auto& pk : pkContainer())
+                {
+                    Eigen::Map<const Eigen::Matrix<double,1,6>> val(pk.second.data());
+                    pkActors().emplace_back(val.segment<3>(0).template cast<float>(),val.segment<3>(3).template cast<float>());
+                }
+            }
+            
         }
         
         /*************************************************************************/
@@ -213,6 +243,11 @@ namespace model
                 //                renderer->AddActor(actor.lineActor());
             }
             
+            for(auto& pk : pkActors())
+            {
+                renderer->RemoveActor(pk.actor);
+            }
+            
             // Clear current actors
             clear();
             
@@ -230,6 +265,11 @@ namespace model
             {
                 renderer->AddActor(node.actor);
             }
+            
+//            for(auto& pk : pkActors())
+//            {
+//                renderer->AddActor(pk.actor);
+//            }
             
             
         }

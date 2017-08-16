@@ -156,7 +156,7 @@ namespace model
                 if(pL.is_boundarySegment() && !isBoundaryNode())
                 {
                     const VectorDim nb=(pL.source->bndNormal()+pL.sink->bndNormal()).normalized();
-                    const VectorDim np=pL.glidePlane.n.cartesian().normalized();
+                    const VectorDim np=pL.glidePlane->n.cartesian().normalized();
                     VectorDim outDir=nb-nb.dot(np)*np;
                     if(outDir.squaredNorm()>FLT_EPSILON)
                     {
@@ -166,13 +166,13 @@ namespace model
                         //                        std::cout<<this->get_P().transpose()<<std::endl;
                         
                         outDir.normalize();
-                        LatticeVectorType dL(pL.glidePlane.n.snapToLattice(outDir));
+                        LatticeVectorType dL(pL.glidePlane->n.snapToLattice(outDir));
                         assert(dL.squaredNorm()>0.0);
                         
                         LatticeVectorType L0=L;
                         if(!DislocationSharedObjects<dim>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first)
                         {
-                            L0=LatticeVectorType(pL.glidePlane.snapToLattice(0.5*(pL.source->get_P()+pL.sink->get_P())));
+                            L0=LatticeVectorType(pL.glidePlane->snapToLattice(0.5*(pL.source->get_P()+pL.sink->get_P())));
                         }
                         assert(DislocationSharedObjects<dim>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first && "L0 outside mesh");
                         
@@ -362,7 +362,8 @@ namespace model
         /**********************************************************************/
         DislocationNode(const LinkType& pL,
                         const LatticeVectorType& Lin) :
-        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
+//        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
+        /* base constructor */ NodeBaseType(Lin.cartesian()),
         /* init list        */ grain(pL.grain),
         /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
@@ -383,7 +384,8 @@ namespace model
         DislocationNode(const LinkType& pL,
                         const LatticeVectorType& Lin,
                         const VectorDofType& Vin) :
-        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
+//        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
+        /* base constructor */ NodeBaseType(Lin.cartesian()),
         /* init list        */ grain(pL.grain),
         /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
@@ -478,15 +480,15 @@ namespace model
             _confiningPlanes.clear();
             specialConfiningPlanes.clear();
             
-            if (//!this->is_balanced() &&
-                meshLocation()!=onMeshBoundary)
-            {
-                for(const auto& planeBase : grain.planeNormals())
-                {
-                    specialConfiningPlanes.emplace_back(L,planeBase);
-                }
-                
-            }
+//            if (//!this->is_balanced() &&
+//                meshLocation()!=onMeshBoundary)
+//            {
+//                for(const auto& planeBase : grain.planeNormals())
+//                {
+//                    specialConfiningPlanes.emplace_back(L,planeBase);
+//                }
+//                
+//            }
             
             // add to _confiningPlanes the planes of the attached segments
             //            for (const auto& neighborIter : this->neighbors())
@@ -506,6 +508,10 @@ namespace model
             for(const auto& loopLink : this->loopLinks())
             {
                 _confiningPlanes.push_back(&(loopLink->loop()->glidePlane));
+                if(loopLink->loop()->isSessile)
+                {
+                    assert(0 && "FINISH HERE, ADD MORE PLANES TO FULLY CONSTRAIN NODE");
+                }
             }
             
             // add to _confiningPlanes the special planes of this node
@@ -688,6 +694,23 @@ namespace model
                 
             }
             
+        }
+        
+        /**********************************************************************/
+        bool is_simple() const
+        {
+            size_t nonZeroLink=0;
+            for (const auto& neighborIter : this->neighbors())
+            {
+                if (!std::get<2>(neighborIter.second)==0)
+                {
+                    if (std::get<1>(neighborIter.second)->burgers().squaredNorm())
+                    {  // neighbor not searched
+                        nonZeroLink++;
+                    }
+                }
+            }
+            return (nonZeroLink==2);
         }
         
         /**********************************************************************/
@@ -1129,7 +1152,7 @@ namespace model
                                                         os  << ds.sID<<"\t"
                                                         /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<"\t"
                                                         //                                                        /**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<"\t"
-                                                        /**/<< VectorDim::Zero().transpose()<<"\t"
+//                                                        /**/<< VectorDim::Zero().transpose()<<"\t"
                                                         /**/<< ds.pSN()->sID<<"\t"
                                                         /**/<< (ds.meshLocation()==onMeshBoundary)<<"\t"
                                                         /**/<< ds.grain.grainID;

@@ -26,8 +26,9 @@ namespace model
         
 //        typedef std::map<size_t,std::shared_ptr<NodeType> > SharedNodePtrMapType;
 //
-//        
-        typedef std::pair<bool,std::shared_ptr<NodeType>> IsSharedNodeType;
+//
+        typedef std::shared_ptr<NodeType> SharedNodePtrType;
+        typedef std::pair<bool,SharedNodePtrType> IsSharedNodeType;
 
         
     private:
@@ -40,6 +41,7 @@ namespace model
     public:
         
         
+        /**********************************************************************/
         static IsNodeType node(const size_t& i)
         {
             typename NodeContainerType::const_iterator nodeIter(nodeMap.find(i));

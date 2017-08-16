@@ -152,28 +152,36 @@ namespace model
         /**********************************************************************/
         static Eigen::Matrix<long int,dim,1> rationalApproximation(VectorDimD nd)
         {
-            const Eigen::Array<double,dim,1> nda(nd.array().abs()); // vector of close-to-integer numbers corresponding to lattice coordinates
-            size_t maxID=0;
-            const double maxVal(nda.maxCoeff(&maxID));
-            nd/=maxVal; // make each value of nd in [-1:1]
-            
-            Eigen::Array<long int,dim,1> nums=Eigen::Matrix<long int,dim,1>::Ones();
-            Eigen::Array<long int,dim,1> dens=Eigen::Matrix<long int,dim,1>::Ones();
-            long int denProd=1;
-            
-            for(int k=0;k<dim;++k)
+            Eigen::Array<long int,dim,1> nums=Eigen::Matrix<long int,dim,1>::Zero();
+
+            if(nd.squaredNorm()>0.0)
             {
-                BestRationalApproximation bra(nd(k),10000);
+                const Eigen::Array<double,dim,1> nda(nd.array().abs()); // vector of close-to-integer numbers corresponding to lattice coordinates
+                size_t maxID=0;
+                const double maxVal(nda.maxCoeff(&maxID));
+                nd/=maxVal; // make each value of nd in [-1:1]
                 
-                nums(k)=bra.num;
-                dens(k)=bra.den;
-                denProd*=bra.den;
+                nums=Eigen::Matrix<long int,dim,1>::Ones();
+                Eigen::Array<long int,dim,1> dens=Eigen::Matrix<long int,dim,1>::Ones();
+                long int denProd=1;
+                
+                for(int k=0;k<dim;++k)
+                {
+                    BestRationalApproximation bra(nd(k),10000);
+                    
+                    nums(k)=bra.num;
+                    dens(k)=bra.den;
+                    denProd*=bra.den;
+                }
+                
+                for(int k=0;k<dim;++k)
+                {
+                    nums(k)*=(denProd/dens(k));
+                }
             }
             
-            for(int k=0;k<dim;++k)
-            {
-                nums(k)*=(denProd/dens(k));
-            }
+
+            
             return nums.matrix();
         }
         

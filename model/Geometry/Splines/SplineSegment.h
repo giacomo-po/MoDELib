@@ -98,7 +98,8 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
         typedef Eigen::Matrix<double, dim, Ndof> MatrixDimNdof;
-        
+        typedef Eigen::Matrix<double,Ncoeff,1>     VectorNcoeff;
+
         typedef Eigen::Matrix<double,Ndof,Ndof>	MatrixNdof;
         
         

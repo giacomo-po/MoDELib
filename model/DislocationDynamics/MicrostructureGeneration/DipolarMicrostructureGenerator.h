@@ -51,6 +51,7 @@ namespace model
             double density=0.0;
             size_t nodeID=0;
             size_t loopID=0;
+            size_t snID=0;
 
             while(density<targetDensity)
             {
@@ -133,14 +134,14 @@ namespace model
                     std::cout<<"density="<<density<< "(WARNING: the dislocation length accounts for the part on the boundary)"<<std::endl;
                     
                     // Vertex file
-                    vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.cartesian().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<L1.cartesian().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+2<<"\t" << std::setprecision(15)<<std::scientific<<L2.cartesian().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+3<<"\t" << std::setprecision(15)<<std::scientific<<L3.cartesian().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+4<<"\t" << std::setprecision(15)<<std::scientific<<L4.cartesian().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+5<<"\t" << std::setprecision(15)<<std::scientific<<L5.cartesian().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+6<<"\t" << std::setprecision(15)<<std::scientific<<L6.cartesian().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+7<<"\t" << std::setprecision(15)<<std::scientific<<L7.cartesian().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<<grainID<<"\n";
+                    vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
+                    vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<L1.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
+                    vertexFile << nodeID+2<<"\t" << std::setprecision(15)<<std::scientific<<L2.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
+                    vertexFile << nodeID+3<<"\t" << std::setprecision(15)<<std::scientific<<L3.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
+                    vertexFile << nodeID+4<<"\t" << std::setprecision(15)<<std::scientific<<L4.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
+                    vertexFile << nodeID+5<<"\t" << std::setprecision(15)<<std::scientific<<L5.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
+                    vertexFile << nodeID+6<<"\t" << std::setprecision(15)<<std::scientific<<L6.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
+                    vertexFile << nodeID+7<<"\t" << std::setprecision(15)<<std::scientific<<L7.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
 
                     // Edge file
                     edgeFile << loopID+0<<"\t" << nodeID+0<<"\t"<< nodeID+1<<"\n";
@@ -177,6 +178,7 @@ namespace model
                     
                     nodeID+=8;
                     loopID+=4;
+                    snID+=1;
                 
                 }
             }

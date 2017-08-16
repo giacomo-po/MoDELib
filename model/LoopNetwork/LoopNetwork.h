@@ -72,9 +72,8 @@ namespace model
         typedef typename TypeTraits<Derived>::LoopType LoopType;
         typedef typename TypeTraits<Derived>::FlowType FlowType;
         
-    private:
         
-        //        typedef std::map<size_t,NodeType>     LoopNodeContainerType;
+        //        typedef std::map<size_t,NodeType>     DanglingNodeContainerType;
         
         typedef std::multimap<std::pair<size_t,size_t>,LoopLinkType> LoopLinkContainerType;
         //        typedef std::map<size_t,const LoopType* const> LoopContainerType;
@@ -84,48 +83,54 @@ namespace model
         typedef typename NetworkLinkObserverType::IsConstNetworkLinkType IsConstNetworkLinkType;
         typedef LoopObserver<LoopType> LoopObserverType;
         
-        typedef std::shared_ptr<NodeType> SharedNodePtrType;
-        typedef std::map<size_t,SharedNodePtrType>     LoopNodeContainerType;
+        typedef NodeObserver<NodeType> NodeObserverType;
+//        typedef std::shared_ptr<NodeType> SharedNodePtrType;
+        typedef typename NodeObserverType::SharedNodePtrType SharedNodePtrType;
+        typedef std::map<size_t,SharedNodePtrType>     DanglingNodeContainerType;
         
-        typedef std::pair<bool,SharedNodePtrType>          IsNodeType;
-        typedef std::pair<bool,const std::shared_ptr<const NodeType>>	 IsConstNodeType;
+//        typedef std::pair<bool,SharedNodePtrType>          IsNodeType;
+        typedef typename NodeObserverType::IsSharedNodeType          IsSharedNodeType;
+//        typedef std::pair<bool,const std::shared_ptr<const NodeType>>	 IsConstNodeType;
         
         typedef std::pair<bool,LoopLinkType*> IsLoopLinkType;
         
         typedef std::tuple<SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>> ExpandTupleType;
         
-        typedef std::tuple<SharedNodePtrType, // A node, preceding B in loop being merged
-        /*              */ SharedNodePtrType, // B node in loop being merged, which will become node E
-        /*              */ SharedNodePtrType, // C node in loop being merged, which will become node F
-        /*              */ SharedNodePtrType, // D node, after C in loop being merged
-        /*              */ std::shared_ptr<LoopType>, // loop being merged
-        /*              */ SharedNodePtrType, // E node, will replace B
-        /*              */ SharedNodePtrType, // F node, will replace C
-        /*              */ std::shared_ptr<LoopType> // loop being merged
-        > AMTtupleType;
+//        typedef std::tuple<SharedNodePtrType, // A node, preceding B in loop being merged
+//        /*              */ SharedNodePtrType, // B node in loop being merged, which will become node E
+//        /*              */ SharedNodePtrType, // C node in loop being merged, which will become node F
+//        /*              */ SharedNodePtrType, // D node, after C in loop being merged
+//        /*              */ std::shared_ptr<LoopType>, // loop being merged
+//        /*              */ SharedNodePtrType, // E node, will replace B
+//        /*              */ SharedNodePtrType, // F node, will replace C
+//        /*              */ std::shared_ptr<LoopType> // loop being merged
+//        > AMTtupleType;
+//        
+//        
+//        //        typedef std::map<int,AMTtupleType> MergeMapType; // map is sorted by operation priority
+//        typedef std::deque<AMTtupleType> AMTdequeType;
         
-        
-        //        typedef std::map<int,AMTtupleType> MergeMapType; // map is sorted by operation priority
-        typedef std::deque<AMTtupleType> AMTdequeType;
+    private:
+
         
         /**********************************************************************/
-        LoopNodeContainerType& danglingNodes()
+        DanglingNodeContainerType& danglingNodes()
         {
             return *this;
         }
         
-        const LoopNodeContainerType& danglingNodes() const
+        const DanglingNodeContainerType& danglingNodes() const
         {
             return *this;
         }
         
         /**********************************************************************/
-        IsNodeType danglingNode(const size_t & k)
+        IsSharedNodeType danglingNode(const size_t & k)
         {/*!\returns A <bool,NodeType* const> pair, where pair.first is true
           * if node k is in the network, in which case pair.second is a pointer
           * the the node
           */
-            typename LoopNodeContainerType::iterator nodeIter(danglingNodes().find(k));
+            typename DanglingNodeContainerType::iterator nodeIter(danglingNodes().find(k));
             return (nodeIter!=danglingNodes().end())? std::make_pair(true,nodeIter->second) : std::make_pair(false,SharedNodePtrType(nullptr));
         }
         
@@ -274,7 +279,7 @@ namespace model
         
         /**********************************************************************/
         template <typename ...NodeArgTypes>
-        std::pair<typename LoopNodeContainerType::iterator,bool> insertDanglingNode(const NodeArgTypes&... nodeInput)
+        std::pair<typename DanglingNodeContainerType::iterator,bool> insertDanglingNode(const NodeArgTypes&... nodeInput)
         {/*! @param[in] nodeInput
           *\returns
           *  Inserts a new vertex in the Network using nodeInput as variable
@@ -282,7 +287,7 @@ namespace model
           */
             const size_t nodeID(StaticID<NodeType>::nextID());
             
-            const std::pair<typename LoopNodeContainerType::iterator,bool> inserted=danglingNodes().emplace(std::piecewise_construct,
+            const std::pair<typename DanglingNodeContainerType::iterator,bool> inserted=danglingNodes().emplace(std::piecewise_construct,
                                                                                                             std::make_tuple(nodeID),
                                                                                                             std::make_tuple(new NodeType(nodeInput...)) );
             
@@ -312,8 +317,8 @@ namespace model
             {
                 const size_t next=k+1<nodeIDs.size()? k+1 : 0;
                 
-                IsNodeType n0=danglingNode(nodeIDs[k]);
-                IsNodeType n1=danglingNode(nodeIDs[next]);
+                IsSharedNodeType n0=danglingNode(nodeIDs[k]);
+                IsSharedNodeType n1=danglingNode(nodeIDs[next]);
                 assert(n0.first && "Node not found");
                 assert(n1.first && "Node not found");
                 
@@ -353,13 +358,13 @@ namespace model
             assert(Lij.first && "Expanding non-existing link");
             
             // Create new node
-            SharedNodePtrType newNode=SharedNodePtrType(new NodeType(Lij.second,Args...));
+            SharedNodePtrType newNode=SharedNodePtrType(new NodeType(*Lij.second,Args...));
             
             // Store what needs to be connected (i,new,j,Loop), or (j,new,i,Loop). This also holds temporarily disconnected nodes
             std::deque<ExpandTupleType> expandDeq;
             for(const auto& llink : Lij.second->loopLinks())
             {
-                expandDeq.emplace_back(llink->source,llink->sink,llink->loop());
+                expandDeq.emplace_back(llink->source(),llink->sink(),llink->loop());
             }
             
             // Delete all LoopLinks of type i->j or j->i
@@ -493,13 +498,13 @@ namespace model
             {
                 for (auto& linkIter=eir[thread].first;linkIter!=eir[thread].second;linkIter++)
                 {
-                    (linkIter->second.*Lfptr)();
+                    (linkIter->second->*Lfptr)();
                 }
             }
 #else
             for (auto& linkIter : this->links())
             {
-                (linkIter.second.*Lfptr)();
+                (linkIter.second->*Lfptr)();
             }
 #endif
         }
@@ -517,13 +522,13 @@ namespace model
             {
                 for (auto& linkIter=eir[thread].first;linkIter!=eir[thread].second;linkIter++)
                 {
-                    (linkIter->second.*Lfptr)(input);
+                    (linkIter->second->*Lfptr)(input);
                 }
             }
 #else
             for (auto& linkIter : this->links())
             {
-                (linkIter.second.*Lfptr)(input);
+                (linkIter.second->*Lfptr)(input);
             }
 #endif
         }

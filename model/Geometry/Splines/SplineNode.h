@@ -27,7 +27,7 @@ namespace model
     
     /**************************************************************************/
     /**************************************************************************/
-    template <typename Derived,	short unsigned int dim, short unsigned int corder,typename InterpolationType>
+    template <typename Derived,	short unsigned int dim, short unsigned int corder,typename TangentRule>
     class SplineNode
     {
         
@@ -42,6 +42,8 @@ namespace model
         
     public:
         constexpr static int corder=0;
+        constexpr static int NdofXnode=dim;
+
         typedef Eigen::Matrix<double, dim, 1>   VectorDim;
         typedef Eigen::Matrix<double, dim, dim> MatrixDim;
         
@@ -50,10 +52,13 @@ namespace model
         
         
     public:
+        MatrixDim prjM;	//! the projection matrix. THIS SHOULD BE PRIVATE
+
         
         /*************************************************/
         SplineNode(const VectorDim& P_in) :
-        /* init list */ P(P_in)
+        /* init list */ P(P_in),
+        /* init list */ prjM(MatrixDim::Identity())
         {
 
         }
@@ -73,11 +78,13 @@ namespace model
         
     };
     
+    
+    
     /**************************************************************************/
     /* Template specialization for corder=1                                   */
     /**************************************************************************/
-    template <typename Derived, short unsigned int dim>
-    class SplineNode<Derived, dim,1,CatmullRom> :
+    template <typename Derived, short unsigned int dim,typename TangentRule>
+    class SplineNode<Derived, dim,1,TangentRule> :
     /*                              */ public SplineNode<Derived, dim,0,Hermite>
     {
         
@@ -101,24 +108,23 @@ namespace model
         /**********************************************************************/
         void computeLoopTangents()
         {
-            std::cout<<"Node "<<this->sID<<" computeLoopTangents"<<std::endl;
             
             loopTangents.clear();
             const LinkByLoopContainerType temp=this->linksByLoopID();
             for(const auto& pair : temp)
             {
-                loopTangents.emplace(pair.first,prjM*CatmullRom::loopTangent(pair.second));
+                loopTangents.emplace(pair.first,this->prjM*TangentRule::loopTangent(pair.second));
             }
         }
 
         std::map<size_t,VectorDim> loopTangents;
         
     public:
-        MatrixDim prjM;	//! the projection matrix. THIS SHOULD BE PRIVATE
+//        MatrixDim prjM;	//! the projection matrix. THIS SHOULD BE PRIVATE
         
         SplineNode(const VectorDim& P_in) :
-        /* init list */ Base(P_in),
-        /* init list */ prjM(MatrixDim::Identity())
+        /* init list */ Base(P_in)
+//        /* init list */ prjM(MatrixDim::Identity())
         {
             
         }
@@ -175,10 +181,19 @@ namespace model
             std::map<size_t,std::set<LoopLinkType*>> linksbyID=this->linksByLoopID();
             for(const auto& pair : linksbyID)
             {
-                temp.emplace(pair.first,CatmullRom::loopTangentCoeffs(pair.second));
+                temp.emplace(pair.first,TangentRule::loopTangentCoeffs(pair.second));
             }
             
             return temp;
+        }
+        
+        
+        /*************************************************/
+        Eigen::Matrix<int,dim,1> node_dofID() const
+        {
+            /*! The IDs of DOFs of this node in the subnetwork
+             */
+            return ( (Eigen::Array<int,dim,1>() << 0, 1, 2).finished()+this->snID()*dim).matrix();
         }
     };
     

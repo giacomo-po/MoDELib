@@ -16,7 +16,7 @@
 #include <assert.h>
 
 #include <Eigen/Dense>
-#include <model/Network/Operations/EdgeFinder.h>
+//#include <model/Network/Operations/EdgeFinder.h>
 //#include <model/Math/GramSchmidt.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/MPI/MPIcout.h>
@@ -36,9 +36,12 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         
         typedef typename DislocationNetworkType::LinkType LinkType;
-        typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
+        //        typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
         typedef typename DislocationNetworkType::NodeType NodeType;
         typedef LatticeVector<dim> LatticeVectorType;
+        typedef typename DislocationNetworkType::IsNetworkLinkType IsNetworkLinkType;
+        typedef typename DislocationNetworkType::IsConstNetworkLinkType IsConstNetworkLinkType;
+        
         //! A reference to the DislocationNetwork
         DislocationNetworkType& DN;
         
@@ -63,7 +66,7 @@ namespace model
           */
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"		Remeshing network... "<<std::flush;
-            remeshByContraction();
+            //            remeshByContraction();
             remeshByExpansion();
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }
@@ -78,45 +81,45 @@ namespace model
             
             // Store segments to be contracted
             std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
-//            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
-//            {
-//                const VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
-//                const double chordLength(chord.norm());
-//                const VectorDimD dv(linkIter->second.sink->get_V()-linkIter->second.source->get_V());
-//                //				bool endsAreApproaching( chord.dot(dv) < -vTolcont*chordLength*dv.norm() );
-//                bool endsAreApproaching( chord.dot(dv) < 0.0 );
-//                //				bool endsAreApproaching( chord.dot(dv) + dv.squaredNorm()*dt < 0.0 );
-//                if ((endsAreApproaching || linkIter->second.is_boundarySegment())// ends are approaching
-//                    && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
-//                    && chordLength<Lmin)
-//                {
-//                    assert(toBeContracted.insert(std::make_pair(chordLength,linkIter->second.nodeIDPair)).second && "COULD NOT INSERT IN SET.");
-//                }
-//            }
-
+            //            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+            //            {
+            //                const VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
+            //                const double chordLength(chord.norm());
+            //                const VectorDimD dv(linkIter->second.sink->get_V()-linkIter->second.source->get_V());
+            //                //				bool endsAreApproaching( chord.dot(dv) < -vTolcont*chordLength*dv.norm() );
+            //                bool endsAreApproaching( chord.dot(dv) < 0.0 );
+            //                //				bool endsAreApproaching( chord.dot(dv) + dv.squaredNorm()*dt < 0.0 );
+            //                if ((endsAreApproaching || linkIter->second.is_boundarySegment())// ends are approaching
+            //                    && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
+            //                    && chordLength<Lmin)
+            //                {
+            //                    assert(toBeContracted.insert(std::make_pair(chordLength,linkIter->second.nodeIDPair)).second && "COULD NOT INSERT IN SET.");
+            //                }
+            //            }
+            
             for (const auto& linkIter : DN.links())
             {
                 
-                const LinkType& segment(linkIter.second);
-//                bool automaticContract=false;
-//                if(segment.isSessile)
-//                {
-//                    if(segment.source->is_simple() && segment.sink->is_simple())
-//                    {
-//                    if(segment.source->openNeighborLink(0).isSessile)
-//                    {
-//                    
-//                    }
-//                    }
-//                }
+                const LinkType& segment(*linkIter.second);
+                //                bool automaticContract=false;
+                //                if(segment.isSessile)
+                //                {
+                //                    if(segment.source->is_simple() && segment.sink->is_simple())
+                //                    {
+                //                    if(segment.source->openNeighborLink(0).isSessile)
+                //                    {
+                //
+                //                    }
+                //                    }
+                //                }
                 const VectorDimD chord(segment.chord()); // this is sink->get_P() - source->get_P()
                 const double chordLength(chord.norm());
                 const VectorDimD dv(segment.sink->get_V()-segment.source->get_V());
                 bool endsAreApproaching( chord.dot(dv) < 0.0 );
-
+                
                 if (((endsAreApproaching || segment.is_boundarySegment())// ends are approaching
-                    && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
-                    && chordLength<Lmin // segment is small
+                     && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
+                     && chordLength<Lmin // segment is small
                      )
                     || segment.isSimpleSessile())
                 {
@@ -126,24 +129,24 @@ namespace model
             
             // Call Network::contract
             unsigned int Ncontracted(0);
-//            for (std::set<std::pair<double,std::pair<size_t,size_t> > >::const_iterator smallIter =toBeContracted.begin();
-//                 /*                                                                  */ smallIter!=toBeContracted.end();
-//                 /*                                                                  */ smallIter++)
-//            {
-//                const size_t i(smallIter->second.first);
-//                const size_t j(smallIter->second.second);
-//                const typename EdgeFinder<LinkType>::isNetworkEdgeType Lij(DN.link(i,j));
-//                
-//                if (Lij.first )
-//                {
-//                    Ncontracted+=DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
-//                }
-//            }
+            //            for (std::set<std::pair<double,std::pair<size_t,size_t> > >::const_iterator smallIter =toBeContracted.begin();
+            //                 /*                                                                  */ smallIter!=toBeContracted.end();
+            //                 /*                                                                  */ smallIter++)
+            //            {
+            //                const size_t i(smallIter->second.first);
+            //                const size_t j(smallIter->second.second);
+            //                const IsNetworkLinkType Lij(DN.link(i,j));
+            //
+            //                if (Lij.first )
+            //                {
+            //                    Ncontracted+=DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
+            //                }
+            //            }
             for (const auto& smallIter : toBeContracted)
             {
                 const size_t i(smallIter.second.first);
                 const size_t j(smallIter.second.second);
-                const typename EdgeFinder<LinkType>::isNetworkEdgeType Lij(DN.link(i,j));
+                const IsConstNetworkLinkType Lij(DN.link(i,j));
                 
                 if (Lij.first )
                 {
@@ -163,82 +166,87 @@ namespace model
             std::set<std::pair<size_t,size_t> > toBeExpanded;
             
             // Store the segments to be expanded
-            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+            //            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+            for (const auto& linkIter : DN.links())
             {
-                if(!linkIter->second.isSimpleSessile())
+                
+                if( linkIter.second->burgers().squaredNorm()
+                   //&& !linkIter.second->isSimpleSessile())
+                    && !linkIter.second->isSessile())
+
                 {
-                const VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
-                const double chordLength(chord.norm());
-                //				const VectorDimD dv(linkIter->second.sink->get_V()-linkIter->second.source->get_V());
-                
-                
-                // Always expand single FR source segment
-                if (linkIter->second.source->openOrder()==1 && linkIter->second.sink->openOrder()==1)
-                {
-                    toBeExpanded.insert(linkIter->second.nodeIDPair);
-                }
-                
-                // Expand pin points
-                if (   linkIter->second.source->constraintNormals().size()>2
-                    && linkIter->second.  sink->constraintNormals().size()>2
-                    && chordLength>3.0*Lmin)
-                {
-                    toBeExpanded.insert(linkIter->second.nodeIDPair);
-                }
-                
-                if (!linkIter->second.source->is_simple() && !linkIter->second.sink->is_simple()
-                    /*&& chord.dot(dv)>vTolexp*chordLength*dv.norm()*/ && chordLength>3.0*Lmin)
-                { // also expands a straight line to generate glissile segment
-                    toBeExpanded.insert(linkIter->second.nodeIDPair);
-                }
-                
-                // Expand segments shorter than Lmax
-                if (chordLength>Lmax)
-                {
-                    toBeExpanded.insert(linkIter->second.nodeIDPair);
-                }
-                
-                // Angle criterion
-                if (linkIter->second.source->is_simple())
-                { //check angle criterion at source
-                    const VectorDimD c0(linkIter->second.source->openNeighborNode(0)->get_P()-linkIter->second.source->get_P());
-                    const VectorDimD c1(linkIter->second.source->openNeighborNode(1)->get_P()-linkIter->second.source->get_P());
-                    const double c0norm(c0.norm());
-                    const double c1norm(c1.norm());
-                    if(c0.dot(c1)>cos_theta_max_crit*c0norm*c1norm)
+                    const VectorDimD chord(linkIter.second->chord()); // this is sink->get_P() - source->get_P()
+                    const double chordLength(chord.norm());
+                    //				const VectorDimD dv(linkIter->second.sink->get_V()-linkIter->second.source->get_V());
+                    
+                    
+                    // Always expand single FR source segment
+//                    if (linkIter.second->source->openOrder()==1 && linkIter.second->sink->openOrder()==1)
+//                    {
+//                        toBeExpanded.insert(linkIter->second.nodeIDPair);
+//                    }
+                    
+                    // Expand pin points
+                    if (   linkIter.second->source->constraintNormals().size()>2
+                        && linkIter.second->  sink->constraintNormals().size()>2
+                        && chordLength>3.0*Lmin)
                     {
-                        if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
-                        {
-                            toBeExpanded.insert(linkIter->second.source->openNeighborLink(0)->nodeIDPair);
-                        }
-                        
-                        if (c1norm>3.0*Lmin /*&& c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
-                        {
-                            toBeExpanded.insert(linkIter->second.source->openNeighborLink(1)->nodeIDPair);
-                        }
+                        toBeExpanded.insert(linkIter.second->nodeIDPair);
                     }
-                }
-                if (linkIter->second.sink->is_simple())
-                { //check angle criterion at sink
-                    const VectorDimD c0(linkIter->second.sink->openNeighborNode(0)->get_P()-linkIter->second.sink->get_P());
-                    const VectorDimD c1(linkIter->second.sink->openNeighborNode(1)->get_P()-linkIter->second.sink->get_P());
-                    const double c0norm(c0.norm());
-                    const double c1norm(c1.norm());
-                    if(c0.dot(c1)>cos_theta_max_crit*c0norm*c1norm)
+                    
+                    if (!linkIter.second->source->is_simple() && !linkIter.second->sink->is_simple()
+                        /*&& chord.dot(dv)>vTolexp*chordLength*dv.norm()*/ && chordLength>3.0*Lmin)
+                    { // also expands a straight line to generate glissile segment
+                        toBeExpanded.insert(linkIter.second->nodeIDPair);
+                    }
+                    
+                    // Expand segments shorter than Lmax
+                    if (chordLength>Lmax)
                     {
-                        if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
-                        {
-                            toBeExpanded.insert(linkIter->second.sink->openNeighborLink(0)->nodeIDPair);
-                        }
-                        if (c1norm>3.0*Lmin/* && c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
-                        {
-                            //														model::cout<<"Expanding 4"<<std::endl;
-                            toBeExpanded.insert(linkIter->second.sink->openNeighborLink(1)->nodeIDPair);
-                        }
+                        toBeExpanded.insert(linkIter.second->nodeIDPair);
                     }
+                    
+//                    // Angle criterion
+//                    if (linkIter.second->source->is_simple())
+//                    { //check angle criterion at source
+//                        const VectorDimD c0(linkIter.second->source->openNeighborNode(0)->get_P()-linkIter.second->source->get_P());
+//                        const VectorDimD c1(linkIter.second->source->openNeighborNode(1)->get_P()-linkIter.second->source->get_P());
+//                        const double c0norm(c0.norm());
+//                        const double c1norm(c1.norm());
+//                        if(c0.dot(c1)>cos_theta_max_crit*c0norm*c1norm)
+//                        {
+//                            if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
+//                            {
+//                                toBeExpanded.insert(linkIter.second->source->openNeighborLink(0)->nodeIDPair);
+//                            }
+//                            
+//                            if (c1norm>3.0*Lmin /*&& c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
+//                            {
+//                                toBeExpanded.insert(linkIter.second->source->openNeighborLink(1)->nodeIDPair);
+//                            }
+//                        }
+//                    }
+//                    if (linkIter.second->sink->is_simple())
+//                    { //check angle criterion at sink
+//                        const VectorDimD c0(linkIter.second->sink->openNeighborNode(0)->get_P()-linkIter.second->sink->get_P());
+//                        const VectorDimD c1(linkIter.second->sink->openNeighborNode(1)->get_P()-linkIter.second->sink->get_P());
+//                        const double c0norm(c0.norm());
+//                        const double c1norm(c1.norm());
+//                        if(c0.dot(c1)>cos_theta_max_crit*c0norm*c1norm)
+//                        {
+//                            if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
+//                            {
+//                                toBeExpanded.insert(linkIter.second->sink->openNeighborLink(0)->nodeIDPair);
+//                            }
+//                            if (c1norm>3.0*Lmin/* && c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
+//                            {
+//                                //														model::cout<<"Expanding 4"<<std::endl;
+//                                toBeExpanded.insert(linkIter.second->sink->openNeighborLink(1)->nodeIDPair);
+//                            }
+//                        }
+//                    }
                 }
-            }
-            
+                
             }
             
             
@@ -249,58 +257,58 @@ namespace model
             {
                 const size_t i(expIter->first);
                 const size_t j(expIter->second);
-                const typename EdgeFinder<LinkType>::isNetworkEdgeType Lij(DN.link(i,j));
+                const IsConstNetworkLinkType Lij(DN.link(i,j));
                 if(Lij.first)
                 {
-                   //std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
+                    //std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
                     //VectorDimD expandPoint(Lij.second->get_r(expand_at));
-                    LatticeVectorType expandPoint(Lij.second->glidePlane.snapToLattice(Lij.second->get_r(expand_at)));
-                    auto simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
-                    if(Lij.second->isSessile)
-                    {
-                        PlanePlaneIntersection ppi(Lij.second->glidePlane,Lij.second->sessilePlane);
-                        LatticeLine line(ppi.P,ppi.d);
-                        expandPoint=line.snapToLattice(expandPoint.cartesian());
-                        
-                    }
-                    else
-                    {
-                        if(simplexCheckPair.first && simplexCheckPair.second->region->regionID!=DN.node(i).second->grain.grainID)
-                        {
-                            const LatticePlane& GBplane(DN.shared.poly.grainBoundary(simplexCheckPair.second->region->regionID,DN.node(i).second->grain.grainID).latticePlane(DN.node(i).second->grain.grainID));
-                            const LatticePlane& glidePlane(Lij.second->glidePlane);
-                            const PlanePlaneIntersection ppi(GBplane,glidePlane);
-                            const LatticeLine line(ppi.P,ppi.d);
-                            expandPoint=line.snapToLattice(expandPoint.cartesian());
-
-                        }
-                    }
-                    
-                    simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
-                    assert(simplexCheckPair.second->region->regionID==DN.node(i).second->grain.grainID && simplexCheckPair.second->region->regionID==DN.node(j).second->grain.grainID && "EXPAND POINT IN INCORRECT REGION.");
-                    
-//                    if(!Lij.second->isSessile)
-//                    {
-//                        expandPoint=Lij.second->glidePlane.snapToLattice(expandPoint).cartesian();
-//                    }
-//                    else
+                    LatticeVectorType expandPoint(Lij.second->glidePlane->snapToLattice(Lij.second->get_r(expand_at)));
+//                    auto simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
+//                    if(Lij.second->isSessile())
 //                    {
 //                        PlanePlaneIntersection ppi(Lij.second->glidePlane,Lij.second->sessilePlane);
 //                        LatticeLine line(ppi.P,ppi.d);
-//                        expandPoint=line.snapToLattice(expandPoint).cartesian();
+//                        expandPoint=line.snapToLattice(expandPoint.cartesian());
+//                        
 //                    }
+//                    else
+//                    {
+//                        if(simplexCheckPair.first && simplexCheckPair.second->region->regionID!=DN.node(i).second->grain.grainID)
+//                        {
+//                            const LatticePlane& GBplane(DN.shared.poly.grainBoundary(simplexCheckPair.second->region->regionID,DN.node(i).second->grain.grainID).latticePlane(DN.node(i).second->grain.grainID));
+//                            const LatticePlane& glidePlane(Lij.second->glidePlane);
+//                            const PlanePlaneIntersection ppi(GBplane,glidePlane);
+//                            const LatticeLine line(ppi.P,ppi.d);
+//                            expandPoint=line.snapToLattice(expandPoint.cartesian());
+//                            
+//                        }
+//                    }
+//                    
+//                    simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
+//                    assert(simplexCheckPair.second->region->regionID==DN.node(i).second->grain.grainID && simplexCheckPair.second->region->regionID==DN.node(j).second->grain.grainID && "EXPAND POINT IN INCORRECT REGION.");
                     
-
-
+                    //                    if(!Lij.second->isSessile)
+                    //                    {
+                    //                        expandPoint=Lij.second->glidePlane.snapToLattice(expandPoint).cartesian();
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        PlanePlaneIntersection ppi(Lij.second->glidePlane,Lij.second->sessilePlane);
+                    //                        LatticeLine line(ppi.P,ppi.d);
+                    //                        expandPoint=line.snapToLattice(expandPoint).cartesian();
+                    //                    }
+                    
+                    
+                    
                     if(  (expandPoint-DN.node(i).second->get_L()).squaredNorm()
                        &&(expandPoint-DN.node(j).second->get_L()).squaredNorm() )
                     {
-                        if(simplexCheckPair.first)
-                        {
-                            //                        DN.expand(i,j,expandPoint);
+//                        if(simplexCheckPair.first)
+//                        {
+//                            //                        DN.expand(i,j,expandPoint);
                             DN.expand(i,j,expandPoint);
                             Nexpanded++;
-                        }
+//                        }
                     }
                 }
             }
@@ -315,7 +323,8 @@ namespace model
             
             std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
             
-            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+            //            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
+            for (const auto& linkIter : DN.links())
             {
                 VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
                 double chordLength(chord.norm());
@@ -331,7 +340,7 @@ namespace model
             {
                 const size_t i(smallIter->second.first);
                 const size_t j(smallIter->second.second);
-                typename EdgeFinder<LinkType>::isNetworkEdgeType Lij=DN.link(i,j);
+                IsNetworkLinkType Lij=DN.link(i,j);
                 if (Lij.first)
                 {
                     //DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
@@ -577,7 +586,7 @@ namespace model
 
 
 //        /**********************************************************************/
-//        unsigned int singleEdgeContract(const typename EdgeFinder<LinkType>::isNetworkEdgeType& Lij)
+//        unsigned int singleEdgeContract(const IsNetworkLinkType& Lij)
 //        {
 //            unsigned int Ncontracted(0);
 //            //            if (Lij.first )

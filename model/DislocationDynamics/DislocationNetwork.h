@@ -87,7 +87,7 @@
 #include <model/DislocationDynamics/DislocationLoop.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
-//#include <model/DislocationDynamics/Remeshing/DislocationNetworkRemesh.h>
+#include <model/DislocationDynamics/DislocationNetworkRemesh.h>
 //#include <model/DislocationDynamics/Junctions/DislocationJunctionFormation.h>
 //#include <model/DislocationDynamics/CrossSlip/DislocationCrossSlip.h>
 #include <model/DislocationDynamics/Materials/Material.h>
@@ -97,7 +97,7 @@
 #include <model/ParticleInteraction/ParticleSystem.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/ParticleInteraction/SingleFieldPoint.h>
-//#include <model/DislocationDynamics/Operations/DislocationNodeContraction.h>
+#include <model/DislocationDynamics/DislocationNodeContraction.h>
 #include <model/Threads/EqualIteratorRange.h>
 //#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
 //#include <model/DislocationDynamics/Polycrystals/GrainBoundaryDissociation.h>
@@ -141,7 +141,7 @@ namespace model
         typedef typename DislocationSharedObjectsType::BvpSolverType BvpSolverType;
         typedef typename DislocationSharedObjectsType::BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::ElementType ElementType;
-//        typedef typename LoopNetworkType::IsNetworkNodeType IsNetworkNodeType;
+        typedef typename LoopNetworkType::IsNodeType IsNodeType;
 //        typedef DislocationNodeContraction<DislocationNetworkType> ContractionType;
         
         enum {NdofXnode=NodeType::NdofXnode};
@@ -317,7 +317,7 @@ namespace model
 #endif
             
             //! 4- Solve the equation of motion
-//            assembleAndSolve();
+            assembleAndSolve();
             
             //! 5- Compute time step dt (based on max nodal velocity) and increment totalTime
             make_dt();
@@ -497,12 +497,12 @@ namespace model
             this->clearParticles();
         }
         
-//        /**********************************************************************/
-//        size_t contractWithConstraintCheck(const IsNetworkNodeType& Ni,
-//                                           const IsNetworkNodeType& Nj)
-//        {
-//            return ContractionType(*this).contractWithConstraintCheck(Ni,Nj);
-//        }
+        /**********************************************************************/
+        size_t contractWithConstraintCheck(const IsNodeType& Ni,
+                                           const IsNodeType& Nj)
+        {
+            return ContractionType(*this).contractWithConstraintCheck(Ni,Nj);
+        }
         
         
         /**********************************************************************/
@@ -512,7 +512,7 @@ namespace model
             {
                 if(!(runID%use_redistribution))
                 {
-//                    DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
+                    DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
                 }
             }
         }
@@ -700,12 +700,12 @@ namespace model
 //            EDR.readScalarInFile(fullName.str(),"collisionTol",DislocationJunctionFormation<DislocationNetworkType>::collisionTol);
             
             // VERTEX REDISTRIBUTION
-//            EDR.readScalarInFile(fullName.str(),"use_redistribution",use_redistribution);
-//            EDR.readScalarInFile(fullName.str(),"Lmin",DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
-//            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
-//            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
-//            EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
-//            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
+            EDR.readScalarInFile(fullName.str(),"use_redistribution",use_redistribution);
+            EDR.readScalarInFile(fullName.str(),"Lmin",DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
+            EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             
             // Cross-Slip
 //            EDR.readScalarInFile(fullName.str(),"use_crossSlip",DislocationCrossSlip<DislocationNetworkType>::use_crossSlip);

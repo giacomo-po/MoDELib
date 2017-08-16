@@ -49,6 +49,14 @@ namespace model
             /*                              */ std::make_pair(true,edgeIter->second);
         }
         
+//        /**********************************************************************/
+//        static IsConstNetworkEdgeType link(const size_t & i, const size_t & j)
+//        {
+//            typename LinkContainerType::const_iterator edgeIter(linkMap.find(std::make_pair(i,j)));
+//            return (edgeIter==linkMap.end())?  std::make_pair(false,static_cast<const LinkType* const>(nullptr)) :
+//            /*                              */ std::make_pair(true,edgeIter->second);
+//        }
+        
         /**********************************************************************/
         static LinkContainerType& links()
         {
