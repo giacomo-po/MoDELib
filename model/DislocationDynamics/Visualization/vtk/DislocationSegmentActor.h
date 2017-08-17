@@ -2,12 +2,14 @@
  *
  * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
  *
- * model is distributed without any warranty under the 
+ * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
 #ifndef model_DislocationSegmentActor_H_
 #define model_DislocationSegmentActor_H_
+
+#include <deque>
 
 #include <vtkVersion.h>
 #include <vtkSmartPointer.h>
@@ -17,43 +19,58 @@
 #include <vtkMath.h>
 #include <vtkProperty.h>
 #include <vtkTubeFilter.h>
+#include <vtkPolyLine.h>
 
-//#include <model/DislocationDynamics/Visualization/vtk/vtkActorWrapper.h>
+#include <model/IO/EdgeReader.h>
+#include <model/IO/VertexReader.h>
 
-//#include <model/Mesh/SimplicialMesh.h>
-
+// VTK documentation
+// http://www.vtk.org/Wiki/VTK/Examples/Cxx/GeometricObjects/PolyLine
+// http://www.vtk.org/Wiki/VTK/Examples/Cxx/VisualizationAlgorithms/TubesWithVaryingRadiusAndColors
 
 namespace model
 {
-    struct DislocationSegmentActor
+    class DislocationSegmentActor
     {
+        
+    public:
+
         static constexpr int dim=3;
-        typedef Eigen::Matrix<float,dim,1>  VectorDim;
-
         enum ColorScheme {colorBurgers=0,colorSessile=1,colorNormal=2,colorEdgeScrew=3,colorComponent=4};
-
+        typedef EdgeReader<'K',15,double>   EdgeReaderType;
+        typedef VertexReader<'V',10,double> VertexReaderType;
+        typedef Eigen::Matrix<float,dim,1>  VectorDim;
+        
+        static float alpha;
+        static float tubeRadius;
+        static ColorScheme clr;
+        static size_t Np;      // No. of vertices per line
+        static bool plotBoundarySegments;
+        
+        vtkSmartPointer<vtkActor> lineActor;
+        vtkSmartPointer<vtkActor> tubeActor;
+        
+        
+    private:
         
         VectorDim planeNormal;
         VectorDim burgers;
         VectorDim chord;
         VectorDim colorVector;
         
-        //    http://www.vtk.org/Wiki/VTK/Examples/Cxx/VisualizationAlgorithms/TubesWithVaryingRadiusAndColors
         
         vtkSmartPointer<vtkPoints> points;
-        vtkSmartPointer<vtkCellArray> lines;
+        std::deque<vtkSmartPointer<vtkPolyLine>> lines;
+        vtkSmartPointer<vtkCellArray> cells;
         vtkSmartPointer<vtkPolyData> polyData;
+        vtkSmartPointer<vtkUnsignedCharArray> colors;
         vtkSmartPointer<vtkPolyDataMapper> lineMapper;
         vtkSmartPointer<vtkTubeFilter> tubeFilter;
         vtkSmartPointer<vtkPolyDataMapper> tubeMapper;
         
-        vtkSmartPointer<vtkActor> line;
-        vtkSmartPointer<vtkActor> tube;
-//        vtkSmartPointer<vtkActorWrapper<double>> tube;
         
-        static float tubeRadius;
-        static ColorScheme clr;
-
+        
+        
         /*********************************************************************/
         void computeColor()
         {
@@ -68,7 +85,7 @@ namespace model
                     
                 case colorNormal:
                     colorVector = planeNormal;
-//                    flipColor(colorVector);
+                    //                    flipColor(colorVector);
                     break;
                     
                     //                case colorComponent:
@@ -89,7 +106,7 @@ namespace model
                     
                 default:
                     colorVector = burgers.normalized();
-//                    flipColor(colorVector);
+                    //                    flipColor(colorVector);
                     break;
             }
             
@@ -118,114 +135,179 @@ namespace model
             //		colorVector << 0.0f,0.6f,0.4f;
             colorVector.normalize();
             
-
+            
         }
         
-        /************************************************************************/
-        DislocationSegmentActor(const Eigen::Matrix<float,dim,6>& P0T0P1T1BN) :
+        //        /**********************************************************************/
+        //        void addLine(const Eigen::Matrix<float,dim,6>& P0T0P1T1BN)
+        //        {
+        //
+        //
+        //
+        ////            lines->InsertNextCell(Np);
+        ////            for (int i = 0; i < Np; i++)
+        ////            {
+        ////                lines->InsertCellPoint(i);
+        ////            }
+        ////
+        ////
+        ////            polyData->SetPoints(points);
+        ////            polyData->SetLines(lines);
+        ////
+        ////            //        lineMapper->SetInputConnection(lines->GetOutputPort());
+        ////            lineMapper->SetInputData(polyData);
+        ////            line->GetProperty()->SetColor(0.0,1.0,0.0); // Give some color to the tube
+        ////            line->SetMapper ( lineMapper );
+        ////
+        ////            if(true)
+        ////            {
+        ////                tubeFilter->SetInputData(polyData);
+        ////                tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
+        ////                tubeFilter->SetNumberOfSides(10);
+        ////                tubeFilter->Update();
+        ////                tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
+        ////                tubeMapper->ScalarVisibilityOn();
+        ////                tube->SetMapper(tubeMapper);
+        ////                tube->GetProperty()->SetOpacity(1.0); //Make the tube have some transparency.
+        ////                computeColor();
+        ////                tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
+        ////
+        ////            }
+        //        }
+        
+    public:
+        
+        const VertexReaderType& vertexReader;
+        const   EdgeReaderType& edgeReader;
+        
+        /**********************************************************************/
+        DislocationSegmentActor(const VertexReaderType& vertexReader_in,
+                                const   EdgeReaderType& edgeReader_in) :
+        /* init */ vertexReader(vertexReader_in),
+        /* init */ edgeReader(edgeReader_in),
+        /* init */ lineActor(vtkSmartPointer<vtkActor>::New()),
+        /* init */ tubeActor(vtkSmartPointer<vtkActor>::New()),
+        //        /* init */ ptID(0),
         /* init */ points(vtkSmartPointer<vtkPoints>::New()),
-        /* init */ lines(vtkSmartPointer<vtkCellArray>::New()),
+        /* init */ cells(vtkSmartPointer<vtkCellArray>::New()),
         /* init */ polyData(vtkSmartPointer<vtkPolyData>::New()),
+        /* init */ colors(vtkSmartPointer<vtkUnsignedCharArray>::New()),
         /* init */ lineMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ tubeFilter(vtkSmartPointer<vtkTubeFilter>::New()),
-        /* init */ tubeMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
-        /* init */ line(vtkSmartPointer<vtkActor>::New()),
-        /* init */ tube(vtkSmartPointer<vtkActor>::New())
+        /* init */ tubeMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         {
             
-            float alpha=0.5;
-            
-            chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
-            burgers=P0T0P1T1BN.col(4);
-            planeNormal=P0T0P1T1BN.col(5);
-            float g = std::pow(chord.norm(),alpha);
-            
-            unsigned int Np = 10;      // No. of vertices
+            colors->SetNumberOfComponents(3);
 
-            for (int k=0;k<Np;++k) // this may have to go to Np+1
+            size_t ptID=0;
+            for (const auto& edge : edgeReader)
             {
-                const float u1=k*1.0/(Np-1);
-                const float u2=u1*u1;
-                const float u3=u2*u1;
                 
-                // Compute positions along axis
-                VectorDim P =   ( 2.0f*u3-3.0f*u2+1.0f) * P0T0P1T1BN.col(0)
-                /*************/ + g*(      u3-2.0f*u2+u1)   * P0T0P1T1BN.col(1)
-                /*************/ +   (-2.0f*u3+3.0f*u2)      * P0T0P1T1BN.col(2)
-                /*************/ + g*(      u3-u2)           * P0T0P1T1BN.col(3);
+                VertexReaderType::const_iterator itSource(vertexReader.find(edge.first.first)); //source
+                assert(itSource!=vertexReader.end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
+                VertexReaderType::const_iterator itSink(vertexReader.find(edge.first.second)); //sink
+                assert(  itSink!=vertexReader.end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
                 
-//                // Compute tangents along axis
-//                tubeTangents.col(k)= (     ( 6.0f*u2-6.0f*u1)      * P0T0P1T1BN.col(0)
-//                                      /*                  */ + g*( 3.0f*u2-4.0f*u1+1.0f) * P0T0P1T1BN.col(1)
-//                                      /*                  */ +   (-6.0f*u2+6.0f*u1)      * P0T0P1T1BN.col(2)
-//                                      /*                  */ + g*( 3.0f*u2-2.0f*u1)      * P0T0P1T1BN.col(3) ).normalized();
-//                
-//                // Compute unit vectors in radial direction orthogonal to axis
-//                tubeCircles.push_back(getCircle(k));
-                points->InsertPoint(k, P(0), P(1), P(2));
+                Eigen::Matrix<float,dim,6> P0T0P1T1BN;
+                
+                const int   snID(edge.second(2*dim+2));
+                const bool sourceOnBoundary(itSource->second(2*dim+1));
+                const bool   sinkOnBoundary(  itSink->second(2*dim+1));
+                
+                if(!(sourceOnBoundary && sinkOnBoundary) || plotBoundarySegments)
+                {
+                    
+                    P0T0P1T1BN.col(0) = itSource->second.segment<dim>(0*dim).transpose().template cast<float>();	// source position
+                    P0T0P1T1BN.col(2) =   itSink->second.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
+                    //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
+                    //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
+                    P0T0P1T1BN.col(1) = edge.second.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
+                    P0T0P1T1BN.col(3) = edge.second.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
+                    P0T0P1T1BN.col(4) = edge.second.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
+                    P0T0P1T1BN.col(5) = edge.second.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
+                    chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
+                    burgers=P0T0P1T1BN.col(4);
+                    planeNormal=P0T0P1T1BN.col(5);
+                    const float g = std::pow(chord.norm(),alpha);
 
+                    
+                    //addLine(P0T0P1T1BN);
+//                    lines.push_back(vtkSmartPointer<vtkPolyLine>::New());
+//                    auto& line(*lines.rbegin());
+                    vtkSmartPointer<vtkPolyLine> line=vtkSmartPointer<vtkPolyLine>::New();
+                    line->GetPointIds()->SetNumberOfIds(Np);
+                    unsigned char clr[3]={0,255,255};
+                    colors->InsertNextTypedTuple(clr);
+                    
+                    for (int k=0;k<Np;++k) // this may have to go to Np+1
+                    {
+                        const float u1=k*1.0/(Np-1);
+                        const float u2=u1*u1;
+                        const float u3=u2*u1;
+                        
+                        // Compute positions along axis
+                        VectorDim P =   ( 2.0f*u3-3.0f*u2+1.0f) * P0T0P1T1BN.col(0)
+                        /*************/ + g*(      u3-2.0f*u2+u1)   * P0T0P1T1BN.col(1)
+                        /*************/ +   (-2.0f*u3+3.0f*u2)      * P0T0P1T1BN.col(2)
+                        /*************/ + g*(      u3-u2)           * P0T0P1T1BN.col(3);
+                        
+                        points->InsertNextPoint(P.data());
+                        line->GetPointIds()->SetId(k,ptID);
+                        
+                        ptID++;
+                    }
+                    
+                    cells->InsertNextCell(line);
+                    
+                }
             }
             
-            lines->InsertNextCell(Np);
-            for (int i = 0; i < Np; i++)
-            {
-                lines->InsertCellPoint(i);
-            }
-
-            
+            // Populate polyData
             polyData->SetPoints(points);
-            polyData->SetLines(lines);
+            polyData->SetLines(cells);
+            polyData->GetCellData()->SetScalars(colors);
             
-            //        lineMapper->SetInputConnection(lines->GetOutputPort());
+            // tube filter
+            tubeFilter->SetInputData(polyData);
+            tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
+            tubeFilter->SetNumberOfSides(10);
+            tubeFilter->Update();
+            
+            // Mappers
+            tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
+            tubeMapper->ScalarVisibilityOn();
             lineMapper->SetInputData(polyData);
-            line->GetProperty()->SetColor(0.0,1.0,0.0); // Give some color to the tube
-            line->SetMapper ( lineMapper );
-
-            if(true)
-            {
-                tubeFilter->SetInputData(polyData);
-                tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
-                tubeFilter->SetNumberOfSides(10);
-                tubeFilter->Update();
-                tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
-                tubeMapper->ScalarVisibilityOn();
-                tube->SetMapper(tubeMapper);
-                tube->GetProperty()->SetOpacity(1.0); //Make the tube have some transparency.
-                computeColor();
-                tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
-
-            }
+            
+            // Actors
+            tubeActor->SetMapper(tubeMapper);
+//            tubeActor->GetProperty()->SetOpacity(1.0); //Make the tube have some transparency.
+            //            computeColor();
+            //tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
+            lineActor->SetMapper(lineMapper);
             
         }
         
-        /**************************************************************************/
-        vtkSmartPointer<vtkActor> lineActor() const
-        {
-            return line;
-        }
-        
-        /**************************************************************************/
-        vtkSmartPointer<vtkActor> tubeActor() const
-        {
-             return tube;
-        }
-        
+        /**********************************************************************/
         void modify()
         {
-            line->GetProperty()->SetColor(0.0,1.0,0.0); // Give some color to the tube
-//            line->Modified();
+//            line->GetProperty()->SetColor(0.0,1.0,0.0); // Give some color to the tube
+            //            line->Modified();
             
-            tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
-            computeColor();
-            tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
-//            tube->Modified();
-
+//            tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
+//            computeColor();
+//            tubeActor->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
+            //            tube->Modified();
+            
         }
         
     };
     
+    // Static data members
     float DislocationSegmentActor::tubeRadius=5.0;
+    float DislocationSegmentActor::alpha=0.5;
     DislocationSegmentActor::ColorScheme DislocationSegmentActor::clr=DislocationSegmentActor::colorBurgers;
+    size_t DislocationSegmentActor::Np=10;
+    bool DislocationSegmentActor::plotBoundarySegments=true;
 } // namespace model
 #endif
 

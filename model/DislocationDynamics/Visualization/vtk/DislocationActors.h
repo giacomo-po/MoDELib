@@ -9,11 +9,14 @@
 #ifndef model_DislocationActors_H_
 #define model_DislocationActors_H_
 
+
+#include <memory>
+
 #include <vtkRenderer.h>
 
 #include <model/IO/VertexReader.h>
 #include <model/IO/EdgeReader.h>
-#include <model/IO/IDReader.h>
+#include <model/IO/IDreader.h>
 #include <model/DislocationDynamics/Visualization/vtk/DislocationSegmentActor.h>
 #include <model/DislocationDynamics/Visualization/vtk/DislocationNodeActor.h>
 #include <model/DislocationDynamics/Visualization/vtk/PKActor.h>
@@ -26,7 +29,7 @@ namespace model
     /* inherits from   */ public VertexReader<'V',10,double>,
     /* inherits from   */ public EdgeReader  <'K',15,double>,
     /* inherits from   */ public IDreader<'P',3,6,double>,
-    /* inherits from   */ std::deque<DislocationSegmentActor>,
+    //    /* inherits from   */ std::deque<DislocationSegmentActor>,
     /* inherits from   */ std::deque<DislocationNodeActor>,
     /* inherits from   */ std::deque<PKActor>
     {
@@ -34,7 +37,7 @@ namespace model
         typedef VertexReader<'V',10,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
         typedef EdgeReader  <'K',15,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
         typedef IDreader<'P',3,6,double> PKContainerType;
-
+        
         
         //        long int currentFrameID;
         bool showTubes;
@@ -54,6 +57,8 @@ namespace model
         bool showPK;
         double PKfactor;
         
+        std::unique_ptr<DislocationSegmentActor> ddSegments;
+        
         //        vtkSmartPointer<vtkRenderer> renderer;
         
         //        /**********************************************************************/
@@ -63,7 +68,7 @@ namespace model
         //            renderWindow->AddRenderer(renderer);
         //        }
         
-        /*************************************************************************/
+        /**********************************************************************/
         DislocationActors() :
         //        /* init list   */ currentFrameID(-1),
         /* init list   */ showTubes(false),
@@ -75,40 +80,39 @@ namespace model
         /* init list   */ plotBoundarySegments(true),
         /* init list   */ showSpecificVertex(false),
         /* init list   */ specificVertexID(0),
-        /* init list   */ showPK(true),
+        /* init list   */ showPK(false),
         /* init list   */ PKfactor(1000.0)
         {
             
         }
         
+        /**********************************************************************/
         void clear()
         {
-            segmentActors().clear();
+            //            segmentActors().clear();
             nodeActors().clear();
             pkActors().clear();
         }
         
+        /**********************************************************************/
         std::deque<PKActor>& pkActors()
         {
             return *this;
         }
         
+        /**********************************************************************/
         std::deque<DislocationNodeActor>& nodeActors()
         {
             return *this;
         }
         
-        std::deque<DislocationSegmentActor>& segmentActors()
-        {
-            return *this;
-        }
+        //        std::deque<DislocationSegmentActor>& segmentActors()
+        //        {
+        //            return *this;
+        //        }
         
+        /**********************************************************************/
         const VertexContainerType& vertexContainer() const
-        {
-            return *this;
-        }
-        
-        const EdgeContainerType& edgeContainer() const
         {
             return *this;
         }
@@ -118,21 +122,29 @@ namespace model
             return *this;
         }
         
+        
+        /**********************************************************************/
+        const EdgeContainerType& edgeContainer() const
+        {
+            return *this;
+        }
+        
         EdgeContainerType& edgeContainer()
         {
             return *this;
         }
         
+        /**********************************************************************/
         const PKContainerType& pkContainer() const
         {
             return *this;
         }
-
-         PKContainerType& pkContainer()
+        
+        PKContainerType& pkContainer()
         {
             return *this;
         }
-
+        
         
         /*************************************************************************/
         bool isGood(const int& frameN, const bool& useTXT) const
@@ -143,6 +155,7 @@ namespace model
         /*************************************************************************/
         void read(const int& frameN)
         {
+            std::cout<<"Reading frame "<<frameN<<std::endl;
             if (isGood(frameN,false)) // bin format
             {
                 vertexContainer().read(frameN,false);
@@ -159,53 +172,10 @@ namespace model
             //                QuadContainerType::read(frameN,true);
             //            }
             
-                        PKContainerType::read(frameN,true);
+            PKContainerType::read(frameN,true);
             
-            //            SingleSplinePlotterVectorType::clear(); // clear the current content of sspVector
-            //            SingleSplinePlotterVectorType::reserve(EdgeContainerType::size()); // reserve to speed-up push_back
-            //            for (EdgeContainerType::const_iterator itEdge=EdgeContainerType::begin(); itEdge !=EdgeContainerType::end(); ++itEdge)
-            
-            for (const auto& edge : edgeContainer())
-                
-            {
-                VertexContainerType::const_iterator itSource(VertexContainerType::find(edge.first.first)); //source
-                assert(itSource!=VertexContainerType::end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
-                VertexContainerType::const_iterator itSink(VertexContainerType::find(edge.first.second)); //sink
-                assert(  itSink!=VertexContainerType::end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
-                
-                
-                Eigen::Matrix<float,dim,6> P0T0P1T1BN;
-                
-                const int sourceTfactor(edge.second(2*dim));
-                const int   sinkTfactor(edge.second(2*dim+1));
-                const int   snID(edge.second(2*dim+2));
-                const bool sourceOnBoundary(itSource->second(2*dim+1));
-                const bool   sinkOnBoundary(  itSink->second(2*dim+1));
-                
-                if(!(sourceOnBoundary && sinkOnBoundary) || plotBoundarySegments)
-                {
-                    
-                    P0T0P1T1BN.col(0) = itSource->second.segment<dim>(0*dim).transpose().template cast<float>();	// source position
-                    P0T0P1T1BN.col(2) =   itSink->second.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
-//                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
-//                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
-                    P0T0P1T1BN.col(1) = edge.second.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
-                    P0T0P1T1BN.col(3) = edge.second.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
-                    P0T0P1T1BN.col(4) = edge.second.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
-                    P0T0P1T1BN.col(5) = edge.second.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
-                    
-                    //                    SingleSplinePlotterVectorType::emplace_back(P0T0P1T1BN,snID);
-                    
-                    //                    SingleSplinePlotterVectorType::push_back(new SingleSplinePlotterType(P0T0P1T1BN,snID));
-                    
-                    segmentActors().emplace_back(P0T0P1T1BN);
-                    //                    DislocationSegmentActor sa(P0T0P1T1BN);
-                    //
-                    //                    renderer->AddActor(sa.tubeActor());
-                    //                    renderer->AddActor(sa.lineActor());
-                    
-                }
-            }
+            // Create DislocationSegmentActor
+            ddSegments.reset(new DislocationSegmentActor(vertexContainer(),edgeContainer()));
             
             for(const auto& node : vertexContainer())
             {
@@ -221,6 +191,7 @@ namespace model
                 }
             }
             
+            std::cout<<"finished reading. "<<frameN<<std::endl;
         }
         
         /*************************************************************************/
@@ -231,10 +202,15 @@ namespace model
             
             // Remove current actors from renderer
             //renderer->RemoveAllViewProps();
-            for(auto& segment : segmentActors())
+            //            for(auto& segment : segmentActors())
+            //            {
+            //                renderer->RemoveActor(segment.tubeActor());
+            //                //                renderer->AddActor(actor.lineActor());
+            //            }
+            
+            if(ddSegments.get()!=nullptr)
             {
-                renderer->RemoveActor(segment.tubeActor());
-                //                renderer->AddActor(actor.lineActor());
+                renderer->RemoveActor(ddSegments->tubeActor);
             }
             
             for(auto& node : nodeActors())
@@ -255,21 +231,24 @@ namespace model
             read(frameID);
             
             // Add new actors to renderer
-            for(auto& segment : segmentActors())
-            {
-                renderer->AddActor(segment.tubeActor());
-                //                renderer->AddActor(actor.lineActor());
-            }
+            //            for(auto& segment : segmentActors())
+            //            {
+            //                renderer->AddActor(segment.tubeActor());
+            //                //                renderer->AddActor(actor.lineActor());
+            //            }
+            
+            renderer->AddActor(ddSegments->tubeActor);
+            
             
             for(auto& node : nodeActors())
             {
                 renderer->AddActor(node.actor);
             }
             
-//            for(auto& pk : pkActors())
-//            {
-//                renderer->AddActor(pk.actor);
-//            }
+            //            for(auto& pk : pkActors())
+            //            {
+            //                renderer->AddActor(pk.actor);
+            //            }
             
             
         }
@@ -277,11 +256,11 @@ namespace model
         /*************************************************************************/
         void modify()
         {
-            
-            for(auto& segment : segmentActors())
-            {
-                segment.modify();
-            }
+            //            ddSegments->modify();
+            //            for(auto& segment : segmentActors())
+            //            {
+            //                segment.modify();
+            //            }
             
             for(auto& node : nodeActors())
             {

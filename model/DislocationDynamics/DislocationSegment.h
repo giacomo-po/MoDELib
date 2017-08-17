@@ -408,7 +408,7 @@ namespace model
                 }
             }
             
-            glidePlane.reset(new LatticePlane(findGlidePlane()));
+//            glidePlane.reset(new LatticePlane(findGlidePlane()));
         }
         
         
@@ -425,7 +425,7 @@ namespace model
                 /* init list       */ grain(nI->grain),
         /* init list       */ Burgers(VectorDim::Zero()),
         /* init list       */ _glidePlaneNormal(VectorDim::Zero()),
-                        glidePlane(new LatticePlane(findGlidePlane())),
+//                        glidePlane(new LatticePlane(findGlidePlane())),
         //        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
         /* init list       */ _isSessile(false),
         //        /* init list       */ isSessile(this->glidePlane.n.cross(this->sessilePlane.n).squaredNorm()!=0),
