@@ -20,6 +20,8 @@
 
 #include <model/DislocationDynamics/Visualization/vtk/DislocationSegmentActor.h>
 
+// VTK documentation
+// http://www.vtk.org/doc/nightly/html/classvtkLabeledDataMapper.html#details
 
 namespace model
 {

@@ -58,6 +58,7 @@ namespace model
         double PKfactor;
         
         std::unique_ptr<DislocationSegmentActor> ddSegments;
+        std::unique_ptr<PKActor> ddPK;
         
         //        vtkSmartPointer<vtkRenderer> renderer;
         
@@ -80,7 +81,7 @@ namespace model
         /* init list   */ plotBoundarySegments(true),
         /* init list   */ showSpecificVertex(false),
         /* init list   */ specificVertexID(0),
-        /* init list   */ showPK(false),
+        /* init list   */ showPK(true),
         /* init list   */ PKfactor(1000.0)
         {
             
@@ -176,20 +177,21 @@ namespace model
             
             // Create DislocationSegmentActor
             ddSegments.reset(new DislocationSegmentActor(vertexContainer(),edgeContainer()));
+            ddPK.reset(new PKActor(pkContainer()));
             
             for(const auto& node : vertexContainer())
             {
                 nodeActors().emplace_back(node.second.segment<3>(0).template cast<float>());
             }
             
-            if (showPK) // Show PK force
-            {
-                for(const auto& pk : pkContainer())
-                {
-                    Eigen::Map<const Eigen::Matrix<double,1,6>> val(pk.second.data());
-                    pkActors().emplace_back(val.segment<3>(0).template cast<float>(),val.segment<3>(3).template cast<float>());
-                }
-            }
+//            if (showPK) // Show PK force
+//            {
+//                for(const auto& pk : pkContainer())
+//                {
+//                    Eigen::Map<const Eigen::Matrix<double,1,6>> val(pk.second.data());
+//                    pkActors().emplace_back(val.segment<3>(0).template cast<float>(),val.segment<3>(3).template cast<float>());
+//                }
+//            }
             
             std::cout<<"finished reading. "<<frameN<<std::endl;
         }
@@ -219,10 +221,15 @@ namespace model
                 //                renderer->AddActor(actor.lineActor());
             }
             
-            for(auto& pk : pkActors())
+            if(ddPK.get()!=nullptr)
             {
-                renderer->RemoveActor(pk.actor);
+                renderer->RemoveActor(ddPK->actor);
             }
+            
+//            for(auto& pk : pkActors())
+//            {
+//                renderer->RemoveActor(pk.actor);
+//            }
             
             // Clear current actors
             clear();
@@ -238,6 +245,7 @@ namespace model
             //            }
             
             renderer->AddActor(ddSegments->tubeActor);
+            renderer->AddActor(ddPK->actor);
             
             
             for(auto& node : nodeActors())

@@ -33,6 +33,8 @@
 #include <vtkPoints2D.h>
 #include <vtkDelimitedTextReader.h>
 #include <vtkTextProperty.h>
+#include <vtkAxesActor.h>
+#include <vtkOrientationMarkerWidget.h>
 
 //#include <vtkProperty.h>
 //#include <vtkPropPicker.h>
@@ -195,6 +197,21 @@ int main(int, char *[])
     style->SetDefaultRenderer(renderer);
     style->meshActor.init(meshID,renderer);
     style->ddActors.update(0,renderer);
+    
+    
+    vtkSmartPointer<vtkAxesActor> axes = vtkSmartPointer<vtkAxesActor>::New();
+    
+    vtkSmartPointer<vtkOrientationMarkerWidget> widget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+    widget->SetOutlineColor( 0.9300, 0.5700, 0.1300 );
+    widget->SetOrientationMarker( axes );
+    widget->SetInteractor( view->GetInteractor() );
+    widget->SetViewport( 0.0, 0.0, 0.4, 0.4 );
+    widget->SetEnabled( 1 );
+    widget->InteractiveOn();
+    
+    renderer->ResetCamera();
+    view->GetRenderWindow()->Render();
+
     
     // Start interactor
     view->GetInteractor()->Initialize();

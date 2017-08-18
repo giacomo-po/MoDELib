@@ -365,7 +365,7 @@ namespace model
 //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
             
             //! 13- Node redistribution
-            remesh();
+//            remesh();
             
             //! 9- Contract segments of zero-length
 //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
