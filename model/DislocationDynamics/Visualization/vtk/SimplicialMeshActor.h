@@ -20,16 +20,18 @@
 #include <vtkCellData.h>
 
 #include <model/Mesh/SimplicialMesh.h>
-#include <model/IO/VertexReader.h>
-
+//#include <model/IO/VertexReader.h>
+#include <model/IO/IDreader.h>
 
 namespace model
 {
 
-    struct SimplicialMeshActor : public VertexReader<'D',4,float>//: public vtkSmartPointer<vtkActor>
+//    struct SimplicialMeshActor : public VertexReader<'D',4,float>//: public vtkSmartPointer<vtkActor>
+    struct SimplicialMeshActor : public IDreader<'D',1,3,float>//: public vtkSmartPointer<vtkActor>
     {
         
-        typedef VertexReader<'D',4,float> DispContainerType;
+//        typedef VertexReader<'D',4,float> DispContainerType;
+        typedef IDreader<'D',1,3,float> DispContainerType;
 
         static double dispCorr;
         
@@ -211,14 +213,14 @@ namespace model
                         //                        assert(iterD3!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
                         
                         
-                        const float x1=edge.second->child(0).P0(0)+dispCorr*iterD1->second(0);
-                        const float y1=edge.second->child(0).P0(1)+dispCorr*iterD1->second(1);
-                        const float z1=edge.second->child(0).P0(2)+dispCorr*iterD1->second(2);
+                        const float x1=edge.second->child(0).P0(0)+dispCorr*iterD1->second[0];
+                        const float y1=edge.second->child(0).P0(1)+dispCorr*iterD1->second[1];
+                        const float z1=edge.second->child(0).P0(2)+dispCorr*iterD1->second[2];
                         pts->SetPoint(k,x1,y1,z1);
                         
-                        const float x2=edge.second->child(1).P0(0)+dispCorr*iterD2->second(0);
-                        const float y2=edge.second->child(1).P0(1)+dispCorr*iterD2->second(1);
-                        const float z2=edge.second->child(1).P0(2)+dispCorr*iterD2->second(2);
+                        const float x2=edge.second->child(1).P0(0)+dispCorr*iterD2->second[0];
+                        const float y2=edge.second->child(1).P0(1)+dispCorr*iterD2->second[1];
+                        const float z2=edge.second->child(1).P0(2)+dispCorr*iterD2->second[2];
                         pts->SetPoint(k+1,x2,y2,z2);
                         
                         k=k+2;

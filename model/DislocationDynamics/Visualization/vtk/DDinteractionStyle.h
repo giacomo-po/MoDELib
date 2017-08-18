@@ -9,8 +9,10 @@
 #ifndef model_DDinteractionStyle_H_
 #define model_DDinteractionStyle_H_
 
-#include <vtkRenderer.h>
+#include <memory>
 
+
+#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 //#include <vtkInteractorStyleMultiTouchCamera.h>
@@ -21,10 +23,11 @@
 #include <vtkPropPicker.h>
 #include <vtkRendererCollection.h>
 
-#include <model/IO/VertexReader.h>
-#include <model/IO/EdgeReader.h>
+//#include <model/IO/VertexReader.h>
+//#include <model/IO/EdgeReader.h>
 #include <model/DislocationDynamics/Visualization/vtk/DislocationSegmentActor.h>
-#include <model/DislocationDynamics/Visualization/vtk/DislocationActors.h>
+//#include <model/DislocationDynamics/Visualization/vtk/DislocationActors.h>
+#include <model/DislocationDynamics/Visualization/vtk/PKActor.h>
 
 
 
@@ -40,7 +43,20 @@ namespace model
     /* inherit */ public vtkInteractorStyleTrackballCamera
 //    public vtkInteractorStyleMultiTouchCamera
     {
+        
+        
+        
+//        typedef IDreader<'P',3,6,double> pkReader;
+
+        
+        
     private:
+        
+//        PKContainerType pkReader;
+        
+        std::unique_ptr<DislocationSegmentActor> ddSegments;
+        std::unique_ptr<PKActor> ddPK;
+
         
         int xCol;
         int yCol;
@@ -59,10 +75,13 @@ namespace model
         void loadFrame()
         {
             
-            if(currentFrameID!=frameID)
+            if(   currentFrameID!=frameID
+               && (DislocationSegmentActor::VertexReaderType::isGood(frameID,false) || DislocationSegmentActor::VertexReaderType::isGood(frameID,true))
+               && (DislocationSegmentActor::EdgeReaderType::isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType::isGood(frameID,true))
+               )
             {
-                if(ddActors.isGood(frameID,false) || ddActors.isGood(frameID,true))
-                {
+//                if(ddActors.isGood(frameID,false) || ddActors.isGood(frameID,true))
+//                {
                     currentFrameID=frameID; //
                     std::cout<<"loading frame "<<currentFrameID<<std::endl;
                     
@@ -74,9 +93,22 @@ namespace model
                         LastPickedActor = NULL; // LastPickedActor will be destroyed so we cannot further pick it
                     }
                     
+                    if(ddPK.get()!=nullptr)
+                    {
+                        this->CurrentRenderer->RemoveActor(ddPK->actor);
+                    }
+                    
+                    if(ddSegments.get()!=nullptr)
+                    {
+                        this->CurrentRenderer->RemoveActor(ddSegments->tubeActor);
+                        this->CurrentRenderer->RemoveActor(ddSegments->nodeActor);
+                    }
+                
                     // Update ddActors
-                    ddActors.update(frameID,this->CurrentRenderer);
+//                    ddActors.update(frameID,this->CurrentRenderer);
                     meshActor.update(frameID);
+                    ddSegments.reset(new DislocationSegmentActor(frameID,this->CurrentRenderer));
+                    ddPK.reset(new PKActor(frameID,this->CurrentRenderer));
                     
                     // Update renderer
                     rwi->Render();
@@ -135,12 +167,13 @@ namespace model
                         }
                     }
                     
-                }
-                else
-                {
-                    std::cout<<"frame "<<frameID<<" not found. Reverting to "<<currentFrameID<<std::endl;
-                    frameID=currentFrameID; // frameID is not a valid ID, return to last read
-                }
+                //}
+
+            }
+            else
+            {
+                std::cout<<"frame "<<frameID<<" not found. Reverting to "<<currentFrameID<<std::endl;
+                frameID=currentFrameID; // frameID is not a valid ID, return to last read
             }
             
         }
@@ -151,7 +184,7 @@ namespace model
         vtkTypeMacro(DDinteractionStyle, vtkInteractorStyleTrackballCamera);
         
         SimplicialMeshActor meshActor;
-        DislocationActors ddActors;
+//        DislocationActors ddActors;
         
         
         /*************************************************************************/
@@ -259,12 +292,9 @@ namespace model
                 }
                 this->CurrentRenderer->SetViewport(0.0,0,winFrac,1);
                 rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->SetViewport(winFrac,0,1,1);
-//                rwi->GetRenderWindow()->GetRenderers()->GetNextItem()->SetViewport(0.0,0,1.0-winFrac,1);
 
-                //loadFrame();
                 this->CurrentRenderer->Render();
                 rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->Render();
-
                 this->Interactor->Render();
             }
             
@@ -277,8 +307,7 @@ namespace model
                     
                 this->CurrentRenderer->SetViewport(0.0,0,winFrac,1);
                 rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->SetViewport(winFrac,0,1,1);
-//                rwi->GetRenderWindow()->GetRenderers()->GetNextItem()->SetViewport(0.0,0,1.0-winFrac,1);
-                //this->CurrentRenderer->SetViewport(0.0,0,winFrac,1);
+
                 this->CurrentRenderer->Render();
                 rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->Render();
                 this->Interactor->Render();
@@ -320,6 +349,17 @@ namespace model
                 std::cout<<"selecting objects: mesh"<<std::endl;
                 std::cout<<"    +/- to increase mesh displacement"<<std::endl;
 
+                //                std::cout<<"Enter frame# to load:"<<std::endl;
+                //                std::cin>>frameID;
+                //                loadFrame();
+            }
+            
+            if(key == "p")
+            {
+                selectedKey="p";
+                std::cout<<"selecting objects: pk forces"<<std::endl;
+                std::cout<<"    +/- to increase vector size"<<std::endl;
+                
                 //                std::cout<<"Enter frame# to load:"<<std::endl;
                 //                std::cin>>frameID;
                 //                loadFrame();
@@ -367,16 +407,20 @@ namespace model
                 {
 //                    std::cout<<"I'm here 0"<<std::endl;
                     DislocationSegmentActor::tubeRadius*=2.0;
+                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
+
 //                    std::cout<<"I'm here 1"<<std::endl;
                     std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
-                    ddActors.modify();
+//                    ddActors.modify();
                     this->Interactor->Render();
                 }
                 if(key == "minus")
                 {
                     DislocationSegmentActor::tubeRadius*=0.5;
+                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
+
                     std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
-                    ddActors.modify();
+//                    ddActors.modify();
                     this->Interactor->Render();
                 }
                 
@@ -396,6 +440,25 @@ namespace model
                     SimplicialMeshActor::dispCorr*=0.5;
                     std::cout<<"displacement amplification="<<SimplicialMeshActor::dispCorr<<std::endl;
                     meshActor.modifyPts();
+                    this->Interactor->Render();
+                }
+                
+            }
+            
+            if(selectedKey=="p")
+            {
+                if(key == "equal" && ddPK.get()!=nullptr)
+                {
+                    PKActor::pkFactor*=2.0;
+                    ddPK->modify();
+                    std::cout<<"force scaling="<<PKActor::pkFactor<<std::endl;
+                    this->Interactor->Render();
+                }
+                if(key == "minus" && ddPK.get()!=nullptr)
+                {
+                    PKActor::pkFactor*=0.5;
+                    ddPK->modify();
+                    std::cout<<"force scaling="<<PKActor::pkFactor<<std::endl;
                     this->Interactor->Render();
                 }
                 

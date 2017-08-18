@@ -12,33 +12,38 @@
 #include <iostream>
 #include <Eigen/Dense>
 #include <model/Mesh/SimplexTraits.h>
-#include <model/IO/VertexReader.h>
+//#include <model/IO/VertexReader.h>
+#include <model/IO/IDreader.h>
 
-namespace model {
+namespace model
+{
     
     
     /**************************************************************************/
-	/**************************************************************************/
-	template<int dim>
-	struct SimplexReader
+    /**************************************************************************/
+    template<int dim>
+    struct SimplexReader
     {
         
-        static VertexReader<'N',dim+1,double> nodeReader;
-
+        //        static VertexReader<'N',dim+1,double> nodeReader;
+        static IDreader<'N',1,dim,double> nodeReader;
+        
         
         /**********************************************************************/
         static Eigen::Matrix<double,dim,1> get_P0(const typename SimplexTraits<dim,0>::SimplexIDType& xID)
         {
-            const typename VertexReader<'N',dim+1,double>::const_iterator nIter(nodeReader.find((xID)(0)));
+            //            const typename VertexReader<'N',dim+1,double>::const_iterator nIter(nodeReader.find((xID)(0)));
+            const typename IDreader<'N',1,dim,double>::const_iterator nIter(nodeReader.find((xID)(0)));
             assert((nIter!=nodeReader.end()) && "MESH VERTEX NOT FOUND IN N/N_x.txt.");
-            return nIter->second;
+            return Eigen::Map<const Eigen::Matrix<double,dim,1>>(nIter->second.data());
         }
         
-	};
+    };
     
     template<int dim>
-    VertexReader<'N',dim+1,double> SimplexReader<dim>::nodeReader;
-
+    //    VertexReader<'N',dim+1,double> SimplexReader<dim>::nodeReader;
+    IDreader<'N',1,dim,double> SimplexReader<dim>::nodeReader;
+    
     
 }	// close namespace
 #endif

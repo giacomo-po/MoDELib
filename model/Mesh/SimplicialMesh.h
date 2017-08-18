@@ -17,7 +17,7 @@
 #include <set>
 
 #include <map>
-#include <model/IO/VertexReader.h>
+//#include <model/IO/VertexReader.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/IO/SequentialBinFile.h>
 #include <model/Mesh/SimplexTraits.h>
@@ -62,7 +62,8 @@ namespace model
         /*                                      */ SimplexTraits<dim,dim>::nVertices> // key compare
         /*            */ >  SimplexMapType;
         
-        typedef VertexReader<'T',dim+3,size_t> ElementReaderType;
+//        typedef VertexReader<'T',dim+3,size_t> ElementReaderType;
+        typedef IDreader<'T',1,dim+2,size_t> ElementReaderType;
         
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
@@ -122,11 +123,14 @@ namespace model
                 const auto t0= std::chrono::system_clock::now();
                 
                 model::cout<<"Creating mesh..."<<std::flush;
-                for (typename ElementReaderType::const_iterator eIter =elementReader.begin();
-                     /*                                       */ eIter!=elementReader.end();++eIter)
+//                for (typename ElementReaderType::const_iterator eIter =elementReader.begin();
+//                     /*                                       */ eIter!=elementReader.end();++eIter)
+                    for (const auto& eIter : elementReader)
                 {
                     //                    insertSimplex(eIter->second);
-                    insertSimplex(eIter->second.template segment<dim+1>(0),eIter->second(dim+1));
+                    Eigen::Map<const Eigen::Matrix<size_t,1,dim+2>> row(eIter.second.data());
+                    insertSimplex(row.template segment<dim+1>(0),row(dim+1));
+//                    insertSimplex(eIter->second.template segment<dim+1>(0),eIter->second(dim+1));
                     
                     //                    binFile.write(std::make_pair(eIter->first,eIter->second));
                     

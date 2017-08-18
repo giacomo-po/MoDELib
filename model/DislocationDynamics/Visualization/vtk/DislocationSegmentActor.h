@@ -20,9 +20,12 @@
 #include <vtkProperty.h>
 #include <vtkTubeFilter.h>
 #include <vtkPolyLine.h>
+#include <vtkSphereSource.h>
+#include <vtkGlyph3D.h>
 
-#include <model/IO/EdgeReader.h>
-#include <model/IO/VertexReader.h>
+//#include <model/IO/EdgeReader.h>
+//#include <model/IO/vertexReader.h>
+#include <model/IO/IDreader.h>
 
 // VTK documentation
 // http://www.vtk.org/Wiki/VTK/Examples/Cxx/GeometricObjects/PolyLine
@@ -30,15 +33,20 @@
 
 namespace model
 {
-    class DislocationSegmentActor
+    struct DislocationSegmentActor :
+    /* inherits from   */ public IDreader<'V',1,6, double>,
+    /* inherits from   */ public IDreader<'K',2,13,double>
     {
         
-    public:
+//    public:
 
         static constexpr int dim=3;
         enum ColorScheme {colorBurgers=0,colorSessile=1,colorNormal=2,colorEdgeScrew=3,colorComponent=4};
-        typedef EdgeReader<'K',15,double>   EdgeReaderType;
-        typedef VertexReader<'V',10,double> VertexReaderType;
+//        typedef VertexReader<'V',10,double> VertexReaderType;
+//        typedef EdgeReader<'K',15,double>   EdgeReaderType;
+        typedef IDreader<'V',1,6, double> VertexReaderType;
+        typedef IDreader<'K',2,13,double> EdgeReaderType;
+
         typedef Eigen::Matrix<float,dim,1>  VectorDim;
         
         static float alpha;
@@ -51,7 +59,7 @@ namespace model
         vtkSmartPointer<vtkActor> tubeActor;
         
         
-    private:
+//    private:
         
         VectorDim planeNormal;
         VectorDim burgers;
@@ -59,8 +67,9 @@ namespace model
         VectorDim colorVector;
         
         
+        // segments objects
         vtkSmartPointer<vtkPoints> points;
-        std::deque<vtkSmartPointer<vtkPolyLine>> lines;
+//        std::deque<vtkSmartPointer<vtkPolyLine>> lines;
         vtkSmartPointer<vtkCellArray> cells;
         vtkSmartPointer<vtkPolyData> polyData;
         vtkSmartPointer<vtkUnsignedCharArray> colors;
@@ -68,7 +77,14 @@ namespace model
         vtkSmartPointer<vtkTubeFilter> tubeFilter;
         vtkSmartPointer<vtkPolyDataMapper> tubeMapper;
         
-        
+        // node objects
+        vtkSmartPointer<vtkPoints> nodePoints;
+        vtkSmartPointer<vtkSphereSource> sphereSource;
+        vtkSmartPointer<vtkPolyData> nodeData;
+        vtkSmartPointer<vtkGlyph3D> nodeGlyphs;
+        vtkSmartPointer<vtkPolyDataMapper> nodeMapper;
+        vtkSmartPointer<vtkActor> nodeActor;
+
         
         
         /*********************************************************************/
@@ -138,102 +154,101 @@ namespace model
             
         }
         
-        //        /**********************************************************************/
-        //        void addLine(const Eigen::Matrix<float,dim,6>& P0T0P1T1BN)
-        //        {
-        //
-        //
-        //
-        ////            lines->InsertNextCell(Np);
-        ////            for (int i = 0; i < Np; i++)
-        ////            {
-        ////                lines->InsertCellPoint(i);
-        ////            }
-        ////
-        ////
-        ////            polyData->SetPoints(points);
-        ////            polyData->SetLines(lines);
-        ////
-        ////            //        lineMapper->SetInputConnection(lines->GetOutputPort());
-        ////            lineMapper->SetInputData(polyData);
-        ////            line->GetProperty()->SetColor(0.0,1.0,0.0); // Give some color to the tube
-        ////            line->SetMapper ( lineMapper );
-        ////
-        ////            if(true)
-        ////            {
-        ////                tubeFilter->SetInputData(polyData);
-        ////                tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
-        ////                tubeFilter->SetNumberOfSides(10);
-        ////                tubeFilter->Update();
-        ////                tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
-        ////                tubeMapper->ScalarVisibilityOn();
-        ////                tube->SetMapper(tubeMapper);
-        ////                tube->GetProperty()->SetOpacity(1.0); //Make the tube have some transparency.
-        ////                computeColor();
-        ////                tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
-        ////
-        ////            }
-        //        }
+
         
-    public:
-        
-        const VertexReaderType& vertexReader;
-        const   EdgeReaderType& edgeReader;
+//    public:
         
         /**********************************************************************/
-        DislocationSegmentActor(const VertexReaderType& vertexReader_in,
-                                const   EdgeReaderType& edgeReader_in) :
-        /* init */ vertexReader(vertexReader_in),
-        /* init */ edgeReader(edgeReader_in),
-        /* init */ lineActor(vtkSmartPointer<vtkActor>::New()),
-        /* init */ tubeActor(vtkSmartPointer<vtkActor>::New()),
-        //        /* init */ ptID(0),
-        /* init */ points(vtkSmartPointer<vtkPoints>::New()),
-        /* init */ cells(vtkSmartPointer<vtkCellArray>::New()),
-        /* init */ polyData(vtkSmartPointer<vtkPolyData>::New()),
-        /* init */ colors(vtkSmartPointer<vtkUnsignedCharArray>::New()),
-        /* init */ lineMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
-        /* init */ tubeFilter(vtkSmartPointer<vtkTubeFilter>::New()),
-        /* init */ tubeMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+        VertexReaderType& vertexReader()
         {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        EdgeReaderType& edgeReader()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        void readNodes(const size_t& frameID)
+        {
+            if (vertexReader().isGood(frameID,false)) // bin format
+            {
+                vertexReader().read(frameID,false);
+            }
+            else // txt format
+            {
+                vertexReader().read(frameID,true);
+            }
             
-            colors->SetNumberOfComponents(3);
+            for(const auto& node : vertexReader())
+            {
+                Eigen::Map<const Eigen::Matrix<double,1,6>> row(node.second.data());
+                
+                nodePoints->InsertNextPoint(row.template segment<dim>(0).data());
 
+            }
+         
+            nodeData->SetPoints(nodePoints);
+            //nodeData->GetPointData()->SetVectors(vectors);
+            nodeData->Modified();
+
+            
+        }
+        
+        
+        /**********************************************************************/
+        void readSegments(const size_t& frameID)
+        {
+            if (edgeReader().isGood(frameID,false)) // bin format
+            {
+                edgeReader().read(frameID,false);
+            }
+            else // txt format
+            {
+                edgeReader().read(frameID,true);
+            }
+            
             size_t ptID=0;
-            for (const auto& edge : edgeReader)
+            for (const auto& edge : edgeReader())
             {
                 
-                VertexReaderType::const_iterator itSource(vertexReader.find(edge.first.first)); //source
-                assert(itSource!=vertexReader.end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
-                VertexReaderType::const_iterator itSink(vertexReader.find(edge.first.second)); //sink
-                assert(  itSink!=vertexReader.end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
+                VertexReaderType::const_iterator itSource(vertexReader().find(edge.first[0])); //source
+                assert(itSource!=vertexReader().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
+                VertexReaderType::const_iterator   itSink(vertexReader().find(edge.first[1])); //sink
+                assert(  itSink!=vertexReader().end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
                 
-                Eigen::Matrix<float,dim,6> P0T0P1T1BN;
-                
-                const int   snID(edge.second(2*dim+2));
-                const bool sourceOnBoundary(itSource->second(2*dim+1));
-                const bool   sinkOnBoundary(  itSink->second(2*dim+1));
+                Eigen::Map<const Eigen::Matrix<double,1,6>> sourceRow(itSource->second.data());
+                Eigen::Map<const Eigen::Matrix<double,1,6>>   sinkRow(  itSink->second.data());
+                Eigen::Map<const Eigen::Matrix<double,1,13>>   edgeRow(edge.second.data());
+
+                const int   snID(edgeRow(2*dim+2));
+                const bool sourceOnBoundary(sourceRow(2*dim+1));
+                const bool   sinkOnBoundary(  sinkRow(2*dim+1));
                 
                 if(!(sourceOnBoundary && sinkOnBoundary) || plotBoundarySegments)
                 {
                     
-                    P0T0P1T1BN.col(0) = itSource->second.segment<dim>(0*dim).transpose().template cast<float>();	// source position
-                    P0T0P1T1BN.col(2) =   itSink->second.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
+
+                    Eigen::Matrix<float,dim,6> P0T0P1T1BN;
+                    
+                    P0T0P1T1BN.col(0) = sourceRow.segment<dim>(0*dim).transpose().template cast<float>();	// source position
+                    P0T0P1T1BN.col(2) =   sinkRow.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
                     //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
                     //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
-                    P0T0P1T1BN.col(1) = edge.second.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
-                    P0T0P1T1BN.col(3) = edge.second.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
-                    P0T0P1T1BN.col(4) = edge.second.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
-                    P0T0P1T1BN.col(5) = edge.second.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
+                    P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
+                    P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
+                    P0T0P1T1BN.col(4) = edgeRow.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
+                    P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
                     chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
                     burgers=P0T0P1T1BN.col(4);
                     planeNormal=P0T0P1T1BN.col(5);
                     const float g = std::pow(chord.norm(),alpha);
-
                     
-                    //addLine(P0T0P1T1BN);
-//                    lines.push_back(vtkSmartPointer<vtkPolyLine>::New());
-//                    auto& line(*lines.rbegin());
+                    
+                    //                    lines.push_back(vtkSmartPointer<vtkPolyLine>::New());
+                    //                    auto& line(*lines.rbegin());
                     vtkSmartPointer<vtkPolyLine> line=vtkSmartPointer<vtkPolyLine>::New();
                     line->GetPointIds()->SetNumberOfIds(Np);
                     unsigned char clr[3]={0,255,255};
@@ -262,10 +277,40 @@ namespace model
                 }
             }
             
-            // Populate polyData
             polyData->SetPoints(points);
             polyData->SetLines(cells);
             polyData->GetCellData()->SetScalars(colors);
+        }
+        
+        /**********************************************************************/
+        DislocationSegmentActor(const size_t& frameID,vtkRenderer* renderer) :
+//        /* init */ vertexReader(vertexReader_in),
+//        /* init */ edgeReader(edgeReader_in),
+        /* init */ lineActor(vtkSmartPointer<vtkActor>::New()),
+        /* init */ tubeActor(vtkSmartPointer<vtkActor>::New()),
+        //        /* init */ ptID(0),
+        /* init */ points(vtkSmartPointer<vtkPoints>::New()),
+        /* init */ cells(vtkSmartPointer<vtkCellArray>::New()),
+        /* init */ polyData(vtkSmartPointer<vtkPolyData>::New()),
+        /* init */ colors(vtkSmartPointer<vtkUnsignedCharArray>::New()),
+        /* init */ lineMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
+        /* init */ tubeFilter(vtkSmartPointer<vtkTubeFilter>::New()),
+        /* init */ tubeMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
+        /* init */ nodePoints(vtkSmartPointer<vtkPoints>::New()),
+        /* init */ sphereSource(vtkSmartPointer<vtkSphereSource>::New()),
+        /* init */ nodeData(vtkSmartPointer<vtkPolyData>::New()),
+        /* init */ nodeGlyphs(vtkSmartPointer<vtkGlyph3D>::New()),
+        /* init */ nodeMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
+        /* init */ nodeActor(vtkSmartPointer<vtkActor>::New())
+
+        {
+            
+            colors->SetNumberOfComponents(3);
+
+            readNodes(frameID);
+            readSegments(frameID);
+            
+            // Populate polyData
             
             // tube filter
             tubeFilter->SetInputData(polyData);
@@ -284,6 +329,29 @@ namespace model
             //            computeColor();
             //tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
             lineActor->SetMapper(lineMapper);
+            
+            // Add actors to renderer
+            renderer->AddActor(tubeActor);
+            
+            nodeGlyphs->SetSourceConnection(sphereSource->GetOutputPort());
+            nodeGlyphs->SetInputData(nodeData);
+            nodeGlyphs->ScalingOn();
+//            nodeGlyphs->SetScaleModeToScaleByVector();
+            nodeGlyphs->SetScaleFactor(2.0*tubeRadius*1.2);
+            nodeGlyphs->OrientOn();
+            nodeGlyphs->ClampingOff();
+            nodeGlyphs->SetVectorModeToUseVector();
+            nodeGlyphs->SetIndexModeToOff();
+
+            nodeMapper->SetInputConnection(nodeGlyphs->GetOutputPort());
+            nodeMapper->ScalarVisibilityOff();
+            
+            // Set up actor
+            nodeActor->SetMapper(nodeMapper);
+            
+            // Add actor to renderer
+            renderer->AddActor(nodeActor);
+
             
         }
         

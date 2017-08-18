@@ -28,15 +28,15 @@ namespace model
     struct DislocationActors :
     /* inherits from   */ public VertexReader<'V',10,double>,
     /* inherits from   */ public EdgeReader  <'K',15,double>,
-    /* inherits from   */ public IDreader<'P',3,6,double>,
+//    /* inherits from   */ public IDreader<'P',3,6,double>,
     //    /* inherits from   */ std::deque<DislocationSegmentActor>,
-    /* inherits from   */ std::deque<DislocationNodeActor>,
-    /* inherits from   */ std::deque<PKActor>
+    /* inherits from   */ std::deque<DislocationNodeActor>
+//    /* inherits from   */ std::deque<PKActor>
     {
         static constexpr int dim=3;
         typedef VertexReader<'V',10,double> VertexContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
         typedef EdgeReader  <'K',15,double>	EdgeContainerType; // CHANGE THIS DOUBLE TO SCALARTYPE
-        typedef IDreader<'P',3,6,double> PKContainerType;
+//        typedef IDreader<'P',3,6,double> PKContainerType;
         
         
         //        long int currentFrameID;
@@ -54,11 +54,11 @@ namespace model
         
         bool showSpecificVertex;
         int specificVertexID;
-        bool showPK;
-        double PKfactor;
+//        bool showPK;
+//        double PKfactor;
         
-        std::unique_ptr<DislocationSegmentActor> ddSegments;
-        std::unique_ptr<PKActor> ddPK;
+//       std::unique_ptr<DislocationSegmentActor> ddSegments;
+//        std::unique_ptr<PKActor> ddPK;
         
         //        vtkSmartPointer<vtkRenderer> renderer;
         
@@ -80,9 +80,9 @@ namespace model
         /* init list   */ showVertexID(false),
         /* init list   */ plotBoundarySegments(true),
         /* init list   */ showSpecificVertex(false),
-        /* init list   */ specificVertexID(0),
-        /* init list   */ showPK(true),
-        /* init list   */ PKfactor(1000.0)
+        /* init list   */ specificVertexID(0)
+//        /* init list   */ showPK(true),
+//        /* init list   */ PKfactor(1000.0)
         {
             
         }
@@ -92,14 +92,14 @@ namespace model
         {
             //            segmentActors().clear();
             nodeActors().clear();
-            pkActors().clear();
+//            pkActors().clear();
         }
         
-        /**********************************************************************/
-        std::deque<PKActor>& pkActors()
-        {
-            return *this;
-        }
+//        /**********************************************************************/
+//        std::deque<PKActor>& pkActors()
+//        {
+//            return *this;
+//        }
         
         /**********************************************************************/
         std::deque<DislocationNodeActor>& nodeActors()
@@ -135,16 +135,16 @@ namespace model
             return *this;
         }
         
-        /**********************************************************************/
-        const PKContainerType& pkContainer() const
-        {
-            return *this;
-        }
-        
-        PKContainerType& pkContainer()
-        {
-            return *this;
-        }
+//        /**********************************************************************/
+//        const PKContainerType& pkContainer() const
+//        {
+//            return *this;
+//        }
+//        
+//        PKContainerType& pkContainer()
+//        {
+//            return *this;
+//        }
         
         
         /*************************************************************************/
@@ -160,12 +160,12 @@ namespace model
             if (isGood(frameN,false)) // bin format
             {
                 vertexContainer().read(frameN,false);
-                edgeContainer().read(frameN,false);
+//                edgeContainer().read(frameN,false);
             }
             else // txt format
             {
                 vertexContainer().read(frameN,true);
-                edgeContainer().read(frameN,true);
+//                edgeContainer().read(frameN,true);
             }
             
             //            if(showQuadParticles) // Show quadrature particles
@@ -173,11 +173,11 @@ namespace model
             //                QuadContainerType::read(frameN,true);
             //            }
             
-            PKContainerType::read(frameN,true);
+//            PKContainerType::read(frameN,true);
             
             // Create DislocationSegmentActor
-            ddSegments.reset(new DislocationSegmentActor(vertexContainer(),edgeContainer()));
-            ddPK.reset(new PKActor(pkContainer()));
+//            ddSegments.reset(new DislocationSegmentActor(vertexContainer(),edgeContainer()));
+//            ddPK.reset(new PKActor(pkContainer()));
             
             for(const auto& node : vertexContainer())
             {
@@ -210,10 +210,10 @@ namespace model
             //                //                renderer->AddActor(actor.lineActor());
             //            }
             
-            if(ddSegments.get()!=nullptr)
-            {
-                renderer->RemoveActor(ddSegments->tubeActor);
-            }
+//            if(ddSegments.get()!=nullptr)
+//            {
+//                renderer->RemoveActor(ddSegments->tubeActor);
+//            }
             
             for(auto& node : nodeActors())
             {
@@ -221,10 +221,10 @@ namespace model
                 //                renderer->AddActor(actor.lineActor());
             }
             
-            if(ddPK.get()!=nullptr)
-            {
-                renderer->RemoveActor(ddPK->actor);
-            }
+//            if(ddPK.get()!=nullptr)
+//            {
+//                renderer->RemoveActor(ddPK->actor);
+//            }
             
 //            for(auto& pk : pkActors())
 //            {
@@ -237,27 +237,15 @@ namespace model
             // Read new frame and store new actors
             read(frameID);
             
-            // Add new actors to renderer
-            //            for(auto& segment : segmentActors())
-            //            {
-            //                renderer->AddActor(segment.tubeActor());
-            //                //                renderer->AddActor(actor.lineActor());
-            //            }
             
-            renderer->AddActor(ddSegments->tubeActor);
-            renderer->AddActor(ddPK->actor);
+//            renderer->AddActor(ddSegments->tubeActor);
+//            renderer->AddActor(ddPK->actor);
             
             
             for(auto& node : nodeActors())
             {
                 renderer->AddActor(node.actor);
             }
-            
-            //            for(auto& pk : pkActors())
-            //            {
-            //                renderer->AddActor(pk.actor);
-            //            }
-            
             
         }
         

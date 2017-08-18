@@ -17,21 +17,47 @@
 #include <map>
 #include <assert.h>
 #include <utility>
+#include <chrono>
 //#include <Eigen/Dense>
 #include <model/IO/BinaryFileReader.h>
 
 namespace model
 {
-	
+    template <int keySize>
+    struct IDreaderKeySelector
+    {
+        static_assert(keySize>0,"keySize must be >0");
+        typedef std::array<int, keySize> KeyType;
+        
+        static int& keyElement(KeyType& key,const size_t& k)
+        {
+            return key[k];
+        }
+    };
+    
+    template <>
+    struct IDreaderKeySelector<1>
+    {
+        typedef int KeyType;
+        
+        static int& keyElement(KeyType& key,const size_t&)
+        {
+            return key;
+        }
+    };
+    
+    
     /*!	\brief A class template
      */
 	template <char c, int keySize, int valueSize, typename T>
-	class IDreader : public std::map<std::array<int, keySize>, std::array<T, valueSize> >
+    class IDreader : public std::map<typename IDreaderKeySelector<keySize>::KeyType, std::array<T, valueSize> >
     {
-		
-        typedef std::array<int, keySize> KeyType;
+        static_assert(valueSize>0,"valueSize must be >0");
+
+        typedef typename IDreaderKeySelector<keySize>::KeyType KeyType;
         typedef std::array<T, valueSize> ValueType;
-        
+        typedef std::pair<KeyType, ValueType > BinType;
+
 		int currentFrame;
 		
         /**********************************************************************/
@@ -63,7 +89,8 @@ namespace model
                     {
 						if(col<keySize)
                         {
-                            key[col]=static_cast<int>(temp);
+                            IDreaderKeySelector<keySize>::keyElement(key,col)=static_cast<int>(temp);
+//                            key[col]=static_cast<int>(temp);
                         }
                         else
                         {
@@ -92,26 +119,26 @@ namespace model
             return success;
 		}
 		
-//        /**********************************************************************/
-//		bool readBIN(const std::string& filename)
-//        {/*! Reads the binary file filename and stores its data in this
-//          */
-//            //bool success(false);
-//			std::cout<<"Reading: "<<filename;
-//			double t0(clock());
-//			typedef std::pair<std::pair<int,int>, Eigen::Matrix<scalar,1,cols-2> > BinEdgeType;
-//			BinaryFileReader<BinEdgeType> rE(filename);
-//			for (unsigned int k=0;k<rE.size();++k)
-//            {
-////				this->insert(std::make_pair(rE[k].first,rE[k].second));
-//				assert(this->insert(std::make_pair(rE[k].first,rE[k].second)).second && "COULD NOT INSERT EDGE AFTER BINARY READ.");
-//			}
-//			std::cout<<" ("<<this->size()<<" edges) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
-//            return rE.success();
-//		}
+        /**********************************************************************/
+		bool readBIN(const std::string& filename)
+        {/*! Reads the binary file filename and stores its data in this
+          */
+            //bool success(false);
+            std::cout<<"Reading: "<<filename<<std::flush<<" (";
+            const auto t0=std::chrono::system_clock::now();
+			BinaryFileReader<BinType> rE(filename);
+			for (unsigned int k=0;k<rE.size();++k)
+            {
+//				this->insert(std::make_pair(rE[k].first,rE[k].second));
+                const bool success=this->emplace(rE[k].first,rE[k].second).second;
+				assert(success && "COULD NOT INSERT AFTER BINARY READ.");
+			}
+            std::cout<<this->size()<<"elements in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec)"<<defaultColor<<std::endl;
+            return rE.success();
+		}
 		
 	public:	
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+//		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		
         /**********************************************************************/
 		IDreader () :

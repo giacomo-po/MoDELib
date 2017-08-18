@@ -51,7 +51,8 @@
 #include <model/DislocationDynamics/Visualization/vtk/DDinteractionStyle.h>
 
 #include <model/IO/EigenDataReader.h>
-#include <model/IO/VertexReader.h>
+//#include <model/IO/VertexReader.h>
+#include <model/IO/IDreader.h>
 
 
 
@@ -77,7 +78,7 @@ int main(int, char *[])
     //    table->AddColumn(arrS);
     
     
-    model::VertexReader<'F',201,double> vReader;
+    model::IDreader<'F',1,200,double> vReader;
     Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
     
     
@@ -92,8 +93,8 @@ int main(int, char *[])
         
         for (const auto& row : vReader)
         {
-            table->SetValue(i, 0, row.second(xCcol));
-            table->SetValue(i, 1, row.second(yCol));
+            table->SetValue(i, 0, row.second[xCcol]);
+            table->SetValue(i, 1, row.second[yCol]);
             
             i++;
         }
@@ -196,7 +197,7 @@ int main(int, char *[])
     view->GetInteractor()->SetInteractorStyle(style);
     style->SetDefaultRenderer(renderer);
     style->meshActor.init(meshID,renderer);
-    style->ddActors.update(0,renderer);
+//    style->ddActors.update(0,renderer);
     
     
     vtkSmartPointer<vtkAxesActor> axes = vtkSmartPointer<vtkAxesActor>::New();
