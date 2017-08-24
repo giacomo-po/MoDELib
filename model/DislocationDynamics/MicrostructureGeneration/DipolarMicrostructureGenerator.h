@@ -133,17 +133,21 @@ namespace model
                     density += 4.0*(d1cNorm*a1 + d2cNorm*a2)/this->mesh.volume()/pow(Material<Isotropic>::b_real,2);
                     std::cout<<"density="<<density<< "(WARNING: the dislocation length accounts for the part on the boundary)"<<std::endl;
                     
-                    // Vertex file
-                    vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<L1.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+2<<"\t" << std::setprecision(15)<<std::scientific<<L2.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+3<<"\t" << std::setprecision(15)<<std::scientific<<L3.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+4<<"\t" << std::setprecision(15)<<std::scientific<<L4.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+5<<"\t" << std::setprecision(15)<<std::scientific<<L5.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+6<<"\t" << std::setprecision(15)<<std::scientific<<L6.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
-                    vertexFile << nodeID+7<<"\t" << std::setprecision(15)<<std::scientific<<L7.cartesian().transpose()<<"\t"<< snID <<"\t"<< 0<<"\t"<<grainID<<"\n";
+                    /*! Vertex file format is:
+                     * ID Px Py Pz Vx Vy Vz velReducCoeff snID meshLocation grainID
+                     */
+                    vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.cartesian().transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<L1.cartesian().transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+2<<"\t" << std::setprecision(15)<<std::scientific<<L2.cartesian().transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+3<<"\t" << std::setprecision(15)<<std::scientific<<L3.cartesian().transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+4<<"\t" << std::setprecision(15)<<std::scientific<<L4.cartesian().transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+5<<"\t" << std::setprecision(15)<<std::scientific<<L5.cartesian().transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+6<<"\t" << std::setprecision(15)<<std::scientific<<L6.cartesian().transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+7<<"\t" << std::setprecision(15)<<std::scientific<<L7.cartesian().transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
 
-                    // Edge file
+                    /*! Edge file format is:
+                     * loopID sourceID sinkID
+                     */
                     edgeFile << loopID+0<<"\t" << nodeID+0<<"\t"<< nodeID+1<<"\n";
                     edgeFile << loopID+0<<"\t" << nodeID+1<<"\t"<< nodeID+5<<"\n";
                     edgeFile << loopID+0<<"\t" << nodeID+5<<"\t"<< nodeID+4<<"\n";
@@ -165,7 +169,10 @@ namespace model
                     edgeFile << loopID+3<<"\t" << nodeID+7<<"\t"<< nodeID+3<<"\n";
 
                     
-                    // Loop file
+                    /*! Edge file format is:
+                     * loopID Bx By Bz Nx Ny Nz Lx Ly Lz grainID
+                     * where L is a lattice position in the grain
+                     */
                     const VectorDimD n1=d1.cross(slipSystem.s).cartesian().normalized();
                     const VectorDimD n2=d2.cross(slipSystem.s).cartesian().normalized();
 //                    const VectorDimD n1=d1.cross(slipSystem.s).cartesian().normalized();

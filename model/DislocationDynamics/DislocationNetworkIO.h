@@ -10,8 +10,8 @@
 #define model_DISLOCATIONNETWORKIO_H_
 
 #include <string>
-#include <model/IO/VertexReader.h>
-#include <model/IO/EdgeReader.h>
+//#include <model/IO/VertexReader.h>
+//#include <model/IO/EdgeReader.h>
 #include <model/IO/IDReader.h>
 
 #include <model/IO/UniqueOutputFile.h>
@@ -72,7 +72,8 @@ namespace model
         static void readVertices(DislocationNetworkType& DN, const size_t& fileID)
         {/*! Reads file V/V_0.txt and creates DislocationNodes
           */
-            typedef VertexReader<'V',7,double> VertexReaderType;
+//            typedef VertexReader<'V',7,double> VertexReaderType;
+            typedef IDreader<'V',1,10,double> VertexReaderType;
             VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID,meshLocation,grainID
             if (vReader.isGood(fileID,false)) // bin file exists
             {
@@ -94,16 +95,23 @@ namespace model
             }
             
             size_t kk(1);
-            for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
+//            for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
+            for (const auto& vIter : vReader)
             {
-                const size_t nodeIDinFile(vIter->first);
+                const size_t nodeIDinFile(vIter.first);
                 NodeType::set_count(nodeIDinFile);
                 model::cout << "\r \r" << "Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<vReader.size()<<")"<<std::flush;
                 
-                const VectorDimD P(vIter->second.template segment<NdofXnode>(0));
-                const int grainID(vIter->second(5));
+                const Eigen::Map<const Eigen::Matrix<double,1,9>> row(vIter.second.data());
+                const VectorDimD P(row.template segment<NdofXnode>(0));
+                const VectorDimD V(row.template segment<NdofXnode>(NdofXnode));
+                const double velocityReductionCoeff(row(6));
+//                const double snID(row(7));
+//                const bool onMeshBoundary(8);
                 
-                const size_t nodeID=DN.insertDanglingNode(P,grainID).first->first;
+                //                const int grainID(row(9));
+                
+                const size_t nodeID=DN.insertDanglingNode(P,V,velocityReductionCoeff).first->first;
                 
                 //LatticeVectorType L(VectorDimD());
                 //const size_t nodeID(DN.insertVertex(L).first->first);
@@ -120,7 +128,8 @@ namespace model
           */
             
             // Reading loops
-            typedef VertexReader<'L',11,double> VertexReaderType;
+//            typedef VertexReader<'L',11,double> VertexReaderType;
+            typedef IDreader<'L',1,10,double> VertexReaderType;
             VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID,meshLocation,grainID
             if (vReader.isGood(fileID,false)) // bin file exists
             {
@@ -163,24 +172,30 @@ namespace model
                 }
             }
             
+            
             std::map<size_t,std::map<size_t,size_t>> loopMap;
             
             for(const auto& looplink : llreader)
             {
                 loopMap[looplink.first[0]].emplace(looplink.first[1],looplink.first[2]);
             }
+
+
             
             assert(loopMap.size()==vReader.size());
             
-            
+            size_t loopLumber=1;
             for(const auto& loop : vReader)
             {
+                Eigen::Map<const Eigen::Matrix<double,1,10>> row(loop.second.data());
+
                 const size_t loopID=loop.first;
-                const size_t grainID=loop.second(9);
+                const size_t grainID=row(9);
 
                 const auto loopFound=loopMap.find(loopID);
                 assert(loopFound!=loopMap.end());
                 
+
                 
                 std::vector<size_t> nodeIDs;
                 nodeIDs.push_back(loopFound->second.begin()->first);
@@ -197,12 +212,22 @@ namespace model
                     }
                 }
                 
+
+                
                 LoopType::set_count(loopID);
-                const LatticeVector<dim> B=DN.shared.poly.grain(grainID).latticeVector(loop.second.template segment<dim>(0*dim).transpose());
-                const LatticePlaneBase N(DN.shared.poly.grain(grainID).reciprocalLatticeDirection(loop.second.template segment<dim>(1*dim).transpose())); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
-                const LatticeVector<dim> P=DN.shared.poly.grain(grainID).latticeVector(loop.second.template segment<dim>(2*dim).transpose());
-                const size_t newLoopID=DN.insertLoop(nodeIDs,B,N,P)->sID;
+//                const LatticeVector<dim> B=DN.shared.poly.grain(grainID).latticeVector(row.template segment<dim>(0*dim).transpose());
+//                const LatticePlaneBase N(DN.shared.poly.grain(grainID).reciprocalLatticeDirection(row.template segment<dim>(1*dim).transpose())); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
+//                const LatticeVector<dim> P=DN.shared.poly.grain(grainID).latticeVector(row.template segment<dim>(2*dim).transpose());
+                const VectorDimD B=row.template segment<dim>(0*dim).transpose();
+                const VectorDimD N=row.template segment<dim>(1*dim).transpose(); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
+                const VectorDimD P=row.template segment<dim>(2*dim).transpose();
+                
+
+                
+                model::cout<<"Creating Dislocation Loop "<<loopID<<" ("<<loopLumber<<" of "<<vReader.size()<<")"<<std::endl;
+                const size_t newLoopID=DN.insertLoop(nodeIDs,B,N,P,grainID)->sID;
                 assert(loopID==newLoopID);
+                loopLumber++;
             }
             
             DN.clearDanglingNodes();
@@ -298,7 +323,7 @@ namespace model
             //! 2- Outputs the Vertex informations to file V_*.txt where * is the current simulation step
             if (outputBinary)
             {
-                typedef Eigen::Matrix<double,1,6> VertexDataType;
+                typedef Eigen::Matrix<double,1,9> VertexDataType;
                 typedef std::pair<int, VertexDataType> BinVertexType;
                 SequentialBinFile<'V',BinVertexType>::set_count(runID);
                 SequentialBinFile<'V',BinVertexType>::set_increment(outputFrequency);
@@ -307,10 +332,10 @@ namespace model
                 for (const auto& node : DN.nodes())
                 {
                     VertexDataType temp( (VertexDataType()<< node.second->get_P().transpose(),
-//                                          /*                                    */ node.second->get_T().transpose(),
+                                          /*                                    */ node.second->get_V().transpose(),
+                                          /*                                    */ node.second->velocityReduction(),
                                           /*                                    */ node.second->pSN()->sID,
-                                          /*                                    */ (node.second->meshLocation()==onMeshBoundary),
-                                          /*                                    */ node.second->grain.grainID).finished());
+                                          /*                                    */ (node.second->meshLocation()==onMeshBoundary)).finished());
                     binVertexFile.write(std::make_pair(node.first,temp));
                 }
                 model::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;
@@ -493,12 +518,13 @@ namespace model
             
             if(outputPlasticDistortion)
             {
-                f_file<<DN.plasticDistortion.row(0)<<" "<<DN.plasticDistortion.row(1)<<" "<<DN.plasticDistortion.row(2)<<" ";
+                const Eigen::Matrix<double,dim,dim>& pD(DN.plasticDistortion());
+                f_file<<pD.row(0)<<" "<<pD.row(1)<<" "<<pD.row(2)<<" ";
             }
             
             if(outputPlasticDistortionRate)
             {
-                Eigen::Matrix<double,dim,dim> pDR(DN.plasticDistortionRate());
+                const Eigen::Matrix<double,dim,dim>& pDR(DN.plasticDistortionRate());
                 f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" ";
             }
             

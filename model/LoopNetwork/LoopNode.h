@@ -106,7 +106,7 @@ namespace model
         LoopNode() :
         /* init list */ psn(new NetworkComponentType(this->p_derived()))
         {
-            VerboseLoopNode(1,"Contructing LoopNode "<<name()<<std::endl);
+            VerboseLoopNode(1,"Constructing LoopNode "<<name()<<std::endl);
 
 //            std::cout<<"Constructing LoopNode "<<this->sID<<std::endl;
             NodeObserver<Derived>::addNode(this->p_derived());
@@ -385,7 +385,7 @@ namespace model
     };
     
     template<typename Derived>
-    int LoopNode<Derived>::verboseLevel=1;
+    int LoopNode<Derived>::verboseLevel=0;
 
     
     

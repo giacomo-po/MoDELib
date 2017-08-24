@@ -18,6 +18,7 @@ namespace model
 {
     struct LatticePlaneBase : public ReciprocalLatticeDirection<3>
     {
+        typedef Eigen::Matrix<double,3,1> VectorDimD;
         typedef Eigen::Matrix<long int,3,1> VectorDimI;
         typedef LatticeVector<3>    LatticeVectorType;
         typedef LatticeDirection<3>    LatticeDirectionType;
@@ -102,6 +103,18 @@ namespace model
 //            return LatticeVectorType(p,primitiveVectors.first.covBasis,primitiveVectors.second.contraBasis);
             return LatticeVectorType(p,primitiveVectors.first.lattice);
 
+        }
+        
+        /**********************************************************************/
+        VectorDimD snapToPlane(const Eigen::Matrix<double,3,1>& P) const
+        {
+            //            return LatticeVectorType(p,primitiveVectors.first.covBasis,primitiveVectors.second.contraBasis);
+            VectorDimD cn(this->cartesian());
+            const double cnNorm(cn.norm());
+            assert(cnNorm > FLT_EPSILON);
+            cn/=cnNorm;
+            return P-P.dot(cn)*cn;
+            
         }
         
         

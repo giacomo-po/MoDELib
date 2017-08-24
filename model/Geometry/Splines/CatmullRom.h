@@ -41,13 +41,13 @@ namespace model
                     const double cL=link->pLink->parametricChordLength();
                     if(cL>0.0)
                     {
-                        temp+=(link->sink()->get_P()-link->source()->get_P())/cL*(cT-cL)/cT;
+                        temp+=(link->sink()->get_P()-link->source()->get_P())/cL*(cT-cL)/cT*0.0;
                     }
                 }
             }
 
             
-            return temp*0.0;
+            return temp;
         }
         
         /**********************************************************************/
@@ -71,7 +71,7 @@ namespace model
             
             for(const auto& link : segmentSet)
             {
-                temp[link->source()->snID()]=std::make_pair(0.0,link->source()->get_P());;
+                temp[link->source()->snID()]=std::make_pair(0.0,link->source()->get_P());
                 temp[link->  sink()->snID()]=std::make_pair(0.0,link->  sink()->get_P());
             }
             

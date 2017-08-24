@@ -44,7 +44,7 @@ namespace model
         }
         
         /**********************************************************************/
-        LatticeVectorType snapToDirection(const VectorDimD& dP) const
+        LatticeVectorType snapToLattice(const VectorDimD& dP) const
         {/*!@param[in] dP a cartesian input vector
           *\returns the closest lattice vector corresponding to the projection
           * of dP on *this LatticeDirection.
@@ -55,7 +55,16 @@ namespace model
 //                                     this->contraBasis);
             return LatticeVectorType((round(dP.dot(dc)/dc.squaredNorm())*dc).eval(),
                                      this->lattice);
-
+        }
+        
+        /**********************************************************************/
+        VectorDimD snapToDirection(const VectorDimD& dP) const
+        {
+            VectorDimD dc(this->cartesian());
+            const double dNorm(dc.norm());
+            assert(dNorm>FLT_EPSILON);
+            dc/=dNorm;
+            return dP.dot(dc)*dc;
         }
         
     };

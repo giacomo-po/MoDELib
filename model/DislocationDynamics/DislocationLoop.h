@@ -13,6 +13,8 @@
 #include <model/LatticeMath/LatticeVector.h>
 #include <model/LatticeMath/LatticePlaneBase.h>
 #include <model/LatticeMath/LatticePlane.h>
+#include <model/DislocationDynamics/Polycrystals/Grain.h>
+
 
 namespace model
 {
@@ -25,21 +27,24 @@ namespace model
         typedef Loop<DislocationLoopType> LoopType;
 //        typedef typename TypeTraits<DislocationLoopType>::FlowType FlowType;
         typedef typename TypeTraits<DislocationLoopType>::LoopNetworkType LoopNetworkType;
-        
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
         
     public:
         
+        const Grain<dim>& grain;
         const LatticePlane glidePlane;
         const bool isSessile;
         
         /**********************************************************************/
         DislocationLoop(const LoopNetworkType& dn,
-                        const LatticeVector<dim>& flow,
-                        const LatticePlaneBase& N,
-                        const LatticeVector<dim>& P) :
-        /* base init */ LoopType(dn,flow),
-        /*      init */ glidePlane(P,N),
-        /*      init */ isSessile(flow.dot(N)!=0)
+                        const VectorDim& B,
+                        const VectorDim& N,
+                        const VectorDim& P,
+                        const int& grainID) :
+        /* base init */ LoopType(dn,dn.shared.poly.grain(grainID).latticeVector(B)),
+        /*      init */ grain(dn.shared.poly.grain(grainID)),
+        /*      init */ glidePlane(grain.latticeVector(P),grain.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+        /*      init */ isSessile(this->flow().dot(glidePlane.n)!=0)
         {
         
         }

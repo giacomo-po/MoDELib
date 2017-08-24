@@ -41,22 +41,22 @@ namespace model
     
     class DDinteractionStyle :
     /* inherit */ public vtkInteractorStyleTrackballCamera
-//    public vtkInteractorStyleMultiTouchCamera
+    //    public vtkInteractorStyleMultiTouchCamera
     {
         
         
         
-//        typedef IDreader<'P',3,6,double> pkReader;
-
+        //        typedef IDreader<'P',3,6,double> pkReader;
+        
         
         
     private:
         
-//        PKContainerType pkReader;
+        //        PKContainerType pkReader;
         
         std::unique_ptr<DislocationSegmentActor> ddSegments;
         std::unique_ptr<PKActor> ddPK;
-
+        
         
         int xCol;
         int yCol;
@@ -80,95 +80,96 @@ namespace model
                && (DislocationSegmentActor::EdgeReaderType::isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType::isGood(frameID,true))
                )
             {
-//                if(ddActors.isGood(frameID,false) || ddActors.isGood(frameID,true))
-//                {
-                    currentFrameID=frameID; //
-                    std::cout<<"loading frame "<<currentFrameID<<std::endl;
-                    
-                    vtkRenderWindowInteractor *rwi = this->Interactor;
-                    
-                    if (this->LastPickedActor)
-                    {// Before destroying all actors,restore properties of LastPickedActor
-                        this->LastPickedActor->GetProperty()->DeepCopy(this->LastPickedProperty);
-                        LastPickedActor = NULL; // LastPickedActor will be destroyed so we cannot further pick it
-                    }
-                    
-                    if(ddPK.get()!=nullptr)
-                    {
-                        this->CurrentRenderer->RemoveActor(ddPK->actor);
-                    }
-                    
-                    if(ddSegments.get()!=nullptr)
-                    {
-                        this->CurrentRenderer->RemoveActor(ddSegments->tubeActor);
-                        this->CurrentRenderer->RemoveActor(ddSegments->nodeActor);
-                    }
+                //                if(ddActors.isGood(frameID,false) || ddActors.isGood(frameID,true))
+                //                {
+                currentFrameID=frameID; //
+                std::cout<<"loading frame "<<currentFrameID<<std::endl;
                 
-                    // Update ddActors
-//                    ddActors.update(frameID,this->CurrentRenderer);
-                    meshActor.update(frameID);
-                    ddSegments.reset(new DislocationSegmentActor(frameID,this->CurrentRenderer));
-                    ddPK.reset(new PKActor(frameID,this->CurrentRenderer));
+                vtkRenderWindowInteractor *rwi = this->Interactor;
+                
+                if (this->LastPickedActor)
+                {// Before destroying all actors,restore properties of LastPickedActor
+                    this->LastPickedActor->GetProperty()->DeepCopy(this->LastPickedProperty);
+                    LastPickedActor = NULL; // LastPickedActor will be destroyed so we cannot further pick it
+                }
+                
+                if(ddPK.get()!=nullptr)
+                {
+                    this->CurrentRenderer->RemoveActor(ddPK->actor);
+                }
+                
+                if(ddSegments.get()!=nullptr)
+                {
+                    this->CurrentRenderer->RemoveActor(ddSegments->tubeActor);
+                    this->CurrentRenderer->RemoveActor(ddSegments->nodeActor);
+                    this->CurrentRenderer->RemoveActor(ddSegments->velocityActor);
+                }
+                
+                // Update ddActors
+                //                    ddActors.update(frameID,this->CurrentRenderer);
+                meshActor.update(frameID);
+                ddSegments.reset(new DislocationSegmentActor(frameID,this->CurrentRenderer));
+                ddPK.reset(new PKActor(frameID,this->CurrentRenderer));
+                
+                // Update renderer
+                rwi->Render();
+                
+                if (saveImage)
+                {
+                    vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
+                    windowToImageFilter->SetInput(rwi->GetRenderWindow()/*renderWindow*/);
+                    windowToImageFilter->SetMagnification(1); //set the resolution of the output image (3 times the current resolution of vtk render window)
+                    //                        windowToImageFilter->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
+                    windowToImageFilter->ReadFrontBufferOff(); // read from the back buffer
+                    windowToImageFilter->Update();
+                    //                        rwi->Render();
                     
-                    // Update renderer
-                    rwi->Render();
-                    
-                    if (saveImage)
+                    int imageType=0;
+                    switch (imageType)
                     {
-                        vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
-                        windowToImageFilter->SetInput(rwi->GetRenderWindow()/*renderWindow*/);
-                        windowToImageFilter->SetMagnification(1); //set the resolution of the output image (3 times the current resolution of vtk render window)
-                        windowToImageFilter->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
-                        windowToImageFilter->ReadFrontBufferOff(); // read from the back buffer
-                        windowToImageFilter->Update();
-                        
-                        int imageType=0;
-                        switch (imageType)
+                        case 0:
                         {
-                            case 0:
-                            {
-                                const std::string fileName="png/image_"+std::to_string(frameID)+".png";
-                                std::cout<<"saving image "<<fileName<<std::endl;
-                                vtkSmartPointer<vtkPNGWriter> writer = vtkSmartPointer<vtkPNGWriter>::New();
-                                writer->SetFileName(fileName.c_str());
-                                writer->SetInputConnection(windowToImageFilter->GetOutputPort());
-                                writer->Write();
-                                rwi->Render();
-                                break;
-                                
-                            }
-                            case 1:
-                            {
-                                const std::string fileName="bmp/image_"+std::to_string(frameID)+".bmp";
-                                std::cout<<"saving image "<<fileName<<std::endl;
-                                vtkSmartPointer<vtkBMPWriter> writer = vtkSmartPointer<vtkBMPWriter>::New();
-                                writer->SetFileName(fileName.c_str());
-                                writer->SetInputConnection(windowToImageFilter->GetOutputPort());
-                                writer->Write();
-                                rwi->Render();
-                                break;
-                                
-                            }
-                            case 2:
-                            {
-                                const std::string fileName="jpg/image_"+std::to_string(frameID)+".jpg";
-                                std::cout<<"saving image "<<fileName<<std::endl;
-                                vtkSmartPointer<vtkJPEGWriter> writer = vtkSmartPointer<vtkJPEGWriter>::New();
-                                writer->SetFileName(fileName.c_str());
-                                writer->SetInputConnection(windowToImageFilter->GetOutputPort());
-                                writer->Write();
-                                rwi->Render();
-                                break;
-                                
-                            }
-                                
-                            default:
-                                break;
+                            const std::string fileName="png/image_"+std::to_string(frameID)+".png";
+                            std::cout<<"saving image "<<fileName<<std::endl;
+                            vtkSmartPointer<vtkPNGWriter> writer = vtkSmartPointer<vtkPNGWriter>::New();
+                            writer->SetFileName(fileName.c_str());
+                            writer->SetInputConnection(windowToImageFilter->GetOutputPort());
+                            writer->Write();
+                            break;
+                            
                         }
+                        case 1:
+                        {
+                            const std::string fileName="bmp/image_"+std::to_string(frameID)+".bmp";
+                            std::cout<<"saving image "<<fileName<<std::endl;
+                            vtkSmartPointer<vtkBMPWriter> writer = vtkSmartPointer<vtkBMPWriter>::New();
+                            writer->SetFileName(fileName.c_str());
+                            writer->SetInputConnection(windowToImageFilter->GetOutputPort());
+                            writer->Write();
+                            break;
+                            
+                        }
+                        case 2:
+                        {
+                            const std::string fileName="jpg/image_"+std::to_string(frameID)+".jpg";
+                            std::cout<<"saving image "<<fileName<<std::endl;
+                            vtkSmartPointer<vtkJPEGWriter> writer = vtkSmartPointer<vtkJPEGWriter>::New();
+                            writer->SetFileName(fileName.c_str());
+                            writer->SetInputConnection(windowToImageFilter->GetOutputPort());
+                            writer->Write();
+                            break;
+                            
+                        }
+                            
+                        default:
+                            break;
                     }
                     
+                    rwi->Render();
+                }
+                
                 //}
-
+                
             }
             else
             {
@@ -184,7 +185,7 @@ namespace model
         vtkTypeMacro(DDinteractionStyle, vtkInteractorStyleTrackballCamera);
         
         SimplicialMeshActor meshActor;
-//        DislocationActors ddActors;
+        //        DislocationActors ddActors;
         
         
         /*************************************************************************/
@@ -292,7 +293,7 @@ namespace model
                 }
                 this->CurrentRenderer->SetViewport(0.0,0,winFrac,1);
                 rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->SetViewport(winFrac,0,1,1);
-
+                
                 this->CurrentRenderer->Render();
                 rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->Render();
                 this->Interactor->Render();
@@ -304,10 +305,10 @@ namespace model
                 {
                     winFrac=0.0;
                 }
-                    
+                
                 this->CurrentRenderer->SetViewport(0.0,0,winFrac,1);
                 rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->SetViewport(winFrac,0,1,1);
-
+                
                 this->CurrentRenderer->Render();
                 rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->Render();
                 this->Interactor->Render();
@@ -348,7 +349,7 @@ namespace model
                 selectedKey="m";
                 std::cout<<"selecting objects: mesh"<<std::endl;
                 std::cout<<"    +/- to increase mesh displacement"<<std::endl;
-
+                
                 //                std::cout<<"Enter frame# to load:"<<std::endl;
                 //                std::cin>>frameID;
                 //                loadFrame();
@@ -356,10 +357,32 @@ namespace model
             
             if(key == "p")
             {
-                selectedKey="p";
-                std::cout<<"selecting objects: pk forces"<<std::endl;
-                std::cout<<"    +/- to increase vector size"<<std::endl;
-                
+                if(selectedKey=="p")
+                {
+                    selectedKey=" ";
+                    if(ddPK.get()!=nullptr)
+                    {
+                        PKActor::showPK=false;
+                        ddPK->modify();
+                        this->Interactor->Render();
+                    }
+                }
+                else
+                {
+                    selectedKey="p";
+                    std::cout<<"selecting objects: pk forces"<<std::endl;
+                    std::cout<<"    +/- to increase vector size"<<std::endl;
+                    if(ddPK.get()!=nullptr)
+                    {
+                        PKActor::showPK=true;
+                        ddPK->modify();
+                        this->Interactor->Render();
+                    }
+                    
+                    
+                    
+                    
+                }
                 //                std::cout<<"Enter frame# to load:"<<std::endl;
                 //                std::cin>>frameID;
                 //                loadFrame();
@@ -372,7 +395,7 @@ namespace model
                 saveImage=!saveImage;
                 std::cout<<"Saving image="<<saveImage<<std::endl;
             }
-
+            
             
             if(key == "x")
             {
@@ -383,7 +406,7 @@ namespace model
                 {
                     xCol=temp;
                 }
-//                loadFrame();
+                //                loadFrame();
             }
             
             if(key == "y")
@@ -397,30 +420,63 @@ namespace model
                 }
                 //                loadFrame();
             }
-
+            
+            
+            if(key == "w")
+            {
+                if(selectedKey=="w")
+                {
+                    selectedKey=" ";
+                    if(ddSegments.get()!=nullptr)
+                    {
+                        DislocationSegmentActor::showVelocities=false;
+                        ddSegments->modify();
+                        this->Interactor->Render();
+                    }
+                }
+                else
+                {
+                    selectedKey="w";
+                    std::cout<<"selecting objects: nodal velocities"<<std::endl;
+                    std::cout<<"    +/- to increase vector size"<<std::endl;
+                    if(ddSegments.get()!=nullptr)
+                    {
+                        DislocationSegmentActor::showVelocities=true;
+                        ddSegments->modify();
+                        this->Interactor->Render();
+                    }
+                    
+                    
+                    
+                    
+                }
+                //                std::cout<<"Enter frame# to load:"<<std::endl;
+                //                std::cin>>frameID;
+                //                loadFrame();
+            }
             
             if(selectedKey=="e")
             {
-//                std::cout<<"I'm here -1"<<std::endl;
-
+                //                std::cout<<"I'm here -1"<<std::endl;
+                
                 if(key == "equal")
                 {
-//                    std::cout<<"I'm here 0"<<std::endl;
+                    //                    std::cout<<"I'm here 0"<<std::endl;
                     DislocationSegmentActor::tubeRadius*=2.0;
-                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
-
-//                    std::cout<<"I'm here 1"<<std::endl;
+//                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
+                    ddSegments->modify();
+                    //                    std::cout<<"I'm here 1"<<std::endl;
                     std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
-//                    ddActors.modify();
+                    //                    ddActors.modify();
                     this->Interactor->Render();
                 }
                 if(key == "minus")
                 {
                     DislocationSegmentActor::tubeRadius*=0.5;
-                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
-
+//                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
+                    ddSegments->modify();
                     std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
-//                    ddActors.modify();
+                    //                    ddActors.modify();
                     this->Interactor->Render();
                 }
                 
@@ -459,6 +515,25 @@ namespace model
                     PKActor::pkFactor*=0.5;
                     ddPK->modify();
                     std::cout<<"force scaling="<<PKActor::pkFactor<<std::endl;
+                    this->Interactor->Render();
+                }
+                
+            }
+            
+            if(selectedKey=="w")
+            {
+                if(key == "equal" && ddSegments.get()!=nullptr)
+                {
+                    DislocationSegmentActor::velocityFactor*=2.0;
+                    ddSegments->modify();
+                    std::cout<<"velocity scaling="<<DislocationSegmentActor::velocityFactor<<std::endl;
+                    this->Interactor->Render();
+                }
+                if(key == "minus" && ddSegments.get()!=nullptr)
+                {
+                    DislocationSegmentActor::velocityFactor*=0.5;
+                    ddSegments->modify();
+                    std::cout<<"velocity scaling="<<DislocationSegmentActor::velocityFactor<<std::endl;
                     this->Interactor->Render();
                 }
                 

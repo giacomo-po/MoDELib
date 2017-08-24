@@ -42,6 +42,8 @@ OLD
 *.jpg
 *.tga
 *.mpg
+*.png
+*.bmp
 
 # Misc Mac/Windows stuff
 .DS_Store

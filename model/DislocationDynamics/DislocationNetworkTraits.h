@@ -17,6 +17,7 @@
 #include <model/Quadrature/QuadratureDynamic.h>
 #include <model/Quadrature/QuadPowDynamic.h>
 #include <model/LatticeMath/LatticeMath.h>
+#include <model/Geometry/Splines/SplineBase.h>
 
 namespace model
 {
@@ -46,7 +47,7 @@ namespace model
 	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
 	struct DislocationNetworkTraitsBase
     {
-        enum{dim=_dim};
+        static constexpr int dim=_dim;
 		typedef DislocationNetwork   <dim,corder,InterpolationType,QuadratureRule>	LoopNetworkType;
 		typedef DislocationNode      <dim,corder,InterpolationType,QuadratureRule>	NodeType;
 		typedef DislocationSegment   <dim,corder,InterpolationType,QuadratureRule>	LinkType;
@@ -55,7 +56,7 @@ namespace model
         typedef LatticeVector<3>                                                            FlowType;
 //        static constexpr FlowType zeroFlow=FlowType::Zero();
         typedef QuadratureDynamic<1,QuadratureRule,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
-        typedef    QuadPowDynamic<3,QuadratureRule,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
+        typedef QuadPowDynamic<SplineBase<dim,corder>::pOrder,QuadratureRule,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
     };
 
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,

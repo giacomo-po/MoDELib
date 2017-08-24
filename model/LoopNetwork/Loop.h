@@ -67,7 +67,7 @@ namespace model
         /**********************************************************************/
         ~Loop()
         {
-            std::cout<<"Destorying Loop "<<this->sID<<std::endl;
+            std::cout<<"Destroying Loop "<<this->sID<<std::endl;
             LoopObserverType::removeLoop(this->p_derived());
         }
         
@@ -102,16 +102,8 @@ namespace model
         /**********************************************************************/
         void addLink(LoopLinkType* const pL)
         {
-//            const auto key=;
             const bool success=links().insert(std::make_pair(LoopLinkType::getKey(pL->source()->sID,pL->sink()->sID),pL)).second;
-//            const bool success=links().insert(std::make_pair(std::make_pair(pL->source()->sID,pL->sink()->sID),pL)).second;
             assert(success && "Could not insert in linkMap");
-            
-//            if(linkSeq.isempty())
-//            {
-//                linkSeq.insert(linkSeq.end(),pL);
-//            }
-            
         }
         
         /**********************************************************************/
@@ -121,11 +113,6 @@ namespace model
             assert(erased==1 && "Could not erase from linkMap");
         }
 
-//        /**********************************************************************/
-//        const LoopLinkSequenceType& linkSequence() const
-//        {
-//            return linkSeq;
-//        }
         
         /**********************************************************************/
         LoopLinkSequenceType linkSequence() const
@@ -136,16 +123,6 @@ namespace model
             const LoopLinkType* pL=links().begin()->second;
             for(size_t k=0;k<links().size();++k)
             {
-//                typename LoopLinkSequenceType::const_iterator iter;
-//                for(iter=temp.begin();
-//                    iter!=temp.end();
-//                    ++iter)
-//                {
-//                    if((*iter)->source->sID==link.second->sink->sID)
-//                    {
-//                        break;
-//                    }
-//                }
                 temp.push_back(pL);
                 pL=pL->next;
             }
@@ -193,13 +170,10 @@ namespace model
         /**********************************************************************/
         bool isLoop() const
         {
-            std::cout<<"Loop "<<this->sID<<std::endl;
             bool temp=true;
             const LoopLinkSequenceType linkSeq(linkSequence());
             for(typename LoopLinkSequenceType::const_iterator iter=linkSeq.begin();iter!=linkSeq.end();++iter)
             {
-                std::cout<<(*iter)->source()->sID<<"->"<<(*iter)->sink()->sID<<std::endl;
-                
                 auto next=std::next(iter,1);
                 if(next==linkSeq.end())
                 {
@@ -222,9 +196,6 @@ namespace model
                 std::cout<<"    "<<(*iter)->source()->sID<<"->"<<(*iter)->sink()->sID
                 <<" (prev "<<(*iter)->prev->source()->sID<<"->"<<(*iter)->prev->sink()->sID<<")"
                 <<" (next "<<(*iter)->next->source()->sID<<"->"<<(*iter)->next->sink()->sID<<")"<<std::endl;
-
-                
-                
             }
         }
         

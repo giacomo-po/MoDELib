@@ -52,7 +52,7 @@ namespace model
 	template <char c, int keySize, int valueSize, typename T>
     class IDreader : public std::map<typename IDreaderKeySelector<keySize>::KeyType, std::array<T, valueSize> >
     {
-        static_assert(valueSize>0,"valueSize must be >0");
+        static_assert(valueSize>=0,"valueSize must be >0");
 
         typedef typename IDreaderKeySelector<keySize>::KeyType KeyType;
         typedef std::array<T, valueSize> ValueType;

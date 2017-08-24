@@ -98,6 +98,7 @@
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/ParticleInteraction/SingleFieldPoint.h>
 #include <model/DislocationDynamics/DislocationNodeContraction.h>
+#include <model/DislocationDynamics/DDtimeIntegrator.h>
 #include <model/Threads/EqualIteratorRange.h>
 //#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
 //#include <model/DislocationDynamics/Polycrystals/GrainBoundaryDissociation.h>
@@ -152,10 +153,11 @@ namespace model
         
     private:
         
+        int timeIntegrationMethod;
         bool check_balance;
         short unsigned int use_redistribution;
         bool use_junctions;
-        double shearWaveSpeedFraction;
+//        double shearWaveSpeedFraction;
         
         long int runID;
         
@@ -163,9 +165,13 @@ namespace model
         
         double totalTime;
         
-        double dx, dt;
-        double vmax;
+//        double dx, dt;
+        double dt;
+        //double vmax;
         
+        MatrixDimD _plasticDistortion;
+        MatrixDimD _plasticDistortionRate;
+
         
         /**********************************************************************/
         void formJunctions()
@@ -177,74 +183,7 @@ namespace model
             }
         }
         
-        /**********************************************************************/
-        void make_dt()
-        {/*! Computes the time step size \f$dt\f$ for the current simulation step,
-          *  based on maximum nodal velocity \f$v_{max}\f$.
-          *
-          *  The time step is calculated according to:
-          *	\f[
-          *  dt=
-          *  \begin{cases}
-          *		\frac{dx}{v_{max}} & v_{max} > fc_s\\
-          *      \frac{dx}{fc_s} & v_{max} \le fc_s\\
-          *  \end{cases}
-          *	\f]
-          *  where \f$c_s\f$ is the shear velocity and \f$f=0.1\f$ is a constant.
-          */
-            model::cout<<"		Computing dt..."<<std::flush;
-            const auto t0=std::chrono::system_clock::now();
-            
-            //			double vmax(0.0);
-            vmax=0.0;
-            int nVmean=0;
-            double vmean=0.0;
-            double dt_mean=0.0;
-            
-            for (const auto& nodeIter : this->nodes())
-            {
-                if(!nodeIter.second->isBoundaryNode() && !nodeIter.second->isConnectedToBoundaryNodes() && nodeIter.second->confiningPlanes().size()<3)
-                {
-                    const double vNorm(nodeIter.second->get_V().norm());
-                    vmean +=vNorm;
-                    nVmean++;
-                    if (vNorm>vmax)
-                    {
-                        vmax=vNorm;
-                    }
-                }
-            }
-            vmean/=nVmean;
-            
-            //double shearWaveSpeedFraction(0.01);
-            //short unsigned int shearWaveExp=1;
-            if (vmax > Material<Isotropic>::cs*shearWaveSpeedFraction)
-            {
-                dt=dx/vmax;
-                
-            }
-            else
-            {
-                //dt=dx/std::pow(shared.material.cs*shearWaveSpeedFraction,shearWaveExp+1)*std::pow(vmax,shearWaveExp);
-                //dt=dx/(shared.material.cs*shearWaveSpeedFraction)*std::pow(vmax/(shared.material.cs*shearWaveSpeedFraction),1);
-                dt=dx/(Material<Isotropic>::cs*shearWaveSpeedFraction);
-            }
-            
-            if (vmean > Material<Isotropic>::cs*shearWaveSpeedFraction)
-            {
-                dt_mean=dx/vmean;
-            }
-            else
-            {
-                dt_mean=dx/(Material<Isotropic>::cs*shearWaveSpeedFraction);
-            }
-            
-            model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
-            model::cout<<std::setprecision(3)<<std::scientific<<" vmax/cs="<<vmax/Material<Isotropic>::cs;
-            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<dt;
-            model::cout<<std::setprecision(3)<<std::scientific<<" eta_dt="<<dt/dt_mean;
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-        }
+
         
 //        /**********************************************************************/
 //        void crossSlip()
@@ -289,6 +228,35 @@ namespace model
         }
         
         /**********************************************************************/
+        void computeNodaVelocities()
+        {
+//            model::cout<<"		computing noda velocities: "<<std::flush;
+  //          const auto t0=std::chrono::system_clock::now();
+
+            switch (timeIntegrationMethod)
+            {
+                case 0:
+                    DDtimeIntegrator<0>::computeNodaVelocities(*this);
+                    break;
+                    
+//                case 1:
+//                    dt=DDtimeIntegrator<1>::integrate(*this);
+//                    break;
+                    
+                    
+                default:
+                    break;
+            }
+            
+//            model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
+//            model::cout<<std::setprecision(3)<<std::scientific<<" vmax/cs="<<vmax/Material<Isotropic>::cs;
+            model::cout<<std::setprecision(3)<<std::scientific<<"		dt="<<dt<<std::endl;
+//            model::cout<<std::setprecision(3)<<std::scientific<<" eta_dt="<<dt/dt_mean;
+//            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+
+        }
+        
+        /**********************************************************************/
         void singleStep()
         {
             //! A simulation step consists of the following:
@@ -316,11 +284,14 @@ namespace model
             }
 #endif
             
+            computeNodaVelocities();
+
+            
             //! 4- Solve the equation of motion
-            assembleAndSolve();
+
             
             //! 5- Compute time step dt (based on max nodal velocity) and increment totalTime
-            make_dt();
+            // make_dt();
             
             if(DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy)
             {
@@ -337,8 +308,8 @@ namespace model
 
             //! 8- Update accumulated quantities (totalTime and plasticDistortion)
             totalTime+=dt;
-            const MatrixDimD pdr(plasticDistortionRate()); // move may limit velocity, so compute pdr after move
-            plasticDistortion += pdr*dt;
+            computePlasticDistortionRate();
+            _plasticDistortion += _plasticDistortionRate*dt;
             
             
             //! 9- Contract segments of zero-length
@@ -452,6 +423,8 @@ namespace model
 //            }
 //            }
         
+        
+        
     public:
         
         //! The object conataing shared data
@@ -464,23 +437,24 @@ namespace model
 //        double timeWindow;
         
         //! The accumulated plastic distortion
-        MatrixDimD plasticDistortion;
         
         /**********************************************************************/
         DislocationNetwork(int& argc, char* argv[]) :
+        /* init list  */ timeIntegrationMethod(0),
         /* init list  */ check_balance(true),
         /* init list  */ use_redistribution(0),
         /* init list  */ use_junctions(false),
         //		/* init list  */ useImplicitTimeIntegration(false),
-        /* init list  */ shearWaveSpeedFraction(0.0001),
+//        /* init list  */ shearWaveSpeedFraction(0.0001),
         /* init list  */ runID(0),
         /* init list  */ totalTime(0.0),
-        /* init list  */ dx(0.0),
+//        /* init list  */ dx(0.0),
         /* init list  */ dt(0.0),
-        /* init list  */ vmax(0.0),
+//        /* init list  */ vmax(0.0),
         /* init list  */ Nsteps(0),
 //        /* init list  */ timeWindow(0.0),
-        /* init list  */ plasticDistortion(MatrixDimD::Zero())
+        /* init list  */ _plasticDistortion(MatrixDimD::Zero()),
+        /* init list  */ _plasticDistortionRate(MatrixDimD::Zero())
         {
             ParticleSystemType::initMPI(argc,argv);
             read("./","DDinput.txt");
@@ -519,9 +493,17 @@ namespace model
         
         /**********************************************************************/
         const double& get_dt() const
-        {/*! The current simulation time step in dimensionless units
+        {/*!\returns the current time step increment dt
           */
             return dt;
+        }
+        
+        /**********************************************************************/
+        void set_dt(const double& dt_in)
+        {/*!\param[in] dt_in 
+          * Sets the time increment dt to dt_in
+          */
+            dt=dt_in;
         }
         
         /**********************************************************************/
@@ -552,6 +534,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
             EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
+            
             
             
             EDR.readScalarInFile(fullName.str(),"outputPlasticDistortion",DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion);
@@ -608,9 +591,20 @@ namespace model
             // Eternal Stress
             EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
             
+            //dt=0.0;
+            EDR.readScalarInFile(fullName.str(),"timeIntegrationMethod",timeIntegrationMethod);
+            EDR.readScalarInFile(fullName.str(),"dxMax",DDtimeIntegrator<0>::dxMax);
+            assert(DDtimeIntegrator<0>::dxMax>0.0);
+            //            EDR.readScalarInFile(fullName.str(),"shearWaveSpeedFraction",shearWaveSpeedFraction);
+            //            assert(shearWaveSpeedFraction>=0.0);
+            EDR.readScalarInFile(fullName.str(),"use_velocityFilter",NodeType::use_velocityFilter);
+            EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
+            assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
+            
             // Restart
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
-            VertexReader<'F',201,double> vReader;
+//            VertexReader<'F',201,double> vReader;
+            IDreader<'F',1,200,double> vReader;
             Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
             
             
@@ -624,7 +618,7 @@ namespace model
                     if(vReader.size())
                     {
                         runID=vReader.rbegin()->first;
-                        temp=vReader.rbegin()->second;
+                        temp=Eigen::Map<Eigen::Matrix<double,1,200>>(vReader.rbegin()->second.data());
                     }
                     else
                     {
@@ -636,19 +630,25 @@ namespace model
                     const auto iter=vReader.find(runID);
                     if(iter!=vReader.end())
                     {// runID has been found
-                        temp=iter->second;
+                        temp=Eigen::Map<Eigen::Matrix<double,1,200>>(iter->second.data());
                     }
                     else
                     {
                         assert(0 && "runID NOT FOUND IN F/F_0.txt");
                     }
                 }
+                
+                dt=temp(1);
+                
             }
             else
             {
                 model::cout<<"could not read runID from F/F_0.txt"<<std::endl;
                 runID=0;
+                dt=10.0;
             }
+            
+            model::cout<<"dt="<<dt<<std::endl;
             
             size_t curCol=0;
             totalTime=temp(curCol);
@@ -662,7 +662,7 @@ namespace model
                 {
                     for(int c=0;c<3;++c)
                     {
-                        plasticDistortion(r,c)=temp(curCol);
+                        _plasticDistortion(r,c)=temp(curCol);
                         curCol+=1;
                     }
                 }
@@ -670,17 +670,10 @@ namespace model
             
             model::cout<<"starting at time step "<<runID<<std::endl;
             model::cout<<"totalTime= "<<totalTime<<std::endl;
-            model::cout<<"plasticDistortion=\n "<<plasticDistortion<<std::endl;
+            model::cout<<"plasticDistortion=\n "<<_plasticDistortion<<std::endl;
             
             // time-stepping
-            dt=0.0;
-            EDR.readScalarInFile(fullName.str(),"dx",dx);
-            assert(dx>0.0);
-            //            EDR.readScalarInFile(fullName.str(),"shearWaveSpeedFraction",shearWaveSpeedFraction);
-            //            assert(shearWaveSpeedFraction>=0.0);
-            EDR.readScalarInFile(fullName.str(),"use_velocityFilter",NodeType::use_velocityFilter);
-            EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
-            assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
+
             EDR.readScalarInFile(fullName.str(),"bndDistance",NodeType::bndDistance);
             //            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
             EDR.readScalarInFile(fullName.str(),"use_directSolver_DD",DislocationNetworkComponentType::use_directSolver);
@@ -703,7 +696,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_redistribution",use_redistribution);
             EDR.readScalarInFile(fullName.str(),"Lmin",DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
-            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*dx && "YOU MUST CHOOSE Lmin>2*dx.");
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*DDtimeIntegrator<0>::dxMax && "YOU MUST CHOOSE Lmin>2*dxMax.");
             EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             
@@ -944,14 +937,25 @@ namespace model
         
         
         /**********************************************************************/
-        MatrixDimD plasticDistortionRate() const
+        void computePlasticDistortionRate()
         {
-            MatrixDimD temp(MatrixDimD::Zero());
+            _plasticDistortionRate.setZero();
             for (const auto& linkIter : this->links())
             {
-                temp+= linkIter.second->plasticDistortionRate();
+                _plasticDistortionRate+= linkIter.second->plasticDistortionRate();
             }
-            return temp;
+        }
+        
+        /**********************************************************************/
+        const MatrixDimD& plasticDistortionRate() const
+        {
+            return _plasticDistortionRate;
+        }
+        
+        /**********************************************************************/
+        const MatrixDimD& plasticDistortion() const
+        {
+            return _plasticDistortion;
         }
         
         /**********************************************************************/
@@ -959,8 +963,8 @@ namespace model
         {/*!\returns the plastic distortion rate tensor generated by this
           * DislocaitonNetwork.
           */
-            const MatrixDimD temp(plasticDistortionRate());
-            return (temp+temp.transpose())*0.5;
+            //const MatrixDimD temp(plasticDistortionRate());
+            return (_plasticDistortionRate+_plasticDistortionRate.transpose())*0.5;
         }
         
         /**********************************************************************/
@@ -1007,12 +1011,12 @@ namespace model
             return runID;
         }
         
-        /**********************************************************************/
-        const double& vMax() const
-        {/*! The maximum vertex velocity.
-          */
-            return vmax;
-        }
+//        /**********************************************************************/
+//        const double& vMax() const
+//        {/*! The maximum vertex velocity.
+//          */
+//            return vmax;
+//        }
         
         /**********************************************************************/
         MatrixDimD stress(const VectorDimD& P) const

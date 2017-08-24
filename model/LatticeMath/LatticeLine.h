@@ -57,6 +57,12 @@ namespace model
 //        }
         
         /**********************************************************************/
+        LatticeVectorType snapToLattice(const LatticeVectorType& P0) const
+        {
+            return snapToLattice(P0.cartesian());
+        }
+        
+        /**********************************************************************/
         LatticeVectorType snapToLattice(const VectorDimD& P0) const
         {
             const VectorDimD dc(d.cartesian());
@@ -66,10 +72,19 @@ namespace model
         }
         
         /**********************************************************************/
-        LatticeVectorType snapToLattice(const LatticeVectorType& P0) const
+        VectorDimD snapToLine(const VectorDimD& P0) const
         {
-            return snapToLattice(P0.cartesian());
+            VectorDimD dc(d.cartesian());
+            const VectorDimD Pc(P.cartesian());
+            const double dNorm(dc.norm());
+            assert(dNorm>FLT_EPSILON);
+            dc/=dNorm;
+            return Pc+(P0-Pc).dot(dc)*dc;
         }
+        
+
+        
+
         
         
         /**********************************************************************/

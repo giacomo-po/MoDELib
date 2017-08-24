@@ -277,7 +277,7 @@ namespace model
         QuadratureParticleContainerType quadratureParticleContainer;
         
         
-                const Grain<dim>& grain;
+//                const Grain<dim>& grain;
         
         //! The Burgers vector
         
@@ -330,9 +330,16 @@ namespace model
         /**********************************************************************/
         MatrixDimNdof SFgaussEx(const int& k) const
         { /*! The MatrixDimNdof matrix of shape functions at the k-th quadrature point
-           *  TO DO: EXPRESSION NEEDS TO BE GENERALIZED
            */
-            return (MatrixDimNdof()<<I*SFgauss(k,0),I*SFgauss(k,1),I*SFgauss(k,2),I*SFgauss(k,3)).finished();
+            MatrixDimNdof temp(MatrixDimNdof::Zero());
+            for (size_t n=0;n<Ncoeff;++n)
+            {
+                temp.template block<dim,dim>(0,n*dim)=MatrixDim::Identity()*SFgauss(k,n);
+            }
+            return temp;
+//            *  TO DO: EXPRESSION NEEDS TO BE GENERALIZED
+//
+//            return (MatrixDimNdof()<<I*SFgauss(k,0),I*SFgauss(k,1),I*SFgauss(k,2),I*SFgauss(k,3)).finished();
         }
         
         /**********************************************************************/
@@ -422,7 +429,7 @@ namespace model
                            const std::shared_ptr<NodeType>& nJ) :
         //        /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),Fin),
         /* base class initialization */ SplineSegmentType(nI,nJ),
-                /* init list       */ grain(nI->grain),
+//                /* init list       */ grain(nI->grain),
         /* init list       */ Burgers(VectorDim::Zero()),
         /* init list       */ _glidePlaneNormal(VectorDim::Zero()),
 //                        glidePlane(new LatticePlane(findGlidePlane())),
@@ -590,8 +597,11 @@ namespace model
                 //                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                 SFgauss.row(k)=QuadPowDynamicType::uPow(qOrder).row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                 rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                //                rugauss.col(k)=QuadPowType::duPow.row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                 rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+//                double du=1.0/qOrder;
+//                double u=du*(k+0.5);
+//                rgauss.col(k)=this->source->get_P()*(1.0-u)+this->sink->get_P()*u;
+//                 rugauss.col(k)=-this->source->get_P()+this->sink->get_P();
                 jgauss(k)=rugauss.col(k).norm();
                 rlgauss.col(k)=rugauss.col(k)/jgauss(k);
             }
@@ -761,6 +771,7 @@ namespace model
           * - edge-to-component matrix Mseg
           */
             
+            
             //! 1- Compute and store stress and PK-force at quadrature points
             stressGauss.clear();
             if(!shared.use_bvp && is_boundarySegment())
@@ -776,6 +787,7 @@ namespace model
                 }
             }
             
+            
             /*! 2- Assemble the force vector of this segment
              *	\f[
              *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
@@ -784,6 +796,7 @@ namespace model
             Fq.setZero();
             //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,Fq,&LinkType::PKintegrand);
             QuadratureDynamicType::integrate(qOrder,this,Fq,&LinkType::PKintegrand);
+            
             
             /*! 3- Assembles the stiffness matrix of this segment.
              *	\f[
@@ -798,7 +811,6 @@ namespace model
             //            ortC.setZero();
             //
             //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,ortC,&LinkType::ortC_integrand);
-            
             
             
             //! 4-
@@ -821,6 +833,7 @@ namespace model
             //                segmentDOFs.insert(sinkDOFs(k));
             //            }
             
+            
             //const size_t N(segmentDOFs.size());
             
             // Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,N));
@@ -835,6 +848,8 @@ namespace model
                 }
                 c++;
             }
+            
+            
             //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2H());
             //            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2Ht());
             //            Mso.block(dim,0,dim,Mso.cols())*=this->sourceTfactor;

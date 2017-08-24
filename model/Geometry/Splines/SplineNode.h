@@ -155,7 +155,7 @@ namespace model
           *
           * This functin overrides SplineNode<Derived, dim,0>::set_P
           */
-            std::cout<<"node "<<this->sID<<"set_P"<<std::endl;
+//            std::cout<<"node "<<this->sID<<"set_P"<<std::endl;
             
             Base::set_P(P_in); // forward to base class
 

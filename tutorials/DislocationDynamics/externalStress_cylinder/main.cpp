@@ -17,8 +17,8 @@ int main (int argc, char* argv[])
     // Create a DislocationNetwork object with:
     // dim=3, splineContinuity=1 (tangents are continuous), CatmullRom splines,
     // 16 quadrature points per segment Uniformly distributed
-    DislocationNetwork<3,1,CatmullRom,UniformOpen> DN(argc,argv);
-    //DislocationNetwork<3,0,Hermite,UniformOpen> DN(argc,argv);
+    //DislocationNetwork<3,1,CatmullRom,UniformOpen> DN(argc,argv);
+    DislocationNetwork<3,0,Hermite,UniformOpen> DN(argc,argv);
     
     // alternatively use GaussLegendre quadrature
     //DislocationNetwork<3,1,CatmullRom,16,GaussLegendre> DN(argc,argv);

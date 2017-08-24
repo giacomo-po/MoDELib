@@ -17,6 +17,7 @@ namespace model
     class LatticePlane
     {
         
+        typedef Eigen::Matrix<double,3,1> VectorDimD;
         typedef LatticeVector<3>    LatticeVectorType;
         
        
@@ -57,6 +58,12 @@ namespace model
         LatticeVectorType snapToLattice(const Eigen::Matrix<double,3,1>& P0) const
         {
             return P+n.snapToLattice(P0-P.cartesian());
+        }
+        
+        /**********************************************************************/
+        VectorDimD snapToPlane(const Eigen::Matrix<double,3,1>& P0) const
+        {
+            return P.cartesian()+n.snapToPlane(P0-P.cartesian());
         }
         
         /**********************************************************************/

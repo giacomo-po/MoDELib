@@ -21,7 +21,10 @@
 #include <vtkTubeFilter.h>
 #include <vtkPolyLine.h>
 #include <vtkSphereSource.h>
+#include <vtkArrowSource.h>
 #include <vtkGlyph3D.h>
+#include <vtkDoubleArray.h>
+#include <vtkPointData.h>
 
 //#include <model/IO/EdgeReader.h>
 //#include <model/IO/vertexReader.h>
@@ -34,7 +37,7 @@
 namespace model
 {
     struct DislocationSegmentActor :
-    /* inherits from   */ public IDreader<'V',1,6, double>,
+    /* inherits from   */ public IDreader<'V',1,10, double>,
     /* inherits from   */ public IDreader<'K',2,13,double>
     {
         
@@ -44,7 +47,7 @@ namespace model
         enum ColorScheme {colorBurgers=0,colorSessile=1,colorNormal=2,colorEdgeScrew=3,colorComponent=4};
 //        typedef VertexReader<'V',10,double> VertexReaderType;
 //        typedef EdgeReader<'K',15,double>   EdgeReaderType;
-        typedef IDreader<'V',1,6, double> VertexReaderType;
+        typedef IDreader<'V',1,10, double> VertexReaderType;
         typedef IDreader<'K',2,13,double> EdgeReaderType;
 
         typedef Eigen::Matrix<float,dim,1>  VectorDim;
@@ -54,6 +57,9 @@ namespace model
         static ColorScheme clr;
         static size_t Np;      // No. of vertices per line
         static bool plotBoundarySegments;
+        static bool showVelocities;
+        static float velocityFactor;
+
         
         vtkSmartPointer<vtkActor> lineActor;
         vtkSmartPointer<vtkActor> tubeActor;
@@ -84,6 +90,16 @@ namespace model
         vtkSmartPointer<vtkGlyph3D> nodeGlyphs;
         vtkSmartPointer<vtkPolyDataMapper> nodeMapper;
         vtkSmartPointer<vtkActor> nodeActor;
+        
+        // velocity objects
+//        vtkSmartPointer<vtkPoints> velocityPoints;
+        vtkSmartPointer<vtkDoubleArray> velocityVectors;
+        vtkSmartPointer<vtkUnsignedCharArray> velocityColors;
+        vtkSmartPointer<vtkPolyData> velocityPolyData;
+        vtkSmartPointer<vtkArrowSource> velocityArrowSource;
+        vtkSmartPointer<vtkGlyph3D> velocityGlyphs;
+        vtkSmartPointer<vtkPolyDataMapper> velocityMapper;
+        vtkSmartPointer<vtkActor> velocityActor;
 
         
         
@@ -184,17 +200,23 @@ namespace model
             
             for(const auto& node : vertexReader())
             {
-                Eigen::Map<const Eigen::Matrix<double,1,6>> row(node.second.data());
+                Eigen::Map<const Eigen::Matrix<double,1,10>> row(node.second.data());
                 
                 nodePoints->InsertNextPoint(row.template segment<dim>(0).data());
-
+                velocityVectors->InsertNextTuple(row.template segment<dim>(dim).data()); // arrow vactor
+                unsigned char clr[3]={255,0,255};
+                velocityColors->InsertNextTypedTuple(clr);
             }
          
             nodeData->SetPoints(nodePoints);
             //nodeData->GetPointData()->SetVectors(vectors);
             nodeData->Modified();
 
-            
+            velocityPolyData->SetPoints(nodePoints);
+            velocityPolyData->GetPointData()->SetVectors(velocityVectors);
+            velocityPolyData->Modified();
+            velocityPolyData->GetCellData()->SetScalars(velocityColors);
+            velocityPolyData->Modified();
         }
         
         
@@ -301,11 +323,21 @@ namespace model
         /* init */ nodeData(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ nodeGlyphs(vtkSmartPointer<vtkGlyph3D>::New()),
         /* init */ nodeMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
-        /* init */ nodeActor(vtkSmartPointer<vtkActor>::New())
-
+        /* init */ nodeActor(vtkSmartPointer<vtkActor>::New()),
+//        /* init */ velocityPoints(vtkSmartPointer<vtkPoints>::New()),
+        /* init */ velocityVectors(vtkSmartPointer<vtkDoubleArray>::New()),
+        /* init */ velocityColors(vtkSmartPointer<vtkUnsignedCharArray>::New()),
+        /* init */ velocityPolyData(vtkSmartPointer<vtkPolyData>::New()),
+        /* init */ velocityArrowSource(vtkSmartPointer<vtkArrowSource>::New()),
+        /* init */ velocityGlyphs(vtkSmartPointer<vtkGlyph3D>::New()),
+        /* init */ velocityMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
+        /* init */ velocityActor(vtkSmartPointer<vtkActor>::New())
         {
             
             colors->SetNumberOfComponents(3);
+            velocityVectors->SetNumberOfComponents(3);
+            velocityVectors->SetName("nodeVelocity");
+            velocityColors->SetNumberOfComponents(3);
 
             readNodes(frameID);
             readSegments(frameID);
@@ -351,8 +383,33 @@ namespace model
             
             // Add actor to renderer
             renderer->AddActor(nodeActor);
-
             
+            
+            velocityGlyphs->SetSourceConnection(velocityArrowSource->GetOutputPort());
+            velocityGlyphs->SetInputData(velocityPolyData);
+            velocityGlyphs->ScalingOn();
+            velocityGlyphs->SetScaleModeToScaleByVector();
+//            velocityGlyphs->SetColorModeToColorByScale();
+//            velocityGlyphs->SetColorModeToColorByScalar();
+            velocityGlyphs->SetColorModeToColorByVector();
+//            velocityGlyphs->SetScaleFactor(velocityFactor);
+            velocityGlyphs->OrientOn();
+            velocityGlyphs->ClampingOff();
+            velocityGlyphs->SetVectorModeToUseVector();
+            velocityGlyphs->SetIndexModeToOff();
+            
+            // Set up mapper
+            velocityMapper->SetInputConnection(velocityGlyphs->GetOutputPort());
+            velocityMapper->ScalarVisibilityOff();
+            
+            // Set up actor
+            velocityActor->SetMapper(velocityMapper);
+            velocityActor->GetProperty()->SetColor(1.0, 0.0, 1.0); //(R,G,B)
+            
+            // Add actor to renderer
+            renderer->AddActor(velocityActor);
+
+            modify();
         }
         
         /**********************************************************************/
@@ -366,6 +423,21 @@ namespace model
 //            tubeActor->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
             //            tube->Modified();
             
+            tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
+
+            if(showVelocities)
+            {
+                velocityActor->VisibilityOn();
+
+            }
+            else
+            {
+                velocityActor->VisibilityOff();
+            }
+            
+            velocityGlyphs->SetScaleFactor(velocityFactor);
+
+            
         }
         
     };
@@ -376,6 +448,9 @@ namespace model
     DislocationSegmentActor::ColorScheme DislocationSegmentActor::clr=DislocationSegmentActor::colorBurgers;
     size_t DislocationSegmentActor::Np=10;
     bool DislocationSegmentActor::plotBoundarySegments=true;
+    bool DislocationSegmentActor::showVelocities=false;
+    float DislocationSegmentActor::velocityFactor=100.0;
+
 } // namespace model
 #endif
 

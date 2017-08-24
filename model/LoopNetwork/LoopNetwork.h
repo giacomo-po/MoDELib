@@ -301,7 +301,7 @@ namespace model
         /**********************************************************************/
         template <typename ...LoopArgTypes>
         std::shared_ptr<LoopType> insertLoop(const std::vector<size_t> nodeIDs,
-                        const FlowType& f,
+//                        const FlowType& f,
                         const LoopArgTypes&... loopInput)
         {/*!@param[in] nodeIDs IDs of the nodes in the loop
           * @param[in] f the loop flow
@@ -311,7 +311,7 @@ namespace model
           * flow f. The additional loop constructor arguments loopInput
           * are forwarded to the loop constructor.
           */
-            std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),f,loopInput...);
+            std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),loopInput...);
             
             for(size_t k=0;k<nodeIDs.size();++k)
             {
@@ -494,7 +494,7 @@ namespace model
             EqualIteratorRange<typename NetworkLinkObserverType::LinkContainerType::iterator> eir(this->links().begin(),this->links().end(),nThreads);
             
 #pragma omp parallel for
-            for (int thread=0;thread<eir.size();thread++)
+            for (size_t thread=0;thread<eir.size();thread++)
             {
                 for (auto& linkIter=eir[thread].first;linkIter!=eir[thread].second;linkIter++)
                 {
@@ -518,7 +518,7 @@ namespace model
             EqualIteratorRange<typename NetworkLinkObserverType::LinkContainerType::iterator> eir(this->links().begin(),this->links().end(),nThreads);
             
 #pragma omp parallel for
-            for (int thread=0;thread<eir.size();thread++)
+            for (size_t thread=0;thread<eir.size();thread++)
             {
                 for (auto& linkIter=eir[thread].first;linkIter!=eir[thread].second;linkIter++)
                 {
@@ -575,7 +575,7 @@ namespace model
     };
     
     template<typename Derived>
-    int LoopNetwork<Derived>::verboseLevel=1;
+    int LoopNetwork<Derived>::verboseLevel=0;
     
 }
 #endif

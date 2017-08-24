@@ -226,7 +226,7 @@ namespace model
     };
     
     template<typename LinkType>
-    int LoopLink<LinkType>::verboseLevel=1;
+    int LoopLink<LinkType>::verboseLevel=0;
     
 }
 #endif

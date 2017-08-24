@@ -117,7 +117,7 @@ namespace model
             glyphs->SetInputData(polyData);
             glyphs->ScalingOn();
             glyphs->SetScaleModeToScaleByVector();
-            glyphs->SetScaleFactor(pkFactor);
+//            glyphs->SetScaleFactor(pkFactor);
             glyphs->OrientOn();
             glyphs->ClampingOff();
             glyphs->SetVectorModeToUseVector();
@@ -133,7 +133,8 @@ namespace model
             // Add actor to renderer
             renderer->AddActor(actor);
 
-            
+
+            modify();
         }
         
         
@@ -145,12 +146,23 @@ namespace model
             //arrowSource->SetTipLength(1.0);
             //arrowSource->Update();
             glyphs->SetScaleFactor(pkFactor);
+            
+            if(showPK)
+            {
+                actor->VisibilityOn();
+                
+            }
+            else
+            {
+                actor->VisibilityOff();
+                
+            }
 
         }
         
     };
     
-    bool  PKActor::showPK=true;
+    bool  PKActor::showPK=false;
     float PKActor::pkFactor=1000.0;
     
 } // namespace model

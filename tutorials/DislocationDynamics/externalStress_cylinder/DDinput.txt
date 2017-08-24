@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=10000;
+Nsteps=600;
 startAtTimeStep = -1;
 use_directSolver_DD=0;
 quadPerLength=0.1;
@@ -9,8 +9,9 @@ bndDistance=3;
 ######################################
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
-dx=10;
-use_velocityFilter=1;
+timeIntegrationMethod=0;
+dxMax=10;
+use_velocityFilter=0;
 velocityReductionFactor=0.75;
 
 ######################################

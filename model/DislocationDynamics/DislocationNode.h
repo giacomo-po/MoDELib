@@ -77,15 +77,15 @@ namespace model
         static double velocityReductionFactor;
         static double bndDistance;
         
-        const Grain<dim>& grain;
-        std::set<const Grain<dim>*> otherGrains;
+//        const Grain<dim>& grain;
+        std::set<const Grain<dim>*> grainSet;
         
     private:
         
         DislocationSharedObjects<dim> shared;
         
         
-        LatticeVectorType L;
+        //        LatticeVectorType L;
         
         //! A pointer to the Simplex containing *this
         const Simplex<dim,dim>* p_Simplex;
@@ -106,25 +106,37 @@ namespace model
         //! The normal unit vector of the boundary on which *this DislocationNode is moving on
         VectorDim boundaryNormal;
         
-        int grainBoundary_rID2;
+//        int grainBoundary_rID2;
+//
+//        VectorDim oldP;
+//        VectorDim A1;
+//        VectorDim A2;
         
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
-            if(guess->region->regionID!=grain.grainID)
-            {
-                model::cout<<"DislocationNode "<<this->sID<<std::endl;
-                model::cout<<"grainID "<<grain.grainID<<std::endl;
-                model::cout<<"guess= "<<guess->xID<<std::endl;
-                model::cout<<"guess regionID "<<guess->region->regionID<<std::endl;
-                assert(0 && "guess does not belong to grain.");
-            }
+//            if(guess->region->regionID!=grain.grainID)
+//            {
+//                model::cout<<"DislocationNode "<<this->sID<<std::endl;
+//                model::cout<<"grainID "<<grain.grainID<<std::endl;
+//                model::cout<<"guess= "<<guess->xID<<std::endl;
+//                model::cout<<"guess regionID "<<guess->region->regionID<<std::endl;
+//                assert(0 && "guess does not belong to grain.");
+//            }
             
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
             if (DislocationSharedObjects<dim>::use_boundary)
             {
-                
-                temp=DislocationSharedObjects<dim>::mesh.searchRegionWithGuess(this->get_P(),guess);
+                if (guess==NULL)
+                {
+                    temp=DislocationSharedObjects<dim>::mesh.search(this->get_P());
+                }
+                else
+                {
+                    temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
+                }
+
+                //                temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
                 
                 if(!temp.first) // DislocationNode not found inside mesh
                 {
@@ -151,66 +163,68 @@ namespace model
         /**********************************************************************/
         void forceBoundaryNode(const LinkType& pL)
         {
-            if(shared.use_boundary)
-            {
-                if(pL.is_boundarySegment() && !isBoundaryNode())
-                {
-                    const VectorDim nb=(pL.source->bndNormal()+pL.sink->bndNormal()).normalized();
-                    const VectorDim np=pL.glidePlane->n.cartesian().normalized();
-                    VectorDim outDir=nb-nb.dot(np)*np;
-                    if(outDir.squaredNorm()>FLT_EPSILON)
-                    {
-                        //                        std::cout<<"DislocationNode "<<this->sID<<", outDir="<<outDir.transpose()<<std::endl;
-                        //                        std::cout<<pL.source->get_P().transpose()<<std::endl;
-                        //                        std::cout<<pL.sink->get_P().transpose()<<std::endl;
-                        //                        std::cout<<this->get_P().transpose()<<std::endl;
-                        
-                        outDir.normalize();
-                        LatticeVectorType dL(pL.glidePlane->n.snapToLattice(outDir));
-                        assert(dL.squaredNorm()>0.0);
-                        
-                        LatticeVectorType L0=L;
-                        if(!DislocationSharedObjects<dim>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first)
-                        {
-                            L0=LatticeVectorType(pL.glidePlane->snapToLattice(0.5*(pL.source->get_P()+pL.sink->get_P())));
-                        }
-                        assert(DislocationSharedObjects<dim>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first && "L0 outside mesh");
-                        
-                        LatticeLine line(L0,dL);
-                        LineMeshIntersection lmi(line,L+dL,shared.mesh,p_Simplex);
-                        if(lmi.search.first)
-                        {
-                            if(lmi.search.second->region->regionID==grain.grainID)
-                            {
-                                p_Simplex=lmi.search.second;
-                                set(lmi.L);
-                                make_bndNormal();
-                                //                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
-                                if(!isBoundaryNode())
-                                {
-                                    //                                std::cout<<"DislocaitonNode "<<this->sID<<" not on mesh boundary"<<std::endl;
-                                    //                                std::cout<<"dL="<<dL.transpose()<<std::endl;
-                                }
-                                assert(isBoundaryNode());
-                            }
-                            else
-                            {
-                                assert(0);
-                            }
-                            
-                        }
-                        else
-                        {
-                            assert(0 && "lmi failed.");
-                        }
-                    }
-                    else
-                    {
-                        model::cout<<"DislocationNode "<<this->sID<<std::endl;
-                        assert(0 && "outDir has zero norm");
-                    }
-                }
-            }
+            
+            assert(0 && "RE_ENABLE forceBoundaryNode");
+            //            if(shared.use_boundary)
+            //            {
+            //                if(pL.is_boundarySegment() && !isBoundaryNode())
+            //                {
+            //                    const VectorDim nb=(pL.source->bndNormal()+pL.sink->bndNormal()).normalized();
+            //                    const VectorDim np=pL.glidePlane->n.cartesian().normalized();
+            //                    VectorDim outDir=nb-nb.dot(np)*np;
+            //                    if(outDir.squaredNorm()>FLT_EPSILON)
+            //                    {
+            //                        //                        std::cout<<"DislocationNode "<<this->sID<<", outDir="<<outDir.transpose()<<std::endl;
+            //                        //                        std::cout<<pL.source->get_P().transpose()<<std::endl;
+            //                        //                        std::cout<<pL.sink->get_P().transpose()<<std::endl;
+            //                        //                        std::cout<<this->get_P().transpose()<<std::endl;
+            //
+            //                        outDir.normalize();
+            //                        LatticeVectorType dL(pL.glidePlane->n.snapToLattice(outDir));
+            //                        assert(dL.squaredNorm()>0.0);
+            //
+            //                        LatticeVectorType L0=L;
+            //                        if(!DislocationSharedObjects<dim>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first)
+            //                        {
+            //                            L0=LatticeVectorType(pL.glidePlane->snapToLattice(0.5*(pL.source->get_P()+pL.sink->get_P())));
+            //                        }
+            //                        assert(DislocationSharedObjects<dim>::mesh.searchWithGuess(L0.cartesian(),p_Simplex).first && "L0 outside mesh");
+            //
+            //                        LatticeLine line(L0,dL);
+            //                        LineMeshIntersection lmi(line,L+dL,shared.mesh,p_Simplex);
+            //                        if(lmi.search.first)
+            //                        {
+            //                            if(lmi.search.second->region->regionID==grain.grainID)
+            //                            {
+            //                                p_Simplex=lmi.search.second;
+            //                                set(lmi.L);
+            //                                make_bndNormal();
+            //                                //                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
+            //                                if(!isBoundaryNode())
+            //                                {
+            //                                    //                                std::cout<<"DislocaitonNode "<<this->sID<<" not on mesh boundary"<<std::endl;
+            //                                    //                                std::cout<<"dL="<<dL.transpose()<<std::endl;
+            //                                }
+            //                                assert(isBoundaryNode());
+            //                            }
+            //                            else
+            //                            {
+            //                                assert(0);
+            //                            }
+            //
+            //                        }
+            //                        else
+            //                        {
+            //                            assert(0 && "lmi failed.");
+            //                        }
+            //                    }
+            //                    else
+            //                    {
+            //                        model::cout<<"DislocationNode "<<this->sID<<std::endl;
+            //                        assert(0 && "outDir has zero norm");
+            //                    }
+            //                }
+            //            }
         }
         
         /**********************************************************************/
@@ -219,64 +233,66 @@ namespace model
                             const VectorDim& dX)
         {
             
-            if(outDir.squaredNorm()<FLT_EPSILON)
-            {
-                model::cout<<"DislocationNode "<<this->sID<<" outDir has zero norm"<<std::endl;
-                assert(0 && "outDir has zero norm");
-            }
+            assert(0 && "RE-ENABLE moveToBoundary");
             
-            LatticeVectorType dL(grain.latticeVector(VectorDim::Zero()));
-            switch (_confiningPlanes.size())
-            {
-                case 1:
-                {
-                    //std::cout<<"boundary motion case 1, DislocationNode "<<this->sID<<std::endl;
-                    const VectorDim planeN(_confiningPlanes[0]->n.cartesian().normalized());
-                    VectorDim dD=outDir-outDir.dot(planeN)*planeN;
-                    const double dDnorm=dD.norm();
-                    if(dDnorm>0.0)
-                    {
-                        dD.normalize();
-                        dL=LatticeVectorType(_confiningPlanes[0]->n.snapToLattice(dD)); // a lattice vector on the plane pointing ouside mesh
-                        assert(dL.squaredNorm()>0);
-                    }
-                    break;
-                }
-                    
-                case 2:
-                {
-                    //std::cout<<"boundary motion case 2, DislocationNode "<<this->sID<<std::endl;
-                    const PlanePlaneIntersection ppi(*_confiningPlanes[0],*_confiningPlanes[1]);
-                    //dL=LatticeVectorType(ppi.d.snapToDirection(10.0*outDir));
-                    dL=ppi.d.snapToDirection(10.0*outDir);
-                    break;
-                }
-                    
-            }
-            
-            if(dL.squaredNorm()>FLT_EPSILON) // a line direction could be found
-            {
-                const LatticeVectorType L0(grain.latticeVector((this->get_P()+dX*temp.first).eval()));
-                const LatticeLine line(L0,dL);
-                LineMeshIntersection lmi(line,L0+dL,shared.mesh,temp.second);
-                assert(lmi.search.first);
-                if(lmi.search.second->region->regionID==grain.grainID)
-                {
-                    p_Simplex=lmi.search.second;
-                    set(lmi.L);
-                    make_bndNormal();
-                    //                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
-                    if(meshLocation()!=onMeshBoundary)
-                    {
-                        model::cout<<"DislocaitonNode "<<this->sID<<std::endl;
-                        assert(0 && "NODE MUST BE ON MESH-BOUNDARY");
-                    }
-                }
-                else
-                {
-                    iterateToBoundary(dX,lmi.search);
-                }
-            }
+            //            if(outDir.squaredNorm()<FLT_EPSILON)
+            //            {
+            //                model::cout<<"DislocationNode "<<this->sID<<" outDir has zero norm"<<std::endl;
+            //                assert(0 && "outDir has zero norm");
+            //            }
+            //
+            //            LatticeVectorType dL(grain.latticeVector(VectorDim::Zero()));
+            //            switch (_confiningPlanes.size())
+            //            {
+            //                case 1:
+            //                {
+            //                    //std::cout<<"boundary motion case 1, DislocationNode "<<this->sID<<std::endl;
+            //                    const VectorDim planeN(_confiningPlanes[0]->n.cartesian().normalized());
+            //                    VectorDim dD=outDir-outDir.dot(planeN)*planeN;
+            //                    const double dDnorm=dD.norm();
+            //                    if(dDnorm>0.0)
+            //                    {
+            //                        dD.normalize();
+            //                        dL=LatticeVectorType(_confiningPlanes[0]->n.snapToLattice(dD)); // a lattice vector on the plane pointing ouside mesh
+            //                        assert(dL.squaredNorm()>0);
+            //                    }
+            //                    break;
+            //                }
+            //
+            //                case 2:
+            //                {
+            //                    //std::cout<<"boundary motion case 2, DislocationNode "<<this->sID<<std::endl;
+            //                    const PlanePlaneIntersection ppi(*_confiningPlanes[0],*_confiningPlanes[1]);
+            //                    //dL=LatticeVectorType(ppi.d.snapToDirection(10.0*outDir));
+            //                    dL=ppi.d.snapToDirection(10.0*outDir);
+            //                    break;
+            //                }
+            //
+            //            }
+            //
+            //            if(dL.squaredNorm()>FLT_EPSILON) // a line direction could be found
+            //            {
+            //                const LatticeVectorType L0(grain.latticeVector((this->get_P()+dX*temp.first).eval()));
+            //                const LatticeLine line(L0,dL);
+            //                LineMeshIntersection lmi(line,L0+dL,shared.mesh,temp.second);
+            //                assert(lmi.search.first);
+            //                if(lmi.search.second->region->regionID==grain.grainID)
+            //                {
+            //                    p_Simplex=lmi.search.second;
+            //                    set(lmi.L);
+            //                    make_bndNormal();
+            //                    //                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance);
+            //                    if(meshLocation()!=onMeshBoundary)
+            //                    {
+            //                        model::cout<<"DislocaitonNode "<<this->sID<<std::endl;
+            //                        assert(0 && "NODE MUST BE ON MESH-BOUNDARY");
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                    iterateToBoundary(dX,lmi.search);
+            //                }
+            //            }
             
         }
         
@@ -287,34 +303,37 @@ namespace model
         void iterateToBoundary(	const VectorDim& dX,
                                const std::pair<bool,const Simplex<dim,dim>*>& temp)
         {
-            LatticeDirectionType dXprimitive(grain.latticeDirection(dX));
-            grainBoundary_rID2=temp.second->region->regionID;
-            assert(temp.second->region->regionID!=grain.grainID);
-            for(int i=1;(dX-dXprimitive.cartesian()*i).norm()>0;i++)
-            {
-                std::pair<bool,const Simplex<dim,dim>*>  temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P()+dX-dXprimitive.cartesian(),p_Simplex);
-                if(temp.first&&temp.second->region->regionID==grain.grainID)
-                {
-                    model::cout<<"A boundary node was crossing the region boundary. Instead, the node is moved as close as possible to the interface"<<std::endl;
-                    p_Simplex=temp.second;
-                    set(L+grain.latticeVector(dX-dXprimitive.cartesian()));
-                    
-                    if(shared.poly.grainBoundary(grain.grainID,grainBoundary_rID2).latticePlane(grain.grainID).contains(this->get_P()))
-                    {
-                        assert(grainBoundaryPlane().contains(this->get_P()));
-                    }
-                    else
-                    {
-                        grainBoundary_rID2=-1;
-                    }
-                    break;
-                }
-                if(i>25)
-                {
-                    break;
-                }
-                
-            }
+            
+            assert(0 && "RE-ENABLE iterateToBoundary");
+            
+            //            LatticeDirectionType dXprimitive(grain.latticeDirection(dX));
+            //            grainBoundary_rID2=temp.second->region->regionID;
+            //            assert(temp.second->region->regionID!=grain.grainID);
+            //            for(int i=1;(dX-dXprimitive.cartesian()*i).norm()>0;i++)
+            //            {
+            //                std::pair<bool,const Simplex<dim,dim>*>  temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P()+dX-dXprimitive.cartesian(),p_Simplex);
+            //                if(temp.first&&temp.second->region->regionID==grain.grainID)
+            //                {
+            //                    model::cout<<"A boundary node was crossing the region boundary. Instead, the node is moved as close as possible to the interface"<<std::endl;
+            //                    p_Simplex=temp.second;
+            //                    set(L+grain.latticeVector(dX-dXprimitive.cartesian()));
+            //
+            //                    if(shared.poly.grainBoundary(grain.grainID,grainBoundary_rID2).latticePlane(grain.grainID).contains(this->get_P()))
+            //                    {
+            //                        assert(grainBoundaryPlane().contains(this->get_P()));
+            //                    }
+            //                    else
+            //                    {
+            //                        grainBoundary_rID2=-1;
+            //                    }
+            //                    break;
+            //                }
+            //                if(i>25)
+            //                {
+            //                    break;
+            //                }
+            //
+            //            }
         }
         
         
@@ -325,18 +344,22 @@ namespace model
         
         /**********************************************************************/
         DislocationNode(const VectorDim& Pin,
-                        const int& grainID,
-                        const VectorDofType& Vin=VectorDofType::Zero()) :
+//                        const int& grainID,
+                        const VectorDofType& Vin,
+                        const double& vrc) :
         //                        const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
         /* base constructor */ NodeBaseType(Pin),
-        /* init list        */ grain(shared.poly.grain(grainID)),
-        /* init list        */ L(grain.latticeVector(Pin)),
-        /* init list        */ p_Simplex(get_includingSimplex(*grain.region.begin())),
+//        /* init list        */ grain(shared.poly.grain(grainID)),
+        //        /* init list        */ L(grain.latticeVector(Pin)),
+        /* init list        */ p_Simplex(get_includingSimplex((const Simplex<dim,dim>*) NULL)),
         /* init list        */ velocity(Vin),
         /* init list        */ vOld(velocity),
-        /* init list        */ velocityReductionCoeff(1.0),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
-        /* init list        */ grainBoundary_rID2(-1)
+        /* init list        */ velocityReductionCoeff(vrc),
+        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
+//        /* init list        */ grainBoundary_rID2(-1)
+//        oldP(this->get_P()),
+//        A1(this->get_P()),
+//                A2(this->get_P())
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from DOF
           */
@@ -362,18 +385,21 @@ namespace model
         /**********************************************************************/
         DislocationNode(const LinkType& pL,
                         const LatticeVectorType& Lin) :
-//        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
+        //        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
         /* base constructor */ NodeBaseType(Lin.cartesian()),
-        /* init list        */ grain(pL.grain),
-        /* init list        */ L(Lin),
+//        /* init list        */ grain(pL.grain),
+        //        /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
         /* init list        */ velocity((pL.source->velocity+pL.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
+        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
         //        otherGrains
-        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
+//        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
+//        oldP(this->get_P()),
+//        A1(this->get_P()),
+//        A2(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
           */
             //            std::cout<<"DislocationNode from ExpadingLink A "<<this->sID<<std::endl;
@@ -384,17 +410,20 @@ namespace model
         DislocationNode(const LinkType& pL,
                         const LatticeVectorType& Lin,
                         const VectorDofType& Vin) :
-//        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
+        //        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
         /* base constructor */ NodeBaseType(Lin.cartesian()),
-        /* init list        */ grain(pL.grain),
-        /* init list        */ L(Lin),
+//        /* init list        */ grain(pL.grain),
+        //        /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
         /* init list        */ velocity(Vin),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
-        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
+        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
+//        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
+//        oldP(this->get_P()),
+//        A1(this->get_P()),
+//        A2(this->get_P())
         {
             //            std::cout<<"DislocationNode from ExpadingLink B "<<this->sID<<std::endl;
             forceBoundaryNode(pL);
@@ -425,18 +454,18 @@ namespace model
             boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
         }
         
-        /**********************************************************************/
-        const LatticeVectorType& get_L() const
-        {
-            return L;
-        }
+        //        /**********************************************************************/
+        //        const LatticeVectorType& get_L() const
+        //        {
+        //            return L;
+        //        }
         
-        /**********************************************************************/
-        void set(const LatticeVectorType& Lin)
-        {
-            L=Lin;
-            NodeBaseType::set_P(L.cartesian());
-        }
+        //        /**********************************************************************/
+        //        void set(const LatticeVectorType& Lin)
+        //        {
+        //            L=Lin;
+        //            NodeBaseType::set_P(L.cartesian());
+        //        }
         
         //        /**********************************************************************/
         //		void make_planeNormals()
@@ -480,15 +509,15 @@ namespace model
             _confiningPlanes.clear();
             specialConfiningPlanes.clear();
             
-//            if (//!this->is_balanced() &&
-//                meshLocation()!=onMeshBoundary)
-//            {
-//                for(const auto& planeBase : grain.planeNormals())
-//                {
-//                    specialConfiningPlanes.emplace_back(L,planeBase);
-//                }
-//                
-//            }
+            //            if (//!this->is_balanced() &&
+            //                meshLocation()!=onMeshBoundary)
+            //            {
+            //                for(const auto& planeBase : grain.planeNormals())
+            //                {
+            //                    specialConfiningPlanes.emplace_back(L,planeBase);
+            //                }
+            //
+            //            }
             
             // add to _confiningPlanes the planes of the attached segments
             //            for (const auto& neighborIter : this->neighbors())
@@ -531,6 +560,20 @@ namespace model
             
             //std::cout<<"done"<<std::endl;
             
+        }
+        
+        /**********************************************************************/
+        void make_grains()
+        {
+            grainSet.clear();
+            for(const auto& loopLink : this->loopLinks())
+            {
+                grainSet.insert(&(loopLink->loop()->grain));
+//                if(loopLink->loop()->isSessile)
+//                {
+//                    assert(0 && "FINISH HERE, ADD MORE PLANES TO FULLY CONSTRAIN NODE");
+//                }
+            }
         }
         
         
@@ -660,39 +703,61 @@ namespace model
             
         }
         
+//        void storeP()
+//        {
+//            oldP=this->get_P();
+//        }
+//
+//        void stepA1(const double& dt)
+//        {
+//            oldP=this->get_P();
+//            A1=this->get_P()+velocity*dt;
+//            this->set_P(this->get_P()+velocity*dt*0.5);
+//        }
+//        
+//        double stepA2(const double& dt)
+//        {
+//            A2=this->get_P()+velocity*dt*0.5;
+////            this->set_P(this->get_P()+velocity*dt*0.5);
+//            this->set_P(oldP);
+//
+//            return (A1-A2).norm();
+//        }
+        
         /**********************************************************************/
         void set_V(const VectorDofType& vNew)
         {
-            vOld=velocity; // store current value of velocity before updating
+            //            vOldOld=vOld;
+            //vOld=velocity; // store current value of velocity before updating
             velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
             
-            if(use_velocityFilter)
-            {
-                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
-                //                const double VdotVold=
-                if(velocity.dot(vOld)<-filterThreshold)
-                {
-                    velocityReductionCoeff*=velocityReductionFactor;
-                }
-                else if(velocity.dot(vOld)>filterThreshold)
-                {
-                    velocityReductionCoeff/=velocityReductionFactor;
-                }
-                else
-                {
-                    // don't change velocityReductionCoeff
-                }
-                if(velocityReductionCoeff>1.0)
-                {
-                    velocityReductionCoeff=1.0;
-                }
-                if(velocityReductionCoeff<0.01)
-                {
-                    velocityReductionCoeff=0.01;
-                }
-                velocity*=velocityReductionCoeff;
-                
-            }
+//            if(use_velocityFilter)
+//            {
+//                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
+//                //                const double VdotVold=
+//                if(velocity.dot(vOld)<-filterThreshold)
+//                {
+//                    velocityReductionCoeff*=velocityReductionFactor;
+//                }
+//                else if(velocity.dot(vOld)>filterThreshold)
+//                {
+//                    velocityReductionCoeff/=velocityReductionFactor;
+//                }
+//                else
+//                {
+//                    // don't change velocityReductionCoeff
+//                }
+//                if(velocityReductionCoeff>1.0)
+//                {
+//                    velocityReductionCoeff=1.0;
+//                }
+//                if(velocityReductionCoeff<0.0001)
+//                {
+//                    velocityReductionCoeff=0.0001;
+//                }
+//                velocity*=velocityReductionCoeff;
+//                
+//            }
             
         }
         
@@ -720,26 +785,64 @@ namespace model
             return velocity;
         }
         
-        /**********************************************************************/
-        bool invertedMotion() const
-        {/*! The nodal velocity vector
-          */
-            return velocity.template segment<dim>(0).dot( vOld.template segment<dim>(0) ) < 0.0;
-        }
+//        /**********************************************************************/
+//        bool invertedMotion() const
+//        {/*! The nodal velocity vector
+//          */
+//            return velocity.template segment<dim>(0).dot( vOld.template segment<dim>(0) ) < 0.0;
+//        }
         
-        /**********************************************************************/
-        const LatticePlane& grainBoundaryPlane() const
-        {
-            assert(grainBoundary_rID2>0 && "Node not on Grain Boundary");
-            return shared.poly.grainBoundary(grain.grainID,grainBoundary_rID2).latticePlane(grain.grainID);
-        }
+//        /**********************************************************************/
+//        const LatticePlane& grainBoundaryPlane() const
+//        {
+//            assert(grainBoundary_rID2>0 && "Node not on Grain Boundary");
+//            return shared.poly.grainBoundary(grain.grainID,grainBoundary_rID2).latticePlane(grain.grainID);
+//        }
         
         /**********************************************************************/
         void move(const double & dt) __attribute__ ((deprecated))
         {
-            const VectorDim P_old(this->get_P());
+            
+            vOld=velocity; // store current value of velocity before updating
+            //velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
+            
+            if(use_velocityFilter)
+            {
+                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
+                //                const double VdotVold=
+                if(velocity.dot(vOld)<-filterThreshold)
+                {
+                    velocityReductionCoeff*=velocityReductionFactor;
+                }
+                else if(velocity.dot(vOld)>filterThreshold)
+                {
+                    velocityReductionCoeff/=velocityReductionFactor;
+                }
+                else
+                {
+                    // don't change velocityReductionCoeff
+                }
+                if(velocityReductionCoeff>1.0)
+                {
+                    velocityReductionCoeff=1.0;
+                }
+                if(velocityReductionCoeff<0.0001)
+                {
+                    velocityReductionCoeff=0.0001;
+                }
+                velocity*=velocityReductionCoeff;
+                
+            }
+            
+            //const VectorDim P_old(this->get_P());
+            
+            //VectorDim dX=2.0*A2-A1-this->get_P();
             
             VectorDim dX=velocity.template segment<dim>(0)*dt;
+            //VectorDim dX=velocity.template segment<dim>(0)*dt*velocityReductionCoeff;
+            //VectorDim dX=(1.5*velocity.template segment<dim>(0)-0.5*vOld)*dt; // Adams–Bashforth
+            //VectorDim dX=(0.5*velocity.template segment<dim>(0)+0.5*vOld)*dt; // Adams–Bashforth
+            
             
             //Limit dX for boundaryNodes bec
             const double dXnorm(dX.norm());
@@ -751,14 +854,16 @@ namespace model
             switch (_confiningPlanes.size())
             {
                 case 1:
-                    dX=_confiningPlanes[0]->n.snapToLattice(dX).cartesian();
+                    //                    dX=_confiningPlanes[0]->n.snapToLattice(dX).cartesian();
+                    dX=_confiningPlanes[0]->n.snapToPlane(dX);
                     break;
                     
                 case 2:
                 {
                     PlanePlaneIntersection ppi(*_confiningPlanes[0],*_confiningPlanes[1]);
                     LatticeLine line(ppi.P,ppi.d);
-                    dX=line.d.snapToDirection(dX).cartesian();
+                    //                    dX=line.d.snapToDirection(dX).cartesian();
+                    dX=line.d.snapToDirection(dX);
                     break;
                 }
                     
@@ -791,499 +896,507 @@ namespace model
                     
                     if(isBoundaryNode()) // node already a boundary node, it must remain on boundary
                     {
-                        const VectorDim bndNrml=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*temp.second,bndDistance); // boundary normal at new position
-                        if(temp.first && bndNrml.squaredNorm()>0.0) // new position is on boundary
-                        {
-                            if(temp.second->region->regionID!=grain.grainID)
-                            {
-                                iterateToBoundary(dX,temp);
-                            }
-                            else
-                            {
-                                p_Simplex=temp.second;
-                                set(L+grain.latticeVector(dX));
-                                //boundaryNormal=bndNrml;
-                                make_bndNormal();
-                                assert(meshLocation()==onMeshBoundary);
-                           	}
-                        }
-                        else // new position is not on boundary
-                        {
-                            moveToBoundary(boundaryNormal,temp,dX);
-                        }
+                        assert(0 && "RE_ENABLE THIS 1");
+                        //                        const VectorDim bndNrml=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*temp.second,bndDistance); // boundary normal at new position
+                        //                        if(temp.first && bndNrml.squaredNorm()>0.0) // new position is on boundary
+                        //                        {
+                        //                            if(temp.second->region->regionID!=grain.grainID)
+                        //                            {
+                        //                                iterateToBoundary(dX,temp);
+                        //                            }
+                        //                            else
+                        //                            {
+                        //                                p_Simplex=temp.second;
+                        //                                set(L+grain.latticeVector(dX));
+                        //                                //boundaryNormal=bndNrml;
+                        //                                make_bndNormal();
+                        //                                assert(meshLocation()==onMeshBoundary);
+                        //                           	}
+                        //                        }
+                        //                        else // new position is not on boundary
+                        //                        {
+                        //                            moveToBoundary(boundaryNormal,temp,dX);
+                        //                        }
+                        
+                        
                     }
                     else // not a boundary node
                     {
                         if(!temp.first) // node moved outside or already on boundary
                         {
+                            assert(0 && "RE_ENABLE THIS 2");
                             
-                            
-                            VectorDim outDir=boundaryNormal;
-                            if(outDir.squaredNorm()==0.0)
-                            {// node is exiting for the first time, we need a tentative boundary normal to identify the "outside direction"
-                                for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
-                                {
-                                    outDir=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*simplex,dX.norm()+FLT_EPSILON);
-                                    
-                                    if(outDir.squaredNorm()>0.0)
-                                    {
-                                        break;
-                                    }
-                                    
-                                }
-                                
-                            }
-                            assert(outDir.squaredNorm()>0 && "COULD NOT DETERMINE OUTDIR");
-                            moveToBoundary(outDir,temp,dX);
+                            //                            VectorDim outDir=boundaryNormal;
+                            //                            if(outDir.squaredNorm()==0.0)
+                            //                            {// node is exiting for the first time, we need a tentative boundary normal to identify the "outside direction"
+                            //                                for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
+                            //                                {
+                            //                                    outDir=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*simplex,dX.norm()+FLT_EPSILON);
+                            //
+                            //                                    if(outDir.squaredNorm()>0.0)
+                            //                                    {
+                            //                                        break;
+                            //                                    }
+                            //
+                            //                                }
+                            //
+                            //                            }
+                            //                            assert(outDir.squaredNorm()>0 && "COULD NOT DETERMINE OUTDIR");
+                            //                            moveToBoundary(outDir,temp,dX);
                         }
                         else // node is internal and remains internal
                         {
-                            if(temp.second->region->regionID!=grain.grainID)
+                            if(false /*temp.second->region->regionID!=grain.grainID*/)
                             {// node is crossing regions
+                                assert(0 && "RE_ENABLE THIS 2");
+                                //
+                                //                                grainBoundary_rID2=temp.second->region->regionID;
+                                //
+                                //                                const LatticeDirectionType dL(grain.latticeVector(dX));
+                                //                                LatticeLine trajectory(L,dL);
+                                //                                PlaneLineIntersection pli(grainBoundaryPlane(),trajectory);
+                                //
+                                //                                switch (pli.intersectionType)
+                                //                                {
+                                //                                    case PlaneLineIntersection::coincident:
+                                //                                    {
+                                //                                        set(L+grain.latticeVector(dX));
+                                //                                        break;
+                                //                                    }
+                                //                                    case PlaneLineIntersection::intersecting:
+                                //                                    {
+                                //                                        set(pli.P);
+                                //                                        break;
+                                //                                    }
+                                //                                    case PlaneLineIntersection::offLattice:
+                                //                                    {
+                                //                                        switch (_confiningPlanes.size())
+                                //                                        {
+                                //                                            case 1:
+                                //                                            {
+                                //                                                PlanePlaneIntersection ppi(grainBoundaryPlane(),*_confiningPlanes[0]);
+                                //                                                //model::cout<<redColor<<"About to check for offlattice!!"<<Color<<std::endl;
+                                //                                                if(ppi.intersectionType==3)
+                                //                                                {
+                                //                                                    std::cout<<"DETECTED NON-LATTICE INTERSECTION WITH GB PLANE. ITERATIVELY MOVING NODE "<<this->sID<<" TOWARDS GB"<<std::endl;
+                                //                                                    iterateToBoundary(dX,temp);
+                                //                                                    //assert(0 && "ppi intersection found, but off lattice!");
+                                //                                                    }
+                                //                                                    LatticeLine gbLine(ppi.P,ppi.d);
+                                //                                                    set(gbLine.snapToLattice(pli.P));
+                                //                                                    break;
+                                //                                                    }
+                                //                                                case 2:
+                                //                                                    {
+                                //                                                        std::cout<<"DETECTED NON-LATTICE INTERSECTION WITH 2 CONFINING PLANES"<<std::endl;
+                                //                                                        break;
+                                //                                                    }
+                                //                                                default:
+                                //                                                    break;
+                                //                                                    }
+                                //                                                    break;
+                                //                                                    }
+                                //
+                                //                                                default:
+                                //                                                    assert(0 && "parallel intersection detected");
+                                //                                                    break;
+                                //                                                    }
+                                //
+                                //                                                    temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(false,
+                                //                                                                                                             this->get_P(),
+                                //                                                                                                             p_Simplex,
+                                //                                                                                                             path);
+                                //
+                                //                                                    if(!(temp.first && temp.second->region->regionID==grain.grainID))
+                                //                                                    {
+                                //                                                        model::cout<<"DislocationNode "<<this->sID<<std::endl;
+                                //                                                        model::cout<<"GrainID= "<<grain.grainID<<std::endl;
+                                //                                                        model::cout<<"search found region= "<<temp.second->region->regionID<<std::endl;
+                                //                                                        model::cout<<"search start="<<p_Simplex->xID<<std::endl;
+                                //                                                        model::cout<<"search end="<<temp.second->xID<<std::endl;
+                                //                                                        model::cout<<"bary coords="<<temp.second->pos2bary(this->get_P())<<std::endl;
+                                //                                                        assert(0 && "Intersection point of GB-node not found in correct region");
+                                //                                                    }
+                                //                                                    p_Simplex=temp.second;
+                                //                                                    make_confiningPlanes();
+                                //
+                                //
+                                //
+                                //                                                    //assert(0 && "RE-ENABLE THIS");
+                                //                                                    //                            //// ////std::cout<<"DislocationNode "<<this->sID<<" crossing region. Path size="<<path.size()<<std::endl;
+                                //                                                    //
+                                //                                                    //                            int faceID=-1;
+                                //                                                    ////                            const Simplex<dim,dim>* regBndSimplex=(const Simplex<dim,dim>*) NULL;
+                                //                                                    //                            const Simplex<dim,dim>* regBndSimplex(NULL);
+                                //                                                    //
+                                //                                                    //                            Eigen::Matrix<double,dim+1,1> faceInt(Eigen::Matrix<double,dim+1,1>::Zero());
+                                //                                                    //
+                                //                                                    //                            for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
+                                //                                                    //                            {
+                                //                                                    //                                const Eigen::Matrix<double,dim+1,1> baryOld(simplex->pos2bary(this->get_P()));
+                                //                                                    //                                const Eigen::Matrix<double,dim+1,1> baryNew(simplex->pos2bary(this->get_P()+dX));
+                                //                                                    //                                for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
+                                //                                                    //                                {
+                                //                                                    //                                    if(simplex->child(f).isRegionBoundarySimplex())
+                                //                                                    //                                    {
+                                //                                                    //                                        faceInt=simplex->faceLineIntersection(baryOld,baryNew,f);
+                                //                                                    //                                        //                                    //////std::cout<<"DislocationNode "<<this->sID<<", baryMin="<<faceInt.minCoeff()<<std::endl;
+                                //                                                    //
+                                //                                                    //                                        if(faceInt.minCoeff()>=-FLT_EPSILON) // faceInt belongs to triangle
+                                //                                                    //                                        {
+                                //                                                    //                                            regBndSimplex=simplex; // current simplex is the region boundary simplex wanted
+                                //                                                    //                                            faceID=f; // intersection face is f
+                                //                                                    //                                            break;
+                                //                                                    //                                        }
+                                //                                                    //                                    }
+                                //                                                    //                                }
+                                //                                                    //
+                                //                                                    //                                if(faceID>=0)
+                                //                                                    //                                {
+                                //                                                    //                                    break;
+                                //                                                    //                                }
+                                //                                                    //                            }
+                                //                                                    //
+                                //                                                    //                            assert(faceID>=0 && "FACE INTERSECTION NOT FOUND");
+                                //                                                    //                            this->set(regBndSimplex->bary2pos(faceInt)); // move node to intersction with region boundary
+                                //                                                    //                            regionBndNormal=regBndSimplex->nda.col(faceID).normalized();
+                            }
+                            else // node not crossing regions
+                            {
+                                p_Simplex=temp.second;
+                                this->set_P(this->get_P()+dX);
+                                //set(L+grain.latticeVector(dX));
+                                make_bndNormal();
+                                //                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
                                 
-                                grainBoundary_rID2=temp.second->region->regionID;
+                                //                                L+=LatticeVectorType(dX);
+                                //                                this->set(this->get_P()+dX); // move node
+                                //                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0); // check if node is now on a boundary
+                                //
+                                //                            PROBLEM HERE, BOUNDSARY NODES ARE ASSIGNED ZERO NORMAL
                                 
-                                const LatticeDirectionType dL(grain.latticeVector(dX));
-                                LatticeLine trajectory(L,dL);
-                                PlaneLineIntersection pli(grainBoundaryPlane(),trajectory);
-                                
-                                switch (pli.intersectionType)
-                                {
-                                    case PlaneLineIntersection::coincident:
-                                    {
-                                        set(L+grain.latticeVector(dX));
-                                        break;
-                                    }
-                                    case PlaneLineIntersection::intersecting:
-                                    {
-                                        set(pli.P);
-                                        break;
-                                    }
-                                    case PlaneLineIntersection::offLattice:
-                                    {
-                                        switch (_confiningPlanes.size())
-                                        {
-                                            case 1:
-                                            {
-                                                PlanePlaneIntersection ppi(grainBoundaryPlane(),*_confiningPlanes[0]);
-                                                //model::cout<<redColor<<"About to check for offlattice!!"<<Color<<std::endl;
-                                                if(ppi.intersectionType==3)
-                                                {
-                                                    std::cout<<"DETECTED NON-LATTICE INTERSECTION WITH GB PLANE. ITERATIVELY MOVING NODE "<<this->sID<<" TOWARDS GB"<<std::endl;
-                                                    iterateToBoundary(dX,temp);
-                                                    //assert(0 && "ppi intersection found, but off lattice!");
-                                                    }
-                                                    LatticeLine gbLine(ppi.P,ppi.d);
-                                                    set(gbLine.snapToLattice(pli.P));
-                                                    break;
-                                                    }
-                                                case 2:
-                                                    {
-                                                        std::cout<<"DETECTED NON-LATTICE INTERSECTION WITH 2 CONFINING PLANES"<<std::endl;
-                                                        break;
-                                                    }
-                                                default:
-                                                    break;
-                                                    }
-                                                    break;
-                                                    }
-                                                    
-                                                default:
-                                                    assert(0 && "parallel intersection detected");
-                                                    break;
-                                                    }
-                                                    
-                                                    temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(false,
-                                                                                                             this->get_P(),
-                                                                                                             p_Simplex,
-                                                                                                             path);
-                                                    
-                                                    if(!(temp.first && temp.second->region->regionID==grain.grainID))
-                                                    {
-                                                        model::cout<<"DislocationNode "<<this->sID<<std::endl;
-                                                        model::cout<<"GrainID= "<<grain.grainID<<std::endl;
-                                                        model::cout<<"search found region= "<<temp.second->region->regionID<<std::endl;
-                                                        model::cout<<"search start="<<p_Simplex->xID<<std::endl;
-                                                        model::cout<<"search end="<<temp.second->xID<<std::endl;
-                                                        model::cout<<"bary coords="<<temp.second->pos2bary(this->get_P())<<std::endl;
-                                                        assert(0 && "Intersection point of GB-node not found in correct region");
-                                                    }
-                                                    p_Simplex=temp.second;
-                                                    make_confiningPlanes();
-                                                    
-                                                    
-                                                    
-                                                    //assert(0 && "RE-ENABLE THIS");
-                                                    //                            //// ////std::cout<<"DislocationNode "<<this->sID<<" crossing region. Path size="<<path.size()<<std::endl;
-                                                    //
-                                                    //                            int faceID=-1;
-                                                    ////                            const Simplex<dim,dim>* regBndSimplex=(const Simplex<dim,dim>*) NULL;
-                                                    //                            const Simplex<dim,dim>* regBndSimplex(NULL);
-                                                    //
-                                                    //                            Eigen::Matrix<double,dim+1,1> faceInt(Eigen::Matrix<double,dim+1,1>::Zero());
-                                                    //
-                                                    //                            for(const auto& simplex : path) // loop over the pathof simplices  connecting P to P+dX
-                                                    //                            {
-                                                    //                                const Eigen::Matrix<double,dim+1,1> baryOld(simplex->pos2bary(this->get_P()));
-                                                    //                                const Eigen::Matrix<double,dim+1,1> baryNew(simplex->pos2bary(this->get_P()+dX));
-                                                    //                                for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
-                                                    //                                {
-                                                    //                                    if(simplex->child(f).isRegionBoundarySimplex())
-                                                    //                                    {
-                                                    //                                        faceInt=simplex->faceLineIntersection(baryOld,baryNew,f);
-                                                    //                                        //                                    //////std::cout<<"DislocationNode "<<this->sID<<", baryMin="<<faceInt.minCoeff()<<std::endl;
-                                                    //
-                                                    //                                        if(faceInt.minCoeff()>=-FLT_EPSILON) // faceInt belongs to triangle
-                                                    //                                        {
-                                                    //                                            regBndSimplex=simplex; // current simplex is the region boundary simplex wanted
-                                                    //                                            faceID=f; // intersection face is f
-                                                    //                                            break;
-                                                    //                                        }
-                                                    //                                    }
-                                                    //                                }
-                                                    //
-                                                    //                                if(faceID>=0)
-                                                    //                                {
-                                                    //                                    break;
-                                                    //                                }
-                                                    //                            }
-                                                    //
-                                                    //                            assert(faceID>=0 && "FACE INTERSECTION NOT FOUND");
-                                                    //                            this->set(regBndSimplex->bary2pos(faceInt)); // move node to intersction with region boundary
-                                                    //                            regionBndNormal=regBndSimplex->nda.col(faceID).normalized();
-                                                    }
-                                                    else // node not crossing regions
-                                                    {
-                                                        p_Simplex=temp.second;
-                                                        set(L+grain.latticeVector(dX));
-                                                        make_bndNormal();
-                                                        //                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
-                                                        
-                                                        //                                L+=LatticeVectorType(dX);
-                                                        //                                this->set(this->get_P()+dX); // move node
-                                                        //                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0); // check if node is now on a boundary
-                                                        //
-                                                        //                            PROBLEM HERE, BOUNDSARY NODES ARE ASSIGNED ZERO NORMAL
-                                                        
-                                                    }
-                                                    
-                                                    }
-                                                    }
-                                                    
-                                                    make_projectionMatrix();
-                                                    
-                                                    }
-                                                    else // move node freely
-                                                    {
-                                                        set(L+grain.latticeVector(dX));
-                                                        //                    L+=LatticeVectorType(dX);
-                                                        //                    this->set(this->get_nodeDof()+dX);
-                                                    }
-                                                    }
-                                                    
-                                                    // Store actual velocity
-                                                    if(dt>0.0)
-                                                    {
-                                                        velocity=(this->get_P()-P_old)/dt;
-                                                    }
-                                                    }
-                                                    
-                                                    /**********************************************************************/
-                                                    const Simplex<dim,dim>* includingSimplex() const
-                                                    {/*!\returns A pointer to the const Simplex imcluding *this DislocationNode
-                                                      */
-                                                        return p_Simplex;
-                                                    }
-                                                    
-                                                    /**********************************************************************/
-                                                    const VectorDim& bndNormal() const
-                                                    {
-                                                        return boundaryNormal;
-                                                    }
-                                                    
-                                                    /**********************************************************************/
-                                                    int meshLocation() const
-                                                    {/*!\returns the position of *this relative to the bonudary:
-                                                      * 1 = inside mesh
-                                                      * 2 = on mesh boundary
-                                                      */
-                                                        return (boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh);
-                                                    }
-                                                    
-                                                    /**********************************************************************/
-                                                    bool isBoundaryNode() const
-                                                    {
-                                                        return meshLocation()==onMeshBoundary;
-                                                    }
-                                                    
-                                                    /**********************************************************************/
-                                                    bool isGrainBoundaryNode() const
-                                                    {
-                                                        //assert(0 && "FINISH HERE");
-                                                        //return false;
-                                                        return grainBoundary_rID2>0;
-                                                    }
-                                                    
-                                                    /**********************************************************************/
-                                                    bool isPureBoundaryNode() const
-                                                    {
-                                                        return isBoundaryNode() && isConnectedToBoundaryNodes();
-                                                    }
-                                                    
-                                                    /**********************************************************************/
-                                                    bool isConnectedToBoundaryNodes() const
-                                                    {
-                                                        bool temp(true);
-                                                        for (const auto& neighborIter : this->neighbors())
-                                                        {
-                                                            if (std::get<2>(neighborIter.second)) // not self
-                                                            {
-                                                                temp*=std::get<0>(neighborIter.second)->isBoundaryNode();
-                                                            }
-                                                        }
-                                                        
-                                                        return temp;
-                                                    }
-                                                    /**********************************************************************/
-                                                    bool isPureGBNode() const
-                                                    {
-                                                        bool temp(!this->is_isolated());
-                                                        for (const auto& neighborIter : this->neighbors())
-                                                        {
-                                                            if (std::get<2>(neighborIter.second)) // not self
-                                                            {
-                                                                temp*=std::get<0>(neighborIter.second)->isGrainBoundaryNode();
-                                                            }
-                                                        }
-                                                        
-                                                        return (isGrainBoundaryNode()&&temp);
-                                                    }
-                                                    
-                                                    //        /**********************************************************************/
-                                                    //        std::pair<std::deque<std::pair<size_t,size_t> >,std::deque<std::pair<size_t,size_t> >> edgeDecomposition() const
-                                                    //        {
-                                                    //
-                                                    //            std::deque<std::pair<size_t,size_t> > firstLinkDeq;
-                                                    //            std::deque<std::pair<size_t,size_t> > secondLinkDeq;
-                                                    //
-                                                    //            if(this->Neighborhood.size()>2 && meshLocation()==insideMesh)
-                                                    //            {
-                                                    //                std::deque<std::pair<int,int> > linkDeq;
-                                                    //
-                                                    //
-                                                    //                const size_t neighSize=this->Neighborhood.size()-1;
-                                                    //
-                                                    //                Eigen::MatrixXd temp(neighSize,dim);
-                                                    //
-                                                    //                int k=0;
-                                                    //                for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
-                                                    //                {
-                                                    //                    if (std::get<2>(neighborIter->second)) // not self
-                                                    //                    {
-                                                    //                        LinkType* pL(std::get<1>(neighborIter->second));
-                                                    //                        temp.row(k)=pL->Burgers;
-                                                    //                        linkDeq.emplace_back(pL->source->sID,pL->sink->sID);
-                                                    //                        k++;
-                                                    //                    }
-                                                    //                }
-                                                    //
-                                                    //                //                if(temp.rows()>7)
-                                                    //                //                {
-                                                    //                //                    model::cout<<"Dislocation Node "<<this->sID<<std::endl;
-                                                    //                //                }
-                                                    //                auto vecVec=EdgePermutations::edgeStats(temp);
-                                                    //                if(vecVec.size()==2)
-                                                    //                {
-                                                    //                    if((vecVec[0].array()*vecVec[1].array()).matrix().squaredNorm()<FLT_EPSILON) // decompisition is unique
-                                                    //                    {
-                                                    //                        //                       //std::cout<<"DislocationNode "<<this->sID<<std::endl;
-                                                    //                        //                       //std::cout<<"Matrix of Burgers= "<<std::endl<<temp<<std::endl;
-                                                    //                        //                       //std::cout<<"null configurations= "<<std::endl;
-                                                    //                        //                        for(auto v : vecVec)
-                                                    //                        //                        {
-                                                    //                        //                           //std::cout<<v<<std::endl;
-                                                    //                        //                        }
-                                                    //                        for(size_t n=0;n<neighSize;++n)
-                                                    //                        {
-                                                    //                            if(vecVec[0](n)!=0)
-                                                    //                            {
-                                                    //                                firstLinkDeq.push_back(linkDeq[n]);
-                                                    //                            }
-                                                    //                            else
-                                                    //                            {
-                                                    //                                secondLinkDeq.push_back(linkDeq[n]);
-                                                    //                            }
-                                                    //                        }
-                                                    //
-                                                    //                    }
-                                                    //                }
-                                                    //            }
-                                                    //
-                                                    //            return make_pair(firstLinkDeq,secondLinkDeq);
-                                                    //        }
-                                                    
-                                                    /******************************************************************************/
-                                                    void neighborsAt(const LatticeVectorType& L0, std::set<size_t>& temp) const
-                                                    {/*!\param[in] P0 position to be serached
-                                                      * \param[out]temp set of IDs of neighbors of this which are located at P0 (possibly including *this)
-                                                      * \param[in] tol tolerance used to detect position overlap
-                                                      */
-                                                        for (const auto& nIiter : this->neighbors())
-                                                        { // loop over neighborhood
-                                                            if((std::get<0>(nIiter.second)->get_L()-L0).squaredNorm()==0)
-                                                            { // a neighbor of I exists at P0
-                                                                temp.insert(std::get<0>(nIiter.second)->sID);
-                                                            }
-                                                        }
-                                                    }
-                                                    
-                                                    /**********************************************************************/
-                                                    const double& velocityReduction() const
-                                                    {
-                                                        return velocityReductionCoeff;
-                                                    }
-                                                    
-                                                    
-                                                    
-                                                    /**********************************************************************/
-                                                    template <class T>
-                                                    friend T& operator << (T& os, const NodeType& ds)
-                                                    {
-                                                        os  << ds.sID<<"\t"
-                                                        /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<"\t"
-                                                        //                                                        /**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<"\t"
-//                                                        /**/<< VectorDim::Zero().transpose()<<"\t"
-                                                        /**/<< ds.pSN()->sID<<"\t"
-                                                        /**/<< (ds.meshLocation()==onMeshBoundary)<<"\t"
-                                                        /**/<< ds.grain.grainID;
-                                                        return os;
-                                                    }
-                                                    
-                                                    /**********************************************************************/
-                                                    LatticeVectorType zeroFlow() const
-                                                    {
-                                                        return LatticeVectorType(grain.lattice());
-                                                    }
-                                                    
-                                                    /**********************************************************************/
-                                                    const int& rID2() const
-                                                    {
-                                                        return grainBoundary_rID2;
-                                                    }
-                                                    };
-                                                    
-                                                    
-                                                    // static data
-                                                    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-                                                    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
-                                                    bool DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::use_velocityFilter=true;
-                                                    
-                                                    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-                                                    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
-                                                    double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::velocityReductionFactor=0.75;
-                                                    
-                                                    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-                                                    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
-                                                    double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::bndDistance=2.0;
-                                                    
-                                                    
-                                                    } // close namespace
+                            }
+                            
+                        }
+                    }
+                    
+                    make_projectionMatrix();
+                    
+                }
+                else // move node freely
+                {
+                    this->set_P(this->get_P()+dX);
+                    //set(L+grain.latticeVector(dX));
+                    //                    L+=LatticeVectorType(dX);
+                    //                    this->set(this->get_nodeDof()+dX);
+                }
+            }
+            
+//            // Store actual velocity
+//            if(dt>0.0)
+//            {
+//                velocity=(this->get_P()-P_old)/dt;
+//            }
+        }
+        
+        /**********************************************************************/
+        const Simplex<dim,dim>* includingSimplex() const
+        {/*!\returns A pointer to the const Simplex imcluding *this DislocationNode
+          */
+            return p_Simplex;
+        }
+        
+        /**********************************************************************/
+        const VectorDim& bndNormal() const
+        {
+            return boundaryNormal;
+        }
+        
+        /**********************************************************************/
+        int meshLocation() const
+        {/*!\returns the position of *this relative to the bonudary:
+          * 1 = inside mesh
+          * 2 = on mesh boundary
+          */
+            return (boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh);
+        }
+        
+        /**********************************************************************/
+        bool isBoundaryNode() const
+        {
+            return meshLocation()==onMeshBoundary;
+        }
+        
+        /**********************************************************************/
+        bool isGrainBoundaryNode() const
+        {
+            //assert(0 && "FINISH HERE");
+            //return false;
+            return grainSet.size()>1;
+        }
+        
+        /**********************************************************************/
+        bool isPureBoundaryNode() const
+        {
+            return isBoundaryNode() && isConnectedToBoundaryNodes();
+        }
+        
+        /**********************************************************************/
+        bool isConnectedToBoundaryNodes() const
+        {
+            bool temp(true);
+            for (const auto& neighborIter : this->neighbors())
+            {
+                if (std::get<2>(neighborIter.second)) // not self
+                {
+                    temp*=std::get<0>(neighborIter.second)->isBoundaryNode();
+                }
+            }
+            
+            return temp;
+        }
+        /**********************************************************************/
+        bool isPureGBNode() const
+        {
+            bool temp(!this->is_isolated());
+            for (const auto& neighborIter : this->neighbors())
+            {
+                if (std::get<2>(neighborIter.second)) // not self
+                {
+                    temp*=std::get<0>(neighborIter.second)->isGrainBoundaryNode();
+                }
+            }
+            
+            return (isGrainBoundaryNode()&&temp);
+        }
+        
+        //        /**********************************************************************/
+        //        std::pair<std::deque<std::pair<size_t,size_t> >,std::deque<std::pair<size_t,size_t> >> edgeDecomposition() const
+        //        {
+        //
+        //            std::deque<std::pair<size_t,size_t> > firstLinkDeq;
+        //            std::deque<std::pair<size_t,size_t> > secondLinkDeq;
+        //
+        //            if(this->Neighborhood.size()>2 && meshLocation()==insideMesh)
+        //            {
+        //                std::deque<std::pair<int,int> > linkDeq;
+        //
+        //
+        //                const size_t neighSize=this->Neighborhood.size()-1;
+        //
+        //                Eigen::MatrixXd temp(neighSize,dim);
+        //
+        //                int k=0;
+        //                for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
+        //                {
+        //                    if (std::get<2>(neighborIter->second)) // not self
+        //                    {
+        //                        LinkType* pL(std::get<1>(neighborIter->second));
+        //                        temp.row(k)=pL->Burgers;
+        //                        linkDeq.emplace_back(pL->source->sID,pL->sink->sID);
+        //                        k++;
+        //                    }
+        //                }
+        //
+        //                //                if(temp.rows()>7)
+        //                //                {
+        //                //                    model::cout<<"Dislocation Node "<<this->sID<<std::endl;
+        //                //                }
+        //                auto vecVec=EdgePermutations::edgeStats(temp);
+        //                if(vecVec.size()==2)
+        //                {
+        //                    if((vecVec[0].array()*vecVec[1].array()).matrix().squaredNorm()<FLT_EPSILON) // decompisition is unique
+        //                    {
+        //                        //                       //std::cout<<"DislocationNode "<<this->sID<<std::endl;
+        //                        //                       //std::cout<<"Matrix of Burgers= "<<std::endl<<temp<<std::endl;
+        //                        //                       //std::cout<<"null configurations= "<<std::endl;
+        //                        //                        for(auto v : vecVec)
+        //                        //                        {
+        //                        //                           //std::cout<<v<<std::endl;
+        //                        //                        }
+        //                        for(size_t n=0;n<neighSize;++n)
+        //                        {
+        //                            if(vecVec[0](n)!=0)
+        //                            {
+        //                                firstLinkDeq.push_back(linkDeq[n]);
+        //                            }
+        //                            else
+        //                            {
+        //                                secondLinkDeq.push_back(linkDeq[n]);
+        //                            }
+        //                        }
+        //
+        //                    }
+        //                }
+        //            }
+        //
+        //            return make_pair(firstLinkDeq,secondLinkDeq);
+        //        }
+        
+        /******************************************************************************/
+        void neighborsAt(const LatticeVectorType& L0, std::set<size_t>& temp) const
+        {/*!\param[in] P0 position to be serached
+          * \param[out]temp set of IDs of neighbors of this which are located at P0 (possibly including *this)
+          * \param[in] tol tolerance used to detect position overlap
+          */
+            for (const auto& nIiter : this->neighbors())
+            { // loop over neighborhood
+                if((std::get<0>(nIiter.second)->get_L()-L0).squaredNorm()==0)
+                { // a neighbor of I exists at P0
+                    temp.insert(std::get<0>(nIiter.second)->sID);
+                }
+            }
+        }
+        
+        /**********************************************************************/
+        const double& velocityReduction() const
+        {
+            return velocityReductionCoeff;
+        }
+        
+        
+        
+        /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const NodeType& ds)
+        {
+            os  << ds.sID<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<"\t"
+            //                                                        /**/<< std::setprecision(15)<<std::scientific<<ds.get_T().transpose()<<"\t"
+            //                                                        /**/<< VectorDim::Zero().transpose()<<"\t"
+            /**/<< ds.get_V().transpose()<<"\t"
+            /**/<< ds.velocityReduction()<<"\t"
+            /**/<< ds.pSN()->sID<<"\t"
+            /**/<< (ds.meshLocation()==onMeshBoundary);
+//            /**/<< 0; // ds.grain.grainID
+            return os;
+        }
+        
+//        /**********************************************************************/
+//        LatticeVectorType zeroFlow() const
+//        {
+//            return LatticeVectorType(grain.lattice());
+//        }
+        
+//        /**********************************************************************/
+//        const int& rID2() const
+//        {
+//            return grainBoundary_rID2;
+//        }
+    };
+    
+    
+    // static data
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
+    bool DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::use_velocityFilter=true;
+    
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
+    double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::velocityReductionFactor=0.75;
+    
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
+    double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::bndDistance=2.0;
+    
+    
+} // close namespace
 #endif
-                                                    
-                                                    
-                                                    //        /**********************************************************************/
-                                                    //		VectorOfNormalsType constraintNormals() const
-                                                    //        {
-                                                    //			GramSchmidt<dim> GS;
-                                                    //			if (meshLocation()==insideMesh)
-                                                    //            { // DislocationNode is inside mesh
-                                                    //				if (this->is_balanced())
-                                                    //                { // DislocationNode is balanced
-                                                    //					GS.orthoNormalize(planenormals); //  constrain by planenormals
-                                                    //				}
-                                                    //				else
-                                                    //                { // DislocationNode is unbalanced and is inside mesh: fix
-                                                    //					GS.push_back((VectorDim()<<1.0,0.0,0.0).finished());
-                                                    //					GS.push_back((VectorDim()<<0.0,1.0,0.0).finished());
-                                                    //					GS.push_back((VectorDim()<<0.0,0.0,1.0).finished());
-                                                    //				}
-                                                    //			}
-                                                    //			else if (meshLocation()==onMeshBoundary)
-                                                    //            { // DislocationNode is on mesh boundary:
-                                                    //				VectorOfNormalsType PN(planenormals); // constrain by planenormals
-                                                    //				PN.push_back(boundaryNormal); // constrain by boundaryNormal
-                                                    //				GS.orthoNormalize(PN);
-                                                    //			}
-                                                    //			else
-                                                    //            {
-                                                    //               //std::cout<<"DislocationNode "<<this->sID<< " at "<<this->get_P().transpose()<<" is outside mesh."<<std::endl;
-                                                    //                assert(0 && "DISLOCATION NODE FOUND OUTSIDE MESH."); //RE-ENABLE THIS
-                                                    //			}
-                                                    //			assert(GS.size()>=1 && "GLIDING NODE MUST HAVE AT LEAST ONE CONSTRAINT.");
-                                                    //			return GS;
-                                                    //		}
-                                                    
-                                                    //        void //showTemp(const VectorOfNormalsType& temp) const
-                                                    //        {
-                                                    //            for(int k=0;k<temp.size();++k)
-                                                    //            {
-                                                    //               //std::cout<<temp[k].transpose()<<std::endl;
-                                                    //            }
-                                                    //        }
-                                                    
-                                                    //                            const LatticeVectorType dL(outdX(outDir));
-                                                    
-                                                    //                        LatticeVectorType dL(LatticeVectorType::Zero());
-                                                    //                        switch (_confiningPlanes.size())
-                                                    //                        {
-                                                    //                            case 1:
-                                                    //                            {
-                                                    //                                //std::cout<<"boundary motion case 1, DislocationNode "<<this->sID<<std::endl;
-                                                    //                                const VectorDim planeN(_confiningPlanes[0]->n.cartesian().normalized());
-                                                    //                                VectorDim dD=outDir-outDir.dot(planeN)*planeN;
-                                                    //                                const double dDnorm=dD.norm();
-                                                    //                                if(dDnorm>0.0)
-                                                    //                                {
-                                                    //                                    dD.normalize();
-                                                    //                                    dL=LatticeVectorType(_confiningPlanes[0]->n.snapToLattice(dD)); // a lattice vector on the plane pointing ouside mesh
-                                                    //                                    assert(dL.squaredNorm()>0);
-                                                    //                                }
-                                                    //                                break;
-                                                    //                            }
-                                                    //
-                                                    //                            case 2:
-                                                    //                            {
-                                                    //                                //std::cout<<"boundary motion case 2, DislocationNode "<<this->sID<<std::endl;
-                                                    //                                const PlanePlaneIntersection ppi(*_confiningPlanes[0],*_confiningPlanes[1]);
-                                                    //                                dL=LatticeVectorType(ppi.d.snapToDirection(10.0*outDir));
-                                                    //                                break;
-                                                    //                            }
-                                                    //
-                                                    //                        }
-                                                    
-                                                    //                            if(dL.squaredNorm()) // a line direction could be found
-                                                    //                            {
-                                                    //                                const LatticeLine line(L0,dL);
-                                                    //                                LineMeshIntersection lmi(line,L0+dL,shared.mesh,temp.second);
-                                                    //                                assert(lmi.search.first);
-                                                    //                                p_Simplex=lmi.search.second;
-                                                    //                                set(lmi.L);
-                                                    //                                //                                L=lmi.L;
-                                                    //                                //                                this->set(L.cartesian()); // move node
-                                                    //                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0);
-                                                    //                                assert(meshLocation()==onMeshBoundary);
-                                                    //                            }
-                                                    //                            else
-                                                    //                            {
-                                                    //                                if(temp.first) // only for boundary nodes
-                                                    //                                {
-                                                    //                                    const VectorDim bndNrml=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*temp.second,10.0);
-                                                    //                                    if(bndNrml.squaredNorm()>0.0)
-                                                    //                                    {
-                                                    //                                        p_Simplex=temp.second;
-                                                    //                                        set(L+LatticeVectorType(dX));
-                                                    //                                        boundaryNormal=bndNrml;
-                                                    //                                        assert(meshLocation()==onMeshBoundary);
-                                                    //                                    }
-                                                    //                                }
-                                                    //                            }
+
+
+//        /**********************************************************************/
+//		VectorOfNormalsType constraintNormals() const
+//        {
+//			GramSchmidt<dim> GS;
+//			if (meshLocation()==insideMesh)
+//            { // DislocationNode is inside mesh
+//				if (this->is_balanced())
+//                { // DislocationNode is balanced
+//					GS.orthoNormalize(planenormals); //  constrain by planenormals
+//				}
+//				else
+//                { // DislocationNode is unbalanced and is inside mesh: fix
+//					GS.push_back((VectorDim()<<1.0,0.0,0.0).finished());
+//					GS.push_back((VectorDim()<<0.0,1.0,0.0).finished());
+//					GS.push_back((VectorDim()<<0.0,0.0,1.0).finished());
+//				}
+//			}
+//			else if (meshLocation()==onMeshBoundary)
+//            { // DislocationNode is on mesh boundary:
+//				VectorOfNormalsType PN(planenormals); // constrain by planenormals
+//				PN.push_back(boundaryNormal); // constrain by boundaryNormal
+//				GS.orthoNormalize(PN);
+//			}
+//			else
+//            {
+//               //std::cout<<"DislocationNode "<<this->sID<< " at "<<this->get_P().transpose()<<" is outside mesh."<<std::endl;
+//                assert(0 && "DISLOCATION NODE FOUND OUTSIDE MESH."); //RE-ENABLE THIS
+//			}
+//			assert(GS.size()>=1 && "GLIDING NODE MUST HAVE AT LEAST ONE CONSTRAINT.");
+//			return GS;
+//		}
+
+//        void //showTemp(const VectorOfNormalsType& temp) const
+//        {
+//            for(int k=0;k<temp.size();++k)
+//            {
+//               //std::cout<<temp[k].transpose()<<std::endl;
+//            }
+//        }
+
+//                            const LatticeVectorType dL(outdX(outDir));
+
+//                        LatticeVectorType dL(LatticeVectorType::Zero());
+//                        switch (_confiningPlanes.size())
+//                        {
+//                            case 1:
+//                            {
+//                                //std::cout<<"boundary motion case 1, DislocationNode "<<this->sID<<std::endl;
+//                                const VectorDim planeN(_confiningPlanes[0]->n.cartesian().normalized());
+//                                VectorDim dD=outDir-outDir.dot(planeN)*planeN;
+//                                const double dDnorm=dD.norm();
+//                                if(dDnorm>0.0)
+//                                {
+//                                    dD.normalize();
+//                                    dL=LatticeVectorType(_confiningPlanes[0]->n.snapToLattice(dD)); // a lattice vector on the plane pointing ouside mesh
+//                                    assert(dL.squaredNorm()>0);
+//                                }
+//                                break;
+//                            }
+//
+//                            case 2:
+//                            {
+//                                //std::cout<<"boundary motion case 2, DislocationNode "<<this->sID<<std::endl;
+//                                const PlanePlaneIntersection ppi(*_confiningPlanes[0],*_confiningPlanes[1]);
+//                                dL=LatticeVectorType(ppi.d.snapToDirection(10.0*outDir));
+//                                break;
+//                            }
+//
+//                        }
+
+//                            if(dL.squaredNorm()) // a line direction could be found
+//                            {
+//                                const LatticeLine line(L0,dL);
+//                                LineMeshIntersection lmi(line,L0+dL,shared.mesh,temp.second);
+//                                assert(lmi.search.first);
+//                                p_Simplex=lmi.search.second;
+//                                set(lmi.L);
+//                                //                                L=lmi.L;
+//                                //                                this->set(L.cartesian()); // move node
+//                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,10.0);
+//                                assert(meshLocation()==onMeshBoundary);
+//                            }
+//                            else
+//                            {
+//                                if(temp.first) // only for boundary nodes
+//                                {
+//                                    const VectorDim bndNrml=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*temp.second,10.0);
+//                                    if(bndNrml.squaredNorm()>0.0)
+//                                    {
+//                                        p_Simplex=temp.second;
+//                                        set(L+LatticeVectorType(dX));
+//                                        boundaryNormal=bndNrml;
+//                                        assert(meshLocation()==onMeshBoundary);
+//                                    }
+//                                }
+//                            }
