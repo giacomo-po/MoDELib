@@ -170,8 +170,8 @@ namespace model
     /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     class DislocationSegment : //public PlanarDislocationSegment<_dim>,
     /*	                    */ public SplineSegment<DislocationSegment<_dim,_corder,InterpolationType,QuadratureRule>,
-    /*                                              */ _dim, _corder>,
-    /*	                    */ public GlidePlaneObserver<DislocationSegment<_dim,_corder,InterpolationType,QuadratureRule> >
+    /*                                              */ _dim, _corder>
+//    /*	                    */ public GlidePlaneObserver<DislocationSegment<_dim,_corder,InterpolationType,QuadratureRule> >
     {
         
         
@@ -214,8 +214,8 @@ namespace model
         typedef typename TypeTraits<LinkType>::QuadPowDynamicType QuadPowDynamicType;
         typedef typename TypeTraits<LinkType>::QuadratureDynamicType QuadratureDynamicType;
         
-        typedef typename GlidePlaneObserver<LinkType>::GlidePlaneType GlidePlaneType;
-        typedef typename GlidePlaneObserver<LinkType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
+//        typedef typename GlidePlaneObserver<LinkType>::GlidePlaneType GlidePlaneType;
+//        typedef typename GlidePlaneObserver<LinkType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
         
         
         
@@ -569,7 +569,11 @@ namespace model
             
         }
         
-        
+        /**********************************************************************/
+        bool hasZeroBurgers() const
+        {
+            return Burgers.squaredNorm()<FLT_EPSILON;
+        }
         
         /**********************************************************************/
         void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
@@ -591,142 +595,147 @@ namespace model
             rlgauss.setZero(dim,qOrder);
             pkGauss.setZero(dim,qOrder);
             
-            // Compute geometric quantities
-            for (unsigned int k=0;k<qOrder;++k)
+            if(!hasZeroBurgers())
             {
-                //                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                SFgauss.row(k)=QuadPowDynamicType::uPow(qOrder).row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-//                double du=1.0/qOrder;
-//                double u=du*(k+0.5);
-//                rgauss.col(k)=this->source->get_P()*(1.0-u)+this->sink->get_P()*u;
-//                 rugauss.col(k)=-this->source->get_P()+this->sink->get_P();
-                jgauss(k)=rugauss.col(k).norm();
-                rlgauss.col(k)=rugauss.col(k)/jgauss(k);
-            }
-            
-            if(!is_boundarySegment())
-            {
+                // Compute geometric quantities
                 for (unsigned int k=0;k<qOrder;++k)
                 {
-                    quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
-                                                                                     this->source->sID,this->sink->sID,k,
-                                                                                     rugauss.col(k),
-                                                                                     Burgers,
-                                                                                     QuadratureDynamicType::abscissa(qOrder,k),
-                                                                                     QuadratureDynamicType::weight(qOrder,k),
-                                                                                     true,true,  // stressSource enabled, stressField enabled,
-                                                                                     true,true,  //   dispSource enabled,   dispField enabled,
-                                                                                     true,true));//   enrgSource enabled,   enrgField enabled,
+                    //                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                    SFgauss.row(k)=QuadPowDynamicType::uPow(qOrder).row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                    rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                    rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                    //                double du=1.0/qOrder;
+                    //                double u=du*(k+0.5);
+                    //                rgauss.col(k)=this->source->get_P()*(1.0-u)+this->sink->get_P()*u;
+                    //                 rugauss.col(k)=-this->source->get_P()+this->sink->get_P();
+                    jgauss(k)=rugauss.col(k).norm();
+                    rlgauss.col(k)=rugauss.col(k)/jgauss(k);
                 }
                 
-            }
-            else // bonudary segment
-            {
-                if(shared.use_bvp) // using FEM correction
+                if(!is_boundarySegment())
                 {
-                    if(shared.use_virtualSegments)
+                    for (unsigned int k=0;k<qOrder;++k)
                     {
-                        for (unsigned int k=0;k<qOrder;++k)
-                        {
-                            quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
-                                                                                             this->source->sID,this->sink->sID,k,
-                                                                                             rugauss.col(k),Burgers,
-                                                                                             QuadratureDynamicType::abscissa(qOrder,k),
-                                                                                             QuadratureDynamicType::weight(qOrder,k),
-                                                                                             false,true,  // stressSource enabled, stressField enabled,
-                                                                                             false,true,  //   dispSource enabled,   dispField enabled,
-                                                                                             false,true));//   enrgSource enabled,   enrgField enabled,
-                        }
-                        
-                        const VectorDim P1(this->source->get_P());
-                        const VectorDim P2(P1+this->source->bndNormal()*virtualSegmentDistance);
-                        const VectorDim P3(this->sink->get_P());
-                        const VectorDim P4(P3+this->sink->bndNormal()*virtualSegmentDistance);
-                        
-                        const size_t qOrder12=QuadPowDynamicType::lowerOrder(quadPerLength*virtualSegmentDistance);
-                        
-                        // Place Quadrature-particles on P1->P2
-                        if(!this->source->isPureBoundaryNode())
-                        {
-                            const VectorDim d12=(P2-P1).normalized();
-                            
-                            for (unsigned int k=0;k<qOrder12;++k)
-                            {
-                                
-                                particleSystem.addParticle(P1+d12*virtualSegmentDistance*QuadratureDynamicType::abscissa(qOrder12,k),
-                                                           this->source->sID,this->sink->sID,qOrder+k,
-                                                           d12*virtualSegmentDistance,
-                                                           Burgers,
-                                                           QuadratureDynamicType::abscissa(qOrder12,k),
-                                                           QuadratureDynamicType::weight(qOrder12,k),
-                                                           true,false,  // stressSource disabled, stressField enabled,
-                                                           true,false,   //   dispSource  enabled,   dispField enabled,
-                                                           true,false);
-                            }
-                            
-                        }
-                        
-                        // Place Quadrature-particles on P2->P4
-                        const double L24=(P4-P2).norm();
-                        const size_t qOrder24=QuadPowDynamicType::lowerOrder(quadPerLength*L24);
-                        const VectorDim d24=(P4-P2)/L24;
-                        for (unsigned int k=0;k<qOrder24;++k)
-                        {
-                            particleSystem.addParticle(P2+d24*L24*QuadratureDynamicType::abscissa(qOrder24,k),
-                                                       this->source->sID,this->sink->sID,qOrder+qOrder12+k,
-                                                       d24*L24,
-                                                       Burgers,
-                                                       QuadratureDynamicType::abscissa(qOrder24,k),
-                                                       QuadratureDynamicType::weight(qOrder24,k),
-                                                       true,false,  // stressSource disabled, stressField enabled,
-                                                       true,false,   //   dispSource  enabled,   dispField enabled,
-                                                       true,false);
-                        }
-                        
-                        // Place Quadrature-particles on P4->P3
-                        if(!this->sink->isPureBoundaryNode())
-                        {
-                            const VectorDim d43=(P3-P4).normalized();
-                            for (unsigned int k=0;k<qOrder12;++k)
-                            {
-                                
-                                particleSystem.addParticle(P4+d43*virtualSegmentDistance*QuadratureDynamicType::abscissa(qOrder12,k),
-                                                           this->source->sID,this->sink->sID,qOrder+qOrder12+qOrder24+k,
-                                                           d43*virtualSegmentDistance,
-                                                           Burgers,
-                                                           QuadratureDynamicType::abscissa(qOrder12,k),
-                                                           QuadratureDynamicType::weight(qOrder12,k),
-                                                           true,false,  // stressSource disabled, stressField enabled,
-                                                           true,false,   //   dispSource  enabled,   dispField enabled,
-                                                           true,false);
-                            }
-                            
-                        }
-                        
+                        quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
+                                                                                         this->source->sID,this->sink->sID,k,
+                                                                                         rugauss.col(k),
+                                                                                         Burgers,
+                                                                                         QuadratureDynamicType::abscissa(qOrder,k),
+                                                                                         QuadratureDynamicType::weight(qOrder,k),
+                                                                                         true,true,  // stressSource enabled, stressField enabled,
+                                                                                         true,true,  //   dispSource enabled,   dispField enabled,
+                                                                                         true,true));//   enrgSource enabled,   enrgField enabled,
                     }
-                    else // bnd segment, with bvp, without virtual segments
-                    {
-                        for (unsigned int k=0;k<qOrder;++k)
-                        {
-                            quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
-                                                                                             this->source->sID,this->sink->sID,k,
-                                                                                             rugauss.col(k),Burgers,
-                                                                                             QuadratureDynamicType::abscissa(qOrder,k),
-                                                                                             QuadratureDynamicType::weight(qOrder,k),
-                                                                                             true,true,  // stressSource enabled, stressField enabled,
-                                                                                             true,true,  //   dispSource enabled,   dispField enabled,
-                                                                                             true,true));//   enrgSource enabled,   enrgField enabled,
-                        }
-                    }
-                }
-                else // bonudary segment without bvp, do not place quadrature particles
-                {
                     
                 }
-                
+                else // bonudary segment
+                {
+                    if(shared.use_bvp) // using FEM correction
+                    {
+                        if(shared.use_virtualSegments)
+                        {
+                            for (unsigned int k=0;k<qOrder;++k)
+                            {
+                                quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
+                                                                                                 this->source->sID,this->sink->sID,k,
+                                                                                                 rugauss.col(k),Burgers,
+                                                                                                 QuadratureDynamicType::abscissa(qOrder,k),
+                                                                                                 QuadratureDynamicType::weight(qOrder,k),
+                                                                                                 false,true,  // stressSource enabled, stressField enabled,
+                                                                                                 false,true,  //   dispSource enabled,   dispField enabled,
+                                                                                                 false,true));//   enrgSource enabled,   enrgField enabled,
+                            }
+                            
+                            const VectorDim P1(this->source->get_P());
+                            const VectorDim P2(P1+this->source->bndNormal()*virtualSegmentDistance);
+                            const VectorDim P3(this->sink->get_P());
+                            const VectorDim P4(P3+this->sink->bndNormal()*virtualSegmentDistance);
+                            
+                            const size_t qOrder12=QuadPowDynamicType::lowerOrder(quadPerLength*virtualSegmentDistance);
+                            
+                            // Place Quadrature-particles on P1->P2
+                            if(!this->source->isPureBoundaryNode())
+                            {
+                                const VectorDim d12=(P2-P1).normalized();
+                                
+                                for (unsigned int k=0;k<qOrder12;++k)
+                                {
+                                    
+                                    particleSystem.addParticle(P1+d12*virtualSegmentDistance*QuadratureDynamicType::abscissa(qOrder12,k),
+                                                               this->source->sID,this->sink->sID,qOrder+k,
+                                                               d12*virtualSegmentDistance,
+                                                               Burgers,
+                                                               QuadratureDynamicType::abscissa(qOrder12,k),
+                                                               QuadratureDynamicType::weight(qOrder12,k),
+                                                               true,false,  // stressSource disabled, stressField enabled,
+                                                               true,false,   //   dispSource  enabled,   dispField enabled,
+                                                               true,false);
+                                }
+                                
+                            }
+                            
+                            // Place Quadrature-particles on P2->P4
+                            const double L24=(P4-P2).norm();
+                            const size_t qOrder24=QuadPowDynamicType::lowerOrder(quadPerLength*L24);
+                            const VectorDim d24=(P4-P2)/L24;
+                            for (unsigned int k=0;k<qOrder24;++k)
+                            {
+                                particleSystem.addParticle(P2+d24*L24*QuadratureDynamicType::abscissa(qOrder24,k),
+                                                           this->source->sID,this->sink->sID,qOrder+qOrder12+k,
+                                                           d24*L24,
+                                                           Burgers,
+                                                           QuadratureDynamicType::abscissa(qOrder24,k),
+                                                           QuadratureDynamicType::weight(qOrder24,k),
+                                                           true,false,  // stressSource disabled, stressField enabled,
+                                                           true,false,   //   dispSource  enabled,   dispField enabled,
+                                                           true,false);
+                            }
+                            
+                            // Place Quadrature-particles on P4->P3
+                            if(!this->sink->isPureBoundaryNode())
+                            {
+                                const VectorDim d43=(P3-P4).normalized();
+                                for (unsigned int k=0;k<qOrder12;++k)
+                                {
+                                    
+                                    particleSystem.addParticle(P4+d43*virtualSegmentDistance*QuadratureDynamicType::abscissa(qOrder12,k),
+                                                               this->source->sID,this->sink->sID,qOrder+qOrder12+qOrder24+k,
+                                                               d43*virtualSegmentDistance,
+                                                               Burgers,
+                                                               QuadratureDynamicType::abscissa(qOrder12,k),
+                                                               QuadratureDynamicType::weight(qOrder12,k),
+                                                               true,false,  // stressSource disabled, stressField enabled,
+                                                               true,false,   //   dispSource  enabled,   dispField enabled,
+                                                               true,false);
+                                }
+                                
+                            }
+                            
+                        }
+                        else // bnd segment, with bvp, without virtual segments
+                        {
+                            for (unsigned int k=0;k<qOrder;++k)
+                            {
+                                quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
+                                                                                                 this->source->sID,this->sink->sID,k,
+                                                                                                 rugauss.col(k),Burgers,
+                                                                                                 QuadratureDynamicType::abscissa(qOrder,k),
+                                                                                                 QuadratureDynamicType::weight(qOrder,k),
+                                                                                                 true,true,  // stressSource enabled, stressField enabled,
+                                                                                                 true,true,  //   dispSource enabled,   dispField enabled,
+                                                                                                 true,true));//   enrgSource enabled,   enrgField enabled,
+                            }
+                        }
+                    }
+                    else // bonudary segment without bvp, do not place quadrature particles
+                    {
+                        
+                    }
+                    
+                }
             }
+            
+
             
         }
         
@@ -771,109 +780,118 @@ namespace model
           * - edge-to-component matrix Mseg
           */
             
-            
-            //! 1- Compute and store stress and PK-force at quadrature points
-            stressGauss.clear();
-            if(!shared.use_bvp && is_boundarySegment())
+            if(!hasZeroBurgers())
             {
-                pkGauss.setZero(dim,qOrder);
-            }
-            else
-            {
-                for (unsigned int k=0;k<qOrder;++k)
+                //! 1- Compute and store stress and PK-force at quadrature points
+                stressGauss.clear();
+                if(!shared.use_bvp && is_boundarySegment())
                 {
-                    stressGauss.push_back(stressAtQuadrature(k));
-                    pkGauss.col(k)=(stressGauss[k]*Burgers).cross(rlgauss.col(k));
+                    pkGauss.setZero(dim,qOrder);
                 }
-            }
-            
-            
-            /*! 2- Assemble the force vector of this segment
-             *	\f[
-             *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
-             *	\f]
-             */
-            Fq.setZero();
-            //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,Fq,&LinkType::PKintegrand);
-            QuadratureDynamicType::integrate(qOrder,this,Fq,&LinkType::PKintegrand);
-            
-            
-            /*! 3- Assembles the stiffness matrix of this segment.
-             *	\f[
-             *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
-             *	\f]
-             */
-            Kqq.setZero();
-            //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,Kqq,&LinkType::stiffness_integrand);
-            QuadratureDynamicType::integrate(qOrder,this,Kqq,&LinkType::stiffness_integrand);
-            
-            //            //! 3-
-            //            ortC.setZero();
-            //
-            //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,ortC,&LinkType::ortC_integrand);
-            
-            
-            //! 4-
-            
-            //            std::set<size_t> segmentDOFs;
-            
-            h2posMap=this->hermite2posMap();
-            
-            //            segmentDOFs.clear();
-            //
-            //            const Eigen::VectorXi sourceDOFs(this->source->dofID());
-            //            for(int k=0;k<sourceDOFs.rows();++k)
-            //            {
-            //                segmentDOFs.insert(sourceDOFs(k));
-            //            }
-            //
-            //            const Eigen::VectorXi   sinkDOFs(this->sink->dofID());
-            //            for(int k=0;k<sinkDOFs.rows();++k)
-            //            {
-            //                segmentDOFs.insert(sinkDOFs(k));
-            //            }
-            
-            
-            //const size_t N(segmentDOFs.size());
-            
-            // Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,N));
-            Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
-            
-            size_t c=0;
-            for(const auto& pair : h2posMap)
-            {
-                for(int r=0;r<Ncoeff;++r)
+                else
                 {
-                    Mseg.template block<dim,dim>(r*dim,c*dim)=pair.second.first(r)*MatrixDim::Identity();
+                    for (unsigned int k=0;k<qOrder;++k)
+                    {
+                        stressGauss.push_back(stressAtQuadrature(k));
+                        pkGauss.col(k)=(stressGauss[k]*Burgers).cross(rlgauss.col(k));
+                    }
                 }
-                c++;
+                
+                
+                /*! 2- Assemble the force vector of this segment
+                 *	\f[
+                 *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
+                 *	\f]
+                 */
+                Fq.setZero();
+                //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,Fq,&LinkType::PKintegrand);
+                QuadratureDynamicType::integrate(qOrder,this,Fq,&LinkType::PKintegrand);
+                
+                
+                /*! 3- Assembles the stiffness matrix of this segment.
+                 *	\f[
+                 *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
+                 *	\f]
+                 */
+                Kqq.setZero();
+                //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,Kqq,&LinkType::stiffness_integrand);
+                QuadratureDynamicType::integrate(qOrder,this,Kqq,&LinkType::stiffness_integrand);
+                
+                //            //! 3-
+                //            ortC.setZero();
+                //
+                //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,ortC,&LinkType::ortC_integrand);
+                
+                
+                //! 4-
+                
+                //            std::set<size_t> segmentDOFs;
+                
+                h2posMap=this->hermite2posMap();
+                
+                //            segmentDOFs.clear();
+                //
+                //            const Eigen::VectorXi sourceDOFs(this->source->dofID());
+                //            for(int k=0;k<sourceDOFs.rows();++k)
+                //            {
+                //                segmentDOFs.insert(sourceDOFs(k));
+                //            }
+                //
+                //            const Eigen::VectorXi   sinkDOFs(this->sink->dofID());
+                //            for(int k=0;k<sinkDOFs.rows();++k)
+                //            {
+                //                segmentDOFs.insert(sinkDOFs(k));
+                //            }
+                
+                
+                //const size_t N(segmentDOFs.size());
+                
+                // Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,N));
+                Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
+                
+                size_t c=0;
+                for(const auto& pair : h2posMap)
+                {
+                    for(int r=0;r<Ncoeff;++r)
+                    {
+                        Mseg.template block<dim,dim>(r*dim,c*dim)=pair.second.first(r)*MatrixDim::Identity();
+                    }
+                    c++;
+                }
+                
+//                for(const auto& pair : h2posMap)
+//                {
+//                    std::cout<<"snID="<<pair.first<<std::endl;
+//                }
+//                std::cout<<Mseg<<std::endl<<std::endl;
+                
+                //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2H());
+                //            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2Ht());
+                //            Mso.block(dim,0,dim,Mso.cols())*=this->sourceTfactor;
+                //
+                //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2H());
+                //            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2Ht());
+                //            Msi.block(dim,0,dim,Msi.cols())*=-this->sinkTfactor;
+                //
+                //
+                //            for (int k=0;k<Mso.cols();++k)
+                //            {
+                //                const std::set<size_t>::const_iterator f(segmentDOFs.find(sourceDOFs(k)));
+                //                assert(f!=segmentDOFs.end());
+                //                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
+                //                Mseg.template block<Ndof/2,1>(0,curCol)=Mso.col(k);
+                //            }
+                //
+                //            for (int k=0;k<Msi.cols();++k)
+                //            {
+                //                const std::set<size_t>::const_iterator f(segmentDOFs.find(sinkDOFs(k)));
+                //                assert(f!=segmentDOFs.end());
+                //                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
+                //                Mseg.template block<Ndof/2,1>(Ndof/2,curCol)=Msi.col(k);
+                //            }
             }
             
-            
-            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2H());
-            //            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2Ht());
-            //            Mso.block(dim,0,dim,Mso.cols())*=this->sourceTfactor;
-            //
-            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2H());
-            //            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2Ht());
-            //            Msi.block(dim,0,dim,Msi.cols())*=-this->sinkTfactor;
-            //
-            //
-            //            for (int k=0;k<Mso.cols();++k)
-            //            {
-            //                const std::set<size_t>::const_iterator f(segmentDOFs.find(sourceDOFs(k)));
-            //                assert(f!=segmentDOFs.end());
-            //                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
-            //                Mseg.template block<Ndof/2,1>(0,curCol)=Mso.col(k);
-            //            }
-            //
-            //            for (int k=0;k<Msi.cols();++k)
-            //            {
-            //                const std::set<size_t>::const_iterator f(segmentDOFs.find(sinkDOFs(k)));
-            //                assert(f!=segmentDOFs.end());
-            //                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
-            //                Mseg.template block<Ndof/2,1>(Ndof/2,curCol)=Msi.col(k);
-            //            }
+
         }
         
         
@@ -892,72 +910,78 @@ namespace model
           * \param[in] FQ the force vector of the network component
           */
             
-            const Eigen::MatrixXd tempKqq(Mseg.transpose()*Kqq*Mseg); // Create the temporaty stiffness matrix and push into triplets
-            
-            
-            size_t localI=0;
-            for(const auto& pairI : h2posMap)
+            if(!hasZeroBurgers())
             {
-                for(int dI=0;dI<dim;++dI)
+                const Eigen::MatrixXd tempKqq(Mseg.transpose()*Kqq*Mseg); // Create the temporaty stiffness matrix and push into triplets
+                
+                
+                size_t localI=0;
+                for(const auto& pairI : h2posMap)
                 {
-                    const size_t globalI=pairI.first*dim+dI;
-                    
-                    size_t localJ=0;
-                    for(const auto& pairJ : h2posMap)
+                    for(int dI=0;dI<dim;++dI)
                     {
-                        for(int dJ=0;dJ<dim;++dJ)
+                        const size_t globalI=pairI.first*dim+dI;
+                        
+                        size_t localJ=0;
+                        for(const auto& pairJ : h2posMap)
                         {
-                            const size_t globalJ=pairJ.first*dim+dJ;
-                            
-                            if (std::fabs(tempKqq(localI,localJ))>FLT_EPSILON)
+                            for(int dJ=0;dJ<dim;++dJ)
                             {
-                                kqqT.push_back(Eigen::Triplet<double>(globalI,globalJ,tempKqq(localI,localJ)));
+                                const size_t globalJ=pairJ.first*dim+dJ;
+                                
+                                if (std::fabs(tempKqq(localI,localJ))>FLT_EPSILON)
+                                {
+                                    kqqT.push_back(Eigen::Triplet<double>(globalI,globalJ,tempKqq(localI,localJ)));
+                                }
+                                
+                                localJ++;
                             }
-                            
-                            localJ++;
                         }
+                        
+                        localI++;
                     }
-                    
-                    localI++;
                 }
-            }
-            
-            //            for (unsigned int i=0;i<segmentDOFs.size();++i)
-            //            {
-            //                std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
-            //                std::advance(iterI,i);
-            //                for (unsigned int j=0;j<segmentDOFs.size();++j)
-            //                {
-            //                    std::set<size_t>::const_iterator iterJ(segmentDOFs.begin());
-            //                    std::advance(iterJ,j);
-            //                    if (std::fabs(tempKqq(i,j))>FLT_EPSILON)
-            //                    {
-            //                        kqqT.push_back(Eigen::Triplet<double>(*iterI,*iterJ,tempKqq(i,j)));
-            //                    }
-            //                }
-            //            }
-            
-            const Eigen::VectorXd tempFq(Mseg.transpose()*Fq); // Create temporary force vector and add to global FQ
-            
-            localI=0;
-            for(const auto& pairI : h2posMap)
-            {
-                for(int dI=0;dI<dim;++dI)
+                
+                //            for (unsigned int i=0;i<segmentDOFs.size();++i)
+                //            {
+                //                std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
+                //                std::advance(iterI,i);
+                //                for (unsigned int j=0;j<segmentDOFs.size();++j)
+                //                {
+                //                    std::set<size_t>::const_iterator iterJ(segmentDOFs.begin());
+                //                    std::advance(iterJ,j);
+                //                    if (std::fabs(tempKqq(i,j))>FLT_EPSILON)
+                //                    {
+                //                        kqqT.push_back(Eigen::Triplet<double>(*iterI,*iterJ,tempKqq(i,j)));
+                //                    }
+                //                }
+                //            }
+                
+                const Eigen::VectorXd tempFq(Mseg.transpose()*Fq); // Create temporary force vector and add to global FQ
+                
+                localI=0;
+                for(const auto& pairI : h2posMap)
                 {
-                    const size_t globalI=pairI.first*dim+dI;
-                    
-                    FQ(globalI)+=tempFq(localI);
-                    
-                    localI++;
+                    for(int dI=0;dI<dim;++dI)
+                    {
+                        const size_t globalI=pairI.first*dim+dI;
+                        
+                        FQ(globalI)+=tempFq(localI);
+                        
+                        localI++;
+                    }
                 }
+                
+                //            for (unsigned int i=0;i<segmentDOFs.size();++i)
+                //            {
+                //                std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
+                //                std::advance(iterI,i);
+                //                FQ(*iterI)+=tempFq(i);
+                //            }
+            
             }
             
-            //            for (unsigned int i=0;i<segmentDOFs.size();++i)
-            //            {
-            //                std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
-            //                std::advance(iterI,i);
-            //                FQ(*iterI)+=tempFq(i);
-            //            }
+
         }
         
         /**********************************************************************/

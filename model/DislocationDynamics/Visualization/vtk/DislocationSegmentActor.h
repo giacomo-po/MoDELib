@@ -10,6 +10,7 @@
 #define model_DislocationSegmentActor_H_
 
 #include <deque>
+#include <string>
 
 #include <vtkVersion.h>
 #include <vtkSmartPointer.h>
@@ -25,6 +26,7 @@
 #include <vtkGlyph3D.h>
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
+#include <vtkLabeledDataMapper.h>
 
 //#include <model/IO/EdgeReader.h>
 //#include <model/IO/vertexReader.h>
@@ -85,6 +87,7 @@ namespace model
         
         // node objects
         vtkSmartPointer<vtkPoints> nodePoints;
+//        vtkSmartPointer<vtkStringArray> nodeLabels;
         vtkSmartPointer<vtkSphereSource> sphereSource;
         vtkSmartPointer<vtkPolyData> nodeData;
         vtkSmartPointer<vtkGlyph3D> nodeGlyphs;
@@ -101,7 +104,11 @@ namespace model
         vtkSmartPointer<vtkPolyDataMapper> velocityMapper;
         vtkSmartPointer<vtkActor> velocityActor;
 
-        
+        vtkSmartPointer<vtkPolyData> labelPolyData;
+        vtkSmartPointer<vtkDoubleArray> labelScalars;
+        vtkSmartPointer<vtkLabeledDataMapper> labelMapper;
+        vtkSmartPointer<vtkActor2D> labelActor;
+
         
         /*********************************************************************/
         void computeColor()
@@ -198,6 +205,8 @@ namespace model
                 vertexReader().read(frameID,true);
             }
             
+//            nodeLabels->SetNumberOfValues(vertexReader().size());
+//            size_t labelID=0;
             for(const auto& node : vertexReader())
             {
                 Eigen::Map<const Eigen::Matrix<double,1,10>> row(node.second.data());
@@ -206,9 +215,18 @@ namespace model
                 velocityVectors->InsertNextTuple(row.template segment<dim>(dim).data()); // arrow vactor
                 unsigned char clr[3]={255,0,255};
                 velocityColors->InsertNextTypedTuple(clr);
+                
+                
+                labelScalars->InsertNextTuple1(node.first);
+
+//                nodeLabels->SetValue(labelID, std::to_string(node.first));
+//                labelID++;
+
             }
          
             nodeData->SetPoints(nodePoints);
+//            nodeData->GetOutput()->GetPointData()->AddArray(labels);
+
             //nodeData->GetPointData()->SetVectors(vectors);
             nodeData->Modified();
 
@@ -217,6 +235,16 @@ namespace model
             velocityPolyData->Modified();
             velocityPolyData->GetCellData()->SetScalars(velocityColors);
             velocityPolyData->Modified();
+            
+//            labels->SetValue(1, "Priority 7");
+//            labels->SetValue(2, "Priority 6");
+//            labels->SetValue(3, "Priority 4");
+//            labels->SetValue(4, "Priority 4");
+//            labels->SetValue(5, "Priority 4");
+//            nodeData->GetOutput()->GetPointData()->AddArray(labels);
+            
+            labelPolyData->SetPoints(nodePoints);
+            labelPolyData->GetPointData()->SetScalars(labelScalars);
         }
         
         
@@ -319,6 +347,7 @@ namespace model
         /* init */ tubeFilter(vtkSmartPointer<vtkTubeFilter>::New()),
         /* init */ tubeMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ nodePoints(vtkSmartPointer<vtkPoints>::New()),
+//        /* init */ nodeLabels(vtkSmartPointer<vtkStringArray>::New()),
         /* init */ sphereSource(vtkSmartPointer<vtkSphereSource>::New()),
         /* init */ nodeData(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ nodeGlyphs(vtkSmartPointer<vtkGlyph3D>::New()),
@@ -331,13 +360,24 @@ namespace model
         /* init */ velocityArrowSource(vtkSmartPointer<vtkArrowSource>::New()),
         /* init */ velocityGlyphs(vtkSmartPointer<vtkGlyph3D>::New()),
         /* init */ velocityMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
-        /* init */ velocityActor(vtkSmartPointer<vtkActor>::New())
+        /* init */ velocityActor(vtkSmartPointer<vtkActor>::New()),
+        /* init */ labelPolyData(vtkSmartPointer<vtkPolyData>::New()),
+        /* init */ labelScalars(vtkSmartPointer<vtkDoubleArray>::New()),
+        /* init */ labelMapper(vtkSmartPointer<vtkLabeledDataMapper>::New()),
+        /* init */ labelActor(vtkSmartPointer<vtkActor2D>::New())
         {
             
             colors->SetNumberOfComponents(3);
             velocityVectors->SetNumberOfComponents(3);
             velocityVectors->SetName("nodeVelocity");
             velocityColors->SetNumberOfComponents(3);
+            
+            labelScalars->SetNumberOfComponents(1);
+            labelScalars->SetName("node IDs");
+
+            
+//            nodeLabels->SetName("node IDs");
+
 
             readNodes(frameID);
             readSegments(frameID);
@@ -398,16 +438,20 @@ namespace model
             velocityGlyphs->SetVectorModeToUseVector();
             velocityGlyphs->SetIndexModeToOff();
             
-            // Set up mapper
+            // Velocities
             velocityMapper->SetInputConnection(velocityGlyphs->GetOutputPort());
             velocityMapper->ScalarVisibilityOff();
-            
-            // Set up actor
             velocityActor->SetMapper(velocityMapper);
             velocityActor->GetProperty()->SetColor(1.0, 0.0, 1.0); //(R,G,B)
-            
-            // Add actor to renderer
             renderer->AddActor(velocityActor);
+            
+            // Labels
+            labelMapper->SetInputData(labelPolyData);
+            labelMapper->SetLabelModeToLabelScalars();
+            labelMapper->SetLabelFormat("%1.0f");
+            labelActor->SetMapper(labelMapper);
+            labelActor->GetProperty()->SetColor(0.0, 0.0, 0.0); //(R,G,B)
+            renderer->AddActor(labelActor);
 
             modify();
         }

@@ -35,9 +35,20 @@ namespace model
 
         typedef Eigen::Matrix<long int,dim,1> BaseType;
         typedef Lattice<dim> LatticeType;
+        
 
 //        typedef LatticeBase<dim> LatticeBaseType;
 //        typedef Eigen::Matrix<  double,dim,1> VectorDimD;
+        
+        Eigen::Matrix<long int,dim,1>& base()
+        {
+            return *this;
+        }
+        
+        const Eigen::Matrix<long int,dim,1>& base() const
+        {
+            return *this;
+        }
         
     public:
         
@@ -60,6 +71,17 @@ namespace model
 //        {
 //            
 //        }
+        
+        /**********************************************************************/
+        ReciprocalLatticeVector(const LatticeType& lat) :
+        /* init base */ BaseType(VectorDimI::Zero()),
+        /* init      */ lattice(lat)
+        ///* base init */ BaseType(LatticeBaseType::d2contra(d))
+        {/*!@param[in] d vector in real space
+          * Constructs *this by mapping d to the lattice
+          */
+            
+        }
         
         /**********************************************************************/
         ReciprocalLatticeVector(const VectorDimD& d,
@@ -101,6 +123,31 @@ namespace model
         }
         
         /**********************************************************************/
+        ReciprocalLatticeVector(const ReciprocalLatticeVectorType& other) = default;
+        ReciprocalLatticeVector(ReciprocalLatticeVectorType&& other) =default;
+
+        
+        /**********************************************************************/
+        ReciprocalLatticeVectorType& operator=(const ReciprocalLatticeVectorType& other)
+        {
+            assert(&lattice==&other.lattice && "ReciprocalLatticeVectorType belong to different Lattices.");
+            //            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+            //            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+            base()=other.base();
+            return *this;
+        }
+        
+        /**********************************************************************/
+        ReciprocalLatticeVectorType& operator=(ReciprocalLatticeVectorType&& other)
+        {
+            assert(&lattice==&other.lattice && "LatticeVectors belong to different Lattices.");
+            //            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+            //            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+            base()=other.base();
+            return *this;
+        }
+        
+        /**********************************************************************/
         ReciprocalLatticeVectorType operator+(const ReciprocalLatticeVectorType& other) const
         {
             assert(&lattice==&other.lattice && "LatticeVectors belong to different Lattices.");
@@ -109,6 +156,16 @@ namespace model
 //            return ReciprocalLatticeVectorType(static_cast<VectorDimI>(*this)+static_cast<VectorDimI>(other),covBasis,contraBasis);
             return ReciprocalLatticeVectorType(static_cast<VectorDimI>(*this)+static_cast<VectorDimI>(other),lattice);
 
+        }
+        
+        /**********************************************************************/
+        ReciprocalLatticeVectorType& operator+=(const ReciprocalLatticeVectorType& other)
+        {
+            assert(&lattice==&other.lattice && "LatticeVectors belong to different Lattices.");
+            //            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+            //            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+            base()+=other.base();
+            return *this;
         }
         
         /**********************************************************************/
@@ -123,10 +180,25 @@ namespace model
         }
         
         /**********************************************************************/
-        VectorDimD cartesian() const
+        ReciprocalLatticeVectorType& operator-=(const ReciprocalLatticeVectorType& other)
         {
-            return lattice.contraBasis()*this->template cast<double>();
+            assert(&lattice==&other.lattice && "LatticeVectors belong to different Lattices.");
+            //            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
+            //            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+            base()-=other.base();
+            return *this;
         }
+        
+        /**********************************************************************/
+        ReciprocalLatticeVectorType operator*(const long int& scalar) const
+        {
+            //            return LatticeVectorType(static_cast<VectorDimI>(*this)*scalar,covBasis,contraBasis);
+            return ReciprocalLatticeVectorType(static_cast<VectorDimI>(*this)*scalar,lattice);
+            
+        }
+
+        
+
         
         
         /**********************************************************************/
@@ -154,6 +226,11 @@ namespace model
 
         }
         
+        /**********************************************************************/
+        VectorDimD cartesian() const
+        {
+            return lattice.contraBasis()*this->template cast<double>();
+        }
         
         /**********************************************************************/
         static VectorDimI d2cov(const VectorDimD& d,
@@ -172,6 +249,12 @@ namespace model
         }
         
     };
+    
+    template<int dim>
+    ReciprocalLatticeVector<dim> operator*(const long int& scalar, const ReciprocalLatticeVector<dim>& L)
+    {
+        return L*scalar;
+    }
     
 } // end namespace
 #endif

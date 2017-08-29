@@ -38,6 +38,7 @@ namespace model
         static double dxMax;
         static double shearWaveSpeedFraction;
         
+        /**********************************************************************/
         template <typename DislocationNetworkType>
         static void computeNodaVelocities(DislocationNetworkType& DN)
         {
@@ -59,31 +60,42 @@ namespace model
              */
             
             //			double vmax(0.0);
+            int vMaxID=-1;
             double vmax=0.0;
             int nVmean=0;
             double vmean=0.0;
             double dt_mean=0.0;
             
+            std::cout<<"computing vMax for nodes: ";
             for (const auto& nodeIter : DN.nodes())
             {
-                if(!nodeIter.second->isBoundaryNode() && !nodeIter.second->isConnectedToBoundaryNodes() && nodeIter.second->confiningPlanes().size()<3)
+                if(   !nodeIter.second->isBoundaryNode()
+                   && !nodeIter.second->isConnectedToBoundaryNodes()
+                   &&  nodeIter.second->confiningPlanes().size()<3
+                   && !nodeIter.second->isOscillating())
                 {
+                    std::cout<<nodeIter.first<<" ";
                     const double vNorm(nodeIter.second->get_V().norm());
                     vmean +=vNorm;
                     nVmean++;
                     if (vNorm>vmax)
                     {
                         vmax=vNorm;
+                        vMaxID=nodeIter.first;
                     }
                 }
             }
+            std::cout<<std::endl;
             vmean/=nVmean;
+            
+            std::cout<<"vMax="<<vmax<<", id="<<vMaxID<<std::endl;
+            assert(vmax>0.0 && "vmax=0.0");
             
             //double shearWaveSpeedFraction(0.01);
             //short unsigned int shearWaveExp=1;
             if (vmax > Material<Isotropic>::cs*shearWaveSpeedFraction)
             {
-                DN.set_dt(dxMax/vmax);
+                DN.set_dt(dxMax/vmax,vmax);
                 
             }
             else
@@ -91,7 +103,7 @@ namespace model
                 //dt=dx/std::pow(shared.material.cs*shearWaveSpeedFraction,shearWaveExp+1)*std::pow(vmax,shearWaveExp);
                 //dt=dx/(shared.material.cs*shearWaveSpeedFraction)*std::pow(vmax/(shared.material.cs*shearWaveSpeedFraction),1);
                 //dt=dx/(Material<Isotropic>::cs*shearWaveSpeedFraction);
-                DN.set_dt(dxMax/(Material<Isotropic>::cs*shearWaveSpeedFraction));
+                DN.set_dt(dxMax/(Material<Isotropic>::cs*shearWaveSpeedFraction),vmax);
 
             }
             
@@ -119,10 +131,10 @@ namespace model
         
     };
 
-    template <>
+    //template <>
     double DDtimeIntegrator<0>::dxMax=10.0;
 
-    template <>
+    //template <>
     double DDtimeIntegrator<0>::shearWaveSpeedFraction=0.0001;
 	
 //    /**********************************************************************/

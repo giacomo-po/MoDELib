@@ -77,7 +77,7 @@ namespace model
         static double velocityReductionFactor;
         static double bndDistance;
         
-//        const Grain<dim>& grain;
+        //        const Grain<dim>& grain;
         std::set<const Grain<dim>*> grainSet;
         
     private:
@@ -106,23 +106,25 @@ namespace model
         //! The normal unit vector of the boundary on which *this DislocationNode is moving on
         VectorDim boundaryNormal;
         
-//        int grainBoundary_rID2;
-//
-//        VectorDim oldP;
-//        VectorDim A1;
-//        VectorDim A2;
+        VectorDim C;
+        
+        //        int grainBoundary_rID2;
+        //
+        //        VectorDim oldP;
+        //        VectorDim A1;
+        //        VectorDim A2;
         
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
-//            if(guess->region->regionID!=grain.grainID)
-//            {
-//                model::cout<<"DislocationNode "<<this->sID<<std::endl;
-//                model::cout<<"grainID "<<grain.grainID<<std::endl;
-//                model::cout<<"guess= "<<guess->xID<<std::endl;
-//                model::cout<<"guess regionID "<<guess->region->regionID<<std::endl;
-//                assert(0 && "guess does not belong to grain.");
-//            }
+            //            if(guess->region->regionID!=grain.grainID)
+            //            {
+            //                model::cout<<"DislocationNode "<<this->sID<<std::endl;
+            //                model::cout<<"grainID "<<grain.grainID<<std::endl;
+            //                model::cout<<"guess= "<<guess->xID<<std::endl;
+            //                model::cout<<"guess regionID "<<guess->region->regionID<<std::endl;
+            //                assert(0 && "guess does not belong to grain.");
+            //            }
             
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
             if (DislocationSharedObjects<dim>::use_boundary)
@@ -135,7 +137,7 @@ namespace model
                 {
                     temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
                 }
-
+                
                 //                temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
                 
                 if(!temp.first) // DislocationNode not found inside mesh
@@ -344,26 +346,27 @@ namespace model
         
         /**********************************************************************/
         DislocationNode(const VectorDim& Pin,
-//                        const int& grainID,
+                        //                        const int& grainID,
                         const VectorDofType& Vin,
                         const double& vrc) :
         //                        const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
         /* base constructor */ NodeBaseType(Pin),
-//        /* init list        */ grain(shared.poly.grain(grainID)),
+        //        /* init list        */ grain(shared.poly.grain(grainID)),
         //        /* init list        */ L(grain.latticeVector(Pin)),
         /* init list        */ p_Simplex(get_includingSimplex((const Simplex<dim,dim>*) NULL)),
         /* init list        */ velocity(Vin),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(vrc),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
-//        /* init list        */ grainBoundary_rID2(-1)
-//        oldP(this->get_P()),
-//        A1(this->get_P()),
-//                A2(this->get_P())
+        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
+        C(Pin)
+        //        /* init list        */ grainBoundary_rID2(-1)
+        //        oldP(this->get_P()),
+        //        A1(this->get_P()),
+        //                A2(this->get_P())
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
         {/*! Constructor from DOF
           */
-            
+            std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
         }
         
         //        /**********************************************************************/
@@ -387,23 +390,25 @@ namespace model
                         const LatticeVectorType& Lin) :
         //        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
         /* base constructor */ NodeBaseType(Lin.cartesian()),
-//        /* init list        */ grain(pL.grain),
+        //        /* init list        */ grain(pL.grain),
         //        /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
         /* init list        */ velocity((pL.source->velocity+pL.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
+        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
         //        otherGrains
-//        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
+        //        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
-//        oldP(this->get_P()),
-//        A1(this->get_P()),
-//        A2(this->get_P())
+        //        oldP(this->get_P()),
+        //        A1(this->get_P()),
+        //        A2(this->get_P())
+        C(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
           */
             //            std::cout<<"DislocationNode from ExpadingLink A "<<this->sID<<std::endl;
             forceBoundaryNode(pL);
+//            assert(0 && "Initialize C");
         }
         
         /**********************************************************************/
@@ -412,18 +417,19 @@ namespace model
                         const VectorDofType& Vin) :
         //        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
         /* base constructor */ NodeBaseType(Lin.cartesian()),
-//        /* init list        */ grain(pL.grain),
+        //        /* init list        */ grain(pL.grain),
         //        /* init list        */ L(Lin),
         /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
         /* init list        */ velocity(Vin),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
-//        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
+        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
+        //        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
         //        /* init list        */ regionBndNormal(VectorDim::Zero())
-//        oldP(this->get_P()),
-//        A1(this->get_P()),
-//        A2(this->get_P())
+        //        oldP(this->get_P()),
+        //        A1(this->get_P()),
+        //        A2(this->get_P())
+        C(this->get_P())
         {
             //            std::cout<<"DislocationNode from ExpadingLink B "<<this->sID<<std::endl;
             forceBoundaryNode(pL);
@@ -569,10 +575,10 @@ namespace model
             for(const auto& loopLink : this->loopLinks())
             {
                 grainSet.insert(&(loopLink->loop()->grain));
-//                if(loopLink->loop()->isSessile)
-//                {
-//                    assert(0 && "FINISH HERE, ADD MORE PLANES TO FULLY CONSTRAIN NODE");
-//                }
+                //                if(loopLink->loop()->isSessile)
+                //                {
+                //                    assert(0 && "FINISH HERE, ADD MORE PLANES TO FULLY CONSTRAIN NODE");
+                //                }
             }
         }
         
@@ -703,26 +709,26 @@ namespace model
             
         }
         
-//        void storeP()
-//        {
-//            oldP=this->get_P();
-//        }
-//
-//        void stepA1(const double& dt)
-//        {
-//            oldP=this->get_P();
-//            A1=this->get_P()+velocity*dt;
-//            this->set_P(this->get_P()+velocity*dt*0.5);
-//        }
-//        
-//        double stepA2(const double& dt)
-//        {
-//            A2=this->get_P()+velocity*dt*0.5;
-////            this->set_P(this->get_P()+velocity*dt*0.5);
-//            this->set_P(oldP);
-//
-//            return (A1-A2).norm();
-//        }
+        //        void storeP()
+        //        {
+        //            oldP=this->get_P();
+        //        }
+        //
+        //        void stepA1(const double& dt)
+        //        {
+        //            oldP=this->get_P();
+        //            A1=this->get_P()+velocity*dt;
+        //            this->set_P(this->get_P()+velocity*dt*0.5);
+        //        }
+        //
+        //        double stepA2(const double& dt)
+        //        {
+        //            A2=this->get_P()+velocity*dt*0.5;
+        ////            this->set_P(this->get_P()+velocity*dt*0.5);
+        //            this->set_P(oldP);
+        //
+        //            return (A1-A2).norm();
+        //        }
         
         /**********************************************************************/
         void set_V(const VectorDofType& vNew)
@@ -731,33 +737,33 @@ namespace model
             //vOld=velocity; // store current value of velocity before updating
             velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
             
-//            if(use_velocityFilter)
-//            {
-//                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
-//                //                const double VdotVold=
-//                if(velocity.dot(vOld)<-filterThreshold)
-//                {
-//                    velocityReductionCoeff*=velocityReductionFactor;
-//                }
-//                else if(velocity.dot(vOld)>filterThreshold)
-//                {
-//                    velocityReductionCoeff/=velocityReductionFactor;
-//                }
-//                else
-//                {
-//                    // don't change velocityReductionCoeff
-//                }
-//                if(velocityReductionCoeff>1.0)
-//                {
-//                    velocityReductionCoeff=1.0;
-//                }
-//                if(velocityReductionCoeff<0.0001)
-//                {
-//                    velocityReductionCoeff=0.0001;
-//                }
-//                velocity*=velocityReductionCoeff;
-//                
-//            }
+            //            if(use_velocityFilter)
+            //            {
+            //                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
+            //                //                const double VdotVold=
+            //                if(velocity.dot(vOld)<-filterThreshold)
+            //                {
+            //                    velocityReductionCoeff*=velocityReductionFactor;
+            //                }
+            //                else if(velocity.dot(vOld)>filterThreshold)
+            //                {
+            //                    velocityReductionCoeff/=velocityReductionFactor;
+            //                }
+            //                else
+            //                {
+            //                    // don't change velocityReductionCoeff
+            //                }
+            //                if(velocityReductionCoeff>1.0)
+            //                {
+            //                    velocityReductionCoeff=1.0;
+            //                }
+            //                if(velocityReductionCoeff<0.0001)
+            //                {
+            //                    velocityReductionCoeff=0.0001;
+            //                }
+            //                velocity*=velocityReductionCoeff;
+            //
+            //            }
             
         }
         
@@ -785,43 +791,67 @@ namespace model
             return velocity;
         }
         
-//        /**********************************************************************/
-//        bool invertedMotion() const
-//        {/*! The nodal velocity vector
-//          */
-//            return velocity.template segment<dim>(0).dot( vOld.template segment<dim>(0) ) < 0.0;
-//        }
+        //        /**********************************************************************/
+        //        bool invertedMotion() const
+        //        {/*! The nodal velocity vector
+        //          */
+        //            return velocity.template segment<dim>(0).dot( vOld.template segment<dim>(0) ) < 0.0;
+        //        }
         
-//        /**********************************************************************/
-//        const LatticePlane& grainBoundaryPlane() const
-//        {
-//            assert(grainBoundary_rID2>0 && "Node not on Grain Boundary");
-//            return shared.poly.grainBoundary(grain.grainID,grainBoundary_rID2).latticePlane(grain.grainID);
-//        }
+        //        /**********************************************************************/
+        //        const LatticePlane& grainBoundaryPlane() const
+        //        {
+        //            assert(grainBoundary_rID2>0 && "Node not on Grain Boundary");
+        //            return shared.poly.grainBoundary(grain.grainID,grainBoundary_rID2).latticePlane(grain.grainID);
+        //        }
         
         /**********************************************************************/
-        void move(const double & dt) __attribute__ ((deprecated))
+        void applyVelocityFilter(double vMaxGood)
         {
-            
-            vOld=velocity; // store current value of velocity before updating
-            //velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
-            
             if(use_velocityFilter)
             {
-                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
-                //                const double VdotVold=
-                if(velocity.dot(vOld)<-filterThreshold)
+                const double Rc=3.0*10.0;
+                const double filterThreshold=0.05*vMaxGood*vMaxGood;
+
+                if((this->get_P()-C).norm()<Rc)
                 {
-                    velocityReductionCoeff*=velocityReductionFactor;
-                }
-                else if(velocity.dot(vOld)>filterThreshold)
-                {
-                    velocityReductionCoeff/=velocityReductionFactor;
+                    if(velocity.dot(vOld)<-filterThreshold)
+                    {
+                        velocityReductionCoeff*=velocityReductionFactor;
+                    }
                 }
                 else
                 {
-                    // don't change velocityReductionCoeff
+                    if(velocity.dot(vOld)<-filterThreshold)
+                    {
+                        velocityReductionCoeff*=velocityReductionFactor;
+                        C=this->get_P();
+                    }
+                    else if(velocity.dot(vOld)>0.0)
+                    {
+                        velocityReductionCoeff/=velocityReductionFactor;
+                    }
+                    else
+                    {
+                        // don't change velocityReductionCoeff
+                    }
                 }
+                
+                //                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
+                
+                //                const double VdotVold=
+//                if(velocity.dot(vOld)<-filterThreshold)
+//                {
+//                    velocityReductionCoeff*=velocityReductionFactor;
+//                }
+//                else if(velocity.dot(vOld)>filterThreshold)
+//                {
+//                    velocityReductionCoeff/=velocityReductionFactor;
+//                }
+//                else
+//                {
+//                    // don't change velocityReductionCoeff
+//                }
                 if(velocityReductionCoeff>1.0)
                 {
                     velocityReductionCoeff=1.0;
@@ -830,9 +860,47 @@ namespace model
                 {
                     velocityReductionCoeff=0.0001;
                 }
-                velocity*=velocityReductionCoeff;
+                
+
+                
+                if( isOscillating()
+                   //&& velocity.norm()>vMaxGood /*velocity.norm()>0.0*/
+                   )
+                { // oscillating node
+                    std::cout<<"node "<<this->sID<<" BAD, ";
+                    //                    velocity*=(velocityReductionCoeff*vMaxGood/velocity.norm());
+                    if(velocity.norm()>vMaxGood)
+                    {
+                        velocity=velocityReductionCoeff*vMaxGood*velocity.normalized();
+                    }
+//                    std::cout<<velocity.norm()<<std::endl;
+                }
+                else
+                { // good node
+                    std::cout<<"node "<<this->sID<<" GOOD, ";
+                    velocity*=velocityReductionCoeff;
+                }
+                
+//                velocity*=velocityReductionCoeff;
+                std::cout<<"velocityReductionCoeff="<<velocityReductionCoeff<<", vMaxGood="<<vMaxGood<<", velocity.norm()="<<velocity.norm()<<", newVelocity="<<velocity.norm()<<std::endl;
                 
             }
+        }
+        
+        bool isOscillating() const
+        {
+            return velocityReductionCoeff<std::pow(velocityReductionFactor,3);
+        }
+        
+        /**********************************************************************/
+        void move(const double & dt) __attribute__ ((deprecated))
+        {
+            
+            //velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
+            
+            
+            
+            
             
             //const VectorDim P_old(this->get_P());
             
@@ -1092,11 +1160,13 @@ namespace model
                 }
             }
             
-//            // Store actual velocity
-//            if(dt>0.0)
-//            {
-//                velocity=(this->get_P()-P_old)/dt;
-//            }
+            //            // Store actual velocity
+            //            if(dt>0.0)
+            //            {
+            //                velocity=(this->get_P()-P_old)/dt;
+            //            }
+            
+            vOld=velocity; // store current value of velocity before updating
         }
         
         /**********************************************************************/
@@ -1268,21 +1338,21 @@ namespace model
             /**/<< ds.velocityReduction()<<"\t"
             /**/<< ds.pSN()->sID<<"\t"
             /**/<< (ds.meshLocation()==onMeshBoundary);
-//            /**/<< 0; // ds.grain.grainID
+            //            /**/<< 0; // ds.grain.grainID
             return os;
         }
         
-//        /**********************************************************************/
-//        LatticeVectorType zeroFlow() const
-//        {
-//            return LatticeVectorType(grain.lattice());
-//        }
+        //        /**********************************************************************/
+        //        LatticeVectorType zeroFlow() const
+        //        {
+        //            return LatticeVectorType(grain.lattice());
+        //        }
         
-//        /**********************************************************************/
-//        const int& rID2() const
-//        {
-//            return grainBoundary_rID2;
-//        }
+        //        /**********************************************************************/
+        //        const int& rID2() const
+        //        {
+        //            return grainBoundary_rID2;
+        //        }
     };
     
     

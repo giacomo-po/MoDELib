@@ -10,319 +10,353 @@
 #ifndef model_GLIDEPLANE_H
 #define model_GLIDEPLANE_H
 
-#include <math.h>
+//#include <math.h>
 #include <deque>
-#include <set>
+#include <chrono>
+#include <map>
 #include <assert.h>
 
 #include <Eigen/Core>
-#include <Eigen/StdVector>
+//#include <Eigen/StdVector>
 
 #include <model/Utilities/StaticID.h>
-#include <model/DislocationDynamics/DislocationNetworkTraits.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
-#include <model/DislocationDynamics/DislocationSharedObjects.h>
+//#include <model/DislocationDynamics/DislocationNetworkTraits.h>
+//#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
+//#include <model/DislocationDynamics/DislocationSharedObjects.h>
 //#include <model/DislocationDynamics/BVP/VirtualBoundarySlipSurface.h>
+//#include <model/MPI/MPIcout.h>
+//#include <model/Mesh/SimplexObserver.h>
+//#include <model/LatticeMath/LatticeMath.h>
+
+#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
+#include <model/LatticeMath/LatticePlane.h>
 #include <model/MPI/MPIcout.h>
-#include <model/Mesh/SimplexObserver.h>
-#include <model/LatticeMath/LatticeMath.h>
 
-
-namespace model {
-	
-	/*************************************************************/
-	/*************************************************************/
-	template <typename SegmentType>
-	class GlidePlane :
-    /* base class   */ public  StaticID<GlidePlane<SegmentType> >,
-	/* base class   */ private std::set<const SegmentType*>,
-//	/* base class   */ private std::set<const VirtualBoundarySlipSurface<SegmentType>*>,
-	/* base class   */ private GlidePlaneObserver<SegmentType>
+namespace model
+{
+    
+    /*************************************************************/
+    /*************************************************************/
+    template <typename LoopType>
+    class GlidePlane : public StaticID<GlidePlane<LoopType> >,
+    /* base class   */ public LatticePlane,
+    /* base class   */ private std::map<size_t,const LoopType* const>
+    //	/* base class   */ private std::set<const VirtualBoundarySlipSurface<SegmentType>*>,
+    //	/* base class   */ private GlidePlaneObserver<SegmentType>
     {
-		
+        
+        
     public:
-        typedef GlidePlane<SegmentType> GlidePlaneType;
-        typedef typename GlidePlaneObserver<SegmentType>::GlidePlaneSharedPtrType GlidePlaneSharedPtrType;
         
-        enum{dim=TypeTraits<SegmentType>::dim};
+        constexpr static int dim=LoopType::dim;
+        typedef typename TypeTraits<LoopType>::LinkType LinkType;
+        typedef GlidePlane<LoopType> GlidePlaneType;
+        typedef GlidePlaneObserver<LoopType> GlidePlaneObserverType;
+//        typedef LatticeVector<dim> LatticeVectorType;
+        //        typedef ReciprocalLatticeDi<dim> LatticeVectorType;
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef typename GlidePlaneObserverType::GlidePlaneKeyType GlidePlaneKeyType;
+        //        typedef std::pair<VectorDim,VectorDim> segmentMeshCollisionPair;
+        //        typedef std::deque<segmentMeshCollisionPair> SegmentMeshCollisionPairContainerType;
+        typedef std::deque<std::pair<const Simplex<dim,dim-2>* const,VectorDim>> PlaneMeshIntersectionContainer;
         
-		typedef std::set<const SegmentType*> SegmentContainerType;
-//		typedef std::set<const VirtualBoundarySlipSurface<SegmentType>*> BoundarySegmentContainerType;
+        //        const LatticePlane glidePlane;
         
-		typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
-		typedef Eigen::Matrix<double,dim,1> VectorDimD;
-		typedef Eigen::Matrix<double,dim+1,1> VectorDimPlusOneD;
-		typedef std::pair<VectorDimD,VectorDimD> segmentMeshCollisionPair;
-		typedef std::deque<segmentMeshCollisionPair> SegmentMeshCollisionPairContainerType;
-		typedef std::pair<unsigned int, segmentMeshCollisionPair> planeTraingleIntersection;
-		typedef std::vector<planeTraingleIntersection, Eigen::aligned_allocator<planeTraingleIntersection> > planeMeshIntersectionType;
-        typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
+        static double meshIntersectionTol;
+        const Grain<dim>& grain;
+        const GlidePlaneKeyType glidePlaneKey;
+        //! A container of the intersection lines between *this and the mesh boundary
+        //const SegmentMeshCollisionPairContainerType segmentMeshCollisionPairContainer;
+        const PlaneMeshIntersectionContainer meshIntersections;
+        //                //! A container of the intersection lines between *this and the internal region mesh boundaries
+        //                const SegmentMeshCollisionPairContainerType segmentRegionCollisionPairContainer;
         
-    private:
-		static DislocationSharedObjects<dim> shared;
         
-	public:
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        
-//        const ReciprocalLatticeDirectionType& reciprocalNormal;
-        
-        //! The unit vector normal to *this GlidePlane
-		const VectorDimD planeNormal;
-		
-        //! The height from the origin along the planeNormal
-        const double height;
-        
-		
-//		//! A container of the intersection lines between *this and the mesh boundary
-//		const SegmentMeshCollisionPairContainerType segmentMeshCollisionPairContainer;
-//
-//        //! A container of the intersection lines between *this and the internal region mesh boundaries
-//        const SegmentMeshCollisionPairContainerType segmentRegionCollisionPairContainer;
-
-        
-		/**********************************************************************/
-		GlidePlane(const VectorDimD& planeNormal_in, const double& height_in) :
-//        /* init list */ reciprocalNormal(planeNormal_in),
-        /* init list */ planeNormal(planeNormal_in),
-		/* init list */ height(height_in)
-//        /* init list */ segmentMeshCollisionPairContainer(getPlaneMeshIntersection(planeNormal*height,planeNormal)),
-//        /* init list */ segmentRegionCollisionPairContainer(getPlaneRegionIntersection(planeNormal*height,planeNormal))
+        /**********************************************************************/
+        GlidePlane(const Grain<dim>& grain_in,
+                   const VectorDim& P,
+                   const VectorDim& N) :
+        /* init */ LatticePlane(grain_in.latticeVector(P),grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+        /* init */ grain(grain_in),
+        /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain,P,N)),
+        /* init */ meshIntersections(planeMeshIntersection())
+        //        /* init list */ segmentMeshCollisionPairContainer(getPlaneMeshIntersection(planeNormal*height,planeNormal)),
+        //        /* init list */ segmentRegionCollisionPairContainer(getPlaneRegionIntersection(planeNormal*height,planeNormal))
         {
-			assert(std::fabs(planeNormal.norm()-1.0)<=DBL_EPSILON && "GLIDE PLANE NORMAL IS NOT UNIT");
-			const bool success(this->glidePlaneMap.insert(std::make_pair((VectorDimPlusOneD()<< planeNormal, height).finished(),this)).second);
-            assert(success && "CANNOT INSERT GLIDE PLANE  IN STATIC glidePlaneMap.");
-		}
-		
-        /**********************************************************************/
-		~GlidePlane()
-        {
-			model::cout<<"Deleting GlidePlane "<<this->sID<<std::endl;
-            const bool success(this->glidePlaneMap.erase((VectorDimPlusOneD()<< planeNormal, height).finished())==1);
-			assert( success && "CANNOT ERASE GLIDE PLANE  FROM STATIC glidePlaneMap.");
-			assert( SegmentContainerType::empty() && "DELETING NON-EMPTY GLIDE PLANE.");
-//			assert(BoundarySegmentContainerType::empty() && "DELETING NON-EMPTY GLIDE PLANE.");
-		}
+            model::cout<<"Creating GlidePlane "<<glidePlaneKey.transpose()<<std::endl;
+            GlidePlaneObserverType::addGlidePlane(this);
+        }
         
         /**********************************************************************/
-		GlidePlaneSharedPtrType getSharedPointer() const
-        {/*!\returns a SharedPtr to this.
-          */
-            assert(!SegmentContainerType::empty() && "GLIDE PLANE CONTAINS NO SEGMENTS");
-            return (*SegmentContainerType::begin())->pGlidePlane;
-		}
-		
+        ~GlidePlane()
+        {
+            GlidePlaneObserverType::removeGlidePlane(this);
+        }
+        
         /**********************************************************************/
-		void addToGLidePlane(SegmentType* const pS)
+        const std::map<size_t,const LoopType* const>& loops() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        void addLoop(const LoopType* const pL)
         {/*!@\param[in] pS a row pointer to a DislocationSegment
           * Adds pS to *this GLidePlane
           */
-            const bool success(SegmentContainerType::insert(pS).second);
-			assert( success && "COULD NOT INSERT SEGMENT POINTER IN SEGMENT CONTAINER.");
-		}
-		
+            const bool success=this->emplace(pL->sID,pL).second;
+            assert( success && "COULD NOT INSERT LOOP POINTER IN GLIDE PLANE.");
+        }
+        
         /**********************************************************************/
-		void removeFromGlidePlane(SegmentType* const pS)
+        void removeLoop(const LoopType* const pL)
         {/*!@\param[in] pS a row pointer to a DislocationSegment
           * Removes pS from *this GLidePlane
           */
-            const bool success(SegmentContainerType::erase(pS)==1);
-			assert(success && "COULD NOT ERASE SEGMENT POINTER FROM SEGMENT CONTAINER.");
-		}
-		
+            const int success=this->erase(pL->sID);
+            assert(success==1 && "COULD NOT ERASE LOOP POINTER FROM GLIDE PLANE.");
+        }
+        
         /**********************************************************************/
-		typename std::set<const SegmentType*>::const_iterator begin() const
+        PlaneMeshIntersectionContainer planeMeshIntersection() const
         {
-			return SegmentContainerType::begin();
-		}
-		
-        /**********************************************************************/
-		typename std::set<const SegmentType*>::const_iterator end() const
-        {
-			return SegmentContainerType::end();
-		}
-		
-        /**********************************************************************/
-        SegmentMeshCollisionPairContainerType planeMeshIntersection() const
-        {/*!@param[in] x0 a point on *this GlidePlane
-          *!@param[n]  n  the unit plane normal to *this GlidePlane
-          *\returns a container of segments representing the intersection of *this GlidePLane with the SimplexMesh
-          */
-            SegmentMeshCollisionPairContainerType temp;
-            if (shared.use_boundary)
+            std::cout<<"Computing mesh intersection"<<std::flush;
+            const auto t0=std::chrono::system_clock::now();
+            
+            
+            PlaneMeshIntersectionContainer temp;
+            
+            if (DislocationSharedObjects<dim>::use_boundary)
             {
-                const VectorDimD x0=planeNormal*height;
-                VectorDimD n=planeNormal;
+                const VectorDim P0=this->P.cartesian();
+                const VectorDim N=this->n.cartesian().normalized();
                 
-                for(typename SimplexObserver<dim,dim-1>::const_iterator fIter =SimplexObserver<dim,dim-1>::simplexBegin();
-                    /*                                               */ fIter!=SimplexObserver<dim,dim-1>::simplexEnd();++fIter)
+//                std::cout<<"P0="<<P0.transpose()<<std::endl;
+//                std::cout<<"N="<<N.transpose()<<std::endl;
+               
+                // Find initial intersection
+                std::pair<const Simplex<dim,dim-2>*,std::deque<VectorDim>> pEI=getFirstPlaneEdgeIntersection(P0,N);
+//                std::pair<const Simplex<dim,dim-2>*,std::deque<VectorDim>> pEI;
+
+                
+                std::set<const Simplex<dim,dim-2>*> tested;
+                
+                tested.insert(pEI.first);
+                for(const auto& x: pEI.second)
                 {
-                    if(fIter->second->isBoundarySimplex())
+                    temp.emplace_back(pEI.first,x);
+                }
+                
+//                std::cout<<""
+                
+//                bool keepTesting=true;
+                while(true)
+                {
+//                    keepTesting=false;
+                    
+                    std::map<double,std::pair<const Simplex<dim,dim-2>*,VectorDim>> intersectionMap;
+
+                    
+                    
+                    for(const auto& sibling : temp.rbegin()->first->siblings())
                     {
-                        std::deque<VectorDimD> intersectionPoints;
-                        for(unsigned int e=0;e<dim;++e)
-                        {// this part of the code is specific to dim=3;
-                            const VectorDimD& v0(fIter->second->child(e).child(0).P0);
-                            const VectorDimD& v1(fIter->second->child(e).child(1).P0);
-                            const double u ((x0-v0).dot(n) / (v1-v0).dot(n));
-                            if(u>=0 && u<=1.0)
+//                        std::cout<<this->sID<<" "
+//                        <<(*tested.rbegin())->child(0).xID<<" "<<(*tested.rbegin())->child(1).xID<<" "
+//                        <<sibling->child(0).xID<<" "<<sibling->child(1).xID<<" "
+//                        << sibling->isBoundarySimplex()<<" "
+//                        << (tested.find(sibling)==tested.end())<<std::endl;
+                        
+                        
+                        if(sibling->isBoundarySimplex())
+                        {
+                            if(tested.find(sibling)==tested.end())
                             {
-                                const VectorDimD P(v0 + u*(v1-v0));
-                                bool isDifferent=true;
-                                for (unsigned int k=0;k<intersectionPoints.size();++k)
+                                tested.insert(sibling);
+                                
+                                std::pair<const Simplex<dim,dim-2>*,std::deque<VectorDim>> nextIntersections=planeEdgeIntersection(P0,N,*sibling);
+                                
+//                                std::cout<<"# intersections "<<nextIntersections.second.size()<<std::endl;
+                                
+                                
+                                for(const auto& x: nextIntersections.second)
                                 {
-                                    isDifferent*= (P-intersectionPoints[k]).squaredNorm()>FLT_EPSILON;
+//                                    if((x-temp.rbegin()->second).norm()>FLT_EPSILON)
+//                                    {
+                                    
+                                    //double w=1.0;
+                                    
+                                    const VectorDim dX=x-temp[temp.size()-1].second;
+                                    VectorDim dXold(dX);
+                                
+                                    if(temp.size()>1)
+                                    {
+                                        dXold=temp[temp.size()-1].second-temp[temp.size()-2].second;
+                                    }
+
+                                    
+                                    intersectionMap.emplace(dX.dot(dXold),std::make_pair(sibling,x));
+
+                                    
+                                        //temp.emplace_back(sibling,x);
+//                                    }
+                                    //                                        else
+                                    //                                        {
+                                    //                                            temp.rbegin()->first=sibling;
+                                    //                                        }
                                 }
                                 
-                                if (isDifferent)
-                                {
-                                    intersectionPoints.emplace_back(P);
-                                }
+                                
+//                                if(nextIntersections.second.size())
+//                                {
+//                                    for(const auto& x: nextIntersections.second)
+//                                    {
+//                                        if((x-temp.rbegin()->second).norm()>FLT_EPSILON)
+//                                        {
+//                                            temp.emplace_back(sibling,x);
+//                                        }
+////                                        else
+////                                        {
+////                                            temp.rbegin()->first=sibling;
+////                                        }
+//                                    }
+//                                    
+//                                    keepTesting=true;
+//                                    break;
+//                                }
                             }
                         }
-                        assert(intersectionPoints.size()<3);
-                        if (intersectionPoints.size()==2)
-                        {
-                            temp.emplace_back(intersectionPoints[0],intersectionPoints[1]);
-                        }
+                        
+                        
                     }
+                    
+                    
+                    if(intersectionMap.size())
+                    {
+                        if(intersectionMap.rbegin()->first<FLT_EPSILON)
+                        {
+                            temp.pop_back();
+                            
+                        }
+                        //                    else
+                        //                    {
+                        //                        //temp.rbegin()->first=intersectionMap.rbegin()->second.first;
+                        //                    }
+                        
+                        temp.emplace_back(intersectionMap.rbegin()->second.first,intersectionMap.rbegin()->second.second);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                    
+                    
+
+                    
                 }
+                
+                
+                
+                //                std::cout
+                
             }
+            
+            std::cout<<" boundary perimeter has "<<temp.size()<<" points"<<std::flush;
+
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            
+            
             return temp;
         }
         
         /**********************************************************************/
-        SegmentMeshCollisionPairContainerType planeRegionIntersection() const
-        {/*!@param[in] x0 a point on *this GlidePlane
-          *!@param[n]  n  the unit plane normal to *this GlidePlane
-          *\returns a container of segments representing the intersection of *this GlidePLane with the SimplexMesh
-          */
-            SegmentMeshCollisionPairContainerType temp;
-            if (shared.use_boundary)
-            {
-                const VectorDimD x0=planeNormal*height;
-                VectorDimD n=planeNormal;
-
-                
-                for(typename SimplexObserver<dim,dim-1>::const_iterator fIter =SimplexObserver<dim,dim-1>::simplexBegin();
-                    /*                                               */ fIter!=SimplexObserver<dim,dim-1>::simplexEnd();++fIter)
+        static std::pair<const Simplex<dim,dim-2>*,std::deque<VectorDim>> getFirstPlaneEdgeIntersection(const VectorDim& P0,
+                                                                                                        const VectorDim& n)
+        {
+            std::pair<const Simplex<dim,dim-2>*,std::deque<VectorDim>> temp;
+            for(const auto& edge : SimplexObserver<dim,dim-2>::simplices())
+            {// loop over edges
+                if(edge.second->isBoundarySimplex())
                 {
-                    if(fIter->second->isRegionBoundarySimplex())
-                    {
-                        std::deque<VectorDimD> intersectionPoints;
-                        for(unsigned int e=0;e<dim;++e)
-                        {// this part of the code is specific to dim=3;
-                            const VectorDimD& v0(fIter->second->child(e).child(0).P0);
-                            const VectorDimD& v1(fIter->second->child(e).child(1).P0);
-                            const double u ((x0-v0).dot(n) / (v1-v0).dot(n));
-                            if(u>=0 && u<=1.0)
-                            {
-                                const VectorDimD P(v0 + u*(v1-v0));
-                                bool isDifferent=true;
-                                for (unsigned int k=0;k<intersectionPoints.size();++k)
-                                {
-                                    isDifferent*= (P-intersectionPoints[k]).squaredNorm()>FLT_EPSILON;
-                                }
-                                
-                                if (isDifferent)
-                                {
-                                    intersectionPoints.emplace_back(P);
-                                }
-                            }
-                        }
-                        assert(intersectionPoints.size()<3);
-                        if (intersectionPoints.size()==2)
-                        {
-                            temp.emplace_back(intersectionPoints[0],intersectionPoints[1]);
-                        }
+                    temp=planeEdgeIntersection(P0,n,*edge.second);
+                    if(temp.second.size())
+                    { // first intersection found
+                        break;
                     }
                 }
             }
+            
+            assert(temp.second.size() && "plane does not intersect mesh.");
+            
             return temp;
         }
+        
+        /**********************************************************************/
+        static std::pair<const Simplex<dim,dim-2>*,std::deque<VectorDim>> planeEdgeIntersection(const VectorDim& P0,
+                                                                                                const VectorDim& n,
+                                                                                                const Simplex<dim,dim-2>& edge)
+        {
+            std::deque<VectorDim> temp;
+            
+            const VectorDim& v0(edge.child(0).P0);
+            const VectorDim& v1(edge.child(1).P0);
+            
+            // check intersection of v0->v1 with plane
+            // x=v0+u(v1-v0)
+            // (x-P0).n=0
+            // (v0+u(v1-v0)-P0).n=0
+            // u=(P0-v0).n/(v1-v0).n;
+            const double edgeNorm=(v1-v0).norm();
+            assert(edgeNorm>FLT_EPSILON && "mesh edge has zero norm.");
+            const double den=(v1-v0).dot(n);
+            const double num=(P0-v0).dot(n);
+            
+            if (fabs(den/edgeNorm)>meshIntersectionTol)
+            {
+                // edge intersects plane
+                const double u=num/den;
+                if(u>=0.0 && u<=1.0)
+                {
+                    temp.emplace_back(v0 + u*(v1-v0));
+                }
+            }
+            else
+            {
+                if (fabs(num)>meshIntersectionTol)
+                {// edge is parallel to plane, no intersection
+                    
+                }
+                else
+                {// edge is coplanar
+                    temp.emplace_back(v0);
+                    temp.emplace_back(v1);
+                }
+            }
+            
+            return std::make_pair(&edge,temp);
+        }
+        
         
         /* friend T& operator << **********************************************/
-		template <class T>
-		friend T& operator << (T& os, const GlidePlaneType& gp)
+        template <class T>
+        friend T& operator << (T& os, const GlidePlaneType& gp)
         {
-            
-            		//! A container of the intersection lines between *this and the mesh boundary
-            		const SegmentMeshCollisionPairContainerType segmentMeshCollisionPairContainer=gp.planeMeshIntersection();
-            //
-                    //! A container of the intersection lines between *this and the internal region mesh boundaries
-                    const SegmentMeshCollisionPairContainerType segmentRegionCollisionPairContainer=gp.planeRegionIntersection();
+            size_t kk=0;
+            for (const auto& x : gp.meshIntersections)
+            {
+                os<<gp.sID<< " "<<kk<<" "<< x.first->child(0).xID<< " "<< x.first->child(1).xID <<" "<<x.second.transpose()<<"\n";
+                kk++;
+            }
 
-            
-            unsigned int ii = 0 ;
-            typename SegmentMeshCollisionPairContainerType::const_iterator itt;
-            for (itt = segmentMeshCollisionPairContainer.begin(); itt != segmentMeshCollisionPairContainer.end() ;++itt)
-            {
-                os << gp.sID<< " "<< ii <<" "
-                << itt->first.transpose()<<" "
-                << itt->second.transpose()<<"\n";
-                ii++;
-            }
-            for (itt = segmentRegionCollisionPairContainer.begin(); itt != segmentRegionCollisionPairContainer.end() ;++itt)
-            {
-                os << gp.sID<< " "<< ii <<" "
-                << itt->first.transpose()<<" "
-                << itt->second.transpose()<<"\n";
-                ii++;
-            }
             return os;
         }
         
     };
     
+    template <typename LoopType>
+    double GlidePlane<LoopType>::meshIntersectionTol=100.0*DBL_EPSILON;
+    
     /*************************************************************/
     /*************************************************************/
 } // namespace model
 #endif
-
-
-//        /**********************************************************************/
-//		void addToGLidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS)
-//        {
-//			assert(BoundarySegmentContainerType::insert(pS).second && "COULD NOT INSERT BOUNDARY SEGMENT POINTER IN SEGMENT CONTAINER.");
-//		}
-//
-//        /**********************************************************************/
-//		void removeFromGlidePlane(VirtualBoundarySlipSurface<SegmentType>* const pS)
-//        {
-//			assert(BoundarySegmentContainerType::erase(pS)==1 && "COULD NOT ERASE BOUNDARY SEGMENT POINTER FROM SEGMENT CONTAINER.");
-//		}
-
-//        /**********************************************************************/
-//        MatrixDimD stress(const VectorDimD& Rfield) const
-//        {/*  stress from all segments on this glide plane
-//          */
-//            MatrixDimD temp(MatrixDimD::Zero());
-//            for (typename std::set<const SegmentType*>::const_iterator sIter = SegmentContainerType::begin(); sIter != SegmentContainerType::end() ;++sIter){
-//                temp+=(*sIter)->stress_source(Rfield);
-//            }
-//            return temp;
-//        }
-
-//        /**********************************************************************/
-//		GlidePlaneSharedPtrType getSharedPointer() const
-//        {
-//			GlidePlaneSharedPtrType temp;
-//			if (!SegmentContainerType::empty())
-//            {
-//				temp=(*SegmentContainerType::begin())->pGlidePlane;
-//			}
-//			else
-//            { // no segments in the container
-//                assert(0 && "GLIDE PLANE CONTAINS NO SEGMENTS");
-//
-////				if (!BoundarySegmentContainerType::empty())
-////                {
-////					temp=(*BoundarySegmentContainerType::begin())->pGlidePlane;
-////				}
-////				else
-////                {
-////					assert(0 && "GLIDE PLANE CONTAINS NO SEGMENTS AND NO BOUNDARY SEGMENTS");
-////				}
-//			}
-//            return temp;
-//		}
 

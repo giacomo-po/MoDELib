@@ -23,6 +23,8 @@ namespace model
         
     public:
         //        typedef SimplexChild<dim,order> SimplexChildType;
+        typedef Simplex<dim,order>   SimplexType;
+        typedef std::set<const SimplexType*,SimplexCompare<dim,order> >  SiblingsContainerType;
         typedef Simplex<dim,order+1> ParentSimplexType;
         typedef typename SimplexTraits<dim,order+1>::SimplexIDType ParentSimplexIDType;
         typedef typename SimplexTraits<dim,order+1>::ScalarIDType ScalarIDType;
@@ -76,6 +78,20 @@ namespace model
         const ParentContainerType& parents() const
         {
             return *this;
+        }
+        
+        /**********************************************************************/
+        SiblingsContainerType siblings() const
+        {
+            SiblingsContainerType temp;
+            for(const auto& parent : parents())
+            {
+                for(int c=0; c<ParentSimplexType::nFaces;++c)
+                {
+                    temp.insert(&parent->child(c));
+                }
+            }
+            return temp;
         }
         
         /**********************************************************************/

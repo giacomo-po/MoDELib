@@ -15,86 +15,163 @@
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
+#include <model/LatticeMath/LatticeVector.h>
+#include <model/LatticeMath/ReciprocalLatticeVector.h>
 
-namespace model {
+
+namespace model
+{
 	
 	// Class Predeclaration
-	template <typename SegmentType>
+	template <typename LoopType>
 	class GlidePlane;
 		
 	/**************************************************************************/
 	/**************************************************************************/
-	template<typename SegmentType>
-	struct GlidePlaneObserver
+	template<typename LoopType>
+    class GlidePlaneObserver
     {
 
-		typedef GlidePlaneObserver<SegmentType> GlidePlaneObserverType;
-		typedef GlidePlane<SegmentType> GlidePlaneType;
-        typedef Eigen::Matrix<double,TypeTraits<SegmentType>::dim,1> VectorDimD;
-		typedef Eigen::Matrix<double,TypeTraits<SegmentType>::dim+1,1> VectorDimPlusOneD;
+    public:
 
-        typedef std::map<VectorDimPlusOneD,GlidePlaneType* const,CompareVectorsByComponent<double,TypeTraits<SegmentType>::dim+1,float>,
-        /*            */ Eigen::aligned_allocator<std::pair<const VectorDimPlusOneD,GlidePlaneType* const> > > GlidePlaneMapType;
+        static constexpr int dim=LoopType::dim;
+		typedef GlidePlaneObserver<LoopType> GlidePlaneObserverType;
+		typedef GlidePlane<LoopType> GlidePlaneType;
+        typedef Eigen::Matrix<long int,dim,1> VectorDimI;
+        typedef Eigen::Matrix<double,dim,1> VectorDimD;
 
-		typedef typename GlidePlaneMapType::const_iterator const_iterator;
+        //typedef Eigen::Matrix<double,TypeTraits<LoopType>::dim+1,1> VectorDimPlusOneD;
+
+        typedef Eigen::Matrix<long int,dim+1,1> GlidePlaneKeyType;
+        
+        
+        typedef 	std::map<Eigen::Matrix<long int,LoopType::dim+1,1>,
+        /*                */ const GlidePlane<LoopType>* const,
+        /*                */ CompareVectorsByComponent<long int,LoopType::dim+1,long int>,
+        /*                */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,LoopType::dim+1,1>,const GlidePlane<LoopType>* const> > > GlidePlaneMapType;
+
 		typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
-		
-		/* begin() ***************************************************/
-		static typename GlidePlaneMapType::const_iterator begin()
-        {/*! A const iterator to the begin of the static map of GlidePlane(s)
-		  */
-			return glidePlaneMap.begin();
-		}
-		
-		/* end() *****************************************************/		
-		static typename GlidePlaneMapType::const_iterator end()
-        {/*! A const iterator to the end of the static map of GlidePlane(s)
-		  */
-			return glidePlaneMap.end();
-		}
-		
-		/* findExistingGlidePlane() **********************************/
-		static GlidePlaneSharedPtrType findExistingGlidePlane(const VectorDimD& planeNormal, const double& height)
-        {/*! A shared pointer to an existing GlidePlane defined by planeNormal and height.
-		  *  If no GlidePlane exists, a shared pointer to a new GlidePlane is returned.
-		  */
-			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find((VectorDimPlusOneD()<<planeNormal.normalized(),height).finished()));
-			return (iter!=glidePlaneMap.end())? iter->second->getSharedPointer() : GlidePlaneSharedPtrType(new GlidePlaneType(planeNormal,height));
-		}
 
-		/* isGlidePlane() ********************************************/
-		static std::pair<bool, const GlidePlaneType* const> isGlidePlane(const VectorDimD& planeNormal, const double& height)
+        
+    private:
+//        
+        static  GlidePlaneMapType glidePlaneMap;
+
+    public:
+        
+        /**********************************************************************/
+        static GlidePlaneMapType& glidePlanes()
         {
-			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find((VectorDimPlusOneD()<<planeNormal.normalized(),height).finished()));
-			return (iter!=glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
-		}
-		
-		/* isGlidePlane() ********************************************/
-		static std::pair<bool, const GlidePlaneType* const> isGlidePlane(const VectorDimPlusOneD& key)
+            return glidePlaneMap;
+        }
+
+        /**********************************************************************/
+        static GlidePlaneKeyType getGlidePlaneKey(const Grain<dim>& grain,
+                                                  const VectorDimD& P,
+                                                  const VectorDimD& N)
         {
-			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find(key));
-			return (iter!=glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
-		}
-		
+            const LatticeVector<dim> p=grain.latticeVector(P);
+            const ReciprocalLatticeDirection<dim> n=grain.reciprocalLatticeDirection(N);
+            const ReciprocalLatticeVector<dim> pn=p.dot(n)*n;
+            return (GlidePlaneKeyType()<<grain.grainID,pn).finished();
+        }
+        
+        /**********************************************************************/
+        static std::shared_ptr<GlidePlaneType> getSharedPlane(const Grain<dim>& grain,
+                                                              const VectorDimD& P,
+                                                              const VectorDimD& N)
+        {
+            const GlidePlaneKeyType key=getGlidePlaneKey(grain,P,N);
+            const auto planeIter=glidePlaneMap.find(key);
+            
+            return (planeIter!=glidePlaneMap.end())? planeIter->second->loops().begin()->second->_glidePlane : std::make_shared<GlidePlaneType>(grain,P,N);
+        }
+        
+//        /**********************************************************************/
+//        static GlidePlaneKeyType getGlidePlaneKey(const size_t& grainID,
+//                                                  const ReciprocalLatticeVector<dim>& pn)
+//        {
+//            return (GlidePlaneKeyType()<<grainID,pn.transpose()).finished();
+//        }
+        
+//        /**********************************************************************/
+//        static  const GlidePlaneMapType& glidePlanes()
+//        {
+//            return glidePlaneMap;
+//        }
+        
+        /**********************************************************************/
+        static void addGlidePlane(const GlidePlaneType* const pL)
+        {/*!@\param[in] pS a row pointer to a DislocationSegment
+          * Adds pS to *this GLidePlane
+          */
+            const bool success=glidePlaneMap.emplace(pL->glidePlaneKey,pL).second;
+            assert( success && "COULD NOT INSERT GLIDE PLANE POINTER IN GLIDE PLANE OBSERVER.");
+        }
+        
+        /**********************************************************************/
+        static void removeGlidePlane(const GlidePlaneType* const pL)
+        {/*!@\param[in] pS a row pointer to a DislocationSegment
+          * Removes pS from *this GLidePlane
+          */
+            const int success=glidePlaneMap.erase(pL->glidePlaneKey);
+            assert(success==1 && "COULD NOT ERASE GLIDE PLANE POINTER FROM GLIDE PLANE OBSERVER.");
+        }
+//		/* begin() ***************************************************/
+//		static typename GlidePlaneMapType::const_iterator begin()
+//        {/*! A const iterator to the begin of the static map of GlidePlane(s)
+//		  */
+//			return glidePlaneMap.begin();
+//		}
+//		
+//		/* end() *****************************************************/		
+//		static typename GlidePlaneMapType::const_iterator end()
+//        {/*! A const iterator to the end of the static map of GlidePlane(s)
+//		  */
+//			return glidePlaneMap.end();
+//		}
+//		
+//		/* findExistingGlidePlane() **********************************/
+//		static GlidePlaneSharedPtrType findExistingGlidePlane(const VectorDimD& planeNormal, const double& height)
+//        {/*! A shared pointer to an existing GlidePlane defined by planeNormal and height.
+//		  *  If no GlidePlane exists, a shared pointer to a new GlidePlane is returned.
+//		  */
+//			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find((VectorDimPlusOneD()<<planeNormal.normalized(),height).finished()));
+//			return (iter!=glidePlaneMap.end())? iter->second->getSharedPointer() : GlidePlaneSharedPtrType(new GlidePlaneType(planeNormal,height));
+//		}
+//
+//		/* isGlidePlane() ********************************************/
+//		static std::pair<bool, const GlidePlaneType* const> isGlidePlane(const VectorDimD& planeNormal, const double& height)
+//        {
+//			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find((VectorDimPlusOneD()<<planeNormal.normalized(),height).finished()));
+//			return (iter!=glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
+//		}
+//		
+//		/* isGlidePlane() ********************************************/
+//		static std::pair<bool, const GlidePlaneType* const> isGlidePlane(const VectorDimPlusOneD& key)
+//        {
+//			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find(key));
+//			return (iter!=glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
+//		}
+//		
 		/* friend T& operator << *************************************/
 		template <class T>
 		friend T& operator << (T& os, const GlidePlaneObserverType& gpo)
         {
-			for (typename GlidePlaneObserverType::const_iterator gpIter=gpo.begin(); gpIter!=gpo.end();++gpIter)
+            for (const auto& glidePlane : gpo.glidePlanes())
             {
-				os << (*gpIter->second) << "\n";
+				os << (*glidePlane.second);
 			}
 			return os;
 		}
 		
 		
-	protected:
-		static  GlidePlaneMapType glidePlaneMap;		
 	};
 	
 	// Static data 
-	template<typename SegmentType>
-	std::map<Eigen::Matrix<double,TypeTraits<SegmentType>::dim+1,1>,GlidePlane<SegmentType>* const,CompareVectorsByComponent<double,TypeTraits<SegmentType>::dim+1,float>,Eigen::aligned_allocator<std::pair<const Eigen::Matrix<double,TypeTraits<SegmentType>::dim+1,1>,GlidePlane<SegmentType>* const> > > GlidePlaneObserver<SegmentType>::glidePlaneMap;
+	template<typename LoopType>
+	std::map<Eigen::Matrix<long int,LoopType::dim+1,1>,const GlidePlane<LoopType>* const,CompareVectorsByComponent<long int,LoopType::dim+1,long int>,Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,LoopType::dim+1,1>,const GlidePlane<LoopType>* const> > > GlidePlaneObserver<LoopType>::glidePlaneMap;
+    
     
 }	// close namespace
 #endif

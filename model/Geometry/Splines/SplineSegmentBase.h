@@ -47,19 +47,19 @@ namespace model
         
         
         /**********************************************************************/
-        static RowNcoeff powers(const double & uin)
+        static RowNcoeff powers(const double& uin)
         {
             return (RowNcoeff()<<1.0, uin).finished();
         }
         
         /**********************************************************************/
-        static RowNcoeffu powersDiff1(const double & uin)
+        static RowNcoeffu powersDiff1(const double& )
         {
             return (RowNcoeffu()<<1.0).finished();
         }
         
         /**********************************************************************/
-        static RowNcoeffuu powersDiff2(const double & uin)
+        static RowNcoeffuu powersDiff2(const double& )
         {
             return RowNcoeffuu::Zero();
         }

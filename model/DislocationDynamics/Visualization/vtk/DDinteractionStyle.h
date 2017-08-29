@@ -28,6 +28,7 @@
 #include <model/DislocationDynamics/Visualization/vtk/DislocationSegmentActor.h>
 //#include <model/DislocationDynamics/Visualization/vtk/DislocationActors.h>
 #include <model/DislocationDynamics/Visualization/vtk/PKActor.h>
+#include <model/DislocationDynamics/Visualization/vtk/GlidePlaneActor.h>
 
 
 
@@ -56,6 +57,8 @@ namespace model
         
         std::unique_ptr<DislocationSegmentActor> ddSegments;
         std::unique_ptr<PKActor> ddPK;
+        std::unique_ptr<GlidePlaneActor> ddGP;
+        
         
         
         int xCol;
@@ -103,6 +106,12 @@ namespace model
                     this->CurrentRenderer->RemoveActor(ddSegments->tubeActor);
                     this->CurrentRenderer->RemoveActor(ddSegments->nodeActor);
                     this->CurrentRenderer->RemoveActor(ddSegments->velocityActor);
+                    this->CurrentRenderer->RemoveActor(ddSegments->labelActor);
+                }
+                
+                if(ddGP.get()!=nullptr)
+                {
+                    this->CurrentRenderer->RemoveActor(ddGP->actor);
                 }
                 
                 // Update ddActors
@@ -110,6 +119,7 @@ namespace model
                 meshActor.update(frameID);
                 ddSegments.reset(new DislocationSegmentActor(frameID,this->CurrentRenderer));
                 ddPK.reset(new PKActor(frameID,this->CurrentRenderer));
+                ddGP.reset(new GlidePlaneActor(frameID,this->CurrentRenderer));
                 
                 // Update renderer
                 rwi->Render();
@@ -321,6 +331,8 @@ namespace model
                 std::cout<<"    +/- to increase tube radius"<<std::endl;
             }
             
+
+            
             if(key == "i")
             {
                 std::cout<<"Enter frame increment (>0):"<<std::endl;
@@ -421,6 +433,32 @@ namespace model
                 //                loadFrame();
             }
             
+            
+            if(key == "g")
+            {
+                if(selectedKey=="g")
+                {
+                    selectedKey=" ";
+                    if(ddGP.get()!=nullptr)
+                    {
+                        GlidePlaneActor::showGlidePlane=false;
+                        ddGP->modify();
+                        this->Interactor->Render();
+                    }
+                }
+                else
+                {
+                    selectedKey="g";
+                    std::cout<<"selecting objects: glide planes"<<std::endl;
+                    std::cout<<"    +/- to increase opacity"<<std::endl;
+                    if(ddGP.get()!=nullptr)
+                    {
+                        GlidePlaneActor::showGlidePlane=true;
+                        ddGP->modify();
+                        this->Interactor->Render();
+                    }
+                }
+            }
             
             if(key == "w")
             {
@@ -534,6 +572,25 @@ namespace model
                     DislocationSegmentActor::velocityFactor*=0.5;
                     ddSegments->modify();
                     std::cout<<"velocity scaling="<<DislocationSegmentActor::velocityFactor<<std::endl;
+                    this->Interactor->Render();
+                }
+                
+            }
+            
+            if(selectedKey=="g")
+            {
+                if(key == "equal" && ddGP.get()!=nullptr)
+                {
+                    GlidePlaneActor::opacity*=2.0;
+                    ddGP->modify();
+//                    std::cout<<"velocity scaling="<<DislocationSegmentActor::velocityFactor<<std::endl;
+                    this->Interactor->Render();
+                }
+                if(key == "minus" && ddGP.get()!=nullptr)
+                {
+                    GlidePlaneActor::opacity*=0.5;
+                    ddGP->modify();
+//                    std::cout<<"velocity scaling="<<DislocationSegmentActor::velocityFactor<<std::endl;
                     this->Interactor->Render();
                 }
                 

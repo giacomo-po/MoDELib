@@ -2,7 +2,7 @@
 # Number of simulation steps 
 Nsteps=600;
 startAtTimeStep = -1;
-use_directSolver_DD=0;
+use_directSolver_DD=1;
 quadPerLength=0.1;
 bndDistance=3;
 
@@ -19,7 +19,7 @@ velocityReductionFactor=0.75;
 # Options for output files:
 outputFrequency=1;
 outputBinary=0;
-outputGlidePlanes=0;
+outputGlidePlanes=1;
 outputSpatialCells=0;
 outputPKforce=1;
 outputElasticEnergy=0;
@@ -38,9 +38,13 @@ material=13;
 ######################################
 # CRYSTAL ORIENTATION
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
-C2G0 = 1  -1 0
-      1   1  -2
-      1   1   1;
+#C2G0 = 1  -1 0
+#      1   1  -2
+#      1   1   1;
+
+C2G0 = 1  0 0
+      0   1  0
+      0   0   1;
 
 ######################################
 # TEMPERATURE in [K]
@@ -57,7 +61,7 @@ externalStress = 0.0 0.0 0.0
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
 coreSize=2.0;
 # Use of multipole-expanded stress field for non-nearest neighbor cells
-dislocationCellSize=500;
+dislocationCellSize=10000000;
 use_DisplacementMultipole=1;
 use_StressMultipole = 1;
 use_EnergyMultipole = 0;

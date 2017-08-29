@@ -57,7 +57,7 @@ namespace model
             size_t k=0;
             for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)
             {
-                nodeIter->second->set_V(X.segment(NdofXnode*k,NdofXnode));
+                nodeIter->second->set_V(X.segment(NdofXnode*k,NdofXnode).template cast<float>().template cast<double>()); // dobule cast to remove some numerical noise
                 ++k;
             }
         }
@@ -248,7 +248,8 @@ namespace model
             F.segment(0,Ndof)=Fq;
             
 #ifdef _MODEL_PARDISO_SOLVER_
-            Eigen::PardisoLDLT<SparseMatrixType>    solver(KQQ);
+            Eigen::PardisoLDLT<SparseMatrixType>    solver(KQQ); // this fails
+//            Eigen::PardisoLU<SparseMatrixType>    solver(KQQ); // this fails
 #else
             Eigen::SimplicialLDLT<SparseMatrixType> solver(KQQ);
 #endif
@@ -257,6 +258,7 @@ namespace model
             {
                 Eigen::VectorXd x=solver.solve(F);
                 storeNodeSolution(x.segment(0,Ndof));
+//                storeNodeSolution(F.segment(0,Ndof).cast<float>().cast<double>());
             }
             else
             {

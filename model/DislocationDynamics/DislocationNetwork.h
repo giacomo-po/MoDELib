@@ -111,7 +111,7 @@ namespace model
     /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     class DislocationNetwork :
     /* inheritance          */ public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType,QuadratureRule> >,
-    /* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,QuadratureRule> >::LinkType>,
+    /* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,QuadratureRule> >::LoopType>,
     /* inheritance          */ public ParticleSystem<DislocationParticle<_dim> >
     {
         
@@ -131,7 +131,8 @@ namespace model
 //        typedef typename NetworkComponentObserverType::NetworkComponentContainerType NetworkComponentContainerType;
         typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
         typedef Eigen::Matrix<double,dim,1>		VectorDimD;
-        typedef GlidePlaneObserver<LinkType> GlidePlaneObserverType;
+        typedef typename TypeTraits<DislocationNetworkType>::LoopType LoopType;
+        typedef GlidePlaneObserver<LoopType> GlidePlaneObserverType;
         typedef DislocationParticle<_dim> DislocationParticleType;
         typedef typename DislocationParticleType::StressField StressField;
         typedef typename DislocationParticleType::DisplacementField DisplacementField;
@@ -153,6 +154,8 @@ namespace model
         
     private:
         
+
+        
         int timeIntegrationMethod;
         bool check_balance;
         short unsigned int use_redistribution;
@@ -167,8 +170,9 @@ namespace model
         
 //        double dx, dt;
         double dt;
-        //double vmax;
-        
+        double vMax;
+        int Nsteps;
+
         MatrixDimD _plasticDistortion;
         MatrixDimD _plasticDistortionRate;
 
@@ -245,8 +249,27 @@ namespace model
                     
                     
                 default:
+                    assert(0 && "time integration method not implemented");
                     break;
             }
+            
+            
+            for(auto& node : this->nodes())
+            {
+                node.second->applyVelocityFilter(vMax);
+            }
+            
+            
+//            double vMax=0.0;
+//            for(const auto& node : this->nodes())
+//            {
+//                const double tempV(node.second->get_V().norm());
+//                if(node.second->velocityReduction()>std::pow(NodeType::velocityReductionFactor,3))
+//                {
+//                    vMax=(tempV>vMax? tempV : vMax);
+//                }
+//
+//            }
             
 //            model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
 //            model::cout<<std::setprecision(3)<<std::scientific<<" vmax/cs="<<vmax/Material<Isotropic>::cs;
@@ -431,7 +454,6 @@ namespace model
         DislocationSharedObjectsType shared;
         
         //! The number of simulation steps taken by the next call to runSteps()
-        int Nsteps;
         
 //        //! The simulation time run run foby the next call to runTime()
 //        double timeWindow;
@@ -450,7 +472,7 @@ namespace model
         /* init list  */ totalTime(0.0),
 //        /* init list  */ dx(0.0),
         /* init list  */ dt(0.0),
-//        /* init list  */ vmax(0.0),
+        /* init list  */ vMax(0.0),
         /* init list  */ Nsteps(0),
 //        /* init list  */ timeWindow(0.0),
         /* init list  */ _plasticDistortion(MatrixDimD::Zero()),
@@ -499,11 +521,12 @@ namespace model
         }
         
         /**********************************************************************/
-        void set_dt(const double& dt_in)
+        void set_dt(const double& dt_in,const double& vMax_in)
         {/*!\param[in] dt_in 
           * Sets the time increment dt to dt_in
           */
             dt=dt_in;
+            vMax=vMax_in;
         }
         
         /**********************************************************************/

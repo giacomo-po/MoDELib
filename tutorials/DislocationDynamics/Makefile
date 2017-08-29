@@ -5,8 +5,8 @@ USE_ICC = 0
 usePARDISO = 0
 MODEL_INCLUDE =../../..
 EIGEN_INCLUDE =/Users/giacomo/Documents/eigen
-MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
-MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
+MKL_INCLUDE=/opt/intel//mkl/include
+MKL_LIB=/opt/intel/mkl/lib
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-

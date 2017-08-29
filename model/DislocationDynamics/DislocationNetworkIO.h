@@ -9,6 +9,7 @@
 #ifndef model_DISLOCATIONNETWORKIO_H_
 #define model_DISLOCATIONNETWORKIO_H_
 
+#include <chrono>
 #include <string>
 //#include <model/IO/VertexReader.h>
 //#include <model/IO/EdgeReader.h>
@@ -514,7 +515,7 @@ namespace model
             // Output to F file
             UniqueOutputFile<'F'> f_file;
             model::cout<<" F/F_0.txt"<<std::flush;
-            f_file<< DN.runningID()<<" "<<DN.get_totalTime()<<" "<<DN.get_dt()<<" ";
+            f_file<< DN.runningID()<<" "<<std::setprecision(15)<<std::scientific<<DN.get_totalTime()<<" "<<DN.get_dt()<<" ";
             
             if(outputPlasticDistortion)
             {
