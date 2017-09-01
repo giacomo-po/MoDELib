@@ -33,18 +33,36 @@ outputQuadratureParticles=0;
 ######################################
 # MATERIAL
 # Choose a material by its atomic number (Z), for example Al=13; Ni=28; Cu=29;
-material=13;
+material=29;
 
 ######################################
 # CRYSTAL ORIENTATION
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
-#C2G0 = 1  -1 0
-#      1   1  -2
-#      1   1   1;
 
 C2G0 = 1  0 0
       0   1  0
       0   0   1;
+
+C2G1 = 1  0 0
+      0   1  0
+      0   0   1;
+
+C2G2 = 1  0 0
+      0   1  0
+      0   0   1;
+
+C2G1 = 1  -5  -1
+1 0 1
+-5  -2 5;
+
+C2G2 =  1 1 -1
+   1 0 1
+   1 -2 -1;
+
+
+C2G3 =    -1 1 1
+   1 0 1
+   1 2 -1;
 
 ######################################
 # TEMPERATURE in [K]

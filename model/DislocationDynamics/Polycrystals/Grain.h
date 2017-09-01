@@ -89,7 +89,7 @@ namespace model
         /**********************************************************************/
         void setLatticeBasis()
         {
-            model::cout<<"Grain"<<grainID<<", material="<<materialZ<<std::endl;
+//            model::cout<<"Grain"<<grainID<<", material="<<materialZ<<std::endl;
             
             Eigen::Matrix<double,dim,dim,1> A(Eigen::Matrix<double,dim,dim,1>::Identity());
             
@@ -141,16 +141,19 @@ namespace model
         const int& grainID;
         
         /**********************************************************************/
-        Grain(const MeshRegionType& region_in) :
+        Grain(const MeshRegionType& region_in,
+              const int& Z,
+              const Eigen::Matrix<double,dim,dim>& C2G_in) :
 //        /* init */ _covBasis(MatrixDimD::Identity()),
 //        /* init */ _contraBasis(MatrixDimD::Identity()),
-        /* init */ C2G(Eigen::Matrix<double,dim,dim>::Identity()),
-        /* init */ materialZ(29),
+        /* init */ C2G(C2G_in),
+        /* init */ materialZ(Z),
         /* init */ region(region_in),
         /* init */ grainID(region.regionID)
         {
-            model::cout<<"Creating Grain "<<grainID<<std::endl;
+            model::cout<<greenBoldColor<<"Creating Grain "<<grainID<<defaultColor<<std::endl;
             selectMaterial(materialZ);
+            rotate(C2G);
         }
         
         const LatticeType& lattice() const
@@ -167,7 +170,7 @@ namespace model
         /**********************************************************************/
         void selectMaterial(const int& Z)
         {
-            model::cout<<greenColor<<"Grain "<<grainID<<", selecting material"<<defaultColor<<std::endl;
+            model::cout<<"  grain "<<grainID<<", selecting material"<<defaultColor<<std::endl;
             
             materialZ=Z;
             setLatticeBasis();
@@ -198,12 +201,12 @@ namespace model
                     break;
             }
             
-            model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
-            for (unsigned int k=0; k<planeNormalContainer.size();++k)
-            {
-                model::cout<<"    "<<planeNormalContainer[k].cartesian().normalized().transpose()<<std::endl;
-            }
-            model::cout<<defaultColor<<std::endl;
+//            model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
+//            for (unsigned int k=0; k<planeNormalContainer.size();++k)
+//            {
+//                model::cout<<"    "<<planeNormalContainer[k].cartesian().normalized().transpose()<<std::endl;
+//            }
+//            model::cout<<defaultColor<<std::endl;
             
         }
         
@@ -211,7 +214,7 @@ namespace model
         void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in)
         {/*! Z is atomic number
           */
-            model::cout<<greenColor<<"Grain "<<grainID<<", rotating"<<defaultColor<<std::endl;
+            model::cout<<"  grain "<<grainID<<", rotating"<<defaultColor<<std::endl;
             
             assert((C2G_in*C2G_in.transpose()-Eigen::Matrix<double,dim,dim>::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && "CRYSTAL TO GLOBAL ROTATION MATRIX IS NOT ORTHOGONAL.");
             // make sure that C2G is proper
@@ -220,12 +223,12 @@ namespace model
             C2G=C2G_in;
             setLatticeBasis();
             
-            model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
-            for (unsigned int k=0; k<planeNormalContainer.size();++k)
-            {
-                model::cout<<"    "<<planeNormalContainer[k].cartesian().normalized().transpose()<<std::endl;
-            }
-            model::cout<<defaultColor<<std::endl;
+//            model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
+//            for (unsigned int k=0; k<planeNormalContainer.size();++k)
+//            {
+//                model::cout<<"    "<<planeNormalContainer[k].cartesian().normalized().transpose()<<std::endl;
+//            }
+//            model::cout<<defaultColor<<std::endl;
         }
         
 //        /**********************************************************************/

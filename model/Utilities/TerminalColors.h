@@ -23,7 +23,7 @@ namespace model
     std::string redColor        = "\033[0;31m";
     std::string redBoldColor    = "\033[1;31m";
 
-    std::string greenColor      = "\033[0;32m";   // a bold green color
+    std::string greenColor      = "\033[0;32m";   // a green color
     std::string greenBoldColor  = "\033[1;32m";   // a bold green color
     
     std::string yellowColor       = "\033[0;33m";   // a yellow color

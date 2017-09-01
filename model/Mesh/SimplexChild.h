@@ -30,7 +30,58 @@ namespace model
         typedef typename SimplexTraits<dim,order+1>::ScalarIDType ScalarIDType;
         typedef std::set<const ParentSimplexType*,SimplexCompare<dim,order+1> >  ParentContainerType;
         
+    private:
+        
+        //        std::set<int> _regionIDs;
+        SiblingsContainerType _siblings;
+        
+        //        /**********************************************************************/
+        //        void make_regionIDs()
+        //        {
+        ////            std::set<int> temp;
+        //            _regionIDs.clear();
+        //            for(const auto& parent : parents())
+        //            {
+        //                const std::set<int> parentIDs(parent->regionIDs());
+        //                for(const int& regionID : parentIDs)
+        //                {
+        //                    _regionIDs.insert(regionID);
+        //                }
+        //            }
+        ////            return temp;
+        //        }
+        
+        /**********************************************************************/
+        void make_siblings()
+        {
+            //            SiblingsContainerType temp;
+            _siblings.clear();
+            for(const auto& parent : parents())
+            {
+                for(int c=0; c<ParentSimplexType::nFaces;++c)
+                {
+                    _siblings.insert(&parent->child(c));
+                }
+            }
+            //            return temp;
+        }
+        
+        
     public:
+        
+        //        /**********************************************************************/
+        //        SimplexChild()
+        //        {
+        //            make_regionIDs();
+        //            make_siblings();
+        //        }
+        //
+        ////        void update()
+        ////        {
+        ////            make_regionIDs();
+        ////            make_siblings();
+        ////        }
+        
         
         /**********************************************************************/
         void addToParents(const ParentSimplexType* const pP)
@@ -44,7 +95,8 @@ namespace model
             assert(couldInsert && "COULD NOT INSERT PARENT IN parentContainer");
             
             // HERE WE SHOULD LOOP OVER PARENTS AND ADD pP TO THEIR NEIGHBORS
-            
+            //update();
+            make_siblings();
         }
         
         /**********************************************************************/
@@ -59,6 +111,8 @@ namespace model
             
             
             // HERE WE SHOULD LOOP OVER PARENTS AND REMOVE pP FROM THEIR NEIGHBORS
+            //update();
+            make_siblings();
             
         }
         
@@ -80,19 +134,97 @@ namespace model
             return *this;
         }
         
+        //        /**********************************************************************/
+        //        SiblingsContainerType siblings() const
+        //        {
+        //            SiblingsContainerType temp;
+        //            for(const auto& parent : parents())
+        //            {
+        //                for(int c=0; c<ParentSimplexType::nFaces;++c)
+        //                {
+        //                    temp.insert(&parent->child(c));
+        //                }
+        //            }
+        //            return temp;
+        //        }
+        
         /**********************************************************************/
-        SiblingsContainerType siblings() const
+        const SiblingsContainerType& siblings() const
         {
-            SiblingsContainerType temp;
-            for(const auto& parent : parents())
-            {
-                for(int c=0; c<ParentSimplexType::nFaces;++c)
-                {
-                    temp.insert(&parent->child(c));
-                }
-            }
-            return temp;
+            
+            return _siblings;
         }
+        
+//        /**********************************************************************/
+//        SiblingsContainerType boundarySiblings() const
+//        {/*!\return the siblings of this connected by boundary parents
+//          */
+//            SiblingsContainerType temp;
+//            for(const auto& parent : parents())
+//            {
+//                if(parent->isBoundarySimplex())
+//                {
+//                    for(int c=0; c<ParentSimplexType::nFaces;++c)
+//                    {
+//                        _siblings.insert(&parent->child(c));
+//                    }
+//                }
+//            }
+//            return temp;
+//        }
+        
+//        /**********************************************************************/
+//        SiblingsContainerType siblingsInRegion(const int& regionID) const
+//        {
+//            SiblingsContainerType temp;
+//            
+//            for(const auto& sibling : siblings())
+//            {
+//                const std::set<int> rIDs=sibling->regionIDs();
+//                if(rIDs.find(regionID)!=rIDs.end())
+//                {
+//                    //                    for(int c=0; c<ParentSimplexType::nFaces;++c)
+//                    //                    {
+//                    temp.insert(sibling);
+//                    //                    }
+//                }
+//            }
+//            
+//            //            for(const auto& parent : parents())
+//            //            {
+//            //                const std::set<int> rIDs=parent->regionIDs();
+//            //                if(rIDs.find(regionID)!=rIDs.end())
+//            //                {
+//            //                    for(int c=0; c<ParentSimplexType::nFaces;++c)
+//            //                    {
+//            //                        temp.insert(&parent->child(c));
+//            //                    }
+//            //                }
+//            //            }
+//            return temp;
+//        }
+        
+        
+//        /**********************************************************************/
+//        SiblingsContainerType boundarySiblingsInRegion(const int& regionID) const
+//        {
+//            SiblingsContainerType temp;
+//            
+//            for(const auto& sibling : boundarySiblings())
+//            {
+//                const std::set<int> rIDs=sibling->regionIDs();
+//                if(rIDs.find(regionID)!=rIDs.end())
+//                {
+//                    //                    for(int c=0; c<ParentSimplexType::nFaces;++c)
+//                    //                    {
+//                    temp.insert(sibling);
+//                    //                    }
+//                }
+//            }
+//            
+//            
+//            return temp;
+//        }
         
         /**********************************************************************/
         bool isBoundarySimplex() const
@@ -105,6 +237,20 @@ namespace model
         bool isRegionBoundarySimplex() const
         {
             return BoundarySimplex<dim,dim-order>::isRegionBoundarySimplex(*this);
+        }
+        
+        //        /**********************************************************************/
+        //        const std::set<int>& regionIDs() const
+        //        {
+        //
+        //            return _regionIDs;
+        //        }
+        
+        /**********************************************************************/
+        bool isInRegion(const int& rID) const
+        {
+            const std::set<int> rIDs=regionIDs();
+            return rIDs.find(rID)!=rIDs.end();
         }
         
         /**********************************************************************/
@@ -122,11 +268,11 @@ namespace model
             return temp;
         }
         
-//        /**********************************************************************/
-//        Eigen::Matrix<double,dim,1> outNormal() const
-//        {
-//            return BoundarySimplex<dim,dim-order>::outNormal(*this);
-//        }
+        //        /**********************************************************************/
+        //        Eigen::Matrix<double,dim,1> outNormal() const
+        //        {
+        //            return BoundarySimplex<dim,dim-order>::outNormal(*this);
+        //        }
         
         //        /**********************************************************************/
         //        Eigen::Matrix<double,dim,1> outNormal() const

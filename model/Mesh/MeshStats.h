@@ -48,7 +48,7 @@ namespace model
                 }
             }
             
-            model::cout<<"    Simplex<"<<dim<<","<<k  <<"> #="<<nT<<", vol="<<volT;
+            model::cout<<"    "<<nT<<" Simplex<"<<dim<<","<<k  <<">, vol="<<volT;
             model::cout<<"     (boundary #="<<nB<<", vol="<<volB<<")\n";
 
         }
@@ -80,7 +80,8 @@ namespace model
                 }
             }
             
-            model::cout<<"    Simplex<"<<dim<<","<<k  <<"> #="<<nT;
+//            model::cout<<"    Simplex<"<<dim<<","<<k  <<"> #="<<nT;
+            model::cout<<"    "<<nT<<" Simplex<"<<dim<<","<<k  <<">";
             model::cout<<"     (boundary #="<<nB<<")\n";
         }
 	};

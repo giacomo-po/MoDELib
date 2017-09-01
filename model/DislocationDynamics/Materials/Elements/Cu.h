@@ -51,7 +51,11 @@ namespace model
         //These are the "Special" grain boundaries - low angle GBs and high angle GBs : Defined by a total number of 2 SUM units per nominal periodic dimension.
         
         /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ LOW ANGLE 0-18.4 degrees   START        ~~~~~~~~~*/
-        
+//        GrainBoundaryType<3>("no boundary",
+//                             Vector3d(0,0,0),Vector3d(1,1,1),Vector3d(1,1,1), // axis, normal1, normal2
+//                             0, // GB energy
+//                             1,1// GB dislocation spacing and Burgers vector
+//                             , PeriodicElement<29,Isotropic>::dm),
         GrainBoundaryType<3>("symmetric-tilt [100](20 1 0) sigma 401",
                              Vector3d(1,0,0),Vector3d(20,1,0),Vector3d(-20,1,0), // axis, normal1, normal2
                              473.0, // GB energy

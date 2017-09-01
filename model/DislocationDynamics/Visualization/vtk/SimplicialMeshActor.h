@@ -147,7 +147,7 @@ namespace model
                 gbMapper->SetInputData(gbTrianglePolyData);
                 gbActor->SetMapper(gbMapper);
                 gbActor->GetProperty()->SetOpacity(0.3);
-                gbActor->GetProperty()->SetColor(0.0,0.4,0.4);
+                gbActor->GetProperty()->SetColor(1.0,1.0,0.0);
 
 
                 renderer->AddActor(gbActor);

@@ -40,15 +40,15 @@ namespace model
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
 
-        //typedef Eigen::Matrix<double,TypeTraits<LoopType>::dim+1,1> VectorDimPlusOneD;
+        //typedef Eigen::Matrix<double,TypeTraits<LoopType>::dim+2,1> VectorDimPlusOneD;
 
-        typedef Eigen::Matrix<long int,dim+1,1> GlidePlaneKeyType;
+        typedef Eigen::Matrix<long int,dim+2,1> GlidePlaneKeyType;
         
         
-        typedef 	std::map<Eigen::Matrix<long int,LoopType::dim+1,1>,
+        typedef 	std::map<Eigen::Matrix<long int,LoopType::dim+2,1>,
         /*                */ const GlidePlane<LoopType>* const,
-        /*                */ CompareVectorsByComponent<long int,LoopType::dim+1,long int>,
-        /*                */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,LoopType::dim+1,1>,const GlidePlane<LoopType>* const> > > GlidePlaneMapType;
+        /*                */ CompareVectorsByComponent<long int,LoopType::dim+2,long int>,
+        /*                */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,LoopType::dim+2,1>,const GlidePlane<LoopType>* const> > > GlidePlaneMapType;
 
 		typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
 
@@ -72,8 +72,9 @@ namespace model
         {
             const LatticeVector<dim> p=grain.latticeVector(P);
             const ReciprocalLatticeDirection<dim> n=grain.reciprocalLatticeDirection(N);
-            const ReciprocalLatticeVector<dim> pn=p.dot(n)*n;
-            return (GlidePlaneKeyType()<<grain.grainID,pn).finished();
+            assert(n.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane key");
+            //const ReciprocalLatticeVector<dim> pn=p.dot(n)*n;
+            return (GlidePlaneKeyType()<<grain.grainID,n,p.dot(n)).finished();
         }
         
         /**********************************************************************/
@@ -170,7 +171,7 @@ namespace model
 	
 	// Static data 
 	template<typename LoopType>
-	std::map<Eigen::Matrix<long int,LoopType::dim+1,1>,const GlidePlane<LoopType>* const,CompareVectorsByComponent<long int,LoopType::dim+1,long int>,Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,LoopType::dim+1,1>,const GlidePlane<LoopType>* const> > > GlidePlaneObserver<LoopType>::glidePlaneMap;
+	std::map<Eigen::Matrix<long int,LoopType::dim+2,1>,const GlidePlane<LoopType>* const,CompareVectorsByComponent<long int,LoopType::dim+2,long int>,Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,LoopType::dim+2,1>,const GlidePlane<LoopType>* const> > > GlidePlaneObserver<LoopType>::glidePlaneMap;
     
     
 }	// close namespace

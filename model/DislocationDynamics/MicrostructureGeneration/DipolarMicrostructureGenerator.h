@@ -56,15 +56,19 @@ namespace model
             while(density<targetDensity)
             {
                 std::pair<LatticeVector<dim>,int> rp=this->randomPointInMesh();
+                const int grainID=rp.second;
 
                 const LatticeVector<dim> L0=rp.first;
-                const int grainID=rp.second;
+//                const LatticeVector<dim> L0(this->poly.grain(grainID));
+//                std::cout<<"CHANGE HERE!!!!!!!"<<std::endl;
+
                 
                 std::uniform_int_distribution<> distribution(0,this->poly.grain(grainID).slipSystems().size()-1);
 
                 
                 const int rSS=distribution(generator); // a random SlipSystem
-                
+//                const int rSS=23; // a random SlipSystem
+//                std::cout<<"AND HERE!!!!!!!"<<std::endl;
 
                 const auto& slipSystem=this->poly.grain(grainID).slipSystems()[rSS];
                 

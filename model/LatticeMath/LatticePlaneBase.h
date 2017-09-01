@@ -30,6 +30,10 @@ namespace model
         /**********************************************************************/
         static std::pair<LatticeDirectionType,LatticeDirectionType> findPrimitiveVectors(const ReciprocalLatticeDirectionType& rd)
         {
+            std::cout<<"LatticePlaneBase::findPrimitiveVectors WARNING, THIS FUNCTION IS TEMPORARY, IT MAY HANG for large r"<<std::endl;
+            std::cout<<"r ="<<rd.transpose()<<std::endl;
+            std::cout<<"r.cartesian()"<<rd.cartesian().transpose()<<std::endl;
+            
             std::multimap<double,LatticeDirectionType> normMap;
             
             const long int N=rd.array().abs().maxCoeff()*2;

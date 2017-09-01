@@ -468,6 +468,7 @@ namespace model
             //            tube->Modified();
             
             tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
+            nodeGlyphs->SetScaleFactor(2.0*tubeRadius*1.2);
 
             if(showVelocities)
             {

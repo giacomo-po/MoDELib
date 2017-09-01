@@ -67,6 +67,8 @@ namespace model
             // Suppose that lattice B is obtained from A through a rotaion R, that is B=R*A
             // then R_ij=dot(b_i,a'_j), where ' indicates the reciprocal basis
             // The rotation matrix is R=B^T*inv(A^T)
+//            model::cout<<"   computing DSCL"<<std::endl;
+
             const MatrixDimD R(B.covBasis()*A.contraBasis().transpose());
             
             // Check that R is a proper rotation

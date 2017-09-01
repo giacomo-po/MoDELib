@@ -52,18 +52,23 @@ namespace model
         void storeLatticePlane(const Grain<dim>& grain,
                                const VectorDimD& normal)
         {
+            //std::cout<<"storeLatticePlane"<<std::endl;
+            //std::cout<<"normal="<<normal.transpose()<<std::endl;
+            
             const ReciprocalLatticeDirectionType R=grain.reciprocalLatticeDirection(normal);
             
-            model::cout<<"GB normal for grain "<< grain.grainID<<":"<<std::endl;
-            model::cout<<"  cartesian components="<<R.cartesian().transpose()<<std::endl;
-            model::cout<<"  crystallographic components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<std::endl;
+            model::cout<<"   GB normal for grain "<< grain.grainID<<":"<<defaultColor<<std::endl;
+            model::cout<<"   cartesian components="<<R.cartesian().transpose()<<defaultColor<<std::endl;
+            model::cout<<"   crystallographic components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<defaultColor<<std::endl;
             
             LatticeVectorType L0(grain.lattice());
             bool latticePointFound=false;
             
+//            //std::cout<<"here 0"<<std::endl;
             
             for(const auto& simplexPtr : regionBoundary.simplices())
             {
+//                            //std::cout<<"here 1"<<std::endl;
                 for(size_t d=0;d<dim;++d)
                 {
                     const VectorDimD P0=simplexPtr->vertexPositionMatrix().col(d);
@@ -82,13 +87,21 @@ namespace model
                 }
             }
             
+                        //std::cout<<"here 2"<<std::endl;
+            
             assert(latticePointFound && "None of the GB mesh vertices, snapped to the lattice, belongs to GB plane.");
             
             LatticePlaneBase pb(R);
             
+            //std::cout<<"here 3"<<std::endl;
+
+            
             const auto temp = LatticePlaneContainerType::emplace(std::piecewise_construct,
                                                                  std::forward_as_tuple(grain.grainID),
                                                                  std::forward_as_tuple(L0,pb));
+            
+            //std::cout<<"here 4"<<std::endl;
+
             
             assert(temp.first->second.n.cartesian().normalized().cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
             
@@ -97,6 +110,9 @@ namespace model
         /**********************************************************************/
         void createLatticePlanes()
         {
+            //std::cout<<"createLatticePlanes"<<std::endl;
+
+            
             LatticePlaneContainerType::clear();
             const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
             for(const auto& tet : triangle.parents())
@@ -126,6 +142,9 @@ namespace model
         void computeCrystallographicRotationAxis()
         {
             
+            //std::cout<<"computeCrystallographicRotationAxis"<<std::endl;
+
+            
             // Compute the relative rotation matrix between grains
             const MatrixDimD R(grain(grainBndID.first).get_C2G().transpose()*grain(grainBndID.second).get_C2G());
             
@@ -153,14 +172,15 @@ namespace model
             
             cosTheta=0.5*(R.trace()-1.0);
             
-            std::cout<<yellowColor<<"   Rotation axis="<<_crystallographicRotationAxis.transpose()<<std::endl;
-            std::cout<<yellowColor<<"   Rotation angle="<<acos(cosTheta)*180.0/M_PI<<" deg"<<defaultColor<<std::endl;
+            model::cout<<"   Rotation axis="<<_crystallographicRotationAxis.transpose()<<std::endl;
+            model::cout<<"   Rotation angle="<<acos(cosTheta)*180.0/M_PI<<" deg"<<defaultColor<<std::endl;
             
         }
         
         /**********************************************************************/
         void findGrainBoundaryType(const std::deque<GrainBoundaryType<dim>>& bgTypes)
         {
+            //std::cout<<"findGrainBoundaryType"<<std::endl;
             
             const VectorDimD n1=(grain(grainBndID.first).get_C2G().transpose()*latticePlane(grainBndID.first).n.cartesian()).normalized();
             const VectorDimD n2=(grain(grainBndID.second).get_C2G().transpose()*latticePlane(grainBndID.second).n.cartesian()).normalized();
@@ -230,11 +250,11 @@ namespace model
             
             if(p_gbType!=NULL)
             {
-                std::cout<<yellowColor<<"   GB type is "<<p_gbType->name<<defaultColor<<std::endl;
-                std::cout<<yellowColor<<"   GB energy= "<<p_gbType->energyDensity<<defaultColor<<std::endl;
-                std::cout<<yellowColor<<"   GB dislocation spacing= "<<p_gbType->dislocationSpacing<<defaultColor<<std::endl;
-                std::cout<<yellowColor<<"   Frank-Bilby dislocation spacing= "<<p_gbType->FrankBilby_dislocationSpacing<<defaultColor<<std::endl;
-                std::cout<<yellowColor<<"   Read-Shockley_energyDensity= "<<p_gbType->ReadShockley_energyDensity<<defaultColor<<std::endl;
+                model::cout<<yellowColor<<"   GB type is "<<p_gbType->name<<defaultColor<<std::endl;
+                model::cout<<yellowColor<<"   GB energy= "<<p_gbType->energyDensity<<defaultColor<<std::endl;
+                model::cout<<yellowColor<<"   GB dislocation spacing= "<<p_gbType->dislocationSpacing<<defaultColor<<std::endl;
+                model::cout<<yellowColor<<"   Frank-Bilby dislocation spacing= "<<p_gbType->FrankBilby_dislocationSpacing<<defaultColor<<std::endl;
+                model::cout<<yellowColor<<"   Read-Shockley_energyDensity= "<<p_gbType->ReadShockley_energyDensity<<defaultColor<<std::endl;
                 
                 
                 //
@@ -254,6 +274,9 @@ namespace model
         /**********************************************************************/
         void populateGBdislocations(std::vector<StressStraight<dim>>& vD, const SimplicialMesh<dim>& mesh) const __attribute__ ((deprecated))
         {
+            //std::cout<<"populateGBdislocations"<<std::endl;
+
+            
             if(use_GBdislocations)
             {
                 const int gbRegionID=grainBndID.first;
@@ -262,7 +285,7 @@ namespace model
                 const VectorDimD dir=rotationAxis().normalized();
                 const VectorDimD p=dir.cross(latticePlane(gbRegionID).n.cartesian()).normalized()*grainBoundaryType().dislocationSpacing;
                 
-                std::cout<<"Grain boundary dislocations being added with spacing of "<<grainBoundaryType().dislocationSpacing<<" and along direction "<<p.normalized().transpose()<<std::endl;
+                model::cout<<"Grain boundary dislocations being added with spacing of "<<grainBoundaryType().dislocationSpacing<<" and along direction "<<p.normalized().transpose()<<std::endl;
                 VectorDimD P0(VectorDimD::Zero());
                 VectorDimD P1(VectorDimD::Zero());
                 assert(mesh.search(P0).first    &&  mesh.search(P1).first && "Another method is needed to initialize the stress-straight segments if the mesh does not intersect the origin");
@@ -360,9 +383,11 @@ namespace model
         
         
         /**********************************************************************/
+                template<typename PolycrystalType>
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
                       const Grain<dim>& grainFirst,
-                      const Grain<dim>& grainSecond) :
+                      const Grain<dim>& grainSecond,
+                      PolycrystalType& poly) :
         /* init */ _csl(grainFirst,grainSecond),
         /* init */ _dscl(grainFirst,grainSecond),
         /* init */ _crystallographicRotationAxis(VectorDimD::Zero()),
@@ -372,9 +397,10 @@ namespace model
         /* init */ regionBoundary(regionbnd_in),
         /* init */ grainBndID(regionBoundary.regionBndID)
         {
-            model::cout<<"Creating GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<std::endl;
+            model::cout<<greenBoldColor<<"Creating GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
             GrainContainerType::emplace(grainFirst.grainID,&grainFirst);
             GrainContainerType::emplace(grainSecond.grainID,&grainSecond);
+            initializeGrainBoundary(poly);
         }
         
         /**********************************************************************/
@@ -405,12 +431,12 @@ namespace model
         template<typename PolycrystalType>
         void initializeGrainBoundary(PolycrystalType& poly)
         {
-            model::cout<<yellowColor<<"GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
+//            model::cout<<yellowColor<<"GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
             _csl.update();
             _dscl.update();
             computeCrystallographicRotationAxis();
             createLatticePlanes();
-            findGrainBoundaryType(poly.grainBoundaryTypes());
+//            findGrainBoundaryType(poly.grainBoundaryTypes());
             populateGBdislocations(poly.grainBoundaryDislocations(),poly.mesh);
         }
         
@@ -477,7 +503,7 @@ namespace model
                 //            {
                 //                P0=Q-100.0*dir+k*p;
                 //                P1=Q+100.0*dir+k*p;
-                //                std::cout<<"GB DISLOCATIONS MAY BE WRONG SIGN"<<std::endl;
+                //                //std::cout<<"GB DISLOCATIONS MAY BE WRONG SIGN"<<std::endl;
                 //                vD.emplace_back(P0,P1,grainBoundaryType().Burgers*latticePlane(grainBndID.first).n.cartesian().normalized());
                 //            }
                 //            }

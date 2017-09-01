@@ -145,8 +145,8 @@ namespace model
 //            LatticeBaseType::setLatticeBasis(A);
 //            _contraBasis=covBasis().inverse().transpose();
 //            _contraBasis=_covBasis.inverse().transpose();
-            std::cout<<"Lattice basis (in columns) =\n"<<_covBasis<<std::endl;
-            std::cout<<"Lattice reciprocal basis (in columns) =\n"<<_contraBasis<<std::endl;
+//            std::cout<<"Lattice basis (in columns) =\n"<<_covBasis<<std::endl;
+//            std::cout<<"Lattice reciprocal basis (in columns) =\n"<<_contraBasis<<std::endl;
         }
         
         /**********************************************************************/
@@ -202,8 +202,8 @@ namespace model
             
             if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
             {
-                std::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
-                std::cout<<"lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
+                model::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
+                model::cout<<"lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
                 assert(0 && "LATTICE DIRECTION NOT FOUND");
             }
             
@@ -220,8 +220,8 @@ namespace model
             
             if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
             {
-                std::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
-                std::cout<<"reciprocal lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
+                model::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
+                model::cout<<"reciprocal lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
                 assert(0 && "RECIPROCAL LATTICE DIRECTION NOT FOUND");
             }
             
