@@ -161,11 +161,11 @@ namespace model
 //                gb.second.initializeGrainBoundary(*this);
 //            }
             
-            for(auto& gb : grainBoundaries())
-            {
-                grain(gb.first.first).emplace(gb.first,&gb.second);
-                grain(gb.first.second).emplace(gb.first,&gb.second);
-            }
+//            for(auto& gb : grainBoundaries())
+//            {
+//                grain(gb.first.first).emplace(gb.first,&gb.second);
+//                grain(gb.first.second).emplace(gb.first,&gb.second);
+//            }
             
             if(grainBoundaryDislocations().size())
             {

@@ -964,7 +964,7 @@ namespace model
                     
                     if(isBoundaryNode()) // node already a boundary node, it must remain on boundary
                     {
-                        assert(0 && "RE_ENABLE THIS 1");
+//                        assert(0 && "RE_ENABLE THIS 1");
                         //                        const VectorDim bndNrml=SimplexBndNormal::get_boundaryNormal(this->get_P()+dX,*temp.second,bndDistance); // boundary normal at new position
                         //                        if(temp.first && bndNrml.squaredNorm()>0.0) // new position is on boundary
                         //                        {

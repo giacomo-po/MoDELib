@@ -170,6 +170,7 @@ $(converterOBJS):
 Fexists=$(shell test -d F && echo 1)
 Gexists=$(shell test -d G && echo 1)
 Cexists=$(shell test -d C && echo 1)
+Kexists=$(shell test -d K && echo 1)
 Pexists=$(shell test -d P && echo 1)
 Dexists=$(shell test -d D && echo 1)
 Sexists=$(shell test -d S && echo 1)
@@ -199,6 +200,11 @@ ifeq ($(Cexists),1)
 	@echo emptying folder C
 	@find C/ -name C_\*.txt -exec rm {} +;
 	@find C/ -name C_\*.bin -exec rm {} +;
+endif
+ifeq ($(Kexists),1)
+	@echo emptying folder K
+	@find K/ -name K_\*.txt ! -name K_0.txt -exec rm {} +;
+	@find K/ -name K_\*.bin -exec rm {} +;
 endif
 ifeq ($(Pexists),1)
 	@echo emptying folder P

@@ -104,6 +104,7 @@ namespace model
                 if(ddSegments.get()!=nullptr)
                 {
                     this->CurrentRenderer->RemoveActor(ddSegments->tubeActor);
+                    this->CurrentRenderer->RemoveActor(ddSegments->tubeActor0);
                     this->CurrentRenderer->RemoveActor(ddSegments->nodeActor);
                     this->CurrentRenderer->RemoveActor(ddSegments->velocityActor);
                     this->CurrentRenderer->RemoveActor(ddSegments->labelActor);
@@ -329,6 +330,7 @@ namespace model
                 selectedKey="e";
                 std::cout<<"selecting objects: dislocation segments"<<std::endl;
                 std::cout<<"    +/- to increase tube radius"<<std::endl;
+                std::cout<<"      0 to show/hide zero-Burgers vector segments"<<std::endl;
             }
             
 
@@ -514,6 +516,15 @@ namespace model
 //                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
                     ddSegments->modify();
                     std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
+                    //                    ddActors.modify();
+                    this->Interactor->Render();
+                }
+                if(key == "0")
+                {
+                    DislocationSegmentActor::showZeroBuergers=!DislocationSegmentActor::showZeroBuergers;
+                    //                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
+                    ddSegments->modify();
+//                    std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
                     //                    ddActors.modify();
                     this->Interactor->Render();
                 }

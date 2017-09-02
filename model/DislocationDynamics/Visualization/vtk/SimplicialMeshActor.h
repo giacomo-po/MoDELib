@@ -154,6 +154,7 @@ namespace model
                 
                 // to show triangle edges:
                 // http://stackoverflow.com/questions/7548966/how-to-display-only-triangle-boundaries-on-textured-surface-in-vtk
+                // https://stackoverflow.com/questions/7548966/how-to-display-only-triangle-boundaries-on-textured-surface-in-vtk
                 // or loop over SimplexObserver<3,1>
 //                for(const auto& edge : SimplexObserver<3,1>::simplices())
 //                {

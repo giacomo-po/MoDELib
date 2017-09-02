@@ -385,8 +385,8 @@ namespace model
         /**********************************************************************/
                 template<typename PolycrystalType>
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
-                      const Grain<dim>& grainFirst,
-                      const Grain<dim>& grainSecond,
+                      Grain<dim>& grainFirst,
+                      Grain<dim>& grainSecond,
                       PolycrystalType& poly) :
         /* init */ _csl(grainFirst,grainSecond),
         /* init */ _dscl(grainFirst,grainSecond),
@@ -401,6 +401,9 @@ namespace model
             GrainContainerType::emplace(grainFirst.grainID,&grainFirst);
             GrainContainerType::emplace(grainSecond.grainID,&grainSecond);
             initializeGrainBoundary(poly);
+            grainFirst.emplace(grainBndID,this);
+            grainSecond.emplace(grainBndID,this);
+
         }
         
         /**********************************************************************/
@@ -438,6 +441,8 @@ namespace model
             createLatticePlanes();
 //            findGrainBoundaryType(poly.grainBoundaryTypes());
             populateGBdislocations(poly.grainBoundaryDislocations(),poly.mesh);
+            
+            //                grain(gb.first.second).emplace(gb.first,&gb.second);
         }
         
         /**********************************************************************/

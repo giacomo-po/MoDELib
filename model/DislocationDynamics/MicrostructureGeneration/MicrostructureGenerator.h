@@ -12,11 +12,15 @@
 #include <chrono>
 #include <random>
 #include <assert.h>
+#include <Eigen/LU>
+#include <Eigen/Cholesky>
+
 #include <model/IO/EigenDataReader.h>
 #include <model/Mesh/SimplicialMesh.h> // defines mode::cout
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/LatticeMath/LatticeVector.h>
 #include <model/DislocationDynamics/Polycrystals/Polycrystal.h> // defines mode::cout
+#include <model/Mesh/PlaneMeshIntersection.h>
 
 namespace model
 {
@@ -30,6 +34,9 @@ namespace model
         
         typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
         typedef Eigen::Matrix<long int,dim,dim>	MatrixDimI;
+        
+        typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
+        
         
         std::mt19937 generator;
         std::uniform_real_distribution<double> distribution;
@@ -70,7 +77,7 @@ namespace model
         MicrostructureGenerator() :
         /* init list */ generator(std::chrono::system_clock::now().time_since_epoch().count()),
         /* init list */ distribution(0.0,1.0),
-//        /* init list */ sizeDistribution(0.1,0.5),
+        //        /* init list */ sizeDistribution(0.1,0.5),
         /* init list */ _minSize(0.0),
         /* init list */ _maxSize(0.0),
         /* init list */ poly(mesh)
@@ -132,10 +139,98 @@ namespace model
         /**********************************************************************/
         double randomSize()
         {
-//            return _minSize+distribution(generator)*(_maxSize-_minSize);
+            //            return _minSize+distribution(generator)*(_maxSize-_minSize);
             std::uniform_real_distribution<double> dist(_minSize,_maxSize);
             return dist(generator);
+            
+        }
         
+        
+        /**********************************************************************/
+        static std::deque<std::pair<int,VectorDimD>> boundaryProjection(const VectorDimD& P0,
+                                                                        const VectorDimD& P1,
+                                                                        const VectorDimD& D,
+                                                                        const PlaneMeshIntersectionContainerType& pp)
+        {
+            
+            std::deque<std::pair<int,VectorDimD>> temp;
+            
+            
+            const double dNorm(D.norm());
+            assert(dNorm>FLT_EPSILON);
+            const VectorDimD dir=D/dNorm;
+            
+            Eigen::Matrix<double,3,2> A;
+            A.col(0)=P1-P0;
+            A.col(1)=dir;
+            const Eigen::LLT<Eigen::Matrix<double,2,2>> llt(A.transpose()*A);
+            assert(llt.info()==Eigen::Success);
+            
+            
+            for(size_t m=0;m<pp.size();++m)
+            {
+                const Eigen::Matrix<double,2,1> x=llt.solve(A.transpose()*(pp[m].second-P0));
+                if(x(0)>FLT_EPSILON && x(0)<1.0-FLT_EPSILON && x(1)>FLT_EPSILON)
+                {
+                    temp.emplace_back(m,pp[m].second);
+                }
+            }
+            
+            return temp;
+            
+
+        }
+        
+        /**********************************************************************/
+        static std::pair<int,VectorDimD> boundaryProjection(const VectorDimD& P,
+                                                            const VectorDimD& D,
+                                                            const PlaneMeshIntersectionContainerType& pp)
+        {
+            const double dNorm(D.norm());
+            assert(dNorm>FLT_EPSILON);
+            const VectorDimD dir=D/dNorm;
+            // line1 is P+u1*dir, u>0
+            
+            bool success=false;
+            std::pair<int,VectorDimD> temp=std::make_pair(-1,VectorDimD::Zero());
+            
+            for(size_t k=0;k<pp.size();++k)
+            {
+                const size_t k1 = ((k==(pp.size()-1))? 0 : k+1);
+                const VectorDimD& v0=pp[k].second;
+                const VectorDimD& v1=pp[k1].second;
+                // line2 is v0+u2*(v1-v0), 0<=u2<=1
+                
+                //P+u1*dir=v0+u2*(v1-v0)
+                // [dir -(v1-v0)] [u1 u2] = [v0-P]
+                // In least square sense
+                // [dir -(v1-v0)]^T*[dir -(v1-v0)]* [u1 u2] = [v0-P]
+                
+                Eigen::Matrix<double,3,2> A;
+                A.col(0)=dir;
+                A.col(1)=-(v1-v0);
+                
+                const Eigen::Matrix<double,3,1> b=v0-P;
+                
+                const Eigen::LLT<Eigen::Matrix<double,2,2>> llt(A.transpose()*A);
+                
+                if(llt.info()==Eigen::Success)
+                {
+                    
+                    const Eigen::Matrix<double,2,1> x=llt.solve(A.transpose()*b);
+                    
+                    if(x(0)>=0.0 && x(1)>=0.0 && x(1)<=1.0)
+                    {
+                        success=true;
+                        temp=std::make_pair(k,v0+x(1)*(v1-v0));
+                        break;
+                    }
+                }
+                
+            }
+            
+            assert(success);
+            return temp;
         }
         
     };

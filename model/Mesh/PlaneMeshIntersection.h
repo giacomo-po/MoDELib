@@ -1,6 +1,7 @@
 /* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
  * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
+ * Copyright (C) 2017 by Yinan Cui <cuiyinan@ucla.edu>.
  *
  * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
@@ -23,20 +24,115 @@ namespace model
     struct PlaneMeshIntersection
     {
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-
         typedef std::deque<std::pair<const Simplex<dim,dim-2>* const,VectorDim>> PlaneMeshIntersectionContainerType;
-        
         typedef Simplex<dim,dim-2>   EdgeSimplexType;
         typedef std::set<const EdgeSimplexType*,SimplexCompare<dim,dim-2> >  SiblingsContainerType;
         typedef Simplex<dim,dim-1> ParentSimplexType;
-        
         typedef std::pair<VectorDim,const Simplex<dim,0>* const> RootType;
         typedef std::deque<RootType> RootContainerType;
         
-        //        const LatticePlane glidePlane;
-        
         static constexpr double meshIntersectionTol=FLT_EPSILON;
 
+        
+        /**********************************************************************/
+        static PlaneMeshIntersectionContainerType reducedPlaneMeshIntersection(const VectorDim& P0,
+                                                                        const VectorDim& nn,
+                                                                        const int& rID)
+        {
+            const PlaneMeshIntersectionContainerType mpi=planeMeshIntersection(P0,nn,rID);
+            
+            const auto t0=std::chrono::system_clock::now();
+            model::cout<<"Reducing plane/mesh intersection points "<<std::flush;
+
+            PlaneMeshIntersectionContainerType temp;
+            
+            size_t tailID=mpi.size()-1;
+            for(size_t k=0;k<mpi.size();++k)
+            {
+                const size_t k1=(k==mpi.size()-1? 0 : k+1);
+            
+                VectorDim dX=mpi[k].second-mpi[tailID].second;
+                VectorDim dXnew=mpi[k1].second-mpi[k].second;
+                
+                const double dXnorm=dX.norm();
+                const double dXnewNorm=dXnew.norm();
+                assert(dXnorm > FLT_EPSILON);
+                assert(dXnewNorm > FLT_EPSILON);
+                
+                if(dX.cross(dXnew).norm()/(dXnorm*dXnewNorm)>FLT_EPSILON )
+                {// non zero angle
+                    tailID=k;
+                    temp.push_back(mpi[k]);
+                }
+            
+            }
+            
+            model::cout<<"("<<mpi.size()<<"->"<<temp.size()<<")";
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+
+            return temp;
+        }
+        
+        /**********************************************************************/
+        static PlaneMeshIntersectionContainerType planeMeshIntersection(const VectorDim& P0,
+                                                                        const VectorDim& nn,
+                                                                        const int& rID)
+        {
+            model::cout<<"Computing plane/mesh intersection "<<std::flush;
+            const auto t0=std::chrono::system_clock::now();
+            
+            const double nNorm(nn.norm());
+            assert(nNorm>FLT_EPSILON);
+            const VectorDim N(nn/nNorm);
+            
+            PlaneMeshIntersectionContainerType temp;
+            
+                std::set<const EdgeSimplexType*> tested;
+                
+                // Find initial intersection
+                const std::pair<const EdgeSimplexType*,RootContainerType> pEI=getFirstPlaneEdgeIntersection(P0,N,rID,tested);
+                
+                switch (pEI.second.size())
+                {
+                    case 1:
+                    {
+                        if(pEI.second[0].second==nullptr)
+                        {// intersection within edge
+                            temp.emplace_back(pEI.first,pEI.second[0].first);
+                            intersectionStep(P0,N,validSiblings(*pEI.first,rID),tested,temp,rID);
+                        }
+                        else
+                        {// intersection at node
+                            temp.emplace_back(pEI.first,pEI.second[0].first);
+                            markParents(*pEI.second[0].second,tested);
+                            intersectionStep(P0,N,validUncles(*pEI.second[0].second,rID),tested,temp,rID);
+                        }
+                        
+                        break;
+                    }
+                        
+                    case 2:
+                    {
+                        temp.emplace_back(pEI.first,pEI.second[0].first);
+                        markParents(*pEI.second[0].second,tested);
+                        
+                        temp.emplace_back(pEI.first,pEI.second[1].first);
+                        markParents(*pEI.second[1].second,tested);
+                        intersectionStep(P0,N,validUncles(*pEI.second[1].second,rID),tested,temp,rID);
+                        
+                        break;
+                    }
+                        
+                    default:
+                        assert(0 && "IMPOSSIBLE");
+                        break;
+                }
+            
+            model::cout<<" ("<<temp.size()<<" perimeter points)";
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            
+            return temp;
+        }
         
         /**********************************************************************/
         static void markParents(const Simplex<dim,0>& vertex,
@@ -182,71 +278,6 @@ namespace model
         }
         
         
-        /**********************************************************************/
-        static PlaneMeshIntersectionContainerType planeMeshIntersection(const VectorDim& P0,
-                                                                    const VectorDim& N,
-                                                                    const int& rID)
-        {
-            std::cout<<"Computing mesh intersection"<<std::flush;
-            const auto t0=std::chrono::system_clock::now();
-            
-            
-            PlaneMeshIntersectionContainerType temp;
-            
-            if (DislocationSharedObjects<dim>::use_boundary)
-            {
-                
-                std::set<const EdgeSimplexType*> tested;
-                
-                // Find initial intersection
-                const std::pair<const EdgeSimplexType*,RootContainerType> pEI=getFirstPlaneEdgeIntersection(P0,N,rID,tested);
-                
-                switch (pEI.second.size())
-                {
-                    case 1:
-                    {
-                        if(pEI.second[0].second==nullptr)
-                        {// intersection within edge
-                            temp.emplace_back(pEI.first,pEI.second[0].first);
-                            intersectionStep(P0,N,validSiblings(*pEI.first,rID),tested,temp,rID);
-                        }
-                        else
-                        {// intersection at node
-                            temp.emplace_back(pEI.first,pEI.second[0].first);
-                            markParents(*pEI.second[0].second,tested);
-                            intersectionStep(P0,N,validUncles(*pEI.second[0].second,rID),tested,temp,rID);
-                        }
-                        
-                        break;
-                    }
-                        
-                    case 2:
-                    {
-                        temp.emplace_back(pEI.first,pEI.second[0].first);
-                        markParents(*pEI.second[0].second,tested);
-                        
-                        temp.emplace_back(pEI.first,pEI.second[1].first);
-                        markParents(*pEI.second[1].second,tested);
-                        intersectionStep(P0,N,validUncles(*pEI.second[1].second,rID),tested,temp,rID);
-                        
-                        break;
-                    }
-                        
-                    default:
-                        assert(0 && "IMPOSSIBLE");
-                        break;
-                }
-                
-                
-            }
-            
-            std::cout<<" boundary perimeter has "<<temp.size()<<" points"<<std::flush;
-            
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            
-            
-            return temp;
-        }
         
         /**********************************************************************/
         static std::pair<const Simplex<dim,dim-2>*,RootContainerType> getFirstPlaneEdgeIntersection(const VectorDim& P0,
@@ -279,7 +310,6 @@ namespace model
         }
         
         /**********************************************************************/
-        //        static std::pair<const Simplex<dim,0>* const,std::deque<VectorDim>> planeEdgeIntersection(const VectorDim& P0,
         static RootContainerType planeEdgeIntersection(const VectorDim& P0,
                                                        const VectorDim& n,
                                                        const Simplex<dim,dim-2>& edge,
@@ -305,17 +335,14 @@ namespace model
             const double P0v0norm=(P0-v0).norm();
             
             const double numCheck= (P0v0norm<FLT_EPSILON)? 0.0 : num/P0v0norm;
-            std::cout<<den/edgeNorm<<" "<<numCheck<<std::endl;
             
             if (fabs(den/edgeNorm)>meshIntersectionTol)
             {
                 // edge intersects plane
                 const double u=num/den;
-                std::cout<<"u="<<u<<std::endl;
                 
                 if(fabs(u)<meshIntersectionTol)
                 {
-                    //                    u=0.0;
                     temp.emplace_back(v0,&edge.child(0));
                 }
                 else if (u>=meshIntersectionTol && u<=1.0-meshIntersectionTol)
@@ -325,7 +352,6 @@ namespace model
                 else if (fabs(1.0-u)<meshIntersectionTol)
                 {
                     temp.emplace_back(v1,&edge.child(1));
-                    //                    u=1.0;
                 }
                 else
                 {// no roots

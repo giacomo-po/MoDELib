@@ -60,12 +60,17 @@ namespace model
         static size_t Np;      // No. of vertices per line
         static bool plotBoundarySegments;
         static bool showVelocities;
+        static bool showNodeIDs;
         static float velocityFactor;
+        static bool showZeroBuergers;
 
         
         vtkSmartPointer<vtkActor> lineActor;
         vtkSmartPointer<vtkActor> tubeActor;
-        
+
+        vtkSmartPointer<vtkActor> lineActor0;
+        vtkSmartPointer<vtkActor> tubeActor0;
+
         
 //    private:
         
@@ -79,11 +84,16 @@ namespace model
         vtkSmartPointer<vtkPoints> points;
 //        std::deque<vtkSmartPointer<vtkPolyLine>> lines;
         vtkSmartPointer<vtkCellArray> cells;
+                vtkSmartPointer<vtkCellArray> cells0;
         vtkSmartPointer<vtkPolyData> polyData;
+                vtkSmartPointer<vtkPolyData> polyData0;
         vtkSmartPointer<vtkUnsignedCharArray> colors;
         vtkSmartPointer<vtkPolyDataMapper> lineMapper;
+                vtkSmartPointer<vtkPolyDataMapper> lineMapper0;
         vtkSmartPointer<vtkTubeFilter> tubeFilter;
+                vtkSmartPointer<vtkTubeFilter> tubeFilter0;
         vtkSmartPointer<vtkPolyDataMapper> tubeMapper;
+                vtkSmartPointer<vtkPolyDataMapper> tubeMapper0;
         
         // node objects
         vtkSmartPointer<vtkPoints> nodePoints;
@@ -302,6 +312,8 @@ namespace model
                     vtkSmartPointer<vtkPolyLine> line=vtkSmartPointer<vtkPolyLine>::New();
                     line->GetPointIds()->SetNumberOfIds(Np);
                     unsigned char clr[3]={0,255,255};
+//                    unsigned char clr0[3]={255,255,255};
+
                     colors->InsertNextTypedTuple(clr);
                     
                     for (int k=0;k<Np;++k) // this may have to go to Np+1
@@ -322,7 +334,14 @@ namespace model
                         ptID++;
                     }
                     
+                    if(burgers.squaredNorm()>FLT_EPSILON)
+                    {
                     cells->InsertNextCell(line);
+                    }
+                    else
+                    {
+                        cells0->InsertNextCell(line);
+                    }
                     
                 }
             }
@@ -330,6 +349,11 @@ namespace model
             polyData->SetPoints(points);
             polyData->SetLines(cells);
             polyData->GetCellData()->SetScalars(colors);
+
+            polyData0->SetPoints(points);
+            polyData0->SetLines(cells0);
+//            polyData0->GetCellData()->SetScalars(colors);
+
         }
         
         /**********************************************************************/
@@ -338,14 +362,22 @@ namespace model
 //        /* init */ edgeReader(edgeReader_in),
         /* init */ lineActor(vtkSmartPointer<vtkActor>::New()),
         /* init */ tubeActor(vtkSmartPointer<vtkActor>::New()),
+        /* init */ lineActor0(vtkSmartPointer<vtkActor>::New()),
+        /* init */ tubeActor0(vtkSmartPointer<vtkActor>::New()),
+
         //        /* init */ ptID(0),
         /* init */ points(vtkSmartPointer<vtkPoints>::New()),
         /* init */ cells(vtkSmartPointer<vtkCellArray>::New()),
         /* init */ polyData(vtkSmartPointer<vtkPolyData>::New()),
+        /* init */ cells0(vtkSmartPointer<vtkCellArray>::New()),
+        /* init */ polyData0(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ colors(vtkSmartPointer<vtkUnsignedCharArray>::New()),
         /* init */ lineMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ tubeFilter(vtkSmartPointer<vtkTubeFilter>::New()),
         /* init */ tubeMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
+        /* init */ lineMapper0(vtkSmartPointer<vtkPolyDataMapper>::New()),
+        /* init */ tubeFilter0(vtkSmartPointer<vtkTubeFilter>::New()),
+        /* init */ tubeMapper0(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ nodePoints(vtkSmartPointer<vtkPoints>::New()),
 //        /* init */ nodeLabels(vtkSmartPointer<vtkStringArray>::New()),
         /* init */ sphereSource(vtkSmartPointer<vtkSphereSource>::New()),
@@ -389,21 +421,35 @@ namespace model
             tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
             tubeFilter->SetNumberOfSides(10);
             tubeFilter->Update();
+            tubeFilter0->SetInputData(polyData0);
+            tubeFilter0->SetRadius(tubeRadius); // this must be a function similar to setColor
+            tubeFilter0->SetNumberOfSides(10);
+            tubeFilter0->Update();
             
             // Mappers
             tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
             tubeMapper->ScalarVisibilityOn();
             lineMapper->SetInputData(polyData);
+            tubeMapper0->SetInputConnection(tubeFilter0->GetOutputPort());
+            tubeMapper0->ScalarVisibilityOn();
+            lineMapper0->SetInputData(polyData0);
             
             // Actors
             tubeActor->SetMapper(tubeMapper);
-//            tubeActor->GetProperty()->SetOpacity(1.0); //Make the tube have some transparency.
+            tubeActor0->SetMapper(tubeMapper0);
+            tubeActor0->GetProperty()->SetColor(0.5, 0.5, 0.5); //(R,G,B)
+            tubeActor0->GetProperty()->SetOpacity(0.3); //(R,G,B)
+
+
+            //            tubeActor->GetProperty()->SetOpacity(1.0); //Make the tube have some transparency.
             //            computeColor();
             //tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
             lineActor->SetMapper(lineMapper);
+            lineActor0->SetMapper(lineMapper0);
             
             // Add actors to renderer
             renderer->AddActor(tubeActor);
+            renderer->AddActor(tubeActor0);
             
             nodeGlyphs->SetSourceConnection(sphereSource->GetOutputPort());
             nodeGlyphs->SetInputData(nodeData);
@@ -468,6 +514,18 @@ namespace model
             //            tube->Modified();
             
             tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
+            tubeFilter0->SetRadius(tubeRadius); // this must be a function similar to setColor
+
+            if(showZeroBuergers)
+            {
+                tubeActor0->VisibilityOn();
+                
+            }
+            else
+            {
+                tubeActor0->VisibilityOff();
+            }
+            
             nodeGlyphs->SetScaleFactor(2.0*tubeRadius*1.2);
 
             if(showVelocities)
@@ -478,6 +536,16 @@ namespace model
             else
             {
                 velocityActor->VisibilityOff();
+            }
+            
+            if(showNodeIDs)
+            {
+                labelActor->VisibilityOn();
+                
+            }
+            else
+            {
+                labelActor->VisibilityOff();
             }
             
             velocityGlyphs->SetScaleFactor(velocityFactor);
@@ -494,7 +562,10 @@ namespace model
     size_t DislocationSegmentActor::Np=10;
     bool DislocationSegmentActor::plotBoundarySegments=true;
     bool DislocationSegmentActor::showVelocities=false;
+    bool DislocationSegmentActor::showNodeIDs=false;
     float DislocationSegmentActor::velocityFactor=100.0;
+    bool DislocationSegmentActor::showZeroBuergers=false;
+
 
 } // namespace model
 #endif
