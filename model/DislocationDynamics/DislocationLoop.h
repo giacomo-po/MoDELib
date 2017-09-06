@@ -47,14 +47,14 @@ namespace model
 
         
         /**********************************************************************/
-        DislocationLoop(const LoopNetworkType& dn,
+        DislocationLoop(LoopNetworkType* const dn,
                         const VectorDim& B,
                         const VectorDim& N,
                         const VectorDim& P,
                         const int& grainID) :
-        /* base init */ LoopType(dn,dn.shared.poly.grain(grainID).latticeVector(B)),
-        /*      init */ grain(dn.shared.poly.grain(grainID)),
-        /*      init */ _glidePlane(GlidePlaneObserverType::getSharedPlane(dn.shared.mesh,dn.shared.poly.grain(grainID),P,N)),
+        /* base init */ LoopType(dn,dn->shared.poly.grain(grainID).latticeVector(B)),
+        /*      init */ grain(dn->shared.poly.grain(grainID)),
+        /*      init */ _glidePlane(GlidePlaneObserverType::getSharedPlane(dn->shared.mesh,dn->shared.poly.grain(grainID),P,N)),
         /*      init */ glidePlane(*_glidePlane.get()),
         /*      init */ isSessile(this->flow().dot(glidePlane.n)!=0)
         {

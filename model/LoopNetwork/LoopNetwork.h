@@ -55,28 +55,23 @@ namespace model
     template<typename Derived>
     class LoopNetwork : public CRTP<Derived>,
     //    /*               */ private std::map<size_t,typename TypeTraits<Derived>::NodeType>,
-    /*               */ private std::map<size_t,std::shared_ptr<typename TypeTraits<Derived>::NodeType>>,
-    /*               */ private std::multimap<std::pair<size_t,size_t>,LoopLink<typename TypeTraits<Derived>::LinkType>>,
-    /*               */ public NetworkLinkObserver<typename TypeTraits<Derived>::LinkType>,
     /*               */ public LoopObserver<typename TypeTraits<Derived>::LoopType>,
-    /*               */ public NodeObserver<typename TypeTraits<Derived>::NodeType>,
     /*               */ public NetworkComponentObserver<NetworkComponent<typename TypeTraits<Derived>::NodeType,typename TypeTraits<Derived>::LinkType>>,
-    /*               */ private std::map<size_t,const typename TypeTraits<Derived>::LoopType* const>
+    /*               */ public NodeObserver<typename TypeTraits<Derived>::NodeType>,
+    /*               */ public NetworkLinkObserver<typename TypeTraits<Derived>::LinkType>,
+    /*               */ private std::map<size_t,std::shared_ptr<typename TypeTraits<Derived>::NodeType>>,
+    /*               */ private std::multimap<std::pair<size_t,size_t>,LoopLink<typename TypeTraits<Derived>::LinkType>>
     {
         
     public:
+        
         typedef typename TypeTraits<Derived>::NodeType NodeType;
-        //        typedef typename TypeTraits<Derived>::NodeType NodeType;
         typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef LoopLink<typename TypeTraits<Derived>::LinkType> LoopLinkType;
         typedef typename TypeTraits<Derived>::LoopType LoopType;
         typedef typename TypeTraits<Derived>::FlowType FlowType;
         
-        
-        //        typedef std::map<size_t,NodeType>     DanglingNodeContainerType;
-        
         typedef std::multimap<std::pair<size_t,size_t>,LoopLinkType> LoopLinkContainerType;
-        //        typedef std::map<size_t,const LoopType* const> LoopContainerType;
         typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
         typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;
         typedef typename NetworkLinkObserverType::IsNetworkLinkType IsNetworkLinkType;
@@ -311,7 +306,7 @@ namespace model
           * flow f. The additional loop constructor arguments loopInput
           * are forwarded to the loop constructor.
           */
-            std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),loopInput...);
+            std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->p_derived(),loopInput...);
             
             for(size_t k=0;k<nodeIDs.size();++k)
             {
@@ -331,7 +326,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void removeLoop(const std::shared_ptr<LoopType>& pL)
+        void deleteLoop(const std::shared_ptr<LoopType>& pL)
         {/*!\param[in] pL a shared_ptr to the loop to be removed
           *
           * Disconnects all segments in loop pL, therefore removing the loop itself.

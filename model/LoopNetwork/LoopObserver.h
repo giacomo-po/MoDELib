@@ -15,7 +15,7 @@
 namespace model
 {
     template<typename LoopType>
-    class LoopObserver
+    class LoopObserver : public std::map<size_t,const LoopType* const>
     {
 
     public:
@@ -24,45 +24,45 @@ namespace model
         
         typedef std::pair<bool, const LoopType* const> IsConstLoopType;
         
-    private:
-        
-        static LoopContainerType loopMap;
+//    private:
+//        
+//        static LoopContainerType loopMap;
         
     public:
         
-        static IsConstLoopType loop(const size_t& i)
+        IsConstLoopType loop(const size_t& i)
         {
-            typename LoopContainerType::const_iterator loopIter(loopMap.find(i));
-            return (loopIter==loopMap.end())?  std::make_pair(false,static_cast<const LoopType* const>(nullptr)) :
+            typename LoopContainerType::const_iterator loopIter(this->find(i));
+            return (loopIter==this->end())?  std::make_pair(false,static_cast<const LoopType* const>(nullptr)) :
             /*                              */ std::make_pair(true,loopIter->second);
             
         }
 
         
         /**********************************************************************/
-        static LoopContainerType& loops()
+        LoopContainerType& loops()
         {
-            return loopMap;
+            return *this;
         }
         
         /**********************************************************************/
-        static void addLoop(const LoopType* const pL)
+        void addLoop(const LoopType* const pL)
         {
-            const bool success=loopMap.insert(std::make_pair(pL->sID,pL)).second;
-            assert(success && "Could not insert in loopMap");
+            const bool success=this->insert(std::make_pair(pL->sID,pL)).second;
+            assert(success && "Could not insert in loop");
         }
         
         /**********************************************************************/
-        static void removeLoop(const LoopType* const pL)
+        void removeLoop(const LoopType* const pL)
         {
-            const size_t erased=loopMap.erase(pL->sID);
-            assert(erased==1 && "Could not erase from loopMap");
+            const size_t erased=this->erase(pL->sID);
+            assert(erased==1 && "Could not erase loop");
         }
         
     };
     
-    template<typename LoopType>
-    std::map<size_t,const LoopType* const> LoopObserver<LoopType>::loopMap;
+//    template<typename LoopType>
+//    std::map<size_t,const LoopType* const> LoopObserver<LoopType>::loopMap;
     
 }
 #endif

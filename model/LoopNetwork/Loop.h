@@ -48,27 +48,32 @@ namespace model
     private:
         
         LoopLinkSequenceType linkSeq;
+        LoopNetworkType* const _loopNetwork;
         FlowType _flow;
 
     public:
         
+
         const LoopNetworkType& loopNetwork;
 
         /**********************************************************************/
-        Loop(const LoopNetworkType& loopNetwork_in,
+        Loop(LoopNetworkType* const loopNetwork_in,
              const FlowType& f) :
+        /* init */ _loopNetwork(loopNetwork_in),
         /* init */ _flow(f),
-        /* init */ loopNetwork(loopNetwork_in)
+        /* init */ loopNetwork(*_loopNetwork)
         {
             std::cout<<"Constructing Loop "<<this->sID<<std::endl;
-            LoopObserverType::addLoop(this->p_derived());
+            _loopNetwork->addLoop(this->p_derived());
+//            LoopObserverType::addLoop(this->p_derived());
         }
         
         /**********************************************************************/
         ~Loop()
         {
             std::cout<<"Destroying Loop "<<this->sID<<std::endl;
-            LoopObserverType::removeLoop(this->p_derived());
+            _loopNetwork->removeLoop(this->p_derived());
+//            LoopObserverType::removeLoop(this->p_derived());
         }
         
         /**********************************************************************/

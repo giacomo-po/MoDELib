@@ -285,8 +285,10 @@ namespace model
             //! A simulation step consists of the following:
             model::cout<<blueBoldColor<< "runID="<<runID<<" (of "<<Nsteps<<")"
             /*                    */<< ", time="<<totalTime
-            /*                    */<< ": nodeOrder="<<this->nodes().size()
-            /*                    */<< ", linkOrder="<<this->links().size()
+            /*                    */<< ": nodes="<<this->nodes().size()
+            /*                    */<< ", segments="<<this->links().size()
+            /*                    */<< ", loopSegments="<<this->loopLinks().size()
+            /*                    */<< ", loops="<<this->loops().size()
             /*                    */<< ", components="<<this->components().size()
             /*                    */<< defaultColor<<std::endl;
             
