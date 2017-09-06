@@ -44,6 +44,8 @@ namespace model
         
         typedef size_t ScalarIDType;
         
+        typedef Simplex<dim,order> SimplexType;
+        
         typedef Eigen::Matrix<ScalarIDType,1,nVertices> SimplexIDType;
         
         /**********************************************************************/

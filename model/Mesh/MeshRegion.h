@@ -23,21 +23,24 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template<typename _SimplexType>
-    struct MeshRegion :
-    /* base */ public std::set<const _SimplexType*>
+    struct MeshRegion : public std::set<const _SimplexType*>
 //    /* base */ private std::deque<PlanarMeshFacet<_SimplexType::dim>>
     {
         typedef _SimplexType SimplexType;
         typedef MeshRegion<SimplexType> MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         
+        MeshRegionObserverType& regionObserver;
         const int regionID;
         
         /**********************************************************************/
-        MeshRegion(const int& rID) : regionID(rID)
+        MeshRegion(MeshRegionObserverType& ro,
+                   const int& rID) :
+        /* init */ regionObserver(ro),
+        /* init */ regionID(rID)
         {
 //            model::cout<<"Creating Mesh Region "<<rID<<std::flush;
-            const bool success=MeshRegionObserverType::emplace(regionID,this).second;
+            const bool success=regionObserver.emplace(regionID,this).second;
             assert(success && "COULD NOT INSERT MeshRegion in MeshRegionObserver.");
 //            model::cout<<" done"<<std::endl;
         }
@@ -45,8 +48,10 @@ namespace model
         /**********************************************************************/
         ~MeshRegion()
         {
-            const size_t n=MeshRegionObserverType::erase(regionID);
+            std::cout<<"Destroying Region..."<<std::flush;
+            const size_t n=regionObserver.erase(regionID);
             assert(n==1 && "COULD NOT ERASE MeshRegion in MeshRegionObserver.");
+            std::cout<<"done"<<std::endl;
         }
         
         /**********************************************************************/

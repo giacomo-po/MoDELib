@@ -42,8 +42,9 @@ namespace model
     public:
         
         /**********************************************************************/
-        SimplexChild(const SimplexIDType& xID) :
-        /* init */ SimplexBaseType(xID),
+        SimplexChild(SimplicialMesh<dim>* const  m,
+                     const SimplexIDType& xID) :
+        /* init */ SimplexBaseType(m,xID),
         /* init */ outN(Eigen::Matrix<double,dim,1>::Zero())
         {
         

@@ -16,7 +16,8 @@
 
 namespace model
 {
-	
+	template<int dim>
+    class SimplicialMesh;
 	
 	/**************************************************************************/
 	/**************************************************************************/	
@@ -26,18 +27,29 @@ namespace model
     /* inheritance    */ public StaticID<SimplexBase<_dim,order> >
     {
      
+
+        
         static constexpr short int dim=_dim;
         typedef SimplexTraits<dim,order> SimplexTraitsType;
         typedef typename SimplexTraitsType::SimplexIDType SimplexIDType;
         
+        SimplicialMesh<_dim>* const mesh;
         const SimplexIDType xID;
         
 		/**********************************************************************/
-        SimplexBase(const SimplexIDType& vIN) :
+        SimplexBase(SimplicialMesh<dim>* const m,
+                    const SimplexIDType& vIN) :
+        /* init */ mesh(m),
         /* init */ xID(SimplexTraitsType::sortID(vIN))
         {/*!
           */
 
+        }
+        
+        /**********************************************************************/
+        SimplexObserverBase<SimplicialMesh<_dim>,dim,order>& observer()
+        {
+            return mesh->template observer<order>();
         }
         
 		/**********************************************************************/
@@ -48,7 +60,7 @@ namespace model
             {
                 typename SimplexTraits<dim,0>::SimplexIDType vID;
                 vID<<xID(v);
-                temp[v]=SimplexObserver<dim,0>::pSimplex(vID).get();
+                temp[v]=mesh->template observer<0>().pSimplex(vID).get();
             }
             return temp;
         }
@@ -62,7 +74,7 @@ namespace model
                 typename SimplexTraits<dim,0>::SimplexIDType vID;
                 vID<<xID(v);
 //                temp.col(v)=SimplexObserver<dim,0>::pSimplex(vID)->P0;
-                temp.col(v)=SimplexObserver<dim,0>::simplex(vID).P0;
+                temp.col(v)=mesh->template observer<0>().simplex(vID).P0;
 
             }
             return temp;

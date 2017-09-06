@@ -502,6 +502,9 @@ namespace model
         /**********************************************************************/
         ~DislocationNetwork()
         {
+            
+            model::cout<<"Destroying DislocationNetwork"<<std::endl;
+            
             for(auto& linkIter : this->links())
             {
                 linkIter.second.quadratureParticleContainer.clear();

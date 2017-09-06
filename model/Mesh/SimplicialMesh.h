@@ -23,7 +23,7 @@
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Mesh/Simplex.h>
 #include <model/Mesh/SimplexReader.h>
-#include <model/Mesh/MeshStats.h>
+//#include <model/Mesh/MeshStats.h>
 #include <model/Mesh/MeshRegionObserver.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/Mesh/MeshRegionBoundary.h>
@@ -32,11 +32,44 @@
 namespace model
 {
     
+//    /**************************************************************************/
+//    /**************************************************************************/
+//    template<short int dim,short int order>
+//    struct SimplexObserverWrapper : public SimplexObserverWrapper<dim,order-1>,
+//    /*                           */ public SimplexObserver<dim,order>
+//    {/* This class is used to make sure that the static objects in SimplexObserver
+//      * are "alive" as long as the SimplicialMesh is alive.
+//      */
+//        
+//        //        template<int otherOrder>
+//        //        static SimplexObserver<dim,otherOrder>& observer()
+//        
+//        ~SimplexObserverWrapper()
+//        {
+//            assert((SimplexObserver<dim,order>::size()==0) && "SimplexObserver not empty");
+//        }
+//        
+//    };
+//    
+//    /**************************************************************************/
+//    /**************************************************************************/
+//    template<short int dim>
+//    struct SimplexObserverWrapper<dim,0> :
+//    /*                                  */ public SimplexObserver<dim,0>
+//    {
+//        ~SimplexObserverWrapper()
+//        {
+//            assert((SimplexObserver<dim,0>::size()==0) && "SimplexObserver not empty");
+//        }
+//
+//    };
     
     /**************************************************************************/
     /**************************************************************************/
     template<int _dim>
-    class SimplicialMesh : public SimplexReader<_dim>,
+    class SimplicialMesh : public SimplexObserver<SimplicialMesh<_dim>,_dim>,           // make sure this is destroyed after map of Simplex<_dim,_dim>
+    /*                  */ public MeshRegionObserver<MeshRegion<Simplex<_dim,_dim>>>,   // make sure this is destroyed after map of Simplex<_dim,_dim>
+    /*                  */ public SimplexReader<_dim>,
     /*                  */ public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
     /*                                */ const Simplex<_dim,_dim>, // value
     /*                                */ CompareVectorsByComponent<typename SimplexTraits<_dim,_dim>::ScalarIDType,
@@ -76,6 +109,7 @@ namespace model
         /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Zero()),
         /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Zero())
         {
+            
         }
         
         /**********************************************************************/
@@ -84,6 +118,26 @@ namespace model
         {
             readMesh(meshID);
         }
+        
+        /**********************************************************************/
+        ~SimplicialMesh()
+        {
+            model::cout<<"Destroying SimplicialMesh"<<std::endl;
+        }
+        
+        
+        
+//        /**********************************************************************/
+//        const SimplexObserver<_dim>& simplexObserver() const
+//        {
+//            return *this;
+//        }
+//        
+//        /**********************************************************************/
+//        SimplexObserver<_dim>& simplexObserver()
+//        {
+//            return *this;
+//        }
         
         /**********************************************************************/
         const SimplexMapType& simplices() const
@@ -133,27 +187,34 @@ namespace model
                 }
                 model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                 
-                MeshStats<dim,dim>::stats();
+//                MeshStats<dim,dim>::stats();
+                this->stats();
                 SimplexReader<dim>::nodeReader.clear();
                 
                 if(simplices().size())
                 {
-                    _xMin=SimplexObserver<dim,0>::simplexBegin()->second->P0;
-                    _xMax=SimplexObserver<dim,0>::simplexBegin()->second->P0;
+//                    _xMin=SimplexObserver<dim,0>::begin()->second->P0;
+//                    _xMax=SimplexObserver<dim,0>::begin()->second->P0;
+
+                    _xMin=this->template observer<0>().begin()->second->P0;
+                    _xMax=this->template observer<0>().begin()->second->P0;
+
                     
-                    for (typename SimplexObserver<dim,0>::const_iterator nIter = SimplexObserver<dim,0>::simplexBegin();
-                         /*                                           */ nIter!= SimplexObserver<dim,0>::simplexEnd();
-                         /*                                           */ nIter++)
+//                    for (const auto nIter = this->template observer<0>().begin();
+//                         /*                                           */ nIter!= this->template observer<0>().end();
+//                         /*                                           */ nIter++)
+//                        
+                    for (const auto& nIter : this->template observer<0>())
                     {
                         for(int d=0;d<dim;++d)
                         {
-                            if (nIter->second->P0(d)<_xMin(d))
+                            if (nIter.second->P0(d)<_xMin(d))
                             {
-                                _xMin(d)=nIter->second->P0(d);
+                                _xMin(d)=nIter.second->P0(d);
                             }
-                            if (nIter->second->P0(d)>_xMax(d))
+                            if (nIter.second->P0(d)>_xMax(d))
                             {
-                                _xMax(d)=nIter->second->P0(d);
+                                _xMax(d)=nIter.second->P0(d);
                             }
                         }
                     }
@@ -171,7 +232,8 @@ namespace model
             
             // Populate MeshRegionBoundaryContainerType
             regionBoundaries().clear();
-            for (const auto& simpl : SimplexObserver<dim,dim-1>::simplices())
+//            for (const auto& simpl : SimplexObserver<dim,dim-1>::simplices())
+                for (const auto& simpl : this->template observer<dim-1>().simplices())
             {
                 if(simpl.second->isRegionBoundarySimplex())
                 {
@@ -197,7 +259,7 @@ namespace model
             model::cout<<"mesh xMax="<<_xMax.transpose()<<std::endl;
             //            model::cout<<"mesh volume="<<volume()<<std::endl;
             
-            for(auto rIter : MeshRegionObserverType::regions())
+            for(auto rIter : this->regions())
             {
                 std::cout<<"mesh region "<<rIter.second->regionID<<" contains "<<rIter.second->simplices().size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
             }
@@ -210,16 +272,26 @@ namespace model
             
         }
         
+//        /**********************************************************************/
+//        template <short N>
+//        std::shared_ptr<typename SimplexTraits<dim,N>::SimplexType> pSimplex(const typename SimplexTraits<dim,N>::SimplexIDType& xID) const
+//        {
+//            return this->template observer<N>().pSimplex(*this,xID);
+//        }
+        
         /**********************************************************************/
         void insertSimplex(const typename SimplexTraits<dim,dim>::SimplexIDType& xIN,const int& regionID)
         {/*!@param[in] xIN the (unsorted) array of mesh node IDs defining a simplex
           *\brief Inserts a Simplex<dim> into the mesh, with ID equal to the
           * sorted array xIN.
           */
+            
+//            std::cout<<"insertSimplex: "<<&simplexObserver()<<std::endl;
+            
             const typename SimplexTraits<dim,dim>::SimplexIDType xID(SimplexTraits<dim,dim>::sortID(xIN));
             const auto pair=simplices().emplace(std::piecewise_construct,
                                                 std::make_tuple(xID),
-                                                std::make_tuple(xID, regionID)
+                                                std::make_tuple(this,xID, regionID)
                                                 );
             
             assert(pair.second);

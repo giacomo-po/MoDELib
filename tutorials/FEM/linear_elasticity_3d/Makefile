@@ -1,6 +1,6 @@
 MODEL_INCLUDE = ../../../
 EIGEN_INCLUDE =/Users/giacomo/Documents/eigen
-usePARDISO = 1
+usePARDISO = 0
 MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
 MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
 
@@ -32,7 +32,7 @@ endif
 
 
 program:
-	/opt/intel/bin/icpc main.cpp -o fem $(CFLAGS) $(IDIR)  $(LIBS)
+	g++ main.cpp -o fem $(CFLAGS) $(IDIR)  $(LIBS)
 	
 clean:
 		rm -f fem

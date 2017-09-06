@@ -48,24 +48,35 @@ namespace model
         const Eigen::Matrix<double,dim,1> P0;
         
         /**********************************************************************/
-        Simplex(const SimplexIDType& vIN) :
+        Simplex(SimplicialMesh<dim>* const m,
+                const SimplexIDType& vIN) :
 //        /* init list */ SimplexBase<dim,order>(vIN),
-        /* init list */ SimplexChild<dim,order>(vIN),
+        /* init list */ SimplexChild<dim,order>(m,vIN),
         //        /* init list */ P0(get_P0())
         /* init list */ P0(SimplexReader<dim>::get_P0(this->xID))
         {/*!@param[in] vIN the (possibly unsorted) ID of this Simplex
           *
           * Constructur performs the following operations:
           */
+            
+//                        //std::cout<<"Creating Simplex<3,"<<order<<std::endl;
+            
             //! -1 Adds this to the SimplexObserver
-            SimplexObserver<dim,order>::insertSimplex(*this);
+            this->observer().insertSimplex(*this);
+            
+//            //std::cout<<"done"<<std::endl;
+
         }
         
         /**********************************************************************/
         ~Simplex()
         {/*!
           */
-            SimplexObserver<dim,order>::removeSimplex(*this);
+            //std::cout<<"Destroying Simplex<3,"<<order<<"> ..."<<this->xID<<std::flush;
+
+            this->observer().removeSimplex(*this);
+            //std::cout<<" done observer"<<std::endl;
+
         }
         
         /**********************************************************************/
@@ -106,17 +117,21 @@ namespace model
         double vol0; // SHOULD BE CONST, SEE BELOW
         
         /**********************************************************************/
-        Simplex(const SimplexIDType& vIN) :
+        Simplex(SimplicialMesh<dim>* const m,
+                const SimplexIDType& vIN) :
 //        /* init list */ SimplexBase<dim,order>(vIN),
-        /* init list */ SimplexChild<dim,order>(vIN),
-        /* init list */ BaseArrayType(SimplexObserver<dim,order>::faces(vIN))
+        /* init list */ SimplexChild<dim,order>(m,vIN),
+        /* init list */ BaseArrayType(this->observer().faces(vIN))
         //        /* init */ vol0(SimplexVolume<dim,order>::volume(this->vertexPositionMatrix())) // THIS GIVES SEGMENTATION FAULT, WHY?
         {/*!@param[in] vIN the (possibly unsorted) ID of this
           *
           * Constructur performs the following operations:
           */
+            
+//                        //std::cout<<"Creating Simplex<3,"<<order<<std::endl;
+            
             //! -1 inserts *this into the SimplexObserver
-            SimplexObserver<dim,order>::insertSimplex(*this);
+            this->observer().insertSimplex(*this);
             
             //! -2 inserts this into children Simplices
             for (int k=0;k<nFaces;++k)
@@ -125,20 +140,29 @@ namespace model
             }
             
             vol0=SimplexVolume<dim,order>::volume(this->vertexPositionMatrix());
+            
+//                        //std::cout<<"done"<<std::endl;
         }
         
         /**********************************************************************/
         ~Simplex()
         {/*! Destructor performs the following operations:
           */
+            //std::cout<<"Destroying Simplex<3,"<<order<<"> ..."<<this->xID<<std::flush;
+            
             //! -1 removes this in SimplexObserver
-            SimplexObserver<dim,order>::removeSimplex(*this);
+            this->observer().removeSimplex(*this);
+            //std::cout<<" done observer"<<std::flush;
+
             
             //! -2 remove this fomr children parentContainers
             for (int k=0;k<nFaces;++k)
             {
                 child(k).removeFromParents(this);
             }
+            
+            //std::cout<<" done parents"<<std::endl;
+
         }
         
         /**********************************************************************/
@@ -238,8 +262,8 @@ namespace model
             const double jFabs(std::fabs(F.determinant()));
             if(jFabs<DBL_EPSILON)
             {
-                std::cout<<this->xID<<", volume="<<jFabs<<std::endl;
-                std::cout<<F<<std::endl;
+                model::cout<<this->xID<<", volume="<<jFabs<<std::endl;
+                model::cout<<F<<std::endl;
                 assert(0 && "SIMPLEX HAS ZERO VOLUME");
             }
             return jFabs*F.inverse().transpose()*BarycentricTraits<dim>::NdA;
@@ -281,10 +305,11 @@ namespace model
         const double vol0;
         
         /**********************************************************************/
-        Simplex(const SimplexIDType& vIN, const int regionID=0) :
-        /* init base */ SimplexBase<dim,order>(vIN),
-        /* init base */ BaseArrayType(SimplexObserver<dim,dim>::faces(vIN)),
-        /* init list */ region(MeshRegionObserverType::getRegion(regionID)),
+        Simplex(SimplicialMesh<dim>* const m,
+                const SimplexIDType& vIN, const int regionID=0) :
+        /* init base */ SimplexBase<dim,order>(m,vIN),
+        /* init base */ BaseArrayType(this->observer().faces(vIN)),
+        /* init list */ region(m->getSharedRegion(regionID)),
         /* init base */ b2p(get_b2p()),
         /* init list */ p2b(b2p.fullPivLu().solve(Eigen::Matrix<double,dim+1,dim+1>::Identity())),
         /* init list */ nda(get_nda()),
@@ -292,7 +317,10 @@ namespace model
         {/*!
           */
             
-            SimplexObserver<dim,order>::insertSimplex(*this);
+//            //std::cout<<"Creating Simplex<3,"<<order<<std::endl;
+            
+            this->observer().insertSimplex(*this);
+            
             
             for (int k=0;k<nFaces;++k)
             {
@@ -301,6 +329,8 @@ namespace model
             
             region->simplices().emplace(this);
             updateBndNormal();
+            
+//                        //std::cout<<"done"<<std::endl;
         }
         
         /**********************************************************************/
@@ -308,8 +338,13 @@ namespace model
         {/*! Destructor performs the following operations:
           */
             
+            //std::cout<<"Destroying Simplex<3,"<<order<<"> ..."<<this->xID<<std::flush;
+
             //! -1 removes this in SimplexObserver
-            SimplexObserver<dim,order>::removeSimplex(*this);
+//            SimplexObserver<dim,order>::removeSimplex(*this);
+            this->observer().removeSimplex(*this);
+            //std::cout<<" done observer"<<std::flush;
+
             
             //! -2 remove this fomr children parentContainers
             for (int k=0;k<nFaces;++k)
@@ -317,8 +352,14 @@ namespace model
                 child(k).removeFromParents(this);
             }
             
+            //std::cout<<" done parents"<<std::flush;
+
+            
             region->simplices().erase(this);
             updateBndNormal();
+            
+            //std::cout<<" done region"<<std::endl;
+
         }
         
         /**********************************************************************/
@@ -417,8 +458,8 @@ namespace model
                 //                }
                 
 #ifdef _MODEL_BENCH_BARYSEARCH_
-                std::cout<<"Searching "<<this->xID<<std::endl;
-                std::cout<<"bary= "<<pos2bary(P)<<std::endl;
+                model::cout<<"Searching "<<this->xID<<std::endl;
+                model::cout<<"bary= "<<pos2bary(P)<<std::endl;
                 searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<" "
                 /*      */<<this->xID<<"\n";
 #endif
@@ -479,7 +520,7 @@ namespace model
             }
             else
             {
-                std::cout<<"Parallel faceLineIntersection"<<std::endl;
+                model::cout<<"Parallel faceLineIntersection"<<std::endl;
             }
             return temp;
             

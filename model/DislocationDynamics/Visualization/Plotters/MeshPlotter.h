@@ -123,25 +123,27 @@ namespace model
             
             edgeVector.clear();
             //            edgeVector.reserve(SimplexObserver<3,1>::size()); // use reserve to speed-up push_back used later
-            for (typename SimplexObserver<3,1>::const_iterator sIter=SimplexObserver<3,1>::simplexBegin();
-                 /*                                         */ sIter!=SimplexObserver<3,1>::simplexEnd();++sIter)
+//            for (typename SimplexObserver<3,1>::const_iterator sIter=SimplexObserver<3,1>::simplexBegin();
+//                 /*                                         */ sIter!=SimplexObserver<3,1>::simplexEnd();++sIter)
+//            {
+            for (const auto& sIter : p_mesh->template observer<1>())
             {
-                if(sIter->second->isBoundarySimplex())
+            if(sIter.second->isBoundarySimplex())
                 {
-                    std::pair<size_t,size_t> key=std::make_pair(sIter->second->child(0).xID(0),
-                                                                sIter->second->child(1).xID(0));
+                    std::pair<size_t,size_t> key=std::make_pair(sIter.second->child(0).xID(0),
+                                                                sIter.second->child(1).xID(0));
                     
                     
                     Eigen::Matrix<float,3,2> temp(Eigen::Matrix<float,3,2>::Zero());
-                    temp.col(0)=sIter->second->child(0).P0.cast<float>();
-                    temp.col(1)=sIter->second->child(1).P0.cast<float>();
+                    temp.col(0)=sIter.second->child(0).P0.cast<float>();
+                    temp.col(1)=sIter.second->child(1).P0.cast<float>();
                     
                     edgeVector.emplace(key,temp);
                     
                     //					if (dispFileIsGood)
                     //                    {
-                    //						VertexReader<'D',4,float>::iterator iterD1(DispContainerType::find(sIter->second->child(0).xID(0)));
-                    //						VertexReader<'D',4,float>::iterator iterD2(DispContainerType::find(sIter->second->child(1).xID(0)));
+                    //						VertexReader<'D',4,float>::iterator iterD1(DispContainerType::find(sIter.second->child(0).xID(0)));
+                    //						VertexReader<'D',4,float>::iterator iterD2(DispContainerType::find(sIter.second->child(1).xID(0)));
                     //						assert(iterD1!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
                     //						assert(iterD2!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
                     //						temp.col(2)=iterD1->second.segment<3>(0);
@@ -152,16 +154,17 @@ namespace model
                 }
             }
             
-            for (typename SimplexObserver<3,2>::const_iterator sIter=SimplexObserver<3,2>::simplexBegin();
-                 /*                                         */ sIter!=SimplexObserver<3,2>::simplexEnd();++sIter)
+//            for (typename SimplexObserver<3,2>::const_iterator sIter=SimplexObserver<3,2>::simplexBegin();
+//                 /*                                         */ sIter!=SimplexObserver<3,2>::simplexEnd();++sIter)
+            for (const auto& sIter : p_mesh->template observer<2>())
             {
-                if(sIter->second->isRegionBoundarySimplex())
+                if(sIter.second->isRegionBoundarySimplex())
                 {
-                    regionsBndDeq.emplace_back(sIter->second->vertexPositionMatrix().template cast<float>());
-                    (*(sIter->second->parents().begin()))->region->regionID;
+                    regionsBndDeq.emplace_back(sIter.second->vertexPositionMatrix().template cast<float>());
+                    (*(sIter.second->parents().begin()))->region->regionID;
                     
-                    int rID1=(*(sIter->second->parents(). begin()))->region->regionID;
-                    int rID2=(*(sIter->second->parents().rbegin()))->region->regionID;
+                    int rID1=(*(sIter.second->parents(). begin()))->region->regionID;
+                    int rID2=(*(sIter.second->parents().rbegin()))->region->regionID;
                     
                     if(rID1>rMax)
                     {
@@ -223,7 +226,7 @@ namespace model
                     const Eigen::Matrix<size_t,3,1> xID=(Eigen::Matrix<size_t,3,1>()<<triangleID.second[0],triangleID.second[1],triangleID.second[2]).finished();
                     
                     
-                    Eigen::Matrix<float,3,3> vertexPositions=SimplexObserver<3,2>::simplex(xID).vertexPositionMatrix().template cast<float>();
+                    Eigen::Matrix<float,3,3> vertexPositions=p_mesh->template observer<2>().simplex(xID).vertexPositionMatrix().template cast<float>();
                     
                     if(dispFileIsGood)
                     {
@@ -433,10 +436,10 @@ namespace model
 //                for (typename SimplexObserver<3,0>::const_iterator sIter=SimplexObserver<3,0>::simplexBegin();
 //                     /*                                         */ sIter!=SimplexObserver<3,0>::simplexEnd();++sIter)
 //                {
-//                    Eigen::Matrix<double,3,1> outNormal=sIter->second->outNormal()*100.0;
+//                    Eigen::Matrix<double,3,1> outNormal=sIter.second->outNormal()*100.0;
 //                    glBegin(GL_LINES);
-//                    glVertex3f(sIter->second->P0(0),sIter->second->P0(1),sIter->second->P0(2));
-//                    glVertex3f(sIter->second->P0(0)+outNormal(0),sIter->second->P0(1)+outNormal(1),sIter->second->P0(2)+outNormal(2));
+//                    glVertex3f(sIter.second->P0(0),sIter.second->P0(1),sIter.second->P0(2));
+//                    glVertex3f(sIter.second->P0(0)+outNormal(0),sIter.second->P0(1)+outNormal(1),sIter.second->P0(2)+outNormal(2));
 //                    glEnd();
 //                }
                 
@@ -447,8 +450,8 @@ namespace model
                     
                     //                    std::cout<<specificSimplexID<<std::endl;
                     
-                    const auto iter=SimplexObserver<3,3>::find(specificSimplexID);
-                    if(iter!=SimplexObserver<3,3>::simplexEnd())
+                    const auto iter=p_mesh->template observer<3>().find(specificSimplexID);
+                    if(iter!=p_mesh->template observer<3>().end())
                     {
                         Eigen::Matrix<float,3,4> mat=iter->second->vertexPositionMatrix().template cast<float>();
                         

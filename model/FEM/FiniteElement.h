@@ -96,7 +96,7 @@ namespace model
           * FiniteElement is constructed.
           */
             
-             model::cout<<greenColor<<"Creating FiniteElement:\n"<<defaultColor<<std::flush;
+             model::cout<<greenColor<<"Creating FiniteElement:"<<defaultColor<<std::endl;
             
             // THIS IS NECESSARY TO AVOID "STATIC INITIALIZATION FIASCO"
              model::cout<<"Element barycentric coordinates:\n"<<ElementType::baryNodalCoordinates<<std::endl;
@@ -104,22 +104,31 @@ namespace model
             // Insert elements
             for (const auto& simpl : mesh.simplices())
             {
+//            std::cout<<"FiniteElement 0"<<std::endl;
                 auto temp=ElementContainerType::emplace(simpl.first,ElementType(simpl.second,*this,*this,mesh2femIDmap()));
                 assert(temp.second && "UNABLE TO INSERT ELEMENT IN ELEMENT CONTAINER.");
                 
+//                            std::cout<<"FiniteElement 1"<<std::endl;
                 // Add element pointer to each of its nodes
                 for(int n=0;n<ElementType::nodesPerElement;++n)
                 {
+//                                std::cout<<"FiniteElement 2"<<std::endl;
                     auto temp1=temp.first->second.node(n).emplace(&temp.first->second);
                     assert(temp1.second && "UNABLE TO INSERT ELEMENT IN NODE.");
+//                                std::cout<<"FiniteElement 3"<<std::endl;
                 }
             }
             
+//            std::cout<<"FiniteElement 4"<<std::endl;
+
             if(std::is_same<ElementType,LagrangeElement<ElementType::dim,ElementType::order>>::value)
             {
-                assert((mesh2femIDmap().size()==SimplexObserver<dim,0>::size()) && "mesh2femIDmap has wrong size.");
+                assert((mesh2femIDmap().size()==mesh.template observer<0>().size()) && "mesh2femIDmap has wrong size.");
             
             }
+            
+//            std::cout<<"FiniteElement 5"<<std::endl;
+
             
             // Check that node[k].gID==k;
             for(size_t n=0;n<nodes().size();++n)
@@ -128,6 +137,9 @@ namespace model
             }
             
             // Compute _xMin and _xMax
+            
+//            std::cout<<"FiniteElement 6"<<std::endl;
+
             
             if(nodeSize())
             {
@@ -152,10 +164,19 @@ namespace model
 
             }
             
+//            std::cout<<"FiniteElement 7"<<std::endl;
+
+            
              model::cout<<"   # elements: "<<elementSize()    <<"\n";
              model::cout<<"   # nodes: "   <<nodeSize()       <<"\n";
              model::cout<<"   xMin= "    <<_xMin.transpose()<<"\n";
              model::cout<<"   xMax= "    <<_xMax.transpose()<<std::endl;
+        }
+        
+        /**********************************************************************/
+        ~FiniteElement()
+        {
+            model::cout<<"Destroying FiniteElement"<<std::endl;
         }
         
         /**********************************************************************/

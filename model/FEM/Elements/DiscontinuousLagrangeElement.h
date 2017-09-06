@@ -176,15 +176,17 @@ namespace model
         {
             Eigen::Matrix<double,dim,dim> temp;
             
-            typename SimplexObserver<dim,0>::SimplexIDType last;
+            typename SimplexTraits<dim,0>::SimplexIDType last;
             last<<s.xID(dim); // a 1x1 matrix
             
             //! Compute linear part of the deformation gradient
             for (int k=0;k<dim;++k)
             {
-                typename SimplexObserver<dim,0>::SimplexIDType current;
+                typename SimplexTraits<dim,0>::SimplexIDType current;
                 current<<s.xID(k); // a 1x1 matrix
-                temp.col(k) << (SimplexObserver<dim,0>::pSimplex(current))->P0 - (SimplexObserver<dim,0>::pSimplex(last))->P0;
+//                temp.col(k) << (SimplexObserver<dim,0>::pSimplex(current))->P0 - (SimplexObserver<dim,0>::pSimplex(last))->P0;
+                temp.col(k) << (s.mesh->template observer<0>().pSimplex(current))->P0 - (s.mesh->template observer<0>().pSimplex(last))->P0;
+
             }
             return temp;
         }
@@ -214,7 +216,7 @@ namespace model
         {/*!@param[in] s A const reference to a Simplex<dim,dim>
           */
             
-            typename SimplexObserver<dim,0>::SimplexIDType last;
+            typename SimplexTraits<dim,0>::SimplexIDType last;
             last<<s.xID(dim); // a 1x1 matrix
 
             const Eigen::Matrix<double,dim,dim> FL(get_FL(simplex));
@@ -223,8 +225,9 @@ namespace model
             for (int n=0;n<nodesPerElement;++n)
             {
                 // Place nodes linearly
-                const Eigen::Matrix<double,dim,1> P(FL*BarycentricTraits<dim>::l2x(baryNodalCoordinates.row(n))+(SimplexObserver<dim,0>::pSimplex(last))->P0);
-                
+//                const Eigen::Matrix<double,dim,1> P(FL*BarycentricTraits<dim>::l2x(baryNodalCoordinates.row(n))+(SimplexObserver<dim,0>::pSimplex(last))->P0);
+                const Eigen::Matrix<double,dim,1> P(FL*BarycentricTraits<dim>::l2x(baryNodalCoordinates.row(n))+(s.mesh->template observer<0>().pSimplex(last))->P0);
+
 //                typename std::map<Eigen::Matrix<double,dim,1>, NodeType* const, CompareVectorsByComponent<double,dim,float> >::const_iterator nIter(nodeFinder.find(P));
                 
 //                NodeType* pN;

@@ -347,12 +347,11 @@ namespace model
                     model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
                     
                     std::deque<FieldPointType> fieldPoints; // the container of field points
-                    for (typename SimplexObserver<3,0>::const_iterator sIter=SimplexObserver<3,0>::simplexBegin();
-                         /*                                         */ sIter!=SimplexObserver<3,0>::simplexEnd();++sIter)
+                    for (const auto& sIter : DN.shared.mesh.template observer<0>())
                     {
-                        if(sIter->second->isBoundarySimplex())
+                        if(sIter.second->isBoundarySimplex())
                         {
-                            fieldPoints.emplace_back(*(sIter->second));
+                            fieldPoints.emplace_back(*(sIter.second));
                         }
                     }
                     DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);

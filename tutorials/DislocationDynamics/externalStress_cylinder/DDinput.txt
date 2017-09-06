@@ -2,7 +2,7 @@
 # runType=0 runs a number of DD steps defined by Nsteps. 
 # runType=1 runs as many DD steps as needed to reach a simulation time totalTime
 runType=0;
-Nsteps=100000;
+Nsteps=100;
 targetTime=1e10;
 startAtTimeStep = -1;
 use_directSolver_DD=0;
