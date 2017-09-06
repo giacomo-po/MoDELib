@@ -223,7 +223,7 @@ namespace model
             const typename SimplexTraits<dim,dim>::SimplexIDType xID(SimplexTraits<dim,dim>::sortID(xIN));
             const auto pair=simplices().emplace(std::piecewise_construct,
                                                 std::make_tuple(xID),
-                                                std::make_tuple(xID, regionID)
+                                                std::make_tuple(this,xID, regionID)
                                                 );
             
             assert(pair.second);

@@ -16,8 +16,7 @@
 
 namespace model
 {
-	
-	
+    
 	/**************************************************************************/
 	/**************************************************************************/	
 	template<short int _dim, short int order>
@@ -30,10 +29,13 @@ namespace model
         typedef SimplexTraits<dim,order> SimplexTraitsType;
         typedef typename SimplexTraitsType::SimplexIDType SimplexIDType;
         
+        SimplicialMesh<dim>* const mesh;
         const SimplexIDType xID;
         
 		/**********************************************************************/
-        SimplexBase(const SimplexIDType& vIN) :
+        SimplexBase(SimplicialMesh<dim>* const m,
+                    const SimplexIDType& vIN) :
+        /* init */ mesh(m),
         /* init */ xID(SimplexTraitsType::sortID(vIN))
         {/*!
           */
@@ -48,7 +50,7 @@ namespace model
             {
                 typename SimplexTraits<dim,0>::SimplexIDType vID;
                 vID<<xID(v);
-                temp[v]=SimplexObserver<dim,0>::pSimplex(vID).get();
+                temp[v]=&SimplexObserver<dim,0>::simplex(vID);
             }
             return temp;
         }

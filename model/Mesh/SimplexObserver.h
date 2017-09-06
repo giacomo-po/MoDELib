@@ -15,7 +15,11 @@
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
 
-namespace model {
+namespace model
+{
+    
+    template<int dim>
+    struct SimplicialMesh;
 	
     /**************************************************************************/
     /**************************************************************************/
@@ -62,10 +66,11 @@ namespace model {
 		}
         
 		/**********************************************************************/
-		static SharedPtrType pSimplex(const SimplexIDType& xID)
+		static SharedPtrType sharedSimplex(SimplicialMesh<dim>* const mesh,
+                                           const SimplexIDType& xID)
         {
 			typename SimplexMapType::const_iterator iter(simplexMap.find(xID));
-			return (iter!=simplexMap.end())? (*(iter->second->parentBegin()))->child(xID) : SharedPtrType(new SimplexType(xID));
+			return (iter!=simplexMap.end())? (*(iter->second->parentBegin()))->child(xID) : SharedPtrType(new SimplexType(mesh,xID));
 		}
         
         /**********************************************************************/
@@ -79,12 +84,13 @@ namespace model {
 		
         
         /**********************************************************************/
-        static std::array<std::shared_ptr<Simplex<dim,order-1> >,SimplexTraits<dim,order>::nFaces> faces(const SimplexIDType& xID)
+        static std::array<std::shared_ptr<Simplex<dim,order-1> >,SimplexTraits<dim,order>::nFaces> faces(SimplicialMesh<dim>* const mesh,
+                                                                                                         const SimplexIDType& xID)
         {
             std::array<std::shared_ptr<Simplex<dim,order-1> >,SimplexTraits<dim,order>::nFaces> temp;
             for (size_t j=0;j<SimplexTraits<dim,order>::nFaces;++j)
             {
-                temp[j]=SimplexObserver<dim,order-1>::pSimplex(SimplexTraits<dim,order>::faceID(xID,j));
+                temp[j]=SimplexObserver<dim,order-1>::sharedSimplex(mesh,SimplexTraits<dim,order>::faceID(xID,j));
             }
             return temp;
         }

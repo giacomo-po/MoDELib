@@ -46,8 +46,9 @@ namespace model
         const Eigen::Matrix<double,dim,1> P0;
         
         /**********************************************************************/
-        Simplex(const SimplexIDType& vIN) :
-        /* init list */ SimplexBase<dim,order>(vIN),
+        Simplex(SimplicialMesh<dim>* const m,
+                const SimplexIDType& vIN) :
+        /* init list */ SimplexBase<dim,order>(m,vIN),
         //        /* init list */ P0(get_P0())
         /* init list */ P0(SimplexReader<dim>::get_P0(this->xID))
         {/*!@param[in] vIN the (possibly unsorted) ID of this Simplex
@@ -95,9 +96,10 @@ namespace model
         double vol0; // SHOULD BE CONST, SEE BELOW
         
         /**********************************************************************/
-        Simplex(const SimplexIDType& vIN) :
-        /* init list */ SimplexBase<dim,order>(vIN),
-        /* init list */ BaseArrayType(SimplexObserver<dim,order>::faces(vIN))
+        Simplex(SimplicialMesh<dim>* const m,
+                const SimplexIDType& vIN) :
+        /* init list */ SimplexBase<dim,order>(m,vIN),
+        /* init list */ BaseArrayType(SimplexObserver<dim,order>::faces(m,vIN))
         //        /* init */ vol0(SimplexVolume<dim,order>::volume(this->vertexPositionMatrix())) // THIS GIVES SEGMENTATION FAULT, WHY?
         {/*!@param[in] vIN the (possibly unsorted) ID of this
           *
@@ -247,9 +249,10 @@ namespace model
         const double vol0;
         
         /**********************************************************************/
-        Simplex(const SimplexIDType& vIN, const int regionID=0) :
-        /* init base */ SimplexBase<dim,order>(vIN),
-        /* init base */ BaseArrayType(SimplexObserver<dim,dim>::faces(vIN)),
+        Simplex(SimplicialMesh<dim>* const m,
+                const SimplexIDType& vIN, const int regionID=0) :
+        /* init base */ SimplexBase<dim,order>(m,vIN),
+        /* init base */ BaseArrayType(SimplexObserver<dim,dim>::faces(m,vIN)),
         /* init list */ region(MeshRegionObserverType::getRegion(regionID)),
         /* init base */ b2p(get_b2p()),
         /* init list */ p2b(b2p.fullPivLu().solve(Eigen::Matrix<double,dim+1,dim+1>::Identity())),

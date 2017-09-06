@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=60000;
+Nsteps=10;
 startAtTimeStep = -1;
 use_directSolver_DD=1;
 quadPerLength=0.1;
