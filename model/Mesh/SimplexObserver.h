@@ -14,19 +14,129 @@
 #include <array>
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
+#include <model/MPI/MPIcout.h>
 
 namespace model
 {
-    
+
     template<int dim>
     struct SimplicialMesh;
-	
+
+    template<short int dim,short int order>
+    struct SimplexObserverBase;
+    
+    template<short int dim,short int order>
+    struct SimplexObserverRecursion;
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    template<short int dim>
+    struct SimplexObserver : public SimplexObserverRecursion<dim,dim>
+    {
+        
+        template<short int o>
+        SimplexObserverBase<dim,o>& observer()
+        {
+            static_assert(o>=0 && o<=dim,"order must be >=0 and <= dim");
+            return *this;
+        }
+        
+        /**********************************************************************/
+        template<short int o>
+        const SimplexObserverBase<dim,o>& observer() const
+        {
+            static_assert(o>=0 && o<=dim,"order must be >=0 and <= dim");
+            return *this;
+        }
+        
+        /**********************************************************************/
+        void info() const
+        {
+            SimplexObserverRecursion<dim,dim>::info();
+        }
+        
+    };
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    template< short int dim,short int order>
+    struct SimplexObserverRecursion : public SimplexObserverBase<dim,order>,
+    /*                             */ public SimplexObserverRecursion<dim,order-1>
+    {
+        
+        /**********************************************************************/
+        void info() const
+        {
+            SimplexObserverRecursion<dim,order-1>::info();
+            
+            size_t nT(0);
+            size_t nB(0);
+            double volT=0.0;
+            double volB=0.0;
+            
+            for (auto& pSimplex : SimplexObserverBase<dim,order>::simplices())
+            {
+                nT++;
+                volT+=pSimplex.second->vol0;
+                
+                if(pSimplex.second->isBoundarySimplex())
+                {
+                    nB++;
+                    volB+=pSimplex.second->vol0;
+                }
+            }
+            
+            model::cout<<"    Simplex<"<<dim<<","<<order  <<"> #="<<nT<<", vol="<<volT;
+            model::cout<<"     (boundary #="<<nB<<", vol="<<volB<<")\n";
+            
+        }
+        
+        
+    };
+    
+    template< short int dim>
+    struct SimplexObserverRecursion<dim,0> : public SimplexObserverBase<dim,0>
+    {
+        
+        /**********************************************************************/
+        void info() const
+        {
+            
+            size_t nT(0);
+            size_t nB(0);
+            
+            for (auto& pSimplex : SimplexObserverBase<dim,0>::simplices())
+            {
+                nT++;
+                
+                if(pSimplex.second->isBoundarySimplex())
+                {
+                    nB++;
+                    assert(fabs(pSimplex.second->outNormal().norm()-1.0)<FLT_EPSILON);
+                }
+                else
+                {
+                    assert(pSimplex.second->outNormal().norm()<FLT_EPSILON);
+                }
+            }
+            
+            model::cout<<"    Simplex<"<<dim<<","<<0  <<"> #="<<nT;
+            model::cout<<"     (boundary #="<<nB<<")\n";
+        }
+        
+    };
+
+    
+    
     /**************************************************************************/
     /**************************************************************************/
 	template<short int dim,short int order>
-	struct SimplexObserver
+    struct SimplexObserverBase : public std::map<typename SimplexTraits<dim,order>::SimplexIDType, // key
+    /*                                        */ const Simplex<dim,order>* const, // value
+    /*                                        */ CompareVectorsByComponent<typename SimplexTraits<dim,order>::ScalarIDType,
+    /*                                        */ SimplexTraits<dim,order>::nVertices>> // key compare
     {
-		        
+        
         typedef Simplex<dim,order> SimplexType;
 		typedef std::map<typename SimplexTraits<dim,order>::SimplexIDType, // key
         /*            */ const Simplex<dim,order>* const, // value
@@ -42,92 +152,92 @@ namespace model
 		
 		
         /**********************************************************************/
-        static const SimplexMapType& simplices()
+        const SimplexMapType& simplices() const
         {
-            return simplexMap;
+            return *this;
         }
         
-		/**********************************************************************/
-		static size_t size()
-        {
-			return simplexMap.size();
-		}
+//		/**********************************************************************/
+//		static size_t size()
+//        {
+//			return simplexMap.size();
+//		}
 		
-        /**********************************************************************/
-		static typename SimplexMapType::const_iterator simplexBegin()
-        {
-			return simplexMap.begin();
-		}
-		
-		/**********************************************************************/
-		static typename SimplexMapType::const_iterator simplexEnd()
-        {
-			return simplexMap.end();
-		}
+//        /**********************************************************************/
+//		static typename SimplexMapType::const_iterator simplexBegin()
+//        {
+//			return simplexMap.begin();
+//		}
+//		
+//		/**********************************************************************/
+//		static typename SimplexMapType::const_iterator simplexEnd()
+//        {
+//			return simplexMap.end();
+//		}
         
 		/**********************************************************************/
-		static SharedPtrType sharedSimplex(SimplicialMesh<dim>* const mesh,
+        SharedPtrType sharedSimplex(SimplicialMesh<dim>* const mesh,
                                            const SimplexIDType& xID)
         {
-			typename SimplexMapType::const_iterator iter(simplexMap.find(xID));
-			return (iter!=simplexMap.end())? (*(iter->second->parentBegin()))->child(xID) : SharedPtrType(new SimplexType(mesh,xID));
+			typename SimplexMapType::const_iterator iter(this->find(xID));
+			return (iter!=this->end())? (*(iter->second->parentBegin()))->child(xID) : SharedPtrType(new SimplexType(mesh,xID));
 		}
         
         /**********************************************************************/
-        static const SimplexType& simplex(const SimplexIDType& xID)
+        const SimplexType& simplex(const SimplexIDType& xID) const
         {
-            typename SimplexMapType::const_iterator iter(simplexMap.find(xID));
-            assert(iter!=simplexMap.end() && "Simplex not in simplexMap");
+            typename SimplexMapType::const_iterator iter(this->find(xID));
+            assert(iter!=this->end() && "Simplex not in simplexMap");
             return *(iter->second);
 //            return (iter!=simplexMap.end())? (*(iter->second->parentBegin()))->child(xID) : SharedPtrType(new SimplexType(xID));
         }
 		
         
         /**********************************************************************/
-        static std::array<std::shared_ptr<Simplex<dim,order-1> >,SimplexTraits<dim,order>::nFaces> faces(SimplicialMesh<dim>* const mesh,
+        std::array<std::shared_ptr<Simplex<dim,order-1> >,SimplexTraits<dim,order>::nFaces> faces(SimplicialMesh<dim>* const mesh,
                                                                                                          const SimplexIDType& xID)
         {
             std::array<std::shared_ptr<Simplex<dim,order-1> >,SimplexTraits<dim,order>::nFaces> temp;
             for (size_t j=0;j<SimplexTraits<dim,order>::nFaces;++j)
             {
-                temp[j]=SimplexObserver<dim,order-1>::sharedSimplex(mesh,SimplexTraits<dim,order>::faceID(xID,j));
+                temp[j]=mesh->template observer<order-1>().sharedSimplex(mesh,SimplexTraits<dim,order>::faceID(xID,j));
             }
             return temp;
         }
         
         /**********************************************************************/
-        static void insertSimplex(const Simplex<dim,order>& s)
+        void insertSimplex(const Simplex<dim,order>& s)
         {            
-            const bool couldInsert(simplexMap.insert(std::make_pair(s.xID,&s)).second);
+            const bool couldInsert(this->emplace(s.xID,&s).second);
             assert(couldInsert && "COULD NOT INSERT SIMPLEX IN SIPLEX-MAP");
         }
         
         /**********************************************************************/
-        static void removeSimplex(const Simplex<dim,order>& s)
+        void removeSimplex(const Simplex<dim,order>& s)
         {            
-            const int nRemoved(simplexMap.erase(s.xID));
+            const int nRemoved(this->erase(s.xID));
             assert(nRemoved==1 && "COULD NOT REMOVE SIMPLEX FROM SIPLEX-MAP");
         }
         
-        /**********************************************************************/
-        static typename SimplexMapType::const_iterator find(const SimplexIDType& key)
-        {
-            return simplexMap.find(key);
-        }
-        
-        
-	private:
-		static  SimplexMapType simplexMap;
+//        /**********************************************************************/
+//        static typename SimplexMapType::const_iterator find(const SimplexIDType& key)
+//        {
+//            return simplexMap.find(key);
+//        }
+//        
+//        
+//	private:
+//		static  SimplexMapType simplexMap;
         
 	};
     
-	// Declare static data members
-	template<short int dim,short int order>
-    std::map<typename SimplexTraits<dim,order>::SimplexIDType, // key
-    /*            */ const Simplex<dim,order>* const, // value
-    /*            */ CompareVectorsByComponent<typename SimplexTraits<dim,order>::ScalarIDType,
-    /*                                      */ SimplexTraits<dim,order>::nVertices> // key compare
-    /*            */ >  SimplexObserver<dim,order>::simplexMap;
+//	// Declare static data members
+//	template<short int dim,short int order>
+//    std::map<typename SimplexTraits<dim,order>::SimplexIDType, // key
+//    /*            */ const Simplex<dim,order>* const, // value
+//    /*            */ CompareVectorsByComponent<typename SimplexTraits<dim,order>::ScalarIDType,
+//    /*                                      */ SimplexTraits<dim,order>::nVertices> // key compare
+//    /*            */ >  SimplexObserver<dim,order>::simplexMap;
     
 }	// close namespace
 #endif

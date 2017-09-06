@@ -442,7 +442,7 @@ namespace model
                     model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
                     
                     std::deque<FieldPointType> fieldPoints; // the container of field points
-                    for (const auto& sIter : SimplexObserver<3,0>::simplices())
+                    for (const auto& sIter : DN.shared.mesh.template observer<0>())
                     {
                         if(sIter.second->isBoundarySimplex())
                         {

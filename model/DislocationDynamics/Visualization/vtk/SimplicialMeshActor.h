@@ -76,7 +76,7 @@ namespace model
             polydata->Allocate();
             
             size_t connectivityID=0;
-            for (const auto& edge : SimplexObserver<3,1>::simplices())
+            for (const auto& edge : mesh.template observer<1>())
             {
                 if(edge.second->isBoundarySimplex())
                 {
@@ -116,7 +116,7 @@ namespace model
                 gbColors->SetName("Colors");
 //                gbColors->InsertNextTypedTuple(red);
                 size_t triPtID=0;
-                for(const auto& meshTriangle : SimplexObserver<3,2>::simplices())
+                for(const auto& meshTriangle : mesh.template observer<2>())
                 {
                     if(meshTriangle.second->isRegionBoundarySimplex())
                     {
@@ -201,7 +201,7 @@ namespace model
             if(dispFileIsGood)
             {
                 size_t k=0;
-                for (const auto& edge : SimplexObserver<3,1>::simplices())
+                for (const auto& edge : mesh.template observer<1>())
                 {
                     if(edge.second->isBoundarySimplex())
                     {

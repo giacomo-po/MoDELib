@@ -56,14 +56,14 @@ namespace model
           * Constructur performs the following operations:
           */
             //! -1 Adds this to the SimplexObserver
-            SimplexObserver<dim,order>::insertSimplex(*this);
+            this->observer().insertSimplex(*this);
         }
         
         /**********************************************************************/
         ~Simplex()
         {/*!
           */
-            SimplexObserver<dim,order>::removeSimplex(*this);
+            this->observer().removeSimplex(*this);
         }
         
         /**********************************************************************/
@@ -99,14 +99,14 @@ namespace model
         Simplex(SimplicialMesh<dim>* const m,
                 const SimplexIDType& vIN) :
         /* init list */ SimplexBase<dim,order>(m,vIN),
-        /* init list */ BaseArrayType(SimplexObserver<dim,order>::faces(m,vIN))
+        /* init list */ BaseArrayType(this->observer().faces(m,vIN))
         //        /* init */ vol0(SimplexVolume<dim,order>::volume(this->vertexPositionMatrix())) // THIS GIVES SEGMENTATION FAULT, WHY?
         {/*!@param[in] vIN the (possibly unsorted) ID of this
           *
           * Constructur performs the following operations:
           */
             //! -1 inserts *this into the SimplexObserver
-            SimplexObserver<dim,order>::insertSimplex(*this);
+            this->observer().insertSimplex(*this);
             
             //! -2 inserts this into children Simplices
             for (int k=0;k<nFaces;++k)
@@ -122,7 +122,7 @@ namespace model
         {/*! Destructor performs the following operations:
           */
             //! -1 removes this in SimplexObserver
-            SimplexObserver<dim,order>::removeSimplex(*this);
+            this->observer().removeSimplex(*this);
             
             //! -2 remove this fomr children parentContainers
             for (int k=0;k<nFaces;++k)
@@ -252,8 +252,8 @@ namespace model
         Simplex(SimplicialMesh<dim>* const m,
                 const SimplexIDType& vIN, const int regionID=0) :
         /* init base */ SimplexBase<dim,order>(m,vIN),
-        /* init base */ BaseArrayType(SimplexObserver<dim,dim>::faces(m,vIN)),
-        /* init list */ region(MeshRegionObserverType::getRegion(regionID)),
+        /* init base */ BaseArrayType(this->observer().faces(m,vIN)),
+        /* init list */ region(m->getSharedRegion(regionID)),
         /* init base */ b2p(get_b2p()),
         /* init list */ p2b(b2p.fullPivLu().solve(Eigen::Matrix<double,dim+1,dim+1>::Identity())),
         /* init list */ nda(get_nda()),
@@ -261,7 +261,7 @@ namespace model
         {/*!
           */
             
-            SimplexObserver<dim,order>::insertSimplex(*this);
+            this->observer().insertSimplex(*this);
             
             for (int k=0;k<nFaces;++k)
             {
@@ -278,7 +278,7 @@ namespace model
           */
             
             //! -1 removes this in SimplexObserver
-            SimplexObserver<dim,order>::removeSimplex(*this);
+            this->observer().removeSimplex(*this);
             
             //! -2 remove this fomr children parentContainers
             for (int k=0;k<nFaces;++k)

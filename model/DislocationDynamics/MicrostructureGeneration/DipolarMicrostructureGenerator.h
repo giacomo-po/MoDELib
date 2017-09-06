@@ -150,13 +150,13 @@ namespace model
                     
                     
                     
-                    PlaneMeshIntersectionContainerType pmi01=PlaneMeshIntersection<dim>::reducedPlaneMeshIntersection(P0,n1,grainID);
+                    PlaneMeshIntersectionContainerType pmi01=PlaneMeshIntersection<dim>(this->mesh).reducedPlaneMeshIntersection(P0,n1,grainID);
                     const VectorDimD P4=this->boundaryProjection(P0,d3.cartesian(),pmi01).second;
-                    PlaneMeshIntersectionContainerType pmi12=PlaneMeshIntersection<dim>::reducedPlaneMeshIntersection(P1,n2,grainID);
+                    PlaneMeshIntersectionContainerType pmi12=PlaneMeshIntersection<dim>(this->mesh).reducedPlaneMeshIntersection(P1,n2,grainID);
                     const VectorDimD P5=this->boundaryProjection(P1,d3.cartesian(),pmi12).second;
-                    PlaneMeshIntersectionContainerType pmi23=PlaneMeshIntersection<dim>::reducedPlaneMeshIntersection(P2,n1,grainID);
+                    PlaneMeshIntersectionContainerType pmi23=PlaneMeshIntersection<dim>(this->mesh).reducedPlaneMeshIntersection(P2,n1,grainID);
                     const VectorDimD P6=this->boundaryProjection(P2,d3.cartesian(),pmi23).second;
-                    PlaneMeshIntersectionContainerType pmi30=PlaneMeshIntersection<dim>::reducedPlaneMeshIntersection(P3,n2,grainID);
+                    PlaneMeshIntersectionContainerType pmi30=PlaneMeshIntersection<dim>(this->mesh).reducedPlaneMeshIntersection(P3,n2,grainID);
                     const VectorDimD P7=this->boundaryProjection(P3,d3.cartesian(),pmi30).second;
                     
                     std::deque<std::pair<int,VectorDimD>> v54=this->boundaryProjection(P1,P0,d3.cartesian(),pmi01);
@@ -164,12 +164,12 @@ namespace model
                     std::deque<std::pair<int,VectorDimD>> v76=this->boundaryProjection(P3,P2,d3.cartesian(),pmi23);
                     std::deque<std::pair<int,VectorDimD>> v47=this->boundaryProjection(P0,P3,d3.cartesian(),pmi30);
                     
-                    //                    PlaneMeshIntersectionContainerType pmi1=PlaneMeshIntersection<dim>::reducedPlaneMeshIntersection(P1,n1,grainID);
+                    //                    PlaneMeshIntersectionContainerType pmi1=PlaneMeshIntersection<dim>(this->mesh).reducedPlaneMeshIntersection(P1,n1,grainID);
                     //                    const VectorDimD P5=this->boundaryPoint(P1,d3.cartesian(),pmi1);
                     //
-                    //                    PlaneMeshIntersectionContainerType pmi2=PlaneMeshIntersection<dim>::reducedPlaneMeshIntersection(P2,n1,grainID);
+                    //                    PlaneMeshIntersectionContainerType pmi2=PlaneMeshIntersection<dim>(this->mesh).reducedPlaneMeshIntersection(P2,n1,grainID);
                     //                    const VectorDimD P6=this->boundaryPoint(P2,d3.cartesian(),pmi2);
-                    //                    PlaneMeshIntersectionContainerType pmi3=PlaneMeshIntersection<dim>::reducedPlaneMeshIntersection(P3,n1,grainID);
+                    //                    PlaneMeshIntersectionContainerType pmi3=PlaneMeshIntersection<dim>(this->mesh).reducedPlaneMeshIntersection(P3,n1,grainID);
                     //                    const VectorDimD P7=this->boundaryPoint(P3,d3.cartesian(),pmi3);
                     //
                     //                    std::cout<<"P4="<<P4.transpose()<<std::endl;

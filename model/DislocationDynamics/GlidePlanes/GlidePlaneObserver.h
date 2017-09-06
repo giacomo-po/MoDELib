@@ -78,14 +78,15 @@ namespace model
         }
         
         /**********************************************************************/
-        static std::shared_ptr<GlidePlaneType> getSharedPlane(const Grain<dim>& grain,
+        static std::shared_ptr<GlidePlaneType> getSharedPlane(const SimplicialMesh<dim>& mesh,
+                                                              const Grain<dim>& grain,
                                                               const VectorDimD& P,
                                                               const VectorDimD& N)
         {
             const GlidePlaneKeyType key=getGlidePlaneKey(grain,P,N);
             const auto planeIter=glidePlaneMap.find(key);
             
-            return (planeIter!=glidePlaneMap.end())? planeIter->second->loops().begin()->second->_glidePlane : std::make_shared<GlidePlaneType>(grain,P,N);
+            return (planeIter!=glidePlaneMap.end())? planeIter->second->loops().begin()->second->_glidePlane : std::make_shared<GlidePlaneType>(mesh,grain,P,N);
         }
         
 //        /**********************************************************************/

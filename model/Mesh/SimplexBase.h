@@ -42,6 +42,12 @@ namespace model
 
         }
         
+        /**********************************************************************/
+        SimplexObserverBase<dim,order>& observer()
+        {
+            return mesh->template observer<order>();
+        }
+        
 		/**********************************************************************/
         std::array<const Simplex<dim,0>*, SimplexTraits<dim,order>::nVertices> vertices() const
         {
@@ -50,7 +56,7 @@ namespace model
             {
                 typename SimplexTraits<dim,0>::SimplexIDType vID;
                 vID<<xID(v);
-                temp[v]=&SimplexObserver<dim,0>::simplex(vID);
+                temp[v]=&mesh->template observer<0>().simplex(vID);
             }
             return temp;
         }
@@ -64,7 +70,7 @@ namespace model
                 typename SimplexTraits<dim,0>::SimplexIDType vID;
                 vID<<xID(v);
 //                temp.col(v)=SimplexObserver<dim,0>::pSimplex(vID)->P0;
-                temp.col(v)=SimplexObserver<dim,0>::simplex(vID).P0;
+                temp.col(v)=mesh->template observer<0>().simplex(vID).P0;
 
             }
             return temp;

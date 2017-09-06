@@ -117,7 +117,7 @@ namespace model
             
             if(std::is_same<ElementType,LagrangeElement<ElementType::dim,ElementType::order>>::value)
             {
-                assert((mesh2femIDmap().size()==SimplexObserver<dim,0>::size()) && "mesh2femIDmap has wrong size.");
+                assert((mesh2femIDmap().size()==mesh.template observer<0>().size()) && "mesh2femIDmap has wrong size.");
             
             }
             

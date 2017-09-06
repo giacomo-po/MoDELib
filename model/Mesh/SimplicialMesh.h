@@ -23,7 +23,7 @@
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Mesh/Simplex.h>
 #include <model/Mesh/SimplexReader.h>
-#include <model/Mesh/MeshStats.h>
+//#include <model/Mesh/MeshStats.h>
 #include <model/Mesh/MeshRegionObserver.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/Mesh/MeshRegionBoundary.h>
@@ -36,7 +36,9 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template<int _dim>
-    class SimplicialMesh : public SimplexReader<_dim>,
+    class SimplicialMesh : public SimplexObserver<_dim>,                                // make sure this is destroyed after map of Simplex<_dim,_dim>
+    /*                  */ public MeshRegionObserver<MeshRegion<Simplex<_dim,_dim>>>,   // make sure this is destroyed after map of Simplex<_dim,_dim>
+    /*                  */ public SimplexReader<_dim>,
     /*                  */ public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
     /*                                */ const Simplex<_dim,_dim>, // value
     /*                                */ CompareVectorsByComponent<typename SimplexTraits<_dim,_dim>::ScalarIDType,
@@ -62,7 +64,7 @@ namespace model
         /*                                      */ SimplexTraits<dim,dim>::nVertices> // key compare
         /*            */ >  SimplexMapType;
         
-//        typedef VertexReader<'T',dim+3,size_t> ElementReaderType;
+        //        typedef VertexReader<'T',dim+3,size_t> ElementReaderType;
         typedef IDreader<'T',1,dim+2,size_t> ElementReaderType;
         
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
@@ -123,41 +125,39 @@ namespace model
                 const auto t0= std::chrono::system_clock::now();
                 
                 model::cout<<"Creating mesh..."<<std::flush;
-//                for (typename ElementReaderType::const_iterator eIter =elementReader.begin();
-//                     /*                                       */ eIter!=elementReader.end();++eIter)
-                    for (const auto& eIter : elementReader)
+                //                for (typename ElementReaderType::const_iterator eIter =elementReader.begin();
+                //                     /*                                       */ eIter!=elementReader.end();++eIter)
+                for (const auto& eIter : elementReader)
                 {
                     //                    insertSimplex(eIter->second);
                     Eigen::Map<const Eigen::Matrix<size_t,1,dim+2>> row(eIter.second.data());
                     insertSimplex(row.template segment<dim+1>(0),row(dim+1));
-//                    insertSimplex(eIter->second.template segment<dim+1>(0),eIter->second(dim+1));
+                    //                    insertSimplex(eIter->second.template segment<dim+1>(0),eIter->second(dim+1));
                     
                     //                    binFile.write(std::make_pair(eIter->first,eIter->second));
                     
                 }
                 model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                 
-                MeshStats<dim,dim>::stats();
+                this->info(); // print mesh info
                 SimplexReader<dim>::nodeReader.clear();
                 
                 if(simplices().size())
                 {
-                    _xMin=SimplexObserver<dim,0>::simplexBegin()->second->P0;
-                    _xMax=SimplexObserver<dim,0>::simplexBegin()->second->P0;
+                    _xMin=this->template observer<0>().begin()->second->P0;
+                    _xMax=this->template observer<0>().begin()->second->P0;
                     
-                    for (typename SimplexObserver<dim,0>::const_iterator nIter = SimplexObserver<dim,0>::simplexBegin();
-                         /*                                           */ nIter!= SimplexObserver<dim,0>::simplexEnd();
-                         /*                                           */ nIter++)
+                    for (const auto& nIter : this->template observer<0>())
                     {
                         for(int d=0;d<dim;++d)
                         {
-                            if (nIter->second->P0(d)<_xMin(d))
+                            if (nIter.second->P0(d)<_xMin(d))
                             {
-                                _xMin(d)=nIter->second->P0(d);
+                                _xMin(d)=nIter.second->P0(d);
                             }
-                            if (nIter->second->P0(d)>_xMax(d))
+                            if (nIter.second->P0(d)>_xMax(d))
                             {
-                                _xMax(d)=nIter->second->P0(d);
+                                _xMax(d)=nIter.second->P0(d);
                             }
                         }
                     }
@@ -175,7 +175,7 @@ namespace model
             
             // Populate MeshRegionBoundaryContainerType
             regionBoundaries().clear();
-            for (const auto& simpl : SimplexObserver<dim,dim-1>::simplices())
+            for (const auto& simpl : this->template observer<dim-1>())
             {
                 if(simpl.second->isRegionBoundarySimplex())
                 {

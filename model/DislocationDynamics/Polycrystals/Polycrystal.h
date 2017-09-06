@@ -81,7 +81,7 @@ namespace model
             
             // Construct Grains
             model::cout<<"Creating Grains"<<std::endl;
-            for(const auto& rIter : MeshRegionObserverType::regions())
+            for(const auto& rIter : mesh.regions())
             {
                 
                 // Read grain orientation
@@ -96,12 +96,7 @@ namespace model
                         C2Gtemp(i,j)=C2Gtemp(i,j)/c2gNorm;
                     }
                 }
-                
-                //                grains().emplace(rIter.second->regionID,
-                //                                 *(rIter.second),
-                //                                 materialZ,
-                //                                 C2Gtemp);
-                
+                                
                 grains().emplace(std::piecewise_construct,
                                  std::forward_as_tuple(rIter.second->regionID),
                                  std::forward_as_tuple(*(rIter.second),
