@@ -51,6 +51,8 @@ namespace model
         
 //        const PKContainerType& pkContainer;
         
+        vtkRenderer* const renderer;
+
         
 
         vtkSmartPointer<vtkPoints> points;
@@ -165,8 +167,9 @@ namespace model
         
         /**********************************************************************/
 //        PKActor(const PKContainerType& pkContainer_in) :
-        GlidePlaneActor(const size_t& frameID,vtkRenderer* renderer) :
+        GlidePlaneActor(const size_t& frameID,vtkRenderer* const ren) :
         //        /* init */ pkContainer(pkContainer_in),
+        /* init */ renderer(ren),
         /* init */ points(vtkSmartPointer<vtkPoints>::New()),
         /* init */ triangles(vtkSmartPointer<vtkCellArray>::New()),
         /* init */ trianglePolyData(vtkSmartPointer<vtkPolyData>::New()),
@@ -191,6 +194,11 @@ namespace model
 
         }
         
+        /**********************************************************************/
+        ~GlidePlaneActor()
+        {
+            renderer->RemoveActor(actor);
+        }
         
         
         /**********************************************************************/

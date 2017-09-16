@@ -82,51 +82,51 @@ namespace model
             NV=NV_new; // overwrite
         }
         
-        /**********************************************************************/
-        static void makeUnique(std::deque<const LatticePlane*>& NV)
-        {
-            
-            std::deque<const LatticePlane*> temp;
-            
-            for (size_t i=0;i<NV.size();++i)
-            {
-                bool unique=true;
-                for (size_t j=0;j<temp.size();++j)
-                {
-                    unique*=(temp[j]->n.cross(NV[i]->n).squaredNorm());
-                }
-                
-                if (unique)
-                {
-                    temp.push_back(NV[i]);
-                }
-                
-                if(temp.size()>=3)
-                {
-                    break;
-                }
-            }
-            
-//            if(temp.size()>3)
+//        /**********************************************************************/
+//        static void makeUnique(std::deque<const LatticePlane*>& NV)
+//        {
+//            
+//            std::deque<const LatticePlane*> temp;
+//            
+//            for (size_t i=0;i<NV.size();++i)
 //            {
-////                std::cout<<"GramSchmidt FAILED. Input vectors:"<<std::endl;
-////                for(const auto& v : NV)
-////                {
-////                    std::cout<<std::setprecision(15)<<std::scientific<<v.transpose()<<std::endl;
-////                }
-////                std::cout<<"orthonormal vectors:"<<std::endl;
-////                for(const auto& v : *this)
-////                {
-////                    std::cout<<std::setprecision(15)<<std::scientific<<v.transpose()<<std::endl;
-////                }
-////                std::cout<<"tol="<<tol<<std::endl;
-////                std::cout<<"Node="<<ID<<std::endl;
+//                bool unique=true;
+//                for (size_t j=0;j<temp.size();++j)
+//                {
+//                    unique*=(temp[j]->n.cross(NV[i]->n).squaredNorm());
+//                }
 //                
-//                assert(0 && "GramSchmidt failed.");
+//                if (unique)
+//                {
+//                    temp.push_back(NV[i]);
+//                }
+//                
+//                if(temp.size()>=3)
+//                {
+//                    break;
+//                }
 //            }
-            
-            NV=temp; // overwrite
-        }
+//            
+////            if(temp.size()>3)
+////            {
+//////                std::cout<<"GramSchmidt FAILED. Input vectors:"<<std::endl;
+//////                for(const auto& v : NV)
+//////                {
+//////                    std::cout<<std::setprecision(15)<<std::scientific<<v.transpose()<<std::endl;
+//////                }
+//////                std::cout<<"orthonormal vectors:"<<std::endl;
+//////                for(const auto& v : *this)
+//////                {
+//////                    std::cout<<std::setprecision(15)<<std::scientific<<v.transpose()<<std::endl;
+//////                }
+//////                std::cout<<"tol="<<tol<<std::endl;
+//////                std::cout<<"Node="<<ID<<std::endl;
+////                
+////                assert(0 && "GramSchmidt failed.");
+////            }
+//            
+//            NV=temp; // overwrite
+//        }
         
     };
     

@@ -39,6 +39,24 @@ namespace model
         {
             return *this;
         }
+
+        /**********************************************************************/
+        RegionType* region(const int& k)
+        {
+            typename RegionMapType::const_iterator iter(this->find(k));
+            assert(iter!=this->end());
+            return iter.second;
+//            return (iter!=this->end())? (*(iter->second->simplices().begin()))->region : SharedPtrType(new RegionType(*this,k));
+        }
+        
+        /**********************************************************************/
+        const RegionType* region(const int& k) const
+        {
+            typename RegionMapType::const_iterator iter(this->find(k));
+            assert(iter!=this->end());
+            return iter->second;
+            //            return (iter!=this->end())? (*(iter->second->simplices().begin()))->region : SharedPtrType(new RegionType(*this,k));
+        }
         
         /**********************************************************************/
         SharedPtrType getSharedRegion(const int& k)

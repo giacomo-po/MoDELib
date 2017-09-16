@@ -116,7 +116,8 @@ namespace model {
                 isCellType isC(isCell(neighborCellIDs.col(c)));
                 if (isC.first)
                 {
-                    model_execAssert(temp.insert(std::make_pair(isC.second->cellID,isC.second)),.second,"CANNOT INSERT CELL IN NEIGHBORCELLS");
+                    const bool success=temp.emplace(isC.second->cellID,isC.second).second;
+                    assert(success && "CANNOT INSERT CELL IN NEIGHBORCELLS");
                 }
             }
             return temp;

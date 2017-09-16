@@ -97,7 +97,7 @@
 #include <model/ParticleInteraction/ParticleSystem.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/ParticleInteraction/SingleFieldPoint.h>
-#include <model/DislocationDynamics/DislocationNodeContraction.h>
+//#include <model/DislocationDynamics/DislocationNodeContraction.h>
 #include <model/DislocationDynamics/DDtimeIntegrator.h>
 #include <model/Threads/EqualIteratorRange.h>
 //#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
@@ -371,7 +371,7 @@ namespace model
 
 //            removeSmallComponents(3.0*dx,4);
             
-            make_bndNormals();
+//            make_bndNormals();
             
             //! 16 - Increment runID counter
             ++runID;     // increment the runID counter
@@ -913,7 +913,7 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             for (auto& nodeIter : this->nodes())
             {
-                nodeIter.second->move(dt_in);
+                nodeIter.second->move(dt_in,DDtimeIntegrator<0>::dxMax);
             }
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }

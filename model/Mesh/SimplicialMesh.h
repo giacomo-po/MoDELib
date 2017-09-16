@@ -269,7 +269,7 @@ namespace model
           *
           * By default the search starts at this->begin()->second
           */
-            return searchRegionWithGuess(P,*MeshRegionObserverType::getRegion(regionID)->begin());
+            return searchRegionWithGuess(P,*this->region(regionID)->begin());
         }
         
         /**********************************************************************/

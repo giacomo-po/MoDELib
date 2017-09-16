@@ -18,7 +18,7 @@
 #include <Eigen/Dense>
 #include <model/Math/CompileTimeMath/Pow.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
-#include <model/Utilities/modelMacros.h> // model_execAssert(
+//#include <model/Utilities/modelMacros.h> // model_execAssert(
 #include <model/Utilities/CRTP.h>
 #include <model/SpaceDecomposition/CellShift.h>
 #include <model/Utilities/TypeTraits.h>
@@ -129,7 +129,8 @@ namespace model
           */
             
 			//! 1- Adds this to static SpatialCellObserver::cellMap
-            model_execAssert(SpatialCellObserverType::cellMap.insert(std::make_pair(cellID,this)),.second,"CANNOT INSERT Spatial CELL IN STATIC cellMap.");
+            const bool success=SpatialCellObserverType::cellMap.emplace(cellID,this).second;
+            assert(success && "CANNOT INSERT Spatial CELL IN STATIC cellMap.");
 
             //! 2- Populate neighborCells
             for (int c=0;c<neighborCellIDs.cols();++c)
@@ -137,10 +138,13 @@ namespace model
                 isCellType isC(SpatialCellObserverType::isCell(neighborCellIDs.col(c)));
                 if (isC.first)
                 {
-                    model_execAssert(neighborCells.insert(std::make_pair(isC.second->cellID,isC.second)),.second,"CANNOT INSERT CELL IN NEIGHBORCELLS");
+                    const bool success1=neighborCells.emplace(isC.second->cellID,isC.second).second;
+                    assert(success1 && "CANNOT INSERT CELL IN NEIGHBORCELLS");
+
                     if(cellID!=isC.second->cellID)
                     {
-                        model_execAssert(isC.second->neighborCells.insert(std::make_pair(cellID,this)),.second,"CANNOT INSERT THIS IN NEIGHBORCELLS");
+                        const bool success2=isC.second->neighborCells.emplace(cellID,this).second;
+                        assert(success2 && "CANNOT INSERT THIS IN NEIGHBORCELLS");
                     }
                 }
             }
@@ -155,10 +159,12 @@ namespace model
             {
                 if(cellID!=cIter->second->cellID)
                 {
-                    model_execAssert(cIter->second->neighborCells.erase(cellID),==1,"CANNOT ERASE SPATIALCELL FROM NEIGHBOR-CELLMAP.");
+                    const size_t erased=cIter->second->neighborCells.erase(cellID);
+                    assert(erased==1 && "CANNOT ERASE SPATIALCELL FROM NEIGHBOR-CELLMAP.");
                 }
             }
-            model_execAssert(SpatialCellObserverType::cellMap.erase(cellID),==1,"CANNOT ERASE SPATIALCELL FROM CELLMAP.");
+            const size_t erased1=SpatialCellObserverType::cellMap.erase(cellID);
+            assert(erased1==1 && "CANNOT ERASE SPATIALCELL FROM CELLMAP.");
 		}
 		
 		/**********************************************************************/
@@ -166,7 +172,8 @@ namespace model
         {/*!@param[in] pP pointer to a ParticleType
           * Adds pP to *this
           */
-			model_execAssert(particleContainer.insert(pP),.second,"CANNOT INSERT PARTICLE IN SpatialCELL");
+            const bool success=particleContainer.insert(pP).second;
+			assert(success && "CANNOT INSERT PARTICLE IN SpatialCELL");
 		}
 		
 		/**********************************************************************/
@@ -174,7 +181,8 @@ namespace model
         {/*!@param[in] pP pointer to a ParticleType
           * Removes pP to *this
           */
-			model_execAssert(particleContainer.erase(pP),==1,"CANNOT ERASE PARTICLE FROM particleContainer.");
+            const size_t erased=particleContainer.erase(pP);
+			assert(erased==1 && "CANNOT ERASE PARTICLE FROM particleContainer.");
 		}
         
 		/**********************************************************************/

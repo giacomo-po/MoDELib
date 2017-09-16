@@ -23,10 +23,14 @@ namespace model
     {
         static constexpr auto name="FCC";
         
+        static constexpr bool enable111planes=false;
+        static constexpr bool enable110planes=true;
+        
+        
         /**********************************************************************/
         template <int dim>
         static Eigen::Matrix<double,dim,dim> getLatticeBasis()
-        {/*!\returns The matrix of lattice vectors (cartesian cooridinates in columns), 
+        {/*!\returns The matrix of lattice vectors (cartesian cooridinates in columns),
           * in units of the crystallographic Burgers vector.
           */
             
@@ -40,33 +44,50 @@ namespace model
         
         /**********************************************************************/
         template <int dim>
-//        static std::vector<LatticePlaneBase> reciprocalPlaneNormals(const Eigen::Matrix<double,dim,dim>& covBasis,
-//                                                                    const Eigen::Matrix<double,dim,dim>& contraBasis)
+        //        static std::vector<LatticePlaneBase> reciprocalPlaneNormals(const Eigen::Matrix<double,dim,dim>& covBasis,
+        //                                                                    const Eigen::Matrix<double,dim,dim>& contraBasis)
         static std::vector<LatticePlaneBase> reciprocalPlaneNormals(const Lattice<dim>& lat)
-
+        
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */
             
-
+            
             typedef Eigen::Matrix<long int,dim,1> VectorDimI;
             
             typedef LatticeVector<dim> LatticeVectorType;
             LatticeVectorType a1(VectorDimI(1,0,0),lat); // [011]
             LatticeVectorType a2(VectorDimI(0,1,0),lat); // [101]
             LatticeVectorType a3(VectorDimI(0,0,1),lat); // [110]
+            
             std::vector<LatticePlaneBase> temp;
-            temp.emplace_back(a1,a3);           // is (-1, 1,-1) in cartesian
-            temp.emplace_back(a3,a2);           // is ( 1,-1,-1) in cartesian
-            temp.emplace_back(a2,a1);           // is (-1,-1, 1) in cartesian
-            temp.emplace_back(a1-a3,a2-a3);     // is ( 1, 1, 1) in cartesian
+            
+            if(enable111planes)
+            {// {111} planes
+                temp.emplace_back(a1,a3);           // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a3,a2);           // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a2,a1);           // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3);     // is ( 1, 1, 1) in cartesian
+            }
+            
+            if(enable110planes)
+            {// {110} planes
+                temp.emplace_back(a1+a2-a3,a3);
+                temp.emplace_back(a1+a2-a3,a1-a2);
+                temp.emplace_back(a1+a3-a2,a2);
+                temp.emplace_back(a1+a3-a2,a1-a3);
+                temp.emplace_back(a2+a3-a1,a1);
+                temp.emplace_back(a2+a3-a1,a2-a3);
+            }
+            
+            
             return temp;
         }
-//
+        //
         /**********************************************************************/
         template <int dim>
-//        static std::vector<SlipSystem> slipSystems(const Eigen::Matrix<double,dim,dim>& covBasis,
-//                                                   const Eigen::Matrix<double,dim,dim>& contraBasis)
+        //        static std::vector<SlipSystem> slipSystems(const Eigen::Matrix<double,dim,dim>& covBasis,
+        //                                                   const Eigen::Matrix<double,dim,dim>& contraBasis)
         static std::vector<SlipSystem> slipSystems(const Lattice<dim>& lat)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
@@ -79,42 +100,67 @@ namespace model
             LatticeVectorType a3(VectorDimI(0,0,1),lat);
             
             std::vector<SlipSystem> temp;
-            temp.emplace_back(a1,a3, a1);           // is (-1, 1,-1) in cartesian
-            temp.emplace_back(a1,a3,a1*(-1));           // is (-1, 1,-1) in cartesian
-            temp.emplace_back(a1,a3, a3);           // is (-1, 1,-1) in cartesian
-            temp.emplace_back(a1,a3,a3*(-1));           // is (-1, 1,-1) in cartesian
-            temp.emplace_back(a1,a3,a1-a3);           // is (-1, 1,-1) in cartesian
-            temp.emplace_back(a1,a3,a3-a1);           // is (-1, 1,-1) in cartesian
-
-            temp.emplace_back(a3,a2, a3);           // is ( 1,-1,-1) in cartesian
-            temp.emplace_back(a3,a2,a3*(-1));           // is ( 1,-1,-1) in cartesian
-            temp.emplace_back(a3,a2, a2);           // is ( 1,-1,-1) in cartesian
-            temp.emplace_back(a3,a2,a2*(-1));           // is ( 1,-1,-1) in cartesian
-            temp.emplace_back(a3,a2,a3-a2);           // is ( 1,-1,-1) in cartesian
-            temp.emplace_back(a3,a2,a2-a3);           // is ( 1,-1,-1) in cartesian
-
-            temp.emplace_back(a2,a1, a2);           // is (-1,-1, 1) in cartesian
-            temp.emplace_back(a2,a1,a2*(-1));           // is (-1,-1, 1) in cartesian
-            temp.emplace_back(a2,a1, a1);           // is (-1,-1, 1) in cartesian
-            temp.emplace_back(a2,a1,a1*(-1));           // is (-1,-1, 1) in cartesian
-            temp.emplace_back(a2,a1,a2-a1);           // is (-1,-1, 1) in cartesian
-            temp.emplace_back(a2,a1,a1-a2);           // is (-1,-1, 1) in cartesian
-
-            temp.emplace_back(a1-a3,a2-a3, a1-a3);     // is ( 1, 1, 1) in cartesian
-            temp.emplace_back(a1-a3,a2-a3, a3-a1);     // is ( 1, 1, 1) in cartesian
-            temp.emplace_back(a1-a3,a2-a3,a2-a3);     // is ( 1, 1, 1) in cartesian
-            temp.emplace_back(a1-a3,a2-a3,a3-a2);     // is ( 1, 1, 1) in cartesian
-            temp.emplace_back(a1-a3,a2-a3, a1-a2);     // is ( 1, 1, 1) in cartesian
-            temp.emplace_back(a1-a3,a2-a3, a2-a1);     // is ( 1, 1, 1) in cartesian
-
+            
+            if(enable111planes)
+            {// <110>{111}
+                temp.emplace_back(a1,a3, a1);           // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3,a1*(-1));       // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3, a3);           // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3,a3*(-1));       // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3,a1-a3);         // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3,a3-a1);         // is (-1, 1,-1) in cartesian
+                
+                temp.emplace_back(a3,a2, a3);           // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2,a3*(-1));       // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2, a2);           // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2,a2*(-1));       // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2,a3-a2);         // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2,a2-a3);         // is ( 1,-1,-1) in cartesian
+                
+                temp.emplace_back(a2,a1, a2);           // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1,a2*(-1));           // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1, a1);           // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1,a1*(-1));           // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1,a2-a1);           // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1,a1-a2);           // is (-1,-1, 1) in cartesian
+                
+                temp.emplace_back(a1-a3,a2-a3, a1-a3);     // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3, a3-a1);     // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3,a2-a3);     // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3,a3-a2);     // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3, a1-a2);     // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3, a2-a1);     // is ( 1, 1, 1) in cartesian
+            }
+            
+            if(enable110planes)
+            {// <110>{111}
+                temp.emplace_back(a1+a2-a3,a3, a3);
+                temp.emplace_back(a1+a2-a3,a3, a3*(-1));
+                
+                temp.emplace_back(a1+a2-a3,a1-a2,a1-a2);
+                temp.emplace_back(a1+a2-a3,a1-a2,a2-a1);
+                
+                temp.emplace_back(a1+a3-a2,a2, a2);
+                temp.emplace_back(a1+a3-a2,a2, a2*(-1));
+                
+                temp.emplace_back(a1+a3-a2,a1-a3,a1-a3);
+                temp.emplace_back(a1+a3-a2,a1-a3,a3-a1);
+                
+                temp.emplace_back(a2+a3-a1,a1, a1);
+                temp.emplace_back(a2+a3-a1,a1, a1*(-1));
+                
+                temp.emplace_back(a2+a3-a1,a2-a3,a2-a3);
+                temp.emplace_back(a2+a3-a1,a2-a3,a3-a2);
+            }
+            
             return temp;
         }
-
-
+        
+        
         
     };
     
-
+    
 } // namespace model
 #endif
 

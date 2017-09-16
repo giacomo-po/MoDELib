@@ -25,7 +25,7 @@ plot3(N(:,2),N(:,3),N(:,4),'k.')
 return
 %%
 figure(1)
-id=[1383 597]+1;
+id=[2621 960]+1;
 id1=id(1);
 id2=id(2);
 plot3([N(id1,2) N(id2,2)],[N(id1,3) N(id2,3)],[[N(id1,4) N(id2,4)]],'r','Linewidth',5)

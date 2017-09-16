@@ -47,6 +47,9 @@ namespace model
         
 //        const PKContainerType& pkContainer;
         
+        vtkRenderer* const renderer;
+
+        
         vtkSmartPointer<vtkPoints> points;
         vtkSmartPointer<vtkDoubleArray> vectors;
         vtkSmartPointer<vtkPolyData> polyData;
@@ -94,8 +97,9 @@ namespace model
         
         /**********************************************************************/
 //        PKActor(const PKContainerType& pkContainer_in) :
-        PKActor(const size_t& frameID,vtkRenderer* renderer) :
+        PKActor(const size_t& frameID,vtkRenderer* const ren) :
 //        /* init */ pkContainer(pkContainer_in),
+        /* init */ renderer(ren),
         /* init */ points(vtkSmartPointer<vtkPoints>::New()),
         /* init */ vectors(vtkSmartPointer<vtkDoubleArray>::New()),
         /* init */ polyData(vtkSmartPointer<vtkPolyData>::New()),
@@ -137,6 +141,12 @@ namespace model
             modify();
         }
         
+        /**********************************************************************/
+        ~PKActor()
+        {
+            renderer->RemoveActor(actor);
+
+        }
         
         
         /**********************************************************************/

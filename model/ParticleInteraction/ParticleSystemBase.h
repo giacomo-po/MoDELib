@@ -13,7 +13,7 @@
 #define _MODEL_ParticleSystemBase_h_
 
 #include <deque>
-#include <model/Utilities/modelMacros.h> // model_checkInput
+//#include <model/Utilities/modelMacros.h> // model_checkInput
 #include <model/ParticleInteraction/FieldPoint.h>
 #include <model/ParticleInteraction/PointSource.h>
 #include <model/SpaceDecomposition/SpatialCellObserver.h>

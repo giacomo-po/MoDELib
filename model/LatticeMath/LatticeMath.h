@@ -38,8 +38,8 @@ namespace model
 #include <model/LatticeMath/LatticePlaneBase.h>
 #include <model/LatticeMath/LatticePlane.h>
 #include <model/LatticeMath/LatticeLine.h>
-#include <model/LatticeMath/PlaneLineIntersection.h>
-#include <model/LatticeMath/PlanePlaneIntersection.h>
-#include <model/LatticeMath/LineLineIntersection.h>
+//#include <model/LatticeMath/PlaneLineIntersection.h>
+//#include <model/LatticeMath/PlanePlaneIntersection.h>
+//#include <model/LatticeMath/LineLineIntersection.h>
 
 #endif

@@ -213,6 +213,8 @@ namespace model
                 const Eigen::Matrix<double,3,1> b=v0-P;
                 
                 const Eigen::LLT<Eigen::Matrix<double,2,2>> llt(A.transpose()*A);
+                std::cout<<"DO NOT USE LLT TO SEE IF SYSTEM HAS SOLUTION. See https://eigen.tuxfamily.org/dox/classEigen_1_1LDLT.html#a858dc77b65dd48248299bb6a6a758abf"<<std::endl;
+
                 
                 if(llt.info()==Eigen::Success)
                 {

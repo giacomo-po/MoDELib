@@ -54,7 +54,7 @@ namespace model
                         const int& grainID) :
         /* base init */ LoopType(dn,dn->shared.poly.grain(grainID).latticeVector(B)),
         /*      init */ grain(dn->shared.poly.grain(grainID)),
-        /*      init */ _glidePlane(GlidePlaneObserverType::getSharedPlane(dn->shared.mesh,dn->shared.poly.grain(grainID),P,N)),
+        /*      init */ _glidePlane(GlidePlaneObserverType::sharedGlidePlane(dn->shared.mesh,grain,P,N)),
         /*      init */ glidePlane(*_glidePlane.get()),
         /*      init */ isSessile(this->flow().dot(glidePlane.n)!=0)
         {

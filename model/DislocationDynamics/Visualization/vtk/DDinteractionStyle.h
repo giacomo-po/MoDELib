@@ -96,24 +96,24 @@ namespace model
                     LastPickedActor = NULL; // LastPickedActor will be destroyed so we cannot further pick it
                 }
                 
-                if(ddPK.get()!=nullptr)
-                {
-                    this->CurrentRenderer->RemoveActor(ddPK->actor);
-                }
+//                if(ddPK.get()!=nullptr)
+//                {
+//                    this->CurrentRenderer->RemoveActor(ddPK->actor);
+//                }
                 
-                if(ddSegments.get()!=nullptr)
-                {
-                    this->CurrentRenderer->RemoveActor(ddSegments->tubeActor);
-                    this->CurrentRenderer->RemoveActor(ddSegments->tubeActor0);
-                    this->CurrentRenderer->RemoveActor(ddSegments->nodeActor);
-                    this->CurrentRenderer->RemoveActor(ddSegments->velocityActor);
-                    this->CurrentRenderer->RemoveActor(ddSegments->labelActor);
-                }
+//                if(ddSegments.get()!=nullptr)
+//                {
+//                    this->CurrentRenderer->RemoveActor(ddSegments->tubeActor);
+//                    this->CurrentRenderer->RemoveActor(ddSegments->tubeActor0);
+//                    this->CurrentRenderer->RemoveActor(ddSegments->nodeActor);
+//                    this->CurrentRenderer->RemoveActor(ddSegments->velocityActor);
+//                    this->CurrentRenderer->RemoveActor(ddSegments->labelActor);
+//                }
                 
-                if(ddGP.get()!=nullptr)
-                {
-                    this->CurrentRenderer->RemoveActor(ddGP->actor);
-                }
+//                if(ddGP.get()!=nullptr)
+//                {
+//                    this->CurrentRenderer->RemoveActor(ddGP->actor);
+//                }
                 
                 // Update ddActors
                 //                    ddActors.update(frameID,this->CurrentRenderer);
@@ -525,6 +525,16 @@ namespace model
                     //                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
                     ddSegments->modify();
 //                    std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
+                    //                    ddActors.modify();
+                    this->Interactor->Render();
+                }
+                
+                if(key == "1")
+                {
+                    DislocationSegmentActor::showNodeIDs=!DislocationSegmentActor::showNodeIDs;
+                    //                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
+                    ddSegments->modify();
+                    //                    std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
                     //                    ddActors.modify();
                     this->Interactor->Render();
                 }

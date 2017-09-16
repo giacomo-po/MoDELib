@@ -30,8 +30,8 @@ namespace model
     /*************************************************************/
     template <typename LoopType>
     struct GlidePlane : public StaticID<GlidePlane<LoopType> >,
-    /* base class   */ public LatticePlane,
-    /* base class   */ private std::map<size_t,const LoopType* const>
+    /* base class    */ public LatticePlane,
+    /* base class    */ private std::map<size_t,const LoopType* const>
     {
         
         constexpr static int dim=LoopType::dim;
