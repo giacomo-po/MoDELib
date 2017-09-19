@@ -223,7 +223,7 @@ namespace model
     double Material<Isotropic>::C2=1.0/(4.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
     double Material<Isotropic>::C3=1.0-2.0*0.34; // 1-2*nu
     double Material<Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
-    double Material<Isotropic>::kB=1.38e-23/48.0e9/pow(0.2556e-9,3);  // Boltzmann constant
+    double Material<Isotropic>::kB=1.38e-23/48.0e9/std::pow(0.2556e-9,3);  // Boltzmann constant
     
     /**************************************************************************/
     /**************************************************************************/

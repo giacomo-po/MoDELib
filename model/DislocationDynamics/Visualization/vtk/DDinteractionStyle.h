@@ -45,16 +45,8 @@ namespace model
     //    public vtkInteractorStyleMultiTouchCamera
     {
         
-        
-        
-        //        typedef IDreader<'P',3,6,double> pkReader;
-        
-        
-        
     private:
-        
-        //        PKContainerType pkReader;
-        
+                
         std::unique_ptr<DislocationSegmentActor> ddSegments;
         std::unique_ptr<PKActor> ddPK;
         std::unique_ptr<GlidePlaneActor> ddGP;
@@ -83,9 +75,7 @@ namespace model
                && (DislocationSegmentActor::EdgeReaderType::isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType::isGood(frameID,true))
                )
             {
-                //                if(ddActors.isGood(frameID,false) || ddActors.isGood(frameID,true))
-                //                {
-                currentFrameID=frameID; //
+                currentFrameID=frameID;
                 std::cout<<"loading frame "<<currentFrameID<<std::endl;
                 
                 vtkRenderWindowInteractor *rwi = this->Interactor;
@@ -96,27 +86,7 @@ namespace model
                     LastPickedActor = NULL; // LastPickedActor will be destroyed so we cannot further pick it
                 }
                 
-//                if(ddPK.get()!=nullptr)
-//                {
-//                    this->CurrentRenderer->RemoveActor(ddPK->actor);
-//                }
-                
-//                if(ddSegments.get()!=nullptr)
-//                {
-//                    this->CurrentRenderer->RemoveActor(ddSegments->tubeActor);
-//                    this->CurrentRenderer->RemoveActor(ddSegments->tubeActor0);
-//                    this->CurrentRenderer->RemoveActor(ddSegments->nodeActor);
-//                    this->CurrentRenderer->RemoveActor(ddSegments->velocityActor);
-//                    this->CurrentRenderer->RemoveActor(ddSegments->labelActor);
-//                }
-                
-//                if(ddGP.get()!=nullptr)
-//                {
-//                    this->CurrentRenderer->RemoveActor(ddGP->actor);
-//                }
-                
                 // Update ddActors
-                //                    ddActors.update(frameID,this->CurrentRenderer);
                 meshActor.update(frameID);
                 ddSegments.reset(new DislocationSegmentActor(frameID,this->CurrentRenderer));
                 ddPK.reset(new PKActor(frameID,this->CurrentRenderer));
@@ -130,10 +100,8 @@ namespace model
                     vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
                     windowToImageFilter->SetInput(rwi->GetRenderWindow()/*renderWindow*/);
                     windowToImageFilter->SetMagnification(1); //set the resolution of the output image (3 times the current resolution of vtk render window)
-                    //                        windowToImageFilter->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
                     windowToImageFilter->ReadFrontBufferOff(); // read from the back buffer
                     windowToImageFilter->Update();
-                    //                        rwi->Render();
                     
                     int imageType=0;
                     switch (imageType)
@@ -179,8 +147,6 @@ namespace model
                     rwi->Render();
                 }
                 
-                //}
-                
             }
             else
             {
@@ -196,14 +162,13 @@ namespace model
         vtkTypeMacro(DDinteractionStyle, vtkInteractorStyleTrackballCamera);
         
         SimplicialMeshActor meshActor;
-        //        DislocationActors ddActors;
         
         
         /*************************************************************************/
         DDinteractionStyle() :
-        xCol(0),
-        yCol(0),
-        winFrac(0.5),
+        /* init list   */ xCol(0),
+        /* init list   */ yCol(0),
+        /* init list   */ winFrac(0.5),
         /* init list   */ frameID(0),
         /* init list   */ frameIncrement(1),
         /* init list   */ currentFrameID(0)
@@ -212,14 +177,6 @@ namespace model
             LastPickedProperty = vtkProperty::New();
         }
         
-        //        void init(const int& meshID)
-        //        {
-        //            //loadFrame();
-        //            meshActor.read(meshID);
-        //            ddActors.update(0,this->CurrentRenderer);
-        //
-        //
-        //        }
         
         /*************************************************************************/
         virtual ~DDinteractionStyle()
@@ -272,9 +229,6 @@ namespace model
             vtkRenderWindowInteractor *rwi = this->Interactor;
             //        const std::string key = rwi->GetKeySym();
             std::string key = rwi->GetKeySym();
-            
-            // Output the key that was pressed
-            //      std::cout << "Pressed " << key << std::endl;
             
             if(key == "Escape")
             {
@@ -364,9 +318,6 @@ namespace model
                 std::cout<<"selecting objects: mesh"<<std::endl;
                 std::cout<<"    +/- to increase mesh displacement"<<std::endl;
                 
-                //                std::cout<<"Enter frame# to load:"<<std::endl;
-                //                std::cin>>frameID;
-                //                loadFrame();
             }
             
             if(key == "p")
@@ -393,15 +344,8 @@ namespace model
                         this->Interactor->Render();
                     }
                     
-                    
-                    
-                    
                 }
-                //                std::cout<<"Enter frame# to load:"<<std::endl;
-                //                std::cin>>frameID;
-                //                loadFrame();
             }
-            
             
             
             if(key == "s")
@@ -420,7 +364,6 @@ namespace model
                 {
                     xCol=temp;
                 }
-                //                loadFrame();
             }
             
             if(key == "y")
@@ -432,7 +375,6 @@ namespace model
                 {
                     yCol=temp;
                 }
-                //                loadFrame();
             }
             
             
@@ -490,52 +432,36 @@ namespace model
                     
                     
                 }
-                //                std::cout<<"Enter frame# to load:"<<std::endl;
-                //                std::cin>>frameID;
-                //                loadFrame();
             }
             
             if(selectedKey=="e")
             {
-                //                std::cout<<"I'm here -1"<<std::endl;
                 
                 if(key == "equal")
                 {
-                    //                    std::cout<<"I'm here 0"<<std::endl;
                     DislocationSegmentActor::tubeRadius*=2.0;
-//                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
                     ddSegments->modify();
-                    //                    std::cout<<"I'm here 1"<<std::endl;
                     std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
-                    //                    ddActors.modify();
                     this->Interactor->Render();
                 }
                 if(key == "minus")
                 {
                     DislocationSegmentActor::tubeRadius*=0.5;
-//                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
                     ddSegments->modify();
                     std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
-                    //                    ddActors.modify();
                     this->Interactor->Render();
                 }
                 if(key == "0")
                 {
                     DislocationSegmentActor::showZeroBuergers=!DislocationSegmentActor::showZeroBuergers;
-                    //                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
                     ddSegments->modify();
-//                    std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
-                    //                    ddActors.modify();
                     this->Interactor->Render();
                 }
                 
                 if(key == "1")
                 {
                     DislocationSegmentActor::showNodeIDs=!DislocationSegmentActor::showNodeIDs;
-                    //                    ddSegments->tubeFilter->SetRadius(DislocationSegmentActor::tubeRadius); // this must be a function similar to setColor
                     ddSegments->modify();
-                    //                    std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
-                    //                    ddActors.modify();
                     this->Interactor->Render();
                 }
                 
@@ -604,14 +530,12 @@ namespace model
                 {
                     GlidePlaneActor::opacity*=2.0;
                     ddGP->modify();
-//                    std::cout<<"velocity scaling="<<DislocationSegmentActor::velocityFactor<<std::endl;
                     this->Interactor->Render();
                 }
                 if(key == "minus" && ddGP.get()!=nullptr)
                 {
                     GlidePlaneActor::opacity*=0.5;
                     ddGP->modify();
-//                    std::cout<<"velocity scaling="<<DislocationSegmentActor::velocityFactor<<std::endl;
                     this->Interactor->Render();
                 }
                 

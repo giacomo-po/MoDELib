@@ -10,12 +10,13 @@
 #define _model_SpatialCellParticle_h_
 
 #include <math.h>
-//#include <boost/utility.hpp>
 #include <Eigen/Dense>
 #include <model/SpaceDecomposition/SpatialCellObserver.h>
 #include <model/Utilities/CRTP.h>
 #include <model/Utilities/StaticID.h>
 #include <model/Utilities/NonCopyable.h>
+#include <model/Math/CompileTimeMath/CTM.h>
+
 
 
 namespace model
@@ -24,7 +25,6 @@ namespace model
 	/**************************************************************************/
 	template<typename Derived, short unsigned int _dim>
 	struct SpatialCellParticle : public NonCopyable,
-//    /*                      */ boost::noncopyable,
 	/*                        */ public  CRTP<Derived>,
     /*                        */ public  StaticID<Derived>
     {
@@ -39,7 +39,7 @@ namespace model
         typedef  SpatialCell<Derived,_dim> SpatialCellType;
 
         typedef typename SpatialCellType::ParticleContainerType ParticleContainerType;
-        typedef Eigen::Matrix<double,1,Pow<2,dim>::value> VectorVerticesType;
+        typedef Eigen::Matrix<double,1,CTM::pow(2,dim)> VectorVerticesType;
 
 				
 	public:

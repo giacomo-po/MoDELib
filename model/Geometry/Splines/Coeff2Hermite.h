@@ -12,7 +12,7 @@
 #define model_COEFF2HERMITE_H_
 
 #include <Eigen/Dense>
-#include <model/Math/CompileTimeMath/Factorial.h>
+#include <model/Math/CompileTimeMath/CTM.h>
 #include <model/Math/CompileTimeMath/PermutationWithoutRepetition.h>
 
 namespace model {
@@ -32,7 +32,7 @@ namespace model {
 	struct FillC2H0<P,i,i> : public FillC2H0<P,i,i-1>{
 		enum {j=i};
 		FillC2H0(Eigen::Matrix<double,(P+1)/2,(P+1)>& C2H0) : FillC2H0<P,i,j-1>::FillC2H0(C2H0){
-				C2H0(i,j) = factorial(i);
+				C2H0(i,j) = CTM::factorial(i);
 		}
 	};
 	
@@ -51,7 +51,7 @@ namespace model {
 		enum {i=0};
 		enum {j=0};		
 		FillC2H0(Eigen::Matrix<double,(P+1)/2,(P+1)>& C2H0){
-				C2H0(i,j) = factorial(i);
+				C2H0(i,j) = CTM::factorial(i);
 		}
 	};
 	

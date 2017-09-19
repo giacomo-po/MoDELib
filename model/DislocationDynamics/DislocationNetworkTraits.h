@@ -57,6 +57,7 @@ namespace model
 //        static constexpr FlowType zeroFlow=FlowType::Zero();
         typedef QuadratureDynamic<1,QuadratureRule,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
         typedef QuadPowDynamic<SplineBase<dim,corder>::pOrder,QuadratureRule,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
+            
     };
 
 	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,

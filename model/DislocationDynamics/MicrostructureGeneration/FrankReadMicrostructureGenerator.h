@@ -14,7 +14,7 @@
 #include <model/DislocationDynamics/MicrostructureGeneration/MicrostructureGenerator.h>
 #include <model/LatticeMath/LatticeVector.h>
 //#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
-#include <model/Utilities/SequentialOutputFile.h>
+#include <model/IO/SequentialOutputFile.h>
 
 
 namespace model
@@ -32,7 +32,8 @@ namespace model
         
         SequentialOutputFile<'E',1> edgeFile;
         SequentialOutputFile<'V',1> vertexFile;
-        
+        SequentialOutputFile<'L',1> loopFile;
+
     public:
         FrankReadMicrostructureGenerator() :
         /* init list */ generator(rd())
@@ -52,6 +53,9 @@ namespace model
             double edgeDensity=0.0;
             
             size_t nodeID=0;
+            size_t loopID=0;
+            size_t snID=0;
+
             while(density<targetDensity)
             {
                 const std::pair<LatticeVector<dim>,int> rp=this->randomPointInMesh();
@@ -64,6 +68,7 @@ namespace model
                 
                 const auto& slipSystem=this->poly.grain(grainID).slipSystems()[rSS];
                 
+                // Compute the ReciprocalLatticeDirection corresponding to s
                 ReciprocalLatticeDirection<3> sr(this->poly.grain(grainID).reciprocalLatticeDirection(slipSystem.s.cartesian()));
                 
                 bool isEdge=true;
@@ -76,7 +81,7 @@ namespace model
                 LatticeVector<dim> L1=L0+d1*a1;
 
                 
-                if(edgeDensity>=fractionEdge*density) // overwrite with screw dislocaiton
+                if(edgeDensity>fractionEdge*density) // overwrite with screw dislocaiton
                 {
                     isEdge=false;
                     d1cNorm=slipSystem.s.cartesian().norm();
@@ -84,26 +89,70 @@ namespace model
                     L1=L0+slipSystem.s*a1;
                 }
                 
+                // Compute the LatticeDireciton corresponding to -n
+                LatticeDirection<3> d2(this->poly.grain(grainID).latticeDirection(-slipSystem.n.cartesian()));
+                double d2cNorm(d2.cartesian().norm());
+
+                const int a2=2*a1; // aspect ration of double FR source
+                LatticeVector<dim> L2=L1+d2*a2;
+                LatticeVector<dim> L3=L0+d2*a2;
+                
                 
                 const auto search1(mesh.search(L1.cartesian()));
+                const auto search2(mesh.search(L2.cartesian()));
+                const auto search3(mesh.search(L3.cartesian()));
                 
-                if(search1.first && search1.second->region->regionID==grainID)
+                if(   search1.first && search1.second->region->regionID==grainID
+                   && search2.first && search2.second->region->regionID==grainID
+                   && search3.first && search3.second->region->regionID==grainID)
                 {
-                    density += d1cNorm*a1/this->mesh.volume()/pow(Material<Isotropic>::b_real,2);
+                    density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/this->mesh.volume()/std::pow(Material<Isotropic>::b_real,2);
                     if(isEdge)
                     {
-                        edgeDensity+=d1cNorm*a1/this->mesh.volume()/pow(Material<Isotropic>::b_real,2);
+                        edgeDensity+=2.0*(d1cNorm*a1 + d2cNorm*a2)/this->mesh.volume()/std::pow(Material<Isotropic>::b_real,2);
                         std::cout<<"edgeDensity="<<edgeDensity<<std::endl;
                         
                     }
                     std::cout<<"density="<<density<<std::endl;
                     
-                    vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<L0.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<< grainID<<"\n";
-                    vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<L1.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 0 <<"\t"<< 0<<"\t"<< grainID<<"\n";
+                    const VectorDimD P0=L0.cartesian();
+                    const VectorDimD P1=L1.cartesian();
+                    const VectorDimD P2=L2.cartesian();
+                    const VectorDimD P3=L3.cartesian();
+                    const VectorDimD P4=0.5*(P0+P1);
+                    const VectorDimD P5=0.5*(P2+P3);
+
+                    const VectorDimD n1=slipSystem.n.cartesian().normalized();
+                    const VectorDimD n2=d2.cross(d1).cartesian().normalized();
+
                     
-                    edgeFile << nodeID+0<<"\t"<< nodeID+1<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t" <<VectorDimD::Zero().transpose()<<"\t"<< 1.0<<"\t"<< 1.0<<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<P0.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<P1.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+2<<"\t" << std::setprecision(15)<<std::scientific<<P2.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+3<<"\t" << std::setprecision(15)<<std::scientific<<P3.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+4<<"\t" << std::setprecision(15)<<std::scientific<<P4.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    vertexFile << nodeID+5<<"\t" << std::setprecision(15)<<std::scientific<<P5.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
                     
-                    nodeID+=2;
+                    loopFile <<loopID+0<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t"<< n1.transpose()<<"\t"<<P0.transpose()<<"\t"<<grainID<<"\n";
+                    edgeFile << loopID+0<<"\t" << nodeID+0<<"\t"<< nodeID+1<<"\n";
+                    edgeFile << loopID+0<<"\t" << nodeID+1<<"\t"<< nodeID+4<<"\n";
+                    edgeFile << loopID+0<<"\t" << nodeID+4<<"\t"<< nodeID+0<<"\n";
+
+                    loopFile <<loopID+1<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t"<< n2.transpose()<<"\t"<<P0.transpose()<<"\t"<<grainID<<"\n";
+                    edgeFile << loopID+1<<"\t" << nodeID+0<<"\t"<< nodeID+3<<"\n";
+                    edgeFile << loopID+1<<"\t" << nodeID+3<<"\t"<< nodeID+2<<"\n";
+                    edgeFile << loopID+1<<"\t" << nodeID+2<<"\t"<< nodeID+1<<"\n";
+                    edgeFile << loopID+1<<"\t" << nodeID+1<<"\t"<< nodeID+0<<"\n";
+
+                    loopFile <<loopID+2<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t"<< n1.transpose()<<"\t"<<P3.transpose()<<"\t"<<grainID<<"\n";
+                    edgeFile << loopID+2<<"\t" << nodeID+3<<"\t"<< nodeID+5<<"\n";
+                    edgeFile << loopID+2<<"\t" << nodeID+5<<"\t"<< nodeID+2<<"\n";
+                    edgeFile << loopID+2<<"\t" << nodeID+2<<"\t"<< nodeID+3<<"\n";
+
+                    
+                    nodeID+=6;
+                    loopID+=3;
+                    snID++;
                     
                 }
             }

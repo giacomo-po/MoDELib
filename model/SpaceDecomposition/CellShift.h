@@ -13,7 +13,7 @@
 #define _model_CellShift_h_
 
 #include <Eigen/Dense>
-#include <model/Math/CompileTimeMath/Pow.h>
+#include <model/Math/CompileTimeMath/CTM.h>
 
 namespace model
 {
@@ -26,7 +26,7 @@ namespace model
     {
         
         //! The number of "neighbors" that a spatial cell has in dim dimensions
-        enum{Nneighbors=model::Pow<2*neighborOrder+1,dim>::value};
+        enum{Nneighbors=CTM::pow(2*neighborOrder+1,dim)};
         
         //! The type of matrix that contains the cellID(s) of all the neighbor cells
         typedef Eigen::Matrix<int,dim,Nneighbors> MatrixType; // WORK WITH TRANSPOSE

@@ -200,7 +200,7 @@ namespace model
                     writeLoop(P3,3,0,4,v47,7,slipSystem,-n2,grainID,refNodeID,nodeID,loopID,snID);
 
                     snID+=1;
-                    density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/this->mesh.volume()/pow(Material<Isotropic>::b_real,2);
+                    density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/this->mesh.volume()/std::pow(Material<Isotropic>::b_real,2);
                     
 //                    // First loop
 //                    loopFile <<loopID+0<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t"<< n1.transpose()<<"\t"<<P0.transpose()<<"\t"<<grainID<<"\n";
@@ -258,7 +258,7 @@ namespace model
 //                    
 //                    loopID+=4;
 //                    snID+=1;
-//                    density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/this->mesh.volume()/pow(Material<Isotropic>::b_real,2);
+//                    density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/this->mesh.volume()/std::pow(Material<Isotropic>::b_real,2);
                     
                     
                 }

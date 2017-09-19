@@ -23,8 +23,8 @@ namespace model
     {
         static constexpr auto name="FCC";
         
-        static constexpr bool enable111planes=false;
-        static constexpr bool enable110planes=true;
+        static constexpr bool enable111planes=true;
+        static constexpr bool enable110planes=false;
         
         
         /**********************************************************************/

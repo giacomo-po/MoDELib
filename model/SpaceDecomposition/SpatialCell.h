@@ -16,7 +16,7 @@
 #include <memory> // std::shared_ptr (c++11)
 #include <map>
 #include <Eigen/Dense>
-#include <model/Math/CompileTimeMath/Pow.h>
+#include <model/Math/CompileTimeMath/CTM.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
 //#include <model/Utilities/modelMacros.h> // model_execAssert(
 #include <model/Utilities/CRTP.h>
@@ -57,9 +57,9 @@ namespace model
         
         typedef typename TypeTraits<ParticleType>::SpatialCellProperties SpatialCellProperties;
         
-        typedef Eigen::Matrix<double,dim,Pow<2,dim>::value> MatrixDimVerticesType;
+        typedef Eigen::Matrix<double,dim,CTM::pow(2,dim)> MatrixDimVerticesType;
 
-        typedef Eigen::Matrix<double,1,Pow<2,dim>::value> VectorVerticesType;
+        typedef Eigen::Matrix<double,1,CTM::pow(2,dim)> VectorVerticesType;
         
         enum{neighborLayer=1}; // = (1+2*1)^dim  cells = 27  cells in 3d
 //        enum{    nearLayer=2}; // = (1+2*3)^dim  cells = 343 cells in 3d
@@ -228,7 +228,7 @@ namespace model
 //        /**********************************************************************/
 //        VectorVerticesType vertexWeigths(const VectorDimD& P) const
 //        {
-//            return VectorVerticesType::Constant(1.0)-(vertices().colwise()-P).colwise().prod().array().abs().matrix()/pow(SpatialCellObserverType::cellSize(),dim);
+//            return VectorVerticesType::Constant(1.0)-(vertices().colwise()-P).colwise().prod().array().abs().matrix()/CTM::pow(SpatialCellObserverType::cellSize(),dim);
 //        }
         
         /**********************************************************************/
@@ -273,7 +273,7 @@ namespace model
 	};
     
     template<typename ParticleType, short unsigned int dim>
-    const Eigen::Matrix<double,dim,Pow<2,dim>::value> SpatialCell<ParticleType,dim>::standardVertices=PermutationWithRepetition<dim>::permute((Eigen::Matrix<double,1,2>()<<-0.5,0.5).finished());
+    const Eigen::Matrix<double,dim,CTM::pow(2,dim)> SpatialCell<ParticleType,dim>::standardVertices=PermutationWithRepetition<dim>::permute((Eigen::Matrix<double,1,2>()<<-0.5,0.5).finished());
     
 }	// close namespace model
 #endif

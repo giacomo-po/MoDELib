@@ -91,7 +91,7 @@
 //#include <model/DislocationDynamics/Junctions/DislocationJunctionFormation.h>
 //#include <model/DislocationDynamics/CrossSlip/DislocationCrossSlip.h>
 #include <model/DislocationDynamics/Materials/Material.h>
-#include <model/DislocationDynamics/DislocationNetworkIO.h>
+#include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
 #include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
 #include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
 #include <model/ParticleInteraction/ParticleSystem.h>

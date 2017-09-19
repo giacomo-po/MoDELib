@@ -27,14 +27,14 @@ ifeq ($(USE_ICC), 1)
 	CFLAGS	+= -xhost
 	#CFLAGS	+= -fast
 	CFLAGS	+= -openmp 
-	CFLAGS	+= -std=c++11
+	CFLAGS	+= -std=c++14
 else
 	CC= g++
 	mpiCC = mpicxx
 	CFLAGS += -Ofast
 	CFLAGS += -msse4
 	CFLAGS += -fopenmp
-	CFLAGS += -std=c++11
+	CFLAGS += -std=c++14
 endif
 
 # enable warnings
@@ -124,7 +124,7 @@ clean:
 # MAKE VIEWER
 ##########################################################
 DDviewer: 
-	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -O3 -std=c++11 $(IDIR)  $(VIEWERLIBS) 
+	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -O3 -std=c++14 $(IDIR)  $(VIEWERLIBS) 
 
 ##########################################################
 # MAKE DIPOLEGENERATOR
@@ -133,7 +133,7 @@ dipoleOBJS = dipoleGenerator
 
 $(dipoleOBJS):
 	@echo making dipoleGenerator
-	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/dipoleGenerator.cpp -o dipoleGenerator -O3 -std=c++11 $(IDIR)
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/dipoleGenerator.cpp -o dipoleGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
 # MAKE FRANKREADGENERATOR
@@ -142,7 +142,7 @@ dipoleOBJS = frGenerator
 
 $(dipoleOBJS):
 	@echo making frGenerator
-	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/MicrostructureGeneration/frGenerator.cpp -o frGenerator -O3 -std=c++11 $(IDIR)
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/frGenerator.cpp -o frGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
 # MAKE FRANKREADGENERATOR
@@ -151,7 +151,7 @@ b2bOBJS = b2bGenerator
 
 $(b2bOBJS):
 	@echo making b2bGenerator
-	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/MicrostructureGeneration/b2bGenerator.cpp -o b2bGenerator -O3 -std=c++11 $(IDIR)
+	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/MicrostructureGeneration/b2bGenerator.cpp -o b2bGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
 # MAKE DDCONVERTER
@@ -160,7 +160,7 @@ converterOBJS = DDconverter
 
 $(converterOBJS):
 	@echo making DDconverter
-	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/DDconverter/DDconverter.cpp -o DDconverter -O3 -std=c++11 $(IDIR)
+	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/DDconverter/DDconverter.cpp -o DDconverter -O3 -std=c++14 $(IDIR)
 
 ##########################################################
 # MAKE EMPTY

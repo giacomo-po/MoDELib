@@ -12,26 +12,11 @@
 namespace model
 {
 	
+    /*!\brief A compile-time implementation of the factorial function         */
     constexpr int factorial(int n)
     {
         return n <= 1? 1 : (n * factorial(n - 1));
     }
     
-//    /*!\brief A class template for compile-time computation of factorials */
-//    template< int N >
-//	struct Factorial
-//    {
-////		enum { value = Factorial<(N>0)?(N-1):0>::value * ((N>0)? N:1)};
-//        static constexpr int value = Factorial<(N>0)?(N-1):0>::value * ((N>0)? N:1);
-//
-//    };
-//	
-//	template<>
-//	struct Factorial<0>
-//    {
-////		enum { value = 1 };
-//        static constexpr int value = 1;
-//	};
-	
 }
 #endif

@@ -13,16 +13,14 @@
 
 namespace model
 {
-	/*\brief A compile-time class template for computation of binomial coefficients
+	/*\brief A compile-time implementation of binomial coefficients
      */
-	template< int N, int k>
-	struct Binomial
+    
+    constexpr int binomial(int N, int k)
     {
-//		enum { value = Factorial<N>::value / (Factorial<N-k>::value * Factorial<k>::value)};
-        static constexpr int value = factorial(N) / (factorial(N-k) * factorial(k));
-		
-	};
-
-} // end namespace model
+        return factorial(N) / (factorial(N-k) * factorial(k));
+    }
+    
+}
 
 #endif

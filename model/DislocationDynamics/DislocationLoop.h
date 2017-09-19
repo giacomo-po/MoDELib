@@ -32,6 +32,7 @@ namespace model
         constexpr static int dim=_dim;
         typedef DislocationLoop<dim,corder,InterpolationType,QuadratureRule> DislocationLoopType;
         typedef Loop<DislocationLoopType> LoopType;
+        typedef typename LoopType::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<DislocationLoopType>::LoopNetworkType LoopNetworkType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef GlidePlane<DislocationLoopType> GlidePlaneType;
@@ -42,7 +43,7 @@ namespace model
         const Grain<dim>& grain;
         const std::shared_ptr<GlidePlaneType> _glidePlane;
         const GlidePlaneType& glidePlane;
-        const bool isSessile;
+        const bool isGlissile;
         
 
         
@@ -56,11 +57,9 @@ namespace model
         /*      init */ grain(dn->shared.poly.grain(grainID)),
         /*      init */ _glidePlane(GlidePlaneObserverType::sharedGlidePlane(dn->shared.mesh,grain,P,N)),
         /*      init */ glidePlane(*_glidePlane.get()),
-        /*      init */ isSessile(this->flow().dot(glidePlane.n)!=0)
-        {
-            
+        /*      init */ isGlissile(this->flow().dot(glidePlane.n)==0)
+        {            
             _glidePlane->addLoop(this);
-            
         }
         
         /**********************************************************************/
@@ -70,6 +69,22 @@ namespace model
             _glidePlane->removeLoop(this);
             
         }
+        
+        /**********************************************************************/
+        void addLink(LoopLinkType* const pL)
+        {
+            LoopType::addLink(pL);
+
+            assert(std::fabs((pL->source()->get_P()-pL->sink()->get_P()).dot(glidePlane.n.cartesian()))<FLT_EPSILON && "Chord does not belong to plane");
+            
+        }
+        
+//        /**********************************************************************/
+//        void removeLink(LoopLinkType* const pL)
+//        {
+//            LoopType::removeLink(pL);
+//
+//        }
     
     };
     

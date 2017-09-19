@@ -9,8 +9,9 @@
 #ifndef model_PERMUTATIONWITHOUTREPETITION_H_
 #define model_PERMUTATIONWITHOUTREPETITION_H_
 
-#include <model/Math/CompileTimeMath/Factorial.h>
-#include <model/Math/CompileTimeMath/Pow.h>
+//#include <model/Math/CompileTimeMath/Factorial.h>
+//#include <model/Math/CompileTimeMath/Pow.h>
+#include <model/Math/CompileTimeMath/CTM.h>
 
 namespace model
 {
@@ -25,7 +26,7 @@ namespace model
         //		enum{value=Factorial<N>::value / Factorial<(k>=0 && k<=N && N>=0)?(N-k):0>::value * (k>=0 && k<=N && N>=0)};
         static constexpr int value(int N)
         {
-            return factorial(N) / factorial((k>=0 && k<=N && N>=0)?(N-k):0) * (k>=0 && k<=N && N>=0);
+            return CTM::factorial(N) / CTM::factorial((k>=0 && k<=N && N>=0)?(N-k):0) * (k>=0 && k<=N && N>=0);
         }
         
         template <typename T,int M>
@@ -70,19 +71,19 @@ namespace model
         
         
         template<typename T,int N>
-        static Eigen::Matrix<T,k,value(N)*Pow<2,k>::value> permuteWithPlusMinusSign(const Eigen::Matrix<T,N,1>& pool)
+        static Eigen::Matrix<T,k,value(N)*CTM::pow(2,k)> permuteWithPlusMinusSign(const Eigen::Matrix<T,N,1>& pool)
         {
             return permuteWithPlusMinusSign(pool.transpose().eval());
         }
         
         template<typename T,int N>
-        static Eigen::Matrix<T,k,value(N)*Pow<2,k>::value> permuteWithPlusMinusSign(const Eigen::Matrix<T,1,N>& pool)
+        static Eigen::Matrix<T,k,value(N)*CTM::pow(2,k)> permuteWithPlusMinusSign(const Eigen::Matrix<T,1,N>& pool)
         {
             assert(N>=k);
             
             
-            Eigen::Matrix<T,k,value(N)*Pow<2,k>::value> temp1;
-            const int c(PermutationWithoutRepetition<k-1>::value(N-1)*Pow<2,k-1>::value);
+            Eigen::Matrix<T,k,value(N)*CTM::pow(2,k)> temp1;
+            const int c(PermutationWithoutRepetition<k-1>::value(N-1)*CTM::pow(2,k-1));
             for(size_t p=0;p<N;++p)
             {
                 temp1.template block<  1,c>(0,(2*p+0)*c)=Eigen::Matrix<T,1,c>::Constant( pool(p));
@@ -108,7 +109,7 @@ namespace model
         //		enum{value=Factorial<N>::value / Factorial<(k>=0 && k<=N && N>=0)?(N-k):0>::value * (k>=0 && k<=N && N>=0)};
         static constexpr int value(int N)
         {
-            return factorial(N) / factorial((k>=0 && k<=N && N>=0)?(N-k):0) * (k>=0 && k<=N && N>=0);
+            return CTM::factorial(N) / CTM::factorial((k>=0 && k<=N && N>=0)?(N-k):0) * (k>=0 && k<=N && N>=0);
         }
         
         

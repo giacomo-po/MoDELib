@@ -1,0 +1,27 @@
+NEW LOOP_NETWORK CODE
+- Make all observers non-static (GlidePlaneObserver,NodeObserver)
+- Mobility specific to slip system
+- Make Loops with |Burgers|>1 sessile
+- Fix IO
+- Rework remesh
+- Rework Juncitons
+- Rework crossslip
+- Allow straight segments
+- New external stress load controller
+- Microstructure generator with different distributions
+- Movies in DDvtk
+- New time integrator
+- DipolarMicrostructureGenerator for Bcc/Hcp
+- Natural Cubic Splines
+- Merge loops on same plane
+- Non-convex domains (each grain convex?)
+- Documentation
+- Hoffman2 documentation (see emails between Yinan and Raffaella)
+- DDvtk movies
+- SpaceDecompositin based on KD-tree
+- DDvtk: plots
+- Sweep line algorithm for segment-segment intersections
+- Replace const static with constexpr in LagrangeElement and DiscontinuousLagrange http://www.cplusplus.com/forum/general/121300/
+- Make all quadratures constexpr
+- Don’t multipole expand displacement. Use loop structure to compute it
+- Use constexpr std::array for quadrature

@@ -25,6 +25,7 @@
 #include <model/LatticeMath/LatticeMath.h>
 #include <model/LatticeMath/LatticeMath.h>
 #include <model/DislocationDynamics/BVP/BoundaryDisplacementPoint.h>
+#include <model/DislocationDynamics/IO/DislocationNodeIO.h>
 
 
 namespace model
@@ -324,20 +325,23 @@ namespace model
             //! 2- Outputs the Vertex informations to file V_*.txt where * is the current simulation step
             if (outputBinary)
             {
-                typedef Eigen::Matrix<double,1,9> VertexDataType;
-                typedef std::pair<int, VertexDataType> BinVertexType;
+//                typedef Eigen::Matrix<double,1,9> VertexDataType;
+//                typedef std::pair<int, VertexDataType> BinVertexType;
+                typedef DislocationNodeIO<dim> BinVertexType;
                 SequentialBinFile<'V',BinVertexType>::set_count(runID);
                 SequentialBinFile<'V',BinVertexType>::set_increment(outputFrequency);
                 SequentialBinFile<'V',BinVertexType> binVertexFile;
                 //                for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
                 for (const auto& node : DN.nodes())
                 {
-                    VertexDataType temp( (VertexDataType()<< node.second->get_P().transpose(),
-                                          /*                                    */ node.second->get_V().transpose(),
-                                          /*                                    */ node.second->velocityReduction(),
-                                          /*                                    */ node.second->pSN()->sID,
-                                          /*                                    */ (node.second->meshLocation()==onMeshBoundary)).finished());
-                    binVertexFile.write(std::make_pair(node.first,temp));
+                    binVertexFile.write(BinVertexType(*node.second));
+//                    node.second->writeToBin(binVertexFile);
+//                    VertexDataType temp( (VertexDataType()<< node.second->get_P().transpose(),
+//                                          /*                                    */ node.second->get_V().transpose(),
+//                                          /*                                    */ node.second->velocityReduction(),
+//                                          /*                                    */ node.second->pSN()->sID,
+//                                          /*                                    */ (node.second->meshLocation()==onMeshBoundary)).finished());
+//                    binVertexFile.write(std::make_pair(node.first,temp));
                 }
                 model::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;
             }

@@ -402,7 +402,7 @@ namespace model
                 for(const auto& loopLink : this->loopLinks())
                 {
                     if(   loopLink->loop()->glidePlane.n.cartesian().cross(referenceNormal).squaredNorm()>FLT_EPSILON
-                       || loopLink->loop()->isSessile)
+                       || !loopLink->loop()->isGlissile)
                     {
                         _isSessile=true;
                         break;

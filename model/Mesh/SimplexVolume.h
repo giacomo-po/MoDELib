@@ -10,7 +10,7 @@
 #define model_SimplexVolume_H_
 
 #include <model/Mesh/SimplexTraits.h>
-#include <model/Math/CompileTimeMath/Factorial.h>
+#include <model/Math/CompileTimeMath/CTM.h>
 
 namespace model
 {
@@ -34,7 +34,7 @@ namespace model
         static double volume(const Eigen::Matrix<double,dim,SimplexTraits<dim,order>::nVertices>& posM)
         {
             const Eigen::Matrix<double,dim,SimplexTraits<dim,order>::nVertices-1> B=edgeMatrix(posM);
-            return sqrt((B.transpose()*B).determinant())/factorial(SimplexTraits<dim,order>::nVertices-1);
+            return sqrt((B.transpose()*B).determinant())/CTM::factorial(SimplexTraits<dim,order>::nVertices-1);
         }
         
 	};

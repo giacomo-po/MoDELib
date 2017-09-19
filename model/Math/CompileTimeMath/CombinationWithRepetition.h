@@ -10,9 +10,10 @@
 #define model_CombinationWithRepetition_H_
 
 #include <Eigen/Dense>
-#include <model/Math/CompileTimeMath/Binomial.h>
+#include <model/Math/CompileTimeMath/CTM.h>
 
-namespace model {
+namespace model
+{
     
     /**************************************************************************/
     /**************************************************************************/
@@ -29,8 +30,7 @@ namespace model {
         static constexpr int k=_k;
         static_assert(N>0,"N MUST BE >0.");
         static_assert(k>0,"k MUST BE >0.");
-//		static constexpr int value=Binomial<N+k-1,k>::value;
-        static constexpr int value=Binomial<N+k-1,k>::value;
+        static constexpr int value=CTM::binomial(N+k-1,k);
       
         
         template <typename T>
@@ -40,7 +40,7 @@ namespace model {
           */
             Eigen::Matrix<T,value,k> temp;
 //            // Use Pascal rule to fill the combinations: bin(N,k) = bin(n-1,k-1) + bin(n-1,k)
-            temp<<(Eigen::Matrix<T,k,Binomial<N+k-2,k-1>::value>() <<	Eigen::Matrix<T,1,Binomial<N+k-2,k-1>::value>().Constant(pool(0)),
+            temp<<(Eigen::Matrix<T,k,CTM::binomial(N+k-2,k-1)>() <<	Eigen::Matrix<T,1,CTM::binomial(N+k-2,k-1)>().Constant(pool(0)),
                     CombinationWithRepetition<N,k-1>::template combine<T>(pool).transpose()).finished().transpose(),
                     CombinationWithRepetition<N-1,k>::template combine<T>(pool.template segment<N-1>(1));
             
@@ -59,7 +59,7 @@ namespace model {
         
         static_assert(k>0,"k MUST BE >0.");
         static constexpr int N=1;
-		static constexpr int value=Binomial<N+k-1,k>::value;
+		static constexpr int value=CTM::binomial(N+k-1,k);
         
         
         template <typename T>
@@ -81,7 +81,7 @@ namespace model {
         static constexpr int N=_N;
         static_assert(N>0,"N MUST BE >0.");
         static constexpr int k=1;
-		static constexpr int value=Binomial<N+k-1,k>::value;
+		static constexpr int value=CTM::binomial(N+k-1,k);
         
         template <typename T>
         static Eigen::Matrix<T,value,k> combine(const Eigen::Matrix<T,1,N>& pool)
@@ -100,7 +100,7 @@ namespace model {
     {
         static constexpr int N=1;
         static constexpr int k=1;
-		static constexpr int value=Binomial<N+k-1,k>::value;
+		static constexpr int value=CTM::binomial(N+k-1,k);
         
         template <typename T>
         static Eigen::Matrix<T,value,k> combine(const Eigen::Matrix<T,1,N>& pool)
@@ -120,7 +120,7 @@ namespace model {
         static constexpr int N=_N;
         static_assert(N>0,"N MUST BE >0.");
         static constexpr int k=0;
-		static constexpr int value=Binomial<N+k-1,k>::value;
+		static constexpr int value=CTM::binomial(N+k-1,k);
         
 //        template <typename T>
 //        static Eigen::Matrix<T,value,k> combine(const Eigen::Matrix<T,1,N>& pool)
@@ -141,7 +141,7 @@ namespace model {
         static constexpr int N=1;
 //        static_assert(N>0,"N MUST BE >0.");
         static constexpr int k=0;
-		static constexpr int value=Binomial<N+k-1,k>::value;
+		static constexpr int value=CTM::binomial(N+k-1,k);
         
         //        template <typename T>
         //        static Eigen::Matrix<T,value,k> combine(const Eigen::Matrix<T,1,N>& pool)
@@ -152,7 +152,5 @@ namespace model {
         
 	};
 
-    /**************************************************************************/
-} // end namespace ctmath
-
+}
 #endif

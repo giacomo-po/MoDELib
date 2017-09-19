@@ -17,7 +17,6 @@
 
 #include <model/Utilities/TypeTraits.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
-#include <model/Math/CompileTimeMath/Binomial.h>
 #include <model/Math/CompileTimeMath/CombinationWithRepetition.h>
 #include <model/Math/CompileTimeMath/StarsAndBars.h>
 #include <model/FEM/BarycentricTraits.h>
@@ -193,8 +192,8 @@ namespace model
     public:
         
         
-        static const Eigen::Matrix<int   ,nodesPerElement,_dim+1> baryStarsAndBars;
-        static const Eigen::Matrix<double,nodesPerElement,_dim+1> baryNodalCoordinates;
+        static const Eigen::Matrix<int   ,CombinationWithRepetition<_dim+1,degree>::value,_dim+1> baryStarsAndBars;
+        static const Eigen::Matrix<double,CombinationWithRepetition<_dim+1,degree>::value,_dim+1> baryNodalCoordinates;
         static const std::vector<Eigen::Matrix<double,_dim+1,degree+1> >  sfCoeffsVector;
         
         //! A const reference to the Simplex that this element refers to
@@ -442,10 +441,10 @@ namespace model
     
     // Declare static data members
     template<int dim,int degree, template<typename T> class MappingType>
-    const Eigen::Matrix<int   ,DiscontinuousLagrangeElement<dim,degree,MappingType>::nodesPerElement,dim+1> DiscontinuousLagrangeElement<dim,degree,MappingType>::baryStarsAndBars=StarsAndBars<dim+1,degree>::sAb();
+    const Eigen::Matrix<int,CombinationWithRepetition<dim+1,degree>::value,dim+1> DiscontinuousLagrangeElement<dim,degree,MappingType>::baryStarsAndBars=StarsAndBars<dim+1,degree>::sAb();
     
     template<int dim,int degree, template<typename T> class MappingType>
-    const Eigen::Matrix<double,DiscontinuousLagrangeElement<dim,degree,MappingType>::nodesPerElement,dim+1> DiscontinuousLagrangeElement<dim,degree,MappingType>::baryNodalCoordinates=DiscontinuousLagrangeElement<dim,degree>::baryStarsAndBars.template cast<double>()/degree;
+    const Eigen::Matrix<double,CombinationWithRepetition<dim+1,degree>::value,dim+1> DiscontinuousLagrangeElement<dim,degree,MappingType>::baryNodalCoordinates=DiscontinuousLagrangeElement<dim,degree>::baryStarsAndBars.template cast<double>()/degree;
     
     template<int dim,int degree, template<typename T> class MappingType>
     const std::vector<Eigen::Matrix<double,dim+1,degree+1> >  DiscontinuousLagrangeElement<dim,degree,MappingType>::sfCoeffsVector=DiscontinuousLagrangeElement<dim,degree,MappingType>::get_sfCoeffsVector();

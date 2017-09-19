@@ -10,7 +10,7 @@
 #define model_PERMUTATIONWITHREPETITION_H_
 
 #include <Eigen/Dense>
-#include <model/Math/CompileTimeMath/Pow.h>
+#include <model/Math/CompileTimeMath/CTM.h>
 
 namespace model
 {
@@ -27,15 +27,15 @@ namespace model
 		
 		
         template<typename T,int N>
-		static Eigen::Matrix<T,k,Pow<N,k>::value> permute(const Eigen::Matrix<T,1,N>& pool)
+		static Eigen::Matrix<T,k,CTM::pow(N,k)> permute(const Eigen::Matrix<T,1,N>& pool)
         {
 
-            Eigen::Matrix<T,k-1,Pow<N,k-1>::value> temp=PermutationWithRepetition<k-1>::permute(pool);
-            Eigen::Matrix<T,k,Pow<N,k>::value> temp1;
+            Eigen::Matrix<T,k-1,CTM::pow(N,k-1)> temp=PermutationWithRepetition<k-1>::permute(pool);
+            Eigen::Matrix<T,k,CTM::pow(N,k)> temp1;
             for(size_t p=0;p<N;++p)
             {
-                temp1.template block<  1,Pow<N,k-1>::value>(0,p*Pow<N,k-1>::value)=Eigen::Matrix<T,1,Pow<N,k-1>::value>::Constant(pool(p));
-                temp1.template block<k-1,Pow<N,k-1>::value>(1,p*Pow<N,k-1>::value)=temp;
+                temp1.template block<  1,CTM::pow(N,k-1)>(0,p*CTM::pow(N,k-1))=Eigen::Matrix<T,1,CTM::pow(N,k-1)>::Constant(pool(p));
+                temp1.template block<k-1,CTM::pow(N,k-1)>(1,p*CTM::pow(N,k-1))=temp;
             }
             
             return temp1;
@@ -53,7 +53,7 @@ namespace model
         
         
         template<typename T,int N>
-        static const Eigen::Matrix<T,k,Pow<N,k>::value>& permute(const Eigen::Matrix<T,1,N>& pool)
+        static const Eigen::Matrix<T,k,CTM::pow(N,k)>& permute(const Eigen::Matrix<T,1,N>& pool)
         {
             return pool;
         }
