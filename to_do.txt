@@ -25,3 +25,5 @@ NEW LOOP_NETWORK CODE
 - Make all quadratures constexpr
 - Don’t multipole expand displacement. Use loop structure to compute it
 - Use constexpr std::array for quadrature
+- Make LatticePlane and LatticePlaneBase templated by dim
+- mesh search algorithms for non-convex domains (e.g. foam)

@@ -121,14 +121,14 @@ namespace model
         
         typedef DislocationNetwork<dim,corder,InterpolationType,QuadratureRule> DislocationNetworkType;
         typedef LoopNetwork<DislocationNetworkType> LoopNetworkType;
-//        typedef DislocationNetworkType Derived; // define Derived to use NetworkTypedefs.h
-//#include <model/Network/NetworkTypedefs.h>
+        //        typedef DislocationNetworkType Derived; // define Derived to use NetworkTypedefs.h
+        //#include <model/Network/NetworkTypedefs.h>
         typedef DislocationNode<dim,corder,InterpolationType,QuadratureRule> NodeType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
         typedef DislocationSegment<dim,corder,InterpolationType,QuadratureRule> LinkType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
         typedef DislocationNetworkComponent<NodeType,LinkType> DislocationNetworkComponentType;
         typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
-//        typedef NetworkComponentObserver<NetworkComponentType> NetworkComponentObserverType;
-//        typedef typename NetworkComponentObserverType::NetworkComponentContainerType NetworkComponentContainerType;
+        //        typedef NetworkComponentObserver<NetworkComponentType> NetworkComponentObserverType;
+        //        typedef typename NetworkComponentObserverType::NetworkComponentContainerType NetworkComponentContainerType;
         typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
         typedef Eigen::Matrix<double,dim,1>		VectorDimD;
         typedef typename TypeTraits<DislocationNetworkType>::LoopType LoopType;
@@ -144,7 +144,7 @@ namespace model
         typedef typename DislocationSharedObjectsType::BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::ElementType ElementType;
         typedef typename LoopNetworkType::IsNodeType IsNodeType;
-//        typedef DislocationNodeContraction<DislocationNetworkType> ContractionType;
+        //        typedef DislocationNodeContraction<DislocationNetworkType> ContractionType;
         
         enum {NdofXnode=NodeType::NdofXnode};
         
@@ -154,28 +154,28 @@ namespace model
         
     private:
         
-
+        
         
         int timeIntegrationMethod;
         bool check_balance;
-        short unsigned int use_redistribution;
+//        short unsigned int use_redistribution;
         bool use_junctions;
-//        double shearWaveSpeedFraction;
+        //        double shearWaveSpeedFraction;
         
         long int runID;
         
-//        bool use_crossSlip;
+        //        bool use_crossSlip;
         
         double totalTime;
         
-//        double dx, dt;
+        //        double dx, dt;
         double dt;
         double vMax;
         int Nsteps;
-
+        
         MatrixDimD _plasticDistortion;
         MatrixDimD _plasticDistortionRate;
-
+        
         
         /**********************************************************************/
         void formJunctions()
@@ -183,25 +183,25 @@ namespace model
           */
             if (use_junctions)
             {
-//                DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx);
+                //                DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx);
             }
         }
         
-
         
-//        /**********************************************************************/
-//        void crossSlip()
-//        {/*! Performs dislocation cross-slip if use_crossSlip==true
-//          */
-//            if(use_crossSlip)
-//            {
-//                const auto t0= std::chrono::system_clock::now();
-//                model::cout<<"		performing cross-slip ... ("<<std::flush;
-//                size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip());
-//                model::cout<<crossSlipEvents<<" cross-slip events) ";
-//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-//            }
-//        }
+        
+        //        /**********************************************************************/
+        //        void crossSlip()
+        //        {/*! Performs dislocation cross-slip if use_crossSlip==true
+        //          */
+        //            if(use_crossSlip)
+        //            {
+        //                const auto t0= std::chrono::system_clock::now();
+        //                model::cout<<"		performing cross-slip ... ("<<std::flush;
+        //                size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip());
+        //                model::cout<<crossSlipEvents<<" cross-slip events) ";
+        //                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+        //            }
+        //        }
         
         /**********************************************************************/
         void update_BVP_Solution()
@@ -234,18 +234,18 @@ namespace model
         /**********************************************************************/
         void computeNodaVelocities()
         {
-//            model::cout<<"		computing noda velocities: "<<std::flush;
-  //          const auto t0=std::chrono::system_clock::now();
-
+            //            model::cout<<"		computing noda velocities: "<<std::flush;
+            //          const auto t0=std::chrono::system_clock::now();
+            
             switch (timeIntegrationMethod)
             {
                 case 0:
                     DDtimeIntegrator<0>::computeNodaVelocities(*this);
                     break;
                     
-//                case 1:
-//                    dt=DDtimeIntegrator<1>::integrate(*this);
-//                    break;
+                    //                case 1:
+                    //                    dt=DDtimeIntegrator<1>::integrate(*this);
+                    //                    break;
                     
                     
                 default:
@@ -260,23 +260,23 @@ namespace model
             }
             
             
-//            double vMax=0.0;
-//            for(const auto& node : this->nodes())
-//            {
-//                const double tempV(node.second->get_V().norm());
-//                if(node.second->velocityReduction()>std::pow(NodeType::velocityReductionFactor,3))
-//                {
-//                    vMax=(tempV>vMax? tempV : vMax);
-//                }
-//
-//            }
+            //            double vMax=0.0;
+            //            for(const auto& node : this->nodes())
+            //            {
+            //                const double tempV(node.second->get_V().norm());
+            //                if(node.second->velocityReduction()>std::pow(NodeType::velocityReductionFactor,3))
+            //                {
+            //                    vMax=(tempV>vMax? tempV : vMax);
+            //                }
+            //
+            //            }
             
-//            model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
-//            model::cout<<std::setprecision(3)<<std::scientific<<" vmax/cs="<<vmax/Material<Isotropic>::cs;
+            //            model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
+            //            model::cout<<std::setprecision(3)<<std::scientific<<" vmax/cs="<<vmax/Material<Isotropic>::cs;
             model::cout<<std::setprecision(3)<<std::scientific<<"		dt="<<dt<<std::endl;
-//            model::cout<<std::setprecision(3)<<std::scientific<<" eta_dt="<<dt/dt_mean;
-//            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-
+            //            model::cout<<std::setprecision(3)<<std::scientific<<" eta_dt="<<dt/dt_mean;
+            //            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            
         }
         
         /**********************************************************************/
@@ -293,7 +293,7 @@ namespace model
             /*                    */<< defaultColor<<std::endl;
             
             //! 1- Check that all nodes are balanced
-//            checkBalance();
+            //            checkBalance();
             
             //! 2 - Update quadrature points
             updateQuadraturePoints();
@@ -310,10 +310,10 @@ namespace model
 #endif
             
             computeNodaVelocities();
-
+            
             
             //! 4- Solve the equation of motion
-
+            
             
             //! 5- Compute time step dt (based on max nodal velocity) and increment totalTime
             // make_dt();
@@ -330,7 +330,7 @@ namespace model
             
             //! 7- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
             move(dt);
-
+            
             //! 8- Update accumulated quantities (totalTime and plasticDistortion)
             totalTime+=dt;
             computePlasticDistortionRate();
@@ -338,40 +338,41 @@ namespace model
             
             
             //! 9- Contract segments of zero-length
-//            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
+            //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
             
             //! 10- Cross Slip (needs upated PK force)
-//            DislocationCrossSlip<DislocationNetworkType>(*this);
-
+            //            DislocationCrossSlip<DislocationNetworkType>(*this);
             
-//            GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
-//            
-//            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
-
-//            shared.poly.reConnectGrainBoundarySegments(*this); // this makes stressGauss invalid, so must follw other GB operations
-
+            
+            //            GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
+            //
+            //            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
+            
+            //            shared.poly.reConnectGrainBoundarySegments(*this); // this makes stressGauss invalid, so must follw other GB operations
+            
             
             //! 11- detect loops that shrink to zero and expand as inverted loops
-//            DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
+            //            DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
             
             //! 12- Form Junctions
             formJunctions();
             
-//            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
-//            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
+            //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
+            //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
             
             //! 13- Node redistribution
-//            remesh();
+            DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(runID);
+            //remesh();
             
             //! 9- Contract segments of zero-length
-//            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
+            //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
             
             //! 14- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
-//            removeBoundarySegments();
-
-//            removeSmallComponents(3.0*dx,4);
+            //            removeBoundarySegments();
             
-//            make_bndNormals();
+            //            removeSmallComponents(3.0*dx,4);
+            
+            //            make_bndNormals();
             
             //! 16 - Increment runID counter
             ++runID;     // increment the runID counter
@@ -386,67 +387,67 @@ namespace model
             }
         }
         
-//        /**********************************************************************/
-//        void removeBoundarySegments()
-//        {/*! Removes DislocationSegment(s) on the mesh boundary
-//          */
-//            if (shared.use_boundary && !shared.use_bvp)
-//            {
-//                const auto t0= std::chrono::system_clock::now();
-//                model::cout<<"		Removing DislocationSegments on mesh boundary... ";
-//                typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
-//                link_member_function_pointer_type boundarySegment_Lmfp;
-//                boundarySegment_Lmfp=&LinkType::is_boundarySegment;
-//                this->template disconnect_if<1>(boundarySegment_Lmfp);
-//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-//            }
-//        }
+        //        /**********************************************************************/
+        //        void removeBoundarySegments()
+        //        {/*! Removes DislocationSegment(s) on the mesh boundary
+        //          */
+        //            if (shared.use_boundary && !shared.use_bvp)
+        //            {
+        //                const auto t0= std::chrono::system_clock::now();
+        //                model::cout<<"		Removing DislocationSegments on mesh boundary... ";
+        //                typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
+        //                link_member_function_pointer_type boundarySegment_Lmfp;
+        //                boundarySegment_Lmfp=&LinkType::is_boundarySegment;
+        //                this->template disconnect_if<1>(boundarySegment_Lmfp);
+        //                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+        //            }
+        //        }
         
-//        /**********************************************************************/
-//        /**********************************************************************/
-//        void removeSmallComponents(const double& smallcritvalue,
-//                                   const size_t& maxNodeSize)
-//        {
-//            const auto t0= std::chrono::system_clock::now();
-//            model::cout<<"        removeSmallComponents "<<std::flush;
-//            size_t removed=0;
-//            std::deque<int> nodesToBeRemoved;
-//            for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
-//            {
-//                if (DislocationNetworkComponentType(*snIter->second).isSmall(smallcritvalue,maxNodeSize))
-//                {
-//                    const auto nodes=DislocationNetworkComponentType(*snIter->second).networkComponent().nodes();
-//                    for(const auto& node : nodes)
-//                    {
-//                        if(this->node(node.first).first)
-//                        {
-//                            nodesToBeRemoved.push_back(node.first);
-//                        }
-//                    }
-//                }
-//            }
-//            for(int k:nodesToBeRemoved)
-//            {
-//                this->template removeVertex<false>(k);
-//                removed++;
-//                //
-//                //                model::cout<<"  node "<<K<<" is deleted!!!!"<<std::endl;
-//            }
-//            model::cout<<std::setprecision(3)<<std::scientific<<removed<<" removed) "<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-//        }
+        //        /**********************************************************************/
+        //        /**********************************************************************/
+        //        void removeSmallComponents(const double& smallcritvalue,
+        //                                   const size_t& maxNodeSize)
+        //        {
+        //            const auto t0= std::chrono::system_clock::now();
+        //            model::cout<<"        removeSmallComponents "<<std::flush;
+        //            size_t removed=0;
+        //            std::deque<int> nodesToBeRemoved;
+        //            for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
+        //            {
+        //                if (DislocationNetworkComponentType(*snIter->second).isSmall(smallcritvalue,maxNodeSize))
+        //                {
+        //                    const auto nodes=DislocationNetworkComponentType(*snIter->second).networkComponent().nodes();
+        //                    for(const auto& node : nodes)
+        //                    {
+        //                        if(this->node(node.first).first)
+        //                        {
+        //                            nodesToBeRemoved.push_back(node.first);
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //            for(int k:nodesToBeRemoved)
+        //            {
+        //                this->template removeVertex<false>(k);
+        //                removed++;
+        //                //
+        //                //                model::cout<<"  node "<<K<<" is deleted!!!!"<<std::endl;
+        //            }
+        //            model::cout<<std::setprecision(3)<<std::scientific<<removed<<" removed) "<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+        //        }
         
-//            for(const auto& segment : this->links())
-//            {
-//            if(segment.second.is_boundarySegment())
-//            {
-//                const LatticeVector<dim>& b(segment.second.flow);
-//                const VectorDimD P0(some position here);
-//                const VectorDimD P1(some position here);
-//                const size_t nodeID0(DN.insertVertex(P0).first->first);
-//                const size_t nodeID1(DN.insertVertex(P1).first->first);
-//                this->connect(nodeID0,nodeID1,b);
-//            }
-//            }
+        //            for(const auto& segment : this->links())
+        //            {
+        //            if(segment.second.is_boundarySegment())
+        //            {
+        //                const LatticeVector<dim>& b(segment.second.flow);
+        //                const VectorDimD P0(some position here);
+        //                const VectorDimD P1(some position here);
+        //                const size_t nodeID0(DN.insertVertex(P0).first->first);
+        //                const size_t nodeID1(DN.insertVertex(P1).first->first);
+        //                this->connect(nodeID0,nodeID1,b);
+        //            }
+        //            }
         
         
         
@@ -457,8 +458,8 @@ namespace model
         
         //! The number of simulation steps taken by the next call to runSteps()
         
-//        //! The simulation time run run foby the next call to runTime()
-//        double timeWindow;
+        //        //! The simulation time run run foby the next call to runTime()
+        //        double timeWindow;
         
         //! The accumulated plastic distortion
         
@@ -466,17 +467,17 @@ namespace model
         DislocationNetwork(int& argc, char* argv[]) :
         /* init list  */ timeIntegrationMethod(0),
         /* init list  */ check_balance(true),
-        /* init list  */ use_redistribution(0),
+//        /* init list  */ use_redistribution(0),
         /* init list  */ use_junctions(false),
         //		/* init list  */ useImplicitTimeIntegration(false),
-//        /* init list  */ shearWaveSpeedFraction(0.0001),
+        //        /* init list  */ shearWaveSpeedFraction(0.0001),
         /* init list  */ runID(0),
         /* init list  */ totalTime(0.0),
-//        /* init list  */ dx(0.0),
+        //        /* init list  */ dx(0.0),
         /* init list  */ dt(0.0),
         /* init list  */ vMax(0.0),
         /* init list  */ Nsteps(0),
-//        /* init list  */ timeWindow(0.0),
+        //        /* init list  */ timeWindow(0.0),
         /* init list  */ _plasticDistortion(MatrixDimD::Zero()),
         /* init list  */ _plasticDistortionRate(MatrixDimD::Zero())
         {
@@ -487,10 +488,10 @@ namespace model
         /**********************************************************************/
         ~DislocationNetwork()
         {
-//            for(auto& linkIter : this->links())
-//            {
-//                linkIter.second->quadratureParticleContainer.clear();
-//            }
+            //            for(auto& linkIter : this->links())
+            //            {
+            //                linkIter.second->quadratureParticleContainer.clear();
+            //            }
             
             this->clearParticles();
         }
@@ -503,17 +504,17 @@ namespace model
         }
         
         
-        /**********************************************************************/
-        void remesh()
-        {
-            if (use_redistribution)
-            {
-                if(!(runID%use_redistribution))
-                {
-                    DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
-                }
-            }
-        }
+        //        /**********************************************************************/
+        //        void remesh()
+        //        {
+        //            if (use_redistribution)
+        //            {
+        //                if(!(runID%use_redistribution))
+        //                {
+        //                    DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
+        //                }
+        //            }
+        //        }
         
         /**********************************************************************/
         const double& get_dt() const
@@ -524,7 +525,7 @@ namespace model
         
         /**********************************************************************/
         void set_dt(const double& dt_in,const double& vMax_in)
-        {/*!\param[in] dt_in 
+        {/*!\param[in] dt_in
           * Sets the time increment dt to dt_in
           */
             dt=dt_in;
@@ -593,9 +594,9 @@ namespace model
             unsigned int materialZ;
             EDR.readScalarInFile(fullName.str(),"material",materialZ); // material by atomic number Z
             Material<Isotropic>::select(materialZ);
-//            MatrixDimD C2Gtemp;
-//            EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
-//            Material<Isotropic>::rotateCrystal(C2Gtemp);
+            //            MatrixDimD C2Gtemp;
+            //            EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
+            //            Material<Isotropic>::rotateCrystal(C2Gtemp);
             
             // quadPerLength
             EDR.readScalarInFile(fullName.str(),"quadPerLength",LinkType::quadPerLength); // quadPerLength
@@ -628,7 +629,7 @@ namespace model
             
             // Restart
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
-//            VertexReader<'F',201,double> vReader;
+            //            VertexReader<'F',201,double> vReader;
             IDreader<'F',1,200,double> vReader;
             Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
             
@@ -698,7 +699,7 @@ namespace model
             model::cout<<"plasticDistortion=\n "<<_plasticDistortion<<std::endl;
             
             // time-stepping
-
+            
             EDR.readScalarInFile(fullName.str(),"bndDistance",NodeType::bndDistance);
             //            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
             EDR.readScalarInFile(fullName.str(),"use_directSolver_DD",DislocationNetworkComponentType::use_directSolver);
@@ -707,18 +708,18 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
             assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
             
-//            EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
-//            assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
+            //            EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
+            //            assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
             
             // Check balance
             EDR.readScalarInFile(fullName.str(),"check_balance",check_balance);
             
             // JUNCTION FORMATION
             EDR.readScalarInFile(fullName.str(),"use_junctions",use_junctions);
-//            EDR.readScalarInFile(fullName.str(),"collisionTol",DislocationJunctionFormation<DislocationNetworkType>::collisionTol);
+            //            EDR.readScalarInFile(fullName.str(),"collisionTol",DislocationJunctionFormation<DislocationNetworkType>::collisionTol);
             
             // VERTEX REDISTRIBUTION
-            EDR.readScalarInFile(fullName.str(),"use_redistribution",use_redistribution);
+            EDR.readScalarInFile(fullName.str(),"use_redistribution",DislocationNetworkRemesh<DislocationNetworkType>::use_redistribution);
             EDR.readScalarInFile(fullName.str(),"Lmin",DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*DDtimeIntegrator<0>::dxMax && "YOU MUST CHOOSE Lmin>2*dxMax.");
@@ -726,20 +727,20 @@ namespace model
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             
             // Cross-Slip
-//            EDR.readScalarInFile(fullName.str(),"use_crossSlip",DislocationCrossSlip<DislocationNetworkType>::use_crossSlip);
-//            if(DislocationCrossSlip<DislocationNetworkType>::use_crossSlip)
-//            {
-//                EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
-//                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
-//                //                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
-//                //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
-//            }
+            //            EDR.readScalarInFile(fullName.str(),"use_crossSlip",DislocationCrossSlip<DislocationNetworkType>::use_crossSlip);
+            //            if(DislocationCrossSlip<DislocationNetworkType>::use_crossSlip)
+            //            {
+            //                EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
+            //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
+            //                //                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
+            //                //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
+            //            }
             
             // Mesh and BVP
             EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
             if (shared.use_boundary)
             {
-//                EDR.readScalarInFile(fullName.str(),"use_meshRegions",shared.use_meshRegions);
+                //                EDR.readScalarInFile(fullName.str(),"use_meshRegions",shared.use_meshRegions);
                 
                 int meshID(0);
                 EDR.readScalarInFile(fullName.str(),"meshID",meshID);
@@ -768,10 +769,10 @@ namespace model
             }
             
             // Grain Boundary flags
-//            EDR.readScalarInFile(fullName.str(),"use_GBdissociation",GrainBoundaryDissociation<DislocationNetworkType>::use_GBdissociation);
-//            EDR.readScalarInFile(fullName.str(),"use_GBtransmission",GrainBoundaryTransmission<DislocationNetworkType>::use_GBtransmission);
-//            EDR.readScalarInFile(fullName.str(),"use_GBdislocations",GrainBoundary<dim>::use_GBdislocations);
-
+            //            EDR.readScalarInFile(fullName.str(),"use_GBdissociation",GrainBoundaryDissociation<DislocationNetworkType>::use_GBdissociation);
+            //            EDR.readScalarInFile(fullName.str(),"use_GBtransmission",GrainBoundaryTransmission<DislocationNetworkType>::use_GBtransmission);
+            //            EDR.readScalarInFile(fullName.str(),"use_GBdislocations",GrainBoundary<dim>::use_GBdislocations);
+            
             // Read Vertex and Edge information
             DislocationNetworkIO<DislocationNetworkType>::readVertices(*this,runID); // this requires mesh to be up-to-date
             DislocationNetworkIO<DislocationNetworkType>::readEdges(*this,runID);    // this requires mesh to be up-to-date
@@ -931,34 +932,34 @@ namespace model
             updateQuadraturePoints(); // necessary if quadrature data are necessary in main
             model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
         }
-                
-//        /**********************************************************************/
-//        void checkBalance() const
-//        {/*! Checks that each DislocationNode is balanced, and asserts otherwise
-//          * Exceptions are nodes with only one neighbors (FR source)
-//          * and nodes on the boundary.
-//          */
-//            if(check_balance)
-//            {
-//                model::cout<<"		Checking node balance..."<<std::flush;
-//                const auto t0= std::chrono::system_clock::now();
-//                for (const auto& nodeIter : this->nodes())
-//                {
-//                    if (nodeIter.second->neighbors().size()>2)
-//                    {
-//                        const bool nodeIsBalanced(nodeIter.second->is_balanced());
-//                        if (!nodeIsBalanced && nodeIter.second->meshLocation()==insideMesh)
-//                        {
-//                            model::cout<<"Node "<<nodeIter.second->sID<<" is not balanced:"<<std::endl;
-////                            model::cout<<"    outflow="<<nodeIter.second->outFlow().transpose()<<std::endl;
-////                            model::cout<<"     inflow="<<nodeIter.second->inFlow().transpose()<<std::endl;
-//                            assert(0 && "NODE IS NOT BALANCED");
-//                        }
-//                    }
-//                }
-//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-//            }
-//        }
+        
+        //        /**********************************************************************/
+        //        void checkBalance() const
+        //        {/*! Checks that each DislocationNode is balanced, and asserts otherwise
+        //          * Exceptions are nodes with only one neighbors (FR source)
+        //          * and nodes on the boundary.
+        //          */
+        //            if(check_balance)
+        //            {
+        //                model::cout<<"		Checking node balance..."<<std::flush;
+        //                const auto t0= std::chrono::system_clock::now();
+        //                for (const auto& nodeIter : this->nodes())
+        //                {
+        //                    if (nodeIter.second->neighbors().size()>2)
+        //                    {
+        //                        const bool nodeIsBalanced(nodeIter.second->is_balanced());
+        //                        if (!nodeIsBalanced && nodeIter.second->meshLocation()==insideMesh)
+        //                        {
+        //                            model::cout<<"Node "<<nodeIter.second->sID<<" is not balanced:"<<std::endl;
+        ////                            model::cout<<"    outflow="<<nodeIter.second->outFlow().transpose()<<std::endl;
+        ////                            model::cout<<"     inflow="<<nodeIter.second->inFlow().transpose()<<std::endl;
+        //                            assert(0 && "NODE IS NOT BALANCED");
+        //                        }
+        //                    }
+        //                }
+        //                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+        //            }
+        //        }
         
         
         /**********************************************************************/
@@ -1036,12 +1037,12 @@ namespace model
             return runID;
         }
         
-//        /**********************************************************************/
-//        const double& vMax() const
-//        {/*! The maximum vertex velocity.
-//          */
-//            return vmax;
-//        }
+        //        /**********************************************************************/
+        //        const double& vMax() const
+        //        {/*! The maximum vertex velocity.
+        //          */
+        //            return vmax;
+        //        }
         
         /**********************************************************************/
         MatrixDimD stress(const VectorDimD& P) const
@@ -1081,29 +1082,29 @@ namespace model
             return *this;
         }
         
-//            /**********************************************************************/
-//            template <typename FEMfunctionType,typename ...Args>
-//            void femIntegralLoop(FEMfunctionType& femObj,const Args&... args) const
-//            {
-//                for (const auto& segment : this->links())
-//                {
-//                    const Simplex<dim,dim>* guess=segment.second.source->includingSimplex();
-//                    for (size_t k=0;k<segment.second.qOrder;++k)
-//                    {
-//                        const auto& x=segment.second.rgauss.col(k);
-//                        
-//                        std::pair<bool,const ElementType*> elem=DN.bvpSolver.fe2().searcWithGuess(x,guess);
-//                        
-//                        if(elem.first)
-//                        {
-//                            guess=&elem.second->simplex;
-//                            
-//                            const Eigen::Matrix<int,1,dim+1> bary=elem.second->simplex.pos2bary(x);
-//                            femObj(segment.second,k,elem.second,bary,args...);
-//                        }
-//                    }
-//                }
-//            }
+        //            /**********************************************************************/
+        //            template <typename FEMfunctionType,typename ...Args>
+        //            void femIntegralLoop(FEMfunctionType& femObj,const Args&... args) const
+        //            {
+        //                for (const auto& segment : this->links())
+        //                {
+        //                    const Simplex<dim,dim>* guess=segment.second.source->includingSimplex();
+        //                    for (size_t k=0;k<segment.second.qOrder;++k)
+        //                    {
+        //                        const auto& x=segment.second.rgauss.col(k);
+        //                        
+        //                        std::pair<bool,const ElementType*> elem=DN.bvpSolver.fe2().searcWithGuess(x,guess);
+        //                        
+        //                        if(elem.first)
+        //                        {
+        //                            guess=&elem.second->simplex;
+        //                            
+        //                            const Eigen::Matrix<int,1,dim+1> bary=elem.second->simplex.pos2bary(x);
+        //                            femObj(segment.second,k,elem.second,bary,args...);
+        //                        }
+        //                    }
+        //                }
+        //            }
     };
     
 } // namespace model

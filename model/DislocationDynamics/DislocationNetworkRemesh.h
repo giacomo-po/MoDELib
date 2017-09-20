@@ -51,7 +51,8 @@ namespace model
         static double Lmin;
         static double thetaDeg;
         static double neighborRadius;
-        
+        static short unsigned int use_redistribution;
+
         /**********************************************************************/
         DislocationNetworkRemesh(DislocationNetworkType& DN_in) :
         /* init list */ DN(DN_in)
@@ -60,22 +61,29 @@ namespace model
         
         
         /**********************************************************************/
-        void remesh()
+        void remesh(const long int& runID)
         {/*! Performs remeshByContraction and then remeshByExpansion.
           * This order guarantees that 2-vertex NetworkComponents are expanded.
           */
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Remeshing network... "<<std::flush;
-            //            remeshByContraction();
-            remeshByExpansion();
-            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+            if (use_redistribution)
+            {
+                if(!(runID%use_redistribution))
+                {
+                    //            remeshByContraction();
+                    remeshByExpansion();
+
+                }
+            }
         }
         
         /**********************************************************************/
         void remeshByContraction()
         {/*! Contract edges according to two criteria.
           */
-            model::cout<<"contracting..."<<std::flush;
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"		remeshing network: contracting... "<<std::flush;
+
+//            model::cout<<"contracting..."<<std::flush;
             
             const double vTolcont=0.0;
             
@@ -154,13 +162,17 @@ namespace model
                 }
             }
             model::cout<<" ("<<Ncontracted<<" contracted)"<<std::flush;
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             
         }
         
         /**********************************************************************/
         void remeshByExpansion()
         {
-            model::cout<<"expanding..."<<std::flush;
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"		remeshing network: expanding... "<<std::flush;
+
+//            model::cout<<"expanding..."<<std::flush;
             
             double cos_theta_max_crit = std::cos(M_PI-thetaDeg*M_PI/180.0);  /*critical angle */
             std::set<std::pair<size_t,size_t> > toBeExpanded;
@@ -260,9 +272,11 @@ namespace model
                 const IsConstNetworkLinkType Lij(DN.link(i,j));
                 if(Lij.first)
                 {
-                    //std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
+//                    std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
                     //VectorDimD expandPoint(Lij.second->get_r(expand_at));
-                    LatticeVectorType expandPoint(Lij.second->glidePlane->snapToLattice(Lij.second->get_r(expand_at)));
+                    VectorDimD expandPoint(Lij.second->get_r(expand_at));
+
+                    //                    LatticeVectorType expandPoint(Lij.second->glidePlane->snapToLattice(Lij.second->get_r(expand_at)));
 //                    auto simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
 //                    if(Lij.second->isSessile())
 //                    {
@@ -300,12 +314,13 @@ namespace model
                     
                     
                     
-                    if(  (expandPoint-DN.node(i).second->get_L()).squaredNorm()
-                       &&(expandPoint-DN.node(j).second->get_L()).squaredNorm() )
+                    if(  (expandPoint-DN.node(i).second->get_P()).squaredNorm()
+                       &&(expandPoint-DN.node(j).second->get_P()).squaredNorm() )
                     {
 //                        if(simplexCheckPair.first)
 //                        {
 //                            //                        DN.expand(i,j,expandPoint);
+                        std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
                             DN.expand(i,j,expandPoint);
                             Nexpanded++;
 //                        }
@@ -313,6 +328,8 @@ namespace model
                 }
             }
             model::cout<<" ("<<Nexpanded<<" expanded)"<<std::flush;
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+
         }
         
         /**********************************************************************/
@@ -395,7 +412,10 @@ namespace model
     
     template <typename DislocationNetworkType>
     double DislocationNetworkRemesh<DislocationNetworkType>::neighborRadius=0.001;
-    
+
+    template <typename DislocationNetworkType>
+    short unsigned int DislocationNetworkRemesh<DislocationNetworkType>::use_redistribution=1;
+
 } // namespace model
 #endif
 

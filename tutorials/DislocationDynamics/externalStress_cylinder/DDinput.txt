@@ -90,8 +90,8 @@ use_EnergyMultipole = 0;
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
-Lmax=500;
-Lmin=50;
+Lmax=50;
+Lmin=20;
 
 ######################################
 # DISLOCATION JUNCTIONS

@@ -109,7 +109,7 @@ namespace model
 				
 				success=true;
 				
-                std::cout<<" ("<<this->size()<<" edges) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
+                std::cout<<" ("<<this->size()<<" entries) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
 			}
 			else
             {

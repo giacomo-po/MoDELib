@@ -45,6 +45,17 @@ namespace model
         const GlidePlaneType& glidePlane;
         const bool isGlissile;
         
+        
+        /**********************************************************************/
+        static bool allowedSlipSystem(const LatticeVector<dim>& b,
+                                      const ReciprocalLatticeDirection<dim>& n,
+                                      const Grain<dim>& gr)
+        {
+        
+            std::cout<<"DislocationLoop::FINISH HERE. ANOTHER CONDITION FOR isGlissile SHOULD BE THAT N IS ONE OF THE ALLOWED SLIP PLANES"<<std::endl;
+
+            return true;
+        }
 
         
         /**********************************************************************/
@@ -57,8 +68,10 @@ namespace model
         /*      init */ grain(dn->shared.poly.grain(grainID)),
         /*      init */ _glidePlane(GlidePlaneObserverType::sharedGlidePlane(dn->shared.mesh,grain,P,N)),
         /*      init */ glidePlane(*_glidePlane.get()),
-        /*      init */ isGlissile(this->flow().dot(glidePlane.n)==0)
-        {            
+        /*      init */ isGlissile(this->flow().dot(glidePlane.n)==0 && allowedSlipSystem(this->flow(),glidePlane.n,grain))
+        {
+            model::cout<<"Creating DislocationLoop "<<this->sID<<std::endl;
+            
             _glidePlane->addLoop(this);
         }
         

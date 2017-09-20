@@ -14,11 +14,12 @@
 
 namespace model
 {
+//    template <int dim>
     class LatticePlane
     {
-        
-        typedef Eigen::Matrix<double,3,1> VectorDimD;
-        typedef LatticeVector<3>    LatticeVectorType;
+        static constexpr int dim=3;
+        typedef Eigen::Matrix<double,dim,1> VectorDimD;
+        typedef LatticeVector<dim>    LatticeVectorType;
         
        
     public:
@@ -32,36 +33,16 @@ namespace model
         /* init */ n(n_in)
         {
             assert(&P.lattice==&n.lattice && "LatticeVectors have different bases.");
-//            assert(&P.covBasis==&n.covBasis && "LatticeVectors have different bases.");
-//            assert(&P.contraBasis==&n.contraBasis && "LatticeVectors have different bases.");
         }
         
-//        const LatticeVectorType& origin() const
-//        {
-//            return P;
-//        }
-//
-//        const LatticePlaneBase& normal() const
-//        {
-//            return n;
-//        }
-
-        
-//        /**********************************************************************/
-//        Eigen::Matrix<double,3,1> snapToLattice(const Eigen::Matrix<double,3,1>& P0) const
-//        {
-//            return P.cartesian()+n.snapToLattice(P0-P.cartesian());
-//        }
-        
-        
         /**********************************************************************/
-        LatticeVectorType snapToLattice(const Eigen::Matrix<double,3,1>& P0) const
+        LatticeVectorType snapToLattice(const VectorDimD& P0) const
         {
             return P+n.snapToLattice(P0-P.cartesian());
         }
         
         /**********************************************************************/
-        VectorDimD snapToPlane(const Eigen::Matrix<double,3,1>& P0) const
+        VectorDimD snapToPlane(const VectorDimD& P0) const
         {
             return P.cartesian()+n.snapToPlane(P0-P.cartesian());
         }
@@ -70,8 +51,6 @@ namespace model
         bool contains(const LatticeVectorType& L) const
         {
             assert(&P.lattice==&L.lattice && "LatticeVectors have different bases.");
-//            assert(&P.covBasis==&L.covBasis && "LatticeVectors have different bases.");
-//            assert(&P.contraBasis==&L.contraBasis && "LatticeVectors have different bases.");
             return (L-P).dot(n)==0;
         }
         

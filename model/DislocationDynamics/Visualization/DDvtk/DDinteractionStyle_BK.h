@@ -25,10 +25,11 @@
 
 //#include <model/IO/VertexReader.h>
 //#include <model/IO/EdgeReader.h>
-#include <model/DislocationDynamics/Visualization/vtk/DislocationSegmentActor.h>
+#include <model/DislocationDynamics/Visualization/DDvtk/DislocationSegmentActor.h>
 //#include <model/DislocationDynamics/Visualization/vtk/DislocationActors.h>
-#include <model/DislocationDynamics/Visualization/vtk/PKActor.h>
-#include <model/DislocationDynamics/Visualization/vtk/GlidePlaneActor.h>
+#include <model/DislocationDynamics/Visualization/DDvtk/PKActor.h>
+#include <model/DislocationDynamics/Visualization/DDvtk/GlidePlaneActor.h>
+#include <model/Utilities/TerminalColors.h>
 
 
 
@@ -60,14 +61,22 @@ namespace model
         
         std::string selectedKey;
         bool saveImage=false;
-        long int frameID;
+//        long int frameID;
         long int frameIncrement;
         long int currentFrameID;
         vtkActor    *LastPickedActor;
         vtkProperty *LastPickedProperty;
         
+    public:
+
+        static DDinteractionStyle* New();
+        vtkTypeMacro(DDinteractionStyle, vtkInteractorStyleTrackballCamera);
+        
+        SimplicialMeshActor meshActor;
+
+        
         /*************************************************************************/
-        void loadFrame()
+        void loadFrame(const long int& frameID)
         {
             
             if(   currentFrameID!=frameID
@@ -76,7 +85,7 @@ namespace model
                )
             {
                 currentFrameID=frameID;
-                std::cout<<"loading frame "<<currentFrameID<<std::endl;
+                std::cout<<greenBoldColor<<"Loading frame "<<currentFrameID<<defaultColor<<std::endl;
                 
                 vtkRenderWindowInteractor *rwi = this->Interactor;
                 
@@ -151,17 +160,12 @@ namespace model
             else
             {
                 std::cout<<"frame "<<frameID<<" not found. Reverting to "<<currentFrameID<<std::endl;
-                frameID=currentFrameID; // frameID is not a valid ID, return to last read
+//                frameID=currentFrameID; // frameID is not a valid ID, return to last read
             }
             
         }
         
         
-    public:
-        static DDinteractionStyle* New();
-        vtkTypeMacro(DDinteractionStyle, vtkInteractorStyleTrackballCamera);
-        
-        SimplicialMeshActor meshActor;
         
         
         /*************************************************************************/
@@ -169,9 +173,9 @@ namespace model
         /* init list   */ xCol(0),
         /* init list   */ yCol(0),
         /* init list   */ winFrac(0.5),
-        /* init list   */ frameID(0),
+//        /* init list   */ frameID(0),
         /* init list   */ frameIncrement(1),
-        /* init list   */ currentFrameID(0)
+        /* init list   */ currentFrameID(-1)
         {
             LastPickedActor = NULL;
             LastPickedProperty = vtkProperty::New();
@@ -239,14 +243,14 @@ namespace model
             // Handle an arrow key
             if(key == "Up")
             {
-                frameID-=frameIncrement;
-                loadFrame();
+//                frameID-=frameIncrement;
+                loadFrame(currentFrameID-frameIncrement);
             }
             
             if(key == "Down")
             {
-                frameID+=frameIncrement;
-                loadFrame();
+//                frameID+=frameIncrement;
+                loadFrame(currentFrameID+frameIncrement);
             }
             
             if(key == "Right")
@@ -308,8 +312,9 @@ namespace model
             if(key == "l")
             {
                 std::cout<<"Enter frame# to load:"<<std::endl;
+                long int frameID(0);
                 std::cin>>frameID;
-                loadFrame();
+                loadFrame(frameID);
             }
             
             if(key == "m")

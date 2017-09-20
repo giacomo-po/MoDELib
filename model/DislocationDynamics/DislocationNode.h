@@ -35,6 +35,7 @@
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/Geometry/SegmentSegmentIntersection.h>
+#include <model/Geometry/LineSegmentIntersection.h>
 
 
 namespace model
@@ -97,8 +98,9 @@ namespace model
         
         VectorDim C;
         
-        BoundingSegmentsType _boundingSegments;
-        
+        BoundingSegmentsType _boundingBoxSegments;
+//        BoundingSegmentsType _glidePlaneIntersectionSegments;
+        VectorDim boxCenter;
         
         /**********************************************************************/
         VectorDim snapToBoundingBox(const VectorDim& P)
@@ -106,7 +108,7 @@ namespace model
             
             std::map<double,VectorDim> snapMap;
             
-            for(const auto& vertexPair : _boundingSegments)
+            for(const auto& vertexPair : _boundingBoxSegments)
             {
                 const VectorDim segm(vertexPair.second-vertexPair.first);
                 const double segmNorm2(segm.squaredNorm());
@@ -268,9 +270,9 @@ namespace model
         
         /**********************************************************************/
         DislocationNode(const LinkType& pL,
-                        const LatticeVectorType& Lin) :
+                        const VectorDim& Pin) :
         //        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
-        /* base constructor */ NodeBaseType(Lin.cartesian()),
+        /* base constructor */ NodeBaseType(Pin),
         //        /* init list        */ grain(pL.grain),
         //        /* init list        */ L(Lin),
         /* init list        */ _isGlissile(true),
@@ -288,35 +290,35 @@ namespace model
         C(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
           */
-            //            std::cout<<"DislocationNode from ExpadingLink A "<<this->sID<<std::endl;
-            forceBoundaryNode(pL);
+                        std::cout<<"DislocationNode from ExpadingLink A "<<this->sID<<std::endl;
+            //forceBoundaryNode(pL);
             //            assert(0 && "Initialize C");
         }
         
-        /**********************************************************************/
-        DislocationNode(const LinkType& pL,
-                        const LatticeVectorType& Lin,
-                        const VectorDofType& Vin) :
-        //        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
-        /* base constructor */ NodeBaseType(Lin.cartesian()),
-        //        /* init list        */ grain(pL.grain),
-        //        /* init list        */ L(Lin),
-        /* init list        */ _isGlissile(true),
-        /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
-        /* init list        */ velocity(Vin),
-        /* init list        */ vOld(velocity),
-        /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
-        //        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
-        //        /* init list        */ regionBndNormal(VectorDim::Zero())
-        //        oldP(this->get_P()),
-        //        A1(this->get_P()),
-        //        A2(this->get_P())
-        C(this->get_P())
-        {
-            //            std::cout<<"DislocationNode from ExpadingLink B "<<this->sID<<std::endl;
-            forceBoundaryNode(pL);
-        }
+//        /**********************************************************************/
+//        DislocationNode(const LinkType& pL,
+//                        const LatticeVectorType& Lin,
+//                        const VectorDofType& Vin) :
+//        //        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
+//        /* base constructor */ NodeBaseType(Lin.cartesian()),
+//        //        /* init list        */ grain(pL.grain),
+//        //        /* init list        */ L(Lin),
+//        /* init list        */ _isGlissile(true),
+//        /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
+//        /* init list        */ velocity(Vin),
+//        /* init list        */ vOld(velocity),
+//        /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
+//        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
+//        //        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
+//        //        /* init list        */ regionBndNormal(VectorDim::Zero())
+//        //        oldP(this->get_P()),
+//        //        A1(this->get_P()),
+//        //        A2(this->get_P())
+//        C(this->get_P())
+//        {
+//            //            std::cout<<"DislocationNode from ExpadingLink B "<<this->sID<<std::endl;
+//            forceBoundaryNode(pL);
+//        }
         
         //        /**********************************************************************/
         //        DislocationNode(const ContractingVertices<NodeType,LinkType>& cv,
@@ -491,18 +493,26 @@ namespace model
           *
           * This functin overrides LoopNode::addLoopLink
           */
+                        std::cout<<"DislocationNode "<<this->sID<<" addLoopLink"<<std::endl;
             NodeBaseType::addLoopLink(pL); // forward to base class
-            
+            _isGlissile*=pL->loop()->isGlissile;
+
             // Insert new plane in _confiningPlanes. If plane already exists nothing will happen
             const bool success=_confiningPlanes.insert(&(pL->loop()->glidePlane)).second;
             if(success)
             {
-                _isGlissile*=pL->loop()->isGlissile;
-                // Update _boundingSegments
-                _boundingSegments=updateBoundingSegments(_boundingSegments,pL->loop()->glidePlane);
-                
-                // Insert new grain in grainSet
-                grainSet.insert(&(pL->loop()->grain));
+                assert(pL->loop()->glidePlane.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
+                _boundingBoxSegments=updateBoundingSegments(_boundingBoxSegments,pL->loop()->glidePlane); // Update _boundingBoxSegments
+                grainSet.insert(&(pL->loop()->grain)); // Insert new grain in grainSet
+            
+                boxCenter.setZero();
+                for(const auto& posPair : _boundingBoxSegments)
+                {
+                    boxCenter+=posPair.first;
+                    boxCenter+=posPair.second;
+                }
+                boxCenter/=(2*_boundingBoxSegments.size());
+            
             }
             
         }
@@ -513,21 +523,36 @@ namespace model
           *
           * This functin overrides LoopNode::removeLoopLink
           */
+            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;
             NodeBaseType::removeLoopLink(pL); // forward to base class
             
             // Re-construct _confiningPlanes and grainSet
             _isGlissile=true;
             _confiningPlanes.clear();
-            _boundingSegments.clear();
+            _boundingBoxSegments.clear();
             grainSet.clear();
             for(const auto& loopLink : this->loopLinks())
             {
+                std::cout<<"loopLink "<<loopLink->source()->sID<<"->"<<loopLink->sink()->sID<<std::endl;
                 _isGlissile*=loopLink->loop()->isGlissile;
-                _confiningPlanes.insert(&(loopLink->loop()->glidePlane));
-                grainSet.insert(&(loopLink->loop()->grain));
-                _boundingSegments=updateBoundingSegments(_boundingSegments,loopLink->loop()->glidePlane);
+                const bool success=_confiningPlanes.insert(&(loopLink->loop()->glidePlane)).second;
+                
+                if(success)
+                {
+                    assert(loopLink->loop()->glidePlane.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
+                    _boundingBoxSegments=updateBoundingSegments(_boundingBoxSegments,loopLink->loop()->glidePlane);
+                    grainSet.insert(&(loopLink->loop()->grain));
+
+                }
             }
             
+            boxCenter.setZero();
+            for(const auto& posPair : _boundingBoxSegments)
+            {
+                boxCenter+=posPair.first;
+                boxCenter+=posPair.second;
+            }
+            boxCenter/=(2*_boundingBoxSegments.size());
         }
         
         
@@ -699,6 +724,11 @@ namespace model
             {
                 p_Simplex=get_includingSimplex(p_Simplex);
                 boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
+                
+                if(boundaryNormal.norm()>FLT_EPSILON)
+                {
+                    std::cout<<"DislocaitonNode "<<this->sID<<" found boundaryNormal"<<std::endl;
+                }
                 //
                 //                make_bndNormal();
             }
@@ -854,10 +884,31 @@ namespace model
                 if(shared.use_boundary) // using confining mesh
                 {
                     
-                    if(_boundingSegments.size()>1)
+                    if(_boundingBoxSegments.size()>1)
                     {
                         
-                        set_P(this->get_P()+dX);
+//                        NO, SINCE IF _boundingBoxSegments.size()>1 WE CAN ONLY HAVE 1 GRAIN, THEN BETTER TO SEARCH THE REGION. IF OUTSIDE, SNAP TO boundingBox.
+//                        AFTER THAT SET A BOOLEAN TO TRUE AND KEEP SNAPPING
+//                        THE BOOLEAN NEEDS TO BE RESET BY ???
+//                        
+//                        const VectorDim newP=this->get_P()+dX;
+//                        const VectorDim D(newP-boxCenter);
+//                        if(D.squaredNorm()<FLT_EPSILON)
+//                        {// defenitely not a boundary node
+//                            set_P(this->get_P()+dX);
+//                        }
+//                        else
+//                        {
+//                            for(const auto& posPair : _boundingBoxSegments)
+//                            {
+//                                LineSegmentIntersection<dim> lsi(boxCenter,D,posPair.first,posPair.second);
+//                            }
+//
+//                        }
+                        
+                        assert(_confiningPlanes.size()==1 && "There should be only one GlidePlane");
+                        set_P(glidePlane(0).snapToPlane(this->get_P()+dX)); // remove numnerical noise from solver
+
 
                         
                         //                    // See if the new position is inside mesh

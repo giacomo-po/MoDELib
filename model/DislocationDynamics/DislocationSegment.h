@@ -493,22 +493,22 @@ namespace model
         //            pkGauss.setZero(dim,qOrder); // necessary if this is not assembled
         //        }
         
-        /* Destructor *********************************************************/
-        ~DislocationSegment()
-        {/*! Destructor
-          */
-            //! Add this to static VirtualBoundarySlipContainer
-            //			if (shared.boundary_type==softBoundary && shared.use_bvp)
-            //            {
-            //				if(is_boundarySegment() && this->chord().norm()>FLT_EPSILON)
-            //                {
-            //                    shared.vbsc.add(*this);
-            //				}
-            //			}
-            //! Removes this from *pGlidePlane
-            //            pGlidePlane->removeFromGlidePlane(this);
-            //            quadratureParticleContainer.clear();
-        }
+//        /* Destructor *********************************************************/
+//        ~DislocationSegment()
+//        {/*! Destructor
+//          */
+//            //! Add this to static VirtualBoundarySlipContainer
+//            //			if (shared.boundary_type==softBoundary && shared.use_bvp)
+//            //            {
+//            //				if(is_boundarySegment() && this->chord().norm()>FLT_EPSILON)
+//            //                {
+//            //                    shared.vbsc.add(*this);
+//            //				}
+//            //			}
+//            //! Removes this from *pGlidePlane
+//            //            pGlidePlane->removeFromGlidePlane(this);
+//            //            quadratureParticleContainer.clear();
+//        }
         
         const VectorDim& burgers() const
         {

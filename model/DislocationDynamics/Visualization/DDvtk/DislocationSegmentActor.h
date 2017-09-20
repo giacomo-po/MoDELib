@@ -312,7 +312,7 @@ namespace model
                     //                    auto& line(*lines.rbegin());
                     vtkSmartPointer<vtkPolyLine> line=vtkSmartPointer<vtkPolyLine>::New();
                     line->GetPointIds()->SetNumberOfIds(Np);
-                    unsigned char clr[3]={0,255,255};
+                    unsigned char clr[3]={51,153,255};
                     //                    unsigned char clr0[3]={255,255,255};
                     
                     colors->InsertNextTypedTuple(clr);
