@@ -110,9 +110,9 @@ namespace model
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ template <short unsigned int, size_t> class QuadratureRule>
     class DislocationNetwork :
-    /* inheritance          */ public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType,QuadratureRule> >,
-    /* inheritance          */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,QuadratureRule> >::LoopType>,
-    /* inheritance          */ public ParticleSystem<DislocationParticle<_dim> >
+    /* base                 */ public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType,QuadratureRule> >,
+    /* base                 */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,QuadratureRule> >::LoopType>,
+    /* base                 */ public ParticleSystem<DislocationParticle<_dim> >
     {
         
     public:

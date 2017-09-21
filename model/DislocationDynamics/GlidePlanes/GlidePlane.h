@@ -42,28 +42,31 @@ namespace model
         typedef typename GlidePlaneObserverType::GlidePlaneKeyType GlidePlaneKeyType;
         typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
 
+        GlidePlaneObserverType* const glidePlaneObserver;
         const Grain<dim>& grain;
         const GlidePlaneKeyType glidePlaneKey;
         const PlaneMeshIntersectionContainerType meshIntersections;
         
         /**********************************************************************/
-        GlidePlane(const SimplicialMesh<dim>& mesh,
+        GlidePlane(GlidePlaneObserverType* const gpo,
+                   const SimplicialMesh<dim>& mesh,
                    const Grain<dim>& grain_in,
                    const VectorDim& P,
                    const VectorDim& N) :
         /* init */ LatticePlane(grain_in.latticeVector(P),grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+        /* init */ glidePlaneObserver(gpo),
         /* init */ grain(grain_in),
         /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain,P,N)),
         /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh).reducedPlaneMeshIntersection(this->P.cartesian(),this->n.cartesian().normalized(),grain.grainID))
         {
             model::cout<<"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;
-            GlidePlaneObserverType::addGlidePlane(this);
+            glidePlaneObserver->addGlidePlane(this);
         }
         
         /**********************************************************************/
         ~GlidePlane()
         {
-            GlidePlaneObserverType::removeGlidePlane(this);
+            glidePlaneObserver->removeGlidePlane(this);
         }
         
         /**********************************************************************/

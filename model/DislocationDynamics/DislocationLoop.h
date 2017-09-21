@@ -66,7 +66,7 @@ namespace model
                         const int& grainID) :
         /* base init */ LoopType(dn,dn->shared.poly.grain(grainID).latticeVector(B)),
         /*      init */ grain(dn->shared.poly.grain(grainID)),
-        /*      init */ _glidePlane(GlidePlaneObserverType::sharedGlidePlane(dn->shared.mesh,grain,P,N)),
+        /*      init */ _glidePlane(dn->sharedGlidePlane(dn->shared.mesh,grain,P,N)),
         /*      init */ glidePlane(*_glidePlane.get()),
         /*      init */ isGlissile(this->flow().dot(glidePlane.n)==0 && allowedSlipSystem(this->flow(),glidePlane.n,grain))
         {

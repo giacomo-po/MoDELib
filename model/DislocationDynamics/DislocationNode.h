@@ -35,7 +35,10 @@
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/Geometry/SegmentSegmentIntersection.h>
-#include <model/Geometry/LineSegmentIntersection.h>
+#include <model/Geometry/PlanePlaneIntersection.h>
+#include <model/Geometry/PlaneLineIntersection.h>
+
+//#include <model/Geometry/LineSegmentIntersection.h>
 
 
 namespace model
@@ -66,9 +69,9 @@ namespace model
         typedef std::deque<LatticePlane> SpecialLatticePlaneContainerType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef LatticeDirection<dim> LatticeDirectionType;
-        typedef 	std::set<VectorDim,
-        /*                */ CompareVectorsByComponent<double,dim,float>,
-        /*                */ Eigen::aligned_allocator<VectorDim> > ConfiningPlaneIntersectionContainerType;
+        //        typedef 	std::set<VectorDim,
+        //        /*                */ CompareVectorsByComponent<double,dim,float>,
+        //        /*                */ Eigen::aligned_allocator<VectorDim> > ConfiningPlaneIntersectionContainerType;
         typedef std::deque<std::pair<VectorDim,VectorDim>,Eigen::aligned_allocator<std::pair<VectorDim,VectorDim>>> BoundingSegmentsType;
         
         static bool use_velocityFilter;
@@ -94,13 +97,13 @@ namespace model
         double velocityReductionCoeff;
         
         //! The normal unit vector of the boundary on which *this DislocationNode is moving on
+        bool _isOnBoundingBox;
         VectorDim boundaryNormal;
         
         VectorDim C;
         
         BoundingSegmentsType _boundingBoxSegments;
-//        BoundingSegmentsType _glidePlaneIntersectionSegments;
-        VectorDim boxCenter;
+        BoundingSegmentsType _glidePlaneIntersections;
         
         /**********************************************************************/
         VectorDim snapToBoundingBox(const VectorDim& P)
@@ -138,16 +141,37 @@ namespace model
         }
         
         /**********************************************************************/
+        VectorDim snapToGlidePlaneIntersection(const VectorDim& P)
+        {
+            
+            switch (_glidePlaneIntersections.size())
+            {
+                case 0:
+                {
+                    assert(_confiningPlanes.size()>0);
+                    return glidePlane(0).snapToPlane(P);
+                    break;
+                }
+                    
+                case 1:
+                {
+                    return _glidePlaneIntersections[0].first+(P-_glidePlaneIntersections[0].first).dot(_glidePlaneIntersections[0].second)*_glidePlaneIntersections[0].second;
+                    break;
+                }
+                    
+                default:
+                {
+                    assert(0 && "THERE CAN BE AT MOST ONE LINE OF INTERSECTION");
+                    return VectorDim::Zero();
+                    break;
+                }
+            }
+            
+        }
+        
+        /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
-            //            if(guess->region->regionID!=grain.grainID)
-            //            {
-            //                model::cout<<"DislocationNode "<<this->sID<<std::endl;
-            //                model::cout<<"grainID "<<grain.grainID<<std::endl;
-            //                model::cout<<"guess= "<<guess->xID<<std::endl;
-            //                model::cout<<"guess regionID "<<guess->region->regionID<<std::endl;
-            //                assert(0 && "guess does not belong to grain.");
-            //            }
             
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
             if (DislocationSharedObjects<dim>::use_boundary)
@@ -160,8 +184,6 @@ namespace model
                 {
                     temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
                 }
-                
-                //                temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
                 
                 if(!temp.first) // DislocationNode not found inside mesh
                 {
@@ -240,6 +262,7 @@ namespace model
         /* init list        */ velocity(Vin),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(vrc),
+        /* init list        */ _isOnBoundingBox(false),
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
         C(Pin)
         //        /* init list        */ grainBoundary_rID2(-1)
@@ -251,22 +274,6 @@ namespace model
           */
             std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
         }
-        
-        //        /**********************************************************************/
-        //        DislocationNode(const LatticeVectorType& Lin,
-        //                        const int& grainID,
-        //                        const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
-        //        /* base constructor */ NodeBaseType(Lin.cartesian()),
-        //        /* init list        */ L(Lin),
-        //        /* init list        */ p_Simplex(get_includingSimplex(guess)),
-        //        /* init list        */ velocity(VectorDofType::Zero()),
-        //        /* init list        */ vOld(velocity),
-        //        /* init list        */ velocityReductionCoeff(1.0),
-        //        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero())
-        //        //        /* init list        */ regionBndNormal(VectorDim::Zero())
-        //        {/*! Constructor from DOF
-        //          */
-        //        }
         
         /**********************************************************************/
         DislocationNode(const LinkType& pL,
@@ -280,6 +287,7 @@ namespace model
         /* init list        */ velocity((pL.source->velocity+pL.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
+        /* init list        */ _isOnBoundingBox(false),
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
         //        otherGrains
         //        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
@@ -290,100 +298,12 @@ namespace model
         C(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
           */
-                        std::cout<<"DislocationNode from ExpadingLink A "<<this->sID<<std::endl;
+//            std::cout<<"DislocationNode from ExpadingLink A "<<this->sID<<std::endl;
             //forceBoundaryNode(pL);
             //            assert(0 && "Initialize C");
         }
         
-//        /**********************************************************************/
-//        DislocationNode(const LinkType& pL,
-//                        const LatticeVectorType& Lin,
-//                        const VectorDofType& Vin) :
-//        //        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
-//        /* base constructor */ NodeBaseType(Lin.cartesian()),
-//        //        /* init list        */ grain(pL.grain),
-//        //        /* init list        */ L(Lin),
-//        /* init list        */ _isGlissile(true),
-//        /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
-//        /* init list        */ velocity(Vin),
-//        /* init list        */ vOld(velocity),
-//        /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
-//        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
-//        //        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
-//        //        /* init list        */ regionBndNormal(VectorDim::Zero())
-//        //        oldP(this->get_P()),
-//        //        A1(this->get_P()),
-//        //        A2(this->get_P())
-//        C(this->get_P())
-//        {
-//            //            std::cout<<"DislocationNode from ExpadingLink B "<<this->sID<<std::endl;
-//            forceBoundaryNode(pL);
-//        }
         
-        //        /**********************************************************************/
-        //        DislocationNode(const ContractingVertices<NodeType,LinkType>& cv,
-        //                        const LatticeVectorType& Lin) :
-        //        /* base constructor */ NodeBaseType(Lin.cartesian()),
-        //        /* init list        */ grain(cv.v0.grain),
-        //        /* init list        */ L(Lin),
-        //        /* init list        */ p_Simplex(get_includingSimplex(cv.v0.includingSimplex())),
-        //        /* init list        */ velocity(0.5*(cv.v0.get_V()+cv.v1.get_V())),
-        //        /* init list        */ vOld(velocity),
-        //        /* init list        */ velocityReductionCoeff(0.5*(cv.v0.velocityReduction()+cv.v1.velocityReduction())),
-        //        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
-        //        /* init list        */ grainBoundary_rID2((cv.v0.grainBoundary_rID2==cv.v1.grainBoundary_rID2 && cv.v1.grainBoundary_rID2>0)? cv.v1.grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
-        //
-        //        //        /* init list        */ regionBndNormal(VectorDim::Zero())
-        //        {/*! Constructor from VertexContraction
-        //          */
-        //
-        //        }
-        
-        //        /**********************************************************************/
-        //        void make_bndNormal()
-        //        {
-        //            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
-        //        }
-        
-        //        /**********************************************************************/
-        //        const LatticeVectorType& get_L() const
-        //        {
-        //            return L;
-        //        }
-        
-        //        /**********************************************************************/
-        //        void set(const LatticeVectorType& Lin)
-        //        {
-        //            L=Lin;
-        //            NodeBaseType::set_P(L.cartesian());
-        //        }
-        
-        //        /**********************************************************************/
-        //		void make_planeNormals()
-        //        {
-        //            //! 1- Clear and re-builds the std::vector planenormals
-        //			planenormals.clear();
-        //			for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
-        //            {
-        //				if (std::get<2>(neighborIter->second))
-        //                {
-        //					LinkType* pL(std::get<1>(neighborIter->second));
-        //					if (std::find(planenormals.begin(),planenormals.end(), pL->glidePlaneNormal )==planenormals.end() &&
-        //						std::find(planenormals.begin(),planenormals.end(),-pL->glidePlaneNormal )==planenormals.end()   )
-        //                    {
-        //						planenormals.push_back(pL->glidePlaneNormal );
-        //					}
-        //					if(pL->sessilePlaneNormal.norm()>FLT_EPSILON)
-        //                    {
-        //						planenormals.push_back(pL->sessilePlaneNormal);
-        //					}
-        //
-        //				}
-        //			}
-        //
-        //			//! 2- Compute projectionMatrix
-        //			make_projectionMatrix();
-        //        }
         
         const GlidePlaneContainerType& confiningPlanes() const
         {
@@ -393,14 +313,79 @@ namespace model
         
         
         
-        
-        
-        
+        /**********************************************************************/
+        void updateGlidePlaneIntersections(const GlidePlaneType& lastGlidePlane)
+        {
+            BoundingSegmentsType temp;
+            
+            switch (_confiningPlanes.size())
+            {
+                case 0:
+                {
+                    assert(0 && "AT LEAST ONE GLIDE PLANE MUST EXIST");
+                    break;
+                }
+                    
+                case 1:
+                {
+                    _glidePlaneIntersections.clear();
+                    break;
+                }
+                    
+                default:
+                {
+                    //const GlidePlaneType* const  lastGlidePlane(_confiningPlanes[_confiningPlanes.size()-1]);
+                    if(_glidePlaneIntersections.size())
+                    {/* some line of intersection already exist (maybe a degenerate point)
+                      * intersect the last plane with the existing line and overwrite the line
+                      */
+                        assert(_glidePlaneIntersections.size()==1 && "THERE CANNOT BE MORE THAN ONE LINE OF INTERSECTION");
+                        PlaneLineIntersection<dim> pli(lastGlidePlane.P.cartesian(),
+                                                       lastGlidePlane.n.cartesian(),
+                                                       _glidePlaneIntersections[0].first,
+                                                       _glidePlaneIntersections[0].second);
+                        
+                        assert(pli.type==PlaneLineIntersection<dim>::COINCIDENT || pli.type==PlaneLineIntersection<dim>::INCIDENT);
+                        _glidePlaneIntersections[0].first=pli.P;
+                        _glidePlaneIntersections[0].second=pli.d;
+                    }
+                    else
+                    {/* No line has been found for the previous planes.
+                      * This means either _confiningPlanes.size()==1, or
+                      * all previous planes are parallel. Intersect last plane
+                      * with first.
+                      */
+                        GlidePlaneObserver<LoopType>* const gpo(glidePlane(0).glidePlaneObserver);
+                        for(const auto& otherGlidePlane : _confiningPlanes)
+                        {
+                            if(otherGlidePlane!=&lastGlidePlane)
+                            {/* compute line of intersection between lastGlidePlane and any
+                              * plane different from lastGlidePlane.
+                              */
+                                const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(otherGlidePlane,&lastGlidePlane));
+                                
+                                if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
+                                {
+                                    _glidePlaneIntersections.emplace_back(ppi.P,ppi.d);
+                                }
+                                break;
+                            }
+                        }
+                        
+                        
+                    }
+                    
+                    break;
+                }
+                    
+            }
+            
+        }
         
         
         /**********************************************************************/
-        BoundingSegmentsType updateBoundingSegments(const BoundingSegmentsType& old,
-                                                    const GlidePlaneType& gp) const
+        static BoundingSegmentsType updateBoundingSegments(const BoundingSegmentsType& old,
+                                                           const GlidePlaneType& gp)
         {
             //model::cout<<"DislocationNode "<<this->sID<<" adding GlidePlane "<<gp.sID<<std::endl;
             
@@ -409,10 +394,6 @@ namespace model
             
             if(old.size())
             {
-                
-                ConfiningPlaneIntersectionContainerType uniquePts;
-                
-                
                 for(const auto& oldPair : old)
                 {
                     const BoundingSegmentsType psi=GlidePlaneObserver<LoopType>::planeSegmentIntersection(gp.P.cartesian(),
@@ -425,7 +406,6 @@ namespace model
                         {
                             const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
                             
-                            
                             SegmentSegmentIntersection<dim> ssi(gp.meshIntersections[k].second,
                                                                 gp.meshIntersections[k1].second,
                                                                 oldPair.first,
@@ -433,44 +413,11 @@ namespace model
                             
                             if(ssi.size)
                             {
-                                uniquePts.insert(ssi.x0);
-                                uniquePts.insert(ssi.x1);
-                                
+                                temp.emplace_back(ssi.x0,ssi.x1);
                             }
-                            
-                            
-                            
                         }
                     }
-                    
                 }
-                
-                switch (uniquePts.size())
-                {
-                    case 1:
-                    {
-                        temp.emplace_back(*uniquePts.begin(),*uniquePts.begin());
-                        break;
-                    }
-                    case 2:
-                    {
-                        temp.emplace_back(*uniquePts.begin(),*uniquePts.rbegin());
-                        break;
-                    }
-                        
-                    default:
-                    {
-                        model::cout<<"DislocationNode "<<this->sID<<" uniquePts.size()="<<uniquePts.size()<<std::endl;
-                        for(const auto& pt : uniquePts)
-                        {
-                            model::cout<<pt.transpose()<<std::endl;
-                        }
-                        assert(0);
-                        break;
-                    }
-                }
-                
-                
             }
             else
             {
@@ -481,10 +428,12 @@ namespace model
                 }
             }
             
-            assert(temp.size()==1 || temp.size()>=3 && "updateBoundingSegments failed");
+//            assert(temp.size()==1 || temp.size()>=3 && "updateBoundingSegments failed");
             return temp;
             
         }
+        
+        
         
         
         /**********************************************************************/
@@ -493,26 +442,27 @@ namespace model
           *
           * This functin overrides LoopNode::addLoopLink
           */
-                        std::cout<<"DislocationNode "<<this->sID<<" addLoopLink"<<std::endl;
+//            std::cout<<"DislocationNode "<<this->sID<<" addLoopLink"<<std::endl;
             NodeBaseType::addLoopLink(pL); // forward to base class
             _isGlissile*=pL->loop()->isGlissile;
-
+            
             // Insert new plane in _confiningPlanes. If plane already exists nothing will happen
             const bool success=_confiningPlanes.insert(&(pL->loop()->glidePlane)).second;
             if(success)
             {
                 assert(pL->loop()->glidePlane.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
+                updateGlidePlaneIntersections(pL->loop()->glidePlane);
                 _boundingBoxSegments=updateBoundingSegments(_boundingBoxSegments,pL->loop()->glidePlane); // Update _boundingBoxSegments
                 grainSet.insert(&(pL->loop()->grain)); // Insert new grain in grainSet
-            
-                boxCenter.setZero();
-                for(const auto& posPair : _boundingBoxSegments)
-                {
-                    boxCenter+=posPair.first;
-                    boxCenter+=posPair.second;
-                }
-                boxCenter/=(2*_boundingBoxSegments.size());
-            
+                
+//                boxCenter.setZero();
+//                for(const auto& posPair : _boundingBoxSegments)
+//                {
+//                    boxCenter+=posPair.first;
+//                    boxCenter+=posPair.second;
+//                }
+//                boxCenter/=(2*_boundingBoxSegments.size());
+                
             }
             
         }
@@ -523,7 +473,7 @@ namespace model
           *
           * This functin overrides LoopNode::removeLoopLink
           */
-            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;
+//            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;
             NodeBaseType::removeLoopLink(pL); // forward to base class
             
             // Re-construct _confiningPlanes and grainSet
@@ -533,26 +483,27 @@ namespace model
             grainSet.clear();
             for(const auto& loopLink : this->loopLinks())
             {
-                std::cout<<"loopLink "<<loopLink->source()->sID<<"->"<<loopLink->sink()->sID<<std::endl;
+//                std::cout<<"loopLink "<<loopLink->source()->sID<<"->"<<loopLink->sink()->sID<<std::endl;
                 _isGlissile*=loopLink->loop()->isGlissile;
                 const bool success=_confiningPlanes.insert(&(loopLink->loop()->glidePlane)).second;
                 
                 if(success)
                 {
                     assert(loopLink->loop()->glidePlane.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
+                    updateGlidePlaneIntersections(loopLink->loop()->glidePlane);
                     _boundingBoxSegments=updateBoundingSegments(_boundingBoxSegments,loopLink->loop()->glidePlane);
                     grainSet.insert(&(loopLink->loop()->grain));
-
+                    
                 }
             }
             
-            boxCenter.setZero();
-            for(const auto& posPair : _boundingBoxSegments)
-            {
-                boxCenter+=posPair.first;
-                boxCenter+=posPair.second;
-            }
-            boxCenter/=(2*_boundingBoxSegments.size());
+//            boxCenter.setZero();
+//            for(const auto& posPair : _boundingBoxSegments)
+//            {
+//                boxCenter+=posPair.first;
+//                boxCenter+=posPair.second;
+//            }
+//            boxCenter/=(2*_boundingBoxSegments.size());
         }
         
         
@@ -575,8 +526,8 @@ namespace model
             else
             {
                 temp.push_back((VectorDim()<<1.0,0.0,0.0).finished());
-                                    temp.push_back((VectorDim()<<0.0,1.0,0.0).finished());
-                                    temp.push_back((VectorDim()<<0.0,0.0,1.0).finished());
+                temp.push_back((VectorDim()<<0.0,1.0,0.0).finished());
+                temp.push_back((VectorDim()<<0.0,0.0,1.0).finished());
             }
             
             return temp;
@@ -724,14 +675,10 @@ namespace model
             {
                 p_Simplex=get_includingSimplex(p_Simplex);
                 boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
-                
-                if(boundaryNormal.norm()>FLT_EPSILON)
-                {
-                    std::cout<<"DislocaitonNode "<<this->sID<<" found boundaryNormal"<<std::endl;
-                }
-                //
-                //                make_bndNormal();
             }
+            
+            make_projectionMatrix();
+            
         }
         
         /**********************************************************************/
@@ -853,93 +800,52 @@ namespace model
                 dX*=dxMax/dXnorm;
             }
             
-//            switch (_confiningPlanes.size())
-//            {
-//                case 1:
-//                    //                    dX=_confiningPlanes[0]->n.snapToLattice(dX).cartesian();
-//                    dX=(*_confiningPlanes.begin())->n.snapToPlane(dX);
-//                    break;
-//                    
-//                case 2:
-//                {
-//                    //                    PlanePlaneIntersection ppi(glidePlane(0),glidePlane(1));
-//                    const LatticeDirection<dim> d(glidePlane(0).n.cross(glidePlane(1).n));
-//                    //LatticeLine line(ppi.P,ppi.d);
-//                    //                    dX=line.d.snapToDirection(dX).cartesian();
-//                    dX=d.snapToDirection(dX);
-//                    break;
-//                }
-//                    
-//                default:
-//                    dX.setZero();
-//                    break;
-//            }
-            
-            
             if (dX.squaredNorm()>0.0 && _isGlissile) // move a node only if |v|!=0
             {
                 
                 
+                /* 1) First snap to glidePlaneIntersections (if any). These are
+                 * infinite lines defined as (P,d), wher P is a position and d a direction
+                 * 2) Then, check if point is outside. If it is, snap to bonudaing box and set flag
+                 * 3) if flag is on, snap to bounding box, without doing (1).
+                 */
                 
-                if(shared.use_boundary) // using confining mesh
-                {
+                const VectorDim newP=snapToGlidePlaneIntersection(this->get_P()+dX);
+                
+                if(shared.use_boundary)
+                {// using confining mesh
                     
-                    if(_boundingBoxSegments.size()>1)
+                    if(_isOnBoundingBox)
                     {
-                        
-//                        NO, SINCE IF _boundingBoxSegments.size()>1 WE CAN ONLY HAVE 1 GRAIN, THEN BETTER TO SEARCH THE REGION. IF OUTSIDE, SNAP TO boundingBox.
-//                        AFTER THAT SET A BOOLEAN TO TRUE AND KEEP SNAPPING
-//                        THE BOOLEAN NEEDS TO BE RESET BY ???
-//                        
-//                        const VectorDim newP=this->get_P()+dX;
-//                        const VectorDim D(newP-boxCenter);
-//                        if(D.squaredNorm()<FLT_EPSILON)
-//                        {// defenitely not a boundary node
-//                            set_P(this->get_P()+dX);
-//                        }
-//                        else
-//                        {
-//                            for(const auto& posPair : _boundingBoxSegments)
-//                            {
-//                                LineSegmentIntersection<dim> lsi(boxCenter,D,posPair.first,posPair.second);
-//                            }
-//
-//                        }
-                        
-                        assert(_confiningPlanes.size()==1 && "There should be only one GlidePlane");
-                        set_P(glidePlane(0).snapToPlane(this->get_P()+dX)); // remove numnerical noise from solver
-
-
-                        
-                        //                    // See if the new position is inside mesh
-                        //                    std::set<const Simplex<dim,dim>*> path;
-                        //                    const bool searchAllRegions=true; // CHANGE THIS FOR MULTIPLE REGIONS
-                        //                    std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<dim>::mesh.searchWithGuess(searchAllRegions,
-                        //                                                                                                                     this->get_P()+dX,
-                        //                                                                                                                     p_Simplex,
-                        //                                                                                                                     path));
-                        
+                        set_P(snapToBoundingBox(newP));
                     }
                     else
                     {
-                        set_P(snapToBoundingBox(this->get_P()+dX));
+                        std::set<const Simplex<dim,dim>*> path;
+                        const bool searchAllRegions=true;
+                        std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<dim>::mesh.searchWithGuess(searchAllRegions,
+                                                                                                                         this->get_P()+dX,
+                                                                                                                         p_Simplex,
+                                                                                                                         path));
+                        if(temp.first)
+                        {// newP is inside box
+                            set_P(newP);
+                        }
+                        else
+                        {
+                            set_P(snapToBoundingBox(newP));
+                            _isOnBoundingBox=true;
+                        }
+                        
+                        
                     }
                     
                     
-                    make_projectionMatrix();
-                    
                 }
-                else // move node freely
-                {
-                    set_P(this->get_P()+dX);
-                    //set(L+grain.latticeVector(dX));
-                    //                    L+=LatticeVectorType(dX);
-                    //                    this->set(this->get_nodeDof()+dX);
+                else
+                {// no confining mesh, move freely
+                    set_P(newP);
                 }
-                
-                
-                //                REMEBER TO UPDATE p_Simplex and boundaryNormal
-                
             }
             else
             {
@@ -987,6 +893,184 @@ namespace model
     
 }
 #endif
+
+//        /**********************************************************************/
+//        DislocationNode(const LinkType& pL,
+//                        const LatticeVectorType& Lin,
+//                        const VectorDofType& Vin) :
+//        //        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
+//        /* base constructor */ NodeBaseType(Lin.cartesian()),
+//        //        /* init list        */ grain(pL.grain),
+//        //        /* init list        */ L(Lin),
+//        /* init list        */ _isGlissile(true),
+//        /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
+//        /* init list        */ velocity(Vin),
+//        /* init list        */ vOld(velocity),
+//        /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
+//        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
+//        //        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
+//        //        /* init list        */ regionBndNormal(VectorDim::Zero())
+//        //        oldP(this->get_P()),
+//        //        A1(this->get_P()),
+//        //        A2(this->get_P())
+//        C(this->get_P())
+//        {
+//            //            std::cout<<"DislocationNode from ExpadingLink B "<<this->sID<<std::endl;
+//            forceBoundaryNode(pL);
+//        }
+
+//        /**********************************************************************/
+//        DislocationNode(const ContractingVertices<NodeType,LinkType>& cv,
+//                        const LatticeVectorType& Lin) :
+//        /* base constructor */ NodeBaseType(Lin.cartesian()),
+//        /* init list        */ grain(cv.v0.grain),
+//        /* init list        */ L(Lin),
+//        /* init list        */ p_Simplex(get_includingSimplex(cv.v0.includingSimplex())),
+//        /* init list        */ velocity(0.5*(cv.v0.get_V()+cv.v1.get_V())),
+//        /* init list        */ vOld(velocity),
+//        /* init list        */ velocityReductionCoeff(0.5*(cv.v0.velocityReduction()+cv.v1.velocityReduction())),
+//        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
+//        /* init list        */ grainBoundary_rID2((cv.v0.grainBoundary_rID2==cv.v1.grainBoundary_rID2 && cv.v1.grainBoundary_rID2>0)? cv.v1.grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
+//
+//        //        /* init list        */ regionBndNormal(VectorDim::Zero())
+//        {/*! Constructor from VertexContraction
+//          */
+//
+//        }
+
+//        /**********************************************************************/
+//        void make_bndNormal()
+//        {
+//            boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance); // check if node is now on a boundary
+//        }
+
+//        /**********************************************************************/
+//        const LatticeVectorType& get_L() const
+//        {
+//            return L;
+//        }
+
+//        /**********************************************************************/
+//        void set(const LatticeVectorType& Lin)
+//        {
+//            L=Lin;
+//            NodeBaseType::set_P(L.cartesian());
+//        }
+
+//        /**********************************************************************/
+//		void make_planeNormals()
+//        {
+//            //! 1- Clear and re-builds the std::vector planenormals
+//			planenormals.clear();
+//			for (typename NeighborContainerType::const_iterator neighborIter=this->Neighborhood.begin();neighborIter!=this->Neighborhood.end();++neighborIter)
+//            {
+//				if (std::get<2>(neighborIter->second))
+//                {
+//					LinkType* pL(std::get<1>(neighborIter->second));
+//					if (std::find(planenormals.begin(),planenormals.end(), pL->glidePlaneNormal )==planenormals.end() &&
+//						std::find(planenormals.begin(),planenormals.end(),-pL->glidePlaneNormal )==planenormals.end()   )
+//                    {
+//						planenormals.push_back(pL->glidePlaneNormal );
+//					}
+//					if(pL->sessilePlaneNormal.norm()>FLT_EPSILON)
+//                    {
+//						planenormals.push_back(pL->sessilePlaneNormal);
+//					}
+//
+//				}
+//			}
+//
+//			//! 2- Compute projectionMatrix
+//			make_projectionMatrix();
+//        }
+
+//        /**********************************************************************/
+//        static BoundingSegmentsType updateBoundingSegments(const BoundingSegmentsType& old,
+//                                                           const GlidePlaneType& gp)
+//        {
+//            //model::cout<<"DislocationNode "<<this->sID<<" adding GlidePlane "<<gp.sID<<std::endl;
+//
+//
+//            BoundingSegmentsType temp;
+//
+//            if(old.size())
+//            {
+//
+//                ConfiningPlaneIntersectionContainerType uniquePts;
+//
+//
+//                for(const auto& oldPair : old)
+//                {
+//                    const BoundingSegmentsType psi=GlidePlaneObserver<LoopType>::planeSegmentIntersection(gp.P.cartesian(),
+//                                                                                                          gp.n.cartesian(),
+//                                                                                                          oldPair.first,
+//                                                                                                          oldPair.second);
+//                    if(psi.size())
+//                    {// plane and current segment intersect
+//                        for(size_t k=0;k<gp.meshIntersections.size();++k)
+//                        {
+//                            const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
+//
+//
+//                            SegmentSegmentIntersection<dim> ssi(gp.meshIntersections[k].second,
+//                                                                gp.meshIntersections[k1].second,
+//                                                                oldPair.first,
+//                                                                oldPair.second);
+//
+//                            if(ssi.size)
+//                            {
+//                                uniquePts.insert(ssi.x0);
+//                                uniquePts.insert(ssi.x1);
+//
+//                            }
+//
+//
+//
+//                        }
+//                    }
+//
+//                }
+//
+//                switch (uniquePts.size())
+//                {
+//                    case 1:
+//                    {
+//                        temp.emplace_back(*uniquePts.begin(),*uniquePts.begin());
+//                        break;
+//                    }
+//                    case 2:
+//                    {
+//                        temp.emplace_back(*uniquePts.begin(),*uniquePts.rbegin());
+//                        break;
+//                    }
+//
+//                    default:
+//                    {
+//                        model::cout<<"DislocationNode "<<this->sID<<" uniquePts.size()="<<uniquePts.size()<<std::endl;
+//                        for(const auto& pt : uniquePts)
+//                        {
+//                            model::cout<<pt.transpose()<<std::endl;
+//                        }
+//                        assert(0);
+//                        break;
+//                    }
+//                }
+//
+//
+//            }
+//            else
+//            {
+//                for(size_t k=0;k<gp.meshIntersections.size();++k)
+//                {
+//                    const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
+//                    temp.emplace_back(gp.meshIntersections[k].second,gp.meshIntersections[k1].second);
+//                }
+//            }
+//
+//            assert(temp.size()==1 || temp.size()>=3 && "updateBoundingSegments failed");
+//            return temp;
+//
+//        }
 
 
 //        /**********************************************************************/

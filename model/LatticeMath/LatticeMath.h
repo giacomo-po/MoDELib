@@ -23,7 +23,7 @@ namespace model
 
     class LatticePlane;
     class LatticeLine;
-    class PlaneLineIntersection;
+//    class PlaneLineIntersection;
 
 } // end namespace
 

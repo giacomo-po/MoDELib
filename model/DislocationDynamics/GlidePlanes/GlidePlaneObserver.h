@@ -10,13 +10,17 @@
 #ifndef model_GLIDEPLANEOBSERVER_H_
 #define model_GLIDEPLANEOBSERVER_H_
 
+#include <algorithm>
 #include <map>
+#include <tuple>
 #include <memory> // std::shared_ptr (c++11)
 #include <Eigen/Dense>
+#include <Eigen/Cholesky>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
 #include <model/LatticeMath/LatticeVector.h>
 #include <model/LatticeMath/ReciprocalLatticeVector.h>
+#include <model/Geometry/PlanePlaneIntersection.h>
 
 
 namespace model
@@ -29,10 +33,13 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template<typename LoopType>
-    class GlidePlaneObserver
+    struct GlidePlaneObserver : private std::map<Eigen::Matrix<long int,LoopType::dim+2,1>,
+    /*                                       */ const GlidePlane<LoopType>* const,
+    /*                                       */ CompareVectorsByComponent<long int,LoopType::dim+2,long int>,
+    /*                                       */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,LoopType::dim+2,1>,const GlidePlane<LoopType>* const> > >,
+    /*                       */ private std::map<std::pair<size_t,size_t>,PlanePlaneIntersection<LoopType::dim>>
     {
         
-    public:
         
         static constexpr int dim=LoopType::dim;
         typedef GlidePlaneObserver<LoopType> GlidePlaneObserverType;
@@ -44,20 +51,54 @@ namespace model
         /*            */ const GlidePlane<LoopType>* const,
         /*            */ CompareVectorsByComponent<long int,LoopType::dim+2,long int>,
         /*            */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,LoopType::dim+2,1>,const GlidePlane<LoopType>* const> > > GlidePlaneMapType;
-        
         typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
+        typedef PlanePlaneIntersection<dim> PlanePlaneIntersectionType;
+        typedef std::map<std::pair<size_t,size_t>,PlanePlaneIntersectionType> GlidePlaneIntersectionContainerType;
         
         
-    private:
-        
-        static  GlidePlaneMapType glidePlaneMap;
         
     public:
         
         /**********************************************************************/
-        static GlidePlaneMapType& glidePlanes()
+        GlidePlaneIntersectionContainerType& glidePlaneIntersections()
         {
-            return glidePlaneMap;
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const GlidePlaneIntersectionContainerType& glidePlaneIntersections() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const PlanePlaneIntersectionType& glidePlaneIntersection(const GlidePlaneType* const p1,
+                                                                 const GlidePlaneType* const p2)
+        {/*@param[in] p1 first plane
+          *@param[in] p2 second plane
+          *\returns the infinite line of interseciton between the two planes, 
+          * if already computed. Otherwise it computes the interseciton, stores it,
+          * and returns it.
+          */
+            const auto key=std::make_pair(std::max(p1->sID,p2->sID),std::min(p1->sID,p2->sID));
+            const auto iter=glidePlaneIntersections().find(key);
+            if(iter==glidePlaneIntersections().end())
+            {
+                glidePlaneIntersections().emplace(key,PlanePlaneIntersectionType(p1->P.cartesian(),p1->n.cartesian(),p2->P.cartesian(),p2->n.cartesian()));
+            }
+            return glidePlaneIntersections().at(key);
+        }
+        
+        /**********************************************************************/
+        GlidePlaneMapType& glidePlanes()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const GlidePlaneMapType& glidePlanes() const
+        {
+            return *this;
         }
         
         /**********************************************************************/
@@ -72,167 +113,53 @@ namespace model
         }
         
         /**********************************************************************/
-        static std::shared_ptr<GlidePlaneType> sharedGlidePlane(const SimplicialMesh<dim>& mesh,
-                                                                const Grain<dim>& grain,
-                                                                const VectorDimD& P,
-                                                                const VectorDimD& N)
+        std::shared_ptr<GlidePlaneType> sharedGlidePlane(const SimplicialMesh<dim>& mesh,
+                                                         const Grain<dim>& grain,
+                                                         const VectorDimD& P,
+                                                         const VectorDimD& N)
         {
             const GlidePlaneKeyType key=getGlidePlaneKey(grain,P,N);
-            const auto planeIter=glidePlaneMap.find(key);
-            return (planeIter!=glidePlaneMap.end())? planeIter->second->loops().begin()->second->_glidePlane : std::make_shared<GlidePlaneType>(mesh,grain,P,N);
+            const auto planeIter=glidePlanes().find(key);
+            return (planeIter!=glidePlanes().end())? planeIter->second->loops().begin()->second->_glidePlane :
+            /*                            */ std::make_shared<GlidePlaneType>(this,mesh,grain,P,N);
         }
         
         /**********************************************************************/
-        static void addGlidePlane(const GlidePlaneType* const pL)
+        void addGlidePlane(const GlidePlaneType* const pL)
         {/*!@\param[in] pS a row pointer to a DislocationSegment
           * Adds pS to *this GLidePlane
           */
-            const bool success=glidePlaneMap.emplace(pL->glidePlaneKey,pL).second;
+            const bool success=glidePlanes().emplace(pL->glidePlaneKey,pL).second;
             assert( success && "COULD NOT INSERT GLIDE PLANE POINTER IN GLIDE PLANE OBSERVER.");
         }
         
         /**********************************************************************/
-        static void removeGlidePlane(const GlidePlaneType* const pL)
+        void removeGlidePlane(const GlidePlaneType* const pL)
         {/*!@\param[in] pS a row pointer to a DislocationSegment
           * Removes pS from *this GLidePlane
           */
-            const int success=glidePlaneMap.erase(pL->glidePlaneKey);
+            const int success=glidePlanes().erase(pL->glidePlaneKey);
             assert(success==1 && "COULD NOT ERASE GLIDE PLANE POINTER FROM GLIDE PLANE OBSERVER.");
         }
         
-//        /**********************************************************************/
-//        static std::deque<std::pair<VectorDimD,VectorDimD>,Eigen::aligned_allocator<std::pair<VectorDimD,VectorDimD>>> segmentSegmentIntersection(const VectorDimD& A0,
-//                                                                                                                                              const VectorDimD& B0,
-//                                                                                                                                              const VectorDimD& A1,
-//                                                                                                                                              const VectorDimD& B1)
-//        {/*!\param[in] A0 start point of first segment
-//          *\param[in] B0   end point of first segment
-//          *\param[in] A1 start point of second segment
-//          *\param[in] B1   end point of second segment
-//          *\returns std::deque containing the starting point and the end point of the intersection segment.
-//          * Start and end point are the same when the two segments intersect at one point. The container is
-//          * empty if there is no intersection
-//          */
-//            
-//            const double A0B0norm2=(B0-A0).squaredNorm();
-//            const double A1B1norm2=(B1-A1).squaredNorm();
-//            assert(A0B0norm2>FLT_EPSILON);
-//            assert(A1B1norm2>FLT_EPSILON);
-//            
-//            std::deque<std::pair<VectorDimD,VectorDimD>,Eigen::aligned_allocator<std::pair<VectorDimD,VectorDimD>>> temp;
-//            
-//            Eigen::Matrix<double,dim,2> M;
-//            M.col(0)=B0-A0;
-//            M.col(1)=A1-B1;
-//            
-//            const Eigen::LLT<Eigen::Matrix<double,2,2>> llt(M.transpose()*M);
-//            std::cout<<"DO NOT USE LLT TO SEE IF SYSTEM HAS SOLUTION. See https://eigen.tuxfamily.org/dox/classEigen_1_1LDLT.html#a858dc77b65dd48248299bb6a6a758abf"<<std::endl;
-//            
-//            
-//            if(llt.info()==Eigen::Success)
-//            {
-//                const Eigen::Matrix<double,2,1> u=llt.solve(M.transpose()*(A1-A0));
-//                std::cout<<"u0,1="<<u(0)<<" "<<u(1)<<std::endl;
-//                if(   u(0)>-FLT_EPSILON && u(0)<1.0+FLT_EPSILON
-//                   && u(1)>-FLT_EPSILON && u(1)<1.0+FLT_EPSILON)
-//                {
-//                    const VectorDimD X0(A0+u(0)*(B0-A0));
-//                    const VectorDimD X1(A1+u(1)*(B1-A1));
-//                    if((X0-X1).norm()<FLT_EPSILON)
-//                    {
-//                        temp.emplace_back(X0,X0);
-//
-//                    }
-//                    
-//                }
-//                
-//            }
-//            else
-//            {
-//                if((M.transpose()*(A1-A0)).norm()<FLT_EPSILON)
-//                {// coincident segments
-//                    std::multimap<double,VectorDimD> ms;
-//                    
-//                    ms.emplace(0.0,A0);
-//                    ms.emplace(1.0,B0);
-//                    const double u1=(A1-A0).dot(B0-A0)/A0B0norm2;
-//                    ms.emplace(u1,A0+u1*(B0-A0));
-//                    const double u2=(B1-A0).dot(B0-A0)/A0B0norm2;
-//                    ms.emplace(u2,A0+u2*(B0-A0));
-//                    
-//                    auto iter1=ms.begin();
-//                    std::advance(iter1,1);
-//                    auto iter2=ms.begin();
-//                    std::advance(iter2,2);
-//                    temp.emplace_back(iter1->second,iter2->second);
-//                }
-//                
-//            }
-//            assert(temp.size()<=1);
-//            return temp;
-//        }
+        /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const GlidePlaneObserverType& gpo)
+        {
+            for (const auto& glidePlane : gpo.glidePlanes())
+            {
+                os << (*glidePlane.second);
+            }
+            return os;
+        }
         
-//        /**********************************************************************/
-//        static std::deque<std::pair<VectorDimD,VectorDimD>,Eigen::aligned_allocator<std::pair<VectorDimD,VectorDimD>>>    lineSegmentIntersection(const VectorDimD& A0,
-//                                                                                                                                              const VectorDimD& D,
-//                                                                                                                                              const VectorDimD& A1,
-//                                                                                                                                              const VectorDimD& B1)
-//        {/*!\param[in] A0 start point line
-//          *\param[in] D   direction of line
-//          *\param[in] A1 start point of second segment
-//          *\param[in] B1   end point of second segment
-//          *\returns std::deque containing the starting point and the end point of the intersection segment.
-//          * Start and end point are the same when the two segments intersect at one point. The container is
-//          * empty if there is no intersection
-//          */
-//            
-//            const double Dnorm=D.norm();
-//            const double A1B1norm2=(B1-A1).squaredNorm();
-//            assert(Dnorm>FLT_EPSILON);
-//            assert(A1B1norm2>FLT_EPSILON);
-//            
-//            const VectorDimD d(D/Dnorm);
-//            
-//            std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> temp;
-//            
-//            Eigen::Matrix<double,dim,2> M;
-//            M.col(0)=d;
-//            M.col(1)=A1-B1;
-//            
-//            const Eigen::LLT<Eigen::Matrix<double,2,2>> llt(M.transpose()*M);
-//            std::cout<<"DO NOT USE LLT TO SEE IF SYSTEM HAS SOLUTION. See https://eigen.tuxfamily.org/dox/classEigen_1_1LDLT.html#a858dc77b65dd48248299bb6a6a758abf"<<std::endl;
-//            
-//            
-//            if(llt.info()==Eigen::Success)
-//            {
-//                const Eigen::Matrix<double,2,1> u=llt.solve(M.transpose()*(A1-A0));
-//                if( u(1)>-FLT_EPSILON && u(1)<1.0+FLT_EPSILON)
-//                {
-//                    const VectorDimD X(A1+u(1)*(B1-A1));
-//                    temp.emplace_back(X,X);
-//                    
-//                }
-//                
-//            }
-//            else
-//            {
-//                if((M.transpose()*(A1-A0)).norm()<FLT_EPSILON)
-//                {// coincident segments
-//                    temp.emplace_back(A1,B1);
-//                }
-//                
-//            }
-//            
-//            assert(temp.size()<=1);
-//            
-//            return temp;
-//        }
+        
         
         /**********************************************************************/
         static std::deque<std::pair<VectorDimD,VectorDimD>,Eigen::aligned_allocator<std::pair<VectorDimD,VectorDimD>>> planeSegmentIntersection(const VectorDimD& P0,
-                                                const VectorDimD& N,
-                                                const VectorDimD& v0,
-                                                const VectorDimD& v1)
+                                                                                                                                                const VectorDimD& N,
+                                                                                                                                                const VectorDimD& v0,
+                                                                                                                                                const VectorDimD& v1)
         {
             //            std::deque<VectorDim> temp;
             
@@ -251,7 +178,7 @@ namespace model
             const double edgeNorm=(v1-v0).norm();
             if(edgeNorm<FLT_EPSILON)
             {
-            
+                
             }
             else
             {
@@ -294,36 +221,19 @@ namespace model
                     else
                     {// edge is coplanar
                         temp.emplace_back(v0,v1);
-//                        temp.emplace_back(v1,&edge.child(1));
+                        //                        temp.emplace_back(v1,&edge.child(1));
                     }
                 }
             }
             
             
-
+            
             
             return temp;
-            //            return std::make_pair(&edge,temp);
-        }
-        
-        /**********************************************************************/
-        template <class T>
-        friend T& operator << (T& os, const GlidePlaneObserverType& gpo)
-        {
-            for (const auto& glidePlane : gpo.glidePlanes())
-            {
-                os << (*glidePlane.second);
-            }
-            return os;
         }
         
         
     };
-    
-    // Static data
-    template<typename LoopType>
-    std::map<Eigen::Matrix<long int,LoopType::dim+2,1>,const GlidePlane<LoopType>* const,CompareVectorsByComponent<long int,LoopType::dim+2,long int>,Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,LoopType::dim+2,1>,const GlidePlane<LoopType>* const> > > GlidePlaneObserver<LoopType>::glidePlaneMap;
-    
     
 }	// close namespace
 #endif
@@ -333,54 +243,7 @@ namespace model
 
 
 
-//        /**********************************************************************/
-//        static GlidePlaneKeyType getGlidePlaneKey(const size_t& grainID,
-//                                                  const ReciprocalLatticeVector<dim>& pn)
-//        {
-//            return (GlidePlaneKeyType()<<grainID,pn.transpose()).finished();
-//        }
 
-//        /**********************************************************************/
-//        static  const GlidePlaneMapType& glidePlanes()
-//        {
-//            return glidePlaneMap;
-//        }
 
-//		/* begin() ***************************************************/
-//		static typename GlidePlaneMapType::const_iterator begin()
-//        {/*! A const iterator to the begin of the static map of GlidePlane(s)
-//		  */
-//			return glidePlaneMap.begin();
-//		}
-//
-//		/* end() *****************************************************/
-//		static typename GlidePlaneMapType::const_iterator end()
-//        {/*! A const iterator to the end of the static map of GlidePlane(s)
-//		  */
-//			return glidePlaneMap.end();
-//		}
-//
-//		/* findExistingGlidePlane() **********************************/
-//		static GlidePlaneSharedPtrType findExistingGlidePlane(const VectorDimD& planeNormal, const double& height)
-//        {/*! A shared pointer to an existing GlidePlane defined by planeNormal and height.
-//		  *  If no GlidePlane exists, a shared pointer to a new GlidePlane is returned.
-//		  */
-//			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find((VectorDimDPlusOneD()<<planeNormal.normalized(),height).finished()));
-//			return (iter!=glidePlaneMap.end())? iter->second->getSharedPointer() : GlidePlaneSharedPtrType(new GlidePlaneType(planeNormal,height));
-//		}
-//
-//		/* isGlidePlane() ********************************************/
-//		static std::pair<bool, const GlidePlaneType* const> isGlidePlane(const VectorDimD& planeNormal, const double& height)
-//        {
-//			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find((VectorDimDPlusOneD()<<planeNormal.normalized(),height).finished()));
-//			return (iter!=glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
-//		}
-//
-//		/* isGlidePlane() ********************************************/
-//		static std::pair<bool, const GlidePlaneType* const> isGlidePlane(const VectorDimDPlusOneD& key)
-//        {
-//			typename GlidePlaneMapType::const_iterator iter(glidePlaneMap.find(key));
-//			return (iter!=glidePlaneMap.end())?  std::make_pair(true,iter->second) : std::make_pair(false,(GlidePlaneType* const) NULL);
-//		}
-//
+
 

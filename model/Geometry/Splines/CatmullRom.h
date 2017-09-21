@@ -41,7 +41,7 @@ namespace model
                     const double cL=link->pLink->parametricChordLength();
                     if(cL>0.0)
                     {
-                        temp+=(link->sink()->get_P()-link->source()->get_P())/cL*(cT-cL)/cT*0.0;
+                        temp+=(link->sink()->get_P()-link->source()->get_P())/cL*(cT-cL)/cT;
                     }
                 }
             }
@@ -82,8 +82,8 @@ namespace model
                     const double cL=link->pLink->parametricChordLength();
                     if(cL>0.0)
                     {
-                        temp[link->source()->snID()].first-=1.0/cL*(cT-cL)/cT*0.0;
-                        temp[link->  sink()->snID()].first+=1.0/cL*(cT-cL)/cT*0.0;
+                        temp[link->source()->snID()].first-=1.0/cL*(cT-cL)/cT;
+                        temp[link->  sink()->snID()].first+=1.0/cL*(cT-cL)/cT;
                     }
                 }
             }

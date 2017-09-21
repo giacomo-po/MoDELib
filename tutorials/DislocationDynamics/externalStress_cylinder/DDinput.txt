@@ -21,7 +21,7 @@ outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=1;
 outputSpatialCells=0;
-outputPKforce=0;
+outputPKforce=1;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
@@ -90,7 +90,7 @@ use_EnergyMultipole = 0;
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
-Lmax=50;
+Lmax=100;
 Lmin=20;
 
 ######################################

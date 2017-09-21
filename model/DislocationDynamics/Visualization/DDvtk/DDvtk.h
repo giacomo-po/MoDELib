@@ -25,10 +25,6 @@
 #include <vtkImageMapper.h>
 #include <vtkActor2D.h>
 
-#include <vtkChartXY.h>
-#include <vtkTable.h>
-#include <vtkPlot.h>
-#include <vtkFloatArray.h>
 #include <vtkContextView.h>
 #include <vtkContextScene.h>
 #include <vtkPen.h>
@@ -43,7 +39,6 @@
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkContext2D.h>
 #include <vtkBrush.h>
-#include <vtkContextActor.h>
 
 //#include <vtkProperty.h>
 //#include <vtkPropPicker.h>
@@ -53,10 +48,10 @@
 
 
 
-#include <model/Mesh/SimplicialMesh.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/SimplicialMeshActor.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/DislocationSegmentActor.h>
 //#include <model/DislocationDynamics/Visualization/vtk/DislocationActors.h>
+#include <model/DislocationDynamics/Visualization/DDvtk/PlotActor.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/DDinteractionStyle.h>
 
 #include <model/IO/EigenDataReader.h>
@@ -66,89 +61,6 @@
 
 namespace model
 {
-    
-//#define VTK_CREATE(type, name) \
-//vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-    
-    
-    
-    struct PlotActor : public IDreader<'F',1,200,double>
-    {
-        vtkRenderer* const renderer;
-        vtkSmartPointer<vtkTable> table;
-        vtkSmartPointer<vtkChartXY> chart;
-        vtkSmartPointer<vtkContextActor> actor;
-        
-        /**********************************************************************/
-        PlotActor(vtkRenderer* const ren) :
-        /* init */ renderer(ren),
-        /* init */ table(vtkSmartPointer<vtkTable>::New()),
-        chart(vtkSmartPointer<vtkChartXY>::New()),
-        actor(vtkSmartPointer<vtkContextActor>::New())
-        {
-        
-        //    vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
-            
-            vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
-            arrX->SetName("disp");
-            table->AddColumn(arrX);
-            
-            vtkSmartPointer<vtkFloatArray> arrC = vtkSmartPointer<vtkFloatArray>::New();
-            arrC->SetName("stress");
-            table->AddColumn(arrC);
-            
-            //    vtkSmartPointer<vtkFloatArray> arrS = vtkSmartPointer<vtkFloatArray>::New();
-            //    arrS->SetName("Sine");
-            //    table->AddColumn(arrS);
-            
-            
-//            model::IDreader<'F',1,200,double> vReader;
-//            Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
-            
-            
-            if (this->isGood(0,true))
-            {
-                this->read(0,true);
-                
-                table->SetNumberOfRows(this->size());
-                int i=0;
-                int xCcol=0;
-                int yCol=1;
-                
-                for (const auto& row : *this)
-                {
-                    table->SetValue(i, 0, row.second[xCcol]);
-                    table->SetValue(i, 1, row.second[yCol]);
-                    
-                    i++;
-                }
-            }
-            else
-            {
-                model::cout<<"could not read runID from F/F_0.txt"<<std::endl;
-                //        runID=0;
-            }
-            
-            
-            
-            // Add multiple line plots, setting the colors etc
-            //vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
-            
-            vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-            line->SetInputData(table, 0, 1);
-            line->SetColor(0, 0, 255, 255);
-            line->SetWidth(1.0);
-            
-//            VTK_CREATE(vtkContextActor, actor);
-//            VTK_CREATE(APIDiagram, diagram);
-            actor->GetScene()->AddItem(chart);
-            renderer->AddActor(actor);
-
-            
-            
-        }
-    };
-    
     
     /**************************************************************************/
     /**************************************************************************/
@@ -181,8 +93,10 @@ namespace model
                 EDR.readScalarInFile("./DDinput.txt","meshID",meshID);
             }
 
-            
-            renderWindow->SetSize(1024,768); //(width, height)
+            // https://en.wikipedia.org/wiki/Computer_display_standard
+//            renderWindow->SetSize(1024,768); // XGA (width, height)
+            renderWindow->SetSize(1920,1080); // HD (width, height)
+
             renderWindowInteractor->SetRenderWindow(renderWindow);
             ddRenderer->SetBackground(1,1,1); // Background color white
             ddRenderer->SetViewport(0.0,0,0.5,1);

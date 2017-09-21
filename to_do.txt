@@ -27,3 +27,5 @@ NEW LOOP_NETWORK CODE
 - Use constexpr std::array for quadrature
 - Make LatticePlane and LatticePlaneBase templated by dim
 - mesh search algorithms for non-convex domains (e.g. foam)
+- GPU computation
+- Implement cracks

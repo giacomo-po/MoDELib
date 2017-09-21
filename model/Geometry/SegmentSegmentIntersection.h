@@ -59,24 +59,48 @@ namespace model
             else if(norm2L0<FLT_EPSILON && norm2L1>=FLT_EPSILON)
             {// first segment is degenerate
                 const double u1 = -A0A1.dot(L1)/norm2L1;
-                if(u1>-FLT_EPSILON && u1<1.0+FLT_EPSILON)
-                {
-                    return std::make_tuple(1,A0,A0);
+                const VectorDimD x(A1+u1*L1);
+                if((x-A0).squaredNorm()<FLT_EPSILON)
+                {// point of min distance is an intersection point
+                    if(u1<=-FLT_EPSILON)
+                    {// intersection point beyond A1
+                        return std::make_tuple(0,A0,A1);
+                    }
+                    else if(u1>=1.0+FLT_EPSILON)
+                    {// intersection point beyond B1
+                        return std::make_tuple(0,A0,B1);
+                    }
+                    else
+                    {// intersection point is within [A1,B1]
+                        return std::make_tuple(1,0.5*(A0+x),0.5*(A0+x));
+                    }
                 }
                 else
-                {
+                {// no intersection
                     return std::make_tuple(0,A0,A1);
                 }
             }
             else if(norm2L0>=FLT_EPSILON && norm2L1<FLT_EPSILON)
             {// second segment is degenerate
                 const double u0 = A0A1.dot(L0)/norm2L0;
-                if(u0>-FLT_EPSILON && u0<1.0+FLT_EPSILON)
-                {
-                    return std::make_tuple(1,A1,A1);
+                const VectorDimD x(A0+u0*L0);
+                if( (x-A1).squaredNorm()<FLT_EPSILON)
+                {// point of min distance is an intersection point
+                    if(u0<=-FLT_EPSILON)
+                    {// intersection point beyond A0
+                        return std::make_tuple(0,A0,A1);
+                    }
+                    else if(u0>=1.0+FLT_EPSILON)
+                    {// intersection point beyond B0
+                        return std::make_tuple(0,B0,A1);
+                    }
+                    else
+                    {// intersection point is within [A0,B0]
+                        return std::make_tuple(1,0.5*(A1+x),0.5*(A1+x));
+                    }
                 }
                 else
-                {
+                {// no intersection
                     return std::make_tuple(0,A0,A1);
                 }
             }
@@ -91,30 +115,31 @@ namespace model
                 {
                     const double u0=num0/det;
                     const double u1=num1/det;
-                    if(   u0>-FLT_EPSILON && u0<1.0+FLT_EPSILON
-                       && u1>-FLT_EPSILON && u1<1.0+FLT_EPSILON)
-                    {
-                        const VectorDimD x0=A0+u0*L0;
-                        const VectorDimD x1=A1+u1*L1;
-                        if((x0-x1).squaredNorm()<FLT_EPSILON)
+                    const VectorDimD x0=A0+u0*L0;
+                    const VectorDimD x1=A1+u1*L1;
+                    if((x0-x1).squaredNorm()<FLT_EPSILON)
+                    {// points of minimum distance coincide, so intersection exists
+                        if(   u0>-FLT_EPSILON && u0<1.0+FLT_EPSILON
+                           && u1>-FLT_EPSILON && u1<1.0+FLT_EPSILON)
                         {
-                            const VectorDimD x=0.5*(x0+x1);
-                            return std::make_tuple(1,x,x);
+                                const VectorDimD x=0.5*(x0+x1);
+                                return std::make_tuple(1,x,x);
                         }
                         else
-                        {
+                        {// intersection exists but outside segments
                             return std::make_tuple(0,x0,x1);
                         }
                     }
                     else
-                    {
+                    {// no intersections
                         return std::make_tuple(0,A0,A1);
                     }
+                    
                 }
                 else
-                {
+                {// segments are coincident or parallel
                     if(fabs(num0)<FLT_EPSILON && fabs(num0)<FLT_EPSILON)
-                    {
+                    {// segments are coincident, keep innermost points
                         std::multimap<double,VectorDimD> ms;
                         
                         ms.emplace(0.0,A0);

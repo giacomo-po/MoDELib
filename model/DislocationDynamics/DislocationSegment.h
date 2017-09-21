@@ -379,8 +379,6 @@ namespace model
         /**********************************************************************/
         LatticePlane findGlidePlane() const
         {
-            std::cout<<"findGlidePlane normal="<<_glidePlaneNormal.transpose()<<std::endl;
-            
             LatticeVectorType P(this->source->get_L());
             LatticePlaneBase  n(P.lattice.reciprocalLatticeDirection(_glidePlaneNormal));
             return LatticePlane(P,n);
@@ -580,7 +578,8 @@ namespace model
         {/*! @param[in] particleSystem the ParticleSystem of DislocationParticle
           *  Computes all geometric properties at the k-th quadrature point
           */
-            
+//            std::cout<<"DislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<" updateQuadraturePoints"<<std::endl;
+
             
             quadratureParticleContainer.clear();
             qOrder=QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm());
@@ -614,6 +613,7 @@ namespace model
                 
                 if(!is_boundarySegment())
                 {
+//                    std::cout<<"DislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<" adding quadrature particles"<<std::endl;
                     for (unsigned int k=0;k<qOrder;++k)
                     {
                         quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
@@ -628,7 +628,7 @@ namespace model
                     }
                     
                 }
-                else // bonudary segment
+                else // boundary segment
                 {
                     if(shared.use_bvp) // using FEM correction
                     {
@@ -729,7 +729,8 @@ namespace model
                     }
                     else // bonudary segment without bvp, do not place quadrature particles
                     {
-                        
+//                        std::cout<<"DislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<" isBoundarySegment"<<std::endl;
+
                     }
                     
                 }

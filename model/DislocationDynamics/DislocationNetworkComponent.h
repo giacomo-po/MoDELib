@@ -57,7 +57,7 @@ namespace model
             size_t k=0;
             for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)
             {
-                nodeIter->second->set_V(X.segment(NdofXnode*k,NdofXnode).template cast<float>().template cast<double>()); // dobule cast to remove some numerical noise
+                nodeIter->second->set_V(X.segment(NdofXnode*k,NdofXnode).template cast<float>().template cast<double>()); // double cast to remove some numerical noise
                 ++k;
             }
         }

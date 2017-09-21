@@ -10,6 +10,7 @@
 #define model_DDinteractionStyle_H_
 
 #include <memory>
+#include <stdlib.h>     //for using the function sleep
 
 
 #include <vtkRenderer.h>
@@ -79,9 +80,10 @@ namespace model
 
         
         /*************************************************************************/
-        void loadFrame(const long int& frameID)
+        bool loadFrame(const long int& frameID)
         {
             
+            bool frameLoaded=false;
             if(   currentFrameID!=frameID
                && (DislocationSegmentActor::VertexReaderType::isGood(frameID,false) || DislocationSegmentActor::VertexReaderType::isGood(frameID,true))
                && (DislocationSegmentActor::EdgeReaderType::isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType::isGood(frameID,true))
@@ -158,14 +160,14 @@ namespace model
                     
                     rwi->Render();
                 }
-                
+                frameLoaded=true;
             }
             else
             {
                 std::cout<<"frame "<<frameID<<" not found. Reverting to "<<currentFrameID<<std::endl;
 //                frameID=currentFrameID; // frameID is not a valid ID, return to last read
             }
-            
+            return frameLoaded;
         }
         
         
@@ -257,34 +259,65 @@ namespace model
                 loadFrame(currentFrameID+frameIncrement);
             }
             
-            if(key == "Right")
-            {
-                winFrac+=0.1;
-                if(winFrac>1.0)
-                {
-                    winFrac=1.0;
-                }
-                ddRenderer ->SetViewport(0.0,0,winFrac,1);
-                plotRenderer->SetViewport(winFrac,0,1,1);
-                
-                ddRenderer->Render();
-                plotRenderer->Render();
-                this->Interactor->Render();
-            }
+//            if(key == "Right")
+//            {
+//                winFrac+=0.1;
+//                if(winFrac>1.0)
+//                {
+//                    winFrac=1.0;
+//                }
+//                ddRenderer ->SetViewport(0.0,0,winFrac,1);
+//                plotRenderer->SetViewport(winFrac,0,1,1);
+//                
+//                ddRenderer->Render();
+//                plotRenderer->Render();
+//                this->Interactor->Render();
+//            }
+            
+//            if(key == "Left")
+//            {                winFrac-=0.1;
+//                if(winFrac<0.0)
+//                {
+//                    winFrac=0.0;
+//                }
+//                
+//                ddRenderer->SetViewport(0.0,0,winFrac,1);
+//                plotRenderer->SetViewport(winFrac,0,1,1);
+//                
+//                ddRenderer->Render();
+//                plotRenderer->Render();
+//                this->Interactor->Render();
+//            }
             
             if(key == "Left")
-            {                winFrac-=0.1;
-                if(winFrac<0.0)
+            {
+                if(loadFrame(currentFrameID-frameIncrement))
                 {
-                    winFrac=0.0;
+//                    && !this->Interactor->GetShiftKey()
+//                    std::cout<<this->Interactor->GetRepeatCount()<<std::endl;
+                OnKeyPress();
+//                    sleep(5000);         //make the programme waiting for 5 seconds
+
                 }
-                
-                ddRenderer->SetViewport(0.0,0,winFrac,1);
-                plotRenderer->SetViewport(winFrac,0,1,1);
-                
-                ddRenderer->Render();
-                plotRenderer->Render();
-                this->Interactor->Render();
+//                while(loadFrame(currentFrameID-frameIncrement))
+//                {
+//                
+//                }
+            }
+            
+            if(key == "Right")
+            {
+                if(loadFrame(currentFrameID+frameIncrement))
+                {
+                OnKeyPress();
+//                    sleep(5000);         //make the programme waiting for 5 seconds
+
+                }
+
+//                while(loadFrame(currentFrameID+frameIncrement))
+//                {
+//                    
+//                }
             }
             
             if(key == "e")
