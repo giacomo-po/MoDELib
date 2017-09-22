@@ -83,16 +83,20 @@ namespace model
         static double velocityReductionFactor;
         //static constexpr double bndDistance=static_cast<double>(FLT_EPSILON);
         static const double bndDistance;
-        bool _isGlissile;
         
     private:
         
+        bool _isGlissile;
+
+        
         DislocationSharedObjects<dim> shared;
+        
+        std::set<const Grain<dim>*> grainSet; // this must be defined before p_Simplex
+
         
         //! A pointer to the Simplex containing *this
         const Simplex<dim,dim>* p_Simplex;
         GlidePlaneContainerType _confiningPlanes;
-        std::set<const Grain<dim>*> grainSet;
         
         //! The current velocity vector of *this DislocationNode
         VectorDofType velocity;
@@ -180,33 +184,49 @@ namespace model
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
-            
+            //std::cout<<"DislocationNode "<<this->sID<<" get_includingSimplex "<<std::flush;
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
             if (DislocationSharedObjects<dim>::use_boundary)
             {
+                //std::cout<<" 1 "<<std::flush;
+
                 if (guess==NULL)
                 {
+                    //std::cout<<" 2 "<<std::flush;
+
                     temp=DislocationSharedObjects<dim>::mesh.search(this->get_P());
                 }
                 else
                 {
+                    //std::cout<<" 3 "<<std::flush;
+
                     if(grainSet.size()==1)
                     {// node only in one region
+                        //std::cout<<" 4 "<<std::flush;
+
                         if((*grainSet.begin())->grainID!=guess->region->regionID)
                         {
+                            //std::cout<<" 5 "<<std::flush;
+
                             temp=DislocationSharedObjects<dim>::mesh.searchRegion((*grainSet.begin())->grainID,this->get_P());
                         }
                         else
                         {
+                            //std::cout<<" 6 "<<std::flush;
+
                             temp=DislocationSharedObjects<dim>::mesh.searchRegionWithGuess(this->get_P(),guess);
                         }
                     }
                     else
                     {
+                        //std::cout<<" 7 "<<std::flush;
+
                         std::cout<<"WARNING: CHECK THAT NODE IS ON THE REGION BOUNDARY"<<std::endl;
                         temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
                     }
                 }
+                //std::cout<<" 8 "<<std::flush;
+
                 
                 if(!temp.first) // DislocationNode not found inside mesh
                 {
@@ -226,6 +246,9 @@ namespace model
                     }
                 }
             }
+            
+            //std::cout<<" done"<<std::endl;
+
             
             return temp.second;
         }
@@ -321,7 +344,7 @@ namespace model
         C(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
           */
-            //            std::cout<<"DislocationNode from ExpadingLink A "<<this->sID<<std::endl;
+                        //std::cout<<"DislocationNode from ExpadingLink "<<this->sID<<std::endl;
             //forceBoundaryNode(pL);
             //            assert(0 && "Initialize C");
         }
@@ -465,7 +488,7 @@ namespace model
           *
           * This functin overrides LoopNode::addLoopLink
           */
-            //            std::cout<<"DislocationNode "<<this->sID<<" addLoopLink"<<std::endl;
+                        //std::cout<<"DislocationNode "<<this->sID<<" addLoopLink"<<std::flush;
             NodeBaseType::addLoopLink(pL); // forward to base class
             _isGlissile*=pL->loop()->isGlissile;
             
@@ -489,7 +512,11 @@ namespace model
                 //                }
                 //                boxCenter/=(2*_boundingBoxSegments.size());
                 
+
             }
+            
+            //std::cout<<" done"<<std::endl;
+
             
         }
         
@@ -499,7 +526,7 @@ namespace model
           *
           * This functin overrides LoopNode::removeLoopLink
           */
-            //            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;
+                        //std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::flush;
             NodeBaseType::removeLoopLink(pL); // forward to base class
             
             // Re-construct _confiningPlanes and grainSet
@@ -527,6 +554,7 @@ namespace model
                 }
             }
             
+            //std::cout<<" done"<<std::endl;
             //            boxCenter.setZero();
             //            for(const auto& posPair : _boundingBoxSegments)
             //            {
@@ -820,6 +848,12 @@ namespace model
         const double& velocityReduction() const
         {
             return velocityReductionCoeff;
+        }
+        
+        /**********************************************************************/
+        const bool& isGlissile() const
+        {
+            return _isGlissile;
         }
         
         /**********************************************************************/

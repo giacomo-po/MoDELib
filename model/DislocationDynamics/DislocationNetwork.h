@@ -822,13 +822,13 @@ namespace model
             {
                 
 #ifdef _MODEL_PARDISO_SOLVER_
-                model::cout<<"(PardisoLDLT)..."<<std::flush;
+                model::cout<<"(PardisoLDLT "<<nThreads<<" threads)..."<<std::flush;
                 for (const auto& networkComponent : this->components())
                 {
                     DislocationNetworkComponentType(*networkComponent.second).directSolve();
                 }
 #else
-                model::cout<<"(SimplicialLDLT)..."<<std::flush;
+                model::cout<<"(SimplicialLDLT "<<nThreads<<" threads)..."<<std::flush;
 #ifdef _OPENMP // SimplicialLDLT is not multi-threaded. So parallelize loop over NetworkComponents.
 #pragma omp parallel for
                 for (unsigned int k=0;k<this->components().size();++k)
@@ -847,8 +847,8 @@ namespace model
             }
             else // iterative solver
             {
-                model::cout<<"(MINRES)..."<<std::flush;
-#ifdef _OPENMP // SimplicialLDLT is not multi-threaded. So parallelize loop over NetworkComponents.
+                model::cout<<"(MINRES "<<nThreads<<" threads)..."<<std::flush;
+#ifdef _OPENMP // MINRES is not multi-threaded. So parallelize loop over NetworkComponents.
 #pragma omp parallel for
                 for (unsigned int k=0;k<this->components().size();++k)
                 {

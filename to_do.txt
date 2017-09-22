@@ -30,3 +30,7 @@ NEW LOOP_NETWORK CODE
 - GPU computation
 - Implement cracks
 - DislocationSegment::is_boundarySegment() must use mid point (not normals) to push segments to corners
+- Assemble and solve is taking too long (> particle interaction). Can we assemble scalar system of equations? Null-space solver?
+- DDvtk cannot interrupt autoplay
+- display help in DDvtk
+- re-enable moving plot panel in DDvtk
