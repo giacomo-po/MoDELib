@@ -11,7 +11,7 @@
 
 namespace model {
 	
-enum {outsideMesh=0, insideMesh=1, onMeshBoundary=2, onRegionBoundary=3};
+enum NodeMeshLocation{outsideMesh=0, insideMesh=1, onMeshBoundary=2, onRegionBoundary=3};
 //enum BoundaryType {noBoundary=0, softBoundary=1, hardBoundary=2};
 	
 }

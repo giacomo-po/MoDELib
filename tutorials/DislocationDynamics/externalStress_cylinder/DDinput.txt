@@ -4,7 +4,7 @@ Nsteps=1000;
 startAtTimeStep = 0;
 use_directSolver_DD=1;
 quadPerLength=0.1;
-bndDistance=3;
+#bndDistance=3;
 
 ######################################
 # TIME STEP

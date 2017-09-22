@@ -29,3 +29,4 @@ NEW LOOP_NETWORK CODE
 - mesh search algorithms for non-convex domains (e.g. foam)
 - GPU computation
 - Implement cracks
+- DislocationSegment::is_boundarySegment() must use mid point (not normals) to push segments to corners

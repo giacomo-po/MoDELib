@@ -292,7 +292,7 @@ namespace model
                                                                 const Simplex<dim,dim>* const guess,
                                                                 std::set<const Simplex<dim,dim>*>& searchSet) const
         {/*!@param[in] P position to search for
-          * @param[in] guess Simplex* where the search starts
+          * @param[in] guess Simplex* where the search starts. If searchAllRegions=false, only the region of guess is searched
           *\returns a pair, where:
           * -pair.first is a boolean indicating whether the
           * search succesfully found a Simplex<dim,dim> which includes P.

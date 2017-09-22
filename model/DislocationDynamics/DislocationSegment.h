@@ -24,7 +24,7 @@
 #include <model/Quadrature/Quadrature.h>
 #include <model/Quadrature/QuadPow.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
-#include <model/DislocationDynamics/DislocationConsts.h>
+//#include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/Geometry/Splines/SplineSegment.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
@@ -1025,7 +1025,7 @@ namespace model
         /**********************************************************************/
         bool is_boundarySegment() const
         {
-            return (this->source->isBoundaryNode() && this->sink->isBoundaryNode() );
+            return (this->source->isBoundaryNode() && this->sink->isBoundaryNode() && this->source->bndNormal().cross(this->sink->bndNormal()).squaredNorm()<FLT_EPSILON);
         }
         
         /**********************************************************************/

@@ -22,7 +22,7 @@
 
 //#include <model/Network/Operations/EdgeExpansion.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
-#include <model/DislocationDynamics/DislocationConsts.h>
+//#include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/Geometry/Splines/SplineNode.h>
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/Math/GramSchmidt.h>
@@ -37,6 +37,7 @@
 #include <model/Geometry/SegmentSegmentIntersection.h>
 #include <model/Geometry/PlanePlaneIntersection.h>
 #include <model/Geometry/PlaneLineIntersection.h>
+#include <model/DislocationDynamics/IO/DislocationNodeIO.h>
 
 //#include <model/Geometry/LineSegmentIntersection.h>
 
@@ -52,6 +53,10 @@ namespace model
     {
         
     public:
+        
+        enum NodeMeshLocation{outsideMesh=-1, insideMesh=0, onMeshBoundary=1, onRegionBoundary=2};
+        //enum BoundaryType {noBoundary=0, softBoundary=1, hardBoundary=2};
+        
         
         constexpr static int dim=_dim; // make dim available outside class
         typedef DislocationNode       <dim,corder,InterpolationType,QuadratureRule> NodeType;
@@ -76,7 +81,8 @@ namespace model
         
         static bool use_velocityFilter;
         static double velocityReductionFactor;
-        static double bndDistance;
+        //static constexpr double bndDistance=static_cast<double>(FLT_EPSILON);
+        static const double bndDistance;
         bool _isGlissile;
         
     private:
@@ -136,6 +142,8 @@ namespace model
                 }
             }
             
+            _isOnBoundingBox=true;
+            
             return snapMap.begin()->second;
             
         }
@@ -182,7 +190,22 @@ namespace model
                 }
                 else
                 {
-                    temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
+                    if(grainSet.size()==1)
+                    {// node only in one region
+                        if((*grainSet.begin())->grainID!=guess->region->regionID)
+                        {
+                            temp=DislocationSharedObjects<dim>::mesh.searchRegion((*grainSet.begin())->grainID,this->get_P());
+                        }
+                        else
+                        {
+                            temp=DislocationSharedObjects<dim>::mesh.searchRegionWithGuess(this->get_P(),guess);
+                        }
+                    }
+                    else
+                    {
+                        std::cout<<"WARNING: CHECK THAT NODE IS ON THE REGION BOUNDARY"<<std::endl;
+                        temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
+                    }
                 }
                 
                 if(!temp.first) // DislocationNode not found inside mesh
@@ -298,7 +321,7 @@ namespace model
         C(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
           */
-//            std::cout<<"DislocationNode from ExpadingLink A "<<this->sID<<std::endl;
+            //            std::cout<<"DislocationNode from ExpadingLink A "<<this->sID<<std::endl;
             //forceBoundaryNode(pL);
             //            assert(0 && "Initialize C");
         }
@@ -428,7 +451,7 @@ namespace model
                 }
             }
             
-//            assert(temp.size()==1 || temp.size()>=3 && "updateBoundingSegments failed");
+            //            assert(temp.size()==1 || temp.size()>=3 && "updateBoundingSegments failed");
             return temp;
             
         }
@@ -442,7 +465,7 @@ namespace model
           *
           * This functin overrides LoopNode::addLoopLink
           */
-//            std::cout<<"DislocationNode "<<this->sID<<" addLoopLink"<<std::endl;
+            //            std::cout<<"DislocationNode "<<this->sID<<" addLoopLink"<<std::endl;
             NodeBaseType::addLoopLink(pL); // forward to base class
             _isGlissile*=pL->loop()->isGlissile;
             
@@ -454,14 +477,17 @@ namespace model
                 updateGlidePlaneIntersections(pL->loop()->glidePlane);
                 _boundingBoxSegments=updateBoundingSegments(_boundingBoxSegments,pL->loop()->glidePlane); // Update _boundingBoxSegments
                 grainSet.insert(&(pL->loop()->grain)); // Insert new grain in grainSet
-                
-//                boxCenter.setZero();
-//                for(const auto& posPair : _boundingBoxSegments)
-//                {
-//                    boxCenter+=posPair.first;
-//                    boxCenter+=posPair.second;
-//                }
-//                boxCenter/=(2*_boundingBoxSegments.size());
+                if(grainSet.size()>1)
+                {
+                    std::cout<<"WARNING: CHECK THAT NODE IS ON REGION BND"<<std::endl;
+                }
+                //                boxCenter.setZero();
+                //                for(const auto& posPair : _boundingBoxSegments)
+                //                {
+                //                    boxCenter+=posPair.first;
+                //                    boxCenter+=posPair.second;
+                //                }
+                //                boxCenter/=(2*_boundingBoxSegments.size());
                 
             }
             
@@ -473,7 +499,7 @@ namespace model
           *
           * This functin overrides LoopNode::removeLoopLink
           */
-//            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;
+            //            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;
             NodeBaseType::removeLoopLink(pL); // forward to base class
             
             // Re-construct _confiningPlanes and grainSet
@@ -483,7 +509,7 @@ namespace model
             grainSet.clear();
             for(const auto& loopLink : this->loopLinks())
             {
-//                std::cout<<"loopLink "<<loopLink->source()->sID<<"->"<<loopLink->sink()->sID<<std::endl;
+                //                std::cout<<"loopLink "<<loopLink->source()->sID<<"->"<<loopLink->sink()->sID<<std::endl;
                 _isGlissile*=loopLink->loop()->isGlissile;
                 const bool success=_confiningPlanes.insert(&(loopLink->loop()->glidePlane)).second;
                 
@@ -493,17 +519,21 @@ namespace model
                     updateGlidePlaneIntersections(loopLink->loop()->glidePlane);
                     _boundingBoxSegments=updateBoundingSegments(_boundingBoxSegments,loopLink->loop()->glidePlane);
                     grainSet.insert(&(loopLink->loop()->grain));
+                    if(grainSet.size()>1)
+                    {
+                        std::cout<<"WARNING: CHECK THAT NODE IS ON REGION BND"<<std::endl;
+                    }
                     
                 }
             }
             
-//            boxCenter.setZero();
-//            for(const auto& posPair : _boundingBoxSegments)
-//            {
-//                boxCenter+=posPair.first;
-//                boxCenter+=posPair.second;
-//            }
-//            boxCenter/=(2*_boundingBoxSegments.size());
+            //            boxCenter.setZero();
+            //            for(const auto& posPair : _boundingBoxSegments)
+            //            {
+            //                boxCenter+=posPair.first;
+            //                boxCenter+=posPair.second;
+            //            }
+            //            boxCenter/=(2*_boundingBoxSegments.size());
         }
         
         
@@ -695,12 +725,32 @@ namespace model
         }
         
         /**********************************************************************/
-        int meshLocation() const
+        NodeMeshLocation meshLocation() const
         {/*!\returns the position of *this relative to the bonudary:
           * 1 = inside mesh
           * 2 = on mesh boundary
           */
-            return (boundaryNormal.squaredNorm()>FLT_EPSILON? onMeshBoundary : insideMesh);
+            
+            NodeMeshLocation temp = outsideMesh;
+            
+            if(boundaryNormal.squaredNorm())
+            {
+                temp=onMeshBoundary;
+            }
+            else
+            {
+                if(_isOnBoundingBox)
+                {
+                    temp=onRegionBoundary;
+                    
+                }
+                else
+                {
+                    temp=insideMesh;
+                }
+            }
+            
+            return temp;
         }
         
         /**********************************************************************/
@@ -712,7 +762,7 @@ namespace model
         /**********************************************************************/
         bool isGrainBoundaryNode() const
         {
-            return grainSet.size()>1;
+            return meshLocation()==onRegionBoundary;
         }
         
         /**********************************************************************/
@@ -803,30 +853,23 @@ namespace model
             if (dX.squaredNorm()>0.0 && _isGlissile) // move a node only if |v|!=0
             {
                 
-                
-                /* 1) First snap to glidePlaneIntersections (if any). These are
-                 * infinite lines defined as (P,d), wher P is a position and d a direction
-                 * 2) Then, check if point is outside. If it is, snap to bonudaing box and set flag
-                 * 3) if flag is on, snap to bounding box, without doing (1).
-                 */
-                
+                // Make sure that new position is at intersection of glidePlanes
                 const VectorDim newP=snapToGlidePlaneIntersection(this->get_P()+dX);
                 
                 if(shared.use_boundary)
                 {// using confining mesh
                     
-                    if(_isOnBoundingBox)
-                    {
+                    if(_isOnBoundingBox || grainSet.size()>1)
+                    {// if the node is already on the the bounding box, keep it there
                         set_P(snapToBoundingBox(newP));
                     }
                     else
-                    {
-                        std::set<const Simplex<dim,dim>*> path;
-                        const bool searchAllRegions=true;
-                        std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<dim>::mesh.searchWithGuess(searchAllRegions,
-                                                                                                                         this->get_P()+dX,
-                                                                                                                         p_Simplex,
-                                                                                                                         path));
+                    {// check if node is ou
+                        
+                        
+                        //                        std::set<const Simplex<dim,dim>*> path;
+                        //                        const bool searchAllRegions=false;
+                        std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<dim>::mesh.searchRegionWithGuess(newP,p_Simplex));
                         if(temp.first)
                         {// newP is inside box
                             set_P(newP);
@@ -834,7 +877,6 @@ namespace model
                         else
                         {
                             set_P(snapToBoundingBox(newP));
-                            _isOnBoundingBox=true;
                         }
                         
                         
@@ -865,12 +907,13 @@ namespace model
         template <class T>
         friend T& operator << (T& os, const NodeType& ds)
         {
-            os  << ds.sID<<"\t"
-            /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<"\t"
-            /**/<< ds.get_V().transpose()<<"\t"
-            /**/<< ds.velocityReduction()<<"\t"
-            /**/<< ds.pSN()->sID<<"\t"
-            /**/<< (ds.meshLocation()==onMeshBoundary);
+            os<< DislocationNodeIO<dim>(ds);
+            //            os  << ds.sID<<"\t"
+            //            /**/<< std::setprecision(15)<<std::scientific<<ds.get_P().transpose()<<"\t"
+            //            /**/<< ds.get_V().transpose()<<"\t"
+            //            /**/<< ds.velocityReduction()<<"\t"
+            //            /**/<< ds.pSN()->sID<<"\t"
+            //            /**/<< (ds.meshLocation()==onMeshBoundary);
             return os;
         }
         
@@ -888,7 +931,7 @@ namespace model
     
     template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
     /*	   */ template <short unsigned int, size_t> class QuadratureRule>
-    double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::bndDistance=FLT_EPSILON;
+    const double DislocationNode<_dim,corder,InterpolationType,QuadratureRule>::bndDistance=FLT_EPSILON;
     
     
 }

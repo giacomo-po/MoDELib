@@ -79,7 +79,7 @@
 #include <model/LoopNetwork/LoopNetwork.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/IO/EigenDataReader.h>
-#include <model/DislocationDynamics/DislocationConsts.h>
+//#include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationNetworkComponent.h>
 #include <model/DislocationDynamics/DislocationNode.h>
@@ -700,7 +700,7 @@ namespace model
             
             // time-stepping
             
-            EDR.readScalarInFile(fullName.str(),"bndDistance",NodeType::bndDistance);
+//            EDR.readScalarInFile(fullName.str(),"bndDistance",NodeType::bndDistance);
             //            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
             EDR.readScalarInFile(fullName.str(),"use_directSolver_DD",DislocationNetworkComponentType::use_directSolver);
             

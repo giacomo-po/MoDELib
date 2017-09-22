@@ -23,9 +23,9 @@ namespace model
         const size_t sID;          // sID
         const VectorDim P;          // position
         const VectorDim V;          // velocity
-        const double f;             // velocity reduction factor
+        const double velocityReduction;             // velocity reduction factor
         const size_t snID;          // component ID
-        const bool  meshLocaiton;   // mesh location
+        const int  meshLocation;    // mesh location
         
         /**********************************************************************/
         template<typename DislocationNodeType>
@@ -33,15 +33,28 @@ namespace model
         /* init */ sID(dn.sID),
         /* init */ P(dn.get_P()),
         /* init */ V(dn.get_V()),
-        /* init */ f(dn.velocityReduction()),
+        /* init */ velocityReduction(dn.velocityReduction()),
         /* init */ snID(dn.pSN()->sID),
-        /* init */ meshLocaiton(dn.meshLocation()==onMeshBoundary)
+        /* init */ meshLocation(dn.meshLocation())
         {
          
-            assert(0 && "FINISH HERE, THIS MUST BE COMPATIBLE WITH ID READER");
+//            assert(0 && "FINISH HERE, THIS MUST BE COMPATIBLE WITH ID READER");
             
         }
 
+        
+        /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const DislocationNodeIO<dim>& ds)
+        {
+            os  << ds.sID<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<ds.P.transpose()<<"\t"
+            /**/<< ds.V.transpose()<<"\t"
+            /**/<< ds.velocityReduction<<"\t"
+            /**/<< ds.snID<<"\t"
+            /**/<< ds.meshLocation;
+            return os;
+        }
         
 	};
 	

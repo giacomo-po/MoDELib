@@ -13,7 +13,7 @@
 
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
-#include <model/DislocationDynamics/DislocationConsts.h>
+//#include <model/DislocationDynamics/DislocationConsts.h>
 
 #include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
