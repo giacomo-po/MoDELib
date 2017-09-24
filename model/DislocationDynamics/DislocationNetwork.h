@@ -107,11 +107,10 @@
 namespace model
 {
     
-    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType>
     class DislocationNetwork :
-    /* base                 */ public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType,QuadratureRule> >,
-    /* base                 */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType,QuadratureRule> >::LoopType>,
+    /* base                 */ public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType> >,
+    /* base                 */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType> >::LoopType>,
     /* base                 */ public ParticleSystem<DislocationParticle<_dim> >
     {
         
@@ -119,12 +118,12 @@ namespace model
         
         enum {dim=_dim}; // make dim available outside class
         
-        typedef DislocationNetwork<dim,corder,InterpolationType,QuadratureRule> DislocationNetworkType;
+        typedef DislocationNetwork<dim,corder,InterpolationType> DislocationNetworkType;
         typedef LoopNetwork<DislocationNetworkType> LoopNetworkType;
         //        typedef DislocationNetworkType Derived; // define Derived to use NetworkTypedefs.h
         //#include <model/Network/NetworkTypedefs.h>
-        typedef DislocationNode<dim,corder,InterpolationType,QuadratureRule> NodeType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
-        typedef DislocationSegment<dim,corder,InterpolationType,QuadratureRule> LinkType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
+        typedef DislocationNode<dim,corder,InterpolationType> NodeType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
+        typedef DislocationSegment<dim,corder,InterpolationType> LinkType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
         typedef DislocationNetworkComponent<NodeType,LinkType> DislocationNetworkComponentType;
         typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
         //        typedef NetworkComponentObserver<NetworkComponentType> NetworkComponentObserverType;

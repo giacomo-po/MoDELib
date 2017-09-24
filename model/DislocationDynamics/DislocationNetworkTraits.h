@@ -24,61 +24,52 @@ namespace model
 	
 	/************************************************************/	
 	/*	Class Predeclarations ***********************************/
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
+	template <short unsigned int dim, short unsigned int corder, typename InterpolationType>
 	class DislocationNetwork;
 		
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
+	template <short unsigned int dim, short unsigned int corder, typename InterpolationType>
 	class DislocationNode;
 		
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
+	template <short unsigned int dim, short unsigned int corder, typename InterpolationType>
 	class DislocationSegment;
     
-    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
+    template <short unsigned int dim, short unsigned int corder, typename InterpolationType>
     class DislocationLoop;
 	
 	
 	/********************************************************************/	
 	/*	DislocationNetworkTraitsBase: a base class for Dislocation Network Traits */
-	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
+	template <short unsigned int _dim, short unsigned int corder, typename InterpolationType>
 	struct DislocationNetworkTraitsBase
     {
         static constexpr int dim=_dim;
-		typedef DislocationNetwork   <dim,corder,InterpolationType,QuadratureRule>	LoopNetworkType;
-		typedef DislocationNode      <dim,corder,InterpolationType,QuadratureRule>	NodeType;
-		typedef DislocationSegment   <dim,corder,InterpolationType,QuadratureRule>	LinkType;
-        typedef DislocationLoop      <dim,corder,InterpolationType,QuadratureRule>  LoopType;
+		typedef DislocationNetwork   <dim,corder,InterpolationType>	LoopNetworkType;
+		typedef DislocationNode      <dim,corder,InterpolationType>	NodeType;
+		typedef DislocationSegment   <dim,corder,InterpolationType>	LinkType;
+        typedef DislocationLoop      <dim,corder,InterpolationType>  LoopType;
 //		typedef Eigen::Matrix<double,dim,1>													FlowType;
         typedef LatticeVector<3>                                                            FlowType;
 //        static constexpr FlowType zeroFlow=FlowType::Zero();
-        typedef QuadratureDynamic<1,QuadratureRule,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
-        typedef QuadPowDynamic<SplineBase<dim,corder>::pOrder,QuadratureRule,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
+        typedef QuadratureDynamic<1,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
+        typedef QuadPowDynamic<SplineBase<dim,corder>::pOrder,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
             
     };
 
-	template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
-	struct TypeTraits<DislocationNetwork<dim,corder,InterpolationType,QuadratureRule> > :
-	public DislocationNetworkTraitsBase <dim,corder,InterpolationType,QuadratureRule>{};
+	template <short unsigned int dim, short unsigned int corder, typename InterpolationType>
+	struct TypeTraits<DislocationNetwork<dim,corder,InterpolationType> > :
+	public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
 
-    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
-	struct TypeTraits<DislocationNode<dim,corder,InterpolationType,QuadratureRule> > :
-	public DislocationNetworkTraitsBase <dim,corder,InterpolationType,QuadratureRule>{};
+    template <short unsigned int dim, short unsigned int corder, typename InterpolationType>
+	struct TypeTraits<DislocationNode<dim,corder,InterpolationType> > :
+	public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
 
-    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-	/*	   */ template <short unsigned int, size_t> class QuadratureRule>
-	struct TypeTraits<DislocationSegment<dim,corder,InterpolationType,QuadratureRule> > :
-	public DislocationNetworkTraitsBase <dim,corder,InterpolationType,QuadratureRule>{};
+    template <short unsigned int dim, short unsigned int corder, typename InterpolationType>
+	struct TypeTraits<DislocationSegment<dim,corder,InterpolationType> > :
+	public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
     
-    template <short unsigned int dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
-    struct TypeTraits<DislocationLoop<dim,corder,InterpolationType,QuadratureRule> > :
-    public DislocationNetworkTraitsBase <dim,corder,InterpolationType,QuadratureRule>{};
+    template <short unsigned int dim, short unsigned int corder, typename InterpolationType>
+    struct TypeTraits<DislocationLoop<dim,corder,InterpolationType> > :
+    public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
 
 } // namespace model
 #endif

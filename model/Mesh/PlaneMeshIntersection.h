@@ -10,11 +10,14 @@
 #ifndef model_PlaneMeshIntersection_H_
 #define model_PlaneMeshIntersection_H_
 
+#include <deque>
+#include <utility>
 #include <model/Utilities/StaticID.h>
 #include <model/Utilities/NonCopyable.h>
 #include <model/Mesh/SimplexTraits.h>
 #include <model/Mesh/SimplexObserver.h>
 #include <model/Mesh/SimplicialMesh.h>
+#include <model/Mesh/Simplex.h>
 
 namespace model
 {
@@ -22,7 +25,7 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template<int dim>
-    struct PlaneMeshIntersection
+    struct PlaneMeshIntersection : public std::deque<std::pair<const Simplex<dim,dim-2>* const,Eigen::Matrix<double,dim,1>>>
     {
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef std::deque<std::pair<const Simplex<dim,dim-2>* const,VectorDim>> PlaneMeshIntersectionContainerType;
@@ -38,18 +41,23 @@ namespace model
         const SimplicialMesh<dim>& mesh;
         
         /**********************************************************************/
-        PlaneMeshIntersection(const SimplicialMesh<dim>& m) :
+        PlaneMeshIntersection(const SimplicialMesh<dim>& m,
+        const VectorDim& P0,
+        const VectorDim& nn,
+        const int& rID) :
+        /* init */ PlaneMeshIntersectionContainerType(reducedPlaneMeshIntersection(m,P0,nn,rID)),
         /* init */ mesh(m)
         {
         
         }
         
         /**********************************************************************/
-        PlaneMeshIntersectionContainerType reducedPlaneMeshIntersection(const VectorDim& P0,
+        static PlaneMeshIntersectionContainerType reducedPlaneMeshIntersection(const SimplicialMesh<dim>& m,
+                                                                        const VectorDim& P0,
                                                                         const VectorDim& nn,
                                                                         const int& rID)
         {
-            const PlaneMeshIntersectionContainerType mpi=planeMeshIntersection(P0,nn,rID);
+            const PlaneMeshIntersectionContainerType mpi=planeMeshIntersection(m,P0,nn,rID);
             
             const auto t0=std::chrono::system_clock::now();
             model::cout<<"Reducing plane/mesh intersection points "<<std::flush;
@@ -84,7 +92,8 @@ namespace model
         }
         
         /**********************************************************************/
-        PlaneMeshIntersectionContainerType planeMeshIntersection(const VectorDim& P0,
+        static PlaneMeshIntersectionContainerType planeMeshIntersection(const SimplicialMesh<dim>& m,
+                                                                        const VectorDim& P0,
                                                                         const VectorDim& nn,
                                                                         const int& rID)
         {
@@ -100,7 +109,7 @@ namespace model
                 std::set<const EdgeSimplexType*> tested;
                 
                 // Find initial intersection
-                const std::pair<const EdgeSimplexType*,RootContainerType> pEI=getFirstPlaneEdgeIntersection(P0,N,rID,tested);
+                const std::pair<const EdgeSimplexType*,RootContainerType> pEI=getFirstPlaneEdgeIntersection(m,P0,N,rID,tested);
                 
                 switch (pEI.second.size())
                 {
@@ -145,7 +154,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void markParents(const Simplex<dim,0>& vertex,
+        static void markParents(const Simplex<dim,0>& vertex,
                                 std::set<const EdgeSimplexType*>& tested)
         {
             for(const auto& parent : vertex.parents())
@@ -156,7 +165,7 @@ namespace model
         
         
         /**********************************************************************/
-        SiblingsContainerType validSiblings(const Simplex<dim,dim-2>& edge,
+        static SiblingsContainerType validSiblings(const Simplex<dim,dim-2>& edge,
                                                    const int& rID)
         {
             
@@ -178,7 +187,7 @@ namespace model
         
         
         /**********************************************************************/
-        SiblingsContainerType validUncles(const Simplex<dim,0>& vertex,
+        static SiblingsContainerType validUncles(const Simplex<dim,0>& vertex,
                                                  const int& rID)
         {
             
@@ -210,7 +219,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void intersectionStep(const VectorDim& P0,
+        static void intersectionStep(const VectorDim& P0,
                                      const VectorDim& N,
                                      const SiblingsContainerType& edgeContainer,
                                      std::set<const EdgeSimplexType*>& tested,
@@ -290,14 +299,15 @@ namespace model
         
         
         /**********************************************************************/
-        std::pair<const Simplex<dim,dim-2>*,RootContainerType> getFirstPlaneEdgeIntersection(const VectorDim& P0,
+        static std::pair<const Simplex<dim,dim-2>*,RootContainerType> getFirstPlaneEdgeIntersection(const SimplicialMesh<dim>& m,
+                                                                                                    const VectorDim& P0,
                                                                                                     const VectorDim& n,
                                                                                                     const int& rID,
                                                                                                     std::set<const EdgeSimplexType*>& tested)
         {
             std::pair<const Simplex<dim,dim-2>*,RootContainerType> temp;
             
-            for(const auto& edge : mesh.template observer<dim-2>() )
+            for(const auto& edge : m.template observer<dim-2>() )
             {// loop over edges
                 if(edge.second->isBoundarySimplex() || edge.second->isRegionBoundarySimplex())
                 {
@@ -320,7 +330,7 @@ namespace model
         }
         
         /**********************************************************************/
-        RootContainerType planeEdgeIntersection(const VectorDim& P0,
+        static RootContainerType planeEdgeIntersection(const VectorDim& P0,
                                                        const VectorDim& n,
                                                        const Simplex<dim,dim-2>& edge,
                                                        std::set<const EdgeSimplexType*>& tested)

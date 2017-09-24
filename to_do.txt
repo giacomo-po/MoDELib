@@ -34,3 +34,6 @@ NEW LOOP_NETWORK CODE
 - DDvtk cannot interrupt autoplay
 - display help in DDvtk
 - re-enable moving plot panel in DDvtk
+- Convex decomposition of Mesh (http://masc.cs.gmu.edu/wiki/ACD)
+- Non convex domains changes: barycentric search algorithm, PlaneMeshIntersection::planeMeshIntersection, virtual segments, initial microstructure
+- Use CGAL

@@ -22,15 +22,14 @@
 
 namespace model
 {
-    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
-    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
-    class DislocationLoop : public Loop<DislocationLoop<_dim,corder,InterpolationType,QuadratureRule>>
+    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType>
+    class DislocationLoop : public Loop<DislocationLoop<_dim,corder,InterpolationType>>
     {
     
     public:
 
         constexpr static int dim=_dim;
-        typedef DislocationLoop<dim,corder,InterpolationType,QuadratureRule> DislocationLoopType;
+        typedef DislocationLoop<dim,corder,InterpolationType> DislocationLoopType;
         typedef Loop<DislocationLoopType> LoopType;
         typedef typename LoopType::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<DislocationLoopType>::LoopNetworkType LoopNetworkType;
