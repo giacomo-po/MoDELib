@@ -194,7 +194,7 @@ namespace model
         
         static const Eigen::Matrix<int   ,CombinationWithRepetition<_dim+1,degree>::value,_dim+1> baryStarsAndBars;
         static const Eigen::Matrix<double,CombinationWithRepetition<_dim+1,degree>::value,_dim+1> baryNodalCoordinates;
-        static const std::vector<Eigen::Matrix<double,dim+1,degree+1>,Eigen::aligned_allocator<Eigen::Matrix<double,dim+1,degree+1>> >  sfCoeffsVector;
+        static const std::vector<Eigen::Matrix<double,_dim+1,degree+1>,Eigen::aligned_allocator<Eigen::Matrix<double,_dim+1,degree+1>> >  sfCoeffsVector;
         
         //! A const reference to the Simplex that this element refers to
         const Simplex<dim,dim>& simplex;

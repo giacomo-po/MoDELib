@@ -11,9 +11,7 @@
 
 #include <chrono>
 #include <string>
-//#include <model/IO/VertexReader.h>
-//#include <model/IO/EdgeReader.h>
-#include <model/IO/IDReader.h>
+#include <model/IO/IDreader.h>
 
 #include <model/IO/UniqueOutputFile.h>
 #include <model/IO/SequentialOutputFile.h>
