@@ -38,7 +38,7 @@
 namespace model
 {
     
-    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType>
+    template <int _dim, short unsigned int corder, typename InterpolationType>
     class DislocationNode : public SplineNode<DislocationNode<_dim,corder,InterpolationType>,
     /*                                         */ _dim,corder,InterpolationType>
     
@@ -215,8 +215,8 @@ namespace model
                     else
                     {/* No line has been found for the previous planes.
                       * This means either _confiningPlanes.size()==1, or
-                      * all previous planes are parallel. Intersect last plane
-                      * with first.
+                      * all previous planes are parallel (e.g. parallel planes in multiple grains). 
+                      * Intersect last plane with first.
                       */
                         GlidePlaneObserver<LoopType>* const gpo(glidePlane(0).glidePlaneObserver);
                         for(const auto& otherGlidePlane : _confiningPlanes)
@@ -979,18 +979,18 @@ namespace model
     
     
     // static data
-    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType>
+    template <int _dim, short unsigned int corder, typename InterpolationType>
     bool DislocationNode<_dim,corder,InterpolationType>::use_velocityFilter=true;
     
-    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType>
+    template <int _dim, short unsigned int corder, typename InterpolationType>
     double DislocationNode<_dim,corder,InterpolationType>::velocityReductionFactor=0.75;
     
-    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType>
+    template <int _dim, short unsigned int corder, typename InterpolationType>
     const double DislocationNode<_dim,corder,InterpolationType>::bndDistance=FLT_EPSILON;
     
     
 //    /**********************************************************************/
-//    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType,
+//    template <int _dim, short unsigned int corder, typename InterpolationType,
 //    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
 //    VectorDim DislocationNode<_dim,corder,Interpolation,QuadratureRule>::boundingBoxProjection(const VectorDim& P) const
 //    {

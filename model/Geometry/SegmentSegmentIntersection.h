@@ -145,16 +145,85 @@ namespace model
                         ms.emplace(0.0,A0);
                         ms.emplace(1.0,B0);
                         const double u1=(A1-A0).dot(L0)/norm2L0;
-                        ms.emplace(u1,A0+u1*(B0-A0));
                         const double u2=(B1-A0).dot(L0)/norm2L0;
-                        ms.emplace(u2,A0+u2*(B0-A0));
+
                         
-                        auto iter1=ms.begin();
-                        std::advance(iter1,1);
-                        auto iter2=ms.begin();
-                        std::advance(iter2,2);
+//                        THIS IS WRONG THERE COULD BE NON-INTERSECTIONG COINCIDENT LINES! FINISH THE 9 CASES BELOW
+
                         
-                        return std::make_tuple(2,iter1->second,iter2->second);
+                        if(u1<0.0)
+                        {
+                            if(u2<0.0)
+                            {/*         A0----B0
+                              * A1---B1
+                              */
+                                return std::make_tuple(0,A0,A1);
+                            }
+                            else if(u2>=0.0 && u2<=1.0)
+                            {/*         A0----B0
+                              *       A1---B1
+                              */
+                                return std::make_tuple(2,A0,B1);
+                            }
+                            else // u2>1.0
+                            {/*         A0----B0
+                              *      A1----------B1
+                              */
+                                return std::make_tuple(2,A0,B0);
+                            }
+                        }
+                        else if(u1>=0.0 && u1<=1.0)
+                        {
+                            if(u2<0.0)
+                            {/*         A0----B0
+                              *      B1----A1
+                              */
+                                return std::make_tuple(2,A0,A1);
+                            }
+                            else if(u2>=0.0 && u2<=1.0)
+                            {/*      A0----------B0
+                              *         A1----B1
+                              */
+                                return std::make_tuple(2,A1,B1);
+                            }
+                            else // u2>1.0
+                            {/*      A0------B0
+                              *           A1-----B1
+                              */
+                                return std::make_tuple(2,A1,B0);
+                            }
+                        }
+                        else // u1>1.0
+                        {
+                            if(u2<0.0)
+                            {/*      A0------B0
+                              *   B1-------------A1
+                              */
+                                return std::make_tuple(2,A0,B0);
+                            }
+                            else if(u2>=0.0 && u2<=1.0)
+                            {/*      A0------B0
+                              *          B1-------A1
+                              */
+                                return std::make_tuple(2,B1,B0);
+                            }
+                            else // u2>1.0
+                            {/*      A0----B0
+                              *               B1----A1
+                              */
+                                return std::make_tuple(0,B0,B1);
+                            }
+                        }
+                        
+//                        ms.emplace(u1,A0+u1*(B0-A0));
+//
+//                        ms.emplace(u2,A0+u2*(B0-A0));
+//                        
+//                        auto iter1=ms.begin();
+//                        std::advance(iter1,1);
+//                        auto iter2=ms.begin();
+//                        std::advance(iter2,2);
+//                        return std::make_tuple(2,iter1->second,iter2->second);
                     }
                     else
                     {// parallel segments

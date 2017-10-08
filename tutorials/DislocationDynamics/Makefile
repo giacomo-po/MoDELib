@@ -2,7 +2,7 @@
 # EDIT HERE
 ##########################################################
 USE_ICC = 0
-usePARDISO = 0
+usePARDISO = 1
 MODEL_INCLUDE =../../..
 EIGEN_INCLUDE =/Users/giacomo/Documents/eigen
 MKL_INCLUDE=/opt/intel//mkl/include

@@ -22,7 +22,7 @@
 
 namespace model
 {
-    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType>
+    template <int _dim, short unsigned int corder, typename InterpolationType>
     class DislocationLoop : public Loop<DislocationLoop<_dim,corder,InterpolationType>>
     {
     

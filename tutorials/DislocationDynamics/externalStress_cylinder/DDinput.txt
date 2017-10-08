@@ -2,7 +2,7 @@
 # Number of simulation steps 
 Nsteps=1000;
 startAtTimeStep = 0;
-use_directSolver_DD=1;
+use_directSolver_DD=0;
 quadPerLength=0.1;
 #bndDistance=3;
 

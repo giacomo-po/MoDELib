@@ -482,127 +482,132 @@ namespace model
         }
         
         /**********************************************************************/
-        void formJunctions(const double& dx)
+        void formJunctions(const bool& use_junctions, const double& dx)
         {
             
-            
-            //! 1- Initialize intersectionContainer calling findIntersections deque<Pair<Pair<Link*double>,Pair<Link*,double>>>
-            std::deque<EdgeIntersectionPairContainerType> intersectionContainer;
-            std::deque<std::deque<int>> dirVector;
-            
-#ifdef _OPENMP
-            const size_t nThreads = omp_get_max_threads();
-#else
-            const size_t nThreads = 1;
-#endif
-            
-            intersectionContainer.resize(nThreads);
-            dirVector.resize(nThreads);
-            findIntersections(intersectionContainer,dirVector,nThreads);
-            
-            
-            
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Forming Junctions: "<<std::flush;
-            
-            typedef std::pair<size_t,size_t> EdgeIDType;
-            
-            
-            for (size_t tt=0;tt<intersectionContainer.size();++tt)
+            if (use_junctions)
             {
-                for (size_t interID=0;interID!=intersectionContainer[tt].size();++interID)
+                //! 1- Initialize intersectionContainer calling findIntersections deque<Pair<Pair<Link*double>,Pair<Link*,double>>>
+                std::deque<EdgeIntersectionPairContainerType> intersectionContainer;
+                std::deque<std::deque<int>> dirVector;
+                
+#ifdef _OPENMP
+                const size_t nThreads = omp_get_max_threads();
+#else
+                const size_t nThreads = 1;
+#endif
+                
+                intersectionContainer.resize(nThreads);
+                dirVector.resize(nThreads);
+                findIntersections(intersectionContainer,dirVector,nThreads);
+                
+                
+                
+                const auto t0= std::chrono::system_clock::now();
+                model::cout<<"		Forming Junctions: "<<std::flush;
+                
+                typedef std::pair<size_t,size_t> EdgeIDType;
+                
+                
+                for (size_t tt=0;tt<intersectionContainer.size();++tt)
                 {
-                    const EdgeIDType& key1(intersectionContainer[tt][interID]. first.first);
-                    const EdgeIDType& key2(intersectionContainer[tt][interID].second.first);
-                    
-                    const isNetworkLinkType L1(DN.link(key1.first,key1.second));
-                    const isNetworkLinkType L2(DN.link(key2.first,key2.second));
-                    
-                    //std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[tt][interID]. first.second<<","<<intersectionContainer[tt][interID]. second.second<<std::endl;
-                    
-                    if(L1.first && L2.first) // Links exist
+                    for (size_t interID=0;interID!=intersectionContainer[tt].size();++interID)
                     {
-                        //std::cout<<"I'm here 1"<<std::endl;
+                        const EdgeIDType& key1(intersectionContainer[tt][interID]. first.first);
+                        const EdgeIDType& key2(intersectionContainer[tt][interID].second.first);
                         
-                        const std::pair<size_t,size_t> I=junctionIDs(*L1.second,intersectionContainer[tt][interID]. first.second,dx);
-                        const size_t im=I.first;
-                        const size_t ip=I.second;
+                        const isNetworkLinkType L1(DN.link(key1.first,key1.second));
+                        const isNetworkLinkType L2(DN.link(key2.first,key2.second));
                         
+                        //std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[tt][interID]. first.second<<","<<intersectionContainer[tt][interID]. second.second<<std::endl;
                         
-                        const std::pair<size_t,size_t> J=junctionIDs(*L2.second,intersectionContainer[tt][interID].second.second,dx);
-                        const size_t jm=J.first;
-                        const size_t jp=J.second;
-                        
-                        
-                        switch (dirVector[tt][interID])
+                        if(L1.first && L2.first) // Links exist
                         {
-                            case +1:
+                            //std::cout<<"I'm here 1"<<std::endl;
+                            
+                            const std::pair<size_t,size_t> I=junctionIDs(*L1.second,intersectionContainer[tt][interID]. first.second,dx);
+                            const size_t im=I.first;
+                            const size_t ip=I.second;
+                            
+                            
+                            const std::pair<size_t,size_t> J=junctionIDs(*L2.second,intersectionContainer[tt][interID].second.second,dx);
+                            const size_t jm=J.first;
+                            const size_t jp=J.second;
+                            
+                            
+                            switch (dirVector[tt][interID])
                             {
-                                //std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
-                                //std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
-                                if(im!=jm)
+                                case +1:
                                 {
-                                    const isNetworkNodeType N1=DN.node(im);
-                                    const isNetworkNodeType N2=DN.node(jm);
-                                    if(N1.first && N2.first)
+                                    //std::cout<<"+1: im="<<im<<", jm="<<jm<<std::endl;
+                                    //std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
+                                    if(im!=jm)
                                     {
-                                        //std::cout<<"first contract +1 "<<std::endl;
-                                        DN.contractWithConstraintCheck(N1,N2);
+                                        const isNetworkNodeType N1=DN.node(im);
+                                        const isNetworkNodeType N2=DN.node(jm);
+                                        if(N1.first && N2.first)
+                                        {
+                                            //std::cout<<"first contract +1 "<<std::endl;
+                                            DN.contractWithConstraintCheck(N1,N2);
+                                        }
                                     }
+                                    if(ip!=jp)
+                                    {
+                                        const isNetworkNodeType N1=DN.node(ip);
+                                        const isNetworkNodeType N2=DN.node(jp);
+                                        if(N1.first && N2.first)
+                                        {
+                                            //std::cout<<"second contract +1 "<<std::endl;
+                                            DN.contractWithConstraintCheck(N1,N2);
+                                        }
+                                    }
+                                    break;
                                 }
-                                if(ip!=jp)
+                                    
+                                case -1:
                                 {
-                                    const isNetworkNodeType N1=DN.node(ip);
-                                    const isNetworkNodeType N2=DN.node(jp);
-                                    if(N1.first && N2.first)
+                                    //std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
+                                    //std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
+                                    if(im!=jp)
                                     {
-                                        //std::cout<<"second contract +1 "<<std::endl;
-                                        DN.contractWithConstraintCheck(N1,N2);
+                                        const isNetworkNodeType N1=DN.node(im);
+                                        const isNetworkNodeType N2=DN.node(jp);
+                                        if(N1.first && N2.first)
+                                        {
+                                            //std::cout<<"first contract -1 "<<std::endl;
+                                            DN.contractWithConstraintCheck(N1,N2);
+                                        }
                                     }
+                                    if(ip!=jm)
+                                    {
+                                        const isNetworkNodeType N1=DN.node(ip);
+                                        const isNetworkNodeType N2=DN.node(jm);
+                                        if(N1.first && N2.first)
+                                        {
+                                            //std::cout<<"second contract -1 "<<std::endl;
+                                            DN.contractWithConstraintCheck(N1,N2);
+                                        }
+                                    }
+                                    break;
                                 }
-                                break;
+                                    
+                                default:
+                                    assert(0 && "DIR VECTOR CAN ONLY BE +1 or -1");
+                                    break;
                             }
-                                
-                            case -1:
-                            {
-                                //std::cout<<"-1: im="<<im<<", jp="<<jp<<std::endl;
-                                //std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
-                                if(im!=jp)
-                                {
-                                    const isNetworkNodeType N1=DN.node(im);
-                                    const isNetworkNodeType N2=DN.node(jp);
-                                    if(N1.first && N2.first)
-                                    {
-                                        //std::cout<<"first contract -1 "<<std::endl;
-                                        DN.contractWithConstraintCheck(N1,N2);
-                                    }
-                                }
-                                if(ip!=jm)
-                                {
-                                    const isNetworkNodeType N1=DN.node(ip);
-                                    const isNetworkNodeType N2=DN.node(jm);
-                                    if(N1.first && N2.first)
-                                    {
-                                        //std::cout<<"second contract -1 "<<std::endl;
-                                        DN.contractWithConstraintCheck(N1,N2);
-                                    }
-                                }
-                                break;
-                            }
-                                
-                            default:
-                                assert(0 && "DIR VECTOR CAN ONLY BE +1 or -1");
-                                break;
+                            
+                            
                         }
-                        
+                        //std::cout<<"done forming Junction "<<std::endl;
                         
                     }
-                    //std::cout<<"done forming Junction "<<std::endl;
-                    
-                }
-            } // loop over threads
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+                } // loop over threads
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            }
             
+            
+            
+
             
         }
         

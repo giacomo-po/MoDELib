@@ -44,7 +44,7 @@ namespace model
     
     /**************************************************************************/
     /**************************************************************************/
-    template <short unsigned int _dim, short unsigned int _corder, typename InterpolationType>
+    template <int _dim, short unsigned int _corder, typename InterpolationType>
     class DislocationSegment : public SplineSegment<DislocationSegment<_dim,_corder,InterpolationType>,
     /*                                              */ _dim, _corder>
     {
@@ -109,12 +109,9 @@ namespace model
         //! The identity matrix
         static const Eigen::Matrix<double,_dim,_dim> I;
         
-        //        //! A static vector of zeros
-        //        static const Eigen::Matrix<double,_dim,1> zeroDim;
-        
-        //        VectorDim boundaryLoopNormal;
-        
+        //! The Burgers vector
         VectorDim Burgers;
+        
         VectorDim _glidePlaneNormal;
         
         
@@ -132,22 +129,9 @@ namespace model
         QuadratureParticleContainerType quadratureParticleContainer;
         
         
-        //                const Grain<dim>& grain;
-        
-        //! The Burgers vector
-        
         const std::deque<const LatticePlaneBase*> conjugatePlaneNormals;
         
-        //        const LatticeVectorType& Burgers;
-        
-        
-        
         DislocationSharedObjects<dim> shared;
-        
-        
-        //! A shared pointer to the GlidePlane of this segment
-        //        const GlidePlaneSharedPtrType pGlidePlane;
-        
         
         static double quadPerLength;
         size_t qOrder;
@@ -192,9 +176,6 @@ namespace model
                 temp.template block<dim,dim>(0,n*dim)=MatrixDim::Identity()*SFgauss(k,n);
             }
             return temp;
-            //            *  TO DO: EXPRESSION NEEDS TO BE GENERALIZED
-            //
-            //            return (MatrixDimNdof()<<I*SFgauss(k,0),I*SFgauss(k,1),I*SFgauss(k,2),I*SFgauss(k,3)).finished();
         }
         
         /**********************************************************************/
@@ -268,7 +249,6 @@ namespace model
                 }
             }
             
-            //            glidePlane.reset(new LatticePlane(findGlidePlane()));
         }
         
         
@@ -280,18 +260,10 @@ namespace model
         //        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const VectorDim& Fin) :
         DislocationSegment(const std::shared_ptr<NodeType>& nI,
                            const std::shared_ptr<NodeType>& nJ) :
-        //        /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),Fin),
         /* base class initialization */ SplineSegmentType(nI,nJ),
-        //                /* init list       */ grain(nI->grain),
         /* init list       */ Burgers(VectorDim::Zero()),
         /* init list       */ _glidePlaneNormal(VectorDim::Zero()),
-        //                        glidePlane(new LatticePlane(findGlidePlane())),
-        //        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
         /* init list       */ _isSessile(false),
-        //        /* init list       */ isSessile(this->glidePlane.n.cross(this->sessilePlane.n).squaredNorm()!=0),
-        //        /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
-        //        /* init list       */ boundaryLoopNormal(_glidePlaneNormal),
-        //        /* init list       */ pGlidePlane(this->findExistingGlidePlane(_glidePlaneNormal,this->source->get_P().dot(_glidePlaneNormal))), // change this
         /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
@@ -299,69 +271,10 @@ namespace model
           */
             
             std::cout<<"NEED TO REDEFINE ISSESSILE"<<std::endl;
-            //            std::cout<<"NEED TO REDEFINE GRAIN"<<std::endl;
-            
-            //            assert(nI->grain.grainID==nJ->grain.grainID && "source and Sink BELONG TO DIFFERENT GRAINS");
-            
-            //            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->source); // This should not be called in edge expansion or contraction
-            //            this->source->make_T();
-            
-            //            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->sink); // This should not be called in edge expansion or contraction
-            //            this->sink->make_T();
-            
-            //            assert(this->flow.squaredNorm()>0.0);
-            //            pGlidePlane->addToGLidePlane(this);
             pkGauss.setZero(dim,qOrder); // necessary if this is not assembled
         }
         
-        //        /* Constructor from EdgeExpansion) ************************************/
-        //        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair,
-        //                           const ExpandingEdge<LinkType>& ee) :
-        //        //        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow),
-        //        /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow,ee),
-        //        /* base class initialization */ SplineSegmentType::SplineSegmentBase(nodePair,ee),
-        //        /* init list       */ grain(ee.E.grain),
-        //        /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
-        ////        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
-        //        /* init list       */ isSessile(this->glidePlane.n.cross(this->sessilePlane.n).squaredNorm()!=0),
-        //        /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
-        //        //        /* init list       */ boundaryLoopNormal(_glidePlaneNormal),
-        //        /* init list       */ pGlidePlane(this->findExistingGlidePlane(_glidePlaneNormal,this->source->get_P().dot(_glidePlaneNormal))), // change this
-        //        /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
-        //        {/*! Constructor with pointers to source and sink, and ExpandingEdge
-        //          *  @param[in] NodePair_in the pair of source and sink pointers
-        //          *  @param[in] ee the expanding edge
-        //          */
-        //
-        //            assert(nodePair.first->grain.grainID==nodePair.second->grain.grainID && "source and Sink BELONG TO DIFFERENT GRAINS");
-        //
-        //            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->source); // This should not be called in edge expansion or contraction
-        //            this->source->make_T();
-        //
-        //            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->sink); // This should not be called in edge expansion or contraction
-        //            this->sink->make_T();
-        //
-        //            assert(this->flow.squaredNorm()>0.0);
-        //            pGlidePlane->addToGLidePlane(this);
-        //            pkGauss.setZero(dim,qOrder); // necessary if this is not assembled
-        //        }
-        
-        //        /* Destructor *********************************************************/
-        //        ~DislocationSegment()
-        //        {/*! Destructor
-        //          */
-        //            //! Add this to static VirtualBoundarySlipContainer
-        //            //			if (shared.boundary_type==softBoundary && shared.use_bvp)
-        //            //            {
-        //            //				if(is_boundarySegment() && this->chord().norm()>FLT_EPSILON)
-        //            //                {
-        //            //                    shared.vbsc.add(*this);
-        //            //				}
-        //            //			}
-        //            //! Removes this from *pGlidePlane
-        //            //            pGlidePlane->removeFromGlidePlane(this);
-        //            //            quadratureParticleContainer.clear();
-        //        }
+
         
         const VectorDim& burgers() const
         {
@@ -395,12 +308,7 @@ namespace model
             }
             
             updateGlidePlaneNormal();
-            
-            //            for(const auto& loopLink : this->loopLinks())
-            //            {
-            //                loopLink->loop()->glidePlane();
-            //            }
-            
+                        
         }
         
         /**********************************************************************/
@@ -749,12 +657,6 @@ namespace model
         }
         
         
-        //        Eigen::Matrix<double,1,Ndof> ortC_integrand(const int& k) const {
-        //            return rugauss.col(k).transpose()*SFgaussEx(k)*Quadrature<1,qOrder,QuadratureRule>::abscissa(k)*(1.0-Quadrature<1,qOrder,QuadratureRule>::abscissa(k));
-        //            //                                              *Quadrature<1,qOrder,QuadratureRule>::abscissa(k)*(1.0-Quadrature<1,qOrder,QuadratureRule>::abscissa(k));
-        //            //return rugauss.col(k).transpose()*SFgaussEx(k);
-        //        }
-        
         
         
         /**********************************************************************/
@@ -796,21 +698,6 @@ namespace model
                     }
                 }
                 
-                //            for (unsigned int i=0;i<segmentDOFs.size();++i)
-                //            {
-                //                std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
-                //                std::advance(iterI,i);
-                //                for (unsigned int j=0;j<segmentDOFs.size();++j)
-                //                {
-                //                    std::set<size_t>::const_iterator iterJ(segmentDOFs.begin());
-                //                    std::advance(iterJ,j);
-                //                    if (std::fabs(tempKqq(i,j))>FLT_EPSILON)
-                //                    {
-                //                        kqqT.push_back(Eigen::Triplet<double>(*iterI,*iterJ,tempKqq(i,j)));
-                //                    }
-                //                }
-                //            }
-                
                 const Eigen::VectorXd tempFq(Mseg.transpose()*Fq); // Create temporary force vector and add to global FQ
                 
                 localI=0;
@@ -825,13 +712,6 @@ namespace model
                         localI++;
                     }
                 }
-                
-                //            for (unsigned int i=0;i<segmentDOFs.size();++i)
-                //            {
-                //                std::set<size_t>::const_iterator iterI(segmentDOFs.begin());
-                //                std::advance(iterI,i);
-                //                FQ(*iterI)+=tempFq(i);
-                //            }
                 
             }
             
@@ -983,18 +863,6 @@ namespace model
                 dispJump += Burgers*lineTriangleIntersection(Pf,Sf,P1,P2,P3);
                 dispJump += Burgers*lineTriangleIntersection(Pf,Sf,P2,P4,P3);
                 
-                
-                //                if (dispJump.norm()>0.0)
-                //                {
-                //                    std::cout<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
-                //                    std::cout<<Pf.transpose()<<std::endl;
-                //                    std::cout<<Sf.transpose()<<std::endl;
-                //                    std::cout<<P1.transpose()<<std::endl;
-                //                    std::cout<<P2.transpose()<<std::endl;
-                //                    std::cout<<P3.transpose()<<std::endl;
-                //                    std::cout<<P4.transpose()<<std::endl;
-                //                }
-                
             }
         }
         
@@ -1030,29 +898,7 @@ namespace model
             return stressGauss[qOrder/2];
         }
         
-        //        /**********************************************************************/
-        //        bool isSimpleSessile() const __attribute__ ((deprecated))
-        //        {
-        //            bool temp=false;
-        //            if(_isSessile)
-        //            {
-        //                if(this->source->is_simple() && this->sink->is_simple())
-        //                {
-        //                    if(   this->source->openNeighborLink(0)->isSessile()
-        //                       && this->source->openNeighborLink(1)->isSessile()
-        //                       && this->sink->openNeighborLink(0)->isSessile()
-        //                       && this->sink->openNeighborLink(1)->isSessile()
-        //                       && this->source->openNeighborLink(0)->glidePlane.n.cross(this->source->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
-        //                       && this->source->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(0)->glidePlane.n).squaredNorm()==0
-        //                       && this->sink->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
-        //                       )
-        //                    {
-        //                        temp=true;
-        //                    }
-        //                }
-        //            }
-        //            return temp;
-        //        }
+
         
         /**********************************************************************/
         template <class T>
@@ -1061,12 +907,8 @@ namespace model
             os  << ds.source->sID<<"\t"<< ds.sink->sID<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.Burgers.transpose()<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.glidePlaneNormal().transpose()<<"\t"
-            //           /**/<< std::setprecision(15)<<std::scientific<<VectorDim::Zero().transpose()<<"\t"
-            //            /**/<< ds.sourceTfactor<<"\t"
-            //            /**/<< ds.sinkTfactor<<"\t"
             /**/<<SplineSegmentBase<dim,corder>::sourceT(ds).transpose()<<"\t"
             /**/<<SplineSegmentBase<dim,corder>::sinkT(ds).transpose()<<"\t"
-            //            /**/<< ds.pSN()->sID;
             <<0;
             return os;
         }
@@ -1074,16 +916,91 @@ namespace model
     };
     
     // Static Data
-    template <short unsigned int dim, short unsigned int corder, typename InterpolationType>
+    template <int dim, short unsigned int corder, typename InterpolationType>
     const Eigen::Matrix<double,dim,dim> DislocationSegment<dim,corder,InterpolationType>::I=Eigen::Matrix<double,dim,dim>::Identity();
     
-    template <short unsigned int dim, short unsigned int corder, typename InterpolationType>
+    template <int dim, short unsigned int corder, typename InterpolationType>
     double DislocationSegment<dim,corder,InterpolationType>::quadPerLength=0.2;
     
-    template <short unsigned int dim, short unsigned int corder, typename InterpolationType>
+    template <int dim, short unsigned int corder, typename InterpolationType>
     double DislocationSegment<dim,corder,InterpolationType>::virtualSegmentDistance=200.0;
     
     
 } // namespace model
 #endif
 
+
+
+//        /**********************************************************************/
+//        bool isSimpleSessile() const __attribute__ ((deprecated))
+//        {
+//            bool temp=false;
+//            if(_isSessile)
+//            {
+//                if(this->source->is_simple() && this->sink->is_simple())
+//                {
+//                    if(   this->source->openNeighborLink(0)->isSessile()
+//                       && this->source->openNeighborLink(1)->isSessile()
+//                       && this->sink->openNeighborLink(0)->isSessile()
+//                       && this->sink->openNeighborLink(1)->isSessile()
+//                       && this->source->openNeighborLink(0)->glidePlane.n.cross(this->source->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
+//                       && this->source->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(0)->glidePlane.n).squaredNorm()==0
+//                       && this->sink->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
+//                       )
+//                    {
+//                        temp=true;
+//                    }
+//                }
+//            }
+//            return temp;
+//        }
+
+
+//        /* Constructor from EdgeExpansion) ************************************/
+//        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair,
+//                           const ExpandingEdge<LinkType>& ee) :
+//        //        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow),
+//        /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow,ee),
+//        /* base class initialization */ SplineSegmentType::SplineSegmentBase(nodePair,ee),
+//        /* init list       */ grain(ee.E.grain),
+//        /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
+////        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
+//        /* init list       */ isSessile(this->glidePlane.n.cross(this->sessilePlane.n).squaredNorm()!=0),
+//        /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
+//        //        /* init list       */ boundaryLoopNormal(_glidePlaneNormal),
+//        /* init list       */ pGlidePlane(this->findExistingGlidePlane(_glidePlaneNormal,this->source->get_P().dot(_glidePlaneNormal))), // change this
+//        /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
+//        {/*! Constructor with pointers to source and sink, and ExpandingEdge
+//          *  @param[in] NodePair_in the pair of source and sink pointers
+//          *  @param[in] ee the expanding edge
+//          */
+//
+//            assert(nodePair.first->grain.grainID==nodePair.second->grain.grainID && "source and Sink BELONG TO DIFFERENT GRAINS");
+//
+//            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->source); // This should not be called in edge expansion or contraction
+//            this->source->make_T();
+//
+//            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->sink); // This should not be called in edge expansion or contraction
+//            this->sink->make_T();
+//
+//            assert(this->flow.squaredNorm()>0.0);
+//            pGlidePlane->addToGLidePlane(this);
+//            pkGauss.setZero(dim,qOrder); // necessary if this is not assembled
+//        }
+
+//        /* Destructor *********************************************************/
+//        ~DislocationSegment()
+//        {/*! Destructor
+//          */
+//            //! Add this to static VirtualBoundarySlipContainer
+//            //			if (shared.boundary_type==softBoundary && shared.use_bvp)
+//            //            {
+//            //				if(is_boundarySegment() && this->chord().norm()>FLT_EPSILON)
+//            //                {
+//            //                    shared.vbsc.add(*this);
+//            //				}
+//            //			}
+//            //! Removes this from *pGlidePlane
+//            //            pGlidePlane->removeFromGlidePlane(this);
+//            //            quadratureParticleContainer.clear();
+//        }

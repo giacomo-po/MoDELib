@@ -1,10 +1,11 @@
 /* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
- * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
- * Copyright (C) 2011 by Benjamin Ramirez <ramirezbrf@gmail.com>,
- * Copyright (C) 2011 by Mamdouh Mohamed  <msm07d@fsu.edu>,
- * Copyright (C) 2011 by Tamer Crsoby     <tamercrosby@gmail.com>,
- * Copyright (C) 2011 by Can Erel         <canerel55@gmail.com>.
+ * Copyright (C) 2011 by Giacomo Po       <gpo@ucla.edu>.
+ * Copyright (C) 2011 by Benjamin Ramirez <ramirezbrf@gmail.com>
+ * Copyright (C) 2011 by Mamdouh Mohamed  <msm07d@fsu.edu>
+ * Copyright (C) 2011 by Tamer Crsoby     <tamercrosby@gmail.com>
+ * Copyright (C) 2011 by Can Erel         <canerel55@gmail.com>
+ * Copyright (C) 2011 by Yinan Cui        <cuiyinan@ucla.edu>
  *
  * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
@@ -22,45 +23,9 @@
 // valgrind --tool=callgrind ./DDserial
 // KCachegrind callgrind.out.1378
 
-// BEING MODIFIED
-// 3 crossSlip
-
-// TO DO
-// -5 use modelMacros instead of assert
-// -4 CHANGE definition of modelMacros in debug mode BECAUSE assert(x) CAN BE REMOVED BY NDEBUG!!! MUST USE mode::assert_fail
-// -3 MAKE isIsolated and isBalanced data members of NetworkNode that are modified by addToNeighbors and removeFromNeigbors
-// There is a bug with implicit integration. Nodes may exit the domain boundary.
-
-// -1 - remove DislocationEnergyRules and EdgeConfig !!!
-// 0 - Finish DepthFirst class. Don't allow to search/execute if N=0, so that N=1 means that node only, n=2 means first neighbor. Or change SpineNodeBase_CatmullRom::TopologyChangeActions
-// 1- Implement operator << SpatialCell
-// 2- remove AddressBook, wherever possible, Done in Node chain
-// 40 - clean MultiExpand in Network Layer, remove get_r from there
-// 35- Simplify Neighborhood structure
-// 18- Should define linear=1, quadratic=2, cubic=3 and use polyDegree instead of corder. Put corder in SplineEnums
-// 37- IS PLANAR SHOULD RETURN 0 IF IS A LINE!!!!! CHANGE ALSO IN SPLINESEGMENTBASE
-// 38- IS PLANAR SHOULD RETURN the normal as pair<bool,normal>
-// 37- NetworkNode, initializations from expansion and contraction
-// IMPLEMENT NEIGHBOR ITERATORS IN NETWORKNODE
-// CHANGE CONST VERSION OF EDGEFINDER/VERTEXFINDER PASS this IN MEMBER FUNCTION, REMOVE TEMPLATE SPECIALIZATION AND MAKE STATIC FUNCTIONS
-// 9- cellSize should depend on applied load. Or better the number of cell neighbors used in each cell should depend on the applied stress to that cell
-// 1- BIN WRITER/READER. DEFINE DISLOCATIONSEGMENT::OUTDATA as Eigen::Matrix<double,1,9>. Then in Network add the function friend void operator<< (SequentialBinFile<template Char,???>, ...)
-
-
-// ISSUES
-// 3- SplineIntersection::planePlaneType uses the wrong tolerance (10x)
-// 10- SplineNetworkBase_common :		assert(iter->second.size()==2);
-//     SplineIntersection: //			assert(T0.norm()>tol && "SplineIntersection<3,3,1,2>: T0 too small.");  // NOT RIGHT FOR DIPOLAR LOOPS
-//									assert(T1.norm()>tol && "SplineIntersection<3,3,1,2>: T1 too small.");	// NOT RIGHT FOR DIPOLAR LOOPS
-// 14- If T0=0 or T1=0, then rl(0)=0/0=NaN !!!!! This is not true since rl still tends to a finite vector. Remove class Parametric curve and implement special case of rl at 0 and 1 for vanishing nodal tangents
-
 
 #ifndef model_DISLOCATIONNETWORK_H_
 #define model_DISLOCATIONNETWORK_H_
-
-//#ifdef _MODEL_DD_MPI_
-//#define _MODEL_MPI_  // required in ParticleSystem.h
-//#endif
 
 #ifdef _MODEL_MPI_
 #define _MODEL_DD_MPI_
@@ -75,11 +40,9 @@
 #include <chrono>
 #include <Eigen/Dense>
 
-//#include <model/Network/Network.h>
 #include <model/LoopNetwork/LoopNetwork.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/IO/EigenDataReader.h>
-//#include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationNetworkComponent.h>
 #include <model/DislocationDynamics/DislocationNode.h>
@@ -107,27 +70,22 @@
 namespace model
 {
     
-    template <short unsigned int _dim, short unsigned int corder, typename InterpolationType>
-    class DislocationNetwork :
-    /* base                 */ public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType> >,
+    template <int _dim, short unsigned int corder, typename InterpolationType>
+    class DislocationNetwork : public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType> >,
     /* base                 */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType> >::LoopType>,
     /* base                 */ public ParticleSystem<DislocationParticle<_dim> >
     {
         
     public:
         
-        enum {dim=_dim}; // make dim available outside class
+        static constexpr int dim=_dim; // make dim available outside class
         
         typedef DislocationNetwork<dim,corder,InterpolationType> DislocationNetworkType;
         typedef LoopNetwork<DislocationNetworkType> LoopNetworkType;
-        //        typedef DislocationNetworkType Derived; // define Derived to use NetworkTypedefs.h
-        //#include <model/Network/NetworkTypedefs.h>
         typedef DislocationNode<dim,corder,InterpolationType> NodeType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
         typedef DislocationSegment<dim,corder,InterpolationType> LinkType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
         typedef DislocationNetworkComponent<NodeType,LinkType> DislocationNetworkComponentType;
         typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
-        //        typedef NetworkComponentObserver<NetworkComponentType> NetworkComponentObserverType;
-        //        typedef typename NetworkComponentObserverType::NetworkComponentContainerType NetworkComponentContainerType;
         typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
         typedef Eigen::Matrix<double,dim,1>		VectorDimD;
         typedef typename TypeTraits<DislocationNetworkType>::LoopType LoopType;
@@ -174,18 +132,6 @@ namespace model
         
         MatrixDimD _plasticDistortion;
         MatrixDimD _plasticDistortionRate;
-        
-        
-        /**********************************************************************/
-        void formJunctions()
-        {/*! Performs dislocation junction formation if use_junctions==true
-          */
-            if (use_junctions)
-            {
-                //                DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(dx);
-            }
-        }
-        
         
         
         //        /**********************************************************************/
@@ -354,7 +300,7 @@ namespace model
             //            DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
             
             //! 12- Form Junctions
-            formJunctions();
+//            DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(use_junctions,dx);
             
             //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
@@ -484,16 +430,16 @@ namespace model
             read("./","DDinput.txt");
         }
         
-        /**********************************************************************/
-        ~DislocationNetwork()
-        {
-            //            for(auto& linkIter : this->links())
-            //            {
-            //                linkIter.second->quadratureParticleContainer.clear();
-            //            }
-            
-            this->clearParticles();
-        }
+//        /**********************************************************************/
+//        ~DislocationNetwork()
+//        {
+//            //            for(auto& linkIter : this->links())
+//            //            {
+//            //                linkIter.second->quadratureParticleContainer.clear();
+//            //            }
+//            
+//            this->clearParticles();
+//        }
         
         /**********************************************************************/
         size_t contractWithConstraintCheck(const IsNodeType& Ni,

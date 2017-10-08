@@ -16,7 +16,6 @@
 
 
 
-//#include <model/Geometry/Splines/SplineConsts.h>
 
 //#include <model/Network/NetworkLink.h>
 #include <model/LoopNetwork/NetworkLink.h>
