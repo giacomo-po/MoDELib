@@ -63,7 +63,7 @@ namespace model
         typedef std::vector<VectorDim,Eigen::aligned_allocator<VectorDim> > VectorOfNormalsType;
         typedef GlidePlane<LoopType> GlidePlaneType;
         typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
-        typedef std::deque<LatticePlane> SpecialLatticePlaneContainerType;
+//        typedef std::deque<LatticePlane> SpecialLatticePlaneContainerType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef LatticeDirection<dim> LatticeDirectionType;
         //        typedef 	std::set<VectorDim,
@@ -114,7 +114,7 @@ namespace model
         VectorDim boundingBoxProjection(const VectorDim& P) const
         {
             
-            std::map<double,VectorDim> snapMap;
+            std::map<double,VectorDim,std::less<double>,Eigen::aligned_allocator<std::pair<double,VectorDim>>> snapMap;
             
             for(const auto& vertexPair : _boundingBoxSegments)
             {
@@ -425,12 +425,7 @@ namespace model
         /* init list        */ velocityReductionCoeff(vrc),
         /* init list        */ _isOnBoundingBox(false),
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
-        C(Pin)
-        //        /* init list        */ grainBoundary_rID2(-1)
-        //        oldP(this->get_P()),
-        //        A1(this->get_P()),
-        //                A2(this->get_P())
-        //        /* init list        */ regionBndNormal(VectorDim::Zero())
+        /* init list        */ C(Pin)
         {/*! Constructor from DOF
           */
             std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
@@ -450,18 +445,9 @@ namespace model
         /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
         /* init list        */ _isOnBoundingBox(false),
         /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndDistance) : VectorDim::Zero()),
-        //        otherGrains
-        //        /* init list        */ grainBoundary_rID2((pL.source->grainBoundary_rID2==pL.sink->grainBoundary_rID2 && pL.sink->grainBoundary_rID2>0)? pL.sink->grainBoundary_rID2 : -1) // TO DO: CHANGE THIS FOR TRIPLE JUNCTIONS
-        //        /* init list        */ regionBndNormal(VectorDim::Zero())
-        //        oldP(this->get_P()),
-        //        A1(this->get_P()),
-        //        A2(this->get_P())
-        C(this->get_P())
+        /* init list        */ C(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
           */
-                        //std::cout<<"DislocationNode from ExpadingLink "<<this->sID<<std::endl;
-            //forceBoundaryNode(pL);
-            //            assert(0 && "Initialize C");
         }
         
         

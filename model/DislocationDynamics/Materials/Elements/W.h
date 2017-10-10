@@ -26,7 +26,7 @@ namespace model
     {
         typedef BCC CrystalStructure;
         static constexpr int Z=74;
-        static constexpr auto name="Tungsten";
+        static constexpr const char* name="Tungsten";
         static constexpr double nu=0.28;                // Poisson ratio [-]
         static constexpr double mu=161e9;               // Shear modulus [Pa]
         static constexpr double b=0.2722e-9;            // Burgers vector[m]
@@ -37,6 +37,16 @@ namespace model
         static const DislocationMobility<BCC> dm;
         
     };
+    
+               constexpr int    PeriodicElement<74,Isotropic>::Z;
+        constexpr const char*   PeriodicElement<74,Isotropic>::name;
+        constexpr double PeriodicElement<74,Isotropic>::nu;               // Poisson ratio [-]
+        constexpr double PeriodicElement<74,Isotropic>::mu;              // Shear modulus [Pa]
+        constexpr double PeriodicElement<74,Isotropic>::b;            // Burgers vector[m]
+        constexpr double PeriodicElement<74,Isotropic>::rho;             // Mass density [kg/m^3]
+        constexpr double PeriodicElement<74,Isotropic>::cs;        // Shear wave speed [m/s]
+        constexpr double PeriodicElement<74,Isotropic>::Tm;              // melting temperature [K]
+
     
     const DislocationMobility<BCC> PeriodicElement<74,Isotropic>::dm=DislocationMobility<BCC>(b,mu,cs,
                                                                                               4.26e-04,0.87e-06, // B0e [Pa*s], B1e [Pa*s/K]

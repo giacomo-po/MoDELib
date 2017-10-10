@@ -44,7 +44,11 @@ namespace model
         typedef Eigen::Matrix<double,dim,1>     VectorDim;
         typedef Eigen::Matrix<double,dim,dim>   MatrixDim;
 
-        
+        typedef std::map<size_t,
+        /*            */ std::pair<VectorNcoeff,VectorDim>,
+        /*            */ std::less<size_t>,
+        /*            */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
+        /*            */ > H2PmapType;
         
         /**********************************************************************/
         static RowNcoeff powers(const double& uin)
@@ -121,7 +125,7 @@ namespace model
         
         /**********************************************************************/
         template<typename LinkType>
-        static std::map<size_t,std::pair<VectorNcoeff,VectorDim>> hermite2posMap(const LinkType& link) // move to CatmullRom?
+        static H2PmapType hermite2posMap(const LinkType& link) // move to CatmullRom?
         {
             
             //            std::cout<<link.source->sID<<"->"<<link.sink->sID<<std::endl;
@@ -129,7 +133,7 @@ namespace model
             //            std::map<size_t,VectorDim> posMap;
             //            std::map<size_t,std::pair<double,double>> temp;
             
-            std::map<size_t,std::pair<VectorNcoeff,VectorDim>> temp;
+            H2PmapType temp;
             temp.emplace(link.source->snID(),std::make_pair((VectorNcoeff()<<1.0,0.0).finished(),link.source->get_P()));
             temp.emplace(link.  sink->snID(),std::make_pair((VectorNcoeff()<<0.0,1.0).finished(),link.  sink->get_P()));
             
@@ -177,6 +181,12 @@ namespace model
         typedef Eigen::Matrix<double,Ncoeff,1>     VectorNcoeff;
         typedef Eigen::Matrix<double,dim,1>     VectorDim;
         typedef Eigen::Matrix<double,dim,dim>   MatrixDim;
+        
+        typedef std::map<size_t,
+        /*            */ std::pair<VectorNcoeff,VectorDim>,
+        /*            */ std::less<size_t>,
+        /*            */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
+        /*            */ > H2PmapType;
         
         /**********************************************************************/
         static RowNcoeff powers(const double & uin)
@@ -296,7 +306,7 @@ namespace model
         template<typename LinkType>
         static std::pair<Eigen::Matrix<double,Ncoeff,Eigen::Dynamic>,Eigen::Matrix<double,Eigen::Dynamic,dim>> hermite2posMatrix(const LinkType& link)
         {
-            std::map<size_t,std::pair<VectorNcoeff,VectorDim>> temp=hermite2posMap(link);
+            H2PmapType temp=hermite2posMap(link);
             
             Eigen::Matrix<double,Ncoeff,Eigen::Dynamic> m(Ncoeff,temp.size());
             Eigen::Matrix<double,Eigen::Dynamic,dim>    n(temp.size(),dim);
@@ -314,7 +324,7 @@ namespace model
         
         /**********************************************************************/
         template<typename LinkType>
-        static std::map<size_t,std::pair<VectorNcoeff,VectorDim>> hermite2posMap(const LinkType& link) // move to CatmullRom?
+        static H2PmapType hermite2posMap(const LinkType& link) // move to CatmullRom?
         {
             
             //            std::cout<<link.source->sID<<"->"<<link.sink->sID<<std::endl;
@@ -322,7 +332,7 @@ namespace model
             //            std::map<size_t,VectorDim> posMap;
             //            std::map<size_t,std::pair<double,double>> temp;
             
-            std::map<size_t,std::pair<VectorNcoeff,VectorDim>> temp;
+            H2PmapType temp;
             
             const std::map<size_t,std::map<size_t,std::pair<double,VectorDim>>> sourceMapMap=link.source->loopTangentCoeffs();
             const std::map<size_t,std::map<size_t,std::pair<double,VectorDim>>>   sinkMapMap=link.  sink->loopTangentCoeffs();

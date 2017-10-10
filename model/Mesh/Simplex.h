@@ -38,6 +38,8 @@ namespace model
         
     public:
         
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        
         enum{order=0};
         enum{nVertices=SimplexTraits<dim,order>::nVertices};
         enum{nFaces=SimplexTraits<dim,order>::nFaces};
@@ -86,6 +88,9 @@ namespace model
         
         
     public:
+        
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        
         enum{nVertices=SimplexTraits<dim,order>::nVertices};
         enum{nFaces=SimplexTraits<dim,order>::nFaces};
         typedef typename SimplexTraits<dim,order>::SimplexIDType SimplexIDType;
@@ -223,6 +228,9 @@ namespace model
         }
         
     public:
+        
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        
         enum{order=dim};
         enum{nVertices=SimplexTraits<dim,order>::nVertices};
         enum{nFaces=SimplexTraits<dim,order>::nFaces};

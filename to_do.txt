@@ -1,5 +1,5 @@
 NEW LOOP_NETWORK CODE
-- Make all observers non-static (GlidePlaneObserver,NodeObserver)
+- Make all observers non-static (GlidePlaneObserver,NodeObserver,LoopLinkObserver)
 - Mobility specific to slip system
 - Make Loops with |Burgers|>1 sessile
 - Fix IO

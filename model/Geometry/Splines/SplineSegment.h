@@ -115,6 +115,9 @@ namespace model
         
     public:
         
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+        
         static double alpha;
         
         
@@ -149,7 +152,7 @@ namespace model
         }
         
         /**********************************************************************/
-        std::map<size_t,std::pair<VectorNcoeff,VectorDim>> hermite2posMap() const
+        typename SplineSegmentBaseType::H2PmapType hermite2posMap() const
         {
             return SplineSegmentBaseType::hermite2posMap(*this);
         }
@@ -300,7 +303,7 @@ namespace model
             MatrixCompanion<2*Ncoeff-3> mc(pcoeffs);
             
             // sort roots according to distance to P0
-            std::map<double,std::pair<double,VectorDim> > rootMap;
+            std::map<double,std::pair<double,VectorDim>,std::less<double>,  Eigen::aligned_allocator<std::pair<double,std::pair<double,VectorDim>> > > rootMap;
             
             //    for (int k=0;k<2*Ncoeff-3;++k)
             for (size_t k=0;k<mc.rootSize;++k)

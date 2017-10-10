@@ -2,10 +2,10 @@
 # EDIT HERE
 ##########################################################
 USE_ICC = 0
-usePARDISO = 1
+usePARDISO = 0
 MODEL_INCLUDE =../../..
-EIGEN_INCLUDE =/Users/giacomo/Documents/eigen
-MKL_INCLUDE=/opt/intel//mkl/include
+EIGEN_INCLUDE =/home/giacomo/Documents/eigen
+MKL_INCLUDE=/opt/intel/mkl/include
 MKL_LIB=/opt/intel/mkl/lib
 
 ##########################################################
@@ -32,7 +32,10 @@ else
 	CC= g++
 	mpiCC = mpicxx
 	CFLAGS += -Ofast
-	CFLAGS += -msse4
+#	CFLAGS += -O0
+	CFLAGS += -march=native
+#	CFLAGS += -g
+#	CFLAGS += -msse4
 	CFLAGS += -fopenmp
 	CFLAGS += -std=c++14
 endif
@@ -40,10 +43,6 @@ endif
 # enable warnings
 CFLAGS += -Wall -Wextra
 
-#disable model-assertions
-CFLAGS += -D _MODEL_NO_DEBUG_
-#disable model-input-checks
-CFLAGS += -D _MODEL_NO_BAD_INPUT_CHECK_
 
 ############################################
 # Compiler flags for MKL PARDISO
@@ -239,4 +238,8 @@ ifeq ($(JPGexists),1)
 	@echo emptying folder jpg
 	@find jpg/ -name image_\*.jpg -exec rm {} +;
 endif
+
+##########################################################
+# valgrind commands
+# valgrind --vex-guest-max-insns=25 --track-origins=yes ./DDomp
 

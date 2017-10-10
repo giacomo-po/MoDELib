@@ -121,7 +121,8 @@ namespace model
             const GlidePlaneKeyType key=getGlidePlaneKey(grain,P,N);
             const auto planeIter=glidePlanes().find(key);
             return (planeIter!=glidePlanes().end())? planeIter->second->loops().begin()->second->_glidePlane :
-            /*                            */ std::make_shared<GlidePlaneType>(this,mesh,grain,P,N);
+            /*                            */ std::shared_ptr<GlidePlaneType>(new GlidePlaneType(this,mesh,grain,P,N));
+//            /*                            */ std::make_shared<GlidePlaneType>(this,mesh,grain,P,N);
         }
         
         /**********************************************************************/

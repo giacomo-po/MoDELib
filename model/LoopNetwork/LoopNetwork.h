@@ -60,7 +60,11 @@ namespace model
     /*               */ public NodeObserver<typename TypeTraits<Derived>::NodeType>,
     /*               */ public NetworkLinkObserver<typename TypeTraits<Derived>::LinkType>,
     /*               */ private std::map<size_t,std::shared_ptr<typename TypeTraits<Derived>::NodeType>>,
-    /*               */ private std::multimap<std::pair<size_t,size_t>,LoopLink<typename TypeTraits<Derived>::LinkType>>
+    /*               */ private std::multimap<std::pair<size_t,size_t>,
+    /*                                     */ LoopLink<typename TypeTraits<Derived>::LinkType>,
+    /*                                     */ std::less<std::pair<size_t,size_t>>,
+    /*                                     */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>, LoopLink<typename TypeTraits<Derived>::LinkType>>>
+    /*                                     */ >
     {
         
     public:
@@ -71,7 +75,12 @@ namespace model
         typedef typename TypeTraits<Derived>::LoopType LoopType;
         typedef typename TypeTraits<Derived>::FlowType FlowType;
         
-        typedef std::multimap<std::pair<size_t,size_t>,LoopLinkType> LoopLinkContainerType;
+//        typedef std::multimap<std::pair<size_t,size_t>,LoopLinkType> LoopLinkContainerType;
+        typedef std::multimap<std::pair<size_t,size_t>,
+        /*                 */ LoopLink<typename TypeTraits<Derived>::LinkType>,
+        /*                 */ std::less<std::pair<size_t,size_t>>,
+        /*                 */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>, LoopLink<typename TypeTraits<Derived>::LinkType>>>
+        /*                 */ > LoopLinkContainerType;
         typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
         typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;
         typedef typename NetworkLinkObserverType::IsNetworkLinkType IsNetworkLinkType;
@@ -267,7 +276,8 @@ namespace model
                 }
                 else
                 {
-                    return nI->sID<nJ->sID? std::make_shared<LinkType>(nI,nJ) : std::make_shared<LinkType>(nJ,nI);
+                    return nI->sID<nJ->sID? std::shared_ptr<LinkType>(new LinkType(nI,nJ)) : std::shared_ptr<LinkType>(new LinkType(nJ,nI));
+//                    return nI->sID<nJ->sID? std::make_shared<LinkType>(nI,nJ) : std::make_shared<LinkType>(nJ,nI);
                 }
             }
         }

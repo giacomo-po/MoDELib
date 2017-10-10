@@ -22,3 +22,6 @@ hg merge B --tool internal:other
 hg commit -m "Merged B into A”
 hg checkout B
 hg commit --close-branch -m ‘Feature done, merging into A branch’
+
+6) Find large files in repository
+hg files "set:size('>1M')"

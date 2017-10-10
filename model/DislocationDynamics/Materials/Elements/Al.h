@@ -28,7 +28,7 @@ namespace model
     {
         typedef FCC CrystalStructure;
         static constexpr int Z=13;
-        static constexpr auto name="Aluminum";
+        static constexpr const char* name="Aluminum";
         static constexpr double nu=0.347;               // Poisson ratio [-]
         static constexpr double mu=26.0e9;              // Shear modulus [Pa]
         static constexpr double b=0.2851e-9;            // Burgers vector[m]
@@ -37,10 +37,22 @@ namespace model
         
         //! FCC-mobility law with data from Olmsted MSMSE 13(3), 2005.
         static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,3.9e-08,7.5e-08);
-        
+
         static const std::deque<GrainBoundaryType<3>> grainBoundaryTypes;
 
     };
+    
+        constexpr int    PeriodicElement<13,Isotropic>::Z;
+        constexpr const char*   PeriodicElement<13,Isotropic>::name;
+        constexpr double PeriodicElement<13,Isotropic>::nu;               // Poisson ratio [-]
+        constexpr double PeriodicElement<13,Isotropic>::mu;              // Shear modulus [Pa]
+        constexpr double PeriodicElement<13,Isotropic>::b;            // Burgers vector[m]
+        constexpr double PeriodicElement<13,Isotropic>::rho;             // Mass density [kg/m^3]
+        constexpr double PeriodicElement<13,Isotropic>::cs;        // Shear wave speed [m/s]
+        
+        //! FCC-mobility law with data from Olmsted MSMSE 13(3), 2005.
+        constexpr DislocationMobility<FCC> PeriodicElement<13,Isotropic>::dm;
+
     
     const std::deque<GrainBoundaryType<3>> PeriodicElement<13,Isotropic>::grainBoundaryTypes=
     {

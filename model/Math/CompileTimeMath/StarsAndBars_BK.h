@@ -22,17 +22,17 @@ namespace model
      * is a given integer k. This is the solution of the Diophantine equation
      *  \f$x_1+\ldots + x_N=k\f$.
      */
-	template <int N, int k,int j=0>
+	template <int _N, int _k,int _j=0>
 	struct StarsAndBars
     {
-        static_assert(N>0,"N MUST BE >0.");
-        static_assert(k>0,"k MUST BE >0.");
-        static_assert(j>=0,"j MUST BE >0.");
-        static_assert(j<k,"j MUST BE <k.");
+        static_assert(_N>0,"N MUST BE >0.");
+        static_assert(_k>0,"k MUST BE >0.");
+        static_assert(_j>=0,"j MUST BE >0.");
+        static_assert(_j<_k,"j MUST BE <k.");
         
-//        static constexpr int N=_N; // number of positive integers
-//        static constexpr int k=_k; // value of the sum of the N integers
-//        static constexpr int j=_j; // value of the sum of the N integers
+        static constexpr int N=_N; // number of positive integers
+        static constexpr int k=_k; // value of the sum of the N integers
+        static constexpr int j=_j; // value of the sum of the N integers
         static constexpr int r1=CombinationWithRepetition<N,k-j-1>::value;
         static constexpr int r2=CombinationWithRepetition<N-1,k-j>::value;
         
@@ -52,19 +52,19 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     // End recursion in j at j=k
-    template <int N, int k>
-	struct StarsAndBars<N,k,k>
+    template <int _N, int _k>
+	struct StarsAndBars<_N,_k,_k>
     {
-        static_assert(N>0,"N MUST BE >0.");
-//        static constexpr int N=_N;
-//        static constexpr int k=_k;
-//        static constexpr int j=_k;
-        static constexpr int r=CombinationWithRepetition<N-1,k-k>::value; // this is = 1, since C(n,0)=1
+        static_assert(_N>0,"N MUST BE >0.");
+        static constexpr int N=_N;
+        static constexpr int k=_k;
+        static constexpr int j=_k;
+        static constexpr int r=CombinationWithRepetition<N-1,k-j>::value; // this is = 1, since C(n,0)=1
         
         static Eigen::Matrix<int,r,N> sAb()
         {
             Eigen::Matrix<int,r,N> temp;
-            temp << k, StarsAndBars<N-1,0,0>::sAb();
+            temp << j, StarsAndBars<N-1,k-j,0>::sAb();
             return temp;
         }
 	};
@@ -72,14 +72,14 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     // End recursion in k at k=0, (which implies j=0)
-    template <int N>
-	struct StarsAndBars<N,0,0>
+    template <int _N>
+	struct StarsAndBars<_N,0,0>
     {
-        static_assert(N>0,"N MUST BE >0.");
-//        static constexpr int N=_N;
-//        static constexpr int k=0;
-//        static constexpr int j=k;
-		static constexpr int r=CombinationWithRepetition<N,0>::value; // this is = 1, since C(n,0)=1
+        static_assert(_N>0,"N MUST BE >0.");
+        static constexpr int N=_N;
+        static constexpr int k=0;
+        static constexpr int j=k;
+		static constexpr int r=CombinationWithRepetition<N,k-j>::value; // this is = 1, since C(n,0)=1
         
         static Eigen::Matrix<int,r,N> sAb() // this is an 1xN matrix
         {
@@ -94,12 +94,12 @@ namespace model
 	struct StarsAndBars<1,k,j>
     {
         static_assert(k>0,"k MUST BE >0.");
-//        static constexpr int N=1;
-		static constexpr int r=CombinationWithRepetition<1,k-j>::value; // this is = 1, since C(1,k-j)=1
+        static constexpr int N=1;
+		static constexpr int r=CombinationWithRepetition<N,k-j>::value; // this is = 1, since C(1,k-j)=1
         
-        static Eigen::Matrix<int,r,1> sAb() // this is a 1x1 matrix
+        static Eigen::Matrix<int,r,N> sAb() // this is a 1x1 matrix
         {
-            return Eigen::Matrix<int,r,1>::Constant(k-j);
+            return Eigen::Matrix<int,r,N>::Constant(k-j);
         }
     };
     
@@ -110,13 +110,13 @@ namespace model
     struct StarsAndBars<1,k,k>
     {
         static_assert(k>0,"k MUST BE >0.");
-//        static constexpr int N=1;
-//        static constexpr int j=k;
-        static constexpr int r=CombinationWithRepetition<1,0>::value; // this is = 1, since C(1,k-j)=1
+        static constexpr int N=1;
+        static constexpr int j=k;
+        static constexpr int r=CombinationWithRepetition<N,k-j>::value; // this is = 1, since C(1,k-j)=1
         
-        static Eigen::Matrix<int,r,1> sAb() // this is a 1x1 matrix
+        static Eigen::Matrix<int,r,N> sAb() // this is a 1x1 matrix
         {
-            return Eigen::Matrix<int,r,1>::Constant(0);
+            return Eigen::Matrix<int,r,N>::Constant(k-j);
         }
     };
     
@@ -126,14 +126,14 @@ namespace model
     template <>
     struct StarsAndBars<1,0,0>
     {        
-//        static constexpr int N=1;
-//        static constexpr int k=0;
-//        static constexpr int j=k;
-        static constexpr int r=CombinationWithRepetition<1,0>::value; // this is = 1, since C(1,0)=1
+        static constexpr int N=1;
+        static constexpr int k=0;
+        static constexpr int j=k;
+        static constexpr int r=CombinationWithRepetition<N,k-j>::value; // this is = 1, since C(1,0)=1
         
-        static Eigen::Matrix<int,r,1> sAb() // this is a 1x1 matrix
+        static Eigen::Matrix<int,r,N> sAb() // this is a 1x1 matrix
         {
-            return Eigen::Matrix<int,r,1>::Constant(0);
+            return Eigen::Matrix<int,r,N>::Constant(k-j);
         }
         
 	};

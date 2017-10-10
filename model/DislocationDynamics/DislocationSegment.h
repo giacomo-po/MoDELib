@@ -96,7 +96,11 @@ namespace model
         //enum {Nslips=MaterialType::Nslips};
         
         //std::set<size_t> segmentDOFs;
-        std::map<size_t,std::pair<VectorNcoeff,VectorDim>> h2posMap;
+        std::map<size_t,
+        /*    */ std::pair<VectorNcoeff,VectorDim>,
+        /*    */ std::less<size_t>,
+        /*    */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
+        /*    */ > h2posMap;
         
         Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg;
         
@@ -144,7 +148,7 @@ namespace model
         
         
         //        std::array<MatrixDim, qOrder> stressGauss;
-        std::deque<MatrixDim> stressGauss;
+        std::deque<MatrixDim,Eigen::aligned_allocator<MatrixDim>> stressGauss;
         
         //! PK force corrersponding to the quadrature points
         MatrixDimQorder pkGauss;

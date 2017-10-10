@@ -121,21 +121,7 @@ namespace model
 
     };
     
-//    /**************************************************************************/
-//    template <typename Derived>
-//    TrialGrad<Derived> grad(const TrialExpressionBase<Derived>& x)
-//    {
-//        std::cout<<"operator grad 1"<<std::endl;
-//        return TrialGrad<Derived>(std::make_shared<Derived>(x.derived()));
-//    }
-//    
-//    /**************************************************************************/
-//    template <typename Derived>
-//    TrialGrad<Derived> grad(TrialExpressionBase<Derived>&& x)
-//    {
-//                std::cout<<"operator grad 2"<<std::endl;
-//        return TrialGrad<Derived>(std::make_shared<Derived>(std::move(x.derived())));
-//    }
+
     
     
     /**************************************************************************/

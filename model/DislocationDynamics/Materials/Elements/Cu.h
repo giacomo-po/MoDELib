@@ -28,7 +28,7 @@ namespace model
     {
         typedef FCC CrystalStructure;
         static constexpr int Z=29;
-        static constexpr auto name="Copper";
+        static constexpr const char* name="Copper";
         static constexpr double nu=0.34;                // Poisson ratio [-]
         static constexpr double mu=48e9;                // Shear modulus [Pa]
         static constexpr double b=0.2556e-9;            // Burgers vector[m]
@@ -40,6 +40,14 @@ namespace model
         
         static const std::deque<GrainBoundaryType<3>> grainBoundaryTypes;
     };
+    
+            constexpr int    PeriodicElement<29,Isotropic>::Z;
+        constexpr const char*   PeriodicElement<29,Isotropic>::name;
+        constexpr double PeriodicElement<29,Isotropic>::nu;               // Poisson ratio [-]
+        constexpr double PeriodicElement<29,Isotropic>::mu;              // Shear modulus [Pa]
+        constexpr double PeriodicElement<29,Isotropic>::b;            // Burgers vector[m]
+        constexpr double PeriodicElement<29,Isotropic>::rho;             // Mass density [kg/m^3]
+        constexpr double PeriodicElement<29,Isotropic>::cs;        // Shear wave speed [m/s]
     
     const DislocationMobility<FCC> PeriodicElement<29,Isotropic>::dm=DislocationMobility<FCC>(b,mu,cs,3.3333e-07,3.3333e-07);
     

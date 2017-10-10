@@ -1,10 +1,10 @@
 /* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
- *
- * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
- *
- * model is distributed without any warranty under the
- * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
- */
+*
+* Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
+*
+* model is distributed without any warranty under the
+* GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef model_Element_Ni_H_
 #define model_Element_Ni_H_
@@ -19,31 +19,41 @@
 
 namespace model
 {
-    using Eigen::Vector3d;
-    
-    /**************************************************************************/
-    /**************************************************************************/
-    template <>
-    struct PeriodicElement<28,Isotropic>
-    {
-        typedef FCC CrystalStructure;
-        static constexpr int Z=28;
-        static constexpr auto name="Nickel";
-        static constexpr double nu=0.31;                // Poisson ratio [-]
-        static constexpr double mu=76e9;                // Shear modulus [Pa]
-        static constexpr double b=0.2489e-9;            // Burgers vector[m]
-        static constexpr double rho=8908.0;             // Mass density [kg/m^3]
-        static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
-        
-        //! FCC mobility law with data from Olmsted MSMSE 13(3), 2005.
-        static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,5.0e-08,6.4e-08);
-        
-        static const std::deque<GrainBoundaryType<3>> grainBoundaryTypes;
-        
-    };
-    
-    const std::deque<GrainBoundaryType<3>> PeriodicElement<28,Isotropic>::grainBoundaryTypes=
-    {
+using Eigen::Vector3d;
+
+/**************************************************************************/
+/**************************************************************************/
+template <>
+struct PeriodicElement<28,Isotropic>
+{
+typedef FCC CrystalStructure;
+static constexpr int Z=28;
+static constexpr const char* name="Nickel";
+static constexpr double nu=0.31;                // Poisson ratio [-]
+static constexpr double mu=76e9;                // Shear modulus [Pa]
+static constexpr double b=0.2489e-9;            // Burgers vector[m]
+static constexpr double rho=8908.0;             // Mass density [kg/m^3]
+static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
+
+//! FCC mobility law with data from Olmsted MSMSE 13(3), 2005.
+static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,5.0e-08,6.4e-08);
+
+static const std::deque<GrainBoundaryType<3>> grainBoundaryTypes;
+
+};
+
+constexpr int    PeriodicElement<28,Isotropic>::Z;
+constexpr const char*   PeriodicElement<28,Isotropic>::name;
+constexpr double PeriodicElement<28,Isotropic>::nu;               // Poisson ratio [-]
+constexpr double PeriodicElement<28,Isotropic>::mu;              // Shear modulus [Pa]
+constexpr double PeriodicElement<28,Isotropic>::b;            // Burgers vector[m]
+constexpr double PeriodicElement<28,Isotropic>::rho;             // Mass density [kg/m^3]
+constexpr double PeriodicElement<28,Isotropic>::cs;        // Shear wave speed [m/s]
+constexpr DislocationMobility<FCC> PeriodicElement<28,Isotropic>::dm;
+
+
+const std::deque<GrainBoundaryType<3>> PeriodicElement<28,Isotropic>::grainBoundaryTypes=
+{
 //        //! GB energy values obtained with LAMMPs data from Mishin, Phys.Rev.B 3393(59), 1999
 //        
 //        
@@ -283,9 +293,9 @@ namespace model
 //                             9999999.0, // GB energy
 //                             9999999.0, 1 // GB dislocation spacing and Burgers vector MAGNITUDE
 //                             )
-        
-    };
 
-    
+};
+
+
 } // namespace model
 #endif

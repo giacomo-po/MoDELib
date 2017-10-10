@@ -45,7 +45,13 @@ OLD
 *.png
 *.bmp
 
+# Valgrind files
+vgcore.*
+Testing
+
+
 # Misc Mac/Windows stuff
+._*
 .DS_Store
 Thumbs.db
 Desktop.ini
