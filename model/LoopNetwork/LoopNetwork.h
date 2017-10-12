@@ -400,7 +400,9 @@ namespace model
                     {
                         VerboseLoopNetwork(1,"cutting loop "<<L<<" at "<<i<<" and "<<j<<std::endl);
 
-                        std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),linkAtI.second->flow());
+//                        std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),linkAtI.second->flow());
+                        std::shared_ptr<LoopType> tempLoop=loop.second->clone();
+
                         linkAtI.second->resetLoop(tempLoop,i,j);
                         
                         linkAtI.second->prev->next=nullptr;
@@ -486,6 +488,8 @@ namespace model
                         connect(nA.second,std::get<1>(tup),std::get<2>(tup));
                     }
                 }
+                
+                success=true;
             }
             
             return success;
@@ -559,6 +563,7 @@ namespace model
 
         }
         
+        /**********************************************************************/
         void printLoopLinks() const
         {
             for(const auto& link : loopLinks())
@@ -570,6 +575,7 @@ namespace model
             }
         }
         
+        /**********************************************************************/
         void printNodes() const
         {
             for(const auto& node : this->nodes())

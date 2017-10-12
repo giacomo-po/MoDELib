@@ -77,6 +77,17 @@ namespace model
         }
         
         /**********************************************************************/
+        std::shared_ptr<Derived> clone() const
+        {/* Returns a copy of this loop. The new loop, however, does not contain
+          * any LoopLink.
+          */
+            std::shared_ptr<Derived> temp(new Derived(this->derived()));
+            temp->links().clear();
+            
+            return temp;
+        }
+        
+        /**********************************************************************/
         void flip()
         {
             _flow*=-1;

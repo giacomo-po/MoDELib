@@ -37,7 +37,11 @@ namespace model
     /*                                       */ const GlidePlane<LoopType>* const,
     /*                                       */ CompareVectorsByComponent<long int,LoopType::dim+2,long int>,
     /*                                       */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,LoopType::dim+2,1>,const GlidePlane<LoopType>* const> > >,
-    /*                       */ private std::map<std::pair<size_t,size_t>,PlanePlaneIntersection<LoopType::dim>>
+    /*                       */ private std::map<std::pair<size_t,size_t>,
+    /*                                        */ PlanePlaneIntersection<LoopType::dim>,
+    /*                                        */ std::less<std::pair<size_t,size_t>>,
+    /*                                        */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>,PlanePlaneIntersection<LoopType::dim>>>
+    /*                                        */ >
     {
         
         
@@ -53,7 +57,11 @@ namespace model
         /*            */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,LoopType::dim+2,1>,const GlidePlane<LoopType>* const> > > GlidePlaneMapType;
         typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
         typedef PlanePlaneIntersection<dim> PlanePlaneIntersectionType;
-        typedef std::map<std::pair<size_t,size_t>,PlanePlaneIntersectionType> GlidePlaneIntersectionContainerType;
+        typedef std::map<std::pair<size_t,size_t>,
+        /*            */ PlanePlaneIntersectionType,
+        /*            */ std::less<std::pair<size_t,size_t>>,
+        /*            */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>,PlanePlaneIntersectionType>>
+        /*            */ > GlidePlaneIntersectionContainerType;
         
         
         
@@ -76,7 +84,7 @@ namespace model
                                                                  const GlidePlaneType* const p2)
         {/*@param[in] p1 first plane
           *@param[in] p2 second plane
-          *\returns the infinite line of interseciton between the two planes, 
+          *\returns the infinite line of interseciton between the two planes,
           * if already computed. Otherwise it computes the interseciton, stores it,
           * and returns it.
           */
@@ -84,7 +92,11 @@ namespace model
             const auto iter=glidePlaneIntersections().find(key);
             if(iter==glidePlaneIntersections().end())
             {
-                glidePlaneIntersections().emplace(key,PlanePlaneIntersectionType(p1->P.cartesian(),p1->n.cartesian(),p2->P.cartesian(),p2->n.cartesian()));
+                const bool success=glidePlaneIntersections().emplace(std::piecewise_construct,
+                                                                     std::make_tuple(key),
+                                                                     std::make_tuple(p1->P.cartesian(),p1->n.cartesian(),p2->P.cartesian(),p2->n.cartesian())
+                                                                     ).second;
+                assert(success);
             }
             return glidePlaneIntersections().at(key);
         }
@@ -122,7 +134,7 @@ namespace model
             const auto planeIter=glidePlanes().find(key);
             return (planeIter!=glidePlanes().end())? planeIter->second->loops().begin()->second->_glidePlane :
             /*                            */ std::shared_ptr<GlidePlaneType>(new GlidePlaneType(this,mesh,grain,P,N));
-//            /*                            */ std::make_shared<GlidePlaneType>(this,mesh,grain,P,N);
+            //            /*                            */ std::make_shared<GlidePlaneType>(this,mesh,grain,P,N);
         }
         
         /**********************************************************************/

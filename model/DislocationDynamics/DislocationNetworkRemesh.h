@@ -69,7 +69,7 @@ namespace model
             {
                 if(!(runID%use_redistribution))
                 {
-                    //            remeshByContraction();
+                                remeshByContraction();
                     remeshByExpansion();
 
                 }
@@ -89,22 +89,22 @@ namespace model
             
             // Store segments to be contracted
             std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
-            //            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
-            //            {
-            //                const VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
-            //                const double chordLength(chord.norm());
-            //                const VectorDimD dv(linkIter->second.sink->get_V()-linkIter->second.source->get_V());
-            //                //				bool endsAreApproaching( chord.dot(dv) < -vTolcont*chordLength*dv.norm() );
-            //                bool endsAreApproaching( chord.dot(dv) < 0.0 );
-            //                //				bool endsAreApproaching( chord.dot(dv) + dv.squaredNorm()*dt < 0.0 );
-            //                if ((endsAreApproaching || linkIter->second.is_boundarySegment())// ends are approaching
-            //                    && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
-            //                    && chordLength<Lmin)
-            //                {
-            //                    assert(toBeContracted.insert(std::make_pair(chordLength,linkIter->second.nodeIDPair)).second && "COULD NOT INSERT IN SET.");
-            //                }
-            //            }
             
+//            for (const auto& linkIter : DN.links())
+//            {
+//                const VectorDimD chord(linkIter.second->chord()); // this is sink->get_P() - source->get_P()
+//                const double chordLength(chord.norm());
+//                const VectorDimD dv(linkIter.second->sink->get_V()-linkIter.second->source->get_V());
+//                //				bool endsAreApproaching( chord.dot(dv) < -vTolcont*chordLength*dv.norm() );
+//                bool endsAreApproaching( chord.dot(dv) < 0.0 );
+//                //				bool endsAreApproaching( chord.dot(dv) + dv.squaredNorm()*dt < 0.0 );
+//                if ((endsAreApproaching || linkIter.second->is_boundarySegment())// ends are approaching
+//                    && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
+//                    && chordLength<Lmin)
+//                {
+//                    assert(toBeContracted.insert(std::make_pair(chordLength,linkIter.second->nodeIDPair)).second && "COULD NOT INSERT IN SET.");
+//                }
+//            }
             for (const auto& linkIter : DN.links())
             {
                 
@@ -129,9 +129,12 @@ namespace model
                      && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
                      && chordLength<Lmin // segment is small
                      )
-                    || segment.isSimpleSessile())
+                    //|| segment.isSimpleSessile()
+                    )
                 {
-                    assert(toBeContracted.insert(std::make_pair(chordLength,segment.nodeIDPair)).second && "COULD NOT INSERT IN SET.");
+                    std::cout<<chordLength<<" "<<segment.nodeIDPair.first<<" "<<segment.nodeIDPair.second<<std::endl;
+                    const bool inserted=toBeContracted.insert(std::make_pair(chordLength,segment.nodeIDPair)).second;
+                    assert(inserted && "COULD NOT INSERT IN SET.");
                 }
             }
             
@@ -158,7 +161,9 @@ namespace model
                 
                 if (Lij.first )
                 {
-                    Ncontracted+=DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
+                    Ncontracted+=DN.contract(Lij.second->source,Lij.second->sink);
+
+//                    Ncontracted+=DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
                 }
             }
             model::cout<<" ("<<Ncontracted<<" contracted)"<<std::flush;

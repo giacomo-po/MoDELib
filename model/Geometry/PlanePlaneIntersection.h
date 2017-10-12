@@ -71,19 +71,19 @@ namespace model
                 assert(fabs((C-p2).dot(n2))<FLT_EPSILON);
                 
                 temp=std::make_tuple(INCIDENT,C,D/normD);
-                
+//                std::cout<<"case 1"<<std::endl;
             }
             else
             {
                 if(fabs((p1-p2).dot(n1))<FLT_EPSILON)
                 {// coincident planes
                     temp=std::make_tuple(COINCIDENT,0.5*(p1+p2),VectorDimD::Zero());
-                    
+//                                    std::cout<<"case 2"<<std::endl;
                 }
                 else
                 {// paralle planes
                     temp=std::make_tuple(PARALLEL,0.5*(p1+p2),VectorDimD::Zero());
-                    
+//                                    std::cout<<"case 3"<<std::endl;
                 }
             }
             return temp;
@@ -91,6 +91,8 @@ namespace model
 
         
     public:
+        
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         const IntersectionType& type;
         const VectorDimD& P;
@@ -106,7 +108,13 @@ namespace model
         /* init */ P(std::get<1>(sol)),
         /* init */ d(std::get<2>(sol))
         {
-            
+//            std::cout<<type<<std::endl;
+        }
+        
+        /**********************************************************************/
+        ~PlanePlaneIntersection()
+        {
+            std::cout<<"Destroying PlanePlaneIntersection"<<std::endl;
         }
         
     };

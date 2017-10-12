@@ -4,7 +4,6 @@ Nsteps=1000;
 startAtTimeStep = 0;
 use_directSolver_DD=0;
 quadPerLength=0.1;
-#bndDistance=3;
 
 ######################################
 # TIME STEP
@@ -91,7 +90,7 @@ use_EnergyMultipole = 0;
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
 Lmax=100;
-Lmin=20;
+Lmin=50;
 
 ######################################
 # DISLOCATION JUNCTIONS

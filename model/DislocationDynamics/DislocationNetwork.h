@@ -134,19 +134,6 @@ namespace model
         MatrixDimD _plasticDistortionRate;
         
         
-        //        /**********************************************************************/
-        //        void crossSlip()
-        //        {/*! Performs dislocation cross-slip if use_crossSlip==true
-        //          */
-        //            if(use_crossSlip)
-        //            {
-        //                const auto t0= std::chrono::system_clock::now();
-        //                model::cout<<"		performing cross-slip ... ("<<std::flush;
-        //                size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip());
-        //                model::cout<<crossSlipEvents<<" cross-slip events) ";
-        //                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-        //            }
-        //        }
         
         /**********************************************************************/
         void update_BVP_Solution()
@@ -332,67 +319,7 @@ namespace model
             }
         }
         
-        //        /**********************************************************************/
-        //        void removeBoundarySegments()
-        //        {/*! Removes DislocationSegment(s) on the mesh boundary
-        //          */
-        //            if (shared.use_boundary && !shared.use_bvp)
-        //            {
-        //                const auto t0= std::chrono::system_clock::now();
-        //                model::cout<<"		Removing DislocationSegments on mesh boundary... ";
-        //                typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
-        //                link_member_function_pointer_type boundarySegment_Lmfp;
-        //                boundarySegment_Lmfp=&LinkType::is_boundarySegment;
-        //                this->template disconnect_if<1>(boundarySegment_Lmfp);
-        //                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-        //            }
-        //        }
-        
-        //        /**********************************************************************/
-        //        /**********************************************************************/
-        //        void removeSmallComponents(const double& smallcritvalue,
-        //                                   const size_t& maxNodeSize)
-        //        {
-        //            const auto t0= std::chrono::system_clock::now();
-        //            model::cout<<"        removeSmallComponents "<<std::flush;
-        //            size_t removed=0;
-        //            std::deque<int> nodesToBeRemoved;
-        //            for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
-        //            {
-        //                if (DislocationNetworkComponentType(*snIter->second).isSmall(smallcritvalue,maxNodeSize))
-        //                {
-        //                    const auto nodes=DislocationNetworkComponentType(*snIter->second).networkComponent().nodes();
-        //                    for(const auto& node : nodes)
-        //                    {
-        //                        if(this->node(node.first).first)
-        //                        {
-        //                            nodesToBeRemoved.push_back(node.first);
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //            for(int k:nodesToBeRemoved)
-        //            {
-        //                this->template removeVertex<false>(k);
-        //                removed++;
-        //                //
-        //                //                model::cout<<"  node "<<K<<" is deleted!!!!"<<std::endl;
-        //            }
-        //            model::cout<<std::setprecision(3)<<std::scientific<<removed<<" removed) "<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-        //        }
-        
-        //            for(const auto& segment : this->links())
-        //            {
-        //            if(segment.second.is_boundarySegment())
-        //            {
-        //                const LatticeVector<dim>& b(segment.second.flow);
-        //                const VectorDimD P0(some position here);
-        //                const VectorDimD P1(some position here);
-        //                const size_t nodeID0(DN.insertVertex(P0).first->first);
-        //                const size_t nodeID1(DN.insertVertex(P1).first->first);
-        //                this->connect(nodeID0,nodeID1,b);
-        //            }
-        //            }
+
         
         
         
@@ -431,35 +358,72 @@ namespace model
         }
         
 //        /**********************************************************************/
-//        ~DislocationNetwork()
+//        size_t contractWithConstraintCheck(const IsNodeType& Ni,
+//                                           const IsNodeType& Nj)
 //        {
-//            //            for(auto& linkIter : this->links())
-//            //            {
-//            //                linkIter.second->quadratureParticleContainer.clear();
-//            //            }
-//            
-//            this->clearParticles();
+//            return ContractionType(*this).contractWithConstraintCheck(Ni,Nj);
 //        }
-        
+
         /**********************************************************************/
-        size_t contractWithConstraintCheck(const IsNodeType& Ni,
-                                           const IsNodeType& Nj)
+        bool contract(std::shared_ptr<NodeType> nA,
+                      std::shared_ptr<NodeType> nB)
         {
-            return ContractionType(*this).contractWithConstraintCheck(Ni,Nj);
+            bool success=false;
+            
+            
+//            const auto nA=this->sharedNode(a);
+//            const auto nB=this->sharedNode(b);
+            
+//            if(nA.first && nB.first)
+//            {
+            
+                if(nA->isGlissile() && nB->isGlissile())
+                {// both nodes are glissile
+                    if(nA->isOnBoundingBox() && nB->isOnBoundingBox())
+                    {// both nodes on bounding boxes. Intersect bounding boxes
+                        assert(0 && "FINISH HERE");
+                    }
+                    else if(nA->isOnBoundingBox() && !nB->isOnBoundingBox())
+                    {// a on bbox, b is not
+                                                assert(0 && "FINISH HERE");
+                    }
+                    else if(!nA->isOnBoundingBox() && nB->isOnBoundingBox())
+                    {// a on bbox, b is not
+                        success=contract(nB,nA); // call swapping a and b
+                    }
+                    else
+                    {// neither a nor b on bounding box
+                                                assert(0 && "FINISH HERE");
+                    }
+                }
+                else if(nA->isGlissile() && !nB->isGlissile())
+                {// a is glissile, b is sessile
+                    if(nA->isOnBoundingBox())
+                    {// a is a boundary node. Check is the bonuding box contains b
+                                        assert(0 && "FINISH HERE");
+                    }
+                    else
+                    {// a is an inner node. Check if _glidePlaneIntersections contains b
+                                            assert(0 && "FINISH HERE");
+                    }
+                    
+                }
+                else if(!nA->isGlissile() && nB->isGlissile())
+                {
+                    success=contract(nB,nA); // call swapping a and b
+                }
+                else
+                {// both nodes are sessile
+                    if((nA->get_P()-nB->get_P()).squaredNorm()<FLT_EPSILON)
+                    {// contract only if coincident
+                        success=this->contractSecond(nA->sID,nB->sID);
+                    }
+                }
+                
+//            }
+            
+            return success;
         }
-        
-        
-        //        /**********************************************************************/
-        //        void remesh()
-        //        {
-        //            if (use_redistribution)
-        //            {
-        //                if(!(runID%use_redistribution))
-        //                {
-        //                    DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
-        //                }
-        //            }
-        //        }
         
         /**********************************************************************/
         const double& get_dt() const
@@ -506,8 +470,6 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
             EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
             
-            
-            
             EDR.readScalarInFile(fullName.str(),"outputPlasticDistortion",DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion);
             if(DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion)
             {
@@ -539,9 +501,6 @@ namespace model
             unsigned int materialZ;
             EDR.readScalarInFile(fullName.str(),"material",materialZ); // material by atomic number Z
             Material<Isotropic>::select(materialZ);
-            //            MatrixDimD C2Gtemp;
-            //            EDR.readMatrixInFile(fullName.str(),"C2G",C2Gtemp); // crystal-to-global orientation
-            //            Material<Isotropic>::rotateCrystal(C2Gtemp);
             
             // quadPerLength
             EDR.readScalarInFile(fullName.str(),"quadPerLength",LinkType::quadPerLength); // quadPerLength
@@ -645,7 +604,6 @@ namespace model
             
             // time-stepping
             
-//            EDR.readScalarInFile(fullName.str(),"bndDistance",NodeType::bndDistance);
             //            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
             EDR.readScalarInFile(fullName.str(),"use_directSolver_DD",DislocationNetworkComponentType::use_directSolver);
             
@@ -747,7 +705,7 @@ namespace model
 #endif
             
             //! -1 Compute the interaction StressField between dislocation particles
-            model::cout<<"		Computing dislocation-dislocation interactions ("<<nThreads<<" threads)..."<<std::flush;
+            model::cout<<"		Computing stress field at quadrature points ("<<nThreads<<" threads)..."<<std::flush;
             this->template computeNeighborField<StressField>();
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             
@@ -878,33 +836,7 @@ namespace model
             model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
         }
         
-        //        /**********************************************************************/
-        //        void checkBalance() const
-        //        {/*! Checks that each DislocationNode is balanced, and asserts otherwise
-        //          * Exceptions are nodes with only one neighbors (FR source)
-        //          * and nodes on the boundary.
-        //          */
-        //            if(check_balance)
-        //            {
-        //                model::cout<<"		Checking node balance..."<<std::flush;
-        //                const auto t0= std::chrono::system_clock::now();
-        //                for (const auto& nodeIter : this->nodes())
-        //                {
-        //                    if (nodeIter.second->neighbors().size()>2)
-        //                    {
-        //                        const bool nodeIsBalanced(nodeIter.second->is_balanced());
-        //                        if (!nodeIsBalanced && nodeIter.second->meshLocation()==insideMesh)
-        //                        {
-        //                            model::cout<<"Node "<<nodeIter.second->sID<<" is not balanced:"<<std::endl;
-        ////                            model::cout<<"    outflow="<<nodeIter.second->outFlow().transpose()<<std::endl;
-        ////                            model::cout<<"     inflow="<<nodeIter.second->inFlow().transpose()<<std::endl;
-        //                            assert(0 && "NODE IS NOT BALANCED");
-        //                        }
-        //                    }
-        //                }
-        //                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-        //            }
-        //        }
+
         
         
         /**********************************************************************/
@@ -1027,31 +959,162 @@ namespace model
             return *this;
         }
         
-        //            /**********************************************************************/
-        //            template <typename FEMfunctionType,typename ...Args>
-        //            void femIntegralLoop(FEMfunctionType& femObj,const Args&... args) const
-        //            {
-        //                for (const auto& segment : this->links())
-        //                {
-        //                    const Simplex<dim,dim>* guess=segment.second.source->includingSimplex();
-        //                    for (size_t k=0;k<segment.second.qOrder;++k)
-        //                    {
-        //                        const auto& x=segment.second.rgauss.col(k);
-        //                        
-        //                        std::pair<bool,const ElementType*> elem=DN.bvpSolver.fe2().searcWithGuess(x,guess);
-        //                        
-        //                        if(elem.first)
-        //                        {
-        //                            guess=&elem.second->simplex;
-        //                            
-        //                            const Eigen::Matrix<int,1,dim+1> bary=elem.second->simplex.pos2bary(x);
-        //                            femObj(segment.second,k,elem.second,bary,args...);
-        //                        }
-        //                    }
-        //                }
-        //            }
+
     };
     
 } // namespace model
 #endif
 
+//        /**********************************************************************/
+//        void crossSlip()
+//        {/*! Performs dislocation cross-slip if use_crossSlip==true
+//          */
+//            if(use_crossSlip)
+//            {
+//                const auto t0= std::chrono::system_clock::now();
+//                model::cout<<"		performing cross-slip ... ("<<std::flush;
+//                size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip());
+//                model::cout<<crossSlipEvents<<" cross-slip events) ";
+//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            }
+//        }
+
+//        /**********************************************************************/
+//        void removeBoundarySegments()
+//        {/*! Removes DislocationSegment(s) on the mesh boundary
+//          */
+//            if (shared.use_boundary && !shared.use_bvp)
+//            {
+//                const auto t0= std::chrono::system_clock::now();
+//                model::cout<<"		Removing DislocationSegments on mesh boundary... ";
+//                typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
+//                link_member_function_pointer_type boundarySegment_Lmfp;
+//                boundarySegment_Lmfp=&LinkType::is_boundarySegment;
+//                this->template disconnect_if<1>(boundarySegment_Lmfp);
+//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            }
+//        }
+
+//        /**********************************************************************/
+//        /**********************************************************************/
+//        void removeSmallComponents(const double& smallcritvalue,
+//                                   const size_t& maxNodeSize)
+//        {
+//            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"        removeSmallComponents "<<std::flush;
+//            size_t removed=0;
+//            std::deque<int> nodesToBeRemoved;
+//            for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
+//            {
+//                if (DislocationNetworkComponentType(*snIter->second).isSmall(smallcritvalue,maxNodeSize))
+//                {
+//                    const auto nodes=DislocationNetworkComponentType(*snIter->second).networkComponent().nodes();
+//                    for(const auto& node : nodes)
+//                    {
+//                        if(this->node(node.first).first)
+//                        {
+//                            nodesToBeRemoved.push_back(node.first);
+//                        }
+//                    }
+//                }
+//            }
+//            for(int k:nodesToBeRemoved)
+//            {
+//                this->template removeVertex<false>(k);
+//                removed++;
+//                //
+//                //                model::cout<<"  node "<<K<<" is deleted!!!!"<<std::endl;
+//            }
+//            model::cout<<std::setprecision(3)<<std::scientific<<removed<<" removed) "<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+//        }
+
+//            for(const auto& segment : this->links())
+//            {
+//            if(segment.second.is_boundarySegment())
+//            {
+//                const LatticeVector<dim>& b(segment.second.flow);
+//                const VectorDimD P0(some position here);
+//                const VectorDimD P1(some position here);
+//                const size_t nodeID0(DN.insertVertex(P0).first->first);
+//                const size_t nodeID1(DN.insertVertex(P1).first->first);
+//                this->connect(nodeID0,nodeID1,b);
+//            }
+//            }
+
+//        /**********************************************************************/
+//        ~DislocationNetwork()
+//        {
+//            //            for(auto& linkIter : this->links())
+//            //            {
+//            //                linkIter.second->quadratureParticleContainer.clear();
+//            //            }
+//
+//            this->clearParticles();
+//        }
+
+
+//        /**********************************************************************/
+//        void checkBalance() const
+//        {/*! Checks that each DislocationNode is balanced, and asserts otherwise
+//          * Exceptions are nodes with only one neighbors (FR source)
+//          * and nodes on the boundary.
+//          */
+//            if(check_balance)
+//            {
+//                model::cout<<"		Checking node balance..."<<std::flush;
+//                const auto t0= std::chrono::system_clock::now();
+//                for (const auto& nodeIter : this->nodes())
+//                {
+//                    if (nodeIter.second->neighbors().size()>2)
+//                    {
+//                        const bool nodeIsBalanced(nodeIter.second->is_balanced());
+//                        if (!nodeIsBalanced && nodeIter.second->meshLocation()==insideMesh)
+//                        {
+//                            model::cout<<"Node "<<nodeIter.second->sID<<" is not balanced:"<<std::endl;
+////                            model::cout<<"    outflow="<<nodeIter.second->outFlow().transpose()<<std::endl;
+////                            model::cout<<"     inflow="<<nodeIter.second->inFlow().transpose()<<std::endl;
+//                            assert(0 && "NODE IS NOT BALANCED");
+//                        }
+//                    }
+//                }
+//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            }
+//        }
+
+
+//            /**********************************************************************/
+//            template <typename FEMfunctionType,typename ...Args>
+//            void femIntegralLoop(FEMfunctionType& femObj,const Args&... args) const
+//            {
+//                for (const auto& segment : this->links())
+//                {
+//                    const Simplex<dim,dim>* guess=segment.second.source->includingSimplex();
+//                    for (size_t k=0;k<segment.second.qOrder;++k)
+//                    {
+//                        const auto& x=segment.second.rgauss.col(k);
+//
+//                        std::pair<bool,const ElementType*> elem=DN.bvpSolver.fe2().searcWithGuess(x,guess);
+//
+//                        if(elem.first)
+//                        {
+//                            guess=&elem.second->simplex;
+//
+//                            const Eigen::Matrix<int,1,dim+1> bary=elem.second->simplex.pos2bary(x);
+//                            femObj(segment.second,k,elem.second,bary,args...);
+//                        }
+//                    }
+//                }
+//            }
+
+
+//        /**********************************************************************/
+//        void remesh()
+//        {
+//            if (use_redistribution)
+//            {
+//                if(!(runID%use_redistribution))
+//                {
+//                    DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
+//                }
+//            }
+//        }

@@ -4,7 +4,7 @@
 USE_ICC = 0
 usePARDISO = 0
 MODEL_INCLUDE =../../..
-EIGEN_INCLUDE =/home/giacomo/Documents/eigen
+EIGEN_INCLUDE =/Users/giacomo/Documents/eigen
 MKL_INCLUDE=/opt/intel/mkl/include
 MKL_LIB=/opt/intel/mkl/lib
 
@@ -33,9 +33,9 @@ else
 	mpiCC = mpicxx
 	CFLAGS += -Ofast
 #	CFLAGS += -O0
-	CFLAGS += -march=native
+#	CFLAGS += -march=native
 #	CFLAGS += -g
-#	CFLAGS += -msse4
+	CFLAGS += -msse4
 	CFLAGS += -fopenmp
 	CFLAGS += -std=c++14
 endif
