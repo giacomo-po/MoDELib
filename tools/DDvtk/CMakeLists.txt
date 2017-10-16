@@ -1,14 +1,12 @@
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
 PROJECT(DDvtk)
-#PROJECT(DDvtk CXX) # forces g++, but linker fails
-
 
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
-add_executable(DDvtk DDvtk)
+add_executable(DDvtk DDvtk.cxx)
 
 include_directories(/Users/giacomo/Documents/eigen)
 include_directories(../../)
