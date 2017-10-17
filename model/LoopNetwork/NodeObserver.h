@@ -24,9 +24,6 @@ namespace model
         
         typedef std::pair<bool,NodeType* const> IsNodeType;
         
-//        typedef std::map<size_t,std::shared_ptr<NodeType> > SharedNodePtrMapType;
-//
-//
         typedef std::shared_ptr<NodeType> SharedNodePtrType;
         typedef std::pair<bool,SharedNodePtrType> IsSharedNodeType;
 
@@ -34,9 +31,6 @@ namespace model
     private:
         
         static NodeContainerType nodeMap;
-
-//        static SharedNodePtrMapType sharedNodePtrMap;
-        
         
     public:
         
@@ -80,11 +74,6 @@ namespace model
             }
             
             return temp;
-            
-//            typename SharedNodePtrMapType::const_iterator nodeIter(sharedNodePtrMap.find(i));
-//            return (nodeIter==sharedNodePtrMap.end())?  std::make_pair(false,std::shared_ptr<NodeType>(nullptr)) :
-//            /*                              */ std::make_pair(true,nodeIter->second);
-//            
         }
         
         /**********************************************************************/
@@ -92,12 +81,6 @@ namespace model
         {
             return nodeMap;
         }
-        
-//        /**********************************************************************/
-//        static SharedNodePtrMapType& sharedNodes()
-//        {
-//            return sharedNodePtrMap;
-//        }
         
         /**********************************************************************/
         static void addNode(NodeType* const pL)
@@ -112,32 +95,12 @@ namespace model
             const size_t erased=nodeMap.erase(pL->sID);
             assert(erased==1 && "Could not erase from NodeMap");
 
-//            const size_t erased1=sharedNodePtrMap.erase(pL->sID);
-//            assert(erased1==1 && "Could not erase from sharedNodePtrMap");
-
         }
-        
-//        /**********************************************************************/
-//        static void addNode(const std::shared_ptr<NodeType>& pL)
-//        {
-//            sharedNodePtrMap.insert(std::make_pair(pL->sID,pL)).second;
-////            assert(success && "Could not insert in NodeMap");
-//        }
-        
-//        /**********************************************************************/
-//        static void removeNode(const NodeType& pL)
-//        {
-//                const size_t erased=sharedNodePtrMap.erase(pL->sID);
-//                assert(erased==1 && "Could not erase from NodeMap");
-//        }
         
     };
     
     template<typename NodeType>
     std::map<size_t,NodeType* const> NodeObserver<NodeType>::nodeMap;
-
-//    template<typename NodeType>
-//    std::map<size_t,std::shared_ptr<NodeType> > NodeObserver<NodeType>::sharedNodePtrMap;
 
 }
 #endif

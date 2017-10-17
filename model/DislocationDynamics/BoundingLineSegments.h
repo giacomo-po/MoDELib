@@ -59,6 +59,45 @@ namespace model
         
         
         /**********************************************************************/
+        bool contains(const VectorDim& P) const
+        {
+            bool temp(false);
+            for(const auto& vertexPair : *this)
+            {
+                const VectorDim segm(vertexPair.second-vertexPair.first);
+                const double segmNorm2(segm.squaredNorm());
+                if(segmNorm2>FLT_EPSILON)
+                {
+                    double u((P-vertexPair.first).dot(segm)/segmNorm2);
+                    if(u<0.0)
+                    {
+                        u=0.0;
+                    }
+                    if(u>1.0)
+                    {
+                        u=1.0;
+                    }
+                    const VectorDim x(vertexPair.first+u*segm);
+                    if((P-x).squaredNorm()<FLT_EPSILON)
+                    {
+                        temp=true;
+                        break;
+                    }
+                }
+                else
+                {
+                    const VectorDim x(0.5*(vertexPair.second+vertexPair.first));
+                    if((P-x).squaredNorm()<FLT_EPSILON)
+                    {
+                        temp=true;
+                        break;
+                    }
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
         VectorDim snap(const VectorDim& P) const
         {
             

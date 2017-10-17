@@ -71,7 +71,7 @@ namespace model
             {
                 if(   !nodeIter.second->isBoundaryNode()
                    && !nodeIter.second->isConnectedToBoundaryNodes()
-                   &&  nodeIter.second->confiningPlanes().size()<3
+                   &&  nodeIter.second->nodeConfinement().glidePlanes().size()<3
                    && !nodeIter.second->isOscillating())
                 {
                     std::cout<<nodeIter.first<<" ";

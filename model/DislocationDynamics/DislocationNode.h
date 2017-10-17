@@ -34,14 +34,15 @@
 #include <model/Geometry/PlaneLineIntersection.h>
 #include <model/DislocationDynamics/IO/DislocationNodeIO.h>
 #include <model/DislocationDynamics/BoundingLineSegments.h>
-
+#include <model/DislocationDynamics/DislocationNodeConfinement.h>
 
 namespace model
 {
     
     template <int _dim, short unsigned int corder, typename InterpolationType>
-    class DislocationNode : public SplineNode<DislocationNode<_dim,corder,InterpolationType>,
-    /*                                         */ _dim,corder,InterpolationType>
+    class DislocationNode :
+    /*          */ public SplineNode<DislocationNode<_dim,corder,InterpolationType>,_dim,corder,InterpolationType>,
+    /*          */ public DislocationNodeConfinement<DislocationNode<_dim,corder,InterpolationType>>
     
     {
         
@@ -55,6 +56,8 @@ namespace model
         typedef DislocationNode       <dim,corder,InterpolationType> NodeType;
         typedef DislocationSegment    <dim,corder,InterpolationType> LinkType;
         typedef SplineNode<NodeType,dim,corder,InterpolationType> NodeBaseType;
+        typedef DislocationNodeConfinement<NodeType>  DislocationNodeConfinementType;
+        
         typedef typename NodeBaseType::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<NodeType>::LoopType LoopType;
         constexpr static int NdofXnode=NodeBaseType::NdofXnode;
@@ -64,16 +67,16 @@ namespace model
         typedef std::vector<VectorDim,Eigen::aligned_allocator<VectorDim> > VectorOfNormalsType;
         typedef GlidePlane<LoopType> GlidePlaneType;
         typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
-//        typedef std::deque<LatticePlane> SpecialLatticePlaneContainerType;
+        //        typedef std::deque<LatticePlane> SpecialLatticePlaneContainerType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef LatticeDirection<dim> LatticeDirectionType;
         //        typedef 	std::set<VectorDim,
         //        /*                */ CompareVectorsByComponent<double,dim,float>,
         //        /*                */ Eigen::aligned_allocator<VectorDim> > ConfiningPlaneIntersectionContainerType;
-//        typedef std::deque<std::pair<VectorDim,VectorDim>,Eigen::aligned_allocator<std::pair<VectorDim,VectorDim>>> LineSegmentContainerType;
-//        typedef typename BoundingLineSegments<dim>:: LineSegmentContainerType;
-
-//        typedef typename BoundingLineSegments<dim>::LineSegmentContainerType LineSegmentContainerType;
+        //        typedef std::deque<std::pair<VectorDim,VectorDim>,Eigen::aligned_allocator<std::pair<VectorDim,VectorDim>>> LineSegmentContainerType;
+        //        typedef typename BoundingLineSegments<dim>:: LineSegmentContainerType;
+        
+        //        typedef typename BoundingLineSegments<dim>::LineSegmentContainerType LineSegmentContainerType;
         
         static bool use_velocityFilter;
         static double velocityReductionFactor;
@@ -83,16 +86,16 @@ namespace model
     private:
         
         bool _isGlissile;
-
+        
         
         DislocationSharedObjects<dim> shared;
         
         std::set<const Grain<dim>*> grainSet; // this must be defined before p_Simplex
-
+        
         
         //! A pointer to the Simplex containing *this
         const Simplex<dim,dim>* p_Simplex;
-        GlidePlaneContainerType _confiningPlanes;
+        //        GlidePlaneContainerType _confiningPlanes;
         
         //! The current velocity vector of *this DislocationNode
         VectorDofType velocity;
@@ -109,7 +112,7 @@ namespace model
         VectorDim C;
         
         //LineSegmentContainerType _boundingBoxSegments; // this is the intersection of the bounding boxes of each glide plane
-        BoundingLineSegments<dim> _boundingBoxSegments;
+//        BoundingLineSegments<dim> _boundingBoxSegments;
         
         BoundingLineSegments<dim> _glidePlaneIntersections; //
         
@@ -117,7 +120,7 @@ namespace model
         void snapToBoundingBox(const VectorDim& P)
         {
             
-            set_P(_boundingBoxSegments.snap(P));
+            set_P(boundingBoxSegments().snap(P));
             _isOnBoundingBox=true;
             
         }
@@ -130,7 +133,7 @@ namespace model
             {
                 case 0:
                 {
-                    assert(_confiningPlanes.size()>0);
+                    assert(nodeConfinement().glidePlanes().size()>0);
                     return glidePlane(0).snapToPlane(P);
                     break;
                 }
@@ -140,7 +143,7 @@ namespace model
                     const VectorDim D=_glidePlaneIntersections[0].second-_glidePlaneIntersections[0].first;
                     const double normD2(D.squaredNorm());
                     return normD2>FLT_EPSILON? _glidePlaneIntersections[0].first+(P-_glidePlaneIntersections[0].first).dot(D)*D/normD2 : _glidePlaneIntersections[0].first;
-
+                    
                     //                    return _glidePlaneIntersections[0].first+(P-_glidePlaneIntersections[0].first).dot(_glidePlaneIntersections[0].second)*_glidePlaneIntersections[0].second;
                     break;
                 }
@@ -160,7 +163,7 @@ namespace model
         {
             BoundingLineSegments<dim> temp;
             
-            switch (_confiningPlanes.size())
+            switch (nodeConfinement().glidePlanes().size())
             {
                 case 0:
                 {// there must be at least one glide plane
@@ -186,34 +189,34 @@ namespace model
                     {/* Two distinct glide planes can be coincident only if they belong to different grains
                       * In that case, the intersection of their bounding boxes should be one line segment
                       */
-                        assert(_boundingBoxSegments.size()==1 && "There should be only one line in _boundingBoxSegments");
-                        _glidePlaneIntersections.emplace_back(_boundingBoxSegments[0].first,_boundingBoxSegments[0].second);
+                        assert(boundingBoxSegments().size()==1 && "There should be only one line in boundingBoxSegments()");
+                        _glidePlaneIntersections.emplace_back(boundingBoxSegments()[0].first,boundingBoxSegments()[0].second);
                     }
                     else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
-                    {/* If the two planes are incident then the intersection of 
+                    {/* If the two planes are incident then the intersection of
                       * their bounding boxes is either a pair of singluar segments (2 points)
                       * or a line segment on the boundary
                       */
-                        switch (_boundingBoxSegments.size())
+                        switch (boundingBoxSegments().size())
                         {
                             case 1:
                             {// the bounding boxes of the two planes intersect on a boundary segment. Add end points to _glidePlaneIntersections
-                                _glidePlaneIntersections.emplace_back(_boundingBoxSegments[0].first,_boundingBoxSegments[0].second);
+                                _glidePlaneIntersections.emplace_back(boundingBoxSegments()[0].first,boundingBoxSegments()[0].second);
                                 break;
                             }
                                 
                             case 2:
                             {// The two intersections must be degenerate (2 boundary points)
-                                assert((_boundingBoxSegments[0].first-_boundingBoxSegments[0].second).squaredNorm()<FLT_EPSILON);
-                                assert((_boundingBoxSegments[1].first-_boundingBoxSegments[1].second).squaredNorm()<FLT_EPSILON);
-                                _glidePlaneIntersections.emplace_back(_boundingBoxSegments[0].first,_boundingBoxSegments[1].first);
+                                assert((boundingBoxSegments()[0].first-boundingBoxSegments()[0].second).squaredNorm()<FLT_EPSILON);
+                                assert((boundingBoxSegments()[1].first-boundingBoxSegments()[1].second).squaredNorm()<FLT_EPSILON);
+                                _glidePlaneIntersections.emplace_back(boundingBoxSegments()[0].first,boundingBoxSegments()[1].first);
                                 break;
                             }
                                 
                             default:
                             {
-                                model::cout<<"DislocationNode "<<this->sID<<" _boundingBoxSegments are:"<<std::endl;
-                                for(const auto& pair : _boundingBoxSegments)
+                                model::cout<<"DislocationNode "<<this->sID<<" boundingBoxSegments() are:"<<std::endl;
+                                for(const auto& pair : boundingBoxSegments())
                                 {
                                     model::cout<<"("<<pair.first.transpose()<<","<<pair.second.transpose()<<")"<<std::endl;
                                 }
@@ -225,17 +228,17 @@ namespace model
                     {
                         assert(0 && "Intersection must be COINCIDENT or INCIDENT.");
                     }
-
+                    
                     // Now we must have exactly one _glidePlaneIntersections
                     assert(_glidePlaneIntersections.size()==1 && "_glidePlaneIntersections must have size 1");
-
+                    
                     break;
                 }
                     
                 default:
                 {// Case of more that 2 planes. A _glidePlaneIntersections must exist
                     assert(_glidePlaneIntersections.size()==1 && "_glidePlaneIntersections must exist");
-
+                    
                     // intersect the _glidePlaneIntersections with the new plane
                     PlaneLineIntersection<dim> pli(lastGlidePlane.P.cartesian(),
                                                    lastGlidePlane.n.cartesian(),
@@ -256,7 +259,7 @@ namespace model
                     {
                         assert(0 && "Intersection must be COINCIDENT or INCIDENT.");
                     }
-
+                    
                 }
                     
             }
@@ -264,7 +267,7 @@ namespace model
         }
         
         
-
+        
         
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
@@ -274,44 +277,44 @@ namespace model
             if (DislocationSharedObjects<dim>::use_boundary)
             {
                 //std::cout<<" 1 "<<std::flush;
-
+                
                 if (guess==NULL)
                 {
                     //std::cout<<" 2 "<<std::flush;
-
+                    
                     temp=DislocationSharedObjects<dim>::mesh.search(this->get_P());
                 }
                 else
                 {
                     //std::cout<<" 3 "<<std::flush;
-
+                    
                     if(grainSet.size()==1)
                     {// node only in one region
                         //std::cout<<" 4 "<<std::flush;
-
+                        
                         if((*grainSet.begin())->grainID!=guess->region->regionID)
                         {
                             //std::cout<<" 5 "<<std::flush;
-
+                            
                             temp=DislocationSharedObjects<dim>::mesh.searchRegion((*grainSet.begin())->grainID,this->get_P());
                         }
                         else
                         {
                             //std::cout<<" 6 "<<std::flush;
-
+                            
                             temp=DislocationSharedObjects<dim>::mesh.searchRegionWithGuess(this->get_P(),guess);
                         }
                     }
                     else
                     {
                         //std::cout<<" 7 "<<std::flush;
-
+                        
                         std::cout<<"WARNING: CHECK THAT NODE IS ON THE REGION BOUNDARY"<<std::endl;
                         temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
                     }
                 }
                 //std::cout<<" 8 "<<std::flush;
-
+                
                 
                 if(!temp.first) // DislocationNode not found inside mesh
                 {
@@ -333,7 +336,7 @@ namespace model
             }
             
             //std::cout<<" done"<<std::endl;
-
+            
             
             return temp.second;
         }
@@ -347,7 +350,7 @@ namespace model
             
             Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
             VectorOfNormalsType  CN;
-            for(const auto& plane : _confiningPlanes)
+            for(const auto& plane : nodeConfinement().glidePlanes())
             {
                 CN.push_back(plane->n.cartesian().normalized());
             }
@@ -384,8 +387,8 @@ namespace model
                         //                        const int& grainID,
                         const VectorDofType& Vin,
                         const double& vrc) :
-        //                        const Simplex<dim,dim>* guess=(const Simplex<dim,dim>*) NULL) :
         /* base constructor */ NodeBaseType(Pin),
+        /* base constructor */ DislocationNodeConfinementType(this),
         //        /* init list        */ grain(shared.poly.grain(grainID)),
         //        /* init list        */ L(grain.latticeVector(Pin)),
         /* init list        */ _isGlissile(true),
@@ -404,8 +407,8 @@ namespace model
         /**********************************************************************/
         DislocationNode(const LinkType& pL,
                         const VectorDim& Pin) :
-        //        /* base constructor */ NodeBaseType(pL,Lin.cartesian()),
         /* base constructor */ NodeBaseType(Pin),
+        /* base constructor */ DislocationNodeConfinementType(this),
         //        /* init list        */ grain(pL.grain),
         //        /* init list        */ L(Lin),
         /* init list        */ _isGlissile(true),
@@ -421,22 +424,33 @@ namespace model
         }
         
         /**********************************************************************/
+        const DislocationNodeConfinementType& nodeConfinement() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        DislocationNodeConfinementType& nodeConfinement()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
         void addLoopLink(LoopLinkType* const pL)
         {/*@param[in] pL LoopLink pointer
           *
           * This functin overrides LoopNode::addLoopLink
           */
-                        //std::cout<<"DislocationNode "<<this->sID<<" addLoopLink"<<std::flush;
             NodeBaseType::addLoopLink(pL); // forward to base class
             
             // Insert new plane in _confiningPlanes. If plane already exists nothing will happen
-            const bool success=_confiningPlanes.insert(&(pL->loop()->glidePlane)).second;
+            //            const bool success=_confiningPlanes.insert(&(pL->loop()->glidePlane)).second;
+            const bool success = nodeConfinement().addGlidePlane(pL->loop()->glidePlane);
             if(success)
             {
-                assert(pL->loop()->glidePlane.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
+                //                assert(pL->loop()->glidePlane.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
                 _isGlissile*=pL->loop()->isGlissile;
-//                _boundingBoxSegments=updateBoundingSegments(_boundingBoxSegments,pL->loop()->glidePlane); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
-                _boundingBoxSegments.updateWithGlidePlane(pL->loop()->glidePlane); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
+                //_boundingBoxSegments.updateWithGlidePlane(pL->loop()->glidePlane); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
                 updateGlidePlaneIntersections(pL->loop()->glidePlane);
                 grainSet.insert(&(pL->loop()->grain)); // Insert new grain in grainSet
                 if(grainSet.size()>1)
@@ -444,28 +458,13 @@ namespace model
                     std::cout<<"WARNING: CHECK THAT NODE IS ON REGION BND"<<std::endl;
                 }
                 
-                const VectorDim bbP(_boundingBoxSegments.snap(this->get_P()));
+                const VectorDim bbP(boundingBoxSegments().snap(this->get_P()));
                 if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
                 {
                     set_P(bbP);
                     _isOnBoundingBox=true;
                 }
-
-                
-                //                boxCenter.setZero();
-                //                for(const auto& posPair : _boundingBoxSegments)
-                //                {
-                //                    boxCenter+=posPair.first;
-                //                    boxCenter+=posPair.second;
-                //                }
-                //                boxCenter/=(2*_boundingBoxSegments.size());
-                
-
             }
-            
-            //std::cout<<" done"<<std::endl;
-
-            
         }
         
         /**********************************************************************/
@@ -474,25 +473,26 @@ namespace model
           *
           * This functin overrides LoopNode::removeLoopLink
           */
-                        //std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::flush;
+            //std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::flush;
             NodeBaseType::removeLoopLink(pL); // forward to base class
             
             // Re-construct _confiningPlanes and grainSet
             _isGlissile=true;
-            _confiningPlanes.clear();
-            _boundingBoxSegments.clear();
+            //            _confiningPlanes.clear();
+//            _boundingBoxSegments.clear();
+            nodeConfinement().clear();
+
             grainSet.clear();
             for(const auto& loopLink : this->loopLinks())
             {
-                //                std::cout<<"loopLink "<<loopLink->source()->sID<<"->"<<loopLink->sink()->sID<<std::endl;
-                const bool success=_confiningPlanes.insert(&(loopLink->loop()->glidePlane)).second;
+                //                const bool success=_confiningPlanes.insert(&(loopLink->loop()->glidePlane)).second;
+                const bool success = nodeConfinement().addGlidePlane(loopLink->loop()->glidePlane);
                 
                 if(success)
                 {
-                    assert(loopLink->loop()->glidePlane.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
+                    //                    assert(loopLink->loop()->glidePlane.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
                     _isGlissile*=loopLink->loop()->isGlissile;
-//                    _boundingBoxSegments=updateBoundingSegments(_boundingBoxSegments,loopLink->loop()->glidePlane); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
-                    _boundingBoxSegments.updateWithGlidePlane(loopLink->loop()->glidePlane); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
+                    //_boundingBoxSegments.updateWithGlidePlane(loopLink->loop()->glidePlane); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
                     updateGlidePlaneIntersections(loopLink->loop()->glidePlane);
                     grainSet.insert(&(loopLink->loop()->grain));
                 }
@@ -503,14 +503,14 @@ namespace model
                 std::cout<<"WARNING: CHECK THAT NODE IS ON REGION BND"<<std::endl;
             }
             
-            if(_boundingBoxSegments.size())
+            if(boundingBoxSegments().size())
             {// not the last segment being removed
-            const VectorDim bbP(_boundingBoxSegments.snap(this->get_P()));
-            if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
-            {
-                set_P(bbP);
-                _isOnBoundingBox=true;
-            }
+                const VectorDim bbP(boundingBoxSegments().snap(this->get_P()));
+                if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
+                {
+                    set_P(bbP);
+                    _isOnBoundingBox=true;
+                }
             }
             
         }
@@ -522,7 +522,7 @@ namespace model
             
             if(_isGlissile)
             {
-                for(const auto& plane : _confiningPlanes)
+                for(const auto& plane : nodeConfinement().glidePlanes())
                 {
                     temp.push_back(plane->n.cartesian().normalized());
                 }
@@ -662,14 +662,15 @@ namespace model
         /**********************************************************************/
         const BoundingLineSegments<dim>& boundingBoxSegments() const
         {
-            return _boundingBoxSegments;
+            return nodeConfinement().boundingBoxSegments();
+//            return _boundingBoxSegments;
         }
         
-        /**********************************************************************/
-        const GlidePlaneContainerType& confiningPlanes() const
-        {
-            return _confiningPlanes;
-        }
+        //        /**********************************************************************/
+        //        const GlidePlaneContainerType& confiningPlanes() const
+        //        {
+        //            return _confiningPlanes;
+        //        }
         
         /**********************************************************************/
         bool isOscillating() const
@@ -680,8 +681,8 @@ namespace model
         /**********************************************************************/
         const GlidePlaneType& glidePlane(const size_t& n) const
         {
-            assert(n<_confiningPlanes.size());
-            auto iter=_confiningPlanes.begin();
+            assert(n<nodeConfinement().glidePlanes().size());
+            auto iter=nodeConfinement().glidePlanes().begin();
             std::advance(iter,n);
             return **iter;
         }
@@ -691,7 +692,7 @@ namespace model
         {
             
             // make sure that node is on glide planes
-            for(const auto& gp : _confiningPlanes)
+            for(const auto& gp : nodeConfinement().glidePlanes())
             {
                 assert(gp->contains(P_in) && "NodePosition outside GlidePlane");
             }
@@ -932,7 +933,7 @@ namespace model
     template <int _dim, short unsigned int corder, typename InterpolationType>
     const double DislocationNode<_dim,corder,InterpolationType>::bndTol=FLT_EPSILON;
     
-
+    
 }
 #endif
 

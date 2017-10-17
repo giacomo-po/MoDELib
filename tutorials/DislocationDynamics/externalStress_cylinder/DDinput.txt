@@ -17,7 +17,7 @@ velocityReductionFactor=0.75;
 # OUTPUT
 # Options for output files:
 outputFrequency=1;
-outputBinary=0;
+outputBinary=1;
 outputGlidePlanes=1;
 outputSpatialCells=0;
 outputPKforce=1;

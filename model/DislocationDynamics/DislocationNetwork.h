@@ -360,12 +360,7 @@ namespace model
             read("./","DDinput.txt");
         }
         
-//        /**********************************************************************/
-//        size_t contractWithConstraintCheck(const IsNodeType& Ni,
-//                                           const IsNodeType& Nj)
-//        {
-//            return ContractionType(*this).contractWithConstraintCheck(Ni,Nj);
-//        }
+
 
         /**********************************************************************/
         bool contract(std::shared_ptr<NodeType> nA,
@@ -386,7 +381,7 @@ namespace model
                     }
                     else if(nA->isOnBoundingBox() && !nB->isOnBoundingBox())
                     {// a on box, b is not
-                        assert(0 && "FINISH HERE FOR CASE OF EMPTY glidePlaneIntersections");
+//                        assert(0 && "FINISH HERE FOR CASE OF EMPTY glidePlaneIntersections");
                         BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->glidePlaneIntersections());
                         if(temp.size())
                         {// a common portion of the boundary exists
@@ -400,7 +395,7 @@ namespace model
                     }
                     else
                     {// neither a nor b on bounding box
-                                                assert(0 && "FINISH HERE FOR CASE OF EMPTY glidePlaneIntersections");
+//                                                assert(0 && "FINISH HERE FOR CASE OF EMPTY glidePlaneIntersections");
                         BoundingLineSegments<dim> temp(nA->glidePlaneIntersections(),nB->glidePlaneIntersections());
                         if(temp.size())
                         {// a common portion of the boundary exists
@@ -414,7 +409,11 @@ namespace model
                 {// a is glissile, b is sessile
                     if(nA->isOnBoundingBox())
                     {// a is a boundary node. Check is the bonuding box contains b
-                                        assert(0 && "FINISH HERE");
+                        if(nA->boundingBoxSegments().contains(nB->get_P()))
+                        {
+                            success=this->contractSecond(nB->sID,nA->sID);
+                        }
+//                                        assert(0 && "FINISH HERE");
                     }
                     else
                     {// a is an inner node. Check if _glidePlaneIntersections contains b
@@ -978,6 +977,13 @@ namespace model
     
 } // namespace model
 #endif
+
+//        /**********************************************************************/
+//        size_t contractWithConstraintCheck(const IsNodeType& Ni,
+//                                           const IsNodeType& Nj)
+//        {
+//            return ContractionType(*this).contractWithConstraintCheck(Ni,Nj);
+//        }
 
 //        /**********************************************************************/
 //        void crossSlip()

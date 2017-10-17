@@ -158,7 +158,10 @@ namespace model {
 
 			}
 			
-
+            void operator()(const OutputType& nextOutput)
+            {
+                write(nextOutput);
+            }
 			
 			
 		};
