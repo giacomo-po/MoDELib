@@ -33,6 +33,7 @@
 #include <model/Geometry/PlanePlaneIntersection.h>
 #include <model/Geometry/PlaneLineIntersection.h>
 #include <model/DislocationDynamics/IO/DislocationNodeIO.h>
+#include <model/DislocationDynamics/BoundingLineSegments.h>
 
 
 namespace model
@@ -69,7 +70,10 @@ namespace model
         //        typedef 	std::set<VectorDim,
         //        /*                */ CompareVectorsByComponent<double,dim,float>,
         //        /*                */ Eigen::aligned_allocator<VectorDim> > ConfiningPlaneIntersectionContainerType;
-        typedef std::deque<std::pair<VectorDim,VectorDim>,Eigen::aligned_allocator<std::pair<VectorDim,VectorDim>>> BoundingSegmentsType;
+//        typedef std::deque<std::pair<VectorDim,VectorDim>,Eigen::aligned_allocator<std::pair<VectorDim,VectorDim>>> LineSegmentContainerType;
+//        typedef typename BoundingLineSegments<dim>:: LineSegmentContainerType;
+
+//        typedef typename BoundingLineSegments<dim>::LineSegmentContainerType LineSegmentContainerType;
         
         static bool use_velocityFilter;
         static double velocityReductionFactor;
@@ -104,59 +108,19 @@ namespace model
         
         VectorDim C;
         
-        BoundingSegmentsType _boundingBoxSegments; // this is the intersection of the bounding boxes of each glide plane
+        //LineSegmentContainerType _boundingBoxSegments; // this is the intersection of the bounding boxes of each glide plane
+        BoundingLineSegments<dim> _boundingBoxSegments;
         
-        
-        BoundingSegmentsType _glidePlaneIntersections; //
-
-//        /**********************************************************************/
-//        VectorDim boundingBoxProjection(const VectorDim& P) const;
+        BoundingLineSegments<dim> _glidePlaneIntersections; //
         
         /**********************************************************************/
         void snapToBoundingBox(const VectorDim& P)
         {
             
-            set_P(boundingBoxProjection(P));
+            set_P(_boundingBoxSegments.snap(P));
             _isOnBoundingBox=true;
             
         }
-        
-        /**********************************************************************/
-        VectorDim boundingBoxProjection(const VectorDim& P) const
-        {
-            
-            std::map<double,VectorDim,std::less<double>,Eigen::aligned_allocator<std::pair<double,VectorDim>>> snapMap;
-            
-            for(const auto& vertexPair : _boundingBoxSegments)
-            {
-                const VectorDim segm(vertexPair.second-vertexPair.first);
-                const double segmNorm2(segm.squaredNorm());
-                if(segmNorm2>FLT_EPSILON)
-                {
-                    double u((P-vertexPair.first).dot(segm)/segmNorm2);
-                    if(u<0.0)
-                    {
-                        u=0.0;
-                    }
-                    if(u>1.0)
-                    {
-                        u=1.0;
-                    }
-                    const VectorDim x(vertexPair.first+u*segm);
-                    snapMap.emplace((P-x).squaredNorm(),x);
-                }
-                else
-                {
-                    const VectorDim x(0.5*(vertexPair.second+vertexPair.first));
-                    snapMap.emplace((P-x).squaredNorm(),x);
-                }
-            }
-            
-            return snapMap.begin()->second;
-            
-        }
-        
-
         
         /**********************************************************************/
         VectorDim snapToGlidePlaneIntersection(const VectorDim& P)
@@ -194,7 +158,7 @@ namespace model
         /**********************************************************************/
         void updateGlidePlaneIntersections(const GlidePlaneType& lastGlidePlane)
         {
-            BoundingSegmentsType temp;
+            BoundingLineSegments<dim> temp;
             
             switch (_confiningPlanes.size())
             {
@@ -300,55 +264,7 @@ namespace model
         }
         
         
-        /**********************************************************************/
-        static BoundingSegmentsType updateBoundingSegments(const BoundingSegmentsType& old,
-                                                           const GlidePlaneType& gp)
-        {
-            //model::cout<<"DislocationNode "<<this->sID<<" adding GlidePlane "<<gp.sID<<std::endl;
-            
-            
-            BoundingSegmentsType temp;
-            
-            if(old.size())
-            {
-                for(const auto& oldPair : old)
-                {
-                    const BoundingSegmentsType psi=GlidePlaneObserver<LoopType>::planeSegmentIntersection(gp.P.cartesian(),
-                                                                                                          gp.n.cartesian(),
-                                                                                                          oldPair.first,
-                                                                                                          oldPair.second);
-                    if(psi.size())
-                    {// plane and current segment intersect
-                        for(size_t k=0;k<gp.meshIntersections.size();++k)
-                        {
-                            const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
-                            
-                            SegmentSegmentIntersection<dim> ssi(gp.meshIntersections[k].second,
-                                                                gp.meshIntersections[k1].second,
-                                                                oldPair.first,
-                                                                oldPair.second);
-                            
-                            if(ssi.size)
-                            {
-                                temp.emplace_back(ssi.x0,ssi.x1);
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for(size_t k=0;k<gp.meshIntersections.size();++k)
-                {
-                    const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
-                    temp.emplace_back(gp.meshIntersections[k].second,gp.meshIntersections[k1].second);
-                }
-            }
-            
-            //            assert(temp.size()==1 || temp.size()>=3 && "updateBoundingSegments failed");
-            return temp;
-            
-        }
+
         
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
@@ -519,7 +435,8 @@ namespace model
             {
                 assert(pL->loop()->glidePlane.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
                 _isGlissile*=pL->loop()->isGlissile;
-                _boundingBoxSegments=updateBoundingSegments(_boundingBoxSegments,pL->loop()->glidePlane); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
+//                _boundingBoxSegments=updateBoundingSegments(_boundingBoxSegments,pL->loop()->glidePlane); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
+                _boundingBoxSegments.updateWithGlidePlane(pL->loop()->glidePlane); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
                 updateGlidePlaneIntersections(pL->loop()->glidePlane);
                 grainSet.insert(&(pL->loop()->grain)); // Insert new grain in grainSet
                 if(grainSet.size()>1)
@@ -527,7 +444,7 @@ namespace model
                     std::cout<<"WARNING: CHECK THAT NODE IS ON REGION BND"<<std::endl;
                 }
                 
-                const VectorDim bbP(boundingBoxProjection(this->get_P()));
+                const VectorDim bbP(_boundingBoxSegments.snap(this->get_P()));
                 if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
                 {
                     set_P(bbP);
@@ -574,7 +491,8 @@ namespace model
                 {
                     assert(loopLink->loop()->glidePlane.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
                     _isGlissile*=loopLink->loop()->isGlissile;
-                    _boundingBoxSegments=updateBoundingSegments(_boundingBoxSegments,loopLink->loop()->glidePlane); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
+//                    _boundingBoxSegments=updateBoundingSegments(_boundingBoxSegments,loopLink->loop()->glidePlane); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
+                    _boundingBoxSegments.updateWithGlidePlane(loopLink->loop()->glidePlane); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
                     updateGlidePlaneIntersections(loopLink->loop()->glidePlane);
                     grainSet.insert(&(loopLink->loop()->grain));
                 }
@@ -585,11 +503,14 @@ namespace model
                 std::cout<<"WARNING: CHECK THAT NODE IS ON REGION BND"<<std::endl;
             }
             
-            const VectorDim bbP(boundingBoxProjection(this->get_P()));
+            if(_boundingBoxSegments.size())
+            {// not the last segment being removed
+            const VectorDim bbP(_boundingBoxSegments.snap(this->get_P()));
             if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
             {
                 set_P(bbP);
                 _isOnBoundingBox=true;
+            }
             }
             
         }
@@ -730,6 +651,18 @@ namespace model
                 std::cout<<"velocityReductionCoeff="<<velocityReductionCoeff<<", vMaxGood="<<vMaxGood<<", velocity.norm()="<<velocity.norm()<<", newVelocity="<<velocity.norm()<<std::endl;
                 
             }
+        }
+        
+        /**********************************************************************/
+        const BoundingLineSegments<dim>& glidePlaneIntersections() const
+        {
+            return _glidePlaneIntersections;
+        }
+        
+        /**********************************************************************/
+        const BoundingLineSegments<dim>& boundingBoxSegments() const
+        {
+            return _boundingBoxSegments;
         }
         
         /**********************************************************************/
@@ -1003,6 +936,91 @@ namespace model
 }
 #endif
 
+
+//        /**********************************************************************/
+//        VectorDim boundingBoxProjection(const VectorDim& P) const
+//        {
+//
+//            std::map<double,VectorDim,std::less<double>,Eigen::aligned_allocator<std::pair<double,VectorDim>>> snapMap;
+//
+//            for(const auto& vertexPair : _boundingBoxSegments)
+//            {
+//                const VectorDim segm(vertexPair.second-vertexPair.first);
+//                const double segmNorm2(segm.squaredNorm());
+//                if(segmNorm2>FLT_EPSILON)
+//                {
+//                    double u((P-vertexPair.first).dot(segm)/segmNorm2);
+//                    if(u<0.0)
+//                    {
+//                        u=0.0;
+//                    }
+//                    if(u>1.0)
+//                    {
+//                        u=1.0;
+//                    }
+//                    const VectorDim x(vertexPair.first+u*segm);
+//                    snapMap.emplace((P-x).squaredNorm(),x);
+//                }
+//                else
+//                {
+//                    const VectorDim x(0.5*(vertexPair.second+vertexPair.first));
+//                    snapMap.emplace((P-x).squaredNorm(),x);
+//                }
+//            }
+//
+//            return snapMap.begin()->second;
+//
+//        }
+
+//        /**********************************************************************/
+//        static LineSegmentContainerType updateBoundingSegments(const LineSegmentContainerType& old,
+//                                                           const GlidePlaneType& gp)
+//        {
+//            //model::cout<<"DislocationNode "<<this->sID<<" adding GlidePlane "<<gp.sID<<std::endl;
+//
+//
+//            LineSegmentContainerType temp;
+//
+//            if(old.size())
+//            {
+//                for(const auto& oldPair : old)
+//                {
+//                    const LineSegmentContainerType psi=GlidePlaneObserver<LoopType>::planeSegmentIntersection(gp.P.cartesian(),
+//                                                                                                          gp.n.cartesian(),
+//                                                                                                          oldPair.first,
+//                                                                                                          oldPair.second);
+//                    if(psi.size())
+//                    {// plane and current segment intersect
+//                        for(size_t k=0;k<gp.meshIntersections.size();++k)
+//                        {
+//                            const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
+//
+//                            SegmentSegmentIntersection<dim> ssi(gp.meshIntersections[k].second,
+//                                                                gp.meshIntersections[k1].second,
+//                                                                oldPair.first,
+//                                                                oldPair.second);
+//
+//                            if(ssi.size)
+//                            {
+//                                temp.emplace_back(ssi.x0,ssi.x1);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            else
+//            {
+//                for(size_t k=0;k<gp.meshIntersections.size();++k)
+//                {
+//                    const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
+//                    temp.emplace_back(gp.meshIntersections[k].second,gp.meshIntersections[k1].second);
+//                }
+//            }
+//
+//            //            assert(temp.size()==1 || temp.size()>=3 && "updateBoundingSegments failed");
+//            return temp;
+//
+//        }
 
 //    /**********************************************************************/
 //    template <int _dim, short unsigned int corder, typename InterpolationType,

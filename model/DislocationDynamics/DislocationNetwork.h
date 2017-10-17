@@ -63,6 +63,9 @@
 //#include <model/DislocationDynamics/DislocationNodeContraction.h>
 #include <model/DislocationDynamics/DDtimeIntegrator.h>
 #include <model/Threads/EqualIteratorRange.h>
+#include <model/Geometry/SegmentSegmentIntersection.h>
+#include <model/DislocationDynamics/BoundingLineSegments.h>
+
 //#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
 //#include <model/DislocationDynamics/Polycrystals/GrainBoundaryDissociation.h>
 
@@ -370,30 +373,41 @@ namespace model
         {
             bool success=false;
             
-            
-//            const auto nA=this->sharedNode(a);
-//            const auto nB=this->sharedNode(b);
-            
-//            if(nA.first && nB.first)
-//            {
-            
                 if(nA->isGlissile() && nB->isGlissile())
                 {// both nodes are glissile
                     if(nA->isOnBoundingBox() && nB->isOnBoundingBox())
                     {// both nodes on bounding boxes. Intersect bounding boxes
-                        assert(0 && "FINISH HERE");
+                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
+                        if(temp.size())
+                        {// a common portion of the boundary exists
+                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
+                            success=this->contractSecond(nA->sID,nB->sID);
+                        }
                     }
                     else if(nA->isOnBoundingBox() && !nB->isOnBoundingBox())
-                    {// a on bbox, b is not
-                                                assert(0 && "FINISH HERE");
+                    {// a on box, b is not
+                        assert(0 && "FINISH HERE FOR CASE OF EMPTY glidePlaneIntersections");
+                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->glidePlaneIntersections());
+                        if(temp.size())
+                        {// a common portion of the boundary exists
+                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
+                            success=this->contractSecond(nA->sID,nB->sID);
+                        }
                     }
                     else if(!nA->isOnBoundingBox() && nB->isOnBoundingBox())
-                    {// a on bbox, b is not
+                    {// b on box, a is not
                         success=contract(nB,nA); // call swapping a and b
                     }
                     else
                     {// neither a nor b on bounding box
-                                                assert(0 && "FINISH HERE");
+                                                assert(0 && "FINISH HERE FOR CASE OF EMPTY glidePlaneIntersections");
+                        BoundingLineSegments<dim> temp(nA->glidePlaneIntersections(),nB->glidePlaneIntersections());
+                        if(temp.size())
+                        {// a common portion of the boundary exists
+                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
+                            success=this->contractSecond(nA->sID,nB->sID);
+                        }
+
                     }
                 }
                 else if(nA->isGlissile() && !nB->isGlissile())
