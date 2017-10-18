@@ -170,7 +170,6 @@ namespace model
                 }
                 
                 this->swap(temp);
-
             }
             else
             {
