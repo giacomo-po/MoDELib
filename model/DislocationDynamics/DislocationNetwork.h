@@ -382,7 +382,7 @@ namespace model
                     else if(nA->isOnBoundingBox() && !nB->isOnBoundingBox())
                     {// a on box, b is not
                         assert(0 && "FINISH HERE FOR CASE OF EMPTY glidePlaneIntersections");
-                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->glidePlaneIntersections());
+                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->nodeConfinement().glidePlaneIntersections());
                         if(temp.size())
                         {// a common portion of the boundary exists
                             nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
@@ -396,7 +396,7 @@ namespace model
                     else
                     {// neither a nor b on bounding box
                                                 assert(0 && "FINISH HERE FOR CASE OF EMPTY glidePlaneIntersections");
-                        BoundingLineSegments<dim> temp(nA->glidePlaneIntersections(),nB->glidePlaneIntersections());
+                        BoundingLineSegments<dim> temp(nA->nodeConfinement().glidePlaneIntersections(),nB->nodeConfinement().glidePlaneIntersections());
                         if(temp.size())
                         {// a common portion of the boundary exists
                             nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));

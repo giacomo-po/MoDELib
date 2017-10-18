@@ -111,11 +111,6 @@ namespace model
         
         VectorDim C;
         
-        //LineSegmentContainerType _boundingBoxSegments; // this is the intersection of the bounding boxes of each glide plane
-//        BoundingLineSegments<dim> _boundingBoxSegments;
-        
-//        BoundingLineSegments<dim> _glidePlaneIntersections; //
-        
         /**********************************************************************/
         void snapToBoundingBox(const VectorDim& P)
         {
@@ -124,149 +119,6 @@ namespace model
             _isOnBoundingBox=true;
             
         }
-        
-//        /**********************************************************************/
-//        VectorDim snapToGlidePlaneIntersection(const VectorDim& P)
-//        {
-//            
-//            switch (_glidePlaneIntersections.size())
-//            {
-//                case 0:
-//                {
-////                    assert(nodeConfinement().glidePlanes().size()>0);
-//                    assert(nodeConfinement().glidePlanes().size()==1);
-//                    return glidePlane(0).snapToPlane(P);
-//                    break;
-//                }
-//                    
-//                case 1:
-//                {
-//                    const VectorDim D=_glidePlaneIntersections[0].second-_glidePlaneIntersections[0].first;
-//                    const double normD2(D.squaredNorm());
-//                    return normD2>FLT_EPSILON? _glidePlaneIntersections[0].first+(P-_glidePlaneIntersections[0].first).dot(D)*D/normD2 : _glidePlaneIntersections[0].first;
-//                    break;
-//                }
-//                    
-//                default:
-//                {
-//                    assert(0 && "THERE CAN BE AT MOST ONE LINE OF INTERSECTION");
-//                    return VectorDim::Zero();
-//                    break;
-//                }
-//            }
-//            
-//        }
-        
-//        /**********************************************************************/
-//        void updateGlidePlaneIntersections(const GlidePlaneType& lastGlidePlane)
-//        {
-//            BoundingLineSegments<dim> temp;
-//            
-//            switch (nodeConfinement().glidePlanes().size())
-//            {
-//                case 0:
-//                {// there must be at least one glide plane
-//                    assert(0 && "AT LEAST ONE GLIDE PLANE MUST EXIST");
-//                    break;
-//                }
-//                    
-//                case 1:
-//                {// if there is only one glide plane, then _glidePlaneIntersections must be empty
-//                    _glidePlaneIntersections.clear();
-//                    break;
-//                }
-//                    
-//                case 2:
-//                {// a second plane is being added, so we must have no _glidePlaneIntersections
-//                    assert(_glidePlaneIntersections.size()==0 && "_glidePlaneIntersections must be empty");
-//                    
-//                    // Grab the infinite line of intersection between the two planes
-//                    GlidePlaneObserver<LoopType>* const gpo(glidePlane(0).glidePlaneObserver);
-//                    const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&glidePlane(0),&glidePlane(1)));
-//                    
-//                    if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
-//                    {/* Two distinct glide planes can be coincident only if they belong to different grains
-//                      * In that case, the intersection of their bounding boxes should be one line segment
-//                      */
-//                        assert(boundingBoxSegments().size()==1 && "There should be only one line in boundingBoxSegments()");
-//                        _glidePlaneIntersections.emplace_back(boundingBoxSegments()[0].first,boundingBoxSegments()[0].second);
-//                    }
-//                    else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
-//                    {/* If the two planes are incident then the intersection of
-//                      * their bounding boxes is either a pair of singluar segments (2 points)
-//                      * or a line segment on the boundary
-//                      */
-//                        switch (boundingBoxSegments().size())
-//                        {
-//                            case 1:
-//                            {// the bounding boxes of the two planes intersect on a boundary segment. Add end points to _glidePlaneIntersections
-//                                _glidePlaneIntersections.emplace_back(boundingBoxSegments()[0].first,boundingBoxSegments()[0].second);
-//                                break;
-//                            }
-//                                
-//                            case 2:
-//                            {// The two intersections must be degenerate (2 boundary points)
-//                                assert((boundingBoxSegments()[0].first-boundingBoxSegments()[0].second).squaredNorm()<FLT_EPSILON);
-//                                assert((boundingBoxSegments()[1].first-boundingBoxSegments()[1].second).squaredNorm()<FLT_EPSILON);
-//                                _glidePlaneIntersections.emplace_back(boundingBoxSegments()[0].first,boundingBoxSegments()[1].first);
-//                                break;
-//                            }
-//                                
-//                            default:
-//                            {
-//                                model::cout<<"DislocationNode "<<this->sID<<" boundingBoxSegments() are:"<<std::endl;
-//                                for(const auto& pair : boundingBoxSegments())
-//                                {
-//                                    model::cout<<"("<<pair.first.transpose()<<","<<pair.second.transpose()<<")"<<std::endl;
-//                                }
-//                                assert(0 && "Bounding boxes of two incident planes must intersect on a boundary segment or on two boundary points.");
-//                            }
-//                        }
-//                    }
-//                    else
-//                    {
-//                        assert(0 && "Intersection must be COINCIDENT or INCIDENT.");
-//                    }
-//                    
-//                    // Now we must have exactly one _glidePlaneIntersections
-//                    assert(_glidePlaneIntersections.size()==1 && "_glidePlaneIntersections must have size 1");
-//                    
-//                    break;
-//                }
-//                    
-//                default:
-//                {// Case of more that 2 planes. A _glidePlaneIntersections must exist
-//                    assert(_glidePlaneIntersections.size()==1 && "_glidePlaneIntersections must exist");
-//                    
-//                    // intersect the _glidePlaneIntersections with the new plane
-//                    PlaneLineIntersection<dim> pli(lastGlidePlane.P.cartesian(),
-//                                                   lastGlidePlane.n.cartesian(),
-//                                                   _glidePlaneIntersections[0].first, // origin of line
-//                                                   _glidePlaneIntersections[0].second-_glidePlaneIntersections[0].first // line direction
-//                                                   );
-//                    
-//                    if(pli.type==PlaneLineIntersection<dim>::COINCIDENT)
-//                    {// nothing to do, _glidePlaneIntersections remains unchanged
-//                        
-//                    }
-//                    else if(pli.type==PlaneLineIntersection<dim>::INCIDENT)
-//                    {// _glidePlaneIntersections becomes a singular point
-//                        _glidePlaneIntersections[0].first =pli.P;
-//                        _glidePlaneIntersections[0].second=pli.P;
-//                    }
-//                    else
-//                    {
-//                        assert(0 && "Intersection must be COINCIDENT or INCIDENT.");
-//                    }
-//                    
-//                }
-//                    
-//            }
-//            
-//        }
-        
-        
-        
         
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
@@ -345,8 +197,6 @@ namespace model
         void make_projectionMatrix()
         {
             
-            
-            
             Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
             VectorOfNormalsType  CN;
             for(const auto& plane : nodeConfinement().glidePlanes())
@@ -372,7 +222,6 @@ namespace model
             {
                 this->prjM*=( I-CN[k]*CN[k].transpose() );
             }
-            
             
         }
         
@@ -447,7 +296,6 @@ namespace model
             if(success)
             {
                 _isGlissile*=pL->loop()->isGlissile;
-//                updateGlidePlaneIntersections(pL->loop()->glidePlane);
                 
                 const VectorDim bbP(boundingBoxSegments().snap(this->get_P()));
                 if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
@@ -469,7 +317,6 @@ namespace model
             // Re-construct nodeConfinement
             _isGlissile=true;
             nodeConfinement().clear();
-//            _glidePlaneIntersections.clear();
 
             for(const auto& loopLink : this->loopLinks())
             {
@@ -478,7 +325,6 @@ namespace model
                 if(success)
                 {
                     _isGlissile*=loopLink->loop()->isGlissile;
-//                    updateGlidePlaneIntersections(loopLink->loop()->glidePlane);
                 }
             }
             
@@ -631,41 +477,25 @@ namespace model
             }
         }
         
-        /**********************************************************************/
-        const BoundingLineSegments<dim>& glidePlaneIntersections() const
-        {
-            return nodeConfinement().glidePlaneIntersections();
-
-//            return _glidePlaneIntersections;
-        }
+//        /**********************************************************************/
+//        const BoundingLineSegments<dim>& glidePlaneIntersections() const
+//        {
+//            return nodeConfinement().glidePlaneIntersections();
+//        }
         
         /**********************************************************************/
         const BoundingLineSegments<dim>& boundingBoxSegments() const
         {
             return nodeConfinement().boundingBoxSegments();
-//            return _boundingBoxSegments;
         }
         
-        //        /**********************************************************************/
-        //        const GlidePlaneContainerType& confiningPlanes() const
-        //        {
-        //            return _confiningPlanes;
-        //        }
+
         
         /**********************************************************************/
         bool isOscillating() const
         {
             return velocityReductionCoeff<std::pow(velocityReductionFactor,3);
         }
-        
-//        /**********************************************************************/
-//        const GlidePlaneType& glidePlane(const size_t& n) const
-//        {
-//            assert(n<nodeConfinement().glidePlanes().size());
-//            auto iter=nodeConfinement().glidePlanes().begin();
-//            std::advance(iter,n);
-//            return **iter;
-//        }
         
         /**********************************************************************/
         void set_P(const VectorDim& P_in)
@@ -916,129 +746,3 @@ namespace model
     
 }
 #endif
-
-
-//        /**********************************************************************/
-//        VectorDim boundingBoxProjection(const VectorDim& P) const
-//        {
-//
-//            std::map<double,VectorDim,std::less<double>,Eigen::aligned_allocator<std::pair<double,VectorDim>>> snapMap;
-//
-//            for(const auto& vertexPair : _boundingBoxSegments)
-//            {
-//                const VectorDim segm(vertexPair.second-vertexPair.first);
-//                const double segmNorm2(segm.squaredNorm());
-//                if(segmNorm2>FLT_EPSILON)
-//                {
-//                    double u((P-vertexPair.first).dot(segm)/segmNorm2);
-//                    if(u<0.0)
-//                    {
-//                        u=0.0;
-//                    }
-//                    if(u>1.0)
-//                    {
-//                        u=1.0;
-//                    }
-//                    const VectorDim x(vertexPair.first+u*segm);
-//                    snapMap.emplace((P-x).squaredNorm(),x);
-//                }
-//                else
-//                {
-//                    const VectorDim x(0.5*(vertexPair.second+vertexPair.first));
-//                    snapMap.emplace((P-x).squaredNorm(),x);
-//                }
-//            }
-//
-//            return snapMap.begin()->second;
-//
-//        }
-
-//        /**********************************************************************/
-//        static LineSegmentContainerType updateBoundingSegments(const LineSegmentContainerType& old,
-//                                                           const GlidePlaneType& gp)
-//        {
-//            //model::cout<<"DislocationNode "<<this->sID<<" adding GlidePlane "<<gp.sID<<std::endl;
-//
-//
-//            LineSegmentContainerType temp;
-//
-//            if(old.size())
-//            {
-//                for(const auto& oldPair : old)
-//                {
-//                    const LineSegmentContainerType psi=GlidePlaneObserver<LoopType>::planeSegmentIntersection(gp.P.cartesian(),
-//                                                                                                          gp.n.cartesian(),
-//                                                                                                          oldPair.first,
-//                                                                                                          oldPair.second);
-//                    if(psi.size())
-//                    {// plane and current segment intersect
-//                        for(size_t k=0;k<gp.meshIntersections.size();++k)
-//                        {
-//                            const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
-//
-//                            SegmentSegmentIntersection<dim> ssi(gp.meshIntersections[k].second,
-//                                                                gp.meshIntersections[k1].second,
-//                                                                oldPair.first,
-//                                                                oldPair.second);
-//
-//                            if(ssi.size)
-//                            {
-//                                temp.emplace_back(ssi.x0,ssi.x1);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            else
-//            {
-//                for(size_t k=0;k<gp.meshIntersections.size();++k)
-//                {
-//                    const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
-//                    temp.emplace_back(gp.meshIntersections[k].second,gp.meshIntersections[k1].second);
-//                }
-//            }
-//
-//            //            assert(temp.size()==1 || temp.size()>=3 && "updateBoundingSegments failed");
-//            return temp;
-//
-//        }
-
-//    /**********************************************************************/
-//    template <int _dim, short unsigned int corder, typename InterpolationType,
-//    /*	   */ template <short unsigned int, size_t> class QuadratureRule>
-//    VectorDim DislocationNode<_dim,corder,Interpolation,QuadratureRule>::boundingBoxProjection(const VectorDim& P) const
-//    {
-//
-//        std::map<double,VectorDim> snapMap;
-//
-//        for(const auto& vertexPair : _boundingBoxSegments)
-//        {
-//            const VectorDim segm(vertexPair.second-vertexPair.first);
-//            const double segmNorm2(segm.squaredNorm());
-//            if(segmNorm2>FLT_EPSILON)
-//            {
-//                double u((P-vertexPair.first).dot(segm)/segmNorm2);
-//                if(u<0.0)
-//                {
-//                    u=0.0;
-//                }
-//                if(u>1.0)
-//                {
-//                    u=1.0;
-//                }
-//                const VectorDim x(vertexPair.first+u*segm);
-//                snapMap.emplace((P-x).squaredNorm(),x);
-//            }
-//            else
-//            {
-//                const VectorDim x(0.5*(vertexPair.second+vertexPair.first));
-//                snapMap.emplace((P-x).squaredNorm(),x);
-//            }
-//        }
-//
-//        return snapMap.begin()->second;
-//
-//    }
-
-
-
