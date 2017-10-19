@@ -30,6 +30,7 @@ namespace model
         typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef typename TypeTraits<Derived>::LoopType LoopType;
         typedef typename TypeTraits<Derived>::FlowType FlowType;
+        typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
         
         typedef LoopLink<Derived> LoopLinkType;
         //        typedef std::set<const LoopLinkType*> LoopLinkContainerType;
@@ -39,9 +40,12 @@ namespace model
         
         
         friend class LoopNode<NodeType>; // allow NetworkNode to call private NetworkLink::formNetworkComponent
+
+                LoopNetworkType* const loopNetwork;
         
     private:
         
+
         std::shared_ptr<NetworkComponentType> psn;
 //        FlowType _flow;
         
@@ -81,7 +85,7 @@ namespace model
         {
 //            std::cout<<"1"<<std::endl;
             // Add this to NetworkLinkObserver
-            NetworkLinkObserver<LinkType>::addLink(this->p_derived());
+            loopNetwork->addLink(this->p_derived());
 
 //                        std::cout<<"2"<<std::endl;
             // Add this to neighobors of source and sink
@@ -128,6 +132,7 @@ namespace model
         NetworkLink(const std::shared_ptr<NodeType>& nI,
                     const std::shared_ptr<NodeType>& nJ) :
 //        /* init */ _flow(TypeTraits<Derived>::zeroFlow),
+        /* init */ loopNetwork(nI->loopNetwork),
         /* init */ source(nI->sID<nJ->sID? nI : nJ),
         /* init */ sink(nI->sID<nJ->sID? nJ : nI),
         /* init */ nodeIDPair(std::make_pair(source->sID,sink->sID))
@@ -137,6 +142,7 @@ namespace model
             //            assert(sourceInserted);
             //            const bool sinkInserted=sink->insert(this->p_derived()).second;
             //            assert(sinkInserted);
+            assert(nI->loopNetwork==nJ->loopNetwork && "source and sink in different networks");
             makeTopologyChange();
         }
         
@@ -144,7 +150,7 @@ namespace model
         ~NetworkLink()
         {
             //                        std::cout<<"Destroying NetworkLink "<<source->sID<<" "<<sink->sID<<std::endl;
-            NetworkLinkObserver<LinkType>::removeLink(this->p_derived());
+            loopNetwork->removeLink(this->p_derived());
             
             source->removeFromNeighborhood(this->p_derived());
             sink->removeFromNeighborhood(this->p_derived());

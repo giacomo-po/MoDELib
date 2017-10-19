@@ -273,6 +273,201 @@ namespace model
             
         }
         
+        /**********************************************************************/
+        std::tuple<bool,VectorDim,size_t,size_t> contractPoint(const NodeType* const other) const
+        {
+            
+            //std::pair<bool,VectorDim> c=std::make_pair(false,VectorDim::Zero());
+            
+            if(node->isGlissile() && other->isGlissile())
+            {// both nodes are glissile
+                if(node->isOnBoundingBox() && other->isOnBoundingBox())
+                {// both nodes on bounding boxes. Intersect bounding boxes
+                    BoundingLineSegments<dim> temp(node->boundingBoxSegments(),other->boundingBoxSegments());
+                    if(temp.size())
+                    {// a common portion of the boundary exists
+                        std::cout<<"contractPoint case 1"<<std::endl;
+                        return std::make_tuple(true,temp.snap(0.5*(node->get_P()+other->get_P())),node->sID,other->sID);
+                    }
+                    else
+                    {
+                                                std::cout<<"contractPoint case 2"<<std::endl;
+                        return std::make_tuple(false,VectorDim::Zero(),node->sID,other->sID);
+                    }
+                }
+                else if(node->isOnBoundingBox() && !other->isOnBoundingBox())
+                {// a on box, b is not
+                    if(other->nodeConfinement().glidePlaneIntersections().size())
+                    {// other is confined internally by two or more planes
+                        BoundingLineSegments<dim> temp(node->boundingBoxSegments(),other->nodeConfinement().glidePlaneIntersections());
+                        if(temp.size())
+                        {
+                                                    std::cout<<"contractPoint case 3"<<std::endl;
+                            return std::make_tuple(true,temp.snap(0.5*(node->get_P()+other->get_P())),node->sID,other->sID);
+                        }
+                        else
+                        {
+                                                    std::cout<<"contractPoint case 4"<<std::endl;
+                            return std::make_tuple(false,VectorDim::Zero(),node->sID,other->sID);
+                        }
+                    }
+                    else
+                    {// other is confined by only one glide plane
+                        BoundingLineSegments<dim> temp=node->boundingBoxSegments();
+                        temp.updateWithGlidePlane(other->glidePlane(0));
+                        if(temp.size())
+                        {
+                                                    std::cout<<"contractPoint case 5"<<std::endl;
+                            return std::make_tuple(true,temp.snap(0.5*(node->get_P()+other->get_P())),node->sID,other->sID);
+                        }
+                        else
+                        {
+                                                    std::cout<<"contractPoint case 6"<<std::endl;
+                            return std::make_tuple(false,VectorDim::Zero(),node->sID,other->sID);
+                        }
+                    }
+                }
+                else if(!node->isOnBoundingBox() && other->isOnBoundingBox())
+                {// b on box, a is not
+                                            std::cout<<"contractPoint case 7"<<std::endl;
+                    return other->contractPoint(node);
+                }
+                else
+                {// neither a nor b on bounding box
+                    if(glidePlaneIntersections().size() && other->nodeConfinement().glidePlaneIntersections().size())
+                    {
+                        BoundingLineSegments<dim> temp(node->nodeConfinement().glidePlaneIntersections(),other->nodeConfinement().glidePlaneIntersections());
+                        if(temp.size())
+                        {
+                                                    std::cout<<"contractPoint case 8"<<std::endl;
+                            return std::make_tuple(true,temp.snap(0.5*(node->get_P()+other->get_P())),node->sID,other->sID);
+                        }
+                        else
+                        {
+                                                    std::cout<<"contractPoint case 9"<<std::endl;
+                            return std::make_tuple(false,VectorDim::Zero(),node->sID,other->sID);
+                        }
+                    }
+                    else if(glidePlaneIntersections().size() && !other->nodeConfinement().glidePlaneIntersections().size())
+                    {
+                        BoundingLineSegments<dim> temp=node->boundingBoxSegments();
+                        temp.updateWithGlidePlane(other->glidePlane(0));
+                        if(temp.size())
+                        {
+                                                    std::cout<<"contractPoint case 10"<<std::endl;
+                            return std::make_tuple(true,temp.snap(0.5*(node->get_P()+other->get_P())),node->sID,other->sID);
+                        }
+                        else
+                        {
+                                                    std::cout<<"contractPoint case 11"<<std::endl;
+                            return std::make_tuple(false,VectorDim::Zero(),node->sID,other->sID);
+                        }
+                    }
+                    else if(!glidePlaneIntersections().size() && other->nodeConfinement().glidePlaneIntersections().size())
+                    {
+                                                std::cout<<"contractPoint case 12"<<std::endl;
+                        return other->contractPoint(node);
+                    }
+                    else
+                    {// both nodes confined by only one plane
+                        
+                        assert(glidePlanes().size()==1);
+                        assert(other->nodeConfinement().glidePlanes().size()==1);
+                        
+                        GlidePlaneObserver<LoopType>* const gpo(glidePlane(0).glidePlaneObserver);
+                        const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&glidePlane(0),&other->nodeConfinement().glidePlane(0)));
+                        
+                        if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
+                        {
+                                                    std::cout<<"contractPoint case 13"<<std::endl;
+                            return std::make_tuple(true,0.5*(node->get_P()+other->get_P()),node->sID,other->sID);
+                        }
+                        else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
+                        {
+                            std::cout<<node->sID<<" "<<other->sID<<std::endl;
+                            std::cout<<"contractPoint case 13a"<<std::endl;
+                            assert(0 && "FINISH HERE, RETURN POINT ON INTTERSECTIOn LINE WHICH MINIMIZES DISTANCES");
+                        }
+                        else
+                        {
+                                                    std::cout<<"contractPoint case 14"<<std::endl;
+                            return std::make_tuple(false,VectorDim::Zero(),node->sID,other->sID);
+                        }
+                    }
+                }
+            }
+            else if(node->isGlissile() && !other->isGlissile())
+            {// a is glissile, b is sessile
+                if(node->isOnBoundingBox())
+                {// a is a boundary node. Check is the bonuding box contains b
+                    if(node->boundingBoxSegments().contains(other->get_P()))
+                    {
+                                                std::cout<<"contractPoint case 15"<<std::endl;
+                        return std::make_tuple(true,other->get_P(),other->sID,node->sID);
+                    }
+                    else
+                    {
+                                                std::cout<<"contractPoint case 16"<<std::endl;
+                        return std::make_tuple(false,VectorDim::Zero(),node->sID,other->sID);
+                    }
+                }
+                else
+                {// a is an inner node. Check if _glidePlaneIntersections contains b
+                    if(glidePlaneIntersections().size())
+                    {
+                        if(glidePlaneIntersections().contains(other->get_P()))
+                        {
+                            std::cout<<"contractPoint case 17"<<std::endl;
+                            return std::make_tuple(true,other->get_P(),other->sID,node->sID);
+
+                        }
+                        else
+                        {
+                            std::cout<<"contractPoint case 17a"<<std::endl;
+                            return std::make_tuple(false,VectorDim::Zero(),node->sID,other->sID);
+                        }
+                    }
+                    else
+                    {
+                        assert(glidePlanes().size()==1);
+                        if(glidePlane(0).contains(other->get_P()))
+                        {
+                            std::cout<<"contractPoint case 17b"<<std::endl;
+                            return std::make_tuple(true,other->get_P(),other->sID,node->sID);
+
+                        }
+                        else
+                        {
+                            std::cout<<"contractPoint case 17c"<<std::endl;
+                            return std::make_tuple(false,VectorDim::Zero(),node->sID,other->sID);
+                        }
+                    }
+                    //assert(0 && "FINISH HERE");
+                }
+                
+            }
+            else if(!node->isGlissile() && other->isGlissile())
+            {
+                                        std::cout<<"contractPoint case 18"<<std::endl;
+                return other->contractPoint(node);
+            }
+            else
+            {// both nodes are sessile
+                if((node->get_P()-other->get_P()).squaredNorm()<FLT_EPSILON)
+                {// contract only if coincident
+                                            std::cout<<"contractPoint case 19"<<std::endl;
+                    return std::make_tuple(true,0.5*(node->get_P()+other->get_P()),node->sID,other->sID);
+                }
+                else
+                {
+                                            std::cout<<"contractPoint case 20"<<std::endl;
+                    return std::make_tuple(false,VectorDim::Zero(),node->sID,other->sID);
+                }
+            }
+            
+        }
+        
+        
     };
 }
 

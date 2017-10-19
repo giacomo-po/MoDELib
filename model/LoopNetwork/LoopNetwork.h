@@ -294,7 +294,7 @@ namespace model
             
             const std::pair<typename DanglingNodeContainerType::iterator,bool> inserted=danglingNodes().emplace(std::piecewise_construct,
                                                                                                             std::make_tuple(nodeID),
-                                                                                                            std::make_tuple(new NodeType(nodeInput...)) );
+                                                                                                            std::make_tuple(new NodeType(this->p_derived(),nodeInput...)) );
             
             assert(inserted.second && "COULD NOT INSERT NETWORK VERTEX IN VERTEX CONTAINER.");
             assert(inserted.first->first == nodeID && "KEY != nodeID");

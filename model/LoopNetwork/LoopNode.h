@@ -45,6 +45,8 @@ namespace model
         
         typedef Derived NodeType;
         typedef typename TypeTraits<Derived>::LinkType LinkType;
+        typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
+        typedef NodeObserver<Derived> NodeObserverType;
         typedef LoopLink<LinkType> LoopLinkType;
         typedef std::set<LoopLinkType*> LoopLinkContainerType;
         typedef std::map<size_t,LoopLinkContainerType> LinkByLoopContainerType;
@@ -55,8 +57,12 @@ namespace model
 
         friend class NetworkLink<LinkType>; // allow NetworkLink to call private NetworkNode::formNetworkComponent
 
+        LoopNetworkType* const loopNetwork;
+
+        
     private:
         
+//        NodeObserverType* const loopNetwork;
         std::shared_ptr<NetworkComponentType> psn;
 
         /**********************************************************************/
@@ -98,18 +104,20 @@ namespace model
         
         static int verboseLevel;
         
+        
         /**********************************************************************/
 
         LoopNode(const LoopNode&) =delete;
     
         /**********************************************************************/
-        LoopNode() :
+        LoopNode(LoopNetworkType* const ln) :
+        /* init list */ loopNetwork(ln),
         /* init list */ psn(new NetworkComponentType(this->p_derived()))
         {
             VerboseLoopNode(1,"Constructing LoopNode "<<name()<<std::endl);
 
 //            std::cout<<"Constructing LoopNode "<<this->sID<<std::endl;
-            NodeObserver<Derived>::addNode(this->p_derived());
+            loopNetwork->addNode(this->p_derived());
             
             const bool success=neighbors().emplace(std::make_pair(this->sID, NeighborType(this->p_derived(),(LinkType*) NULL,0) )).second;
             assert(success && "CANNOT INSERT SELF IN NEIGHBORHOOD.");
@@ -121,7 +129,7 @@ namespace model
         {
             VerboseLoopNode(1,"Destroying LoopNode "<<name()<<std::endl);
 
-            NodeObserver<Derived>::removeNode(this->p_derived());
+            loopNetwork->removeNode(this->p_derived());
             
             assert(loopLinks().empty());
             
@@ -229,8 +237,8 @@ namespace model
             const bool inserted=loopLinks().insert(pL).second;
             assert(inserted);
 
-//            NodeObserver<Derived>::addNode(pL->source());
-//            NodeObserver<Derived>::addNode(pL->sink());
+//            nodeObserver->addNode(pL->source());
+//            nodeObserver->addNode(pL->sink());
 
             
             // form the prev/next structure

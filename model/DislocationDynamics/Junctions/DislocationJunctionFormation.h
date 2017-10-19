@@ -12,9 +12,9 @@
 #include <utility> // for std::pair
 #include <vector>
 #include <Eigen/Dense>
-#include <model/Network/Operations/EdgeFinder.h>
+//#include <model/Network/Operations/EdgeFinder.h>
 #include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
-#include <model/DislocationDynamics/Remeshing/DislocationNetworkRemesh.h>
+#include <model/DislocationDynamics/DislocationNetworkRemesh.h>
 #include <model/MPI/MPIcout.h>
 #include <model/Threads/EqualIteratorRange.h>
 #include <model/Threads/N2IteratorRange.h>
@@ -29,15 +29,15 @@ namespace model
         typedef typename DislocationNetworkType::LinkType LinkType;
         typedef typename DislocationNetworkType::NodeType NodeType;
         
-        typedef typename EdgeFinder<LinkType>::isNetworkEdgeType isNetworkLinkType;
-        typedef typename DislocationNetworkType::isNetworkNodeType isNetworkNodeType;
+        typedef typename DislocationNetworkType::IsNetworkEdgeType IsNetworkLinkType;
+        typedef typename DislocationNetworkType::IsNodeType IsNodeType;
         
         enum {dim=3};
         enum {pOrder=3};
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         
         typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
-        typedef typename DislocationNetworkType::NetworkNodeContainerType NetworkNodeContainerType;
+//        typedef typename DislocationNetworkType::NetworkNodeContainerType NetworkNodeContainerType;
         
         //		typedef std::pair<const LinkType*, double> EdgeIntersectionType;
         typedef std::pair<std::pair<size_t,size_t>, double> EdgeIntersectionType;
@@ -202,8 +202,8 @@ namespace model
                 
                 bool insideMeshM=true;
                 bool insideMeshP=true;
-                bool insideRegionM=true;
-                bool insideRegionP=true;
+//                bool insideRegionM=true;
+//                bool insideRegionP=true;
                 if(DN.shared.use_boundary)
                 {
                     const Simplex<dim,dim>* S(source.includingSimplex());
@@ -224,31 +224,31 @@ namespace model
                         insideMeshP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).first;
                     }
                     
-                    insideRegionM=DN.shared.mesh.searchWithGuess(Pm.cartesian(),S).second->region->regionID==source.grain.grainID;
-                    if(!insideRegionM)
-                    {
-                        //Pp=source.get_P()*(1.0-up)+sink.get_P()*up;
-                        if(source.isGrainBoundaryNode())
-                        {
-				                    PlanePlaneIntersection ppi(source.grainBoundaryPlane(),L.glidePlane);
-				                    LatticeLine gbLine(ppi.P,ppi.d);
-				                    Pm=gbLine.snapToLattice(source.get_P()*(1.0-up)+sink.get_P()*up);
-				                    insideRegionM=DN.shared.mesh.searchWithGuess(Pm.cartesian(),S).second->region->regionID==source.grain.grainID;
-				                }
-                    }
-                    insideRegionP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).second->region->regionID==source.grain.grainID;
-                    if(!insideRegionP)
-                    {
-                        //Pp=source.get_P()*(1.0-up)+sink.get_P()*up;
-                        if(source.isGrainBoundaryNode())
-                        {
-				                    PlanePlaneIntersection ppi(source.grainBoundaryPlane(),L.glidePlane);
-				                    LatticeLine gbLine(ppi.P,ppi.d);
-				                    Pp=gbLine.snapToLattice(source.get_P()*(1.0-up)+sink.get_P()*up);
-				                    insideRegionP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).second->region->regionID==source.grain.grainID;
-				                }
-                    }
-                    
+//                    insideRegionM=DN.shared.mesh.searchWithGuess(Pm.cartesian(),S).second->region->regionID==source.grain.grainID;
+//                    if(!insideRegionM)
+//                    {
+//                        //Pp=source.get_P()*(1.0-up)+sink.get_P()*up;
+//                        if(source.isGrainBoundaryNode())
+//                        {
+//				                    PlanePlaneIntersection ppi(source.grainBoundaryPlane(),L.glidePlane);
+//				                    LatticeLine gbLine(ppi.P,ppi.d);
+//				                    Pm=gbLine.snapToLattice(source.get_P()*(1.0-up)+sink.get_P()*up);
+//				                    insideRegionM=DN.shared.mesh.searchWithGuess(Pm.cartesian(),S).second->region->regionID==source.grain.grainID;
+//				                }
+//                    }
+//                    insideRegionP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).second->region->regionID==source.grain.grainID;
+//                    if(!insideRegionP)
+//                    {
+//                        //Pp=source.get_P()*(1.0-up)+sink.get_P()*up;
+//                        if(source.isGrainBoundaryNode())
+//                        {
+//				                    PlanePlaneIntersection ppi(source.grainBoundaryPlane(),L.glidePlane);
+//				                    LatticeLine gbLine(ppi.P,ppi.d);
+//				                    Pp=gbLine.snapToLattice(source.get_P()*(1.0-up)+sink.get_P()*up);
+//				                    insideRegionP=DN.shared.mesh.searchWithGuess(Pp.cartesian(),S).second->region->regionID==source.grain.grainID;
+//				                }
+//                    }
+//                    
                     
                 }
                 
@@ -272,8 +272,9 @@ namespace model
                    && (Pp.cartesian()-  sink.get_P()).squaredNorm()>dx2
                    && insideMeshM
                    && insideMeshP
-                   &&	insideRegionM
-                   &&	insideRegionP)
+//                   &&	insideRegionM
+//                   &&	insideRegionP
+                   )
                 {
                     //std::pair<typename NetworkNodeContainerType::iterator,bool> temp=DN.expand(source.sID,sink.sID,Pm);
                     im=DN.expand(source.sID,sink.sID,Pm).first->first; // id of the node obtained expanding L1
@@ -516,8 +517,8 @@ namespace model
                         const EdgeIDType& key1(intersectionContainer[tt][interID]. first.first);
                         const EdgeIDType& key2(intersectionContainer[tt][interID].second.first);
                         
-                        const isNetworkLinkType L1(DN.link(key1.first,key1.second));
-                        const isNetworkLinkType L2(DN.link(key2.first,key2.second));
+                        const IsNetworkLinkType L1(DN.link(key1.first,key1.second));
+                        const IsNetworkLinkType L2(DN.link(key2.first,key2.second));
                         
                         //std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersectionContainer[tt][interID]. first.second<<","<<intersectionContainer[tt][interID]. second.second<<std::endl;
                         
@@ -543,8 +544,8 @@ namespace model
                                     //std::cout<<"+1: ip="<<ip<<", jp="<<jp<<std::endl;
                                     if(im!=jm)
                                     {
-                                        const isNetworkNodeType N1=DN.node(im);
-                                        const isNetworkNodeType N2=DN.node(jm);
+                                        const IsNodeType N1=DN.node(im);
+                                        const IsNodeType N2=DN.node(jm);
                                         if(N1.first && N2.first)
                                         {
                                             //std::cout<<"first contract +1 "<<std::endl;
@@ -553,8 +554,8 @@ namespace model
                                     }
                                     if(ip!=jp)
                                     {
-                                        const isNetworkNodeType N1=DN.node(ip);
-                                        const isNetworkNodeType N2=DN.node(jp);
+                                        const IsNodeType N1=DN.node(ip);
+                                        const IsNodeType N2=DN.node(jp);
                                         if(N1.first && N2.first)
                                         {
                                             //std::cout<<"second contract +1 "<<std::endl;
@@ -570,8 +571,8 @@ namespace model
                                     //std::cout<<"-1: ip="<<ip<<", jm="<<jm<<std::endl;
                                     if(im!=jp)
                                     {
-                                        const isNetworkNodeType N1=DN.node(im);
-                                        const isNetworkNodeType N2=DN.node(jp);
+                                        const IsNodeType N1=DN.node(im);
+                                        const IsNodeType N2=DN.node(jp);
                                         if(N1.first && N2.first)
                                         {
                                             //std::cout<<"first contract -1 "<<std::endl;
@@ -580,8 +581,8 @@ namespace model
                                     }
                                     if(ip!=jm)
                                     {
-                                        const isNetworkNodeType N1=DN.node(ip);
-                                        const isNetworkNodeType N2=DN.node(jm);
+                                        const IsNodeType N1=DN.node(ip);
+                                        const IsNodeType N2=DN.node(jm);
                                         if(N1.first && N2.first)
                                         {
                                             //std::cout<<"second contract -1 "<<std::endl;

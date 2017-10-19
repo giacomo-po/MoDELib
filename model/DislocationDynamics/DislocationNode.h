@@ -60,6 +60,8 @@ namespace model
         
         typedef typename NodeBaseType::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<NodeType>::LoopType LoopType;
+        typedef typename TypeTraits<NodeType>::LoopNetworkType LoopNetworkType;
+
         constexpr static int NdofXnode=NodeBaseType::NdofXnode;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
@@ -231,11 +233,11 @@ namespace model
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         /**********************************************************************/
-        DislocationNode(const VectorDim& Pin,
-                        //                        const int& grainID,
+        DislocationNode(LoopNetworkType* const ln,
+                        const VectorDim& Pin,
                         const VectorDofType& Vin,
                         const double& vrc) :
-        /* base constructor */ NodeBaseType(Pin),
+        /* base constructor */ NodeBaseType(ln,Pin),
         /* base constructor */ DislocationNodeConfinementType(this),
         //        /* init list        */ grain(shared.poly.grain(grainID)),
         //        /* init list        */ L(grain.latticeVector(Pin)),
@@ -255,10 +257,8 @@ namespace model
         /**********************************************************************/
         DislocationNode(const LinkType& pL,
                         const VectorDim& Pin) :
-        /* base constructor */ NodeBaseType(Pin),
+        /* base constructor */ NodeBaseType(pL.loopNetwork,Pin),
         /* base constructor */ DislocationNodeConfinementType(this),
-        //        /* init list        */ grain(pL.grain),
-        //        /* init list        */ L(Lin),
         /* init list        */ _isGlissile(true),
         /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
         /* init list        */ velocity((pL.source->velocity+pL.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link

@@ -44,6 +44,8 @@ namespace model
         constexpr static int corder=0;
         constexpr static int NdofXnode=dim;
 
+        typedef LoopNode<Derived> LoopNodeType;
+        typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
         typedef Eigen::Matrix<double, dim, 1>   VectorDim;
         typedef Eigen::Matrix<double, dim, dim> MatrixDim;
         
@@ -56,7 +58,9 @@ namespace model
 
         
         /*************************************************/
-        SplineNode(const VectorDim& P_in) :
+        SplineNode(LoopNetworkType* const ln,
+                   const VectorDim& P_in) :
+        /* init list */ LoopNodeType(ln),
         /* init list */ P(P_in),
         /* init list */ prjM(MatrixDim::Identity())
         {
@@ -93,6 +97,7 @@ namespace model
         typedef LoopNode<Derived> LoopNodeType;
         typedef typename LoopNode<Derived>::LinkByLoopContainerType LinkByLoopContainerType;
         typedef typename LoopNode<Derived>::LoopLinkType LoopLinkType;
+        typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
 
         
         constexpr static int corder=1;
@@ -122,8 +127,9 @@ namespace model
     public:
 //        MatrixDim prjM;	//! the projection matrix. THIS SHOULD BE PRIVATE
         
-        SplineNode(const VectorDim& P_in) :
-        /* init list */ Base(P_in)
+        SplineNode(LoopNetworkType* const ln,
+                   const VectorDim& P_in) :
+        /* init list */ Base(ln,P_in)
 //        /* init list */ prjM(MatrixDim::Identity())
         {
             

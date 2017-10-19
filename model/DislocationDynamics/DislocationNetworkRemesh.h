@@ -52,7 +52,7 @@ namespace model
         static double thetaDeg;
         static double neighborRadius;
         static short unsigned int use_redistribution;
-
+        
         /**********************************************************************/
         DislocationNetworkRemesh(DislocationNetworkType& DN_in) :
         /* init list */ DN(DN_in)
@@ -69,9 +69,9 @@ namespace model
             {
                 if(!(runID%use_redistribution))
                 {
-                                remeshByContraction();
+                    remeshByContraction();
                     remeshByExpansion();
-
+                    
                 }
             }
         }
@@ -82,8 +82,8 @@ namespace model
           */
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"		remeshing network: contracting... "<<std::flush;
-
-//            model::cout<<"contracting..."<<std::flush;
+            
+            //            model::cout<<"contracting..."<<std::flush;
             
             const double vTolcont=0.0;
             
@@ -134,8 +134,8 @@ namespace model
         {
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"		remeshing network: expanding... "<<std::flush;
-
-//            model::cout<<"expanding..."<<std::flush;
+            
+            //            model::cout<<"expanding..."<<std::flush;
             
             double cos_theta_max_crit = std::cos(M_PI-thetaDeg*M_PI/180.0);  /*critical angle */
             std::set<std::pair<size_t,size_t> > toBeExpanded;
@@ -147,8 +147,8 @@ namespace model
                 
                 if( linkIter.second->burgers().squaredNorm()
                    //&& !linkIter.second->isSimpleSessile())
-                    && !linkIter.second->isSessile())
-
+                   && !linkIter.second->isSessile())
+                    
                 {
                     const VectorDimD chord(linkIter.second->chord()); // this is sink->get_P() - source->get_P()
                     const double chordLength(chord.norm());
@@ -156,10 +156,10 @@ namespace model
                     
                     
                     // Always expand single FR source segment
-//                    if (linkIter.second->source->openOrder()==1 && linkIter.second->sink->openOrder()==1)
-//                    {
-//                        toBeExpanded.insert(linkIter->second.nodeIDPair);
-//                    }
+                    //                    if (linkIter.second->source->openOrder()==1 && linkIter.second->sink->openOrder()==1)
+                    //                    {
+                    //                        toBeExpanded.insert(linkIter->second.nodeIDPair);
+                    //                    }
                     
                     // Expand pin points
                     if (   linkIter.second->source->constraintNormals().size()>2
@@ -181,45 +181,45 @@ namespace model
                         toBeExpanded.insert(linkIter.second->nodeIDPair);
                     }
                     
-//                    // Angle criterion
-//                    if (linkIter.second->source->is_simple())
-//                    { //check angle criterion at source
-//                        const VectorDimD c0(linkIter.second->source->openNeighborNode(0)->get_P()-linkIter.second->source->get_P());
-//                        const VectorDimD c1(linkIter.second->source->openNeighborNode(1)->get_P()-linkIter.second->source->get_P());
-//                        const double c0norm(c0.norm());
-//                        const double c1norm(c1.norm());
-//                        if(c0.dot(c1)>cos_theta_max_crit*c0norm*c1norm)
-//                        {
-//                            if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
-//                            {
-//                                toBeExpanded.insert(linkIter.second->source->openNeighborLink(0)->nodeIDPair);
-//                            }
-//                            
-//                            if (c1norm>3.0*Lmin /*&& c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
-//                            {
-//                                toBeExpanded.insert(linkIter.second->source->openNeighborLink(1)->nodeIDPair);
-//                            }
-//                        }
-//                    }
-//                    if (linkIter.second->sink->is_simple())
-//                    { //check angle criterion at sink
-//                        const VectorDimD c0(linkIter.second->sink->openNeighborNode(0)->get_P()-linkIter.second->sink->get_P());
-//                        const VectorDimD c1(linkIter.second->sink->openNeighborNode(1)->get_P()-linkIter.second->sink->get_P());
-//                        const double c0norm(c0.norm());
-//                        const double c1norm(c1.norm());
-//                        if(c0.dot(c1)>cos_theta_max_crit*c0norm*c1norm)
-//                        {
-//                            if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
-//                            {
-//                                toBeExpanded.insert(linkIter.second->sink->openNeighborLink(0)->nodeIDPair);
-//                            }
-//                            if (c1norm>3.0*Lmin/* && c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
-//                            {
-//                                //														model::cout<<"Expanding 4"<<std::endl;
-//                                toBeExpanded.insert(linkIter.second->sink->openNeighborLink(1)->nodeIDPair);
-//                            }
-//                        }
-//                    }
+                    //                    // Angle criterion
+                    //                    if (linkIter.second->source->is_simple())
+                    //                    { //check angle criterion at source
+                    //                        const VectorDimD c0(linkIter.second->source->openNeighborNode(0)->get_P()-linkIter.second->source->get_P());
+                    //                        const VectorDimD c1(linkIter.second->source->openNeighborNode(1)->get_P()-linkIter.second->source->get_P());
+                    //                        const double c0norm(c0.norm());
+                    //                        const double c1norm(c1.norm());
+                    //                        if(c0.dot(c1)>cos_theta_max_crit*c0norm*c1norm)
+                    //                        {
+                    //                            if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
+                    //                            {
+                    //                                toBeExpanded.insert(linkIter.second->source->openNeighborLink(0)->nodeIDPair);
+                    //                            }
+                    //
+                    //                            if (c1norm>3.0*Lmin /*&& c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
+                    //                            {
+                    //                                toBeExpanded.insert(linkIter.second->source->openNeighborLink(1)->nodeIDPair);
+                    //                            }
+                    //                        }
+                    //                    }
+                    //                    if (linkIter.second->sink->is_simple())
+                    //                    { //check angle criterion at sink
+                    //                        const VectorDimD c0(linkIter.second->sink->openNeighborNode(0)->get_P()-linkIter.second->sink->get_P());
+                    //                        const VectorDimD c1(linkIter.second->sink->openNeighborNode(1)->get_P()-linkIter.second->sink->get_P());
+                    //                        const double c0norm(c0.norm());
+                    //                        const double c1norm(c1.norm());
+                    //                        if(c0.dot(c1)>cos_theta_max_crit*c0norm*c1norm)
+                    //                        {
+                    //                            if (c0norm>3.0*Lmin /*&& c0.dot(v0)>vTolexp*c0norm*v0.norm()*/)
+                    //                            {
+                    //                                toBeExpanded.insert(linkIter.second->sink->openNeighborLink(0)->nodeIDPair);
+                    //                            }
+                    //                            if (c1norm>3.0*Lmin/* && c1.dot(v1)>vTolexp*c1norm*v1.norm()*/)
+                    //                            {
+                    //                                //														model::cout<<"Expanding 4"<<std::endl;
+                    //                                toBeExpanded.insert(linkIter.second->sink->openNeighborLink(1)->nodeIDPair);
+                    //                            }
+                    //                        }
+                    //                    }
                 }
                 
             }
@@ -235,34 +235,34 @@ namespace model
                 const IsConstNetworkLinkType Lij(DN.link(i,j));
                 if(Lij.first)
                 {
-//                    std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
+                    //                    std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
                     //VectorDimD expandPoint(Lij.second->get_r(expand_at));
                     VectorDimD expandPoint(Lij.second->get_r(expand_at));
-
+                    
                     //                    LatticeVectorType expandPoint(Lij.second->glidePlane->snapToLattice(Lij.second->get_r(expand_at)));
-//                    auto simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
-//                    if(Lij.second->isSessile())
-//                    {
-//                        PlanePlaneIntersection ppi(Lij.second->glidePlane,Lij.second->sessilePlane);
-//                        LatticeLine line(ppi.P,ppi.d);
-//                        expandPoint=line.snapToLattice(expandPoint.cartesian());
-//                        
-//                    }
-//                    else
-//                    {
-//                        if(simplexCheckPair.first && simplexCheckPair.second->region->regionID!=DN.node(i).second->grain.grainID)
-//                        {
-//                            const LatticePlane& GBplane(DN.shared.poly.grainBoundary(simplexCheckPair.second->region->regionID,DN.node(i).second->grain.grainID).latticePlane(DN.node(i).second->grain.grainID));
-//                            const LatticePlane& glidePlane(Lij.second->glidePlane);
-//                            const PlanePlaneIntersection ppi(GBplane,glidePlane);
-//                            const LatticeLine line(ppi.P,ppi.d);
-//                            expandPoint=line.snapToLattice(expandPoint.cartesian());
-//                            
-//                        }
-//                    }
-//                    
-//                    simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
-//                    assert(simplexCheckPair.second->region->regionID==DN.node(i).second->grain.grainID && simplexCheckPair.second->region->regionID==DN.node(j).second->grain.grainID && "EXPAND POINT IN INCORRECT REGION.");
+                    //                    auto simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
+                    //                    if(Lij.second->isSessile())
+                    //                    {
+                    //                        PlanePlaneIntersection ppi(Lij.second->glidePlane,Lij.second->sessilePlane);
+                    //                        LatticeLine line(ppi.P,ppi.d);
+                    //                        expandPoint=line.snapToLattice(expandPoint.cartesian());
+                    //
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        if(simplexCheckPair.first && simplexCheckPair.second->region->regionID!=DN.node(i).second->grain.grainID)
+                    //                        {
+                    //                            const LatticePlane& GBplane(DN.shared.poly.grainBoundary(simplexCheckPair.second->region->regionID,DN.node(i).second->grain.grainID).latticePlane(DN.node(i).second->grain.grainID));
+                    //                            const LatticePlane& glidePlane(Lij.second->glidePlane);
+                    //                            const PlanePlaneIntersection ppi(GBplane,glidePlane);
+                    //                            const LatticeLine line(ppi.P,ppi.d);
+                    //                            expandPoint=line.snapToLattice(expandPoint.cartesian());
+                    //
+                    //                        }
+                    //                    }
+                    //
+                    //                    simplexCheckPair=DN.pointIsInsideMesh(expandPoint.cartesian(),Lij.second->source->includingSimplex());
+                    //                    assert(simplexCheckPair.second->region->regionID==DN.node(i).second->grain.grainID && simplexCheckPair.second->region->regionID==DN.node(j).second->grain.grainID && "EXPAND POINT IN INCORRECT REGION.");
                     
                     //                    if(!Lij.second->isSessile)
                     //                    {
@@ -280,19 +280,19 @@ namespace model
                     if(  (expandPoint-DN.node(i).second->get_P()).squaredNorm()
                        &&(expandPoint-DN.node(j).second->get_P()).squaredNorm() )
                     {
-//                        if(simplexCheckPair.first)
-//                        {
-//                            //                        DN.expand(i,j,expandPoint);
+                        //                        if(simplexCheckPair.first)
+                        //                        {
+                        //                            //                        DN.expand(i,j,expandPoint);
                         std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
-                            DN.expand(i,j,expandPoint);
-                            Nexpanded++;
-//                        }
+                        DN.expand(i,j,expandPoint);
+                        Nexpanded++;
+                        //                        }
                     }
                 }
             }
             model::cout<<" ("<<Nexpanded<<" expanded)"<<std::flush;
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-
+            
         }
         
         /**********************************************************************/
@@ -375,10 +375,10 @@ namespace model
     
     template <typename DislocationNetworkType>
     double DislocationNetworkRemesh<DislocationNetworkType>::neighborRadius=0.001;
-
+    
     template <typename DislocationNetworkType>
     short unsigned int DislocationNetworkRemesh<DislocationNetworkType>::use_redistribution=1;
-
+    
 } // namespace model
 #endif
 

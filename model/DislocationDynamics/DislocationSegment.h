@@ -766,7 +766,8 @@ namespace model
         /**********************************************************************/
         bool isGrainBoundarySegment() const
         {
-            return this->grainBoundarySet.size();
+            return this->source->isGrainBoundaryNode() && this->sink->isGrainBoundaryNode();
+            //            return this->grainBoundarySet.size();
         }
         
         /**********************************************************************/

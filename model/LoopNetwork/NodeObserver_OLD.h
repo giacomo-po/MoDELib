@@ -15,35 +15,37 @@
 namespace model
 {
     template<typename NodeType>
-    struct NodeObserver : public std::map<size_t,NodeType* const>
+    class NodeObserver
     {
 
-//    public:
+    public:
         
         typedef std::map<size_t,NodeType* const> NodeContainerType;
+        
         typedef std::pair<bool,NodeType* const> IsNodeType;
+        
         typedef std::shared_ptr<NodeType> SharedNodePtrType;
         typedef std::pair<bool,SharedNodePtrType> IsSharedNodeType;
 
         
-//    private:
-//        
-//        static NodeContainerType nodeMap;
-//        
-//    public:
+    private:
+        
+        static NodeContainerType nodeMap;
+        
+    public:
         
         
         /**********************************************************************/
-        IsNodeType node(const size_t& i)
+        static IsNodeType node(const size_t& i)
         {
-            typename NodeContainerType::const_iterator nodeIter(this->find(i));
-            return (nodeIter==this->end())?  std::make_pair(false,static_cast<NodeType* const>(nullptr)) :
+            typename NodeContainerType::const_iterator nodeIter(nodeMap.find(i));
+            return (nodeIter==nodeMap.end())?  std::make_pair(false,static_cast<NodeType* const>(nullptr)) :
             /*                              */ std::make_pair(true,nodeIter->second);
 
         }
         
         /**********************************************************************/
-        IsSharedNodeType sharedNode(const size_t& i)
+        static IsSharedNodeType sharedNode(const size_t& i)
         {
             IsSharedNodeType temp=std::make_pair(false,std::shared_ptr<NodeType>(nullptr));
 
@@ -75,30 +77,30 @@ namespace model
         }
         
         /**********************************************************************/
-        const NodeContainerType& nodes() const
+        static NodeContainerType& nodes()
         {
-            return *this;
+            return nodeMap;
         }
         
         /**********************************************************************/
-        void addNode(NodeType* const pL)
+        static void addNode(NodeType* const pL)
         {
-            const bool success=this->insert(std::make_pair(pL->sID,pL)).second;
+            const bool success=nodeMap.insert(std::make_pair(pL->sID,pL)).second;
             assert(success && "Could not insert in NodeMap");
         }
         
         /**********************************************************************/
-        void removeNode(const NodeType* const pL)
+        static void removeNode(const NodeType* const pL)
         {
-            const size_t erased=this->erase(pL->sID);
+            const size_t erased=nodeMap.erase(pL->sID);
             assert(erased==1 && "Could not erase from NodeMap");
 
         }
         
     };
     
-//    template<typename NodeType>
-//    std::map<size_t,NodeType* const> NodeObserver<NodeType>::nodeMap;
+    template<typename NodeType>
+    std::map<size_t,NodeType* const> NodeObserver<NodeType>::nodeMap;
 
 }
 #endif

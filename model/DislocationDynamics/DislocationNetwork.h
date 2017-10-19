@@ -51,7 +51,7 @@
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/DislocationNetworkRemesh.h>
-//#include <model/DislocationDynamics/Junctions/DislocationJunctionFormation.h>
+#include <model/DislocationDynamics/Junctions/DislocationJunctionFormation.h>
 //#include <model/DislocationDynamics/CrossSlip/DislocationCrossSlip.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
@@ -290,7 +290,7 @@ namespace model
             //            DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
             
             //! 12- Form Junctions
-//            DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(use_junctions,dx);
+//            DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(use_junctions,DDtimeIntegrator<0>::dxMax);
             
             //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
@@ -366,76 +366,18 @@ namespace model
         bool contract(std::shared_ptr<NodeType> nA,
                       std::shared_ptr<NodeType> nB)
         {
-            bool success=false;
             
-                if(nA->isGlissile() && nB->isGlissile())
-                {// both nodes are glissile
-                    if(nA->isOnBoundingBox() && nB->isOnBoundingBox())
-                    {// both nodes on bounding boxes. Intersect bounding boxes
-                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
-                        if(temp.size())
-                        {// a common portion of the boundary exists
-                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
-                            success=this->contractSecond(nA->sID,nB->sID);
-                        }
-                    }
-                    else if(nA->isOnBoundingBox() && !nB->isOnBoundingBox())
-                    {// a on box, b is not
-                        assert(0 && "FINISH HERE FOR CASE OF EMPTY glidePlaneIntersections");
-                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->nodeConfinement().glidePlaneIntersections());
-                        if(temp.size())
-                        {// a common portion of the boundary exists
-                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
-                            success=this->contractSecond(nA->sID,nB->sID);
-                        }
-                    }
-                    else if(!nA->isOnBoundingBox() && nB->isOnBoundingBox())
-                    {// b on box, a is not
-                        success=contract(nB,nA); // call swapping a and b
-                    }
-                    else
-                    {// neither a nor b on bounding box
-                                                assert(0 && "FINISH HERE FOR CASE OF EMPTY glidePlaneIntersections");
-                        BoundingLineSegments<dim> temp(nA->nodeConfinement().glidePlaneIntersections(),nB->nodeConfinement().glidePlaneIntersections());
-                        if(temp.size())
-                        {// a common portion of the boundary exists
-                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
-                            success=this->contractSecond(nA->sID,nB->sID);
-                        }
+            bool success=false;
 
-                    }
-                }
-                else if(nA->isGlissile() && !nB->isGlissile())
-                {// a is glissile, b is sessile
-                    if(nA->isOnBoundingBox())
-                    {// a is a boundary node. Check is the bonuding box contains b
-                        if(nA->boundingBoxSegments().contains(nB->get_P()))
-                        {
-                            success=this->contractSecond(nB->sID,nA->sID);
-                        }
-//                                        assert(0 && "FINISH HERE");
-                    }
-                    else
-                    {// a is an inner node. Check if _glidePlaneIntersections contains b
-                                            assert(0 && "FINISH HERE");
-                    }
-                    
-                }
-                else if(!nA->isGlissile() && nB->isGlissile())
-                {
-                    success=contract(nB,nA); // call swapping a and b
-                }
-                else
-                {// both nodes are sessile
-                    if((nA->get_P()-nB->get_P()).squaredNorm()<FLT_EPSILON)
-                    {// contract only if coincident
-                        success=this->contractSecond(nA->sID,nB->sID);
-                    }
-                }
-                
-//            }
+            const auto temp=nA->contractPoint(nB.get());
+            if(std::get<0>(temp))
+            {
+                nA->set_P(std::get<1>(temp));
+                success=this->contractSecond(nA->sID,nB->sID);
+            }
             
             return success;
+                        
         }
         
         /**********************************************************************/
