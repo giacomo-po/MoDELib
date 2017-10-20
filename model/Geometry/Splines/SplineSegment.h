@@ -157,6 +157,19 @@ namespace model
             return SplineSegmentBaseType::hermite2posMap(*this);
         }
 
+        Eigen::Matrix<double,dim,Ncoeff> hermiteCoefficients() const
+        {
+            return SplineSegmentBaseType::hermiteCoefficients(*this);
+        }
+        
+        /************************************************************************/
+        Eigen::Matrix<double,dim,Ncoeff> polynomialCoeff() const
+        {/*! The matrix of coefficients of the polynomial associated to this
+          *  SplineSegmentBase. If C=polynomialCoeff() then the polynomial is:
+          *  P(u)=C.col(0)+u*C.col(1)+u^2*C.col(2)+...
+          */
+            return Coeff2Hermite<pOrder>::template h2c<dim>(hermiteCoefficients());
+        }
         
         /**********************************************************************/
         MatrixNcoeff sfCoeffs() const
@@ -229,6 +242,8 @@ namespace model
         {
             return this->get_ruu(uin)/std::pow(parametricChordLength(),2);
         }
+        
+
         
         //        /******************************************************************************/
         //        Eigen::Matrix<double, Ndof, Eigen::Dynamic>  get_G2H() const

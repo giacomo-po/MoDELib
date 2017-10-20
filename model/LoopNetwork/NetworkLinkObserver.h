@@ -42,7 +42,15 @@ namespace model
 //    public:
         
         /**********************************************************************/
-        IsConstNetworkEdgeType link(const size_t & i, const size_t & j)
+        IsNetworkEdgeType link(const size_t & i, const size_t & j)
+        {
+            typename LinkContainerType::iterator edgeIter(this->find(std::make_pair(i,j)));
+            return (edgeIter==this->end())?  std::make_pair(false,static_cast<LinkType* const>(nullptr)) :
+            /*                              */ std::make_pair(true,edgeIter->second);
+        }
+        
+        /**********************************************************************/
+        IsConstNetworkEdgeType link(const size_t & i, const size_t & j) const
         {
             typename LinkContainerType::const_iterator edgeIter(this->find(std::make_pair(i,j)));
             return (edgeIter==this->end())?  std::make_pair(false,static_cast<const LinkType* const>(nullptr)) :

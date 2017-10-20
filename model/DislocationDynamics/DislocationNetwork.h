@@ -63,7 +63,6 @@
 //#include <model/DislocationDynamics/DislocationNodeContraction.h>
 #include <model/DislocationDynamics/DDtimeIntegrator.h>
 #include <model/Threads/EqualIteratorRange.h>
-#include <model/Geometry/SegmentSegmentIntersection.h>
 #include <model/DislocationDynamics/BoundingLineSegments.h>
 
 //#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>

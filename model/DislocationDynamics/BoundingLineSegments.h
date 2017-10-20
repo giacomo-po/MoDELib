@@ -15,6 +15,7 @@
 #include <map>
 #include <utility>
 #include <model/DislocationDynamics/GlidePlanes/Glideplane.h>
+#include <model/Geometry/SegmentSegmentDistance.h>
 #include <model/Geometry/SegmentSegmentIntersection.h>
 
 namespace model
@@ -52,7 +53,22 @@ namespace model
                     if(ssi.size)
                     {
                         this->emplace_back(ssi.x0,ssi.x1);
+                        
+                        SegmentSegmentDistance<dim> ssd(s1.first,s1.second,
+                                                                                                                s2.first,s2.second);
+                        assert(ssd.dMin<FLT_EPSILON);
+                        assert((ssi.x0-ssd.x0).norm()<FLT_EPSILON);
+                        assert((ssi.x1-ssd.x1).norm()<FLT_EPSILON);
                     }
+
+//                    SegmentSegmentDistance<dim> ssd(s1.first,s1.second,
+//                                                        s2.first,s2.second);
+//                    
+//                    if(ssd.dMin<FLT_EPSILON)
+//                    {
+//                        this->emplace_back(ssd.x0,ssd.x1);
+//                    }
+                
                 }
             }
         }
@@ -165,6 +181,17 @@ namespace model
                             {
                                 temp.emplace_back(ssi.x0,ssi.x1);
                             }
+
+//                            SegmentSegmentDistance<dim> ssd(gp.meshIntersections[k].second,
+//                                                                gp.meshIntersections[k1].second,
+//                                                                oldPair.first,
+//                                                                oldPair.second);
+//                            
+//                            if(ssd.dMin<FLT_EPSILON)
+//                            {
+//                                temp.emplace_back(ssd.x0,ssd.x1);
+//                            }
+                        
                         }
                     }
                 }

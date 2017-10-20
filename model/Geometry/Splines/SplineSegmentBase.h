@@ -142,6 +142,16 @@ namespace model
             return temp;
         }
         
+           /**********************************************************************/
+            template<typename LinkType>
+           static Eigen::Matrix<double,dim,Ncoeff> hermiteCoefficients(const LinkType& link)
+           {
+               Eigen::Matrix<double,dim,Ncoeff> HrCf;
+               HrCf.col(0)= link.source->get_P();
+               HrCf.col(1)= link.sink->get_P();
+               return HrCf;
+           }
+    
         //        MatrixNcoeffDim get_qH() const {
         //            return (MatrixNcoeffDim()<< link.source->get_P().transpose(),
         //                    /*               */ link.  sink->get_P().transpose()).finished();

@@ -29,7 +29,6 @@
 #include <model/DislocationDynamics/SimplexBndNormal.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
-#include <model/Geometry/SegmentSegmentIntersection.h>
 #include <model/Geometry/PlanePlaneIntersection.h>
 #include <model/Geometry/PlaneLineIntersection.h>
 #include <model/DislocationDynamics/IO/DislocationNodeIO.h>

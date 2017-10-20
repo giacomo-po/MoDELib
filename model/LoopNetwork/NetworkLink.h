@@ -19,7 +19,8 @@
 namespace model
 {
     template<typename Derived>
-    class NetworkLink : public CRTP<Derived>,
+    class NetworkLink : public StaticID<Derived>,
+    /*               */ public CRTP<Derived>,
     /*               */ private std::set<LoopLink<Derived>*>
     {
         
