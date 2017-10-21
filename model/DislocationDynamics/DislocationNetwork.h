@@ -289,7 +289,7 @@ namespace model
             //            DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
             
             //! 12- Form Junctions
-//            DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(use_junctions,DDtimeIntegrator<0>::dxMax);
+            DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(use_junctions,DDtimeIntegrator<0>::dxMax);
             
             //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();

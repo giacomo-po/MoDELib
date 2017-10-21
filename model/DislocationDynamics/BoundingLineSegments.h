@@ -16,7 +16,7 @@
 #include <utility>
 #include <model/DislocationDynamics/GlidePlanes/Glideplane.h>
 #include <model/Geometry/SegmentSegmentDistance.h>
-#include <model/Geometry/SegmentSegmentIntersection.h>
+//#include <model/Geometry/SegmentSegmentIntersection.h>
 
 namespace model
 {
@@ -24,18 +24,18 @@ namespace model
     template <int dim>
     struct BoundingLineSegments :
     /* */ public std::deque<std::pair<Eigen::Matrix<double,dim,1>,Eigen::Matrix<double,dim,1>>,Eigen::aligned_allocator<std::pair<Eigen::Matrix<double,dim,1>,Eigen::Matrix<double,dim,1>>>>
-
+    
     {
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef std::pair<VectorDim,VectorDim> LineSegmentType;
         typedef std::deque<LineSegmentType,Eigen::aligned_allocator<LineSegmentType>> LineSegmentContainerType;
-
+        
         
         /**********************************************************************/
         BoundingLineSegments()
         {/* Empty constructor
           */
-        
+            
         }
         
         /**********************************************************************/
@@ -47,28 +47,34 @@ namespace model
             {
                 for (const auto& s2 : bls2)
                 {
-                    SegmentSegmentIntersection<dim> ssi(s1.first,s1.second,
-                                                        s2.first,s2.second);
-                    
-                    if(ssi.size)
-                    {
-                        this->emplace_back(ssi.x0,ssi.x1);
-                        
-                        SegmentSegmentDistance<dim> ssd(s1.first,s1.second,
-                                                                                                                s2.first,s2.second);
-                        assert(ssd.dMin<FLT_EPSILON);
-                        assert((ssi.x0-ssd.x0).norm()<FLT_EPSILON);
-                        assert((ssi.x1-ssd.x1).norm()<FLT_EPSILON);
-                    }
-
-//                    SegmentSegmentDistance<dim> ssd(s1.first,s1.second,
+//                    std::cout<<"Comparison"<<std::endl;
+//                    
+//                    SegmentSegmentIntersection<dim> ssi(s1.first,s1.second,
 //                                                        s2.first,s2.second);
 //                    
-//                    if(ssd.dMin<FLT_EPSILON)
+//                    if(ssi.size)
 //                    {
-//                        this->emplace_back(ssd.x0,ssd.x1);
+//                        std::cout<<ssi.x0.transpose()<<" -A- "<<ssi.x1.transpose()<<std::endl;
+//                                                this->emplace_back(ssi.x0,ssi.x1);
 //                    }
-                
+                    
+                    SegmentSegmentDistance<dim> ssd(s1.first,s1.second,
+                                                    s2.first,s2.second);
+                    const auto iSeg=ssd.intersectionSegment();
+                    if(iSeg.size()==1)
+                    {
+//                        std::cout<<std::get<0>(iSeg[0]).transpose()<<" -B- "<<std::get<0>(iSeg[0]).transpose()<<std::endl;
+                        this->emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
+                    }
+                    else if(iSeg.size()==2)
+                    {
+//                        std::cout<<std::get<0>(iSeg[0]).transpose()<<" -C- "<<std::get<0>(iSeg[1]).transpose()<<std::endl;
+                        this->emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
+                    }
+                    else
+                    {// do nothing
+                        
+                    }
                 }
             }
         }
@@ -159,7 +165,7 @@ namespace model
             if(this->size())
             {
                 LineSegmentContainerType temp;
-
+                
                 for(const auto& oldPair : *this)
                 {
                     const LineSegmentContainerType psi=GlidePlaneObserver<LoopType>::planeSegmentIntersection(gp.P.cartesian(),
@@ -172,26 +178,38 @@ namespace model
                         {
                             const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
                             
-                            SegmentSegmentIntersection<dim> ssi(gp.meshIntersections[k].second,
-                                                                gp.meshIntersections[k1].second,
-                                                                oldPair.first,
-                                                                oldPair.second);
-                            
-                            if(ssi.size)
-                            {
-                                temp.emplace_back(ssi.x0,ssi.x1);
-                            }
-
-//                            SegmentSegmentDistance<dim> ssd(gp.meshIntersections[k].second,
+//                            SegmentSegmentIntersection<dim> ssi(gp.meshIntersections[k].second,
 //                                                                gp.meshIntersections[k1].second,
 //                                                                oldPair.first,
 //                                                                oldPair.second);
-//                            
-//                            if(ssd.dMin<FLT_EPSILON)
+//                            std::cout<<"Comparison 2"<<std::endl;
+//                            if(ssi.size)
 //                            {
-//                                temp.emplace_back(ssd.x0,ssd.x1);
+//                                std::cout<<ssi.x0.transpose()<<" -A- "<<ssi.x1.transpose()<<std::endl;
+//                                temp.emplace_back(ssi.x0,ssi.x1);
 //                            }
-                        
+                            
+                            SegmentSegmentDistance<dim> ssd(gp.meshIntersections[k].second,
+                                                            gp.meshIntersections[k1].second,
+                                                            oldPair.first,
+                                                            oldPair.second);
+                            
+                            const auto iSeg=ssd.intersectionSegment();
+                            if(iSeg.size()==1)
+                            {
+//                                std::cout<<std::get<0>(iSeg[0]).transpose()<<" -B- "<<std::get<0>(iSeg[0]).transpose()<<std::endl;
+                                temp.emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
+                            }
+                            else if(iSeg.size()==2)
+                            {
+//                                std::cout<<std::get<0>(iSeg[0]).transpose()<<" -C- "<<std::get<0>(iSeg[1]).transpose()<<std::endl;
+                                temp.emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
+                            }
+                            else
+                            {// do nothing
+                                
+                            }
+                            
                         }
                     }
                 }

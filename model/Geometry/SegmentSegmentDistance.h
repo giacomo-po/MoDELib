@@ -11,6 +11,8 @@
 
 #include <cfloat>
 #include <deque>
+#include <map>
+#include <tuple>
 #include <Eigen/Dense>
 
 namespace model
@@ -26,8 +28,8 @@ namespace model
         
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         
-        typedef std::pair<double,VectorDim> PointPairType;
-        typedef std::deque<std::pair<PointPairType,PointPairType>,Eigen::aligned_allocator<std::pair<PointPairType,PointPairType>>> IntersectionContainerType;
+        typedef std::tuple<VectorDim,double,double> IntersectionPointType;
+        typedef std::deque<IntersectionPointType,Eigen::aligned_allocator<IntersectionPointType>> IntersectionContainerType;
         
         static constexpr double tol=FLT_EPSILON;
         
@@ -112,6 +114,11 @@ namespace model
         }
         
         
+        const VectorDim A;
+        const VectorDim B;
+        const VectorDim C;
+        const VectorDim D;
+        
         const VectorDim d1;
         const VectorDim d2;
         const VectorDim d12;
@@ -133,10 +140,14 @@ namespace model
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         /**********************************************************************/
-        SegmentSegmentDistance(const VectorDim& A,
-                                   const VectorDim& B,
-                                   const VectorDim& C,
-                                   const VectorDim& D) :
+        SegmentSegmentDistance(const VectorDim& A0,
+                               const VectorDim& B0,
+                               const VectorDim& C0,
+                               const VectorDim& D0) :
+        /* init */ A(A0),
+        /* init */ B(B0),
+        /* init */ C(C0),
+        /* init */ D(D0),
         /* init */ d1(B-A),
         /* init */ d2(D-C),
         /* init */ d12(C-A),
@@ -160,52 +171,59 @@ namespace model
             
         }
         
-//        /**********************************************************************/
-//        IntersectionContainerType intersectionPoints(const double& dMax) const
-//        {
-//        
-//            IntersectionContainerType temp;
-//            
-//            if(dMin<dMax)
-//            {
-//                
-//                if(D1<tol && D2<tol)
-//                {// Step 1b: both segments are degenerate
-//                    const PointPairType i0=std::make_pair(t,x0);
-//                    const PointPairType i1=std::make_pair(u,x1);
-//                    temp.emplace_back(i0,i1);
-//                }
-//                else if(D1<tol && D2>=tol)
-//                {// Step 1a: first segment is degenerate
-//                    const PointPairType i0=std::make_pair(t,x0);
-//                    const PointPairType i1=std::make_pair(u,x1);
-//                    temp.emplace_back(i0,i1);
-//                }
-//                else if(D1>=tol && D2<tol)
-//                {// Step 1a: second segment is degenerate
-//                    const PointPairType i0=std::make_pair(t,x0);
-//                    const PointPairType i1=std::make_pair(u,x1);
-//                    temp.emplace_back(i0,i1);
-//
-//                }
-//                else
-//                {// both segments are not degenerate
-//                    if(fabs(den)>tol)
-//                    {// Step 1d: skew segments
-//                        const PointPairType i0=std::make_pair(t,x0);
-//                        const PointPairType i1=std::make_pair(u,x1);
-//                        temp.emplace_back(i0,i1);
-//                    }
-//                    else
-//                    {//  Step 1c: parallel or coincident segments
-//                        return step3(0.0);
-//                    }
-//                }
-//            
-//            }
-//            
-//            return temp;
-//        }
+        /**********************************************************************/
+        IntersectionContainerType intersectionSegment() const
+        {/*\returns the point(s) of intersection between the segments, if any.
+          * The return type is deque<tuple<x,t,u>>, where x is the intersection
+          * point, t the parameter on the first segment, u the parameter on the
+          * second segment. The deque is empty if no intersection was found.
+          * If one intersection is found, the deque contains that intersection.
+          * In case of coincident segments, the deque contains two points. These
+          * points define the line element over which the original segments overlap.
+          */
+            
+            IntersectionContainerType temp;
+            
+            if(dMin<FLT_EPSILON)
+            {// an intersection exists
+                
+                if(D1<tol || D2<tol)
+                {// At least one segment is degenerate
+                    temp.emplace_back(0.5*(x0+x1),t,u);
+                }
+                else
+                {// both segments are not degenerate
+                    if(fabs(den)>tol)
+                    {// Step 1d: skew segments
+                        temp.emplace_back(0.5*(x0+x1),t,u);
+                    }
+                    else
+                    {//  coincident segments. Since there must be an intersection, the two innermost points are the overlapping segment
+
+                        const double tC=(C-A).dot(d1)/D1; // value of t for point C
+                        const double tD=(D-A).dot(d1)/D1; // value of t for point D
+
+                        std::multimap<double,VectorDim> ms;
+                        ms.emplace(0.0,A);
+                        ms.emplace(1.0,B);
+                        ms.emplace(tC,C);
+                        ms.emplace(tD,D);
+                        
+                        auto iter1=ms.begin();
+                        std::advance(iter1,1);
+                        auto iter2=ms.begin();
+                        std::advance(iter2,2);
+
+                        temp.emplace_back(iter1->second,iter1->first,(iter1->second-C).dot(d2)/D2);
+                        temp.emplace_back(iter2->second,iter2->first,(iter2->second-C).dot(d2)/D2);
+                        
+                    }
+                }
+                
+            }
+            
+            return temp;
+        }
         
         
     };

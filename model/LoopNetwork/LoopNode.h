@@ -273,6 +273,9 @@ namespace model
                     }
                     if(pL->source().get()==other->source().get() || pL->sink().get()==other->sink().get())
                     {
+                        std::cout<<"LoopNode "<<this->sID<<std::endl;
+                        std::cout<<"adding link "<<pL->source()->sID<<"->"<<pL->sink()->sID<<" (loop "<<pL->loop()->sID<<")"<<std::endl;
+                        std::cout<<"existing link "<<other->source()->sID<<"->"<<other->sink()->sID<<" (loop "<<other->loop()->sID<<")"<<std::endl;
                         assert(0 && "Not a Loop");
                     }
                 }

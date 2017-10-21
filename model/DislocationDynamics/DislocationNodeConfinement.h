@@ -279,10 +279,13 @@ namespace model
             
             //std::pair<bool,VectorDim> c=std::make_pair(false,VectorDim::Zero());
             
+            std::cout<<node->sID<<" "<<other->sID<<std::endl;
+            
             if(node->isGlissile() && other->isGlissile())
             {// both nodes are glissile
                 if(node->isOnBoundingBox() && other->isOnBoundingBox())
-                {// both nodes on bounding boxes. Intersect bounding boxes
+                {// both nodes on bounding boxes. Intersect bounding boxes'
+                    std::cout<<"contractPoint case 1aa"<<std::endl;
                     BoundingLineSegments<dim> temp(node->boundingBoxSegments(),other->boundingBoxSegments());
                     if(temp.size())
                     {// a common portion of the boundary exists
@@ -299,6 +302,7 @@ namespace model
                 {// a on box, b is not
                     if(other->nodeConfinement().glidePlaneIntersections().size())
                     {// other is confined internally by two or more planes
+                        std::cout<<"contractPoint case 3aa"<<std::endl;
                         BoundingLineSegments<dim> temp(node->boundingBoxSegments(),other->nodeConfinement().glidePlaneIntersections());
                         if(temp.size())
                         {
@@ -313,6 +317,7 @@ namespace model
                     }
                     else
                     {// other is confined by only one glide plane
+                        std::cout<<"contractPoint case 5aa"<<std::endl;
                         BoundingLineSegments<dim> temp=node->boundingBoxSegments();
                         temp.updateWithGlidePlane(other->glidePlane(0));
                         if(temp.size())
@@ -336,6 +341,7 @@ namespace model
                 {// neither a nor b on bounding box
                     if(glidePlaneIntersections().size() && other->nodeConfinement().glidePlaneIntersections().size())
                     {
+                        std::cout<<"contractPoint case 8aa"<<std::endl;
                         BoundingLineSegments<dim> temp(node->nodeConfinement().glidePlaneIntersections(),other->nodeConfinement().glidePlaneIntersections());
                         if(temp.size())
                         {
@@ -350,6 +356,7 @@ namespace model
                     }
                     else if(glidePlaneIntersections().size() && !other->nodeConfinement().glidePlaneIntersections().size())
                     {
+                        std::cout<<"contractPoint case 10aa"<<std::endl;
                         BoundingLineSegments<dim> temp=node->boundingBoxSegments();
                         temp.updateWithGlidePlane(other->glidePlane(0));
                         if(temp.size())
@@ -370,7 +377,8 @@ namespace model
                     }
                     else
                     {// both nodes confined by only one plane
-                        
+                        std::cout<<"contractPoint case 13aa"<<std::endl;
+
                         assert(glidePlanes().size()==1);
                         assert(other->nodeConfinement().glidePlanes().size()==1);
                         

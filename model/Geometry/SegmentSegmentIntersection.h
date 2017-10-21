@@ -139,16 +139,12 @@ namespace model
                 else
                 {// segments are coincident or parallel
                     if(fabs(num0)<FLT_EPSILON && fabs(num0)<FLT_EPSILON)
-                    {// segments are coincident, keep innermost points
-                        std::multimap<double,VectorDimD> ms;
+                    {
                         
-                        ms.emplace(0.0,A0);
-                        ms.emplace(1.0,B0);
                         const double u1=(A1-A0).dot(L0)/norm2L0;
                         const double u2=(B1-A0).dot(L0)/norm2L0;
 
                         
-//                        THIS IS WRONG THERE COULD BE NON-INTERSECTIONG COINCIDENT LINES! FINISH THE 9 CASES BELOW
 
                         
                         if(u1<0.0)
@@ -215,6 +211,12 @@ namespace model
                             }
                         }
                         
+                        // segments are coincident, keep innermost points
+//                        std::multimap<double,VectorDimD> ms;
+//                        
+//                        ms.emplace(0.0,A0);
+//                        ms.emplace(1.0,B0);
+//
 //                        ms.emplace(u1,A0+u1*(B0-A0));
 //
 //                        ms.emplace(u2,A0+u2*(B0-A0));
