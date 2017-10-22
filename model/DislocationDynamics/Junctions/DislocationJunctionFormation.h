@@ -360,130 +360,132 @@ namespace model
                 for (typename NetworkLinkContainerType::const_iterator linkIterA=eir[thread].first;linkIterA!=eir[thread].second;linkIterA++)
                 {
                     //                    const DislocationSegmentIntersection<LinkType> dsi(*linkIterA->second,linkIterA->second->glidePlaneNormal());
-                    
-                    for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.links().end();linkIterB++)
+                    if(linkIterA->second->burgers().squaredNorm()>FLT_EPSILON)
                     {
-                        if (   linkIterA->second->sID!=linkIterB->second->sID // don't intersect with itself
-                            //                            && linkIterA->second->grain.grainID==linkIterB->second->grain.grainID
-                            ) // allow juncitons only within grains
+                        for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.links().end();linkIterB++)
                         {
-                            //                            threadVector[omp_get_thread_num()]++;
-                            
-                            //std::cout<< "Intersecting "<<linkIterA->second->nodeIDPair.first<<"->"<<linkIterA->second->nodeIDPair.second<<" " <<linkIterB->second->nodeIDPair.first<<"->"<<linkIterB->second->nodeIDPair.second<<std::flush;
-                            
-                            //                            const bool L1isSessile(linkIterA->second->isSessile());
-                            //                            const bool L2isSessile(linkIterB->second->isSessile());
-                            
-                            //                            std::pair<double,double> temp; // the container of the roots
-                            //
-                            //                            if (!L1isSessile && !L2isSessile) // both segments are glissile
-                            //                            {
-                            //                                temp = dsi.intersectWith(*linkIterB->second,linkIterB->second->glidePlaneNormal(),collisionTol,avoidNodeIntersection);
-                            //                            }
-                            //                            else if (!L1isSessile && L2isSessile) // L1 is glissile and L2 is sessile
-                            //                            {
-                            //                                const bool gnAgnB((linkIterA->second->glidePlaneNormal()-linkIterB->second->glidePlaneNormal()  ).squaredNorm()<FLT_EPSILON);
-                            //                                //const bool gnAsnB((linkIterA->second->glidePlaneNormal()-linkIterB->second->sessilePlaneNormal).squaredNorm()<FLT_EPSILON);
-                            //
-                            //                                if(gnAgnB)
-                            //                                {
-                            //                                    temp = dsi.intersectWith(*linkIterB->second,linkIterB->second->glidePlaneNormal(),collisionTol,avoidNodeIntersection);
-                            //                                }
-                            //
-                            ////                                if (!gnAgnB && !gnAsnB)
-                            ////                                {
-                            ////                                    // cannot intersect
-                            ////                                }
-                            ////                                else if(gnAgnB && !gnAsnB)
-                            ////                                { // glidePlaneNormal of A and glidePlaneNormal of B are the same
-                            ////                                    temp = dsi.intersectWith(linkIterB->second,linkIterB->second->glidePlaneNormal(),collisionTol,avoidNodeIntersection);
-                            ////                                }
-                            ////                                else if (!gnAgnB && gnAsnB)
-                            ////                                { // glidePlaneNormal of A and sessilePlaneNormal of B are the same
-                            ////                                    temp = dsi.intersectWith(linkIterB->second,linkIterB->second->sessilePlaneNormal,collisionTol,avoidNodeIntersection);
-                            ////                                }
-                            ////                                else
-                            ////                                {
-                            ////                                    assert(0 && "GLISSILE AND SESSILE PLANE NORMALS OF B MUST BE DISTINCT.");
-                            ////                                }
-                            //                            }
-                            //                            else if (L1isSessile && !L2isSessile) // L1 is sessile and L2 is glissile
-                            //                            {
-                            //                                const bool gnBgnA((linkIterB->second->glidePlaneNormal()-linkIterA->second->glidePlaneNormal()  ).squaredNorm()<FLT_EPSILON);
-                            //                                //const bool gnBsnA((linkIterB->second->glidePlaneNormal()-linkIterA->second->sessilePlaneNormal).squaredNorm()<FLT_EPSILON);
-                            //
-                            //                                if(gnBgnA)
-                            //                                {
-                            //                                    temp = dsi.intersectWith(*linkIterB->second,linkIterB->second->glidePlaneNormal(),collisionTol,avoidNodeIntersection);
-                            //
-                            //                                }
-                            //
-                            ////                                if (!gnBgnA && !gnBsnA)
-                            ////                                {
-                            ////                                    // cannot intersect
-                            ////                                }
-                            ////                                else if(gnBgnA && !gnBsnA)
-                            ////                                { // use planeNormal of A and planeNormal of B
-                            ////                                    temp = dsi.intersectWith(linkIterB->second,linkIterB->second->glidePlaneNormal(),collisionTol,avoidNodeIntersection);
-                            ////                                }
-                            ////                                else if (!gnBgnA && gnBsnA)
-                            ////                                { // use sessileNormal of A and use planeNormal of B
-                            ////                                    const DislocationSegmentIntersection<LinkType> dsi2(linkIterA->second,linkIterA->second->sessilePlaneNormal);
-                            ////                                    temp = dsi2.intersectWith(linkIterB->second,linkIterB->second->glidePlaneNormal(),collisionTol,avoidNodeIntersection);
-                            ////                                }
-                            ////                                else{
-                            ////                                    assert(0 && "GLISSILE AND SESSILE PLANE NORMALS OF B MUST BE DISTINCT.");
-                            ////                                }
-                            //                            }
-                            //                            else
-                            //                            { // both are sessile, cannot intersect
-                            //
-                            //                            }
-                            
-                            
-                            SegmentSegmentDistance<dim> ssd(linkIterA->second->source->get_P(),
-                                                             linkIterA->second->sink->get_P(),
-                                                             linkIterB->second->source->get_P(),
-                                                             linkIterB->second->sink->get_P());
-                            
-                            if(ssd.dMin<collisionTol)
+                            if (   linkIterA->second->sID!=linkIterB->second->sID // don't intersect with itself
+                                && linkIterB->second->burgers().squaredNorm()>FLT_EPSILON
+                                //                            && linkIterA->second->grain.grainID==linkIterB->second->grain.grainID
+                                ) // allow juncitons only within grains
                             {
-                                const bool intersectionIsSourceSource(   ssd.t  <avoidNodeIntersection
-                                                                      && ssd.u <avoidNodeIntersection
-                                                                      && linkIterA->second->source->sID==linkIterB->second->source->sID);
+                                //                            threadVector[omp_get_thread_num()]++;
                                 
-                                const bool   intersectionIsSourceSink(   ssd.t  <avoidNodeIntersection
-                                                                      && ssd.u >1.0-avoidNodeIntersection
-                                                                      && linkIterA->second->source->sID==linkIterB->second->sink->sID);
+                                //std::cout<< "Intersecting "<<linkIterA->second->nodeIDPair.first<<"->"<<linkIterA->second->nodeIDPair.second<<" " <<linkIterB->second->nodeIDPair.first<<"->"<<linkIterB->second->nodeIDPair.second<<std::flush;
                                 
-                                const bool   intersectionIsSinkSource(   ssd.t  > 1.0-avoidNodeIntersection
-                                                                      && ssd.u <avoidNodeIntersection
-                                                                      && linkIterA->second->sink->sID==linkIterB->second->source->sID);
+                                //                            const bool L1isSessile(linkIterA->second->isSessile());
+                                //                            const bool L2isSessile(linkIterB->second->isSessile());
                                 
-                                const bool     intersectionIsSinkSink(   ssd.t  > 1.0-avoidNodeIntersection
-                                                                      && ssd.u > 1.0-avoidNodeIntersection
-                                                                      && linkIterA->second->sink->sID==linkIterB->second->sink->sID);
+                                //                            std::pair<double,double> temp; // the container of the roots
+                                //
+                                //                            if (!L1isSessile && !L2isSessile) // both segments are glissile
+                                //                            {
+                                //                                temp = dsi.intersectWith(*linkIterB->second,linkIterB->second->glidePlaneNormal(),collisionTol,avoidNodeIntersection);
+                                //                            }
+                                //                            else if (!L1isSessile && L2isSessile) // L1 is glissile and L2 is sessile
+                                //                            {
+                                //                                const bool gnAgnB((linkIterA->second->glidePlaneNormal()-linkIterB->second->glidePlaneNormal()  ).squaredNorm()<FLT_EPSILON);
+                                //                                //const bool gnAsnB((linkIterA->second->glidePlaneNormal()-linkIterB->second->sessilePlaneNormal).squaredNorm()<FLT_EPSILON);
+                                //
+                                //                                if(gnAgnB)
+                                //                                {
+                                //                                    temp = dsi.intersectWith(*linkIterB->second,linkIterB->second->glidePlaneNormal(),collisionTol,avoidNodeIntersection);
+                                //                                }
+                                //
+                                ////                                if (!gnAgnB && !gnAsnB)
+                                ////                                {
+                                ////                                    // cannot intersect
+                                ////                                }
+                                ////                                else if(gnAgnB && !gnAsnB)
+                                ////                                { // glidePlaneNormal of A and glidePlaneNormal of B are the same
+                                ////                                    temp = dsi.intersectWith(linkIterB->second,linkIterB->second->glidePlaneNormal(),collisionTol,avoidNodeIntersection);
+                                ////                                }
+                                ////                                else if (!gnAgnB && gnAsnB)
+                                ////                                { // glidePlaneNormal of A and sessilePlaneNormal of B are the same
+                                ////                                    temp = dsi.intersectWith(linkIterB->second,linkIterB->second->sessilePlaneNormal,collisionTol,avoidNodeIntersection);
+                                ////                                }
+                                ////                                else
+                                ////                                {
+                                ////                                    assert(0 && "GLISSILE AND SESSILE PLANE NORMALS OF B MUST BE DISTINCT.");
+                                ////                                }
+                                //                            }
+                                //                            else if (L1isSessile && !L2isSessile) // L1 is sessile and L2 is glissile
+                                //                            {
+                                //                                const bool gnBgnA((linkIterB->second->glidePlaneNormal()-linkIterA->second->glidePlaneNormal()  ).squaredNorm()<FLT_EPSILON);
+                                //                                //const bool gnBsnA((linkIterB->second->glidePlaneNormal()-linkIterA->second->sessilePlaneNormal).squaredNorm()<FLT_EPSILON);
+                                //
+                                //                                if(gnBgnA)
+                                //                                {
+                                //                                    temp = dsi.intersectWith(*linkIterB->second,linkIterB->second->glidePlaneNormal(),collisionTol,avoidNodeIntersection);
+                                //
+                                //                                }
+                                //
+                                ////                                if (!gnBgnA && !gnBsnA)
+                                ////                                {
+                                ////                                    // cannot intersect
+                                ////                                }
+                                ////                                else if(gnBgnA && !gnBsnA)
+                                ////                                { // use planeNormal of A and planeNormal of B
+                                ////                                    temp = dsi.intersectWith(linkIterB->second,linkIterB->second->glidePlaneNormal(),collisionTol,avoidNodeIntersection);
+                                ////                                }
+                                ////                                else if (!gnBgnA && gnBsnA)
+                                ////                                { // use sessileNormal of A and use planeNormal of B
+                                ////                                    const DislocationSegmentIntersection<LinkType> dsi2(linkIterA->second,linkIterA->second->sessilePlaneNormal);
+                                ////                                    temp = dsi2.intersectWith(linkIterB->second,linkIterB->second->glidePlaneNormal(),collisionTol,avoidNodeIntersection);
+                                ////                                }
+                                ////                                else{
+                                ////                                    assert(0 && "GLISSILE AND SESSILE PLANE NORMALS OF B MUST BE DISTINCT.");
+                                ////                                }
+                                //                            }
+                                //                            else
+                                //                            { // both are sessile, cannot intersect
+                                //
+                                //                            }
                                 
-                                const bool frankRule(linkIterA->second->burgers().dot(linkIterB->second->burgers())*linkIterA->second->chord().dot(linkIterB->second->chord())<=0.0);
-                                const bool isValidJunction(frankRule ||
-                                                           linkIterA->second->is_boundarySegment() || linkIterB->second->is_boundarySegment() ||
-                                                           linkIterA->second->isGrainBoundarySegment() || linkIterB->second->isGrainBoundarySegment());
                                 
+                                SegmentSegmentDistance<dim> ssd(linkIterA->second->source->get_P(),
+                                                                linkIterA->second->sink->get_P(),
+                                                                linkIterB->second->source->get_P(),
+                                                                linkIterB->second->sink->get_P());
                                 
-                                if(   isValidJunction
-                                   && !intersectionIsSourceSource
-                                   && !intersectionIsSourceSink
-                                   && !intersectionIsSinkSource
-                                   && !intersectionIsSinkSink)
+                                if(ssd.dMin<collisionTol)
                                 {
-//                                    EdgeIntersectionType intersectionOnA(std::make_pair(linkIterA->second->nodeIDPair,ssd.t ));
-//                                    EdgeIntersectionType intersectionOnB(std::make_pair(linkIterB->second->nodeIDPair,ssd.u));
-                                    //                                    const int dir(junctionDir(*linkIterA->second,*linkIterB->second,ssd.t,ssd.u));
+                                    const bool intersectionIsSourceSource(   ssd.t  <avoidNodeIntersection
+                                                                          && ssd.u <avoidNodeIntersection
+                                                                          && linkIterA->second->source->sID==linkIterB->second->source->sID);
                                     
-                                    //                               //std::cout<<ssd.t<<" "<<ssd.u<<" "<<dir<<std::endl;
+                                    const bool   intersectionIsSourceSink(   ssd.t  <avoidNodeIntersection
+                                                                          && ssd.u >1.0-avoidNodeIntersection
+                                                                          && linkIterA->second->source->sID==linkIterB->second->sink->sID);
                                     
-//                                    if(dir!=0)
-//                                    {
+                                    const bool   intersectionIsSinkSource(   ssd.t  > 1.0-avoidNodeIntersection
+                                                                          && ssd.u <avoidNodeIntersection
+                                                                          && linkIterA->second->sink->sID==linkIterB->second->source->sID);
+                                    
+                                    const bool     intersectionIsSinkSink(   ssd.t  > 1.0-avoidNodeIntersection
+                                                                          && ssd.u > 1.0-avoidNodeIntersection
+                                                                          && linkIterA->second->sink->sID==linkIterB->second->sink->sID);
+                                    
+                                    const bool frankRule(linkIterA->second->burgers().dot(linkIterB->second->burgers())*linkIterA->second->chord().dot(linkIterB->second->chord())<=0.0);
+                                    const bool isValidJunction(frankRule ||
+                                                               linkIterA->second->is_boundarySegment() || linkIterB->second->is_boundarySegment() ||
+                                                               linkIterA->second->isGrainBoundarySegment() || linkIterB->second->isGrainBoundarySegment());
+                                    
+                                    
+                                    if(   isValidJunction
+                                       && !intersectionIsSourceSource
+                                       && !intersectionIsSourceSink
+                                       && !intersectionIsSinkSource
+                                       && !intersectionIsSinkSink)
+                                    {
+                                        //                                    EdgeIntersectionType intersectionOnA(std::make_pair(linkIterA->second->nodeIDPair,ssd.t ));
+                                        //                                    EdgeIntersectionType intersectionOnB(std::make_pair(linkIterB->second->nodeIDPair,ssd.u));
+                                        //                                    const int dir(junctionDir(*linkIterA->second,*linkIterB->second,ssd.t,ssd.u));
+                                        
+                                        //                               //std::cout<<ssd.t<<" "<<ssd.u<<" "<<dir<<std::endl;
+                                        
+                                        //                                    if(dir!=0)
+                                        //                                    {
 #ifdef _OPENMP
                                         intersectionContainer[omp_get_thread_num()].emplace_back(linkIterA->second->nodeIDPair,
                                                                                                  linkIterB->second->nodeIDPair,
@@ -497,24 +499,26 @@ namespace model
                                         //                                        intersectionContainer[0].emplace_back(intersectionOnA,intersectionOnB);
                                         //                                        dirVector[0].emplace_back(dir);
 #endif
-//                                    }
+                                        //                                    }
+                                    }
+                                    
                                 }
                                 
-                            }
-                            
-                            //                            for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter)
-                            //                            {
-                            //                                //                            if (   ssd.t >avoidNodeIntersection && paramIter-> first<1.0-avoidNodeIntersection // THIS IS CHECKED LATER
-                            //                                //                                && ssd.u>avoidNodeIntersection && ssd.u<1.0-avoidNodeIntersection) // avoid node intersection
-                            //                                //                            {
-                            //
-                            //
-                            //
-                            //
-                            //
-                            //                            } // end for
-                        } // end don't self-intersect
-                    } // end loop over second segment
+                                //                            for (std::set<std::pair<double,double> >::const_iterator paramIter=temp.begin();paramIter!=temp.end();++paramIter)
+                                //                            {
+                                //                                //                            if (   ssd.t >avoidNodeIntersection && paramIter-> first<1.0-avoidNodeIntersection // THIS IS CHECKED LATER
+                                //                                //                                && ssd.u>avoidNodeIntersection && ssd.u<1.0-avoidNodeIntersection) // avoid node intersection
+                                //                                //                            {
+                                //
+                                //
+                                //
+                                //
+                                //
+                                //                            } // end for
+                            } // end don't self-intersect
+                        }
+                    }
+                     // end loop over second segment
                 } // end loop over first segment
             }// end loop ever threads
             

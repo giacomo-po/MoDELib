@@ -57,7 +57,6 @@ namespace model
         
         static int verboseLevel;
         
-        LoopLink(const LoopLink&) =delete;
         
         //        const LoopNodeType* const source;
         //        const LoopNodeType* const sink;
@@ -91,6 +90,10 @@ namespace model
             //            NodeObserver<LoopNodeType>::addNode(sink());
             
         }
+
+        /**********************************************************************/
+        LoopLink(const LoopLink&) =delete;
+
         
         /**********************************************************************/
         ~LoopLink()

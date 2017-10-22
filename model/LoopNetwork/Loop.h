@@ -68,6 +68,23 @@ namespace model
 //            LoopObserverType::addLoop(this->p_derived());
         }
         
+        
+        /**********************************************************************/
+        Loop(const Loop<Derived>& other) :
+        /* init */ _loopNetwork(other._loopNetwork),
+        /* init */ _flow(other._flow),
+        /* init */ loopNetwork(*_loopNetwork)
+//        /* init */ loopNetwork(*_loopNetwork)
+        {
+            std::cout<<"Copying Loop: "<<this->sID<<std::endl;
+
+//            std::cout<<"Constructing Loop "<<this->sID<<std::endl;
+            _loopNetwork->addLoop(this->p_derived());
+            //            LoopObserverType::addLoop(this->p_derived());
+        }
+        
+//        SOME CONSTRUCTOR HERE IS NOT DOING addLoop
+        
         /**********************************************************************/
         ~Loop()
         {
@@ -76,16 +93,17 @@ namespace model
 //            LoopObserverType::removeLoop(this->p_derived());
         }
         
-        /**********************************************************************/
-        std::shared_ptr<Derived> clone() const
-        {/* Returns a copy of this loop. The new loop, however, does not contain
-          * any LoopLink.
-          */
-            std::shared_ptr<Derived> temp(new Derived(this->derived()));
-            temp->links().clear();
-            
-            return temp;
-        }
+//        /**********************************************************************/
+//        std::shared_ptr<Derived> clone() const
+//        {/* Returns a copy of this loop. The new loop, however, does not contain
+//          * any LoopLink.
+//          */
+//            std::shared_ptr<Derived> temp(new Derived(this->derived()));
+//            assert(temp->links().empty());
+////            temp->links().clear();
+//            
+//            return temp;
+//        }
         
         /**********************************************************************/
         void flip()

@@ -389,6 +389,7 @@ namespace model
                      const size_t& i,const size_t &j)
         {
             const auto loop=this->loop(L);
+            
             if(loop.first && i!=j)
             {
                 const auto linkAtI=loop.second->linkStartingAt(i);
@@ -400,8 +401,9 @@ namespace model
                     {
                         VerboseLoopNetwork(1,"cutting loop "<<L<<" at "<<i<<" and "<<j<<std::endl);
 
-//                        std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->derived(),linkAtI.second->flow());
-                        std::shared_ptr<LoopType> tempLoop=loop.second->clone();
+                        //std::shared_ptr<LoopType> tempLoop=loop.second->clone();
+                        std::shared_ptr<LoopType> tempLoop(new LoopType(*loop.second));
+
 
                         linkAtI.second->resetLoop(tempLoop,i,j);
                         
@@ -416,6 +418,8 @@ namespace model
                     }
                 }
             }
+
+
         }
         
         /**********************************************************************/

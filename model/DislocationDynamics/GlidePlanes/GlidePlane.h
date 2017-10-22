@@ -65,6 +65,10 @@ namespace model
         }
         
         /**********************************************************************/
+        GlidePlane(const GlidePlane<LoopType>& other) = delete;
+//        GlidePlane(const GlidePlane<LoopType>& other) = delete;
+        
+        /**********************************************************************/
         ~GlidePlane()
         {
             glidePlaneObserver->removeGlidePlane(this);

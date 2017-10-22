@@ -30,8 +30,8 @@ namespace model
 
         constexpr static int dim=_dim;
         typedef DislocationLoop<dim,corder,InterpolationType> DislocationLoopType;
-        typedef Loop<DislocationLoopType> LoopType;
-        typedef typename LoopType::LoopLinkType LoopLinkType;
+        typedef Loop<DislocationLoopType> BaseLoopType;
+        typedef typename BaseLoopType::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<DislocationLoopType>::LoopNetworkType LoopNetworkType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef GlidePlane<DislocationLoopType> GlidePlaneType;
@@ -63,13 +63,26 @@ namespace model
                         const VectorDim& N,
                         const VectorDim& P,
                         const int& grainID) :
-        /* base init */ LoopType(dn,dn->shared.poly.grain(grainID).latticeVector(B)),
+        /* base init */ BaseLoopType(dn,dn->shared.poly.grain(grainID).latticeVector(B)),
         /*      init */ grain(dn->shared.poly.grain(grainID)),
         /*      init */ _glidePlane(dn->sharedGlidePlane(dn->shared.mesh,grain,P,N)),
         /*      init */ glidePlane(*_glidePlane.get()),
         /*      init */ isGlissile(this->flow().dot(glidePlane.n)==0 && allowedSlipSystem(this->flow(),glidePlane.n,grain))
         {
             model::cout<<"Creating DislocationLoop "<<this->sID<<std::endl;
+            
+            _glidePlane->addLoop(this);
+        }
+        
+        /**********************************************************************/
+        DislocationLoop(const DislocationLoop& other) :
+        /* base init */ BaseLoopType(other),
+        /* init */ grain(other.grain),
+        /* init */ _glidePlane(other._glidePlane),
+        /* init */ glidePlane(*_glidePlane.get()),
+        /* init */ isGlissile(other.isGlissile)
+        {
+            model::cout<<"Copying DislocationLoop "<<this->sID<<std::endl;
             
             _glidePlane->addLoop(this);
         }
@@ -85,7 +98,7 @@ namespace model
         /**********************************************************************/
         void addLink(LoopLinkType* const pL)
         {
-            LoopType::addLink(pL);
+            BaseLoopType::addLink(pL);
 
             assert(std::fabs((pL->source()->get_P()-pL->sink()->get_P()).dot(glidePlane.n.cartesian()))<FLT_EPSILON && "Chord does not belong to plane");
             
