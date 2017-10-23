@@ -63,6 +63,9 @@ namespace model
         static bool showNodeIDs;
         static float velocityFactor;
         static bool showZeroBuergers;
+        static bool showSingleNode;
+        static size_t singleNodeID;
+
         
         vtkRenderer* const renderer;
         
@@ -120,6 +123,13 @@ namespace model
         vtkSmartPointer<vtkLabeledDataMapper> labelMapper;
         vtkSmartPointer<vtkActor2D> labelActor;
         
+        
+        vtkSmartPointer<vtkPoints> singleNodePoint;
+        vtkSmartPointer<vtkPolyData> singleNodeLabelPolyData;
+        vtkSmartPointer<vtkDoubleArray> singleNodeLabelScalars;
+        vtkSmartPointer<vtkLabeledDataMapper> singleNodeLabelMapper;
+        vtkSmartPointer<vtkActor2D> singleNodeLabelActor;
+
         
         /*********************************************************************/
         void computeColor()
@@ -233,6 +243,12 @@ namespace model
                 //                nodeLabels->SetValue(labelID, std::to_string(node.first));
                 //                labelID++;
                 
+                if(node.first==singleNodeID)
+                {
+                    singleNodePoint->InsertNextPoint(row.template segment<dim>(0).data());
+                    singleNodeLabelScalars->InsertNextTuple1(node.first);
+                }
+                
             }
             
             nodeData->SetPoints(nodePoints);
@@ -256,6 +272,9 @@ namespace model
             
             labelPolyData->SetPoints(nodePoints);
             labelPolyData->GetPointData()->SetScalars(labelScalars);
+            
+            singleNodeLabelPolyData->SetPoints(singleNodePoint);
+            singleNodeLabelPolyData->GetPointData()->SetScalars(singleNodeLabelScalars);
         }
         
         
@@ -398,7 +417,12 @@ namespace model
         /* init */ labelPolyData(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ labelScalars(vtkSmartPointer<vtkDoubleArray>::New()),
         /* init */ labelMapper(vtkSmartPointer<vtkLabeledDataMapper>::New()),
-        /* init */ labelActor(vtkSmartPointer<vtkActor2D>::New())
+        /* init */ labelActor(vtkSmartPointer<vtkActor2D>::New()),
+        /* init */ singleNodePoint(vtkSmartPointer<vtkPoints>::New()),
+        /* init */ singleNodeLabelPolyData(vtkSmartPointer<vtkPolyData>::New()),
+        /* init */ singleNodeLabelScalars(vtkSmartPointer<vtkDoubleArray>::New()),
+        /* init */ singleNodeLabelMapper(vtkSmartPointer<vtkLabeledDataMapper>::New()),
+        /* init */ singleNodeLabelActor(vtkSmartPointer<vtkActor2D>::New())
         {
             
             colors->SetNumberOfComponents(3);
@@ -501,6 +525,16 @@ namespace model
             labelActor->GetProperty()->SetColor(0.0, 0.0, 0.0); //(R,G,B)
             renderer->AddActor(labelActor);
             
+            singleNodeLabelMapper->SetInputData(singleNodeLabelPolyData);
+            singleNodeLabelMapper->SetLabelModeToLabelScalars();
+            singleNodeLabelMapper->SetLabelFormat("%1.0f");
+            singleNodeLabelActor->SetMapper(singleNodeLabelMapper);
+            singleNodeLabelActor->GetProperty()->SetColor(1.0, 0.0, 0.0); //(R,G,B)
+            singleNodeLabelActor->VisibilityOff();
+
+            renderer->AddActor(singleNodeLabelActor);
+
+            
             modify();
         }
         
@@ -512,6 +546,7 @@ namespace model
             renderer->RemoveActor(nodeActor);
             renderer->RemoveActor(velocityActor);
             renderer->RemoveActor(labelActor);
+            renderer->RemoveActor(singleNodeLabelActor);
         }
         
         /**********************************************************************/
@@ -563,6 +598,19 @@ namespace model
             velocityGlyphs->SetScaleFactor(velocityFactor);
             
             
+            if(showSingleNode)
+            {
+                // HERE WE SHOULD CHANGE THE NODE POSITION BASED ON NODE ID
+                // OTHERWISE THE SELECTED NODE WILL BE VISIBLE ONLY UPON LOADING A NEW FRAME
+                std::cout<<"RELOAD FRAME TO SHOW SELECTED NODE"<<std::endl;
+                singleNodeLabelActor->VisibilityOn();
+            
+            }
+            else
+            {
+                singleNodeLabelActor->VisibilityOff();
+            }
+            
         }
         
     };
@@ -577,7 +625,9 @@ namespace model
     bool DislocationSegmentActor::showNodeIDs=false;
     float DislocationSegmentActor::velocityFactor=100.0;
     bool DislocationSegmentActor::showZeroBuergers=false;
-    
+    bool DislocationSegmentActor::showSingleNode=false;
+    size_t DislocationSegmentActor::singleNodeID=0;
+
     
 } // namespace model
 #endif

@@ -579,13 +579,15 @@ namespace model
                             const IsNetworkLinkType L1(DN.link(key1.first,key1.second));
                             const IsNetworkLinkType L2(DN.link(key2.first,key2.second));
                             
-                            //std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<intersection. first.second<<","<<intersection. second.second<<std::endl;
                             
                             
                             
                             
                             if(L1.first && L2.first) // Links exist
                             {
+                                
+                                std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<t<<","<<u<<std::endl;
+
                                 
                                 auto  Ni=L1.second->source;
                                 if((ssd.x0-L1.second->source->get_P()).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)

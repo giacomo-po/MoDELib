@@ -412,10 +412,10 @@ namespace model
                 }
                 else if(nA->isOnBoundingBox() && !nB->isOnBoundingBox())
                 {// a on box, b is not
-                    if(nB->nodeConfinement().glidePlaneIntersections().size())
+                    if(nB->glidePlaneIntersections().size())
                     {// other is confined internally by two or more planes
                         std::cout<<"contractPoint case 3aa"<<std::endl;
-                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->nodeConfinement().glidePlaneIntersections());
+                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->glidePlaneIntersections());
                         if(temp.size())
                         {
                             std::cout<<"contractPoint case 3"<<std::endl;
@@ -455,10 +455,10 @@ namespace model
                 }
                 else
                 {// neither a nor b on bounding box
-                    if(nA->glidePlaneIntersections().size() && nB->nodeConfinement().glidePlaneIntersections().size())
+                    if(nA->glidePlaneIntersections().size() && nB->glidePlaneIntersections().size())
                     {
                         std::cout<<"contractPoint case 8aa"<<std::endl;
-                        BoundingLineSegments<dim> temp(nA->nodeConfinement().glidePlaneIntersections(),nB->nodeConfinement().glidePlaneIntersections());
+                        BoundingLineSegments<dim> temp(nA->glidePlaneIntersections(),nB->glidePlaneIntersections());
                         if(temp.size())
                         {
                             std::cout<<"contractPoint case 8"<<std::endl;
@@ -473,7 +473,7 @@ namespace model
                             return false;
                         }
                     }
-                    else if(nA->glidePlaneIntersections().size() && !nB->nodeConfinement().glidePlaneIntersections().size())
+                    else if(nA->glidePlaneIntersections().size() && !nB->glidePlaneIntersections().size())
                     {
                         std::cout<<"contractPoint case 10aa"<<std::endl;
                         BoundingLineSegments<dim> temp=nA->boundingBoxSegments();
@@ -491,7 +491,7 @@ namespace model
                             return false;
                         }
                     }
-                    else if(!nA->glidePlaneIntersections().size() && nB->nodeConfinement().glidePlaneIntersections().size())
+                    else if(!nA->glidePlaneIntersections().size() && nB->glidePlaneIntersections().size())
                     {
                         std::cout<<"contractPoint case 12"<<std::endl;
                         return contract(nB,nA);
@@ -501,15 +501,22 @@ namespace model
                         //                        std::cout<<"contractPoint case 13aa"<<std::endl;
                         
                         assert(nA->glidePlanes().size()==1);
-                        assert(nB->nodeConfinement().glidePlanes().size()==1);
+                        assert(nB->glidePlanes().size()==1);
                         
                         GlidePlaneObserver<LoopType>* const gpo(nA->glidePlane(0).glidePlaneObserver);
-                        const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&nA->glidePlane(0),&nB->nodeConfinement().glidePlane(0)));
+                        const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&nA->glidePlane(0),&nB->glidePlane(0)));
+                        
+                        std::cout<<"gpA: "<<nA->glidePlane(0).P.cartesian().transpose()<<std::endl;
+                        std::cout<<"gpA: "<<nA->glidePlane(0).n.cartesian().normalized().transpose()<<std::endl;
+
+                        std::cout<<"gpB: "<<nB->glidePlane(0).P.cartesian().transpose()<<std::endl;
+                        std::cout<<"gpB: "<<nB->glidePlane(0).n.cartesian().normalized().transpose()<<std::endl;
+
                         
                         if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                         {
                             std::cout<<"contractPoint case 13"<<std::endl;
-                            nA->set_P(0.5*(nA->get_P()+nB->get_P()));
+                            nA->set_P(nA->snapToGlidePlaneIntersection(0.5*(nA->get_P()+nB->get_P()))); // this snaps to the glide planes to kill numerical errors
                             return this->contractSecond(nA->sID,nB->sID);
 //                            return std::make_tuple(true,0.5*(nA->get_P()+nB->get_P()),nA->sID,nB->sID);
                         }
@@ -517,20 +524,10 @@ namespace model
                         {
                             std::cout<<nA->sID<<" "<<nB->sID<<std::endl;
                             std::cout<<"contractPoint case 13a"<<std::endl;
-                            
-                            const double u=(0.5*(nA->get_P()+nB->get_P())+ppi.P).dot(ppi.d);
-                            const VectorDim Pmin=ppi.P+u*ppi.d;
-                            nA->nodeConfinement().updateGlidePlaneIntersections(nB->nodeConfinement().glidePlane(0));
-
-                            //                            std::cout<<"u="<<u<<std::endl;
-                            //                            std::cout<<"NEED TO SNAP P TO THE GLIDEPLANE INTERSECTION"
-                            nA->set_P(nA->snapToGlidePlaneIntersection(Pmin));
+                            std::cout<<"norm d="<<ppi.d.norm()<<std::endl;
+                            const double u=(0.5*(nA->get_P()+nB->get_P())-ppi.P).dot(ppi.d);
+                            nA->set_P(ppi.P+u*ppi.d);
                             return this->contractSecond(nA->sID,nB->sID);
-
-//                            return std::make_tuple(true,snapToGlidePlaneIntersection(Pmin),nA->sID,nB->sID);
-                            //
-                            //
-                            //                            assert(0 && "FINISH HERE, RETURN POINT ON INTTERSECTIOn LINE WHICH MINIMIZES DISTANCES");
                         }
                         else
                         {

@@ -131,8 +131,8 @@ namespace model
         const double den;
         
         const std::pair<double,double> tu;
-        const double& t;
-        const double& u;
+        const double t;
+        const double u;
         const double dMin;
         const VectorDim x0;
         const VectorDim x1;

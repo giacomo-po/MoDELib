@@ -20,7 +20,6 @@ namespace model
     template <int dim>
     struct PlanePlaneIntersection
     {
-        
         enum IntersectionType {PARALLEL,COINCIDENT,INCIDENT};
         
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
@@ -36,16 +35,12 @@ namespace model
         {
             
             const double normN1(N1.norm());
-                        const double normN2(N2.norm());
+            const double normN2(N2.norm());
             assert(normN1>FLT_EPSILON);
-                        assert(normN2>FLT_EPSILON);
+            assert(normN2>FLT_EPSILON);
             
             const VectorDimD n1(N1/normN1);
             const VectorDimD n2(N2/normN2);
-            
-            SolutionType temp=std::make_tuple(PARALLEL,VectorDimD::Zero(),VectorDimD::Zero());
-            
-            
             const VectorDimD D(n1.cross(n2));
             const double normD(D.norm());
             
@@ -70,25 +65,21 @@ namespace model
                 assert(fabs((C-p1).dot(n1))<FLT_EPSILON);
                 assert(fabs((C-p2).dot(n2))<FLT_EPSILON);
                 
-                temp=std::make_tuple(INCIDENT,C,D/normD);
-//                std::cout<<"case 1"<<std::endl;
+                return std::make_tuple(INCIDENT,C,D/normD);
             }
             else
             {
                 if(fabs((p1-p2).dot(n1))<FLT_EPSILON)
                 {// coincident planes
-                    temp=std::make_tuple(COINCIDENT,0.5*(p1+p2),VectorDimD::Zero());
-//                                    std::cout<<"case 2"<<std::endl;
+                    return std::make_tuple(COINCIDENT,0.5*(p1+p2),VectorDimD::Zero());
                 }
                 else
                 {// paralle planes
-                    temp=std::make_tuple(PARALLEL,0.5*(p1+p2),VectorDimD::Zero());
-//                                    std::cout<<"case 3"<<std::endl;
+                    return std::make_tuple(PARALLEL,0.5*(p1+p2),VectorDimD::Zero());
                 }
             }
-            return temp;
         }
-
+        
         
     public:
         
@@ -108,18 +99,9 @@ namespace model
         /* init */ P(std::get<1>(sol)),
         /* init */ d(std::get<2>(sol))
         {
-//            std::cout<<type<<std::endl;
-        }
-        
-        /**********************************************************************/
-        ~PlanePlaneIntersection()
-        {
-            std::cout<<"Destroying PlanePlaneIntersection"<<std::endl;
         }
         
     };
     
-    /******************************************************************/
-    /******************************************************************/
-} /* namespace model */
+}
 #endif
