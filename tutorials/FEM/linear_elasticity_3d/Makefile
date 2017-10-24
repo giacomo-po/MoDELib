@@ -1,5 +1,5 @@
 MODEL_INCLUDE = ../../../
-EIGEN_INCLUDE =/Users/giacomo/Documents/eigen
+EIGEN_INCLUDE =/usr/local/include
 usePARDISO = 1
 MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
 MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib

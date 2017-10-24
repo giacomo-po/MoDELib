@@ -1,5 +1,5 @@
 MODEL_INCLUDE =../../../
-EIGEN_INCLUDE =/Users/giacomo/Documents/eigen
+EIGEN_INCLUDE =/usr/local/include
 usePARDISO = 0
 MKL_PATH=/opt/intel/composer_xe_2013.3.171/mkl
 ##############################

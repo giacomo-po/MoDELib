@@ -438,8 +438,6 @@ namespace model
                             std::cout<<"contractPoint case 5"<<std::endl;
                             nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
                             return this->contractSecond(nA->sID,nB->sID);
-
-//                            return std::make_tuple(true,temp.snap(0.5*(nA->get_P()+nB->get_P())),nA->sID,nB->sID);
                         }
                         else
                         {
@@ -464,8 +462,6 @@ namespace model
                             std::cout<<"contractPoint case 8"<<std::endl;
                             nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
                             return this->contractSecond(nA->sID,nB->sID);
-
-//                            return std::make_tuple(true,temp.snap(0.5*(nA->get_P()+nB->get_P())),nA->sID,nB->sID);
                         }
                         else
                         {

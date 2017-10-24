@@ -81,7 +81,7 @@ namespace model
         VectorDim planeNormal;
         VectorDim burgers;
         VectorDim chord;
-        VectorDim colorVector;
+        Eigen::Matrix<int,dim,1> colorVector;
         
         
         // segments objects
@@ -135,6 +135,8 @@ namespace model
         void computeColor()
         {
             
+            VectorDim clrVector;
+            
             switch (clr)
             {
                     //                case colorSessile:
@@ -144,7 +146,7 @@ namespace model
                     //                    break;
                     
                 case colorNormal:
-                    colorVector = planeNormal;
+                    clrVector = planeNormal;
                     //                    flipColor(colorVector);
                     break;
                     
@@ -165,35 +167,37 @@ namespace model
                     //                    break;
                     
                 default:
-                    colorVector = burgers.normalized();
+                    clrVector = burgers.normalized();
                     //                    flipColor(colorVector);
                     break;
             }
             
-            if(colorVector(0)<0.0)
+            if(clrVector(0)<0.0)
             {
-                colorVector*=-1;
+                clrVector*=-1;
             }
-            else if(colorVector(0)==0.0)
+            else if(clrVector(0)==0.0)
             {
-                if(colorVector(1)<0.0)
+                if(clrVector(1)<0.0)
                 {
-                    colorVector*=-1;
+                    clrVector*=-1;
                 }
-                else if(colorVector(1)==0.0)
+                else if(clrVector(1)==0.0)
                 {
-                    if(colorVector(2)<0.0)
+                    if(clrVector(2)<0.0)
                     {
-                        colorVector*=-1;
+                        clrVector*=-1;
                     }
                 }
             }
             
             //			VectorDim colorVector = burgers + VectorDim::Ones(dim) * burgers.norm();
-            colorVector = (colorVector + VectorDim::Ones(dim) * colorVector.norm()).eval();
+            clrVector = (clrVector + VectorDim::Ones(dim) * clrVector.norm()).eval();
             
             //		colorVector << 0.0f,0.6f,0.4f;
-            colorVector.normalize();
+            clrVector.normalize();
+            
+            colorVector=(clrVector*255).cast<int>();
             
             
         }
@@ -234,8 +238,8 @@ namespace model
                 
                 nodePoints->InsertNextPoint(row.template segment<dim>(0).data());
                 velocityVectors->InsertNextTuple(row.template segment<dim>(dim).data()); // arrow vactor
-                unsigned char clr[3]={255,0,255};
-                velocityColors->InsertNextTypedTuple(clr);
+                unsigned char nodeClr[3]={255,0,255};
+                velocityColors->InsertNextTypedTuple(nodeClr);
                 
                 
                 labelScalars->InsertNextTuple1(node.first);
@@ -331,10 +335,9 @@ namespace model
                     //                    auto& line(*lines.rbegin());
                     vtkSmartPointer<vtkPolyLine> line=vtkSmartPointer<vtkPolyLine>::New();
                     line->GetPointIds()->SetNumberOfIds(Np);
-                    unsigned char clr[3]={51,153,255};
+
                     //                    unsigned char clr0[3]={255,255,255};
                     
-                    colors->InsertNextTypedTuple(clr);
                     
                     for (int k=0;k<Np;++k) // this may have to go to Np+1
                     {
@@ -354,9 +357,17 @@ namespace model
                         ptID++;
                     }
                     
+
                     if(burgers.squaredNorm()>FLT_EPSILON)
                     {
                         cells->InsertNextCell(line);
+                        
+                        computeColor();
+                        //                    unsigned char lineClr[3]={51,153,255};
+                        unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
+
+                        colors->InsertNextTypedTuple(lineClr);
+
                     }
                     else
                     {
