@@ -18,6 +18,7 @@
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
+#include <model/DislocationDynamics/IO/DislocationLoopIO.h>
 
 
 namespace model
@@ -102,6 +103,14 @@ namespace model
 
             assert(std::fabs((pL->source()->get_P()-pL->sink()->get_P()).dot(glidePlane.n.cartesian()))<FLT_EPSILON && "Chord does not belong to plane");
             
+        }
+        
+        /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const DislocationLoopType& dL)
+        {
+            os<< DislocationLoopIO<dim>(dL);
+            return os;
         }
         
 //        /**********************************************************************/

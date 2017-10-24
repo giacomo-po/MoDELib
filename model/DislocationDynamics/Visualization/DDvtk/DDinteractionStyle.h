@@ -334,7 +334,7 @@ namespace model
             
             if(key == "i")
             {
-                std::cout<<"Enter frame increment (>0):"<<std::endl;
+                std::cout<<"Enter frame increment (>0): "<<std::flush;
                 long int temp;
                 std::cin>>temp;
                 if(temp>0)

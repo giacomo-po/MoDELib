@@ -116,7 +116,7 @@ namespace model
         }
         
         /**********************************************************************/
-        const FlowType& flow()
+        const FlowType& flow() const
         {
             return _flow;
         }

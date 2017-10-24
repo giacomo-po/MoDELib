@@ -228,6 +228,17 @@ namespace model
         }
         
         
+        /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const LoopLink<LinkType>& ll)
+        {
+            os  << ll.loop()->sID<<"\t"
+            /**/<< ll.source()->sID<<"\t"
+            /**/<< ll.sink()->sID<<"\t";
+            
+            return os;
+        }
+        
     };
     
     template<typename LinkType>

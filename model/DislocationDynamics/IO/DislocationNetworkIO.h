@@ -289,40 +289,10 @@ namespace model
           */
             model::cout<<"		Writing to "<<std::flush;
             
-            //! 1- Outputs the Edge informations to file E_*.txt where * is the current simulation step
             if (outputBinary)
             {
-//                typedef std::pair<std::pair<int,int>,Eigen::Matrix<double,1,9> > BinEdgeType;
-//                SequentialBinFile<'E',BinEdgeType>::set_count(runID);
-//                SequentialBinFile<'E',BinEdgeType>::set_increment(outputFrequency);
-//                SequentialBinFile<'E',BinEdgeType> binEdgeFile;
-//                for (const auto& linkIter : DN.links())
-//                {
-//                    Eigen::Matrix<double,1,9> temp( (Eigen::Matrix<double,1,9>()<< linkIter.second->flow.cartesian().transpose(),
-//                                                     /*                                                          */ linkIter.second->glidePlaneNormal.transpose(),
-//                                                     /*                                                          */ linkIter.second->sourceTfactor,
-//                                                     /*                                                          */ linkIter.second->sinkTfactor,
-//                                                     /*                                                          */ linkIter.second->pSN()->sID).finished());
-//                    binEdgeFile.write(std::make_pair(linkIter.first,temp));
-//                }
-//                model::cout<<" E/E_"<<binEdgeFile.sID<<".bin"<<std::flush;
-            }
-            else
-            {
-                SequentialOutputFile<'K',1>::set_count(runID); // edgeFile;
-                SequentialOutputFile<'K',1>::set_increment(outputFrequency); // edgeFile;
-                SequentialOutputFile<'K',1> edgeFile;
-                //edgeFile << *(const NetworkLinkContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
-                for (const auto& linkIter : DN.networkLinks())
-                {
-                    edgeFile<< *linkIter.second<<"\n";
-                }
-                model::cout<<" K/K_"<<edgeFile.sID<<".txt"<<std::flush;
-            }
-            
-            //! 2- Outputs the Vertex informations to file V_*.txt where * is the current simulation step
-            if (outputBinary)
-            {
+                assert(0 && "FINISH BIN OUTPUT");
+
                 typedef DislocationNodeIO<dim> BinVertexType;
                 SequentialBinFile<'V',BinVertexType>::set_count(runID);
                 SequentialBinFile<'V',BinVertexType>::set_increment(outputFrequency);
@@ -333,6 +303,7 @@ namespace model
                     binVertexFile.write(BinVertexType(*node.second));
                 }
                 model::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;
+
             }
             else
             {
@@ -345,7 +316,39 @@ namespace model
                     vertexFile << *node.second<<"\n";
                 }
                 model::cout<<", V/V_"<<vertexFile.sID<<".txt"<<std::flush;
+                
+                SequentialOutputFile<'L',1>::set_count(runID); // vertexFile;
+                SequentialOutputFile<'L',1>::set_increment(outputFrequency); // vertexFile;
+                SequentialOutputFile<'L',1> loopFile;
+                //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
+                for (const auto& loop : DN.loops())
+                {
+                    loopFile << *loop.second<<"\n";
+                }
+                model::cout<<", L/L_"<<loopFile.sID<<".txt"<<std::flush;
+                
+                SequentialOutputFile<'E',1>::set_count(runID); // vertexFile;
+                SequentialOutputFile<'E',1>::set_increment(outputFrequency); // vertexFile;
+                SequentialOutputFile<'E',1> loopLinkFile;
+                //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
+                for (const auto& loopLink : DN.loopLinks())
+                {
+                    loopLinkFile << loopLink.second <<"\n";
+                }
+                model::cout<<", E/E_"<<loopLinkFile.sID<<".txt"<<std::flush;
+                
+                SequentialOutputFile<'K',1>::set_count(runID); // linkFile;
+                SequentialOutputFile<'K',1>::set_increment(outputFrequency); // linkFile;
+                SequentialOutputFile<'K',1> linkFile;
+                //linkFile << *(const NetworkLinkContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
+                for (const auto& linkIter : DN.networkLinks())
+                {
+                    linkFile<< *linkIter.second<<"\n";
+                }
+                model::cout<<" K/K_"<<linkFile.sID<<".txt"<<std::flush;
+
             }
+            
             
             if(outputSpatialCells)
             {

@@ -30,14 +30,15 @@
 #include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
-#include <model/Geometry/Splines/Intersection/PlanarSplineImplicitization.h>
+//#include <model/Geometry/Splines/Intersection/PlanarSplineImplicitization.h>
 #include <model/Geometry/Splines/Coeff2Hermite.h>
 #include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
 #include <model/DislocationDynamics/DislocationLocalReference.h>
-#include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
+//#include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 #include <model/IO/UniqueOutputFile.h>
 #include <model/DislocationDynamics/Polycrystals/GrainBoundary.h>
+#include <model/Geometry/LineSimplexIntersection.h>
 
 namespace model
 {
@@ -55,9 +56,9 @@ namespace model
         static constexpr int dim=_dim; // make dim available outside class
         static constexpr int corder=_corder; // make dim available outside class
         typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
-        typedef DislocationSegment<dim,corder,InterpolationType> LinkType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
+        typedef DislocationSegment<dim,corder,InterpolationType> LinkType;
         typedef LoopLink<LinkType> LoopLinkType;
-        typedef DislocationNode<dim,corder,InterpolationType> NodeType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
+        typedef DislocationNode<dim,corder,InterpolationType> NodeType;
         typedef SplineSegment<LinkType,dim,corder> SplineSegmentType;
         static constexpr int Ncoeff=SplineSegmentBaseType::Ncoeff;
         static constexpr int Ndof=SplineSegmentType::Ndof;
@@ -261,7 +262,6 @@ namespace model
         /******************************************************************/
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
-        //        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair, const VectorDim& Fin) :
         DislocationSegment(const std::shared_ptr<NodeType>& nI,
                            const std::shared_ptr<NodeType>& nJ) :
         /* base class initialization */ SplineSegmentType(nI,nJ),
@@ -274,27 +274,12 @@ namespace model
           *  @param[in] Flow_in the input flow
           */
             
-            std::cout<<"NEED TO REDEFINE ISSESSILE"<<std::endl;
+//            std::cout<<"NEED TO REDEFINE ISSESSILE"<<std::endl;
             pkGauss.setZero(dim,qOrder); // necessary if this is not assembled
         }
         
 
-        
-        const VectorDim& burgers() const
-        {
-            return Burgers;
-        }
-        
-        const VectorDim& glidePlaneNormal() const
-        {
-            return _glidePlaneNormal;
-        }
-        
-        const bool& isSessile() const
-        {
-            return _isSessile;
-        }
-        
+
         
         /**********************************************************************/
         void addLink(LoopLinkType* const pL)
@@ -334,19 +319,13 @@ namespace model
             
         }
         
-        /**********************************************************************/
-        bool hasZeroBurgers() const
-        {
-            return Burgers.squaredNorm()<FLT_EPSILON;
-        }
+
         
         /**********************************************************************/
         void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
         {/*! @param[in] particleSystem the ParticleSystem of DislocationParticle
           *  Computes all geometric properties at the k-th quadrature point
           */
-            //            std::cout<<"DislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<" updateQuadraturePoints"<<std::endl;
-            
             
             quadratureParticleContainer.clear();
             qOrder=QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm());
@@ -366,21 +345,15 @@ namespace model
                 // Compute geometric quantities
                 for (unsigned int k=0;k<qOrder;++k)
                 {
-                    //                SFgauss.row(k)=QuadPowType::uPow.row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                     SFgauss.row(k)=QuadPowDynamicType::uPow(qOrder).row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                     rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                     rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                    //                double du=1.0/qOrder;
-                    //                double u=du*(k+0.5);
-                    //                rgauss.col(k)=this->source->get_P()*(1.0-u)+this->sink->get_P()*u;
-                    //                 rugauss.col(k)=-this->source->get_P()+this->sink->get_P();
                     jgauss(k)=rugauss.col(k).norm();
                     rlgauss.col(k)=rugauss.col(k)/jgauss(k);
                 }
                 
                 if(!is_boundarySegment())
                 {
-                    //                    std::cout<<"DislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<" adding quadrature particles"<<std::endl;
                     for (unsigned int k=0;k<qOrder;++k)
                     {
                         quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
@@ -496,15 +469,10 @@ namespace model
                     }
                     else // bonudary segment without bvp, do not place quadrature particles
                     {
-                        //                        std::cout<<"DislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<" isBoundarySegment"<<std::endl;
                         
                     }
-                    
                 }
             }
-            
-            
-            
         }
         
         /**********************************************************************/
@@ -516,9 +484,7 @@ namespace model
             MatrixDim temp(quadratureParticleContainer[k]->stress()+shared.externalStress);
             if(shared.use_bvp)
             {
-                //                temp += shared.bvpSolver.stress(quadratureParticleContainer[k]->P,this->source->includingSimplex());
                 temp += shared.bvpSolver.stress(rgauss.col(k),this->source->includingSimplex());
-                
             }
             
             for(const auto& sStraight : shared.poly.grainBoundaryDislocations() )
@@ -527,10 +493,6 @@ namespace model
             }
             
             return temp;
-            //            //            return (shared.use_bvp) ? ((quadratureParticleContainer[k]->stress(this->source->bvpStress,this->sink->bvpStress)+shared.vbsc.stress(quadratureParticleContainer[k]->P)+shared.externalStress)*Burgers).cross(rlgauss.col(k))
-            //            return (shared.use_bvp) ? (quadratureParticleContainer[k]->stress()+shared.externalStress+shared.bvpSolver.stress(quadratureParticleContainer[k]->P,this->source->includingSimplex()))
-            //			/*                   */ : (quadratureParticleContainer[k]->stress()+shared.externalStress);
-            
         }
         
         /**********************************************************************/
@@ -583,36 +545,8 @@ namespace model
                 Kqq.setZero();
                 QuadratureDynamicType::integrate(qOrder,this,Kqq,&LinkType::stiffness_integrand);
                 
-                //            //! 3-
-                //            ortC.setZero();
-                //
-                //            Quadrature<1,qOrder,QuadratureRule>::integrate(this,ortC,&LinkType::ortC_integrand);
-                
-                
-                //! 4-
-                
-                //            std::set<size_t> segmentDOFs;
-                
                 h2posMap=this->hermite2posMap();
                 
-                //            segmentDOFs.clear();
-                //
-                //            const Eigen::VectorXi sourceDOFs(this->source->dofID());
-                //            for(int k=0;k<sourceDOFs.rows();++k)
-                //            {
-                //                segmentDOFs.insert(sourceDOFs(k));
-                //            }
-                //
-                //            const Eigen::VectorXi   sinkDOFs(this->sink->dofID());
-                //            for(int k=0;k<sinkDOFs.rows();++k)
-                //            {
-                //                segmentDOFs.insert(sinkDOFs(k));
-                //            }
-                
-                
-                //const size_t N(segmentDOFs.size());
-                
-                // Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,N));
                 Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
                 
                 size_t c=0;
@@ -625,43 +559,9 @@ namespace model
                     c++;
                 }
                 
-                //                for(const auto& pair : h2posMap)
-                //                {
-                //                    std::cout<<"snID="<<pair.first<<std::endl;
-                //                }
-                //                std::cout<<Mseg<<std::endl<<std::endl;
-                
-                //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2H());
-                //            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Mso(this->source->W2Ht());
-                //            Mso.block(dim,0,dim,Mso.cols())*=this->sourceTfactor;
-                //
-                //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2H());
-                //            //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> Msi(this->sink->W2Ht());
-                //            Msi.block(dim,0,dim,Msi.cols())*=-this->sinkTfactor;
-                //
-                //
-                //            for (int k=0;k<Mso.cols();++k)
-                //            {
-                //                const std::set<size_t>::const_iterator f(segmentDOFs.find(sourceDOFs(k)));
-                //                assert(f!=segmentDOFs.end());
-                //                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
-                //                Mseg.template block<Ndof/2,1>(0,curCol)=Mso.col(k);
-                //            }
-                //
-                //            for (int k=0;k<Msi.cols();++k)
-                //            {
-                //                const std::set<size_t>::const_iterator f(segmentDOFs.find(sinkDOFs(k)));
-                //                assert(f!=segmentDOFs.end());
-                //                unsigned int curCol(std::distance(segmentDOFs.begin(),f));
-                //                Mseg.template block<Ndof/2,1>(Ndof/2,curCol)=Msi.col(k);
-                //            }
             }
             
-            
         }
-        
-        
-        
         
         /**********************************************************************/
         void addToGlobalAssembly(std::deque<Eigen::Triplet<double> >& kqqT,
@@ -718,8 +618,6 @@ namespace model
                 }
                 
             }
-            
-            
         }
         
         /**********************************************************************/
@@ -795,63 +693,6 @@ namespace model
             return pkGauss.col(qOrder/2)*this->chord().norm();
         }
         
-        
-        
-        
-        /**********************************************************************/
-        int lineTriangleIntersection(const VectorDim& X,const VectorDim& s,
-                                     const VectorDim& P1,const VectorDim& P2,const VectorDim& P3) const
-        {
-            
-            int temp=0;
-            
-            const VectorDim v12(P2-P1);
-            const VectorDim v13(P3-P1);
-            
-            VectorDim n(v12.cross(v13)); // right-handed norm to triangle P1->P2->P3
-            const double nNorm(n.norm());
-            assert(nNorm>FLT_EPSILON && "n has zero norm");
-            n/=nNorm; // normalize
-            const double nDots(n.dot(s));
-            
-            if(std::fabs(nDots)>FLT_EPSILON) // s in not parallel to triangle
-            {
-                MatrixDim M(MatrixDim::Zero());
-                M.col(0)=v12;
-                M.col(1)=v13;
-                M.col(2)=-s;
-                const VectorDim a=M.inverse()*(X-P1);
-                
-                if(   a(0)>=0.0 && a(0)<=1.0      // intersection with trignale exists
-                   && a(1)>=0.0 && a(0)+a(1)<=1.0 // intersection with trignale exists
-                   && a(2)>=0.0) //  intersection along positive S-vector
-                {
-                    if(nDots>=0.0)
-                    {
-                        temp=-1;
-                    }
-                    else
-                    {
-                        temp=+1;
-                    }
-                }
-            }
-            //            else // s is parallel to triangle
-            //            {
-            //                assert(0 && "IMPLEMENT INTERSECTION AT INFINITY");
-            ////                if((P1-X).dot(n)>=0.0) // X is below the trianlge. Positive intersection at infinity
-            ////                {
-            ////                    temp=-1;
-            ////                }
-            ////                else // X is above the trianlge. Negative intersection at infinity
-            ////                {
-            ////                    temp=+1;
-            ////                }
-            //            }
-            
-            return temp;
-        }
-        
         /**********************************************************************/
         void addToSolidAngleJump(const VectorDim& Pf, const VectorDim& Sf, VectorDim& dispJump) const
         {
@@ -865,10 +706,34 @@ namespace model
                 const VectorDim P3(this->sink->get_P());
                 const VectorDim P4(P3+this->sink->bndNormal()*virtualSegmentDistance);
                 
-                dispJump += Burgers*lineTriangleIntersection(Pf,Sf,P1,P2,P3);
-                dispJump += Burgers*lineTriangleIntersection(Pf,Sf,P2,P4,P3);
+                dispJump += Burgers*LineSimplexIntersection<dim>::lineTriangleIntersection(Pf,Sf,P1,P2,P3);
+                dispJump += Burgers*LineSimplexIntersection<dim>::lineTriangleIntersection(Pf,Sf,P2,P4,P3);
                 
             }
+        }
+        
+        /**********************************************************************/
+        const VectorDim& burgers() const
+        {
+            return Burgers;
+        }
+        
+        /**********************************************************************/
+        const VectorDim& glidePlaneNormal() const
+        {
+            return _glidePlaneNormal;
+        }
+        
+        /**********************************************************************/
+        const bool& isSessile() const
+        {
+            return _isSessile;
+        }
+        
+        /**********************************************************************/
+        bool hasZeroBurgers() const
+        {
+            return Burgers.squaredNorm()<FLT_EPSILON;
         }
         
         /**********************************************************************/
@@ -891,19 +756,17 @@ namespace model
             return temp;
         }
         
+        /**********************************************************************/
         VectorDim integratedVelocityKernel(const double& u) const
         {
             return velocity(u)*this->get_j(u);
         }
-        
         
         /**********************************************************************/
         const MatrixDim& midPointStress() const
         {/*!\returns The stress matrix for the centre point over this segment.*/
             return stressGauss[qOrder/2];
         }
-        
-
         
         /**********************************************************************/
         template <class T>
@@ -933,79 +796,3 @@ namespace model
     
 } // namespace model
 #endif
-
-
-
-//        /**********************************************************************/
-//        bool isSimpleSessile() const __attribute__ ((deprecated))
-//        {
-//            bool temp=false;
-//            if(_isSessile)
-//            {
-//                if(this->source->is_simple() && this->sink->is_simple())
-//                {
-//                    if(   this->source->openNeighborLink(0)->isSessile()
-//                       && this->source->openNeighborLink(1)->isSessile()
-//                       && this->sink->openNeighborLink(0)->isSessile()
-//                       && this->sink->openNeighborLink(1)->isSessile()
-//                       && this->source->openNeighborLink(0)->glidePlane.n.cross(this->source->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
-//                       && this->source->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(0)->glidePlane.n).squaredNorm()==0
-//                       && this->sink->openNeighborLink(0)->glidePlane.n.cross(this->sink->openNeighborLink(1)->glidePlane.n).squaredNorm()==0
-//                       )
-//                    {
-//                        temp=true;
-//                    }
-//                }
-//            }
-//            return temp;
-//        }
-
-
-//        /* Constructor from EdgeExpansion) ************************************/
-//        DislocationSegment(const std::pair<NodeType*,NodeType*> nodePair,
-//                           const ExpandingEdge<LinkType>& ee) :
-//        //        /* base class initialization */ PlanarSegmentType(nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow),
-//        /* base class initialization */ PlanarSegmentType(nodePair.first->grain,nodePair.first->get_L(),nodePair.second->get_L(),ee.E.flow,ee),
-//        /* base class initialization */ SplineSegmentType::SplineSegmentBase(nodePair,ee),
-//        /* init list       */ grain(ee.E.grain),
-//        /* init list       */ Burgers(this->flow.cartesian() * Material<Isotropic>::b),
-////        /* init list       */ isSessile(this->flow.dot(this->glidePlane.n)!=0),
-//        /* init list       */ isSessile(this->glidePlane.n.cross(this->sessilePlane.n).squaredNorm()!=0),
-//        /* init list       */ conjugatePlaneNormals(this->grain.conjugatePlaneNormal(this->flow,this->glidePlane.n)),
-//        //        /* init list       */ boundaryLoopNormal(_glidePlaneNormal),
-//        /* init list       */ pGlidePlane(this->findExistingGlidePlane(_glidePlaneNormal,this->source->get_P().dot(_glidePlaneNormal))), // change this
-//        /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
-//        {/*! Constructor with pointers to source and sink, and ExpandingEdge
-//          *  @param[in] NodePair_in the pair of source and sink pointers
-//          *  @param[in] ee the expanding edge
-//          */
-//
-//            assert(nodePair.first->grain.grainID==nodePair.second->grain.grainID && "source and Sink BELONG TO DIFFERENT GRAINS");
-//
-//            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->source); // This should not be called in edge expansion or contraction
-//            this->source->make_T();
-//
-//            DislocationEnergyRules<dim>::template findEdgeConfiguration<NodeType>(*this->sink); // This should not be called in edge expansion or contraction
-//            this->sink->make_T();
-//
-//            assert(this->flow.squaredNorm()>0.0);
-//            pGlidePlane->addToGLidePlane(this);
-//            pkGauss.setZero(dim,qOrder); // necessary if this is not assembled
-//        }
-
-//        /* Destructor *********************************************************/
-//        ~DislocationSegment()
-//        {/*! Destructor
-//          */
-//            //! Add this to static VirtualBoundarySlipContainer
-//            //			if (shared.boundary_type==softBoundary && shared.use_bvp)
-//            //            {
-//            //				if(is_boundarySegment() && this->chord().norm()>FLT_EPSILON)
-//            //                {
-//            //                    shared.vbsc.add(*this);
-//            //				}
-//            //			}
-//            //! Removes this from *pGlidePlane
-//            //            pGlidePlane->removeFromGlidePlane(this);
-//            //            quadratureParticleContainer.clear();
-//        }

@@ -16,6 +16,7 @@
 #include <model/Mesh/PlaneMeshIntersection.h>
 //#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
 #include <model/IO/SequentialOutputFile.h>
+#include <model/DislocationDynamics/IO/DislocationLoopIO.h>
 
 
 namespace model
@@ -126,7 +127,7 @@ namespace model
                 const VectorDimD P1=L1.cartesian();
                 const VectorDimD P2=L2.cartesian();
                 const VectorDimD P3=L3.cartesian();
-
+                
                 
                 //                LatticeVector<dim> L4=L0+d3*a3;
                 //                LatticeVector<dim> L5=L1+d3*a3;
@@ -150,13 +151,13 @@ namespace model
                     
                     
                     
-                    PlaneMeshIntersectionContainerType pmi01=PlaneMeshIntersection<dim>(this->mesh).reducedPlaneMeshIntersection(P0,n1,grainID);
+                    PlaneMeshIntersectionContainerType pmi01=PlaneMeshIntersection<dim>(this->mesh,P0,n1,grainID);
                     const VectorDimD P4=this->boundaryProjection(P0,d3.cartesian(),pmi01).second;
-                    PlaneMeshIntersectionContainerType pmi12=PlaneMeshIntersection<dim>(this->mesh).reducedPlaneMeshIntersection(P1,n2,grainID);
+                    PlaneMeshIntersectionContainerType pmi12=PlaneMeshIntersection<dim>(this->mesh,P1,n2,grainID);
                     const VectorDimD P5=this->boundaryProjection(P1,d3.cartesian(),pmi12).second;
-                    PlaneMeshIntersectionContainerType pmi23=PlaneMeshIntersection<dim>(this->mesh).reducedPlaneMeshIntersection(P2,n1,grainID);
+                    PlaneMeshIntersectionContainerType pmi23=PlaneMeshIntersection<dim>(this->mesh,P2,n1,grainID);
                     const VectorDimD P6=this->boundaryProjection(P2,d3.cartesian(),pmi23).second;
-                    PlaneMeshIntersectionContainerType pmi30=PlaneMeshIntersection<dim>(this->mesh).reducedPlaneMeshIntersection(P3,n2,grainID);
+                    PlaneMeshIntersectionContainerType pmi30=PlaneMeshIntersection<dim>(this->mesh,P3,n2,grainID);
                     const VectorDimD P7=this->boundaryProjection(P3,d3.cartesian(),pmi30).second;
                     
                     std::deque<std::pair<int,VectorDimD>> v54=this->boundaryProjection(P1,P0,d3.cartesian(),pmi01);
@@ -198,75 +199,16 @@ namespace model
                     writeLoop(P1,1,2,6,v65,5,slipSystem, n2,grainID,refNodeID,nodeID,loopID,snID);
                     writeLoop(P2,2,3,7,v76,6,slipSystem,-n1,grainID,refNodeID,nodeID,loopID,snID);
                     writeLoop(P3,3,0,4,v47,7,slipSystem,-n2,grainID,refNodeID,nodeID,loopID,snID);
-
+                    
                     snID+=1;
                     density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/this->mesh.volume()/std::pow(Material<Isotropic>::b_real,2);
-                    
-//                    // First loop
-//                    loopFile <<loopID+0<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t"<< n1.transpose()<<"\t"<<P0.transpose()<<"\t"<<grainID<<"\n";
-//                    edgeFile << loopID+0<<"\t" << refNodeID+0<<"\t"<< refNodeID+1<<"\n";
-//                    edgeFile << loopID+0<<"\t" << refNodeID+1<<"\t"<< refNodeID+5<<"\n";
-//                    //                    edgeFile << loopID+0<<"\t" << refNodeID+5<<"\t"<< refNodeID+4<<"\n"; // CHANGE THIS
-//                    
-//                    size_t oldID=refNodeID+5;
-//                    for(const auto& pair : v54)
-//                    {
-//                        vertexFile << nodeID<<"\t" << std::setprecision(15)<<std::scientific<<pair.second.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-//                        edgeFile << loopID+0<<"\t" << oldID<<"\t"<< nodeID<<"\n"; // CHANGE THIS
-//                        oldID=nodeID;
-//                        nodeID++;
-//                    }
-//                    edgeFile << loopID+0<<"\t" <<    oldID<<"\t"<< refNodeID+4<<"\n"; // CHANGE THIS
-//                    edgeFile << loopID+0<<"\t" << refNodeID+4<<"\t"<< refNodeID+0<<"\n";
-//                    
-//                    
-//                    //                    vertexFile << refNodeID+4<<"\t" << std::setprecision(15)<<std::scientific<<L4.cartesian().transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-//                    //                    vertexFile << refNodeID+5<<"\t" << std::setprecision(15)<<std::scientific<<L5.cartesian().transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-//                    //                    vertexFile << refNodeID+6<<"\t" << std::setprecision(15)<<std::scientific<<L6.cartesian().transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-//                    //                    vertexFile << refNodeID+7<<"\t" << std::setprecision(15)<<std::scientific<<L7.cartesian().transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-//                    
-//                    /*! Edge file format is:
-//                     * loopID sourceID sinkID
-//                     */
-//                    
-//                    edgeFile << loopID+1<<"\t" << refNodeID+1<<"\t"<< refNodeID+2<<"\n";
-//                    edgeFile << loopID+1<<"\t" << refNodeID+2<<"\t"<< refNodeID+6<<"\n";
-//                    edgeFile << loopID+1<<"\t" << refNodeID+6<<"\t"<< refNodeID+5<<"\n";
-//                    edgeFile << loopID+1<<"\t" << refNodeID+5<<"\t"<< refNodeID+1<<"\n";
-//                    
-//                    edgeFile << loopID+2<<"\t" << refNodeID+2<<"\t"<< refNodeID+3<<"\n";
-//                    edgeFile << loopID+2<<"\t" << refNodeID+3<<"\t"<< refNodeID+7<<"\n";
-//                    edgeFile << loopID+2<<"\t" << refNodeID+7<<"\t"<< refNodeID+6<<"\n";
-//                    edgeFile << loopID+2<<"\t" << refNodeID+6<<"\t"<< refNodeID+2<<"\n";
-//                    
-//                    edgeFile << loopID+3<<"\t" << refNodeID+3<<"\t"<< refNodeID+0<<"\n";
-//                    edgeFile << loopID+3<<"\t" << refNodeID+0<<"\t"<< refNodeID+4<<"\n";
-//                    edgeFile << loopID+3<<"\t" << refNodeID+4<<"\t"<< refNodeID+7<<"\n";
-//                    edgeFile << loopID+3<<"\t" << refNodeID+7<<"\t"<< refNodeID+3<<"\n";
-//                    
-//                    
-//                    /*! Edge file format is:
-//                     * loopID Bx By Bz Nx Ny Nz Lx Ly Lz grainID
-//                     * where L is a lattice position in the grain
-//                     */
-//                    //                    const VectorDimD n1=d1.cross(slipSystem.s).cartesian().normalized();
-//                    //                    const VectorDimD n1=d1.cross(slipSystem.s).cartesian().normalized();
-//                    
-//                    loopFile <<loopID+1<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t"<< n2.transpose()<<"\t"<<P1.transpose()<<"\t"<<grainID<<"\n";
-//                    loopFile <<loopID+2<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t"<<-n1.transpose()<<"\t"<<P2.transpose()<<"\t"<<grainID<<"\n";
-//                    loopFile <<loopID+3<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t"<<-n2.transpose()<<"\t"<<P3.transpose()<<"\t"<<grainID<<"\n";
-//                    
-//                    loopID+=4;
-//                    snID+=1;
-//                    density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/this->mesh.volume()/std::pow(Material<Isotropic>::b_real,2);
-                    
                     
                 }
             }
             
         }
         
-
+        
         /**********************************************************************/
         void writeLoop(const VectorDimD& P0,
                        const int& id0,
@@ -274,7 +216,7 @@ namespace model
                        const int& id2,
                        const std::deque<std::pair<int,VectorDimD>>& bndVtx,
                        const int& id3,
-                    const SlipSystem& slipSystem,
+                       const SlipSystem& slipSystem,
                        const VectorDimD& n,
                        const int& grainID,
                        const int& refNodeID,
@@ -283,12 +225,13 @@ namespace model
                        const size_t& snID)
         {
             // write Loop file
-                            loopFile <<loopID+0<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t"<< n.transpose()<<"\t"<<P0.transpose()<<"\t"<<grainID<<"\n";
-        
+            DislocationLoopIO<dim> dlIO(loopID+0, slipSystem.s.cartesian(),n,P0,grainID);
+            loopFile<< dlIO<<"\n";
+            
             // write to edge and node files
             edgeFile << loopID<<"\t" << refNodeID+id0<<"\t"<< refNodeID+id1<<"\n";
             edgeFile << loopID<<"\t" << refNodeID+id1<<"\t"<< refNodeID+id2<<"\n";
-
+            
             size_t oldID=refNodeID+id2;
             for(const auto& pair : bndVtx)
             {
@@ -299,9 +242,9 @@ namespace model
             }
             edgeFile << loopID<<"\t" <<    oldID<<"\t"<< refNodeID+id3<<"\n"; // CHANGE THIS
             edgeFile << loopID<<"\t" << refNodeID+id3<<"\t"<< refNodeID+id0<<"\n";
-
+            
             loopID+=1;
-
+            
         }
         
         

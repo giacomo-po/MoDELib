@@ -46,6 +46,12 @@ namespace model
         }
         
         /**********************************************************************/
+        const LoopContainerType& loops() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
         void addLoop(const LoopType* const pL)
         {
             const bool success=this->insert(std::make_pair(pL->sID,pL)).second;
