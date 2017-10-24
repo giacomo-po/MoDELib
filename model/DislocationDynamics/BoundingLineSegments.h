@@ -77,6 +77,9 @@ namespace model
                     }
                 }
             }
+            
+            std::cout<<"BoundingLineSegments "<<this<<", size="<<this->size()<<std::endl;
+            
         }
         
         
@@ -122,6 +125,8 @@ namespace model
         /**********************************************************************/
         VectorDim snap(const VectorDim& P) const
         {
+            
+                        std::cout<<"BoundingLineSegments "<<this<<", snapping, size="<<this->size()<<std::endl;
             
             assert(this->size() && "CANNOT SNAP TO EMPTY BoundingLineSegments");
             
