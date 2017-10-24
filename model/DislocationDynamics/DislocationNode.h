@@ -291,7 +291,7 @@ namespace model
             NodeBaseType::addLoopLink(pL); // forward to base class
             
             
-            std::cout<<"DislocationNode "<<this->sID<<" addLoopLink"<<std::endl;
+//            std::cout<<"DislocationNode "<<this->sID<<" addLoopLink"<<std::endl;
             
             // Insert new plane in _confiningPlanes. If plane already exists nothing will happen
             const bool success = nodeConfinement().addGlidePlane(pL->loop()->glidePlane);
@@ -324,7 +324,7 @@ namespace model
             NodeBaseType::removeLoopLink(pL); // forward to base class
             
             
-                        std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;
+//                        std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;
             
             // Re-construct nodeConfinement
             _isGlissile=true;

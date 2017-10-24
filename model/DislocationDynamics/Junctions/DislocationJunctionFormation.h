@@ -586,7 +586,7 @@ namespace model
                             if(L1.first && L2.first) // Links exist
                             {
                                 
-                                std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<t<<","<<u<<std::endl;
+//                                std::cout<<"forming Junction "<< key1.first<<"->"<<key1.second<<" and "<< key2.first<<"->"<<key2.second<<" @"<<t<<","<<u<<std::endl;
 
                                 
                                 auto  Ni=L1.second->source;

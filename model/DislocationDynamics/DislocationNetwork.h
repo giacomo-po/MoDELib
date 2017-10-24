@@ -389,24 +389,23 @@ namespace model
 
             //std::pair<bool,VectorDim> c=std::make_pair(false,VectorDim::Zero());
             
-            std::cout<<"DislocationNetwork::contract "<<nA->sID<<" "<<nB->sID<<std::endl;
+//            std::cout<<"DislocationNetwork::contract "<<nA->sID<<" "<<nB->sID<<std::endl;
             
             if(nA->isGlissile() && nB->isGlissile())
             {// both nodes are glissile
                 if(nA->isOnBoundingBox() && nB->isOnBoundingBox())
                 {// both nodes on bounding boxes. Intersect bounding boxes'
-                    std::cout<<"contractPoint case 1aa"<<std::endl;
+//                    std::cout<<"contractPoint case 1aa"<<std::endl;
                     BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
                     if(temp.size())
                     {// a common portion of the boundary exists
-                        std::cout<<"contractPoint case 1"<<std::endl;
+//                        std::cout<<"contractPoint case 1"<<std::endl;
                         nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
                         return this->contractSecond(nA->sID,nB->sID);
-//                        return std::make_tuple(true,,nA->sID,nB->sID);
                     }
                     else
                     {
-                        std::cout<<"contractPoint case 2"<<std::endl;
+//                        std::cout<<"contractPoint case 2"<<std::endl;
                         return false;
                     }
                 }
@@ -414,82 +413,82 @@ namespace model
                 {// a on box, b is not
                     if(nB->glidePlaneIntersections().size())
                     {// other is confined internally by two or more planes
-                        std::cout<<"contractPoint case 3aa"<<std::endl;
+//                        std::cout<<"contractPoint case 3aa"<<std::endl;
                         BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->glidePlaneIntersections());
                         if(temp.size())
                         {
-                            std::cout<<"contractPoint case 3"<<std::endl;
+//                            std::cout<<"contractPoint case 3"<<std::endl;
                             nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else
                         {
-                            std::cout<<"contractPoint case 4"<<std::endl;
+//                            std::cout<<"contractPoint case 4"<<std::endl;
                             return false;
                         }
                     }
                     else
                     {// other is confined by only one glide plane
-                        std::cout<<"contractPoint case 5aa"<<std::endl;
+//                        std::cout<<"contractPoint case 5aa"<<std::endl;
                         BoundingLineSegments<dim> temp=nA->boundingBoxSegments();
                         temp.updateWithGlidePlane(nB->glidePlane(0));
                         if(temp.size())
                         {
-                            std::cout<<"contractPoint case 5"<<std::endl;
+//                            std::cout<<"contractPoint case 5"<<std::endl;
                             nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else
                         {
-                            std::cout<<"contractPoint case 6"<<std::endl;
+//                            std::cout<<"contractPoint case 6"<<std::endl;
                             return false;
                         }
                     }
                 }
                 else if(!nA->isOnBoundingBox() && nB->isOnBoundingBox())
                 {// b on box, a is not
-                    std::cout<<"contractPoint case 7"<<std::endl;
+//                    std::cout<<"contractPoint case 7"<<std::endl;
                     return contract(nB,nA);
                 }
                 else
                 {// neither a nor b on bounding box
                     if(nA->glidePlaneIntersections().size() && nB->glidePlaneIntersections().size())
                     {
-                        std::cout<<"contractPoint case 8aa"<<std::endl;
+//                        std::cout<<"contractPoint case 8aa"<<std::endl;
                         BoundingLineSegments<dim> temp(nA->glidePlaneIntersections(),nB->glidePlaneIntersections());
                         if(temp.size())
                         {
-                            std::cout<<"contractPoint case 8"<<std::endl;
+//                            std::cout<<"contractPoint case 8"<<std::endl;
                             nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else
                         {
-                            std::cout<<"contractPoint case 9"<<std::endl;
+//                            std::cout<<"contractPoint case 9"<<std::endl;
                             return false;
                         }
                     }
                     else if(nA->glidePlaneIntersections().size() && !nB->glidePlaneIntersections().size())
                     {
-                        std::cout<<"contractPoint case 10aa"<<std::endl;
+//                        std::cout<<"contractPoint case 10aa"<<std::endl;
                         BoundingLineSegments<dim> temp=nA->boundingBoxSegments();
                         temp.updateWithGlidePlane(nB->glidePlane(0));
                         if(temp.size())
                         {
-                            std::cout<<"contractPoint case 10"<<std::endl;
+//                            std::cout<<"contractPoint case 10"<<std::endl;
                             nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
                             return this->contractSecond(nA->sID,nB->sID);
 //                            return std::make_tuple(true,temp.snap(0.5*(nA->get_P()+nB->get_P())),nA->sID,nB->sID);
                         }
                         else
                         {
-                            std::cout<<"contractPoint case 11"<<std::endl;
+//                            std::cout<<"contractPoint case 11"<<std::endl;
                             return false;
                         }
                     }
                     else if(!nA->glidePlaneIntersections().size() && nB->glidePlaneIntersections().size())
                     {
-                        std::cout<<"contractPoint case 12"<<std::endl;
+//                        std::cout<<"contractPoint case 12"<<std::endl;
                         return contract(nB,nA);
                     }
                     else
@@ -502,25 +501,24 @@ namespace model
                         GlidePlaneObserver<LoopType>* const gpo(nA->glidePlane(0).glidePlaneObserver);
                         const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&nA->glidePlane(0),&nB->glidePlane(0)));
                         
-                        std::cout<<"gpA: "<<nA->glidePlane(0).P.cartesian().transpose()<<std::endl;
-                        std::cout<<"gpA: "<<nA->glidePlane(0).n.cartesian().normalized().transpose()<<std::endl;
-
-                        std::cout<<"gpB: "<<nB->glidePlane(0).P.cartesian().transpose()<<std::endl;
-                        std::cout<<"gpB: "<<nB->glidePlane(0).n.cartesian().normalized().transpose()<<std::endl;
+//                        std::cout<<"gpA: "<<nA->glidePlane(0).P.cartesian().transpose()<<std::endl;
+//                        std::cout<<"gpA: "<<nA->glidePlane(0).n.cartesian().normalized().transpose()<<std::endl;
+//
+//                        std::cout<<"gpB: "<<nB->glidePlane(0).P.cartesian().transpose()<<std::endl;
+//                        std::cout<<"gpB: "<<nB->glidePlane(0).n.cartesian().normalized().transpose()<<std::endl;
 
                         
                         if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                         {
-                            std::cout<<"contractPoint case 13"<<std::endl;
+//                            std::cout<<"contractPoint case 13"<<std::endl;
                             nA->set_P(nA->snapToGlidePlaneIntersection(0.5*(nA->get_P()+nB->get_P()))); // this snaps to the glide planes to kill numerical errors
                             return this->contractSecond(nA->sID,nB->sID);
-//                            return std::make_tuple(true,0.5*(nA->get_P()+nB->get_P()),nA->sID,nB->sID);
                         }
                         else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
                         {
-                            std::cout<<nA->sID<<" "<<nB->sID<<std::endl;
-                            std::cout<<"contractPoint case 13a"<<std::endl;
-                            std::cout<<"norm d="<<ppi.d.norm()<<std::endl;
+//                            std::cout<<nA->sID<<" "<<nB->sID<<std::endl;
+//                            std::cout<<"contractPoint case 13a"<<std::endl;
+//                            std::cout<<"norm d="<<ppi.d.norm()<<std::endl;
                             const double u=(0.5*(nA->get_P()+nB->get_P())-ppi.P).dot(ppi.d);
                             nA->set_P(ppi.P+u*ppi.d);
                             return this->contractSecond(nA->sID,nB->sID);
@@ -539,13 +537,12 @@ namespace model
                 {// a is a boundary node. Check is the bonuding box contains b
                     if(nA->boundingBoxSegments().contains(nB->get_P()))
                     {
-                        std::cout<<"contractPoint case 15"<<std::endl;
+//                        std::cout<<"contractPoint case 15"<<std::endl;
                         return this->contractSecond(nB->sID,nA->sID);
-//                        return std::make_tuple(true,nB->get_P(),nB->sID,nA->sID);
                     }
                     else
                     {
-                        std::cout<<"contractPoint case 16"<<std::endl;
+//                        std::cout<<"contractPoint case 16"<<std::endl;
                         return false;
                     }
                 }
@@ -555,14 +552,12 @@ namespace model
                     {
                         if(nA->glidePlaneIntersections().contains(nB->get_P()))
                         {
-                            std::cout<<"contractPoint case 17"<<std::endl;
+//                            std::cout<<"contractPoint case 17"<<std::endl;
                             return this->contractSecond(nB->sID,nA->sID);
-//                            return std::make_tuple(true,nB->get_P(),nB->sID,nA->sID);
-                            
                         }
                         else
                         {
-                            std::cout<<"contractPoint case 17a"<<std::endl;
+//                            std::cout<<"contractPoint case 17a"<<std::endl;
                             return false;
                         }
                     }
@@ -571,39 +566,33 @@ namespace model
                         assert(nA->glidePlanes().size()==1);
                         if(nA->glidePlane(0).contains(nB->get_P()))
                         {
-                            std::cout<<"contractPoint case 17b"<<std::endl;
+//                            std::cout<<"contractPoint case 17b"<<std::endl;
                             return this->contractSecond(nB->sID,nA->sID);
-//                            return std::make_tuple(true,nB->get_P(),nB->sID,nA->sID);
-                            
                         }
                         else
                         {
-                            std::cout<<"contractPoint case 17c"<<std::endl;
+//                            std::cout<<"contractPoint case 17c"<<std::endl;
                             return false;
                         }
                     }
-                    //assert(0 && "FINISH HERE");
                 }
-                
             }
             else if(!nA->isGlissile() && nB->isGlissile())
             {
-                std::cout<<"contractPoint case 18"<<std::endl;
+//                std::cout<<"contractPoint case 18"<<std::endl;
                 return contract(nB,nA);
             }
             else
             {// both nodes are sessile
                 if((nA->get_P()-nB->get_P()).squaredNorm()<FLT_EPSILON)
                 {// contract only if coincident
-                    std::cout<<"contractPoint case 19"<<std::endl;
+//                    std::cout<<"contractPoint case 19"<<std::endl;
                     nA->set_P(0.5*(nA->get_P()+nB->get_P()));
                     return this->contractSecond(nA->sID,nB->sID);
-
-//                    return std::make_tuple(true,0.5*(nA->get_P()+nB->get_P()),nA->sID,nB->sID);
                 }
                 else
                 {
-                    std::cout<<"contractPoint case 20"<<std::endl;
+//                    std::cout<<"contractPoint case 20"<<std::endl;
                     return false;
                 }
             }
