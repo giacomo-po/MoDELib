@@ -41,7 +41,8 @@ else
 	endif
 
 	ifeq ($(OS),Linux)
-		CFLAGS += -march=native
+		CFLAGS += -msse4
+#s		CFLAGS += -march=native
 	endif
 
 endif

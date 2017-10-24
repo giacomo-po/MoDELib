@@ -14,7 +14,7 @@
 #include <deque>
 #include <map>
 #include <utility>
-#include <model/DislocationDynamics/GlidePlanes/Glideplane.h>
+#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/Geometry/SegmentSegmentDistance.h>
 //#include <model/Geometry/SegmentSegmentIntersection.h>
 
