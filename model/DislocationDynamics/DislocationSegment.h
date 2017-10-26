@@ -60,6 +60,7 @@ namespace model
         static constexpr int corder=_corder; // make dim available outside class
         typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
         typedef DislocationSegment<dim,corder,InterpolationType> LinkType;
+        typedef typename TypeTraits<LinkType>::LoopNetworkType NetworkType;
         typedef LoopLink<LinkType> LoopLinkType;
         typedef DislocationNode<dim,corder,InterpolationType> NodeType;
         typedef SplineSegment<LinkType,dim,corder> SplineSegmentType;
@@ -82,7 +83,7 @@ namespace model
         typedef std::vector<DislocationParticleType*> QuadratureParticleContainerType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
-        typedef std::set<const GrainBoundary<dim>*> GrainBoundaryContainerType;
+        typedef std::set<const GrainBoundary<NetworkType>*> GrainBoundaryContainerType;
         
         /******************************************************************/
     private: //  data members
@@ -126,7 +127,7 @@ namespace model
         
         bool _isSessile;
         
-        const std::set<const GrainBoundary<dim>*> grainBoundarySet;
+//        const std::set<const GrainBoundary<dim>*> grainBoundarySet;
         
         /******************************************************************/
     public: //  data members
@@ -197,8 +198,9 @@ namespace model
             VectorDim vv=VectorDim::Zero();
             if(glideForceNorm>FLT_EPSILON)
             {
-                double v =  (this->grainBoundarySet.size()==1) ? (*(this->grainBoundarySet.begin()))->grainBoundaryType().gbMobility.velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal,Material<Isotropic>::T) :
-                /*                                              */ Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal);
+//                double v =  (this->grainBoundarySet.size()==1) ? (*(this->grainBoundarySet.begin()))->grainBoundaryType().gbMobility.velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal,Material<Isotropic>::T) :
+//                /*                                              */ Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal);
+                double v =  Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal);
                 assert(v>= 0.0 && "Velocity must be a positive scalar");
                 const bool useNonLinearVelocity=true;
                 if(useNonLinearVelocity && v>FLT_EPSILON)
@@ -330,9 +332,9 @@ namespace model
         }
         
         /**********************************************************************/
-        std::set<const Grain<dim>*> grains() const
+        std::set<const Grain<NetworkType>*> grains() const
         {
-            std::set<const Grain<dim>*> temp;
+            std::set<const Grain<NetworkType>*> temp;
             std::set_intersection(this->source->grains().begin(),this->source->grains().end(),
                                   this->  sink->grains().begin(),this->  sink->grains().end(),
                                   std::inserter(temp,temp.begin()));
@@ -345,7 +347,7 @@ namespace model
         {
             GrainBoundaryContainerType temp;
             
-            std::set<const Grain<dim>*> grns=grains();
+            std::set<const Grain<NetworkType>*> grns=grains();
             
             for(const auto& gr1 : grns)
             {

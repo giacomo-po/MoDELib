@@ -28,29 +28,30 @@ namespace model
     
     /*************************************************************/
     /*************************************************************/
-    template <typename LoopType>
-    struct GlidePlane : public StaticID<GlidePlane<LoopType> >,
+    template <typename NetworkType>
+    struct GlidePlane : public StaticID<GlidePlane<NetworkType> >,
     /* base class    */ public LatticePlane,
-    /* base class    */ private std::map<size_t,const LoopType* const>
+    /* base class    */ private std::map<size_t,const typename TypeTraits<NetworkType>::LoopType* const>
     {
         
-        constexpr static int dim=LoopType::dim;
-        typedef typename TypeTraits<LoopType>::LinkType LinkType;
-        typedef GlidePlane<LoopType> GlidePlaneType;
-        typedef GlidePlaneObserver<LoopType> GlidePlaneObserverType;
+        constexpr static int dim=NetworkType::dim;
+        typedef typename TypeTraits<NetworkType>::LoopType LoopType;
+        typedef typename TypeTraits<NetworkType>::LinkType LinkType;
+        typedef GlidePlane<NetworkType> GlidePlaneType;
+        typedef GlidePlaneObserver<NetworkType> GlidePlaneObserverType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef typename GlidePlaneObserverType::GlidePlaneKeyType GlidePlaneKeyType;
         typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
 
         GlidePlaneObserverType* const glidePlaneObserver;
-        const Grain<dim>& grain;
+        const Grain<NetworkType>& grain;
         const GlidePlaneKeyType glidePlaneKey;
         const PlaneMeshIntersectionContainerType meshIntersections;
         
         /**********************************************************************/
         GlidePlane(GlidePlaneObserverType* const gpo,
                    const SimplicialMesh<dim>& mesh,
-                   const Grain<dim>& grain_in,
+                   const Grain<NetworkType>& grain_in,
                    const VectorDim& P,
                    const VectorDim& N) :
         /* init */ LatticePlane(grain_in.latticeVector(P),grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
@@ -64,7 +65,7 @@ namespace model
         }
         
         /**********************************************************************/
-        GlidePlane(const GlidePlane<LoopType>& other) = delete;
+        GlidePlane(const GlidePlane<NetworkType>& other) = delete;
         
         /**********************************************************************/
         ~GlidePlane()

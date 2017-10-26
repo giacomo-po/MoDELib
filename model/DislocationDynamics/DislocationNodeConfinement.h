@@ -22,16 +22,17 @@ namespace model
 {
     template <typename NodeType>
     class DislocationNodeConfinement :
-    /*         */ private std::set<const GlidePlane<typename TypeTraits<NodeType>::LoopType>*>,
+    /*         */ private std::set<const GlidePlane<typename TypeTraits<NodeType>::LoopNetworkType>*>,
     /*         */ private BoundingLineSegments<TypeTraits<NodeType>::dim>,
-    /*         */ private std::set<const Grain<TypeTraits<NodeType>::dim>*>
+    /*         */ private std::set<const Grain<typename TypeTraits<NodeType>::LoopNetworkType>*>
     {
         
         static constexpr int dim=TypeTraits<NodeType>::dim;
         typedef typename TypeTraits<NodeType>::LoopType LoopType;
-        typedef GlidePlane<LoopType> GlidePlaneType;
+        typedef typename TypeTraits<NodeType>::LoopNetworkType NetworkType;
+        typedef GlidePlane<NetworkType> GlidePlaneType;
         typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
-        typedef std::set<const Grain<dim>*> GrainContainerType;
+        typedef std::set<const Grain<NetworkType>*> GrainContainerType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         
         /**********************************************************************/
@@ -58,7 +59,7 @@ namespace model
                     assert(_glidePlaneIntersections.size()==0 && "_glidePlaneIntersections must be empty");
                     
                     // Grab the infinite line of intersection between the two planes
-                    GlidePlaneObserver<LoopType>* const gpo(glidePlane(0).glidePlaneObserver);
+                    GlidePlaneObserver<NetworkType>* const gpo(glidePlane(0).glidePlaneObserver);
                     const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&glidePlane(0),&glidePlane(1)));
                     
                     if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)

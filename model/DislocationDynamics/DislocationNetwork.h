@@ -75,7 +75,7 @@ namespace model
     
     template <int _dim, short unsigned int corder, typename InterpolationType>
     class DislocationNetwork : public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType> >,
-    /* base                 */ public GlidePlaneObserver<typename TypeTraits<DislocationNetwork<_dim,corder,InterpolationType> >::LoopType>,
+    /* base                 */ public GlidePlaneObserver<DislocationNetwork<_dim,corder,InterpolationType>>,
     /* base                 */ public ParticleSystem<DislocationParticle<_dim> >
     {
         
@@ -92,7 +92,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
         typedef Eigen::Matrix<double,dim,1>		VectorDim;
         typedef typename TypeTraits<DislocationNetworkType>::LoopType LoopType;
-        typedef GlidePlaneObserver<LoopType> GlidePlaneObserverType;
+        typedef GlidePlaneObserver<DislocationNetworkType> GlidePlaneObserverType;
         typedef DislocationParticle<_dim> DislocationParticleType;
         typedef typename DislocationParticleType::StressField StressField;
         typedef typename DislocationParticleType::DisplacementField DisplacementField;
@@ -344,7 +344,7 @@ namespace model
         
         SimplicialMesh<dim> mesh;
         
-        Polycrystal<dim> poly;
+        Polycrystal<DislocationNetworkType> poly;
 
         BvpSolverType bvpSolver;
         
@@ -515,7 +515,7 @@ namespace model
                         assert(nA->glidePlanes().size()==1);
                         assert(nB->glidePlanes().size()==1);
                         
-                        GlidePlaneObserver<LoopType>* const gpo(nA->glidePlane(0).glidePlaneObserver);
+                        GlidePlaneObserver<DislocationNetworkType>* const gpo(nA->glidePlane(0).glidePlaneObserver);
                         const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&nA->glidePlane(0),&nB->glidePlane(0)));
                         
 //                        std::cout<<"gpA: "<<nA->glidePlane(0).P.cartesian().transpose()<<std::endl;

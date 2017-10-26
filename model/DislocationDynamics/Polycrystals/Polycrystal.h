@@ -35,19 +35,20 @@ namespace model
     
     
     
-    template <int dim>
+    template <typename NetworkType>
     class Polycrystal :
-    /* base */ private std::map<size_t,Grain<dim>>,
-    /* base */ private std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>,
-    /* base */ public std::vector<StressStraight<dim> >
+    /* base */ private std::map<size_t,Grain<NetworkType>>,
+    /* base */ private std::map<std::pair<size_t,size_t>,GrainBoundary<NetworkType>>,
+    /* base */ public std::vector<StressStraight<NetworkType::dim> >
     {
         
+        static constexpr int dim=NetworkType::dim;
         typedef SimplicialMesh<dim> SimplicialMeshType;
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
-        typedef Eigen::Matrix<  double,dim,1> VectorDimD;
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
         
         static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
         static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
@@ -197,43 +198,43 @@ namespace model
         }
         
         /**********************************************************************/
-        Grain<dim>& grain(const size_t& k)
+        Grain<NetworkType>& grain(const size_t& k)
         {
             return grains().at(k);
         }
         
         /**********************************************************************/
-        const Grain<dim>& grain(const size_t& k) const
+        const Grain<NetworkType>& grain(const size_t& k) const
         {
             return grains().at(k);
         }
         
         /**********************************************************************/
-        const std::map<size_t,Grain<dim>>& grains() const
+        const std::map<size_t,Grain<NetworkType>>& grains() const
         {
             return *this;
         }
         
         /**********************************************************************/
-        std::map<size_t,Grain<dim>>& grains()
+        std::map<size_t,Grain<NetworkType>>& grains()
         {
             return *this;
         }
         
         /**********************************************************************/
-        std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>& grainBoundaries()
+        std::map<std::pair<size_t,size_t>,GrainBoundary<NetworkType>>& grainBoundaries()
         {
             return *this;
         }
         
         /**********************************************************************/
-        const std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>& grainBoundaries() const
+        const std::map<std::pair<size_t,size_t>,GrainBoundary<NetworkType>>& grainBoundaries() const
         {
             return *this;
         }
         
         /**********************************************************************/
-        const GrainBoundary<dim>& grainBoundary(const size_t& i,
+        const GrainBoundary<NetworkType>& grainBoundary(const size_t& i,
                                                 const size_t& j) const
         {
             assert(i!=j && "GrainBoundary IDs cannot be the same.");
@@ -241,7 +242,7 @@ namespace model
         }
         
         /**********************************************************************/
-        GrainBoundary<dim>& grainBoundary(const size_t& i,
+        GrainBoundary<NetworkType>& grainBoundary(const size_t& i,
                                           const size_t& j)
         {
             assert(i!=j && "GrainBoundary IDs cannot be the same.");
@@ -249,7 +250,7 @@ namespace model
         }
         
         /**********************************************************************/
-        LatticeVectorType latticeVectorFromPosition(const VectorDimD& p,
+        LatticeVectorType latticeVectorFromPosition(const VectorDim& p,
                                                     const Simplex<dim,dim>* const guess) const
         {
             const std::pair<bool,const Simplex<dim,dim>*> temp(mesh.searchWithGuess(p,guess));
@@ -258,13 +259,13 @@ namespace model
         }
         
         /**********************************************************************/
-        LatticeVectorType latticeVectorFromPosition(const VectorDimD& p) const
+        LatticeVectorType latticeVectorFromPosition(const VectorDim& p) const
         {
             return latticeVectorFromPosition(p,&(mesh.simplices().begin()->second));
         }
         
         /**********************************************************************/
-        ReciprocalLatticeVectorType reciprocalLatticeVectorFromPosition(const VectorDimD& p,
+        ReciprocalLatticeVectorType reciprocalLatticeVectorFromPosition(const VectorDim& p,
                                                                         const Simplex<dim,dim>* const guess) const
         {
             const std::pair<bool,const Simplex<dim,dim>*> temp(mesh.searchWithGuess(p,guess));
@@ -273,7 +274,7 @@ namespace model
         }
         
         /**********************************************************************/
-        ReciprocalLatticeVectorType reciprocalLatticeVectorFromPosition(const VectorDimD& p) const
+        ReciprocalLatticeVectorType reciprocalLatticeVectorFromPosition(const VectorDim& p) const
         {
             return reciprocalLatticeVectorFromPosition(p,&(mesh.simplices().begin()->second));
         }

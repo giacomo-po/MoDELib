@@ -26,7 +26,7 @@ namespace model
     //: private std::deque<TransmitSegment<typename DislocationNetworkType::LinkType> >
     {
         static constexpr int dim=DislocationNetworkType::dim;
-        typedef GrainBoundary<dim> GrainBoundaryType;
+        typedef GrainBoundary<DislocationNetworkType> GrainBoundaryType;
         DislocationNetworkType& DN;
         
         static constexpr double chordTol=1.0;

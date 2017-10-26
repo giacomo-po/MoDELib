@@ -32,11 +32,12 @@ namespace model
     
     
     
-    template <int dim>
+    template <typename NetworkType>
     class GrainBoundary :
-    /* base */ private std::map<int,const Grain<dim>* const>,
+    /* base */ private std::map<int,const Grain<NetworkType>* const>,
     /* base */ private std::map<int,LatticePlane>
     {
+        static constexpr int dim=NetworkType::dim;
         typedef MeshRegionBoundary<Simplex<dim,dim-1> > MeshRegionBoundaryType;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
@@ -44,7 +45,7 @@ namespace model
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
-        typedef Grain<dim> GrainType;
+        typedef Grain<NetworkType> GrainType;
         typedef std::map<int,const GrainType* const> GrainContainerType;
         typedef std::map<int,LatticePlane> LatticePlaneContainerType;
         typedef Eigen::Matrix<double,2*dim+1,1> BGkeyType;
@@ -55,7 +56,7 @@ namespace model
         
         
         /**********************************************************************/
-        void storeLatticePlane(const Grain<dim>& grain,
+        void storeLatticePlane(const Grain<NetworkType>& grain,
                                const VectorDimD& normal)
         {
             //std::cout<<"storeLatticePlane"<<std::endl;
@@ -393,8 +394,8 @@ namespace model
         /**********************************************************************/
                 template<typename PolycrystalType>
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
-                      Grain<dim>& grainFirst,
-                      Grain<dim>& grainSecond,
+                      Grain<NetworkType>& grainFirst,
+                      Grain<NetworkType>& grainSecond,
                       PolycrystalType& poly) :
         /* init */ _csl(grainFirst,grainSecond),
         /* init */ _dscl(grainFirst,grainSecond),
@@ -421,7 +422,7 @@ namespace model
         }
         
         /**********************************************************************/
-        const Grain<dim>& grain(const int& k) const
+        const Grain<NetworkType>& grain(const int& k) const
         {
             return *(grains().at(k));
         }
@@ -490,8 +491,8 @@ namespace model
         }
     };
     
-    template <int dim>
-    bool GrainBoundary<dim>::use_GBdislocations=false;
+    template <typename NetworkType>
+    bool GrainBoundary<NetworkType>::use_GBdislocations=false;
     
 } // end namespace
 #endif
