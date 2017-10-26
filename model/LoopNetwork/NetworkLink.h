@@ -42,7 +42,7 @@ namespace model
         
         friend class LoopNode<NodeType>; // allow NetworkNode to call private NetworkLink::formNetworkComponent
 
-                LoopNetworkType* const loopNetwork;
+        LoopNetworkType* const loopNetwork;
         
     private:
         
@@ -173,6 +173,13 @@ namespace model
         NetworkLink(const NetworkLink&) =delete;
         const NetworkLink& operator=(const NetworkLink&) =delete;
         
+        
+        /**********************************************************************/
+        const LoopNetworkType& network() const
+        {
+            return *loopNetwork;
+        }
+        
         /**********************************************************************/
         LoopLinkContainerType& loopLinks()
         {
@@ -219,6 +226,11 @@ namespace model
 //                _flow+=pL->flow();
 //            }
         }
+        
+//        std::string tag() const
+//        {
+//            return std::to_string(source->sID)
+//        }
         
 //        const FlowType& flow() const
 //        {

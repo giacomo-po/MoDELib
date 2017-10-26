@@ -75,7 +75,7 @@ namespace model
         /* init */ _source(so),
         /* init */ _sink(si),
         /* init */ pLoop(pL),
-        /* init */ pLink(pLoop->loopNetwork.pLink(_source,_sink)),
+        /* init */ pLink(pLoop->network().sharedLink(_source,_sink)),
         /* init */ prev(nullptr),
         /* init */ next(nullptr)
         {

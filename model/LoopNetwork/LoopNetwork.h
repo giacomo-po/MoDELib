@@ -260,8 +260,12 @@ namespace model
         }
         
         /**********************************************************************/
-        std::shared_ptr<LinkType> pLink(const SharedNodePtrType& nI, const SharedNodePtrType& nJ) const
-        {
+        std::shared_ptr<LinkType> sharedLink(const SharedNodePtrType& nI, const SharedNodePtrType& nJ) const
+        {/*!\param[in] nI node I
+          * \param[in] nJ node J
+          * \returns a shared_ptr to a NetworkLink nI->nJ (or nJ->nI). If no link
+          * exists, a new link is created and returned via shared_ptr.
+          */
             typename LoopLinkContainerType::const_iterator iterIJ(loopLinks().find(std::make_pair(nI->sID,nJ->sID)));
             if(iterIJ!=loopLinks().end())
             {

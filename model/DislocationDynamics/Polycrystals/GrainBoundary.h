@@ -24,6 +24,7 @@
 #include <model/LatticeMath/CSL.h>
 #include <model/LatticeMath/DSCL.h>
 #include <model/DislocationDynamics/StressStraight.h>
+#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 
 
 namespace model
@@ -47,6 +48,11 @@ namespace model
         typedef std::map<int,const GrainType* const> GrainContainerType;
         typedef std::map<int,LatticePlane> LatticePlaneContainerType;
         typedef Eigen::Matrix<double,2*dim+1,1> BGkeyType;
+        
+        
+//        static_assert(false,"NEED TO CREATE GLIDE PLANES FOR DSCL AND CSL, AND ADD THEM TO NODES WHICH ARE ON THE GB. THEN ADD THEM TO THE NODES. CAREFUL THAT REMOVE LOOP LINK DO NOT REMOVE THESE GLIDE PLANES");
+//        static_assert(false,"IN DDVTK SHOW THE MESH FOR THE GBs, and let the GP SHADE THE PLANE");
+        
         
         /**********************************************************************/
         void storeLatticePlane(const Grain<dim>& grain,

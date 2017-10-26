@@ -57,7 +57,6 @@ namespace model
         /* init */ glidePlaneObserver(gpo),
         /* init */ grain(grain_in),
         /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain,P,N)),
-//        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh).reducedPlaneMeshIntersection(this->P.cartesian(),this->n.cartesian().normalized(),grain.grainID))
         /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P.cartesian(),this->n.cartesian().normalized(),grain.grainID))
         {
             model::cout<<"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;
@@ -66,7 +65,6 @@ namespace model
         
         /**********************************************************************/
         GlidePlane(const GlidePlane<LoopType>& other) = delete;
-//        GlidePlane(const GlidePlane<LoopType>& other) = delete;
         
         /**********************************************************************/
         ~GlidePlane()

@@ -22,7 +22,7 @@
 
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/Geometry/Splines/SplineNode.h>
-#include <model/DislocationDynamics/DislocationSharedObjects.h>
+//#include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/Math/GramSchmidt.h>
 #include <model/Mesh/Simplex.h>
 #include <model/LatticeMath/LatticeMath.h>
@@ -89,7 +89,7 @@ namespace model
         bool _isGlissile;
         
         
-        DislocationSharedObjects<dim> shared;
+//        DislocationSharedObjects<dim> shared;
         
 //        std::set<const Grain<dim>*> grainSet; // this must be defined before p_Simplex
         
@@ -126,7 +126,7 @@ namespace model
         {
             //std::cout<<"DislocationNode "<<this->sID<<" get_includingSimplex "<<std::flush;
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
-            if (DislocationSharedObjects<dim>::use_boundary)
+            if (this->network().use_boundary)
             {
                 //std::cout<<" 1 "<<std::flush;
                 
@@ -134,7 +134,7 @@ namespace model
                 {
                     //std::cout<<" 2 "<<std::flush;
                     
-                    temp=DislocationSharedObjects<dim>::mesh.search(this->get_P());
+                    temp=this->network().mesh.search(this->get_P());
                 }
                 else
                 {
@@ -148,13 +148,13 @@ namespace model
                         {
                             //std::cout<<" 5 "<<std::flush;
                             
-                            temp=DislocationSharedObjects<dim>::mesh.searchRegion((*nodeConfinement().grains().begin())->grainID,this->get_P());
+                            temp=this->network().mesh.searchRegion((*nodeConfinement().grains().begin())->grainID,this->get_P());
                         }
                         else
                         {
                             //std::cout<<" 6 "<<std::flush;
                             
-                            temp=DislocationSharedObjects<dim>::mesh.searchRegionWithGuess(this->get_P(),guess);
+                            temp=this->network().mesh.searchRegionWithGuess(this->get_P(),guess);
                         }
                     }
                     else
@@ -162,7 +162,7 @@ namespace model
                         //std::cout<<" 7 "<<std::flush;
                         
                         std::cout<<"WARNING: CHECK THAT NODE IS ON THE REGION BOUNDARY"<<std::endl;
-                        temp=DislocationSharedObjects<dim>::mesh.searchWithGuess(this->get_P(),guess);
+                        temp=this->network().mesh.searchWithGuess(this->get_P(),guess);
                     }
                 }
                 //std::cout<<" 8 "<<std::flush;
@@ -238,7 +238,7 @@ namespace model
                         const double& vrc) :
         /* base constructor */ NodeBaseType(ln,Pin),
         /* base constructor */ DislocationNodeConfinementType(this),
-        //        /* init list        */ grain(shared.poly.grain(grainID)),
+        //        /* init list        */ grain(this->network().poly.grain(grainID)),
         //        /* init list        */ L(grain.latticeVector(Pin)),
         /* init list        */ _isGlissile(true),
         /* init list        */ p_Simplex(get_includingSimplex((const Simplex<dim,dim>*) NULL)),
@@ -246,7 +246,7 @@ namespace model
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(vrc),
         /* init list        */ _isOnBoundingBox(false),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero()),
+        /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero()),
         /* init list        */ C(Pin)
         {/*! Constructor from DOF
           */
@@ -264,7 +264,7 @@ namespace model
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
         /* init list        */ _isOnBoundingBox(false),
-        /* init list        */ boundaryNormal(shared.use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero()),
+        /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero()),
         /* init list        */ C(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
           */
@@ -524,7 +524,7 @@ namespace model
             }
             
             NodeBaseType::set_P(P_in);
-            if(shared.use_boundary) // using confining mesh
+            if(this->network().use_boundary) // using confining mesh
             {
                 p_Simplex=get_includingSimplex(p_Simplex);
                 boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
@@ -691,7 +691,7 @@ namespace model
                 // Make sure that new position is at intersection of glidePlanes
                 const VectorDim newP=nodeConfinement().snapToGlidePlaneIntersection(this->get_P()+dX);
                 
-                if(shared.use_boundary)
+                if(this->network().use_boundary)
                 {// using confining mesh
                     
                     if(_isOnBoundingBox || nodeConfinement().grains().size()>1)
@@ -704,7 +704,7 @@ namespace model
                         
                         //                        std::set<const Simplex<dim,dim>*> path;
                         //                        const bool searchAllRegions=false;
-                        std::pair<bool,const Simplex<dim,dim>*> temp(DislocationSharedObjects<dim>::mesh.searchRegionWithGuess(newP,p_Simplex));
+                        std::pair<bool,const Simplex<dim,dim>*> temp(this->network().mesh.searchRegionWithGuess(newP,p_Simplex));
                         if(temp.first)
                         {// newP is inside box
                             set_P(newP);

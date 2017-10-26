@@ -48,7 +48,7 @@
 #include <model/DislocationDynamics/DislocationNode.h>
 #include <model/DislocationDynamics/DislocationSegment.h>
 #include <model/DislocationDynamics/DislocationLoop.h>
-#include <model/DislocationDynamics/DislocationSharedObjects.h>
+//#include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/DislocationNetworkRemesh.h>
 #include <model/DislocationDynamics/Junctions/DislocationJunctionFormation.h>
@@ -64,9 +64,10 @@
 #include <model/DislocationDynamics/DDtimeIntegrator.h>
 #include <model/Threads/EqualIteratorRange.h>
 #include <model/DislocationDynamics/BoundingLineSegments.h>
-
-//#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
+#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
 //#include <model/DislocationDynamics/Polycrystals/GrainBoundaryDissociation.h>
+#include <model/DislocationDynamics/BVP/BVPsolver.h>
+#include <model/DislocationDynamics/Polycrystals/Polycrystal.h>
 
 
 namespace model
@@ -98,9 +99,10 @@ namespace model
         typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
         typedef typename ParticleSystemType::SpatialCellType SpatialCellType;
         typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
-        typedef DislocationSharedObjects<dim> DislocationSharedObjectsType;
-        typedef typename DislocationSharedObjectsType::BvpSolverType BvpSolverType;
-        typedef typename DislocationSharedObjectsType::BvpSolverType::FiniteElementType FiniteElementType;
+//        typedef DislocationSharedObjects<dim> DislocationSharedObjectsType;
+//        typedef typename DislocationSharedObjectsType::BvpSolverType BvpSolverType;
+        typedef BVPsolver<dim,2> BvpSolverType;
+        typedef typename BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::ElementType ElementType;
         typedef typename LoopNetworkType::IsNodeType IsNodeType;
         //        typedef DislocationNodeContraction<DislocationNetworkType> ContractionType;
@@ -142,23 +144,23 @@ namespace model
         {
             
             //! Update the BonudaryDislocationNetwork
-            if(shared.use_bvp)
+            if(use_bvp)
             {
-                //                if(shared.use_virtualSegments) OLD APPROACH WITH BOUNDARY DISLOCATION NETWORK
+                //                if(use_virtualSegments) OLD APPROACH WITH BOUNDARY DISLOCATION NETWORK
                 //                {
                 //                    const auto t1= std::chrono::system_clock::now();
                 //                    model::cout<<"		Updating virtual segments..."<<std::flush;
-                //                    shared.bdn.update(*this);
-                //                    model::cout<<" ("<<shared.bdn.size()<<" boundary segments)"
+                //                    bdn.update(*this);
+                //                    model::cout<<" ("<<bdn.size()<<" boundary segments)"
                 //                    /*       */<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
                 //                }
                 
                 // enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
-                if (!(runID%shared.use_bvp))
+                if (!(runID%use_bvp))
                 {
                     model::cout<<"		Updating elastic bvp... "<<std::endl;
-                    //                shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,4>(*this);
-                    shared.bvpSolver.template assembleAndSolve<DislocationNetworkType,37>(*this);
+                    //                bvpSolver.template assembleAndSolve<DislocationNetworkType,4>(*this);
+                    bvpSolver.template assembleAndSolve<DislocationNetworkType,37>(*this);
                 }
                 
             }
@@ -236,7 +238,7 @@ namespace model
             update_BVP_Solution();
             
 #ifdef DislocationNucleationFile
-            if(shared.use_bvp && !(runID%shared.use_bvp))
+            if(use_bvp && !(runID%use_bvp))
             {
                 nucleateDislocations(); // needs to be called before updateQuadraturePoints()
                 updateQuadraturePoints();
@@ -278,11 +280,13 @@ namespace model
             //            DislocationCrossSlip<DislocationNetworkType>(*this);
             
             
-            //            GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
+//                        GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
+            GrainBoundaryTransmission<DislocationNetworkType>(*this);
+
             //
             //            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
             
-            //            shared.poly.reConnectGrainBoundarySegments(*this); // this makes stressGauss invalid, so must follw other GB operations
+            //            poly.reConnectGrainBoundarySegments(*this); // this makes stressGauss invalid, so must follw other GB operations
             
             
             //! 11- detect loops that shrink to zero and expand as inverted loops
@@ -296,7 +300,6 @@ namespace model
             
             //! 13- Node redistribution
             DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(runID);
-            //remesh();
             
             //! 9- Contract segments of zero-length
             //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
@@ -328,14 +331,22 @@ namespace model
     public:
         
         //! The object conataing shared data
-        DislocationSharedObjectsType shared;
+//        DislocationSharedObjectsType shared;
         
-        //! The number of simulation steps taken by the next call to runSteps()
+        MatrixDimD externalStress;
+
+        bool use_boundary;
+        //        static bool use_meshRegions;
         
-        //        //! The simulation time run run foby the next call to runTime()
-        //        double timeWindow;
+        unsigned int use_bvp;
+        bool use_virtualSegments;
+
         
-        //! The accumulated plastic distortion
+        SimplicialMesh<dim> mesh;
+        
+        Polycrystal<dim> poly;
+
+        BvpSolverType bvpSolver;
         
         /**********************************************************************/
         DislocationNetwork(int& argc, char* argv[]) :
@@ -353,7 +364,13 @@ namespace model
         /* init list  */ Nsteps(0),
         //        /* init list  */ timeWindow(0.0),
         /* init list  */ _plasticDistortion(MatrixDimD::Zero()),
-        /* init list  */ _plasticDistortionRate(MatrixDimD::Zero())
+        /* init list  */ _plasticDistortionRate(MatrixDimD::Zero()),
+        /* init list  */ externalStress(MatrixDimD::Zero()),
+        /* init list  */ use_boundary(false),
+        /* init list  */ use_bvp(0),
+        /* init list  */ use_virtualSegments(true),
+        /* init list  */ poly(mesh),
+        /* init list  */ bvpSolver(mesh)
         {
             ParticleSystemType::initMPI(argc,argv);
             read("./","DDinput.txt");
@@ -693,7 +710,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",DislocationEnergy<dim>::use_multipole);
             
             // Eternal Stress
-            EDR.readMatrixInFile(fullName.str(),"externalStress",shared.externalStress);
+            EDR.readMatrixInFile(fullName.str(),"externalStress",externalStress);
             
             //dt=0.0;
             EDR.readScalarInFile(fullName.str(),"timeIntegrationMethod",timeIntegrationMethod);
@@ -814,35 +831,35 @@ namespace model
             //            }
             
             // Mesh and BVP
-            EDR.readScalarInFile(fullName.str(),"use_boundary",shared.use_boundary);
-            if (shared.use_boundary)
+            EDR.readScalarInFile(fullName.str(),"use_boundary",use_boundary);
+            if (use_boundary)
             {
-                //                EDR.readScalarInFile(fullName.str(),"use_meshRegions",shared.use_meshRegions);
+                //                EDR.readScalarInFile(fullName.str(),"use_meshRegions",use_meshRegions);
                 
                 int meshID(0);
                 EDR.readScalarInFile(fullName.str(),"meshID",meshID);
-                shared.mesh.readMesh(meshID);
-                assert(shared.mesh.simplices().size() && "MESH IS EMPTY.");
+                mesh.readMesh(meshID);
+                assert(mesh.simplices().size() && "MESH IS EMPTY.");
                 
                 // Initialize Polycrystal
-                shared.poly.init(fullName.str());
+                poly.init(fullName.str());
                 
-                EDR.readScalarInFile(fullName.str(),"use_virtualSegments",shared.use_virtualSegments);
-                if(shared.use_virtualSegments)
+                EDR.readScalarInFile(fullName.str(),"use_virtualSegments",use_virtualSegments);
+                if(use_virtualSegments)
                 {
                     EDR.readScalarInFile(fullName.str(),"virtualSegmentDistance",LinkType::virtualSegmentDistance);
                 }
                 
-                EDR.readScalarInFile(fullName.str(),"use_bvp",shared.use_bvp);
-                if(shared.use_bvp)
+                EDR.readScalarInFile(fullName.str(),"use_bvp",use_bvp);
+                if(use_bvp)
                 {
-                    EDR.readScalarInFile(fullName.str(),"use_directSolver_FEM",shared.bvpSolver.use_directSolver);
-                    EDR.readScalarInFile(fullName.str(),"solverTolerance",shared.bvpSolver.tolerance);
-                    shared.bvpSolver.init(*this);
+                    EDR.readScalarInFile(fullName.str(),"use_directSolver_FEM",bvpSolver.use_directSolver);
+                    EDR.readScalarInFile(fullName.str(),"solverTolerance",bvpSolver.tolerance);
+                    bvpSolver.init(*this);
                 }
             }
             else{ // no boundary is used, DislocationNetwork is in inifinite medium
-                shared.use_bvp=0;	// never comupute boundary correction
+                use_bvp=0;	// never comupute boundary correction
             }
             
             // Grain Boundary flags
@@ -1114,9 +1131,9 @@ namespace model
           * \returns true if P0 is inside the mesh
           */
             std::pair<bool,const Simplex<dim,dim>*> temp(true,NULL);
-            if (shared.use_boundary)
+            if (use_boundary)
             {
-                temp=shared.mesh.searchWithGuess(P0,guess);
+                temp=mesh.searchWithGuess(P0,guess);
             }
             return temp;
         }
@@ -1164,7 +1181,7 @@ namespace model
 //        void removeBoundarySegments()
 //        {/*! Removes DislocationSegment(s) on the mesh boundary
 //          */
-//            if (shared.use_boundary && !shared.use_bvp)
+//            if (use_boundary && !use_bvp)
 //            {
 //                const auto t0= std::chrono::system_clock::now();
 //                model::cout<<"		Removing DislocationSegments on mesh boundary... ";

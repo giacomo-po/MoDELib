@@ -45,37 +45,6 @@ namespace model
         //! A reference to the DislocationNetwork
         DislocationNetworkType& DN;
         
-    public:
-        
-        static double Lmax;
-        static double Lmin;
-        static double thetaDeg;
-        static double neighborRadius;
-        static short unsigned int use_redistribution;
-        
-        /**********************************************************************/
-        DislocationNetworkRemesh(DislocationNetworkType& DN_in) :
-        /* init list */ DN(DN_in)
-        {
-        }
-        
-        
-        /**********************************************************************/
-        void remesh(const long int& runID)
-        {/*! Performs remeshByContraction and then remeshByExpansion.
-          * This order guarantees that 2-vertex NetworkComponents are expanded.
-          */
-            if (use_redistribution)
-            {
-                if(!(runID%use_redistribution))
-                {
-                    remeshByContraction();
-                    remeshByExpansion();
-                    
-                }
-            }
-        }
-        
         /**********************************************************************/
         void remeshByContraction()
         {/*! Contract edges according to two criteria.
@@ -283,7 +252,7 @@ namespace model
                         //                        if(simplexCheckPair.first)
                         //                        {
                         //                            //                        DN.expand(i,j,expandPoint);
-//                        std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
+                        //                        std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
                         DN.expand(i,j,expandPoint);
                         Nexpanded++;
                         //                        }
@@ -306,31 +275,68 @@ namespace model
             //            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
             for (const auto& linkIter : DN.links())
             {
-                VectorDimD chord(linkIter->second.chord()); // this is sink->get_P() - source->get_P()
+                VectorDimD chord(linkIter.second->chord()); // this is sink->get_P() - source->get_P()
                 double chordLength(chord.norm());
                 if (chordLength<=FLT_EPSILON)
                 {// toBeContracted part
-                    toBeContracted.insert(std::make_pair(chordLength,linkIter->second.nodeIDPair));
+                    toBeContracted.insert(std::make_pair(chordLength,linkIter.second->nodeIDPair));
                 }
             }
             
             // Call Network::contract
-            int nContracted=0;
-            for (std::set<std::pair<double,std::pair<size_t,size_t> > >::const_iterator smallIter=toBeContracted.begin(); smallIter!=toBeContracted.end(); ++smallIter)
+            unsigned int Ncontracted(0);
+            for (const auto& smallIter : toBeContracted)
             {
-                const size_t i(smallIter->second.first);
-                const size_t j(smallIter->second.second);
-                IsNetworkLinkType Lij=DN.link(i,j);
-                if (Lij.first)
+                const size_t i(smallIter.second.first);
+                const size_t j(smallIter.second.second);
+                const IsConstNetworkLinkType Lij(DN.link(i,j));
+                
+                if (Lij.first )
                 {
-                    //DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
-                    nContracted+=DN.contractWithConstraintCheck(DN.node(i),DN.node(j));
+                    Ncontracted+=DN.contract(Lij.second->source,Lij.second->sink);
                 }
             }
-            model::cout<<"("<<nContracted<<" contracted"<<std::flush;
+            model::cout<<"("<<Ncontracted<<" contracted"<<std::flush;
             model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
         }
+        
+    public:
+        
+        static double Lmax;
+        static double Lmin;
+        static double thetaDeg;
+        static double neighborRadius;
+        static short unsigned int use_redistribution;
+        
+        /**********************************************************************/
+        DislocationNetworkRemesh(DislocationNetworkType& DN_in) :
+        /* init list */ DN(DN_in)
+        {
+        }
+        
+        
+        /**********************************************************************/
+        void remesh(const long int& runID)
+        {/*! Performs remeshByContraction and then remeshByExpansion.
+          * This order guarantees that 2-vertex NetworkComponents are expanded.
+          */
+            if (use_redistribution)
+            {
+                if(!(runID%use_redistribution))
+                {
+                    remeshByContraction();
+                    remeshByExpansion();
+                    contract0chordSegments();
+                }
+            }
+        }
+        
+
+        
+
+        
+        
         
         /**********************************************************************/
         void loopInversion(const double& dt)

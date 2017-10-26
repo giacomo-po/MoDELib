@@ -16,6 +16,8 @@
 
 #include <memory>
 #include <set>
+#include <algorithm>    // std::set_intersection, std::sort
+
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -27,7 +29,7 @@
 //#include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/Geometry/Splines/SplineSegment.h>
 #include <model/DislocationDynamics/Materials/Material.h>
-#include <model/DislocationDynamics/DislocationSharedObjects.h>
+//#include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 //#include <model/Geometry/Splines/Intersection/PlanarSplineImplicitization.h>
@@ -48,6 +50,7 @@ namespace model
     template <int _dim, short unsigned int _corder, typename InterpolationType>
     class DislocationSegment : public SplineSegment<DislocationSegment<_dim,_corder,InterpolationType>,
     /*                                              */ _dim, _corder>
+//    /*                                              */ private std::set<const GrainBoundary<dim>*>
     {
         
         
@@ -79,6 +82,7 @@ namespace model
         typedef std::vector<DislocationParticleType*> QuadratureParticleContainerType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
+        typedef std::set<const GrainBoundary<dim>*> GrainBoundaryContainerType;
         
         /******************************************************************/
     private: //  data members
@@ -136,7 +140,7 @@ namespace model
         
         const std::deque<const LatticePlaneBase*> conjugatePlaneNormals;
         
-        DislocationSharedObjects<dim> shared;
+//        DislocationSharedObjects<dim> shared;
         
         static double quadPerLength;
         size_t qOrder;
@@ -256,6 +260,12 @@ namespace model
             
         }
         
+        void updateGrainBonudaries()
+        {
+        
+        }
+        
+        
         
         /******************************************************************/
     public: // member functions
@@ -319,7 +329,43 @@ namespace model
             
         }
         
-
+        /**********************************************************************/
+        std::set<const Grain<dim>*> grains() const
+        {
+            std::set<const Grain<dim>*> temp;
+            std::set_intersection(this->source->grains().begin(),this->source->grains().end(),
+                                  this->  sink->grains().begin(),this->  sink->grains().end(),
+                                  std::inserter(temp,temp.begin()));
+            return temp;
+        }
+        
+        
+        /**********************************************************************/
+        const GrainBoundaryContainerType grainBoundaries() const
+        {
+            GrainBoundaryContainerType temp;
+            
+            std::set<const Grain<dim>*> grns=grains();
+            
+            for(const auto& gr1 : grns)
+            {
+                for(const auto& gr2 : grns)
+                {
+                    if(gr1!=gr2)
+                    {
+                        temp.insert(&this->network().poly.grainBoundary(gr1->grainID,gr2->grainID));
+                    }
+                }
+            
+            }
+            return temp;
+        }
+        
+//        /**********************************************************************/
+//        GrainBoundaryContainerType& grainBoundaries()
+//        {
+//            return *this;
+//        }
         
         /**********************************************************************/
         void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
@@ -370,9 +416,9 @@ namespace model
                 }
                 else // boundary segment
                 {
-                    if(shared.use_bvp) // using FEM correction
+                    if(this->network().use_bvp) // using FEM correction
                     {
-                        if(shared.use_virtualSegments)
+                        if(this->network().use_virtualSegments)
                         {
                             for (unsigned int k=0;k<qOrder;++k)
                             {
@@ -481,13 +527,13 @@ namespace model
           *\returns the stress field at the k-th quandrature point
           */
             
-            MatrixDim temp(quadratureParticleContainer[k]->stress()+shared.externalStress);
-            if(shared.use_bvp)
+            MatrixDim temp(quadratureParticleContainer[k]->stress()+this->network().externalStress);
+            if(this->network().use_bvp)
             {
-                temp += shared.bvpSolver.stress(rgauss.col(k),this->source->includingSimplex());
+                temp += this->network().bvpSolver.stress(rgauss.col(k),this->source->includingSimplex());
             }
             
-            for(const auto& sStraight : shared.poly.grainBoundaryDislocations() )
+            for(const auto& sStraight : this->network().poly.grainBoundaryDislocations() )
             {
                 temp+=sStraight.stress(rgauss.col(k));
             }
@@ -514,7 +560,7 @@ namespace model
             {
                 //! 1- Compute and store stress and PK-force at quadrature points
                 stressGauss.clear();
-                if(!shared.use_bvp && is_boundarySegment())
+                if(!this->network().use_bvp && is_boundarySegment())
                 {
                     pkGauss.setZero(dim,qOrder);
                 }
@@ -658,15 +704,17 @@ namespace model
         /**********************************************************************/
         bool is_boundarySegment() const
         {
-            return (this->source->isBoundaryNode() && this->sink->isBoundaryNode() && this->source->bndNormal().cross(this->sink->bndNormal()).squaredNorm()<FLT_EPSILON);
+            return (   this->source->isBoundaryNode()
+                    && this->sink->isBoundaryNode()
+                    && this->source->bndNormal().cross(this->sink->bndNormal()).squaredNorm()<FLT_EPSILON);
         }
         
-        /**********************************************************************/
-        bool isGrainBoundarySegment() const
-        {
-            return this->source->isGrainBoundaryNode() && this->sink->isGrainBoundaryNode();
-            //            return this->grainBoundarySet.size();
-        }
+//        /**********************************************************************/
+//        bool isGrainBoundarySegment() const
+//        {
+//            return this->source->isGrainBoundaryNode() && this->sink->isGrainBoundaryNode();
+//            //            return this->grainBoundarySet.size();
+//        }
         
         /**********************************************************************/
         Eigen::Matrix<double,dim-1,Ncoeff> hermiteLocalCoefficient() const
@@ -697,7 +745,7 @@ namespace model
         void addToSolidAngleJump(const VectorDim& Pf, const VectorDim& Sf, VectorDim& dispJump) const
         {
             
-            if(is_boundarySegment() && shared.use_virtualSegments)
+            if(is_boundarySegment() && this->network().use_virtualSegments)
             {
                 
                 // first triangle is P1->P2->P3, second triangle is P2->P4->P3

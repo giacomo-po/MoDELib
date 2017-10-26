@@ -37,7 +37,7 @@ namespace model
 
         static unsigned int use_bvp;
 		static bool use_virtualSegments;
-		static Eigen::Matrix<double,dim,dim> externalStress;
+//		static Eigen::Matrix<double,dim,dim> externalStress;
 
         static SimplicialMesh<dim> mesh;
         /*!\todo Fix the Segmentation fault that takes place when mesh is destroyed.

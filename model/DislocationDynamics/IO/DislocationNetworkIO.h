@@ -215,9 +215,9 @@ namespace model
 
                 
                 LoopType::set_count(loopID);
-//                const LatticeVector<dim> B=DN.shared.poly.grain(grainID).latticeVector(row.template segment<dim>(0*dim).transpose());
-//                const LatticePlaneBase N(DN.shared.poly.grain(grainID).reciprocalLatticeDirection(row.template segment<dim>(1*dim).transpose())); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
-//                const LatticeVector<dim> P=DN.shared.poly.grain(grainID).latticeVector(row.template segment<dim>(2*dim).transpose());
+//                const LatticeVector<dim> B=DN.poly.grain(grainID).latticeVector(row.template segment<dim>(0*dim).transpose());
+//                const LatticePlaneBase N(DN.poly.grain(grainID).reciprocalLatticeDirection(row.template segment<dim>(1*dim).transpose())); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
+//                const LatticeVector<dim> P=DN.poly.grain(grainID).latticeVector(row.template segment<dim>(2*dim).transpose());
                 const VectorDimD B=row.template segment<dim>(0*dim).transpose();
                 const VectorDimD N=row.template segment<dim>(1*dim).transpose(); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
                 const VectorDimD P=row.template segment<dim>(2*dim).transpose();
@@ -427,9 +427,9 @@ namespace model
 
             if(outputMeshDisplacement)
             {
-                if(DN.shared.use_bvp)
+                if(DN.use_bvp)
                 {
-                    //                    if (!(DN.runningID()%DN.shared.use_bvp))
+                    //                    if (!(DN.runningID()%DN.use_bvp))
                     //                    {
                     const auto t0=std::chrono::system_clock::now();
                     model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
@@ -438,7 +438,7 @@ namespace model
                     model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
                     
                     std::deque<FieldPointType> fieldPoints; // the container of field points
-                    for (const auto& sIter : DN.shared.mesh.template observer<0>())
+                    for (const auto& sIter : DN.mesh.template observer<0>())
                     {
                         if(sIter.second->isBoundarySimplex())
                         {
@@ -453,7 +453,7 @@ namespace model
                         Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
                         
                         // Sum solid angle jump
-                        if (DN.shared.use_virtualSegments) // solid-angle jump of virtual segments
+                        if (DN.use_virtualSegments) // solid-angle jump of virtual segments
                         {
                             for(const auto& segment : DN.links())
                             {
@@ -462,8 +462,8 @@ namespace model
                         }
                         
                         // Sum FEM solution
-                        const size_t femID=DN.shared.bvpSolver.finiteElement().mesh2femIDmap().at(node.gID)->gID;
-                        nodeDisp+=DN.shared.bvpSolver.displacement().dofs(femID);
+                        const size_t femID=DN.bvpSolver.finiteElement().mesh2femIDmap().at(node.gID)->gID;
+                        nodeDisp+=DN.bvpSolver.displacement().dofs(femID);
                         
                         // output
                         d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
@@ -474,7 +474,7 @@ namespace model
             }
 
             
-            if (DN.shared.use_bvp && outputFEMsolution && !(DN.runningID()%DN.shared.use_bvp))
+            if (DN.use_bvp && outputFEMsolution && !(DN.runningID()%DN.use_bvp))
             {
                 /**************************************************************************/
                 // Output displacement and stress on external mesh faces
@@ -483,7 +483,7 @@ namespace model
                 model::SequentialOutputFile<'U',1>::set_increment(outputFrequency); // Vertices_file;
                 model::SequentialOutputFile<'U',true> u_file;
                 model::cout<<"		writing to U/U_"<<u_file.sID<<".txt"<<std::flush;
-                u_file<<DN.shared.bvpSolver.displacement().onBoundary();
+                u_file<<DN.bvpSolver.displacement().onBoundary();
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
                 
                 const auto t1=std::chrono::system_clock::now();
@@ -491,7 +491,7 @@ namespace model
                 model::SequentialOutputFile<'S',1>::set_increment(outputFrequency); // Vertices_file;
                 model::SequentialOutputFile<'S',true> s_file;
                 model::cout<<"		writing to S/S_"<<s_file.sID<<".txt"<<std::flush;
-                s_file<<DN.shared.bvpSolver.stress().onBoundary();
+                s_file<<DN.bvpSolver.stress().onBoundary();
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
             }
             
@@ -534,9 +534,9 @@ namespace model
                 
             }
             
-            if(DN.shared.use_bvp)
+            if(DN.use_bvp)
             {
-                f_file<<std::setprecision(15)<<std::scientific<<DN.shared.bvpSolver.loadController().output(DN);
+                f_file<<std::setprecision(15)<<std::scientific<<DN.bvpSolver.loadController().output(DN);
             }
             
 #ifdef userOutputFile

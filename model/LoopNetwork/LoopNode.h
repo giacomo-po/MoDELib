@@ -105,9 +105,7 @@ namespace model
         static int verboseLevel;
         
         
-        /**********************************************************************/
-
-        LoopNode(const LoopNode&) =delete;
+        
     
         /**********************************************************************/
         LoopNode(LoopNetworkType* const ln) :
@@ -125,6 +123,10 @@ namespace model
         }
         
         /**********************************************************************/
+        LoopNode(const LoopNode&) =delete;
+
+        
+        /**********************************************************************/
         ~LoopNode()
         {
             VerboseLoopNode(1,"Destroying LoopNode "<<name()<<std::endl);
@@ -139,6 +141,13 @@ namespace model
             assert(success==1 && "CANNOT ERESE SELF FROM NEIGHBORHOOD.");
 
         }
+        
+        /**********************************************************************/
+        const LoopNetworkType& network() const
+        {
+            return *loopNetwork;
+        }
+
         
         /**********************************************************************/
         size_t snID() const

@@ -54,14 +54,14 @@ namespace model
     public:
         
 
-        const LoopNetworkType& loopNetwork;
+//        const LoopNetworkType& loopNetwork;
 
         /**********************************************************************/
         Loop(LoopNetworkType* const loopNetwork_in,
              const FlowType& f) :
         /* init */ _loopNetwork(loopNetwork_in),
-        /* init */ _flow(f),
-        /* init */ loopNetwork(*_loopNetwork)
+        /* init */ _flow(f)
+//        /* init */ loopNetwork(*_loopNetwork)
         {
             std::cout<<"Constructing Loop "<<this->sID<<std::endl;
             _loopNetwork->addLoop(this->p_derived());
@@ -72,8 +72,8 @@ namespace model
         /**********************************************************************/
         Loop(const Loop<Derived>& other) :
         /* init */ _loopNetwork(other._loopNetwork),
-        /* init */ _flow(other._flow),
-        /* init */ loopNetwork(*_loopNetwork)
+        /* init */ _flow(other._flow)
+//        /* init */ loopNetwork(*_loopNetwork)
 //        /* init */ loopNetwork(*_loopNetwork)
         {
             std::cout<<"Copying Loop: "<<this->sID<<std::endl;
@@ -91,6 +91,12 @@ namespace model
             std::cout<<"Destroying Loop "<<this->sID<<std::endl;
             _loopNetwork->removeLoop(this->p_derived());
 //            LoopObserverType::removeLoop(this->p_derived());
+        }
+        
+        /**********************************************************************/
+        const LoopNetworkType& network() const
+        {
+            return *_loopNetwork;
         }
         
 //        /**********************************************************************/
