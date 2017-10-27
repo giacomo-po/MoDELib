@@ -35,7 +35,7 @@ namespace model
     template <typename NetworkType>
     class GrainBoundary :
     /* base */ private std::map<int,const Grain<NetworkType>* const>,
-    /* base */ private std::map<int,LatticePlane>
+    /* base */ private std::map<int,GlidePlane<NetworkType>>
     {
         static constexpr int dim=NetworkType::dim;
         typedef MeshRegionBoundary<Simplex<dim,dim-1> > MeshRegionBoundaryType;
@@ -47,7 +47,7 @@ namespace model
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef Grain<NetworkType> GrainType;
         typedef std::map<int,const GrainType* const> GrainContainerType;
-        typedef std::map<int,LatticePlane> LatticePlaneContainerType;
+        typedef std::map<int,GlidePlane<NetworkType>> GlidePlaneContainerType;
         typedef Eigen::Matrix<double,2*dim+1,1> BGkeyType;
         
         
@@ -56,7 +56,8 @@ namespace model
         
         
         /**********************************************************************/
-        void storeLatticePlane(const Grain<NetworkType>& grain,
+        void storeLatticePlane(NetworkType& dn,
+                               const Grain<NetworkType>& grain,
                                const VectorDimD& normal)
         {
             //std::cout<<"storeLatticePlane"<<std::endl;
@@ -103,24 +104,20 @@ namespace model
             //std::cout<<"here 3"<<std::endl;
 
             
-            const auto temp = LatticePlaneContainerType::emplace(std::piecewise_construct,
+            const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
                                                                  std::forward_as_tuple(grain.grainID),
-                                                                 std::forward_as_tuple(L0,pb));
-            
-            //std::cout<<"here 4"<<std::endl;
-
-            
+                                                                 std::forward_as_tuple(&dn,dn.mesh,grain,L0.cartesian(),pb.cartesian()));
             assert(temp.first->second.n.cartesian().normalized().cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
             
         }
         
         /**********************************************************************/
-        void createLatticePlanes()
+        void createLatticePlanes(NetworkType& dn)
         {
             //std::cout<<"createLatticePlanes"<<std::endl;
 
             
-            LatticePlaneContainerType::clear();
+            GlidePlaneContainerType::clear();
             const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
             for(const auto& tet : triangle.parents())
             {
@@ -128,7 +125,7 @@ namespace model
                 const VectorDimD outNormal=tet->nda.col(faceID);
                 const double outNorm(outNormal.norm());
                 assert(outNorm>FLT_EPSILON && "Simplex normal has zero norm.");
-                storeLatticePlane(grain(tet->region->regionID),outNormal/outNorm);
+                storeLatticePlane(dn,grain(tet->region->regionID),outNormal/outNorm);
             }
             
             // Check that all tringle vertices are contained by both GB planes
@@ -392,11 +389,10 @@ namespace model
         
         
         /**********************************************************************/
-                template<typename PolycrystalType>
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
                       Grain<NetworkType>& grainFirst,
                       Grain<NetworkType>& grainSecond,
-                      PolycrystalType& poly) :
+                      NetworkType& dn) :
         /* init */ _csl(grainFirst,grainSecond),
         /* init */ _dscl(grainFirst,grainSecond),
         /* init */ _crystallographicRotationAxis(VectorDimD::Zero()),
@@ -409,7 +405,7 @@ namespace model
             model::cout<<greenBoldColor<<"Creating GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
             GrainContainerType::emplace(grainFirst.grainID,&grainFirst);
             GrainContainerType::emplace(grainSecond.grainID,&grainSecond);
-            initializeGrainBoundary(poly);
+            initializeGrainBoundary(dn);
             grainFirst.emplace(grainBndID,this);
             grainSecond.emplace(grainBndID,this);
 
@@ -428,7 +424,7 @@ namespace model
         }
         
         /**********************************************************************/
-        const std::map<int,LatticePlane>& latticePlanes() const
+        const std::map<int,GlidePlane<NetworkType>>& latticePlanes() const
         {
             return *this;
         }
@@ -440,16 +436,15 @@ namespace model
         }
         
         /**********************************************************************/
-        template<typename PolycrystalType>
-        void initializeGrainBoundary(PolycrystalType& poly)
+        void initializeGrainBoundary(NetworkType& dn)
         {
 //            model::cout<<yellowColor<<"GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
             _csl.update();
             _dscl.update();
             computeCrystallographicRotationAxis();
-            createLatticePlanes();
+            createLatticePlanes(dn);
 //            findGrainBoundaryType(poly.grainBoundaryTypes());
-            populateGBdislocations(poly.grainBoundaryDislocations(),poly.mesh);
+            populateGBdislocations(dn.poly.grainBoundaryDislocations(),dn.poly.mesh);
             
             //                grain(gb.first.second).emplace(gb.first,&gb.second);
         }

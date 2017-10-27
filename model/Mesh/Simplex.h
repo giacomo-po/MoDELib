@@ -73,6 +73,12 @@ namespace model
         {
             return BoundarySimplex<dim,dim-order>::outNormal(*this);
         }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dim,1> outNormal(const int& rID) const
+        {
+            return BoundarySimplex<dim,dim-order>::outNormal(*this,rID);
+        }
     };
     
     /**************************************************************************/
@@ -189,6 +195,12 @@ namespace model
         Eigen::Matrix<double,dim,1> outNormal() const
         {
             return BoundarySimplex<dim,dim-order>::outNormal(*this);
+        }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dim,1> outNormal(const int& rID) const
+        {
+            return BoundarySimplex<dim,dim-order>::outNormal(*this,rID);
         }
         
     };

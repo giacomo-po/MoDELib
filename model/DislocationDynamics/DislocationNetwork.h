@@ -842,7 +842,7 @@ namespace model
                 assert(mesh.simplices().size() && "MESH IS EMPTY.");
                 
                 // Initialize Polycrystal
-                poly.init(fullName.str());
+                poly.init(*this,fullName.str());
                 
                 EDR.readScalarInFile(fullName.str(),"use_virtualSegments",use_virtualSegments);
                 if(use_virtualSegments)

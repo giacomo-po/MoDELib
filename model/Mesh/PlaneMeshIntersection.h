@@ -118,13 +118,13 @@ namespace model
                         if(pEI.second[0].second==nullptr)
                         {// intersection within edge
                             temp.emplace_back(pEI.first,pEI.second[0].first);
-                            intersectionStep(P0,N,validSiblings(*pEI.first,rID),tested,temp,rID);
+                            intersectionStep(P0,N,validSiblings(*pEI.first,rID,N),tested,temp,rID);
                         }
                         else
                         {// intersection at node
                             temp.emplace_back(pEI.first,pEI.second[0].first);
                             markParents(*pEI.second[0].second,tested);
-                            intersectionStep(P0,N,validUncles(*pEI.second[0].second,rID),tested,temp,rID);
+                            intersectionStep(P0,N,validUncles(*pEI.second[0].second,rID,N),tested,temp,rID);
                         }
                         
                         break;
@@ -137,7 +137,7 @@ namespace model
                         
                         temp.emplace_back(pEI.first,pEI.second[1].first);
                         markParents(*pEI.second[1].second,tested);
-                        intersectionStep(P0,N,validUncles(*pEI.second[1].second,rID),tested,temp,rID);
+                        intersectionStep(P0,N,validUncles(*pEI.second[1].second,rID,N),tested,temp,rID);
                         
                         break;
                     }
@@ -166,14 +166,17 @@ namespace model
         
         /**********************************************************************/
         static SiblingsContainerType validSiblings(const Simplex<dim,dim-2>& edge,
-                                                   const int& rID)
+                                                   const int& rID,
+                                                   const VectorDim& N)
         {
             
             SiblingsContainerType siblings;
             for(const auto& parent : edge.parents())
             {
                 if(  (parent->isBoundarySimplex() || parent->isRegionBoundarySimplex())
-                   && parent->isInRegion(rID))
+                   && parent->isInRegion(rID)
+                   && parent->outNormal(rID).cross(N).norm()>FLT_EPSILON
+                   )
                 {
                     for(int c=0; c<ParentSimplexType::nFaces;++c)
                     {
@@ -184,11 +187,13 @@ namespace model
             
             return siblings;
         }
-        
+
+
         
         /**********************************************************************/
         static SiblingsContainerType validUncles(const Simplex<dim,0>& vertex,
-                                                 const int& rID)
+                                                 const int& rID,
+                                                 const VectorDim& N)
         {
             
             // Collect triangles attached to vertex
@@ -206,7 +211,8 @@ namespace model
             for(const auto& grandParent : grandParents)
             {
                 if(  (grandParent->isBoundarySimplex() || grandParent->isRegionBoundarySimplex())
-                   && grandParent->isInRegion(rID))
+                   && grandParent->isInRegion(rID)
+                   && grandParent->outNormal(rID).cross(N).norm()>FLT_EPSILON)
                 {
                     for(int c=0; c<Simplex<dim,dim-1>::nFaces;++c)
                     {
@@ -230,8 +236,11 @@ namespace model
             std::deque<std::pair<const EdgeSimplexType*,RootType>> rootDeq;
             for(const auto& edge : edgeContainer)
             {
+                
+                
                 if(tested.find(edge)==tested.end())
                 {
+                    
                     RootContainerType root=planeEdgeIntersection(P0,N,*edge,tested);
                     
                     switch (root.size())
@@ -267,7 +276,7 @@ namespace model
                         
                         temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
                         markParents(*rootDeq[0].second.second,tested);
-                        intersectionStep(P0,N,validUncles(*rootDeq[0].second.second,rID),tested,temp,rID);
+                        intersectionStep(P0,N,validUncles(*rootDeq[0].second.second,rID,N),tested,temp,rID);
                         
                     }
                     else
@@ -275,13 +284,13 @@ namespace model
                         if(rootDeq[0].second.second==nullptr)
                         {// intersection along edge
                             temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
-                            intersectionStep(P0,N,validSiblings(*rootDeq[0].first,rID),tested,temp,rID);
+                            intersectionStep(P0,N,validSiblings(*rootDeq[0].first,rID,N),tested,temp,rID);
                         }
                         else
                         {// intersection at node
                             temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
                             markParents(*rootDeq[0].second.second,tested);
-                            intersectionStep(P0,N,validUncles(*rootDeq[0].second.second,rID),tested,temp,rID);
+                            intersectionStep(P0,N,validUncles(*rootDeq[0].second.second,rID,N),tested,temp,rID);
                             
                         }
                         
@@ -289,8 +298,20 @@ namespace model
                 }
                 else
                 {
-                    temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
-                    intersectionStep(P0,N,validSiblings(*rootDeq[0].first,rID),tested,temp,rID);
+//                    temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
+//                    intersectionStep(P0,N,validSiblings(*rootDeq[0].first,rID,N),tested,temp,rID);
+                    if(rootDeq[0].second.second==nullptr)
+                    {// intersection along edge
+                        temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
+                        intersectionStep(P0,N,validSiblings(*rootDeq[0].first,rID,N),tested,temp,rID);
+                    }
+                    else
+                    {// intersection at node
+                        temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
+                        markParents(*rootDeq[0].second.second,tested);
+                        intersectionStep(P0,N,validUncles(*rootDeq[0].second.second,rID,N),tested,temp,rID);
+                        
+                    }
                 }
             }
             
@@ -313,11 +334,15 @@ namespace model
                 {
                     if(edge.second->isInRegion(rID))
                     {
-                        temp=std::make_pair(edge.second,planeEdgeIntersection(P0,n,*edge.second,tested));
+                        if(edge.second->outNormal(rID).cross(n).norm()>FLT_EPSILON)
+                        {
+                            temp=std::make_pair(edge.second,planeEdgeIntersection(P0,n,*edge.second,tested));
+                            
+                            if(temp.second.size())
+                            { // first intersection found
+                                break;
+                            }
                         
-                        if(temp.second.size())
-                        { // first intersection found
-                            break;
                         }
                     }
                     
@@ -383,7 +408,7 @@ namespace model
             {
                 if (fabs(numCheck)>meshIntersectionTol)
                 {// edge is parallel to plane, no intersection
-                    
+
                 }
                 else
                 {// edge is coplanar

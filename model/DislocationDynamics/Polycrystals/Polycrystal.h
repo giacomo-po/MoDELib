@@ -72,7 +72,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void init(const std::string& fullName)
+        void init(NetworkType& dn, const std::string& fullName)
         {
             
             
@@ -116,52 +116,9 @@ namespace model
                                           std::forward_as_tuple(rgnBnd.second,
                                                                 grain(rgnBnd.first.first),
                                                                 grain(rgnBnd.first.second),
-                                                                *this));
-                //model::cout<<"mesh region "<<rIter.second->regionID<<" contains "<<rIter.second->size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
+                                                                dn));
             }
             
-            //Material<Isotropic>::select(materialZ);
-            
-            //            for(auto& gr : grains())
-            //            {
-            //                gr.second.selectMaterial(materialZ);
-            //
-            //                Eigen::Matrix<double,dim,dim> C2Gtemp(Eigen::Matrix<double,dim,dim>::Identity());
-            //                EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
-            //                gr.second.rotate(C2Gtemp);
-            //            }
-            
-            //            for(auto& gr : grains())
-            //            {
-            ////                gr.second.selectMaterial(materialZ);
-            //
-            //                Eigen::Matrix<double,dim,dim> C2Gtemp(Eigen::Matrix<double,dim,dim>::Identity());
-            //                EDR.readMatrixInFile(fullName,"C2G"+std::to_string(gr.second.grainID),C2Gtemp); // crystal-to-global orientation
-            //                for(int i=0;i<3;i++)
-            //                {
-            //                    double c2gNorm(C2Gtemp.row(i).norm());
-            //                    for(int j=0;j<3;j++)
-            //                    {
-            //                        assert(C2Gtemp(i,j)-std::round(C2Gtemp(i,j))==0&&"User must pass C2G matrix in integer form to limit rounding errors");
-            //                        C2Gtemp(i,j)=C2Gtemp(i,j)/c2gNorm;
-            //                    }
-            //                }
-            //
-            //                gr.second.rotate(C2Gtemp);
-            //            }
-            
-            // Initialize GrainBoundary objects
-//            model::cout<<yellowBoldColor<<"Initializing GrainBoundaries"<<defaultColor<<std::endl;
-//            for(auto& gb : grainBoundaries())
-//            {
-//                gb.second.initializeGrainBoundary(*this);
-//            }
-            
-//            for(auto& gb : grainBoundaries())
-//            {
-//                grain(gb.first.first).emplace(gb.first,&gb.second);
-//                grain(gb.first.second).emplace(gb.first,&gb.second);
-//            }
             
             if(grainBoundaryDislocations().size())
             {
