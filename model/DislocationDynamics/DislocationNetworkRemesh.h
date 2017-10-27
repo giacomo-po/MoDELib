@@ -46,6 +46,17 @@ namespace model
         DislocationNetworkType& DN;
         
         /**********************************************************************/
+        bool isSimpleBndSegment(const LinkType& link) const
+        {
+            
+            return    link.source->is_simple()
+            /*  */ && link.  sink->is_simple()
+            /*  */ && link.source->isOnBoundingBox()
+            /*  */ && link.  sink->isOnBoundingBox()
+            /*  */ && link.source->bndNormal().cross(link.sink->bndNormal()).squaredNorm()<FLT_EPSILON;
+        }
+        
+        /**********************************************************************/
         void remeshByContraction()
         {/*! Contract edges according to two criteria.
           */
@@ -72,6 +83,7 @@ namespace model
                      && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
                      && chordLength<Lmin // segment is small
                      )
+                    || isSimpleBndSegment(segment)
                     //|| segment.isSimpleSessile()
                     )
                 {
@@ -114,9 +126,11 @@ namespace model
             for (const auto& linkIter : DN.links())
             {
                 
-                if( linkIter.second->burgers().squaredNorm()
+                if( !linkIter.second->hasZeroBurgers()
                    //&& !linkIter.second->isSimpleSessile())
-                   && !linkIter.second->isSessile())
+                   && !linkIter.second->isSessile()
+                   && !isSimpleBndSegment(*linkIter.second)
+                   )
                     
                 {
                     const VectorDimD chord(linkIter.second->chord()); // this is sink->get_P() - source->get_P()
@@ -252,7 +266,7 @@ namespace model
                         //                        if(simplexCheckPair.first)
                         //                        {
                         //                            //                        DN.expand(i,j,expandPoint);
-                        //                        std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
+                        std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
                         DN.expand(i,j,expandPoint);
                         Nexpanded++;
                         //                        }
@@ -332,9 +346,9 @@ namespace model
             }
         }
         
-
         
-
+        
+        
         
         
         

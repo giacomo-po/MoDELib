@@ -109,12 +109,12 @@ namespace model
             {
                 for (typename NetworkLinkContainerType::const_iterator linkIterA=eir[thread].first;linkIterA!=eir[thread].second;linkIterA++)
                 {
-                    if(linkIterA->second->burgers().squaredNorm()>FLT_EPSILON) // don't loop over zero-Burgers segments
+                    if(!linkIterA->second->hasZeroBurgers()) // don't loop over zero-Burgers segments
                     {
                         for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.links().end();linkIterB++)
                         {
                             if (   linkIterA->second->sID!=linkIterB->second->sID           // don't intersect with itself
-                                && linkIterB->second->burgers().squaredNorm()>FLT_EPSILON   // don't intersect with zero-Burgers segments
+                                && !linkIterB->second->hasZeroBurgers()   // don't intersect with zero-Burgers segments
                                 )
                             {
                                 SegmentSegmentDistance<dim> ssd(linkIterA->second->source->get_P(),

@@ -11,19 +11,6 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-
-
-// profiling
-// http://stackoverflow.com/questions/375913/what-can-i-use-to-profile-c-code-in-linux/378024#378024
-// valgrind --tool=callgrind ./(Your binary)
-// It will generate a file called callgrind.out.x. You can then use kcachegrind tool to read this file. It will give you a graphical analysis of things with results like which lines cost how much.
-
-// http://code.google.com/p/jrfonseca/wiki/Gprof2Dot
-
-// valgrind --tool=callgrind ./DDserial
-// KCachegrind callgrind.out.1378
-
-
 #ifndef model_DISLOCATIONNETWORK_H_
 #define model_DISLOCATIONNETWORK_H_
 
@@ -48,7 +35,6 @@
 #include <model/DislocationDynamics/DislocationNode.h>
 #include <model/DislocationDynamics/DislocationSegment.h>
 #include <model/DislocationDynamics/DislocationLoop.h>
-//#include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/DislocationNetworkRemesh.h>
 #include <model/DislocationDynamics/Junctions/DislocationJunctionFormation.h>
@@ -60,7 +46,6 @@
 #include <model/ParticleInteraction/ParticleSystem.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/ParticleInteraction/SingleFieldPoint.h>
-//#include <model/DislocationDynamics/DislocationNodeContraction.h>
 #include <model/DislocationDynamics/DDtimeIntegrator.h>
 #include <model/Threads/EqualIteratorRange.h>
 #include <model/DislocationDynamics/BoundingLineSegments.h>
@@ -82,11 +67,10 @@ namespace model
     public:
         
         static constexpr int dim=_dim; // make dim available outside class
-        
         typedef DislocationNetwork<dim,corder,InterpolationType> DislocationNetworkType;
         typedef LoopNetwork<DislocationNetworkType> LoopNetworkType;
-        typedef DislocationNode<dim,corder,InterpolationType> NodeType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
-        typedef DislocationSegment<dim,corder,InterpolationType> LinkType; 		// Define "LinkType" so that NetworkTypedefs.h can be used
+        typedef DislocationNode<dim,corder,InterpolationType> NodeType;
+        typedef DislocationSegment<dim,corder,InterpolationType> LinkType;
         typedef DislocationNetworkComponent<NodeType,LinkType> DislocationNetworkComponentType;
         typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
         typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
@@ -99,15 +83,29 @@ namespace model
         typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
         typedef typename ParticleSystemType::SpatialCellType SpatialCellType;
         typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
-//        typedef DislocationSharedObjects<dim> DislocationSharedObjectsType;
-//        typedef typename DislocationSharedObjectsType::BvpSolverType BvpSolverType;
         typedef BVPsolver<dim,2> BvpSolverType;
         typedef typename BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::ElementType ElementType;
         typedef typename LoopNetworkType::IsNodeType IsNodeType;
-        //        typedef DislocationNodeContraction<DislocationNetworkType> ContractionType;
+        typedef DislocationNetworkIO<DislocationNetworkType> DislocationNetworkIOType;
+        //        enum {NdofXnode=NodeType::NdofXnode};
         
-        enum {NdofXnode=NodeType::NdofXnode};
+        int timeIntegrationMethod;
+        bool use_junctions;
+        long int runID;
+        double totalTime;
+        double dt;
+        double vMax;
+        int Nsteps;
+        MatrixDimD _plasticDistortion;
+        MatrixDimD _plasticDistortionRate;
+        MatrixDimD externalStress;
+        bool use_boundary;
+        unsigned int use_bvp;
+        bool use_virtualSegments;
+        SimplicialMesh<dim> mesh;
+        Polycrystal<DislocationNetworkType> poly;
+        BvpSolverType bvpSolver;
         
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
@@ -115,63 +113,25 @@ namespace model
         
     private:
         
-        
-        
-        int timeIntegrationMethod;
-//        bool check_balance;
-//        short unsigned int use_redistribution;
-        bool use_junctions;
-        //        double shearWaveSpeedFraction;
-        
-        long int runID;
-        
-        //        bool use_crossSlip;
-        
-        double totalTime;
-        
-        //        double dx, dt;
-        double dt;
-        double vMax;
-        int Nsteps;
-        
-        MatrixDimD _plasticDistortion;
-        MatrixDimD _plasticDistortionRate;
-        
-        
-        
         /**********************************************************************/
         void update_BVP_Solution()
-        {
-            
-            //! Update the BonudaryDislocationNetwork
+        {/*! Updates bvpSolver using the stress and displacement fields of the
+          *  current DD configuration.
+          */
+            const int quadraturePerTriangle=37;
             if(use_bvp)
             {
-                //                if(use_virtualSegments) OLD APPROACH WITH BOUNDARY DISLOCATION NETWORK
-                //                {
-                //                    const auto t1= std::chrono::system_clock::now();
-                //                    model::cout<<"		Updating virtual segments..."<<std::flush;
-                //                    bdn.update(*this);
-                //                    model::cout<<" ("<<bdn.size()<<" boundary segments)"
-                //                    /*       */<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
-                //                }
-                
-                // enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
                 if (!(runID%use_bvp))
-                {
+                {// enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
                     model::cout<<"		Updating elastic bvp... "<<std::endl;
-                    //                bvpSolver.template assembleAndSolve<DislocationNetworkType,4>(*this);
-                    bvpSolver.template assembleAndSolve<DislocationNetworkType,37>(*this);
+                    bvpSolver.template assembleAndSolve<DislocationNetworkType,quadraturePerTriangle>(*this);
                 }
-                
             }
-            
         }
         
         /**********************************************************************/
         void computeNodaVelocities()
         {
-            //            model::cout<<"		computing noda velocities: "<<std::flush;
-            //          const auto t0=std::chrono::system_clock::now();
             
             switch (timeIntegrationMethod)
             {
@@ -182,7 +142,6 @@ namespace model
                     //                case 1:
                     //                    dt=DDtimeIntegrator<1>::integrate(*this);
                     //                    break;
-                    
                     
                 default:
                     assert(0 && "time integration method not implemented");
@@ -195,24 +154,7 @@ namespace model
                 node.second->applyVelocityFilter(vMax);
             }
             
-            
-            //            double vMax=0.0;
-            //            for(const auto& node : this->nodes())
-            //            {
-            //                const double tempV(node.second->get_V().norm());
-            //                if(node.second->velocityReduction()>std::pow(NodeType::velocityReductionFactor,3))
-            //                {
-            //                    vMax=(tempV>vMax? tempV : vMax);
-            //                }
-            //
-            //            }
-            
-            //            model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
-            //            model::cout<<std::setprecision(3)<<std::scientific<<" vmax/cs="<<vmax/Material<Isotropic>::cs;
             model::cout<<std::setprecision(3)<<std::scientific<<"		dt="<<dt<<std::endl;
-            //            model::cout<<std::setprecision(3)<<std::scientific<<" eta_dt="<<dt/dt_mean;
-            //            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            
         }
         
         /**********************************************************************/
@@ -261,7 +203,8 @@ namespace model
             }
             
             //! 6- Output the current configuration before changing it
-            output(runID);
+            //            output(runID);
+            io().output(runID);
             
             
             //! 7- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
@@ -280,9 +223,9 @@ namespace model
             //            DislocationCrossSlip<DislocationNetworkType>(*this);
             
             
-//                        GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
+            //                        GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
             GrainBoundaryTransmission<DislocationNetworkType>(*this);
-
+            
             //
             //            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
             
@@ -315,54 +258,17 @@ namespace model
             ++runID;     // increment the runID counter
         }
         
-        /**********************************************************************/
-        void make_bndNormals()
-        {
-            for(auto& node : this->nodes())
-            {
-                node.second->make_bndNormal();
-            }
-        }
-        
-
-        
-        
-        
     public:
-        
-        //! The object conataing shared data
-//        DislocationSharedObjectsType shared;
-        
-        MatrixDimD externalStress;
-
-        bool use_boundary;
-        //        static bool use_meshRegions;
-        
-        unsigned int use_bvp;
-        bool use_virtualSegments;
-
-        
-        SimplicialMesh<dim> mesh;
-        
-        Polycrystal<DislocationNetworkType> poly;
-
-        BvpSolverType bvpSolver;
         
         /**********************************************************************/
         DislocationNetwork(int& argc, char* argv[]) :
         /* init list  */ timeIntegrationMethod(0),
-//        /* init list  */ check_balance(true),
-//        /* init list  */ use_redistribution(0),
         /* init list  */ use_junctions(false),
-        //		/* init list  */ useImplicitTimeIntegration(false),
-        //        /* init list  */ shearWaveSpeedFraction(0.0001),
         /* init list  */ runID(0),
         /* init list  */ totalTime(0.0),
-        //        /* init list  */ dx(0.0),
         /* init list  */ dt(0.0),
         /* init list  */ vMax(0.0),
         /* init list  */ Nsteps(0),
-        //        /* init list  */ timeWindow(0.0),
         /* init list  */ _plasticDistortion(MatrixDimD::Zero()),
         /* init list  */ _plasticDistortionRate(MatrixDimD::Zero()),
         /* init list  */ externalStress(MatrixDimD::Zero()),
@@ -373,29 +279,11 @@ namespace model
         /* init list  */ bvpSolver(mesh)
         {
             ParticleSystemType::initMPI(argc,argv);
-            read("./","DDinput.txt");
+            io().read("./","DDinput.txt");
+            
+            // Initializing configuration
+            move(0.0);	// initial configuration
         }
-        
-
-
-//        /**********************************************************************/
-//        bool contract(std::shared_ptr<NodeType> nA,
-//                      std::shared_ptr<NodeType> nB)
-//        {
-//            
-//            bool success=false;
-//
-//            const auto temp=nA->contractPoint(nB.get());
-//            if(std::get<0>(temp))
-//            {
-//                nA->set_P(std::get<1>(temp));
-////                std::cout<"WARNING NEED TO ESTABLISH ODER OF CONTRACTION"<<std::endl;
-//                success=this->contractSecond(nA->sID,nB->sID);
-//            }
-//            
-//            return success;
-//                        
-//        }
         
         /**********************************************************************/
         bool contract(std::shared_ptr<NodeType> nA,
@@ -403,26 +291,26 @@ namespace model
         {
             
             bool success=false;
-
+            
             //std::pair<bool,VectorDim> c=std::make_pair(false,VectorDim::Zero());
             
-//            std::cout<<"DislocationNetwork::contract "<<nA->sID<<" "<<nB->sID<<std::endl;
+            std::cout<<"DislocationNetwork::contract "<<nA->sID<<" "<<nB->sID<<std::endl;
             
             if(nA->isGlissile() && nB->isGlissile())
             {// both nodes are glissile
                 if(nA->isOnBoundingBox() && nB->isOnBoundingBox())
                 {// both nodes on bounding boxes. Intersect bounding boxes'
-//                    std::cout<<"contractPoint case 1aa"<<std::endl;
+                    std::cout<<"contractPoint case 1aa"<<std::endl;
                     BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
                     if(temp.size())
                     {// a common portion of the boundary exists
-//                        std::cout<<"contractPoint case 1"<<std::endl;
+                        std::cout<<"contractPoint case 1"<<std::endl;
                         nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
                         return this->contractSecond(nA->sID,nB->sID);
                     }
                     else
                     {
-//                        std::cout<<"contractPoint case 2"<<std::endl;
+                        std::cout<<"contractPoint case 2"<<std::endl;
                         return false;
                     }
                 }
@@ -430,87 +318,108 @@ namespace model
                 {// a on box, b is not
                     if(nB->glidePlaneIntersections().size())
                     {// other is confined internally by two or more planes
-//                        std::cout<<"contractPoint case 3aa"<<std::endl;
+                        std::cout<<"contractPoint case 3aa"<<std::endl;
                         BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->glidePlaneIntersections());
                         if(temp.size())
                         {
-//                            std::cout<<"contractPoint case 3"<<std::endl;
+                            std::cout<<"contractPoint case 3"<<std::endl;
                             nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else
                         {
-//                            std::cout<<"contractPoint case 4"<<std::endl;
+                            std::cout<<"contractPoint case 4"<<std::endl;
                             return false;
                         }
                     }
                     else
                     {// other is confined by only one glide plane
-//                        std::cout<<"contractPoint case 5aa"<<std::endl;
+                        std::cout<<"contractPoint case 5aa"<<std::endl;
                         BoundingLineSegments<dim> temp=nA->boundingBoxSegments();
                         temp.updateWithGlidePlane(nB->glidePlane(0));
                         if(temp.size())
                         {
-//                            std::cout<<"contractPoint case 5"<<std::endl;
+                            std::cout<<"contractPoint case 5"<<std::endl;
                             nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else
                         {
-//                            std::cout<<"contractPoint case 6"<<std::endl;
+                            std::cout<<"contractPoint case 6"<<std::endl;
                             return false;
                         }
                     }
                 }
                 else if(!nA->isOnBoundingBox() && nB->isOnBoundingBox())
                 {// b on box, a is not
-//                    std::cout<<"contractPoint case 7"<<std::endl;
+                    std::cout<<"contractPoint case 7"<<std::endl;
                     return contract(nB,nA);
                 }
                 else
                 {// neither a nor b on bounding box
                     if(nA->glidePlaneIntersections().size() && nB->glidePlaneIntersections().size())
-                    {
-//                        std::cout<<"contractPoint case 8aa"<<std::endl;
+                    {// both nodes confined by more then one plane
+                        std::cout<<"contractPoint case 8aa"<<std::endl;
                         BoundingLineSegments<dim> temp(nA->glidePlaneIntersections(),nB->glidePlaneIntersections());
                         if(temp.size())
                         {
-//                            std::cout<<"contractPoint case 8"<<std::endl;
+                            std::cout<<"contractPoint case 8"<<std::endl;
                             nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else
                         {
-//                            std::cout<<"contractPoint case 9"<<std::endl;
+                            std::cout<<"contractPoint case 9"<<std::endl;
                             return false;
                         }
                     }
                     else if(nA->glidePlaneIntersections().size() && !nB->glidePlaneIntersections().size())
-                    {
-//                        std::cout<<"contractPoint case 10aa"<<std::endl;
-                        BoundingLineSegments<dim> temp=nA->boundingBoxSegments();
-                        temp.updateWithGlidePlane(nB->glidePlane(0));
-                        if(temp.size())
-                        {
-//                            std::cout<<"contractPoint case 10"<<std::endl;
-                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
+                    {// nA confined by more then one plane, nB confined by only one plane
+                        std::cout<<"contractPoint case 10aa"<<std::endl;
+                        
+                        PlaneLineIntersection<dim> pli(nB->glidePlane(0).P.cartesian(),
+                                                       nB->glidePlane(0).n.cartesian(),
+                                                       nA->glidePlaneIntersections()[0].first, // origin of line
+                                                       nA->glidePlaneIntersections()[0].second-nA->glidePlaneIntersections()[0].first // line direction
+                                                       );
+                        
+                        if(pli.type==PlaneLineIntersection<dim>::COINCIDENT)
+                        {// nothing to do, _glidePlaneIntersections remains unchanged
+                            nA->set_P(nA->snapToGlidePlaneIntersection(0.5*(nA->get_P()+nB->get_P())));
                             return this->contractSecond(nA->sID,nB->sID);
-//                            return std::make_tuple(true,temp.snap(0.5*(nA->get_P()+nB->get_P())),nA->sID,nB->sID);
+                        }
+                        else if(pli.type==PlaneLineIntersection<dim>::INCIDENT)
+                        {// _glidePlaneIntersections becomes a singular point
+                            nA->set_P(pli.P);
+                            return this->contractSecond(nA->sID,nB->sID);
                         }
                         else
-                        {
-//                            std::cout<<"contractPoint case 11"<<std::endl;
-                            return false;
+                        {// parallel planes, cannot contract
                         }
+                        
+//                        BoundingLineSegments<dim> temp=nA->glidePlaneIntersections();
+//                        temp.updateWithGlidePlane(nB->glidePlane(0));
+//
+//                        if(temp.size())
+//                        {
+//                            std::cout<<"contractPoint case 10"<<std::endl;
+//                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P()))); THE PROBLE HERE IS THAT WE NEED TO SNAP TO GLIDEPLANE INTERSECTION!!!
+//                            return this->contractSecond(nA->sID,nB->sID);
+//                        }
+//                        else
+//                        {
+//                            std::cout<<"contractPoint case 11"<<std::endl;
+//                            return false;
+//                        }
                     }
                     else if(!nA->glidePlaneIntersections().size() && nB->glidePlaneIntersections().size())
                     {
-//                        std::cout<<"contractPoint case 12"<<std::endl;
+                        std::cout<<"contractPoint case 12"<<std::endl;
                         return contract(nB,nA);
                     }
                     else
                     {// both nodes confined by only one plane
-                        //                        std::cout<<"contractPoint case 13aa"<<std::endl;
+                        std::cout<<"contractPoint case 13aa"<<std::endl;
                         
                         assert(nA->glidePlanes().size()==1);
                         assert(nB->glidePlanes().size()==1);
@@ -518,24 +427,24 @@ namespace model
                         GlidePlaneObserver<DislocationNetworkType>* const gpo(nA->glidePlane(0).glidePlaneObserver);
                         const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&nA->glidePlane(0),&nB->glidePlane(0)));
                         
-//                        std::cout<<"gpA: "<<nA->glidePlane(0).P.cartesian().transpose()<<std::endl;
-//                        std::cout<<"gpA: "<<nA->glidePlane(0).n.cartesian().normalized().transpose()<<std::endl;
-//
-//                        std::cout<<"gpB: "<<nB->glidePlane(0).P.cartesian().transpose()<<std::endl;
-//                        std::cout<<"gpB: "<<nB->glidePlane(0).n.cartesian().normalized().transpose()<<std::endl;
-
+                        //                        std::cout<<"gpA: "<<nA->glidePlane(0).P.cartesian().transpose()<<std::endl;
+                        //                        std::cout<<"gpA: "<<nA->glidePlane(0).n.cartesian().normalized().transpose()<<std::endl;
+                        //
+                        //                        std::cout<<"gpB: "<<nB->glidePlane(0).P.cartesian().transpose()<<std::endl;
+                        //                        std::cout<<"gpB: "<<nB->glidePlane(0).n.cartesian().normalized().transpose()<<std::endl;
+                        
                         
                         if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                         {
-//                            std::cout<<"contractPoint case 13"<<std::endl;
+                            std::cout<<"contractPoint case 13"<<std::endl;
                             nA->set_P(nA->snapToGlidePlaneIntersection(0.5*(nA->get_P()+nB->get_P()))); // this snaps to the glide planes to kill numerical errors
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
                         {
-//                            std::cout<<nA->sID<<" "<<nB->sID<<std::endl;
-//                            std::cout<<"contractPoint case 13a"<<std::endl;
-//                            std::cout<<"norm d="<<ppi.d.norm()<<std::endl;
+                            //                            std::cout<<nA->sID<<" "<<nB->sID<<std::endl;
+                            std::cout<<"contractPoint case 13a"<<std::endl;
+                            //                            std::cout<<"norm d="<<ppi.d.norm()<<std::endl;
                             const double u=(0.5*(nA->get_P()+nB->get_P())-ppi.P).dot(ppi.d);
                             nA->set_P(ppi.P+u*ppi.d);
                             return this->contractSecond(nA->sID,nB->sID);
@@ -554,12 +463,12 @@ namespace model
                 {// a is a boundary node. Check is the bonuding box contains b
                     if(nA->boundingBoxSegments().contains(nB->get_P()))
                     {
-//                        std::cout<<"contractPoint case 15"<<std::endl;
+                        std::cout<<"contractPoint case 15"<<std::endl;
                         return this->contractSecond(nB->sID,nA->sID);
                     }
                     else
                     {
-//                        std::cout<<"contractPoint case 16"<<std::endl;
+                        std::cout<<"contractPoint case 16"<<std::endl;
                         return false;
                     }
                 }
@@ -569,12 +478,12 @@ namespace model
                     {
                         if(nA->glidePlaneIntersections().contains(nB->get_P()))
                         {
-//                            std::cout<<"contractPoint case 17"<<std::endl;
+                            std::cout<<"contractPoint case 17"<<std::endl;
                             return this->contractSecond(nB->sID,nA->sID);
                         }
                         else
                         {
-//                            std::cout<<"contractPoint case 17a"<<std::endl;
+                            std::cout<<"contractPoint case 17a"<<std::endl;
                             return false;
                         }
                     }
@@ -583,12 +492,12 @@ namespace model
                         assert(nA->glidePlanes().size()==1);
                         if(nA->glidePlane(0).contains(nB->get_P()))
                         {
-//                            std::cout<<"contractPoint case 17b"<<std::endl;
+                            std::cout<<"contractPoint case 17b"<<std::endl;
                             return this->contractSecond(nB->sID,nA->sID);
                         }
                         else
                         {
-//                            std::cout<<"contractPoint case 17c"<<std::endl;
+                            std::cout<<"contractPoint case 17c"<<std::endl;
                             return false;
                         }
                     }
@@ -596,20 +505,20 @@ namespace model
             }
             else if(!nA->isGlissile() && nB->isGlissile())
             {
-//                std::cout<<"contractPoint case 18"<<std::endl;
+                std::cout<<"contractPoint case 18"<<std::endl;
                 return contract(nB,nA);
             }
             else
             {// both nodes are sessile
                 if((nA->get_P()-nB->get_P()).squaredNorm()<FLT_EPSILON)
                 {// contract only if coincident
-//                    std::cout<<"contractPoint case 19"<<std::endl;
+                    std::cout<<"contractPoint case 19"<<std::endl;
                     nA->set_P(0.5*(nA->get_P()+nB->get_P()));
                     return this->contractSecond(nA->sID,nB->sID);
                 }
                 else
                 {
-//                    std::cout<<"contractPoint case 20"<<std::endl;
+                    std::cout<<"contractPoint case 20"<<std::endl;
                     return false;
                 }
             }
@@ -637,251 +546,6 @@ namespace model
         {/*! The elapsed simulation time step in dimensionless units
           */
             return totalTime;
-        }
-        
-        /**********************************************************************/
-        void read(const std::string& inputDirectoryName_in, std::string inputFileName)
-        { // TO DO: move this to DislocationNetworkIO.h
-            
-            std::ostringstream fullName;
-            fullName<<inputDirectoryName_in<<inputFileName;
-            
-            model::cout<<greenBoldColor<<"Reading "<<fullName.str()<<"..."<<defaultColor<<std::endl;
-            
-            
-            // Create a file-reader object
-            EigenDataReader EDR;
-            
-            // IO
-            EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
-            EDR.readScalarInFile(fullName.str(),"outputBinary",DislocationNetworkIO<DislocationNetworkType>::outputBinary);
-            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes);
-            EDR.readScalarInFile(fullName.str(),"outputSpatialCells",DislocationNetworkIO<DislocationNetworkType>::outputSpatialCells);
-            EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
-            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
-            EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
-            
-            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortion",DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion);
-            if(DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion)
-            {
-                DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=9;
-            }
-            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortionRate",DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortionRate);
-            if(DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortionRate)
-            {
-                DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=9;
-            }
-            
-            EDR.readScalarInFile(fullName.str(),"outputDislocationLength",DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength);
-            if(DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength)
-            {
-                DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=3;
-            }
-            
-            EDR.readScalarInFile(fullName.str(),"outputQuadratureParticles",DislocationNetworkIO<DislocationNetworkType>::outputQuadratureParticles);
-            
-            // Parametrization exponent
-            EDR.readScalarInFile(fullName.str(),"parametrizationExponent",LinkType::alpha);
-            assert((LinkType::alpha)>=0.0 && "parametrizationExponent MUST BE >= 0.0");
-            assert((LinkType::alpha)<=1.0 && "parametrizationExponent MUST BE <= 1.0");
-            
-            // Temperature. Make sure you initialize before calling Material<Isotropic>::select()
-            EDR.readScalarInFile(fullName.str(),"temperature",Material<Isotropic>::T); // temperature
-            
-            // Material and crystal orientation
-            unsigned int materialZ;
-            EDR.readScalarInFile(fullName.str(),"material",materialZ); // material by atomic number Z
-            Material<Isotropic>::select(materialZ);
-            
-            // quadPerLength
-            EDR.readScalarInFile(fullName.str(),"quadPerLength",LinkType::quadPerLength); // quadPerLength
-            
-            // core size
-            EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width
-            assert((StressField::a)>0.0 && "coreSize MUST BE > 0.");
-            StressField::a2=StressField::a*StressField::a;
-            
-            // multipole expansion
-            double cellSize(0.0);
-            EDR.readScalarInFile(fullName.str(),"dislocationCellSize",cellSize);
-            SpatialCellObserverType::setCellSize(cellSize);
-            EDR.readScalarInFile(fullName.str(),"use_DisplacementMultipole",DislocationDisplacement<dim>::use_multipole);
-            EDR.readScalarInFile(fullName.str(),"use_StressMultipole",DislocationStress<dim>::use_multipole);
-            EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",DislocationEnergy<dim>::use_multipole);
-            
-            // Eternal Stress
-            EDR.readMatrixInFile(fullName.str(),"externalStress",externalStress);
-            
-            //dt=0.0;
-            EDR.readScalarInFile(fullName.str(),"timeIntegrationMethod",timeIntegrationMethod);
-            EDR.readScalarInFile(fullName.str(),"dxMax",DDtimeIntegrator<0>::dxMax);
-            assert(DDtimeIntegrator<0>::dxMax>0.0);
-            //            EDR.readScalarInFile(fullName.str(),"shearWaveSpeedFraction",shearWaveSpeedFraction);
-            //            assert(shearWaveSpeedFraction>=0.0);
-            EDR.readScalarInFile(fullName.str(),"use_velocityFilter",NodeType::use_velocityFilter);
-            EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
-            assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
-            
-            // Restart
-            EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
-            //            VertexReader<'F',201,double> vReader;
-            IDreader<'F',1,200,double> vReader;
-            Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
-            
-            
-            if (vReader.isGood(0,true))
-            {
-                
-                vReader.read(0,true);
-                
-                if(runID<0)
-                {
-                    if(vReader.size())
-                    {
-                        runID=vReader.rbegin()->first;
-                        temp=Eigen::Map<Eigen::Matrix<double,1,200>>(vReader.rbegin()->second.data());
-                    }
-                    else
-                    {
-                        runID=0;
-                    }
-                }
-                else
-                {
-                    const auto iter=vReader.find(runID);
-                    if(iter!=vReader.end())
-                    {// runID has been found
-                        temp=Eigen::Map<Eigen::Matrix<double,1,200>>(iter->second.data());
-                    }
-                    else
-                    {
-                        assert(0 && "runID NOT FOUND IN F/F_0.txt");
-                    }
-                }
-                
-                dt=temp(1);
-                
-            }
-            else
-            {
-                model::cout<<"could not read runID from F/F_0.txt"<<std::endl;
-                runID=0;
-                dt=10.0;
-            }
-            
-            model::cout<<"dt="<<dt<<std::endl;
-            
-            size_t curCol=0;
-            totalTime=temp(curCol);
-            curCol+=2;
-            
-            if (DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion)
-            {
-                std::cout<<"reading PD"<<std::endl;
-                
-                for(int r=0;r<3;++r)
-                {
-                    for(int c=0;c<3;++c)
-                    {
-                        _plasticDistortion(r,c)=temp(curCol);
-                        curCol+=1;
-                    }
-                }
-            }
-            
-            model::cout<<"starting at time step "<<runID<<std::endl;
-            model::cout<<"totalTime= "<<totalTime<<std::endl;
-            model::cout<<"plasticDistortion=\n "<<_plasticDistortion<<std::endl;
-            
-            // time-stepping
-            
-            //            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
-            EDR.readScalarInFile(fullName.str(),"use_directSolver_DD",DislocationNetworkComponentType::use_directSolver);
-            
-            
-            EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
-            assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
-            
-            //            EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
-            //            assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
-            
-            // Check balance
-//            EDR.readScalarInFile(fullName.str(),"check_balance",check_balance);
-            
-            // JUNCTION FORMATION
-            EDR.readScalarInFile(fullName.str(),"use_junctions",use_junctions);
-            //            EDR.readScalarInFile(fullName.str(),"collisionTol",DislocationJunctionFormation<DislocationNetworkType>::collisionTol);
-            
-            // VERTEX REDISTRIBUTION
-            EDR.readScalarInFile(fullName.str(),"use_redistribution",DislocationNetworkRemesh<DislocationNetworkType>::use_redistribution);
-            EDR.readScalarInFile(fullName.str(),"Lmin",DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
-            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
-            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*DDtimeIntegrator<0>::dxMax && "YOU MUST CHOOSE Lmin>2*dxMax.");
-            EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
-            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
-            
-            // Cross-Slip
-            //            EDR.readScalarInFile(fullName.str(),"use_crossSlip",DislocationCrossSlip<DislocationNetworkType>::use_crossSlip);
-            //            if(DislocationCrossSlip<DislocationNetworkType>::use_crossSlip)
-            //            {
-            //                EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
-            //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
-            //                //                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
-            //                //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
-            //            }
-            
-            // Mesh and BVP
-            EDR.readScalarInFile(fullName.str(),"use_boundary",use_boundary);
-            if (use_boundary)
-            {
-                //                EDR.readScalarInFile(fullName.str(),"use_meshRegions",use_meshRegions);
-                
-                int meshID(0);
-                EDR.readScalarInFile(fullName.str(),"meshID",meshID);
-                mesh.readMesh(meshID);
-                assert(mesh.simplices().size() && "MESH IS EMPTY.");
-                
-                // Initialize Polycrystal
-                poly.init(*this,fullName.str());
-                
-                EDR.readScalarInFile(fullName.str(),"use_virtualSegments",use_virtualSegments);
-                if(use_virtualSegments)
-                {
-                    EDR.readScalarInFile(fullName.str(),"virtualSegmentDistance",LinkType::virtualSegmentDistance);
-                }
-                
-                EDR.readScalarInFile(fullName.str(),"use_bvp",use_bvp);
-                if(use_bvp)
-                {
-                    EDR.readScalarInFile(fullName.str(),"use_directSolver_FEM",bvpSolver.use_directSolver);
-                    EDR.readScalarInFile(fullName.str(),"solverTolerance",bvpSolver.tolerance);
-                    bvpSolver.init(*this);
-                }
-            }
-            else{ // no boundary is used, DislocationNetwork is in inifinite medium
-                use_bvp=0;	// never comupute boundary correction
-            }
-            
-            // Grain Boundary flags
-            //            EDR.readScalarInFile(fullName.str(),"use_GBdissociation",GrainBoundaryDissociation<DislocationNetworkType>::use_GBdissociation);
-            //            EDR.readScalarInFile(fullName.str(),"use_GBtransmission",GrainBoundaryTransmission<DislocationNetworkType>::use_GBtransmission);
-            //            EDR.readScalarInFile(fullName.str(),"use_GBdislocations",GrainBoundary<dim>::use_GBdislocations);
-            
-            // Read Vertex and Edge information
-            DislocationNetworkIO<DislocationNetworkType>::readVertices(*this,runID); // this requires mesh to be up-to-date
-            DislocationNetworkIO<DislocationNetworkType>::readEdges(*this,runID);    // this requires mesh to be up-to-date
-            
-            //#ifdef DislocationNucleationFile
-            //            EDR.readScalarInFile(fullName.str(),"nucleationFreq",nucleationFreq);
-            //#endif
-            
-#ifdef _MODEL_MPI_
-            // Avoid that a processor starts writing before other are reading
-            MPI_Barrier(MPI_COMM_WORLD);
-#endif
-            
-            // Initializing configuration
-            move(0.0);	// initial configuration
         }
         
         /**********************************************************************/
@@ -962,26 +626,6 @@ namespace model
         }
         
         /**********************************************************************/
-        void output(const size_t& fileID) const
-        {/*! Outputs DislocationNetwork data
-          */
-            if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency))
-            {
-                const auto t0=std::chrono::system_clock::now();
-#ifdef _MODEL_DD_MPI_
-                if(ModelMPIbase::mpiRank()==0)
-                {
-                    DislocationNetworkIO<DislocationNetworkType>::output(*this,fileID);
-                }
-#else
-                DislocationNetworkIO<DislocationNetworkType>::output(*this,fileID);
-#endif
-                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            }
-        }
-        
-        
-        /**********************************************************************/
         void updateQuadraturePoints()
         {
             model::cout<<"		Updating quadrature points... "<<std::flush;
@@ -1026,9 +670,6 @@ namespace model
             updateQuadraturePoints(); // necessary if quadrature data are necessary in main
             model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
         }
-        
-
-        
         
         /**********************************************************************/
         void computePlasticDistortionRate()
@@ -1105,13 +746,6 @@ namespace model
             return runID;
         }
         
-        //        /**********************************************************************/
-        //        const double& vMax() const
-        //        {/*! The maximum vertex velocity.
-        //          */
-        //            return vmax;
-        //        }
-        
         /**********************************************************************/
         MatrixDimD stress(const VectorDim& P) const
         {/*!\param[in] P position vector
@@ -1150,169 +784,293 @@ namespace model
             return *this;
         }
         
-
+        /**********************************************************************/
+        DislocationNetworkIOType io()
+        {
+            return DislocationNetworkIOType(*this);
+        }
+        
+        /**********************************************************************/
+        DislocationNetworkIOType io() const
+        {
+            return DislocationNetworkIOType(*this);
+        }
+        
     };
     
-} // namespace model
+}
 #endif
 
 //        /**********************************************************************/
-//        size_t contractWithConstraintCheck(const IsNodeType& Ni,
-//                                           const IsNodeType& Nj)
+//        void make_bndNormals()
 //        {
-//            return ContractionType(*this).contractWithConstraintCheck(Ni,Nj);
-//        }
-
-//        /**********************************************************************/
-//        void crossSlip()
-//        {/*! Performs dislocation cross-slip if use_crossSlip==true
-//          */
-//            if(use_crossSlip)
+//            for(auto& node : this->nodes())
 //            {
-//                const auto t0= std::chrono::system_clock::now();
-//                model::cout<<"		performing cross-slip ... ("<<std::flush;
-//                size_t crossSlipEvents(DislocationCrossSlip<DislocationNetworkType>(*this).crossSlip());
-//                model::cout<<crossSlipEvents<<" cross-slip events) ";
-//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//                node.second->make_bndNormal();
 //            }
 //        }
 
 //        /**********************************************************************/
-//        void removeBoundarySegments()
-//        {/*! Removes DislocationSegment(s) on the mesh boundary
+//        void output(const size_t& fileID) const
+//        {/*! Outputs DislocationNetwork data
 //          */
-//            if (use_boundary && !use_bvp)
+//            if (!(runID%DislocationNetworkIO<DislocationNetworkType>::outputFrequency))
 //            {
-//                const auto t0= std::chrono::system_clock::now();
-//                model::cout<<"		Removing DislocationSegments on mesh boundary... ";
-//                typedef bool (LinkType::*link_member_function_pointer_type)(void) const;
-//                link_member_function_pointer_type boundarySegment_Lmfp;
-//                boundarySegment_Lmfp=&LinkType::is_boundarySegment;
-//                this->template disconnect_if<1>(boundarySegment_Lmfp);
-//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-//            }
-//        }
-
-//        /**********************************************************************/
-//        /**********************************************************************/
-//        void removeSmallComponents(const double& smallcritvalue,
-//                                   const size_t& maxNodeSize)
-//        {
-//            const auto t0= std::chrono::system_clock::now();
-//            model::cout<<"        removeSmallComponents "<<std::flush;
-//            size_t removed=0;
-//            std::deque<int> nodesToBeRemoved;
-//            for (typename NetworkComponentContainerType::iterator snIter=this->ABbegin(); snIter!=this->ABend();++snIter)
-//            {
-//                if (DislocationNetworkComponentType(*snIter->second).isSmall(smallcritvalue,maxNodeSize))
+//                const auto t0=std::chrono::system_clock::now();
+//#ifdef _MODEL_DD_MPI_
+//                if(ModelMPIbase::mpiRank()==0)
 //                {
-//                    const auto nodes=DislocationNetworkComponentType(*snIter->second).networkComponent().nodes();
-//                    for(const auto& node : nodes)
+//                    DislocationNetworkIO<DislocationNetworkType>::output(*this,fileID);
+//                }
+//#else
+//                DislocationNetworkIO<DislocationNetworkType>::output(*this,fileID);
+//#endif
+//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            }
+//        }
+
+//        /**********************************************************************/
+//        void read(const std::string& inputDirectoryName_in, std::string inputFileName)
+//        { // TO DO: move this to DislocationNetworkIO.h
+//
+//            std::ostringstream fullName;
+//            fullName<<inputDirectoryName_in<<inputFileName;
+//
+//            model::cout<<greenBoldColor<<"Reading "<<fullName.str()<<"..."<<defaultColor<<std::endl;
+//
+//
+//            // Create a file-reader object
+//            EigenDataReader EDR;
+//
+//            // IO
+//            EDR.readScalarInFile(fullName.str(),"outputFrequency",DislocationNetworkIO<DislocationNetworkType>::outputFrequency);
+//            EDR.readScalarInFile(fullName.str(),"outputBinary",DislocationNetworkIO<DislocationNetworkType>::outputBinary);
+//            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes);
+//            EDR.readScalarInFile(fullName.str(),"outputSpatialCells",DislocationNetworkIO<DislocationNetworkType>::outputSpatialCells);
+//            EDR.readScalarInFile(fullName.str(),"outputPKforce",DislocationNetworkIO<DislocationNetworkType>::outputPKforce);
+//            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement);
+//            EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy);
+//
+//            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortion",DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion);
+//            if(DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion)
+//            {
+//                DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=9;
+//            }
+//            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortionRate",DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortionRate);
+//            if(DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortionRate)
+//            {
+//                DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=9;
+//            }
+//
+//            EDR.readScalarInFile(fullName.str(),"outputDislocationLength",DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength);
+//            if(DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength)
+//            {
+//                DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn+=3;
+//            }
+//
+//            EDR.readScalarInFile(fullName.str(),"outputQuadratureParticles",DislocationNetworkIO<DislocationNetworkType>::outputQuadratureParticles);
+//
+//            // Parametrization exponent
+//            EDR.readScalarInFile(fullName.str(),"parametrizationExponent",LinkType::alpha);
+//            assert((LinkType::alpha)>=0.0 && "parametrizationExponent MUST BE >= 0.0");
+//            assert((LinkType::alpha)<=1.0 && "parametrizationExponent MUST BE <= 1.0");
+//
+//            // Temperature. Make sure you initialize before calling Material<Isotropic>::select()
+//            EDR.readScalarInFile(fullName.str(),"temperature",Material<Isotropic>::T); // temperature
+//
+//            // Material and crystal orientation
+//            unsigned int materialZ;
+//            EDR.readScalarInFile(fullName.str(),"material",materialZ); // material by atomic number Z
+//            Material<Isotropic>::select(materialZ);
+//
+//            // quadPerLength
+//            EDR.readScalarInFile(fullName.str(),"quadPerLength",LinkType::quadPerLength); // quadPerLength
+//
+//            // core size
+//            EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width
+//            assert((StressField::a)>0.0 && "coreSize MUST BE > 0.");
+//            StressField::a2=StressField::a*StressField::a;
+//
+//            // multipole expansion
+//            double cellSize(0.0);
+//            EDR.readScalarInFile(fullName.str(),"dislocationCellSize",cellSize);
+//            SpatialCellObserverType::setCellSize(cellSize);
+//            EDR.readScalarInFile(fullName.str(),"use_DisplacementMultipole",DislocationDisplacement<dim>::use_multipole);
+//            EDR.readScalarInFile(fullName.str(),"use_StressMultipole",DislocationStress<dim>::use_multipole);
+//            EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",DislocationEnergy<dim>::use_multipole);
+//
+//            // Eternal Stress
+//            EDR.readMatrixInFile(fullName.str(),"externalStress",externalStress);
+//
+//            //dt=0.0;
+//            EDR.readScalarInFile(fullName.str(),"timeIntegrationMethod",timeIntegrationMethod);
+//            EDR.readScalarInFile(fullName.str(),"dxMax",DDtimeIntegrator<0>::dxMax);
+//            assert(DDtimeIntegrator<0>::dxMax>0.0);
+//            //            EDR.readScalarInFile(fullName.str(),"shearWaveSpeedFraction",shearWaveSpeedFraction);
+//            //            assert(shearWaveSpeedFraction>=0.0);
+//            EDR.readScalarInFile(fullName.str(),"use_velocityFilter",NodeType::use_velocityFilter);
+//            EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
+//            assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
+//
+//            // Restart
+//            EDR.readScalarInFile(fullName.str(),"startAtTimeStep",runID);
+//            //            VertexReader<'F',201,double> vReader;
+//            IDreader<'F',1,200,double> vReader;
+//            Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
+//
+//
+//            if (vReader.isGood(0,true))
+//            {
+//
+//                vReader.read(0,true);
+//
+//                if(runID<0)
+//                {
+//                    if(vReader.size())
 //                    {
-//                        if(this->node(node.first).first)
-//                        {
-//                            nodesToBeRemoved.push_back(node.first);
-//                        }
+//                        runID=vReader.rbegin()->first;
+//                        temp=Eigen::Map<Eigen::Matrix<double,1,200>>(vReader.rbegin()->second.data());
+//                    }
+//                    else
+//                    {
+//                        runID=0;
+//                    }
+//                }
+//                else
+//                {
+//                    const auto iter=vReader.find(runID);
+//                    if(iter!=vReader.end())
+//                    {// runID has been found
+//                        temp=Eigen::Map<Eigen::Matrix<double,1,200>>(iter->second.data());
+//                    }
+//                    else
+//                    {
+//                        assert(0 && "runID NOT FOUND IN F/F_0.txt");
+//                    }
+//                }
+//
+//                dt=temp(1);
+//
+//            }
+//            else
+//            {
+//                model::cout<<"could not read runID from F/F_0.txt"<<std::endl;
+//                runID=0;
+//                dt=10.0;
+//            }
+//
+//            model::cout<<"dt="<<dt<<std::endl;
+//
+//            size_t curCol=0;
+//            totalTime=temp(curCol);
+//            curCol+=2;
+//
+//            if (DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion)
+//            {
+//                std::cout<<"reading PD"<<std::endl;
+//
+//                for(int r=0;r<3;++r)
+//                {
+//                    for(int c=0;c<3;++c)
+//                    {
+//                        _plasticDistortion(r,c)=temp(curCol);
+//                        curCol+=1;
 //                    }
 //                }
 //            }
-//            for(int k:nodesToBeRemoved)
-//            {
-//                this->template removeVertex<false>(k);
-//                removed++;
-//                //
-//                //                model::cout<<"  node "<<K<<" is deleted!!!!"<<std::endl;
-//            }
-//            model::cout<<std::setprecision(3)<<std::scientific<<removed<<" removed) "<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-//        }
-
-//            for(const auto& segment : this->links())
-//            {
-//            if(segment.second.is_boundarySegment())
-//            {
-//                const LatticeVector<dim>& b(segment.second.flow);
-//                const VectorDim P0(some position here);
-//                const VectorDim P1(some position here);
-//                const size_t nodeID0(DN.insertVertex(P0).first->first);
-//                const size_t nodeID1(DN.insertVertex(P1).first->first);
-//                this->connect(nodeID0,nodeID1,b);
-//            }
-//            }
-
-//        /**********************************************************************/
-//        ~DislocationNetwork()
-//        {
-//            //            for(auto& linkIter : this->links())
+//
+//            model::cout<<"starting at time step "<<runID<<std::endl;
+//            model::cout<<"totalTime= "<<totalTime<<std::endl;
+//            model::cout<<"plasticDistortion=\n "<<_plasticDistortion<<std::endl;
+//
+//            // time-stepping
+//
+//            //            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
+//            EDR.readScalarInFile(fullName.str(),"use_directSolver_DD",DislocationNetworkComponentType::use_directSolver);
+//
+//
+//            EDR.readScalarInFile(fullName.str(),"Nsteps",Nsteps);
+//            assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
+//
+//            //            EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
+//            //            assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
+//
+//            // Check balance
+////            EDR.readScalarInFile(fullName.str(),"check_balance",check_balance);
+//
+//            // JUNCTION FORMATION
+//            EDR.readScalarInFile(fullName.str(),"use_junctions",use_junctions);
+//            //            EDR.readScalarInFile(fullName.str(),"collisionTol",DislocationJunctionFormation<DislocationNetworkType>::collisionTol);
+//
+//            // VERTEX REDISTRIBUTION
+//            EDR.readScalarInFile(fullName.str(),"use_redistribution",DislocationNetworkRemesh<DislocationNetworkType>::use_redistribution);
+//            EDR.readScalarInFile(fullName.str(),"Lmin",DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
+//            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
+//            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*DDtimeIntegrator<0>::dxMax && "YOU MUST CHOOSE Lmin>2*dxMax.");
+//            EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
+//            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
+//
+//            // Cross-Slip
+//            //            EDR.readScalarInFile(fullName.str(),"use_crossSlip",DislocationCrossSlip<DislocationNetworkType>::use_crossSlip);
+//            //            if(DislocationCrossSlip<DislocationNetworkType>::use_crossSlip)
 //            //            {
-//            //                linkIter.second->quadratureParticleContainer.clear();
+//            //                EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
+//            //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
+//            //                //                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
+//            //                //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
 //            //            }
 //
-//            this->clearParticles();
-//        }
-
-
-//        /**********************************************************************/
-//        void checkBalance() const
-//        {/*! Checks that each DislocationNode is balanced, and asserts otherwise
-//          * Exceptions are nodes with only one neighbors (FR source)
-//          * and nodes on the boundary.
-//          */
-//            if(check_balance)
+//            // Mesh and BVP
+//            EDR.readScalarInFile(fullName.str(),"use_boundary",use_boundary);
+//            if (use_boundary)
 //            {
-//                model::cout<<"		Checking node balance..."<<std::flush;
-//                const auto t0= std::chrono::system_clock::now();
-//                for (const auto& nodeIter : this->nodes())
+//                //                EDR.readScalarInFile(fullName.str(),"use_meshRegions",use_meshRegions);
+//
+//                int meshID(0);
+//                EDR.readScalarInFile(fullName.str(),"meshID",meshID);
+//                mesh.readMesh(meshID);
+//                assert(mesh.simplices().size() && "MESH IS EMPTY.");
+//
+//                // Initialize Polycrystal
+//                poly.init(*this,fullName.str());
+//
+//                EDR.readScalarInFile(fullName.str(),"use_virtualSegments",use_virtualSegments);
+//                if(use_virtualSegments)
 //                {
-//                    if (nodeIter.second->neighbors().size()>2)
-//                    {
-//                        const bool nodeIsBalanced(nodeIter.second->is_balanced());
-//                        if (!nodeIsBalanced && nodeIter.second->meshLocation()==insideMesh)
-//                        {
-//                            model::cout<<"Node "<<nodeIter.second->sID<<" is not balanced:"<<std::endl;
-////                            model::cout<<"    outflow="<<nodeIter.second->outFlow().transpose()<<std::endl;
-////                            model::cout<<"     inflow="<<nodeIter.second->inFlow().transpose()<<std::endl;
-//                            assert(0 && "NODE IS NOT BALANCED");
-//                        }
-//                    }
+//                    EDR.readScalarInFile(fullName.str(),"virtualSegmentDistance",LinkType::virtualSegmentDistance);
 //                }
-//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-//            }
-//        }
-
-
-//            /**********************************************************************/
-//            template <typename FEMfunctionType,typename ...Args>
-//            void femIntegralLoop(FEMfunctionType& femObj,const Args&... args) const
-//            {
-//                for (const auto& segment : this->links())
+//
+//                EDR.readScalarInFile(fullName.str(),"use_bvp",use_bvp);
+//                if(use_bvp)
 //                {
-//                    const Simplex<dim,dim>* guess=segment.second.source->includingSimplex();
-//                    for (size_t k=0;k<segment.second.qOrder;++k)
-//                    {
-//                        const auto& x=segment.second.rgauss.col(k);
-//
-//                        std::pair<bool,const ElementType*> elem=DN.bvpSolver.fe2().searcWithGuess(x,guess);
-//
-//                        if(elem.first)
-//                        {
-//                            guess=&elem.second->simplex;
-//
-//                            const Eigen::Matrix<int,1,dim+1> bary=elem.second->simplex.pos2bary(x);
-//                            femObj(segment.second,k,elem.second,bary,args...);
-//                        }
-//                    }
+//                    EDR.readScalarInFile(fullName.str(),"use_directSolver_FEM",bvpSolver.use_directSolver);
+//                    EDR.readScalarInFile(fullName.str(),"solverTolerance",bvpSolver.tolerance);
+//                    bvpSolver.init(*this);
 //                }
 //            }
-
-
-//        /**********************************************************************/
-//        void remesh()
-//        {
-//            if (use_redistribution)
-//            {
-//                if(!(runID%use_redistribution))
-//                {
-//                    DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh();
-//                }
+//            else{ // no boundary is used, DislocationNetwork is in inifinite medium
+//                use_bvp=0;	// never comupute boundary correction
 //            }
+//
+//            // Grain Boundary flags
+//            //            EDR.readScalarInFile(fullName.str(),"use_GBdissociation",GrainBoundaryDissociation<DislocationNetworkType>::use_GBdissociation);
+//            //            EDR.readScalarInFile(fullName.str(),"use_GBtransmission",GrainBoundaryTransmission<DislocationNetworkType>::use_GBtransmission);
+//            //            EDR.readScalarInFile(fullName.str(),"use_GBdislocations",GrainBoundary<dim>::use_GBdislocations);
+//
+//            // Read Vertex and Edge information
+//            io().readVertices(runID); // this requires mesh to be up-to-date
+//            io().readEdges(runID);    // this requires mesh to be up-to-date
+//
+//            //#ifdef DislocationNucleationFile
+//            //            EDR.readScalarInFile(fullName.str(),"nucleationFreq",nucleationFreq);
+//            //#endif
+//
+//#ifdef _MODEL_MPI_
+//            // Avoid that a processor starts writing before other are reading
+//            MPI_Barrier(MPI_COMM_WORLD);
+//#endif
+//
+//            // Initializing configuration
+//            move(0.0);	// initial configuration
 //        }
+

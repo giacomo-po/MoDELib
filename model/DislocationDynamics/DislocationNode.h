@@ -313,6 +313,9 @@ namespace model
                     _isGlissile=false;
                 }
             }
+            
+                        std::cout<<"DislocationNode "<<this->sID<<" addLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
+
         }
         
         /**********************************************************************/
@@ -353,6 +356,9 @@ namespace model
             {
                 _isGlissile=false;
             }
+            
+            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
+
         }
         
         /**********************************************************************/
@@ -395,7 +401,7 @@ namespace model
             {
                 if (!std::get<2>(neighborIter.second)==0)
                 {
-                    if (std::get<1>(neighborIter.second)->burgers().squaredNorm())
+                    if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
                     {  // neighbor not searched
                         nonZeroLink++;
                     }

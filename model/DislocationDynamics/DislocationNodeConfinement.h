@@ -140,7 +140,7 @@ namespace model
                 }
                     
             }
-            
+            assert(_glidePlaneIntersections.size()<=1 && "_glidePlaneIntersections can have at the most size 1");
         }
         
         /**********************************************************************/
