@@ -60,7 +60,7 @@ namespace model
             const PlaneMeshIntersectionContainerType mpi=planeMeshIntersection(m,P0,nn,rID);
             
             const auto t0=std::chrono::system_clock::now();
-            model::cout<<"Reducing plane/mesh intersection points "<<std::flush;
+//            model::cout<<"Reducing plane/mesh intersection points "<<std::flush;
 
             PlaneMeshIntersectionContainerType temp;
             
@@ -85,8 +85,8 @@ namespace model
             
             }
             
-            model::cout<<"("<<mpi.size()<<"->"<<temp.size()<<")";
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            model::cout<<"("<<mpi.size()<<"->"<<temp.size()<<")";
+//            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 
             return temp;
         }
@@ -97,7 +97,7 @@ namespace model
                                                                         const VectorDim& nn,
                                                                         const int& rID)
         {
-            model::cout<<"Computing plane/mesh intersection "<<std::flush;
+//            model::cout<<"Computing plane/mesh intersection "<<std::flush;
             const auto t0=std::chrono::system_clock::now();
             
             const double nNorm(nn.norm());
@@ -147,8 +147,8 @@ namespace model
                         break;
                 }
             
-            model::cout<<" ("<<temp.size()<<" perimeter points)";
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            model::cout<<" ("<<temp.size()<<" perimeter points)";
+//            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
             return temp;
         }

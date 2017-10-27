@@ -118,7 +118,7 @@ namespace model
         
         
         int timeIntegrationMethod;
-        bool check_balance;
+//        bool check_balance;
 //        short unsigned int use_redistribution;
         bool use_junctions;
         //        double shearWaveSpeedFraction;
@@ -351,7 +351,7 @@ namespace model
         /**********************************************************************/
         DislocationNetwork(int& argc, char* argv[]) :
         /* init list  */ timeIntegrationMethod(0),
-        /* init list  */ check_balance(true),
+//        /* init list  */ check_balance(true),
 //        /* init list  */ use_redistribution(0),
         /* init list  */ use_junctions(false),
         //		/* init list  */ useImplicitTimeIntegration(false),
@@ -646,7 +646,7 @@ namespace model
             std::ostringstream fullName;
             fullName<<inputDirectoryName_in<<inputFileName;
             
-            model::cout<<greenColor<<"Reading "<<fullName.str()<<"..."<<defaultColor<<std::endl;
+            model::cout<<greenBoldColor<<"Reading "<<fullName.str()<<"..."<<defaultColor<<std::endl;
             
             
             // Create a file-reader object
@@ -806,7 +806,7 @@ namespace model
             //            assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
             
             // Check balance
-            EDR.readScalarInFile(fullName.str(),"check_balance",check_balance);
+//            EDR.readScalarInFile(fullName.str(),"check_balance",check_balance);
             
             // JUNCTION FORMATION
             EDR.readScalarInFile(fullName.str(),"use_junctions",use_junctions);

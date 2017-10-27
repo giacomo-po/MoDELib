@@ -100,10 +100,6 @@ use_junctions=1;
 collisionTol=3;
 
 ######################################
-# Impose that all dislocation nodes (but FR source/sink nodes) are balanced
-check_balance=1;
-
-######################################
 # BOUNDARY MESH
 # use_boundary enables/disables the use of a confining boundary.
 # If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
