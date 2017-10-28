@@ -196,6 +196,13 @@ namespace model
         }
         
         /**********************************************************************/
+        bool isSimple() const
+        {/*!\returns true if neighbors().size()==2
+          */
+            return neighbors().size()==2;
+        }
+        
+        /**********************************************************************/
         void addToNeighborhood(LinkType* const pL)
         {/*!@param[in] pL a pointer to a LinkType edge
           */
@@ -243,6 +250,7 @@ namespace model
                 assert(0 && "CANNOT REMOVE FROM NEIGHBORS");
             }
         }
+        
         
         /**********************************************************************/
         void addLoopLink(LoopLinkType* const pL)

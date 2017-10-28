@@ -45,23 +45,23 @@ namespace model
         //! A reference to the DislocationNetwork
         DislocationNetworkType& DN;
         
-//        /**********************************************************************/
-//        bool isSimpleBndSegment(const LinkType& link) const
-//        {
-//            bool temp=false;
-//            if(link.source->is_simple() && link.sink->is_simple())
-//            {
-//                HERE ADD THE CONDITION THAT BOTH LINKS CONNECTED TO THE SIMPLE NODE ARE BOUNDARY SEGMENTS
-//
-//                && link.source->isOnBoundingBox()
-//                /*  */ && link.  sink->isOnBoundingBox()
-//                /*  */ && link.source->bndNormal().cross(link.sink->bndNormal()).squaredNorm()<FLT_EPSILON;
-//                
-//            }
-//            
-//            return temp;
-//            /*  */
-//        }
+        //        /**********************************************************************/
+        //        bool isSimpleBndSegment(const LinkType& link) const
+        //        {
+        //            bool temp=false;
+        //            if(link.source->is_simple() && link.sink->is_simple())
+        //            {
+        //                HERE ADD THE CONDITION THAT BOTH LINKS CONNECTED TO THE SIMPLE NODE ARE BOUNDARY SEGMENTS
+        //
+        //                && link.source->isOnBoundingBox()
+        //                /*  */ && link.  sink->isOnBoundingBox()
+        //                /*  */ && link.source->bndNormal().cross(link.sink->bndNormal()).squaredNorm()<FLT_EPSILON;
+        //
+        //            }
+        //
+        //            return temp;
+        //            /*  */
+        //        }
         
         /**********************************************************************/
         std::pair<bool,double> mustBeContracted(const LinkType& segment) const
@@ -74,11 +74,11 @@ namespace model
             const VectorDimD dv(segment.sink->get_V()-segment.source->get_V());
             bool endsAreApproaching( chord.dot(dv) < 0.0 );
             
-            if (((endsAreApproaching || segment.is_boundarySegment())// ends are approaching
+            if (((endsAreApproaching || segment.isBoundarySegment())// ends are approaching
                  && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
                  && chordLength<Lmin // segment is small
                  )
-                || segment.isSimpleBndSegment()
+                //                || segment.isSimpleBndSegment()
                 //|| segment.isSimpleSessile()
                 )
             {
@@ -86,6 +86,40 @@ namespace model
             }
             return temp;
         }
+        
+        
+        /**********************************************************************/
+        void remeshByRemoval()
+        {
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"		remeshing network: removing... "<<std::flush;
+            
+            std::deque<size_t> toBeRemoved;
+            for(const auto& node : DN.nodes())
+            {
+                if(node.second->isSimpleBndNode())
+                {
+                    toBeRemoved.push_back(node.second->sID);
+                }
+            }
+            
+            size_t Nremoved=0;
+            for(const auto& nodeID : toBeRemoved)
+            {
+                const auto isNode=DN.node(nodeID);
+                if(isNode.first)
+                {// Removing may have deleted the node, check that it exists
+                    if(isNode.second->isSimpleBndNode())
+                    {// Removing may have altered the isSimpleBndNode, check again
+                        Nremoved+=DN.remove(nodeID);
+                    }
+                }
+            }
+            
+            model::cout<<" ("<<Nremoved<<" removed)"<<std::flush;
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+        }
+        
         
         /**********************************************************************/
         void remeshByContraction()
@@ -110,23 +144,23 @@ namespace model
                     assert(inserted && "COULD NOT INSERT IN SET.");
                 }
                 
-//                const LinkType& segment(*linkIter.second);
-//                const VectorDimD chord(segment.chord()); // this is sink->get_P() - source->get_P()
-//                const double chordLength(chord.norm());
-//                const VectorDimD dv(segment.sink->get_V()-segment.source->get_V());
-//                bool endsAreApproaching( chord.dot(dv) < 0.0 );
-//                
-//                if (((endsAreApproaching || segment.is_boundarySegment())// ends are approaching
-//                     && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
-//                     && chordLength<Lmin // segment is small
-//                     )
-//                    || segment.isSimpleBndSegment()
-//                    //|| segment.isSimpleSessile()
-//                    )
-//                {
-//                    const bool inserted=toBeContracted.insert(std::make_pair(chordLength,segment.nodeIDPair)).second;
-//                    assert(inserted && "COULD NOT INSERT IN SET.");
-//                }
+                //                const LinkType& segment(*linkIter.second);
+                //                const VectorDimD chord(segment.chord()); // this is sink->get_P() - source->get_P()
+                //                const double chordLength(chord.norm());
+                //                const VectorDimD dv(segment.sink->get_V()-segment.source->get_V());
+                //                bool endsAreApproaching( chord.dot(dv) < 0.0 );
+                //
+                //                if (((endsAreApproaching || segment.isBoundarySegment())// ends are approaching
+                //                     && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
+                //                     && chordLength<Lmin // segment is small
+                //                     )
+                //                    || segment.isSimpleBndSegment()
+                //                    //|| segment.isSimpleSessile()
+                //                    )
+                //                {
+                //                    const bool inserted=toBeContracted.insert(std::make_pair(chordLength,segment.nodeIDPair)).second;
+                //                    assert(inserted && "COULD NOT INSERT IN SET.");
+                //                }
             }
             
             // Call Network::contract
@@ -169,7 +203,8 @@ namespace model
                 if( !linkIter.second->hasZeroBurgers()
                    //&& !linkIter.second->isSimpleSessile())
                    && !linkIter.second->isSessile()
-                   && !linkIter.second->isSimpleBndSegment()
+                   && !linkIter.second->isBoundarySegment()
+//                   && !linkIter.second->isSimpleBndSegment()
                    )
                     
                 {
@@ -192,7 +227,7 @@ namespace model
                         toBeExpanded.insert(linkIter.second->nodeIDPair);
                     }
                     
-                    if (!linkIter.second->source->is_simple() && !linkIter.second->sink->is_simple()
+                    if (!linkIter.second->source->isSimple() && !linkIter.second->sink->isSimple()
                         /*&& chord.dot(dv)>vTolexp*chordLength*dv.norm()*/ && chordLength>3.0*Lmin)
                     { // also expands a straight line to generate glissile segment
                         toBeExpanded.insert(linkIter.second->nodeIDPair);
@@ -379,6 +414,7 @@ namespace model
             {
                 if(!(runID%use_redistribution))
                 {
+                    remeshByRemoval();
                     remeshByContraction();
                     remeshByExpansion();
                     contract0chordSegments();

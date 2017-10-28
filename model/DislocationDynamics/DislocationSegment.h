@@ -400,7 +400,7 @@ namespace model
                     rlgauss.col(k)=rugauss.col(k)/jgauss(k);
                 }
                 
-                if(!is_boundarySegment())
+                if(!isBoundarySegment())
                 {
                     for (unsigned int k=0;k<qOrder;++k)
                     {
@@ -562,7 +562,7 @@ namespace model
             {
                 //! 1- Compute and store stress and PK-force at quadrature points
                 stressGauss.clear();
-                if(!this->network().use_bvp && is_boundarySegment())
+                if(!this->network().use_bvp && isBoundarySegment())
                 {
                     pkGauss.setZero(dim,qOrder);
                 }
@@ -693,7 +693,7 @@ namespace model
             //\todo this integral should be calculated using shape functions
             
             const VectorDim V((this->source->get_V().template segment<dim>(0)+this->sink->get_V().template segment<dim>(0))*0.5);
-            return -Burgers*V.cross(this->chord()).transpose()*(!is_boundarySegment());
+            return -Burgers*V.cross(this->chord()).transpose()*(!isBoundarySegment());
         }
         
         /**********************************************************************/
@@ -704,7 +704,7 @@ namespace model
         }
         
         /**********************************************************************/
-        bool is_boundarySegment() const
+        bool isBoundarySegment() const
         {
             return (   this->source->isBoundaryNode()
                     && this->sink->isBoundaryNode()
@@ -747,7 +747,7 @@ namespace model
         void addToSolidAngleJump(const VectorDim& Pf, const VectorDim& Sf, VectorDim& dispJump) const
         {
             
-            if(is_boundarySegment() && this->network().use_virtualSegments)
+            if(isBoundarySegment() && this->network().use_virtualSegments)
             {
                 
                 // first triangle is P1->P2->P3, second triangle is P2->P4->P3

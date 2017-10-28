@@ -393,22 +393,22 @@ namespace model
             velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
         }
         
-        /**********************************************************************/
-        bool is_simple() const
-        {
-            size_t nonZeroLink=0;
-            for (const auto& neighborIter : this->neighbors())
-            {
-//                if (!std::get<2>(neighborIter.second)==0)
-//                {
-                    if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
-                    {  // neighbor not searched
-                        nonZeroLink++;
-                    }
-//                }
-            }
-            return (nonZeroLink==2);
-        }
+//        /**********************************************************************/
+//        bool is_simple() const
+//        {
+//            size_t nonZeroLink=0;
+//            for (const auto& neighborIter : this->neighbors())
+//            {
+////                if (!std::get<2>(neighborIter.second)==0)
+////                {
+//                    if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
+//                    {  // neighbor not searched
+//                        nonZeroLink++;
+//                    }
+////                }
+//            }
+//            return (nonZeroLink==2);
+//        }
         
         /**********************************************************************/
         const VectorDofType& get_V() const
@@ -750,7 +750,7 @@ namespace model
             bool temp=false;
             if(isOnBoundingBox())
             {
-                if(is_simple())
+                if(this->isSimple())
                 {
                     temp=true;
                     

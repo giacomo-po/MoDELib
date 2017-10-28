@@ -75,7 +75,7 @@ namespace model
         typedef typename TypeTraits<Derived>::LoopType LoopType;
         typedef typename TypeTraits<Derived>::FlowType FlowType;
         
-//        typedef std::multimap<std::pair<size_t,size_t>,LoopLinkType> LoopLinkContainerType;
+        //        typedef std::multimap<std::pair<size_t,size_t>,LoopLinkType> LoopLinkContainerType;
         typedef std::multimap<std::pair<size_t,size_t>,
         /*                 */ LoopLink<typename TypeTraits<Derived>::LinkType>,
         /*                 */ std::less<std::pair<size_t,size_t>>,
@@ -88,34 +88,34 @@ namespace model
         typedef LoopObserver<LoopType> LoopObserverType;
         
         typedef NodeObserver<NodeType> NodeObserverType;
-//        typedef std::shared_ptr<NodeType> SharedNodePtrType;
+        //        typedef std::shared_ptr<NodeType> SharedNodePtrType;
         typedef typename NodeObserverType::SharedNodePtrType SharedNodePtrType;
         typedef std::map<size_t,SharedNodePtrType>     DanglingNodeContainerType;
         
-//        typedef std::pair<bool,SharedNodePtrType>          IsNodeType;
+        //        typedef std::pair<bool,SharedNodePtrType>          IsNodeType;
         typedef typename NodeObserverType::IsSharedNodeType          IsSharedNodeType;
-//        typedef std::pair<bool,const std::shared_ptr<const NodeType>>	 IsConstNodeType;
+        //        typedef std::pair<bool,const std::shared_ptr<const NodeType>>	 IsConstNodeType;
         
         typedef std::pair<bool,LoopLinkType*> IsLoopLinkType;
         
         typedef std::tuple<SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>> ExpandTupleType;
         
-//        typedef std::tuple<SharedNodePtrType, // A node, preceding B in loop being merged
-//        /*              */ SharedNodePtrType, // B node in loop being merged, which will become node E
-//        /*              */ SharedNodePtrType, // C node in loop being merged, which will become node F
-//        /*              */ SharedNodePtrType, // D node, after C in loop being merged
-//        /*              */ std::shared_ptr<LoopType>, // loop being merged
-//        /*              */ SharedNodePtrType, // E node, will replace B
-//        /*              */ SharedNodePtrType, // F node, will replace C
-//        /*              */ std::shared_ptr<LoopType> // loop being merged
-//        > AMTtupleType;
-//        
-//        
-//        //        typedef std::map<int,AMTtupleType> MergeMapType; // map is sorted by operation priority
-//        typedef std::deque<AMTtupleType> AMTdequeType;
+        //        typedef std::tuple<SharedNodePtrType, // A node, preceding B in loop being merged
+        //        /*              */ SharedNodePtrType, // B node in loop being merged, which will become node E
+        //        /*              */ SharedNodePtrType, // C node in loop being merged, which will become node F
+        //        /*              */ SharedNodePtrType, // D node, after C in loop being merged
+        //        /*              */ std::shared_ptr<LoopType>, // loop being merged
+        //        /*              */ SharedNodePtrType, // E node, will replace B
+        //        /*              */ SharedNodePtrType, // F node, will replace C
+        //        /*              */ std::shared_ptr<LoopType> // loop being merged
+        //        > AMTtupleType;
+        //
+        //
+        //        //        typedef std::map<int,AMTtupleType> MergeMapType; // map is sorted by operation priority
+        //        typedef std::deque<AMTtupleType> AMTdequeType;
         
     private:
-
+        
         
         /**********************************************************************/
         DanglingNodeContainerType& danglingNodes()
@@ -146,7 +146,7 @@ namespace model
                      const std::shared_ptr<LoopType>& tempLoop)
         {
             VerboseLoopNetwork(1,"connecting "<<n0->sID<<"->"<<n1->sID<<std::endl);
-//            assert(n0->sID!=n1->sID && "Cannot connect a node to itself");
+            //            assert(n0->sID!=n1->sID && "Cannot connect a node to itself");
             
             if(n0->sID!=n1->sID)
             {
@@ -179,7 +179,7 @@ namespace model
                     
                 }
             }
-
+            
         }
         
         /**********************************************************************/
@@ -281,7 +281,7 @@ namespace model
                 else
                 {
                     return nI->sID<nJ->sID? std::shared_ptr<LinkType>(new LinkType(nI,nJ)) : std::shared_ptr<LinkType>(new LinkType(nJ,nI));
-//                    return nI->sID<nJ->sID? std::make_shared<LinkType>(nI,nJ) : std::make_shared<LinkType>(nJ,nI);
+                    //                    return nI->sID<nJ->sID? std::make_shared<LinkType>(nI,nJ) : std::make_shared<LinkType>(nJ,nI);
                 }
             }
         }
@@ -297,8 +297,8 @@ namespace model
             const size_t nodeID(StaticID<NodeType>::nextID());
             
             const std::pair<typename DanglingNodeContainerType::iterator,bool> inserted=danglingNodes().emplace(std::piecewise_construct,
-                                                                                                            std::make_tuple(nodeID),
-                                                                                                            std::make_tuple(new NodeType(this->p_derived(),nodeInput...)) );
+                                                                                                                std::make_tuple(nodeID),
+                                                                                                                std::make_tuple(new NodeType(this->p_derived(),nodeInput...)) );
             
             assert(inserted.second && "COULD NOT INSERT NETWORK VERTEX IN VERTEX CONTAINER.");
             assert(inserted.first->first == nodeID && "KEY != nodeID");
@@ -310,8 +310,7 @@ namespace model
         /**********************************************************************/
         template <typename ...LoopArgTypes>
         std::shared_ptr<LoopType> insertLoop(const std::vector<size_t> nodeIDs,
-//                        const FlowType& f,
-                        const LoopArgTypes&... loopInput)
+                                             const LoopArgTypes&... loopInput)
         {/*!@param[in] nodeIDs IDs of the nodes in the loop
           * @param[in] f the loop flow
           * @param[loopInput] additional Loop constructor arguments
@@ -404,26 +403,26 @@ namespace model
                     if(linkAtI.second->sink()->sID!=j && linkAtJ.second->sink()->sID!=i)
                     {
                         VerboseLoopNetwork(1,"cutting loop "<<L<<" at "<<i<<" and "<<j<<std::endl);
-
+                        
                         //std::shared_ptr<LoopType> tempLoop=loop.second->clone();
                         std::shared_ptr<LoopType> tempLoop(new LoopType(*loop.second));
-
-
+                        
+                        
                         linkAtI.second->resetLoop(tempLoop,i,j);
                         
                         linkAtI.second->prev->next=nullptr;
                         linkAtI.second->prev=nullptr;
-
+                        
                         linkAtJ.second->prev->next=nullptr;
                         linkAtJ.second->prev=nullptr;
-
+                        
                         connect(linkAtJ.second->source(),linkAtI.second->source(),tempLoop);
                         connect(linkAtI.second->source(),linkAtJ.second->source(),linkAtJ.second->loop());
                     }
                 }
             }
-
-
+            
+            
         }
         
         /**********************************************************************/
@@ -431,7 +430,7 @@ namespace model
         {
             VerboseLoopNetwork(1,"contracting "<<a<<","<<b<<std::endl);
             assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
-
+            
             bool success=false;
             const auto nA=this->sharedNode(a);
             const auto nB=this->sharedNode(b);
@@ -483,7 +482,7 @@ namespace model
                 {
                     disconnect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
                 }
-
+                
                 // Re-connect replacing b with a
                 for(const auto& tup : contractDeq)
                 {
@@ -501,6 +500,56 @@ namespace model
             }
             
             return success;
+        }
+        
+        
+        /**********************************************************************/
+        bool remove(const size_t& nodeID)
+        {/*!\param[in] nodeID the StaticID of the node to be removed
+          * \returns true if the node is succesfully removed.
+          */
+            bool temp=false;
+            const auto isNode=this->node(nodeID);
+            if(isNode.first)
+            {
+                const auto linkByLoopID=isNode.second->linksByLoopID();
+                for(auto& pair : linkByLoopID)
+                {
+                    const auto& loopID(pair.first);
+                    const auto& set(pair.second);
+                    assert(set.size()==2 && "Not a Loop");
+                    LoopLinkType* const link0(*set.begin());
+                    LoopLinkType* const link1(*set.rbegin());
+                    
+                    if(link0->source().get()==isNode.second && link1->sink().get()==isNode.second)
+                    {
+                        SharedNodePtrType n0(link1->source());
+                        SharedNodePtrType n1(link1->sink());
+                        SharedNodePtrType n2(link0->sink());
+                        std::shared_ptr<LoopType> loop(link0->loop());
+                        disconnect(n0,n1,loop);
+                        disconnect(n1,n2,loop);
+                        connect(n0,n2,loop);
+                    }
+                    else if(link0->sink().get()==isNode.second && link1->source().get()==isNode.second)
+                    {
+                        SharedNodePtrType n0(link0->source());
+                        SharedNodePtrType n1(link0->sink());
+                        SharedNodePtrType n2(link1->sink());
+                        std::shared_ptr<LoopType> loop(link1->loop());
+                        disconnect(n0,n1,loop);
+                        disconnect(n1,n2,loop);
+                        connect(n0,n2,loop);
+                    }
+                    else
+                    {
+                        assert(false && "Links must connect to node being removed");
+                    }
+                }
+                
+            }
+            
+            return !this->node(nodeID).first;
         }
         
         /* execute ************************************************************/
@@ -568,7 +617,7 @@ namespace model
             {
                 loop.second->printLoop();
             }
-
+            
         }
         
         /**********************************************************************/

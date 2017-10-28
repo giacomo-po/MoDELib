@@ -142,7 +142,7 @@ namespace model
                                     
                                     const bool frankRule(linkIterA->second->burgers().dot(linkIterB->second->burgers())*linkIterA->second->chord().dot(linkIterB->second->chord())<=0.0);
                                     const bool isValidJunction(frankRule ||
-                                                               linkIterA->second->is_boundarySegment() || linkIterB->second->is_boundarySegment() ||
+                                                               linkIterA->second->isBoundarySegment() || linkIterB->second->isBoundarySegment() ||
                                                                linkIterA->second->grainBoundaries().size() || linkIterB->second->grainBoundaries().size());
                                     
                                     

@@ -718,7 +718,7 @@ namespace model
             for (const auto& linkIter : this->links())
             {
                 const double temp(linkIter.second->arcLength());
-                if(linkIter.second->is_boundarySegment())
+                if(linkIter.second->isBoundarySegment())
                 {
                     boundaryLength+=temp;
                 }
