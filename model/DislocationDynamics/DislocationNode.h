@@ -399,13 +399,13 @@ namespace model
             size_t nonZeroLink=0;
             for (const auto& neighborIter : this->neighbors())
             {
-                if (!std::get<2>(neighborIter.second)==0)
-                {
+//                if (!std::get<2>(neighborIter.second)==0)
+//                {
                     if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
                     {  // neighbor not searched
                         nonZeroLink++;
                     }
-                }
+//                }
             }
             return (nonZeroLink==2);
         }
@@ -606,10 +606,10 @@ namespace model
             bool temp(true);
             for (const auto& neighborIter : this->neighbors())
             {
-                if (std::get<2>(neighborIter.second)) // not self
-                {
+//                if (std::get<2>(neighborIter.second)) // not self
+//                {
                     temp*=std::get<0>(neighborIter.second)->isBoundaryNode();
-                }
+//                }
             }
             
             return temp;
@@ -621,10 +621,10 @@ namespace model
             bool temp(!this->is_isolated());
             for (const auto& neighborIter : this->neighbors())
             {
-                if (std::get<2>(neighborIter.second)) // not self
-                {
+//                if (std::get<2>(neighborIter.second)) // not self
+//                {
                     temp*=std::get<0>(neighborIter.second)->isGrainBoundaryNode();
-                }
+//                }
             }
             
             return (isGrainBoundaryNode()&&temp);
@@ -745,12 +745,76 @@ namespace model
         }
         
         /**********************************************************************/
+        bool isSimpleBndNode() const
+        {
+            bool temp=false;
+            if(isOnBoundingBox())
+            {
+                if(is_simple())
+                {
+                    temp=true;
+                    
+                    std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> normalDeq;
+                    std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> chordDeq;
+                    
+                    for (const auto& neighborIter : this->neighbors())
+                    {
+//                        if (!std::get<2>(neighborIter.second)==0)
+//                        {
+                            if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
+                            {  // neighbor not searched
+                                temp*=std::get<0>(neighborIter.second)->isOnBoundingBox();
+                                normalDeq.push_back(std::get<0>(neighborIter.second)->bndNormal());
+                                chordDeq.push_back(std::get<1>(neighborIter.second)->chord());
+                            }
+//                        }
+                    }
+                    
+                    
+                    if(normalDeq.size())
+                    {
+                        for(const auto& bndN : normalDeq)
+                        {
+                            temp*=((bndN-normalDeq[0]).squaredNorm()<FLT_EPSILON);
+                        }
+                    }
+                    else
+                    {
+                        temp=false;
+                    }
+                    
+                    if(chordDeq.size())
+                    {
+                        for(const auto& chord : chordDeq)
+                        {
+                            temp*=(chord.cross(chordDeq[0]).squaredNorm()<FLT_EPSILON);
+                        }
+                    }
+                    else
+                    {
+                        temp=false;
+                    }
+                    
+
+                    
+                }
+            
+            }
+            
+            return temp;
+        }
+        
+        
+        /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const NodeType& ds)
         {
             os<< DislocationNodeIO<dim>(ds);
             return os;
         }
+        
+        
+        
         
     };
     

@@ -45,15 +45,46 @@ namespace model
         //! A reference to the DislocationNetwork
         DislocationNetworkType& DN;
         
+//        /**********************************************************************/
+//        bool isSimpleBndSegment(const LinkType& link) const
+//        {
+//            bool temp=false;
+//            if(link.source->is_simple() && link.sink->is_simple())
+//            {
+//                HERE ADD THE CONDITION THAT BOTH LINKS CONNECTED TO THE SIMPLE NODE ARE BOUNDARY SEGMENTS
+//
+//                && link.source->isOnBoundingBox()
+//                /*  */ && link.  sink->isOnBoundingBox()
+//                /*  */ && link.source->bndNormal().cross(link.sink->bndNormal()).squaredNorm()<FLT_EPSILON;
+//                
+//            }
+//            
+//            return temp;
+//            /*  */
+//        }
+        
         /**********************************************************************/
-        bool isSimpleBndSegment(const LinkType& link) const
+        std::pair<bool,double> mustBeContracted(const LinkType& segment) const
         {
+            const double vTolcont=0.0;
             
-            return    link.source->is_simple()
-            /*  */ && link.  sink->is_simple()
-            /*  */ && link.source->isOnBoundingBox()
-            /*  */ && link.  sink->isOnBoundingBox()
-            /*  */ && link.source->bndNormal().cross(link.sink->bndNormal()).squaredNorm()<FLT_EPSILON;
+            std::pair<bool,double> temp=std::make_pair(false,0.0);
+            const VectorDimD chord(segment.chord()); // this is sink->get_P() - source->get_P()
+            const double chordLength(chord.norm());
+            const VectorDimD dv(segment.sink->get_V()-segment.source->get_V());
+            bool endsAreApproaching( chord.dot(dv) < 0.0 );
+            
+            if (((endsAreApproaching || segment.is_boundarySegment())// ends are approaching
+                 && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
+                 && chordLength<Lmin // segment is small
+                 )
+                || segment.isSimpleBndSegment()
+                //|| segment.isSimpleSessile()
+                )
+            {
+                temp=std::make_pair(true,chordLength);
+            }
+            return temp;
         }
         
         /**********************************************************************/
@@ -65,31 +96,37 @@ namespace model
             
             //            model::cout<<"contracting..."<<std::flush;
             
-            const double vTolcont=0.0;
             
             // Store segments to be contracted
             std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
             
             for (const auto& linkIter : DN.links())
             {
-                
                 const LinkType& segment(*linkIter.second);
-                const VectorDimD chord(segment.chord()); // this is sink->get_P() - source->get_P()
-                const double chordLength(chord.norm());
-                const VectorDimD dv(segment.sink->get_V()-segment.source->get_V());
-                bool endsAreApproaching( chord.dot(dv) < 0.0 );
-                
-                if (((endsAreApproaching || segment.is_boundarySegment())// ends are approaching
-                     && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
-                     && chordLength<Lmin // segment is small
-                     )
-                    || isSimpleBndSegment(segment)
-                    //|| segment.isSimpleSessile()
-                    )
+                std::pair<bool,double> temp=mustBeContracted(segment);
+                if(temp.first)
                 {
-                    const bool inserted=toBeContracted.insert(std::make_pair(chordLength,segment.nodeIDPair)).second;
+                    const bool inserted=toBeContracted.insert(std::make_pair(temp.second,segment.nodeIDPair)).second;
                     assert(inserted && "COULD NOT INSERT IN SET.");
                 }
+                
+//                const LinkType& segment(*linkIter.second);
+//                const VectorDimD chord(segment.chord()); // this is sink->get_P() - source->get_P()
+//                const double chordLength(chord.norm());
+//                const VectorDimD dv(segment.sink->get_V()-segment.source->get_V());
+//                bool endsAreApproaching( chord.dot(dv) < 0.0 );
+//                
+//                if (((endsAreApproaching || segment.is_boundarySegment())// ends are approaching
+//                     && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
+//                     && chordLength<Lmin // segment is small
+//                     )
+//                    || segment.isSimpleBndSegment()
+//                    //|| segment.isSimpleSessile()
+//                    )
+//                {
+//                    const bool inserted=toBeContracted.insert(std::make_pair(chordLength,segment.nodeIDPair)).second;
+//                    assert(inserted && "COULD NOT INSERT IN SET.");
+//                }
             }
             
             // Call Network::contract
@@ -101,8 +138,11 @@ namespace model
                 const IsConstNetworkLinkType Lij(DN.link(i,j));
                 
                 if (Lij.first )
-                {
-                    Ncontracted+=DN.contract(Lij.second->source,Lij.second->sink);
+                {// previous contractions could have destroyed Lij, so check that Lij exists
+                    if(mustBeContracted(*Lij.second).first)
+                    {// previous contractions could have changed Lij, so check the contract conditions again
+                        Ncontracted+=DN.contract(Lij.second->source,Lij.second->sink);
+                    }
                 }
             }
             model::cout<<" ("<<Ncontracted<<" contracted)"<<std::flush;
@@ -129,7 +169,7 @@ namespace model
                 if( !linkIter.second->hasZeroBurgers()
                    //&& !linkIter.second->isSimpleSessile())
                    && !linkIter.second->isSessile()
-                   && !isSimpleBndSegment(*linkIter.second)
+                   && !linkIter.second->isSimpleBndSegment()
                    )
                     
                 {

@@ -819,6 +819,14 @@ namespace model
         }
         
         /**********************************************************************/
+        bool isSimpleBndSegment() const
+        {
+            return this->source->isSimpleBndNode() && this->sink->isSimpleBndNode()
+            /*  */ && this->source->bndNormal().cross(this->sink->bndNormal()).squaredNorm()<FLT_EPSILON
+            /*  */ && !hasZeroBurgers();
+        }
+        
+        /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const LinkType& ds)
         {

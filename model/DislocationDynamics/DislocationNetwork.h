@@ -395,6 +395,7 @@ namespace model
                         }
                         else
                         {// parallel planes, cannot contract
+                            return false;
                         }
                         
 //                        BoundingLineSegments<dim> temp=nA->glidePlaneIntersections();
