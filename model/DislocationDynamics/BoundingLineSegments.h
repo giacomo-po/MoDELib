@@ -160,6 +160,43 @@ namespace model
         }
         
         /**********************************************************************/
+        VectorDim snapToVertex(const VectorDim& P) const
+        {
+            
+            assert(this->size() && "CANNOT SNAP TO EMPTY BoundingLineSegments");
+            
+            std::map<double,VectorDim,std::less<double>,Eigen::aligned_allocator<std::pair<double,VectorDim>>> snapMap;
+            
+            for(const auto& vertexPair : *this)
+            {
+//                const VectorDim segm(vertexPair.second-vertexPair.first);
+//                const double segmNorm2(segm.squaredNorm());
+//                if(segmNorm2>FLT_EPSILON)
+//                {
+//                    double u((P-vertexPair.first).dot(segm)/segmNorm2);
+//                    if(u<0.0)
+//                    {
+//                        u=0.0;
+//                    }
+//                    if(u>1.0)
+//                    {
+//                        u=1.0;
+//                    }
+//                    const VectorDim x(vertexPair.first+u*segm);
+                    snapMap.emplace((P-vertexPair.first).squaredNorm(),vertexPair.first);
+//                }
+//                else
+//                {
+//                    const VectorDim x(0.5*(vertexPair.second+vertexPair.first));
+//                    snapMap.emplace((P-x).squaredNorm(),x);
+//                }
+            }
+            
+            return snapMap.begin()->second;
+            
+        }
+        
+        /**********************************************************************/
         template <typename LoopType>
         void updateWithGlidePlane(const GlidePlane<LoopType>& gp)
         {

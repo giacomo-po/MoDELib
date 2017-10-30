@@ -60,7 +60,7 @@ namespace model
         typedef typename NodeBaseType::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<NodeType>::LoopType LoopType;
         typedef typename TypeTraits<NodeType>::LoopNetworkType LoopNetworkType;
-
+        
         constexpr static int NdofXnode=NodeBaseType::NdofXnode;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
@@ -89,9 +89,9 @@ namespace model
         bool _isGlissile;
         
         
-//        DislocationSharedObjects<dim> shared;
+        //        DislocationSharedObjects<dim> shared;
         
-//        std::set<const Grain<dim>*> grainSet; // this must be defined before p_Simplex
+        //        std::set<const Grain<dim>*> grainSet; // this must be defined before p_Simplex
         
         
         //! A pointer to the Simplex containing *this
@@ -116,7 +116,16 @@ namespace model
         void snapToBoundingBox(const VectorDim& P)
         {
             
-            set_P(boundingBoxSegments().snap(P));
+            const VectorDim p0=boundingBoxSegments().snap(P);
+            const VectorDim p1=boundingBoxSegments().snapToVertex(p0);
+            if((p1-p0).norm()<1.0)
+            {
+                set_P(p1);
+            }
+            else
+            {
+                set_P(p0);
+            }
             _isOnBoundingBox=true;
             
         }
@@ -291,7 +300,7 @@ namespace model
             NodeBaseType::addLoopLink(pL); // forward to base class
             
             
-//            std::cout<<"DislocationNode "<<this->sID<<" addLoopLink"<<std::endl;
+            //            std::cout<<"DislocationNode "<<this->sID<<" addLoopLink"<<std::endl;
             
             // Insert new plane in _confiningPlanes. If plane already exists nothing will happen
             const bool success = nodeConfinement().addGlidePlane(pL->loop()->glidePlane);
@@ -314,8 +323,8 @@ namespace model
                 }
             }
             
-//                        std::cout<<"DislocationNode "<<this->sID<<" addLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
-
+            //                        std::cout<<"DislocationNode "<<this->sID<<" addLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
+            
         }
         
         /**********************************************************************/
@@ -327,12 +336,12 @@ namespace model
             NodeBaseType::removeLoopLink(pL); // forward to base class
             
             
-//                        std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;
+            //                        std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;
             
             // Re-construct nodeConfinement
             _isGlissile=true;
             nodeConfinement().clear();
-
+            
             for(const auto& loopLink : this->loopLinks())
             {
                 const bool success = nodeConfinement().addGlidePlane(loopLink->loop()->glidePlane);
@@ -357,8 +366,8 @@ namespace model
                 _isGlissile=false;
             }
             
-//            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
-
+            //            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
+            
         }
         
         /**********************************************************************/
@@ -393,22 +402,22 @@ namespace model
             velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
         }
         
-//        /**********************************************************************/
-//        bool is_simple() const
-//        {
-//            size_t nonZeroLink=0;
-//            for (const auto& neighborIter : this->neighbors())
-//            {
-////                if (!std::get<2>(neighborIter.second)==0)
-////                {
-//                    if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
-//                    {  // neighbor not searched
-//                        nonZeroLink++;
-//                    }
-////                }
-//            }
-//            return (nonZeroLink==2);
-//        }
+        //        /**********************************************************************/
+        //        bool is_simple() const
+        //        {
+        //            size_t nonZeroLink=0;
+        //            for (const auto& neighborIter : this->neighbors())
+        //            {
+        ////                if (!std::get<2>(neighborIter.second)==0)
+        ////                {
+        //                    if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
+        //                    {  // neighbor not searched
+        //                        nonZeroLink++;
+        //                    }
+        ////                }
+        //            }
+        //            return (nonZeroLink==2);
+        //        }
         
         /**********************************************************************/
         const VectorDofType& get_V() const
@@ -499,11 +508,11 @@ namespace model
             }
         }
         
-//        /**********************************************************************/
-//        const BoundingLineSegments<dim>& glidePlaneIntersections() const
-//        {
-//            return nodeConfinement().glidePlaneIntersections();
-//        }
+        //        /**********************************************************************/
+        //        const BoundingLineSegments<dim>& glidePlaneIntersections() const
+        //        {
+        //            return nodeConfinement().glidePlaneIntersections();
+        //        }
         
         /**********************************************************************/
         const BoundingLineSegments<dim>& boundingBoxSegments() const
@@ -511,7 +520,7 @@ namespace model
             return nodeConfinement().boundingBoxSegments();
         }
         
-
+        
         
         /**********************************************************************/
         bool isOscillating() const
@@ -599,17 +608,14 @@ namespace model
         {
             return isBoundaryNode() && isConnectedToBoundaryNodes();
         }
-//
+        //
         /**********************************************************************/
         bool isConnectedToBoundaryNodes() const
         {
             bool temp(true);
             for (const auto& neighborIter : this->neighbors())
             {
-//                if (std::get<2>(neighborIter.second)) // not self
-//                {
-                    temp*=std::get<0>(neighborIter.second)->isBoundaryNode();
-//                }
+                temp*=std::get<0>(neighborIter.second)->isBoundaryNode();
             }
             
             return temp;
@@ -625,34 +631,38 @@ namespace model
                 {
                     temp=true;
                     
-                    std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> normalDeq;
+                    //                    std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> normalDeq;
                     std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> chordDeq;
                     
                     for (const auto& neighborIter : this->neighbors())
                     {
                         //                        if (!std::get<2>(neighborIter.second)==0)
                         //                        {
-                        if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
+                        if (
+                            //std::get<1>(neighborIter.second)->isBoundarySegment()
+                            !std::get<1>(neighborIter.second)->hasZeroBurgers()
+                            )
                         {  // neighbor not searched
-                            temp*=std::get<0>(neighborIter.second)->isOnBoundingBox();
-                            normalDeq.push_back(std::get<0>(neighborIter.second)->bndNormal());
+                            //temp*=std::get<0>(neighborIter.second)->isOnBoundingBox();
+                            temp*=std::get<1>(neighborIter.second)->isBoundarySegment();
+                            //                            normalDeq.push_back(std::get<0>(neighborIter.second)->bndNormal());
                             chordDeq.push_back(std::get<1>(neighborIter.second)->chord());
                         }
                         //                        }
                     }
                     
                     
-                    if(normalDeq.size())
-                    {
-                        for(const auto& bndN : normalDeq)
-                        {
-                            temp*=((bndN-normalDeq[0]).squaredNorm()<FLT_EPSILON);
-                        }
-                    }
-                    else
-                    {
-                        temp=false;
-                    }
+                    //                    if(normalDeq.size())
+                    //                    {
+                    //                        for(const auto& bndN : normalDeq)
+                    //                        {
+                    //                            temp*=((bndN-normalDeq[0]).squaredNorm()<FLT_EPSILON);
+                    //                        }
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        temp=false;
+                    //                    }
                     
                     if(chordDeq.size())
                     {
@@ -675,21 +685,21 @@ namespace model
             return temp;
         }
         
-//
-//        /**********************************************************************/
-//        bool isPureGBNode() const
-//        {
-//            bool temp(!this->is_isolated());
-//            for (const auto& neighborIter : this->neighbors())
-//            {
-////                if (std::get<2>(neighborIter.second)) // not self
-////                {
-//                    temp*=std::get<0>(neighborIter.second)->isGrainBoundaryNode();
-////                }
-//            }
-//            
-//            return (isGrainBoundaryNode()&&temp);
-//        }
+        //
+        //        /**********************************************************************/
+        //        bool isPureGBNode() const
+        //        {
+        //            bool temp(!this->is_isolated());
+        //            for (const auto& neighborIter : this->neighbors())
+        //            {
+        ////                if (std::get<2>(neighborIter.second)) // not self
+        ////                {
+        //                    temp*=std::get<0>(neighborIter.second)->isGrainBoundaryNode();
+        ////                }
+        //            }
+        //
+        //            return (isGrainBoundaryNode()&&temp);
+        //        }
         
         /******************************************************************************/
         void neighborsAt(const LatticeVectorType& L0, std::set<size_t>& temp) const
@@ -744,12 +754,12 @@ namespace model
             //VectorDim dX=(0.5*velocity.template segment<dim>(0)+0.5*vOld)*dt; // Adams–Bashforth
             
             
-//            //Limit dX for boundaryNodes bec
-//            const double dXnorm(dX.norm());
-//            if((isBoundaryNode() || isConnectedToBoundaryNodes()) && dXnorm>dxMax)
-//            {
-//                dX*=dxMax/dXnorm;
-//            }
+            //            //Limit dX for boundaryNodes bec
+            //            const double dXnorm(dX.norm());
+            //            if((isBoundaryNode() || isConnectedToBoundaryNodes()) && dXnorm>dxMax)
+            //            {
+            //                dX*=dxMax/dXnorm;
+            //            }
             
             if (dX.squaredNorm()>0.0 && _isGlissile) // move a node only if |v|!=0
             {
@@ -795,16 +805,16 @@ namespace model
                 velocity.setZero();
             }
             
-            //            // Store actual velocity
-            //            if(dt>0.0)
-            //            {
-            //                velocity=(this->get_P()-P_old)/dt;
-            //            }
+            // Store actual velocity
+            if(dt>0.0)
+            {
+                velocity=(this->get_P()-P_old)/dt;
+            }
             
             vOld=velocity; // store current value of velocity before updating
         }
         
-
+        
         
         
         /**********************************************************************/
