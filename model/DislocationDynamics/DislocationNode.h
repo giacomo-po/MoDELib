@@ -117,10 +117,10 @@ namespace model
         {
             
             const VectorDim p0=boundingBoxSegments().snap(P);
-            const VectorDim p1=boundingBoxSegments().snapToVertex(p0);
-            if((p1-p0).norm()<1.0)
+            const auto pair=boundingBoxSegments().snapToVertex(p0);
+            if(pair.first<1.0)
             {
-                set_P(p1);
+                set_P(pair.second);
             }
             else
             {
@@ -744,7 +744,7 @@ namespace model
             
             
             
-            //const VectorDim P_old(this->get_P());
+            const VectorDim P_old(this->get_P());
             
             //VectorDim dX=2.0*A2-A1-this->get_P();
             

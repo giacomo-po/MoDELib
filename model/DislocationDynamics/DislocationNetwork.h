@@ -305,8 +305,39 @@ namespace model
                     if(temp.size())
                     {// a common portion of the boundary exists
                         std::cout<<"contractPoint case 1"<<std::endl;
-                        nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
-                        return this->contractSecond(nA->sID,nB->sID);
+                        
+                        const auto Av(temp.snapToVertex(nA->get_P()));
+                        const auto Bv(temp.snapToVertex(nB->get_P()));
+                        
+                        if(Av.first<FLT_EPSILON && Bv.first<FLT_EPSILON)
+                        {// both A and B are on vertices
+                            if((Av.second-Bv.second).squaredNorm()<FLT_EPSILON)
+                            {
+                                std::cout<<"contractPoint case 1aA"<<std::endl;
+                                return this->contractSecond(nA->sID,nB->sID);
+                            }
+                            else
+                            {
+                                std::cout<<"contractPoint case 1aB"<<std::endl;
+                                return false;
+                            }
+                        }
+                        else if(Av.first<FLT_EPSILON && !Bv.first<FLT_EPSILON)
+                        {// A is on a vertex, leave A
+                            std::cout<<"contractPoint case 1aC"<<std::endl;
+                            return this->contractSecond(nA->sID,nB->sID);
+                        }
+                        else if(!Av.first<FLT_EPSILON && Bv.first<FLT_EPSILON)
+                        {// B is on a vertex, leave B
+                            std::cout<<"contractPoint case 1aD"<<std::endl;
+                            return this->contractSecond(nB->sID,nA->sID);
+                        }
+                        else
+                        {// neither A nor B are on vertices
+                            std::cout<<"contractPoint case 1aE"<<std::endl;
+                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
+                            return this->contractSecond(nA->sID,nB->sID);
+                        }
                     }
                     else
                     {
