@@ -217,7 +217,7 @@ namespace model
           *  @param[in] j the StaticID of the sink vertex
           *  Disconnects the edge i->j
           */
-			return VertexConnection<NodeType,LinkType>(*this,*this).disconnect<removeIsolatedNodes>(i,j);
+			return VertexConnection<NodeType,LinkType>(*this,*this).template disconnect<removeIsolatedNodes>(i,j);
 		}
 		
         /**********************************************************************/
@@ -233,14 +233,14 @@ namespace model
 		template<bool removeIsolatedNodes>
 		size_t disconnect_if(bool (LinkType::*Lfptr)(void) const)
         {
-			return VertexConnection<NodeType,LinkType>(*this,*this).disconnect_if<removeIsolatedNodes>(Lfptr);
+			return VertexConnection<NodeType,LinkType>(*this,*this).template disconnect_if<removeIsolatedNodes>(Lfptr);
 		}
 		
         /**********************************************************************/
 		template<bool removeIsolatedNodes, typename T>
 		size_t disconnect_if(bool (LinkType::*Lfptr)(const T &) const, const T & input)
         {
-			return VertexConnection<NodeType,LinkType>(*this,*this).disconnect_if<removeIsolatedNodes,T>(Lfptr,input);
+			return VertexConnection<NodeType,LinkType>(*this,*this).template disconnect_if<removeIsolatedNodes,T>(Lfptr,input);
 		}
 		
         /**********************************************************************/

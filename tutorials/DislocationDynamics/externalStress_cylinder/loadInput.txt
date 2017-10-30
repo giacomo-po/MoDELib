@@ -1,9 +1,9 @@
 ######################################
 # Settings for  ExternalStressController (a uniform stress felt by dislocations)
-use_externalStress=0; 
+use_externalStress=1; 
 ExternalStress0 = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.0;
+		 0.0 0.0 0.01;
 ExternalStressRate = 0.0 0.0 0.0
 		 0.0 0.0 0.0
 		 0.0 0.0 0.0;

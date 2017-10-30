@@ -4,7 +4,7 @@
 USE_ICC = 0
 usePARDISO = 1
 MODEL_INCLUDE =../../../
-EIGEN_INCLUDE=/Users/giacomo/Documents/eigen
+EIGEN_INCLUDE=/usr/local/include
 MKL_INCLUDE=/opt/intel/mkl/include
 MKL_LIB=/opt/intel/mkl/lib
 INTEL_LIB=/opt/intel/lib

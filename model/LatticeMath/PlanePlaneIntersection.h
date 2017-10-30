@@ -109,11 +109,68 @@ namespace model
             return temp;
         }
         
+//        /**********************************************************************/
+//        LatticeVector<3> midPoint(const LatticePlane& plane1,
+//                                  const LatticePlane& plane2,
+//                                  const LatticeDirection<3>& dir)
+//        {
+//            
+//            const LatticeVector<3>& p1=plane1.P;
+//            const ReciprocalLatticeDirection<3>& n1=plane1.n;
+//            const LatticeVector<3>& p2=plane2.P;
+//            const ReciprocalLatticeDirection<3>& n2=plane2.n;
+//            
+//            // Find the Cartesian point P which minimizes (P-p1)^2+(P-p2)^2 under
+//            // the constraints (P-P1)*n1=0 and (P-P2)*n2=0
+//            Eigen::Matrix<double,5,5> M(Eigen::Matrix<double,5,5>::Zero());
+//            M.block<3,3>(0,0)=2.0*Eigen::Matrix<double,3,3>::Identity();
+//            M.block<3,1>(0,3)=n1.cartesian();
+//            M.block<3,1>(0,4)=n2.cartesian();
+//            M.block<1,3>(3,0)=n1.cartesian().transpose();
+//            M.block<1,3>(4,0)=n2.cartesian().transpose();
+//            
+//            Eigen::Matrix<double,5,1> b(Eigen::Matrix<double,5,1>::Zero());
+//            b.segment<3>(0)=p1.cartesian()+p2.cartesian();
+//            b(3)=p1.cartesian().dot(n1.cartesian());
+//            b(4)=p2.cartesian().dot(n2.cartesian());
+//            
+//            const Eigen::Matrix<double,3,1> C=M.lu().solve(b).segment<3>(0);
+//            
+//            assert(fabs((C-p1.cartesian()).dot(n1.cartesian()))<FLT_EPSILON);
+//            assert(fabs((C-p2.cartesian()).dot(n2.cartesian()))<FLT_EPSILON);
+//            
+//            // Starting from C, move along dir and snap o lattice
+//            LatticeVector<3> temp(p1);
+//            const Eigen::Matrix<double,3,1> dc=dir.cartesian();
+//            const int kMax=100;
+//            for (int k=0;k<kMax;++k)
+//            {
+//                temp=LatticeVector<3>(plane1.snapToLattice(C+k*1.0/kMax*dc));
+//                if(plane2.contains(temp))
+//                {
+//                    break;
+//                }
+//            }
+//            
+////            std::cout<<"P1="<<p1.transpose()<<std::endl;
+////            std::cout<<"n1="<<n1.transpose()<<" ("<<n1.cartesian().transpose()<<")"<<std::endl;
+////            std::cout<<"P2="<<p2.transpose()<<std::endl;
+////            std::cout<<"n1="<<n2.transpose()<<" ("<<n2.cartesian().transpose()<<")"<<std::endl;
+//            
+//            assert((temp-p1).dot(n1)==0);
+//            assert((temp-p2).dot(n2)==0);
+//            
+//            
+//            return temp;
+//            
+//        }
+        
         /**********************************************************************/
         PlanePlaneIntersection(const LatticePlane& plane1, const LatticePlane& plane2) :
         /* init */ d(plane1.n,plane2.n),
         /* init */ intersectionType(d.squaredNorm()? incident : ((plane1.P-plane2.P).dot(plane1.n)? parallel : coincident)),
         /* init */ P(intersectionType==incident? midPoint(plane1.P,plane1.n,plane2.P,plane2.n,d) : (intersectionType==coincident? plane1.P : VectorDimI::Zero()))
+//        /* init */ P(intersectionType==incident? midPoint(plane1,plane2,d) : (intersectionType==coincident? plane1.P : VectorDimI::Zero()))
         {
 //         if(intersectionType==incident || intersectionType==coincident)
 //         {

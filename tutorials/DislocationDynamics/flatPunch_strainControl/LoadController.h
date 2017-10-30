@@ -86,8 +86,8 @@ struct LoadController
 {
     typedef typename TrialFunctionType::FiniteElementType FiniteElementType;
     typedef typename FiniteElementType::ElementType ElementType;
-    
     static constexpr int dim=TrialFunctionType::dim;
+    typedef IntegrationDomain<FiniteElementType,1,3,GaussLegendre> IntegrationDomainType;
     
     TrialFunctionType& u;
     
@@ -116,7 +116,7 @@ struct LoadController
     const size_t nodeList_bottom;
     
     size_t nodeList_top;
-    IntegrationDomain<FiniteElementType,1,3,GaussLegendre> punchBnd;
+    IntegrationDomainType punchBnd;
     double punchArea;
     
     /**************************************************************************/
@@ -241,45 +241,14 @@ struct LoadController
         }
     }
     
-    //    /**************************************/
-    //    template <typename FiniteElementType>
-    //    IntegrationDomain<FiniteElementType,1,3,GaussLegendre> punchBoundary(const FiniteElementType& fe) const
-    //    {
-    //        IntegrationDomain<FiniteElementType,1,3,GaussLegendre> temp;
-    //
-    //        // loop ever Elements
-    //        for(const auto& eIter : fe.elements())
-    //        {
-    //            if(eIter.second.isBoundaryElement())
-    //            {
-    //                const std::vector<int> boundaryFaces=eIter.second.boundaryFaces();
-    //                for (unsigned int f=0;f<boundaryFaces.size();++f) // loop ever bonudary faces of the current Elements
-    //                {
-    //                    bool isFaceUnderPunch(true);
-    //                    std::array<const Simplex<FiniteElementType::dim,0>*, SimplexTraits<FiniteElementType::dim,FiniteElementType::dim-1>::nVertices> vertices=eIter.second.simplex.child(boundaryFaces[f]).vertices();
-    //                    for(unsigned int v=0;v<vertices.size();++v) // loop over vertices of the current face
-    //                    {
-    //                        isFaceUnderPunch *= (std::fabs(vertices[v]->P0(2)-u.fe().xMax()(2))<geometricTol); // check if the current vertices satisfies operator()
-    //                    }
-    //                    if(isFaceUnderPunch)
-    //                    {
-    //                        temp.emplace_back(&eIter.second,boundaryFaces[f]);
-    //                    }
-    //                }
-    //            }
-    //        }
-    //
-    //        return temp;
-    //    }
-    
     /**************************************/
     template <typename FiniteElementType>
-    IntegrationDomain<FiniteElementType,1,3,GaussLegendre> boundaryUnderPunch(const FiniteElementType& fe) const
+    IntegrationDomainType boundaryUnderPunch(const FiniteElementType& fe) const
     {
         
         TopNodeSelector tns(fe,punchShape,punchSize,0.01);
         
-        IntegrationDomain<FiniteElementType,1,3,GaussLegendre> temp;
+        IntegrationDomainType temp;
         
         // loop ever Elements
         //        for (typename FiniteElementType::ElementContainerType::const_iterator eIter =fe.elementBegin();

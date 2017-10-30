@@ -40,7 +40,7 @@ namespace model
         mesh(mesh_in)
         {
             model::cout<<"Creating Polycrystal"<<std::endl;
-            for(const auto& rIter : MeshRegionObserverType::regions())
+            for(const auto& rIter : mesh.regions())
             {
                 grains().emplace(rIter.second->regionID,*(rIter.second));
                 //model::cout<<"mesh region "<<rIter.second->regionID<<" contains "<<rIter.second->size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
