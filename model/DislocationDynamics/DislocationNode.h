@@ -314,7 +314,7 @@ namespace model
                 }
             }
             
-                        std::cout<<"DislocationNode "<<this->sID<<" addLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
+//                        std::cout<<"DislocationNode "<<this->sID<<" addLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
 
         }
         
@@ -357,7 +357,7 @@ namespace model
                 _isGlissile=false;
             }
             
-            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
+//            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
 
         }
         
@@ -599,7 +599,7 @@ namespace model
         {
             return isBoundaryNode() && isConnectedToBoundaryNodes();
         }
-        
+//
         /**********************************************************************/
         bool isConnectedToBoundaryNodes() const
         {
@@ -616,19 +616,80 @@ namespace model
         }
         
         /**********************************************************************/
-        bool isPureGBNode() const
+        bool isSimpleBndNode() const
         {
-            bool temp(!this->is_isolated());
-            for (const auto& neighborIter : this->neighbors())
+            bool temp=false;
+            if(isOnBoundingBox())
             {
-//                if (std::get<2>(neighborIter.second)) // not self
-//                {
-                    temp*=std::get<0>(neighborIter.second)->isGrainBoundaryNode();
-//                }
+                if(this->isSimple())
+                {
+                    temp=true;
+                    
+                    std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> normalDeq;
+                    std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> chordDeq;
+                    
+                    for (const auto& neighborIter : this->neighbors())
+                    {
+                        //                        if (!std::get<2>(neighborIter.second)==0)
+                        //                        {
+                        if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
+                        {  // neighbor not searched
+                            temp*=std::get<0>(neighborIter.second)->isOnBoundingBox();
+                            normalDeq.push_back(std::get<0>(neighborIter.second)->bndNormal());
+                            chordDeq.push_back(std::get<1>(neighborIter.second)->chord());
+                        }
+                        //                        }
+                    }
+                    
+                    
+                    if(normalDeq.size())
+                    {
+                        for(const auto& bndN : normalDeq)
+                        {
+                            temp*=((bndN-normalDeq[0]).squaredNorm()<FLT_EPSILON);
+                        }
+                    }
+                    else
+                    {
+                        temp=false;
+                    }
+                    
+                    if(chordDeq.size())
+                    {
+                        for(const auto& chord : chordDeq)
+                        {
+                            temp*=(chord.cross(chordDeq[0]).squaredNorm()<FLT_EPSILON);
+                        }
+                    }
+                    else
+                    {
+                        temp=false;
+                    }
+                    
+                    
+                    
+                }
+                
             }
             
-            return (isGrainBoundaryNode()&&temp);
+            return temp;
         }
+        
+//
+//        /**********************************************************************/
+//        bool isPureGBNode() const
+//        {
+//            bool temp(!this->is_isolated());
+//            for (const auto& neighborIter : this->neighbors())
+//            {
+////                if (std::get<2>(neighborIter.second)) // not self
+////                {
+//                    temp*=std::get<0>(neighborIter.second)->isGrainBoundaryNode();
+////                }
+//            }
+//            
+//            return (isGrainBoundaryNode()&&temp);
+//        }
         
         /******************************************************************************/
         void neighborsAt(const LatticeVectorType& L0, std::set<size_t>& temp) const
@@ -683,13 +744,12 @@ namespace model
             //VectorDim dX=(0.5*velocity.template segment<dim>(0)+0.5*vOld)*dt; // Adams–Bashforth
             
             
-            //Limit dX for boundaryNodes bec
-            
-            const double dXnorm(dX.norm());
-            if((isBoundaryNode() || isConnectedToBoundaryNodes()) && dXnorm>dxMax)
-            {
-                dX*=dxMax/dXnorm;
-            }
+//            //Limit dX for boundaryNodes bec
+//            const double dXnorm(dX.norm());
+//            if((isBoundaryNode() || isConnectedToBoundaryNodes()) && dXnorm>dxMax)
+//            {
+//                dX*=dxMax/dXnorm;
+//            }
             
             if (dX.squaredNorm()>0.0 && _isGlissile) // move a node only if |v|!=0
             {
@@ -744,65 +804,7 @@ namespace model
             vOld=velocity; // store current value of velocity before updating
         }
         
-        /**********************************************************************/
-        bool isSimpleBndNode() const
-        {
-            bool temp=false;
-            if(isOnBoundingBox())
-            {
-                if(this->isSimple())
-                {
-                    temp=true;
-                    
-                    std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> normalDeq;
-                    std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> chordDeq;
-                    
-                    for (const auto& neighborIter : this->neighbors())
-                    {
-//                        if (!std::get<2>(neighborIter.second)==0)
-//                        {
-                            if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
-                            {  // neighbor not searched
-                                temp*=std::get<0>(neighborIter.second)->isOnBoundingBox();
-                                normalDeq.push_back(std::get<0>(neighborIter.second)->bndNormal());
-                                chordDeq.push_back(std::get<1>(neighborIter.second)->chord());
-                            }
-//                        }
-                    }
-                    
-                    
-                    if(normalDeq.size())
-                    {
-                        for(const auto& bndN : normalDeq)
-                        {
-                            temp*=((bndN-normalDeq[0]).squaredNorm()<FLT_EPSILON);
-                        }
-                    }
-                    else
-                    {
-                        temp=false;
-                    }
-                    
-                    if(chordDeq.size())
-                    {
-                        for(const auto& chord : chordDeq)
-                        {
-                            temp*=(chord.cross(chordDeq[0]).squaredNorm()<FLT_EPSILON);
-                        }
-                    }
-                    else
-                    {
-                        temp=false;
-                    }
-                    
 
-                    
-                }
-            
-            }
-            
-            return temp;
-        }
         
         
         /**********************************************************************/

@@ -177,6 +177,7 @@ Fexists=$(shell test -d F && echo 1)
 Gexists=$(shell test -d G && echo 1)
 Cexists=$(shell test -d C && echo 1)
 Kexists=$(shell test -d K && echo 1)
+Lexists=$(shell test -d L && echo 1)
 Pexists=$(shell test -d P && echo 1)
 Dexists=$(shell test -d D && echo 1)
 Sexists=$(shell test -d S && echo 1)
@@ -192,6 +193,9 @@ empty:
 	@echo emptying folder E
 	@find E/ -name E_\*.txt ! -name E_0.txt -exec rm {} +;
 	@find E/ -name E_\*.bin -exec rm {} +;
+	@echo emptying folder L
+	@find L/ -name L_\*.txt ! -name L_0.txt -exec rm {} +;
+	@find L/ -name L_\*.bin -exec rm {} +;
 ifeq ($(Fexists),1)
 	@echo emptying folder F
 	@find F/ -name F_\*.txt -exec rm {} +;
@@ -209,7 +213,7 @@ ifeq ($(Cexists),1)
 endif
 ifeq ($(Kexists),1)
 	@echo emptying folder K
-	@find K/ -name K_\*.txt ! -name K_0.txt -exec rm {} +;
+	@find K/ -name K_\*.txt -exec rm {} +;
 	@find K/ -name K_\*.bin -exec rm {} +;
 endif
 ifeq ($(Pexists),1)

@@ -257,7 +257,7 @@ namespace model
         {
 //            std::cout<<"LoopNode "<<this->sID<<" adding Link "<<pL->source->sID<<"->"<<pL->sink->sID<<std::endl;
             
-            assert(pL->source().get()==this || pL->sink().get()==this && "LoopLink connected to wrong node.");
+            assert((pL->source().get()==this || pL->sink().get()==this) && "LoopLink connected to wrong node.");
 
             const bool inserted=loopLinks().insert(pL).second; // Store the connecting link
 

@@ -20,7 +20,7 @@ namespace model
         
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         
-        const size_t sID;          // sID
+        const size_t loopID;          // loopID
         const VectorDim B;          // position
         const VectorDim N;          // velocity
         const VectorDim P;          // velocity
@@ -29,7 +29,7 @@ namespace model
         /**********************************************************************/
         template<typename DislocationLoopType>
         DislocationLoopIO(const DislocationLoopType& dL) :
-        /* init */ sID(dL.sID),
+        /* init */ loopID(dL.sID),
         /* init */ B(dL.flow().cartesian()),
         /* init */ N(dL.glidePlane.n.cartesian()),
         /* init */ P(dL.glidePlane.P.cartesian()),
@@ -39,12 +39,12 @@ namespace model
         }
         
         /**********************************************************************/
-        DislocationLoopIO(const size_t& sID_in,         // sID
+        DislocationLoopIO(const size_t& loopID_in,         // loopID
                           const VectorDim& B_in,          // position
                           const VectorDim& N_in,          // velocity
                           const VectorDim& P_in,          // velocity
                           const size_t& grainID) :
-        /* init */ sID(sID_in),
+        /* init */ loopID(loopID_in),
         /* init */ B(B_in),
         /* init */ N(N_in),
         /* init */ P(P_in),
@@ -58,7 +58,7 @@ namespace model
         template <class T>
         friend T& operator << (T& os, const DislocationLoopIO<dim>& ds)
         {
-            os  << ds.sID<<"\t"
+            os  << ds.loopID<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.B.transpose()<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.N.transpose()<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.P.transpose()<<"\t"

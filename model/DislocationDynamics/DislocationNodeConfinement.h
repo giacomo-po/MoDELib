@@ -262,7 +262,27 @@ namespace model
                 {
                     const VectorDim D=_glidePlaneIntersections[0].second-_glidePlaneIntersections[0].first;
                     const double normD2(D.squaredNorm());
-                    return normD2>FLT_EPSILON? _glidePlaneIntersections[0].first+(P-_glidePlaneIntersections[0].first).dot(D)*D/normD2 : _glidePlaneIntersections[0].first;
+                    if(normD2>FLT_EPSILON)
+                    {
+                        const double u=(P-_glidePlaneIntersections[0].first).dot(D)/normD2;
+                        if(u<0.0)
+                        {
+                            return _glidePlaneIntersections[0].first;
+                        }
+                        else if(u>1.0)
+                        {
+                            return _glidePlaneIntersections[0].second;
+                        }
+                        else
+                        {
+                            return _glidePlaneIntersections[0].first+u*D;
+                        }
+                    }
+                    else
+                    {
+                        return _glidePlaneIntersections[0].first;
+                    }
+
                     break;
                 }
                     

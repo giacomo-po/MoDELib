@@ -50,7 +50,7 @@ namespace model
     template <int _dim, short unsigned int _corder, typename InterpolationType>
     class DislocationSegment : public SplineSegment<DislocationSegment<_dim,_corder,InterpolationType>,
     /*                                              */ _dim, _corder>
-//    /*                                              */ private std::set<const GrainBoundary<dim>*>
+    //    /*                                              */ private std::set<const GrainBoundary<dim>*>
     {
         
         
@@ -84,6 +84,7 @@ namespace model
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef std::set<const GrainBoundary<NetworkType>*> GrainBoundaryContainerType;
+        typedef GlidePlane<NetworkType> GlidePlaneType;
         
         /******************************************************************/
     private: //  data members
@@ -127,7 +128,7 @@ namespace model
         
         bool _isSessile;
         
-//        const std::set<const GrainBoundary<dim>*> grainBoundarySet;
+        //        const std::set<const GrainBoundary<dim>*> grainBoundarySet;
         
         /******************************************************************/
     public: //  data members
@@ -141,7 +142,7 @@ namespace model
         
         const std::deque<const LatticePlaneBase*> conjugatePlaneNormals;
         
-//        DislocationSharedObjects<dim> shared;
+        //        DislocationSharedObjects<dim> shared;
         
         static double quadPerLength;
         size_t qOrder;
@@ -198,8 +199,8 @@ namespace model
             VectorDim vv=VectorDim::Zero();
             if(glideForceNorm>FLT_EPSILON)
             {
-//                double v =  (this->grainBoundarySet.size()==1) ? (*(this->grainBoundarySet.begin()))->grainBoundaryType().gbMobility.velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal,Material<Isotropic>::T) :
-//                /*                                              */ Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal);
+                //                double v =  (this->grainBoundarySet.size()==1) ? (*(this->grainBoundarySet.begin()))->grainBoundaryType().gbMobility.velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal,Material<Isotropic>::T) :
+                //                /*                                              */ Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal);
                 double v =  Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal);
                 assert(v>= 0.0 && "Velocity must be a positive scalar");
                 const bool useNonLinearVelocity=true;
@@ -264,7 +265,7 @@ namespace model
         
         void updateGrainBonudaries()
         {
-        
+            
         }
         
         
@@ -286,12 +287,12 @@ namespace model
           *  @param[in] Flow_in the input flow
           */
             
-//            std::cout<<"NEED TO REDEFINE ISSESSILE"<<std::endl;
+            //            std::cout<<"NEED TO REDEFINE ISSESSILE"<<std::endl;
             pkGauss.setZero(dim,qOrder); // necessary if this is not assembled
         }
         
-
-
+        
+        
         
         /**********************************************************************/
         void addLink(LoopLinkType* const pL)
@@ -309,7 +310,7 @@ namespace model
             }
             
             updateGlidePlaneNormal();
-                        
+            
         }
         
         /**********************************************************************/
@@ -358,16 +359,16 @@ namespace model
                         temp.insert(&this->network().poly.grainBoundary(gr1->grainID,gr2->grainID));
                     }
                 }
-            
+                
             }
             return temp;
         }
         
-//        /**********************************************************************/
-//        GrainBoundaryContainerType& grainBoundaries()
-//        {
-//            return *this;
-//        }
+        //        /**********************************************************************/
+        //        GrainBoundaryContainerType& grainBoundaries()
+        //        {
+        //            return *this;
+        //        }
         
         /**********************************************************************/
         void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
@@ -703,20 +704,12 @@ namespace model
             return (temp+temp.transpose())*0.5;
         }
         
-        /**********************************************************************/
-        bool isBoundarySegment() const
-        {
-            return (   this->source->isBoundaryNode()
-                    && this->sink->isBoundaryNode()
-                    && this->source->bndNormal().cross(this->sink->bndNormal()).squaredNorm()<FLT_EPSILON);
-        }
-        
-//        /**********************************************************************/
-//        bool isGrainBoundarySegment() const
-//        {
-//            return this->source->isGrainBoundaryNode() && this->sink->isGrainBoundaryNode();
-//            //            return this->grainBoundarySet.size();
-//        }
+        //        /**********************************************************************/
+        //        bool isGrainBoundarySegment() const
+        //        {
+        //            return this->source->isGrainBoundaryNode() && this->sink->isGrainBoundaryNode();
+        //            //            return this->grainBoundarySet.size();
+        //        }
         
         /**********************************************************************/
         Eigen::Matrix<double,dim-1,Ncoeff> hermiteLocalCoefficient() const
@@ -818,12 +811,59 @@ namespace model
             return stressGauss[qOrder/2];
         }
         
+        //        /**********************************************************************/
+        //        bool isSimpleBndSegment() const
+        //        {
+        //            return this->source->isSimpleBndNode() && this->sink->isSimpleBndNode()
+        //            /*  */ && this->source->bndNormal().cross(this->sink->bndNormal()).squaredNorm()<FLT_EPSILON
+        //            /*  */ && !hasZeroBurgers();
+        //        }
+        
         /**********************************************************************/
-        bool isSimpleBndSegment() const
-        {
-            return this->source->isSimpleBndNode() && this->sink->isSimpleBndNode()
-            /*  */ && this->source->bndNormal().cross(this->sink->bndNormal()).squaredNorm()<FLT_EPSILON
-            /*  */ && !hasZeroBurgers();
+        bool isBoundarySegment() const
+        {/*!\returns true if both nodes are boundary nodes, and the midpoint is
+          * on the boundary.
+          */
+            bool temp(this->source->isBoundaryNode() && this->sink->isBoundaryNode());
+            
+            
+//            std::cout<<"DislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
+//            std::cout<<temp<<std::endl;
+            
+            if(temp)
+            {// Nodes are on boundary. We need to check if the midpoint is also on the boundary
+                // collect common planes
+                std::set<const GlidePlaneType*> commonPlanes;
+                std::set_intersection(this->source->glidePlanes().begin(),this->source->glidePlanes().end(),
+                                      this->  sink->glidePlanes().begin(),this->  sink->glidePlanes().end(),
+                                      std::inserter(commonPlanes,commonPlanes.begin()));
+                
+//                            std::cout<<"commonPlanes.size="<<commonPlanes.size()<<std::endl;
+                
+                const VectorDim midPnt(0.5*(this->source->get_P()+this->sink->get_P()));
+                bool midPntContained=false;
+                for(const auto& gp : commonPlanes)
+                {
+                    
+                    BoundingLineSegments<dim> bls;
+                    bls.updateWithGlidePlane(*gp);
+//                    std::cout<<"bls="<<bls.size()<<std::endl;
+//                    std::cout<<"bls contains "<<bls.contains(MidPnt)<<std::endl;
+                    
+                    if(bls.contains(midPnt))
+                    {
+                        midPntContained=true;
+                        break;
+                    }
+                }
+                
+                temp*=midPntContained;
+                
+//                temp=false; // if we exist the for loop before break, then no common plane contains the mid point
+                
+            }
+            
+            return temp;
         }
         
         /**********************************************************************/

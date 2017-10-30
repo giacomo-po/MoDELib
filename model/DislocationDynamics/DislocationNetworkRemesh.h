@@ -200,6 +200,11 @@ namespace model
             for (const auto& linkIter : DN.links())
             {
                 
+//                std::cout<<"Exxpanding "<<linkIter.second->source->sID<<"->"<<linkIter.second->sink->sID<<std::endl;
+//                std::cout<<linkIter.second->hasZeroBurgers()<<std::endl;
+//                std::cout<<linkIter.second->isSessile()<<std::endl;
+//                                std::cout<<linkIter.second->isBoundarySegment()<<std::endl;
+                
                 if( !linkIter.second->hasZeroBurgers()
                    //&& !linkIter.second->isSimpleSessile())
                    && !linkIter.second->isSessile()

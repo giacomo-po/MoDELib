@@ -67,7 +67,8 @@ namespace model
                 
                 for (const auto& row : *this)
                 {
-                    table->SetValue(i, 0, row.second[xCcol]);
+//                    table->SetValue(i, 0, row.second[xCcol]);
+                    table->SetValue(i, 0, row.first);
                     table->SetValue(i, 1, row.second[yCol]);
                     
                     i++;

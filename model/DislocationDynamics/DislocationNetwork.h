@@ -385,16 +385,19 @@ namespace model
                         
                         if(pli.type==PlaneLineIntersection<dim>::COINCIDENT)
                         {// nothing to do, _glidePlaneIntersections remains unchanged
+                            std::cout<<"contractPoint case 10aa1"<<std::endl;
                             nA->set_P(nA->snapToGlidePlaneIntersection(0.5*(nA->get_P()+nB->get_P())));
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else if(pli.type==PlaneLineIntersection<dim>::INCIDENT)
                         {// _glidePlaneIntersections becomes a singular point
+                            std::cout<<"contractPoint case 10aa2"<<std::endl;
                             nA->set_P(pli.P);
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else
                         {// parallel planes, cannot contract
+                            std::cout<<"contractPoint case 10aa3"<<std::endl;
                             return false;
                         }
                         
