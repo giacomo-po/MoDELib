@@ -302,9 +302,25 @@ namespace model
                 {// both nodes on bounding boxes. Intersect bounding boxes'
                     std::cout<<"contractPoint case 1aa"<<std::endl;
                     BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
+                    std::cout<<"temp.size()="<<temp.size()<<std::endl;
                     if(temp.size())
                     {// a common portion of the boundary exists
                         std::cout<<"contractPoint case 1"<<std::endl;
+
+                        
+//                        const tupA(temp.snap(nA->get_P()));
+//                        const tupB(temp.snap(nB->get_P()));
+//                        
+//                        if(std::get<1>(tupA)==std::get<1>(tupB))
+//                        {// IDs of the bounding box lines are the same
+//                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
+//                            return this->contractSecond(nA->sID,nB->sID);
+//                        }
+//                        else
+//                        {
+//                        FINISH HERE
+////                            AND ADD GLIDE PLANES TO NODES
+//                        }
                         
                         const auto Av(temp.snapToVertex(nA->get_P()));
                         const auto Bv(temp.snapToVertex(nB->get_P()));
@@ -322,12 +338,12 @@ namespace model
                                 return false;
                             }
                         }
-                        else if(Av.first<FLT_EPSILON && !Bv.first<FLT_EPSILON)
+                        else if(Av.first<FLT_EPSILON && !(Bv.first<FLT_EPSILON))
                         {// A is on a vertex, leave A
                             std::cout<<"contractPoint case 1aC"<<std::endl;
                             return this->contractSecond(nA->sID,nB->sID);
                         }
-                        else if(!Av.first<FLT_EPSILON && Bv.first<FLT_EPSILON)
+                        else if(!(Av.first<FLT_EPSILON) && Bv.first<FLT_EPSILON)
                         {// B is on a vertex, leave B
                             std::cout<<"contractPoint case 1aD"<<std::endl;
                             return this->contractSecond(nB->sID,nA->sID);
@@ -335,7 +351,7 @@ namespace model
                         else
                         {// neither A nor B are on vertices
                             std::cout<<"contractPoint case 1aE"<<std::endl;
-                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
+                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                     }
@@ -354,7 +370,7 @@ namespace model
                         if(temp.size())
                         {
                             std::cout<<"contractPoint case 3"<<std::endl;
-                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
+                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else
@@ -368,10 +384,11 @@ namespace model
                         std::cout<<"contractPoint case 5aa"<<std::endl;
                         BoundingLineSegments<dim> temp=nA->boundingBoxSegments();
                         temp.updateWithGlidePlane(nB->glidePlane(0));
+                        std::cout<<"temp.size="<<temp.size()<<std::endl;
                         if(temp.size())
                         {
                             std::cout<<"contractPoint case 5"<<std::endl;
-                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
+                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else
@@ -395,7 +412,7 @@ namespace model
                         if(temp.size())
                         {
                             std::cout<<"contractPoint case 8"<<std::endl;
-                            nA->set_P(temp.snap(0.5*(nA->get_P()+nB->get_P())));
+                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else

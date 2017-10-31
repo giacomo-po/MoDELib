@@ -29,6 +29,13 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef std::pair<VectorDim,VectorDim> LineSegmentType;
         typedef std::deque<LineSegmentType,Eigen::aligned_allocator<LineSegmentType>> LineSegmentContainerType;
+        typedef std::tuple<VectorDim,size_t,double> SnapReturnType;
+        
+//        /**********************************************************************/
+//        const LineSegmentContainerType& segments() const
+//        {
+//            return *this;
+//        }
         
         
         /**********************************************************************/
@@ -64,12 +71,15 @@ namespace model
                     if(iSeg.size()==1)
                     {
 //                        std::cout<<std::get<0>(iSeg[0]).transpose()<<" -B- "<<std::get<0>(iSeg[0]).transpose()<<std::endl;
-                        this->emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
+//                        this->emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
+                        emplaceUnique(*this,std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
+
                     }
                     else if(iSeg.size()==2)
                     {
 //                        std::cout<<std::get<0>(iSeg[0]).transpose()<<" -C- "<<std::get<0>(iSeg[1]).transpose()<<std::endl;
-                        this->emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
+//                        this->emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
+                        emplaceUnique(*this,std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
                     }
                     else
                     {// do nothing
@@ -80,6 +90,100 @@ namespace model
             
 //            std::cout<<"BoundingLineSegments "<<this<<", size="<<this->size()<<std::endl;
             
+        }
+        
+        /**********************************************************************/
+        template <typename LoopType>
+        void updateWithGlidePlane(const GlidePlane<LoopType>& gp)
+        {
+            
+            
+            if(this->size())
+            {
+                LineSegmentContainerType temp;
+                
+                for(const auto& oldPair : *this)
+                {
+                    const LineSegmentContainerType psi=GlidePlaneObserver<LoopType>::planeSegmentIntersection(gp.P.cartesian(),
+                                                                                                              gp.n.cartesian(),
+                                                                                                              oldPair.first,
+                                                                                                              oldPair.second);
+                    if(psi.size())
+                    {// plane and current segment intersect
+                        for(size_t k=0;k<gp.meshIntersections.size();++k)
+                        {
+                            const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
+                            
+                            //                            SegmentSegmentIntersection<dim> ssi(gp.meshIntersections[k].second,
+                            //                                                                gp.meshIntersections[k1].second,
+                            //                                                                oldPair.first,
+                            //                                                                oldPair.second);
+                            //                            std::cout<<"Comparison 2"<<std::endl;
+                            //                            if(ssi.size)
+                            //                            {
+                            //                                std::cout<<ssi.x0.transpose()<<" -A- "<<ssi.x1.transpose()<<std::endl;
+                            //                                temp.emplace_back(ssi.x0,ssi.x1);
+                            //                            }
+                            
+                            SegmentSegmentDistance<dim> ssd(gp.meshIntersections[k].second,
+                                                            gp.meshIntersections[k1].second,
+                                                            oldPair.first,
+                                                            oldPair.second);
+                            
+                            const auto iSeg=ssd.intersectionSegment();
+                            if(iSeg.size()==1)
+                            {
+                                //                                std::cout<<std::get<0>(iSeg[0]).transpose()<<" -B- "<<std::get<0>(iSeg[0]).transpose()<<std::endl;
+//                                temp.emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
+                                emplaceUnique(temp,std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
+                            }
+                            else if(iSeg.size()==2)
+                            {
+                                //                                std::cout<<std::get<0>(iSeg[0]).transpose()<<" -C- "<<std::get<0>(iSeg[1]).transpose()<<std::endl;
+                                //temp.emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
+                                emplaceUnique(temp,std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
+
+                            }
+                            else
+                            {// do nothing
+                                
+                            }
+                            
+                        }
+                    }
+                }
+                
+                this->swap(temp);
+            }
+            else
+            {
+                for(size_t k=0;k<gp.meshIntersections.size();++k)
+                {
+                    const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
+                    this->emplace_back(gp.meshIntersections[k].second,gp.meshIntersections[k1].second);
+                }
+            }
+            
+        }
+        
+        /**********************************************************************/
+        static void emplaceUnique(LineSegmentContainerType& temp,const VectorDim& P1,const VectorDim& P2)
+        {
+            bool isUnique=true;
+            for(const auto& pair : temp)
+            {
+                isUnique*=((pair.first-P1).squaredNorm()>FLT_EPSILON || (pair.second-P2).squaredNorm()>FLT_EPSILON);
+                isUnique*=((pair.first-P2).squaredNorm()>FLT_EPSILON || (pair.second-P1).squaredNorm()>FLT_EPSILON);
+                if(!isUnique)
+                {
+                    break;
+                }
+            }
+            
+            if(isUnique)
+            {
+                temp.emplace_back(P1,P2);
+            }
         }
         
         
@@ -123,15 +227,12 @@ namespace model
         }
         
         /**********************************************************************/
-        VectorDim snap(const VectorDim& P) const
+        bool contains(const VectorDim& P,const size_t& k) const
         {
-            
-            assert(this->size() && "CANNOT SNAP TO EMPTY BoundingLineSegments");
-            
-            std::map<double,VectorDim,std::less<double>,Eigen::aligned_allocator<std::pair<double,VectorDim>>> snapMap;
-            
-            for(const auto& vertexPair : *this)
+            bool temp(false);
+            if(k<this->size())
             {
+                const auto& vertexPair(this->operator[](k));
                 const VectorDim segm(vertexPair.second-vertexPair.first);
                 const double segmNorm2(segm.squaredNorm());
                 if(segmNorm2>FLT_EPSILON)
@@ -146,17 +247,70 @@ namespace model
                         u=1.0;
                     }
                     const VectorDim x(vertexPair.first+u*segm);
-                    snapMap.emplace((P-x).squaredNorm(),x);
+                    if((P-x).squaredNorm()<FLT_EPSILON)
+                    {
+                        temp=true;
+                    }
                 }
                 else
                 {
                     const VectorDim x(0.5*(vertexPair.second+vertexPair.first));
-                    snapMap.emplace((P-x).squaredNorm(),x);
+                    if((P-x).squaredNorm()<FLT_EPSILON)
+                    {
+                        temp=true;
+                    }
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        SnapReturnType snap(const VectorDim& P) const
+        {
+            
+            assert(this->size() && "CANNOT SNAP TO EMPTY BoundingLineSegments");
+            
+            std::map<double,std::pair<VectorDim,size_t>,std::less<double>,Eigen::aligned_allocator<std::pair<double,std::pair<VectorDim,size_t>>>> snapMap;
+            
+//            for(const auto& vertexPair : *this)
+                for(size_t k=0;k<this->size();++k)
+            {
+                const LineSegmentType& vertexPair(this->operator[](k));
+                const VectorDim segm(vertexPair.second-vertexPair.first);
+                const double segmNorm2(segm.squaredNorm());
+                if(segmNorm2>FLT_EPSILON)
+                {
+                    double u((P-vertexPair.first).dot(segm)/segmNorm2);
+                    if(u<0.0)
+                    {
+                        u=0.0;
+                    }
+                    if(u>1.0)
+                    {
+                        u=1.0;
+                    }
+                    const VectorDim x(vertexPair.first+u*segm);
+                    //snapMap.emplace((P-x).squaredNorm(),x);
+                    snapMap.emplace(std::piecewise_construct,
+                                                        std::make_tuple((P-x).squaredNorm()),
+                                                        std::make_tuple(x,k)
+                                                        );
+
+                }
+                else
+                {
+                    const VectorDim x(0.5*(vertexPair.second+vertexPair.first));
+//                    snapMap.emplace((P-x).squaredNorm(),x);
+                    snapMap.emplace(std::piecewise_construct,
+                                    std::make_tuple((P-x).squaredNorm()),
+                                    std::make_tuple(x,k)
+                                    );
+
                 }
             }
             
-            return snapMap.begin()->second;
-            
+//            return snapMap.begin()->second;
+            return std::make_tuple(snapMap.begin()->second.first,snapMap.begin()->second.second,snapMap.begin()->first);
         }
         
         /**********************************************************************/
@@ -176,76 +330,7 @@ namespace model
             
         }
         
-        /**********************************************************************/
-        template <typename LoopType>
-        void updateWithGlidePlane(const GlidePlane<LoopType>& gp)
-        {
-            
-            
-            if(this->size())
-            {
-                LineSegmentContainerType temp;
-                
-                for(const auto& oldPair : *this)
-                {
-                    const LineSegmentContainerType psi=GlidePlaneObserver<LoopType>::planeSegmentIntersection(gp.P.cartesian(),
-                                                                                                              gp.n.cartesian(),
-                                                                                                              oldPair.first,
-                                                                                                              oldPair.second);
-                    if(psi.size())
-                    {// plane and current segment intersect
-                        for(size_t k=0;k<gp.meshIntersections.size();++k)
-                        {
-                            const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
-                            
-//                            SegmentSegmentIntersection<dim> ssi(gp.meshIntersections[k].second,
-//                                                                gp.meshIntersections[k1].second,
-//                                                                oldPair.first,
-//                                                                oldPair.second);
-//                            std::cout<<"Comparison 2"<<std::endl;
-//                            if(ssi.size)
-//                            {
-//                                std::cout<<ssi.x0.transpose()<<" -A- "<<ssi.x1.transpose()<<std::endl;
-//                                temp.emplace_back(ssi.x0,ssi.x1);
-//                            }
-                            
-                            SegmentSegmentDistance<dim> ssd(gp.meshIntersections[k].second,
-                                                            gp.meshIntersections[k1].second,
-                                                            oldPair.first,
-                                                            oldPair.second);
-                            
-                            const auto iSeg=ssd.intersectionSegment();
-                            if(iSeg.size()==1)
-                            {
-//                                std::cout<<std::get<0>(iSeg[0]).transpose()<<" -B- "<<std::get<0>(iSeg[0]).transpose()<<std::endl;
-                                temp.emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
-                            }
-                            else if(iSeg.size()==2)
-                            {
-//                                std::cout<<std::get<0>(iSeg[0]).transpose()<<" -C- "<<std::get<0>(iSeg[1]).transpose()<<std::endl;
-                                temp.emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
-                            }
-                            else
-                            {// do nothing
-                                
-                            }
-                            
-                        }
-                    }
-                }
-                
-                this->swap(temp);
-            }
-            else
-            {
-                for(size_t k=0;k<gp.meshIntersections.size();++k)
-                {
-                    const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
-                    this->emplace_back(gp.meshIntersections[k].second,gp.meshIntersections[k1].second);
-                }
-            }
-            
-        }
+
         
     };
     

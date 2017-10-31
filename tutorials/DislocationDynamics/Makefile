@@ -48,8 +48,8 @@ else
 endif
 
 # enable warnings
-CFLAGS += -Wall -Wextra
-
+CFLAGS += -Wall 
+#CFLAGS += -Wextra
 
 ############################################
 # Compiler flags for MKL PARDISO
