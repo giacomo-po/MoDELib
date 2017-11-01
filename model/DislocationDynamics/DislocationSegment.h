@@ -825,31 +825,20 @@ namespace model
           * on the boundary.
           */
             bool temp(this->source->isBoundaryNode() && this->sink->isBoundaryNode());
-            
-            
-//            std::cout<<"DislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
-//            std::cout<<temp<<std::endl;
-            
             if(temp)
             {// Nodes are on boundary. We need to check if the midpoint is also on the boundary
-                // collect common planes
-                std::set<const GlidePlaneType*> commonPlanes;
+                std::set<const GlidePlaneType*> commonPlanes; // container of common planes
                 std::set_intersection(this->source->glidePlanes().begin(),this->source->glidePlanes().end(),
                                       this->  sink->glidePlanes().begin(),this->  sink->glidePlanes().end(),
                                       std::inserter(commonPlanes,commonPlanes.begin()));
-                
-//                            std::cout<<"commonPlanes.size="<<commonPlanes.size()<<std::endl;
-                
+
                 const VectorDim midPnt(0.5*(this->source->get_P()+this->sink->get_P()));
                 bool midPntContained=false;
                 for(const auto& gp : commonPlanes)
                 {
-                    
                     BoundingLineSegments<dim> bls;
                     bls.updateWithGlidePlane(*gp);
-//                    std::cout<<"bls="<<bls.size()<<std::endl;
-//                    std::cout<<"bls contains "<<bls.contains(MidPnt)<<std::endl;
-                    
+
                     if(bls.contains(midPnt))
                     {
                         midPntContained=true;
@@ -858,9 +847,6 @@ namespace model
                 }
                 
                 temp*=midPntContained;
-                
-//                temp=false; // if we exist the for loop before break, then no common plane contains the mid point
-                
             }
             
             return temp;

@@ -18,6 +18,7 @@
 #include <model/MPI/MPIcout.h>
 #include <model/Threads/EqualIteratorRange.h>
 #include <model/Threads/N2IteratorRange.h>
+#define VerboseJunctions(N,x) if(verboseJunctions>=N){model::cout<<x;}
 
 namespace model
 {
@@ -60,6 +61,7 @@ namespace model
         //! The tolerance (in units of distance) used for collision detection
         static double collisionTol;
         //        static bool useVertexEdgeJunctions;
+        static int verboseJunctions;
         
         
         /* Constructor ********************************************************/
@@ -251,6 +253,11 @@ namespace model
                                     }
                                 }
                                 
+                                VerboseJunctions(1,"DislocationJunction "<<key1.first<<"->"<<key1.second<<", "
+                                                 /*                   */ <<key2.first<<"->"<<key2.second<<", "
+                                                 /*                   */ <<"@ ("<<t<<","<<u<<"), "
+                                                 /*                   */ <<"contracting "<<Ni->sID<<" "<<Nj->sID<<std::endl;);
+                                
                                 DN.contract(Ni,Nj);
                                 
                                 
@@ -270,148 +277,149 @@ namespace model
                 
             }
             
-            /**********************************************************************/
-            void breakZeroLengthJunctions()
-            {
-                const auto t0= std::chrono::system_clock::now();
-                model::cout<<"		Breaking zero-length Junctions... "<<std::flush;
-                
-                std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecompFirst;
-                std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecompSecond;
-                
-                
-                // TO DO: PARALLELIZE THIS LOOP
-                for (auto& nodePair : DN.nodes())
-                {
-                    const auto temp=nodePair.second.edgeDecomposition();
-                    //std::deque<std::pair<size_t,size_t> > temp=nodePair.second.edgeDecomposition();
-                    
-                    if(temp.first.size() && temp.second.size())
-                    {
-                        nodeDecompFirst.emplace_back(nodePair.second.sID,temp.first);
-                        nodeDecompSecond.emplace_back(nodePair.second.sID,temp.second);
-                    }
-                }
-                
-                int broken=0;
-                
-                for(size_t n=0;n<nodeDecompFirst.size();++n)
-                {
-                    const size_t& i=nodeDecompFirst[n].first;
-                    auto Ni=DN.node(i);
-                    assert(Ni.first);
-                    //                size_t m=DN.insertVertex(Ni.second->get_P());
-                    
-                    // Check that Links still exist
-                    //std::deque<VectorDimD> linkDirs;
-                    
-                    bool linksFirstexist=true;
-                    VectorDimD avrFirst=VectorDimD::Zero();
-                    for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
-                    {
-                        const size_t& j=nodeDecompFirst[n].second[d].first;
-                        const size_t& k=nodeDecompFirst[n].second[d].second;
-                        if(i==j)
-                        {
-                            auto Lik=DN.link(i,k);
-                            if(Lik.first)
-                            {
-                                avrFirst+=Lik.second->chord().normalized();
-                            }
-                            linksFirstexist*=Lik.first;
-                        }
-                        else if(i==k)
-                        {
-                            auto Lji=DN.link(j,i);
-                            if(Lji.first)
-                            {
-                                avrFirst-=Lji.second->chord().normalized();
-                            }
-                            linksFirstexist*=Lji.first;
-                        }
-                        else
-                        {
-                            assert(0 && "i must be equal to either j or k.");
-                        }
-                    }
-                    const double avrFirstNorm=avrFirst.norm();
-                    if(avrFirstNorm>FLT_EPSILON)
-                    {
-                        avrFirst/=avrFirstNorm;
-                    }
-                    
-                    bool linksSecondexist=true;
-                    VectorDimD avrSecond=VectorDimD::Zero();
-                    for(size_t d=0;d<nodeDecompSecond[n].second.size();++d)
-                    {
-                        const size_t& j=nodeDecompSecond[n].second[d].first;
-                        const size_t& k=nodeDecompSecond[n].second[d].second;
-                        if(i==j)
-                        {
-                            auto Lik=DN.link(i,k);
-                            if(Lik.first)
-                            {
-                                avrSecond+=Lik.second->chord().normalized();
-                            }
-                            linksSecondexist*=Lik.first;
-                        }
-                        else if(i==k)
-                        {
-                            auto Lji=DN.link(j,i);
-                            if(Lji.first)
-                            {
-                                avrSecond-=Lji.second->chord().normalized();
-                            }
-                            linksSecondexist*=Lji.first;
-                        }
-                        else
-                        {
-                            assert(0 && "i must be equal to either j or k.");
-                        }
-                    }
-                    const double avrSecondNorm=avrSecond.norm();
-                    if(avrSecondNorm>FLT_EPSILON)
-                    {
-                        avrSecond/=avrSecondNorm;
-                    }
-                    
-                    
-                    if(linksFirstexist && linksSecondexist && avrSecond.dot(avrFirst)<-0.0)
-                    {
-                        std::cout<<"NodeBreaking "<<Ni.second->sID<<" "<<avrSecond.dot(avrFirst)<<std::endl;
-                        
-                        size_t m=DN.insertVertex(Ni.second->get_P(),Ni.second->grain.grainID).first->first;
-                        
-                        for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
-                        {
-                            const size_t& j=nodeDecompFirst[n].second[d].first;
-                            const size_t& k=nodeDecompFirst[n].second[d].second;
-                            if(i==j)
-                            {
-                                auto Lik=DN.link(i,k);
-                                assert(Lik.first);
-                                DN.connect(m,k,Lik.second->flow);
-                                DN.template disconnect<0>(i,k);
-                            }
-                            else if(i==k)
-                            {
-                                auto Lji=DN.link(j,i);
-                                assert(Lji.first);
-                                DN.connect(j,m,Lji.second->flow);
-                                DN.template disconnect<0>(j,i);
-                            }
-                            else
-                            {
-                                assert(0 && "i must be equal to either j or k.");
-                            }
-                        }
-                        
-                        
-                        broken++;
-                    }
-                }
-                model::cout<<broken<<" broken."<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            }
+            //            /**********************************************************************/
+            //            void breakZeroLengthJunctions()
+            //            {
+            //                static_assert(0,"THIS IS DDEPRECATED, USE NEW NODE-REMOVE FUNCTIONALITY INSTEAD");
+            //                const auto t0= std::chrono::system_clock::now();
+            //                model::cout<<"		Breaking zero-length Junctions... "<<std::flush;
+            //
+            //                std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecompFirst;
+            //                std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecompSecond;
+            //
+            //
+            //                // TO DO: PARALLELIZE THIS LOOP
+            //                for (auto& nodePair : DN.nodes())
+            //                {
+            //                    const auto temp=nodePair.second.edgeDecomposition();
+            //                    //std::deque<std::pair<size_t,size_t> > temp=nodePair.second.edgeDecomposition();
+            //
+            //                    if(temp.first.size() && temp.second.size())
+            //                    {
+            //                        nodeDecompFirst.emplace_back(nodePair.second.sID,temp.first);
+            //                        nodeDecompSecond.emplace_back(nodePair.second.sID,temp.second);
+            //                    }
+            //                }
+            //
+            //                int broken=0;
+            //
+            //                for(size_t n=0;n<nodeDecompFirst.size();++n)
+            //                {
+            //                    const size_t& i=nodeDecompFirst[n].first;
+            //                    auto Ni=DN.node(i);
+            //                    assert(Ni.first);
+            //                    //                size_t m=DN.insertVertex(Ni.second->get_P());
+            //
+            //                    // Check that Links still exist
+            //                    //std::deque<VectorDimD> linkDirs;
+            //
+            //                    bool linksFirstexist=true;
+            //                    VectorDimD avrFirst=VectorDimD::Zero();
+            //                    for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
+            //                    {
+            //                        const size_t& j=nodeDecompFirst[n].second[d].first;
+            //                        const size_t& k=nodeDecompFirst[n].second[d].second;
+            //                        if(i==j)
+            //                        {
+            //                            auto Lik=DN.link(i,k);
+            //                            if(Lik.first)
+            //                            {
+            //                                avrFirst+=Lik.second->chord().normalized();
+            //                            }
+            //                            linksFirstexist*=Lik.first;
+            //                        }
+            //                        else if(i==k)
+            //                        {
+            //                            auto Lji=DN.link(j,i);
+            //                            if(Lji.first)
+            //                            {
+            //                                avrFirst-=Lji.second->chord().normalized();
+            //                            }
+            //                            linksFirstexist*=Lji.first;
+            //                        }
+            //                        else
+            //                        {
+            //                            assert(0 && "i must be equal to either j or k.");
+            //                        }
+            //                    }
+            //                    const double avrFirstNorm=avrFirst.norm();
+            //                    if(avrFirstNorm>FLT_EPSILON)
+            //                    {
+            //                        avrFirst/=avrFirstNorm;
+            //                    }
+            //
+            //                    bool linksSecondexist=true;
+            //                    VectorDimD avrSecond=VectorDimD::Zero();
+            //                    for(size_t d=0;d<nodeDecompSecond[n].second.size();++d)
+            //                    {
+            //                        const size_t& j=nodeDecompSecond[n].second[d].first;
+            //                        const size_t& k=nodeDecompSecond[n].second[d].second;
+            //                        if(i==j)
+            //                        {
+            //                            auto Lik=DN.link(i,k);
+            //                            if(Lik.first)
+            //                            {
+            //                                avrSecond+=Lik.second->chord().normalized();
+            //                            }
+            //                            linksSecondexist*=Lik.first;
+            //                        }
+            //                        else if(i==k)
+            //                        {
+            //                            auto Lji=DN.link(j,i);
+            //                            if(Lji.first)
+            //                            {
+            //                                avrSecond-=Lji.second->chord().normalized();
+            //                            }
+            //                            linksSecondexist*=Lji.first;
+            //                        }
+            //                        else
+            //                        {
+            //                            assert(0 && "i must be equal to either j or k.");
+            //                        }
+            //                    }
+            //                    const double avrSecondNorm=avrSecond.norm();
+            //                    if(avrSecondNorm>FLT_EPSILON)
+            //                    {
+            //                        avrSecond/=avrSecondNorm;
+            //                    }
+            //
+            //
+            //                    if(linksFirstexist && linksSecondexist && avrSecond.dot(avrFirst)<-0.0)
+            //                    {
+            //                        std::cout<<"NodeBreaking "<<Ni.second->sID<<" "<<avrSecond.dot(avrFirst)<<std::endl;
+            //
+            //                        size_t m=DN.insertVertex(Ni.second->get_P(),Ni.second->grain.grainID).first->first;
+            //
+            //                        for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
+            //                        {
+            //                            const size_t& j=nodeDecompFirst[n].second[d].first;
+            //                            const size_t& k=nodeDecompFirst[n].second[d].second;
+            //                            if(i==j)
+            //                            {
+            //                                auto Lik=DN.link(i,k);
+            //                                assert(Lik.first);
+            //                                DN.connect(m,k,Lik.second->flow);
+            //                                DN.template disconnect<0>(i,k);
+            //                            }
+            //                            else if(i==k)
+            //                            {
+            //                                auto Lji=DN.link(j,i);
+            //                                assert(Lji.first);
+            //                                DN.connect(j,m,Lji.second->flow);
+            //                                DN.template disconnect<0>(j,i);
+            //                            }
+            //                            else
+            //                            {
+            //                                assert(0 && "i must be equal to either j or k.");
+            //                            }
+            //                        }
+            //                        
+            //                        
+            //                        broken++;
+            //                    }
+            //                }
+            //                model::cout<<broken<<" broken."<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            //            }
             
             
             };
@@ -419,6 +427,10 @@ namespace model
             // Declare Static Data
             template <typename DislocationNetworkType>
             double DislocationJunctionFormation<DislocationNetworkType>::collisionTol=10.0;
+            
+            template <typename DislocationNetworkType>
+            int DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions=0;
+            
             
             } // namespace model
 #endif

@@ -65,7 +65,8 @@ namespace model
         static bool showZeroBuergers;
         static bool showSingleNode;
         static size_t singleNodeID;
-
+        static bool showNodes;
+        
         
         vtkRenderer* const renderer;
         
@@ -104,6 +105,7 @@ namespace model
         //        vtkSmartPointer<vtkStringArray> nodeLabels;
         vtkSmartPointer<vtkSphereSource> sphereSource;
         vtkSmartPointer<vtkPolyData> nodeData;
+        vtkSmartPointer<vtkUnsignedCharArray> nodeColors;
         vtkSmartPointer<vtkGlyph3D> nodeGlyphs;
         vtkSmartPointer<vtkPolyDataMapper> nodeMapper;
         vtkSmartPointer<vtkActor> nodeActor;
@@ -129,7 +131,7 @@ namespace model
         vtkSmartPointer<vtkDoubleArray> singleNodeLabelScalars;
         vtkSmartPointer<vtkLabeledDataMapper> singleNodeLabelMapper;
         vtkSmartPointer<vtkActor2D> singleNodeLabelActor;
-
+        
         
         /*********************************************************************/
         void computeColor()
@@ -237,16 +239,49 @@ namespace model
                 Eigen::Map<const Eigen::Matrix<double,1,10>> row(node.second.data());
                 
                 nodePoints->InsertNextPoint(row.template segment<dim>(0).data());
+                const int& meshLocation(row(8));
+                switch (meshLocation)
+                {
+                    case 0:
+                    {
+                        unsigned char nodeClr[3]={100,100,100};
+                        nodeColors->InsertNextTypedTuple(nodeClr);
+                        break;
+                    }
+                        
+                    case 1:
+                    {
+                        unsigned char nodeClr[3]={0,255,255};
+                        nodeColors->InsertNextTypedTuple(nodeClr);
+                        break;
+                    }
+                        
+                    case 2:
+                    {
+                        unsigned char nodeClr[3]={255,0,255};
+                        nodeColors->InsertNextTypedTuple(nodeClr);
+                        break;
+                    }
+                        
+                    default:
+                    {
+                        unsigned char nodeClr[3]={1,1,1};
+                        nodeColors->InsertNextTypedTuple(nodeClr);
+                        break;
+                    }
+                }
+                
+                // Velocity
                 velocityVectors->InsertNextTuple(row.template segment<dim>(dim).data()); // arrow vactor
-                unsigned char nodeClr[3]={255,0,255};
-                velocityColors->InsertNextTypedTuple(nodeClr);
+                unsigned char velClr[3]={255,0,255};
+                velocityColors->InsertNextTypedTuple(velClr);
                 
                 
+                
+                // Labels
                 labelScalars->InsertNextTuple1(node.first);
                 
-                //                nodeLabels->SetValue(labelID, std::to_string(node.first));
-                //                labelID++;
-                
+                // Single node
                 if(node.first==singleNodeID)
                 {
                     singleNodePoint->InsertNextPoint(row.template segment<dim>(0).data());
@@ -256,14 +291,12 @@ namespace model
             }
             
             nodeData->SetPoints(nodePoints);
-            //            nodeData->GetOutput()->GetPointData()->AddArray(labels);
-            
-            //nodeData->GetPointData()->SetVectors(vectors);
+            nodeData->GetPointData()->SetScalars(nodeColors);
             nodeData->Modified();
             
             velocityPolyData->SetPoints(nodePoints);
             velocityPolyData->GetPointData()->SetVectors(velocityVectors);
-            velocityPolyData->Modified();
+            //            velocityPolyData->Modified();
             velocityPolyData->GetCellData()->SetScalars(velocityColors);
             velocityPolyData->Modified();
             
@@ -335,7 +368,7 @@ namespace model
                     //                    auto& line(*lines.rbegin());
                     vtkSmartPointer<vtkPolyLine> line=vtkSmartPointer<vtkPolyLine>::New();
                     line->GetPointIds()->SetNumberOfIds(Np);
-
+                    
                     //                    unsigned char clr0[3]={255,255,255};
                     
                     
@@ -357,7 +390,7 @@ namespace model
                         ptID++;
                     }
                     
-
+                    
                     if(burgers.squaredNorm()>FLT_EPSILON)
                     {
                         cells->InsertNextCell(line);
@@ -365,9 +398,9 @@ namespace model
                         computeColor();
                         //                    unsigned char lineClr[3]={51,153,255};
                         unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
-
+                        
                         colors->InsertNextTypedTuple(lineClr);
-
+                        
                     }
                     else
                     {
@@ -390,14 +423,10 @@ namespace model
         /**********************************************************************/
         DislocationSegmentActor(const size_t& frameID,vtkRenderer* const ren) :
         /* init */ renderer(ren),
-        //        /* init */ vertexReader(vertexReader_in),
-        //        /* init */ edgeReader(edgeReader_in),
         /* init */ lineActor(vtkSmartPointer<vtkActor>::New()),
         /* init */ tubeActor(vtkSmartPointer<vtkActor>::New()),
         /* init */ lineActor0(vtkSmartPointer<vtkActor>::New()),
         /* init */ tubeActor0(vtkSmartPointer<vtkActor>::New()),
-        
-        //        /* init */ ptID(0),
         /* init */ points(vtkSmartPointer<vtkPoints>::New()),
         /* init */ cells(vtkSmartPointer<vtkCellArray>::New()),
         /* init */ polyData(vtkSmartPointer<vtkPolyData>::New()),
@@ -414,6 +443,7 @@ namespace model
         //        /* init */ nodeLabels(vtkSmartPointer<vtkStringArray>::New()),
         /* init */ sphereSource(vtkSmartPointer<vtkSphereSource>::New()),
         /* init */ nodeData(vtkSmartPointer<vtkPolyData>::New()),
+        /* init */ nodeColors(vtkSmartPointer<vtkUnsignedCharArray>::New()),
         /* init */ nodeGlyphs(vtkSmartPointer<vtkGlyph3D>::New()),
         /* init */ nodeMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ nodeActor(vtkSmartPointer<vtkActor>::New()),
@@ -437,6 +467,7 @@ namespace model
         {
             
             colors->SetNumberOfComponents(3);
+            nodeColors->SetNumberOfComponents(3);
             velocityVectors->SetNumberOfComponents(3);
             velocityVectors->SetName("nodeVelocity");
             velocityColors->SetNumberOfComponents(3);
@@ -453,75 +484,64 @@ namespace model
             
             // Populate polyData
             
-            // tube filter
+            // Segments
             tubeFilter->SetInputData(polyData);
             tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
             tubeFilter->SetNumberOfSides(10);
             tubeFilter->Update();
+            tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
+            tubeMapper->ScalarVisibilityOn();
+            lineMapper->SetInputData(polyData);
+            tubeActor->SetMapper(tubeMapper);
+            //tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
+            lineActor->SetMapper(lineMapper);
+            renderer->AddActor(tubeActor);
+            
+            // Zero-Burgers Segments
             tubeFilter0->SetInputData(polyData0);
             tubeFilter0->SetRadius(tubeRadius); // this must be a function similar to setColor
             tubeFilter0->SetNumberOfSides(10);
             tubeFilter0->Update();
-            
-            // Mappers
-            tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
-            tubeMapper->ScalarVisibilityOn();
-            lineMapper->SetInputData(polyData);
             tubeMapper0->SetInputConnection(tubeFilter0->GetOutputPort());
             tubeMapper0->ScalarVisibilityOn();
             lineMapper0->SetInputData(polyData0);
-            
-            // Actors
-            tubeActor->SetMapper(tubeMapper);
             tubeActor0->SetMapper(tubeMapper0);
             tubeActor0->GetProperty()->SetColor(0.5, 0.5, 0.5); //(R,G,B)
             tubeActor0->GetProperty()->SetOpacity(0.3); //(R,G,B)
-            
-            
-            //            tubeActor->GetProperty()->SetOpacity(1.0); //Make the tube have some transparency.
-            //            computeColor();
-            //tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
-            lineActor->SetMapper(lineMapper);
             lineActor0->SetMapper(lineMapper0);
-            
-            // Add actors to renderer
-            renderer->AddActor(tubeActor);
             renderer->AddActor(tubeActor0);
             
+            // Nodes
             nodeGlyphs->SetSourceConnection(sphereSource->GetOutputPort());
             nodeGlyphs->SetInputData(nodeData);
             nodeGlyphs->ScalingOn();
-            //            nodeGlyphs->SetScaleModeToScaleByVector();
+            nodeGlyphs->SetScaleModeToScaleByVector();
             nodeGlyphs->SetScaleFactor(2.0*tubeRadius*1.2);
-            nodeGlyphs->OrientOn();
-            nodeGlyphs->ClampingOff();
-            nodeGlyphs->SetVectorModeToUseVector();
-            nodeGlyphs->SetIndexModeToOff();
-            
+//            nodeGlyphs->OrientOn();
+//            nodeGlyphs->ClampingOff();
+//            nodeGlyphs->SetVectorModeToUseVector();
+//            nodeGlyphs->SetIndexModeToOff();
+                        nodeGlyphs->SetColorModeToColorByScalar();
+            nodeGlyphs->Update();
+            //            nodeGlyphs->SetColorModeToColorByVector();
             nodeMapper->SetInputConnection(nodeGlyphs->GetOutputPort());
-            nodeMapper->ScalarVisibilityOff();
-            
-            // Set up actor
+//            nodeMapper->ScalarVisibilityOff();
             nodeActor->SetMapper(nodeMapper);
-            
-            // Add actor to renderer
             renderer->AddActor(nodeActor);
             
-            
+            // Velocities
             velocityGlyphs->SetSourceConnection(velocityArrowSource->GetOutputPort());
             velocityGlyphs->SetInputData(velocityPolyData);
             velocityGlyphs->ScalingOn();
             velocityGlyphs->SetScaleModeToScaleByVector();
-            //            velocityGlyphs->SetColorModeToColorByScale();
             //            velocityGlyphs->SetColorModeToColorByScalar();
-            velocityGlyphs->SetColorModeToColorByVector();
+            //            velocityGlyphs->SetColorModeToColorByScalar();
+            //velocityGlyphs->SetColorModeToColorByVector();
             //            velocityGlyphs->SetScaleFactor(velocityFactor);
             velocityGlyphs->OrientOn();
             velocityGlyphs->ClampingOff();
             velocityGlyphs->SetVectorModeToUseVector();
             velocityGlyphs->SetIndexModeToOff();
-            
-            // Velocities
             velocityMapper->SetInputConnection(velocityGlyphs->GetOutputPort());
             velocityMapper->ScalarVisibilityOff();
             velocityActor->SetMapper(velocityMapper);
@@ -536,15 +556,15 @@ namespace model
             labelActor->GetProperty()->SetColor(0.0, 0.0, 0.0); //(R,G,B)
             renderer->AddActor(labelActor);
             
+            // Single node Label
             singleNodeLabelMapper->SetInputData(singleNodeLabelPolyData);
             singleNodeLabelMapper->SetLabelModeToLabelScalars();
             singleNodeLabelMapper->SetLabelFormat("%1.0f");
             singleNodeLabelActor->SetMapper(singleNodeLabelMapper);
             singleNodeLabelActor->GetProperty()->SetColor(1.0, 0.0, 0.0); //(R,G,B)
             singleNodeLabelActor->VisibilityOff();
-
             renderer->AddActor(singleNodeLabelActor);
-
+            
             
             modify();
         }
@@ -615,11 +635,24 @@ namespace model
                 // OTHERWISE THE SELECTED NODE WILL BE VISIBLE ONLY UPON LOADING A NEW FRAME
                 std::cout<<"RELOAD FRAME TO SHOW SELECTED NODE"<<std::endl;
                 singleNodeLabelActor->VisibilityOn();
-            
+                
             }
             else
             {
                 singleNodeLabelActor->VisibilityOff();
+            }
+            
+            if(showNodes)
+            {
+                // HERE WE SHOULD CHANGE THE NODE POSITION BASED ON NODE ID
+                // OTHERWISE THE SELECTED NODE WILL BE VISIBLE ONLY UPON LOADING A NEW FRAME
+                std::cout<<"RELOAD FRAME TO SHOW SELECTED NODE"<<std::endl;
+                nodeActor->VisibilityOn();
+                
+            }
+            else
+            {
+                nodeActor->VisibilityOff();
             }
             
         }
@@ -638,7 +671,8 @@ namespace model
     bool DislocationSegmentActor::showZeroBuergers=false;
     bool DislocationSegmentActor::showSingleNode=false;
     size_t DislocationSegmentActor::singleNodeID=0;
-
+    bool DislocationSegmentActor::showNodes=true;
+    
     
 } // namespace model
 #endif

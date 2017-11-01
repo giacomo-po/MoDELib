@@ -447,6 +447,32 @@ namespace model
                     }
                 }
             }
+
+            if(key == "v")
+            {
+                if(selectedKey=="v")
+                {
+                    selectedKey=" ";
+                    if(ddSegments.get()!=nullptr)
+                    {
+                        DislocationSegmentActor::showNodes=false;
+                        ddSegments->modify();
+                        this->Interactor->Render();
+                    }
+                }
+                else
+                {
+                    selectedKey="v";
+                    std::cout<<"selecting objects: Dislocation Nodes"<<std::endl;
+                    std::cout<<"    +/- to increase vector size"<<std::endl;
+                    if(ddSegments.get()!=nullptr)
+                    {
+                        DislocationSegmentActor::showNodes=true;
+                        ddSegments->modify();
+                        this->Interactor->Render();
+                    }
+                }
+            }
             
             if(key == "w")
             {

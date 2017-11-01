@@ -52,7 +52,7 @@ namespace model
         typedef typename DislocationNetworkType::LinkType LinkType;
         typedef typename DislocationNetworkType::StressField StressField;
         typedef DislocationNetworkComponent<NodeType,LinkType> DislocationNetworkComponentType;
-
+        
         enum {NdofXnode=NodeType::NdofXnode};
         
         static int  outputFrequency;
@@ -75,7 +75,7 @@ namespace model
         DislocationNetworkIO(DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
         {
-        
+            
         }
         
         /**********************************************************************/
@@ -249,6 +249,12 @@ namespace model
             
             // JUNCTION FORMATION
             EDR.readScalarInFile(fullName.str(),"use_junctions",DN.use_junctions);
+            if(DN.use_junctions)
+            {
+                EDR.readScalarInFile(fullName.str(),"verboseJunctions",DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions);
+            }
+            
+            
             //            EDR.readScalarInFile(fullName.str(),"collisionTol",DislocationJunctionFormation<DislocationNetworkType>::collisionTol);
             
             // VERTEX REDISTRIBUTION
@@ -320,14 +326,14 @@ namespace model
 #endif
             
             // Initializing configuration
-//            DN.move(0.0);	// initial configuration
+            //            DN.move(0.0);	// initial configuration
         }
         
         /* readVertices *******************************************************/
         void readVertices(const size_t& fileID)
         {/*! Reads file V/V_0.txt and creates DislocationNodes
           */
-//            typedef VertexReader<'V',7,double> VertexReaderType;
+            //            typedef VertexReader<'V',7,double> VertexReaderType;
             typedef IDreader<'V',1,10,double> VertexReaderType;
             VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID,meshLocation,grainID
             if (vReader.isGood(fileID,false)) // bin file exists
@@ -350,7 +356,7 @@ namespace model
             }
             
             size_t kk(1);
-//            for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
+            //            for (VertexReaderType::iterator vIter=vReader.begin();vIter!=vReader.end();++vIter)
             for (const auto& vIter : vReader)
             {
                 const size_t nodeIDinFile(vIter.first);
@@ -361,8 +367,8 @@ namespace model
                 const VectorDimD P(row.template segment<NdofXnode>(0));
                 const VectorDimD V(row.template segment<NdofXnode>(NdofXnode));
                 const double velocityReductionCoeff(row(6));
-//                const double snID(row(7));
-//                const bool onMeshBoundary(8);
+                //                const double snID(row(7));
+                //                const bool onMeshBoundary(8);
                 
                 //                const int grainID(row(9));
                 
@@ -370,7 +376,7 @@ namespace model
                 
                 //LatticeVectorType L(VectorDimD());
                 //const size_t nodeID(DN.insertVertex(L).first->first);
-//                const size_t nodeID(DN.insertVertex(P,grainID).first->first);
+                //                const size_t nodeID(DN.insertVertex(P,grainID).first->first);
                 assert(nodeID==nodeIDinFile);
                 kk++;
             }
@@ -383,7 +389,7 @@ namespace model
           */
             
             // Reading loops
-//            typedef VertexReader<'L',11,double> VertexReaderType;
+            //            typedef VertexReader<'L',11,double> VertexReaderType;
             typedef IDreader<'L',1,10,double> VertexReaderType;
             VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID,meshLocation,grainID
             if (vReader.isGood(fileID,false)) // bin file exists
@@ -434,8 +440,8 @@ namespace model
             {
                 loopMap[looplink.first[0]].emplace(looplink.first[1],looplink.first[2]);
             }
-
-
+            
+            
             
             assert(loopMap.size()==vReader.size());
             
@@ -443,14 +449,14 @@ namespace model
             for(const auto& loop : vReader)
             {
                 Eigen::Map<const Eigen::Matrix<double,1,10>> row(loop.second.data());
-
+                
                 const size_t loopID=loop.first;
                 const size_t grainID=row(9);
-
+                
                 const auto loopFound=loopMap.find(loopID);
                 assert(loopFound!=loopMap.end());
                 
-
+                
                 
                 std::vector<size_t> nodeIDs;
                 nodeIDs.push_back(loopFound->second.begin()->first);
@@ -467,17 +473,17 @@ namespace model
                     }
                 }
                 
-
+                
                 
                 LoopType::set_count(loopID);
-//                const LatticeVector<dim> B=DN.poly.grain(grainID).latticeVector(row.template segment<dim>(0*dim).transpose());
-//                const LatticePlaneBase N(DN.poly.grain(grainID).reciprocalLatticeDirection(row.template segment<dim>(1*dim).transpose())); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
-//                const LatticeVector<dim> P=DN.poly.grain(grainID).latticeVector(row.template segment<dim>(2*dim).transpose());
+                //                const LatticeVector<dim> B=DN.poly.grain(grainID).latticeVector(row.template segment<dim>(0*dim).transpose());
+                //                const LatticePlaneBase N(DN.poly.grain(grainID).reciprocalLatticeDirection(row.template segment<dim>(1*dim).transpose())); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
+                //                const LatticeVector<dim> P=DN.poly.grain(grainID).latticeVector(row.template segment<dim>(2*dim).transpose());
                 const VectorDimD B=row.template segment<dim>(0*dim).transpose();
                 const VectorDimD N=row.template segment<dim>(1*dim).transpose(); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
                 const VectorDimD P=row.template segment<dim>(2*dim).transpose();
                 
-
+                
                 
                 model::cout<<"Creating Dislocation Loop "<<loopID<<" ("<<loopLumber<<" of "<<vReader.size()<<")"<<std::endl;
                 const size_t newLoopID=DN.insertLoop(nodeIDs,B,N,P,grainID)->sID;
@@ -488,50 +494,50 @@ namespace model
             DN.clearDanglingNodes();
             
             
-//            typedef EdgeReader  <'E',11,double>	EdgeReaderType;
-//            EdgeReaderType    eReader;	// sourceID,sinkID,Bx,By,Bz,Nx,Ny,Nz
-//            if (eReader.isGood(fileID,false)) // bin file exists
-//            {
-//                eReader.read(fileID,false);
-//                
-//            }
-//            else
-//            {
-//                if (eReader.isGood(fileID,true)) // txt file exists
-//                {
-//                    eReader.read(fileID,true);
-//                    
-//                }
-//                else
-//                {
-//                    assert(0 && "UNABLE TO READ EDGE FILE E/E_x (x is the requested file ID).");
-//                }
-//            }
-//            
-//            unsigned int kk(1);
-//            for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
-//            {
-//                VectorDimD B(eIter->second.template segment<dim>(0  ).transpose()); // Burgers vector
-//                VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
-//                const size_t sourceID(eIter->first.first );
-//                const size_t   sinkID(eIter->first.second);
-//                model::cout << "\r \r" << "Creating DislocationSegment "<<sourceID<<"->"<<sinkID<<" ("<<kk<<" of "<<eReader.size()<<")              "<<std::flush;
-//                
-//                const auto isSource=DN.node(sourceID);
-//                assert(isSource.first && "Source node does not exist");
-//                const auto isSink=DN.node(sinkID);
-//                assert(isSink.first && "Sink node does not exist");
-//                
-//                assert(isSource.second->grain.grainID==isSink.second->grain.grainID && "Source and Sink are in different Grains");
-//                
-////                const bool success=DN.connect(sourceID,sinkID,isSource.second->grain.latticeVector(B));
-////               assert(success && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
-//                kk++;
-//            }
+            //            typedef EdgeReader  <'E',11,double>	EdgeReaderType;
+            //            EdgeReaderType    eReader;	// sourceID,sinkID,Bx,By,Bz,Nx,Ny,Nz
+            //            if (eReader.isGood(fileID,false)) // bin file exists
+            //            {
+            //                eReader.read(fileID,false);
+            //
+            //            }
+            //            else
+            //            {
+            //                if (eReader.isGood(fileID,true)) // txt file exists
+            //                {
+            //                    eReader.read(fileID,true);
+            //
+            //                }
+            //                else
+            //                {
+            //                    assert(0 && "UNABLE TO READ EDGE FILE E/E_x (x is the requested file ID).");
+            //                }
+            //            }
+            //
+            //            unsigned int kk(1);
+            //            for (EdgeReaderType::iterator eIter=eReader.begin();eIter!=eReader.end();++eIter)
+            //            {
+            //                VectorDimD B(eIter->second.template segment<dim>(0  ).transpose()); // Burgers vector
+            //                VectorDimD N(eIter->second.template segment<dim>(dim).transpose()); // Glide plane normal
+            //                const size_t sourceID(eIter->first.first );
+            //                const size_t   sinkID(eIter->first.second);
+            //                model::cout << "\r \r" << "Creating DislocationSegment "<<sourceID<<"->"<<sinkID<<" ("<<kk<<" of "<<eReader.size()<<")              "<<std::flush;
+            //
+            //                const auto isSource=DN.node(sourceID);
+            //                assert(isSource.first && "Source node does not exist");
+            //                const auto isSink=DN.node(sinkID);
+            //                assert(isSink.first && "Sink node does not exist");
+            //
+            //                assert(isSource.second->grain.grainID==isSink.second->grain.grainID && "Source and Sink are in different Grains");
+            //
+            ////                const bool success=DN.connect(sourceID,sinkID,isSource.second->grain.latticeVector(B));
+            ////               assert(success && "UNABLE TO CREATE CURRENT DISLOCATION SEGMENT.");
+            //                kk++;
+            //            }
             model::cout<<std::endl;
         }
         
-
+        
         /**********************************************************************/
         void output(const size_t& runID)
         {
@@ -548,7 +554,7 @@ namespace model
 #endif
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
-
+            
         }
         
         /* outputTXT **********************************************************/
@@ -567,7 +573,7 @@ namespace model
             if (outputBinary)
             {
                 assert(0 && "FINISH BIN OUTPUT");
-
+                
                 typedef DislocationNodeIO<dim> BinVertexType;
                 SequentialBinFile<'V',BinVertexType>::set_count(runID);
                 SequentialBinFile<'V',BinVertexType>::set_increment(outputFrequency);
@@ -578,7 +584,7 @@ namespace model
                     binVertexFile.write(BinVertexType(*node.second));
                 }
                 model::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;
-
+                
             }
             else
             {
@@ -621,7 +627,7 @@ namespace model
                     linkFile<< *linkIter.second<<"\n";
                 }
                 model::cout<<" K/K_"<<linkFile.sID<<".txt"<<std::flush;
-
+                
             }
             
             
@@ -699,7 +705,7 @@ namespace model
             
             typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
             typedef typename FieldPointType::DisplacementField DisplacementField;
-
+            
             if(outputMeshDisplacement)
             {
                 if(DN.use_bvp)
@@ -747,7 +753,7 @@ namespace model
                 }
                 
             }
-
+            
             
             if (DN.use_bvp && outputFEMsolution && !(DN.runningID()%DN.use_bvp))
             {

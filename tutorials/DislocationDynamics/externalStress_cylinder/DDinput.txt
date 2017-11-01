@@ -134,5 +134,5 @@ surfaceNucleationModel=0;
 
 #####################################
 # DEBUGGING
-verboseJunctions=0;
+verboseJunctions=1;
 verboseRemesh=0;

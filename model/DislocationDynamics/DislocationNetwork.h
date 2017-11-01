@@ -366,7 +366,8 @@ namespace model
                     if(nB->glidePlaneIntersections().size())
                     {// other is confined internally by two or more planes
                         std::cout<<"contractPoint case 3aa"<<std::endl;
-                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->glidePlaneIntersections());
+//                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->glidePlaneIntersections()); // NO THIS IS WRONG. USE nB->boundingBoxSegments()
+                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
                         if(temp.size())
                         {
                             std::cout<<"contractPoint case 3"<<std::endl;
