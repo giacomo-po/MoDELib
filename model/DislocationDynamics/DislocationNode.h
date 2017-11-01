@@ -292,9 +292,10 @@ namespace model
         /* init list        */ C(Pin)
         {/*! Constructor from DOF
           */
+            addGrainBoundaryPlanes();
 //            set_P(this->get_P()); // trigger _isOnBoundingBox and _isGrainBoundaryNode
             std::cout<<"WARNING INITIALIZE _isOnBoundingBox"<<std::endl;
-            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
+//            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
             std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
         }
         
@@ -314,7 +315,8 @@ namespace model
         /* init list        */ C(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
           */
-            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
+            addGrainBoundaryPlanes();
+//            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
             std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
 //            set_P(this->get_P()); // trigger _isOnBoundingBox and _isGrainBoundaryNode
         }
@@ -349,6 +351,17 @@ namespace model
             if(success)
             {
                 _isGlissile*=pL->loop()->isGlissile;
+
+                if(nodeConfinement().boundingBoxSegments().contains(this->get_P()))
+                {
+//                    const VectorDim bbP(std::get<0>(nodeConfinement().boundingBoxSegments().snap(this->get_P())));
+//                    if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
+//                    {
+//                        set_P(bbP);
+                        _isOnBoundingBox=true;
+//                    }
+                }
+
                 
 //                if(nodeConfinement().boundingBoxSegments().size())
 //                {
@@ -395,6 +408,16 @@ namespace model
             }
             
             addGrainBoundaryPlanes();
+            
+            if(nodeConfinement().boundingBoxSegments().contains(this->get_P()))
+            {
+                //                    const VectorDim bbP(std::get<0>(nodeConfinement().boundingBoxSegments().snap(this->get_P())));
+                //                    if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
+                //                    {
+                //                        set_P(bbP);
+                _isOnBoundingBox=true;
+                //                    }
+            }
             
 //            if(nodeConfinement().boundingBoxSegments().size())
 //            {// not the last segment being removed

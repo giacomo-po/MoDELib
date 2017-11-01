@@ -16,6 +16,8 @@
 #include <utility>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/Geometry/SegmentSegmentDistance.h>
+#include <model/Geometry/PlaneSegmentIntersection.h>
+
 //#include <model/Geometry/SegmentSegmentIntersection.h>
 
 namespace model
@@ -104,11 +106,18 @@ namespace model
                 
                 for(const auto& oldPair : *this)
                 {
-                    const LineSegmentContainerType psi=GlidePlaneObserver<LoopType>::planeSegmentIntersection(gp.P.cartesian(),
-                                                                                                              gp.n.cartesian(),
-                                                                                                              oldPair.first,
-                                                                                                              oldPair.second);
-                    if(psi.size())
+//                    const LineSegmentContainerType psi=GlidePlaneObserver<LoopType>::planeSegmentIntersection(gp.P.cartesian(),
+//                                                                                                              gp.n.cartesian(),
+//                                                                                                              oldPair.first,
+//                                                                                                              oldPair.second);
+
+                    PlaneSegmentIntersection<dim> psi(gp.P.cartesian(),
+                                                      gp.n.cartesian(),
+                                                      oldPair.first,
+                                                      oldPair.second);
+                    
+//                    if(psi.size())
+                    if(psi.type==PlaneSegmentIntersection<dim>::INCIDENT || psi.type==PlaneSegmentIntersection<dim>::COINCIDENT)
                     {// plane and current segment intersect
                         for(size_t k=0;k<gp.meshIntersections.size();++k)
                         {
@@ -146,10 +155,16 @@ namespace model
                             }
                             else
                             {// do nothing
-                                
+//                                std::cout<<"BoundingLineSegments: ssd no intersection"<<std::endl;
+ 
                             }
                             
                         }
+                    }
+                    else
+                    {
+//                        std::cout<<"BoundingLineSegments: plane does not contain segment"<<std::endl;
+
                     }
                 }
                 
@@ -183,6 +198,10 @@ namespace model
             if(isUnique)
             {
                 temp.emplace_back(P1,P2);
+            }
+            else
+            {
+//                std::cout<<"BoundingLineSegments: not unique"<<std::endl;
             }
         }
         

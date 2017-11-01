@@ -300,6 +300,12 @@ namespace model
             {// both nodes are glissile
                 if(nA->isOnBoundingBox() && nB->isOnBoundingBox())
                 {// both nodes on bounding boxes. Intersect bounding boxes'
+                    
+                    
+                    
+                    
+//                    STILL SOME PROBLEMS HERE. NODES ARE PULLED OUT OF VERTICES. SEE NODE 82
+                    
                     std::cout<<"contractPoint case 1aa"<<std::endl;
                     BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
                     std::cout<<"temp.size()="<<temp.size()<<std::endl;
@@ -382,9 +388,22 @@ namespace model
                         BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
                         if(temp.size())
                         {
+//                            if(temp.contains())
                             std::cout<<"contractPoint case 3"<<std::endl;
-                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
-                            return this->contractSecond(nA->sID,nB->sID);
+//                            const VectorDim X(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P())))); // point at which we will contract
+                            const VectorDim X(std::get<0>(temp.snap(nA->get_P()))); // point at which we will contract
+
+                            //const size_t X_ID(std::get<1>(nA->boundingBoxSegments().snap(X)));              // bonuding box line ID containing X
+                            const size_t A_ID(std::get<1>(nA->boundingBoxSegments().snap(nA->get_P())));    // bonuding box line ID containing A
+                            if(nA->boundingBoxSegments().contains(X,A_ID))
+                            {
+                                nA->set_P(X);
+                                return this->contractSecond(nA->sID,nB->sID);
+                            }
+                            else
+                            {
+                                return false;
+                            }
                         }
                         else
                         {

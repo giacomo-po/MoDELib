@@ -167,83 +167,84 @@ namespace model
         }
         
         
-        
-        /**********************************************************************/
-        static std::deque<std::pair<VectorDimD,VectorDimD>,Eigen::aligned_allocator<std::pair<VectorDimD,VectorDimD>>> planeSegmentIntersection(const VectorDimD& P0,
-                                                                                                                                                const VectorDimD& N,
-                                                                                                                                                const VectorDimD& v0,
-                                                                                                                                                const VectorDimD& v1)
-        {
-            //            std::deque<VectorDim> temp;
-            
-            const double nNorm(N.norm());
-            assert(nNorm>FLT_EPSILON);
-            const VectorDimD n(N/nNorm);
-            
-            std::deque<std::pair<VectorDimD,VectorDimD>,Eigen::aligned_allocator<std::pair<VectorDimD,VectorDimD>>> temp;
-            
-            
-            // check intersection of v0->v1 with plane
-            // x=v0+u(v1-v0)
-            // (x-P0).n=0
-            // (v0+u(v1-v0)-P0).n=0
-            // u=(P0-v0).n/(v1-v0).n;
-            const double edgeNorm=(v1-v0).norm();
-            if(edgeNorm<FLT_EPSILON)
-            {
-                
-            }
-            else
-            {
-                const double den=(v1-v0).dot(n);
-                const double num=(P0-v0).dot(n);
-                const double P0v0norm=(P0-v0).norm();
-                
-                const double numCheck= (P0v0norm<FLT_EPSILON)? 0.0 : num/P0v0norm;
-                
-                if (fabs(den/edgeNorm)>FLT_EPSILON)
-                {
-                    // edge intersects plane
-                    const double u=num/den;
-                    
-                    if(fabs(u)<FLT_EPSILON)
-                    {
-                        temp.emplace_back(v0,v0);
-                    }
-                    else if (u>=FLT_EPSILON && u<=1.0-FLT_EPSILON)
-                    {
-                        const VectorDimD x((1.0-u)*v0 + u*v1);
-                        temp.emplace_back(x,x);
-                    }
-                    else if (fabs(1.0-u)<FLT_EPSILON)
-                    {
-                        temp.emplace_back(v1,v1);
-                    }
-                    else
-                    {// no roots
-                        
-                    }
-                    
-                }
-                else
-                {
-                    if (fabs(numCheck)>FLT_EPSILON)
-                    {// edge is parallel to plane, no intersection
-                        
-                    }
-                    else
-                    {// edge is coplanar
-                        temp.emplace_back(v0,v1);
-                        //                        temp.emplace_back(v1,&edge.child(1));
-                    }
-                }
-            }
-            
-            
-            
-            
-            return temp;
-        }
+//        
+//        /**********************************************************************/
+//        static std::deque<std::pair<VectorDimD,VectorDimD>,Eigen::aligned_allocator<std::pair<VectorDimD,VectorDimD>>> planeSegmentIntersection(const VectorDimD& P0,
+//                                                                                                                                                const VectorDimD& N,
+//                                                                                                                                                const VectorDimD& v0,
+//                                                                                                                                                const VectorDimD& v1)
+//        {
+//            //            std::deque<VectorDim> temp;
+//            
+//            const double nNorm(N.norm());
+//            assert(nNorm>FLT_EPSILON);
+//            const VectorDimD n(N/nNorm);
+//            
+//            std::deque<std::pair<VectorDimD,VectorDimD>,Eigen::aligned_allocator<std::pair<VectorDimD,VectorDimD>>> temp;
+//            
+//            
+//            // check intersection of v0->v1 with plane
+//            // x=v0+u(v1-v0)
+//            // (x-P0).n=0
+//            // (v0+u(v1-v0)-P0).n=0
+//            // u=(P0-v0).n/(v1-v0).n;
+//            const double edgeNorm=(v1-v0).norm();
+//            if(edgeNorm<FLT_EPSILON)
+//            {
+//                VectorDimD
+//                
+//            }
+//            else
+//            {
+//                const double den=(v1-v0).dot(n);
+//                const double num=(P0-v0).dot(n);
+//                const double P0v0norm=(P0-v0).norm();
+//                
+//                const double numCheck= (P0v0norm<FLT_EPSILON)? 0.0 : num/P0v0norm;
+//                
+//                if (fabs(den/edgeNorm)>FLT_EPSILON)
+//                {
+//                    // edge intersects plane
+//                    const double u=num/den;
+//                    
+//                    if(fabs(u)<FLT_EPSILON)
+//                    {
+//                        temp.emplace_back(v0,v0);
+//                    }
+//                    else if (u>=FLT_EPSILON && u<=1.0-FLT_EPSILON)
+//                    {
+//                        const VectorDimD x((1.0-u)*v0 + u*v1);
+//                        temp.emplace_back(x,x);
+//                    }
+//                    else if (fabs(1.0-u)<FLT_EPSILON)
+//                    {
+//                        temp.emplace_back(v1,v1);
+//                    }
+//                    else
+//                    {// no roots
+//                        
+//                    }
+//                    
+//                }
+//                else
+//                {
+//                    if (fabs(numCheck)>FLT_EPSILON)
+//                    {// edge is parallel to plane, no intersection
+//                        
+//                    }
+//                    else
+//                    {// edge is coplanar
+//                        temp.emplace_back(v0,v1);
+//                        //                        temp.emplace_back(v1,&edge.child(1));
+//                    }
+//                }
+//            }
+//            
+//            
+//            
+//            
+//            return temp;
+//        }
         
         
     };

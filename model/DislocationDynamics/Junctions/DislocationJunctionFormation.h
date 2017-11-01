@@ -124,7 +124,15 @@ namespace model
                                                                 linkIterB->second->source->get_P(),
                                                                 linkIterB->second->sink->get_P());
                                 
-                                if(ssd.dMin<collisionTol)
+                                double currentcCollisionTOL=collisionTol;
+                                if(   linkIterA->second->glidePlaneNormal().squaredNorm()>FLT_EPSILON
+                                   && linkIterB->second->glidePlaneNormal().squaredNorm()>FLT_EPSILON
+                                   && linkIterA->second->glidePlaneNormal().cross(linkIterB->second->glidePlaneNormal()).squaredNorm()<FLT_EPSILON)
+                                {// segments on parallel or coincident planes
+                                    currentcCollisionTOL=FLT_EPSILON;
+                                }
+                                
+                                if(ssd.dMin<currentcCollisionTOL)
                                 {
                                     const bool intersectionIsSourceSource(   ssd.t  <avoidNodeIntersection
                                                                           && ssd.u <avoidNodeIntersection
