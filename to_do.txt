@@ -1,9 +1,7 @@
 NEW LOOP_NETWORK CODE
 - Mobility specific to slip system
 - Make Loops with |Burgers|>1 sessile
-- Fix IO
-- Rework remesh
-- Rework Juncitons
+- Finish IO in bin format
 - Rework crossslip
 - Use StressStright for straight segments
 - New external stress load controller
@@ -39,4 +37,8 @@ NEW LOOP_NETWORK CODE
 - If T0=0 or T1=0, then rl(0)=0/0=NaN !!!!! This is not true since rl still tends to a finite vector. Remove class Parametric curve and implement special case of rl at 0 and 1 for vanishing nodal tangents
 - cellSize should depend on applied load. Or better the number of cell neighbors used in each cell should depend on the applied stress to that cell
 - Implement operator << SpatialCell
-- DislocaitonNode::snapToBoubdingBox does not account for the fact that a corner node may be snapped to a different boundary segment each iteration. If the corner node is connected to other boundary segments this leaves a “gap” at the corner. This is seen as a “vibration” of corner nodes 
+- iterate on JunctionFormation until no junctions if found
+- iterate on Remesh
+- DislocationJunction: take care of source-source, source-sink, and sink-sink cases
+- Optimize Remesh
+
