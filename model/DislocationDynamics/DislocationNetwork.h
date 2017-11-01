@@ -308,52 +308,64 @@ namespace model
                         std::cout<<"contractPoint case 1"<<std::endl;
 
                         
-//                        const tupA(temp.snap(nA->get_P()));
-//                        const tupB(temp.snap(nB->get_P()));
-//                        
-//                        if(std::get<1>(tupA)==std::get<1>(tupB))
-//                        {// IDs of the bounding box lines are the same
-//                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
-//                            return this->contractSecond(nA->sID,nB->sID);
-//                        }
-//                        else
-//                        {
-//                        FINISH HERE
-////                            AND ADD GLIDE PLANES TO NODES
-//                        }
+                        const auto tupA(temp.snap(nA->get_P()));
+                        const auto tupB(temp.snap(nB->get_P()));
                         
-                        const auto Av(temp.snapToVertex(nA->get_P()));
-                        const auto Bv(temp.snapToVertex(nB->get_P()));
+                        const size_t& bnIDA(std::get<1>(tupA));
+                        const size_t& bnIDB(std::get<1>(tupB));
                         
-                        if(Av.first<FLT_EPSILON && Bv.first<FLT_EPSILON)
-                        {// both A and B are on vertices
-                            if((Av.second-Bv.second).squaredNorm()<FLT_EPSILON)
+                        if(bnIDA==bnIDB)
+                        {// IDs of the bounding box lines are the same
+                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
+                            return this->contractSecond(nA->sID,nB->sID);
+                        }
+                        else
+                        {// IDs of the bounding box lines are different
+                            SegmentSegmentDistance<dim> ssd(temp[bnIDA].first,temp[bnIDA].second,
+                                                            temp[bnIDB].first,temp[bnIDB].second);
+                            if(ssd.dMin<FLT_EPSILON)
                             {
-                                std::cout<<"contractPoint case 1aA"<<std::endl;
+                                nA->set_P(0.5*(ssd.x0+ssd.x1));
                                 return this->contractSecond(nA->sID,nB->sID);
                             }
                             else
                             {
-                                std::cout<<"contractPoint case 1aB"<<std::endl;
                                 return false;
                             }
                         }
-                        else if(Av.first<FLT_EPSILON && !(Bv.first<FLT_EPSILON))
-                        {// A is on a vertex, leave A
-                            std::cout<<"contractPoint case 1aC"<<std::endl;
-                            return this->contractSecond(nA->sID,nB->sID);
-                        }
-                        else if(!(Av.first<FLT_EPSILON) && Bv.first<FLT_EPSILON)
-                        {// B is on a vertex, leave B
-                            std::cout<<"contractPoint case 1aD"<<std::endl;
-                            return this->contractSecond(nB->sID,nA->sID);
-                        }
-                        else
-                        {// neither A nor B are on vertices
-                            std::cout<<"contractPoint case 1aE"<<std::endl;
-                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
-                            return this->contractSecond(nA->sID,nB->sID);
-                        }
+                        
+//                        const auto Av(temp.snapToVertex(nA->get_P()));
+//                        const auto Bv(temp.snapToVertex(nB->get_P()));
+//                        
+//                        if(Av.first<FLT_EPSILON && Bv.first<FLT_EPSILON)
+//                        {// both A and B are on vertices
+//                            if((Av.second-Bv.second).squaredNorm()<FLT_EPSILON)
+//                            {
+//                                std::cout<<"contractPoint case 1aA"<<std::endl;
+//                                return this->contractSecond(nA->sID,nB->sID);
+//                            }
+//                            else
+//                            {
+//                                std::cout<<"contractPoint case 1aB"<<std::endl;
+//                                return false;
+//                            }
+//                        }
+//                        else if(Av.first<FLT_EPSILON && !(Bv.first<FLT_EPSILON))
+//                        {// A is on a vertex, leave A
+//                            std::cout<<"contractPoint case 1aC"<<std::endl;
+//                            return this->contractSecond(nA->sID,nB->sID);
+//                        }
+//                        else if(!(Av.first<FLT_EPSILON) && Bv.first<FLT_EPSILON)
+//                        {// B is on a vertex, leave B
+//                            std::cout<<"contractPoint case 1aD"<<std::endl;
+//                            return this->contractSecond(nB->sID,nA->sID);
+//                        }
+//                        else
+//                        {// neither A nor B are on vertices
+//                            std::cout<<"contractPoint case 1aE"<<std::endl;
+//                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
+//                            return this->contractSecond(nA->sID,nB->sID);
+//                        }
                     }
                     else
                     {
