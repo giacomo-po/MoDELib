@@ -62,22 +62,26 @@ namespace model
         double winFrac;
         
         std::string selectedKey;
-        bool saveImage=false;
-//        long int frameID;
+        bool saveImage;
+        int imageType;
+        int imageMagnification;
+        bool imageTransparentBackground;
+        
+        //        long int frameID;
         long int frameIncrement;
         long int currentFrameID;
         vtkActor    *LastPickedActor;
         vtkProperty *LastPickedProperty;
         
     public:
-
+        
         static DDinteractionStyle* New();
         vtkTypeMacro(DDinteractionStyle, vtkInteractorStyleTrackballCamera);
         
         SimplicialMeshActor meshActor;
         vtkRenderer* ddRenderer;
         vtkRenderer* plotRenderer;
-
+        
         
         /*************************************************************************/
         bool loadFrame(const long int& frameID)
@@ -113,14 +117,18 @@ namespace model
                 {
                     vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
                     windowToImageFilter->SetInput(rwi->GetRenderWindow()/*renderWindow*/);
-                    windowToImageFilter->SetMagnification(1); //set the resolution of the output image (3 times the current resolution of vtk render window)
+                    windowToImageFilter->SetMagnification(imageMagnification); //set the resolution of the output image (3 times the current resolution of vtk render window)
+                    if(imageTransparentBackground)
+                    {
+                        windowToImageFilter->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
+                    }
                     windowToImageFilter->ReadFrontBufferOff(); // read from the back buffer
                     windowToImageFilter->Update();
                     
-                    int imageType=0;
+                    //                    int imageType=0;
                     switch (imageType)
                     {
-                        case 0:
+                        case 1:
                         {
                             const std::string fileName="png/image_"+std::to_string(frameID)+".png";
                             std::cout<<"saving image "<<fileName<<std::endl;
@@ -131,17 +139,7 @@ namespace model
                             break;
                             
                         }
-                        case 1:
-                        {
-                            const std::string fileName="bmp/image_"+std::to_string(frameID)+".bmp";
-                            std::cout<<"saving image "<<fileName<<std::endl;
-                            vtkSmartPointer<vtkBMPWriter> writer = vtkSmartPointer<vtkBMPWriter>::New();
-                            writer->SetFileName(fileName.c_str());
-                            writer->SetInputConnection(windowToImageFilter->GetOutputPort());
-                            writer->Write();
-                            break;
                             
-                        }
                         case 2:
                         {
                             const std::string fileName="jpg/image_"+std::to_string(frameID)+".jpg";
@@ -154,10 +152,24 @@ namespace model
                             
                         }
                             
+                        case 3:
+                        {
+                            const std::string fileName="bmp/image_"+std::to_string(frameID)+".bmp";
+                            std::cout<<"saving image "<<fileName<<std::endl;
+                            vtkSmartPointer<vtkBMPWriter> writer = vtkSmartPointer<vtkBMPWriter>::New();
+                            writer->SetFileName(fileName.c_str());
+                            writer->SetInputConnection(windowToImageFilter->GetOutputPort());
+                            writer->Write();
+                            break;
+                            
+                        }
+                            
+                            
                         default:
                             break;
                     }
                     
+                    //                    rwi->ResetCamera();
                     rwi->Render();
                 }
                 frameLoaded=true;
@@ -165,7 +177,7 @@ namespace model
             else
             {
                 std::cout<<"frame "<<frameID<<" not found. Reverting to "<<currentFrameID<<std::endl;
-//                frameID=currentFrameID; // frameID is not a valid ID, return to last read
+                //                frameID=currentFrameID; // frameID is not a valid ID, return to last read
             }
             return frameLoaded;
         }
@@ -175,11 +187,15 @@ namespace model
         
         /*************************************************************************/
         DDinteractionStyle() :
-//        /* init list   */ ddRenderer(ddRen),
-//        /* init list   */ plotRenderer(plotRen),
+        //        /* init list   */ ddRenderer(ddRen),
+        //        /* init list   */ plotRenderer(plotRen),
         /* init list   */ xCol(0),
         /* init list   */ yCol(0),
         /* init list   */ winFrac(0.5),
+        /* init list   */ saveImage(false),
+        /* init list   */ imageType(1),
+        /* init list   */ imageMagnification(1),
+        /* init list   */ imageTransparentBackground(false),
         /* init list   */ frameIncrement(1),
         /* init list   */ currentFrameID(-1)
         {
@@ -240,6 +256,10 @@ namespace model
             //        const std::string key = rwi->GetKeySym();
             std::string key = rwi->GetKeySym();
             
+            
+            //            std::cout << "Pressed " << key << std::endl;
+            
+            
             if(key == "Escape")
             {
                 std::cout << "Exiting DDvtk, goodbye!" << std::endl;
@@ -249,76 +269,92 @@ namespace model
             // Handle an arrow key
             if(key == "Up")
             {
-//                frameID-=frameIncrement;
-                loadFrame(currentFrameID-frameIncrement);
+                //                frameID-=frameIncrement;
+                const bool success=loadFrame(currentFrameID-frameIncrement);
+                if(this->Interactor->GetShiftKey() && success)
+                {
+                    //                    std::cout << "Shift held. ";
+                    std::cout<<"Loading all frames"<<std::endl;
+                    OnKeyPress();
+                }
+                
             }
             
             if(key == "Down")
             {
-//                frameID+=frameIncrement;
-                loadFrame(currentFrameID+frameIncrement);
-            }
-            
-//            if(key == "Right")
-//            {
-//                winFrac+=0.1;
-//                if(winFrac>1.0)
-//                {
-//                    winFrac=1.0;
-//                }
-//                ddRenderer ->SetViewport(0.0,0,winFrac,1);
-//                plotRenderer->SetViewport(winFrac,0,1,1);
-//                
-//                ddRenderer->Render();
-//                plotRenderer->Render();
-//                this->Interactor->Render();
-//            }
-            
-//            if(key == "Left")
-//            {                winFrac-=0.1;
-//                if(winFrac<0.0)
-//                {
-//                    winFrac=0.0;
-//                }
-//                
-//                ddRenderer->SetViewport(0.0,0,winFrac,1);
-//                plotRenderer->SetViewport(winFrac,0,1,1);
-//                
-//                ddRenderer->Render();
-//                plotRenderer->Render();
-//                this->Interactor->Render();
-//            }
-            
-            if(key == "Left")
-            {
-                if(loadFrame(currentFrameID-frameIncrement))
+                //                frameID+=frameIncrement;
+                const bool success=loadFrame(currentFrameID+frameIncrement);
+                
+                if(this->Interactor->GetShiftKey() && success)
                 {
-//                    && !this->Interactor->GetShiftKey()
-//                    std::cout<<this->Interactor->GetRepeatCount()<<std::endl;
-                OnKeyPress();
-//                    sleep(5000);         //make the programme waiting for 5 seconds
-
+                    //                    std::cout << "Shift held. ";
+                    std::cout<<"Loading all frames"<<std::endl;
+                    OnKeyPress();
                 }
-//                while(loadFrame(currentFrameID-frameIncrement))
-//                {
-//                
-//                }
             }
             
             if(key == "Right")
             {
-                if(loadFrame(currentFrameID+frameIncrement))
+                winFrac+=0.1;
+                if(winFrac>1.0)
                 {
-                OnKeyPress();
-//                    sleep(5000);         //make the programme waiting for 5 seconds
-
+                    winFrac=1.0;
                 }
-
-//                while(loadFrame(currentFrameID+frameIncrement))
-//                {
-//                    
-//                }
+                ddRenderer ->SetViewport(0.0,0,winFrac,1);
+                plotRenderer->SetViewport(winFrac,0,1,1);
+                
+                ddRenderer->Render();
+                plotRenderer->Render();
+                this->Interactor->Render();
             }
+            
+            if(key == "Left")
+            {                winFrac-=0.1;
+                if(winFrac<0.0)
+                {
+                    winFrac=0.0;
+                }
+                
+                ddRenderer->SetViewport(0.0,0,winFrac,1);
+                plotRenderer->SetViewport(winFrac,0,1,1);
+                
+                ddRenderer->Render();
+                plotRenderer->Render();
+                this->Interactor->Render();
+            }
+            
+            //            if(key == "Left")
+            //            {
+            //
+            //
+            //                if(loadFrame(currentFrameID-frameIncrement))
+            //                {
+            ////                    && !this->Interactor->GetShiftKey()
+            ////                    std::cout<<this->Interactor->GetRepeatCount()<<std::endl;
+            //                OnKeyPress();
+            ////                    sleep(5000);         //make the programme waiting for 5 seconds
+            //
+            //                }
+            ////                while(loadFrame(currentFrameID-frameIncrement))
+            ////                {
+            ////
+            ////                }
+            //            }
+            //
+            //            if(key == "Right")
+            //            {
+            //                if(loadFrame(currentFrameID+frameIncrement))
+            //                {
+            //                OnKeyPress();
+            ////                    sleep(5000);         //make the programme waiting for 5 seconds
+            //
+            //                }
+            //
+            ////                while(loadFrame(currentFrameID+frameIncrement))
+            ////                {
+            ////
+            ////                }
+            //            }
             
             if(key == "e")
             {
@@ -326,11 +362,11 @@ namespace model
                 std::cout<<"selecting objects: dislocation segments"<<std::endl;
                 std::cout<<"    +/- to increase tube radius"<<std::endl;
                 std::cout<<"      0 to show/hide zero-Burgers vector segments"<<std::endl;
-                std::cout<<"      1 to show/hide node IDs"<<std::endl;
-                std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
+                //                std::cout<<"      1 to show/hide node IDs"<<std::endl;
+                //                std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
             }
             
-
+            
             
             if(key == "i")
             {
@@ -394,8 +430,39 @@ namespace model
             
             if(key == "s")
             {
-                saveImage=!saveImage;
-                std::cout<<"Saving image="<<saveImage<<std::endl;
+                
+                selectedKey="s";
+                //saveImage=true;
+                std::cout<<"Save images menu:"<<std::endl;
+                std::cout<<"    press space to start/stop saving images"<<std::endl;
+                std::cout<<"    press 1 to save in png format"<<std::endl;
+                std::cout<<"    press 2 to save in jgp format"<<std::endl;
+                std::cout<<"    press 3 to save in bmp format"<<std::endl;
+                std::cout<<"    press 0 to enable/disable transparent background"<<std::endl;
+                std::cout<<"    press +/- to increase/decrease image resolution"<<std::endl;
+                
+                
+                //                if(selectedKey=="s")
+                //                {
+                //                    selectedKey=" ";
+                //                    saveImage=false;
+                //                    std::cout<<"Saving images: OFF"<<std::endl;
+                //                }
+                //                else
+                //                {
+                //                    selectedKey="s";
+                //                    saveImage=true;
+                //                    std::cout<<"Saving images: ON"<<std::endl;
+                //                    std::cout<<"Save images menu:"<<std::endl;
+                //                    std::cout<<"    press 1 to save in png format"<<std::endl;
+                //                    std::cout<<"    press 2 to save in jgp format"<<std::endl;
+                //                    std::cout<<"    press 3 to save in bmp format"<<std::endl;
+                //                    std::cout<<"    +/- to increase image resolution"<<std::endl;
+                //
+                //                }
+                
+                //                saveImage=!saveImage;
+                //                std::cout<<"Saving image="<<saveImage<<std::endl;
             }
             
             
@@ -447,7 +514,7 @@ namespace model
                     }
                 }
             }
-
+            
             if(key == "v")
             {
                 if(selectedKey=="v")
@@ -464,13 +531,18 @@ namespace model
                 {
                     selectedKey="v";
                     std::cout<<"selecting objects: Dislocation Nodes"<<std::endl;
-                    std::cout<<"    +/- to increase vector size"<<std::endl;
+                    std::cout<<"      1 to show/hide node IDs"<<std::endl;
+                    std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
+                    
+                    //std::cout<<"    +/- to increase vector size"<<std::endl;
+                    
                     if(ddSegments.get()!=nullptr)
                     {
                         DislocationSegmentActor::showNodes=true;
                         ddSegments->modify();
                         this->Interactor->Render();
                     }
+                    
                 }
             }
             
@@ -491,14 +563,13 @@ namespace model
                     selectedKey="w";
                     std::cout<<"selecting objects: nodal velocities"<<std::endl;
                     std::cout<<"    +/- to increase vector size"<<std::endl;
+                    
                     if(ddSegments.get()!=nullptr)
                     {
                         DislocationSegmentActor::showVelocities=true;
                         ddSegments->modify();
                         this->Interactor->Render();
                     }
-                    
-                    
                     
                     
                 }
@@ -524,26 +595,6 @@ namespace model
                 if(key == "0")
                 {
                     DislocationSegmentActor::showZeroBuergers=!DislocationSegmentActor::showZeroBuergers;
-                    ddSegments->modify();
-                    this->Interactor->Render();
-                }
-                
-                if(key == "1")
-                {
-                    DislocationSegmentActor::showNodeIDs=!DislocationSegmentActor::showNodeIDs;
-                    ddSegments->modify();
-                    this->Interactor->Render();
-                }
-                
-                if(key == "2")
-                {
-                    DislocationSegmentActor::showSingleNode=!DislocationSegmentActor::showSingleNode;
-                    if(DislocationSegmentActor::showSingleNode)
-                    {
-                        std::cout << "Enter node ID "<<std::flush;
-                        std::cin >> DislocationSegmentActor::singleNodeID;
-                        std::cout <<std::endl;
-                    }
                     ddSegments->modify();
                     this->Interactor->Render();
                 }
@@ -586,6 +637,95 @@ namespace model
                     this->Interactor->Render();
                 }
                 
+            }
+            
+            
+            if(selectedKey=="s")
+            {
+                if(key == "space")
+                {
+                    saveImage=!saveImage;
+                    if(saveImage)
+                    {
+                        std::cout<<"saving images ON"<<std::endl;
+                    }
+                    else
+                    {
+                        std::cout<<"saving images OFF"<<std::endl;
+                    }
+                }
+                
+                if(key == "1" && saveImage)
+                {
+                    imageType=1;
+                    std::cout<<"selecting png output"<<std::endl;
+                }
+                
+                if(key == "2" && saveImage)
+                {
+                    imageType=2;
+                    std::cout<<"selecting jpg output"<<std::endl;
+                }
+                
+                if(key == "3" && saveImage)
+                {
+                    imageType=3;
+                    std::cout<<"selecting bmp output"<<std::endl;
+                }
+                
+                if(key == "0" && saveImage)
+                {
+                    imageTransparentBackground=!imageTransparentBackground;
+                    if(imageTransparentBackground)
+                    {
+                        std::cout<<"transparent background ON"<<std::endl;
+                    }
+                    else
+                    {
+                        std::cout<<"transparent background OFF"<<std::endl;
+                    }
+                }
+                
+                if(key == "equal" && saveImage)
+                {
+                    imageMagnification++;
+                    std::cout<<"image magnification "<<imageMagnification<<"X"<<std::endl;
+                    
+                }
+                
+                if(key == "minus" && saveImage)
+                {
+                    imageMagnification--;
+                    if(imageMagnification<1)
+                    {
+                        imageMagnification=1;
+                    }
+                    std::cout<<"image magnification "<<imageMagnification<<"X"<<std::endl;
+                }
+                
+            }
+            
+            if(selectedKey=="v")
+            {
+                if(key == "1")
+                {
+                    DislocationSegmentActor::showNodeIDs=!DislocationSegmentActor::showNodeIDs;
+                    ddSegments->modify();
+                    this->Interactor->Render();
+                }
+                
+                if(key == "2")
+                {
+                    DislocationSegmentActor::showSingleNode=!DislocationSegmentActor::showSingleNode;
+                    if(DislocationSegmentActor::showSingleNode)
+                    {
+                        std::cout << "Enter node ID "<<std::flush;
+                        std::cin >> DislocationSegmentActor::singleNodeID;
+                        std::cout <<std::endl;
+                    }
+                    ddSegments->modify();
+                    this->Interactor->Render();
+                }
             }
             
             if(selectedKey=="w")

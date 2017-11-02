@@ -304,7 +304,7 @@ namespace model
                     
                     
                     
-//                    STILL SOME PROBLEMS HERE. NODES ARE PULLED OUT OF VERTICES. SEE NODE 82
+                    STILL SOME PROBLEMS HERE. NODES ARE PULLED OUT OF VERTICES. SEE NODE 82. SHOULD USE CONTAINS(X,ID), AS BELOW
                     
                     std::cout<<"contractPoint case 1aa"<<std::endl;
                     BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
