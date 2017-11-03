@@ -158,6 +158,26 @@ namespace model
         }
         
         /**********************************************************************/
+        std::deque<size_t> bndIDs() const
+        {/*!\returns The set of IDs into BoundingLineSegments on which node is allowed to be
+          */
+            std::deque<size_t> temp;
+            if(node->isBoundaryNode())
+            {
+            
+            }
+            else
+            {
+                for(size_t k=0;k<boundingBoxSegments().size();++k)
+                {
+                    temp.push_back(k);
+                }
+            }
+            return temp;
+        }
+
+        
+        /**********************************************************************/
         void clear()
         {
             glidePlanes().clear();

@@ -424,6 +424,73 @@ namespace model
             
             
         }
+
+        /**********************************************************************/
+        bool contractSecond(const SharedNodePtrType& nA,const SharedNodePtrType& nB)
+        {
+            // Collect IDs of all loops passing through both a and b
+            std::set<size_t> loopIDs;
+            for(const auto& loopLinkA : nA->loopLinks())
+            {
+                for(const auto& loopLinkB : nB->loopLinks())
+                {
+                    if(loopLinkA->loop()->sID==loopLinkB->loop()->sID)
+                    {
+                        loopIDs.insert(loopLinkA->loop()->sID);
+                    }
+                }
+            }
+            
+            // Cut those loops
+            for(const auto loopID : loopIDs)
+            {
+                cutLoop(loopID,a,b);
+            }
+            
+            // Store links connected to b
+            typedef std::tuple<SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>,bool> ContractTupleType;
+            typedef std::deque<ContractTupleType> ContractDequeType;
+            ContractDequeType contractDeq;
+            
+            for(const auto& loopLink : nB->loopLinks())
+            {
+                if(loopLink->source()->sID==b)
+                {
+                    contractDeq.emplace_back(loopLink->source(),loopLink->sink(),loopLink->loop(),0);
+                }
+                else if(loopLink->sink()->sID==b)
+                {
+                    contractDeq.emplace_back(loopLink->source(),loopLink->sink(),loopLink->loop(),1);
+                }
+                else
+                {
+                    assert(0 && "source or sink must be b.");
+                }
+            }
+            
+            // Disconnect links from b
+            for(const auto& tup : contractDeq)
+            {
+                disconnect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
+            }
+            
+            // Re-connect replacing b with a
+            for(const auto& tup : contractDeq)
+            {
+                if(std::get<3>(tup))
+                {
+                    connect(std::get<0>(tup),nA,std::get<2>(tup));
+                }
+                else
+                {
+                    connect(nA,std::get<1>(tup),std::get<2>(tup));
+                }
+            }
+            
+            return true;
+        }
+
+        
         
         /**********************************************************************/
         bool contractSecond(const size_t& a,const size_t &b)

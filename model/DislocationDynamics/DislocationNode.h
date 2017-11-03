@@ -95,7 +95,7 @@ namespace model
             // Check if node is on a GB
             for(const auto& gb : this->network().poly.grainBoundaries())
             {
-                const GlidePlaneType& gp(gb.second.latticePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+                const GlidePlaneType& gp(gb.second.glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
                 
                 if(gp.contains(this->get_P()))
                 {
@@ -122,6 +122,13 @@ namespace model
             {
                 std::cout<<"DIslocationNode "<<this->sID<<" addGrainBoundaryPlanes"<<std::endl;
                 _isGrainBoundaryNode=true;
+                
+                
+                for(const auto& pair : this->neighbors())
+                {
+                    std::get<1>(pair.second)->addGrainBoundaryPlanes();
+                }
+                
             }
             
             return addedGp;
@@ -129,22 +136,98 @@ namespace model
         
         /**********************************************************************/
         VectorDim snapToBoundingBox(const VectorDim& P) const
-        {
+        {/*!\param[in] P position to be snapped to the bounding box
+          * \returns a point on the bounding box close to P. The returned point 
+          * is the closest to the bounding box, unless the closest point causes
+          * boundarySegments to become interior. In that case the closest boundary
+          * vertex is returned.
+          */
             
-            const VectorDim p0=std::get<0>(nodeConfinement().boundingBoxSegments().snap(P));
-            const auto pair=nodeConfinement().boundingBoxSegments().snapToVertex(p0);
-            return pair.first<1.0? pair.second : p0;
             
-//            
-//            if(pair.first<1.0)
-//            {
-//                set_P(pair.second);
-//            }
-//            else
-//            {
-//                set_P(p0);
-//            }
-//            _isOnBoundingBox=true;
+            const VectorDim pL=std::get<0>(nodeConfinement().boundingBoxSegments().snap(P));
+            const VectorDim pV=nodeConfinement().boundingBoxSegments().snapToVertex(P).second;
+
+            bool pLcontained=true;
+            bool pVcontained=true;
+            
+            for(const auto& pair : this->neighbors())
+            {
+                if(std::get<1>(pair.second)->isBoundarySegment())
+                {// boundary segments must not become internal
+                    pLcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P())).first;
+                    pVcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P())).first;
+                }
+                
+                if(std::get<1>(pair.second)->isGrainBoundarySegment())
+                {// grainBoundary segments must not become internal
+                    for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
+                    {
+                        pLcontained*=gb->glidePlanes().begin()->second.contains(pL);
+                        pVcontained*=gb->glidePlanes().begin()->second.contains(pV);
+                    }
+                }
+            }
+
+            if(pLcontained)
+            {
+                return pL;
+            }
+            else
+            {
+                if(pVcontained)
+                {
+                    return pV;
+                }
+                else
+                {
+                    model::cout<<"DislocationNode "<<this->sID<<" snapToBoundingBox FAILED."<<std::endl;
+//                    for(const auto& pair : this->neighbors())
+//                    {
+//                        std::cout<<"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;
+//                        if(std::get<1>(pair.second)->isBoundarySegment() ||
+//                           std::get<1>(pair.second)->isGrainBoundarySegment() )
+//                        {
+//                            std::cout<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is boundary"<<std::endl;
+//                            const auto pLtemp=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P()));
+//                            const auto pVtemp=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P()));
+//                            std::cout<<"pLcontained="<<pLtemp.first<<", lineID="<<pLtemp.second<<std::endl;
+//                            std::cout<<"pVcontained="<<pVtemp.first<<", lineID="<<pVtemp.second<<std::endl;
+//                        }
+//                    }
+//                    
+//                    for(const auto& pair : this->neighbors())
+//                    {
+//                        std::cout<<"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;
+//                        if(std::get<1>(pair.second)->isBoundarySegment())
+//                        {// boundary and grainBoundary segments must not become internal
+//                            const auto pLtemp=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P()));
+//                            const auto pVtemp=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P()));
+//                            std::cout<<"pLcontained="<<pLtemp.first<<", lineID="<<pLtemp.second<<std::endl;
+//                            std::cout<<"pVcontained="<<pVtemp.first<<", lineID="<<pVtemp.second<<std::endl;
+//                        }
+//                        
+//                        if(std::get<1>(pair.second)->isGrainBoundarySegment())
+//                        {// boundary and grainBoundary segments must not become internal
+//                            std::cout<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is grainBoundary"<<std::endl;
+//
+//                            bool pLtemp=true;
+//                            bool pVtemp=true;
+//
+//                            
+//                            for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
+//                            {
+//                                pLtemp*=gb->glidePlanes().begin()->second.contains(pL);
+//                                pVtemp*=gb->glidePlanes().begin()->second.contains(pV);
+//                            }
+//                            std::cout<<"pLcontained="<<pLtemp<<std::endl;
+//                            std::cout<<"pVcontained="<<pVtemp<<std::endl;
+//                        }
+//                    }
+//                    
+                    assert(false && "snapToBoundingBox FAILED.");
+                    return VectorDim::Zero();
+                }
+            }
             
         }
         
@@ -352,7 +435,7 @@ namespace model
             {
                 _isGlissile*=pL->loop()->isGlissile;
 
-                if(nodeConfinement().boundingBoxSegments().contains(this->get_P()))
+                if(nodeConfinement().boundingBoxSegments().contains(this->get_P()).first)
                 {
 //                    const VectorDim bbP(std::get<0>(nodeConfinement().boundingBoxSegments().snap(this->get_P())));
 //                    if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
@@ -409,7 +492,7 @@ namespace model
             
             addGrainBoundaryPlanes();
             
-            if(nodeConfinement().boundingBoxSegments().contains(this->get_P()))
+            if(nodeConfinement().boundingBoxSegments().contains(this->get_P()).first)
             {
                 //                    const VectorDim bbP(std::get<0>(nodeConfinement().boundingBoxSegments().snap(this->get_P())));
                 //                    if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
@@ -685,6 +768,7 @@ namespace model
             return temp;
         }
         
+        
         /**********************************************************************/
         bool isSimpleBndNode() const
         {
@@ -847,7 +931,7 @@ namespace model
                         {// node was internal and exited the grain
                             if(addGrainBoundaryPlanes())
                             {// GB-planes were added, the bounding box has changed
-                                if(nodeConfinement().boundingBoxSegments().contains(this->get_P()))
+                                if(nodeConfinement().boundingBoxSegments().contains(this->get_P()).first)
                                 {// new bounding box contains node
 //                                    std::cout<<"case 5"<<std::endl;
                                     NodeBaseType::set_P(snapToBoundingBox(newP)); // kill numerical errors
@@ -872,6 +956,8 @@ namespace model
                     if(_isOnBoundingBox)
                     {
                         boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
+                        assert(boundaryNormal.squaredNorm()>FLT_EPSILON);
+                        assert(nodeConfinement().boundingBoxSegments().contains(this->get_P()).first);
                     }
 
                 }

@@ -136,7 +136,7 @@ namespace model
                 {
                     for(const auto& grain : grains())
                     {
-                        assert(latticePlane(grain.second->grainID).contains(Ps.col(j)) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
+                        assert(glidePlane(grain.second->grainID).contains(Ps.col(j)) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
                     }
                 }
             }
@@ -186,8 +186,8 @@ namespace model
         {
             //std::cout<<"findGrainBoundaryType"<<std::endl;
             
-            const VectorDimD n1=(grain(grainBndID.first).get_C2G().transpose()*latticePlane(grainBndID.first).n.cartesian()).normalized();
-            const VectorDimD n2=(grain(grainBndID.second).get_C2G().transpose()*latticePlane(grainBndID.second).n.cartesian()).normalized();
+            const VectorDimD n1=(grain(grainBndID.first).get_C2G().transpose()*glidePlane(grainBndID.first).n.cartesian()).normalized();
+            const VectorDimD n2=(grain(grainBndID.second).get_C2G().transpose()*glidePlane(grainBndID.second).n.cartesian()).normalized();
             
             
             for (const auto& gbt : bgTypes)
@@ -424,15 +424,15 @@ namespace model
         }
         
         /**********************************************************************/
-        const std::map<int,GlidePlane<NetworkType>>& latticePlanes() const
+        const std::map<int,GlidePlane<NetworkType>>& glidePlanes() const
         {
             return *this;
         }
         
         /**********************************************************************/
-        const LatticePlane& latticePlane(const int& k) const
+        const LatticePlane& glidePlane(const int& k) const
         {
-            return latticePlanes().at(k);
+            return glidePlanes().at(k);
         }
         
         /**********************************************************************/

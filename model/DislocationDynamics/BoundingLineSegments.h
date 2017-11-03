@@ -90,6 +90,8 @@ namespace model
                 }
             }
             
+            assert(this->size()<=bls1.size() && "intersections cannot be more than original segments");
+            assert(this->size()<=bls2.size() && "intersections cannot be more than original segments");
 //            std::cout<<"BoundingLineSegments "<<this<<", size="<<this->size()<<std::endl;
             
         }
@@ -168,6 +170,10 @@ namespace model
                     }
                 }
                 
+                assert(temp.size()<=this->size() && "intersections cannot be more than original segments");
+                assert(temp.size()<=gp.meshIntersections.size() && "intersections cannot be more than original segments");
+
+                
                 this->swap(temp);
             }
             else
@@ -185,15 +191,50 @@ namespace model
         static void emplaceUnique(LineSegmentContainerType& temp,const VectorDim& P1,const VectorDim& P2)
         {
             bool isUnique=true;
-            for(const auto& pair : temp)
-            {
-                isUnique*=((pair.first-P1).squaredNorm()>FLT_EPSILON || (pair.second-P2).squaredNorm()>FLT_EPSILON);
-                isUnique*=((pair.first-P2).squaredNorm()>FLT_EPSILON || (pair.second-P1).squaredNorm()>FLT_EPSILON);
-                if(!isUnique)
+            
+            if((P1-P2).squaredNorm()>FLT_EPSILON)
+            {// P1-P2 is not a degenerate line
+                for(int p=0;p<temp.size();++p)
                 {
-                    break;
+                    VectorDim& E1(temp[p].first);
+                    VectorDim& E2(temp[p].second);
+                    if((E1-E2).squaredNorm()>FLT_EPSILON)
+                    {// existing pair is not a degenerate line
+                        isUnique*=((E1-P1).squaredNorm()>FLT_EPSILON && (E2-P2).squaredNorm()>FLT_EPSILON);
+                        isUnique*=((E1-P2).squaredNorm()>FLT_EPSILON || (E2-P1).squaredNorm()>FLT_EPSILON);
+                        if(!isUnique)
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {// existing pair is a degenerate line
+                        const VectorDim x=0.5*(E1+E2);
+                        isUnique*=((P1-x).squaredNorm()>FLT_EPSILON && (P2-x).squaredNorm()>FLT_EPSILON);
+                        if(!isUnique)
+                        {// keep non-defenerate line
+                            temp[p].first=P1;
+                            temp[p].second=P2;
+                            break;
+                        }
+                    }
+                    
                 }
             }
+            else
+            {// P1-P2 is a degenerate line (a point)
+                const VectorDim x=0.5*(P1+P2);
+                for(const auto& pair : temp)
+                {
+                    isUnique*=((pair.first-x).squaredNorm()>FLT_EPSILON && (pair.second-x).squaredNorm()>FLT_EPSILON);
+                    if(!isUnique)
+                    {
+                        break;
+                    }
+                }
+            
+            }
+            
             
             if(isUnique)
             {
@@ -207,11 +248,15 @@ namespace model
         
         
         /**********************************************************************/
-        bool contains(const VectorDim& P) const
+        std::pair<bool,size_t> contains(const VectorDim& P) const
         {
-            bool temp(false);
-            for(const auto& vertexPair : *this)
+            
+//            std::cout<<"Point="<<P.transpose()<<std::endl;
+            std::pair<bool,size_t> temp=std::make_pair(false,0);
+            for(size_t segID=0;segID<this->size();++segID)
+//            for(const auto& vertexPair : *this)
             {
+                const auto& vertexPair(this->operator[](segID));
                 const VectorDim segm(vertexPair.second-vertexPair.first);
                 const double segmNorm2(segm.squaredNorm());
                 if(segmNorm2>FLT_EPSILON)
@@ -226,18 +271,20 @@ namespace model
                         u=1.0;
                     }
                     const VectorDim x(vertexPair.first+u*segm);
+//                    std::cout<<vertexPair.first.transpose()<<" "<<vertexPair.second.transpose()<<"      case A: P-x="<<(P-x).squaredNorm()<<std::endl;
                     if((P-x).squaredNorm()<FLT_EPSILON)
                     {
-                        temp=true;
+                        temp=std::make_pair(true,segID);
                         break;
                     }
                 }
                 else
                 {
-                    const VectorDim x(0.5*(vertexPair.second+vertexPair.first));
+                    const VectorDim x(0.5*(vertexPair.first+vertexPair.second));
+//                    std::cout<<vertexPair.first.transpose()<<" "<<vertexPair.second.transpose()<<"      case B: P-x="<<(P-x).squaredNorm()<<std::endl;
                     if((P-x).squaredNorm()<FLT_EPSILON)
                     {
-                        temp=true;
+                        temp=std::make_pair(true,segID);
                         break;
                     }
                 }

@@ -285,6 +285,15 @@ namespace model
             move(0.0);	// initial configuration
         }
         
+        
+        /**********************************************************************/
+        bool contractYoungest(std::shared_ptr<NodeType> nA,
+                              std::shared_ptr<NodeType> nB)
+        {
+            return nA->sID<nB->sID? this->contractSecond(nA->sID,nB->sID) : this->contractSecond(nB->sID,nA->sID);
+        
+        }
+        
         /**********************************************************************/
         bool contract(std::shared_ptr<NodeType> nA,
                       std::shared_ptr<NodeType> nB)
@@ -296,49 +305,117 @@ namespace model
             
             std::cout<<"DislocationNetwork::contract "<<nA->sID<<" "<<nB->sID<<std::endl;
             
+
+            
             if(nA->isGlissile() && nB->isGlissile())
             {// both nodes are glissile
                 if(nA->isOnBoundingBox() && nB->isOnBoundingBox())
                 {// both nodes on bounding boxes. Intersect bounding boxes'
                     
-                    
-                    
-                    
-                    STILL SOME PROBLEMS HERE. NODES ARE PULLED OUT OF VERTICES. SEE NODE 82. SHOULD USE CONTAINS(X,ID), AS BELOW
-                    
                     std::cout<<"contractPoint case 1aa"<<std::endl;
-                    BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
-                    std::cout<<"temp.size()="<<temp.size()<<std::endl;
-                    if(temp.size())
-                    {// a common portion of the boundary exists
-                        std::cout<<"contractPoint case 1"<<std::endl;
+//                    BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
+//                    std::cout<<"temp.size()="<<temp.size()<<std::endl;
+//                    if(temp.size())
+//                    {// a common portion of the boundary exists
+//                        std::cout<<"contractPoint case 1"<<std::endl;
 
+//                                    std::cout<<"ACCOUNT FOR GRAINBONUDARY SEGMENST WHEN CCHECKING LINKS"<<std::endl;
                         
-                        const auto tupA(temp.snap(nA->get_P()));
-                        const auto tupB(temp.snap(nB->get_P()));
+                        std::cout<<"nA neighbors:"<<std::endl;
+                        bool nAisRemovable=true;
+                        for(const auto& pair : nA->neighbors())
+                        {
+//                            std::cout<<"neighbor "<<nA->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<temp.contains(0.5*(std::get<0>(pair.second)->get_P()+nB->get_P())).first<<std::endl;
+                            if(pair.first!=nB->sID && std::get<1>(pair.second)->isBoundarySegment())
+                            {// boundary segments other than A->B must remain boundary
+//                                std::cout<<"boundary neighbor "<<nA->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<temp.contains(0.5*(std::get<0>(pair.second)->get_P()+nB->get_P())).first<<std::endl;
+//                                nAisRemovable*=temp.contains(0.5*(std::get<0>(pair.second)->get_P()+nB->get_P())).first;
+                                nAisRemovable*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(std::get<0>(pair.second)->get_P()+nB->get_P())).first;
+
+                            }
+                            
+                            if(pair.first!=nB->sID && std::get<1>(pair.second)->isGrainBoundarySegment())
+                            {// boundary segments other than A->B must remain boundary
+                                for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
+                                {
+                                    std::cout<<"grainBoundary neighbor "<<nA->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<gb->glidePlanes().begin()->second.contains(nB->get_P())<<std::endl;
+                                    nAisRemovable*=gb->glidePlanes().begin()->second.contains(nB->get_P());
+                                }
+                            }
+                        }
                         
-                        const size_t& bnIDA(std::get<1>(tupA));
-                        const size_t& bnIDB(std::get<1>(tupB));
+                        std::cout<<"nB neighbors:"<<std::endl;
+                        bool nBisRemovable=true;
+                        for(const auto& pair : nB->neighbors())
+                        {
+//                            std::cout<<"neighbor "<<nB->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<temp.contains(0.5*(std::get<0>(pair.second)->get_P()+nA->get_P())).first<<std::endl;
+                            if(pair.first!=nA->sID && std::get<1>(pair.second)->isBoundarySegment())
+                            {// boundary segments other than A->B must remain boundary
+//                                std::cout<<"boundary neighbor "<<nB->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<temp.contains(0.5*(std::get<0>(pair.second)->get_P()+nA->get_P())).first<<std::endl;
+//                                nBisRemovable*=temp.contains(0.5*(std::get<0>(pair.second)->get_P()+nA->get_P())).first;
+                                nBisRemovable*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(std::get<0>(pair.second)->get_P()+nA->get_P())).first;
+                            }
                         
-                        if(bnIDA==bnIDB)
-                        {// IDs of the bounding box lines are the same
-                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
+                            if(pair.first!=nA->sID && std::get<1>(pair.second)->isGrainBoundarySegment())
+                            {// boundary segments other than A->B must remain boundary
+                                for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
+                                {
+                                    std::cout<<"grainBoundary neighbor "<<nB->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<gb->glidePlanes().begin()->second.contains(nA->get_P())<<std::endl;
+                                    nBisRemovable*=gb->glidePlanes().begin()->second.contains(nA->get_P());
+                                }
+                            }
+                        
+                        }
+                        
+                        if(nAisRemovable && nBisRemovable)
+                        {
+                            std::cout<<"contractPoint case 1a"<<std::endl;
+//                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
+//                            return this->contractSecond(nA->sID,nB->sID);
+                            return contractYoungest(nA,nB);
+                        }
+                        else if(nAisRemovable && !nBisRemovable)
+                        {
+                            std::cout<<"contractPoint case 1b"<<std::endl;
+                            return this->contractSecond(nB->sID,nA->sID);
+                        }
+                        else if(!nAisRemovable && nBisRemovable)
+                        {
+                            std::cout<<"contractPoint case 1c"<<std::endl;
                             return this->contractSecond(nA->sID,nB->sID);
                         }
                         else
-                        {// IDs of the bounding box lines are different
-                            SegmentSegmentDistance<dim> ssd(temp[bnIDA].first,temp[bnIDA].second,
-                                                            temp[bnIDB].first,temp[bnIDB].second);
-                            if(ssd.dMin<FLT_EPSILON)
-                            {
-                                nA->set_P(0.5*(ssd.x0+ssd.x1));
-                                return this->contractSecond(nA->sID,nB->sID);
-                            }
-                            else
-                            {
-                                return false;
-                            }
+                        {
+                            std::cout<<"contractPoint case 1d"<<std::endl;
+                            return false;
                         }
+                        
+                        
+//                        const auto tupA(temp.snap(nA->get_P()));
+//                        const auto tupB(temp.snap(nB->get_P()));
+//                        
+//                        const size_t& bnIDA(std::get<1>(tupA));
+//                        const size_t& bnIDB(std::get<1>(tupB));
+//                        
+//                        if(bnIDA==bnIDB)
+//                        {// IDs of the bounding box lines are the same
+//                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
+//                            return this->contractSecond(nA->sID,nB->sID);
+//                        }
+//                        else
+//                        {// IDs of the bounding box lines are different
+//                            SegmentSegmentDistance<dim> ssd(temp[bnIDA].first,temp[bnIDA].second,
+//                                                            temp[bnIDB].first,temp[bnIDB].second);
+//                            if(ssd.dMin<FLT_EPSILON)
+//                            {
+//                                nA->set_P(0.5*(ssd.x0+ssd.x1));
+//                                return this->contractSecond(nA->sID,nB->sID);
+//                            }
+//                            else
+//                            {
+//                                return false;
+//                            }
+//                        }
                         
 //                        const auto Av(temp.snapToVertex(nA->get_P()));
 //                        const auto Bv(temp.snapToVertex(nB->get_P()));
@@ -372,12 +449,12 @@ namespace model
 //                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
 //                            return this->contractSecond(nA->sID,nB->sID);
 //                        }
-                    }
-                    else
-                    {
-                        std::cout<<"contractPoint case 2"<<std::endl;
-                        return false;
-                    }
+//                    }
+//                    else
+//                    {
+//                        std::cout<<"contractPoint case 2"<<std::endl;
+//                        return false;
+//                    }
                 }
                 else if(nA->isOnBoundingBox() && !nB->isOnBoundingBox())
                 {// a on box, b is not
@@ -545,7 +622,7 @@ namespace model
             {// a is glissile, b is sessile
                 if(nA->isOnBoundingBox())
                 {// a is a boundary node. Check is the bonuding box contains b
-                    if(nA->boundingBoxSegments().contains(nB->get_P()))
+                    if(nA->boundingBoxSegments().contains(nB->get_P()).first)
                     {
                         std::cout<<"contractPoint case 15"<<std::endl;
                         return this->contractSecond(nB->sID,nA->sID);
@@ -560,7 +637,7 @@ namespace model
                 {// a is an inner node. Check if _glidePlaneIntersections contains b
                     if(nA->glidePlaneIntersections().size())
                     {
-                        if(nA->glidePlaneIntersections().contains(nB->get_P()))
+                        if(nA->glidePlaneIntersections().contains(nB->get_P()).first)
                         {
                             std::cout<<"contractPoint case 17"<<std::endl;
                             return this->contractSecond(nB->sID,nA->sID);
