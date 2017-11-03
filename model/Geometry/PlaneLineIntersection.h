@@ -46,7 +46,7 @@ namespace model
             {// line is degenerate (a point)
                 if(fabs((pL-pP).dot(n))<FLT_EPSILON)
                 {// degenerate incident
-                    return std::make_tuple(INCIDENT,0.5*(pL+pP),VectorDimD::Zero());
+                    return std::make_tuple(INCIDENT,pL,VectorDimD::Zero());
                 }
                 else
                 {// degenerate parallel (non-intersection)
