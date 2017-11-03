@@ -107,7 +107,7 @@ namespace model
             const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
                                                                  std::forward_as_tuple(grain.grainID),
                                                                  std::forward_as_tuple(&dn,dn.mesh,grain,L0.cartesian(),pb.cartesian()));
-            assert(temp.first->second.n.cartesian().normalized().cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
+            assert(temp.first->second.unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
             
         }
         
@@ -186,8 +186,8 @@ namespace model
         {
             //std::cout<<"findGrainBoundaryType"<<std::endl;
             
-            const VectorDimD n1=(grain(grainBndID.first).get_C2G().transpose()*glidePlane(grainBndID.first).n.cartesian()).normalized();
-            const VectorDimD n2=(grain(grainBndID.second).get_C2G().transpose()*glidePlane(grainBndID.second).n.cartesian()).normalized();
+            const VectorDimD n1=(grain(grainBndID.first).get_C2G().transpose()*glidePlane(grainBndID.first).unitNormal).normalized();
+            const VectorDimD n2=(grain(grainBndID.second).get_C2G().transpose()*glidePlane(grainBndID.second).unitNormal).normalized();
             
             
             for (const auto& gbt : bgTypes)
@@ -287,9 +287,9 @@ namespace model
                 
 //                const int gbRegionID=grainBndID.first;
 //                
-//                const VectorDimD normal=latticePlane(gbRegionID).n.cartesian().normalized();
+//                const VectorDimD normal=latticePlane(gbRegionID).unitNormal.normalized();
 //                const VectorDimD dir=rotationAxis().normalized();
-//                const VectorDimD p=dir.cross(latticePlane(gbRegionID).n.cartesian()).normalized()*grainBoundaryType().dislocationSpacing;
+//                const VectorDimD p=dir.cross(latticePlane(gbRegionID).unitNormal).normalized()*grainBoundaryType().dislocationSpacing;
 //                
 //                model::cout<<"Grain boundary dislocations being added with spacing of "<<grainBoundaryType().dislocationSpacing<<" and along direction "<<p.normalized().transpose()<<std::endl;
 //                VectorDimD P0(VectorDimD::Zero());
@@ -499,7 +499,7 @@ namespace model
                 //            if(use_GBdislocations)
                 //            {
                 //            const VectorDimD dir=rotationAxis().normalized();
-                //            const VectorDimD p=dir.cross(latticePlane(grainBndID.first).n.cartesian()).normalized()*grainBoundaryType().dislocationSpacing;
+                //            const VectorDimD p=dir.cross(latticePlane(grainBndID.first).unitNormal).normalized()*grainBoundaryType().dislocationSpacing;
                 //
                 //
                 //            VectorDimD P0(VectorDimD::Zero());
@@ -513,7 +513,7 @@ namespace model
                 //                P0=Q-100.0*dir+k*p;
                 //                P1=Q+100.0*dir+k*p;
                 //                //std::cout<<"GB DISLOCATIONS MAY BE WRONG SIGN"<<std::endl;
-                //                vD.emplace_back(P0,P1,grainBoundaryType().Burgers*latticePlane(grainBndID.first).n.cartesian().normalized());
+                //                vD.emplace_back(P0,P1,grainBoundaryType().Burgers*latticePlane(grainBndID.first).unitNormal.normalized());
                 //            }
                 //            }
                 //

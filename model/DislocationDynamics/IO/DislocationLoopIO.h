@@ -31,7 +31,7 @@ namespace model
         DislocationLoopIO(const DislocationLoopType& dL) :
         /* init */ loopID(dL.sID),
         /* init */ B(dL.flow().cartesian()),
-        /* init */ N(dL.glidePlane.n.cartesian()),
+        /* init */ N(dL.glidePlane.unitNormal),
         /* init */ P(dL.glidePlane.P.cartesian()),
         /* init */ grainID(dL.grain.grainID)
         {

@@ -109,12 +109,12 @@ namespace model
                 for(const auto& oldPair : *this)
                 {
 //                    const LineSegmentContainerType psi=GlidePlaneObserver<LoopType>::planeSegmentIntersection(gp.P.cartesian(),
-//                                                                                                              gp.n.cartesian(),
+//                                                                                                              gp.unitNormal,
 //                                                                                                              oldPair.first,
 //                                                                                                              oldPair.second);
 
                     PlaneSegmentIntersection<dim> psi(gp.P.cartesian(),
-                                                      gp.n.cartesian(),
+                                                      gp.unitNormal,
                                                       oldPair.first,
                                                       oldPair.second);
                     

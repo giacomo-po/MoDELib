@@ -97,7 +97,7 @@ namespace model
                         {
                             const VectorDim pkForce=(ds.midPointStress()*slipSystem.s.cartesian()).cross(-chord.normalized());
                             
-                            if(pkForce.dot(gb->latticePlane(otherGrainID).n.cartesian())<0.0) // PK force points inside the grain
+                            if(pkForce.dot(gb->latticePlane(otherGrainID).unitNormal)<0.0) // PK force points inside the grain
                             {
                                 const VectorDim b2=slipSystem.s.cartesian();
                                 

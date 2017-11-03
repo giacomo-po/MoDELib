@@ -238,42 +238,7 @@ namespace model
 //            return LatticePlane(P,n);
 //        }
         
-//        /**********************************************************************/
-//        void updateGlidePlaneNormal()
-//        {
-//            
-//            _glidePlaneNormal.setZero();
-//            _isSessile=true;
-//            
-//            if(Burgers.squaredNorm()>FLT_EPSILON)
-//            {
-//                _isSessile=false;
-//                //                _glidePlaneNormal.setZero();
-//                
-//                const VectorDim referenceNormal=(*this->loopLinks().begin())->loop()->glidePlane.n.cartesian();
-//                for(const auto& loopLink : this->loopLinks())
-//                {
-//                    if(   loopLink->loop()->glidePlane.n.cartesian().cross(referenceNormal).squaredNorm()>FLT_EPSILON
-//                       || !loopLink->loop()->isGlissile)
-//                    {
-//                        _isSessile=true;
-//                        break;
-//                    }
-//                }
-//                
-//                if(!_isSessile)
-//                {
-//                    _glidePlaneNormal=referenceNormal.normalized();
-//                }
-//            }
-//            
-//        }
-        
-//        void updateGrainBonudaries()
-//        {
-//            
-//        }
-        
+
         
         
         /******************************************************************/

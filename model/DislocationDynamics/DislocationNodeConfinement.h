@@ -118,7 +118,7 @@ namespace model
                     
                     // intersect the _glidePlaneIntersections with the new plane
                     PlaneLineIntersection<dim> pli(lastGlidePlane.P.cartesian(),
-                                                   lastGlidePlane.n.cartesian(),
+                                                   lastGlidePlane.unitNormal,
                                                    _glidePlaneIntersections[0].first, // origin of line
                                                    _glidePlaneIntersections[0].second-_glidePlaneIntersections[0].first // line direction
                                                    );

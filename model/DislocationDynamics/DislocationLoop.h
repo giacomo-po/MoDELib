@@ -101,8 +101,13 @@ namespace model
         {
             BaseLoopType::addLink(pL);
 
-            assert(std::fabs((pL->source()->get_P()-pL->sink()->get_P()).dot(glidePlane.n.cartesian()))<FLT_EPSILON && "Chord does not belong to plane");
-            
+//            const VectorDim chord(pL->source()->get_P()-pL->sink()->get_P());
+//            const double chornNorm(chord.norm());
+//            if(chornNorm>FLT_EPSILON)
+//            {
+//            assert(std::fabs((chord/chornNorm).dot(glidePlane.unitNormal))<FLT_EPSILON && "Chord does not belong to plane");
+//            }
+
         }
         
         /**********************************************************************/
@@ -112,6 +117,8 @@ namespace model
             os<< DislocationLoopIO<dim>(dL);
             return os;
         }
+        
+//        static chordInPlane(LoopLinkType* const pL,)
         
 //        /**********************************************************************/
 //        void removeLink(LoopLinkType* const pL)

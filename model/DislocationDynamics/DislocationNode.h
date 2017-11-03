@@ -67,7 +67,7 @@ namespace model
         typedef Eigen::Matrix<double,NdofXnode,1> VectorDofType;
         typedef std::vector<VectorDim,Eigen::aligned_allocator<VectorDim> > VectorOfNormalsType;
         typedef GlidePlane<LoopNetworkType> GlidePlaneType;
-//        typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
+        //        typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
         //        typedef std::deque<LatticePlane> SpecialLatticePlaneContainerType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef LatticeDirection<dim> LatticeDirectionType;
@@ -86,7 +86,7 @@ namespace model
         
     private:
         
-
+        
         
         /**********************************************************************/
         size_t addGrainBoundaryPlanes()
@@ -100,21 +100,21 @@ namespace model
                 if(gp.contains(this->get_P()))
                 {
                     addedGp+=nodeConfinement().addGlidePlane(gp);
-//                    std::cout<<"DIslocationNode "<<this->sID<<" addGrainBoundaryPlanes"<<std::endl;
-//                    if(nodeConfinement().addGlidePlane(gp))
-//                    {// adding the gb-plane was successful
-//                        _isGrainBoundaryNode=true;
-//                        
-//                        // The bounding box had changed, so see if _isOnBoundingBox applies
-//                        if(nodeConfinement().contains(this->get_P()))
-//                        {
-//                            _isOnBoundingBox=true;
-//                        }
-//                        else
-//                        {
-//                            _isOnBoundingBox=false;
-//                        }
-//                    }
+                    //                    std::cout<<"DIslocationNode "<<this->sID<<" addGrainBoundaryPlanes"<<std::endl;
+                    //                    if(nodeConfinement().addGlidePlane(gp))
+                    //                    {// adding the gb-plane was successful
+                    //                        _isGrainBoundaryNode=true;
+                    //
+                    //                        // The bounding box had changed, so see if _isOnBoundingBox applies
+                    //                        if(nodeConfinement().contains(this->get_P()))
+                    //                        {
+                    //                            _isOnBoundingBox=true;
+                    //                        }
+                    //                        else
+                    //                        {
+                    //                            _isOnBoundingBox=false;
+                    //                        }
+                    //                    }
                 }
             }
             
@@ -137,7 +137,7 @@ namespace model
         /**********************************************************************/
         VectorDim snapToBoundingBox(const VectorDim& P) const
         {/*!\param[in] P position to be snapped to the bounding box
-          * \returns a point on the bounding box close to P. The returned point 
+          * \returns a point on the bounding box close to P. The returned point
           * is the closest to the bounding box, unless the closest point causes
           * boundarySegments to become interior. In that case the closest boundary
           * vertex is returned.
@@ -146,16 +146,23 @@ namespace model
             
             const VectorDim pL=std::get<0>(nodeConfinement().boundingBoxSegments().snap(P));
             const VectorDim pV=nodeConfinement().boundingBoxSegments().snapToVertex(P).second;
-
+            
             bool pLcontained=true;
             bool pVcontained=true;
             
             for(const auto& pair : this->neighbors())
             {
+                std::cout<<"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;
+                
                 if(std::get<1>(pair.second)->isBoundarySegment())
                 {// boundary segments must not become internal
+                    std::cout<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is boundary"<<std::endl;
+                    
                     pLcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P())).first;
                     pVcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P())).first;
+                    std::cout<<"pLcontained="<<pLcontained<<std::endl;//<<", lineID="<<pLcontained.second<<std::endl;
+                    std::cout<<"pVcontained="<<pVcontained<<std::endl;//", lineID="<<pVcontained.second<<std::endl;
+                    
                 }
                 
                 if(std::get<1>(pair.second)->isGrainBoundarySegment())
@@ -167,7 +174,7 @@ namespace model
                     }
                 }
             }
-
+            
             if(pLcontained)
             {
                 return pL;
@@ -181,49 +188,49 @@ namespace model
                 else
                 {
                     model::cout<<"DislocationNode "<<this->sID<<" snapToBoundingBox FAILED."<<std::endl;
-//                    for(const auto& pair : this->neighbors())
-//                    {
-//                        std::cout<<"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;
-//                        if(std::get<1>(pair.second)->isBoundarySegment() ||
-//                           std::get<1>(pair.second)->isGrainBoundarySegment() )
-//                        {
-//                            std::cout<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is boundary"<<std::endl;
-//                            const auto pLtemp=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P()));
-//                            const auto pVtemp=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P()));
-//                            std::cout<<"pLcontained="<<pLtemp.first<<", lineID="<<pLtemp.second<<std::endl;
-//                            std::cout<<"pVcontained="<<pVtemp.first<<", lineID="<<pVtemp.second<<std::endl;
-//                        }
-//                    }
-//                    
-//                    for(const auto& pair : this->neighbors())
-//                    {
-//                        std::cout<<"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;
-//                        if(std::get<1>(pair.second)->isBoundarySegment())
-//                        {// boundary and grainBoundary segments must not become internal
-//                            const auto pLtemp=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P()));
-//                            const auto pVtemp=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P()));
-//                            std::cout<<"pLcontained="<<pLtemp.first<<", lineID="<<pLtemp.second<<std::endl;
-//                            std::cout<<"pVcontained="<<pVtemp.first<<", lineID="<<pVtemp.second<<std::endl;
-//                        }
-//                        
-//                        if(std::get<1>(pair.second)->isGrainBoundarySegment())
-//                        {// boundary and grainBoundary segments must not become internal
-//                            std::cout<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is grainBoundary"<<std::endl;
-//
-//                            bool pLtemp=true;
-//                            bool pVtemp=true;
-//
-//                            
-//                            for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
-//                            {
-//                                pLtemp*=gb->glidePlanes().begin()->second.contains(pL);
-//                                pVtemp*=gb->glidePlanes().begin()->second.contains(pV);
-//                            }
-//                            std::cout<<"pLcontained="<<pLtemp<<std::endl;
-//                            std::cout<<"pVcontained="<<pVtemp<<std::endl;
-//                        }
-//                    }
-//                    
+                    //                    for(const auto& pair : this->neighbors())
+                    //                    {
+                    //                        std::cout<<"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;
+                    //                        if(std::get<1>(pair.second)->isBoundarySegment() ||
+                    //                           std::get<1>(pair.second)->isGrainBoundarySegment() )
+                    //                        {
+                    //                            std::cout<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is boundary"<<std::endl;
+                    //                            const auto pLtemp=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P()));
+                    //                            const auto pVtemp=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P()));
+                    //                            std::cout<<"pLcontained="<<pLtemp.first<<", lineID="<<pLtemp.second<<std::endl;
+                    //                            std::cout<<"pVcontained="<<pVtemp.first<<", lineID="<<pVtemp.second<<std::endl;
+                    //                        }
+                    //                    }
+                    //
+                    //                    for(const auto& pair : this->neighbors())
+                    //                    {
+                    //                        std::cout<<"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;
+                    //                        if(std::get<1>(pair.second)->isBoundarySegment())
+                    //                        {// boundary and grainBoundary segments must not become internal
+                    //                            const auto pLtemp=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P()));
+                    //                            const auto pVtemp=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P()));
+                    //                            std::cout<<"pLcontained="<<pLtemp.first<<", lineID="<<pLtemp.second<<std::endl;
+                    //                            std::cout<<"pVcontained="<<pVtemp.first<<", lineID="<<pVtemp.second<<std::endl;
+                    //                        }
+                    //
+                    //                        if(std::get<1>(pair.second)->isGrainBoundarySegment())
+                    //                        {// boundary and grainBoundary segments must not become internal
+                    //                            std::cout<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is grainBoundary"<<std::endl;
+                    //
+                    //                            bool pLtemp=true;
+                    //                            bool pVtemp=true;
+                    //
+                    //
+                    //                            for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
+                    //                            {
+                    //                                pLtemp*=gb->glidePlanes().begin()->second.contains(pL);
+                    //                                pVtemp*=gb->glidePlanes().begin()->second.contains(pV);
+                    //                            }
+                    //                            std::cout<<"pLcontained="<<pLtemp<<std::endl;
+                    //                            std::cout<<"pVcontained="<<pVtemp<<std::endl;
+                    //                        }
+                    //                    }
+                    //
                     assert(false && "snapToBoundingBox FAILED.");
                     return VectorDim::Zero();
                 }
@@ -376,9 +383,9 @@ namespace model
         {/*! Constructor from DOF
           */
             addGrainBoundaryPlanes();
-//            set_P(this->get_P()); // trigger _isOnBoundingBox and _isGrainBoundaryNode
+            //            set_P(this->get_P()); // trigger _isOnBoundingBox and _isGrainBoundaryNode
             std::cout<<"WARNING INITIALIZE _isOnBoundingBox"<<std::endl;
-//            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
+            //            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
             std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
         }
         
@@ -399,9 +406,9 @@ namespace model
         {/*! Constructor from ExpandingEdge and DOF
           */
             addGrainBoundaryPlanes();
-//            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
+            //            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
             std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
-//            set_P(this->get_P()); // trigger _isOnBoundingBox and _isGrainBoundaryNode
+            //            set_P(this->get_P()); // trigger _isOnBoundingBox and _isGrainBoundaryNode
         }
         
         /**********************************************************************/
@@ -416,7 +423,7 @@ namespace model
             return *this;
         }
         
-
+        
         
         /**********************************************************************/
         void addLoopLink(LoopLinkType* const pL)
@@ -434,31 +441,31 @@ namespace model
             if(success)
             {
                 _isGlissile*=pL->loop()->isGlissile;
-
+                
                 if(nodeConfinement().boundingBoxSegments().contains(this->get_P()).first)
                 {
-//                    const VectorDim bbP(std::get<0>(nodeConfinement().boundingBoxSegments().snap(this->get_P())));
-//                    if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
-//                    {
-//                        set_P(bbP);
-                        _isOnBoundingBox=true;
-//                    }
+                    //                    const VectorDim bbP(std::get<0>(nodeConfinement().boundingBoxSegments().snap(this->get_P())));
+                    //                    if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
+                    //                    {
+                    //                        set_P(bbP);
+                    _isOnBoundingBox=true;
+                    //                    }
                 }
-
                 
-//                if(nodeConfinement().boundingBoxSegments().size())
-//                {
-//                    const VectorDim bbP(std::get<0>(nodeConfinement().boundingBoxSegments().snap(this->get_P())));
-//                    if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
-//                    {
-//                        set_P(bbP);
-//                        _isOnBoundingBox=true;
-//                    }
-//                }
-//                else
-//                {
-//                    _isGlissile=false;
-//                }
+                
+                //                if(nodeConfinement().boundingBoxSegments().size())
+                //                {
+                //                    const VectorDim bbP(std::get<0>(nodeConfinement().boundingBoxSegments().snap(this->get_P())));
+                //                    if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
+                //                    {
+                //                        set_P(bbP);
+                //                        _isOnBoundingBox=true;
+                //                    }
+                //                }
+                //                else
+                //                {
+                //                    _isGlissile=false;
+                //                }
             }
             
             //                        std::cout<<"DislocationNode "<<this->sID<<" addLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
@@ -502,19 +509,19 @@ namespace model
                 //                    }
             }
             
-//            if(nodeConfinement().boundingBoxSegments().size())
-//            {// not the last segment being removed
-//                const VectorDim bbP(std::get<0>(nodeConfinement().boundingBoxSegments().snap(this->get_P())));
-//                if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
-//                {
-//                    set_P(bbP);
-//                    _isOnBoundingBox=true;
-//                }
-//            }
-//            else
-//            {
-//                _isGlissile=false;
-//            }
+            //            if(nodeConfinement().boundingBoxSegments().size())
+            //            {// not the last segment being removed
+            //                const VectorDim bbP(std::get<0>(nodeConfinement().boundingBoxSegments().snap(this->get_P())));
+            //                if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
+            //                {
+            //                    set_P(bbP);
+            //                    _isOnBoundingBox=true;
+            //                }
+            //            }
+            //            else
+            //            {
+            //                _isGlissile=false;
+            //            }
             
             //            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
             
@@ -699,7 +706,7 @@ namespace model
           */
             
             NodeMeshLocation temp = outsideMesh;
-
+            
             
             if(_isOnBoundingBox)
             {
@@ -717,22 +724,22 @@ namespace model
                 }
             }
             
-//            if(boundaryNormal.squaredNorm())
-//            {
-//                temp=onMeshBoundary;
-//            }
-//            else
-//            {
-//                if(_isOnBoundingBox)
-//                {
-//                    temp=onRegionBoundary;
-//                    
-//                }
-//                else
-//                {
-//                    temp=insideMesh;
-//                }
-//            }
+            //            if(boundaryNormal.squaredNorm())
+            //            {
+            //                temp=onMeshBoundary;
+            //            }
+            //            else
+            //            {
+            //                if(_isOnBoundingBox)
+            //                {
+            //                    temp=onRegionBoundary;
+            //
+            //                }
+            //                else
+            //                {
+            //                    temp=insideMesh;
+            //                }
+            //            }
             
             return temp;
         }
@@ -747,7 +754,7 @@ namespace model
         const bool& isGrainBoundaryNode() const
         {
             return _isGrainBoundaryNode;
-//            return meshLocation()==onRegionBoundary;
+            //            return meshLocation()==onRegionBoundary;
         }
         
         /**********************************************************************/
@@ -886,7 +893,7 @@ namespace model
         /**********************************************************************/
         void set_P(const VectorDim& newP)
         {
-//            std::cout<<"DislocationNode "<<this->sID<<" set_P"<<std::endl;
+            std::cout<<"DislocationNode "<<this->sID<<" set_P"<<std::endl;
             // make sure that node is on glide planes
             bool glidePlanesContained=true;
             for(const auto& gp : nodeConfinement().glidePlanes())
@@ -897,7 +904,7 @@ namespace model
             
             if(glidePlanesContained)
             {
-//                NodeBaseType::set_P(newP);
+                //                NodeBaseType::set_P(newP);
                 if(this->network().use_boundary) // using confining mesh
                 {
                     
@@ -906,24 +913,24 @@ namespace model
                     {// newP is inside current grain
                         if(_isOnBoundingBox)
                         {// if the node is already on the the bounding box, keep it there
-//                            std::cout<<"case 1"<<std::endl;
+                            std::cout<<"case 1"<<std::endl;
                             NodeBaseType::set_P(snapToBoundingBox(newP));
                         }
                         else
                         {// node was internal to the grain and remains internal
-//                            std::cout<<"case 2"<<std::endl;
+                            std::cout<<"case 2"<<std::endl;
                             NodeBaseType::set_P(newP);
                         }
                     }
                     else
                     {// newP is outside current grain (or on grain boundary)
-//                        std::cout<<"case 3"<<std::endl;
+                        std::cout<<"case 3"<<std::endl;
                         NodeBaseType::set_P(snapToBoundingBox(newP)); // put node on the bouding box
                         if(_isOnBoundingBox)
                         {// node was on bounding box, and exited the grain
                             if(addGrainBoundaryPlanes())
                             {// GB-planes were added, the bounding box has changed, so snap again
-//                                std::cout<<"case 4"<<std::endl;
+                                std::cout<<"case 4"<<std::endl;
                                 NodeBaseType::set_P(snapToBoundingBox(newP)); // put node back on bounding box
                             }
                         }
@@ -933,13 +940,13 @@ namespace model
                             {// GB-planes were added, the bounding box has changed
                                 if(nodeConfinement().boundingBoxSegments().contains(this->get_P()).first)
                                 {// new bounding box contains node
-//                                    std::cout<<"case 5"<<std::endl;
+                                    std::cout<<"case 5"<<std::endl;
                                     NodeBaseType::set_P(snapToBoundingBox(newP)); // kill numerical errors
                                     _isOnBoundingBox=true;
                                 }
                                 else
                                 {// new bounding box does not contain node
-//                                    std::cout<<"case 6"<<std::endl;
+                                    std::cout<<"case 6"<<std::endl;
                                     NodeBaseType::set_P(nodeConfinement().snapToGlidePlaneIntersection(newP)); // kill numerical errors
                                     _isOnBoundingBox=false;
                                 }
@@ -959,11 +966,11 @@ namespace model
                         assert(boundaryNormal.squaredNorm()>FLT_EPSILON);
                         assert(nodeConfinement().boundingBoxSegments().contains(this->get_P()).first);
                     }
-
+                    
                 }
                 else
                 {
-//                    std::cout<<"case 7"<<std::endl;
+                    std::cout<<"case 7"<<std::endl;
                     NodeBaseType::set_P(newP);
                 }
                 
@@ -976,6 +983,44 @@ namespace model
                 assert(0 && "new position outside glide planes.");
             }
             
+        }
+        
+        /**********************************************************************/
+        bool isMovableTo(const VectorDim& X) const
+        {
+            bool isMovable=true;
+            
+            
+            for(const auto& gp : nodeConfinement().glidePlanes())
+            {// X must be contained by all glidePlanes
+                isMovable*=gp->contains(X);
+            }
+            
+            if(isMovable)
+            {
+                
+//                HERE CHECK THAT X IS IN REGION
+                
+                for(const auto& pair : this->neighbors())
+                {
+                    //                            std::cout<<"neighbor "<<nA->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<temp.contains(0.5*(std::get<0>(pair.second)->get_P()+nB->get_P())).first<<std::endl;
+                    if(std::get<1>(pair.second)->isBoundarySegment())
+                    {// boundary segments other than A->B must remain boundary
+                        isMovable*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(std::get<0>(pair.second)->get_P()+X)).first;
+                    }
+                    
+                    if(std::get<1>(pair.second)->isGrainBoundarySegment())
+                    {// boundary segments other than A->B must remain boundary
+                        for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
+                        {
+                            //                                        std::cout<<"grainBoundary neighbor "<<nA->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<gb->glidePlanes().begin()->second.contains(nB->get_P())<<std::endl;
+                            isMovable*=gb->glidePlanes().begin()->second.contains(X);
+                        }
+                    }
+                }
+            }
+            
+            return isMovable;
         }
         
         /**********************************************************************/
@@ -1013,44 +1058,44 @@ namespace model
                 
                 set_P(newP);
                 
-//                if(this->network().use_boundary)
-//                {// using confining mesh
-//                    
-//                    if(_isOnBoundingBox
-//                       //|| nodeConfinement().grains().size()>1
-//                       )
-//                    {// if the node is already on the the bounding box, keep it there
-//                        snapToBoundingBox(newP);
-//                    }
-//                    else
-//                    {// check if node is ou
-//                        
-//                        
-//                        //                        std::set<const Simplex<dim,dim>*> path;
-//                        //                        const bool searchAllRegions=false;
-//                        std::pair<bool,const Simplex<dim,dim>*> temp(this->network().mesh.searchRegionWithGuess(newP,p_Simplex));
-//                        THIS SEARCH SHOULD BE DONE IN set_P. IF REGIONS BEFORE AND AFTER DON'T MATHC, TRIGGER addGrainBoundaryPlanes
-//                        
-//                        if(temp.first)
-//                        {// newP is inside box
-//                            set_P(newP);
-//                        }
-//                        else
-//                        {
-//                            snapToBoundingBox(newP);
-//                            addGrainBoundaryPlanes(); // bounding box changes
-//                            
-//                        }
-//                        
-//                        
-//                    }
-//                    
-//                    
-//                }
-//                else
-//                {// no confining mesh, move freely
-//                    set_P(newP);
-//                }
+                //                if(this->network().use_boundary)
+                //                {// using confining mesh
+                //
+                //                    if(_isOnBoundingBox
+                //                       //|| nodeConfinement().grains().size()>1
+                //                       )
+                //                    {// if the node is already on the the bounding box, keep it there
+                //                        snapToBoundingBox(newP);
+                //                    }
+                //                    else
+                //                    {// check if node is ou
+                //
+                //
+                //                        //                        std::set<const Simplex<dim,dim>*> path;
+                //                        //                        const bool searchAllRegions=false;
+                //                        std::pair<bool,const Simplex<dim,dim>*> temp(this->network().mesh.searchRegionWithGuess(newP,p_Simplex));
+                //                        THIS SEARCH SHOULD BE DONE IN set_P. IF REGIONS BEFORE AND AFTER DON'T MATHC, TRIGGER addGrainBoundaryPlanes
+                //                        
+                //                        if(temp.first)
+                //                        {// newP is inside box
+                //                            set_P(newP);
+                //                        }
+                //                        else
+                //                        {
+                //                            snapToBoundingBox(newP);
+                //                            addGrainBoundaryPlanes(); // bounding box changes
+                //                            
+                //                        }
+                //                        
+                //                        
+                //                    }
+                //                    
+                //                    
+                //                }
+                //                else
+                //                {// no confining mesh, move freely
+                //                    set_P(newP);
+                //                }
             }
             else
             {
@@ -1091,7 +1136,7 @@ namespace model
     double DislocationNode<_dim,corder,InterpolationType>::velocityReductionFactor=0.75;
     
     template <int _dim, short unsigned int corder, typename InterpolationType>
-    const double DislocationNode<_dim,corder,InterpolationType>::bndTol=FLT_EPSILON;
+    const double DislocationNode<_dim,corder,InterpolationType>::bndTol=FLT_EPSILON*100.0;
     
     
 }
