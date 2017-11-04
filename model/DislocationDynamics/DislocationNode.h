@@ -47,7 +47,7 @@ namespace model
         
     public:
         
-        enum NodeMeshLocation{outsideMesh=-1, insideMesh=0, onMeshBoundary=1, onRegionBoundary=2};
+//        enum NodeMeshLocation{outsideMesh=-1, insideMesh=0, onMeshBoundary=1, onRegionBoundary=2};
         //enum BoundaryType {noBoundary=0, softBoundary=1, hardBoundary=2};
         
         
@@ -71,6 +71,8 @@ namespace model
         //        typedef std::deque<LatticePlane> SpecialLatticePlaneContainerType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef LatticeDirection<dim> LatticeDirectionType;
+        
+        typedef typename TypeTraits<NodeType>::MeshLocation MeshLocation;
         //        typedef 	std::set<VectorDim,
         //        /*                */ CompareVectorsByComponent<double,dim,float>,
         //        /*                */ Eigen::aligned_allocator<VectorDim> > ConfiningPlaneIntersectionContainerType;
@@ -322,7 +324,7 @@ namespace model
                 CN.push_back(plane->n.cartesian().normalized());
             }
             
-            if(meshLocation()==onMeshBoundary)
+            if(meshLocation()==MeshLocation::onMeshBoundary)
             {
                 CN.push_back(boundaryNormal);
                 
@@ -699,28 +701,28 @@ namespace model
         }
         
         /**********************************************************************/
-        NodeMeshLocation meshLocation() const
+        MeshLocation meshLocation() const
         {/*!\returns the position of *this relative to the bonudary:
           * 1 = inside mesh
           * 2 = on mesh boundary
           */
             
-            NodeMeshLocation temp = outsideMesh;
+            MeshLocation temp = MeshLocation::outsideMesh;
             
             
             if(_isOnBoundingBox)
             {
-                temp=onMeshBoundary;
+                temp=MeshLocation::onMeshBoundary;
             }
             else
             {
                 if(_isGrainBoundaryNode)
                 {
-                    temp=onRegionBoundary;
+                    temp=MeshLocation::onRegionBoundary;
                 }
                 else
                 {
-                    temp=insideMesh;
+                    temp=MeshLocation::insideMesh;
                 }
             }
             
@@ -744,10 +746,16 @@ namespace model
             return temp;
         }
         
+//        /**********************************************************************/
+//        bool isBoundaryNode() const
+//        {
+//            return meshLocation()==onMeshBoundary;
+//        }
+        
         /**********************************************************************/
-        bool isBoundaryNode() const
+        const bool& isBoundaryNode() const
         {
-            return meshLocation()==onMeshBoundary;
+            return _isOnBoundingBox;
         }
         
         /**********************************************************************/

@@ -90,7 +90,8 @@ namespace model
         typedef std::set<const GrainBoundary<NetworkType>*> GrainBoundaryContainerType;
         typedef GlidePlane<NetworkType> GlidePlaneType;
         typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
-        
+        typedef typename TypeTraits<LinkType>::MeshLocation MeshLocation;
+
         /******************************************************************/
     private: //  data members
         /******************************************************************/
@@ -985,6 +986,36 @@ namespace model
 //            return temp;
 //        }
         
+        
+        /**********************************************************************/
+        MeshLocation meshLocation() const
+        {/*!\returns the position of *this relative to the bonudary:
+          * 1 = inside mesh
+          * 2 = on mesh boundary
+          */
+            
+            MeshLocation temp = MeshLocation::outsideMesh;
+            
+            
+            if(isBoundarySegment())
+            {
+                temp=MeshLocation::onMeshBoundary;
+            }
+            else
+            {
+                if(isGrainBoundarySegment())
+                {
+                    temp=MeshLocation::onRegionBoundary;
+                }
+                else
+                {
+                    temp=MeshLocation::insideMesh;
+                }
+            }
+            
+            return temp;
+        }
+        
         /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const LinkType& ds)
@@ -994,7 +1025,7 @@ namespace model
             /**/<< std::setprecision(15)<<std::scientific<<ds.glidePlaneNormal().transpose()<<"\t"
             /**/<<SplineSegmentBase<dim,corder>::sourceT(ds).transpose()<<"\t"
             /**/<<SplineSegmentBase<dim,corder>::sinkT(ds).transpose()<<"\t"
-            <<0;
+            <<ds.meshLocation();
             return os;
         }
         

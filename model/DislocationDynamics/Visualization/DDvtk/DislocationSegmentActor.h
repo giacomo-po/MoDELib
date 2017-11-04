@@ -58,7 +58,7 @@ namespace model
         static float tubeRadius;
         static ColorScheme clr;
         static size_t Np;      // No. of vertices per line
-        static bool plotBoundarySegments;
+        static bool showBoundarySegments;
         static bool showVelocities;
         static bool showNodeIDs;
         static float velocityFactor;
@@ -72,6 +72,7 @@ namespace model
         
         vtkSmartPointer<vtkActor> lineActor;
         vtkSmartPointer<vtkActor> tubeActor;
+        vtkSmartPointer<vtkActor> tubeActorBnd;
         
         vtkSmartPointer<vtkActor> lineActor0;
         vtkSmartPointer<vtkActor> tubeActor0;
@@ -89,15 +90,20 @@ namespace model
         vtkSmartPointer<vtkPoints> points;
         //        std::deque<vtkSmartPointer<vtkPolyLine>> lines;
         vtkSmartPointer<vtkCellArray> cells;
+        vtkSmartPointer<vtkCellArray> cellsBnd;
         vtkSmartPointer<vtkCellArray> cells0;
         vtkSmartPointer<vtkPolyData> polyData;
+        vtkSmartPointer<vtkPolyData> polyDataBnd;
         vtkSmartPointer<vtkPolyData> polyData0;
         vtkSmartPointer<vtkUnsignedCharArray> colors;
         vtkSmartPointer<vtkPolyDataMapper> lineMapper;
+//        vtkSmartPointer<vtkPolyDataMapper> lineMapperBnd;
         vtkSmartPointer<vtkPolyDataMapper> lineMapper0;
         vtkSmartPointer<vtkTubeFilter> tubeFilter;
+        vtkSmartPointer<vtkTubeFilter> tubeFilterBnd;
         vtkSmartPointer<vtkTubeFilter> tubeFilter0;
         vtkSmartPointer<vtkPolyDataMapper> tubeMapper;
+        vtkSmartPointer<vtkPolyDataMapper> tubeMapperBnd;
         vtkSmartPointer<vtkPolyDataMapper> tubeMapper0;
         
         // node objects
@@ -340,13 +346,14 @@ namespace model
                 Eigen::Map<const Eigen::Matrix<double,1,6>>   sinkRow(  itSink->second.data());
                 Eigen::Map<const Eigen::Matrix<double,1,13>>   edgeRow(edge.second.data());
                 
-                const int   snID(edgeRow(2*dim+2));
-                const bool sourceOnBoundary(sourceRow(2*dim+1));
-                const bool   sinkOnBoundary(  sinkRow(2*dim+1));
+//                const int   snID(edgeRow(2*dim+2));
+//                const bool sourceOnBoundary(sourceRow(2*dim+1));
+//                const bool   sinkOnBoundary(  sinkRow(2*dim+1));
+//                
+//                if(!(sourceOnBoundary && sinkOnBoundary) || showBoundarySegments)
+//                {
                 
-                if(!(sourceOnBoundary && sinkOnBoundary) || plotBoundarySegments)
-                {
-                    
+                int meshLocation=edgeRow(12);
                     
                     Eigen::Matrix<float,dim,6> P0T0P1T1BN;
                     
@@ -393,13 +400,23 @@ namespace model
                     
                     if(burgers.squaredNorm()>FLT_EPSILON)
                     {
-                        cells->InsertNextCell(line);
+                        if(meshLocation==1)
+                        {
+                            cellsBnd->InsertNextCell(line);
+
+                        }
+                        else
+                        {
+                            cells->InsertNextCell(line);
+                            
+                            computeColor();
+                            //                    unsigned char lineClr[3]={51,153,255};
+                            unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
+                            
+                            colors->InsertNextTypedTuple(lineClr);
+
+                        }
                         
-                        computeColor();
-                        //                    unsigned char lineClr[3]={51,153,255};
-                        unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
-                        
-                        colors->InsertNextTypedTuple(lineClr);
                         
                     }
                     else
@@ -407,12 +424,16 @@ namespace model
                         cells0->InsertNextCell(line);
                     }
                     
-                }
+//                }
             }
             
             polyData->SetPoints(points);
             polyData->SetLines(cells);
             polyData->GetCellData()->SetScalars(colors);
+
+            polyDataBnd->SetPoints(points);
+            polyDataBnd->SetLines(cellsBnd);
+
             
             polyData0->SetPoints(points);
             polyData0->SetLines(cells0);
@@ -425,17 +446,22 @@ namespace model
         /* init */ renderer(ren),
         /* init */ lineActor(vtkSmartPointer<vtkActor>::New()),
         /* init */ tubeActor(vtkSmartPointer<vtkActor>::New()),
+        /* init */ tubeActorBnd(vtkSmartPointer<vtkActor>::New()),
         /* init */ lineActor0(vtkSmartPointer<vtkActor>::New()),
         /* init */ tubeActor0(vtkSmartPointer<vtkActor>::New()),
         /* init */ points(vtkSmartPointer<vtkPoints>::New()),
         /* init */ cells(vtkSmartPointer<vtkCellArray>::New()),
+        /* init */ cellsBnd(vtkSmartPointer<vtkCellArray>::New()),
         /* init */ polyData(vtkSmartPointer<vtkPolyData>::New()),
+        /* init */ polyDataBnd(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ cells0(vtkSmartPointer<vtkCellArray>::New()),
         /* init */ polyData0(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ colors(vtkSmartPointer<vtkUnsignedCharArray>::New()),
         /* init */ lineMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ tubeFilter(vtkSmartPointer<vtkTubeFilter>::New()),
+        /* init */ tubeFilterBnd(vtkSmartPointer<vtkTubeFilter>::New()),
         /* init */ tubeMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
+        /* init */ tubeMapperBnd(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ lineMapper0(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ tubeFilter0(vtkSmartPointer<vtkTubeFilter>::New()),
         /* init */ tubeMapper0(vtkSmartPointer<vtkPolyDataMapper>::New()),
@@ -496,6 +522,18 @@ namespace model
             //tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
             lineActor->SetMapper(lineMapper);
             renderer->AddActor(tubeActor);
+            
+            // Boundary segments
+            tubeFilterBnd->SetInputData(polyDataBnd);
+            tubeFilterBnd->SetRadius(tubeRadius); // this must be a function similar to setColor
+            tubeFilterBnd->SetNumberOfSides(10);
+            tubeFilterBnd->Update();
+            tubeMapperBnd->SetInputConnection(tubeFilterBnd->GetOutputPort());
+            tubeMapperBnd->ScalarVisibilityOn();
+            tubeActorBnd->SetMapper(tubeMapperBnd);
+            tubeActorBnd->GetProperty()->SetColor(0.5, 0.0, 0.5); //(R,G,B)
+            tubeActorBnd->GetProperty()->SetOpacity(0.3); //(R,G,B)
+            renderer->AddActor(tubeActorBnd);
             
             // Zero-Burgers Segments
             tubeFilter0->SetInputData(polyData0);
@@ -573,6 +611,7 @@ namespace model
         ~DislocationSegmentActor()
         {
             renderer->RemoveActor(tubeActor);
+            renderer->RemoveActor(tubeActorBnd);
             renderer->RemoveActor(tubeActor0);
             renderer->RemoveActor(nodeActor);
             renderer->RemoveActor(velocityActor);
@@ -592,7 +631,18 @@ namespace model
             //            tube->Modified();
             
             tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
+            tubeFilterBnd->SetRadius(tubeRadius); // this must be a function similar to setColor
             tubeFilter0->SetRadius(tubeRadius); // this must be a function similar to setColor
+
+            if(showBoundarySegments)
+            {
+                tubeActorBnd->VisibilityOn();
+                
+            }
+            else
+            {
+                tubeActorBnd->VisibilityOff();
+            }
             
             if(showZeroBuergers)
             {
@@ -663,8 +713,8 @@ namespace model
     float DislocationSegmentActor::tubeRadius=5.0;
     float DislocationSegmentActor::alpha=0.5;
     DislocationSegmentActor::ColorScheme DislocationSegmentActor::clr=DislocationSegmentActor::colorBurgers;
-    size_t DislocationSegmentActor::Np=10;
-    bool DislocationSegmentActor::plotBoundarySegments=true;
+    size_t DislocationSegmentActor::Np=2;
+    bool DislocationSegmentActor::showBoundarySegments=false;
     bool DislocationSegmentActor::showVelocities=false;
     bool DislocationSegmentActor::showNodeIDs=false;
     float DislocationSegmentActor::velocityFactor=100.0;

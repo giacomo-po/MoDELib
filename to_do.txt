@@ -41,4 +41,5 @@ NEW LOOP_NETWORK CODE
 - iterate on Remesh
 - DislocationJunction: take care of source-source, source-sink, and sink-sink cases
 - Optimize Remesh
+- clean up BoundingLineSegments. Use LineSegment class instead of pair<VectorDim,VectorDim>
 

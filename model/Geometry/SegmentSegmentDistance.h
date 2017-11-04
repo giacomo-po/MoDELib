@@ -90,15 +90,15 @@ namespace model
         {
             if(D1<tol && D2<tol)
             {// Step 1b: both segments are degenerate
-                return std::make_pair(0.0,0.0);
+                return std::make_pair(degeneracyValue,degeneracyValue);
             }
             else if(D1<tol && D2>=tol)
             {// Step 1a: first segment is degenerate
-                return step4U(0.0);
+                return step4U(degeneracyValue);
             }
             else if(D1>=tol && D2<tol)
             {// Step 1a: second segment is degenerate
-                return step4(0.0);
+                return step4(degeneracyValue);
             }
             else
             {// both segments are not degenerate
@@ -108,7 +108,7 @@ namespace model
                 }
                 else
                 {//  Step 1c: parallel or coincident segments
-                    return step3(0.0);
+                    return step3(degeneracyValue);
                 }
             }
         }
@@ -118,6 +118,7 @@ namespace model
         const VectorDim B;
         const VectorDim C;
         const VectorDim D;
+        const double degeneracyValue;
         
         const VectorDim d1;
         const VectorDim d2;
@@ -143,11 +144,13 @@ namespace model
         SegmentSegmentDistance(const VectorDim& A0,
                                const VectorDim& B0,
                                const VectorDim& C0,
-                               const VectorDim& D0) :
+                               const VectorDim& D0,
+                               const double& degeneracyValue_in=0.0) :
         /* init */ A(A0),
         /* init */ B(B0),
         /* init */ C(C0),
         /* init */ D(D0),
+        /* init */ degeneracyValue(degeneracyValue_in),
         /* init */ d1(B-A),
         /* init */ d2(D-C),
         /* init */ d12(C-A),

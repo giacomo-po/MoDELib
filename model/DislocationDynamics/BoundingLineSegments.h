@@ -17,6 +17,7 @@
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/Geometry/SegmentSegmentDistance.h>
 #include <model/Geometry/PlaneSegmentIntersection.h>
+#include <model/Geometry/LineSegment.h>
 
 //#include <model/Geometry/SegmentSegmentIntersection.h>
 

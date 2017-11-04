@@ -362,6 +362,7 @@ namespace model
                 std::cout<<"selecting objects: dislocation segments"<<std::endl;
                 std::cout<<"    +/- to increase tube radius"<<std::endl;
                 std::cout<<"      0 to show/hide zero-Burgers vector segments"<<std::endl;
+                std::cout<<"      1 to show/hide boundary segments"<<std::endl;
                 //                std::cout<<"      1 to show/hide node IDs"<<std::endl;
                 //                std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
             }
@@ -595,6 +596,12 @@ namespace model
                 if(key == "0")
                 {
                     DislocationSegmentActor::showZeroBuergers=!DislocationSegmentActor::showZeroBuergers;
+                    ddSegments->modify();
+                    this->Interactor->Render();
+                }
+                if(key == "1")
+                {
+                    DislocationSegmentActor::showBoundarySegments=!DislocationSegmentActor::showBoundarySegments;
                     ddSegments->modify();
                     this->Interactor->Render();
                 }

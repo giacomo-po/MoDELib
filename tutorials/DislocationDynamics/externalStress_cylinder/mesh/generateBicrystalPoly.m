@@ -13,7 +13,7 @@ filename='bicrystal'; % this creates file filename.poly
 
 R=1000;       % radius of prism
 H=4*R;        % height of prism
-np=3;         % number of points along circumference
+np=8;         % number of points along circumference
 
 %V=pi*R^2*H;    % volume
 %N=[1 0 3]';    % normal to GB plane
