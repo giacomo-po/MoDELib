@@ -53,6 +53,7 @@ namespace model
     class DislocationSegment : public SplineSegment<DislocationSegment<_dim,_corder,InterpolationType>,_dim,_corder>,
     /*                      */ private std::set<const GlidePlane<typename TypeTraits<DislocationSegment<_dim,_corder,InterpolationType>>::LoopNetworkType>*>,
     /*                      */ private std::set<const GrainBoundary<typename TypeTraits<DislocationSegment<_dim,_corder,InterpolationType>>::LoopNetworkType>*>,
+    /*                      */ private std::set<const Grain<typename TypeTraits<DislocationSegment<_dim,_corder,InterpolationType>>::LoopNetworkType>*>,
     /*                      */ private BoundingLineSegments<_dim>
     //    /*                                              */ private std::set<const GrainBoundary<dim>*>
     {
@@ -88,6 +89,7 @@ namespace model
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef std::set<const GrainBoundary<NetworkType>*> GrainBoundaryContainerType;
+        typedef std::set<const Grain<NetworkType>*> GrainContainerType;
         typedef GlidePlane<NetworkType> GlidePlaneType;
         typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
         typedef typename TypeTraits<LinkType>::MeshLocation MeshLocation;
@@ -259,7 +261,6 @@ namespace model
           *  @param[in] Flow_in the input flow
           */
             
-            std::cout<<"DislocationSegment NEED TO ADD GB_PLANES TO GLIDE_PLANES"<<std::endl;
             pkGauss.setZero(dim,qOrder); // necessary if this is not assembled
         }
         
@@ -272,6 +273,30 @@ namespace model
         
         /**********************************************************************/
         GlidePlaneContainerType& glidePlanes()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const GrainContainerType& grains() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        GrainContainerType& grains()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        GrainBoundaryContainerType& grainBoundaries()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const GrainBoundaryContainerType& grainBoundaries() const
         {
             return *this;
         }
@@ -296,6 +321,8 @@ namespace model
             const bool success=glidePlanes().insert(&gp).second;
             if(success)
             {
+                
+                grains().insert(&gp.grain);
 //                assert(gp.contains(node->get_P()) && "Glide Plane does not contain DislocationNode");
                 //                _isGlissile*=pL->loop()->isGlissile;
                 boundingBoxSegments().updateWithGlidePlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
@@ -365,7 +392,7 @@ namespace model
         }
         
         /**********************************************************************/
-        size_t addGrainBoundaryPlanes()
+        size_t addGrainBoundaryPlanes() __attribute__ ((deprecated)) // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
         {
             size_t addedGp=0;
             // Check if node is on a GB
@@ -397,15 +424,7 @@ namespace model
             return addedGp;
         }
         
-        /**********************************************************************/
-        std::set<const Grain<NetworkType>*> grains() const __attribute__ ((deprecated))
-        {
-            std::set<const Grain<NetworkType>*> temp;
-            std::set_intersection(this->source->grains().begin(),this->source->grains().end(),
-                                  this->  sink->grains().begin(),this->  sink->grains().end(),
-                                  std::inserter(temp,temp.begin()));
-            return temp;
-        }
+
         
         
 //        /**********************************************************************/
@@ -429,17 +448,7 @@ namespace model
 //            return temp;
 //        }
         
-        /**********************************************************************/
-        GrainBoundaryContainerType& grainBoundaries()
-        {
-            return *this;
-        }
 
-        /**********************************************************************/
-        const GrainBoundaryContainerType& grainBoundaries() const
-        {
-            return *this;
-        }
 
         
         /**********************************************************************/

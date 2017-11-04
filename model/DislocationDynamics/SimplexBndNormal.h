@@ -72,7 +72,6 @@ namespace model
                         const VectorDim& x1=simplex.child(f).child(e).child(0).P0;
                         const VectorDim& x2=simplex.child(f).child(e).child(1).P0;
                         const double d=(P-x1).cross(P-x2).norm()/(x2-x1).norm(); // distance to edge
-                        
                         if(d<dmax && simplex.child(f).child(e).isBoundarySimplex()) // point close to edge, and edge is on boundary
                         {
                             temp=simplex.child(f).child(e).outNormal();

@@ -25,7 +25,7 @@
 #include <model/DislocationDynamics/BVP/BoundaryDisplacementPoint.h>
 #include <model/DislocationDynamics/IO/DislocationNodeIO.h>
 #include <model/DislocationDynamics/DDtimeIntegrator.h>
-
+#include <model/DislocationDynamics/DislocationNodeContraction.h>
 
 
 namespace model
@@ -249,11 +249,8 @@ namespace model
             
             // JUNCTION FORMATION
             EDR.readScalarInFile(fullName.str(),"use_junctions",DN.use_junctions);
-            if(DN.use_junctions)
-            {
-                EDR.readScalarInFile(fullName.str(),"verboseJunctions",DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions);
-            }
-            
+
+
             
             //            EDR.readScalarInFile(fullName.str(),"collisionTol",DislocationJunctionFormation<DislocationNetworkType>::collisionTol);
             
@@ -306,6 +303,16 @@ namespace model
             else{ // no boundary is used, DislocationNetwork is in inifinite medium
                 DN.use_bvp=0;	// never comupute boundary correction
             }
+            
+            // Verbose levels
+            if(DN.use_junctions)
+            {
+                EDR.readScalarInFile(fullName.str(),"verboseJunctions",DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions);
+            }
+            
+            EDR.readScalarInFile(fullName.str(),"verboseNodeContraction",DislocationNodeContraction<DislocationNetworkType>::verboseNodeContraction);
+            EDR.readScalarInFile(fullName.str(),"verboseDislocationNode",NodeType::verboseDislocationNode);
+
             
             // Grain Boundary flags
             //            EDR.readScalarInFile(fullName.str(),"use_GBdissociation",GrainBoundaryDissociation<DislocationNetworkType>::use_GBdissociation);

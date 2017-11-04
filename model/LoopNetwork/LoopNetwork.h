@@ -326,9 +326,18 @@ namespace model
                 const size_t next=k+1<nodeIDs.size()? k+1 : 0;
                 
                 IsSharedNodeType n0=danglingNode(nodeIDs[k]);
+                if(!n0.first)
+                {// node ID not found in danglingNodes, search existing nodes
+                    n0=this->sharedNode(nodeIDs[k]);
+                    assert(n0.first && "Node not found");
+                }
+                
                 IsSharedNodeType n1=danglingNode(nodeIDs[next]);
-                assert(n0.first && "Node not found");
-                assert(n1.first && "Node not found");
+                if(!n1.first)
+                {// node ID not found in danglingNodes, search existing nodes
+                    n1=this->sharedNode(nodeIDs[next]);
+                    assert(n1.first && "Node not found");
+                }
                 
                 connect(n0.second,n1.second,tempLoop);
             }

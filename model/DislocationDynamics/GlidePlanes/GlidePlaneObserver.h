@@ -118,10 +118,24 @@ namespace model
                                                   const VectorDimD& P,
                                                   const VectorDimD& N)
         {
-            const LatticeVector<dim> p=grain.latticeVector(P);
             const ReciprocalLatticeDirection<dim> n=grain.reciprocalLatticeDirection(N);
             assert(n.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane key");
-            return (GlidePlaneKeyType()<<grain.grainID,n,p.dot(n)).finished();
+
+            
+
+            const double PdotN(P.dot(n.cartesian()));
+            const long int h(std::lround(PdotN));
+            
+            if(false)
+            {// OLD STRATEGY, REQUIRES CREATION OF AN UNNECESSARY LATTICE VECTOR
+                const LatticeVector<dim> p=grain.latticeVector(P);
+                assert(h==p.dot(n));
+                return (GlidePlaneKeyType()<<grain.grainID,n,p.dot(n)).finished();
+            }
+            
+            assert(fabs(h-PdotN)<FLT_EPSILON && "GLIDE PLANE HEIGHT NOT FOUND");
+            return (GlidePlaneKeyType()<<grain.grainID,n,h).finished();
+            
         }
         
         /**********************************************************************/

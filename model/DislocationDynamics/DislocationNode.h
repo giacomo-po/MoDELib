@@ -35,6 +35,12 @@
 #include <model/DislocationDynamics/BoundingLineSegments.h>
 #include <model/DislocationDynamics/DislocationNodeConfinement.h>
 
+#ifndef NDEBUG
+#define VerboseDislocationNode(N,x) if(verboseDislocationNode>=N){model::cout<<x;}
+#else
+#define VerboseDislocationNode(N,x)
+#endif
+
 namespace model
 {
     
@@ -85,7 +91,7 @@ namespace model
         static double velocityReductionFactor;
         //static constexpr double bndTol=static_cast<double>(FLT_EPSILON);
         static const double bndTol;
-        
+        static int verboseDislocationNode;
     private:
         
         
@@ -122,7 +128,7 @@ namespace model
             
             if(addedGp)
             {
-                std::cout<<"DIslocationNode "<<this->sID<<" addGrainBoundaryPlanes"<<std::endl;
+                VerboseDislocationNode(2,"DIslocationNode "<<this->sID<<" addGrainBoundaryPlanes"<<std::endl;);
                 _isGrainBoundaryNode=true;
                 
                 
@@ -154,16 +160,16 @@ namespace model
             
             for(const auto& pair : this->neighbors())
             {
-                std::cout<<"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;
+                VerboseDislocationNode(2,"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;);
                 
                 if(std::get<1>(pair.second)->isBoundarySegment())
                 {// boundary segments must not become internal
-                    std::cout<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is boundary"<<std::endl;
+                    VerboseDislocationNode(2,std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is boundary"<<std::endl;);
                     
                     pLcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P())).first;
                     pVcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P())).first;
-                    std::cout<<"pLcontained="<<pLcontained<<std::endl;//<<", lineID="<<pLcontained.second<<std::endl;
-                    std::cout<<"pVcontained="<<pVcontained<<std::endl;//", lineID="<<pVcontained.second<<std::endl;
+                    VerboseDislocationNode(2,"pLcontained="<<pLcontained<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
+                    VerboseDislocationNode(2,"pVcontained="<<pVcontained<<std::endl;);//", lineID="<<pVcontained.second<<std::endl;
                     
                 }
                 
@@ -384,6 +390,9 @@ namespace model
         /* init list        */ C(Pin)
         {/*! Constructor from DOF
           */
+            
+                        VerboseDislocationNode(1,"Creating DislocationNode "<<this->sID<<" from position"<<std::endl;);
+            
             addGrainBoundaryPlanes();
             //            set_P(this->get_P()); // trigger _isOnBoundingBox and _isGrainBoundaryNode
             std::cout<<"WARNING INITIALIZE _isOnBoundingBox"<<std::endl;
@@ -407,10 +416,20 @@ namespace model
         /* init list        */ C(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
           */
+            
+            VerboseDislocationNode(1,"Creating DislocationNode "<<this->sID<<" from expansion"<<std::endl;);
+
+            
             addGrainBoundaryPlanes();
             //            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
             std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
             //            set_P(this->get_P()); // trigger _isOnBoundingBox and _isGrainBoundaryNode
+        }
+
+        /**********************************************************************/
+        ~DislocationNode()
+        {
+            VerboseDislocationNode(1,"Destroying DislocationNode "<<this->sID<<std::endl;);
         }
         
         /**********************************************************************/
@@ -746,11 +765,11 @@ namespace model
             return temp;
         }
         
-//        /**********************************************************************/
-//        bool isBoundaryNode() const
-//        {
-//            return meshLocation()==onMeshBoundary;
-//        }
+        /**********************************************************************/
+        const bool& isOnBoundingBox() const
+        {
+            return _isOnBoundingBox;
+        }
         
         /**********************************************************************/
         const bool& isBoundaryNode() const
@@ -891,17 +910,13 @@ namespace model
             return _isGlissile;
         }
         
-        /**********************************************************************/
-        const bool& isOnBoundingBox() const
-        {
-            return _isOnBoundingBox;
-        }
+
         
         
         /**********************************************************************/
         void set_P(const VectorDim& newP)
         {
-            std::cout<<"DislocationNode "<<this->sID<<" set_P"<<std::endl;
+            VerboseDislocationNode(1,"DislocationNode "<<this->sID<<" set_P"<<std::endl;);
             // make sure that node is on glide planes
             bool glidePlanesContained=true;
             for(const auto& gp : nodeConfinement().glidePlanes())
@@ -921,24 +936,24 @@ namespace model
                     {// newP is inside current grain
                         if(_isOnBoundingBox)
                         {// if the node is already on the the bounding box, keep it there
-                            std::cout<<"case 1"<<std::endl;
+                            VerboseDislocationNode(2,"case 1"<<std::endl;);
                             NodeBaseType::set_P(snapToBoundingBox(newP));
                         }
                         else
                         {// node was internal to the grain and remains internal
-                            std::cout<<"case 2"<<std::endl;
+                            VerboseDislocationNode(2,"case 2"<<std::endl;);
                             NodeBaseType::set_P(newP);
                         }
                     }
                     else
                     {// newP is outside current grain (or on grain boundary)
-                        std::cout<<"case 3"<<std::endl;
+                        VerboseDislocationNode(2,"case 3"<<std::endl;);
                         NodeBaseType::set_P(snapToBoundingBox(newP)); // put node on the bouding box
                         if(_isOnBoundingBox)
                         {// node was on bounding box, and exited the grain
                             if(addGrainBoundaryPlanes())
                             {// GB-planes were added, the bounding box has changed, so snap again
-                                std::cout<<"case 4"<<std::endl;
+                                VerboseDislocationNode(2,"case 4"<<std::endl;);
                                 NodeBaseType::set_P(snapToBoundingBox(newP)); // put node back on bounding box
                             }
                         }
@@ -948,13 +963,13 @@ namespace model
                             {// GB-planes were added, the bounding box has changed
                                 if(nodeConfinement().boundingBoxSegments().contains(this->get_P()).first)
                                 {// new bounding box contains node
-                                    std::cout<<"case 5"<<std::endl;
+                                    VerboseDislocationNode(2,"case 5"<<std::endl;);
                                     NodeBaseType::set_P(snapToBoundingBox(newP)); // kill numerical errors
                                     _isOnBoundingBox=true;
                                 }
                                 else
                                 {// new bounding box does not contain node
-                                    std::cout<<"case 6"<<std::endl;
+                                    VerboseDislocationNode(2,"case 6"<<std::endl;);
                                     NodeBaseType::set_P(nodeConfinement().snapToGlidePlaneIntersection(newP)); // kill numerical errors
                                     _isOnBoundingBox=false;
                                 }
@@ -968,17 +983,25 @@ namespace model
                     }
                     
                     p_Simplex=get_includingSimplex(p_Simplex); // update including simplex
+                    
                     if(_isOnBoundingBox)
                     {
-                        boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
-                        assert(boundaryNormal.squaredNorm()>FLT_EPSILON);
                         assert(nodeConfinement().boundingBoxSegments().contains(this->get_P()).first);
+
+                        boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
+                        if(boundaryNormal.squaredNorm()<FLT_EPSILON)
+                        {
+                            model::cout<<"DislocationNode "<<this->sID<<", @"<<this->get_P().transpose()<<std::endl;
+                            assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
+                        }
+                        
+
                     }
                     
                 }
                 else
                 {
-                    std::cout<<"case 7"<<std::endl;
+                    VerboseDislocationNode(2,"case 7"<<std::endl;);
                     NodeBaseType::set_P(newP);
                 }
                 
@@ -1144,8 +1167,10 @@ namespace model
     double DislocationNode<_dim,corder,InterpolationType>::velocityReductionFactor=0.75;
     
     template <int _dim, short unsigned int corder, typename InterpolationType>
-    const double DislocationNode<_dim,corder,InterpolationType>::bndTol=FLT_EPSILON*100.0;
+    const double DislocationNode<_dim,corder,InterpolationType>::bndTol=1.0e-4;
     
+    template <int _dim, short unsigned int corder, typename InterpolationType>
+    int DislocationNode<_dim,corder,InterpolationType>::verboseDislocationNode=0;
     
 }
 #endif

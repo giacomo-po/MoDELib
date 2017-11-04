@@ -18,6 +18,11 @@
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
 #include <model/Geometry/LineSegment.h>
 
+#ifndef NDEBUG
+#define VerboseNodeContraction(N,x) if(verboseNodeContraction>=N){model::cout<<x;}
+#else
+#define VerboseNodeContraction(N,x) 
+#endif
 
 namespace model
 {
@@ -28,6 +33,9 @@ namespace model
         static constexpr int dim=DislocationNetworkType::dim;
         typedef typename DislocationNetworkType::NodeType NodeType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
+        
+        static int verboseNodeContraction;
+
         
         DislocationNetworkType& DN;
         
@@ -77,104 +85,87 @@ namespace model
                       std::shared_ptr<NodeType> nB)
         {
             
-            bool success=false;
-            
-            
-            std::cout<<"DislocationNetwork::contract "<<nA->sID<<" "<<nB->sID<<std::endl;
-            
-            
+            VerboseNodeContraction(1,"DislocationNodeContraction::contract "<<nA->sID<<" "<<nB->sID<<std::endl;);
             
             if(nA->isGlissile() && nB->isGlissile())
             {// both nodes are glissile
-                if(nA->isOnBoundingBox() && nB->isOnBoundingBox())
-                {// both nodes on bounding boxes. Intersect bounding boxes'
-                    std::cout<<"contractPoint case 1aa"<<std::endl;
-                    const bool nAisRemovable=nA->isMovableTo(nB->get_P());
-                    const bool nBisRemovable=nB->isMovableTo(nA->get_P());
-                    
-                    if(nAisRemovable && nBisRemovable)
-                    {
-                        std::cout<<"contractPoint case 1a"<<std::endl;
-                        return contractYoungest(nA,nB);
-                    }
-                    else if(nAisRemovable && !nBisRemovable)
-                    {
-                        std::cout<<"contractPoint case 1b"<<std::endl;
-                        return DN.contractSecond(nB,nA);
-                    }
-                    else if(!nAisRemovable && nBisRemovable)
-                    {
-                        std::cout<<"contractPoint case 1c"<<std::endl;
-                        return DN.contractSecond(nA,nB);
-                    }
-                    else
-                    {
-                        std::cout<<"contractPoint case 1d"<<std::endl;
-                        return false;
-                    }
-                }
-                else if(nA->isOnBoundingBox() && !nB->isOnBoundingBox())
-                {// a on box, b is not
-                    if(nB->glidePlaneIntersections().size())
-                    {// other is confined internally by two or more planes
-                        std::cout<<"contractPoint case 3aa"<<std::endl;
-                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
-                        if(temp.size())
-                        {// An intersection of the bonuding boxes exists
-                            std::cout<<"contractPoint case 3"<<std::endl;
-                            const VectorDim X(std::get<0>(temp.snap(nA->get_P()))); // point at which we should contract
+                
+                if(nA->isOnBoundingBox() || nB->isOnBoundingBox())
+                {// either one of the nodes is a boundary node. Therefore the contraction point must be a boundary node
+                
+                    BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
+                    VerboseNodeContraction(1,"temp.size="<<temp.size()<<std::endl;);
+                    if(temp.size())
+                    {// a necessay condition is that the bounding boxes intersect
+                        if(nA->isOnBoundingBox() && nB->isOnBoundingBox())
+                        {// both nodes on bounding boxes. Intersect bounding boxes'
+                            const bool nAisMovable=nA->isMovableTo(nB->get_P());
+                            const bool nBisMovable=nB->isMovableTo(nA->get_P());
                             
+                            if(nAisMovable && nBisMovable)
+                            {
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 1a"<<std::endl;);
+                                return contractYoungest(nA,nB);
+                            }
+                            else if(nAisMovable && !nBisMovable)
+                            {
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 1b"<<std::endl;);
+                                return DN.contractSecond(nB,nA);
+                            }
+                            else if(!nAisMovable && nBisMovable)
+                            {
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 1c"<<std::endl;);
+                                return DN.contractSecond(nA,nB);
+                            }
+                            else
+                            {
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 1d"<<std::endl;);
+                                return false;
+                            }
+                        }
+                        else if(nA->isOnBoundingBox() && !nB->isOnBoundingBox())
+                        {// a on box, b is not
+                            const VectorDim X(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P())))); // point at which we should contract
                             if(nA->isMovableTo(X))
                             {// nA can be moved to X
-                                std::cout<<"contractPoint case 3a1"<<std::endl;
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 2a"<<std::endl;);
                                 nA->set_P(X);
                                 return DN.contractSecond(nA,nB);
                             }
                             else
                             {// nA cannot be moved to X
-                                std::cout<<"contractPoint case 3a2"<<std::endl;
+                                VerboseNodeContraction(1,"nA cannot be moved to X"<<std::endl;);
                                 return false;
-                                
                             }
                         }
                         else
-                        {
-                            std::cout<<"contractPoint case 4"<<std::endl;
-                            return false;
+                        {// b is on box, a is not
+                            const VectorDim X(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P())))); // point at which we should contract
+                            if(nB->isMovableTo(X))
+                            {// nA can be moved to X
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 3a"<<std::endl;);
+                                nB->set_P(X);
+                                return DN.contractSecond(nB,nA);
+                            }
+                            else
+                            {// nB cannot be moved to X
+                                VerboseNodeContraction(1,"nB cannot be moved to X"<<std::endl;);
+                                return false;
+                            }
                         }
                     }
                     else
-                    {// other is confined by only one glide plane
-                        std::cout<<"contractPoint case 5aa"<<std::endl;
-                        BoundingLineSegments<dim> temp=nA->boundingBoxSegments();
-                        temp.updateWithGlidePlane(nB->glidePlane(0));
-                        std::cout<<"temp.size="<<temp.size()<<std::endl;
-                        if(temp.size())
-                        {
-                            std::cout<<"contractPoint case 5"<<std::endl;
-                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
-                            return DN.contractSecond(nA,nB);
-                        }
-                        else
-                        {
-                            std::cout<<"contractPoint case 6"<<std::endl;
-                            return false;
-                        }
+                    {
+                        VerboseNodeContraction(1,"bounding boxes don't intersect."<<std::endl;);
+                        return false;
                     }
-                }
-                else if(!nA->isOnBoundingBox() && nB->isOnBoundingBox())
-                {// b on box, a is not
-                    std::cout<<"contractPoint case 7"<<std::endl;
-                    return contract(nB,nA);
+                    
                 }
                 else
-                {// neither a nor b on bounding box
-                    
-                    std::cout<<"CHECK IF NODES ARE ON GB!"<<std::endl;
-                    
+                {// neither a nor b are on bounding box
+                    //std::cout<<"CHECK IF NODES ARE ON GB!"<<std::endl;
                     if(nA->glidePlaneIntersections().size() && nB->glidePlaneIntersections().size())
                     {// both nodes confined by more then one plane
-                        std::cout<<"contractPoint case 8aa"<<std::endl;
                         
                         SegmentSegmentDistance<dim> ssd(nA->glidePlaneIntersections()[0].first,nA->glidePlaneIntersections()[0].second,
                                                         nB->glidePlaneIntersections()[0].first,nB->glidePlaneIntersections()[0].second);
@@ -182,20 +173,20 @@ namespace model
                         const auto iSeg=ssd.intersectionSegment();
                         if(iSeg.size()==1)
                         {// incident intersection
-                            std::cout<<"contractPoint case 8a1"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 5a"<<std::endl;);
                             nA->set_P(std::get<0>(iSeg[0]));
                             return DN.contractSecond(nA,nB);
                         }
                         else if(iSeg.size()==2)
                         {// coincident intersection
-                            std::cout<<"contractPoint case 8a2"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 5b"<<std::endl;);
                             LineSegment<dim> ls(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
                             nA->set_P(ls.snap(0.5*(nA->get_P()+nB->get_P())));
                             return DN.contractSecond(nA,nB);
                         }
                         else
                         {// parallel or skew intersection
-                            std::cout<<"contractPoint case 8a3"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 5c"<<std::endl;);
                             return false;
                         }
                         
@@ -214,8 +205,6 @@ namespace model
                     }
                     else if(nA->glidePlaneIntersections().size() && !nB->glidePlaneIntersections().size())
                     {// nA confined by more then one plane, nB confined by only one plane
-                        std::cout<<"contractPoint case 10aa"<<std::endl;
-                        
                         PlaneLineIntersection<dim> pli(nB->glidePlane(0).P.cartesian(),
                                                        nB->glidePlane(0).unitNormal,
                                                        nA->glidePlaneIntersections()[0].first, // origin of line
@@ -224,19 +213,19 @@ namespace model
                         
                         if(pli.type==PlaneLineIntersection<dim>::COINCIDENT)
                         {// nothing to do, _glidePlaneIntersections remains unchanged
-                            std::cout<<"contractPoint case 10aa1"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 6a"<<std::endl;);
                             nA->set_P(nA->snapToGlidePlaneIntersection(0.5*(nA->get_P()+nB->get_P())));
                             return DN.contractSecond(nA,nB);
                         }
                         else if(pli.type==PlaneLineIntersection<dim>::INCIDENT)
                         {// _glidePlaneIntersections becomes a singular point
-                            std::cout<<"contractPoint case 10aa2"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 6b"<<std::endl;);
                             nA->set_P(pli.P);
                             return DN.contractSecond(nA,nB);
                         }
                         else
                         {// parallel planes, cannot contract
-                            std::cout<<"contractPoint case 10aa3"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 6c"<<std::endl;);
                             return false;
                         }
                         
@@ -257,12 +246,11 @@ namespace model
                     }
                     else if(!nA->glidePlaneIntersections().size() && nB->glidePlaneIntersections().size())
                     {
-                        std::cout<<"contractPoint case 12"<<std::endl;
+                        VerboseNodeContraction(1,"DislocationNodeContraction case 7a"<<std::endl;);
                         return contract(nB,nA);
                     }
                     else
                     {// both nodes confined by only one plane
-                        std::cout<<"contractPoint case 13aa"<<std::endl;
                         
                         assert(nA->glidePlanes().size()==1);
                         assert(nB->glidePlanes().size()==1);
@@ -279,14 +267,14 @@ namespace model
                         
                         if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                         {
-                            std::cout<<"contractPoint case 13"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 8a"<<std::endl;);
                             nA->set_P(nA->snapToGlidePlaneIntersection(0.5*(nA->get_P()+nB->get_P()))); // this snaps to the glide planes to kill numerical errors
                             return DN.contractSecond(nA,nB);
                         }
                         else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
                         {
                             //                            std::cout<<nA->sID<<" "<<nB->sID<<std::endl;
-                            std::cout<<"contractPoint case 13a"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 8b"<<std::endl;);
                             //                            std::cout<<"norm d="<<ppi.d.norm()<<std::endl;
                             const double u=(0.5*(nA->get_P()+nB->get_P())-ppi.P).dot(ppi.d);
                             nA->set_P(ppi.P+u*ppi.d);
@@ -294,7 +282,7 @@ namespace model
                         }
                         else
                         {
-                            std::cout<<"contractPoint case 14"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 8c"<<std::endl;);
                             return false;
                         }
                     }
@@ -306,12 +294,12 @@ namespace model
                 {// a is a boundary node. Check is the bonuding box contains b
                     if(nA->boundingBoxSegments().contains(nB->get_P()).first)
                     {
-                        std::cout<<"contractPoint case 15"<<std::endl;
+                        VerboseNodeContraction(1,"DislocationNodeContraction case 9a"<<std::endl;);
                         return DN.contractSecond(nB,nA);
                     }
                     else
                     {
-                        std::cout<<"contractPoint case 16"<<std::endl;
+                        VerboseNodeContraction(1,"DislocationNodeContraction case 9b"<<std::endl;);
                         return false;
                     }
                 }
@@ -321,12 +309,12 @@ namespace model
                     {
                         if(nA->glidePlaneIntersections().contains(nB->get_P()).first)
                         {
-                            std::cout<<"contractPoint case 17"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 9c"<<std::endl;);
                             return DN.contractSecond(nB,nA);
                         }
                         else
                         {
-                            std::cout<<"contractPoint case 17a"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 9d"<<std::endl;);
                             return false;
                         }
                     }
@@ -335,12 +323,12 @@ namespace model
                         assert(nA->glidePlanes().size()==1);
                         if(nA->glidePlane(0).contains(nB->get_P()))
                         {
-                            std::cout<<"contractPoint case 17b"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 9e"<<std::endl;);
                             return DN.contractSecond(nB,nA);
                         }
                         else
                         {
-                            std::cout<<"contractPoint case 17c"<<std::endl;
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 9f"<<std::endl;);
                             return false;
                         }
                     }
@@ -348,20 +336,20 @@ namespace model
             }
             else if(!nA->isGlissile() && nB->isGlissile())
             {
-                std::cout<<"contractPoint case 18"<<std::endl;
+                VerboseNodeContraction(1,"DislocationNodeContraction case 10a"<<std::endl;);
                 return contract(nB,nA);
             }
             else
             {// both nodes are sessile
                 if((nA->get_P()-nB->get_P()).squaredNorm()<FLT_EPSILON)
                 {// contract only if coincident
-                    std::cout<<"contractPoint case 19"<<std::endl;
+                    VerboseNodeContraction(1,"DislocationNodeContraction case 11a"<<std::endl;);
                     nA->set_P(0.5*(nA->get_P()+nB->get_P()));
                     return DN.contractSecond(nA,nB);
                 }
                 else
                 {
-                    std::cout<<"contractPoint case 20"<<std::endl;
+                    VerboseNodeContraction(1,"DislocationNodeContraction case 11b"<<std::endl;);
                     return false;
                 }
             }
@@ -369,5 +357,130 @@ namespace model
         }
     };
     
+    // Static data
+    template <typename DislocationNetworkType>
+    int DislocationNodeContraction<DislocationNetworkType>::verboseNodeContraction=0;
+
+    
 }
 #endif
+
+
+
+
+
+//                if(nA->isOnBoundingBox() && nB->isOnBoundingBox())
+//                {// both nodes on bounding boxes. Intersect bounding boxes'
+//                    std::cout<<"contractPoint case 1aa"<<std::endl;
+//                    const bool nAisMovable=nA->isMovableTo(nB->get_P());
+//                    const bool nBisMovable=nB->isMovableTo(nA->get_P());
+//
+//                    if(nAisMovable && nBisMovable)
+//                    {
+//                        VerboseNodeContraction(1,"DislocationNodeContraction case 1a"<<std::endl;);
+//                        return contractYoungest(nA,nB);
+//                    }
+//                    else if(nAisMovable && !nBisMovable)
+//                    {
+//                        VerboseNodeContraction(1,"DislocationNodeContraction case 1b"<<std::endl;);
+//                        return DN.contractSecond(nB,nA);
+//                    }
+//                    else if(!nAisMovable && nBisMovable)
+//                    {
+//                        VerboseNodeContraction(1,"DislocationNodeContraction case 1c"<<std::endl;);
+//                        return DN.contractSecond(nA,nB);
+//                    }
+//                    else
+//                    {
+//                        VerboseNodeContraction(1,"DislocationNodeContraction case 1d"<<std::endl;);
+//                        return false;
+//                    }
+//                }
+//                else if(nA->isOnBoundingBox() && !nB->isOnBoundingBox())
+//                {// a on box, b is not
+//                    BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
+//                    VerboseNodeContraction(1,"temp.size="<<temp.size()<<std::endl;);
+//                    if(temp.size())
+//                    {
+//                        const VectorDim X(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P())))); // point at which we should contract
+//                        if(nA->isMovableTo(X))
+//                        {// nA can be moved to X
+//                            VerboseNodeContraction(1,"DislocationNodeContraction case 2a"<<std::endl;);
+//                            nA->set_P(X);
+//                            return DN.contractSecond(nA,nB);
+//                        }
+//                        else
+//                        {// nA cannot be moved to X
+//                            VerboseNodeContraction(1,"DislocationNodeContraction case 2b"<<std::endl;);
+//                            return false;
+//
+//                        }
+//                    }
+//                    else
+//                    {
+//                        VerboseNodeContraction(1,"DislocationNodeContraction case 2c"<<std::endl;);
+//                        return false;
+//                    }
+//
+//
+//
+////                    if(nB->glidePlaneIntersections().size())
+////                    {// other is confined internally by two or more planes
+////                        BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
+////                        if(temp.size())
+////                        {// An intersection of the bounding boxes exists
+////                            VerboseNodeContraction(1,"DislocationNodeContraction case 2a"<<std::endl;);
+////                            const VectorDim X(std::get<0>(temp.snap(nA->get_P()))); // point at which we should contract
+////
+////                            if(nA->isMovableTo(X))
+////                            {// nA can be moved to X
+////                                VerboseNodeContraction(1,"DislocationNodeContraction case 2b"<<std::endl;);
+////                                nA->set_P(X);
+////                                return DN.contractSecond(nA,nB);
+////                            }
+////                            else
+////                            {// nA cannot be moved to X
+////                                VerboseNodeContraction(1,"DislocationNodeContraction case 2c"<<std::endl;);
+////                                return false;
+////
+////                            }
+////                        }
+////                        else
+////                        {
+////                            VerboseNodeContraction(1,"DislocationNodeContraction case 2d"<<std::endl;);
+////                            return false;
+////                        }
+////                    }
+////                    else
+////                    {// other is confined by only one glide plane
+////                        BoundingLineSegments<dim> temp=nA->boundingBoxSegments();
+////                        temp.updateWithGlidePlane(nB->glidePlane(0));
+////                        VerboseNodeContraction(1,"temp.size="<<temp.size()<<std::endl;);
+////                        if(temp.size())
+////                        {
+////                            const VectorDim X(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P())))); // point at which we should contract
+////                            if(nA->isMovableTo(X))
+////                            {// nA can be moved to X
+////                                VerboseNodeContraction(1,"DislocationNodeContraction case 3a"<<std::endl;);
+////                                nA->set_P(X);
+////                                return DN.contractSecond(nA,nB);
+////                            }
+////                            else
+////                            {// nA cannot be moved to X
+////                                VerboseNodeContraction(1,"DislocationNodeContraction case 3a1"<<std::endl;);
+////                                return false;
+////
+////                            }
+////                        }
+////                        else
+////                        {
+////                            VerboseNodeContraction(1,"DislocationNodeContraction case 3b"<<std::endl;);
+////                            return false;
+////                        }
+////                    }
+//                }
+//                else if(!nA->isOnBoundingBox() && nB->isOnBoundingBox())
+//                {// b on box, a is not
+//                    VerboseNodeContraction(1,"DislocationNodeContraction case 4a"<<std::endl;);
+//                    return contract(nB,nA);
+//                }

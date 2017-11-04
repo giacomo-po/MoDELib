@@ -18,7 +18,13 @@
 #include <model/MPI/MPIcout.h>
 #include <model/Threads/EqualIteratorRange.h>
 #include <model/Threads/N2IteratorRange.h>
+
+#ifndef NDEBUG
 #define VerboseJunctions(N,x) if(verboseJunctions>=N){model::cout<<x;}
+#else
+#define VerboseJunctions(N,x)
+#endif
+
 
 namespace model
 {
@@ -31,7 +37,7 @@ namespace model
         typedef typename DislocationNetworkType::NodeType NodeType;
         typedef typename DislocationNetworkType::IsNetworkEdgeType IsNetworkLinkType;
         typedef typename DislocationNetworkType::IsNodeType IsNodeType;
-//        typedef Eigen::Matrix<double,dim,1> VectorDimD;
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
         typedef std::pair<size_t,size_t> EdgeIDType;
         
@@ -108,20 +114,22 @@ namespace model
                                     if(   linkIterA->second->glidePlaneNormal().squaredNorm()>FLT_EPSILON
                                        && linkIterB->second->glidePlaneNormal().squaredNorm()>FLT_EPSILON
                                        && linkIterA->second->glidePlaneNormal().cross(linkIterB->second->glidePlaneNormal()).squaredNorm()<FLT_EPSILON)
-                                    {// segments on parallel or coincident planes
+                                    {// segments on parallel or coincident planes, reduce tolerance
                                         currentcCollisionTOL=FLT_EPSILON;
                                     }
                                     
                                     const bool intersectionIsSourceSource(linkIterA->second->source->sID==linkIterB->second->source->sID);
-                                    
                                     const bool intersectionIsSourceSink(linkIterA->second->source->sID==linkIterB->second->sink->sID);
-                                    
                                     const bool intersectionIsSinkSource(linkIterA->second->sink->sID==linkIterB->second->source->sID);
-                                    
                                     const bool intersectionIsSinkSink(linkIterA->second->sink->sID==linkIterB->second->sink->sID);
                                     
                                     if(intersectionIsSourceSource)
                                     {
+                                        if(!linkIterA->second->source->isSimple())
+                                        {// non-simple common node, increase tolerance
+                                            currentcCollisionTOL=0.5*collisionTol;
+                                        }
+                                        
                                         // intersect sink of A with link B
                                         SegmentSegmentDistance<dim> ssdA(linkIterA->second->sink->get_P(), // fake degenerete segment at sink of A
                                                                          linkIterA->second->sink->get_P(),  // fake degenerete segment at sink of A
@@ -141,6 +149,11 @@ namespace model
                                     }
                                     else if(intersectionIsSourceSink)
                                     {
+                                        if(!linkIterA->second->source->isSimple())
+                                        {// non-simple common node, increase tolerance
+                                            currentcCollisionTOL=0.5*collisionTol;
+                                        }
+                                        
                                         // intersect sink of A with link B
                                         SegmentSegmentDistance<dim> ssdA(linkIterA->second->sink->get_P(), // fake degenerete segment at sink of A
                                                                          linkIterA->second->sink->get_P(),  // fake degenerete segment at sink of A
@@ -161,6 +174,11 @@ namespace model
                                     }
                                     else if(intersectionIsSinkSource)
                                     {
+                                        if(!linkIterA->second->sink->isSimple())
+                                        {// non-simple common node, increase tolerance
+                                            currentcCollisionTOL=0.5*collisionTol;
+                                        }
+                                        
                                         // intersect source of A with link B
                                         SegmentSegmentDistance<dim> ssdA(linkIterA->second->source->get_P(), // fake degenerete segment at source of A
                                                                          linkIterA->second->source->get_P(),  // fake degenerete segment at source of A
@@ -182,6 +200,12 @@ namespace model
                                     }
                                     else if(intersectionIsSinkSink)
                                     {
+                                        
+                                        if(!linkIterA->second->sink->isSimple())
+                                        {// non-simple common node, increase tolerance
+                                            currentcCollisionTOL=0.5*collisionTol;
+                                        }
+                                        
                                         // intersect source of A with link B
                                         SegmentSegmentDistance<dim> ssdA(linkIterA->second->source->get_P(), // fake degenerete segment at source of A
                                                                          linkIterA->second->source->get_P(),  // fake degenerete segment at source of A
@@ -228,7 +252,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void junctionStep(const double& dx)
+        size_t junctionStep(const double& dx)
         {
             
 #ifdef _OPENMP
@@ -243,8 +267,8 @@ namespace model
             
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"		Forming Junctions: "<<std::flush;
-
             
+            size_t nContracted=0;
             for (const auto& intersectionByThreadContainer : intersectionContainer)
             {
                 for (const auto& intersection : intersectionByThreadContainer)
@@ -292,12 +316,126 @@ namespace model
                                          /*                   */ <<"@ ("<<t<<","<<u<<"), "
                                          /*                   */ <<"contracting "<<Ni->sID<<" "<<Nj->sID<<std::endl;);
                         
-                        DN.contract(Ni,Nj);
-                        
+                        const bool success=DN.contract(Ni,Nj);
+                        nContracted+=success;
+                        if(!success)
+                        {
+                            //                            std::cout<<"IF CONTRACT DID NOT HAPPEN REMOVE NODES THAT WERE CREATED BY EXPANSION. STORE IDS IN CONTAINER AND THEN REMOVE"<<std::endl;
+                        }
                     }
                 }
             }
             model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            return nContracted;
+        }
+        
+        
+        /**********************************************************************/
+        void glissileJunctions(const double& dx)
+        {
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"		Forming Glissile Junctions: "<<std::flush;
+            
+            std::deque<std::tuple<size_t,size_t,size_t,size_t>> glissDeq;
+            
+            for(const auto& link : DN.links())
+            {
+                
+                if(   link.second->isSessile()
+                   && link.second->loopLinks().size()>1      // a junction
+                   )
+                {
+                    const VectorDim chord(link.second->sink->get_P()-link.second->source->get_P());
+                    const double chordNorm(chord.norm());
+                    
+                    
+                    if(   fabs(link.second->burgers().norm()-1.0)<FLT_EPSILON // a non-zero link with minimum Burgers
+                       && chordNorm>dx)
+                    {
+                        
+                        const VectorDim unitChord(chord/chordNorm);
+                        
+                        
+                        //                        std::cout<<"link "<<link.second->source->sID<<"->"<<link.second->sink->sID<<std::endl;
+                        //                        std::cout<<"burgers="<<link.second->burgers().transpose()<<std::endl;
+                        //                        std::cout<<"chord="<<unitChord.transpose()<<std::endl;
+                        //
+                        //                        for(const auto& loopLink : link.second->loopLinks())
+                        //                        {
+                        //                            std::cout<<"loopLink "<<loopLink->source()->sID<<"->"<<loopLink->sink()->sID<<", flow="<<loopLink->flow().cartesian().transpose()<<std::endl;
+                        //
+                        //                        }
+                        
+                        
+                        
+                        if(   !link.second->isGrainBoundarySegment()
+                           && !link.second->isBoundarySegment() )
+                        {
+                            //                            std::cout<<"here 1"<<std::endl;
+                            for(const auto& gr : link.second->grains())
+                            {
+                                //                                std::cout<<"here 2"<<std::endl;
+                                
+                                for(size_t s=0;s<gr->slipSystems().size();++s)
+                                {
+                                    const auto& slipSystem(gr->slipSystems()[s]);
+                                    
+                                    //                                    std::cout<<"here 3 "<<"\n"<<slipSystem.s.cartesian().transpose()<<"\n"<<link.second->burgers().transpose()<<std::endl;
+                                    //                                    std::cout<<((slipSystem.s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON)<<std::endl;
+                                    //                                    std::cout<<(fabs(slipSystem.n.cartesian().normalized().dot(unitChord)))<<std::endl;
+                                    if(  (slipSystem.s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON
+                                       && fabs(slipSystem.n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
+                                    {
+                                        //                                        std::cout<<"here 4"<<std::endl;
+                                        
+                                        glissDeq.emplace_back(link.second->source->sID,link.second->sink->sID,gr->grainID,s);
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+            }
+            
+            for(const auto& tup : glissDeq)
+            {
+                const size_t& sourceID(std::get<0>(tup));
+                const size_t& sinkID(std::get<1>(tup));
+                const size_t& grainID(std::get<2>(tup));
+                const size_t& slipID(std::get<3>(tup));
+                
+                const auto isLink(DN.link(sourceID,sinkID));
+                if(isLink.first)
+                {
+                    
+                    const VectorDim newNodeP(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
+                    const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+                    
+                    std::vector<size_t> nodeIDs;
+                    
+                    nodeIDs.push_back(sinkID);      // insert in reverse order, sink first, source second
+                    nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
+                    nodeIDs.push_back(newNodeID);
+                    
+                    DN.insertLoop(nodeIDs,
+                                  DN.poly.grain(grainID).slipSystems()[slipID].s.cartesian(),
+                                  DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian(),
+                                  newNodeP,
+                                  grainID);
+                }
+                
+                
+                
+            }
+            
+            DN.clearDanglingNodes();
+            
+            
+            std::cout<<"glissDeq.size="<<glissDeq.size()<<std::endl;
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            
+            //            static_assert(0,"FINISH HERE");
         }
         
         //! A reference to the DislocationNetwork
@@ -305,11 +443,10 @@ namespace model
         
     public:
         
-        //! The tolerance (in units of distance) used for collision detection
-        static double collisionTol;
-        //        static bool useVertexEdgeJunctions;
-        static int verboseJunctions;
         
+        static double collisionTol;     //! The tolerance (in units of distance) used for collision detection
+        static int verboseJunctions;
+        static size_t maxIterations;
         
         /**********************************************************************/
         DislocationJunctionFormation(DislocationNetworkType& DN_in) :
@@ -323,7 +460,16 @@ namespace model
         {
             if (use_junctions)
             {
-                junctionStep(dx);
+                
+                size_t nContracted=1;
+                size_t iterations=0;
+                while(nContracted && iterations<=maxIterations)
+                {
+                    nContracted=junctionStep(dx);
+                    iterations++;
+                }
+                
+                glissileJunctions(dx);
             }
         }
         
@@ -336,8 +482,10 @@ namespace model
     template <typename DislocationNetworkType>
     int DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions=0;
     
+    template <typename DislocationNetworkType>
+    size_t DislocationJunctionFormation<DislocationNetworkType>::maxIterations=10;
     
-} // namespace model
+}
 #endif
 
 //            /**********************************************************************/

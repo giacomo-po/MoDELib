@@ -96,6 +96,7 @@ namespace model
         vtkSmartPointer<vtkPolyData> polyDataBnd;
         vtkSmartPointer<vtkPolyData> polyData0;
         vtkSmartPointer<vtkUnsignedCharArray> colors;
+        vtkSmartPointer<vtkUnsignedCharArray> colorsBnd;
         vtkSmartPointer<vtkPolyDataMapper> lineMapper;
 //        vtkSmartPointer<vtkPolyDataMapper> lineMapperBnd;
         vtkSmartPointer<vtkPolyDataMapper> lineMapper0;
@@ -400,24 +401,23 @@ namespace model
                     
                     if(burgers.squaredNorm()>FLT_EPSILON)
                     {
+                        
+                        computeColor();
+                        //                    unsigned char lineClr[3]={51,153,255};
+                        unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
+
+                        
                         if(meshLocation==1)
                         {
                             cellsBnd->InsertNextCell(line);
+                            colorsBnd->InsertNextTypedTuple(lineClr);
 
                         }
                         else
                         {
                             cells->InsertNextCell(line);
-                            
-                            computeColor();
-                            //                    unsigned char lineClr[3]={51,153,255};
-                            unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
-                            
                             colors->InsertNextTypedTuple(lineClr);
-
                         }
-                        
-                        
                     }
                     else
                     {
@@ -433,6 +433,7 @@ namespace model
 
             polyDataBnd->SetPoints(points);
             polyDataBnd->SetLines(cellsBnd);
+            polyDataBnd->GetCellData()->SetScalars(colorsBnd);
 
             
             polyData0->SetPoints(points);
@@ -457,6 +458,7 @@ namespace model
         /* init */ cells0(vtkSmartPointer<vtkCellArray>::New()),
         /* init */ polyData0(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ colors(vtkSmartPointer<vtkUnsignedCharArray>::New()),
+        /* init */ colorsBnd(vtkSmartPointer<vtkUnsignedCharArray>::New()),
         /* init */ lineMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ tubeFilter(vtkSmartPointer<vtkTubeFilter>::New()),
         /* init */ tubeFilterBnd(vtkSmartPointer<vtkTubeFilter>::New()),
@@ -493,6 +495,7 @@ namespace model
         {
             
             colors->SetNumberOfComponents(3);
+            colorsBnd->SetNumberOfComponents(3);
             nodeColors->SetNumberOfComponents(3);
             velocityVectors->SetNumberOfComponents(3);
             velocityVectors->SetName("nodeVelocity");
@@ -531,7 +534,7 @@ namespace model
             tubeMapperBnd->SetInputConnection(tubeFilterBnd->GetOutputPort());
             tubeMapperBnd->ScalarVisibilityOn();
             tubeActorBnd->SetMapper(tubeMapperBnd);
-            tubeActorBnd->GetProperty()->SetColor(0.5, 0.0, 0.5); //(R,G,B)
+//            tubeActorBnd->GetProperty()->SetColor(0.5, 0.0, 0.5); //(R,G,B)
             tubeActorBnd->GetProperty()->SetOpacity(0.3); //(R,G,B)
             renderer->AddActor(tubeActorBnd);
             
@@ -721,7 +724,7 @@ namespace model
     bool DislocationSegmentActor::showZeroBuergers=false;
     bool DislocationSegmentActor::showSingleNode=false;
     size_t DislocationSegmentActor::singleNodeID=0;
-    bool DislocationSegmentActor::showNodes=true;
+    bool DislocationSegmentActor::showNodes=false;
     
     
 } // namespace model
