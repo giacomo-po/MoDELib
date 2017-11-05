@@ -31,6 +31,7 @@
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/Geometry/PlanePlaneIntersection.h>
 #include <model/Geometry/PlaneLineIntersection.h>
+#include <model/Geometry/LineSegment.h>
 #include <model/DislocationDynamics/IO/DislocationNodeIO.h>
 #include <model/DislocationDynamics/BoundingLineSegments.h>
 #include <model/DislocationDynamics/DislocationNodeConfinement.h>
@@ -47,7 +48,9 @@ namespace model
     template <int _dim, short unsigned int corder, typename InterpolationType>
     class DislocationNode :
     /*          */ public SplineNode<DislocationNode<_dim,corder,InterpolationType>,_dim,corder,InterpolationType>,
-    /*          */ public DislocationNodeConfinement<DislocationNode<_dim,corder,InterpolationType>>
+    /*          */ public DislocationNodeConfinement<DislocationNode<_dim,corder,InterpolationType>>,
+    /*          */ private std::set<const GrainBoundary<typename TypeTraits<DislocationNode<_dim,corder,InterpolationType>>::LoopNetworkType>*>
+
     
     {
         
@@ -79,6 +82,8 @@ namespace model
         typedef LatticeDirection<dim> LatticeDirectionType;
         
         typedef typename TypeTraits<NodeType>::MeshLocation MeshLocation;
+        typedef std::set<const GrainBoundary<LoopNetworkType>*> GrainBoundaryContainerType;
+
         //        typedef 	std::set<VectorDim,
         //        /*                */ CompareVectorsByComponent<double,dim,float>,
         //        /*                */ Eigen::aligned_allocator<VectorDim> > ConfiningPlaneIntersectionContainerType;
@@ -92,6 +97,7 @@ namespace model
         //static constexpr double bndTol=static_cast<double>(FLT_EPSILON);
         static const double bndTol;
         static int verboseDislocationNode;
+        
     private:
         
         
@@ -103,33 +109,21 @@ namespace model
             // Check if node is on a GB
             for(const auto& gb : this->network().poly.grainBoundaries())
             {
-                const GlidePlaneType& gp(gb.second.glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
                 
-                if(gp.contains(this->get_P()))
+                for(const auto& gp : gb.second.glidePlanes())
                 {
-                    addedGp+=nodeConfinement().addGlidePlane(gp);
-                    //                    std::cout<<"DIslocationNode "<<this->sID<<" addGrainBoundaryPlanes"<<std::endl;
-                    //                    if(nodeConfinement().addGlidePlane(gp))
-                    //                    {// adding the gb-plane was successful
-                    //                        _isGrainBoundaryNode=true;
-                    //
-                    //                        // The bounding box had changed, so see if _isOnBoundingBox applies
-                    //                        if(nodeConfinement().contains(this->get_P()))
-                    //                        {
-                    //                            _isOnBoundingBox=true;
-                    //                        }
-                    //                        else
-                    //                        {
-                    //                            _isOnBoundingBox=false;
-                    //                        }
-                    //                    }
+                    if(gp.second.contains(this->get_P()))
+                    {
+                        grainBoundaries().insert(&gb.second);
+                        addedGp+=nodeConfinement().addGlidePlane(gp.second);
+                    }
                 }
             }
             
             if(addedGp)
             {
-                VerboseDislocationNode(2,"DIslocationNode "<<this->sID<<" addGrainBoundaryPlanes"<<std::endl;);
-                _isGrainBoundaryNode=true;
+                VerboseDislocationNode(2,"DIslocationNode "<<this->sID<<" adding "<<addedGp<<" GrainBoundaryPlanes"<<std::endl;);
+//                _isGrainBoundaryNode=true;
                 
                 
                 for(const auto& pair : this->neighbors())
@@ -286,7 +280,7 @@ namespace model
                     {
                         //std::cout<<" 7 "<<std::flush;
                         
-                        std::cout<<"WARNING: CHECK THAT NODE IS ON THE REGION BOUNDARY"<<std::endl;
+//                        std::cout<<"WARNING: CHECK THAT NODE IS ON THE REGION BOUNDARY"<<std::endl;
                         temp=this->network().mesh.searchWithGuess(this->get_P(),guess);
                     }
                 }
@@ -362,7 +356,7 @@ namespace model
         double velocityReductionCoeff;
         //! The normal unit vector of the boundary on which *this DislocationNode is moving on
         bool _isOnBoundingBox;
-        bool _isGrainBoundaryNode;
+//        bool _isGrainBoundaryNode;
         VectorDim boundaryNormal;
         VectorDim C;
         
@@ -385,7 +379,7 @@ namespace model
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(vrc),
         /* init list        */ _isOnBoundingBox(false),
-        /* init list        */ _isGrainBoundaryNode(false),
+//        /* init list        */ _isGrainBoundaryNode(false),
         /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero()),
         /* init list        */ C(Pin)
         {/*! Constructor from DOF
@@ -411,7 +405,7 @@ namespace model
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
         /* init list        */ _isOnBoundingBox(pL.isBoundarySegment()),
-        /* init list        */ _isGrainBoundaryNode(false),
+//        /* init list        */ _isGrainBoundaryNode(false),
         /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero()),
         /* init list        */ C(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
@@ -430,6 +424,18 @@ namespace model
         ~DislocationNode()
         {
             VerboseDislocationNode(1,"Destroying DislocationNode "<<this->sID<<std::endl;);
+        }
+        
+        /**********************************************************************/
+        GrainBoundaryContainerType& grainBoundaries()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const GrainBoundaryContainerType& grainBoundaries() const
+        {
+            return *this;
         }
         
         /**********************************************************************/
@@ -735,7 +741,7 @@ namespace model
             }
             else
             {
-                if(_isGrainBoundaryNode)
+                if(isGrainBoundaryNode())
                 {
                     temp=MeshLocation::onRegionBoundary;
                 }
@@ -777,10 +783,17 @@ namespace model
             return _isOnBoundingBox;
         }
         
+//        /**********************************************************************/
+//        const bool& isGrainBoundaryNode() const
+//        {
+//            return _isGrainBoundaryNode;
+//            //            return meshLocation()==onRegionBoundary;
+//        }
+        
         /**********************************************************************/
-        const bool& isGrainBoundaryNode() const
+        bool isGrainBoundaryNode() const
         {
-            return _isGrainBoundaryNode;
+            return grainBoundaries().size();
             //            return meshLocation()==onRegionBoundary;
         }
         
@@ -1027,6 +1040,8 @@ namespace model
                 isMovable*=gp->contains(X);
             }
             
+//            std::cout<<"A "<<isMovable<<std::endl;
+            
             if(isMovable)
             {
                 
@@ -1035,10 +1050,24 @@ namespace model
                 for(const auto& pair : this->neighbors())
                 {
                     //                            std::cout<<"neighbor "<<nA->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<temp.contains(0.5*(std::get<0>(pair.second)->get_P()+nB->get_P())).first<<std::endl;
+
+                    if(std::get<1>(pair.second)->isSessile())
+                    {// sessile segments cannot change direction
+                        
+                        isMovable*=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*(std::get<0>(pair.second)->get_P()-X).norm()*(std::get<0>(pair.second)->get_P()-this->get_P()).norm());
+                        
+//                        isMovable*=LineSegment<dim>(std::get<0>(pair.second)->get_P(),X).contains(this->get_P());
+//                        isMovable*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(std::get<0>(pair.second)->get_P()+X)).first;
+                    }
+                    
+//                                std::cout<<"B "<<isMovable<<std::endl;
+                    
                     if(std::get<1>(pair.second)->isBoundarySegment())
                     {// boundary segments other than A->B must remain boundary
                         isMovable*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(std::get<0>(pair.second)->get_P()+X)).first;
                     }
+                    
+//                                std::cout<<"C "<<isMovable<<std::endl;
                     
                     if(std::get<1>(pair.second)->isGrainBoundarySegment())
                     {// boundary segments other than A->B must remain boundary
@@ -1048,6 +1077,8 @@ namespace model
                             isMovable*=gb->glidePlanes().begin()->second.contains(X);
                         }
                     }
+                    
+//                                std::cout<<"D "<<isMovable<<std::endl;
                 }
             }
             

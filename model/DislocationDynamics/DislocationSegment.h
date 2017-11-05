@@ -398,28 +398,31 @@ namespace model
             // Check if node is on a GB
             for(const auto& gb : this->network().poly.grainBoundaries())
             {
-                const GlidePlaneType& gp(gb.second.glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+//                const GlidePlaneType& gp(gb.second.glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
                 
-                if(gp.contains(this->source->get_P()) && gp.contains(this->sink->get_P()))
+                for(const auto& gp : gb.second.glidePlanes())
                 {
-                    //std::cout<<"HERE ADD GRAIN BOUNDARY OBJECT"<<std::endl;
-                    grainBoundaries().insert(&gb.second);
-                    addedGp+=addGlidePlane(gp);
+                    if(gp.second.contains(this->source->get_P()) && gp.second.contains(this->sink->get_P()))
+                    {
+                        //std::cout<<"HERE ADD GRAIN BOUNDARY OBJECT"<<std::endl;
+                        grainBoundaries().insert(&gb.second);
+                        addedGp+=addGlidePlane(gp.second);
+                    }
                 }
             }
             
-//            if(addedGp)
-//            {
-//                std::cout<<"DIslocationSegment "<<this->sID<<" addGrainBoundaryPlanes"<<std::endl;
-////                _isGrainBoundarySegment=true;
-////                
-////                
-////                for(const auto& pair : this->neighbors())
-////                {
-////                    std::get<1>(pair.second)->addGrainBoundaryPlanes();
-////                }
+            if(addedGp)
+            {
+//                std::cout<<"DislocationSegment "<<this->sID<<" addGrainBoundaryPlanes"<<std::endl;
+//                _isGrainBoundarySegment=true;
 //                
-//            }
+//                
+//                for(const auto& pair : this->neighbors())
+//                {
+//                    std::get<1>(pair.second)->addGrainBoundaryPlanes();
+//                }
+                
+            }
             
             return addedGp;
         }
@@ -792,8 +795,6 @@ namespace model
         bool isGrainBoundarySegment() const
         {
             return grainBoundaries().size();
-//            HERE RETURN SIZE OF GB container
-//            ALSO CHANGE DislocationNetwork::contract to account for GB segments
         }
         
         /**********************************************************************/

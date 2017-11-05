@@ -306,7 +306,7 @@ namespace model
                 else
                 {// a is an inner node. Check if _glidePlaneIntersections contains b
                     if(nA->glidePlaneIntersections().size())
-                    {
+                    {// nA confined by multiple planes
                         if(nA->glidePlaneIntersections().contains(nB->get_P()).first)
                         {
                             VerboseNodeContraction(1,"DislocationNodeContraction case 9c"<<std::endl;);
@@ -319,18 +319,53 @@ namespace model
                         }
                     }
                     else
-                    {
+                    {// nA confined by only one plane
                         assert(nA->glidePlanes().size()==1);
-                        if(nA->glidePlane(0).contains(nB->get_P()))
+                        
+                        bool found=false;
+                        VectorDim Y(VectorDim::Zero());
+
+                        for(const auto& pair : nB->neighbors())
+                        {
+                            PlaneSegmentIntersection<dim> psi(nA->glidePlane(0).P.cartesian(),
+                                                              nA->glidePlane(0).unitNormal,
+                                                              std::get<1>(pair.second)->source->get_P(),
+                                                              std::get<1>(pair.second)->sink->get_P()
+                                                              );
+//                            std::cout<<"psi.type="<<psi.type<<std::endl;
+                            Y=0.5*(psi.x0+psi.x1);
+//                            std::cout<<"movable="<<nB->isMovableTo(Y)<<std::endl;
+//                            std::cout<<"contains="<<nA->glidePlane(0).contains(Y)<<std::endl;
+
+                            if(nB->isMovableTo(Y) && nA->glidePlane(0).contains(Y))
+                            {
+                                found=true;
+                                break;
+                            }
+                        }
+                        
+                        if(found)
                         {
                             VerboseNodeContraction(1,"DislocationNodeContraction case 9e"<<std::endl;);
-                            return DN.contractSecond(nB,nA);
+                            nA->set_P(Y);
+                            return DN.contractSecond(nA,nB);
                         }
                         else
                         {
                             VerboseNodeContraction(1,"DislocationNodeContraction case 9f"<<std::endl;);
                             return false;
                         }
+                        
+//                        if(nA->glidePlane(0).contains(nB->get_P()))
+//                        {
+//                            VerboseNodeContraction(1,"DislocationNodeContraction case 9e"<<std::endl;);
+//                            return DN.contractSecond(nB,nA);
+//                        }
+//                        else
+//                        {
+//                            VerboseNodeContraction(1,"DislocationNodeContraction case 9f"<<std::endl;);
+//                            return false;
+//                        }
                     }
                 }
             }
