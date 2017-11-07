@@ -21,50 +21,199 @@
 namespace model
 {
     
+    
+    
+    template <int modelID>
+    struct GrainBoundaryTransmissionEnergyModel
+    {
+        
+    };
+
+    template <>
+    struct GrainBoundaryTransmissionEnergyModel<1>
+    {
+        
+        static constexpr double alpha=0.1;
+        static constexpr double lambda=5.0;
+        
+        template<typename SegmentType>
+        static double dG(const SegmentType& seg,
+                         const Eigen::Matrix<double,SegmentType::dim,1>& b2,
+                         const Eigen::Matrix<double,SegmentType::dim,1>& n2)
+        {
+        
+            int q=seg.qOrder/2;
+            
+            const Eigen::Matrix<double,SegmentType::dim,1>& b1(seg.burgers());
+            const double tau=(seg.stressAtQuadrature(q)*b2).dot(n2);
+            
+            return 0.5*alpha*((b1-b2).squaredNorm()+b2.squaredNorm()-b1.squaredNorm())-tau*b2.norm()*lambda;
+        }
+        
+    };
+    
     template <typename DislocationNetworkType>
     class GrainBoundaryTransmission
     //: private std::deque<TransmitSegment<typename DislocationNetworkType::LinkType> >
     {
         static constexpr int dim=DislocationNetworkType::dim;
         typedef GrainBoundary<DislocationNetworkType> GrainBoundaryType;
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
+        
         DislocationNetworkType& DN;
         
         static constexpr double chordTol=1.0;
         
+        
+        typedef std::tuple<size_t,  // sourceID
+        /*              */ size_t,  // sinkID
+        /*              */ size_t,  // grainID
+        /*              */ size_t,   // slipSystemID
+        /*              */ std::pair<int,int>   // grainBoundaryID
+        /*                     */ > TransmissionDataType;
+
+        typedef std::map<double,TransmissionDataType> LinkTransmissionDataContainerType;
+        typedef std::deque<TransmissionDataType> TransmissionDataContainerType;
     public:
         
-        static bool use_GBtransmission;
+        static size_t grainBoundaryTransmissionModel;
         
         /**********************************************************************/
         GrainBoundaryTransmission(DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
         {
-            if(use_GBtransmission)
+
+        }
+        
+        /**********************************************************************/
+        size_t directTransmit()
+        {
+            if(grainBoundaryTransmissionModel)
             {
+                model::cout<<"		GrainBoundaryTransmission... "<<std::flush;
+                const auto t0=std::chrono::system_clock::now();
+                
+                
+                TransmissionDataContainerType transmissionDeq;
+                
                 for (const auto& link : DN.links() )
                 {
+                    LinkTransmissionDataContainerType transmissionMap;
+
                     
-                    const std::set<const GrainBoundaryType*> grbnds=link.second->grainBoundaries();
-                    if(grbnds.size())
+                    const VectorDim chord(link.second->chord());
+                    
+                    if(   link.second->isGrainBoundarySegment()
+                       && chord.norm()>chordTol*DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+                       )
                     {
-                        std::cout<<link.second->source->sID<<"->"<<link.second->sink->sID<<" is GBsegment"<<std::endl;
+                        
+                        const VectorDim unitChord(chord.normalized());
+                        
+                        
+                        
+                        for(const auto& grainBoundary : link.second->grainBoundaries())
+                        {
+                            for(const auto& grain : grainBoundary->grains())
+                            {
+                                for(size_t ssID=0;ssID<grain.second->slipSystems().size();++ssID)
+                                {
+                                    const auto& slipSystem(grain.second->slipSystems()[ssID]);
+                                    if(fabs(slipSystem.n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
+                                    {
+                                        
+                                        double dG=0.0;
+                                        switch (grainBoundaryTransmissionModel)
+                                        {
+                                            case 1:
+                                            {
+                                                dG=GrainBoundaryTransmissionEnergyModel<1>::dG(*link.second,slipSystem.s.cartesian(),slipSystem.n.cartesian());
+                                                
+                                                break;
+                                            }
+                                                
+                                            default:
+                                                //                                                std::cout<"GrainBonudaryTransmissionModel not implemented."<<std::endl;
+                                                break;
+                                        }
+                                        
+                                        if(dG<0.0)
+                                        {
+                                            const TransmissionDataType data(link.second->source->sID,
+                                                                            link.second->  sink->sID,
+                                                                            grain.second->grainID,
+                                                                            ssID,
+                                                                            grainBoundary->grainBndID);
+
+                                            transmissionMap.emplace(dG,data);
+                                            std::cout<<"GBsegment "<<link.second->source->sID<<"->"<<link.second->sink->sID<<" "<<grain.second->grainID<<" "<<ssID<<" dG="<<dG<<std::endl;
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
                     }
                     
-//                    if ( //!(segment.second.source->isBoundaryNode() && segment.second.sink->isBoundaryNode())
-//                        segment.second->isGrainBoundarySegment()
-//                        && segment.second->chord().norm()>chordTol*DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
-//                    {
-//                        //Lmin=DislocationNetworkRemesh<DislocationNetworkType>::Lmin;
-//                        this->emplace_back(segment.second);
-//                    }
+                    if(transmissionMap.size())
+                    {
+                        transmissionDeq.push_back(transmissionMap.begin()->second); // best transmission choice for the segment
+                    }
+                    
                 }
+                
+                
+                
+                // Insert new loops
+                for(const auto& tup : transmissionDeq)
+                {
+                    const size_t& sourceID(std::get<0>(tup));
+                    const size_t& sinkID(std::get<1>(tup));
+                    const size_t& grainID(std::get<2>(tup));
+                    const size_t& slipID(std::get<3>(tup));
+                    const std::pair<int,int>& gbID(std::get<4>(tup));
+                    
+                    const auto isLink(DN.link(sourceID,sinkID));
+                    if(isLink.first)
+                    {
+                        
+                        std::cout<<"Transmitting"<<std::endl;
+                        
+                        
+                        const VectorDim gbInNormal(-DN.poly.grainBoundary(gbID.first,gbID.second).glidePlane(grainID).unitNormal);
+                        const VectorDim dir=(gbInNormal-gbInNormal.dot(DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().normalized())*DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().normalized()).normalized();
+                        
+                        const VectorDim newNodeP(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P())+dir*10.0);
+                        const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+                        
+                        std::vector<size_t> nodeIDs;
+                        
+                        nodeIDs.push_back(sinkID);      // insert in reverse order, sink first, source second
+                        nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
+                        nodeIDs.push_back(newNodeID);
+                        
+                        DN.insertLoop(nodeIDs,
+                                      DN.poly.grain(grainID).slipSystems()[slipID].s.cartesian(),
+                                      DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian(),
+                                      newNodeP,
+                                      grainID);
+                    }
+                    
+                    
+                    
+                }
+                
+                DN.clearDanglingNodes();
+                
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
         }
         
 //        /**********************************************************************/
 //        void transmit()
 //        {
-//            if(use_GBtransmission)
+//            if(grainBoundaryTransmission)
 //            {
 //                model::cout<<"		grain-boundary transmission..."<<std::flush;
 //                
@@ -116,7 +265,7 @@ namespace model
     };
     
     template <typename DislocationNetworkType>
-    bool GrainBoundaryTransmission<DislocationNetworkType>::use_GBtransmission=false;
+    size_t GrainBoundaryTransmission<DislocationNetworkType>::grainBoundaryTransmissionModel=0;
     
     
 } // end namespace

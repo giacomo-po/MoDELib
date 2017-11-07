@@ -192,7 +192,7 @@ namespace model
         
         /**********************************************************************/
         const GrainBoundary<NetworkType>& grainBoundary(const size_t& i,
-                                                const size_t& j) const
+                                                        const size_t& j) const
         {
             assert(i!=j && "GrainBoundary IDs cannot be the same.");
             return (i<j)? grainBoundaries().at(std::make_pair(i,j)) : grainBoundaries().at(std::make_pair(j,i));

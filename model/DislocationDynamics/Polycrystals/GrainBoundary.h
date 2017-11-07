@@ -430,7 +430,7 @@ namespace model
         }
         
         /**********************************************************************/
-        const LatticePlane& glidePlane(const int& k) const
+        const GlidePlane<NetworkType>& glidePlane(const int& k) const
         {
             return glidePlanes().at(k);
         }

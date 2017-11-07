@@ -126,6 +126,10 @@ use_crossSlip=1;
 crossSlipDeg=2.0;
 
 ######################################
+# GRAIN-BOUNDARY MODEL
+grainBoundaryTransmissionModel=1;
+
+######################################
 parametrizationExponent=0.5;
 
 #####################################
@@ -134,7 +138,7 @@ surfaceNucleationModel=0;
 
 #####################################
 # DEBUGGING
-verboseJunctions=1;
+verboseJunctions=0;
 verboseRemesh=0;
-verboseNodeContraction=1;
+verboseNodeContraction=0;
 verboseDislocationNode=0;

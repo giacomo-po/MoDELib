@@ -26,6 +26,7 @@
 #include <model/DislocationDynamics/IO/DislocationNodeIO.h>
 #include <model/DislocationDynamics/DDtimeIntegrator.h>
 #include <model/DislocationDynamics/DislocationNodeContraction.h>
+#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
 
 
 namespace model
@@ -313,6 +314,10 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"verboseNodeContraction",DislocationNodeContraction<DislocationNetworkType>::verboseNodeContraction);
             EDR.readScalarInFile(fullName.str(),"verboseDislocationNode",NodeType::verboseDislocationNode);
 
+            // GrainBoundary model
+            EDR.readScalarInFile(fullName.str(),"grainBoundaryTransmissionModel",GrainBoundaryTransmission<DislocationNetworkType>::grainBoundaryTransmissionModel);
+
+            
             
             // Grain Boundary flags
             //            EDR.readScalarInFile(fullName.str(),"use_GBdissociation",GrainBoundaryDissociation<DislocationNetworkType>::use_GBdissociation);

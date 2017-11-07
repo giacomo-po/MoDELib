@@ -94,83 +94,6 @@ namespace model
         typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
         typedef typename TypeTraits<LinkType>::MeshLocation MeshLocation;
 
-        /******************************************************************/
-    private: //  data members
-        /******************************************************************/
-        //! Parametric tangents at the quadrature points
-        MatrixDimQorder rugauss;
-        //! Scalar jacobian corrersponding to the quadrature points
-        VectorQorder jgauss;
-        //! Tangents corrersponding to the quadrature points
-        MatrixDimQorder rlgauss;
-        //! Matrix of shape functions at the quadrature points
-        //        Eigen::Matrix<double,qOrder,Ncoeff> SFgauss;
-        Eigen::Matrix<double,Eigen::Dynamic,Ncoeff> SFgauss;
-        
-        
-        //enum {Nslips=MaterialType::Nslips};
-        
-        //std::set<size_t> segmentDOFs;
-        std::map<size_t,
-        /*    */ std::pair<VectorNcoeff,VectorDim>,
-        /*    */ std::less<size_t>,
-        /*    */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
-        /*    */ > h2posMap;
-        
-        Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg;
-        
-        //! Matrix of PK-force at quadrature points
-        //		MatrixDimQorder pkGauss;
-        //! Segment Stiffness Matrix
-        MatrixNdof Kqq;
-        //! Segment Nodal Force Vector
-        VectorNdof Fq;
-        //! The identity matrix
-        static const Eigen::Matrix<double,_dim,_dim> I;
-        static const Eigen::Matrix<double,_dim,1> zeroVector;
-
-        //! The Burgers vector
-        VectorDim Burgers;
-        
-//        VectorDim _glidePlaneNormal;
-        
-        
-//        bool _isSessile;
-        
-        //        const std::set<const GrainBoundary<dim>*> grainBoundarySet;
-        
-        /******************************************************************/
-    public: //  data members
-        /******************************************************************/
-        
-        
-        std::unique_ptr<LatticePlane> glidePlane;
-        
-        QuadratureParticleContainerType quadratureParticleContainer;
-        
-        
-        const std::deque<const LatticePlaneBase*> conjugatePlaneNormals;
-        
-        //        DislocationSharedObjects<dim> shared;
-        
-        static double quadPerLength;
-        size_t qOrder;
-        
-        static double virtualSegmentDistance;
-        
-        
-        //! Positions corrersponding to the quadrature points
-        MatrixDimQorder rgauss;
-        
-        
-        //        std::array<MatrixDim, qOrder> stressGauss;
-        std::deque<MatrixDim,Eigen::aligned_allocator<MatrixDim>> stressGauss;
-        
-        //! PK force corrersponding to the quadrature points
-        MatrixDimQorder pkGauss;
-        
-        
-        
     private:
         
         /**********************************************************************/
@@ -226,35 +149,51 @@ namespace model
             //            return temp.transpose()*dm.getVelocity(stressGauss[k],rlgauss.col(k))*jgauss(k); // inverse mobility law
         }
         
+    private:
+        
+        MatrixDimQorder rugauss; //! Parametric tangents at the quadrature points
+        VectorQorder jgauss; //! Scalar jacobian corrersponding to the quadrature points
+        MatrixDimQorder rlgauss; //! Tangents corrersponding to the quadrature points
+        Eigen::Matrix<double,Eigen::Dynamic,Ncoeff> SFgauss; //! Matrix of shape functions at the quadrature points
+        std::map<size_t,
+        /*    */ std::pair<VectorNcoeff,VectorDim>,
+        /*    */ std::less<size_t>,
+        /*    */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
+        /*    */ > h2posMap;
+        Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg;
+        MatrixNdof Kqq; //! Segment Stiffness Matrix
+        VectorNdof Fq; //! Segment Nodal Force Vector
+        VectorDim Burgers; //! The Burgers vector
+        
+        /******************************************************************/
+    public: //  data members
+        /******************************************************************/
         
         
+//        std::unique_ptr<LatticePlane> glidePlane;
+//        const std::deque<const LatticePlaneBase*> conjugatePlaneNormals;
+        static const Eigen::Matrix<double,_dim,_dim> I;
+        static const Eigen::Matrix<double,_dim,1> zeroVector;
+        static double quadPerLength;
+        static double virtualSegmentDistance;
+        size_t qOrder;
+        QuadratureParticleContainerType quadratureParticleContainer;
+        MatrixDimQorder rgauss; //! Positions corrersponding to the quadrature points
+        std::deque<MatrixDim,Eigen::aligned_allocator<MatrixDim>> stressGauss;
+        MatrixDimQorder pkGauss; //! PK force corrersponding to the quadrature points
         
         //#ifdef UserStressFile
         //#include UserStressFile
         //#endif
         
-//        /**********************************************************************/
-//        LatticePlane findGlidePlane() const
-//        {
-//            LatticeVectorType P(this->source->get_L());
-//            LatticePlaneBase  n(P.lattice.reciprocalLatticeDirection(_glidePlaneNormal));
-//            return LatticePlane(P,n);
-//        }
-        
-
-        
-        
-        /******************************************************************/
-    public: // member functions
-        /******************************************************************/
+    public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
+        /******************************************************************/
         DislocationSegment(const std::shared_ptr<NodeType>& nI,
                            const std::shared_ptr<NodeType>& nJ) :
         /* base class initialization */ SplineSegmentType(nI,nJ),
         /* init list       */ Burgers(VectorDim::Zero()),
-//        /* init list       */ _glidePlaneNormal(VectorDim::Zero()),
-//        /* init list       */ _isSessile(false),
         /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
@@ -263,7 +202,6 @@ namespace model
             
             pkGauss.setZero(dim,qOrder); // necessary if this is not assembled
         }
-        
         
         /**********************************************************************/
         const GlidePlaneContainerType& glidePlanes() const
@@ -313,8 +251,6 @@ namespace model
             return *this;
         }
         
-        
-        
         /**********************************************************************/
         bool addGlidePlane(const GlidePlaneType& gp)
         {
@@ -337,9 +273,6 @@ namespace model
             return success;
         }
         
-
-
-        
         /**********************************************************************/
         void addLink(LoopLinkType* const pL)
         {
@@ -356,9 +289,6 @@ namespace model
             }
             
             addGlidePlane(pL->loop()->glidePlane);
-            
-            
-//            updateGlidePlaneNormal();
             
         }
         
@@ -387,8 +317,6 @@ namespace model
             
             addGrainBoundaryPlanes();
             
-//            updateGlidePlaneNormal();
-            
         }
         
         /**********************************************************************/
@@ -398,17 +326,21 @@ namespace model
             // Check if node is on a GB
             for(const auto& gb : this->network().poly.grainBoundaries())
             {
-//                const GlidePlaneType& gp(gb.second.glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
-                
-                for(const auto& gp : gb.second.glidePlanes())
+                const GlidePlaneType& gp(gb.second.glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+                if(gp.contains(this->source->get_P()) && gp.contains(this->sink->get_P()))
                 {
-                    if(gp.second.contains(this->source->get_P()) && gp.second.contains(this->sink->get_P()))
-                    {
-                        //std::cout<<"HERE ADD GRAIN BOUNDARY OBJECT"<<std::endl;
-                        grainBoundaries().insert(&gb.second);
-                        addedGp+=addGlidePlane(gp.second);
-                    }
+                    grainBoundaries().insert(&gb.second);
+                    addedGp+=addGlidePlane(gp);
                 }
+                
+//                for(const auto& gp : gb.second.glidePlanes())
+//                {
+//                    if(gp.second.contains(this->source->get_P()) && gp.second.contains(this->sink->get_P()))
+//                    {
+//                        grainBoundaries().insert(&gb.second);
+//                        addedGp+=addGlidePlane(gp.second);
+//                    }
+//                }
             }
             
             if(addedGp)
@@ -426,33 +358,6 @@ namespace model
             
             return addedGp;
         }
-        
-
-        
-        
-//        /**********************************************************************/
-//        const GrainBoundaryContainerType grainBoundaries() const __attribute__ ((deprecated))
-//        {
-//            GrainBoundaryContainerType temp;
-//            
-//            std::set<const Grain<NetworkType>*> grns=grains();
-//            
-//            for(const auto& gr1 : grns)
-//            {
-//                for(const auto& gr2 : grns)
-//                {
-//                    if(gr1!=gr2)
-//                    {
-//                        temp.insert(&this->network().poly.grainBoundary(gr1->grainID,gr2->grainID));
-//                    }
-//                }
-//                
-//            }
-//            return temp;
-//        }
-        
-
-
         
         /**********************************************************************/
         void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
@@ -788,9 +693,6 @@ namespace model
             return (temp+temp.transpose())*0.5;
         }
         
-        
-        
-        
         /**********************************************************************/
         bool isGrainBoundarySegment() const
         {
@@ -853,25 +755,12 @@ namespace model
             return glidePlanes().size()==1? (*glidePlanes().begin())->unitNormal : zeroVector;
         }
         
-//        /**********************************************************************/
-//        const VectorDim& glidePlaneNormal() const
-//        {
-//            return _glidePlaneNormal;
-//        }
-        
-//        /**********************************************************************/
-//        const bool& isSessile() const
-//        {
-//            return _isSessile;
-//        }
-
         /**********************************************************************/
         bool isSessile() const
         {
             return !isGlissile();
         }
 
-        
         /**********************************************************************/
         bool isGlissile() const
         {
@@ -939,64 +828,6 @@ namespace model
             /*  */ boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
         }
         
-//        /**********************************************************************/
-//        bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
-//        {/*!\returns true if both nodes are boundary nodes, and the midpoint is
-//          * on the boundary.
-//          */
-////            std::cout<<"DislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
-//            bool temp(this->source->isBoundaryNode() && this->sink->isBoundaryNode());
-//            if(temp)
-//            {// Nodes are on boundary. We need to check if the midpoint is also on the boundary
-//                
-//  //                          std::cout<<"ends are bnd"<<std::endl;
-//                
-//                std::set<const GlidePlaneType*> commonPlanes; // container of common planes
-//                std::set_intersection(this->source->glidePlanes().begin(),this->source->glidePlanes().end(),
-//                                      this->  sink->glidePlanes().begin(),this->  sink->glidePlanes().end(),
-//                                      std::inserter(commonPlanes,commonPlanes.begin()));
-//
-//  //                                          std::cout<<"commonPlanes.size="<<commonPlanes.size()<<std::endl;
-//                
-//                const VectorDim midPnt(0.5*(this->source->get_P()+this->sink->get_P()));
-//                bool midPntContained=false;
-//                for(const auto& gp : commonPlanes)
-//                {
-//                    BoundingLineSegments<dim> bls;
-//                    bls.updateWithGlidePlane(*gp);
-//    //                std::cout<<"bls.size="<<bls.size()<<std::endl;
-//
-//                    const auto sourceContained=bls.contains(this->source->get_P());
-//                    const auto sinkContained=bls.contains(this->sink->get_P());
-//                    
-////                    std::cout<<"sourceContained="<<sourceContained.second<<", sinkContained="<<sinkContained.second<<std::endl;
-//
-//                    assert(sourceContained.first);
-//                    assert(sinkContained.first);
-//
-//                    
-//                    if(sourceContained.second==sinkContained.second)
-//                    {
-//                        assert(bls.contains(midPnt).first);
-//                    }
-//                    
-//                    if(bls.contains(midPnt).first)
-//                    {
-//                        midPntContained=true;
-//                        break;
-//                    }
-//                }
-//                
-//      //          std::cout<<"midPntContained="<<midPntContained<<std::endl;
-//
-//                
-//                temp*=midPntContained;
-//            }
-//            
-//            return temp;
-//        }
-        
-        
         /**********************************************************************/
         MeshLocation meshLocation() const
         {/*!\returns the position of *this relative to the bonudary:
@@ -1055,8 +886,5 @@ namespace model
     template <int dim, short unsigned int corder, typename InterpolationType>
     double DislocationSegment<dim,corder,InterpolationType>::virtualSegmentDistance=200.0;
 
-    
-    
-    
 } // namespace model
 #endif
