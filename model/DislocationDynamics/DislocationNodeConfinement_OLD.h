@@ -23,8 +23,8 @@ namespace model
     template <typename NodeType>
     class DislocationNodeConfinement :
     /*         */ private std::set<const GlidePlane<typename TypeTraits<NodeType>::LoopNetworkType>*>,
-    /*         */ private BoundingLineSegments<TypeTraits<NodeType>::dim>,
-    /*         */ private std::set<const Grain<typename TypeTraits<NodeType>::LoopNetworkType>*>
+    /*         */ private BoundingLineSegments<TypeTraits<NodeType>::dim>
+//    /*         */ private std::set<const Grain<typename TypeTraits<NodeType>::LoopNetworkType>*>
     {
         
         static constexpr int dim=TypeTraits<NodeType>::dim;
@@ -157,24 +157,24 @@ namespace model
             
         }
         
-        /**********************************************************************/
-        std::deque<size_t> bndIDs() const
-        {/*!\returns The set of IDs into BoundingLineSegments on which node is allowed to be
-          */
-            std::deque<size_t> temp;
-            if(node->isBoundaryNode())
-            {
-            
-            }
-            else
-            {
-                for(size_t k=0;k<boundingBoxSegments().size();++k)
-                {
-                    temp.push_back(k);
-                }
-            }
-            return temp;
-        }
+//        /**********************************************************************/
+//        std::deque<size_t> bndIDs() const
+//        {/*!\returns The set of IDs into BoundingLineSegments on which node is allowed to be
+//          */
+//            std::deque<size_t> temp;
+//            if(node->isBoundaryNode())
+//            {
+//            
+//            }
+//            else
+//            {
+//                for(size_t k=0;k<boundingBoxSegments().size();++k)
+//                {
+//                    temp.push_back(k);
+//                }
+//            }
+//            return temp;
+//        }
 
         
         /**********************************************************************/
@@ -196,11 +196,11 @@ namespace model
                 //                _isGlissile*=pL->loop()->isGlissile;
                 boundingBoxSegments().updateWithGlidePlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
                 updateGlidePlaneIntersections(gp);
-                grains().insert(&(gp.grain)); // Insert new grain in grainSet
-                if(grains().size()>1)
-                {
-                    std::cout<<"WARNING: CHECK THAT NODE IS ON REGION BND"<<std::endl;
-                }
+//                grains().insert(&(gp.grain)); // Insert new grain in grainSet
+//                if(grains().size()>1)
+//                {
+//                    std::cout<<"WARNING: CHECK THAT NODE IS ON REGION BND"<<std::endl;
+//                }
                 //
                 //                const VectorDim bbP(_boundingBoxSegments.snap(this->get_P()));
                 //                if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
@@ -233,17 +233,17 @@ namespace model
             return *this;
         }
         
-        /**********************************************************************/
-        const GrainContainerType& grains() const
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        GrainContainerType& grains()
-        {
-            return *this;
-        }
+//        /**********************************************************************/
+//        const GrainContainerType& grains() const
+//        {
+//            return *this;
+//        }
+//        
+//        /**********************************************************************/
+//        GrainContainerType& grains()
+//        {
+//            return *this;
+//        }
         
         /**********************************************************************/
         const BoundingLineSegments<dim>& boundingBoxSegments() const

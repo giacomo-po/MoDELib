@@ -59,8 +59,9 @@ namespace model
         /* init */ unitNormal(this->n.cartesian().normalized()),
         /* init */ glidePlaneObserver(gpo),
         /* init */ grain(grain_in),
-        /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain,P,N)),
-        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P.cartesian(),this->n.cartesian().normalized(),grain.grainID))
+        /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain_in,P,N)),
+//        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P.cartesian(),this->n.cartesian().normalized(),grain.grainID))
+        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P.cartesian(),this->n.cartesian().normalized(),grain_in.grainID))
         {
 //            model::cout<<"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;
             glidePlaneObserver->addGlidePlane(this);
