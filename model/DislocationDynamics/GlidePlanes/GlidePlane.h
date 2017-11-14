@@ -43,7 +43,7 @@ namespace model
         typedef typename GlidePlaneObserverType::GlidePlaneKeyType GlidePlaneKeyType;
         typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
 
-        const VectorDim unitNormal;
+//        const VectorDim unitNormal;
         GlidePlaneObserverType* const glidePlaneObserver;
         const Grain<NetworkType>& grain;
         const GlidePlaneKeyType glidePlaneKey;
@@ -55,17 +55,18 @@ namespace model
                    const Grain<NetworkType>& grain_in,
                    const VectorDim& P,
                    const VectorDim& N) :
-        /* init */ LatticePlane(grain_in.latticeVector(P),grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
-        /* init */ unitNormal(this->n.cartesian().normalized()),
+//        /* init */ LatticePlane(grain_in.latticeVector(P),grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+        /* init */ LatticePlane(P,grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+//        /* init */ unitNormal(this->n.cartesian().normalized()),
         /* init */ glidePlaneObserver(gpo),
         /* init */ grain(grain_in),
         /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain_in,P,N)),
 //        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P.cartesian(),this->n.cartesian().normalized(),grain.grainID))
-        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P.cartesian(),this->n.cartesian().normalized(),grain_in.grainID))
+        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->n.cartesian().normalized(),grain_in.grainID))
         {
 //            model::cout<<"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;
             glidePlaneObserver->addGlidePlane(this);
-            assert(fabs(unitNormal.norm()-1.0)<DBL_EPSILON && "GlidePlane has non-unit normal.");
+            assert(fabs(this->unitNormal.norm()-1.0)<DBL_EPSILON && "GlidePlane has non-unit normal.");
         }
         
         /**********************************************************************/

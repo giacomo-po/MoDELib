@@ -19,7 +19,7 @@
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/Utilities/CompareVectorsByComponent.h>
 #include <model/LatticeMath/LatticeVector.h>
-#include <model/LatticeMath/ReciprocalLatticeVector.h>
+#include <model/LatticeMath/ReciprocalLatticeDirection.h>
 #include <model/Geometry/PlanePlaneIntersection.h>
 
 
@@ -94,7 +94,7 @@ namespace model
             {
                 const bool success=glidePlaneIntersections().emplace(std::piecewise_construct,
                                                                      std::make_tuple(key),
-                                                                     std::make_tuple(p1->P.cartesian(),p1->n.cartesian(),p2->P.cartesian(),p2->n.cartesian())
+                                                                     std::make_tuple(p1->P,p1->n.cartesian(),p2->P,p2->n.cartesian())
                                                                      ).second;
                 assert(success);
             }
@@ -117,24 +117,38 @@ namespace model
         static GlidePlaneKeyType getGlidePlaneKey(const Grain<NetworkType>& grain,
                                                   const VectorDimD& P,
                                                   const VectorDimD& N)
-        {
-            const ReciprocalLatticeDirection<dim> n=grain.reciprocalLatticeDirection(N);
-            assert(n.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane key");
+        {/*! A point P is on a lattice plane with normal N if
+          * P.dot(N)*N=k*N
+          * where k is an integer, therefore (P.dot(N)) must be an integer.
+          */
+            const ReciprocalLatticeDirection<dim> r=grain.reciprocalLatticeDirection(N);
+//            assert(r.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane key");
+//            const VectorDimD rc(r.cartesian());
+//
+//            const double hd(P.dot(rc)/rc.squaredNorm());
+//            const long int h(std::lround(hd));
+//            
+//            if(fabs(hd-h)>FLT_EPSILON)
+//            {
+//                std::cout<<"rc="<<rc.transpose()<<std::endl;
+//                std::cout<<"hd="<<hd<<std::endl;
+//                std::cout<<"h="<<h<<std::endl;
+//                assert(0 && "GLIDE PLANE HEIGHT NOT FOUND");
+//            }
 
-            
 
-            const double PdotN(P.dot(n.cartesian()));
-            const long int h(std::lround(PdotN));
+//            const double PdotN(P.dot(r.cartesian()));
+//            const long int h(std::lround(PdotN));
+//            assert(fabs(h-PdotN)<FLT_EPSILON && "GLIDE PLANE HEIGHT NOT FOUND");
             
-            if(false)
-            {// OLD STRATEGY, REQUIRES CREATION OF AN UNNECESSARY LATTICE VECTOR
-                const LatticeVector<dim> p=grain.latticeVector(P);
-                assert(h==p.dot(n));
-                return (GlidePlaneKeyType()<<grain.grainID,n,p.dot(n)).finished();
-            }
+//            if(false)
+//            {// OLD STRATEGY, REQUIRES CREATION OF AN UNNECESSARY LATTICE VECTOR
+//                const LatticeVector<dim> p=grain.latticeVector(P);
+//                assert(h==p.dot(n));
+//                return (GlidePlaneKeyType()<<grain.grainID,n,p.dot(n)).finished();
+//            }
             
-            assert(fabs(h-PdotN)<FLT_EPSILON && "GLIDE PLANE HEIGHT NOT FOUND");
-            return (GlidePlaneKeyType()<<grain.grainID,n,h).finished();
+            return (GlidePlaneKeyType()<<grain.grainID,r,LatticePlane::height(r,P)).finished();
             
         }
         

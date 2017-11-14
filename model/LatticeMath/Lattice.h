@@ -215,7 +215,6 @@ namespace model
         {
             
             const VectorDimD nd(covBasis().transpose()*d);
-//            const ReciprocalLatticeVectorType temp(rationalApproximation(nd),covBasis(),contraBasis());
             const ReciprocalLatticeVectorType temp(rationalApproximation(nd),*this);
             
             if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)

@@ -46,7 +46,6 @@ namespace model
         typedef LatticeVector<dim> LatticeVectorType;
         typedef LatticeDirection<dim> LatticeDirectionType;
         
-        typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         
         typedef std::vector<LatticePlaneBase> PlaneNormalContainerType;
@@ -232,46 +231,7 @@ namespace model
 //            model::cout<<defaultColor<<std::endl;
         }
         
-//        /**********************************************************************/
-//        LatticeVectorType snapToLattice(const VectorDimD& d) const
-//        {
-//            VectorDimD nd(_contraBasis.transpose()*d);
-//            return LatticeVectorType(RoundEigen<double,dim>::round(nd).template cast<long int>(),_covBasis,_contraBasis);
-//        }
-        
-//        /**********************************************************************/
-//        LatticeDirectionType latticeDirection(const VectorDimD& d) const
-//        {
-//            
-//            const VectorDimD nd(_contraBasis.transpose()*d);
-//            const LatticeVectorType temp(rationalApproximation(nd),_covBasis,_contraBasis);
-//            
-//            if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
-//            {
-//                std::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
-//                std::cout<<"lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
-//                assert(0 && "LATTICE DIRECTION NOT FOUND");
-//            }
-//            
-//            return LatticeDirectionType(temp);
-//        }
-        
-//        /**********************************************************************/
-//        ReciprocalLatticeDirectionType reciprocalLatticeDirection(const VectorDimD& d) const
-//        {
-//            
-//            const VectorDimD nd(_covBasis.transpose()*d);
-//            const ReciprocalLatticeVectorType temp(rationalApproximation(nd),_covBasis,_contraBasis);
-//            
-//            if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
-//            {
-//                std::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
-//                std::cout<<"reciprocal lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
-//                assert(0 && "RECIPROCAL LATTICE DIRECTION NOT FOUND");
-//            }
-//            
-//            return ReciprocalLatticeDirectionType(temp);
-//        }
+
         
         /**********************************************************************/
         std::pair<LatticePlane,LatticePlane> find_confiningPlanes(const LatticeVectorType& sourceL,
@@ -394,11 +354,7 @@ namespace model
 //            return LatticeVectorType(p,_covBasis,_contraBasis);
 //        }
 //        
-//        /**********************************************************************/
-//        ReciprocalLatticeVectorType reciprocalLatticeVector(const VectorDimD& p) const
-//        {
-//            return ReciprocalLatticeVectorType(p,_covBasis,_contraBasis);
-//        }
+
         
         /**********************************************************************/
         const MatrixDimD& get_C2G() const

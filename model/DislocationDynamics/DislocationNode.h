@@ -130,6 +130,11 @@ namespace model
                                 
                             case 2:
                             {// The two intersections must be degenerate (2 boundary points)
+                                std::cout<<boundingBoxSegments()[0].first.transpose()<<std::endl;
+                                std::cout<<boundingBoxSegments()[0].second.transpose()<<std::endl;
+                                std::cout<<boundingBoxSegments()[1].first.transpose()<<std::endl;
+                                std::cout<<boundingBoxSegments()[1].second.transpose()<<std::endl;
+                                
                                 assert((boundingBoxSegments()[0].first-boundingBoxSegments()[0].second).squaredNorm()<FLT_EPSILON);
                                 assert((boundingBoxSegments()[1].first-boundingBoxSegments()[1].second).squaredNorm()<FLT_EPSILON);
                                 _glidePlaneIntersections.emplace_back(boundingBoxSegments()[0].first,boundingBoxSegments()[1].first);
@@ -163,7 +168,7 @@ namespace model
                     assert(_glidePlaneIntersections.size()==1 && "_glidePlaneIntersections must exist");
                     
                     // intersect the _glidePlaneIntersections with the new plane
-                    PlaneLineIntersection<dim> pli(lastGlidePlane.P.cartesian(),
+                    PlaneLineIntersection<dim> pli(lastGlidePlane.P,
                                                    lastGlidePlane.unitNormal,
                                                    _glidePlaneIntersections[0].first, // origin of line
                                                    _glidePlaneIntersections[0].second-_glidePlaneIntersections[0].first // line direction
@@ -206,6 +211,7 @@ namespace model
             const bool success=glidePlanes().insert(&gp).second;
             if(success)
             {
+                VerboseDislocationNode(1,"DislocationNode "<<this->sID<<" addGlidePlane. glidePlanes().size()="<<glidePlanes().size()<<std::endl;);
                 assert(gp.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
                 //                _isGlissile*=pL->loop()->isGlissile;
                 boundingBoxSegments().updateWithGlidePlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
@@ -253,7 +259,7 @@ namespace model
             
             if(addedGp)
             {
-                VerboseDislocationNode(2,"DIslocationNode "<<this->sID<<" adding "<<addedGp<<" GrainBoundaryPlanes"<<std::endl;);
+                VerboseDislocationNode(1,"DislocationNode "<<this->sID<<" adding "<<addedGp<<" GrainBoundaryPlanes"<<std::endl;);
                 for(const auto& pair : this->neighbors())
                 {
                     std::get<1>(pair.second)->addGrainBoundaryPlanes();
@@ -668,10 +674,13 @@ namespace model
           *
           * This functin overrides LoopNode::removeLoopLink
           */
+            
+            VerboseDislocationNode(1,"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;);
+
+            
             NodeBaseType::removeLoopLink(pL); // forward to base class
             
             
-            //                        std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;
             
             // Re-construct nodeConfinement
             _isGlissile=true;

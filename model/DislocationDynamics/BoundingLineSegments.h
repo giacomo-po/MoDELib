@@ -114,7 +114,7 @@ namespace model
 //                                                                                                              oldPair.first,
 //                                                                                                              oldPair.second);
 
-                    PlaneSegmentIntersection<dim> psi(gp.P.cartesian(),
+                    PlaneSegmentIntersection<dim> psi(gp.P,
                                                       gp.unitNormal,
                                                       oldPair.first,
                                                       oldPair.second);

@@ -23,7 +23,6 @@ namespace model
         typedef LatticeVector<3>    LatticeVectorType;
         typedef LatticeDirection<3>    LatticeDirectionType;
         typedef ReciprocalLatticeDirection<3> ReciprocalLatticeDirectionType;
-        typedef ReciprocalLatticeVector<3> ReciprocalLatticeVectorType;
         
         const std::pair<LatticeDirectionType,LatticeDirectionType> primitiveVectors;
         
@@ -96,6 +95,12 @@ namespace model
             assert(primitiveVectors.first.squaredNorm()>0);
             assert(primitiveVectors.second.squaredNorm()>0);
             assert(primitiveVectors.first.cross(primitiveVectors.second).squaredNorm()>0);
+        }
+        
+        /**********************************************************************/
+        double planeSpacing() const
+        {
+            return 1.0/this->cartesian().norm();
         }
         
         /**********************************************************************/

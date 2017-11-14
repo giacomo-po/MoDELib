@@ -91,6 +91,8 @@ namespace model
         /**********************************************************************/
         ~DislocationLoop()
         {
+            model::cout<<"Destroying DislocationLoop "<<this->sID<<std::endl;
+
             
             _glidePlane->removeLoop(this);
             

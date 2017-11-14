@@ -38,16 +38,31 @@ namespace model
         
         template<typename SegmentType>
         static double dG(const SegmentType& seg,
+                         const Eigen::Matrix<double,SegmentType::dim,1>& grain2OutNormal,
                          const Eigen::Matrix<double,SegmentType::dim,1>& b2,
                          const Eigen::Matrix<double,SegmentType::dim,1>& n2)
         {
         
             int q=seg.qOrder/2;
             
-            const Eigen::Matrix<double,SegmentType::dim,1>& b1(seg.burgers());
-            const double tau=(seg.stressAtQuadrature(q)*b2).dot(n2);
+            double temp=0.0;
+            std::cout<<"here 0"<<std::endl;
+            std::cout<<"seg.quadratureParticleContainer.size()="<<seg.quadratureParticleContainer.size()<<std::endl;
+//            if((seg.stressAtQuadrature(q)*seg.burgers()).cross(seg.chord().normalized()).dot(grain2OutNormal)<0.0)
+            const Eigen::Matrix<double,SegmentType::dim,1> pk((seg.stressAtQuadrature(q)*b2).cross(seg.chord().normalized()));
             
-            return 0.5*alpha*((b1-b2).squaredNorm()+b2.squaredNorm()-b1.squaredNorm())-tau*b2.norm()*lambda;
+                        std::cout<<"here 1"<<std::endl;
+            
+            const Eigen::Matrix<double,SegmentType::dim,1> pkg(pk-pk.dot(n2)*n2);
+            
+                if(pkg.dot(grain2OutNormal)<0.0)
+            {// pk force on segment must be pushing into new grain
+                const Eigen::Matrix<double,SegmentType::dim,1>& b1(seg.burgers());
+                const double tau=fabs((seg.stressAtQuadrature(q)*b2.normalized()).dot(n2));
+
+                temp=0.5*alpha*((b1-b2).squaredNorm()+b2.squaredNorm()-b1.squaredNorm())-tau*b2.norm()*lambda;
+            }
+            return temp;
         }
         
     };
@@ -88,6 +103,7 @@ namespace model
         /**********************************************************************/
         size_t directTransmit()
         {
+            size_t nTransmitted=0;
             if(grainBoundaryTransmissionModel)
             {
                 model::cout<<"		GrainBoundaryTransmission... "<<std::flush;
@@ -121,13 +137,17 @@ namespace model
                                     const auto& slipSystem(grain.second->slipSystems()[ssID]);
                                     if(fabs(slipSystem.n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
                                     {
-                                        
+                                        std::cout<<"GBsegment "<<link.second->source->sID<<"->"<<link.second->sink->sID<<" "<<grain.second->grainID<<" "<<ssID<<std::flush;
                                         double dG=0.0;
                                         switch (grainBoundaryTransmissionModel)
                                         {
                                             case 1:
                                             {
-                                                dG=GrainBoundaryTransmissionEnergyModel<1>::dG(*link.second,slipSystem.s.cartesian(),slipSystem.n.cartesian());
+                                                dG=GrainBoundaryTransmissionEnergyModel<1>::dG(*link.second,
+                                                                                               grainBoundary->glidePlane(grain.second->grainID).unitNormal,
+                                                                                               slipSystem.s.cartesian(),
+                                                                                               slipSystem.n.cartesian().normalized()
+                                                                                               );
                                                 
                                                 break;
                                             }
@@ -136,6 +156,9 @@ namespace model
                                                 //                                                std::cout<"GrainBonudaryTransmissionModel not implemented."<<std::endl;
                                                 break;
                                         }
+                                        
+                                        std::cout<<" dG="<<dG<<std::endl;
+
                                         
                                         if(dG<0.0)
                                         {
@@ -146,7 +169,6 @@ namespace model
                                                                             grainBoundary->grainBndID);
 
                                             transmissionMap.emplace(dG,data);
-                                            std::cout<<"GBsegment "<<link.second->source->sID<<"->"<<link.second->sink->sID<<" "<<grain.second->grainID<<" "<<ssID<<" dG="<<dG<<std::endl;
 
                                         }
                                     }
@@ -196,8 +218,10 @@ namespace model
                         DN.insertLoop(nodeIDs,
                                       DN.poly.grain(grainID).slipSystems()[slipID].s.cartesian(),
                                       DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian(),
-                                      newNodeP,
+                                      0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
                                       grainID);
+
+                        nTransmitted++;
                     }
                     
                     
@@ -208,6 +232,7 @@ namespace model
                 
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
+            return nTransmitted;
         }
         
 //        /**********************************************************************/

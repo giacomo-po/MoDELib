@@ -170,6 +170,12 @@ namespace model
                         SegmentSegmentDistance<dim> ssd(nA->glidePlaneIntersections()[0].first,nA->glidePlaneIntersections()[0].second,
                                                         nB->glidePlaneIntersections()[0].first,nB->glidePlaneIntersections()[0].second);
                         
+                        
+                        std::cout<<"nA->glidePlaneIntersections()[0].first "<<std::setprecision(15)<<std::scientific<<nA->glidePlaneIntersections()[0].first.transpose()<<std::endl;
+                        std::cout<<"nA->glidePlaneIntersections()[0].second "<<std::setprecision(15)<<std::scientific<<nA->glidePlaneIntersections()[0].second.transpose()<<std::endl;
+                        std::cout<<"nB->glidePlaneIntersections()[0].first "<<std::setprecision(15)<<std::scientific<<nB->glidePlaneIntersections()[0].first.transpose()<<std::endl;
+                        std::cout<<"nB->glidePlaneIntersections()[0].second "<<std::setprecision(15)<<std::scientific<<nB->glidePlaneIntersections()[0].second.transpose()<<std::endl;
+                        
                         const auto iSeg=ssd.intersectionSegment();
                         if(iSeg.size()==1)
                         {// incident intersection
@@ -205,7 +211,7 @@ namespace model
                     }
                     else if(nA->glidePlaneIntersections().size() && !nB->glidePlaneIntersections().size())
                     {// nA confined by more then one plane, nB confined by only one plane
-                        PlaneLineIntersection<dim> pli(nB->glidePlane(0).P.cartesian(),
+                        PlaneLineIntersection<dim> pli(nB->glidePlane(0).P,
                                                        nB->glidePlane(0).unitNormal,
                                                        nA->glidePlaneIntersections()[0].first, // origin of line
                                                        nA->glidePlaneIntersections()[0].second-nA->glidePlaneIntersections()[0].first // line direction
@@ -327,7 +333,7 @@ namespace model
 
                         for(const auto& pair : nB->neighbors())
                         {
-                            PlaneSegmentIntersection<dim> psi(nA->glidePlane(0).P.cartesian(),
+                            PlaneSegmentIntersection<dim> psi(nA->glidePlane(0).P,
                                                               nA->glidePlane(0).unitNormal,
                                                               std::get<1>(pair.second)->source->get_P(),
                                                               std::get<1>(pair.second)->sink->get_P()

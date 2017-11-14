@@ -21,6 +21,12 @@ namespace model
     template <int dim>
     class ReciprocalLatticeVector;
 
+    template <int dim>
+    class LatticeDirection;
+    
+    template <int dim>
+    class ReciprocalLatticeDirection;
+    
     class LatticePlane;
     class LatticeLine;
 //    class PlaneLineIntersection;

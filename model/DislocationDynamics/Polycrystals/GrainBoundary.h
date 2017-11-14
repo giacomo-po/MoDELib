@@ -43,7 +43,6 @@ namespace model
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
         typedef LatticeVector<dim> LatticeVectorType;
-        typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef Grain<NetworkType> GrainType;
         typedef std::map<int,const GrainType* const> GrainContainerType;
@@ -69,45 +68,49 @@ namespace model
             model::cout<<"   cartesian components="<<R.cartesian().transpose()<<defaultColor<<std::endl;
             model::cout<<"   crystallographic components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<defaultColor<<std::endl;
             
-            LatticeVectorType L0(grain.lattice());
-            bool latticePointFound=false;
+//            LatticeVectorType L0(grain.lattice());
+//            bool latticePointFound=false;
+//            
+////            //std::cout<<"here 0"<<std::endl;
+//            
+//            for(const auto& simplexPtr : regionBoundary.simplices())
+//            {
+////                            //std::cout<<"here 1"<<std::endl;
+//                for(size_t d=0;d<dim;++d)
+//                {
+//                    const VectorDimD P0=simplexPtr->vertexPositionMatrix().col(d);
+//                    L0=grain.snapToLattice(P0);
+//                    
+//                    if(fabs((L0.cartesian()-P0).dot(normal))<FLT_EPSILON) // L0 belongs to mesh plane
+//                    {
+//                        std::cout<<"GrainBonudary: using origin "<<P0.transpose()<<std::endl;
+//                        latticePointFound=true;
+//                        break; //break inner loop
+//                    }
+//                }
+//                
+//                if(latticePointFound==true) // L0 belongs to mesh plane
+//                {
+//                    break; //break outer loop
+//                }
+//            }
+//            
+//            
+//            
+//            assert(latticePointFound && "None of the GB mesh vertices, snapped to the lattice, belongs to GB plane.");
+//            
+//            LatticePlaneBase pb(R);
+//            const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
+//                                                                 std::forward_as_tuple(grain.grainID),
+//                                                                 std::forward_as_tuple(&dn,dn.mesh,grain,L0.cartesian(),pb.cartesian()));
+//            assert(temp.first->second.unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
             
-//            //std::cout<<"here 0"<<std::endl;
-            
-            for(const auto& simplexPtr : regionBoundary.simplices())
-            {
-//                            //std::cout<<"here 1"<<std::endl;
-                for(size_t d=0;d<dim;++d)
-                {
-                    const VectorDimD P0=simplexPtr->vertexPositionMatrix().col(d);
-                    L0=grain.snapToLattice(P0);
-                    
-                    if(fabs((L0.cartesian()-P0).dot(normal))<FLT_EPSILON) // L0 belongs to mesh plane
-                    {
-                        latticePointFound=true;
-                        break; //break inner loop
-                    }
-                }
-                
-                if(latticePointFound==true) // L0 belongs to mesh plane
-                {
-                    break; //break outer loop
-                }
-            }
-            
-                        //std::cout<<"here 2"<<std::endl;
-            
-            assert(latticePointFound && "None of the GB mesh vertices, snapped to the lattice, belongs to GB plane.");
-            
-            LatticePlaneBase pb(R);
-            
-            //std::cout<<"here 3"<<std::endl;
-
-            
+            const VectorDimD P0=(*regionBoundary.simplices().begin())->vertexPositionMatrix().col(0); // a point on the plane
             const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
-                                                                 std::forward_as_tuple(grain.grainID),
-                                                                 std::forward_as_tuple(&dn,dn.mesh,grain,L0.cartesian(),pb.cartesian()));
+                                                               std::forward_as_tuple(grain.grainID),
+                                                               std::forward_as_tuple(&dn,dn.mesh,grain,P0,normal));
             assert(temp.first->second.unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
+
             
         }
         

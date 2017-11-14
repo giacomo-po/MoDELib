@@ -32,7 +32,7 @@ namespace model
         /* init */ loopID(dL.sID),
         /* init */ B(dL.flow().cartesian()),
         /* init */ N(dL.glidePlane.unitNormal),
-        /* init */ P(dL.glidePlane.P.cartesian()),
+        /* init */ P(dL.glidePlane.P),
         /* init */ grainID(dL.grain.grainID)
         {
             
