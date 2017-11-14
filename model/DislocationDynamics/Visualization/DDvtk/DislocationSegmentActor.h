@@ -27,6 +27,7 @@
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
 #include <vtkLabeledDataMapper.h>
+#include <vtkFloatArray.h>
 
 //#include <model/IO/EdgeReader.h>
 //#include <model/IO/vertexReader.h>
@@ -56,6 +57,7 @@ namespace model
         
         static float alpha;
         static float tubeRadius;
+        static bool scaleRadiusByBurgers;
         static ColorScheme clr;
         static size_t Np;      // No. of vertices per line
         static bool showBoundarySegments;
@@ -95,6 +97,7 @@ namespace model
         vtkSmartPointer<vtkPolyData> polyData;
         vtkSmartPointer<vtkPolyData> polyDataBnd;
         vtkSmartPointer<vtkPolyData> polyData0;
+        vtkSmartPointer<vtkFloatArray> radii;
         vtkSmartPointer<vtkUnsignedCharArray> colors;
         vtkSmartPointer<vtkUnsignedCharArray> colorsBnd;
         vtkSmartPointer<vtkPolyDataMapper> lineMapper;
@@ -378,7 +381,8 @@ namespace model
                     line->GetPointIds()->SetNumberOfIds(Np);
                     
                     //                    unsigned char clr0[3]={255,255,255};
-                    
+                
+                const float burgersNorm(burgers.norm());
                     
                     for (int k=0;k<Np;++k) // this may have to go to Np+1
                     {
@@ -393,6 +397,7 @@ namespace model
                         /*************/ + g*(      u3-u2)           * P0T0P1T1BN.col(3);
                         
                         points->InsertNextPoint(P.data());
+                        radii->InsertNextValue(burgersNorm*tubeRadius);
                         line->GetPointIds()->SetId(k,ptID);
                         
                         ptID++;
@@ -429,8 +434,15 @@ namespace model
             
             polyData->SetPoints(points);
             polyData->SetLines(cells);
-            polyData->GetCellData()->SetScalars(colors);
+//            polyData->GetCellData()->SetScalars(colors);
+            
+//            polyData->GetPointData()->SetScalars(radii);
+//            polyData->GetCellData()->SetScalars(radii);
+            polyData->GetCellData()->AddArray(colors);
+            polyData->GetPointData()->AddArray(radii);
+            polyData->GetPointData()->SetActiveScalars("TubeRadius");
 
+            
             polyDataBnd->SetPoints(points);
             polyDataBnd->SetLines(cellsBnd);
             polyDataBnd->GetCellData()->SetScalars(colorsBnd);
@@ -457,6 +469,7 @@ namespace model
         /* init */ polyDataBnd(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ cells0(vtkSmartPointer<vtkCellArray>::New()),
         /* init */ polyData0(vtkSmartPointer<vtkPolyData>::New()),
+        /* init */ radii(vtkSmartPointer<vtkFloatArray>::New()),
         /* init */ colors(vtkSmartPointer<vtkUnsignedCharArray>::New()),
         /* init */ colorsBnd(vtkSmartPointer<vtkUnsignedCharArray>::New()),
         /* init */ lineMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
@@ -493,7 +506,10 @@ namespace model
         /* init */ singleNodeLabelMapper(vtkSmartPointer<vtkLabeledDataMapper>::New()),
         /* init */ singleNodeLabelActor(vtkSmartPointer<vtkActor2D>::New())
         {
-            
+         
+            radii->SetName("TubeRadius");
+
+            colors->SetName("Colors");
             colors->SetNumberOfComponents(3);
             colorsBnd->SetNumberOfComponents(3);
             nodeColors->SetNumberOfComponents(3);
@@ -516,10 +532,22 @@ namespace model
             // Segments
             tubeFilter->SetInputData(polyData);
             tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
+//            tubeFilter->SetRadiusFactor(tubeRadius);
+//            tubeFilter->SetVaryRadiusToVaryRadiusByScalar();
+if(scaleRadiusByBurgers)
+{
+            tubeFilter->SetVaryRadiusToVaryRadiusByAbsoluteScalar();
+}
+//            tubeFilter->SetColorModeToColorByVector();
             tubeFilter->SetNumberOfSides(10);
             tubeFilter->Update();
             tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
             tubeMapper->ScalarVisibilityOn();
+            
+            tubeMapper->SetScalarModeToUseCellFieldData();
+            tubeMapper->SelectColorArray("Colors");
+
+            
             lineMapper->SetInputData(polyData);
             tubeActor->SetMapper(tubeMapper);
             //tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
@@ -714,6 +742,7 @@ namespace model
     
     // Static data members
     float DislocationSegmentActor::tubeRadius=5.0;
+    bool DislocationSegmentActor::scaleRadiusByBurgers=false;
     float DislocationSegmentActor::alpha=0.5;
     DislocationSegmentActor::ColorScheme DislocationSegmentActor::clr=DislocationSegmentActor::colorBurgers;
     size_t DislocationSegmentActor::Np=2;

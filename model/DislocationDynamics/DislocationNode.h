@@ -130,10 +130,10 @@ namespace model
                                 
                             case 2:
                             {// The two intersections must be degenerate (2 boundary points)
-                                std::cout<<boundingBoxSegments()[0].first.transpose()<<std::endl;
-                                std::cout<<boundingBoxSegments()[0].second.transpose()<<std::endl;
-                                std::cout<<boundingBoxSegments()[1].first.transpose()<<std::endl;
-                                std::cout<<boundingBoxSegments()[1].second.transpose()<<std::endl;
+//                                std::cout<<boundingBoxSegments()[0].first.transpose()<<std::endl;
+//                                std::cout<<boundingBoxSegments()[0].second.transpose()<<std::endl;
+//                                std::cout<<boundingBoxSegments()[1].first.transpose()<<std::endl;
+//                                std::cout<<boundingBoxSegments()[1].second.transpose()<<std::endl;
                                 
                                 assert((boundingBoxSegments()[0].first-boundingBoxSegments()[0].second).squaredNorm()<FLT_EPSILON);
                                 assert((boundingBoxSegments()[1].first-boundingBoxSegments()[1].second).squaredNorm()<FLT_EPSILON);

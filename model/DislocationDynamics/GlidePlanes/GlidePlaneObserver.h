@@ -94,7 +94,7 @@ namespace model
             {
                 const bool success=glidePlaneIntersections().emplace(std::piecewise_construct,
                                                                      std::make_tuple(key),
-                                                                     std::make_tuple(p1->P,p1->n.cartesian(),p2->P,p2->n.cartesian())
+                                                                     std::make_tuple(p1->P,p1->unitNormal,p2->P,p2->unitNormal)
                                                                      ).second;
                 assert(success);
             }
@@ -117,37 +117,16 @@ namespace model
         static GlidePlaneKeyType getGlidePlaneKey(const Grain<NetworkType>& grain,
                                                   const VectorDimD& P,
                                                   const VectorDimD& N)
-        {/*! A point P is on a lattice plane with normal N if
-          * P.dot(N)*N=k*N
-          * where k is an integer, therefore (P.dot(N)) must be an integer.
+        {/*!\param[in] grain the grain on which the GlidePlane is defined
+          * \param[in] P a point on the plane
+          * \param[in] N the normal to the plane
+          * \returns the key which uniquely identifies the plane. 
+          * The type of the key is a tuple with entries (grainID,r,h), where r
+          * is the ReciprocalLatticeDirection corresponding to N, and h=P.dot(r)
+          * is an integer indicating the "heigth" of the plane from the origin,
+          * in integer multiples of the interplanar distance d=1/|r|.
           */
-            const ReciprocalLatticeDirection<dim> r=grain.reciprocalLatticeDirection(N);
-//            assert(r.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane key");
-//            const VectorDimD rc(r.cartesian());
-//
-//            const double hd(P.dot(rc)/rc.squaredNorm());
-//            const long int h(std::lround(hd));
-//            
-//            if(fabs(hd-h)>FLT_EPSILON)
-//            {
-//                std::cout<<"rc="<<rc.transpose()<<std::endl;
-//                std::cout<<"hd="<<hd<<std::endl;
-//                std::cout<<"h="<<h<<std::endl;
-//                assert(0 && "GLIDE PLANE HEIGHT NOT FOUND");
-//            }
-
-
-//            const double PdotN(P.dot(r.cartesian()));
-//            const long int h(std::lround(PdotN));
-//            assert(fabs(h-PdotN)<FLT_EPSILON && "GLIDE PLANE HEIGHT NOT FOUND");
-            
-//            if(false)
-//            {// OLD STRATEGY, REQUIRES CREATION OF AN UNNECESSARY LATTICE VECTOR
-//                const LatticeVector<dim> p=grain.latticeVector(P);
-//                assert(h==p.dot(n));
-//                return (GlidePlaneKeyType()<<grain.grainID,n,p.dot(n)).finished();
-//            }
-            
+            const ReciprocalLatticeDirection<dim> r(grain.reciprocalLatticeDirection(N));
             return (GlidePlaneKeyType()<<grain.grainID,r,LatticePlane::height(r,P)).finished();
             
         }
@@ -194,8 +173,20 @@ namespace model
             return os;
         }
         
-        
-//        
+    };
+    
+}
+#endif
+
+
+
+
+
+
+
+
+
+//
 //        /**********************************************************************/
 //        static std::deque<std::pair<VectorDimD,VectorDimD>,Eigen::aligned_allocator<std::pair<VectorDimD,VectorDimD>>> planeSegmentIntersection(const VectorDimD& P0,
 //                                                                                                                                                const VectorDimD& N,
@@ -203,14 +194,14 @@ namespace model
 //                                                                                                                                                const VectorDimD& v1)
 //        {
 //            //            std::deque<VectorDim> temp;
-//            
+//
 //            const double nNorm(N.norm());
 //            assert(nNorm>FLT_EPSILON);
 //            const VectorDimD n(N/nNorm);
-//            
+//
 //            std::deque<std::pair<VectorDimD,VectorDimD>,Eigen::aligned_allocator<std::pair<VectorDimD,VectorDimD>>> temp;
-//            
-//            
+//
+//
 //            // check intersection of v0->v1 with plane
 //            // x=v0+u(v1-v0)
 //            // (x-P0).n=0
@@ -220,21 +211,21 @@ namespace model
 //            if(edgeNorm<FLT_EPSILON)
 //            {
 //                VectorDimD
-//                
+//
 //            }
 //            else
 //            {
 //                const double den=(v1-v0).dot(n);
 //                const double num=(P0-v0).dot(n);
 //                const double P0v0norm=(P0-v0).norm();
-//                
+//
 //                const double numCheck= (P0v0norm<FLT_EPSILON)? 0.0 : num/P0v0norm;
-//                
+//
 //                if (fabs(den/edgeNorm)>FLT_EPSILON)
 //                {
 //                    // edge intersects plane
 //                    const double u=num/den;
-//                    
+//
 //                    if(fabs(u)<FLT_EPSILON)
 //                    {
 //                        temp.emplace_back(v0,v0);
@@ -250,15 +241,15 @@ namespace model
 //                    }
 //                    else
 //                    {// no roots
-//                        
+//
 //                    }
-//                    
+//
 //                }
 //                else
 //                {
 //                    if (fabs(numCheck)>FLT_EPSILON)
 //                    {// edge is parallel to plane, no intersection
-//                        
+//
 //                    }
 //                    else
 //                    {// edge is coplanar
@@ -267,22 +258,12 @@ namespace model
 //                    }
 //                }
 //            }
-//            
-//            
-//            
-//            
+//
+//
+//
+//
 //            return temp;
 //        }
-        
-        
-    };
-    
-}	// close namespace
-#endif
-
-
-
-
 
 
 

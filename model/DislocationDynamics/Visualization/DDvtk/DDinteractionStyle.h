@@ -363,6 +363,8 @@ namespace model
                 std::cout<<"    +/- to increase tube radius"<<std::endl;
                 std::cout<<"      0 to show/hide zero-Burgers vector segments"<<std::endl;
                 std::cout<<"      1 to show/hide boundary segments"<<std::endl;
+                std::cout<<"      2 to turn on/off segment radii scaled by Burgers norm"<<std::endl;
+
                 //                std::cout<<"      1 to show/hide node IDs"<<std::endl;
                 //                std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
             }
@@ -605,6 +607,15 @@ namespace model
                     ddSegments->modify();
                     this->Interactor->Render();
                 }
+                if(key == "2")
+                {
+                    DislocationSegmentActor::scaleRadiusByBurgers=!DislocationSegmentActor::scaleRadiusByBurgers;
+                    std::cout<<"scaleRadiusByBurgers="<<DislocationSegmentActor::scaleRadiusByBurgers<<std::endl;
+                    ddSegments->modify();
+                    this->Interactor->Render();
+                }
+                
+                
                 
             }
             

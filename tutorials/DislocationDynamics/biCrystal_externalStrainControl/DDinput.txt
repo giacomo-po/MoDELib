@@ -122,7 +122,7 @@ surfaceNucleationModel=0;
 
 #####################################
 # DEBUGGING
-verboseJunctions=1;
-verboseRemesh=1;
-verboseNodeContraction=1;
-verboseDislocationNode=1;
+verboseJunctions=0;
+verboseRemesh=0;
+verboseNodeContraction=0;
+verboseDislocationNode=0;

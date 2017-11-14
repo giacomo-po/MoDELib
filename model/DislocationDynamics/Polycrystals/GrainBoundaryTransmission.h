@@ -33,7 +33,7 @@ namespace model
     struct GrainBoundaryTransmissionEnergyModel<1>
     {
         
-        static constexpr double alpha=0.1;
+        static constexpr double alpha=1.0;
         static constexpr double lambda=5.0;
         
         template<typename SegmentType>
