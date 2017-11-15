@@ -12,6 +12,6 @@ using namespace model;
 
 int main(int argc, char** argv)
 {
-    DipolarMicrostructureGenerator mg;
+    DipolarMicrostructureGenerator mg(argc,argv);
     return 0;
 }

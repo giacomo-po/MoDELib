@@ -46,9 +46,9 @@ namespace model
     template <int _dim, short unsigned int corder, typename InterpolationType>
     class DislocationNode :
     /*          */ public SplineNode<DislocationNode<_dim,corder,InterpolationType>,_dim,corder,InterpolationType>,
-    /*          */ private std::set<const GrainBoundary<typename TypeTraits<DislocationNode<_dim,corder,InterpolationType>>::LoopNetworkType>*>,
-    /*          */ private std::set<const Grain<typename TypeTraits<DislocationNode<_dim,corder,InterpolationType>>::LoopNetworkType>*>,
-    /*          */ private std::set<const GlidePlane<typename TypeTraits<DislocationNode<_dim,corder,InterpolationType>>::LoopNetworkType>*>,
+    /*          */ private std::set<const GrainBoundary<_dim>*>,
+    /*          */ private std::set<const Grain<_dim>*>,
+    /*          */ private std::set<const GlidePlane<_dim>*>,
     /*          */ private BoundingLineSegments<_dim>
     {
         
@@ -69,10 +69,10 @@ namespace model
         typedef LatticeVector<dim> LatticeVectorType;
         typedef LatticeDirection<dim> LatticeDirectionType;
         typedef typename TypeTraits<NodeType>::MeshLocation MeshLocation;
-        typedef GlidePlane<LoopNetworkType> GlidePlaneType;
+        typedef GlidePlane<dim> GlidePlaneType;
         typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
-        typedef std::set<const Grain<LoopNetworkType>*> GrainContainerType;
-        typedef std::set<const GrainBoundary<LoopNetworkType>*> GrainBoundaryContainerType;
+        typedef std::set<const Grain<dim>*> GrainContainerType;
+        typedef std::set<const GrainBoundary<dim>*> GrainBoundaryContainerType;
         
         static bool use_velocityFilter;
         static double velocityReductionFactor;
@@ -105,7 +105,7 @@ namespace model
                     assert(_glidePlaneIntersections.size()==0 && "_glidePlaneIntersections must be empty");
                     
                     // Grab the infinite line of intersection between the two planes
-                    GlidePlaneObserver<LoopNetworkType>* const gpo(glidePlane(0).glidePlaneObserver);
+                    GlidePlaneObserver<dim>* const gpo(glidePlane(0).glidePlaneObserver);
                     const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&glidePlane(0),&glidePlane(1)));
                     
                     if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
@@ -992,7 +992,7 @@ namespace model
         
         
         /**********************************************************************/
-        bool isSimpleBndNode() const
+        bool isSimpleBoundaryNode() const
         {
             bool temp=false;
             if(isOnBoundingBox())
@@ -1000,41 +1000,18 @@ namespace model
                 if(this->isSimple())
                 {
                     temp=true;
-                    
-                    //                    std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> normalDeq;
                     std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> chordDeq;
                     
                     for (const auto& neighborIter : this->neighbors())
                     {
-                        //                        if (!std::get<2>(neighborIter.second)==0)
-                        //                        {
-                        if (
-                            //std::get<1>(neighborIter.second)->isBoundarySegment()
-                            !std::get<1>(neighborIter.second)->hasZeroBurgers()
-                            )
-                        {  // neighbor not searched
-                            //temp*=std::get<0>(neighborIter.second)->isOnBoundingBox();
+                        if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
+                        {
                             temp*=std::get<1>(neighborIter.second)->isBoundarySegment();
-                            //                            normalDeq.push_back(std::get<0>(neighborIter.second)->bndNormal());
                             chordDeq.push_back(std::get<1>(neighborIter.second)->chord());
                         }
-                        //                        }
                     }
                     
-                    
-                    //                    if(normalDeq.size())
-                    //                    {
-                    //                        for(const auto& bndN : normalDeq)
-                    //                        {
-                    //                            temp*=((bndN-normalDeq[0]).squaredNorm()<FLT_EPSILON);
-                    //                        }
-                    //                    }
-                    //                    else
-                    //                    {
-                    //                        temp=false;
-                    //                    }
-                    
-                    if(chordDeq.size())
+                    if(temp && chordDeq.size())
                     {
                         for(const auto& chord : chordDeq)
                         {
@@ -1046,11 +1023,66 @@ namespace model
                         temp=false;
                     }
                     
+                }
+            }
+            
+            return temp;
+        }
+        
+        /**********************************************************************/
+        bool isSimpleGrainBoundaryNode() const
+        {
+            std::cout<<"node "<<this->sID<<" isSimpleGrainBoundaryNode? "<<std::flush;
+
+            
+            bool temp=false;
+            if(isGrainBoundaryNode())
+            {
+                std::cout<<"A "<<std::flush;
+
+                if(this->isSimple())
+                {
+                    std::cout<<"B "<<std::endl;
+
+                    temp=true;
+                    std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> chordDeq;
                     
+                    for (const auto& neighborIter : this->neighbors())
+                    {
+                        if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
+                        {
+                            std::cout<<std::get<1>(neighborIter.second)->source->sID<<"->"<<std::get<1>(neighborIter.second)->sink->sID<<" "<<std::get<1>(neighborIter.second)->isGrainBoundarySegment()<<std::endl;
+
+                            temp*=std::get<1>(neighborIter.second)->isGrainBoundarySegment();
+                            chordDeq.push_back(std::get<1>(neighborIter.second)->chord());
+                        }
+                    }
+                    
+                    std::cout<<"B chordDeq.size="<<chordDeq.size()<<" temp="<<temp<<std::flush;
+
+                    
+                    if(temp && chordDeq.size())
+                    {
+                        std::cout<<"C "<<std::endl;
+
+                        for(const auto& chord : chordDeq)
+                        {
+                            std::cout<<chord.cross(chordDeq[0]).squaredNorm()<<" vs "<<FLT_EPSILON*chord.squaredNorm()*chordDeq[0].squaredNorm()<<std::endl;
+                            temp*=(chord.cross(chordDeq[0]).squaredNorm()<(FLT_EPSILON*chord.squaredNorm()*chordDeq[0].squaredNorm()));
+                        }
+                        std::cout<<"C size="<<chordDeq.size()<<" temp="<<temp<<std::flush;
+
+                    }
+                    else
+                    {
+                        temp=false;
+                        std::cout<<"D "<<std::flush;
+                    }
                     
                 }
-                
             }
+            
+            std::cout<<std::endl;
             
             return temp;
         }

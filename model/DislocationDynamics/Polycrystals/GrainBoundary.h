@@ -32,22 +32,23 @@ namespace model
     
     
     
-    template <typename NetworkType>
+    template <int dim>
     class GrainBoundary :
-    /* base */ private std::map<int,const Grain<NetworkType>* const>,
-    /* base */ private std::map<int,GlidePlane<NetworkType>>
+    /* base */ private std::map<int,const Grain<dim>* const>,
+    /* base */ private std::map<int,GlidePlane<dim>>
     {
-        static constexpr int dim=NetworkType::dim;
+//        static constexpr int dim=NetworkType::dim;
         typedef MeshRegionBoundary<Simplex<dim,dim-1> > MeshRegionBoundaryType;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
-        typedef Grain<NetworkType> GrainType;
+        typedef Grain<dim> GrainType;
         typedef std::map<int,const GrainType* const> GrainContainerType;
-        typedef std::map<int,GlidePlane<NetworkType>> GlidePlaneContainerType;
+        typedef std::map<int,GlidePlane<dim>> GlidePlaneContainerType;
         typedef Eigen::Matrix<double,2*dim+1,1> BGkeyType;
+        typedef GlidePlane<dim> GlidePlaneType;
         
         
 //        static_assert(false,"NEED TO CREATE GLIDE PLANES FOR DSCL AND CSL, AND ADD THEM TO NODES WHICH ARE ON THE GB. THEN ADD THEM TO THE NODES. CAREFUL THAT REMOVE LOOP LINK DO NOT REMOVE THESE GLIDE PLANES");
@@ -55,8 +56,10 @@ namespace model
         
         
         /**********************************************************************/
-        void storeLatticePlane(NetworkType& dn,
-                               const Grain<NetworkType>& grain,
+//        template<typename NetworkType>
+        void storeLatticePlane(GlidePlaneObserver<dim>& dn,
+                               const SimplicialMesh<dim>& mesh,
+                               const Grain<dim>& grain,
                                const VectorDimD& normal)
         {
             //std::cout<<"storeLatticePlane"<<std::endl;
@@ -108,14 +111,16 @@ namespace model
             const VectorDimD P0=(*regionBoundary.simplices().begin())->vertexPositionMatrix().col(0); // a point on the plane
             const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
                                                                std::forward_as_tuple(grain.grainID),
-                                                               std::forward_as_tuple(&dn,dn.mesh,grain,P0,normal));
+                                                               std::forward_as_tuple(&dn,mesh,grain,P0,normal));
             assert(temp.first->second.unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
 
             
         }
         
         /**********************************************************************/
-        void createLatticePlanes(NetworkType& dn)
+//        template<typename NetworkType>
+        void createLatticePlanes(GlidePlaneObserver<dim>& dn,
+                                 const SimplicialMesh<dim>& mesh)
         {
             //std::cout<<"createLatticePlanes"<<std::endl;
 
@@ -128,7 +133,7 @@ namespace model
                 const VectorDimD outNormal=tet->nda.col(faceID);
                 const double outNorm(outNormal.norm());
                 assert(outNorm>FLT_EPSILON && "Simplex normal has zero norm.");
-                storeLatticePlane(dn,grain(tet->region->regionID),outNormal/outNorm);
+                storeLatticePlane(dn,mesh,grain(tet->region->regionID),outNormal/outNorm);
             }
             
             // Check that all tringle vertices are contained by both GB planes
@@ -392,10 +397,12 @@ namespace model
         
         
         /**********************************************************************/
+//        template<typename NetworkType>
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
-                      Grain<NetworkType>& grainFirst,
-                      Grain<NetworkType>& grainSecond,
-                      NetworkType& dn) :
+                      Grain<dim>& grainFirst,
+                      Grain<dim>& grainSecond,
+                      GlidePlaneObserver<dim>& dn,
+                      const SimplicialMesh<dim>& mesh) :
         /* init */ _csl(grainFirst,grainSecond),
         /* init */ _dscl(grainFirst,grainSecond),
         /* init */ _crystallographicRotationAxis(VectorDimD::Zero()),
@@ -406,9 +413,12 @@ namespace model
         /* init */ grainBndID(regionBoundary.regionBndID)
         {
             model::cout<<greenBoldColor<<"Creating GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
+            model::cout<<defaultColor<<"   CSL:  sigma= "<<_csl.sigma()<<std::endl;
+            model::cout<<defaultColor<<"   DSCL: sigma= "<<_dscl.sigma()<<std::endl;
+            
             GrainContainerType::emplace(grainFirst.grainID,&grainFirst);
             GrainContainerType::emplace(grainSecond.grainID,&grainSecond);
-            initializeGrainBoundary(dn);
+            initializeGrainBoundary(dn,mesh);
             grainFirst.emplace(grainBndID,this);
             grainSecond.emplace(grainBndID,this);
 
@@ -421,33 +431,35 @@ namespace model
         }
         
         /**********************************************************************/
-        const Grain<NetworkType>& grain(const int& k) const
+        const Grain<dim>& grain(const int& k) const
         {
             return *(grains().at(k));
         }
         
         /**********************************************************************/
-        const std::map<int,GlidePlane<NetworkType>>& glidePlanes() const
+        const std::map<int,GlidePlaneType>& glidePlanes() const
         {
             return *this;
         }
         
         /**********************************************************************/
-        const GlidePlane<NetworkType>& glidePlane(const int& k) const
+        const GlidePlaneType& glidePlane(const int& k) const
         {
             return glidePlanes().at(k);
         }
         
         /**********************************************************************/
-        void initializeGrainBoundary(NetworkType& dn)
+//        template<typename NetworkType>
+        void initializeGrainBoundary(GlidePlaneObserver<dim>& dn,
+                                     const SimplicialMesh<dim>& mesh)
         {
 //            model::cout<<yellowColor<<"GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
             _csl.update();
             _dscl.update();
             computeCrystallographicRotationAxis();
-            createLatticePlanes(dn);
+            createLatticePlanes(dn,mesh);
 //            findGrainBoundaryType(poly.grainBoundaryTypes());
-            populateGBdislocations(dn.poly.grainBoundaryDislocations(),dn.poly.mesh);
+//            populateGBdislocations(dn.poly.grainBoundaryDislocations(),dn.poly.mesh);
             
             //                grain(gb.first.second).emplace(gb.first,&gb.second);
         }
@@ -489,8 +501,8 @@ namespace model
         }
     };
     
-    template <typename NetworkType>
-    bool GrainBoundary<NetworkType>::use_GBdislocations=false;
+    template <int dim>
+    bool GrainBoundary<dim>::use_GBdislocations=false;
     
 } // end namespace
 #endif

@@ -261,7 +261,7 @@ namespace model
                         assert(nA->glidePlanes().size()==1);
                         assert(nB->glidePlanes().size()==1);
                         
-                        GlidePlaneObserver<DislocationNetworkType>* const gpo(nA->glidePlane(0).glidePlaneObserver);
+                        GlidePlaneObserver<dim>* const gpo(nA->glidePlane(0).glidePlaneObserver);
                         const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&nA->glidePlane(0),&nB->glidePlane(0)));
                         
                         //                        std::cout<<"gpA: "<<nA->glidePlane(0).P.cartesian().transpose()<<std::endl;

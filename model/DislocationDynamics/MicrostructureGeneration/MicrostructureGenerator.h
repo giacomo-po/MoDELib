@@ -15,15 +15,18 @@
 #include <Eigen/LU>
 #include <Eigen/Cholesky>
 
+#include <model/DislocationDynamics/DislocationNetworkTraits.h>
+#include <model/DislocationDynamics/Polycrystals/Polycrystal.h> // defines mode::cout
 #include <model/IO/EigenDataReader.h>
 #include <model/Mesh/SimplicialMesh.h> // defines mode::cout
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/LatticeMath/LatticeVector.h>
-#include <model/DislocationDynamics/Polycrystals/Polycrystal.h> // defines mode::cout
+#include <model/DislocationDynamics/DislocationNetwork.h>
 #include <model/Mesh/PlaneMeshIntersection.h>
 
 namespace model
 {
+    
     
     class MicrostructureGenerator
     {
@@ -37,6 +40,7 @@ namespace model
         
         typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
         
+        typedef DislocationNetwork<dim,1,Hermite> DislocationNetworkType;
         
         std::mt19937 generator;
         std::uniform_real_distribution<double> distribution;
@@ -72,9 +76,13 @@ namespace model
     public:
         
         SimplicialMesh<dim> mesh;
+        GlidePlaneObserver<dim> gpo;
         Polycrystal<dim> poly;
+//        DislocationNetworkType DN;
+//        typename DislocationNetworkType::PolycrystalType poly;
         
-        MicrostructureGenerator() :
+        MicrostructureGenerator(int argc, char* argv[]) :
+//            DN(argc,argv),
         /* init list */ generator(std::chrono::system_clock::now().time_since_epoch().count()),
         /* init list */ distribution(0.0,1.0),
         //        /* init list */ sizeDistribution(0.1,0.5),
@@ -96,7 +104,7 @@ namespace model
                 _minSize=0.1*min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
                 _maxSize=max(mesh.xMax(0)-mesh.xMin(0),max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
                 
-                poly.init("./DDinput.txt");
+                poly.init(gpo,"./DDinput.txt");
                 
             }
             else
@@ -108,6 +116,10 @@ namespace model
             unsigned int materialZ;
             EDR.readScalarInFile("./DDinput.txt","material",materialZ); // material by atomic number Z
             Material<Isotropic>::select(materialZ);
+            
+//            _minSize=0.1*min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
+//            _maxSize=max(mesh.xMax(0)-mesh.xMin(0),max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
+
             
         }
         

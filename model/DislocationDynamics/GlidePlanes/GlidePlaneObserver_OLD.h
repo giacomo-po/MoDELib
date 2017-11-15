@@ -27,34 +27,34 @@ namespace model
 {
     
     // Class Predeclaration
-    template <int dim>
+    template <typename dim>
     class GlidePlane;
     
     /**************************************************************************/
     /**************************************************************************/
-    template<int dim>
-    struct GlidePlaneObserver : private std::map<Eigen::Matrix<long int,dim+2,1>,
-    /*                                       */ const GlidePlane<dim>* const,
-    /*                                       */ CompareVectorsByComponent<long int,dim+2,long int>,
-    /*                                       */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,dim+2,1>,const GlidePlane<dim>* const> > >,
+    template<typename NetworkType>
+    struct GlidePlaneObserver : private std::map<Eigen::Matrix<long int,TypeTraits<NetworkType>::dim+2,1>,
+    /*                                       */ const GlidePlane<NetworkType>* const,
+    /*                                       */ CompareVectorsByComponent<long int,TypeTraits<NetworkType>::dim+2,long int>,
+    /*                                       */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,TypeTraits<NetworkType>::dim+2,1>,const GlidePlane<NetworkType>* const> > >,
     /*                       */ private std::map<std::pair<size_t,size_t>,
-    /*                                        */ PlanePlaneIntersection<dim>,
+    /*                                        */ PlanePlaneIntersection<TypeTraits<NetworkType>::dim>,
     /*                                        */ std::less<std::pair<size_t,size_t>>,
-    /*                                        */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>,PlanePlaneIntersection<dim>>>
+    /*                                        */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>,PlanePlaneIntersection<TypeTraits<NetworkType>::dim>>>
     /*                                        */ >
     {
         
         
-//        static constexpr int dim=dim;
-        typedef GlidePlaneObserver<dim> GlidePlaneObserverType;
-        typedef GlidePlane<dim> GlidePlaneType;
+        static constexpr int dim=TypeTraits<NetworkType>::dim;
+        typedef GlidePlaneObserver<NetworkType> GlidePlaneObserverType;
+        typedef GlidePlane<NetworkType> GlidePlaneType;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         typedef Eigen::Matrix<long int,dim+2,1> GlidePlaneKeyType;
-        typedef std::map<Eigen::Matrix<long int,dim+2,1>,
-        /*            */ const GlidePlane<dim>* const,
-        /*            */ CompareVectorsByComponent<long int,dim+2,long int>,
-        /*            */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,dim+2,1>,const GlidePlane<dim>* const> > > GlidePlaneMapType;
+        typedef std::map<Eigen::Matrix<long int,TypeTraits<NetworkType>::dim+2,1>,
+        /*            */ const GlidePlane<NetworkType>* const,
+        /*            */ CompareVectorsByComponent<long int,TypeTraits<NetworkType>::dim+2,long int>,
+        /*            */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,TypeTraits<NetworkType>::dim+2,1>,const GlidePlane<NetworkType>* const> > > GlidePlaneMapType;
         typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
         typedef PlanePlaneIntersection<dim> PlanePlaneIntersectionType;
         typedef std::map<std::pair<size_t,size_t>,
@@ -114,7 +114,7 @@ namespace model
         }
         
         /**********************************************************************/
-        static GlidePlaneKeyType getGlidePlaneKey(const Grain<dim>& grain,
+        static GlidePlaneKeyType getGlidePlaneKey(const Grain<NetworkType>& grain,
                                                   const VectorDimD& P,
                                                   const VectorDimD& N)
         {/*!\param[in] grain the grain on which the GlidePlane is defined
@@ -133,7 +133,7 @@ namespace model
         
         /**********************************************************************/
         std::shared_ptr<GlidePlaneType> sharedGlidePlane(const SimplicialMesh<dim>& mesh,
-                                                         const Grain<dim>& grain,
+                                                         const Grain<NetworkType>& grain,
                                                          const VectorDimD& P,
                                                          const VectorDimD& N)
         {

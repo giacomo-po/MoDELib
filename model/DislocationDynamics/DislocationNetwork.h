@@ -61,7 +61,7 @@ namespace model
     
     template <int _dim, short unsigned int corder, typename InterpolationType>
     class DislocationNetwork : public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType> >,
-    /* base                 */ public GlidePlaneObserver<DislocationNetwork<_dim,corder,InterpolationType>>,
+    /* base                 */ public GlidePlaneObserver<_dim>,
     /* base                 */ public ParticleSystem<DislocationParticle<_dim> >
     {
         
@@ -77,7 +77,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
         typedef Eigen::Matrix<double,dim,1>		VectorDim;
         typedef typename TypeTraits<DislocationNetworkType>::LoopType LoopType;
-        typedef GlidePlaneObserver<DislocationNetworkType> GlidePlaneObserverType;
+        typedef GlidePlaneObserver<dim> GlidePlaneObserverType;
         typedef DislocationParticle<_dim> DislocationParticleType;
         typedef typename DislocationParticleType::StressField StressField;
         typedef typename DislocationParticleType::DisplacementField DisplacementField;
@@ -89,6 +89,7 @@ namespace model
         typedef typename FiniteElementType::ElementType ElementType;
         typedef typename LoopNetworkType::IsNodeType IsNodeType;
         typedef DislocationNetworkIO<DislocationNetworkType> DislocationNetworkIOType;
+        typedef Polycrystal<dim> PolycrystalType;
         //        enum {NdofXnode=NodeType::NdofXnode};
         
         int timeIntegrationMethod;
@@ -105,7 +106,7 @@ namespace model
         unsigned int use_bvp;
         bool use_virtualSegments;
         SimplicialMesh<dim> mesh;
-        Polycrystal<DislocationNetworkType> poly;
+        PolycrystalType poly;
         BvpSolverType bvpSolver;
         
 #ifdef DislocationNucleationFile

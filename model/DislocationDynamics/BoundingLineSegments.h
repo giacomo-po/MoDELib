@@ -98,8 +98,8 @@ namespace model
         }
         
         /**********************************************************************/
-        template <typename LoopType>
-        void updateWithGlidePlane(const GlidePlane<LoopType>& gp)
+//        template <typename LoopType>
+        void updateWithGlidePlane(const GlidePlane<dim>& gp)
         {
             
             

@@ -37,7 +37,8 @@ namespace model
         SequentialOutputFile<'L',1> loopFile;
         
     public:
-        DipolarMicrostructureGenerator() :
+        DipolarMicrostructureGenerator(int argc, char* argv[]) :
+        MicrostructureGenerator(argc,argv),
         /* init list */ generator(rd())
         //        /* init list */ distribution(0,CrystalOrientation<dim>::slipSystems().size()-1)
         {

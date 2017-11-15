@@ -45,24 +45,6 @@ namespace model
         //! A reference to the DislocationNetwork
         DislocationNetworkType& DN;
         
-        //        /**********************************************************************/
-        //        bool isSimpleBndSegment(const LinkType& link) const
-        //        {
-        //            bool temp=false;
-        //            if(link.source->is_simple() && link.sink->is_simple())
-        //            {
-        //                HERE ADD THE CONDITION THAT BOTH LINKS CONNECTED TO THE SIMPLE NODE ARE BOUNDARY SEGMENTS
-        //
-        //                && link.source->isOnBoundingBox()
-        //                /*  */ && link.  sink->isOnBoundingBox()
-        //                /*  */ && link.source->bndNormal().cross(link.sink->bndNormal()).squaredNorm()<FLT_EPSILON;
-        //
-        //            }
-        //
-        //            return temp;
-        //            /*  */
-        //        }
-        
         /**********************************************************************/
         std::pair<bool,double> mustBeContracted(const LinkType& segment) const
         {
@@ -97,7 +79,9 @@ namespace model
             std::deque<size_t> toBeRemoved;
             for(const auto& node : DN.nodes())
             {
-                if(node.second->isSimpleBndNode())
+//                std::cout<<"node "<<node.second->sID<<" "<<node.second->isSimpleBoundaryNode()<<" "<<node.second->isSimpleGrainBoundaryNode()<<std::endl;
+                if(   node.second->isSimpleBoundaryNode()
+                   || node.second->isSimpleGrainBoundaryNode())
                 {
                     toBeRemoved.push_back(node.second->sID);
                 }
@@ -109,8 +93,9 @@ namespace model
                 const auto isNode=DN.node(nodeID);
                 if(isNode.first)
                 {// Removing may have deleted the node, check that it exists
-                    if(isNode.second->isSimpleBndNode())
-                    {// Removing may have altered the isSimpleBndNode, check again
+                    if(   isNode.second->isSimpleBoundaryNode()
+                       || isNode.second->isSimpleGrainBoundaryNode())
+                    {// Removing may have altered the isSimpleBoundaryNode, check again
                         Nremoved+=DN.remove(nodeID);
                     }
                 }

@@ -51,9 +51,9 @@ namespace model
     /**************************************************************************/
     template <int _dim, short unsigned int _corder, typename InterpolationType>
     class DislocationSegment : public SplineSegment<DislocationSegment<_dim,_corder,InterpolationType>,_dim,_corder>,
-    /*                      */ private std::set<const GlidePlane<typename TypeTraits<DislocationSegment<_dim,_corder,InterpolationType>>::LoopNetworkType>*>,
-    /*                      */ private std::set<const GrainBoundary<typename TypeTraits<DislocationSegment<_dim,_corder,InterpolationType>>::LoopNetworkType>*>,
-    /*                      */ private std::set<const Grain<typename TypeTraits<DislocationSegment<_dim,_corder,InterpolationType>>::LoopNetworkType>*>,
+    /*                      */ private std::set<const GlidePlane<_dim>*>,
+    /*                      */ private std::set<const GrainBoundary<_dim>*>,
+    /*                      */ private std::set<const Grain<_dim>*>,
     /*                      */ private BoundingLineSegments<_dim>
     //    /*                                              */ private std::set<const GrainBoundary<dim>*>
     {
@@ -88,9 +88,9 @@ namespace model
         typedef std::vector<DislocationParticleType*> QuadratureParticleContainerType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
-        typedef std::set<const GrainBoundary<NetworkType>*> GrainBoundaryContainerType;
-        typedef std::set<const Grain<NetworkType>*> GrainContainerType;
-        typedef GlidePlane<NetworkType> GlidePlaneType;
+        typedef std::set<const GrainBoundary<dim>*> GrainBoundaryContainerType;
+        typedef std::set<const Grain<dim>*> GrainContainerType;
+        typedef GlidePlane<dim> GlidePlaneType;
         typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
         typedef typename TypeTraits<LinkType>::MeshLocation MeshLocation;
 

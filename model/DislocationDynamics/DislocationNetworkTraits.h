@@ -12,6 +12,7 @@
 
 #include <Eigen/Dense>
 #include <model/Utilities/TypeTraits.h>
+#include <model/MPI/MPIcout.h>
 //#include <model/Geometry/Splines/SplineConsts.h>
 #include <model/Quadrature/Quadrature.h>
 #include <model/Quadrature/QuadratureDynamic.h>
@@ -35,7 +36,6 @@ namespace model
     
     template <int dim, short unsigned int corder, typename InterpolationType>
     class DislocationLoop;
-	
 	
 	/********************************************************************/	
 	/*	DislocationNetworkTraitsBase: a base class for Dislocation Network Traits */

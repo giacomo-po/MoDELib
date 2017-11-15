@@ -29,26 +29,30 @@
 #include <model/IO/SequentialOutputFile.h>
 #include <model/DislocationDynamics/StressStraight.h>
 #include <model/DislocationDynamics/Polycrystals/GrainBoundaryType.h>
+#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
+#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 
 namespace model
 {
     
     
     
-    template <typename NetworkType>
+    template <int dim>
     class Polycrystal :
-    /* base */ private std::map<size_t,Grain<NetworkType>>,
-    /* base */ private std::map<std::pair<size_t,size_t>,GrainBoundary<NetworkType>>,
-    /* base */ public std::vector<StressStraight<NetworkType::dim> >
+    /* base */ private std::map<size_t,Grain<dim>>,
+    /* base */ private std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>,
+    /* base */ public std::vector<StressStraight<dim> >
     {
         
-        static constexpr int dim=NetworkType::dim;
+//        static constexpr int dim=NetworkType::dim;
         typedef SimplicialMesh<dim> SimplicialMeshType;
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef Grain<dim> GrainType;
+        typedef GrainBoundary<dim> GrainBoundaryType;
         
         static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
         static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
@@ -72,7 +76,8 @@ namespace model
         }
         
         /**********************************************************************/
-        void init(NetworkType& dn, const std::string& fullName)
+//        template<typename NetworkType>
+        void init(GlidePlaneObserver<dim>& dn, const std::string& fullName)
         {
             
             
@@ -116,7 +121,8 @@ namespace model
                                           std::forward_as_tuple(rgnBnd.second,
                                                                 grain(rgnBnd.first.first),
                                                                 grain(rgnBnd.first.second),
-                                                                dn));
+                                                                dn,
+                                                                mesh));
             }
             
             
@@ -135,7 +141,7 @@ namespace model
         }
         
         /**********************************************************************/
-        const std::deque<GrainBoundaryType<dim>>& grainBoundaryTypes() const
+        const std::deque<GrainBoundaryType>& grainBoundaryTypes() const
         {
             switch (materialZ)
             {
@@ -155,43 +161,43 @@ namespace model
         }
         
         /**********************************************************************/
-        Grain<NetworkType>& grain(const size_t& k)
+        GrainType& grain(const size_t& k)
         {
             return grains().at(k);
         }
         
         /**********************************************************************/
-        const Grain<NetworkType>& grain(const size_t& k) const
+        const GrainType& grain(const size_t& k) const
         {
             return grains().at(k);
         }
         
         /**********************************************************************/
-        const std::map<size_t,Grain<NetworkType>>& grains() const
+        const std::map<size_t,GrainType>& grains() const
         {
             return *this;
         }
         
         /**********************************************************************/
-        std::map<size_t,Grain<NetworkType>>& grains()
+        std::map<size_t,GrainType>& grains()
         {
             return *this;
         }
         
         /**********************************************************************/
-        std::map<std::pair<size_t,size_t>,GrainBoundary<NetworkType>>& grainBoundaries()
+        std::map<std::pair<size_t,size_t>,GrainBoundaryType>& grainBoundaries()
         {
             return *this;
         }
         
         /**********************************************************************/
-        const std::map<std::pair<size_t,size_t>,GrainBoundary<NetworkType>>& grainBoundaries() const
+        const std::map<std::pair<size_t,size_t>,GrainBoundaryType>& grainBoundaries() const
         {
             return *this;
         }
         
         /**********************************************************************/
-        const GrainBoundary<NetworkType>& grainBoundary(const size_t& i,
+        const GrainBoundaryType& grainBoundary(const size_t& i,
                                                         const size_t& j) const
         {
             assert(i!=j && "GrainBoundary IDs cannot be the same.");
@@ -199,7 +205,7 @@ namespace model
         }
         
         /**********************************************************************/
-        GrainBoundary<NetworkType>& grainBoundary(const size_t& i,
+        GrainBoundaryType& grainBoundary(const size_t& i,
                                           const size_t& j)
         {
             assert(i!=j && "GrainBoundary IDs cannot be the same.");

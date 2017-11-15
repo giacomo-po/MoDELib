@@ -24,16 +24,16 @@
 namespace model
 {
     
-    template <typename NetworkType>
+    template <int dim>
     class GrainBoundary;
     
-    template <typename NetworkType>
-    class Grain : public Lattice<NetworkType::dim>,
-    /* base    */ public std::map<std::pair<size_t,size_t>,const GrainBoundary<NetworkType>* const>
+    template <int dim>
+    class Grain : public Lattice<dim>,
+    /* base    */ public std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const>
     {
         
         //typedef Simplex<dim,dim> SimplexType;
-        static constexpr int dim=NetworkType::dim;
+//        static constexpr int dim=NetworkType::dim;
         typedef Lattice<dim> LatticeType;
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
@@ -162,7 +162,7 @@ namespace model
         }
         
         /**********************************************************************/
-        const std::map<std::pair<size_t,size_t>,const GrainBoundary<NetworkType>* const> grainBoundaries() const
+        const std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const> grainBoundaries() const
         {
             return *this;
         }
@@ -242,7 +242,7 @@ namespace model
             const LatticeVectorType chord(sinkL-sourceL);
             
             bool isOnGB=false;
-            const GrainBoundary<NetworkType>* p_GB=NULL;
+            const GrainBoundary<dim>* p_GB=NULL;
             for(const auto& gb : grainBoundaries())
             {
                 if(   gb.second->latticePlane(grainID).contains(sourceL)

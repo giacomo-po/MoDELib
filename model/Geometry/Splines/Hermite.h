@@ -18,6 +18,15 @@ namespace model
     struct Hermite
     {
         
+//        /**********************************************************************/
+//        template <typename T>
+//        static Eigen::Matrix<double,T::dim,1> loopTangent(const std::set<LoopLink<T>*>& )
+//        {
+//            
+//            
+//            
+//            return Eigen::Matrix<double,T::dim,1>::Zero();
+//        }
 
         
     };

@@ -35,12 +35,12 @@ namespace model
         typedef typename BaseLoopType::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<DislocationLoopType>::LoopNetworkType LoopNetworkType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-        typedef GlidePlane<LoopNetworkType> GlidePlaneType;
-        typedef GlidePlaneObserver<LoopNetworkType> GlidePlaneObserverType;
+        typedef GlidePlane<dim> GlidePlaneType;
+        typedef GlidePlaneObserver<dim> GlidePlaneObserverType;
         typedef Eigen::Matrix<long int,dim+1,1> GlidePlaneKeyType;
         
         
-        const Grain<LoopNetworkType>& grain;
+        const Grain<dim>& grain;
         const std::shared_ptr<GlidePlaneType> _glidePlane;
         const GlidePlaneType& glidePlane;
         const bool isGlissile;
@@ -49,7 +49,7 @@ namespace model
         /**********************************************************************/
         static bool allowedSlipSystem(const LatticeVector<dim>& b,
                                       const ReciprocalLatticeDirection<dim>& n,
-                                      const Grain<LoopNetworkType>& gr)
+                                      const Grain<dim>& gr)
         {
         
             std::cout<<"DislocationLoop::FINISH HERE. ANOTHER CONDITION FOR isGlissile SHOULD BE THAT N IS ONE OF THE ALLOWED SLIP PLANES"<<std::endl;

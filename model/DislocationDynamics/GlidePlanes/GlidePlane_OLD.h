@@ -12,11 +12,11 @@
 
 #include <deque>
 #include <chrono>
-#include <memory>
 #include <map>
-#include <set>
 #include <assert.h>
+
 #include <Eigen/Core>
+
 #include <model/Utilities/StaticID.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/LatticeMath/LatticePlane.h>
@@ -28,31 +28,30 @@ namespace model
     
     /*************************************************************/
     /*************************************************************/
-    template <int dim>
-    struct GlidePlane : public StaticID<GlidePlane<dim> >,
+    template <typename NetworkType>
+    struct GlidePlane : public StaticID<GlidePlane<NetworkType> >,
     /* base class    */ public LatticePlane,
-    ///* base class    */ private std::map<size_t,const typename TypeTraits<NetworkType>::LoopType* const> THIS SHOULD BE set<const shared_ptr<GlidePlane<dim>*>> to avoid NetworkType template parameter
-    /* base class    */ private std::set<const std::shared_ptr<GlidePlane<dim>>*>
+    /* base class    */ private std::map<size_t,const typename TypeTraits<NetworkType>::LoopType* const> THIS SHOULD BE set<const shared_ptr<GlidePlane<dim>*>> to avoid NetworkType template parameter
     {
         
-//        constexpr static int dim=NetworkType::dim;
-//        typedef typename TypeTraits<NetworkType>::LoopType LoopType;
-//        typedef typename TypeTraits<NetworkType>::LinkType LinkType;
-        typedef GlidePlane<dim> GlidePlaneType;
-        typedef GlidePlaneObserver<dim> GlidePlaneObserverType;
+        constexpr static int dim=NetworkType::dim;
+        typedef typename TypeTraits<NetworkType>::LoopType LoopType;
+        typedef typename TypeTraits<NetworkType>::LinkType LinkType;
+        typedef GlidePlane<NetworkType> GlidePlaneType;
+        typedef GlidePlaneObserver<NetworkType> GlidePlaneObserverType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef typename GlidePlaneObserverType::GlidePlaneKeyType GlidePlaneKeyType;
         typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
 
         GlidePlaneObserverType* const glidePlaneObserver;
-        const Grain<dim>& grain;
+        const Grain<NetworkType>& grain;
         const GlidePlaneKeyType glidePlaneKey;
         const PlaneMeshIntersectionContainerType meshIntersections;
         
         /**********************************************************************/
         GlidePlane(GlidePlaneObserverType* const gpo,
                    const SimplicialMesh<dim>& mesh,
-                   const Grain<dim>& grain_in,
+                   const Grain<NetworkType>& grain_in,
                    const VectorDim& P,
                    const VectorDim& N) :
 //        /* init */ LatticePlane(grain_in.latticeVector(P),grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
@@ -70,7 +69,7 @@ namespace model
         }
         
         /**********************************************************************/
-        GlidePlane(const GlidePlane<dim>& other) = delete;
+        GlidePlane(const GlidePlane<NetworkType>& other) = delete;
         
         /**********************************************************************/
         ~GlidePlane()
@@ -79,40 +78,26 @@ namespace model
         }
         
         /**********************************************************************/
-        std::shared_ptr<GlidePlane<dim>> sharedPlane() const
+        const std::map<size_t,const LoopType* const>& loops() const
         {
-            assert(this->size());
-            assert((*this->begin())->get()==this);
-            return **this->begin();
+            return *this;
         }
         
-//        /**********************************************************************/
-//        const std::map<size_t,const LoopType* const>& loops() const
-//        {
-//            return *this;
-//        }
-        
         /**********************************************************************/
-        template<typename LoopType>
         void addLoop(const LoopType* const pL)
         {/*!@\param[in] pS a row pointer to a DislocationSegment
           * Adds pS to *this GLidePlane
           */
-            
-            
-//            const bool success=this->emplace(pL->sID,pL).second;
-            const bool success=this->insert(&pL->_glidePlane).second;
+            const bool success=this->emplace(pL->sID,pL).second;
             assert( success && "COULD NOT INSERT LOOP POINTER IN GLIDE PLANE.");
         }
         
         /**********************************************************************/
-        template<typename LoopType>
         void removeLoop(const LoopType* const pL)
         {/*!@\param[in] pS a row pointer to a DislocationSegment
           * Removes pS from *this GLidePlane
           */
-//            const int success=this->erase(pL->sID);
-            const int success=this->erase(&pL->_glidePlane);
+            const int success=this->erase(pL->sID);
             assert(success==1 && "COULD NOT ERASE LOOP POINTER FROM GLIDE PLANE.");
         }
         
