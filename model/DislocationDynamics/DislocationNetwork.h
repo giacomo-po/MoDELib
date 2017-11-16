@@ -54,7 +54,7 @@
 #include <model/DislocationDynamics/BVP/BVPsolver.h>
 #include <model/DislocationDynamics/Polycrystals/Polycrystal.h>
 #include <model/DislocationDynamics/DislocationNodeContraction.h>
-
+#include <model/DislocationDynamics/ExternalStressFieldController.h>
 
 namespace model
 {
@@ -90,6 +90,7 @@ namespace model
         typedef typename LoopNetworkType::IsNodeType IsNodeType;
         typedef DislocationNetworkIO<DislocationNetworkType> DislocationNetworkIOType;
         typedef Polycrystal<dim> PolycrystalType;
+        typedef ExternalStressFieldController<dim> ExternalStressFieldControllerType;
         //        enum {NdofXnode=NodeType::NdofXnode};
         
         int timeIntegrationMethod;
@@ -101,13 +102,31 @@ namespace model
         int Nsteps;
         MatrixDimD _plasticDistortion;
         MatrixDimD _plasticDistortionRate;
-        MatrixDimD externalStress;
         bool use_boundary;
         unsigned int use_bvp;
         bool use_virtualSegments;
         SimplicialMesh<dim> mesh;
         PolycrystalType poly;
         BvpSolverType bvpSolver;
+        // MatrixDimD externalStress;
+        bool use_externalStress;
+        bool use_externaldislocationstressfield;
+        ExternalStressFieldControllerType extStressController;
+        std::vector<StressStraight<dim>> ssdeq;
+        
+        int  outputFrequency;
+        bool outputBinary;
+        bool outputGlidePlanes;
+        bool outputSpatialCells;
+        bool outputPKforce;
+        bool outputElasticEnergy;
+        bool outputMeshDisplacement;
+        bool outputFEMsolution;
+        bool outputDislocationLength;
+        bool outputPlasticDistortion;
+        bool outputPlasticDistortionRate;
+        bool outputQuadratureParticles;
+        unsigned int _userOutputColumn;
         
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
@@ -128,6 +147,10 @@ namespace model
                     model::cout<<"		Updating elastic bvp... "<<std::endl;
                     bvpSolver.template assembleAndSolve<DislocationNetworkType,quadraturePerTriangle>(*this);
                 }
+            }
+            if (use_externalStress)
+            {
+               extStressController.update(*this);
             }
         }
         
@@ -198,7 +221,7 @@ namespace model
             //! 5- Compute time step dt (based on max nodal velocity) and increment totalTime
             // make_dt();
             
-            if(DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy)
+            if(outputElasticEnergy)
             {
                 typedef typename DislocationParticleType::ElasticEnergy ElasticEnergy;
                 this->template computeNeighborField<ElasticEnergy>();
@@ -273,12 +296,29 @@ namespace model
         /* init list  */ Nsteps(0),
         /* init list  */ _plasticDistortion(MatrixDimD::Zero()),
         /* init list  */ _plasticDistortionRate(MatrixDimD::Zero()),
-        /* init list  */ externalStress(MatrixDimD::Zero()),
+       ///* init list  */ externalStress(MatrixDimD::Zero()),
         /* init list  */ use_boundary(false),
         /* init list  */ use_bvp(0),
         /* init list  */ use_virtualSegments(true),
         /* init list  */ poly(mesh),
-        /* init list  */ bvpSolver(mesh)
+        /* init list  */ bvpSolver(mesh),
+        /* init list  */ use_externalStress(false),
+        /* init list  */ use_externaldislocationstressfield(false),
+        /* init list  */ extStressController(),
+        /* init list  */ ssdeq(),
+        /* init list  */ outputFrequency(1),
+        /* init list  */ outputBinary(0),
+        /* init list  */ outputGlidePlanes(false),
+        /* init list  */ outputSpatialCells(false),
+        /* init list  */ outputPKforce(false),
+        /* init list  */ outputElasticEnergy(false),
+        /* init list  */ outputMeshDisplacement(false),
+        /* init list  */ outputFEMsolution(false),
+        /* init list  */ outputDislocationLength(false),
+        /* init list  */ outputPlasticDistortion(false),
+        /* init list  */ outputPlasticDistortionRate(false),
+        /* init list  */ outputQuadratureParticles(false),
+        /* init list  */ _userOutputColumn(3)
         {
             ParticleSystemType::initMPI(argc,argv);
             io().read("./","DDinput.txt");
@@ -330,7 +370,14 @@ namespace model
             
             //! -1 Compute the interaction StressField between dislocation particles
             model::cout<<"		Computing stress field at quadrature points ("<<nThreads<<" threads)..."<<std::flush;
-            this->template computeNeighborField<StressField>();
+            if (use_externaldislocationstressfield)
+            {
+                this->template computeNeighborField<StressField>(ssdeq);
+            }
+            else
+            {
+                this->template computeNeighborField<StressField>();
+			}
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             
             //! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
@@ -512,7 +559,14 @@ namespace model
           */
             return runID;
         }
-        
+ 
+         
+         /**********************************************************************/       
+        const unsigned int& userOutputColumn()  const
+        {
+            return _userOutputColumn;
+        }
+               
         /**********************************************************************/
         MatrixDimD stress(const VectorDim& P) const
         {/*!\param[in] P position vector
@@ -538,13 +592,7 @@ namespace model
             }
             return temp;
         }
-        
-        /**********************************************************************/
-        static unsigned int& userOutputColumn()
-        {
-            return DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn;
-        }
-        
+                
         /**********************************************************************/
         const ParticleSystemType& particleSystem() const
         {

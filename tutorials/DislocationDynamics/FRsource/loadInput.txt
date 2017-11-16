@@ -1,8 +1,4 @@
 ######################################
-# Settings for BVP controller
-sigmaDot=-1.0e-11;
-initialStress=0;
-apply_tension=1;
 relaxSteps=0;
 ######################################
 # Settings for  ExternalStressController (a uniform stress felt by dislocations)
@@ -26,4 +22,5 @@ MachineStiffnessRatio = 0.0 0.0 1e20 0.0 0.0 0.0;
 ######################################
 # whether superimpose stress field induced by external dislocations (information is stored in B/B_0.txt file) 
 use_externaldislocationstressfield=0;
+######################################
 ######################################

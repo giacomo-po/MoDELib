@@ -1,8 +1,4 @@
 ######################################
-# Settings for BVP controller
-sigmaDot=-1.0e-11;
-initialStress=0;
-apply_tension=1;
 relaxSteps=0;
 ######################################
 # Settings for  ExternalStressController (a uniform stress felt by dislocations)

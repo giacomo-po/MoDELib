@@ -95,6 +95,7 @@ all:
 	or make DDmpi \
 	or make DDviewer \
 	or make dipoleGenerator \
+	or make frGenerator \
 	or make DDconverter \
 	or make empty \
 

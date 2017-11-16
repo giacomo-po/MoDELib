@@ -12,6 +12,7 @@
 #include <chrono>
 #include <string>
 #include <model/IO/IDreader.h>
+ 
 
 #include <model/IO/UniqueOutputFile.h>
 #include <model/IO/SequentialOutputFile.h>
@@ -56,19 +57,6 @@ namespace model
         
         enum {NdofXnode=NodeType::NdofXnode};
         
-        static int  outputFrequency;
-        static bool outputBinary;
-        static bool outputGlidePlanes;
-        static bool outputSpatialCells;
-        static bool outputPKforce;
-        static bool outputElasticEnergy;
-        static bool outputMeshDisplacement;
-        static bool outputFEMsolution;
-        static bool outputDislocationLength;
-        static bool outputPlasticDistortion;
-        static bool outputPlasticDistortionRate;
-        static bool outputQuadratureParticles;
-        static unsigned int _userOutputColumn;
         
         DislocationNetworkType& DN;
         
@@ -78,6 +66,7 @@ namespace model
         {
             
         }
+
         
         /**********************************************************************/
         void read(const std::string& inputDirectoryName_in, std::string inputFileName)
@@ -93,32 +82,32 @@ namespace model
             EigenDataReader EDR;
             
             // IO
-            EDR.readScalarInFile(fullName.str(),"outputFrequency",outputFrequency);
-            EDR.readScalarInFile(fullName.str(),"outputBinary",outputBinary);
-            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",outputGlidePlanes);
-            EDR.readScalarInFile(fullName.str(),"outputSpatialCells",outputSpatialCells);
-            EDR.readScalarInFile(fullName.str(),"outputPKforce",outputPKforce);
-            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",outputMeshDisplacement);
-            EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",outputElasticEnergy);
+            EDR.readScalarInFile(fullName.str(),"outputFrequency",DN.outputFrequency);
+            EDR.readScalarInFile(fullName.str(),"outputBinary",DN.outputBinary);
+            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DN.outputGlidePlanes);
+            EDR.readScalarInFile(fullName.str(),"outputSpatialCells",DN.outputSpatialCells);
+            EDR.readScalarInFile(fullName.str(),"outputPKforce",DN.outputPKforce);
+            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DN.outputMeshDisplacement);
+            EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DN.outputElasticEnergy);
             
-            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortion",outputPlasticDistortion);
-            if(outputPlasticDistortion)
+            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortion",DN.outputPlasticDistortion);
+            if(DN.outputPlasticDistortion)
             {
-                _userOutputColumn+=9;
+                DN._userOutputColumn+=9;
             }
-            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortionRate",outputPlasticDistortionRate);
-            if(outputPlasticDistortionRate)
+            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortionRate",DN.outputPlasticDistortionRate);
+            if(DN.outputPlasticDistortionRate)
             {
-                _userOutputColumn+=9;
-            }
-            
-            EDR.readScalarInFile(fullName.str(),"outputDislocationLength",outputDislocationLength);
-            if(outputDislocationLength)
-            {
-                _userOutputColumn+=3;
+                DN._userOutputColumn+=9;
             }
             
-            EDR.readScalarInFile(fullName.str(),"outputQuadratureParticles",outputQuadratureParticles);
+            EDR.readScalarInFile(fullName.str(),"outputDislocationLength",DN.outputDislocationLength);
+            if(DN.outputDislocationLength)
+            {
+                DN._userOutputColumn+=3;
+            }
+            
+            EDR.readScalarInFile(fullName.str(),"outputQuadratureParticles",DN.outputQuadratureParticles);
             
             // Parametrization exponent
             EDR.readScalarInFile(fullName.str(),"parametrizationExponent",LinkType::alpha);
@@ -149,9 +138,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_StressMultipole",DislocationStress<dim>::use_multipole);
             EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",DislocationEnergy<dim>::use_multipole);
             
-            // Eternal Stress
-            EDR.readMatrixInFile(fullName.str(),"externalStress",DN.externalStress);
-            
+           
             //dt=0.0;
             EDR.readScalarInFile(fullName.str(),"timeIntegrationMethod",DN.timeIntegrationMethod);
             EDR.readScalarInFile(fullName.str(),"dxMax",DDtimeIntegrator<0>::dxMax);
@@ -161,7 +148,39 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_velocityFilter",NodeType::use_velocityFilter);
             EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
             assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
-            
+
+            // Eternal Stress
+           // EDR.readMatrixInFile(fullName.str(),"externalStress",DN.externalStress);
+            EDR.readScalarInFile("./loadInput.txt","use_externalStress",DN.use_externalStress);
+            if (DN.use_externalStress)
+            {
+                 DN._userOutputColumn+=18;  //put here in order for right bvp restart
+            } 
+            // Use Changing external stress field induced by straight dislocations. 
+            EDR.readScalarInFile("./loadInput.txt","use_externaldislocationstressfield",DN.use_externaldislocationstressfield); 
+            if (DN.use_externaldislocationstressfield)
+            {
+				DN.ssdeq.clear();
+				typedef IDreader<'B',1,10,double> IDreaderType;
+				IDreaderType vReader;
+				if (vReader.isGood(0,true))
+				{ 
+					vReader.read(0,true);
+					 for (const auto& vIter : vReader)
+                    {
+						Eigen::Map<const Eigen::Matrix<double,1,9>> row(vIter.second.data());
+                        VectorDimD P0(row.template segment<dim>(0));// P0 position
+                        VectorDimD P1(row.template segment<dim>(dim)); // P1 position
+                        VectorDimD B(row.template segment<dim>(dim*2));  // Burgers vector 
+                        DN.ssdeq.emplace_back(StressStraight<dim>(P0,P1,B));                      
+					}
+				}
+				else
+				{
+					model::cout<<"could not read runID from B/B_0.txt"<<std::endl;
+				}					
+			}
+                        
             // Restart
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",DN.runID);
             //            VertexReader<'F',201,double> vReader;
@@ -215,7 +234,7 @@ namespace model
             DN.totalTime=temp(curCol);
             curCol+=2;
             
-            if (outputPlasticDistortion)
+            if (DN.outputPlasticDistortion)
             {
                 std::cout<<"reading PD"<<std::endl;
                 
@@ -298,12 +317,17 @@ namespace model
                 {
                     EDR.readScalarInFile(fullName.str(),"use_directSolver_FEM",DN.bvpSolver.use_directSolver);
                     EDR.readScalarInFile(fullName.str(),"solverTolerance",DN.bvpSolver.tolerance);
-                    DN.bvpSolver.init(*this);
+                    DN.bvpSolver.init(DN);
                 }
             }
             else{ // no boundary is used, DislocationNetwork is in inifinite medium
                 DN.use_bvp=0;	// never comupute boundary correction
             }
+            
+            if (DN.use_externalStress)
+            {
+                 DN.extStressController.init(DN);  // have to initialize it after mesh!
+            } 
             
             // Verbose levels
             if(DN.use_junctions)
@@ -553,7 +577,7 @@ namespace model
         /**********************************************************************/
         void output(const size_t& runID)
         {
-            if (!(runID%outputFrequency))
+            if (!(runID%DN.outputFrequency))
             {
                 const auto t0=std::chrono::system_clock::now();
 #ifdef _MODEL_DD_MPI_
@@ -582,13 +606,13 @@ namespace model
           */
             model::cout<<"		Writing to "<<std::flush;
             
-            if (outputBinary)
+            if (DN.outputBinary)
             {
                 assert(0 && "FINISH BIN OUTPUT");
                 
                 typedef DislocationNodeIO<dim> BinVertexType;
                 SequentialBinFile<'V',BinVertexType>::set_count(runID);
-                SequentialBinFile<'V',BinVertexType>::set_increment(outputFrequency);
+                SequentialBinFile<'V',BinVertexType>::set_increment(DN.outputFrequency);
                 SequentialBinFile<'V',BinVertexType> binVertexFile;
                 //                for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
                 for (const auto& node : DN.nodes())
@@ -601,7 +625,7 @@ namespace model
             else
             {
                 SequentialOutputFile<'V',1>::set_count(runID); // vertexFile;
-                SequentialOutputFile<'V',1>::set_increment(outputFrequency); // vertexFile;
+                SequentialOutputFile<'V',1>::set_increment(DN.outputFrequency); // vertexFile;
                 SequentialOutputFile<'V',1> vertexFile;
                 //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
                 for (const auto& node : DN.nodes())
@@ -611,7 +635,7 @@ namespace model
                 model::cout<<", V/V_"<<vertexFile.sID<<".txt"<<std::flush;
                 
                 SequentialOutputFile<'L',1>::set_count(runID); // vertexFile;
-                SequentialOutputFile<'L',1>::set_increment(outputFrequency); // vertexFile;
+                SequentialOutputFile<'L',1>::set_increment(DN.outputFrequency); // vertexFile;
                 SequentialOutputFile<'L',1> loopFile;
                 //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
                 for (const auto& loop : DN.loops())
@@ -621,7 +645,7 @@ namespace model
                 model::cout<<", L/L_"<<loopFile.sID<<".txt"<<std::flush;
                 
                 SequentialOutputFile<'E',1>::set_count(runID); // vertexFile;
-                SequentialOutputFile<'E',1>::set_increment(outputFrequency); // vertexFile;
+                SequentialOutputFile<'E',1>::set_increment(DN.outputFrequency); // vertexFile;
                 SequentialOutputFile<'E',1> loopLinkFile;
                 //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
                 for (const auto& loopLink : DN.loopLinks())
@@ -631,7 +655,7 @@ namespace model
                 model::cout<<", E/E_"<<loopLinkFile.sID<<".txt"<<std::flush;
                 
                 SequentialOutputFile<'K',1>::set_count(runID); // linkFile;
-                SequentialOutputFile<'K',1>::set_increment(outputFrequency); // linkFile;
+                SequentialOutputFile<'K',1>::set_increment(DN.outputFrequency); // linkFile;
                 SequentialOutputFile<'K',1> linkFile;
                 //linkFile << *(const NetworkLinkContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
                 for (const auto& linkIter : DN.networkLinks())
@@ -643,11 +667,11 @@ namespace model
             }
             
             
-            if(outputSpatialCells)
+            if(DN.outputSpatialCells)
             {
                 //! 3- Outputs the nearest neighbor Cell structures to file C_*.txt where * is the current simulation step
                 SequentialOutputFile<'C',1>::set_count(runID); // Cell_file;
-                SequentialOutputFile<'C',1>::set_increment(outputFrequency); // Cell_file;
+                SequentialOutputFile<'C',1>::set_increment(DN.outputFrequency); // Cell_file;
                 SequentialOutputFile<'C',1> Cell_file;
                 //              SpatialCellObserverType SPC;
                 int cID(0);
@@ -666,20 +690,20 @@ namespace model
                 model::cout<<", C/C_"<<Cell_file.sID<<std::flush;
             }
             
-            if(outputGlidePlanes)
+            if(DN.outputGlidePlanes)
             {
                 //! 4- Outputs the glide planes
                 SequentialOutputFile<'G',1>::set_count(runID); // GlidePlanes_file;
-                SequentialOutputFile<'G',1>::set_increment(outputFrequency); // GlidePlanes_file;
+                SequentialOutputFile<'G',1>::set_increment(DN.outputFrequency); // GlidePlanes_file;
                 SequentialOutputFile<'G',1> glide_file;
                 glide_file << *dynamic_cast<const GlidePlaneObserverType*>(&DN);
                 model::cout<<", G/G_"<<glide_file.sID<<std::flush;
             }
             
-            if(outputPKforce)
+            if(DN.outputPKforce)
             {
                 SequentialOutputFile<'P',1>::set_count(runID); // Edges_file;
-                SequentialOutputFile<'P',1>::set_increment(outputFrequency); // Edges_file;
+                SequentialOutputFile<'P',1>::set_increment(DN.outputFrequency); // Edges_file;
                 SequentialOutputFile<'P',1> p_file;
                 for (const auto& linkIter : DN.links())
                 {
@@ -696,11 +720,11 @@ namespace model
                 model::cout<<", P/P_"<<p_file.sID<<std::flush;
             }
             
-            if(outputElasticEnergy)
+            if(DN.outputElasticEnergy)
             {
                 typedef typename DislocationNetworkType::DislocationParticleType::ElasticEnergy ElasticEnergy;
                 SequentialOutputFile<'W',1>::set_count(runID);
-                SequentialOutputFile<'W',1>::set_increment(outputFrequency);
+                SequentialOutputFile<'W',1>::set_increment(DN.outputFrequency);
                 SequentialOutputFile<'W',1> w_file; //energy_file
                 int ll=0;
                 for (const auto& linkIter : DN.links())
@@ -718,7 +742,7 @@ namespace model
             typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
             typedef typename FieldPointType::DisplacementField DisplacementField;
             
-            if(outputMeshDisplacement)
+            if(DN.outputMeshDisplacement)
             {
                 if(DN.use_bvp)
                 {
@@ -726,7 +750,7 @@ namespace model
                     //                    {
                     const auto t0=std::chrono::system_clock::now();
                     model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
-                    model::SequentialOutputFile<'D',1>::set_increment(outputFrequency); // Vertices_file;
+                    model::SequentialOutputFile<'D',1>::set_increment(DN.outputFrequency); // Vertices_file;
                     model::SequentialOutputFile<'D',true> d_file;
                     model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
                     
@@ -767,13 +791,13 @@ namespace model
             }
             
             
-            if (DN.use_bvp && outputFEMsolution && !(DN.runningID()%DN.use_bvp))
+            if (DN.use_bvp && DN.outputFEMsolution && !(DN.runningID()%DN.use_bvp))
             {
                 /**************************************************************************/
                 // Output displacement and stress on external mesh faces
                 const auto t0=std::chrono::system_clock::now();
                 model::SequentialOutputFile<'U',1>::set_count(runID); // Vertices_file;
-                model::SequentialOutputFile<'U',1>::set_increment(outputFrequency); // Vertices_file;
+                model::SequentialOutputFile<'U',1>::set_increment(DN.outputFrequency); // Vertices_file;
                 model::SequentialOutputFile<'U',true> u_file;
                 model::cout<<"		writing to U/U_"<<u_file.sID<<".txt"<<std::flush;
                 u_file<<DN.bvpSolver.displacement().onBoundary();
@@ -781,17 +805,17 @@ namespace model
                 
                 const auto t1=std::chrono::system_clock::now();
                 model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
-                model::SequentialOutputFile<'S',1>::set_increment(outputFrequency); // Vertices_file;
+                model::SequentialOutputFile<'S',1>::set_increment(DN.outputFrequency); // Vertices_file;
                 model::SequentialOutputFile<'S',true> s_file;
                 model::cout<<"		writing to S/S_"<<s_file.sID<<".txt"<<std::flush;
                 s_file<<DN.bvpSolver.stress().onBoundary();
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
             }
             
-            if (outputQuadratureParticles)
+            if (DN.outputQuadratureParticles)
             {
                 model::SequentialOutputFile<'Q',1>::set_count(runID); // Vertices_file;
-                model::SequentialOutputFile<'Q',1>::set_increment(outputFrequency); // Vertices_file;
+                model::SequentialOutputFile<'Q',1>::set_increment(DN.outputFrequency); // Vertices_file;
                 model::SequentialOutputFile<'Q',true> q_file;
                 for (const auto& particle : DN.particles())
                 {
@@ -806,25 +830,29 @@ namespace model
             model::cout<<" F/F_0.txt"<<std::flush;
             f_file<< DN.runningID()<<" "<<std::setprecision(15)<<std::scientific<<DN.get_totalTime()<<" "<<DN.get_dt()<<" ";
             
-            if(outputPlasticDistortion)
+            if(DN.outputPlasticDistortion)
             {
                 const Eigen::Matrix<double,dim,dim>& pD(DN.plasticDistortion());
                 f_file<<pD.row(0)<<" "<<pD.row(1)<<" "<<pD.row(2)<<" ";
             }
             
-            if(outputPlasticDistortionRate)
+            if(DN.outputPlasticDistortionRate)
             {
                 const Eigen::Matrix<double,dim,dim>& pDR(DN.plasticDistortionRate());
                 f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" ";
             }
             
-            if(outputDislocationLength)
+            if(DN.outputDislocationLength)
             {
                 const std::tuple<double,double,double> length=DN.networkLength();
                 //                const auto length=DN.networkLength();
                 //                f_file<<length.first<<" "<<length.second<<" ";
                 f_file<<std::get<0>(length)<<" "<<std::get<1>(length)<<" "<<std::get<2>(length)<<" ";
                 
+            }
+            if (DN.use_externalStress)
+            {
+               f_file<<DN.extStressController.output();
             }
             
             if(DN.use_bvp)
@@ -843,7 +871,7 @@ namespace model
     };
     
     // Declare static data
-    template <typename DislocationNetworkType>
+  /*  template <typename DislocationNetworkType>
     int DislocationNetworkIO<DislocationNetworkType>::outputFrequency=1;
     
     template <typename DislocationNetworkType>
@@ -880,7 +908,7 @@ namespace model
     bool DislocationNetworkIO<DislocationNetworkType>::outputQuadratureParticles=false;
     
     template <typename DislocationNetworkType>
-    unsigned int DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn=3;
+    unsigned int DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn=3;*/
     
 }
 #endif
