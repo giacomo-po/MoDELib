@@ -93,7 +93,7 @@ namespace model
         typedef GlidePlane<dim> GlidePlaneType;
         typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
         typedef typename TypeTraits<LinkType>::MeshLocation MeshLocation;
-
+        
     private:
         
         /**********************************************************************/
@@ -170,8 +170,8 @@ namespace model
         /******************************************************************/
         
         
-//        std::unique_ptr<LatticePlane> glidePlane;
-//        const std::deque<const LatticePlaneBase*> conjugatePlaneNormals;
+        //        std::unique_ptr<LatticePlane> glidePlane;
+        //        const std::deque<const LatticePlaneBase*> conjugatePlaneNormals;
         static const Eigen::Matrix<double,_dim,_dim> I;
         static const Eigen::Matrix<double,_dim,1> zeroVector;
         static double quadPerLength;
@@ -262,8 +262,8 @@ namespace model
                 boundingBoxSegments().updateWithGlidePlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
                 grains().insert(&this->network().poly.grain(gp.grainIDs.first));    // Insert new grain in grainSet
                 grains().insert(&this->network().poly.grain(gp.grainIDs.second));   // Insert new grain in grainSet
-//
-//                grains().insert(&gp.grain);
+                //
+                //                grains().insert(&gp.grain);
             }
             return success;
         }
@@ -318,38 +318,57 @@ namespace model
         size_t addGrainBoundaryPlanes() __attribute__ ((deprecated)) // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
         {
             size_t addedGp=0;
-            // Check if node is on a GB
-            for(const auto& gb : this->network().poly.grainBoundaries())
+            
+            
+            for(const auto& gb : this->source->grainBoundaries())
             {
-                const GlidePlaneType& gp(gb.second.glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
-                if(gp.contains(this->source->get_P()) && gp.contains(this->sink->get_P()))
+                if(this->sink->grainBoundaries().find(gb)!=this->sink->grainBoundaries().end())
                 {
-                    grainBoundaries().insert(&gb.second);
+                    grainBoundaries().insert(gb);
+                    
+                    const GlidePlaneType& gp(gb->glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
                     addedGp+=addGlidePlane(gp);
+                    
                 }
-                
-//                for(const auto& gp : gb.second.glidePlanes())
-//                {
-//                    if(gp.second.contains(this->source->get_P()) && gp.second.contains(this->sink->get_P()))
-//                    {
-//                        grainBoundaries().insert(&gb.second);
-//                        addedGp+=addGlidePlane(gp.second);
-//                    }
-//                }
             }
             
-            if(addedGp)
-            {
-//                std::cout<<"DislocationSegment "<<this->sID<<" addGrainBoundaryPlanes"<<std::endl;
-//                _isGrainBoundarySegment=true;
-//                
-//                
-//                for(const auto& pair : this->neighbors())
-//                {
-//                    std::get<1>(pair.second)->addGrainBoundaryPlanes();
-//                }
-                
-            }
+            
+            //            // Check if node is on a GB
+            //            if(this->source->isGrainBoundaryNode() && this->sink->isGrainBoundaryNode())
+            //            {
+            //                for(const auto& gb : this->network().poly.grainBoundaries())
+            //                {
+            //                    const GlidePlaneType& gp(gb.second.glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+            //                    if(gp.contains(this->source->get_P()) && gp.contains(this->sink->get_P()))
+            //                    {
+            //                        grainBoundaries().insert(&gb.second);
+            //                        addedGp+=addGlidePlane(gp);
+            //                    }
+            //
+            //                    //                for(const auto& gp : gb.second.glidePlanes())
+            //                    //                {
+            //                    //                    if(gp.second.contains(this->source->get_P()) && gp.second.contains(this->sink->get_P()))
+            //                    //                    {
+            //                    //                        grainBoundaries().insert(&gb.second);
+            //                    //                        addedGp+=addGlidePlane(gp.second);
+            //                    //                    }
+            //                    //                }
+            //                }
+            //
+            //                if(addedGp)
+            //                {
+            //                    std::cout<<"DislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<" added "<<addedGp<<" grainBoundaryPlanes"<<std::endl;
+            //                    //                _isGrainBoundarySegment=true;
+            //                    //
+            //                    //
+            //                    //                for(const auto& pair : this->neighbors())
+            //                    //                {
+            //                    //                    std::get<1>(pair.second)->addGrainBoundaryPlanes();
+            //                    //                }
+            //
+            //                    }
+            //            }
+            
             
             return addedGp;
         }
@@ -755,7 +774,7 @@ namespace model
         {
             return !isGlissile();
         }
-
+        
         /**********************************************************************/
         bool isGlissile() const
         {
@@ -812,7 +831,7 @@ namespace model
         //            /*  */ && this->source->bndNormal().cross(this->sink->bndNormal()).squaredNorm()<FLT_EPSILON
         //            /*  */ && !hasZeroBurgers();
         //        }
-
+        
         /**********************************************************************/
         bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
         {/*!\returns true if both nodes are boundary nodes, and the midpoint is
@@ -873,13 +892,13 @@ namespace model
     
     template <int dim, short unsigned int corder, typename InterpolationType>
     const Eigen::Matrix<double,dim,1> DislocationSegment<dim,corder,InterpolationType>::zeroVector=Eigen::Matrix<double,dim,1>::Zero();
-
+    
     
     template <int dim, short unsigned int corder, typename InterpolationType>
     double DislocationSegment<dim,corder,InterpolationType>::quadPerLength=0.2;
     
     template <int dim, short unsigned int corder, typename InterpolationType>
     double DislocationSegment<dim,corder,InterpolationType>::virtualSegmentDistance=200.0;
-
+    
 } // namespace model
 #endif

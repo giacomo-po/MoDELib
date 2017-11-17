@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=2000;
+Nsteps=200;
 startAtTimeStep = -1;
 use_directSolver_DD=0;
 quadPerLength=0.1;
@@ -122,7 +122,7 @@ crossSlipDeg=2.0;
 
 ######################################
 # GRAIN-BOUNDARY MODEL
-grainBoundaryTransmissionModel=1;
+grainBoundaryTransmissionModel=0;
 
 ######################################
 parametrizationExponent=0.5;

@@ -61,6 +61,7 @@ namespace model
         static ColorScheme clr;
         static size_t Np;      // No. of vertices per line
         static bool showBoundarySegments;
+        static bool blackGrainBoundarySegments;
         static bool showVelocities;
         static bool showNodeIDs;
         static float velocityFactor;
@@ -421,7 +422,16 @@ namespace model
                         else
                         {
                             cells->InsertNextCell(line);
-                            colors->InsertNextTypedTuple(lineClr);
+
+                            if(meshLocation==2 && blackGrainBoundarySegments)
+                            {
+                                unsigned char lineClr1[3]={1,1,1};
+                                colors->InsertNextTypedTuple(lineClr1);
+                            }
+                            else
+                            {
+                                colors->InsertNextTypedTuple(lineClr);
+                            }
                         }
                     }
                     else
@@ -747,6 +757,7 @@ if(scaleRadiusByBurgers)
     DislocationSegmentActor::ColorScheme DislocationSegmentActor::clr=DislocationSegmentActor::colorBurgers;
     size_t DislocationSegmentActor::Np=2;
     bool DislocationSegmentActor::showBoundarySegments=false;
+    bool DislocationSegmentActor::blackGrainBoundarySegments=false;
     bool DislocationSegmentActor::showVelocities=false;
     bool DislocationSegmentActor::showNodeIDs=false;
     float DislocationSegmentActor::velocityFactor=100.0;

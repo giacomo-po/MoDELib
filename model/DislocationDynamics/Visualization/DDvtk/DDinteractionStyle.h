@@ -364,7 +364,9 @@ namespace model
                 std::cout<<"      0 to show/hide zero-Burgers vector segments"<<std::endl;
                 std::cout<<"      1 to show/hide boundary segments"<<std::endl;
                 std::cout<<"      2 to turn on/off segment radii scaled by Burgers norm"<<std::endl;
+                std::cout<<"      3 to color grain-boundary segments in black "<<std::endl;
 
+                
                 //                std::cout<<"      1 to show/hide node IDs"<<std::endl;
                 //                std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
             }
@@ -614,6 +616,15 @@ namespace model
                     ddSegments->modify();
                     this->Interactor->Render();
                 }
+                if(key == "3")
+                {
+                    DislocationSegmentActor::blackGrainBoundarySegments=!DislocationSegmentActor::blackGrainBoundarySegments;
+                    std::cout<<"blackGrainBoundarySegments="<<DislocationSegmentActor::blackGrainBoundarySegments<<std::endl;
+                    ddSegments->modify();
+                    this->Interactor->Render();
+                }
+                
+                
                 
                 
                 

@@ -130,10 +130,10 @@ namespace model
                                 
                             case 2:
                             {// The two intersections must be degenerate (2 boundary points)
-//                                std::cout<<boundingBoxSegments()[0].first.transpose()<<std::endl;
-//                                std::cout<<boundingBoxSegments()[0].second.transpose()<<std::endl;
-//                                std::cout<<boundingBoxSegments()[1].first.transpose()<<std::endl;
-//                                std::cout<<boundingBoxSegments()[1].second.transpose()<<std::endl;
+                                //                                std::cout<<boundingBoxSegments()[0].first.transpose()<<std::endl;
+                                //                                std::cout<<boundingBoxSegments()[0].second.transpose()<<std::endl;
+                                //                                std::cout<<boundingBoxSegments()[1].first.transpose()<<std::endl;
+                                //                                std::cout<<boundingBoxSegments()[1].second.transpose()<<std::endl;
                                 
                                 assert((boundingBoxSegments()[0].first-boundingBoxSegments()[0].second).squaredNorm()<FLT_EPSILON);
                                 assert((boundingBoxSegments()[1].first-boundingBoxSegments()[1].second).squaredNorm()<FLT_EPSILON);
@@ -206,8 +206,8 @@ namespace model
                 updateGlidePlaneIntersections(gp);
                 grains().insert(&this->network().poly.grain(gp.grainIDs.first));    // Insert new grain in grainSet
                 grains().insert(&this->network().poly.grain(gp.grainIDs.second));   // Insert new grain in grainSet
-//                grains().insert(&(gp.grain)); // Insert new grain in grainSet
-//                grains().insert(&(gp.grain)); // Insert new grain in grainSet
+                //                grains().insert(&(gp.grain)); // Insert new grain in grainSet
+                //                grains().insert(&(gp.grain)); // Insert new grain in grainSet
             }
             return success;
         }
@@ -227,19 +227,19 @@ namespace model
                     addedGp+=addGlidePlane(gp);
                 }
                 
-//                for(const auto& gp : gb.second.glidePlanes())
-//                {
-//                    if(gp.second.contains(this->get_P()))
-//                    {
-//                        grainBoundaries().insert(&gb.second);
-//                        addedGp+=addGlidePlane(gp.second);
-//                    }
-//                }
+                //                for(const auto& gp : gb.second.glidePlanes())
+                //                {
+                //                    if(gp.second.contains(this->get_P()))
+                //                    {
+                //                        grainBoundaries().insert(&gb.second);
+                //                        addedGp+=addGlidePlane(gp.second);
+                //                    }
+                //                }
             }
             
-            if(addedGp)
+            if(isGrainBoundaryNode())
             {
-                VerboseDislocationNode(1,"DislocationNode "<<this->sID<<" adding "<<addedGp<<" GrainBoundaryPlanes"<<std::endl;);
+                VerboseDislocationNode(1,"DislocationNode "<<this->sID<<" added "<<addedGp<<" GrainBoundaryPlanes"<<std::endl;);
                 for(const auto& pair : this->neighbors())
                 {
                     std::get<1>(pair.second)->addGrainBoundaryPlanes();
@@ -257,7 +257,6 @@ namespace model
           * boundarySegments to become interior. In that case the closest boundary
           * vertex is returned.
           */
-            
             
             const VectorDim pL=std::get<0>(boundingBoxSegments().snap(P));
             const VectorDim pV=boundingBoxSegments().snapToVertex(P).second;
@@ -608,7 +607,7 @@ namespace model
             }
             
         }
-
+        
         /**********************************************************************/
         void addLoopLink(LoopLinkType* const pL)
         {/*@param[in] pL LoopLink pointer
@@ -619,6 +618,7 @@ namespace model
             VerboseDislocationNode(1,"DislocationNode "<<this->sID<<" addLoopLink"<<std::endl;);
             
             NodeBaseType::addLoopLink(pL); // forward to base class
+            pL->pLink->addGrainBoundaryPlanes();
             
             // Insert new plane in _confiningPlanes. If plane already exists nothing will happen
             const bool success = addGlidePlane(pL->loop()->glidePlane);
@@ -646,6 +646,7 @@ namespace model
                 //                    _isGlissile=false;
                 //                }
             }
+            
         }
         
         /**********************************************************************/
@@ -656,7 +657,7 @@ namespace model
           */
             
             VerboseDislocationNode(1,"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;);
-
+            
             
             NodeBaseType::removeLoopLink(pL); // forward to base class
             
@@ -740,23 +741,6 @@ namespace model
         {
             velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
         }
-        
-        //        /**********************************************************************/
-        //        bool is_simple() const
-        //        {
-        //            size_t nonZeroLink=0;
-        //            for (const auto& neighborIter : this->neighbors())
-        //            {
-        ////                if (!std::get<2>(neighborIter.second)==0)
-        ////                {
-        //                    if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
-        //                    {  // neighbor not searched
-        //                        nonZeroLink++;
-        //                    }
-        ////                }
-        //            }
-        //            return (nonZeroLink==2);
-        //        }
         
         /**********************************************************************/
         const VectorDofType& get_V() const
@@ -847,20 +831,6 @@ namespace model
             }
         }
         
-        //        /**********************************************************************/
-        //        const BoundingLineSegments<dim>& glidePlaneIntersections() const
-        //        {
-        //            return glidePlaneIntersections();
-        //        }
-        
-        //        /**********************************************************************/
-        //        const BoundingLineSegments<dim>& boundingBoxSegments() const
-        //        {
-        //            return boundingBoxSegments();
-        //        }
-        
-        
-        
         /**********************************************************************/
         bool isOscillating() const
         {
@@ -886,9 +856,7 @@ namespace model
           * 1 = inside mesh
           * 2 = on mesh boundary
           */
-            
             MeshLocation temp = MeshLocation::outsideMesh;
-            
             
             if(_isOnBoundingBox)
             {
@@ -906,23 +874,6 @@ namespace model
                 }
             }
             
-            //            if(boundaryNormal.squaredNorm())
-            //            {
-            //                temp=onMeshBoundary;
-            //            }
-            //            else
-            //            {
-            //                if(_isOnBoundingBox)
-            //                {
-            //                    temp=onRegionBoundary;
-            //
-            //                }
-            //                else
-            //                {
-            //                    temp=insideMesh;
-            //                }
-            //            }
-            
             return temp;
         }
         
@@ -938,18 +889,10 @@ namespace model
             return _isOnBoundingBox;
         }
         
-        //        /**********************************************************************/
-        //        const bool& isGrainBoundaryNode() const
-        //        {
-        //            return _isGrainBoundaryNode;
-        //            //            return meshLocation()==onRegionBoundary;
-        //        }
-        
         /**********************************************************************/
         bool isGrainBoundaryNode() const
         {
             return grainBoundaries().size();
-            //            return meshLocation()==onRegionBoundary;
         }
         
         /**********************************************************************/
@@ -957,7 +900,7 @@ namespace model
         {
             return isBoundaryNode() && isConnectedToBoundaryNodes();
         }
-        //
+        
         /**********************************************************************/
         bool isConnectedToBoundaryNodes() const
         {
@@ -969,7 +912,6 @@ namespace model
             
             return temp;
         }
-        
         
         /**********************************************************************/
         bool isSimpleBoundaryNode() const
@@ -1012,18 +954,12 @@ namespace model
         /**********************************************************************/
         bool isSimpleGrainBoundaryNode() const
         {
-            std::cout<<"node "<<this->sID<<" isSimpleGrainBoundaryNode? "<<std::flush;
-
             
             bool temp=false;
             if(isGrainBoundaryNode())
             {
-                std::cout<<"A "<<std::flush;
-
                 if(this->isSimple())
                 {
-                    std::cout<<"B "<<std::endl;
-
                     temp=true;
                     std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> chordDeq;
                     
@@ -1031,71 +967,25 @@ namespace model
                     {
                         if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
                         {
-                            std::cout<<std::get<1>(neighborIter.second)->source->sID<<"->"<<std::get<1>(neighborIter.second)->sink->sID<<" "<<std::get<1>(neighborIter.second)->isGrainBoundarySegment()<<std::endl;
-
                             temp*=std::get<1>(neighborIter.second)->isGrainBoundarySegment();
                             chordDeq.push_back(std::get<1>(neighborIter.second)->chord());
                         }
                     }
                     
-                    std::cout<<"B chordDeq.size="<<chordDeq.size()<<" temp="<<temp<<std::flush;
-
-                    
                     if(temp && chordDeq.size())
                     {
-                        std::cout<<"C "<<std::endl;
-
                         for(const auto& chord : chordDeq)
                         {
-                            std::cout<<chord.cross(chordDeq[0]).squaredNorm()<<" vs "<<FLT_EPSILON*chord.squaredNorm()*chordDeq[0].squaredNorm()<<std::endl;
                             temp*=(chord.cross(chordDeq[0]).squaredNorm()<(FLT_EPSILON*chord.squaredNorm()*chordDeq[0].squaredNorm()));
                         }
-                        std::cout<<"C size="<<chordDeq.size()<<" temp="<<temp<<std::flush;
-
                     }
                     else
                     {
                         temp=false;
-                        std::cout<<"D "<<std::flush;
                     }
-                    
                 }
             }
-            
-            std::cout<<std::endl;
-            
             return temp;
-        }
-        
-        //
-        //        /**********************************************************************/
-        //        bool isPureGBNode() const
-        //        {
-        //            bool temp(!this->is_isolated());
-        //            for (const auto& neighborIter : this->neighbors())
-        //            {
-        ////                if (std::get<2>(neighborIter.second)) // not self
-        ////                {
-        //                    temp*=std::get<0>(neighborIter.second)->isGrainBoundaryNode();
-        ////                }
-        //            }
-        //
-        //            return (isGrainBoundaryNode()&&temp);
-        //        }
-        
-        /******************************************************************************/
-        void neighborsAt(const LatticeVectorType& L0, std::set<size_t>& temp) const
-        {/*!\param[in] P0 position to be serached
-          * \param[out]temp set of IDs of neighbors of this which are located at P0 (possibly including *this)
-          * \param[in] tol tolerance used to detect position overlap
-          */
-            for (const auto& nIiter : this->neighbors())
-            { // loop over neighborhood
-                if((std::get<0>(nIiter.second)->get_L()-L0).squaredNorm()==0)
-                { // a neighbor of I exists at P0
-                    temp.insert(std::get<0>(nIiter.second)->sID);
-                }
-            }
         }
         
         /**********************************************************************/
@@ -1109,9 +999,6 @@ namespace model
         {
             return _isGlissile;
         }
-        
-        
-        
         
         /**********************************************************************/
         void set_P(const VectorDim& newP)
@@ -1360,9 +1247,6 @@ namespace model
             vOld=velocity; // store current value of velocity before updating
         }
         
-        
-        
-        
         /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const NodeType& ds)
@@ -1370,9 +1254,6 @@ namespace model
             os<< DislocationNodeIO<dim>(ds);
             return os;
         }
-        
-        
-        
         
     };
     
@@ -1392,3 +1273,63 @@ namespace model
     
 }
 #endif
+
+//        /**********************************************************************/
+//        bool is_simple() const
+//        {
+//            size_t nonZeroLink=0;
+//            for (const auto& neighborIter : this->neighbors())
+//            {
+////                if (!std::get<2>(neighborIter.second)==0)
+////                {
+//                    if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
+//                    {  // neighbor not searched
+//                        nonZeroLink++;
+//                    }
+////                }
+//            }
+//            return (nonZeroLink==2);
+//        }
+
+//        /**********************************************************************/
+//        const BoundingLineSegments<dim>& glidePlaneIntersections() const
+//        {
+//            return glidePlaneIntersections();
+//        }
+
+//        /**********************************************************************/
+//        const BoundingLineSegments<dim>& boundingBoxSegments() const
+//        {
+//            return boundingBoxSegments();
+//        }
+
+//
+//        /**********************************************************************/
+//        bool isPureGBNode() const
+//        {
+//            bool temp(!this->is_isolated());
+//            for (const auto& neighborIter : this->neighbors())
+//            {
+////                if (std::get<2>(neighborIter.second)) // not self
+////                {
+//                    temp*=std::get<0>(neighborIter.second)->isGrainBoundaryNode();
+////                }
+//            }
+//
+//            return (isGrainBoundaryNode()&&temp);
+//        }
+
+//        /******************************************************************************/
+//        void neighborsAt(const LatticeVectorType& L0, std::set<size_t>& temp) const
+//        {/*!\param[in] P0 position to be serached
+//          * \param[out]temp set of IDs of neighbors of this which are located at P0 (possibly including *this)
+//          * \param[in] tol tolerance used to detect position overlap
+//          */
+//            for (const auto& nIiter : this->neighbors())
+//            { // loop over neighborhood
+//                if((std::get<0>(nIiter.second)->get_L()-L0).squaredNorm()==0)
+//                { // a neighbor of I exists at P0
+//                    temp.insert(std::get<0>(nIiter.second)->sID);
+//                }
+//            }
+//        }
