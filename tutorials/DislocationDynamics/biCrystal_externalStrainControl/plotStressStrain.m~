@@ -1,0 +1,7 @@
+close all
+clear all
+clc
+
+F=load('F/F_0.txt');
+
+e3

@@ -16,8 +16,8 @@ H=4*R;         % height of cyl
 V=pi*R^2*H;    % volume
 np=20;         % number of points along circumference
 A=[0 1 1;1 0 1;1 1 0]/sqrt(2); % matrix of primitive lattice vectors for FCC
-N=[1 0 5]';    % normal to GB plane. STGB is sigma=13, theta=22.6199 deg
-%N=[1 0 3]';    % normal to GB plane
+%N=[1 0 5]';    % normal to GB plane. STGB is sigma=13, theta=22.6199 deg
+N=[1 0 3]';    % normal to GB plane
 %N=[2 0 3]';     % normal to GB plane. STGB is sigma=13, theta=67.3801 deg
 N=N/norm(N);    
 r=reciprocalLatticeDirection(N,A);

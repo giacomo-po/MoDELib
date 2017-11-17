@@ -43,3 +43,5 @@ NEW LOOP_NETWORK CODE
 - Optimize Remesh
 - clean up BoundingLineSegments. Use LineSegment class instead of pair<VectorDim,VectorDim>
 - DislocationJunctions: IF CONTRACT DID NOT HAPPEN REMOVE NODES THAT WERE CREATED BY EXPANSION. STORE IDS IN CONTAINER AND THEN REMOV
+- Form GB junctions??
+- Stress field is absent in some segments for evaluation of transmission criterion
