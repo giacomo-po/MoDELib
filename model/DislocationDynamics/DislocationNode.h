@@ -194,17 +194,6 @@ namespace model
             assert(_glidePlaneIntersections.size()<=1 && "_glidePlaneIntersections can have at the most size 1");
         }
         
-        
-        
-//        /**********************************************************************/
-//        void clear()
-//        {
-//            glidePlanes().clear();
-//            boundingBoxSegments().clear();
-//            _glidePlaneIntersections.clear();
-//            grains().clear();
-//        }
-        
         /**********************************************************************/
         bool addGlidePlane(const GlidePlaneType& gp)
         {
@@ -213,21 +202,12 @@ namespace model
             {
                 VerboseDislocationNode(1,"DislocationNode "<<this->sID<<" addGlidePlane. glidePlanes().size()="<<glidePlanes().size()<<std::endl;);
                 assert(gp.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
-                //                _isGlissile*=pL->loop()->isGlissile;
                 boundingBoxSegments().updateWithGlidePlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
                 updateGlidePlaneIntersections(gp);
-                //                grains().insert(&(gp.grain)); // Insert new grain in grainSet
-                //                if(grains().size()>1)
-                //                {
-                //                    std::cout<<"WARNING: CHECK THAT NODE IS ON REGION BND"<<std::endl;
-                //                }
-                //
-                //                const VectorDim bbP(_boundingBoxSegments.snap(this->get_P()));
-                //                if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
-                //                {
-                //                    set_P(bbP);
-                //                    _isOnBoundingBox=true;
-                //                }
+                grains().insert(&this->network().poly.grain(gp.grainIDs.first));    // Insert new grain in grainSet
+                grains().insert(&this->network().poly.grain(gp.grainIDs.second));   // Insert new grain in grainSet
+//                grains().insert(&(gp.grain)); // Insert new grain in grainSet
+//                grains().insert(&(gp.grain)); // Insert new grain in grainSet
             }
             return success;
         }

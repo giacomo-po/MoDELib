@@ -127,7 +127,7 @@ namespace model
           * in integer multiples of the interplanar distance d=1/|r|.
           */
             const ReciprocalLatticeDirection<dim> r(grain.reciprocalLatticeDirection(N));
-            return (GlidePlaneKeyType()<<grain.grainID,r,LatticePlane::height(r,P)).finished();
+            return (GlidePlaneKeyType()<<grain.grainID,r,LatticePlane::height(LatticePlane::computeHeight(r,P))).finished();
             
         }
         

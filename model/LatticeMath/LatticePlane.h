@@ -26,28 +26,23 @@ namespace model
         
         
         /**********************************************************************/
-        static long int height(const ReciprocalLatticeDirection<dim>& r,
+        static std::pair<bool,long int> computeHeight(const ReciprocalLatticeDirection<dim>& r,
                                                  const VectorDimD& P)
         {/*! ????
           */
             assert(r.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane normal");
-//            const VectorDimD rc();
             const double hd(P.dot(r.cartesian()));
             const long int h(std::lround(hd));
-            if(fabs(hd-h)>FLT_EPSILON)
-            {
-                std::cout<<"rc="<<r.cartesian().transpose()<<std::endl;
-                std::cout<<"P="<<P.transpose()<<std::endl;
-                std::cout<<"hd="<<hd<<std::endl;
-                std::cout<<"h="<<h<<std::endl;
-                assert(0 && "GLIDE PLANE HEIGHT NOT FOUND");
-            }
-            std::cout<<"LatticePlane h="<<h<<std::endl;
-            return h;
             
-//            REVIEW THIS FUNCTION AND THE MATLAB FILE GENERATING THE BICRYSTAL. THE SPACING SHOULD BE 1/|r| not |r|
-            
+            return  std::make_pair(fabs(hd-h)<FLT_EPSILON,h);             
         }
+        
+                /**********************************************************************/
+			static long int height(const std::pair<bool,long int>& p)
+			{
+			assert(p.first);
+			return p.second;
+			}
         
 //        const LatticeVectorType P;
         const LatticePlaneBase n;
@@ -58,7 +53,7 @@ namespace model
         /**********************************************************************/
         LatticePlane(const VectorDimD& P_in,const LatticePlaneBase& n_in) :
         /* init */ n(n_in),
-        /* init */ h(height(n,P_in)),
+        /* init */ h(height(computeHeight(n,P_in))),
         /* init */ unitNormal(n.cartesian().normalized()),
         /* init */ P(h*n.planeSpacing()*unitNormal)
         {

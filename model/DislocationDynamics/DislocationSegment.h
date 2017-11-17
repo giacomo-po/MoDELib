@@ -257,18 +257,13 @@ namespace model
             const bool success=glidePlanes().insert(&gp).second;
             if(success)
             {
-                
-                grains().insert(&gp.grain);
-//                assert(gp.contains(node->get_P()) && "Glide Plane does not contain DislocationNode");
-                //                _isGlissile*=pL->loop()->isGlissile;
+                assert(gp.contains(this->source->get_P()) &&  "Glide Plane does not contain source");
+                assert(gp.contains(this->  sink->get_P()) &&  "Glide Plane does not contain sink");
                 boundingBoxSegments().updateWithGlidePlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
-//                updateGlidePlaneIntersections(gp);
-//                grains().insert(&(gp.grain)); // Insert new grain in grainSet
-//                if(grains().size()>1)
-//                {
-//                    std::cout<<"WARNING: CHECK THAT NODE IS ON REGION BND"<<std::endl;
-//                }
-                
+                grains().insert(&this->network().poly.grain(gp.grainIDs.first));    // Insert new grain in grainSet
+                grains().insert(&this->network().poly.grain(gp.grainIDs.second));   // Insert new grain in grainSet
+//
+//                grains().insert(&gp.grain);
             }
             return success;
         }

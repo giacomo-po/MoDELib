@@ -144,7 +144,7 @@ namespace model
 
 		   for (const auto& link : DN.links() )
 		   {
-			 LinkTransmissionDataContainerType transmissionMap;
+			 LinkTransmissionDataContainerType TransmissionDataTypetransmissionMap;
 
 
 			 const VectorDim chord(link.second->chord());
