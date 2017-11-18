@@ -28,7 +28,7 @@ namespace model
         typedef Eigen::Matrix<int,dim,dim> MatrixDimI;
         typedef Eigen::Matrix<IntValueType,dim,dim> MatrixInt;
 
-        static constexpr int maxDen=1000;
+        static constexpr int64_t maxDen=10000;
         
         /**********************************************************************/
         static IntValueType gcd(const IntValueType& a,const IntValueType& b)
@@ -71,7 +71,15 @@ namespace model
                 }
             }
             
-            assert((im.template cast<double>()/sigma-R).norm()<2.0*DBL_EPSILON*dim*dim && "Rational Matrix failed, check maxDen.");
+            if((im.template cast<double>()/sigma-R).norm()>2.0*DBL_EPSILON*dim*dim)
+            {
+                std::cout<<"maxDen="<<maxDen<<std::endl;
+                std::cout<<"im=\n"<<std::setprecision(15)<<std::scientific<<im.template cast<double>()/sigma<<std::endl;
+                std::cout<<"= 1/"<<sigma<<"*\n"<<std::setprecision(15)<<std::scientific<<im<<std::endl;
+                std::cout<<"R=\n"<<std::setprecision(15)<<std::scientific<<R<<std::endl;
+                assert(false && "Rational Matrix failed, check maxDen.");
+            }
+            
 
             
             return std::make_pair(im,sigma);

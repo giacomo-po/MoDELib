@@ -109,23 +109,42 @@ namespace model
             return **this->begin();
         }
         
+//        /**********************************************************************/
+//        template<typename LoopType>
+//        void addLoop(const LoopType* const pL)
+//        {/*!@\param[in] pS a row pointer to a DislocationSegment
+//          * Adds pS to *this GLidePlane
+//          */
+//            const bool success=this->insert(&pL->_glidePlane).second;
+//            assert( success && "COULD NOT INSERT LOOP POINTER IN GLIDE PLANE.");
+//        }
+//        
+//        /**********************************************************************/
+//        template<typename LoopType>
+//        void removeLoop(const LoopType* const pL)
+//        {/*!@\param[in] pS a row pointer to a DislocationSegment
+//          * Removes pS from *this GLidePlane
+//          */
+//            const int success=this->erase(&pL->_glidePlane);
+//            assert(success==1 && "COULD NOT ERASE LOOP POINTER FROM GLIDE PLANE.");
+//        }
+        
         /**********************************************************************/
-        template<typename LoopType>
-        void addLoop(const LoopType* const pL)
+        void addParentSharedPtr(const std::shared_ptr<GlidePlane<dim>>* const pL)
         {/*!@\param[in] pS a row pointer to a DislocationSegment
           * Adds pS to *this GLidePlane
           */
-            const bool success=this->insert(&pL->_glidePlane).second;
+            const bool success=this->insert(pL).second;
             assert( success && "COULD NOT INSERT LOOP POINTER IN GLIDE PLANE.");
         }
         
         /**********************************************************************/
-        template<typename LoopType>
-        void removeLoop(const LoopType* const pL)
+//        template<typename LoopType>
+        void removeParentSharedPtr(const std::shared_ptr<GlidePlane<dim>>* const pL)
         {/*!@\param[in] pS a row pointer to a DislocationSegment
           * Removes pS from *this GLidePlane
           */
-            const int success=this->erase(&pL->_glidePlane);
+            const int success=this->erase(pL);
             assert(success==1 && "COULD NOT ERASE LOOP POINTER FROM GLIDE PLANE.");
         }
         

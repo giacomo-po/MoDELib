@@ -138,6 +138,7 @@ namespace model
                                                          const VectorDimD& N)
         {
             const GlidePlaneKeyType key=getGlidePlaneKey(grain,P,N);
+            std::cout<<"GlidePlane key="<<key.transpose()<<std::endl;
             const auto planeIter=glidePlanes().find(key);
             return (planeIter!=glidePlanes().end())? planeIter->second->sharedPlane() :
             /*                            */ std::shared_ptr<GlidePlaneType>(new GlidePlaneType(this,mesh,grain,P,N));

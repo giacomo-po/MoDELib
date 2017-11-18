@@ -35,7 +35,7 @@ namespace model
     template <int dim>
     class GrainBoundary :
     /* base */ private std::map<int,const Grain<dim>* const>,
-    /* base */ private std::map<int,GlidePlane<dim>>
+    /* base */ private std::map<int,std::shared_ptr<GlidePlane<dim>>>
     {
 //        static constexpr int dim=NetworkType::dim;
         typedef MeshRegionBoundary<Simplex<dim,dim-1> > MeshRegionBoundaryType;
@@ -46,7 +46,7 @@ namespace model
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef Grain<dim> GrainType;
         typedef std::map<int,const GrainType* const> GrainContainerType;
-        typedef std::map<int,GlidePlane<dim>> GlidePlaneContainerType;
+        typedef std::map<int,std::shared_ptr<GlidePlane<dim>>> GlidePlaneContainerType;
         typedef Eigen::Matrix<double,2*dim+1,1> BGkeyType;
         typedef GlidePlane<dim> GlidePlaneType;
         
@@ -109,11 +109,18 @@ namespace model
 //            assert(temp.first->second.unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
             
             const VectorDimD P0=(*regionBoundary.simplices().begin())->vertexPositionMatrix().col(0); // a point on the plane
+//            const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
+//                                                               std::forward_as_tuple(grain.grainID),
+//                                                               std::forward_as_tuple(&dn,mesh,grain,P0,normal));
+//            assert(temp.first->second.unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
+
             const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
                                                                std::forward_as_tuple(grain.grainID),
-                                                               std::forward_as_tuple(&dn,mesh,grain,P0,normal));
-            assert(temp.first->second.unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
+                                                               std::forward_as_tuple(new GlidePlaneType(&dn,mesh,grain,P0,normal)));
 
+            assert(temp.second);
+            assert(temp.first->second->unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
+            temp.first->second->addParentSharedPtr(&temp.first->second); // add shared pointer to GlidePlane
             
         }
         
@@ -437,7 +444,7 @@ namespace model
         }
         
         /**********************************************************************/
-        const std::map<int,GlidePlaneType>& glidePlanes() const
+        const GlidePlaneContainerType& glidePlanes() const
         {
             return *this;
         }
@@ -445,7 +452,7 @@ namespace model
         /**********************************************************************/
         const GlidePlaneType& glidePlane(const int& k) const
         {
-            return glidePlanes().at(k);
+            return *glidePlanes().at(k).get();
         }
         
         /**********************************************************************/

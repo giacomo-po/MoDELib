@@ -221,10 +221,10 @@ namespace model
             {
                 
                 const auto& gp(gb.second.glidePlanes().begin()->second); // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
-                if(gp.contains(this->get_P()))
+                if(gp->contains(this->get_P()))
                 {
                     grainBoundaries().insert(&gb.second);
-                    addedGp+=addGlidePlane(gp);
+                    addedGp+=addGlidePlane(*gp.get());
                 }
                 
                 //                for(const auto& gp : gb.second.glidePlanes())
@@ -283,8 +283,8 @@ namespace model
                 {// grainBoundary segments must not become internal
                     for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
                     {
-                        pLcontained*=gb->glidePlanes().begin()->second.contains(pL);
-                        pVcontained*=gb->glidePlanes().begin()->second.contains(pV);
+                        pLcontained*=gb->glidePlanes().begin()->second->contains(pL);
+                        pVcontained*=gb->glidePlanes().begin()->second->contains(pV);
                     }
                 }
             }
@@ -1104,7 +1104,7 @@ namespace model
         }
         
         /**********************************************************************/
-        bool isMovableTo(const VectorDim& X) const
+        bool isMovableTo(const VectorDim& X) const __attribute__ ((deprecated)) // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
         {
             bool isMovable=true;
             
@@ -1148,7 +1148,7 @@ namespace model
                         for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
                         {
                             //                                        std::cout<<"grainBoundary neighbor "<<nA->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<gb->glidePlanes().begin()->second.contains(nB->get_P())<<std::endl;
-                            isMovable*=gb->glidePlanes().begin()->second.contains(X);
+                            isMovable*=gb->glidePlanes().begin()->second->contains(X); // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
                         }
                     }
                     

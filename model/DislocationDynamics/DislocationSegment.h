@@ -326,8 +326,8 @@ namespace model
                 {
                     grainBoundaries().insert(gb);
                     
-                    const GlidePlaneType& gp(gb->glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
-                    addedGp+=addGlidePlane(gp);
+                    const auto& gp(gb->glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+                    addedGp+=addGlidePlane(*gp.get());
                     
                 }
             }
