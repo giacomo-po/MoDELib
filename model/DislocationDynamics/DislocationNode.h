@@ -215,6 +215,8 @@ namespace model
         /**********************************************************************/
         size_t addGrainBoundaryPlanes() __attribute__ ((deprecated)) // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
         {
+            VerboseDislocationNode(1,"DislocationNode "<<this->sID<<" adding GrainBoundaryPlanes"<<std::endl;);
+
             size_t addedGp=0;
             // Check if node is on a GB
             for(const auto& gb : this->network().poly.grainBoundaries())

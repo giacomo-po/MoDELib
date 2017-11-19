@@ -33,10 +33,10 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template<int dim>
-    struct GlidePlaneObserver : private std::map<Eigen::Matrix<long int,dim+2,1>,
+    struct GlidePlaneObserver : private std::map<Eigen::Matrix<long int,dim+3,1>,
     /*                                       */ const GlidePlane<dim>* const,
-    /*                                       */ CompareVectorsByComponent<long int,dim+2,long int>,
-    /*                                       */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,dim+2,1>,const GlidePlane<dim>* const> > >,
+    /*                                       */ CompareVectorsByComponent<long int,dim+3,long int>,
+    /*                                       */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,dim+3,1>,const GlidePlane<dim>* const> > >,
     /*                       */ private std::map<std::pair<size_t,size_t>,
     /*                                        */ PlanePlaneIntersection<dim>,
     /*                                        */ std::less<std::pair<size_t,size_t>>,
@@ -45,16 +45,16 @@ namespace model
     {
         
         
-//        static constexpr int dim=dim;
+        //        static constexpr int dim=dim;
         typedef GlidePlaneObserver<dim> GlidePlaneObserverType;
         typedef GlidePlane<dim> GlidePlaneType;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
-        typedef Eigen::Matrix<long int,dim+2,1> GlidePlaneKeyType;
-        typedef std::map<Eigen::Matrix<long int,dim+2,1>,
+        typedef Eigen::Matrix<long int,dim+3,1> GlidePlaneKeyType;
+        typedef std::map<Eigen::Matrix<long int,dim+3,1>,
         /*            */ const GlidePlane<dim>* const,
-        /*            */ CompareVectorsByComponent<long int,dim+2,long int>,
-        /*            */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,dim+2,1>,const GlidePlane<dim>* const> > > GlidePlaneMapType;
+        /*            */ CompareVectorsByComponent<long int,dim+3,long int>,
+        /*            */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,dim+3,1>,const GlidePlane<dim>* const> > > GlidePlaneMapType;
         typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
         typedef PlanePlaneIntersection<dim> PlanePlaneIntersectionType;
         typedef std::map<std::pair<size_t,size_t>,
@@ -113,37 +113,57 @@ namespace model
             return *this;
         }
         
+        //        /**********************************************************************/
+        //        static GlidePlaneKeyType getGlidePlaneKey(const Grain<dim>& grain,
+        //                                                  const VectorDimD& P,
+        //                                                  const VectorDimD& N)
+        //        {/*!\param[in] grain the grain on which the GlidePlane is defined
+        //          * \param[in] P a point on the plane
+        //          * \param[in] N the normal to the plane
+        //          * \returns the key which uniquely identifies the plane.
+        //          * The type of the key is a tuple with entries (grainID,r,h), where r
+        //          * is the ReciprocalLatticeDirection corresponding to N, and h=P.dot(r)
+        //          * is an integer indicating the "heigth" of the plane from the origin,
+        //          * in integer multiples of the interplanar distance d=1/|r|.
+        //          */
+        //            const ReciprocalLatticeDirection<dim> r(grain.reciprocalLatticeDirection(N));
+        //            return (GlidePlaneKeyType()<<grain.grainID,r,LatticePlane::height(LatticePlane::computeHeight(r,P))).finished();
+        //        }
+        
         /**********************************************************************/
-        static GlidePlaneKeyType getGlidePlaneKey(const Grain<dim>& grain,
+        static GlidePlaneKeyType getGlidePlaneKey(const Lattice<dim>& lattice,
+                                                  const int& grainID1,
+                                                  const int& grainID2,
                                                   const VectorDimD& P,
                                                   const VectorDimD& N)
         {/*!\param[in] grain the grain on which the GlidePlane is defined
           * \param[in] P a point on the plane
           * \param[in] N the normal to the plane
-          * \returns the key which uniquely identifies the plane. 
+          * \returns the key which uniquely identifies the plane.
           * The type of the key is a tuple with entries (grainID,r,h), where r
           * is the ReciprocalLatticeDirection corresponding to N, and h=P.dot(r)
           * is an integer indicating the "heigth" of the plane from the origin,
           * in integer multiples of the interplanar distance d=1/|r|.
           */
-            const ReciprocalLatticeDirection<dim> r(grain.reciprocalLatticeDirection(N));
-            return (GlidePlaneKeyType()<<grain.grainID,r,LatticePlane::height(LatticePlane::computeHeight(r,P))).finished();
-            
+            const ReciprocalLatticeDirection<dim> r(lattice.reciprocalLatticeDirection(N));
+            return (GlidePlaneKeyType()<<grainID1,grainID2,r,LatticePlane::height(LatticePlane::computeHeight(r,P))).finished();
         }
         
         /**********************************************************************/
         std::shared_ptr<GlidePlaneType> sharedGlidePlane(const SimplicialMesh<dim>& mesh,
-                                                         const Grain<dim>& grain,
+                                                         const Lattice<dim>& lattice,
+                                                         const int& grainID1,
+                                                         const int& grainID2,
                                                          const VectorDimD& P,
                                                          const VectorDimD& N)
         {
-            const GlidePlaneKeyType key=getGlidePlaneKey(grain,P,N);
+            const GlidePlaneKeyType key=getGlidePlaneKey(lattice,grainID1,grainID2,P,N);
             std::cout<<"GlidePlane key="<<key.transpose()<<std::endl;
             const auto planeIter=glidePlanes().find(key);
             return (planeIter!=glidePlanes().end())? planeIter->second->sharedPlane() :
-            /*                            */ std::shared_ptr<GlidePlaneType>(new GlidePlaneType(this,mesh,grain,P,N));
-//            return (planeIter!=glidePlanes().end())? planeIter->second->loops().begin()->second->_glidePlane :
-//            /*                            */ std::shared_ptr<GlidePlaneType>(new GlidePlaneType(this,mesh,grain,P,N));
+            /*                            */ std::shared_ptr<GlidePlaneType>(new GlidePlaneType(this,mesh,lattice,grainID1,grainID2,P,N));
+            //            return (planeIter!=glidePlanes().end())? planeIter->second->loops().begin()->second->_glidePlane :
+            //            /*                            */ std::shared_ptr<GlidePlaneType>(new GlidePlaneType(this,mesh,grain,P,N));
         }
         
         /**********************************************************************/

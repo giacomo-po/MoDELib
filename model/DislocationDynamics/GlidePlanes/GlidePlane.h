@@ -53,24 +53,43 @@ namespace model
         const GlidePlaneKeyType glidePlaneKey;
         const PlaneMeshIntersectionContainerType meshIntersections;
         
-        
         /**********************************************************************/
         GlidePlane(GlidePlaneObserverType* const gpo,
                    const SimplicialMesh<dim>& mesh,
-                   const Grain<dim>& grain_in,
+                   const Lattice<dim>& lattice,
+                   const int& grainID1,
+                   const int& grainID2,
                    const VectorDim& P,
                    const VectorDim& N) :
-        /* init */ LatticePlane(P,grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+        /* init */ LatticePlane(P,lattice.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
         /* init */ glidePlaneObserver(gpo),
-//        /* init */ grain(grain_in),
-        /* init */ grainIDs(grain_in.grainID,grain_in.grainID),
-        /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain_in,P,N)),
-        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->n.cartesian().normalized(),grain_in.grainID))
+        //        /* init */ grain(grain_in),
+        /* init */ grainIDs(grainID1,grainID2),
+        /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(lattice,grainID1,grainID2,P,N)),
+        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->n.cartesian().normalized(),grainID1)) // WARNING: CALLING meshIntersections with grainID1
         {
             VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;);
             glidePlaneObserver->addGlidePlane(this);
             assert(fabs(this->unitNormal.norm()-1.0)<DBL_EPSILON && "GlidePlane has non-unit normal.");
         }
+        
+//        /**********************************************************************/
+//        GlidePlane(GlidePlaneObserverType* const gpo,
+//                   const SimplicialMesh<dim>& mesh,
+//                   const Grain<dim>& grain_in,
+//                   const VectorDim& P,
+//                   const VectorDim& N) :
+//        /* init */ LatticePlane(P,grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+//        /* init */ glidePlaneObserver(gpo),
+////        /* init */ grain(grain_in),
+//        /* init */ grainIDs(grain_in.grainID,grain_in.grainID),
+//        /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain_in,P,N)),
+//        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->n.cartesian().normalized(),grain_in.grainID))
+//        {
+//            VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;);
+//            glidePlaneObserver->addGlidePlane(this);
+//            assert(fabs(this->unitNormal.norm()-1.0)<DBL_EPSILON && "GlidePlane has non-unit normal.");
+//        }
         
 //        /**********************************************************************/
 //        GlidePlane(GlidePlaneObserverType* const gpo,

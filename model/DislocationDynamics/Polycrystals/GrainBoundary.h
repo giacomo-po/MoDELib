@@ -116,7 +116,7 @@ namespace model
 
             const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
                                                                std::forward_as_tuple(grain.grainID),
-                                                               std::forward_as_tuple(new GlidePlaneType(&dn,mesh,grain,P0,normal)));
+                                                               std::forward_as_tuple(new GlidePlaneType(&dn,mesh,grain.lattice(),grain.grainID,grain.grainID,P0,normal)));
 
             assert(temp.second);
             assert(temp.first->second->unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");

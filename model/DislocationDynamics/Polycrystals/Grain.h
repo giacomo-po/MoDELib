@@ -156,6 +156,7 @@ namespace model
             rotate(C2G);
         }
         
+        /**********************************************************************/
         const LatticeType& lattice() const
         {
             return *this;

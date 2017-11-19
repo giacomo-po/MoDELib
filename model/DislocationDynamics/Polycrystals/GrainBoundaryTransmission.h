@@ -165,7 +165,9 @@ namespace model
                                 for(size_t ssID=0;ssID<grain.second->slipSystems().size();++ssID)
                                 {
                                     const auto& slipSystem(grain.second->slipSystems()[ssID]);
-                                    if(fabs(slipSystem.n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
+                                    if(   fabs(slipSystem.n.cartesian().normalized().dot(unitChord))<FLT_EPSILON // slip plane cointains chord
+                                       && grainBoundary->glidePlane(grain.second->grainID).unitNormal.cross(slipSystem.n.cartesian().normalized()).norm()>FLT_EPSILON // slip plane is not GB plane
+                                       )
                                     {
                                         double dG=0.0;
                                         
