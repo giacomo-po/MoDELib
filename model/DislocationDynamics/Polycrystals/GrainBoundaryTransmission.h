@@ -43,25 +43,31 @@ namespace model
                                const Eigen::Matrix<double,SegmentType::dim,1>& n2)
         {
             
-            int q=seg.qOrder/2;
-            
             double temp=0.0;
+
+            const int q=seg.qOrder/2;
+            if(seg.quadratureParticleContainer.size()>q)
+            {
+                const Eigen::Matrix<double,SegmentType::dim,1> pk((seg.stressAtQuadrature(q)*b2).cross(seg.chord().normalized()));
+                
+                //		 std::cout<<"here 1"<<std::endl;
+                
+                const Eigen::Matrix<double,SegmentType::dim,1> pkg(pk-pk.dot(n2)*n2);
+                
+                if(   pkg.dot(grain2OutNormal)<0.0
+                   )
+                {// pk force on segment must be pushing into new grain
+                    const Eigen::Matrix<double,SegmentType::dim,1>& b1(seg.burgers());
+                    const double tau=fabs((seg.stressAtQuadrature(q)*b2.normalized()).dot(n2));
+                    
+                    temp=0.5*alpha*((b1-b2).squaredNorm()+b2.squaredNorm()-b1.squaredNorm())-tau*b2.norm()*lambda;
+                }
+            }
+            
             //		 std::cout<<"here 0"<<std::endl;
             //		 std::cout<<"seg.quadratureParticleContainer.size()="<<seg.quadratureParticleContainer.size()<<std::endl;
             //            if((seg.stressAtQuadrature(q)*seg.burgers()).cross(seg.chord().normalized()).dot(grain2OutNormal)<0.0)
-            const Eigen::Matrix<double,SegmentType::dim,1> pk((seg.stressAtQuadrature(q)*b2).cross(seg.chord().normalized()));
-            
-            //		 std::cout<<"here 1"<<std::endl;
-            
-            const Eigen::Matrix<double,SegmentType::dim,1> pkg(pk-pk.dot(n2)*n2);
-            
-            if(pkg.dot(grain2OutNormal)<0.0)
-            {// pk force on segment must be pushing into new grain
-                const Eigen::Matrix<double,SegmentType::dim,1>& b1(seg.burgers());
-                const double tau=fabs((seg.stressAtQuadrature(q)*b2.normalized()).dot(n2));
-                
-                temp=0.5*alpha*((b1-b2).squaredNorm()+b2.squaredNorm()-b1.squaredNorm())-tau*b2.norm()*lambda;
-            }
+
             return temp;
         }
         
@@ -73,25 +79,31 @@ namespace model
                                  const Eigen::Matrix<double,SegmentType::dim,1>& n2)
         {
             
-            int q=seg.qOrder/2;
-            
             double temp=0.0;
+            
+            const int q=seg.qOrder/2;
+            if(seg.quadratureParticleContainer.size()>q)
+            {
+                const Eigen::Matrix<double,SegmentType::dim,1> pk((seg.stressAtQuadrature(q)*b2).cross(seg.chord().normalized()));
+                
+                //		 std::cout<<"here 1"<<std::endl;
+                
+                const Eigen::Matrix<double,SegmentType::dim,1> pkg(pk-pk.dot(n2)*n2);
+                
+                if(   pkg.dot(grain2OutNormal)<0.0
+                   )
+                {// pk force on segment must be pushing into new grain
+                    const Eigen::Matrix<double,SegmentType::dim,1>& b1(seg.burgers());
+                    const double tau=fabs((seg.stressAtQuadrature(q)*b2.normalized()).dot(n2));
+                    
+                    temp=0.5*alpha*((b1-b2).squaredNorm()+b2.squaredNorm()-b1.squaredNorm())-tau*b2.norm()*lambda;
+                }
+            }
+            
             //		 std::cout<<"here 0"<<std::endl;
             //		 std::cout<<"seg.quadratureParticleContainer.size()="<<seg.quadratureParticleContainer.size()<<std::endl;
             //            if((seg.stressAtQuadrature(q)*seg.burgers()).cross(seg.chord().normalized()).dot(grain2OutNormal)<0.0)
-            const Eigen::Matrix<double,SegmentType::dim,1> pk((seg.stressAtQuadrature(q)*b2).cross(seg.chord().normalized()));
             
-            //		 std::cout<<"here 1"<<std::endl;
-            
-            const Eigen::Matrix<double,SegmentType::dim,1> pkg(pk-pk.dot(n2)*n2);
-            
-            if(pkg.dot(grain2OutNormal)<0.0)
-            {// pk force on segment must be pushing into new grain
-                const Eigen::Matrix<double,SegmentType::dim,1>& b1(seg.burgers());
-                const double tau=fabs((seg.stressAtQuadrature(q)*b2.normalized()).dot(n2));
-                
-                temp=0.5*alpha*((b1-b2).squaredNorm()+b2.squaredNorm()-b1.squaredNorm())-tau*b2.norm()*lambda;
-            }
             return temp;
         }
         
