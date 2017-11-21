@@ -79,6 +79,8 @@ namespace model
                                  const Eigen::Matrix<double,SegmentType::dim,1>& n2)
         {
             
+            assert(0 && "FINISH HERE");
+            
             double temp=0.0;
             
             const int q=seg.qOrder/2;
@@ -229,6 +231,7 @@ namespace model
                                         {
                                             std::cout<<"indirectTransmit: GBsegment "<<link.second->source->sID<<"->"<<link.second->sink->sID<<" "<<grain.second->grainID<<" "<<ssID<<std::flush;
 
+                                            
                                             switch (grainBoundaryTransmissionModel)
                                             {
                                                 case 1:
@@ -298,7 +301,6 @@ namespace model
                     const auto isLink(DN.link(sourceID,sinkID));
                     if(isLink.first)
                     {
-                        
                         switch(transmissionType)
                         {
                             case 0:
@@ -329,6 +331,19 @@ namespace model
                             }
                             default:
                             {
+                                
+                                const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(DN.poly.grain(grainID).slipSystems()[slipID].n,
+                                                                                                0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
+                                
+//                                const double planeSpacing=1.0/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().norm();
+                                
+                                PlanePlaneIntersection<dim> ppi(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
+                                                                DN.poly.grainBoundary(gbID.first,gbID.second).glidePlane(grainID).unitNormal,
+                                                                heightPair.second*DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian()/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().squaredNorm(),
+                                                                DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian());
+
+                                            assert(0 && "FINISH HERE");
+                                
                                 std::cout<<"indirect transmission"<<std::endl;
                                 
                                 
@@ -339,9 +354,6 @@ namespace model
                         
                         
                     }
-                    
-                    
-                    
                 }
                 
                 DN.clearDanglingNodes();

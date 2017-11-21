@@ -28,7 +28,7 @@ namespace model
         typedef Eigen::Matrix<int,dim,dim> MatrixDimI;
         typedef Eigen::Matrix<IntValueType,dim,dim> MatrixInt;
 
-        static constexpr int64_t maxDen=10000;
+        static constexpr int64_t maxDen=100;
         
         /**********************************************************************/
         static IntValueType gcd(const IntValueType& a,const IntValueType& b)

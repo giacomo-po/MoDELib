@@ -17,7 +17,7 @@ V=pi*R^2*H;    % volume
 np=20;         % number of points along circumference
 A=[0 1 1;1 0 1;1 1 0]/sqrt(2); % matrix of primitive lattice vectors for FCC
 
-STGBtype=4;
+STGBtype=2;
 
 switch STGBtype
     case 1
@@ -32,7 +32,6 @@ switch STGBtype
         a=[0 1 0];     % tilt axis
         N=[  2 0 3]';     % normal to GB plane. STGB is sigma=13, theta=67.3801 deg
         N1=[-2 0 3]';     % normal to GB plane. STGB is sigma=13, theta=67.3801 deg
-        
     case 4
         a=[1 -1 0]
         N=[1 1 1]';     % normal to GB plane. STGB is sigma=13, theta=67.3801 deg
@@ -204,10 +203,10 @@ end
 fclose(polyFile);
 
 %% Run Tetgen
-system([MODEL_DIR '/scripts/tetgenPOLY.sh ' filename]);
+system([MODEL_DIR '/scripts/tetgenPOLY.sh ' filename])
 
 %% Create T and N files and clean tetgent output
-system([MODEL_DIR '/scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
+system([MODEL_DIR '/scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)])
 
 %% Print C2G1 and C2G2 (paste in DDinput.txt)
 format long

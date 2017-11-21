@@ -69,7 +69,8 @@ namespace model
             
             model::cout<<"   GB normal for grain "<< grain.grainID<<":"<<defaultColor<<std::endl;
             model::cout<<"   cartesian components="<<R.cartesian().transpose()<<defaultColor<<std::endl;
-            model::cout<<"   crystallographic components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<defaultColor<<std::endl;
+            model::cout<<"   crystallographic components="<<grain.rationalApproximation((grain.get_C2G().transpose()*R.cartesian())).transpose()<<defaultColor<<std::endl;
+            model::cout<<"   interplanar spacing="<<1.0/R.cartesian().norm()<<defaultColor<<std::endl;
             
 //            LatticeVectorType L0(grain.lattice());
 //            bool latticePointFound=false;
@@ -142,6 +143,9 @@ namespace model
                 assert(outNorm>FLT_EPSILON && "Simplex normal has zero norm.");
                 storeLatticePlane(dn,mesh,grain(tet->region->regionID),outNormal/outNorm);
             }
+            
+            assert(glidePlanes().size()==2);
+            assert((glidePlanes().begin()->second->unitNormal+glidePlanes().rbegin()->second->unitNormal).norm()<FLT_EPSILON && "plane normals are not opposite to each other.");
             
             // Check that all tringle vertices are contained by both GB planes
             for(const auto& triangle : regionBoundary)
