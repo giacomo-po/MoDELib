@@ -35,6 +35,7 @@ namespace model
 
 //#include <model/LatticeMath/LatticeGCD.h>
 //#include <model/LatticeMath/LatticeBase.h>
+#include <model/MPI/MPIcout.h>
 #include <model/LatticeMath/Lattice.h>
 #include <model/LatticeMath/LatticeVector.h>
 #include <model/LatticeMath/ReciprocalLatticeVector.h>

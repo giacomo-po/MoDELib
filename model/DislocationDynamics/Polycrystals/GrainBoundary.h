@@ -70,6 +70,7 @@ namespace model
             model::cout<<"   GB normal for grain "<< grain.grainID<<":"<<defaultColor<<std::endl;
             model::cout<<"   cartesian components="<<R.cartesian().transpose()<<defaultColor<<std::endl;
             model::cout<<"   crystallographic components="<<grain.rationalApproximation((grain.get_C2G().transpose()*R.cartesian())).transpose()<<defaultColor<<std::endl;
+//            model::cout<<"   crystallographic components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<defaultColor<<std::endl;
             model::cout<<"   interplanar spacing="<<1.0/R.cartesian().norm()<<defaultColor<<std::endl;
             
 //            LatticeVectorType L0(grain.lattice());

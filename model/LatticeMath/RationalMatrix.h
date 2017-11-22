@@ -9,6 +9,7 @@
 #ifndef model_RationalMatrix_h_
 #define model_RationalMatrix_h_
 
+#include <iomanip>
 #include <cfloat> // FLT_EPSILON
 #include <assert.h> // FLT_EPSILON
 #include <utility>
@@ -28,7 +29,7 @@ namespace model
         typedef Eigen::Matrix<int,dim,dim> MatrixDimI;
         typedef Eigen::Matrix<IntValueType,dim,dim> MatrixInt;
 
-        static constexpr int64_t maxDen=100;
+        static constexpr int64_t maxDen=100000;
         
         /**********************************************************************/
         static IntValueType gcd(const IntValueType& a,const IntValueType& b)

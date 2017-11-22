@@ -17,36 +17,26 @@ V=pi*R^2*H;    % volume
 np=20;         % number of points along circumference
 A=[0 1 1;1 0 1;1 1 0]/sqrt(2); % matrix of primitive lattice vectors for FCC
 
-STGBtype=2;
+STGBtype=1;
 
 switch STGBtype
     case 1
-        a=[0 1 0];     % tilt axis
-        N=[  1 0 5]';    % normal to GB plane. STGB is sigma=13, theta=22.6199 deg
-        N1=[-1 0 5]';
-    case 2
-        a=[0 1 0];     % tilt axis
-        N=[  1 0 3]';    % normal to GB plane. STGB is sigma=5, theta=36.8699 deg
-        N1=[-1 0 3]';
-    case 3
-        a=[0 1 0];     % tilt axis
-        N=[  2 0 3]';     % normal to GB plane. STGB is sigma=13, theta=67.3801 deg
-        N1=[-2 0 3]';     % normal to GB plane. STGB is sigma=13, theta=67.3801 deg
-    case 4
-        a=[1 -1 0]
-        N=[1 1 1]';     % normal to GB plane. STGB is sigma=13, theta=67.3801 deg
-        N1=[1 1 -1]';     % normal to GB plane. STGB is sigma=13, theta=67.3801 deg
-        
+        N=[  1 1 1]';   % normal to GB plane. sigma=13, theta=22.6199 deg
+        n=3;
+        twistAngle=2*atan2(sqrt(3)/2,n+0.5);
     otherwise
         error('GB not implemented')
 end
-a=a/norm(a);
+%a1=a1/norm(a1);
+%a2=a2/norm(a2);
 N=N/norm(N);
-N1=N1/norm(N1);
 
-if(dot(a,N)~=0)
-    error('plane normal and tilt axis must be orthogonal')
-end
+%if(dot(a1,N)~=0)
+%    error('plane normal N and tilt axis must be orthogonal')
+%end
+%if(dot(a2,N)~=0)
+%    error('plane normal N1 and tilt axis must be orthogonal')
+%end
 
 r=reciprocalLatticeDirection(N,A);
 d=1/norm(r);    % spacing of planes
@@ -68,7 +58,6 @@ end
 for k=1:np
     theta=2*pi/np*(k-1);
     P(np+k,:)=[R*cos(theta) R*sin(theta) (dot(P0,N)-R*cos(theta)*N(1)-R*sin(theta)*N(2))/N(3)];
-    P1(k,:)=[R*cos(theta) R*sin(theta) (dot(P0,N1)-R*cos(theta)*N1(1)-R*sin(theta)*N1(2))/N1(3)];
 end
 % top plane
 for k=1:np
@@ -146,8 +135,6 @@ for f=1:size(F4,1)
     pause(0.01)
 end
 
-plot3(P1([1:end 1],1),P1([1:end 1],2),P1([1:end 1],3),'m','Linewidth',2)
-
 
 %% Define Regions
 % Each row in the following matrix correponds to a region.
@@ -216,18 +203,18 @@ format long
 
 f=R*0.75;
 quiver3(P0(1),P0(2),P0(3),N(1)*f ,N(2)*f,N(3)*f,'Linewidth',4)
-quiver3(P0(1),P0(2),P0(3),N1(1)*f,N1(2)*f,N1(3)*f,'Linewidth',4)
-quiver3(P0(1),P0(2),P0(3),a(1)*f,a(2)*f,a(3)*f,'Linewidth',4)
+%quiver3(P0(1),P0(2),P0(3),N1(1)*f,N1(2)*f,N1(3)*f,'Linewidth',4)
+%quiver3(P0(1),P0(2),P0(3),a1(1)*f,a1(2)*f,a1(3)*f,'Linewidth',4)
+%quiver3(P0(1),P0(2),P0(3),a2(1)*f,a2(2)*f,a2(3)*f,'Linewidth',4)
 
-c=dot(N,N1);   % cos(Theta)
-%c=dot(v1,v2);   % cos(Theta)
-s=sqrt(1-c^2);  % sin(Theta)
-theta=atan2(s,c);
-theta_deg=atan2(s,c)*180/pi
+%c=dot(a1,a2);   % cos(Theta)
+%s=sqrt(1-c^2);  % sin(Theta)
+%theta=atan2(s,c);
+twistAngle_deg=twistAngle*180/pi
 C2G1=eye(3);
 C2G1=integerC2G(C2G1)
-C2G2=angleAxis(a',theta)
-%C2G2=[c 0  s;
-%    0 1  0;
-%    -s 0  c];
+C2G2=angleAxis(N,twistAngle)
+detC2G2=det(C2G2);
+
+%return
 C2G2=integerC2G(C2G2)
