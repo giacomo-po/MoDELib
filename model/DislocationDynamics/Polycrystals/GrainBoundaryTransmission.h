@@ -44,7 +44,7 @@ namespace model
         {
             
             double temp=0.0;
-
+            
             const int q=seg.qOrder/2;
             if(seg.quadratureParticleContainer.size()>q)
             {
@@ -67,7 +67,7 @@ namespace model
             //		 std::cout<<"here 0"<<std::endl;
             //		 std::cout<<"seg.quadratureParticleContainer.size()="<<seg.quadratureParticleContainer.size()<<std::endl;
             //            if((seg.stressAtQuadrature(q)*seg.burgers()).cross(seg.chord().normalized()).dot(grain2OutNormal)<0.0)
-
+            
             return temp;
         }
         
@@ -79,43 +79,17 @@ namespace model
                                  const Eigen::Matrix<double,SegmentType::dim,1>& n2)
         {
             
-            assert(0 && "FINISH HERE");
-            
-            double temp=0.0;
-            
-            const int q=seg.qOrder/2;
-            if(seg.quadratureParticleContainer.size()>q)
-            {
-                const Eigen::Matrix<double,SegmentType::dim,1> pk((seg.stressAtQuadrature(q)*b2).cross(seg.chord().normalized()));
-                
-                //		 std::cout<<"here 1"<<std::endl;
-                
-                const Eigen::Matrix<double,SegmentType::dim,1> pkg(pk-pk.dot(n2)*n2);
-                
-                if(   pkg.dot(grain2OutNormal)<0.0
-                   )
-                {// pk force on segment must be pushing into new grain
-                    const Eigen::Matrix<double,SegmentType::dim,1>& b1(seg.burgers());
-                    const double tau=fabs((seg.stressAtQuadrature(q)*b2.normalized()).dot(n2));
-                    
-                    temp=0.5*alpha*((b1-b2).squaredNorm()+b2.squaredNorm()-b1.squaredNorm())-tau*b2.norm()*lambda;
-                }
-            }
-            
-            //		 std::cout<<"here 0"<<std::endl;
-            //		 std::cout<<"seg.quadratureParticleContainer.size()="<<seg.quadratureParticleContainer.size()<<std::endl;
-            //            if((seg.stressAtQuadrature(q)*seg.burgers()).cross(seg.chord().normalized()).dot(grain2OutNormal)<0.0)
-            
-            return temp;
+            return 0.0;
         }
         
     };
     
     template <typename DislocationNetworkType>
     class GrainBoundaryTransmission
-    //: private std::deque<TransmitSegment<typename DislocationNetworkType::LinkType> >
     {
         static constexpr int dim=DislocationNetworkType::dim;
+        typedef typename DislocationNetworkType::LinkType LinkType;
+        typedef Grain<dim> GrainType;
         typedef GrainBoundary<dim> GrainBoundaryType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         
@@ -133,6 +107,82 @@ namespace model
         
         typedef std::map<double,TransmissionDataType> LinkTransmissionDataContainerType;
         typedef std::deque<TransmissionDataType> TransmissionDataContainerType;
+        
+        
+        /**********************************************************************/
+        static void emplaceData(const LinkType& seg,
+                                const GrainBoundaryType& grainBoundary,
+                                const GrainType& grain,
+                                const SlipSystem& slipSystem,
+                                const size_t& ssID,
+                                const int& transmissionType,
+                                LinkTransmissionDataContainerType& transmissionMap)
+        {
+            
+            std::cout<<"GBsegment "<<seg.source->sID<<"->"<<seg.sink->sID<<" "<<grain.grainID<<" "<<ssID<<std::flush;
+
+            
+            double dG=0.0;
+            switch (grainBoundaryTransmissionModel)
+            {
+                case 1:
+                {
+                    switch (transmissionType)
+                    {
+                        case 0: // direct transmit
+                        {
+                            std::cout<<" directTransmit "<<std::flush;
+                            dG=GrainBoundaryTransmissionEnergyModel<1>::dGdirect(seg,
+                                                                                 grainBoundary.glidePlane(grain.grainID).unitNormal,
+                                                                                 slipSystem.s.cartesian(),
+                                                                                 slipSystem.n.cartesian().normalized()
+                                                                                 );
+                            break;
+                        }
+                            
+                        case 1: // offset transmit
+                        {
+                            std::cout<<" offsetTransmit "<<std::flush;
+                            //                    dG=GrainBoundaryTransmissionEnergyModel<1>::dGdirect(*link.second,
+                            //                                                                         grainBoundary->glidePlane(grain.second->grainID).unitNormal,
+                            //                                                                         slipSystem.s.cartesian(),
+                            //                                                                         slipSystem.n.cartesian().normalized()
+                            //                                                                         );
+                            break;
+                        }
+                            
+                        default:
+                        {
+                            std::cout<<" indirectTransmit "<<std::flush;
+                            break;
+                        }
+                    }
+                    break;
+                }
+                    
+                default:
+                    std::cout<<" Transmission Model not implemented. "<<std::flush;
+                    break;
+            }
+            
+            std::cout<<"dG= "<<dG<<std::endl;
+            
+            
+            if(dG<0.0)
+            {
+                const TransmissionDataType data(seg.source->sID,
+                                                seg.sink->sID,
+                                                grain.grainID,
+                                                ssID,
+                                                grainBoundary.grainBndID,
+                                                transmissionType);
+                
+                transmissionMap.emplace(dG,data);
+                
+            }
+            
+        }
+        
     public:
         
         static size_t grainBoundaryTransmissionModel;
@@ -143,6 +193,8 @@ namespace model
         {
             
         }
+        
+        
         
         /**********************************************************************/
         size_t directTransmit()
@@ -167,10 +219,7 @@ namespace model
                        && chord.norm()>chordTol*DislocationNetworkRemesh<DislocationNetworkType>::Lmin
                        )
                     {
-                        
                         const VectorDim unitChord(chord.normalized());
-                        
-                        
                         
                         for(const auto& grainBoundary : link.second->grainBoundaries())
                         {
@@ -179,95 +228,24 @@ namespace model
                                 for(size_t ssID=0;ssID<grain.second->slipSystems().size();++ssID)
                                 {
                                     const auto& slipSystem(grain.second->slipSystems()[ssID]);
-                                    if(   fabs(slipSystem.n.cartesian().normalized().dot(unitChord))<FLT_EPSILON // slip plane cointains chord
-                                       && grainBoundary->glidePlane(grain.second->grainID).unitNormal.cross(slipSystem.n.cartesian().normalized()).norm()>FLT_EPSILON // slip plane is not GB plane
-                                       )
+                                    if(grainBoundary->glidePlane(grain.second->grainID).unitNormal.cross(slipSystem.n.cartesian().normalized()).norm()>FLT_EPSILON) // slip plane is not GB plane
                                     {
-                                        double dG=0.0;
-                                        
-                                        
-                                        
-                                        const std::pair<bool,long int> temp=LatticePlane::computeHeight(slipSystem.n,0.5*(link.second->source->get_P()+link.second->sink->get_P()));
-                                        
-                                        if(temp.first)
-                                        {// direct transmit possible
-                                            std::cout<<"directTransmit: GBsegment "<<link.second->source->sID<<"->"<<link.second->sink->sID<<" "<<grain.second->grainID<<" "<<ssID<<std::flush;
-
-                                            switch (grainBoundaryTransmissionModel)
-                                            {
-                                                case 1:
-                                                {
-                                                    dG=GrainBoundaryTransmissionEnergyModel<1>::dGdirect(*link.second,
-                                                                                                         grainBoundary->glidePlane(grain.second->grainID).unitNormal,
-                                                                                                         slipSystem.s.cartesian(),
-                                                                                                         slipSystem.n.cartesian().normalized()
-                                                                                                         );
-                                                    
-                                                    break;
-                                                }
-                                                    
-                                                default:
-                                                    //                                                std::cout<"GrainBonudaryTransmissionModel not implemented."<<std::endl;
-                                                    break;
+                                        if(fabs(slipSystem.n.cartesian().normalized().dot(unitChord))<FLT_EPSILON )
+                                        {// slip plane cointains chord -> direct or indirect (offset) transmit
+                                            const std::pair<bool,long int> temp=LatticePlane::computeHeight(slipSystem.n,0.5*(link.second->source->get_P()+link.second->sink->get_P()));
+                                            if(temp.first)
+                                            {// direct transmit possible
+                                                emplaceData(*link.second,*grainBoundary,*grain.second,slipSystem,ssID,0,transmissionMap);
                                             }
-                                            
-                                            std::cout<<" dG="<<dG<<std::endl;
-                                            
-                                            
-                                            if(dG<0.0)
-                                            {
-                                                const TransmissionDataType data(link.second->source->sID,
-                                                                                link.second->sink->sID,
-                                                                                grain.second->grainID,
-                                                                                ssID,
-                                                                                grainBoundary->grainBndID,
-                                                                                0);
-                                                
-                                                transmissionMap.emplace(dG,data);
-                                                
+                                            else
+                                            {// direct transmit not possible, use offset transmit
+                                                emplaceData(*link.second,*grainBoundary,*grain.second,slipSystem,ssID,1,transmissionMap);
                                             }
                                         }
                                         else
-                                        {
-                                            std::cout<<"indirectTransmit: GBsegment "<<link.second->source->sID<<"->"<<link.second->sink->sID<<" "<<grain.second->grainID<<" "<<ssID<<std::flush;
-
-                                            
-                                            switch (grainBoundaryTransmissionModel)
-                                            {
-                                                case 1:
-                                                {
-                                                    dG=GrainBoundaryTransmissionEnergyModel<1>::dGindirect(*link.second,
-                                                                                                           grainBoundary->glidePlane(grain.second->grainID).unitNormal,
-                                                                                                           slipSystem.s.cartesian(),
-                                                                                                           slipSystem.n.cartesian().normalized()
-                                                                                                           );
-                                                    
-                                                    break;
-                                                }
-                                                    
-                                                default:
-                                                    //                                                std::cout<"GrainBonudaryTransmissionModel not implemented."<<std::endl;
-                                                    break;
-                                            }
-                                            
-                                            std::cout<<" dG="<<dG<<std::endl;
-                                            
-                                            
-                                            if(dG<0.0)
-                                            {
-                                                const TransmissionDataType data(link.second->source->sID,
-                                                                                link.second->sink->sID,
-                                                                                grain.second->grainID,
-                                                                                ssID,
-                                                                                grainBoundary->grainBndID,
-                                                                                1);
-                                                
-                                                transmissionMap.emplace(dG,data);
-                                                
-                                            }
+                                        {// slip plane doesn't cointains chord -> indirect (incident) transmit
+                                            emplaceData(*link.second,*grainBoundary,*grain.second,slipSystem,ssID,2,transmissionMap);
                                         }
-                                        
-                                        
                                     }
                                 }
                             }
@@ -278,10 +256,6 @@ namespace model
                     if(transmissionMap.size())
                     {
                         transmissionDeq.push_back(transmissionMap.begin()->second); // best transmission choice for the segment
-                        
-                        
-                        
-                        
                     }
                     
                 }
@@ -329,22 +303,45 @@ namespace model
                                 nTransmitted++;
                                 break;
                             }
-                            default:
+                            case 1: // offset transmit
                             {
+                                std::cout<<"indirect transmission"<<std::endl;
+                                
                                 
                                 const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(DN.poly.grain(grainID).slipSystems()[slipID].n,
-                                                                                                0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
+                                                                                                      0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
                                 
-//                                const double planeSpacing=1.0/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().norm();
+                                //                                const double planeSpacing=1.0/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().norm();
                                 
                                 PlanePlaneIntersection<dim> ppi(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
                                                                 DN.poly.grainBoundary(gbID.first,gbID.second).glidePlane(grainID).unitNormal,
                                                                 heightPair.second*DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian()/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().squaredNorm(),
                                                                 DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian());
-
-                                            assert(0 && "FINISH HERE");
                                 
+                                assert(0 && "FINISH HERE");
+                                
+                                
+                                
+                                
+                                break;
+                            }
+                            default: // indirect (incident) transmit
+                            {
                                 std::cout<<"indirect transmission"<<std::endl;
+                                
+                                
+                                const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(DN.poly.grain(grainID).slipSystems()[slipID].n,
+                                                                                                      0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
+                                
+                                //                                const double planeSpacing=1.0/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().norm();
+                                
+                                PlanePlaneIntersection<dim> ppi(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
+                                                                DN.poly.grainBoundary(gbID.first,gbID.second).glidePlane(grainID).unitNormal,
+                                                                heightPair.second*DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian()/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().squaredNorm(),
+                                                                DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian());
+                                
+                                assert(0 && "FINISH HERE");
+                                
                                 
                                 
                                 
@@ -363,57 +360,6 @@ namespace model
             return nTransmitted;
         }
         
-        //        /**********************************************************************/
-        //        void transmit()
-        //        {
-        //            if(grainBoundaryTransmission)
-        //            {
-        //                model::cout<<"		grain-boundary transmission..."<<std::flush;
-        //                
-        //                const auto t0= std::chrono::system_clock::now();
-        //                size_t nTransmitted=0;
-        //                for(const auto& gbSegment : *this)
-        //                {
-        //                    if(DN.link(gbSegment.sourceID,gbSegment.sinkID).first)
-        //                    {
-        //                        if(gbSegment.isValidTransmission)
-        //                        {
-        //                            const int originalGrainID=DN.link(gbSegment.sourceID,gbSegment.sinkID).second->grain.grainID;
-        //                            const int      newGrainID=gbSegment.transmitGrain->grainID;
-        //                            
-        //                            std::cout<<"segment GB ID="<<DN.link(gbSegment.sourceID,gbSegment.sinkID).second->grain.grainID<<std::endl;
-        //                            std::cout<<"transmit GB ID="<<gbSegment.transmitGrain->grainID<<std::endl;
-        //                            
-        //                            size_t newSourceID=gbSegment.sourceID;
-        //                            size_t newSinkID=gbSegment.sinkID;
-        //                            
-        //                            if(originalGrainID==newGrainID)
-        //                            {
-        //                                DN.template disconnect<false>(newSourceID,newSinkID);
-        //                                DN.connect(newSourceID,newSinkID,gbSegment.originalBurgers+*gbSegment.transmitBurgers);
-        //                            }
-        //                            else
-        //                            {
-        //                                newSourceID=DN.insertVertex(gbSegment.transmitSourceP,gbSegment.transmitGrain->grainID).first->first;
-        //                                newSinkID=DN.insertVertex(gbSegment.transmitSinkP,gbSegment.transmitGrain->grainID).first->first;
-        //                                DN.connect(newSourceID,newSinkID,*gbSegment.transmitBurgers);
-        //                            }
-        //                            
-        //                            const size_t newMidpointID(DN.insertVertex(gbSegment.transmitMidpoint->cartesian(),gbSegment.transmitGrain->grainID).first->first);
-        //                            DN.connect(newSinkID,newMidpointID,*gbSegment.transmitBurgers);
-        //                            DN.connect(newMidpointID,newSourceID,*gbSegment.transmitBurgers);
-        //                            
-        //                            nTransmitted++;
-        //                        }
-        //                    }
-        //                }
-        //                
-        //                
-        //                
-        //                model::cout<<"("<<nTransmitted<<" transmissions)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-        //                
-        //            }
-        //        }
         
     };
     
@@ -423,4 +369,58 @@ namespace model
     
 } // end namespace
 #endif
+
+
+
+//        /**********************************************************************/
+//        void transmit()
+//        {
+//            if(grainBoundaryTransmission)
+//            {
+//                model::cout<<"		grain-boundary transmission..."<<std::flush;
+//
+//                const auto t0= std::chrono::system_clock::now();
+//                size_t nTransmitted=0;
+//                for(const auto& gbSegment : *this)
+//                {
+//                    if(DN.link(gbSegment.sourceID,gbSegment.sinkID).first)
+//                    {
+//                        if(gbSegment.isValidTransmission)
+//                        {
+//                            const int originalGrainID=DN.link(gbSegment.sourceID,gbSegment.sinkID).second->grain.grainID;
+//                            const int      newGrainID=gbSegment.transmitGrain->grainID;
+//
+//                            std::cout<<"segment GB ID="<<DN.link(gbSegment.sourceID,gbSegment.sinkID).second->grain.grainID<<std::endl;
+//                            std::cout<<"transmit GB ID="<<gbSegment.transmitGrain->grainID<<std::endl;
+//
+//                            size_t newSourceID=gbSegment.sourceID;
+//                            size_t newSinkID=gbSegment.sinkID;
+//
+//                            if(originalGrainID==newGrainID)
+//                            {
+//                                DN.template disconnect<false>(newSourceID,newSinkID);
+//                                DN.connect(newSourceID,newSinkID,gbSegment.originalBurgers+*gbSegment.transmitBurgers);
+//                            }
+//                            else
+//                            {
+//                                newSourceID=DN.insertVertex(gbSegment.transmitSourceP,gbSegment.transmitGrain->grainID).first->first;
+//                                newSinkID=DN.insertVertex(gbSegment.transmitSinkP,gbSegment.transmitGrain->grainID).first->first;
+//                                DN.connect(newSourceID,newSinkID,*gbSegment.transmitBurgers);
+//                            }
+//
+//                            const size_t newMidpointID(DN.insertVertex(gbSegment.transmitMidpoint->cartesian(),gbSegment.transmitGrain->grainID).first->first);
+//                            DN.connect(newSinkID,newMidpointID,*gbSegment.transmitBurgers);
+//                            DN.connect(newMidpointID,newSourceID,*gbSegment.transmitBurgers);
+//
+//                            nTransmitted++;
+//                        }
+//                    }
+//                }
+//
+//
+//
+//                model::cout<<"("<<nTransmitted<<" transmissions)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//
+//            }
+//        }
 
