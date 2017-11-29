@@ -16,6 +16,7 @@
 #include <model/LatticeMath/Lattice.h>
 #include <model/LatticeMath/RationalMatrix.h>
 #include <model/LatticeMath/LLL.h>
+#include <model/LatticeMath/RLLL.h>
 
 
 namespace model
@@ -53,16 +54,17 @@ namespace model
         
         /**********************************************************************/
         DSCL(const LatticeType& A_in,
-            const LatticeType& B_in) :
+            const LatticeType& B_in,
+             const bool& useRLLL=true) :
         /* init */ _sigma(1),
         /* init */ A(A_in),
         /* init */ B(B_in)
         {
-            update();
+            update(useRLLL);
         }
 
         /**********************************************************************/
-        void update()
+        void update(const bool& useRLLL)
         {
             // Suppose that lattice B is obtained from A through a rotaion R, that is B=R*A
             // then R_ij=dot(b_i,a'_j), where ' indicates the reciprocal basis
@@ -131,10 +133,15 @@ namespace model
             const MatrixDimD D2=B.covBasis()*sd.matrixV().template cast<double>()*M.template cast<double>().inverse();
             
             assert((D1-D2).norm()<FLT_EPSILON && "DSCL calculation failed.");
-            this->setLatticeBasis(0.5*(D1+D2));
             
-            
-//            LLL lll(this->covBasis().template cast<int>().eval());
+            if(useRLLL)
+            {
+                this->setLatticeBasis(RLLL(0.5*(D1+D2),0.75).reducedBasis());
+            }
+            else
+            {
+                this->setLatticeBasis(0.5*(D1+D2));
+            }
         }
         
         /**********************************************************************/
