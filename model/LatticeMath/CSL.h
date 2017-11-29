@@ -16,6 +16,7 @@
 #include <model/LatticeMath/Lattice.h>
 #include <model/LatticeMath/RationalMatrix.h>
 #include <model/LatticeMath/LLL.h>
+#include <model/LatticeMath/RLLL.h>
 
 
 namespace model
@@ -53,16 +54,17 @@ namespace model
         
         /**********************************************************************/
         CSL(const LatticeType& A_in,
-            const LatticeType& B_in) :
+            const LatticeType& B_in,
+            const bool& useRLLL=true) :
         /* init */ _sigma(1),
         /* init */ A(A_in),
         /* init */ B(B_in)
         {
-            update();
+            update(useRLLL);
         }
 
         /**********************************************************************/
-        void update()
+        void update(const bool& useRLLL)
         {
             // Suppose that lattice B is obtained from A through a rotaion R, that is B=R*A
             // then R_ij=dot(b_i,a'_j), where ' indicates the reciprocal basis
@@ -85,7 +87,7 @@ namespace model
             assert(std::fabs(R.determinant()-1.0) < FLT_EPSILON && "R IS NOT PROPER.");
 
             
-            // Compute the transitio matrix T=inv(A)*B
+            // Compute the transition matrix T=inv(A)*B
             const MatrixDimD T=A.contraBasis().transpose()*B.covBasis();
             
             // For the two lattices to have coincident sites, R must be a rational matrix
@@ -126,12 +128,26 @@ namespace model
                 M(i,i)=dii/gcd(_sigma,dii);
                 N(i,i)=_sigma/gcd(_sigma,dii);
             }
+
+//            std::cout<<"M=\n"<<M<<std::endl;
+//            std::cout<<"N=\n"<<N<<std::endl;
+//
+//            std::cout<<"XM=\n"<<sd.matrixX()*M<<std::endl;
+//            std::cout<<"VN=\n"<<sd.matrixV()*N<<std::endl;
             
             const MatrixDimD C1=A.covBasis()*(sd.matrixX()*M).template cast<double>();
             const MatrixDimD C2=B.covBasis()*(sd.matrixV()*N).template cast<double>();
             
             assert((C1-C2).norm()<FLT_EPSILON && "CSL calculation failed.");
-            this->setLatticeBasis(0.5*(C1+C2));
+            if(useRLLL)
+            {
+                this->setLatticeBasis(RLLL(0.5*(C1+C2),0.75).reducedBasis());
+            }
+            else
+            {
+                this->setLatticeBasis(0.5*(C1+C2));
+            }
+            
             
             
 //            LLL lll(this->covBasis().template cast<int>().eval());

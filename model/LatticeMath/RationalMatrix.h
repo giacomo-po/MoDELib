@@ -72,7 +72,7 @@ namespace model
                 }
             }
             
-            if((im.template cast<double>()/sigma-R).norm()>2.0*DBL_EPSILON*dim*dim)
+            if((im.template cast<double>()/sigma-R).norm()>100.0*DBL_EPSILON*dim*dim)
             {
                 std::cout<<"maxDen="<<maxDen<<std::endl;
                 std::cout<<"im=\n"<<std::setprecision(15)<<std::scientific<<im.template cast<double>()/sigma<<std::endl;

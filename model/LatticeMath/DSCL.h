@@ -85,7 +85,7 @@ namespace model
             assert(std::fabs(R.determinant()-1.0) < FLT_EPSILON && "R IS NOT PROPER.");
 
             
-            // Compute the transitio matrix T=inv(A)*B
+            // Compute the transition matrix T=inv(A)*B
             const MatrixDimD T=A.contraBasis().transpose()*B.covBasis();
             
             // For the two lattices to have coincident sites, R must be a rational matrix
@@ -145,7 +145,7 @@ namespace model
     };
     
     
-} // end namespace
+}
 #endif
 
 

@@ -233,6 +233,12 @@ namespace model
             return _covBasis;
         }
         
+        const VectorDimD basisVector(const size_t& c) const
+        {
+            assert(c<dim);
+            return covBasis().col(c);
+        }
+        
         /**********************************************************************/
         const MatrixDimD& contraBasis() const
         {

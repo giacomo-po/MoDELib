@@ -33,7 +33,7 @@ namespace model
             /*  a: continued fraction coefficients. */
             LongIntType a, h[3] = { 0, 1, 0 }, k[3] = { 1, 0, 0 };
             LongIntType x, d, n = 1;
-            int i, neg = 0;
+            long int i, neg = 0;
             
             if (md <= 1)
             { // *denom = 1; *num = (LongIntType) f; return;
