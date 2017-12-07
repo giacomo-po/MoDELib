@@ -30,45 +30,6 @@ outputDislocationLength=0;
 outputQuadratureParticles=0;
 
 ######################################
-# MATERIAL
-# Choose a material by its atomic number (Z), for example Al=13; Ni=28; Cu=29;
-material=29;
-
-######################################
-# CRYSTAL ORIENTATION
-# Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
-
-C2G1 = 1 0 0
-       0 1 0
-       0 0 1;
-
-# STGB is sigma=13, theta=22.62 deg 
-#C2G2 = 12 0 5
-#       0 1 0
-#      -5 0 12;
-
-# STGB is sigma=5, theta=36.87 deg
-#C2G2 = 4 0 3
-#       0 1 0
-#      -3 0 4;
-
-# STGB is sigma=13, theta=67.38 deg
-#C2G2 = 5 0 12
-#       0 1 0
-#      -12 0 5;
-
-# STGB is sigma=3, theta=70.53 deg (twin boundary)
-#C2G2=  2    -1    -2
-#      -1     2    -2
-#       2     2     1;
-
-# Twist boundary sigma 13
-C2G2=12    -3     4
-     4    12    -3
-    -3     4    12;
-
-
-######################################
 # TEMPERATURE in [K]
 temperature = 300.0;
 
@@ -110,7 +71,7 @@ collisionTol=3;
 # If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
 # T/T_meshID.txt must be present in the working directory.
 use_boundary =1;
-meshID=0;
+meshID=1;
 use_directSolver_FEM=0;
 use_meshRegions=0;
 

@@ -119,7 +119,7 @@ namespace model
             
             // Material and crystal orientation
             unsigned int materialZ;
-            EDR.readScalarInFile(fullName.str(),"material",materialZ); // material by atomic number Z
+            EDR.readScalarInFile("./polyCrystalInput.txt","material",materialZ); // material by atomic number Z
             Material<Isotropic>::select(materialZ);
             
             // quadPerLength
@@ -304,7 +304,7 @@ namespace model
                 assert(DN.mesh.simplices().size() && "MESH IS EMPTY.");
                 
                 // Initialize Polycrystal
-                DN.poly.init(DN,fullName.str());
+                DN.poly.init(DN,"./polyCrystalInput.txt");
                 
                 EDR.readScalarInFile(fullName.str(),"use_virtualSegments",DN.use_virtualSegments);
                 if(DN.use_virtualSegments)

@@ -93,16 +93,22 @@ namespace model
                 // Read grain orientation
                 Eigen::Matrix<double,dim,dim> C2Gtemp(Eigen::Matrix<double,dim,dim>::Identity());
                 EDR.readMatrixInFile(fullName,"C2G"+std::to_string(rIter.second->regionID),C2Gtemp); // crystal-to-global orientation
-                for(int i=0;i<3;i++)
-                {
-                    double c2gNorm(C2Gtemp.row(i).norm());
-                    for(int j=0;j<3;j++)
-                    {
-                        assert(C2Gtemp(i,j)-std::round(C2Gtemp(i,j))==0&&"User must pass C2G matrix in integer form to limit rounding errors");
-                        C2Gtemp(i,j)=C2Gtemp(i,j)/c2gNorm;
-                    }
-                }
-                                
+                
+//                if()
+//                {
+//                
+//                }
+                
+//                for(int i=0;i<3;i++)
+//                {
+//                    double c2gNorm(C2Gtemp.row(i).norm());
+//                    for(int j=0;j<3;j++)
+//                    {
+//                        assert(C2Gtemp(i,j)-std::round(C2Gtemp(i,j))==0 && "User must pass C2G matrix in integer form to limit rounding errors");
+//                        C2Gtemp(i,j)=C2Gtemp(i,j)/c2gNorm;
+//                    }
+//                }
+                
                 grains().emplace(std::piecewise_construct,
                                  std::forward_as_tuple(rIter.second->regionID),
                                  std::forward_as_tuple(*(rIter.second),

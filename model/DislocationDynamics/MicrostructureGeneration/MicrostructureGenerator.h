@@ -104,7 +104,7 @@ namespace model
                 _minSize=0.1*min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
                 _maxSize=max(mesh.xMax(0)-mesh.xMin(0),max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
                 
-                poly.init(gpo,"./DDinput.txt");
+                poly.init(gpo,"./polyCrystalInput.txt");
                 
             }
             else
@@ -114,7 +114,7 @@ namespace model
             
             
             unsigned int materialZ;
-            EDR.readScalarInFile("./DDinput.txt","material",materialZ); // material by atomic number Z
+            EDR.readScalarInFile("./polyCrystalInput.txt","material",materialZ); // material by atomic number Z
             Material<Isotropic>::select(materialZ);
             
 //            _minSize=0.1*min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));

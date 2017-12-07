@@ -466,8 +466,8 @@ namespace model
                                      const SimplicialMesh<dim>& mesh)
         {
 //            model::cout<<yellowColor<<"GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
-            _csl.update();
-            _dscl.update();
+            _csl.update(true);
+            _dscl.update(true);
             computeCrystallographicRotationAxis();
             createLatticePlanes(dn,mesh);
 //            findGrainBoundaryType(poly.grainBoundaryTypes());
