@@ -395,7 +395,7 @@ namespace model
                 CN.push_back(plane->n.cartesian().normalized());
             }
             
-            if(meshLocation()==MeshLocation::onMeshBoundary)
+            if(isBoundaryNode())
             {
                 CN.push_back(boundaryNormal);
                 

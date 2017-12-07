@@ -185,21 +185,22 @@ namespace model
                     break;
             }
             
-            if(clrVector(0)<0.0)
-            {
-                clrVector*=-1;
+            float clrTol=100.0*FLT_EPSILON;
+            if(clrVector(0)<-clrTol)
+            {// first component not zero but begative, flip color
+                clrVector*=-1.0;
             }
-            else if(clrVector(0)==0.0)
-            {
-                if(clrVector(1)<0.0)
-                {
-                    clrVector*=-1;
+            else if(fabs(clrVector(0))<=clrTol)
+            {// first component is zero, use second component
+                if(clrVector(1)<-clrTol)
+                {// second component not zero but begative, flip color
+                    clrVector*=-1.0;
                 }
-                else if(clrVector(1)==0.0)
-                {
-                    if(clrVector(2)<0.0)
+                else if(fabs(clrVector(1))<=clrTol)
+                {// second component is zero, use third component
+                    if(clrVector(2)<-clrTol)
                     {
-                        clrVector*=-1;
+                        clrVector*=-1.0;
                     }
                 }
             }
