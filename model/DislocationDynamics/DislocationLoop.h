@@ -73,7 +73,7 @@ namespace model
             model::cout<<"Creating DislocationLoop "<<this->sID<<std::endl;
             
 //            _glidePlane->addLoop(this);
-            _glidePlane->addParentSharedPtr(&_glidePlane);
+            _glidePlane->addParentSharedPtr(&_glidePlane,isGlissile,this->sID);
 
         }
         
@@ -88,7 +88,7 @@ namespace model
             model::cout<<"Copying DislocationLoop "<<this->sID<<std::endl;
             
 //            _glidePlane->addLoop(this);
-            _glidePlane->addParentSharedPtr(&_glidePlane);
+            _glidePlane->addParentSharedPtr(&_glidePlane,isGlissile,this->sID);
 
         }
         
@@ -99,7 +99,7 @@ namespace model
 
             
 //            _glidePlane->removeLoop(this);
-            _glidePlane->removeParentSharedPtr(&_glidePlane);
+            _glidePlane->removeParentSharedPtr(&_glidePlane,isGlissile,this->sID);
         }
         
         /**********************************************************************/

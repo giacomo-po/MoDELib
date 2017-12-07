@@ -5,12 +5,13 @@ clear all
 MODEL_DIR='../../../..';
 
 %% Define output file name
-meshID=1; % creates ../N/N_1.txt and ../T/T_1.txt
+meshID=0; % creates ../N/N_0.txt and ../T/T_0.txt
 targetElements=1e4;
+material=29;   % choose material by atomic number
 
 filename='tricrystal'; % this creates file tricrystal.poly
-t=4000;      	% Film thickness (of columnar grains)
-L=1000;      	% Side length of cube containing 3 crystals
+t=1000;      	% Film thickness (of columnar grains)
+L=2000;      	% Side length of cube containing 3 crystals
 X=0.5*L*tan(acos(-1/3)-pi/2);
 V=L*L*t;	%Volume of the triple crystal
 
@@ -311,3 +312,11 @@ C2G1=C2G2*R12
 
 R13=angleAxis([1 0 1]',-acos(-1/3));
 C2G3=C2G2*R13
+
+polyINfile=fopen('../polyCrystalInput.txt','w');
+fprintf(polyINfile,'%s\n%s\n\n','# Choose material by atomic number (e.g. material=29 for Cu):',['material=' num2str(material) ';']);
+fprintf(polyINfile,'%s\n','# Grain orientation matrices (the i-th row of C2G-j is the crystallographic direction of grain j which becomes the i-th global axis):');
+fprintf(polyINfile,'%s %1.15e %1.15e %1.15e\n      %1.15e %1.15e %1.15e\n      %1.15e %1.15e %1.15e;\n','C2G1=',C2G1(1,:),C2G1(2,:),C2G1(3,:));
+fprintf(polyINfile,'%s %1.15e %1.15e %1.15e\n      %1.15e %1.15e %1.15e\n      %1.15e %1.15e %1.15e;\n','C2G2=',C2G2(1,:),C2G2(2,:),C2G2(3,:));
+fprintf(polyINfile,'%s %1.15e %1.15e %1.15e\n      %1.15e %1.15e %1.15e\n      %1.15e %1.15e %1.15e;\n','C2G3=',C2G3(1,:),C2G3(2,:),C2G3(3,:));
+fclose(polyINfile);

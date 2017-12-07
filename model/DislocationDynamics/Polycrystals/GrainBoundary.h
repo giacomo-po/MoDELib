@@ -122,7 +122,7 @@ namespace model
 
             assert(temp.second);
             assert(temp.first->second->unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
-            temp.first->second->addParentSharedPtr(&temp.first->second); // add shared pointer to GlidePlane
+            temp.first->second->addParentSharedPtr(&temp.first->second,false,-1); // add shared pointer to GlidePlane
             
         }
         

@@ -38,31 +38,6 @@ material=29;
 # CRYSTAL ORIENTATION
 # Crystal orientation. Define the Crystal-to-Global (C2G) orthogonal matrix 
 
-#C2G1 = 1  0 0
-#      0   1  0
-#      0   0   1;
-
-#C2G2 = 1  0 0
-#      0   1  0
-#      0   0   1;
-
-#C2G3 = 1  0 0
-#      0   1  0
-#      0   0   1;
-
-C2G1 = 	1 -5 -1
-	1  0  1
-       -5 -2  5;
-
-C2G2 =  1  1 -1
-   	1  0  1
-   	1 -2 -1;
-
-
-C2G3 = -1 1  1
-   	1 0  1
-   	1 2 -1;
-
 ######################################
 # TEMPERATURE in [K]
 temperature = 300.0;
@@ -105,7 +80,7 @@ collisionTol=3;
 # If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
 # T/T_meshID.txt must be present in the working directory.
 use_boundary =1;
-meshID=1;
+meshID=0;
 use_directSolver_FEM=0;
 use_meshRegions=0;
 
@@ -124,6 +99,10 @@ solverTolerance=0.0001;
 # Enable/disable cross-slip
 use_crossSlip=1;
 crossSlipDeg=2.0;
+
+######################################
+# GRAIN-BOUNDARY MODEL
+grainBoundaryTransmissionModel=1;
 
 ######################################
 parametrizationExponent=0.5;

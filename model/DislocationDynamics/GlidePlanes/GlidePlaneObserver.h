@@ -190,7 +190,10 @@ namespace model
         {
             for (const auto& glidePlane : gpo.glidePlanes())
             {
-                os << (*glidePlane.second);
+                if(glidePlane.second->glissileLoopIDs.size())
+                {
+                    os << (*glidePlane.second);
+                }
             }
             return os;
         }

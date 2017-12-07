@@ -18,7 +18,7 @@ V=pi*R^2*H;    % volume
 np=20;         % number of points along circumference
 A=[0 1 1;1 0 1;1 1 0]/sqrt(2); % matrix of primitive lattice vectors for FCC
 
-STGBtype=4;
+STGBtype=1;
 referenceLattice=3; % 1 or 2 for inclined bycrystal, 3 for horizontal bycrystal
 
 switch STGBtype
