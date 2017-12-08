@@ -832,14 +832,34 @@ namespace model
         //            /*  */ && !hasZeroBurgers();
         //        }
         
+//        /**********************************************************************/
+//        bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
+//        {/*!\returns true if both nodes are boundary nodes, and the midpoint is
+//          * on the boundary.
+//          */
+//            return this->source->isBoundaryNode() &&
+//            /*  */ this->sink->isBoundaryNode() &&
+//            /*  */ boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
+//        }
+        
         /**********************************************************************/
         bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
         {/*!\returns true if both nodes are boundary nodes, and the midpoint is
           * on the boundary.
           */
-            return this->source->isBoundaryNode() &&
-            /*  */ this->sink->isBoundaryNode() &&
-            /*  */ boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
+            const bool sourceOnBnd=this->source->isBoundaryNode();
+            const bool sinkOnBnd  =this->  sink->isBoundaryNode();
+            bool midPointOnBoundary=false;
+            if (sourceOnBnd && sinkOnBnd && this->network().use_boundary)
+            {
+                std::pair<bool,const Simplex<dim,dim>*> midPointSimplex=this->network().mesh.search(0.5*(this->source->get_P()+this->sink->get_P()));
+                assert(midPointSimplex.first);
+                midPointOnBoundary = SimplexBndNormal::get_boundaryNormal(0.5*(this->source->get_P()+this->sink->get_P()),*midPointSimplex.second,NodeType::bndTol).norm()>FLT_EPSILON;
+            }
+            
+            return    sourceOnBnd
+            /*  */ && sinkOnBnd
+            /*  */ && midPointOnBoundary;
         }
         
         /**********************************************************************/

@@ -11,10 +11,10 @@ ExternalStressRate = 0.0 0.0 0.0
 		 0.0 0.0 0.0;
 ExternalStrain0 = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.01;
+		 0.0 0.0 0.003;
 ExternalStrainRate = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.0 0.0 0.0;
+		 0.0 0.0 1e-8;
 # MachineStiffnessRatio=0 means pure stress control,  
 # MachineStiffnessRatio=infinity (such as 1e20) means pure strain control
 # voigt format 11 22 33 12 23 13

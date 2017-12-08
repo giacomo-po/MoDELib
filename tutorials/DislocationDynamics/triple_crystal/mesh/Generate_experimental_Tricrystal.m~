@@ -321,4 +321,4 @@ fprintf(polyINfile,'%s %1.15e %1.15e %1.15e\n      %1.15e %1.15e %1.15e\n      %
 fprintf(polyINfile,'%s %1.15e %1.15e %1.15e\n      %1.15e %1.15e %1.15e\n      %1.15e %1.15e %1.15e;\n','C2G3=',C2G3(1,:),C2G3(2,:),C2G3(3,:));
 fclose(polyINfile);
 
-% P=A+(B-A)*u;
+% P=A+(P6-P9)*u;

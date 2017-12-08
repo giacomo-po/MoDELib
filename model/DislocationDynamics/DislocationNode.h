@@ -860,7 +860,7 @@ namespace model
           */
             MeshLocation temp = MeshLocation::outsideMesh;
             
-            if(_isOnBoundingBox)
+            if(isBoundaryNode())
             {
                 temp=MeshLocation::onMeshBoundary;
             }
@@ -884,12 +884,19 @@ namespace model
         {
             return _isOnBoundingBox;
         }
-        
+
         /**********************************************************************/
-        const bool& isBoundaryNode() const
+        bool isBoundaryNode() const
         {
-            return _isOnBoundingBox;
+            return boundaryNormal.squaredNorm()>FLT_EPSILON;
+            //            return _isOnBoundingBox;
         }
+        
+//        /**********************************************************************/
+//        const bool& isBoundaryNode() const
+//        {
+//            return _isOnBoundingBox;
+//        }
         
         /**********************************************************************/
         bool isGrainBoundaryNode() const
@@ -1032,6 +1039,10 @@ namespace model
                         {// node was internal to the grain and remains internal
                             VerboseDislocationNode(2,"case 2"<<std::endl;);
                             NodeBaseType::set_P(newP);
+                            if(boundingBoxSegments().contains(this->get_P()).first)
+                            {// there is a chance that newP is exactly on the bounding box
+                                _isOnBoundingBox=true;
+                            }
                         }
                     }
                     else
@@ -1072,19 +1083,16 @@ namespace model
                     }
                     
                     p_Simplex=get_includingSimplex(p_Simplex); // update including simplex
+                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
+//                    if(boundaryNormal.squaredNorm()<FLT_EPSILON)
+//                    {
+//                        model::cout<<"DislocationNode "<<this->sID<<", @"<<this->get_P().transpose()<<std::endl;
+//                        assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
+//                    }
                     
                     if(_isOnBoundingBox)
                     {
                         assert(boundingBoxSegments().contains(this->get_P()).first);
-                        
-                        boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
-                        if(boundaryNormal.squaredNorm()<FLT_EPSILON)
-                        {
-                            model::cout<<"DislocationNode "<<this->sID<<", @"<<this->get_P().transpose()<<std::endl;
-                            assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
-                        }
-                        
-                        
                     }
                     
                 }

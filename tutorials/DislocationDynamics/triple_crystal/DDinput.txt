@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=1000;
+Nsteps=10000;
 startAtTimeStep = -1;
 use_directSolver_DD=0;
 quadPerLength=0.1;
@@ -115,5 +115,5 @@ surfaceNucleationModel=0;
 # DEBUGGING
 verboseJunctions=1;
 verboseRemesh=0;
-verboseNodeContraction=1;
+verboseNodeContraction=0;
 verboseDislocationNode=0;

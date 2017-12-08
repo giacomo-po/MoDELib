@@ -129,10 +129,16 @@ class ExternalStressFieldController
         model::cout<<" voigtorder="<<voigtorder<<std::endl;
         
         // initilize the default voigt machinestiffness
-        Eigen::Matrix<double,voigtSize,voigtSize>  machinestiffness=MachineStiffnessRatio.asDiagonal();
-         
-        stressmultimachinestiffness=(Eigen::Matrix<double,voigtSize,voigtSize>::Identity()+machinestiffness).inverse();
-        strainmultimachinestiffness=(Eigen::Matrix<double,voigtSize,voigtSize>::Identity()+machinestiffness).inverse()*machinestiffness;
+        MachineStiffnessRatio.block(0,0,1,dim)=MachineStiffnessRatio.block(0,0,1,dim)*(2+lambda); // using strategy 2 in test.m file  alpha*diag(C)  (first three)*(2*mu+lambda)  (first three)*mu 
+        Eigen::Matrix<double,voigtSize,voigtSize>  Cinv=Eigen::Matrix<double,voigtSize,voigtSize>::Identity();
+        Cinv.block(0,0,dim,dim)<<nu_use/nu, -nu_use,       -nu_use,
+                                 -nu_use,   nu_use/nu,     -nu_use,
+                                 -nu_use,   -nu_use,       nu_use/nu;
+        Eigen::Matrix<double,voigtSize,voigtSize>  machinestiffness=MachineStiffnessRatio.asDiagonal();;  
+        //stressmultimachinestiffness=(Eigen::Matrix<double,voigtSize,voigtSize>::Identity()+machinestiffness).inverse();
+        //strainmultimachinestiffness=(Eigen::Matrix<double,voigtSize,voigtSize>::Identity()+machinestiffness).inverse()*machinestiffness;
+        stressmultimachinestiffness=(Eigen::Matrix<double,voigtSize,voigtSize>::Identity()+machinestiffness*Cinv).inverse();
+        strainmultimachinestiffness=(Eigen::Matrix<double,voigtSize,voigtSize>::Identity()+machinestiffness*Cinv).inverse()*machinestiffness;
        /*    for (size_t i=0;i<voigtSize;i++)
         { 
            double alpha=MachineStiffnessRatio.row(i)[0];
@@ -193,13 +199,13 @@ class ExternalStressFieldController
         }
         else
         {
-            MatrixType pdr(DN.plasticDistortion());
+                MatrixType pdr(DN.plasticDistortion());
           // MatrixType pdr(MatrixType::Zero());
-            plasticStrain=(pdr+pdr.transpose())*0.5/sample_volume;
+                plasticStrain=(pdr+pdr.transpose())*0.5/sample_volume;
 	        MatrixType dstrain(ExternalStrain0+ExternalStrainRate*last_update_time-plasticStrain); 
-	        MatrixType S_strain(straininducedStress(dstrain,lambda));
-            MatrixType S_stress(ExternalStress0+ExternalStressRate*last_update_time);
-	        ExternalStress=stressconsidermachinestiffness(S_strain,S_stress);
+	        //MatrixType S_strain(straininducedStress(dstrain,lambda));
+                MatrixType S_stress(ExternalStress0+ExternalStressRate*last_update_time);
+	        ExternalStress=stressconsidermachinestiffness(dstrain,S_stress);
             model::cout<<"ExternalStressFieldControllerController: F/F_0.txt cannot be opened."<<std::endl;
         }
  
@@ -278,12 +284,23 @@ class ExternalStressFieldController
 		    const double deltaT = DN.get_totalTime() - last_update_time;
 		    last_update_time += deltaT;
 		    MatrixType PSR=DN.plasticStrainRate()/sample_volume;
-		    MatrixType S_Strain(straininducedStress(ExternalStrainRate*deltaT-PSR*deltaT,lambda));
-		    ExternalStress+=stressconsidermachinestiffness(S_Strain,ExternalStressRate*deltaT);
+                    ExternalStress+=stressconsidermachinestiffness(ExternalStrainRate*deltaT-PSR*deltaT,ExternalStressRate*deltaT);  //2017-12-7
+		   // MatrixType S_Strain(straininducedStress(ExternalStrainRate*deltaT-PSR*deltaT,lambda));
+		    //ExternalStress+=stressconsidermachinestiffness(S_Strain,ExternalStressRate*deltaT);
 		    if (DN.use_boundary)
 		    {
                         plasticStrain+=PSR*deltaT;
                         ExternalStrain=elasticstrain(ExternalStress,nu_use)+plasticStrain;
+
+                       // for testing 
+                      /*  MatrixType stresschange=stressconsidermachinestiffness(ExternalStrainRate*deltaT-PSR*deltaT,ExternalStressRate*deltaT);
+                        MatrixType tempelasticstrain=elasticstrain(stresschange,nu_use)+PSR*deltaT;
+                        model::cout<<" e0="<<m2v(ExternalStrainRate*deltaT)<<std::endl;
+                        model::cout<<" e="<<m2v(tempelasticstrain)<<std::endl;
+                        model::cout<<" ep="<<m2v(PSR*deltaT)<<std::endl; 
+                        model::cout<<" s="<<m2v(stresschange)<<std::endl;   
+                        model::cout<<" s0="<<m2v(ExternalStressRate*deltaT)<<std::endl; */
+
                     }
                     else
                     {
@@ -292,6 +309,7 @@ class ExternalStressFieldController
                      }
                 
 		}
+
 
 
     }
