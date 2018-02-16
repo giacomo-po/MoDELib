@@ -180,6 +180,7 @@ namespace model
                 if (!linkIter->second.source->is_simple() && !linkIter->second.sink->is_simple()
                     /*&& chord.dot(dv)>vTolexp*chordLength*dv.norm()*/ && chordLength>3.0*Lmin)
                 { // also expands a straight line to generate glissile segment
+
                     VerboseRemesh(1,"expand candidate (not simple vertices)"<<linkIter->second.nodeIDPair.first<<"->"<<linkIter->second.nodeIDPair.second<<std::endl;);
                     toBeExpanded.insert(linkIter->second.nodeIDPair);
                 }
@@ -192,7 +193,8 @@ namespace model
                 }
                 
                 // Angle criterion
-                if (linkIter->second.source->is_simple())
+                if (linkIter->second.source->is_simple()
+                    && linkIter->second.source->confiningPlanes().size()==1)
                 { //check angle criterion at source
                     const VectorDimD c0(linkIter->second.source->openNeighborNode(0)->get_P()-linkIter->second.source->get_P());
                     const VectorDimD c1(linkIter->second.source->openNeighborNode(1)->get_P()-linkIter->second.source->get_P());
@@ -213,7 +215,8 @@ namespace model
                         }
                     }
                 }
-                if (linkIter->second.sink->is_simple())
+                if (linkIter->second.sink->is_simple()
+                    && linkIter->second.sink->confiningPlanes().size()==1)
                 { //check angle criterion at sink
                     const VectorDimD c0(linkIter->second.sink->openNeighborNode(0)->get_P()-linkIter->second.sink->get_P());
                     const VectorDimD c1(linkIter->second.sink->openNeighborNode(1)->get_P()-linkIter->second.sink->get_P());

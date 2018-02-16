@@ -348,14 +348,14 @@ namespace model
 
         }
         
-//        /**********************************************************************/
-//        Eigen::Matrix<double,rows,1> operator()(const ElementType& ele, const BaryType& bary) const
-//        {/*!@param[in] ele the element
-//          * @param[in] bary the vector of barycentric coordinates
-//          * \returns the value of the Derived expression at bary.
-//          */
-//            return sfm(ele,bary)*dofs(ele);
-//        }
+        /**********************************************************************/
+        Eigen::Matrix<double,rows,1> operator()(const ElementType& ele, const BaryType& bary) const
+        {/*!@param[in] ele the element
+          * @param[in] bary the vector of barycentric coordinates
+          * \returns the value of the Derived expression at bary.
+          */
+            return sfm(ele,bary)*dofs(ele);
+        }
 //        
 //        /**********************************************************************/
 //        Eigen::Matrix<double,rows,1> operator()(const Eigen::Matrix<double,dim,1>& P, const Simplex<dim,dim>* const guess) const

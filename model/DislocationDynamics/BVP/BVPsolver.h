@@ -342,6 +342,7 @@ namespace model
 
             fe = new FiniteElementType(mesh);
             u  = new TrialFunctionType(fe->template trial<'u',dim>());
+            *u=0.0;
             b  = new TrialGradType(grad(*u));
             e  = new TrialDefType(def(*u));
             C=get_C(); // Material<Isotropic>  may have changed since construction
@@ -389,7 +390,7 @@ namespace model
             for (const auto& pair : displacement().dirichletNodeMap()) // range-based for loop (C++11)
             {
                 const auto& gID(pair.first);
-                const auto node(fe->node(gID));
+                const auto& node(fe->node(gID));
                 
                 fieldPoints.emplace_back(node);
             }
@@ -438,17 +439,9 @@ namespace model
         template <typename DislocationNetworkType,int qOrder>
         void assembleAndSolve(const DislocationNetworkType& DN)
         {
-            // Clear exisintg Dirichlet condition
-            u->clearDirichletConditions();
             
             // Update loadController
             lc->update(DN);
-            
-            // Add Dirichlet conditions by loadController
-            lc->addDirichletConditions(DN);
-
-            // Modify Dirichlet conditions by subtracting dislocation displacement
-            modifyDirichletConditions(DN);
             
             // Compute dislocation traction
             model::cout<<"Computing DD boundary traction..."<<std::flush;
@@ -461,8 +454,30 @@ namespace model
             auto dislocationTraction=(test(*u),eb_list);
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
+            // Clear exisintg Dirichlet condition
+            u->clearDirichletConditions();
+            // Add Dirichlet conditions by loadController
+            lc->addDirichletConditions(DN);
+            // Modify Dirichlet conditions by subtracting dislocation displacement
+            modifyDirichletConditions(DN);
+            
+            
             // Assemble loadController and dislocaiton tractions and solve
-            displacement()=solve(lc->globalVector()-dislocationTraction.globalVector(),displacement());
+            const Eigen::VectorXd dislocationTractionVector=dislocationTraction.globalVector();
+            displacement()=solve(lc->globalVector()-dislocationTractionVector,displacement());
+            
+//            const Eigen::VectorXd nodalForces=A*displacement()+dislocationTractionVector;
+//            
+//            std::set<size_t> overConstrainedNodes;
+//            for (const auto& pair : displacement().dirichletNodeMap()) // range-based for loop (C++11)
+//            {
+//                const auto& gID(pair.first);
+//                
+//                
+//                const auto& node(fe->node(gID));
+//                
+//                fieldPoints.emplace_back(node);
+//            }
             
         }
 //#else

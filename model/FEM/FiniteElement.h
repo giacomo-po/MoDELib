@@ -306,6 +306,24 @@ namespace model
             return pair.first->first;
         }
         
+//        /**********************************************************************/
+//        size_t createNodeList(const NodeListType& nodeList)
+//        {
+//            //const size_t nodeListID_old(nodeListID);
+//            auto pair=NodeListContainerType::emplace(nodeListID,nodeList);
+//            assert(pair.second);
+////            const NodeSelectorType nodeSelector(*this,args...);
+////            for(auto& node : nodes())
+////            {
+////                if(nodeSelector(node))
+////                {
+////                    pair.first->second.emplace_back(&node);
+////                }
+////            }
+//            nodeListID++;
+//            return pair.first->first;
+//        }
+        
         /**********************************************************************/
         void  clearNodeLists()
         {

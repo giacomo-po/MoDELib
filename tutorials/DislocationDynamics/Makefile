@@ -55,7 +55,7 @@ ifeq ($(usePARDISO), 1)
 	LIBS += -L $(INTEL_LIB)
 
 	ifeq ($(OS),Darwin)
-		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -liomp5 -lpthread -lm -ldl
+		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread 
 	endif
 
 	ifeq ($(OS),Linux)

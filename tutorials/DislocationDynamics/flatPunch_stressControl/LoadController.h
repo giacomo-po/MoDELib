@@ -151,12 +151,12 @@ struct LoadController
         
         model::EigenDataReader EDR;
         
-        EDR.readScalarInFile("./loadInput.txt","punchShape",LoadController::punchShape);
-        EDR.readScalarInFile("./loadInput.txt","punchSize",LoadController::punchSize);
+        EDR.readScalarInFile("./loadInput.txt","punchShape",punchShape);
+        EDR.readScalarInFile("./loadInput.txt","punchSize",punchSize);
         EDR.readScalarInFile("./loadInput.txt","sigmaDot",sigmaDot);
         EDR.readScalarInFile("./loadInput.txt","initialStress",initialStress);
-        EDR.readScalarInFile("./loadInput.txt","relaxSteps",LoadController::relaxSteps);
-        EDR.readScalarInFile("./loadInput.txt","apply_load",LoadController::apply_load);
+        EDR.readScalarInFile("./loadInput.txt","relaxSteps",relaxSteps);
+        EDR.readScalarInFile("./loadInput.txt","apply_load",apply_load);
         
         nodeList_top=u.fe().template createNodeList<TopNodeSelector>(punchShape,punchSize,0.01),
         punchBnd=boundaryUnderPunch(u.fe());
