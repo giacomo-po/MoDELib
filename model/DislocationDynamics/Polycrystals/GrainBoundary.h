@@ -38,6 +38,9 @@ namespace model
     /* base */ private std::map<int,std::shared_ptr<GlidePlane<dim>>>
     {
 //        static constexpr int dim=NetworkType::dim;
+        
+        enum AxisPlaneRelation{TILT=0,TWIST=1,MIXED=2};
+        
         typedef MeshRegionBoundary<Simplex<dim,dim-1> > MeshRegionBoundaryType;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
@@ -67,11 +70,11 @@ namespace model
             
             const ReciprocalLatticeDirectionType R=grain.reciprocalLatticeDirection(normal);
             
-            model::cout<<"   GB normal for grain "<< grain.grainID<<":"<<defaultColor<<std::endl;
-            model::cout<<"   cartesian components="<<R.cartesian().transpose()<<defaultColor<<std::endl;
-            model::cout<<"   crystallographic components="<<grain.rationalApproximation((grain.get_C2G().transpose()*R.cartesian())).transpose()<<defaultColor<<std::endl;
+            model::cout<<"   GB plane normal for grain "<< grain.grainID<<":"<<defaultColor<<std::endl;
+            model::cout<<"      cartesian components="<<R.cartesian().normalized().transpose()<<defaultColor<<std::endl;
+            model::cout<<"      crystallographic components="<<grain.rationalApproximation((grain.get_C2G().transpose()*R.cartesian())).transpose()<<defaultColor<<std::endl;
 //            model::cout<<"   crystallographic components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<defaultColor<<std::endl;
-            model::cout<<"   interplanar spacing="<<1.0/R.cartesian().norm()<<defaultColor<<std::endl;
+            model::cout<<"      interplanar spacing="<<1.0/R.cartesian().norm()<<defaultColor<<std::endl;
             
 //            LatticeVectorType L0(grain.lattice());
 //            bool latticePointFound=false;
@@ -160,6 +163,24 @@ namespace model
                     }
                 }
             }
+            
+            if(fabs(_rotationAxis.dot(glidePlanes().begin()->second->unitNormal))<FLT_EPSILON)
+            {
+                model::cout<<"TILT BOUNDARY"<<std::endl;
+                // here check mirror symm equation r=d−2(d⋅n)n to check if symm tilt or asymm tilt
+            }
+            else if(_rotationAxis.cross(glidePlanes().begin()->second->unitNormal).norm()<FLT_EPSILON)
+            {
+                model::cout<<"TWIST BOUNDARY"<<std::endl;
+
+            }
+            else
+            {
+                model::cout<<"MIXED BOUNDARY"<<std::endl;
+
+            }
+            
+            
         }
         
         /**********************************************************************/

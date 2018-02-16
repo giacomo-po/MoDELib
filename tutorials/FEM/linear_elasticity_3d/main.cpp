@@ -22,6 +22,45 @@ using namespace model;
 
 
 
+
+/**************************************************************************/
+/**************************************************************************/
+template <typename FiniteElementType, int dim>
+struct StiffnessMatrix : public EvalFunction<StiffnessMatrix<FiniteElementType,dim> >
+{
+    
+    constexpr static int rows=dim*(dim+1)/2;
+    constexpr static int cols=dim*(dim+1)/2;
+    
+    const Eigen::Matrix<double,rows,cols> C0;
+
+    const TrialFunction<FiniteElementType,'u',dim>& u;       // displacement field
+
+    
+    /**********************************************************************/
+    Constant(const T& c_in) : c(c_in)
+    {
+        //            std::cout<<"Constant Constructor 1"<<std::endl;
+        //            std::cout<<"c="<<c<<std::endl;
+    }
+    
+    
+    /**********************************************************************/
+    template<typename ElementType, typename BaryType>
+    const Eigen::Matrix<double,rows,cols>& operator() (const ElementType&, const BaryType&) const
+    {/*!@param[in] elem the element
+      * @param[in] bary the barycentric cooridinate
+      *\returns the current stiffness C, which in general is a funciton of C0 and grad(u)
+      */
+        
+        return C0;
+    }
+    
+};
+
+
+
+
 int main(int argc, char** argv)
 {
     
@@ -62,7 +101,7 @@ int main(int argc, char** argv)
     
     /**************************************************************************/
     // Define trial function (displacement field) u and related expressions
-    auto u=fe.trial<'u',3>();       // displacement field u=[u1; u2; u3]
+    auto u=fe.trial<'u',3>();   // displacement field u=[u1; u2; u3]
     auto b=grad(u);             // displacement gradient b=[u1,1; u1,2; u2,1; u2,2]
     auto e=def(u);              // engineering strain e=[u1,1; u2,2; u3,3; u1,2+u2,1; u2,3+u3,2; u1,3+u3,1]
     auto s=C*e;                 // stress field s=[s11; s22; s33; s12; s23; s13]

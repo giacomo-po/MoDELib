@@ -45,3 +45,5 @@ NEW LOOP_NETWORK CODE
 - DislocationJunctions: IF CONTRACT DID NOT HAPPEN REMOVE NODES THAT WERE CREATED BY EXPANSION. STORE IDS IN CONTAINER AND THEN REMOV
 - Form GB junctions??
 - Stress field is absent in some segments for evaluation of transmission criterion
+- bring createNodeList to TrialFunction (node lists are in created to set a dirichlet condition for a particular trial function). Make fe const in trial function.
+- add FiniteElement::mesh2femNode(const size_t& meshNodeID)

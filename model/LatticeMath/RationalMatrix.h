@@ -72,8 +72,10 @@ namespace model
                 }
             }
             
-            if((im.template cast<double>()/sigma-R).norm()>100.0*DBL_EPSILON*dim*dim)
+            const double error=(im.template cast<double>()/sigma-R).norm()/(dim*dim);
+            if(error>100.0*DBL_EPSILON)
             {
+                std::cout<<"error="<<error<<std::endl;
                 std::cout<<"maxDen="<<maxDen<<std::endl;
                 std::cout<<"im=\n"<<std::setprecision(15)<<std::scientific<<im.template cast<double>()/sigma<<std::endl;
                 std::cout<<"= 1/"<<sigma<<"*\n"<<std::setprecision(15)<<std::scientific<<im<<std::endl;
