@@ -28,6 +28,7 @@
 #include <model/DislocationDynamics/DDtimeIntegrator.h>
 #include <model/DislocationDynamics/DislocationNodeContraction.h>
 #include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
+#include <model/DislocationDynamics/IO/DislocationLinkingNumber.h>
 
 
 namespace model
@@ -89,6 +90,8 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"outputPKforce",DN.outputPKforce);
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DN.outputMeshDisplacement);
             EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DN.outputElasticEnergy);
+            EDR.readScalarInFile(fullName.str(),"outputLinkingNumbers",DN.outputLinkingNumbers);
+            
             
             EDR.readScalarInFile(fullName.str(),"outputPlasticDistortion",DN.outputPlasticDistortion);
             if(DN.outputPlasticDistortion)
@@ -823,6 +826,16 @@ namespace model
                 }
                 
                 
+            }
+            
+            if (DN.outputLinkingNumbers)
+            {
+                DislocationLinkingNumber<DislocationNetworkType> LN(DN);
+                model::SequentialOutputFile<'Z',1>::set_count(runID);                   // Vertices_file;
+                model::SequentialOutputFile<'Z',1>::set_increment(DN.outputFrequency);  // Vertices_file;
+                model::SequentialOutputFile<'Z',true> z_file;
+                z_file<<LN;
+ 
             }
             
             // Output to F file

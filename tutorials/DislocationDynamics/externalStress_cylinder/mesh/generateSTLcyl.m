@@ -20,8 +20,8 @@ targetElements=1e3;
 % (d) Shear modulus - use Al
 % (e) Initial dislocation density & distribution ~ 1.e14-1.e15
 
-Burgers=0.2851e-9; % Burgers vector for Al [m]
-R=1000 % radius of cylinder (units of Burgers vector)
+Burgers=0.3150e-9; % Burgers vector for Al [m]
+R=0.5e-6/Burgers % radius of cylinder (units of Burgers vector)
 H=4*R;    % height of cylinder (units of Burgers vector)
 V=H*pi*R^2;
 x0=0;     % offset of cylinder axis 

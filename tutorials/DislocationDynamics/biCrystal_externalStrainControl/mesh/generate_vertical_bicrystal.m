@@ -6,11 +6,14 @@ MODEL_DIR='../../../..';
 
 %% Define output file name
 meshID=1; % creates ../N/N_meshID.txt and ../T/T_meshID.txt
-targetElements=1e4;
+targetElements=1e3;
 
 filename='verticalBicrystalCyl'; % this creates file bicrystalCyl.poly
 
-R=1000;      % radius of cyl
+Burgers=0.3150e-9; % Burgers vector for Al [m]
+R=0.5e-6/Burgers % radius of cylinder (units of Burgers vector)
+%H=4*R;    % height of cylinder (units of Burgers vector)
+%R=1000;      % radius of cyl
 H=4*R;       % height of cyl
 A=pi*R^2;    % cross section area
 V=A*H;       % volume

@@ -126,6 +126,7 @@ namespace model
         bool outputPlasticDistortion;
         bool outputPlasticDistortionRate;
         bool outputQuadratureParticles;
+        bool outputLinkingNumbers;
         unsigned int _userOutputColumn;
         
 #ifdef DislocationNucleationFile
@@ -318,6 +319,7 @@ namespace model
         /* init list  */ outputPlasticDistortion(false),
         /* init list  */ outputPlasticDistortionRate(false),
         /* init list  */ outputQuadratureParticles(false),
+        /* init list  */ outputLinkingNumbers(false),
         /* init list  */ _userOutputColumn(3)
         {
             ParticleSystemType::initMPI(argc,argv);

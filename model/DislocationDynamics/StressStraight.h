@@ -9,7 +9,7 @@
 #ifndef model_StressStraight_H_
 #define model_StressStraight_H_
 
-#include <Eigen/Core>
+#include <Eigen/Dense>
 #include <model/DislocationDynamics/Materials/Material.h>
 //#include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
 
@@ -19,29 +19,57 @@ namespace model
     template<short unsigned int _dim>
 	struct DislocationStress; // class predeclaration
     
-    template <int dim>
+    template <int dim,typename Scalar=double>
     class StressStraight
     {
-        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
-        typedef Eigen::Matrix<double,dim,1>   VectorDim;
+        typedef Eigen::Matrix<Scalar,dim,dim> MatrixDim;
+        typedef Eigen::Matrix<Scalar,dim,1>   VectorDim;
         
         /**********************************************************************/
-        MatrixDim stress_kernel(const VectorDim& r) const
+        template<typename Derived>
+        MatrixDim stress_kernel(const Eigen::MatrixBase<Derived>& r) const
         {
 #if _MODEL_NON_SINGULAR_DD_ == 0
             /* Devincre, B., & Condat, M. (1992). Model validation of a 3D
              * simulation of dislocation dynamics: Discretization and line tension
              * effects. Acta Metallurgica Et Materialia, 40(10), 2629–2637.
              */
-            const double L(r.dot(t));
-            const double R(r.norm()+DislocationStress<dim>::a);
+            const Scalar L(r.dot(t));
+            const Scalar R(r.norm()+DislocationStress<dim>::a);
             const VectorDim rho(r-L*t);
             const VectorDim Y((L+R)*t+rho);
-            const double Y2(Y.squaredNorm()+DislocationStress<dim>::a2);
-            return (Material<Isotropic>::C1* b.cross(Y)*t.transpose()
-            /*                 */ -b.cross(t)*Y.transpose()
-            /*                 */ -b.dot(Y.cross(t))*(2.0/Y2*rho*Y.transpose()+0.5*(MatrixDim::Identity()+t*t.transpose()+2.0/Y2*L/R*Y*Y.transpose()))
-                    )*2.0/Y2;
+            const Scalar Y2(Y.squaredNorm()+DislocationStress<dim>::a2);
+//            return (Material<Isotropic>::C1* b.cross(Y)*t.transpose()
+//            /*                 */ -b.cross(t)*Y.transpose()
+//            /*                 */ -b.dot(Y.cross(t))*(2.0/Y2*rho*Y.transpose()+0.5*(MatrixDim::Identity()+t*t.transpose()+2.0/Y2*L/R*Y*Y.transpose()))
+//                    )*2.0/Y2;
+            
+            
+            const Scalar f1(2.0/Y2);
+            const Scalar f2(Material<Isotropic>::C1*f1);
+            const Scalar bDotYcrosst(b.dot(Y.cross(t)));
+            const Scalar f3(bDotYcrosst*f1*f1);
+            const Scalar f4(bDotYcrosst*f1*0.5);
+            const Scalar f5(0.5*f3*L/R);
+            
+            return  f2*b.cross(Y)*t.transpose()
+            /*  */ -f1*b.cross(t)*Y.transpose()
+            /*  */ -f3*rho*Y.transpose()
+            /*  */ -f4*(MatrixDim::Identity()+t*t.transpose())
+            /*  */ -f5*Y*Y.transpose();
+
+//            Eigen::Matrix<Scalar,dim,dim> temp1(f2*b.cross(Y)*t.transpose()
+//                                                -f1*b.cross(t)*Y.transpose()
+//                                                -f3*rho*Y.transpose());
+//
+//            
+//            Eigen::Matrix<Scalar,dim,dim> temp(Eigen::Matrix<Scalar,dim,dim>::Zero());
+//            temp.template triangularView<Eigen::Upper>()-=f4*(MatrixDim::Identity()+t*t.transpose())+f5*Y*Y.transpose();
+//            
+//            temp1+=temp.template selfadjointView<Eigen::Upper>();
+//            
+//            return temp1;
+
             
 #elif _MODEL_NON_SINGULAR_DD_ == 1 /* Cai's non-singular theory */
             assert(0 && "NOT IMPLEMENTED YET");

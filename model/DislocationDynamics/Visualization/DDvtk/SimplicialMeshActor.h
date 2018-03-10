@@ -108,7 +108,7 @@ namespace model
 
             
             // grain-boundaries
-            bool showRegionBoundaries=true;
+            bool showRegionBoundaries=false;
             if(showRegionBoundaries)
             {
                 unsigned char clr[3] = {0, 100, 100};
