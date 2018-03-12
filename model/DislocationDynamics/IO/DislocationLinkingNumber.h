@@ -150,19 +150,19 @@ namespace model
             const double a2=R12.dot(e2-e1*cosBeta)/(sinBeta2+tol);
             const double a0=R12.dot(e1.cross(e2))/(sinBeta2+tol);
             
-            //                    std::cout<<"R1="<<std::setprecision(15)<<std::scientific<<R1.transpose()<<std::endl;
-            //                    std::cout<<"R2="<<std::setprecision(15)<<std::scientific<<R2.transpose()<<std::endl;
-            //                    std::cout<<"S1="<<std::setprecision(15)<<std::scientific<<S1.transpose()<<std::endl;
-            //                    std::cout<<"S2="<<std::setprecision(15)<<std::scientific<<S2.transpose()<<std::endl;
-            std::cout<<"R1="<<std::setprecision(15)<<R1.transpose()<<std::endl;
-            std::cout<<"R2="<<std::setprecision(15)<<R2.transpose()<<std::endl;
-            std::cout<<"S1="<<std::setprecision(15)<<S1.transpose()<<std::endl;
-            std::cout<<"S2="<<std::setprecision(15)<<S2.transpose()<<std::endl;
-            const double temp= F(a1+s1,a2+s2,cosBeta,sinBeta2,a0)
-            /*             */ -F(a1+s1,a2   ,cosBeta,sinBeta2,a0)
-            /*             */ -F(a1   ,a2+s2,cosBeta,sinBeta2,a0)
-            /*             */ +F(a1   ,a2   ,cosBeta,sinBeta2,a0);
-            std::cout<<"tamp="<<std::setprecision(15)<<std::scientific<<temp<<std::endl;
+//            //                    std::cout<<"R1="<<std::setprecision(15)<<std::scientific<<R1.transpose()<<std::endl;
+//            //                    std::cout<<"R2="<<std::setprecision(15)<<std::scientific<<R2.transpose()<<std::endl;
+//            //                    std::cout<<"S1="<<std::setprecision(15)<<std::scientific<<S1.transpose()<<std::endl;
+//            //                    std::cout<<"S2="<<std::setprecision(15)<<std::scientific<<S2.transpose()<<std::endl;
+//            std::cout<<"R1="<<std::setprecision(15)<<R1.transpose()<<std::endl;
+//            std::cout<<"R2="<<std::setprecision(15)<<R2.transpose()<<std::endl;
+//            std::cout<<"S1="<<std::setprecision(15)<<S1.transpose()<<std::endl;
+//            std::cout<<"S2="<<std::setprecision(15)<<S2.transpose()<<std::endl;
+//            const double temp= F(a1+s1,a2+s2,cosBeta,sinBeta2,a0)
+//            /*             */ -F(a1+s1,a2   ,cosBeta,sinBeta2,a0)
+//            /*             */ -F(a1   ,a2+s2,cosBeta,sinBeta2,a0)
+//            /*             */ +F(a1   ,a2   ,cosBeta,sinBeta2,a0);
+//            std::cout<<"tamp="<<std::setprecision(15)<<std::scientific<<temp<<std::endl;
             
             return F(a1+s1,a2+s2,cosBeta,sinBeta2,a0)
             /* */ -F(a1+s1,a2   ,cosBeta,sinBeta2,a0)
@@ -172,19 +172,31 @@ namespace model
         
         
         /**********************************************************************/
-        static double linkingNumber(const LoopType& loop1,
+        static std::pair<double,bool> linkingNumber(const LoopType& loop1,
                                     const LoopType& loop2)
         {
             double Ln=0.0;
+            
+            bool loopsTouch=false;
             
             for(const auto& link1 : loop1.links())
             {
                 for(const auto& link2 : loop2.links())
                 {
+                    if(SegmentSegmentDistance<DislocationNetworkType::dim>(link1.second->source()->get_P(),
+                                                link1.second->sink()->get_P(),
+                                                link2.second->source()->get_P(),
+                                                link2.second->sink()->get_P()).dMin<FLT_EPSILON)
+                    {
+                        loopsTouch=true;
+                    }
+                    
                     Ln +=  segmentPairLN_a(*link1.second,*link2.second);
+
                 }
             }
-            return Ln;
+            
+            return std::make_pair(Ln,loopsTouch);
         }
         
     public:
@@ -208,12 +220,15 @@ namespace model
                 {
                     if(loopIter1!=loopIter2)
                     {
+                        const std::pair<double,bool> Ln(linkingNumber(*loopIter1->second,*loopIter2->second));
+                        
                         os  <<loopIter1->first<<" "<<loopIter2->first<<" ";
-                        os  <<linkingNumber(*loopIter1->second,*loopIter2->second)<<" ";
-                        os  <<loopIter1->second->flow().cartesian().transpose()<<" ";
-                        os  <<loopIter1->second->glidePlane.n.cartesian().transpose()<<" ";
-                        os  <<loopIter2->second->flow().cartesian().transpose()<<" ";
-                        os  <<loopIter2->second->glidePlane.n.cartesian().transpose()<<" ";
+                        os  <<Ln.second<<" "<<Ln.first<<" ";
+                        os << loopIter1->second->loopLength()<<" "<<loopIter2->second->loopLength();
+//                        os  <<loopIter1->second->flow().cartesian().transpose()<<" ";
+//                        os  <<loopIter1->second->glidePlane.n.cartesian().transpose()<<" ";
+//                        os  <<loopIter2->second->flow().cartesian().transpose()<<" ";
+//                        os  <<loopIter2->second->glidePlane.n.cartesian().transpose()<<" ";
                         os  <<"\n";
                     }
                 }

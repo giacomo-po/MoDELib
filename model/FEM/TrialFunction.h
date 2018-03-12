@@ -117,6 +117,16 @@ namespace model
         }
         
         /**********************************************************************/
+        TrialFunctionType& setNodeDof(const Eigen::Matrix<double,_nComponents,1>& c)
+        {
+            for(int n=0; n< nodeSize();++n)
+            {
+                TrialBase<TrialFunctionType>::dofVector().template segment<_nComponents>(n*_nComponents)=c;
+            }
+            return *this;
+        }
+        
+        /**********************************************************************/
         TrialFunctionType& operator=(const Eigen::VectorXd& temp)
         {
 //            assert(size_t(temp.size())==this->gSize() && "DOF SIZE MISMATCH");

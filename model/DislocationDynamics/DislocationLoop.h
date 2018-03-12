@@ -117,6 +117,19 @@ namespace model
         }
         
         /**********************************************************************/
+        double loopLength() const
+        {
+            double length=0.0;
+            for(const auto& link : this->links())
+            {
+                length+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
+            }
+            
+            return length;
+        }
+
+        
+        /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const DislocationLoopType& dL)
         {
