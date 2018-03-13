@@ -111,6 +111,9 @@ namespace model
                 const double det(norm2L0*norm2L1-L0L1*L0L1);
                 const double num0=norm2L1*L0.dot(A0A1)-L0L1*L1.dot(A0A1);
                 const double num1=L0L1*L0.dot(A0A1)-norm2L0*L1.dot(A0A1);
+                std::cout<<"det="<<det<<std::endl;
+                std::cout<<"num0="<<num0<<std::endl;
+                                std::cout<<"num1="<<num1<<std::endl;
                 if(fabs(det)>FLT_EPSILON)
                 {
                     const double u0=num0/det;
@@ -138,11 +141,11 @@ namespace model
                 }
                 else
                 {// segments are coincident or parallel
-                    if(fabs(num0)<FLT_EPSILON && fabs(num0)<FLT_EPSILON)
+                    if(fabs(num0)<FLT_EPSILON && fabs(num1)<FLT_EPSILON)
                     {
                         
-                        const double u1=(A1-A0).dot(L0)/norm2L0;
-                        const double u2=(B1-A0).dot(L0)/norm2L0;
+                        const double u1=(A1-A0).dot(L0)/norm2L0; // parametric coordinate of A1 wrt A0
+                        const double u2=(B1-A0).dot(L0)/norm2L0; // parametric coordinate of B1 wrt A0
 
                         
 

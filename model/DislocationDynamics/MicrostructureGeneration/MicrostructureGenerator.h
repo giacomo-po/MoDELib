@@ -247,6 +247,16 @@ namespace model
             return temp;
         }
         
+        const double& minSize()
+        {
+            return _minSize;
+        }
+        
+        const double& maxSize()
+        {
+            return _maxSize;
+        }
+        
     };
     
 }

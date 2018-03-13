@@ -18,9 +18,9 @@ velocityReductionFactor=0.75;
 # Options for output files:
 outputFrequency=1;
 outputBinary=0;
-outputGlidePlanes=0;
+outputGlidePlanes=1;
 outputSpatialCells=0;
-outputPKforce=0;
+outputPKforce=1;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
@@ -56,7 +56,7 @@ use_EnergyMultipole = 0;
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
-Lmax=100;
+Lmax=500;
 Lmin=50;
 
 ######################################
@@ -72,7 +72,7 @@ collisionTol=3;
 # If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
 # T/T_meshID.txt must be present in the working directory.
 use_boundary =1;
-meshID=1;
+meshID=0;
 use_directSolver_FEM=0;
 use_meshRegions=0;
 

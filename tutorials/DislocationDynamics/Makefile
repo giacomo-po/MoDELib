@@ -145,20 +145,20 @@ $(dipoleOBJS):
 ##########################################################
 # MAKE FRANKREADGENERATOR
 ##########################################################
-dipoleOBJS = frGenerator
+frOBJS = frGenerator
 
-$(dipoleOBJS):
+$(frOBJS):
 	@echo making frGenerator
 	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/frGenerator.cpp -o frGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
-# MAKE FRANKREADGENERATOR
+# MAKE straightGenerator
 ##########################################################
-b2bOBJS = b2bGenerator
+straightOBJS = straightGenerator
 
-$(b2bOBJS):
-	@echo making b2bGenerator
-	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/MicrostructureGeneration/b2bGenerator.cpp -o b2bGenerator -O3 -std=c++14 $(IDIR)
+$(straightOBJS):
+	@echo making straightGenerator
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/straightGenerator.cpp -o straightGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
 # MAKE DDCONVERTER

@@ -15,12 +15,12 @@ addpath([MODEL_DIR '/matlab/']);
 %% Define output file name
 meshID=0;
 filename='cube'; % this creates file cube.stl
-nElements=2e4;
+nElements=1e2;
 
 %% Size and position of the cube
 L1=2000; % the side length of the cube, in units of Burgers vector
 L2=2000; % the side length of the cube, in units of Burgers vector
-L3=4000; % the side length of the cube, in units of Burgers vector
+L3=2000; % the side length of the cube, in units of Burgers vector
 
 %% Compute element size
 V=L1*L2*L3;
@@ -40,6 +40,9 @@ v8=[L1/2 L2/2 0]-[L1 L2 0]/2;
 v9=[L1/2 L2/2 L3]-[L1 L2 0]/2;
 v10=[L1/2 0 L3/2]-[L1 L2 0]/2;
 v11=[L1/2 L2 L3/2]-[L1 L2 0]/2;
+v12=[0 L2/2 L3/2]-[L1 L2 0]/2;
+v13=[L1 L2/2 L3/2]-[L1 L2 0]/2;
+
 
 % Create 12 facets by splitting each face of the cube in two triangles
 Facets={};
@@ -58,11 +61,21 @@ Facets=addFacet(Facets,v10,v4,v0);
 Facets=addFacet(Facets,v10,v0,v1);
 Facets=addFacet(Facets,v10,v1,v5);
 Facets=addFacet(Facets,v10,v5,v4);
-% % Right facets
+% Right facets
 Facets=addFacet(Facets,v11,v2,v3);
 Facets=addFacet(Facets,v11,v3,v7);
 Facets=addFacet(Facets,v11,v7,v6);
 Facets=addFacet(Facets,v11,v6,v2);
+% Back facets
+Facets=addFacet(Facets,v12,v0,v4);
+Facets=addFacet(Facets,v12,v4,v7);
+Facets=addFacet(Facets,v12,v7,v3);
+Facets=addFacet(Facets,v12,v3,v0);
+% Front facets
+Facets=addFacet(Facets,v13,v1,v2);
+Facets=addFacet(Facets,v13,v2,v6);
+Facets=addFacet(Facets,v13,v6,v5);
+Facets=addFacet(Facets,v13,v5,v1);
 
 
 %% plot facets
@@ -73,9 +86,6 @@ grid on
 xlabel('X')
 ylabel('Y')
 zlabel('Z')
-
-
-return
 
 %% write stl file
 writeSTL(Facets,filename)
