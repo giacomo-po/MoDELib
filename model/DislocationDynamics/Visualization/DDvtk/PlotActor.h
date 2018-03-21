@@ -73,6 +73,16 @@ namespace model
                     
                     i++;
                 }
+                
+                vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+                line->SetInputData(table, 0, 1);
+                line->SetColor(0, 0, 255, 255);
+                line->SetWidth(1.0);
+                
+                //            VTK_CREATE(vtkContextActor, actor);
+                //            VTK_CREATE(APIDiagram, diagram);
+                actor->GetScene()->AddItem(chart);
+                renderer->AddActor(actor);
             }
             else
             {
@@ -85,15 +95,7 @@ namespace model
             // Add multiple line plots, setting the colors etc
             //vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
             
-            vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-            line->SetInputData(table, 0, 1);
-            line->SetColor(0, 0, 255, 255);
-            line->SetWidth(1.0);
-            
-            //            VTK_CREATE(vtkContextActor, actor);
-            //            VTK_CREATE(APIDiagram, diagram);
-            actor->GetScene()->AddItem(chart);
-            renderer->AddActor(actor);
+
             
             
             

@@ -21,6 +21,8 @@ namespace model
     struct BoundaryDisplacementPoint :
     /* inheritance */ public FieldPoint<BoundaryDisplacementPoint<DislocationNetworkType>,DislocationNetworkType::DisplacementField::dim,typename DislocationNetworkType::DisplacementField>
     {
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        
         typedef typename DislocationNetworkType::DisplacementField DisplacementField;
         typedef typename DislocationNetworkType::ElementType::NodeType NodeType;
         constexpr static int dim=DisplacementField::dim;

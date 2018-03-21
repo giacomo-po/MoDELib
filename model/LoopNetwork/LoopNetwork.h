@@ -608,14 +608,14 @@ namespace model
         {/*!\param[in] nodeID the StaticID of the node to be removed
           * \returns true if the node is succesfully removed.
           */
-            bool temp=false;
+//            bool temp=false;
             const auto isNode=this->node(nodeID);
             if(isNode.first)
             {
                 const auto linkByLoopID=isNode.second->linksByLoopID();
                 for(auto& pair : linkByLoopID)
                 {
-                    const auto& loopID(pair.first);
+//                    const auto& loopID(pair.first);
                     const auto& set(pair.second);
                     assert(set.size()==2 && "Not a Loop");
                     LoopLinkType* const link0(*set.begin());

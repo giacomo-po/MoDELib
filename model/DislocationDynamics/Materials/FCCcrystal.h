@@ -23,8 +23,8 @@ namespace model
     {
         static constexpr auto name="FCC";
         
-        static constexpr bool enable111planes=false;
-        static constexpr bool enable110planes=true;
+        static constexpr bool enable111planes=true;
+        static constexpr bool enable110planes=false;
         
         
         /**********************************************************************/
@@ -103,37 +103,37 @@ namespace model
             
             if(enable111planes)
             {// <110>{111}
-                temp.emplace_back(a1,a3, a1);           // is (-1, 1,-1) in cartesian
-                temp.emplace_back(a1,a3,a1*(-1));       // is (-1, 1,-1) in cartesian
-                temp.emplace_back(a1,a3, a3);           // is (-1, 1,-1) in cartesian
-                temp.emplace_back(a1,a3,a3*(-1));       // is (-1, 1,-1) in cartesian
-                temp.emplace_back(a1,a3,a1-a3);         // is (-1, 1,-1) in cartesian
-                temp.emplace_back(a1,a3,a3-a1);         // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3, a1);               // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3,a1*(-1));           // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3, a3);               // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3,a3*(-1));           // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3,a1-a3);             // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3,a3-a1);             // is (-1, 1,-1) in cartesian
                 
-                temp.emplace_back(a3,a2, a3);           // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(a3,a2,a3*(-1));       // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(a3,a2, a2);           // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(a3,a2,a2*(-1));       // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(a3,a2,a3-a2);         // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(a3,a2,a2-a3);         // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2, a3);               // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2,a3*(-1));           // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2, a2);               // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2,a2*(-1));           // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2,a3-a2);             // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2,a2-a3);             // is ( 1,-1,-1) in cartesian
                 
-                temp.emplace_back(a2,a1, a2);           // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1, a2);               // is (-1,-1, 1) in cartesian
                 temp.emplace_back(a2,a1,a2*(-1));           // is (-1,-1, 1) in cartesian
-                temp.emplace_back(a2,a1, a1);           // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1, a1);               // is (-1,-1, 1) in cartesian
                 temp.emplace_back(a2,a1,a1*(-1));           // is (-1,-1, 1) in cartesian
-                temp.emplace_back(a2,a1,a2-a1);           // is (-1,-1, 1) in cartesian
-                temp.emplace_back(a2,a1,a1-a2);           // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1,a2-a1);             // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1,a1-a2);             // is (-1,-1, 1) in cartesian
                 
-                temp.emplace_back(a1-a3,a2-a3, a1-a3);     // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(a1-a3,a2-a3, a3-a1);     // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(a1-a3,a2-a3,a2-a3);     // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(a1-a3,a2-a3,a3-a2);     // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(a1-a3,a2-a3, a1-a2);     // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(a1-a3,a2-a3, a2-a1);     // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3, a1-a3);      // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3, a3-a1);      // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3,a2-a3);       // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3,a3-a2);       // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3, a1-a2);      // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3, a2-a1);      // is ( 1, 1, 1) in cartesian
             }
             
             if(enable110planes)
-            {// <110>{111}
+            {// <110>{110}
                 temp.emplace_back(a1+a2-a3,a3, a3);
                 temp.emplace_back(a1+a2-a3,a3, a3*(-1));
                 

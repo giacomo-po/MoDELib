@@ -70,7 +70,7 @@ namespace model
         /*      init */ glidePlane(*_glidePlane.get()),
         /*      init */ isGlissile(this->flow().dot(glidePlane.n)==0 && allowedSlipSystem(this->flow(),glidePlane.n,grain))
         {
-            model::cout<<"Creating DislocationLoop "<<this->sID<<std::endl;
+//            model::cout<<"Creating DislocationLoop "<<this->sID<<std::endl;
             
 //            _glidePlane->addLoop(this);
             _glidePlane->addParentSharedPtr(&_glidePlane,isGlissile,this->sID);
@@ -85,7 +85,7 @@ namespace model
         /* init */ glidePlane(*_glidePlane.get()),
         /* init */ isGlissile(other.isGlissile)
         {
-            model::cout<<"Copying DislocationLoop "<<this->sID<<std::endl;
+//            model::cout<<"Copying DislocationLoop "<<this->sID<<std::endl;
             
 //            _glidePlane->addLoop(this);
             _glidePlane->addParentSharedPtr(&_glidePlane,isGlissile,this->sID);
@@ -95,7 +95,7 @@ namespace model
         /**********************************************************************/
         ~DislocationLoop()
         {
-            model::cout<<"Destroying DislocationLoop "<<this->sID<<std::endl;
+//            model::cout<<"Destroying DislocationLoop "<<this->sID<<std::endl;
 
             
 //            _glidePlane->removeLoop(this);

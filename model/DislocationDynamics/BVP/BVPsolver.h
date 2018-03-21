@@ -384,7 +384,7 @@ namespace model
             // Add the (negative) dislocation displacement
             typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
             typedef typename FieldPointType::DisplacementField DisplacementField;
-            std::deque<FieldPointType> fieldPoints; // the container of field points
+            std::deque<FieldPointType,Eigen::aligned_allocator<FieldPointType>> fieldPoints; // the container of field points
             
             for (const auto& pair : displacement().dirichletNodeMap()) // range-based for loop (C++11)
             {

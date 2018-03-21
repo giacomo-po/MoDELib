@@ -406,6 +406,7 @@ namespace model
                 
                 if(!isBoundarySegment())
                 {
+                    const bool enableField=isGlissile();
                     for (unsigned int k=0;k<qOrder;++k)
                     {
                         quadratureParticleContainer.push_back(particleSystem.addParticle(rgauss.col(k),
@@ -414,10 +415,75 @@ namespace model
                                                                                          Burgers,
                                                                                          QuadratureDynamicType::abscissa(qOrder,k),
                                                                                          QuadratureDynamicType::weight(qOrder,k),
-                                                                                         true,true,  // stressSource enabled, stressField enabled,
-                                                                                         true,true,  //   dispSource enabled,   dispField enabled,
-                                                                                         true,true));//   enrgSource enabled,   enrgField enabled,
+                                                                                         true,enableField,  // stressSource enabled, stressField enabled,
+                                                                                         true,enableField,  //   dispSource enabled,   dispField enabled,
+                                                                                         true,enableField));//   enrgSource enabled,   enrgField enabled,
                     }
+                    
+                    if(!this->network().use_bvp) // not using FEM correction
+                    {
+                        if(this->network().use_virtualSegments)
+                        {
+                            
+                            // Place Quadrature-particles on P1->P2
+                            if(this->source->isBoundaryNode())
+                            {
+                                const VectorDim& P1(this->source->get_P());
+                                const VectorDim d21=-(this->source->bndNormal()-this->source->bndNormal().dot(glidePlaneNormal())*glidePlaneNormal()).normalized();
+
+                                const VectorDim P2(P1-d21*virtualSegmentDistance);
+                                //const VectorDim d21=(P1-P2).normalized();
+                                const size_t qOrder12=QuadPowDynamicType::lowerOrder(quadPerLength*virtualSegmentDistance);
+
+//                                const VectorDim d21=(P1-P2).normalized();
+                                
+                                for (unsigned int k=0;k<qOrder12;++k)
+                                {
+                                    
+                                    particleSystem.addParticle(P2+d21*virtualSegmentDistance*QuadratureDynamicType::abscissa(qOrder12,k),
+                                                               this->source->sID,this->sink->sID,qOrder+k,
+                                                               d21*virtualSegmentDistance,
+                                                               Burgers,
+                                                               QuadratureDynamicType::abscissa(qOrder12,k),
+                                                               QuadratureDynamicType::weight(qOrder12,k),
+                                                               true,false,  // stressSource disabled, stressField enabled,
+                                                               true,false,   //   dispSource  enabled,   dispField enabled,
+                                                               true,false);
+                                }
+                                
+                            }
+                            
+                            // Place Quadrature-particles on P1->P2
+                            if(this->sink->isBoundaryNode())
+                            {
+                                const VectorDim& P1(this->sink->get_P());
+                                const VectorDim d12=(this->sink->bndNormal()-this->sink->bndNormal().dot(glidePlaneNormal())*glidePlaneNormal()).normalized();
+
+                                const VectorDim P2(P1+d12*virtualSegmentDistance);
+                                //const VectorDim d12=(P2-P1).normalized();
+                                const size_t qOrder12=QuadPowDynamicType::lowerOrder(quadPerLength*virtualSegmentDistance);
+                                
+                                //                                const VectorDim d21=(P1-P2).normalized();
+                                
+                                for (unsigned int k=0;k<qOrder12;++k)
+                                {
+                                    
+                                    particleSystem.addParticle(P1+d12*virtualSegmentDistance*QuadratureDynamicType::abscissa(qOrder12,k),
+                                                               this->source->sID,this->sink->sID,qOrder+k,
+                                                               d12*virtualSegmentDistance,
+                                                               Burgers,
+                                                               QuadratureDynamicType::abscissa(qOrder12,k),
+                                                               QuadratureDynamicType::weight(qOrder12,k),
+                                                               true,false,  // stressSource disabled, stressField enabled,
+                                                               true,false,   //   dispSource  enabled,   dispField enabled,
+                                                               true,false);
+                                }
+                                
+                            }
+                            
+                        }
+                    }
+
                     
                 }
                 else // boundary segment
@@ -832,35 +898,47 @@ namespace model
         //            /*  */ && !hasZeroBurgers();
         //        }
         
-//        /**********************************************************************/
-//        bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
-//        {/*!\returns true if both nodes are boundary nodes, and the midpoint is
-//          * on the boundary.
-//          */
-//            return this->source->isBoundaryNode() &&
-//            /*  */ this->sink->isBoundaryNode() &&
-//            /*  */ boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
-//        }
-        
         /**********************************************************************/
         bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
         {/*!\returns true if both nodes are boundary nodes, and the midpoint is
           * on the boundary.
           */
-            const bool sourceOnBnd=this->source->isBoundaryNode();
-            const bool sinkOnBnd  =this->  sink->isBoundaryNode();
-            bool midPointOnBoundary=false;
-            if (sourceOnBnd && sinkOnBnd && this->network().use_boundary)
-            {
-                std::pair<bool,const Simplex<dim,dim>*> midPointSimplex=this->network().mesh.search(0.5*(this->source->get_P()+this->sink->get_P()));
-                assert(midPointSimplex.first);
-                midPointOnBoundary = SimplexBndNormal::get_boundaryNormal(0.5*(this->source->get_P()+this->sink->get_P()),*midPointSimplex.second,NodeType::bndTol).norm()>FLT_EPSILON;
-            }
-            
-            return    sourceOnBnd
-            /*  */ && sinkOnBnd
-            /*  */ && midPointOnBoundary;
+            return this->source->isBoundaryNode() &&
+            /*  */ this->sink->isBoundaryNode() &&
+            /*  */ boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
         }
+        
+//        /**********************************************************************/
+//        bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
+//        {/*!\returns true if both nodes are boundary nodes, and the midpoint is
+//          * on the boundary.
+//          */
+//            const bool sourceOnBnd=this->source->isBoundaryNode();
+//            const bool sinkOnBnd  =this->  sink->isBoundaryNode();
+//            bool midPointOnBoundary=false;
+//            if (sourceOnBnd && sinkOnBnd && this->network().use_boundary)
+//            {
+//                
+//
+//                
+//                std::pair<bool,const Simplex<dim,dim>*> midPointSimplex=this->network().mesh.search(0.5*(this->source->get_P()+this->sink->get_P()));
+//                assert(midPointSimplex.first);
+//                midPointOnBoundary = SimplexBndNormal::get_boundaryNormal(0.5*(this->source->get_P()+this->sink->get_P()),*midPointSimplex.second,NodeType::bndTol).norm()>FLT_EPSILON;
+//                
+//                
+////                std::cout<<std::endl;
+////                std::cout<<this->source->sID<<" "<<sourceOnBnd<<std::endl;
+////                std::cout<<this->sink->sID<<" "<<sinkOnBnd<<std::endl;
+////                std::cout<<"midpoint"<<" "<<midPointOnBoundary<<std::endl;
+//
+//                
+//            }
+//            
+//            
+//            return    sourceOnBnd
+//            /*  */ && sinkOnBnd
+//            /*  */ && midPointOnBoundary;
+//        }
         
         /**********************************************************************/
         MeshLocation meshLocation() const

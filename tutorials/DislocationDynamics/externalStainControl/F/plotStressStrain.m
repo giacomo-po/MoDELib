@@ -21,7 +21,9 @@ F=load('F_0.txt');
 runID=F(:,1);
 time=F(:,2);
 dt=F(:,3);
+plot(F(:,12),F(:,21))
 
+return
 dc=18;
 u3=F(:,3+dc+1);
 theta3=F(:,3+dc+2);

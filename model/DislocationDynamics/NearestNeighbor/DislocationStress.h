@@ -9,6 +9,8 @@
 #ifndef _model_DislocationStress_h_
 #define _model_DislocationStress_h_
 
+#include <Eigen/StdVector>
+#include <Eigen/StdDeque>
 #include <tuple>
 #include <model/ParticleInteraction/FieldBase.h>
 #include <model/ParticleInteraction/FieldPoint.h>
@@ -70,15 +72,46 @@ namespace model
         }
         
         
+//        /**********************************************************************/
+//        template <typename ParticleType,typename LinkType>
+//        static MatrixType addSourceContribution(const ParticleType& field,
+//                                                const std::map<std::pair<size_t,size_t>,LinkType* const>& linkMap)
+//        {
+//            MatrixType temp(MatrixType::Zero());
+//            for (const auto& sStaight: ssdeq)
+//            {
+//                //			    temp +=sStaight.stress(field.P);
+//                temp +=sStaight.nonSymmStress(field.P);
+//            }
+//            return temp;
+//        }
+        
+        /**********************************************************************/
         template <typename ParticleType>
-        static MatrixType addSourceContribution(const ParticleType& field, const std::vector<StressStraight<dim>>& ssdeq)
+        static MatrixType addSourceContribution(const ParticleType& field,
+                                                const std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& ssdeq)
         {
 			MatrixType temp(MatrixType::Zero());
 			for (const auto& sStaight: ssdeq)
 			{
-			    temp +=sStaight.stress(field.P);
+//			    temp +=sStaight.stress(field.P);
+                temp +=sStaight.nonSymmStress(field.P);
 	        }
 	        return temp;
+        }
+        
+        /**********************************************************************/
+        template <typename ParticleType>
+        static MatrixType addSourceContribution(const ParticleType& field,
+                                                const std::vector<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& ssdeq)
+        {
+            MatrixType temp(MatrixType::Zero());
+            for (const auto& sStaight: ssdeq)
+            {
+                //			    temp +=sStaight.stress(field.P);
+                temp +=sStaight.nonSymmStress(field.P);
+            }
+            return temp;
         }
         
         template <typename ParticleType>

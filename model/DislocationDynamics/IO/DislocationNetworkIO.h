@@ -133,6 +133,7 @@ namespace model
             assert((StressField::a)>0.0 && "coreSize MUST BE > 0.");
             StressField::a2=StressField::a*StressField::a;
             
+
             // multipole expansion
             double cellSize(0.0);
             EDR.readScalarInFile(fullName.str(),"dislocationCellSize",cellSize);
@@ -757,7 +758,7 @@ namespace model
                     model::SequentialOutputFile<'D',true> d_file;
                     model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
                     
-                    std::deque<FieldPointType> fieldPoints; // the container of field points
+                    std::deque<FieldPointType,Eigen::aligned_allocator<FieldPointType>> fieldPoints; // the container of field points
                     for (const auto& sIter : DN.mesh.template observer<0>())
                     {
                         if(sIter.second->isBoundarySimplex())

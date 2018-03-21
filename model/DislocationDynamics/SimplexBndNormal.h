@@ -95,8 +95,9 @@ namespace model
                 const Eigen::Matrix<double,dim+1,1> bary(simplex.pos2bary(P));
                 
                 for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
-                {
-                    const double h=3.0*simplex.vol0/simplex.child(f).vol0*bary(f); // distance from f-th face
+                {// volume of tetrahedron V=1/3*A*h. Volume = V0*bary. So h=3*V0*bary/A
+                    const double h=3.0*simplex.vol0*bary(f)/simplex.child(f).vol0; // distance from f-th face
+//                    std::cout<<"h="<<h<<" "<<simplex.child(f).isBoundarySimplex()<<std::endl;
                     
                     if(simplex.child(f).isBoundarySimplex() && std::fabs(h)<dmax)
                     {

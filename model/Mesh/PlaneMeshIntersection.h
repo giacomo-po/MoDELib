@@ -59,7 +59,7 @@ namespace model
         {
             const PlaneMeshIntersectionContainerType mpi=planeMeshIntersection(m,P0,nn,rID);
             
-            const auto t0=std::chrono::system_clock::now();
+//            const auto t0=std::chrono::system_clock::now();
 //            model::cout<<"Reducing plane/mesh intersection points "<<std::flush;
 
             PlaneMeshIntersectionContainerType temp;
@@ -98,7 +98,7 @@ namespace model
                                                                         const int& rID)
         {
 //            model::cout<<"Computing plane/mesh intersection "<<std::flush;
-            const auto t0=std::chrono::system_clock::now();
+//            const auto t0=std::chrono::system_clock::now();
             
             const double nNorm(nn.norm());
             assert(nNorm>FLT_EPSILON);

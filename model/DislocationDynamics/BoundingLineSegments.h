@@ -11,6 +11,8 @@
 #define model_BoundingLineSegments_H_
 
 #include <Eigen/Dense>
+#include <Eigen/StdVector>
+#include <Eigen/StdDeque>
 #include <deque>
 #include <map>
 #include <utility>
@@ -26,12 +28,13 @@ namespace model
     
     template <int dim>
     struct BoundingLineSegments :
-    /* */ public std::deque<std::pair<Eigen::Matrix<double,dim,1>,Eigen::Matrix<double,dim,1>>,Eigen::aligned_allocator<std::pair<Eigen::Matrix<double,dim,1>,Eigen::Matrix<double,dim,1>>>>
-    
+    /* */ public std::deque<std::pair<Eigen::Matrix<double,dim,1>,Eigen::Matrix<double,dim,1>>/*,Eigen::aligned_allocator<std::pair<Eigen::Matrix<double,dim,1>,Eigen::Matrix<double,dim,1>>>*/>
     {
+//        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef std::pair<VectorDim,VectorDim> LineSegmentType;
-        typedef std::deque<LineSegmentType,Eigen::aligned_allocator<LineSegmentType>> LineSegmentContainerType;
+        typedef std::deque<LineSegmentType/*,Eigen::aligned_allocator<LineSegmentType>*/> LineSegmentContainerType;
         typedef std::tuple<VectorDim,size_t,double> SnapReturnType;
         
 //        /**********************************************************************/

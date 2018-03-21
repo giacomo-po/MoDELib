@@ -23,6 +23,7 @@ namespace model
     /* inheritance */ public FieldPoint<BoundaryStressPoint<DislocationNetworkType>,DislocationNetworkType::StressField::dim,typename DislocationNetworkType::StressField>,
     /* inheritance */ public BoundaryIntegrationPoint<typename DislocationNetworkType::ElementType>
     {
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         typedef typename DislocationNetworkType::ElementType ElementType;
         typedef BoundaryIntegrationPoint<ElementType> BoundaryIntegrationPointType;

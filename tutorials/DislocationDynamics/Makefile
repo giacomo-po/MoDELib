@@ -32,7 +32,6 @@ else
 	CC= g++
 	mpiCC = mpicxx
 	CFLAGS += -Ofast
-#	CFLAGS += -g
 	CFLAGS += -fopenmp
 	CFLAGS += -std=c++14
 
@@ -46,6 +45,7 @@ else
 	endif
 
 endif
+
 
 # enable warnings
 CFLAGS += -Wall 

@@ -4,6 +4,7 @@ Nsteps=2000;
 startAtTimeStep = -1;
 use_directSolver_DD=0;
 quadPerLength=0.1;
+useStraightSegmentsRemoveMe=1;
 
 ######################################
 # TIME STEP
@@ -18,7 +19,7 @@ velocityReductionFactor=0.75;
 # Options for output files:
 outputFrequency=1;
 outputBinary=0;
-outputGlidePlanes=1;
+outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=1;
 outputElasticEnergy=0;
@@ -28,7 +29,7 @@ outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
 outputDislocationLength=0;
 outputQuadratureParticles=0;
-outputLinkingNumbers=1;
+outputLinkingNumbers=0;
 
 ######################################
 # TEMPERATURE in [K]
@@ -82,8 +83,8 @@ use_meshRegions=0;
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
 use_bvp = 0;
-use_virtualSegments=1;
-virtualSegmentDistance=200;
+use_virtualSegments=0;
+virtualSegmentDistance=500;
 solverTolerance=0.0001;
 
 

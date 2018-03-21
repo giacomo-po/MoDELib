@@ -74,7 +74,7 @@ namespace model
                    &&  nodeIter.second->glidePlanes().size()<3
                    && !nodeIter.second->isOscillating())
                 {
-                    std::cout<<nodeIter.first<<" ";
+//                    std::cout<<nodeIter.first<<" ";
                     const double vNorm(nodeIter.second->get_V().norm());
                     vmean +=vNorm;
                     nVmean++;
@@ -85,11 +85,11 @@ namespace model
                     }
                 }
             }
-            std::cout<<std::endl;
+//            std::cout<<std::endl;
             vmean/=nVmean;
             
-            std::cout<<"vMax="<<vmax<<", id="<<vMaxID<<std::endl;
-            assert(vmax>0.0 && "vmax=0.0");
+//            std::cout<<"vMax="<<vmax<<", id="<<vMaxID<<std::endl;
+//            assert(vmax>0.0 && "vmax=0.0");
             
             //double shearWaveSpeedFraction(0.01);
             //short unsigned int shearWaveExp=1;
@@ -118,7 +118,7 @@ namespace model
             
 //            model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
 //            model::cout<<std::setprecision(3)<<std::scientific<<" vmax/cs="<<vmax/Material<Isotropic>::cs;
-//            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
+            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
 //            model::cout<<std::setprecision(3)<<std::scientific<<" eta_dt="<<dt/dt_mean;
 //            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         //}

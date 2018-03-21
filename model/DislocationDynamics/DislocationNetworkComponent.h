@@ -91,26 +91,26 @@ namespace model
 //                }
 //            }
 
-            size_t n=0;
-            for (const auto& node : NC.nodes())
-            {
-                const typename NodeType::VectorOfNormalsType vn=node.second->constraintNormals();
-                for (size_t c=0;c<vn.size();++c)
-                {
-                    for(size_t d=0;d<dim;++d)
-                    {
-//                        vT.push_back(Eigen::Triplet<double>(KPQ_row,n*dim+d,vn[c](d)));
-                        vT.emplace_back(KPQ_row,n*dim+d,vn[c](d));
-                        if (symmetricConstraint)
-                        {
-//                            vT.push_back(Eigen::Triplet<double>(n*dim+d,KPQ_row,vn[c](d)));
-                              vT.emplace_back(n*dim+d,KPQ_row,vn[c](d));
-                        }
-                    }
-                    ++KPQ_row; // move to next line
-                }
-                n++;
-            }
+//            size_t n=0;
+//            for (const auto& node : NC.nodes())
+//            {
+//                const typename NodeType::VectorOfNormalsType vn=node.second->constraintNormals();
+//                for (size_t c=0;c<vn.size();++c)
+//                {
+//                    for(size_t d=0;d<dim;++d)
+//                    {
+////                        vT.push_back(Eigen::Triplet<double>(KPQ_row,n*dim+d,vn[c](d)));
+//                        vT.emplace_back(KPQ_row,n*dim+d,vn[c](d));
+//                        if (symmetricConstraint)
+//                        {
+////                            vT.push_back(Eigen::Triplet<double>(n*dim+d,KPQ_row,vn[c](d)));
+//                              vT.emplace_back(n*dim+d,KPQ_row,vn[c](d));
+//                        }
+//                    }
+//                    ++KPQ_row; // move to next line
+//                }
+//                n++;
+//            }
             
 //            //Constrain simple nodes to move normal to tangent
 //            for (typename NodeContainerType::const_iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)

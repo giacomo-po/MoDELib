@@ -432,7 +432,7 @@ namespace model
         bool _isOnBoundingBox;
         //        bool _isGrainBoundaryNode;
         VectorDim boundaryNormal;
-        VectorDim C;
+//        VectorDim C;
         
     public:
         
@@ -450,8 +450,8 @@ namespace model
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(vrc),
         /* init list        */ _isOnBoundingBox(false),
-        /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero()),
-        /* init list        */ C(Pin)
+        /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero())
+//        /* init list        */ C(Pin)
         {/*! Constructor from DOF
           */
             
@@ -461,7 +461,7 @@ namespace model
             //            set_P(this->get_P()); // trigger _isOnBoundingBox and _isGrainBoundaryNode
             std::cout<<"WARNING INITIALIZE _isOnBoundingBox"<<std::endl;
             //            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
-            std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
+//            std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
         }
         
         /**********************************************************************/
@@ -474,8 +474,8 @@ namespace model
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
         /* init list        */ _isOnBoundingBox(pL.isBoundarySegment()),
-        /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero()),
-        /* init list        */ C(this->get_P())
+        /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero())
+//        /* init list        */ C(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
           */
             
@@ -484,7 +484,7 @@ namespace model
             
             addGrainBoundaryPlanes();
             //            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
-            std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
+//            std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
             //            set_P(this->get_P()); // trigger _isOnBoundingBox and _isGrainBoundaryNode
         }
         
@@ -751,87 +751,87 @@ namespace model
             return velocity;
         }
         
-        /**********************************************************************/
-        void applyVelocityFilter(double vMaxGood)
-        {
-            if(use_velocityFilter)
-            {
-                const double Rc=3.0*10.0;
-                const double filterThreshold=0.05*vMaxGood*vMaxGood;
-                
-                if((this->get_P()-C).norm()<Rc)
-                {
-                    if(velocity.dot(vOld)<-filterThreshold)
-                    {
-                        velocityReductionCoeff*=velocityReductionFactor;
-                    }
-                }
-                else
-                {
-                    if(velocity.dot(vOld)<-filterThreshold)
-                    {
-                        velocityReductionCoeff*=velocityReductionFactor;
-                        C=this->get_P();
-                    }
-                    else if(velocity.dot(vOld)>0.0)
-                    {
-                        velocityReductionCoeff/=velocityReductionFactor;
-                    }
-                    else
-                    {
-                        // don't change velocityReductionCoeff
-                    }
-                }
-                
-                //                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
-                
-                //                const double VdotVold=
-                //                if(velocity.dot(vOld)<-filterThreshold)
-                //                {
-                //                    velocityReductionCoeff*=velocityReductionFactor;
-                //                }
-                //                else if(velocity.dot(vOld)>filterThreshold)
-                //                {
-                //                    velocityReductionCoeff/=velocityReductionFactor;
-                //                }
-                //                else
-                //                {
-                //                    // don't change velocityReductionCoeff
-                //                }
-                if(velocityReductionCoeff>1.0)
-                {
-                    velocityReductionCoeff=1.0;
-                }
-                if(velocityReductionCoeff<0.0001)
-                {
-                    velocityReductionCoeff=0.0001;
-                }
-                
-                
-                
-                if( isOscillating()
-                   //&& velocity.norm()>vMaxGood /*velocity.norm()>0.0*/
-                   )
-                { // oscillating node
-                    std::cout<<"node "<<this->sID<<" BAD, ";
-                    //                    velocity*=(velocityReductionCoeff*vMaxGood/velocity.norm());
-                    if(velocity.norm()>vMaxGood)
-                    {
-                        velocity=velocityReductionCoeff*vMaxGood*velocity.normalized();
-                    }
-                    //                    std::cout<<velocity.norm()<<std::endl;
-                }
-                else
-                { // good node
-                    std::cout<<"node "<<this->sID<<" GOOD, ";
-                    velocity*=velocityReductionCoeff;
-                }
-                
-                //                velocity*=velocityReductionCoeff;
-                std::cout<<"velocityReductionCoeff="<<velocityReductionCoeff<<", vMaxGood="<<vMaxGood<<", velocity.norm()="<<velocity.norm()<<", newVelocity="<<velocity.norm()<<std::endl;
-                
-            }
-        }
+//        /**********************************************************************/
+//        void applyVelocityFilter(double vMaxGood)
+//        {
+//            if(use_velocityFilter)
+//            {
+//                const double Rc=3.0*10.0;
+//                const double filterThreshold=0.05*vMaxGood*vMaxGood;
+//                
+//                if((this->get_P()-C).norm()<Rc)
+//                {
+//                    if(velocity.dot(vOld)<-filterThreshold)
+//                    {
+//                        velocityReductionCoeff*=velocityReductionFactor;
+//                    }
+//                }
+//                else
+//                {
+//                    if(velocity.dot(vOld)<-filterThreshold)
+//                    {
+//                        velocityReductionCoeff*=velocityReductionFactor;
+//                        C=this->get_P();
+//                    }
+//                    else if(velocity.dot(vOld)>0.0)
+//                    {
+//                        velocityReductionCoeff/=velocityReductionFactor;
+//                    }
+//                    else
+//                    {
+//                        // don't change velocityReductionCoeff
+//                    }
+//                }
+//                
+//                //                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
+//                
+//                //                const double VdotVold=
+//                //                if(velocity.dot(vOld)<-filterThreshold)
+//                //                {
+//                //                    velocityReductionCoeff*=velocityReductionFactor;
+//                //                }
+//                //                else if(velocity.dot(vOld)>filterThreshold)
+//                //                {
+//                //                    velocityReductionCoeff/=velocityReductionFactor;
+//                //                }
+//                //                else
+//                //                {
+//                //                    // don't change velocityReductionCoeff
+//                //                }
+//                if(velocityReductionCoeff>1.0)
+//                {
+//                    velocityReductionCoeff=1.0;
+//                }
+//                if(velocityReductionCoeff<0.0001)
+//                {
+//                    velocityReductionCoeff=0.0001;
+//                }
+//                
+//                
+//                
+//                if( isOscillating()
+//                   //&& velocity.norm()>vMaxGood /*velocity.norm()>0.0*/
+//                   )
+//                { // oscillating node
+//                    std::cout<<"node "<<this->sID<<" BAD, ";
+//                    //                    velocity*=(velocityReductionCoeff*vMaxGood/velocity.norm());
+//                    if(velocity.norm()>vMaxGood)
+//                    {
+//                        velocity=velocityReductionCoeff*vMaxGood*velocity.normalized();
+//                    }
+//                    //                    std::cout<<velocity.norm()<<std::endl;
+//                }
+//                else
+//                { // good node
+//                    std::cout<<"node "<<this->sID<<" GOOD, ";
+//                    velocity*=velocityReductionCoeff;
+//                }
+//                
+//                //                velocity*=velocityReductionCoeff;
+//                std::cout<<"velocityReductionCoeff="<<velocityReductionCoeff<<", vMaxGood="<<vMaxGood<<", velocity.norm()="<<velocity.norm()<<", newVelocity="<<velocity.norm()<<std::endl;
+//                
+//            }
+//        }
         
         /**********************************************************************/
         bool isOscillating() const

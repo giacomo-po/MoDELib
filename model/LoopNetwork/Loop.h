@@ -63,7 +63,7 @@ namespace model
         /* init */ _flow(f)
 //        /* init */ loopNetwork(*_loopNetwork)
         {
-            std::cout<<"Constructing Loop "<<this->sID<<std::endl;
+//            std::cout<<"Constructing Loop "<<this->sID<<std::endl;
             _loopNetwork->addLoop(this->p_derived());
 //            LoopObserverType::addLoop(this->p_derived());
         }
@@ -76,7 +76,7 @@ namespace model
 //        /* init */ loopNetwork(*_loopNetwork)
 //        /* init */ loopNetwork(*_loopNetwork)
         {
-            std::cout<<"Copying Loop: "<<this->sID<<std::endl;
+//            std::cout<<"Copying Loop: "<<this->sID<<std::endl;
 
 //            std::cout<<"Constructing Loop "<<this->sID<<std::endl;
             _loopNetwork->addLoop(this->p_derived());
@@ -88,7 +88,7 @@ namespace model
         /**********************************************************************/
         ~Loop()
         {
-            std::cout<<"Destroying Loop "<<this->sID<<std::endl;
+//            std::cout<<"Destroying Loop "<<this->sID<<std::endl;
             _loopNetwork->removeLoop(this->p_derived());
 //            LoopObserverType::removeLoop(this->p_derived());
         }

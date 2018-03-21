@@ -75,6 +75,21 @@ namespace model {
             return OtherFieldType::get(*static_cast<const FieldPointBase<Derived,OtherFieldType>* const>(this));
         }
         
+        /**********************************************************************/
+        template <typename OtherFieldType>
+        FieldPointBase<Derived,OtherFieldType>& fieldPointBase()
+        {
+            return *static_cast<FieldPointBase<Derived,OtherFieldType>* const>(this);
+        }
+        
+        /**********************************************************************/
+        template <typename OtherFieldType>
+        const FieldPointBase<Derived,OtherFieldType>& fieldPointBase() const
+        {
+            return *static_cast<const FieldPointBase<Derived,OtherFieldType>* const>(this);
+        }
+        
+        
 #ifdef _MODEL_MPI_
         
         typedef typename FieldPointBase<Derived,FieldType>::EigenMapType EigenMapType;

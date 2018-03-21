@@ -27,14 +27,14 @@ namespace model
 	struct IntegrationList;
     
     template <typename PointType>
-	struct IntegrationList<0,PointType> : public std::deque<PointType>
+	struct IntegrationList<0,PointType> : public std::deque<PointType,Eigen::aligned_allocator<PointType>>
     {
 //        static_assert(0,"NOT IMPLEMENTED YET");
     };
     
     
     template <typename PointType>
-	struct IntegrationList<1,PointType> : public std::deque<PointType>
+	struct IntegrationList<1,PointType> : public std::deque<PointType,Eigen::aligned_allocator<PointType>>
     {
         
         /**********************************************************************/
@@ -65,7 +65,7 @@ namespace model
     };
     
     template <typename PointType>
-    struct IntegrationList<2,PointType> : public std::deque<PointType>
+    struct IntegrationList<2,PointType> : public std::deque<PointType,Eigen::aligned_allocator<PointType>>
     {
         
 //        /**********************************************************************/

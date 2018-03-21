@@ -11,6 +11,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
+// valgrind --leak-check=full --show-leak-kinds=all ./DDomp
+
 #ifndef model_DISLOCATIONNETWORK_H_
 #define model_DISLOCATIONNETWORK_H_
 
@@ -26,6 +28,9 @@
 
 #include <chrono>
 #include <Eigen/Dense>
+#include <Eigen/StdVector>
+#include <Eigen/StdDeque>
+
 
 #include <model/LoopNetwork/LoopNetwork.h>
 #include <model/Utilities/TerminalColors.h>
@@ -94,6 +99,7 @@ namespace model
         //        enum {NdofXnode=NodeType::NdofXnode};
         
         int timeIntegrationMethod;
+        //        bool use_analyticalStraightStress;
         bool use_junctions;
         long int runID;
         double totalTime;
@@ -112,7 +118,7 @@ namespace model
         bool use_externalStress;
         bool use_externaldislocationstressfield;
         ExternalStressFieldControllerType extStressController;
-        std::vector<StressStraight<dim>> ssdeq;
+        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> ssdeq;
         
         int  outputFrequency;
         bool outputBinary;
@@ -151,7 +157,7 @@ namespace model
             }
             if (use_externalStress)
             {
-               extStressController.update(*this);
+                extStressController.update(*this);
             }
         }
         
@@ -174,11 +180,15 @@ namespace model
                     break;
             }
             
-            
-            for(auto& node : this->nodes())
+            if(NodeType::use_velocityFilter)
             {
-                node.second->applyVelocityFilter(vMax);
+                assert(0 && "velocityFilter not implemented yet.");
+                //            for(auto& node : this->nodes())
+                //            {
+                //                node.second->applyVelocityFilter(vMax);
+                //            }
             }
+            
             
             model::cout<<std::setprecision(3)<<std::scientific<<"		dt="<<dt<<std::endl;
         }
@@ -289,6 +299,7 @@ namespace model
         /**********************************************************************/
         DislocationNetwork(int& argc, char* argv[]) :
         /* init list  */ timeIntegrationMethod(0),
+        //        /* init list  */ use_analyticalStraightStress(true),
         /* init list  */ use_junctions(false),
         /* init list  */ runID(0),
         /* init list  */ totalTime(0.0),
@@ -297,7 +308,7 @@ namespace model
         /* init list  */ Nsteps(0),
         /* init list  */ _plasticDistortion(MatrixDimD::Zero()),
         /* init list  */ _plasticDistortionRate(MatrixDimD::Zero()),
-       ///* init list  */ externalStress(MatrixDimD::Zero()),
+        ///* init list  */ externalStress(MatrixDimD::Zero()),
         /* init list  */ use_boundary(false),
         /* init list  */ use_bvp(0),
         /* init list  */ use_virtualSegments(true),
@@ -371,16 +382,75 @@ namespace model
 #endif
             
             //! -1 Compute the interaction StressField between dislocation particles
-            model::cout<<"		Computing stress field at quadrature points ("<<nThreads<<" threads)..."<<std::flush;
-            if (use_externaldislocationstressfield)
-            {
-                this->template computeNeighborField<StressField>(ssdeq);
+            EigenDataReader EDR;
+            bool useStraightSegmentsRemoveMe=true;
+            EDR.readScalarInFile("./DDinput.txt","useStraightSegmentsRemoveMe",useStraightSegmentsRemoveMe);
+
+            if(corder==0 && useStraightSegmentsRemoveMe)
+            {// For straight segments use analytical expression of stress field
+                model::cout<<"		Computing analytical stress field at quadrature points ("<<nThreads<<" threads) "<<std::flush;
+                
+                std::vector<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
+                for(const auto& link : this->networkLinks())
+                {
+                    if(!link.second->hasZeroBurgers())
+                    {
+                        if(!link.second->isBoundarySegment())
+                        {
+                            straightSegmentsDeq.emplace_back(link.second->source->get_P(),
+                                                             link.second->sink->get_P(),
+                                                             link.second->burgers());
+                        }
+                        else
+                        {
+                            if(use_bvp) // using FEM correction
+                            {
+                                assert(0 && "FINISH HERE");
+                                if(use_virtualSegments)
+                                {
+                                    
+                                }
+                            }
+                            else
+                            {// Don't add stress
+                                
+                            }
+                        }
+                    }
+                }
+                
+                model::cout<< straightSegmentsDeq.size()<<" straight segments x "<<this->particleSystem().size()<<" field points "<<std::flush;
+                
+                
+//#ifdef _OPENMP
+//#pragma omp parallel for
+//#endif
+                for (unsigned int k=0; k<this->particleSystem().size();++k)
+                {
+//                    if(this->particleSystem()[k].template fieldPointBase<StressField>().enabled)
+//                    {
+//                        this->particleSystem()[k].template fieldPointBase<StressField>() += StressField::addSourceContribution(this->particleSystem()[k],straightSegmentsDeq);
+//                    }
+                    if(static_cast<const FieldPointBase<DislocationParticleType,StressField>* const>(&this->particleSystem()[k])->enabled)
+                    {
+                        static_cast<FieldPointBase<DislocationParticleType,StressField>* const>(&this->particleSystem()[k])->operator+=(StressField::addSourceContribution(this->particleSystem()[k],straightSegmentsDeq));
+                    }
+                }
+                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             }
             else
-            {
-                this->template computeNeighborField<StressField>();
-			}
-            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+            {// For curved segments use quandrature integration of stress field
+                model::cout<<"		Computing numerical stress field at quadrature points ("<<nThreads<<" threads)..."<<std::flush;
+                if (use_externaldislocationstressfield)
+                {
+                    this->template computeNeighborField<StressField>(ssdeq);
+                }
+                else
+                {
+                    this->template computeNeighborField<StressField>();
+                }
+                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+            }
             
             //! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
             model::cout<<"		Computing segment stiffness matrices and force vectors ("<<nThreads<<" threads)..."<<std::flush;
@@ -561,14 +631,14 @@ namespace model
           */
             return runID;
         }
- 
-         
-         /**********************************************************************/       
+        
+        
+        /**********************************************************************/
         const unsigned int& userOutputColumn()  const
         {
             return _userOutputColumn;
         }
-               
+        
         /**********************************************************************/
         MatrixDimD stress(const VectorDim& P) const
         {/*!\param[in] P position vector
@@ -594,9 +664,15 @@ namespace model
             }
             return temp;
         }
-                
+        
         /**********************************************************************/
         const ParticleSystemType& particleSystem() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        ParticleSystemType& particleSystem()
         {
             return *this;
         }

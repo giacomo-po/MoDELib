@@ -27,7 +27,7 @@ namespace model
         
         /**********************************************************************/
         template<typename Derived>
-        MatrixDim stress_kernel(const Eigen::MatrixBase<Derived>& r) const
+        MatrixDim nonSymmStress_kernel(const Eigen::MatrixBase<Derived>& r) const
         {
 #if _MODEL_NON_SINGULAR_DD_ == 0
             /* Devincre, B., & Condat, M. (1992). Model validation of a 3D
@@ -37,20 +37,26 @@ namespace model
             const Scalar L(r.dot(t));
             const Scalar R(r.norm()+DislocationStress<dim>::a);
             const VectorDim rho(r-L*t);
-            const VectorDim Y((L+R)*t+rho);
-            const Scalar Y2(Y.squaredNorm()+DislocationStress<dim>::a2);
+            const VectorDim Y((L+R)*t+rho); // = R*t + r
+            // Y2=R^2+R^2+2R*(r*t)=2R*(R+L)
+//            const Scalar Y2(Y.squaredNorm()+DislocationStress<dim>::a2);
 //            return (Material<Isotropic>::C1* b.cross(Y)*t.transpose()
 //            /*                 */ -b.cross(t)*Y.transpose()
 //            /*                 */ -b.dot(Y.cross(t))*(2.0/Y2*rho*Y.transpose()+0.5*(MatrixDim::Identity()+t*t.transpose()+2.0/Y2*L/R*Y*Y.transpose()))
 //                    )*2.0/Y2;
             
             
-            const Scalar f1(2.0/Y2);
+//            const Scalar f1(2.0/Y.squaredNorm());
+            const Scalar f1(1.0/(R*(R+L))); // =2/Y2=2/(2R*(R+L))
+
+            //            const Scalar f1(2.0/(Y.squaredNorm()+DislocationStress<dim>::a2));
+//            const Scalar f1(2.0/Y2);
             const Scalar f2(Material<Isotropic>::C1*f1);
             const Scalar bDotYcrosst(b.dot(Y.cross(t)));
             const Scalar f3(bDotYcrosst*f1*f1);
-            const Scalar f4(bDotYcrosst*f1*0.5);
-            const Scalar f5(0.5*f3*L/R);
+            const Scalar f4(0.5*f1*bDotYcrosst);
+//            const Scalar f5(0.5*f3*L/R);
+            const Scalar f5(f4*f1*L/R);
             
             return  f2*b.cross(Y)*t.transpose()
             /*  */ -f1*b.cross(t)*Y.transpose()
@@ -58,21 +64,32 @@ namespace model
             /*  */ -f4*(MatrixDim::Identity()+t*t.transpose())
             /*  */ -f5*Y*Y.transpose();
 
-//            Eigen::Matrix<Scalar,dim,dim> temp1(f2*b.cross(Y)*t.transpose()
-//                                                -f1*b.cross(t)*Y.transpose()
-//                                                -f3*rho*Y.transpose());
-//
-//            
-//            Eigen::Matrix<Scalar,dim,dim> temp(Eigen::Matrix<Scalar,dim,dim>::Zero());
-//            temp.template triangularView<Eigen::Upper>()-=f4*(MatrixDim::Identity()+t*t.transpose())+f5*Y*Y.transpose();
-//            
-//            temp1+=temp.template selfadjointView<Eigen::Upper>();
-//            
-//            return temp1;
-
-            
 #elif _MODEL_NON_SINGULAR_DD_ == 1 /* Cai's non-singular theory */
-            assert(0 && "NOT IMPLEMENTED YET");
+            assert(0 && "CHECK FOLLOWING IMPLEMENTATION");
+
+            const double Ra2=r.squaredNorm()+DislocationStress<dim>::a2;
+            const double Ra=sqrt(Ra2);
+            const double Ra3=std::pow(Ra,3);
+            const double rdt=r.dot(t);
+            const double rdt2=std::pow(rdt,2);
+            const double A1=-(rdt*(3.0*Ra2-rdt2))/(std::pow(Ra2-rdt2,2)*Ra3);
+            const double A2=1.0/Ra3-rdt*A1;
+            const double A6=-rdt/((Ra2-rdt2)*Ra);
+            const double A3=-rdt/Ra3+A6+rdt2*A1;
+            const double A4=A6+DislocationStress<dim>::a2*A1;
+            const double A5=-Material<Isotropic>::C1*A6-0.5*DislocationStress<dim>::a2*Material<Isotropic>::C1*A1;
+            const double A7=Material<Isotropic>::nu/Ra-rdt*A6-0.5*DislocationStress<dim>::a2*Material<Isotropic>::C1*A2;
+            
+            const double rbt(r.cross(b).dot(t));
+            
+            return  0.5*rbt*A1*r*r.transpose()
+            /*  */ +    rbt*A2*t*r.transpose()
+            /*  */ +0.5*rbt*A3*t*t.transpose()
+            /*  */ +0.5*rbt*A4*MatrixDim::Identity()
+            /*  */ +A5*r.cross(b)*t.transpose()
+            /*  */ +A6*t.cross(b)*r.transpose()
+            /*  */ +A7*t.cross(b)*t.transpose();
+           
 #elif _MODEL_NON_SINGULAR_DD_ == 2 /* Lazar's non-singular theory */
             assert(0 && "NOT IMPLEMENTED YET");
 #else
@@ -82,9 +99,12 @@ namespace model
         
     public:
         
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        
         const VectorDim P0;
         const VectorDim P1;
         const VectorDim b;
+        const double length;
         const VectorDim t;
         
         /**********************************************************************/
@@ -92,26 +112,24 @@ namespace model
         /* init list */ P0(_P0),
         /* init list */ P1(_P1),
         /* init list */ b(_b),
-        /* init list */ t((P1-P0).normalized())
+        /* init list */ length((P1-P0).norm()),
+        /* init list */ t((P1-P0)/length)
         {
         
         }
 
         /**********************************************************************/
-        MatrixDim nonSymmStress(const VectorDim& x) const
+        template<typename Derived>
+        MatrixDim nonSymmStress(const Eigen::MatrixBase<Derived>& x) const
         {
-            return stress_kernel(x-P1)-stress_kernel(x-P0);
-            
+            return length>FLT_EPSILON? nonSymmStress_kernel(x-P1)-nonSymmStress_kernel(x-P0) : MatrixDim::Zero().eval();
         }
         
         /**********************************************************************/
         MatrixDim stress(const VectorDim& x) const
         {
-            
             const MatrixDim temp = nonSymmStress(x);
-
             return Material<Isotropic>::C2*(temp+temp.transpose());
-            
         }
         
 	};	

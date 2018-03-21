@@ -104,7 +104,7 @@ namespace model {
         
         /**********************************************************************/
         template <typename OtherParticleType, typename FieldType,typename... OtherSourceTypes>
-        void computeField(std::deque<OtherParticleType>& fpDeq, const OtherSourceTypes&... otherSources) const
+        void computeField(std::deque<OtherParticleType,Eigen::aligned_allocator<OtherParticleType>>& fpDeq, const OtherSourceTypes&... otherSources) const
         {
 #ifdef _OPENMP
 #pragma omp parallel for

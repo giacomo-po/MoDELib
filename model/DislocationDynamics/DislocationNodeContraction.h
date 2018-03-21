@@ -171,10 +171,10 @@ namespace model
                                                         nB->glidePlaneIntersections()[0].first,nB->glidePlaneIntersections()[0].second);
                         
                         
-                        std::cout<<"nA->glidePlaneIntersections()[0].first "<<std::setprecision(15)<<std::scientific<<nA->glidePlaneIntersections()[0].first.transpose()<<std::endl;
-                        std::cout<<"nA->glidePlaneIntersections()[0].second "<<std::setprecision(15)<<std::scientific<<nA->glidePlaneIntersections()[0].second.transpose()<<std::endl;
-                        std::cout<<"nB->glidePlaneIntersections()[0].first "<<std::setprecision(15)<<std::scientific<<nB->glidePlaneIntersections()[0].first.transpose()<<std::endl;
-                        std::cout<<"nB->glidePlaneIntersections()[0].second "<<std::setprecision(15)<<std::scientific<<nB->glidePlaneIntersections()[0].second.transpose()<<std::endl;
+//                        std::cout<<"nA->glidePlaneIntersections()[0].first "<<std::setprecision(15)<<std::scientific<<nA->glidePlaneIntersections()[0].first.transpose()<<std::endl;
+//                        std::cout<<"nA->glidePlaneIntersections()[0].second "<<std::setprecision(15)<<std::scientific<<nA->glidePlaneIntersections()[0].second.transpose()<<std::endl;
+//                        std::cout<<"nB->glidePlaneIntersections()[0].first "<<std::setprecision(15)<<std::scientific<<nB->glidePlaneIntersections()[0].first.transpose()<<std::endl;
+//                        std::cout<<"nB->glidePlaneIntersections()[0].second "<<std::setprecision(15)<<std::scientific<<nB->glidePlaneIntersections()[0].second.transpose()<<std::endl;
                         
                         const auto iSeg=ssd.intersectionSegment();
                         if(iSeg.size()==1)
