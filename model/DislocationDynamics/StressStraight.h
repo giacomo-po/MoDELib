@@ -36,7 +36,7 @@ namespace model
              */
             const Scalar L(r.dot(t));
             const Scalar R(r.norm()+DislocationStress<dim>::a);
-            const VectorDim rho(r-L*t);
+            const VectorDim rho(r-L*t); // distance vector to the line
             const VectorDim Y((L+R)*t+rho); // = R*t + r
             // Y2=R^2+R^2+2R*(r*t)=2R*(R+L)
 //            const Scalar Y2(Y.squaredNorm()+DislocationStress<dim>::a2);
@@ -49,14 +49,14 @@ namespace model
 //            const Scalar f1(2.0/Y.squaredNorm());
             const Scalar f1(1.0/(R*(R+L))); // =2/Y2=2/(2R*(R+L))
 
-            //            const Scalar f1(2.0/(Y.squaredNorm()+DislocationStress<dim>::a2));
+//            const Scalar f1(2.0/(Y.squaredNorm()+DislocationStress<dim>::a2));
 //            const Scalar f1(2.0/Y2);
             const Scalar f2(Material<Isotropic>::C1*f1);
             const Scalar bDotYcrosst(b.dot(Y.cross(t)));
             const Scalar f3(bDotYcrosst*f1*f1);
             const Scalar f4(0.5*f1*bDotYcrosst);
-//            const Scalar f5(0.5*f3*L/R);
             const Scalar f5(f4*f1*L/R);
+            //            const Scalar f5(0.5*f3*L/R);
             
             return  f2*b.cross(Y)*t.transpose()
             /*  */ -f1*b.cross(t)*Y.transpose()
@@ -114,7 +114,10 @@ namespace model
         /* init list */ b(_b),
         /* init list */ length((P1-P0).norm()),
         /* init list */ t((P1-P0)/length)
-        {
+        {/*!\param[in] _P0 starting point of the segment
+          * \param[in] _P0 ending point of the segment
+          * \param[in] _b Burgers vector of the segment
+          */
         
         }
 

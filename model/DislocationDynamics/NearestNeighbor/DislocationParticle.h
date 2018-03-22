@@ -251,6 +251,7 @@ namespace model
         template <class T>
         friend T& operator << (T& os, const DislocationParticleType& p)
         {
+//            typename StressField::MatrixType temp(p.template field<StressField>());
             //os  << p.source->sID<<"\t"<< ds.sink->sID<<"\t"
             os  << p.sourceID<< "\t"<< p.sinkID<<"\t"<<p.quadID<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<p.P.transpose()<<"\t"
@@ -263,6 +264,7 @@ namespace model
             //            /**/<< static_cast<const FieldPointBase<DislocationParticleType,DisplacementField>* const>(&p)->enabled<<"\t"
             /**/<< static_cast<const SingleSourcePoint<DislocationParticleType,ElasticEnergy>* const>(&p)->enabled<<"\t"
             /**/<< static_cast<const FieldPointBase<DislocationParticleType,ElasticEnergy>* const>(&p)->enabled;
+//            /**/<<temp.row(0)<<" "<<temp.row(1)<<" "<<temp.row(2);
             return os;
         }
         

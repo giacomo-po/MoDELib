@@ -4,7 +4,7 @@ Nsteps=2000;
 startAtTimeStep = -1;
 use_directSolver_DD=0;
 quadPerLength=0.1;
-useStraightSegmentsRemoveMe=1;
+useStraightSegmentsRemoveMe=0;
 
 ######################################
 # TIME STEP
@@ -29,25 +29,21 @@ outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
 outputDislocationLength=0;
 outputQuadratureParticles=0;
-outputLinkingNumbers=0;
+outputLinkingNumbers=1;
+outputLoopLength=1;
 
 ######################################
 # TEMPERATURE in [K]
 temperature = 300.0;
 
-######################################
-# Set the remote external stress (a uniform stress felt by dislocations)
-externalStress = 0.0 0.0 0.0
-		 0.0 0.0 0.0
-		 0.0 0.0 0.0;
 
 ######################################
 # STRESS FIELD
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
 coreSize=2.0;
 # Use of multipole-expanded stress field for non-nearest neighbor cells
-dislocationCellSize=10000000;
-use_DisplacementMultipole=1;
+dislocationCellSize=100000000;
+use_DisplacementMultipole=0;
 use_StressMultipole = 1;
 use_EnergyMultipole = 0;
 
@@ -57,7 +53,7 @@ use_EnergyMultipole = 0;
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
-Lmax=500;
+Lmax=200;
 Lmin=50;
 
 ######################################
@@ -83,14 +79,14 @@ use_meshRegions=0;
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
 use_bvp = 0;
-use_virtualSegments=0;
+use_virtualSegments=1;
 virtualSegmentDistance=500;
 solverTolerance=0.0001;
 
 
 ######################################
 # Enable/disable cross-slip
-use_crossSlip=1;
+use_crossSlip=0;
 crossSlipDeg=2.0;
 
 ######################################

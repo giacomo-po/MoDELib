@@ -25,6 +25,7 @@ namespace model
         const VectorDim N;          // velocity
         const VectorDim P;          // velocity
         const size_t grainID;          // component ID
+        const std::tuple<double,double,double> loopLength;
         
         /**********************************************************************/
         template<typename DislocationLoopType>
@@ -33,7 +34,8 @@ namespace model
         /* init */ B(dL.flow().cartesian()),
         /* init */ N(dL.glidePlane.unitNormal),
         /* init */ P(dL.glidePlane.P),
-        /* init */ grainID(dL.grain.grainID)
+        /* init */ grainID(dL.grain.grainID),
+        /* init */ loopLength(dL.network().outputLoopLength? dL.loopLength() : std::make_tuple(0.0,0.0,0.0))
         {
             
         }
@@ -48,7 +50,8 @@ namespace model
         /* init */ B(B_in),
         /* init */ N(N_in),
         /* init */ P(P_in),
-        /* init */ grainID(grainID)
+        /* init */ grainID(grainID),
+        /* init */ loopLength(std::make_tuple(0.0,0.0,0.0))
         {
             
         }
@@ -61,8 +64,8 @@ namespace model
             /**/<< std::setprecision(15)<<std::scientific<<ds.B.transpose()<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.N.transpose()<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.P.transpose()<<"\t"
-            /**/<< ds.grainID;
-
+            /**/<< ds.grainID<<"\t"
+            /**/<< std::get<0>(ds.loopLength)<<"\t"<< std::get<1>(ds.loopLength)<<"\t"<< std::get<2>(ds.loopLength);
             return os;
         }
         

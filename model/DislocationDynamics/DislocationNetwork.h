@@ -133,6 +133,7 @@ namespace model
         bool outputPlasticDistortionRate;
         bool outputQuadratureParticles;
         bool outputLinkingNumbers;
+        bool outputLoopLength;
         unsigned int _userOutputColumn;
         
 #ifdef DislocationNucleationFile
@@ -331,6 +332,7 @@ namespace model
         /* init list  */ outputPlasticDistortionRate(false),
         /* init list  */ outputQuadratureParticles(false),
         /* init list  */ outputLinkingNumbers(false),
+                /* init list  */ outputLoopLength(false),
         /* init list  */ _userOutputColumn(3)
         {
             ParticleSystemType::initMPI(argc,argv);
@@ -390,7 +392,7 @@ namespace model
             {// For straight segments use analytical expression of stress field
                 model::cout<<"		Computing analytical stress field at quadrature points ("<<nThreads<<" threads) "<<std::flush;
                 
-                std::vector<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
+                std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
                 for(const auto& link : this->networkLinks())
                 {
                     if(!link.second->hasZeroBurgers())
@@ -422,9 +424,9 @@ namespace model
                 model::cout<< straightSegmentsDeq.size()<<" straight segments x "<<this->particleSystem().size()<<" field points "<<std::flush;
                 
                 
-//#ifdef _OPENMP
-//#pragma omp parallel for
-//#endif
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
                 for (unsigned int k=0; k<this->particleSystem().size();++k)
                 {
 //                    if(this->particleSystem()[k].template fieldPointBase<StressField>().enabled)

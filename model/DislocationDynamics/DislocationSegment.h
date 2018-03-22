@@ -400,6 +400,13 @@ namespace model
                     SFgauss.row(k)=QuadPowDynamicType::uPow(qOrder).row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                     rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                     rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                    
+//                    if((this->chord()-rugauss.col(k)).squaredNorm()>FLT_EPSILON)
+//                    {
+//                        std::cout<<this->chord().transpose()<<std::endl;
+//                        std::cout<<rugauss.col(k).transpose()<<std::endl;
+//                        assert(0);
+//                    }
                     jgauss(k)=rugauss.col(k).norm();
                     rlgauss.col(k)=rugauss.col(k)/jgauss(k);
                 }

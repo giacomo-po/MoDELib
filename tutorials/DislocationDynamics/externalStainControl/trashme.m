@@ -16,10 +16,10 @@ clc
  legend('straight','quadrature')
 
 %return
-Ps=load('Ps/P_10.txt');
-Pq=load('P/P_10.txt');
+Ps=load('Ps/P_0.txt');
+Pq=load('P/P_0.txt');
 %id=128:128+64
-id=1:size(Pq,1)
+id=1:size(Pq,1);
 %e=sqrt(sum(((Ps(id,7:9)-P(id,7:9)).^2)'));
 %q=sqrt(sum(((P(id,7:9)).^2)'));
 %r=sqrt(sum(((Ps(id,7:9)).^2)'));

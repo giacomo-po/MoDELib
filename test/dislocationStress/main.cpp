@@ -61,8 +61,15 @@ int main(int argc, char * argv[])
     // Compute position of the two end nodes
     const Eigen::Matrix<double,3,1> P0(0.0,0.0,-Lz); // position of current vertex
     const Eigen::Matrix<double,3,1> P1(0.0,0.0,+Lz); // position of current vertex
+    const Eigen::Matrix<double,3,1> P2(Lz,0.0,+Lz); // position of current vertex
+    const Eigen::Matrix<double,3,1> P3(Lz,0.0,-Lz); // position of current vertex
 
     // Create nodes
+    DN.insertDanglingNode(P0,Eigen::Matrix<double,3,1>::Zero(),1.0);
+    DN.insertDanglingNode(P1,Eigen::Matrix<double,3,1>::Zero(),1.0);
+    DN.insertDanglingNode(P2,Eigen::Matrix<double,3,1>::Zero(),1.0);
+    DN.insertDanglingNode(P3,Eigen::Matrix<double,3,1>::Zero(),1.0);
+
     const size_t node0ID(DN.insertVertex(P0).first->first); // insert vertex ind DislocationNetwork
     const size_t node1ID(DN.insertVertex(P1).first->first); // insert vertex ind DislocationNetwork
 

@@ -91,6 +91,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DN.outputMeshDisplacement);
             EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DN.outputElasticEnergy);
             EDR.readScalarInFile(fullName.str(),"outputLinkingNumbers",DN.outputLinkingNumbers);
+            EDR.readScalarInFile(fullName.str(),"outputLoopLength",DN.outputLoopLength);
             
             
             EDR.readScalarInFile(fullName.str(),"outputPlasticDistortion",DN.outputPlasticDistortion);
@@ -430,7 +431,7 @@ namespace model
             
             // Reading loops
             //            typedef VertexReader<'L',11,double> VertexReaderType;
-            typedef IDreader<'L',1,10,double> VertexReaderType;
+            typedef IDreader<'L',1,13,double> VertexReaderType;
             VertexReaderType  vReader;	// sID,Px,Py,Pz,Tx,Ty,Tz,snID,meshLocation,grainID
             if (vReader.isGood(fileID,false)) // bin file exists
             {

@@ -28,6 +28,9 @@ namespace model
     {
     
     public:
+        
+//        static bool outputLoopLength;
+
 
         constexpr static int dim=_dim;
         typedef DislocationLoop<dim,corder,InterpolationType> DislocationLoopType;
@@ -117,15 +120,32 @@ namespace model
         }
         
         /**********************************************************************/
-        double loopLength() const
+        std::tuple<double,double,double> loopLength() const
         {
-            double length=0.0;
+            double freeLength=0.0;
+            double boundaryLength=0.0;
+            double junctionLength=0.0;
+
             for(const auto& link : this->links())
             {
-                length+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
+                if(link.second->pLink->isBoundarySegment())
+                {
+                    boundaryLength+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
+                }
+                else
+                {
+                    if(link.second->pLink->loopLinks().size()==1)
+                    {
+                        freeLength+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
+                    }
+                    else
+                    {
+                        junctionLength+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
+                    }
+                }
             }
             
-            return length;
+            return std::make_tuple(freeLength,junctionLength,boundaryLength);
         }
 
         
@@ -147,6 +167,9 @@ namespace model
 //        }
     
     };
+    
+//    template <int _dim, short unsigned int corder, typename InterpolationType>
+//    bool DislocationLoop<_dim,corder,InterpolationType>::outputLoopLength=false;
     
 }
 

@@ -222,9 +222,9 @@ namespace model
                     {
                         const std::pair<double,bool> Ln(linkingNumber(*loopIter1->second,*loopIter2->second));
                         
-                        os  <<loopIter1->first<<" "<<loopIter2->first<<" ";
-                        os  <<Ln.second<<" "<<Ln.first<<" ";
-                        os << loopIter1->second->loopLength()<<" "<<loopIter2->second->loopLength();
+                        os  <<loopIter1->first<<" "<<loopIter2->first;
+                        os  <<" "<<Ln.second<<" "<<Ln.first;
+//                        os << loopIter1->second->loopLength()<<" "<<loopIter2->second->loopLength();
 //                        os  <<loopIter1->second->flow().cartesian().transpose()<<" ";
 //                        os  <<loopIter1->second->glidePlane.n.cartesian().transpose()<<" ";
 //                        os  <<loopIter2->second->flow().cartesian().transpose()<<" ";
