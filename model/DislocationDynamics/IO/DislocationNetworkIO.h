@@ -273,7 +273,7 @@ namespace model
             //            EDR.readScalarInFile(fullName.str(),"check_balance",check_balance);
             
             // JUNCTION FORMATION
-            EDR.readScalarInFile(fullName.str(),"use_junctions",DN.use_junctions);
+            EDR.readScalarInFile(fullName.str(),"maxJunctionIterations",DN.maxJunctionIterations);
 
 
             
@@ -335,7 +335,7 @@ namespace model
             } 
             
             // Verbose levels
-            if(DN.use_junctions)
+            if(DN.maxJunctionIterations>0)
             {
                 EDR.readScalarInFile(fullName.str(),"verboseJunctions",DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions);
             }

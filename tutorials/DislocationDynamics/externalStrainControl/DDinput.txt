@@ -21,7 +21,7 @@ outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=1;
+outputPKforce=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
@@ -53,13 +53,13 @@ use_EnergyMultipole = 0;
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
-Lmax=200;
+Lmax=500;
 Lmin=50;
 
 ######################################
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
-use_junctions=1;
+maxJunctionIterations=1;
 # Tolerance used in detecting collisions between dislocation segments in different planes
 collisionTol=3;
 

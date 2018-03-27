@@ -67,7 +67,8 @@ namespace model
                 const VectorDimD b=slipSystem.s.cartesian();    // Burgers vector
                 const VectorDimD n=slipSystem.n.cartesian().normalized(); // slip plane normal
                 
-                const double theta=0.5*M_PI; // angle of the dislocation line in the plane from screw orientation.
+                std::uniform_real_distribution<> dis(0.0, 2.0*M_PI);
+                const double theta=dis(generator); // random angle of the dislocation line in the plane from screw orientation.
                 const VectorDimD d=Eigen::AngleAxisd(theta, n)*b.normalized();
                 
                 // Define line AB containing dislocaiton and piercing the mesh
@@ -167,7 +168,7 @@ namespace model
                     loopID+=1;
                     snID+=1;
                     density += lineLength/this->mesh.volume()/std::pow(Material<Isotropic>::b_real,2);
-                    std::cout<<"density="<<density<<std::endl;
+                    std::cout<<"theta="<<theta*180.0/M_PI<<", density="<<density<<std::endl;
                 }
             }
         }

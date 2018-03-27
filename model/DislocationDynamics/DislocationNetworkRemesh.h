@@ -185,10 +185,6 @@ namespace model
             for (const auto& linkIter : DN.links())
             {
                 
-//                std::cout<<"Exxpanding "<<linkIter.second->source->sID<<"->"<<linkIter.second->sink->sID<<std::endl;
-//                std::cout<<linkIter.second->hasZeroBurgers()<<std::endl;
-//                std::cout<<linkIter.second->isSessile()<<std::endl;
-//                                std::cout<<linkIter.second->isBoundarySegment()<<std::endl;
                 
                 if( !linkIter.second->hasZeroBurgers()
                    //&& !linkIter.second->isSimpleSessile())
@@ -198,6 +194,14 @@ namespace model
                    )
                     
                 {
+//                    std::cout<<"Expanding "<<linkIter.second->source->sID<<"->"<<linkIter.second->sink->sID<<std::endl;
+//                    std::cout<<linkIter.second->hasZeroBurgers()<<std::endl;
+//                    std::cout<<linkIter.second->isSessile()<<std::endl;
+//                    std::cout<<linkIter.second->isBoundarySegment()<<std::endl;
+//                    std::cout<<linkIter.second->source->isBoundaryNode()<<std::endl;
+//                    std::cout<<linkIter.second->sink->isBoundaryNode()<<std::endl;
+//                    std::cout<<linkIter.second->boundingBoxSegments().contains(0.5*(linkIter.second->source->get_P()+linkIter.second->sink->get_P())).first<<std::endl;
+                    
                     const VectorDimD chord(linkIter.second->chord()); // this is sink->get_P() - source->get_P()
                     const double chordLength(chord.norm());
                     //				const VectorDimD dv(linkIter->second.sink->get_V()-linkIter->second.source->get_V());

@@ -1,2 +1,2 @@
-targetDensity=1e13;
+targetDensity=1e12;
 fractionEdge=1.0;

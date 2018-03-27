@@ -269,70 +269,7 @@ namespace model
         
 
         
-//        /**********************************************************************/
-//        static void emplaceUnique(LineSegmentContainerType& temp,const VectorDim& P1,const VectorDim& P2)
-//        {
-//            bool isUnique=true;
-//            
-//            std::cout<<"emplaceUnique "<<P1.transpose()<<" ### "<<P2.transpose()<<std::endl;
-//            
-//            if((P1-P2).squaredNorm()>FLT_EPSILON)
-//            {// P1-P2 is not a degenerate line
-//                for(int p=0;p<temp.size();++p)
-//                {
-//                    VectorDim& E1(temp[p].first);
-//                    VectorDim& E2(temp[p].second);
-//                    if((E1-E2).squaredNorm()>FLT_EPSILON)
-//                    {// existing pair is not a degenerate line
-////                        isUnique*=((E1-P1).squaredNorm()>FLT_EPSILON && (E2-P2).squaredNorm()>FLT_EPSILON);
-//                        isUnique*=((E1-P1).squaredNorm()>FLT_EPSILON || (E2-P2).squaredNorm()>FLT_EPSILON);
-//                        isUnique*=((E1-P2).squaredNorm()>FLT_EPSILON || (E2-P1).squaredNorm()>FLT_EPSILON);
-//                        std::cout<<"    A existing "<<E1.transpose()<<" ### "<<E2.transpose()<<" ### "<<isUnique<<std::endl;
-//                        if(!isUnique)
-//                        {
-//                            break;
-//                        }
-//                    }
-//                    else
-//                    {// existing pair is a degenerate line
-//                        const VectorDim x=0.5*(E1+E2);
-//                        isUnique*=((P1-x).squaredNorm()>FLT_EPSILON && (P2-x).squaredNorm()>FLT_EPSILON);
-//                        std::cout<<"    B existing "<<E1.transpose()<<" ### "<<E2.transpose()<<" ### "<<isUnique<<std::endl;
-//                        if(!isUnique)
-//                        {// keep non-defenerate line
-//                            temp[p].first=P1;
-//                            temp[p].second=P2;
-//                            break;
-//                        }
-//                    }
-//                    
-//                }
-//            }
-//            else
-//            {// P1-P2 is a degenerate line (a point)
-//                const VectorDim x=0.5*(P1+P2);
-//                for(const auto& pair : temp)
-//                {
-//                    isUnique*=((pair.first-x).squaredNorm()>FLT_EPSILON && (pair.second-x).squaredNorm()>FLT_EPSILON);
-//                    std::cout<<"    C existing "<<pair.first.transpose()<<" ### "<<pair.second.transpose()<<" ### "<<isUnique<<std::endl;
-//                    if(!isUnique)
-//                    {
-//                        break;
-//                    }
-//                }
-//            
-//            }
-//            
-//            
-//            if(isUnique)
-//            {
-//                temp.emplace_back(P1,P2);
-//            }
-//            else
-//            {
-////                std::cout<<"BoundingLineSegments: not unique"<<std::endl;
-//            }
-//        }
+
         
         
         /**********************************************************************/
@@ -490,3 +427,69 @@ namespace model
     
 }	// close namespace
 #endif
+
+
+//        /**********************************************************************/
+//        static void emplaceUnique(LineSegmentContainerType& temp,const VectorDim& P1,const VectorDim& P2)
+//        {
+//            bool isUnique=true;
+//
+//            std::cout<<"emplaceUnique "<<P1.transpose()<<" ### "<<P2.transpose()<<std::endl;
+//
+//            if((P1-P2).squaredNorm()>FLT_EPSILON)
+//            {// P1-P2 is not a degenerate line
+//                for(int p=0;p<temp.size();++p)
+//                {
+//                    VectorDim& E1(temp[p].first);
+//                    VectorDim& E2(temp[p].second);
+//                    if((E1-E2).squaredNorm()>FLT_EPSILON)
+//                    {// existing pair is not a degenerate line
+////                        isUnique*=((E1-P1).squaredNorm()>FLT_EPSILON && (E2-P2).squaredNorm()>FLT_EPSILON);
+//                        isUnique*=((E1-P1).squaredNorm()>FLT_EPSILON || (E2-P2).squaredNorm()>FLT_EPSILON);
+//                        isUnique*=((E1-P2).squaredNorm()>FLT_EPSILON || (E2-P1).squaredNorm()>FLT_EPSILON);
+//                        std::cout<<"    A existing "<<E1.transpose()<<" ### "<<E2.transpose()<<" ### "<<isUnique<<std::endl;
+//                        if(!isUnique)
+//                        {
+//                            break;
+//                        }
+//                    }
+//                    else
+//                    {// existing pair is a degenerate line
+//                        const VectorDim x=0.5*(E1+E2);
+//                        isUnique*=((P1-x).squaredNorm()>FLT_EPSILON && (P2-x).squaredNorm()>FLT_EPSILON);
+//                        std::cout<<"    B existing "<<E1.transpose()<<" ### "<<E2.transpose()<<" ### "<<isUnique<<std::endl;
+//                        if(!isUnique)
+//                        {// keep non-defenerate line
+//                            temp[p].first=P1;
+//                            temp[p].second=P2;
+//                            break;
+//                        }
+//                    }
+//
+//                }
+//            }
+//            else
+//            {// P1-P2 is a degenerate line (a point)
+//                const VectorDim x=0.5*(P1+P2);
+//                for(const auto& pair : temp)
+//                {
+//                    isUnique*=((pair.first-x).squaredNorm()>FLT_EPSILON && (pair.second-x).squaredNorm()>FLT_EPSILON);
+//                    std::cout<<"    C existing "<<pair.first.transpose()<<" ### "<<pair.second.transpose()<<" ### "<<isUnique<<std::endl;
+//                    if(!isUnique)
+//                    {
+//                        break;
+//                    }
+//                }
+//
+//            }
+//
+//
+//            if(isUnique)
+//            {
+//                temp.emplace_back(P1,P2);
+//            }
+//            else
+//            {
+////                std::cout<<"BoundingLineSegments: not unique"<<std::endl;
+//            }
+//        }

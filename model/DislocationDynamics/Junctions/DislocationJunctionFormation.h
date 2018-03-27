@@ -446,7 +446,7 @@ namespace model
         
         static double collisionTol;     //! The tolerance (in units of distance) used for collision detection
         static int verboseJunctions;
-        static size_t maxIterations;
+//        static size_t maxJunctionIterations;
         
         /**********************************************************************/
         DislocationJunctionFormation(DislocationNetworkType& DN_in) :
@@ -456,21 +456,21 @@ namespace model
         }
         
         /**********************************************************************/
-        void formJunctions(const bool& use_junctions, const double& dx)
+        void formJunctions(const bool& maxJunctionIterations, const double& dx)
         {
-            if (use_junctions)
-            {
-                
+//            if (use_junctions)
+//            {
+            
                 size_t nContracted=1;
                 size_t iterations=0;
-                while(nContracted && iterations<=maxIterations)
+                while(nContracted && iterations<maxJunctionIterations)
                 {
                     nContracted=junctionStep(dx);
+                    glissileJunctions(dx);
                     iterations++;
                 }
                 
-                glissileJunctions(dx);
-            }
+//            }
         }
         
     };
@@ -482,8 +482,8 @@ namespace model
     template <typename DislocationNetworkType>
     int DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions=0;
     
-    template <typename DislocationNetworkType>
-    size_t DislocationJunctionFormation<DislocationNetworkType>::maxIterations=10;
+//    template <typename DislocationNetworkType>
+//    size_t DislocationJunctionFormation<DislocationNetworkType>::maxJunctionIterations=10;
     
 }
 #endif

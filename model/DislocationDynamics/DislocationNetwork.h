@@ -100,7 +100,8 @@ namespace model
         
         int timeIntegrationMethod;
         //        bool use_analyticalStraightStress;
-        bool use_junctions;
+//        bool use_junctions;
+        int maxJunctionIterations;
         long int runID;
         double totalTime;
         double dt;
@@ -273,7 +274,7 @@ namespace model
             //            DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
             
             //! 12- Form Junctions
-            DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(use_junctions,DDtimeIntegrator<0>::dxMax);
+            DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(maxJunctionIterations,DDtimeIntegrator<0>::dxMax);
             
             //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
@@ -301,7 +302,8 @@ namespace model
         DislocationNetwork(int& argc, char* argv[]) :
         /* init list  */ timeIntegrationMethod(0),
         //        /* init list  */ use_analyticalStraightStress(true),
-        /* init list  */ use_junctions(false),
+//        /* init list  */ use_junctions(false),
+        maxJunctionIterations(1),
         /* init list  */ runID(0),
         /* init list  */ totalTime(0.0),
         /* init list  */ dt(0.0),

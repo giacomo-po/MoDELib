@@ -10,6 +10,10 @@
 #ifndef model_StressStraight_H_
 #define model_StressStraight_H_
 
+#ifndef _MODEL_NON_SINGULAR_DD_
+#define _MODEL_NON_SINGULAR_DD_ 1
+#endif
+
 #include <Eigen/Dense>
 #include <model/DislocationDynamics/Materials/Material.h>
 //#include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
@@ -163,19 +167,19 @@ namespace model
         
         }
 
-        /**********************************************************************/
-        template<typename Derived>
-        MatrixDim nonSymmStress(const Eigen::MatrixBase<Derived>& x) const
-        {
-            return length>FLT_EPSILON? nonSymmStress_kernel(x-P1)-nonSymmStress_kernel(x-P0) : MatrixDim::Zero().eval();
-        }
-        
 //        /**********************************************************************/
 //        template<typename Derived>
 //        MatrixDim nonSymmStress(const Eigen::MatrixBase<Derived>& x) const
 //        {
-//            return length>FLT_EPSILON? nonSymmStress_kernel(P1-x)-nonSymmStress_kernel(P0-x) : MatrixDim::Zero().eval();
+//            return length>FLT_EPSILON? nonSymmStress_kernel(x-P1)-nonSymmStress_kernel(x-P0) : MatrixDim::Zero().eval();
 //        }
+        
+        /**********************************************************************/
+        template<typename Derived>
+        MatrixDim nonSymmStress(const Eigen::MatrixBase<Derived>& x) const
+        {
+            return length>FLT_EPSILON? nonSymmStress_kernel(P1-x)-nonSymmStress_kernel(P0-x) : MatrixDim::Zero().eval();
+        }
         
         /**********************************************************************/
         MatrixDim stress(const VectorDim& x) const

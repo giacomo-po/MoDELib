@@ -16,8 +16,8 @@ clc
  legend('straight','quadrature')
 
 %return
-Ps=load('Ps/P_100.txt');
-Pq=load('P/P_100.txt');
+Ps=load('Ps/P_0.txt');
+Pq=load('P/P_0.txt');
 %Pc=load('Pc/P_0.txt');
 %Pcs=load('Pcs/P_0.txt');
 %id=128:128+64
