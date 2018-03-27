@@ -34,7 +34,7 @@
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 //#include <model/Geometry/Splines/Intersection/PlanarSplineImplicitization.h>
 #include <model/Geometry/Splines/Coeff2Hermite.h>
-#include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
+#include <model/DislocationDynamics/ElasticFields/DislocationParticle.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
 #include <model/DislocationDynamics/DislocationLocalReference.h>
 //#include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>

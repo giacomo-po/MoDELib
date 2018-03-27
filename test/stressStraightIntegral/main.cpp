@@ -1,7 +1,8 @@
 #include <iostream>
 #include <chrono>
-#include <model/DislocationDynamics/StressStraight.h>
-#include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
+#define _MODEL_NON_SINGULAR_DD_ 1
+#include <model/DislocationDynamics/ElasticFields/StressStraight.h>
+#include <model/DislocationDynamics/ElasticFields/DislocationStress.h>
 
 using namespace model;
 

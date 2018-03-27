@@ -23,7 +23,7 @@
 //#include <model/LatticeMath/LineMeshIntersection.h>
 #include <model/LatticeMath/CSL.h>
 #include <model/LatticeMath/DSCL.h>
-#include <model/DislocationDynamics/StressStraight.h>
+#include <model/DislocationDynamics/ElasticFields/StressStraight.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 
 

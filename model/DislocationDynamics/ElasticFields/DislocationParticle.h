@@ -14,9 +14,9 @@
 
 #include <model/SpaceDecomposition/CellPropertiesBase.h>
 #include <model/DislocationDynamics/Materials/Material.h>
-#include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
-#include <model/DislocationDynamics/NearestNeighbor/DislocationEnergy.h>
-#include <model/DislocationDynamics/NearestNeighbor/DislocationDisplacement.h>
+#include <model/DislocationDynamics/ElasticFields/DislocationStress.h>
+#include <model/DislocationDynamics/ElasticFields/DislocationEnergy.h>
+#include <model/DislocationDynamics/ElasticFields/DislocationDisplacement.h>
 #include <model/ParticleInteraction/PointSource.h>
 #include <model/ParticleInteraction/FieldPoint.h>
 #include <model/Mesh/SimplicialMesh.h>

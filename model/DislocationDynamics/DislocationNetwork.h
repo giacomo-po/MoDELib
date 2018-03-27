@@ -46,8 +46,8 @@
 //#include <model/DislocationDynamics/CrossSlip/DislocationCrossSlip.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
-#include <model/DislocationDynamics/NearestNeighbor/DislocationParticle.h>
-#include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
+#include <model/DislocationDynamics/ElasticFields/DislocationParticle.h>
+#include <model/DislocationDynamics/ElasticFields/DislocationStress.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/ParticleInteraction/SingleFieldPoint.h>
@@ -399,9 +399,9 @@ namespace model
                     {
                         if(!link.second->isBoundarySegment())
                         {
-                            straightSegmentsDeq.emplace_back(link.second->source->get_P(),
-                                                             link.second->sink->get_P(),
-                                                             link.second->burgers());
+                                straightSegmentsDeq.emplace_back(link.second->source->get_P(),
+                                                                 link.second->sink->get_P(),
+                                                                 link.second->burgers());
                         }
                         else
                         {
@@ -429,13 +429,9 @@ namespace model
 #endif
                 for (unsigned int k=0; k<this->particleSystem().size();++k)
                 {
-//                    if(this->particleSystem()[k].template fieldPointBase<StressField>().enabled)
-//                    {
-//                        this->particleSystem()[k].template fieldPointBase<StressField>() += StressField::addSourceContribution(this->particleSystem()[k],straightSegmentsDeq);
-//                    }
-                    if(static_cast<const FieldPointBase<DislocationParticleType,StressField>* const>(&this->particleSystem()[k])->enabled)
+                    if(this->particleSystem()[k].template fieldPointBase<StressField>().enabled)
                     {
-                        static_cast<FieldPointBase<DislocationParticleType,StressField>* const>(&this->particleSystem()[k])->operator+=(StressField::addSourceContribution(this->particleSystem()[k],straightSegmentsDeq));
+                        this->particleSystem()[k].template fieldPointBase<StressField>() += StressField::addSourceContribution(this->particleSystem()[k],straightSegmentsDeq);
                     }
                 }
                 model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;

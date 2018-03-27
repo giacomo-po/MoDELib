@@ -11,7 +11,7 @@
  * _MODEL_NON_SINGULAR_DD_ = 1 Cai's regularization method
  * _MODEL_NON_SINGULAR_DD_ = 2 Lazar's regularization method
  */
-#define _MODEL_NON_SINGULAR_DD_ 0
+#define _MODEL_NON_SINGULAR_DD_ 1
 #include <model/DislocationDynamics/DislocationNetwork.h>
 
 using namespace model;

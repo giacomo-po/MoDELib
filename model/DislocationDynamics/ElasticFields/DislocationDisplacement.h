@@ -10,7 +10,7 @@
 #define _model_DislocationDisplacement_h_
 
 #include <model/ParticleInteraction/FieldBase.h>
-#include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
+#include <model/DislocationDynamics/ElasticFields/DislocationStress.h>
 
 
 namespace model

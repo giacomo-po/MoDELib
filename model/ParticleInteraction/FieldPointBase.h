@@ -23,8 +23,7 @@ namespace model
      * syncronized using MPI_Allgatherv. However, the base data is conveniently 
      * used as regular Eigen object via the Eigen::Map class.
      */    
-    template<typename Derived,
-    /*    */ typename FieldType>
+    template<typename Derived, typename FieldType>
     struct FieldPointBase :
 #ifdef _MODEL_MPI_
     /* inheritance  */ public Eigen::Map<Eigen::Matrix<typename FieldType::Scalar,FieldType::rows,FieldType::cols> >

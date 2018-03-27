@@ -27,7 +27,7 @@
 #include <model/DislocationDynamics/Materials/PeriodicElement.h>
 #include <model/IO/EigenDataReader.h>
 #include <model/IO/SequentialOutputFile.h>
-#include <model/DislocationDynamics/StressStraight.h>
+#include <model/DislocationDynamics/ElasticFields/StressStraight.h>
 #include <model/DislocationDynamics/Polycrystals/GrainBoundaryType.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
