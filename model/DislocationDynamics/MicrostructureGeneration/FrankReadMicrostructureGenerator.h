@@ -76,7 +76,7 @@ namespace model
                 
                 
                 
-                LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)));
+                LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)*this->randomSign()));
                 double d1cNorm(d1.cartesian().norm());
                 int a1=this->randomSize()/d1cNorm;
                 LatticeVector<dim> L1=L0+d1*a1;
@@ -91,10 +91,10 @@ namespace model
                 }
                 
                 // Compute the LatticeDireciton corresponding to -n
-                LatticeDirection<3> d2(this->poly.grain(grainID).latticeDirection(-slipSystem.n.cartesian()));
+                LatticeDirection<3> d2(this->poly.grain(grainID).latticeDirection(-slipSystem.n.cartesian()*this->randomSign()));
                 double d2cNorm(d2.cartesian().norm());
 
-                const int a2=2*a1; // aspect ration of double FR source
+                const int a2=2*a1; // aspect ratio of double FR source
                 LatticeVector<dim> L2=L1+d2*a2;
                 LatticeVector<dim> L3=L0+d2*a2;
                 

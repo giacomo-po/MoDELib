@@ -11,6 +11,7 @@
 
 #include <chrono>
 #include <random>
+#include <cmath>
 #include <assert.h>
 #include <Eigen/LU>
 #include <Eigen/Cholesky>
@@ -154,6 +155,16 @@ namespace model
             //            return _minSize+distribution(generator)*(_maxSize-_minSize);
             std::uniform_real_distribution<double> dist(_minSize,_maxSize);
             return dist(generator);
+            
+        }
+        
+        /**********************************************************************/
+        int randomSign()
+        {
+//            std::random_device rd;  //Will be used to obtain a seed for the random number engine
+//            std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+            std::uniform_int_distribution<> dis(0,1);
+            return  dis(generator)*2-1;
             
         }
         

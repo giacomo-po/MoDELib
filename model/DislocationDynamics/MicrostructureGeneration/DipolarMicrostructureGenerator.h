@@ -91,10 +91,11 @@ namespace model
                 ReciprocalLatticeDirection<3> sr(this->poly.grain(grainID).reciprocalLatticeDirection(slipSystem.s.cartesian()));
                 //std::cout<<sr.transpose()<<std::endl;
                 
+//                std::cout<<this->randomSign()<<std::endl;
                 
-                LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(this->poly.grain(grainID).planeNormals()[*planeIDs.begin()])));
-                LatticeDirection<3> d2(LatticeVector<dim>(sr.cross(this->poly.grain(grainID).planeNormals()[*planeIDs.rbegin()])));
-                LatticeDirection<3> d3(slipSystem.s);
+                LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(this->poly.grain(grainID).planeNormals()[*planeIDs.begin()]))*this->randomSign());
+                LatticeDirection<3> d2(LatticeVector<dim>(sr.cross(this->poly.grain(grainID).planeNormals()[*planeIDs.rbegin()])*this->randomSign()));
+                LatticeDirection<3> d3(slipSystem.s*this->randomSign());
                 
                 if(density/targetDensity<fractionSessile)
                 { // overwrite d2
