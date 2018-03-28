@@ -105,4 +105,4 @@ surfaceNucleationModel=0;
 verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;
-verboseDislocationNode=0;
+verboseDislocationNode=1;

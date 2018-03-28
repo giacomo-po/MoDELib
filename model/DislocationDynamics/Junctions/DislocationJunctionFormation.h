@@ -101,10 +101,24 @@ namespace model
                                 )
                             {
                                 
+                                const bool linkAisBnd(linkIterA->second->isBoundarySegment());
+                                const bool linkBisBnd(linkIterB->second->isBoundarySegment());
+                                const bool linkAisGBnd(linkIterA->second->grainBoundaries().size());
+                                const bool linkBisGBnd(linkIterB->second->grainBoundaries().size());
+                                
                                 const bool frankRule(linkIterA->second->burgers().dot(linkIterB->second->burgers())*linkIterA->second->chord().dot(linkIterB->second->chord())<=0.0);
-                                const bool isValidJunction(frankRule ||
-                                                           linkIterA->second->isBoundarySegment() || linkIterB->second->isBoundarySegment() ||
-                                                           linkIterA->second->grainBoundaries().size() || linkIterB->second->grainBoundaries().size());
+                                
+                                const bool bndJunction(   (linkAisBnd || linkBisBnd)
+                                                       &&  linkIterA->second->glidePlaneNormal().cross(linkIterB->second->glidePlaneNormal()).norm()<FLT_EPSILON);
+
+                                const bool gbndJunction(   (linkAisGBnd || linkBisGBnd)
+                                                       &&  linkIterA->second->glidePlaneNormal().cross(linkIterB->second->glidePlaneNormal()).norm()<FLT_EPSILON);
+
+                                
+                                const bool isValidJunction(   (frankRule   && !linkAisBnd && !linkBisBnd && !linkAisGBnd && !linkBisGBnd)  // energy rule is satisfied for internal segments
+                                                           || bndJunction   // junciton between parallel boundary segments
+                                                           || gbndJunction  // junciton between parallel grain-boundary segments
+                                                           );
                                 
                                 if(isValidJunction)
                                 {
