@@ -106,3 +106,4 @@ verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;
 verboseDislocationNode=1;
+verboseCrossSlip=1;

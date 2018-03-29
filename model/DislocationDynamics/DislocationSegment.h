@@ -122,7 +122,7 @@ namespace model
         }
         
         /**********************************************************************/
-        VectorNdof PKintegrand(const int& k) const
+        VectorNdof velocityIntegrand(const int& k) const
         { /*! The force vector integrand evaluated at the k-th quadrature point.
            *  @param[in] k the current quadrature point
            */
@@ -147,6 +147,15 @@ namespace model
             return SFgaussEx(k).transpose()*vv*jgauss(k); // inverse mobility law
             //            return SFgaussEx(k).transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
             //            return temp.transpose()*dm.getVelocity(stressGauss[k],rlgauss.col(k))*jgauss(k); // inverse mobility law
+        }
+        
+        /**********************************************************************/
+        VectorDim pkIntegrand(const int& k) const
+        { /*!@param[in] k the current quadrature point
+           *\returns dF_PK/du=dF_PK/dL*dL/du at quadrature point k, where 
+           * u in [0,1] is the spline parametrization
+           */
+            return pkGauss.col(k)*jgauss(k); // inverse mobility law
         }
         
     private:
@@ -659,7 +668,7 @@ namespace model
                  *	\f]
                  */
                 Fq.setZero();
-                QuadratureDynamicType::integrate(qOrder,this,Fq,&LinkType::PKintegrand);
+                QuadratureDynamicType::integrate(qOrder,this,Fq,&LinkType::velocityIntegrand);
                 
                 
                 /*! 3- Assembles the stiffness matrix of this segment.
@@ -804,12 +813,15 @@ namespace model
         }
         
         /**********************************************************************/
-        VectorDim integralPK() const
-        {/*!\returns The integral of the PK force over this segment.
-          *!\todo FINISH HERE
+        VectorDim pkIntegral() const
+        {/*!\returns The integral of the PK force over the segment.
           */
-            return pkGauss.col(qOrder/2)*this->chord().norm();
+            VectorDim F(VectorDim::Zero());
+            QuadratureDynamicType::integrate(qOrder,this,F,&LinkType::pkIntegrand);
+            return F;
         }
+        
+        
         
         /**********************************************************************/
         void addToSolidAngleJump(const VectorDim& Pf, const VectorDim& Sf, VectorDim& dispJump) const

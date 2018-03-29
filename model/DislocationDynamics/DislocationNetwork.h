@@ -43,7 +43,7 @@
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/DislocationNetworkRemesh.h>
 #include <model/DislocationDynamics/Junctions/DislocationJunctionFormation.h>
-//#include <model/DislocationDynamics/CrossSlip/DislocationCrossSlip.h>
+#include <model/DislocationDynamics/CrossSlip/DislocationCrossSlip.h>
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
 #include <model/DislocationDynamics/ElasticFields/DislocationParticle.h>
@@ -109,6 +109,7 @@ namespace model
         int Nsteps;
         MatrixDimD _plasticDistortion;
         MatrixDimD _plasticDistortionRate;
+        bool use_crossSlip;
         bool use_boundary;
         unsigned int use_bvp;
         bool use_virtualSegments;
@@ -258,7 +259,7 @@ namespace model
             //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
             
             //! 10- Cross Slip (needs upated PK force)
-            //            DislocationCrossSlip<DislocationNetworkType>(*this);
+            DislocationCrossSlip<DislocationNetworkType>(*this);
             
             
             //                        GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
@@ -312,6 +313,7 @@ namespace model
         /* init list  */ _plasticDistortion(MatrixDimD::Zero()),
         /* init list  */ _plasticDistortionRate(MatrixDimD::Zero()),
         ///* init list  */ externalStress(MatrixDimD::Zero()),
+        /* init list  */ use_crossSlip(true),
         /* init list  */ use_boundary(false),
         /* init list  */ use_bvp(0),
         /* init list  */ use_virtualSegments(true),

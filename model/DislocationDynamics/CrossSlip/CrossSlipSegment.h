@@ -27,7 +27,8 @@
 #include <model/DislocationDynamics/Materials/Material.h>
 #include <model/LatticeMath/LatticeMath.h>
 
-namespace model {
+namespace model
+{
     
     //    boost::random::mt19937 gen(time(0));
     
