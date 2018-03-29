@@ -36,12 +36,23 @@ namespace model
             
             return  std::make_pair(fabs(hd-h)<FLT_EPSILON,h);
         }
-        
+
         /**********************************************************************/
-        static long int height(const std::pair<bool,long int>& p)
+        static long int height(const ReciprocalLatticeDirection<dim>& r,
+                               const VectorDimD& P)
         {
-            assert(p.first);
-            return p.second;
+            assert(r.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane normal");
+            const double hd(P.dot(r.cartesian()));
+            const long int h(std::lround(hd));
+            if(fabs(hd-h)>FLT_EPSILON)
+            {
+                model::cout<<"P="<<P.transpose()<<std::endl;
+                model::cout<<"r="<<r.cartesian().transpose()<<std::endl;
+                model::cout<<"hd="<<std::setprecision(15)<<std::scientific<<hd<<std::endl;
+                model::cout<<"h="<<h<<std::endl;
+                assert(0 && "P in not on a lattice plane.");
+            }
+            return h;
         }
         
         //        const LatticeVectorType P;
@@ -53,7 +64,7 @@ namespace model
         /**********************************************************************/
         LatticePlane(const VectorDimD& P_in,const LatticePlaneBase& n_in) :
         /* init */ n(n_in),
-        /* init */ h(height(computeHeight(n,P_in))),
+        /* init */ h(height(n,P_in)),
         /* init */ unitNormal(n.cartesian().normalized()),
         /* init */ P(h*n.planeSpacing()*unitNormal)
         {
@@ -74,7 +85,12 @@ namespace model
             return PP0<FLT_EPSILON? true : (fabs((P0-P).dot(unitNormal))<FLT_EPSILON*PP0);
         }
         
-        
+        //        /**********************************************************************/
+        //        static long int height(const std::pair<bool,long int>& p)
+        //        {
+        //            assert(p.first);
+        //            return p.second;
+        //        }
         
         //        /**********************************************************************/
         //        LatticePlane(const LatticeVectorType& P_in,const LatticePlaneBase& n_in) :

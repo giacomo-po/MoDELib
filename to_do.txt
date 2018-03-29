@@ -49,3 +49,4 @@ NEW LOOP_NETWORK CODE
 - add FiniteElement::mesh2femNode(const size_t& meshNodeID)
 - IMPLEMENT FUNCTION TO DEFINE THE OUT-DIR FOR EACH LOOP LINK. THIS IS BASED ON THE INTERSECTION OF A SEM-ILINE WITH THE LOOP IN THE PLANE. NUMBER OF INTERSECTIONS TELLS INSIDE OR OUTSIDE
 - junction detection using linking number
+- topological operation to split a node into many nodes, one per loops connected.

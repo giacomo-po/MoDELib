@@ -113,11 +113,8 @@ namespace model
                 const auto t0= std::chrono::system_clock::now();
                 model::cout<<"		CrossSlip "<<std::flush;
                 
-                
                 const CrossSlipContainerType crossSlipDeq=findCrossSlipSegments();
                 VerboseCrossSlip(1,"crossSlipDeq.size()="<<crossSlipDeq.size()<<std::endl;);
-
-                
                 
                 for(const auto& tup : crossSlipDeq)
                 {
@@ -194,5 +191,3 @@ namespace model
     
 }
 #endif
-
-
