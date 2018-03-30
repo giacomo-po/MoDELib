@@ -137,8 +137,10 @@ namespace model
                         const int height=LatticePlane::computeHeight(crosSlipSystem.n,midPoint).second;
                         const VectorDim planePoint(height*crosSlipSystem.n.planeSpacing()*crosSlipSystem.unitNormal);
                         
+                        const VectorDim planePoint2=midPoint-(midPoint-planePoint).dot(crosSlipSystem.unitNormal)*crosSlipSystem.unitNormal; // closest point to midPoint on the crossSlip plane
+                        
                         PlanePlaneIntersection<dim> ppi(midPoint,isLink.second->glidePlaneNormal(),
-                                                        planePoint,crosSlipSystem.unitNormal);
+                                                        planePoint2,crosSlipSystem.unitNormal);
                         
                         const VectorDim newSourceP(ppi.P+(isSource.second->get_P()-ppi.P).dot(ppi.d)*ppi.d);
                         const VectorDim newSinkP(ppi.P+(isSink.second->get_P()-ppi.P).dot(ppi.d)*ppi.d);

@@ -32,6 +32,7 @@
 //#include <model/IO/EdgeReader.h>
 //#include <model/IO/vertexReader.h>
 #include <model/IO/IDreader.h>
+#include <model/Geometry/PlanarPolygon.h>
 
 // VTK documentation
 // http://www.vtk.org/Wiki/VTK/Examples/Cxx/GeometricObjects/PolyLine
@@ -41,7 +42,9 @@ namespace model
 {
     struct DislocationSegmentActor :
     /* inherits from   */ public IDreader<'V',1,10, double>,
-    /* inherits from   */ public IDreader<'K',2,13,double>
+    /* inherits from   */ public IDreader<'K',2,13,double>,
+    /* inherits from   */ IDreader<'E',3,0,double>,
+    /* inherits from   */ IDreader<'L',1,13,double>
     {
         
         //    public:
@@ -52,6 +55,9 @@ namespace model
         //        typedef EdgeReader<'K',15,double>   EdgeReaderType;
         typedef IDreader<'V',1,10, double> VertexReaderType;
         typedef IDreader<'K',2,13,double> EdgeReaderType;
+        typedef IDreader<'E',3,0,double> LoopLinkReaderType;
+        typedef IDreader<'L',1,13,double> LoopReaderType;
+
         
         typedef Eigen::Matrix<float,dim,1>  VectorDim;
         
@@ -69,7 +75,7 @@ namespace model
         static bool showSingleNode;
         static size_t singleNodeID;
         static bool showNodes;
-        
+        static bool showSlippedArea;
         
         vtkRenderer* const renderer;
         
@@ -143,6 +149,13 @@ namespace model
         vtkSmartPointer<vtkLabeledDataMapper> singleNodeLabelMapper;
         vtkSmartPointer<vtkActor2D> singleNodeLabelActor;
         
+        
+        // Slipped Area
+        vtkSmartPointer<vtkCellArray> triangles;
+        vtkSmartPointer<vtkPolyData> trianglePolyData;
+        vtkSmartPointer<vtkPolyDataMapper> triangleMapper;
+        vtkSmartPointer<vtkActor> triangleActor;
+
         
         /*********************************************************************/
         void computeColor()
@@ -233,6 +246,18 @@ namespace model
         }
         
         /**********************************************************************/
+        LoopLinkReaderType& loopLinkReader()
+        {
+            return *this;
+        }
+        
+        LoopReaderType& loopReader()
+        {
+            return *this;
+        }
+        
+        
+        /**********************************************************************/
         void readNodes(const size_t& frameID)
         {
             if (vertexReader().isGood(frameID,false)) // bin format
@@ -251,6 +276,7 @@ namespace model
                 Eigen::Map<const Eigen::Matrix<double,1,10>> row(node.second.data());
                 
                 nodePoints->InsertNextPoint(row.template segment<dim>(0).data());
+                
                 const int& meshLocation(row(8));
                 switch (meshLocation)
                 {
@@ -466,6 +492,127 @@ namespace model
         }
         
         /**********************************************************************/
+        void readLoopLinks(const size_t& frameID)
+        {
+            if (loopLinkReader().isGood(frameID,false)) // bin format
+            {
+                loopLinkReader().read(frameID,false);
+                loopReader().read(frameID,false);
+            }
+            else // txt format
+            {
+                loopLinkReader().read(frameID,true);
+                loopReader().read(frameID,true);
+            }
+            
+            std::map<size_t,std::map<size_t,size_t>> loopMap;
+            
+            for(const auto& looplink : loopLinkReader())
+            {
+                loopMap[looplink.first[0]].emplace(looplink.first[1],looplink.first[2]);
+            }
+            
+            assert(loopMap.size()==loopReader.size());
+            
+//            std::cout<<"here 0"<<std::endl;
+            
+            size_t loopLumber=1;
+            for(const auto& loop : loopReader())
+            {
+//                                    std::cout<<"Loop"<<std::endl;
+                
+                Eigen::Map<const Eigen::Matrix<double,1,10>> row(loop.second.data());
+                
+                const size_t loopID=loop.first;
+//                const size_t grainID=row(9);
+                
+                const auto loopFound=loopMap.find(loopID);
+                assert(loopFound!=loopMap.end());
+                
+//                            std::cout<<"here 1"<<std::endl;
+                
+                std::vector<size_t> nodeIDs;
+                nodeIDs.push_back(loopFound->second.begin()->first);
+                std::deque<Eigen::Vector3d,Eigen::aligned_allocator<Eigen::Vector3d>> nodePositions;
+                VertexReaderType::const_iterator vIter0(vertexReader().find(loopFound->second.begin()->first)); //source
+                assert(vIter0!=vertexReader().end() && "VERTEX NOT FOUND IN V-FILE");
+                Eigen::Map<const Eigen::Matrix<double,1,10>> vertexRow0(vIter0->second.data());
+                nodePositions.push_back(vertexRow0.template segment<dim>(0));
+                for(size_t k=0;k<loopFound->second.size();++k)
+                {
+                    const auto nodeFound=loopFound->second.find(*nodeIDs.rbegin());
+                    if(k<loopFound->second.size()-1)
+                    {
+                        nodeIDs.push_back(nodeFound->second);
+                        
+                        VertexReaderType::const_iterator vIter(vertexReader().find(nodeFound->second)); //source
+                        assert(vIter!=vertexReader().end() && "VERTEX NOT FOUND IN V-FILE");
+                        Eigen::Map<const Eigen::Matrix<double,1,10>> vertexRow(vIter->second.data());
+                        nodePositions.push_back(vertexRow.template segment<dim>(0));
+                    }
+                    else
+                    {
+                        assert(nodeFound->second==nodeIDs[0]);
+                    }
+                }
+                
+//                            std::cout<<"here 2"<<std::endl;
+                
+                const Eigen::Vector3d B=row.template segment<dim>(0*dim).transpose();
+                const Eigen::Vector3d N=row.template segment<dim>(1*dim).transpose(); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
+                //const VectorDimD P=row.template segment<dim>(2*dim).transpose();
+                
+                PlanarPolygon pp(B,N);
+                pp.assignPoints(nodePositions);
+                std::deque<std::array<size_t, 3>> tri=pp.triangulate();
+                
+//                            std::cout<<"here 3"<<std::endl;
+
+                for(const auto& triID : tri)
+                {
+                    
+                    const size_t& nodeID0(nodeIDs[std::get<0>(triID)]);
+                    const size_t& nodeID1(nodeIDs[std::get<1>(triID)]);
+                    const size_t& nodeID2(nodeIDs[std::get<2>(triID)]);
+                    
+//                    std::cout<<"Triangle"<<std::endl;
+//                    std::cout<<nodeID0<<std::endl;
+//                    std::cout<<nodeID1<<std::endl;
+//                    std::cout<<nodeID2<<std::endl;
+                    
+                    const size_t ptID0=std::distance(vertexReader().begin(),vertexReader().find(nodeID0));
+                    const size_t ptID1=std::distance(vertexReader().begin(),vertexReader().find(nodeID1));
+                    const size_t ptID2=std::distance(vertexReader().begin(),vertexReader().find(nodeID2));
+                    
+//                    std::cout<<"here 5"<<std::endl;
+
+                    
+                    vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
+                    triangle->GetPointIds()->SetId ( 0, ptID0 );
+                    triangle->GetPointIds()->SetId ( 1, ptID1 );
+                    triangle->GetPointIds()->SetId ( 2, ptID2 );
+                    triangles->InsertNextCell ( triangle );
+
+//                    std::cout<<"here 6"<<std::endl;
+
+                }
+                
+//                            std::cout<<"here 7"<<std::endl;
+                
+//                model::cout<<"Creating Dislocation Loop "<<loopID<<" ("<<loopLumber<<" of "<<vReader.size()<<")"<<std::endl;
+//                const size_t newLoopID=DN.insertLoop(nodeIDs,B,N,P,grainID)->sID;
+//                assert(loopID==newLoopID);
+//                loopLumber++;
+            }
+            
+            trianglePolyData->SetPoints ( nodePoints );
+            trianglePolyData->SetPolys ( triangles );
+            trianglePolyData->Modified();
+
+
+        }
+        
+        /**********************************************************************/
         DislocationSegmentActor(const size_t& frameID,vtkRenderer* const ren) :
         /* init */ renderer(ren),
         /* init */ lineActor(vtkSmartPointer<vtkActor>::New()),
@@ -515,7 +662,11 @@ namespace model
         /* init */ singleNodeLabelPolyData(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ singleNodeLabelScalars(vtkSmartPointer<vtkDoubleArray>::New()),
         /* init */ singleNodeLabelMapper(vtkSmartPointer<vtkLabeledDataMapper>::New()),
-        /* init */ singleNodeLabelActor(vtkSmartPointer<vtkActor2D>::New())
+        /* init */ singleNodeLabelActor(vtkSmartPointer<vtkActor2D>::New()),
+        /* init */ triangles(vtkSmartPointer<vtkCellArray>::New()),
+        /* init */ trianglePolyData(vtkSmartPointer<vtkPolyData>::New()),
+        /* init */ triangleMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
+        /* init */ triangleActor(vtkSmartPointer<vtkActor>::New())
         {
          
             radii->SetName("TubeRadius");
@@ -537,6 +688,10 @@ namespace model
             
             readNodes(frameID);
             readSegments(frameID);
+            if(showSlippedArea)
+            {
+                readLoopLinks(frameID);
+            }
             
             // Populate polyData
             
@@ -646,6 +801,12 @@ if(scaleRadiusByBurgers)
             renderer->AddActor(singleNodeLabelActor);
             
             
+            // SlippedArea
+            triangleMapper->SetInputData(trianglePolyData);
+            triangleActor->SetMapper(triangleMapper);
+            renderer->AddActor(triangleActor);
+
+            
             modify();
         }
         
@@ -659,6 +820,8 @@ if(scaleRadiusByBurgers)
             renderer->RemoveActor(velocityActor);
             renderer->RemoveActor(labelActor);
             renderer->RemoveActor(singleNodeLabelActor);
+            renderer->RemoveActor(triangleActor);
+
         }
         
         /**********************************************************************/
@@ -671,6 +834,10 @@ if(scaleRadiusByBurgers)
             //            computeColor();
             //            tubeActor->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
             //            tube->Modified();
+            
+            triangleActor->GetProperty()->SetColor(0.5,0.0,0.5);
+            triangleActor->GetProperty()->SetOpacity(0.1);
+
             
             tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
             tubeFilterBnd->SetRadius(tubeRadius); // this must be a function similar to setColor
@@ -766,7 +933,7 @@ if(scaleRadiusByBurgers)
     bool DislocationSegmentActor::showSingleNode=false;
     size_t DislocationSegmentActor::singleNodeID=0;
     bool DislocationSegmentActor::showNodes=false;
-    
+    bool DislocationSegmentActor::showSlippedArea=true;
     
 } // namespace model
 #endif

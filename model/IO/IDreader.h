@@ -133,7 +133,7 @@ namespace model
                 const bool success=this->emplace(rE[k].first,rE[k].second).second;
 				assert(success && "COULD NOT INSERT AFTER BINARY READ.");
 			}
-            std::cout<<this->size()<<"elements in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec)"<<defaultColor<<std::endl;
+            std::cout<<this->size()<<"elements in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec)"<<std::endl;
             return rE.success();
 		}
 		

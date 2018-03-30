@@ -490,13 +490,13 @@ namespace model
             
             size_t loopLumber=1;
             for(const auto& loop : vReader)
-            {
+            {// for each line of the L files
                 Eigen::Map<const Eigen::Matrix<double,1,10>> row(loop.second.data());
                 
                 const size_t loopID=loop.first;
                 const size_t grainID=row(9);
                 
-                const auto loopFound=loopMap.find(loopID);
+                const auto loopFound=loopMap.find(loopID); // there must be an entry with key loopID in loopMap
                 assert(loopFound!=loopMap.end());
                 
                 
