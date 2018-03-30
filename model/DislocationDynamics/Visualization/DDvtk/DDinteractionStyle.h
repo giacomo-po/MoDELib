@@ -520,6 +520,39 @@ namespace model
                 }
             }
             
+            
+            
+            if(key == "t")
+            {
+                if(selectedKey=="t")
+                {
+                    selectedKey=" ";
+                    if(ddSegments.get()!=nullptr)
+                    {
+                        DislocationSegmentActor::showSlippedArea=false;
+                        ddSegments->modify();
+                        this->Interactor->Render();
+                    }
+                }
+                else
+                {
+                    selectedKey="t";
+                    std::cout<<"selecting objects: Slipped Areas"<<std::endl;
+//                    std::cout<<"      1 to show/hide node IDs"<<std::endl;
+//                    std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
+                    
+                    //std::cout<<"    +/- to increase vector size"<<std::endl;
+                    
+                    if(ddSegments.get()!=nullptr)
+                    {
+                        DislocationSegmentActor::showSlippedArea=true;
+                        ddSegments->modify();
+                        this->Interactor->Render();
+                    }
+                    
+                }
+            }
+            
             if(key == "v")
             {
                 if(selectedKey=="v")

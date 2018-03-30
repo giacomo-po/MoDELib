@@ -688,10 +688,10 @@ namespace model
             
             readNodes(frameID);
             readSegments(frameID);
-            if(showSlippedArea)
-            {
+//            if(showSlippedArea)
+//            {
                 readLoopLinks(frameID);
-            }
+//            }
             
             // Populate polyData
             
@@ -838,6 +838,14 @@ if(scaleRadiusByBurgers)
             triangleActor->GetProperty()->SetColor(0.5,0.0,0.5);
             triangleActor->GetProperty()->SetOpacity(0.1);
 
+            if(showSlippedArea)
+            {
+                triangleActor->VisibilityOn();
+            }
+            else
+            {
+                triangleActor->VisibilityOff();
+            }
             
             tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
             tubeFilterBnd->SetRadius(tubeRadius); // this must be a function similar to setColor
@@ -933,7 +941,7 @@ if(scaleRadiusByBurgers)
     bool DislocationSegmentActor::showSingleNode=false;
     size_t DislocationSegmentActor::singleNodeID=0;
     bool DislocationSegmentActor::showNodes=false;
-    bool DislocationSegmentActor::showSlippedArea=true;
+    bool DislocationSegmentActor::showSlippedArea=false;
     
 } // namespace model
 #endif
