@@ -730,7 +730,7 @@ namespace model
         }
         
         /**********************************************************************/
-        VectorOfNormalsType constraintNormals() const
+        VectorOfNormalsType constraintNormals() const __attribute__ ((deprecated)) // REMOVE THIS FUNCTION AFTER CHANGING REMESH AND DISLOCATION NETWORK COMPONENT
         {
             VectorOfNormalsType temp;
             

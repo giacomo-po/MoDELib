@@ -25,9 +25,6 @@ namespace model
     {
         
         using Point2d = std::array<double, 2>;
-        //        std::vector<Point> externalPoints;
-        
-        
         
         const Eigen::Matrix3d R;
         const Eigen::Vector3d n;
@@ -52,12 +49,12 @@ namespace model
         std::array<double, 2> projectRotate(const Eigen::Vector3d& v)
         {
             const Eigen::Vector3d vpr=R.transpose()*(v-v.dot(n)*n); // projected point
-            //std::cout<<vpr.transpose()<<std::endl;
             return std::array<double, 2>({vpr(0),vpr(1)});
         }
         
     public:
         
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         PlanarPolygon(const Eigen::Vector3d& x,
                       const Eigen::Vector3d& z) :
@@ -65,11 +62,7 @@ namespace model
         n(R.col(2))
         {
             
-            
         }
-        
-        
-        
         
         /**********************************************************************/
         void assignPoints(const std::deque<Eigen::Vector3d,Eigen::aligned_allocator<Eigen::Vector3d>>& points)
@@ -104,7 +97,6 @@ namespace model
             for(size_t k=0;k<nTri;++k)
             {
                 temp.push_back(std::array<size_t, 3>({indices[3*k+0],indices[3*k+1],indices[3*k+2]}));
-//                outFile<<indices[3*k+0]<<" "<<indices[3*k+1]<<" "<<indices[3*k+2]<<"\n";
             }
             return temp;
         }

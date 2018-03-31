@@ -644,6 +644,9 @@ namespace model
           * - edge-to-component matrix Mseg
           */
             
+            Fq.setZero();
+            Kqq.setZero();
+            
             if(!hasZeroBurgers())
             {
                 //! 1- Compute and store stress and PK-force at quadrature points
@@ -667,7 +670,6 @@ namespace model
                  *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
                  *	\f]
                  */
-                Fq.setZero();
                 QuadratureDynamicType::integrate(qOrder,this,Fq,&LinkType::velocityIntegrand);
                 
                 
@@ -676,8 +678,35 @@ namespace model
                  *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
                  *	\f]
                  */
-                Kqq.setZero();
-                QuadratureDynamicType::integrate(qOrder,this,Kqq,&LinkType::stiffness_integrand);
+                if(corder==0)
+                {
+                    Kqq<<1.0/3.0,    0.0,    0.0, 1.0/6.0,    0.0,    0.0,
+                             0.0,1.0/3.0,    0.0,     0.0,1.0/6.0,    0.0,
+                             0.0,    0.0,1.0/3.0,     0.0,    0.0,1.0/6.0,
+                         1.0/6.0,    0.0,    0.0, 1.0/3.0,    0.0,    0.0,
+                             0.0,1.0/6.0,    0.0,     0.0,1.0/3.0,    0.0,
+                             0.0,    0.0,1.0/6.0,     0.0,    0.0,1.0/3.0;
+                    Kqq*=this->chord().norm();
+                }
+                else
+                {
+                    assert(0 && "WE NEED TO INCREASE qOrder FOR THE FOLLOWING INNTEGRATION, SINCE EVEN FOR LINEAR SEGMENTS Kqq IS NOT INTEGRATED CORRECLTY FOR SMALL qOrder");
+                    QuadratureDynamicType::integrate(qOrder,this,Kqq,&LinkType::stiffness_integrand);
+                }
+                
+//                Eigen::Matrix<double,2,2> test;
+//                test<<1.0/3.0,1.0/6.0,1.0/6.0,1.0/3.0;
+//                test*=this->chord().norm();
+//                
+//                std::cout<<std::endl;
+//                std::cout<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
+//                std::cout<<"qorder="<<qOrder<<std::endl;
+//                std::cout<<Kqq<<std::endl;
+//                std::cout<<std::endl;
+//                std::cout<<Kqq/this->chord().norm()<<std::endl;
+//                std::cout<<test<<std::endl;
+//                std::cout<<std::endl;
+                
                 
                 h2posMap=this->hermite2posMap();
                 
@@ -725,7 +754,8 @@ namespace model
                                 
                                 if (std::fabs(tempKqq(localI,localJ))>FLT_EPSILON)
                                 {
-                                    kqqT.push_back(Eigen::Triplet<double>(globalI,globalJ,tempKqq(localI,localJ)));
+//                                    kqqT.push_back(Eigen::Triplet<double>(globalI,globalJ,tempKqq(localI,localJ)));
+                                    kqqT.emplace_back(globalI,globalJ,tempKqq(localI,localJ));
                                 }
                                 
                                 localJ++;

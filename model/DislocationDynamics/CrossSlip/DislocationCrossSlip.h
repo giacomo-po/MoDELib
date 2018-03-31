@@ -155,21 +155,27 @@ namespace model
                             isSource.second->set_P(newSourceP);
                             isSink.second->set_P(newSinkP);
                             
-                            // Construct and insert new loop in conjugate plane
-                            const VectorDim newNodeP(0.5*(isSource.second->get_P()+isSink.second->get_P()));
-                            const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+                            if(  (isSource.second->get_P()-newSourceP).norm()<FLT_EPSILON
+                               &&  (isSink.second->get_P()-  newSinkP).norm()<FLT_EPSILON)
+                            {
+                                // Construct and insert new loop in conjugate plane
+                                const VectorDim newNodeP(0.5*(isSource.second->get_P()+isSink.second->get_P()));
+                                const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+                                
+                                std::vector<size_t> nodeIDs;
+                                
+                                nodeIDs.push_back(sinkID);      // insert in reverse order, sink first, source second
+                                nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
+                                nodeIDs.push_back(newNodeID);
+                                
+                                DN.insertLoop(nodeIDs,
+                                              DN.poly.grain(grainID).slipSystems()[slipID].s.cartesian(),
+                                              DN.poly.grain(grainID).slipSystems()[slipID].unitNormal,
+                                              newNodeP,
+                                              grainID);
+                            }
                             
-                            std::vector<size_t> nodeIDs;
-                            
-                            nodeIDs.push_back(sinkID);      // insert in reverse order, sink first, source second
-                            nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
-                            nodeIDs.push_back(newNodeID);
-                            
-                            DN.insertLoop(nodeIDs,
-                                          DN.poly.grain(grainID).slipSystems()[slipID].s.cartesian(),
-                                          DN.poly.grain(grainID).slipSystems()[slipID].unitNormal,
-                                          newNodeP,
-                                          grainID);
+
                         }
                     }
                 }

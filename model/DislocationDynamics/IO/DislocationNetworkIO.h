@@ -154,6 +154,10 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
             assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
 
+            EDR.readScalarInFile(fullName.str(),"computeDDinteractions",DN.computeDDinteractions);
+
+            
+            
             // Eternal Stress
            // EDR.readMatrixInFile(fullName.str(),"externalStress",DN.externalStress);
             EDR.readScalarInFile("./loadInput.txt","use_externalStress",DN.use_externalStress);
@@ -260,7 +264,7 @@ namespace model
             // time-stepping
             
             //            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
-            EDR.readScalarInFile(fullName.str(),"use_directSolver_DD",DislocationNetworkComponentType::use_directSolver);
+            EDR.readScalarInFile(fullName.str(),"ddSolverType",DN.ddSolverType);
             
             
             EDR.readScalarInFile(fullName.str(),"Nsteps",DN.Nsteps);

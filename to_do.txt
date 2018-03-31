@@ -49,4 +49,10 @@ NEW LOOP_NETWORK CODE
 - add FiniteElement::mesh2femNode(const size_t& meshNodeID)
 - IMPLEMENT FUNCTION TO DEFINE THE OUT-DIR FOR EACH LOOP LINK. THIS IS BASED ON THE INTERSECTION OF A SEM-ILINE WITH THE LOOP IN THE PLANE. NUMBER OF INTERSECTIONS TELLS INSIDE OR OUTSIDE
 - junction detection using linking number
-- topological operation to split a node into many nodes, one per loops connected.
+- topological operation to split a node into many nodes, one per loops connected. Similar to “remove”. This is actually a remove followed by many expansions
+-THE PROBLEM IS THAT IF F FOR A NODE IS ZERO, THE VELOCITY IS NOT ZERO, THIS IS WHY PURE ZERO-B NODES MOVE
+- RELATED TO THIS, WE NEED TO MERGE LOOPS ON THE SAME PLANE
+-THERE IS ALSO A PROBLEM WITH THE TRIANGULATION FOR CROSSING LOOPS
+- We should always assume that velocity within a segment is interpolated linearly, so no need for complex assembly construction for curved segments (i.e. matrix Mseg is identity)
+- deg fault at end of simulation may be due to
+Assertion failed: (success==1 && "COULD NOT ERASE GLIDE PLANE POINTER FROM GLIDE PLANE OBSERVER."), function removeGlidePlane, file ../../../model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h, line 185.

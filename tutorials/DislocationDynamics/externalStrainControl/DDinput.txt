@@ -1,10 +1,8 @@
 ######################################
 # Number of simulation steps 
-Nsteps=2000;
+Nsteps=20000;
 startAtTimeStep = -1;
-use_directSolver_DD=0;
 quadPerLength=0.1;
-useStraightSegmentsRemoveMe=1;
 
 ######################################
 # TIME STEP
@@ -15,9 +13,16 @@ use_velocityFilter=0;
 velocityReductionFactor=0.75;
 
 ######################################
+# DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities
+# 0=lumped solver (fast but approximate. K is lumped into a diagonal matrix)
+# 1=iterative solver (CG), 
+# 2=direct solver (LLT)
+ddSolverType=0;
+
+######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=10;
 outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
@@ -53,7 +58,7 @@ use_EnergyMultipole = 0;
 # use_redistribution = 0 redistribution is disabled (not recommended)
 # use_redistribution = 1 redistribution is enabled (recommended)
 use_redistribution=1;
-Lmax=500;
+Lmax=200;
 Lmin=50;
 
 ######################################
@@ -102,8 +107,10 @@ surfaceNucleationModel=0;
 
 #####################################
 # DEBUGGING
+useStraightSegmentsRemoveMe=1;
+computeDDinteractions=1;
 verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;
-verboseDislocationNode=1;
-verboseCrossSlip=1;
+verboseDislocationNode=0;
+verboseCrossSlip=0;

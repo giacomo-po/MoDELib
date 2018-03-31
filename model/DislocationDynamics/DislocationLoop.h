@@ -19,25 +19,33 @@
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/IO/DislocationLoopIO.h>
+#include <model/Geometry/PlanarPolygon.h>
 
 
 namespace model
 {
     template <int _dim, short unsigned int corder, typename InterpolationType>
-    class DislocationLoop : public Loop<DislocationLoop<_dim,corder,InterpolationType>>
+    class DislocationLoop : public Loop<DislocationLoop<_dim,corder,InterpolationType>>,
+                            public PlanarPolygon
     {
     
+//        std::deque<std::array<size_t, 3>> triangleIDs;
+        
+//        double _slippedArea;
+        Eigen::Matrix<double,_dim,1> nA;
+        
     public:
         
-//        static bool outputLoopLength;
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-
+        
         constexpr static int dim=_dim;
         typedef DislocationLoop<dim,corder,InterpolationType> DislocationLoopType;
         typedef Loop<DislocationLoopType> BaseLoopType;
         typedef typename BaseLoopType::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<DislocationLoopType>::LoopNetworkType LoopNetworkType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef GlidePlane<dim> GlidePlaneType;
         typedef GlidePlaneObserver<dim> GlidePlaneObserverType;
         typedef Eigen::Matrix<long int,dim+1,1> GlidePlaneKeyType;
@@ -68,6 +76,8 @@ namespace model
                         const VectorDim& P,
                         const int& grainID) :
         /* base init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B)),
+        /*      init */ PlanarPolygon(B,N),
+        /*      init */ nA(VectorDim::Zero()),
         /*      init */ grain(dn->poly.grain(grainID)),
         /*      init */ _glidePlane(dn->sharedGlidePlane(dn->mesh,grain.lattice(),grain.grainID,grain.grainID,P,N)),
         /*      init */ glidePlane(*_glidePlane.get()),
@@ -83,6 +93,8 @@ namespace model
         /**********************************************************************/
         DislocationLoop(const DislocationLoop& other) :
         /* base init */ BaseLoopType(other),
+        /*      init */ PlanarPolygon(other),
+        /* init */ nA(other.nA),
         /* init */ grain(other.grain),
         /* init */ _glidePlane(other._glidePlane),
         /* init */ glidePlane(*_glidePlane.get()),
@@ -105,19 +117,6 @@ namespace model
             _glidePlane->removeParentSharedPtr(&_glidePlane,isGlissile,this->sID);
         }
         
-        /**********************************************************************/
-        void addLink(LoopLinkType* const pL)
-        {
-            BaseLoopType::addLink(pL);
-
-//            const VectorDim chord(pL->source()->get_P()-pL->sink()->get_P());
-//            const double chornNorm(chord.norm());
-//            if(chornNorm>FLT_EPSILON)
-//            {
-//            assert(std::fabs((chord/chornNorm).dot(glidePlane.unitNormal))<FLT_EPSILON && "Chord does not belong to plane");
-//            }
-
-        }
         
         /**********************************************************************/
         std::tuple<double,double,double> loopLength() const
@@ -148,7 +147,51 @@ namespace model
             return std::make_tuple(freeLength,junctionLength,boundaryLength);
         }
 
+        /**********************************************************************/
+        void update()
+        {
+            // Collect node positions along loop
+            std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> nodePos;
+            std::deque<size_t> nodeIDs;
+            for(const auto& nodePair : this->nodeSequence)
+            {
+                nodePos.push_baack(nodePair.first->get_P());
+                nodeIDs.push_back(nodePair.first->sID);
+            }
+            
+            // Call PlanarPolygon
+            this->assignPoints(nodePos);
+            std::deque<std::array<size_t, 3>> triangles=this->triangulate();
+            
+            nA.setZero();
+            for(const auto& triIDs : triangles)
+            {
+                const VectorDim ndA=(nodePos[std::get<0>(triIDs)]-nodePos[std::get<2>(triIDs)]).cross(nodePos[std::get<1>(triIDs)]-nodePos[std::get<0>(triIDs)]);
+                assert(nA.dot(ndA)>=0.0 && "Tringles must all be right-handed");
+                nA+=ndA;
+            }
+            
+        }
         
+        /**********************************************************************/
+        double slippedArea() const
+        {
+            return nA.norm();
+        }
+        
+        /**********************************************************************/
+        MatrixDim plasticDistortion() const
+        {
+            return -this->flow().cartesian()*nA.transpose();
+        }
+        
+        /**********************************************************************/
+        VectorDim rightHandedNormal() const
+        {
+            return nA.normalized();
+        }
+        
+                                                                                                                           
         /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const DislocationLoopType& dL)
@@ -157,20 +200,34 @@ namespace model
             return os;
         }
         
+    };
+    
+}
+#endif
+
 //        static chordInPlane(LoopLinkType* const pL,)
-        
+
+
+//        /**********************************************************************/
+//        void addLink(LoopLinkType* const pL)
+//        {
+//            BaseLoopType::addLink(pL);
+//
+////            const VectorDim chord(pL->source()->get_P()-pL->sink()->get_P());
+////            const double chornNorm(chord.norm());
+////            if(chornNorm>FLT_EPSILON)
+////            {
+////            assert(std::fabs((chord/chornNorm).dot(glidePlane.unitNormal))<FLT_EPSILON && "Chord does not belong to plane");
+////            }
+//
+//        }
+
 //        /**********************************************************************/
 //        void removeLink(LoopLinkType* const pL)
 //        {
 //            LoopType::removeLink(pL);
 //
 //        }
-    
-    };
-    
+
 //    template <int _dim, short unsigned int corder, typename InterpolationType>
 //    bool DislocationLoop<_dim,corder,InterpolationType>::outputLoopLength=false;
-    
-}
-
-#endif
