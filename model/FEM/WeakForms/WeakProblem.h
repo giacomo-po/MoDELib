@@ -284,7 +284,7 @@ namespace model
 //                    Eigen::SparseLU<SparseMatrixType> solver(A);
 //                    x=solver.solve(b);
 
-                    
+                    model::cout<<" (relative error ="<<solver.error()<<", tolerance="<<solver.tolerance();
                     model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                     assert(solver.info()==Eigen::Success && "SOLVER  FAILED");
                     break;

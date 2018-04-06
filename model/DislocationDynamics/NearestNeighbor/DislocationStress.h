@@ -75,7 +75,7 @@ namespace model
 			MatrixType temp(MatrixType::Zero());
 			for (const auto& sStaight: ssdeq)
 			{
-			    temp +=sStaight.stress(field.P);
+			    temp +=sStaight.nonSymmStress(field.P);
 	        }
 	        return temp;
         }

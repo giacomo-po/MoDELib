@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_Constatnt_H_
-#define model_Constatnt_H_
+#ifndef model_Constant_H_
+#define model_Constant_H_
 
 #include <utility> // for std::move
 
