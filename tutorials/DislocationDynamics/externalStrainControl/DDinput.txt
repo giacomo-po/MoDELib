@@ -22,9 +22,9 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=10;
+outputFrequency=1;
 outputBinary=0;
-outputGlidePlanes=0;
+outputGlidePlanes=1;
 outputSpatialCells=0;
 outputPKforce=0;
 outputElasticEnergy=0;
@@ -91,7 +91,7 @@ solverTolerance=0.0001;
 
 ######################################
 # Enable/disable cross-slip
-use_crossSlip=1;
+use_crossSlip=0;
 crossSlipDeg=2.0;
 
 ######################################
@@ -107,7 +107,6 @@ surfaceNucleationModel=0;
 
 #####################################
 # DEBUGGING
-useStraightSegmentsRemoveMe=1;
 computeDDinteractions=1;
 verboseJunctions=0;
 verboseRemesh=0;

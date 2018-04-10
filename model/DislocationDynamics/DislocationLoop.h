@@ -76,7 +76,7 @@ namespace model
                         const VectorDim& P,
                         const int& grainID) :
         /* base init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B)),
-        /*      init */ PlanarPolygon(B,N),
+        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
         /*      init */ nA(VectorDim::Zero()),
         /*      init */ grain(dn->poly.grain(grainID)),
         /*      init */ _glidePlane(dn->sharedGlidePlane(dn->mesh,grain.lattice(),grain.grainID,grain.grainID,P,N)),

@@ -31,6 +31,7 @@
 #include <model/DislocationDynamics/Visualization/DDvtk/PKActor.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/GlidePlaneActor.h>
 #include <model/Utilities/TerminalColors.h>
+#include <model/IO/EigenDataReader.h>
 
 
 
@@ -201,6 +202,11 @@ namespace model
         {
             LastPickedActor = NULL;
             LastPickedProperty = vtkProperty::New();
+            
+            model::EigenDataReader EDR;
+            EDR.readScalarInFile("./DDinput.txt","outputFrequency",frameIncrement);
+
+            
         }
         
         
@@ -541,7 +547,7 @@ namespace model
 //                    std::cout<<"      1 to show/hide node IDs"<<std::endl;
 //                    std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
                     
-                    //std::cout<<"    +/- to increase vector size"<<std::endl;
+                    std::cout<<"    +/- to increase/decrease opacity"<<std::endl;
                     
                     if(ddSegments.get()!=nullptr)
                     {
@@ -821,6 +827,23 @@ namespace model
                 {
                     GlidePlaneActor::opacity*=0.5;
                     ddGP->modify();
+                    this->Interactor->Render();
+                }
+                
+            }
+            
+            if(selectedKey=="t")
+            {
+                if(key == "equal" && ddSegments.get()!=nullptr)
+                {
+                    DislocationSegmentActor::slippedAreaOpacity*=1.25;
+                    ddSegments->modify();
+                    this->Interactor->Render();
+                }
+                if(key == "minus" && ddSegments.get()!=nullptr)
+                {
+                    DislocationSegmentActor::slippedAreaOpacity/=1.25;
+                    ddSegments->modify();
                     this->Interactor->Render();
                 }
                 

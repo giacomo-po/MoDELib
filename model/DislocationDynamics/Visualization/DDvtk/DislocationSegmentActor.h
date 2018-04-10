@@ -76,6 +76,7 @@ namespace model
         static size_t singleNodeID;
         static bool showNodes;
         static bool showSlippedArea;
+        static float slippedAreaOpacity;
         
         vtkRenderer* const renderer;
         
@@ -836,7 +837,7 @@ if(scaleRadiusByBurgers)
             //            tube->Modified();
             
             triangleActor->GetProperty()->SetColor(0.5,0.0,0.5);
-            triangleActor->GetProperty()->SetOpacity(0.1);
+            triangleActor->GetProperty()->SetOpacity(slippedAreaOpacity);
 
             if(showSlippedArea)
             {
@@ -942,6 +943,7 @@ if(scaleRadiusByBurgers)
     size_t DislocationSegmentActor::singleNodeID=0;
     bool DislocationSegmentActor::showNodes=false;
     bool DislocationSegmentActor::showSlippedArea=false;
+    float DislocationSegmentActor::slippedAreaOpacity=0.1;
     
 } // namespace model
 #endif

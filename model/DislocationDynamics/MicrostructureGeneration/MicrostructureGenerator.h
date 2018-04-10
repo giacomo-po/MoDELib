@@ -79,11 +79,9 @@ namespace model
         SimplicialMesh<dim> mesh;
         GlidePlaneObserver<dim> gpo;
         Polycrystal<dim> poly;
-//        DislocationNetworkType DN;
-//        typename DislocationNetworkType::PolycrystalType poly;
         
+        /**********************************************************************/
         MicrostructureGenerator(int argc, char* argv[]) :
-//            DN(argc,argv),
         /* init list */ generator(std::chrono::system_clock::now().time_since_epoch().count()),
         /* init list */ distribution(0.0,1.0),
         //        /* init list */ sizeDistribution(0.1,0.5),
@@ -118,9 +116,6 @@ namespace model
             EDR.readScalarInFile("./polyCrystalInput.txt","material",materialZ); // material by atomic number Z
             Material<Isotropic>::select(materialZ);
             
-//            _minSize=0.1*min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
-//            _maxSize=max(mesh.xMax(0)-mesh.xMin(0),max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
-
             
         }
         

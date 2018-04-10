@@ -11,11 +11,9 @@ add_executable(DDvtk DDvtk.cxx)
 include_directories(/Users/giacomo/Documents/eigen)
 include_directories(../../)
 
-
 set(CMAKE_BUILD_TYPE Release)
 
 set_property(TARGET DDvtk PROPERTY CXX_STANDARD 11)
-
 
 if(VTK_LIBRARIES)
   target_link_libraries(DDvtk ${VTK_LIBRARIES})

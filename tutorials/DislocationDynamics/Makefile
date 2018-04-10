@@ -143,6 +143,15 @@ $(dipoleOBJS):
 	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/dipoleGenerator.cpp -o dipoleGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
+# MAKE DIPOLEGENERATOR
+##########################################################
+piOBJS = piGenerator
+
+$(piOBJS):
+	@echo making piGenerator
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/piGenerator.cpp -o piGenerator -O3 -std=c++14 $(IDIR)
+
+##########################################################
 # MAKE FRANKREADGENERATOR
 ##########################################################
 frOBJS = frGenerator

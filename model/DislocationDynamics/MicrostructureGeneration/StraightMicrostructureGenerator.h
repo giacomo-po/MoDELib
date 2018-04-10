@@ -86,7 +86,7 @@ namespace model
                 }
                 
                 std::deque<VectorDimD> nodePos;
-                int nIntersections=false;
+                int nIntersections=0;
                 for(const auto& pair : segDeq)
                 {
                     SegmentSegmentDistance<dim> ssi(A,B,pair.first,pair.second);

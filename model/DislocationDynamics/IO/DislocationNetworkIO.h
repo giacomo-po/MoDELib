@@ -386,19 +386,19 @@ namespace model
             if (vReader.isGood(fileID,false)) // bin file exists
             {
                 vReader.read(fileID,false);
-                
             }
             else
             {
                 if (vReader.isGood(fileID,true)) // txt file exists
                 {
                     vReader.read(fileID,true);
-                    
                 }
                 else
                 {
-                    assert(0 && "UNABLE TO READ VERTEX FILE V/V_x (x is the requested file ID).");
-                    
+                    model::cout<<"filenames:"<<std::endl;
+                    model::cout<<vReader.getFilename(fileID,false)<<std::endl;
+                    model::cout<<vReader.getFilename(fileID,true)<<std::endl;
+                    assert(0 && "UNABLE TO READ VERTEX FILE V/V_x (x is the requested file ID).");                    
                 }
             }
             
