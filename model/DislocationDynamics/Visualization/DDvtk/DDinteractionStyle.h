@@ -90,8 +90,10 @@ namespace model
             
             bool frameLoaded=false;
             if(   currentFrameID!=frameID
-               && (DislocationSegmentActor::VertexReaderType::isGood(frameID,false) || DislocationSegmentActor::VertexReaderType::isGood(frameID,true))
-               && (DislocationSegmentActor::EdgeReaderType::isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType::isGood(frameID,true))
+               //&& (DislocationSegmentActor::VertexReaderType::isGood(frameID,false) || DislocationSegmentActor::VertexReaderType::isGood(frameID,true))
+               //&& (DislocationSegmentActor::EdgeReaderType::isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType::isGood(frameID,true))
+               && (DislocationSegmentActor::VertexReaderType().isGood(frameID,false) || DislocationSegmentActor::VertexReaderType().isGood(frameID,true))
+               && (DislocationSegmentActor::EdgeReaderType().isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType().isGood(frameID,true))
                )
             {
                 currentFrameID=frameID;
