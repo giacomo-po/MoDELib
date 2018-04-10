@@ -496,7 +496,7 @@ namespace model
         {/*! Constructor from ExpandingEdge and DOF
           */
             
-            VerboseDislocationNode(1,"Creating DislocationNode "<<this->sID<<" from expansion"<<std::endl;);
+            VerboseDislocationNode(1,"Creating DislocationNode "<<this->sID<<" from expanding "<<pL.source->sID<<"->"<<pL.sink->sID<<std::endl;);
             
             
             addGrainBoundaryPlanes();
@@ -1028,7 +1028,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void set_P(const VectorDim& newP)
+        bool set_P(const VectorDim& newP)
         {
             VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" set_P"<<std::endl;);
             // make sure that node is on glide planes
@@ -1147,7 +1147,7 @@ namespace model
          
             VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;);
 
-            
+            return (this->get_P()-newP).norm()<FLT_EPSILON;
         }
         
         /**********************************************************************/

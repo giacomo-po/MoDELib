@@ -283,8 +283,21 @@ namespace model
                             VerboseNodeContraction(1,"DislocationNodeContraction case 8b"<<std::endl;);
                             //                            std::cout<<"norm d="<<ppi.d.norm()<<std::endl;
                             const double u=(0.5*(nA->get_P()+nB->get_P())-ppi.P).dot(ppi.d);
-                            nA->set_P(ppi.P+u*ppi.d);
+                            
+//                            assert(nA->glidePlane(0).contains(ppi.P+u*ppi.d));
+//                            assert(nB->glidePlane(0).contains(ppi.P+u*ppi.d));
+                            
+                            const bool moved=nA->set_P(ppi.P+u*ppi.d);
+                            if(moved)
+                            {
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 8b1"<<std::endl;);
                             return DN.contractSecond(nA,nB);
+                            }
+                            else
+                            {
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 8b2"<<std::endl;);
+                                return false;
+                            }
                         }
                         else
                         {

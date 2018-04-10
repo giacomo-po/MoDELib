@@ -21,30 +21,46 @@ namespace model
     struct PlanePlaneIntersection
     {
         enum IntersectionType {PARALLEL,COINCIDENT,INCIDENT};
-        
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
-        
         typedef std::tuple<IntersectionType,VectorDimD,VectorDimD> SolutionType;
-        const SolutionType sol;
+        
+        
+        /**********************************************************************/
+        static bool checkIntersection(const VectorDimD& C,
+                                      const VectorDimD& p1,
+                                      const VectorDimD& n1,
+                                      const VectorDimD& p2,
+                                      const VectorDimD& n2,
+                                      const double& tol)
+        {
+        
+            // Check that segments C-p1 and C-p2 are orthogonal to n1 and n2, respectively
+            const double Cp1((C-p1).norm());
+            const double Cp2((C-p2).norm());
+            const bool Cp1OK((Cp1<tol)? true : fabs((C-p1).dot(n1))<tol*Cp1);
+            const bool Cp2OK((Cp2<tol)? true : fabs((C-p2).dot(n2))<tol*Cp2);
+            return Cp1OK && Cp2OK;
+        }
         
         /**********************************************************************/
         static SolutionType findIntersection(const VectorDimD& p1,
                                              const VectorDimD& N1,
                                              const VectorDimD& p2,
-                                             const VectorDimD& N2)
+                                             const VectorDimD& N2,
+                                             const double& tol)
         {
             
             const double normN1(N1.norm());
             const double normN2(N2.norm());
-            assert(normN1>FLT_EPSILON);
-            assert(normN2>FLT_EPSILON);
+            assert(normN1>tol);
+            assert(normN2>tol);
             
             const VectorDimD n1(N1/normN1);
             const VectorDimD n2(N2/normN2);
             const VectorDimD D(n1.cross(n2));
             const double normD(D.norm());
             
-            if(normD>FLT_EPSILON)
+            if(normD>tol)
             {
                 // Find the Cartesian point P which minimizes (P-p1)^2+(P-p2)^2 under
                 // the constraints (P-P1)*n1=0 and (P-P2)*n2=0
@@ -62,14 +78,13 @@ namespace model
                 
                 const VectorDimD C=M.ldlt().solve(b).template segment<dim>(0);
                 
-                assert(fabs((C-p1).dot(n1))<FLT_EPSILON);
-                assert(fabs((C-p2).dot(n2))<FLT_EPSILON);
+                assert(checkIntersection(C,p1,n1,p2,n2,tol) && "PlanePlaneIntersection FAILED.");
                 
                 return std::make_tuple(INCIDENT,C,D/normD);
             }
             else
             {
-                if(fabs((p1-p2).dot(n1))<FLT_EPSILON)
+                if(fabs((p1-p2).dot(n1))<tol)
                 {// coincident planes
                     return std::make_tuple(COINCIDENT,0.5*(p1+p2),VectorDimD::Zero());
                 }
@@ -85,6 +100,7 @@ namespace model
         
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
+        const SolutionType sol;
         const IntersectionType& type;
         const VectorDimD& P;
         const VectorDimD& d;
@@ -93,8 +109,9 @@ namespace model
         PlanePlaneIntersection(const VectorDimD& p1,
                                const VectorDimD& n1,
                                const VectorDimD& p2,
-                               const VectorDimD& n2) :
-        /* init */ sol(findIntersection(p1,n1,p2,n2)),
+                               const VectorDimD& n2,
+                               const double& tolerance=FLT_EPSILON) :
+        /* init */ sol(findIntersection(p1,n1,p2,n2,tolerance)),
         /* init */ type(std::get<0>(sol)),
         /* init */ P(std::get<1>(sol)),
         /* init */ d(std::get<2>(sol))

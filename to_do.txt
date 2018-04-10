@@ -17,7 +17,6 @@ NEW LOOP_NETWORK CODE
 - Documentation
 - Hoffman2 documentation (see emails between Yinan and Raffaella)
 - SpaceDecompositin based on KD-tree
-- Sweep line algorithm for segment-segment intersections
 - Replace const static with constexpr in LagrangeElement and DiscontinuousLagrange http://www.cplusplus.com/forum/general/121300/
 - Make all quadratures constexpr
 - Use constexpr std::array for quadrature

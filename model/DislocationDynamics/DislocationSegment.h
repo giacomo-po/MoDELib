@@ -266,8 +266,16 @@ namespace model
             const bool success=glidePlanes().insert(&gp).second;
             if(success)
             {
-                assert(gp.contains(this->source->get_P()) &&  "Glide Plane does not contain source");
-                assert(gp.contains(this->  sink->get_P()) &&  "Glide Plane does not contain sink");
+                
+                const bool sourceContained(gp.contains(this->source->get_P()));
+                const bool   sinkContained(gp.contains(this->  sink->get_P()));
+                if(!(sourceContained && sinkContained))
+                {
+                    model::cout<<"DislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
+                    model::cout<<"sourceContained "<<sourceContained<<std::endl;
+                    model::cout<<"  sinkContained "<<sinkContained<<std::endl;
+                    assert(false &&  "Glide Plane does not contain source or sink");
+                }
                 boundingBoxSegments().updateWithGlidePlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
                 grains().insert(&this->network().poly.grain(gp.grainIDs.first));    // Insert new grain in grainSet
                 grains().insert(&this->network().poly.grain(gp.grainIDs.second));   // Insert new grain in grainSet
