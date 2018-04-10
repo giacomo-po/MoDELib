@@ -57,8 +57,10 @@ NEW LOOP_NETWORK CODE
 Assertion failed: (success==1 && "COULD NOT ERASE GLIDE PLANE POINTER FROM GLIDE PLANE OBSERVER."), function removeGlidePlane, file ../../../model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h, line 185.
 
 ERRORS
-1) remeshing network: contracting... Assertion failed: (boundingBoxSegments().size()==1 && "There should be only one line in boundingBoxSegments()"), function updateGlidePlaneIntersections, file ../../../model/DislocationDynamics/DislocationNode.h, line 115.
+1) FIXED 
+remeshing network: contracting... Assertion failed: (boundingBoxSegments().size()==1 && "There should be only one line in boundingBoxSegments()"), function updateGlidePlaneIntersections, file ../../../model/DislocationDynamics/DislocationNode.h, line 115.
 2) Assertion failed: (false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL"), function set_P, file ../../../model/DislocationDynamics/DislocationNode.h, line 1123.
 Abort trap: 6
-3) 		remeshing network: contracting... Assertion failed: (gp.contains(this-> sink->get_P()) && "Glide Plane does not contain sink"), function addGlidePlane, file ../../../model/DislocationDynamics/DislocationSegment.h, line 270.
+3) THIS IS BECASUSE WE DON'T CHECK THE OUTPUT OF DislocaationNode::set_P in DislocationNodeContraction
+		remeshing network: contracting... Assertion failed: (gp.contains(this-> sink->get_P()) && "Glide Plane does not contain sink"), function addGlidePlane, file ../../../model/DislocationDynamics/DislocationSegment.h, line 270.
 4) 		remeshing network: expanding... Assertion failed: (0 && "Intersection must be COINCIDENT or INCIDENT."), function updateGlidePlaneIntersections, file ../../../model/DislocationDynamics/DislocationNode.h, line 188.
