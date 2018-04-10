@@ -139,10 +139,21 @@ namespace model
 		
 	public:	
 //		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+		const std::string folderSuffix; 
 		
         /**********************************************************************/
 		IDreader () :
-        /* init list */ currentFrame(-1)
+        /* init list */ currentFrame(-1), folderSuffix(std::string(""))
+ //       /* init list */ success(false)
+        {/*! Constructor initializes currentFrame to -1 so that the statement
+          *  frameN!=currentFrame will initially return false
+          */
+        }
+
+        /***Overloaded constructor***********************************************/
+		IDreader (const std::string& s) :
+        /* init list */ currentFrame(-1),
+        /* init list */ folderSuffix(s)
  //       /* init list */ success(false)
         {/*! Constructor initializes currentFrame to -1 so that the statement
           *  frameN!=currentFrame will initially return false
@@ -150,20 +161,20 @@ namespace model
         }
 		
         /**********************************************************************/
-		static std::string getFilename(const int& frameN, const bool& useTXT)
+		std::string getFilename(const int& frameN, const bool& useTXT) const
         {
 			std::stringstream filename;
 			if(useTXT){
-				filename << c << "/" << c << "_" << frameN << ".txt";
+				filename << c <<folderSuffix<< "/" << c << "_" << frameN << ".txt";
 			}
 			else{
-				filename << c << "/" << c << "_" << frameN << ".bin";
+				filename << c <<folderSuffix<< "/" << c << "_" << frameN << ".bin";
 			}
 			return filename.str();
 		}
 		
         /**********************************************************************/
-		static bool isGood(const int& frameN, const bool& useTXT)
+		bool isGood(const int& frameN, const bool& useTXT) const
         {
 			/*!	Checks whether the file named "E/E_ \param[frameN] .txt" is good for reading.
 			 */
