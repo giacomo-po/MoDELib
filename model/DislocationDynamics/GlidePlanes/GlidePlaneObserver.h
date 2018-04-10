@@ -130,6 +130,23 @@ namespace model
         //            return (GlidePlaneKeyType()<<grain.grainID,r,LatticePlane::height(LatticePlane::computeHeight(r,P))).finished();
         //        }
         
+        static int sign(const long int& i)
+        {
+			if(i>0)
+			{
+				return 1;
+				}
+				else if(i<0)
+				{
+					return -1;
+					}
+					else
+					{
+						return 0;
+						}
+			
+		}
+        
         /**********************************************************************/
         static GlidePlaneKeyType getGlidePlaneKey(const Lattice<dim>& lattice,
                                                   const int& grainID1,
@@ -147,7 +164,10 @@ namespace model
           */
             const ReciprocalLatticeDirection<dim> r(lattice.reciprocalLatticeDirection(N));
 //            return (GlidePlaneKeyType()<<grainID1,grainID2,r,LatticePlane::height(LatticePlane::computeHeight(r,P))).finished();
-            return (GlidePlaneKeyType()<<grainID1,grainID2,r,LatticePlane::height(r,P)).finished();
+//            return (GlidePlaneKeyType()<<grainID1,grainID2,r,LatticePlane::height(r,P)).finished();
+			const long int h(LatticePlane::height(r,P));
+            return (GlidePlaneKeyType()<<grainID1,grainID2,r*sign(h),h*sign(h)).finished(); // make sure that key heigh is always positive for uniqueness 
+
         }
         
         /**********************************************************************/
@@ -159,7 +179,7 @@ namespace model
                                                          const VectorDimD& N)
         {
             const GlidePlaneKeyType key=getGlidePlaneKey(lattice,grainID1,grainID2,P,N);
-            std::cout<<"GlidePlane key="<<key.transpose()<<std::endl;
+            //std::cout<<"GlidePlane key="<<key.transpose()<<std::endl;
             const auto planeIter=glidePlanes().find(key);
             return (planeIter!=glidePlanes().end())? planeIter->second->sharedPlane() :
             /*                            */ std::shared_ptr<GlidePlaneType>(new GlidePlaneType(this,mesh,lattice,grainID1,grainID2,P,N));

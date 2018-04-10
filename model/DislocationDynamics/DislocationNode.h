@@ -112,7 +112,14 @@ namespace model
                     {/* Two distinct glide planes can be coincident only if they belong to different grains
                       * In that case, the intersection of their bounding boxes should be one line segment
                       */
-                        assert(boundingBoxSegments().size()==1 && "There should be only one line in boundingBoxSegments()");
+                      if(boundingBoxSegments().size()!=1)
+                      {
+						  model::cout<<"DislocationNode "<<this->sID<<std::endl;
+						  model::cout<<"glidePlane(0) is "<<glidePlane(0).P.transpose()<<","<<glidePlane(0).unitNormal.transpose()<<std::endl;
+						  model::cout<<"glidePlane(1) is "<<glidePlane(1).P.transpose()<<","<<glidePlane(1).unitNormal.transpose()<<std::endl;
+						assert(false && "There should be only one line in boundingBoxSegments()");
+						}
+                        //assert(boundingBoxSegments().size()==1 && "There should be only one line in boundingBoxSegments()");
                         _glidePlaneIntersections.emplace_back(boundingBoxSegments()[0].first,boundingBoxSegments()[0].second);
                     }
                     else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
