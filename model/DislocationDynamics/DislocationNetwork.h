@@ -65,8 +65,9 @@ namespace model
 {
     
     template <int _dim, short unsigned int corder, typename InterpolationType>
-    class DislocationNetwork : public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType> >,
+    class DislocationNetwork : 
     /* base                 */ public GlidePlaneObserver<_dim>,
+    /* base                 */ public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType> >,
     /* base                 */ public ParticleSystem<DislocationParticle<_dim> >
     {
         
