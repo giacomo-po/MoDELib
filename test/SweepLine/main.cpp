@@ -20,10 +20,10 @@ struct SimpleLine
 };
 
 template<int dim>
-size_t timeN2method(const std::deque<SimpleLine<dim>>& sld,const double& collisionTol)
+std::pair<size_t,double> timeN2method(const std::deque<SimpleLine<dim>>& sld,const double& collisionTol)
 {
     const auto t0= std::chrono::system_clock::now();
-    std::cout<<"N^2 method... "<<std::flush;
+    //std::cout<<"N^2 method... "<<std::flush;
     
     size_t nIntersections=0;
     for(size_t i=0;i<sld.size();++i)
@@ -40,17 +40,19 @@ size_t timeN2method(const std::deque<SimpleLine<dim>>& sld,const double& collisi
     
     }
     
-    std::cout<<nIntersections<<" intersections"<<std::flush;
-    std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+    //std::cout<<nIntersections<<" intersections"<<std::flush;
+    //std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
-    return nIntersections;
+    //double x=;
+    
+    return std::make_pair(nIntersections,(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count());
 }
 
 template<int dim>
-size_t timeSweepPlane(const std::deque<SimpleLine<dim>>& sld,const double& collisionTol)
+std::pair<size_t,double> timeSweepPlane(const std::deque<SimpleLine<dim>>& sld,const double& collisionTol)
 {
     const auto t0= std::chrono::system_clock::now();
-    std::cout<<"SweepPlane method... "<<std::flush;
+    //std::cout<<"SweepPlane method... "<<std::flush;
     
     model::SweepPlane<SimpleLine<dim>,dim> sw;
     for(const auto& line : sld)
@@ -70,10 +72,10 @@ size_t timeSweepPlane(const std::deque<SimpleLine<dim>>& sld,const double& colli
         }
     }
     
-    std::cout<<nIntersections<<" intersections"<<std::flush;
-    std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+    //std::cout<<nIntersections<<" intersections"<<std::flush;
+    //std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
-    return nIntersections;
+    return std::make_pair(nIntersections,(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count());
 }
 
 
@@ -84,25 +86,34 @@ int main()
     typedef Eigen::Matrix<double,dim,1> VectorDim;
     std::deque<SimpleLine<dim>> sld;
     
-    const int N=100000;
     const double collisionTol=1e-2;
     
     const double Lmax=1.0;
     const double boxSize=100*Lmax;
     
-    for(int k=0;k<N;++k)
+    for(int n=0;n<6;++n)
     {
-        const VectorDim P0(VectorDim::Random()*boxSize);
-        const VectorDim P1(P0+VectorDim::Random()*Lmax);
-        sld.emplace_back(P0,P1);
+        const int N=std::pow(10,n);
+
+        for(int k=0;k<N;++k)
+        {
+            const VectorDim P0(VectorDim::Random()*boxSize);
+            const VectorDim P1(P0+VectorDim::Random()*Lmax);
+            sld.emplace_back(P0,P1);
+        }
+        
+        std::cout<<N<<std::flush;
+        const std::pair<size_t,double> isp=timeSweepPlane(sld,collisionTol);
+        std::cout<<" "<<isp.first<<" "<<isp.second<<std::flush;
+        
+        const std::pair<size_t,double> in2=timeN2method(sld,collisionTol);
+        //assert(isp.first==in2.first);
+        std::cout<<" "<<in2.first<<" "<<in2.second<<std::endl;
+
     }
-    
-    const size_t isp=timeSweepPlane(sld,collisionTol);
 
     
-    const size_t in2=timeN2method(sld,collisionTol);
 
-    assert(isp==in2);
     
     return 0;
 }

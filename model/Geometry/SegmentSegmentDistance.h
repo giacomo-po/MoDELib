@@ -157,8 +157,8 @@ namespace model
         /* init */ R(d1.dot(d2)),
         /* init */ S1(d1.dot(d12)),
         /* init */ S2(d2.dot(d12)),
-        /* init */ D1(d1.squaredNorm()),
-        /* init */ D2(d2.squaredNorm()),
+        /* init */ D1(d1.squaredNorm()), // length of AB squared
+        /* init */ D2(d2.squaredNorm()), // length of CD squared
         /* init */ den(D1*D2-R*R),
         /* init */ tu(getTU()),
         /* init */ t(tu.first),

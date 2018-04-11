@@ -31,8 +31,8 @@ eMax3C=data(:,12);
 
 %grid on
 
-x=d./(L0+L1);
-%x=d./L0+d./L1;
+%x=d./(L1.*((L0./L1).^2+1));
+x=d./(0.01*L0+L1);
 
 figure(1)
 clf

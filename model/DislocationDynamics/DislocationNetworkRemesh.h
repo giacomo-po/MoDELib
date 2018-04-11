@@ -390,7 +390,7 @@ namespace model
         static double Lmin;
         static double thetaDeg;
         static double neighborRadius;
-        static short unsigned int use_redistribution;
+        static short unsigned int remeshFrequency;
         
         /**********************************************************************/
         DislocationNetworkRemesh(DislocationNetworkType& DN_in) :
@@ -404,9 +404,9 @@ namespace model
         {/*! Performs remeshByContraction and then remeshByExpansion.
           * This order guarantees that 2-vertex NetworkComponents are expanded.
           */
-            if (use_redistribution)
+            if (remeshFrequency)
             {
-                if(!(runID%use_redistribution))
+                if(!(runID%remeshFrequency))
                 {
                     remeshByRemoval();
                     remeshByContraction();
@@ -467,7 +467,8 @@ namespace model
     double DislocationNetworkRemesh<DislocationNetworkType>::neighborRadius=0.001;
     
     template <typename DislocationNetworkType>
-    short unsigned int DislocationNetworkRemesh<DislocationNetworkType>::use_redistribution=1;
+    short unsigned int DislocationNetworkRemesh<DislocationNetworkType>::remeshFrequency=1;
+    
     
 } // namespace model
 #endif

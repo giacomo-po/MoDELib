@@ -283,13 +283,6 @@ namespace model
             
             //            EDR.readScalarInFile(fullName.str(),"collisionTol",DislocationJunctionFormation<DislocationNetworkType>::collisionTol);
             
-            // VERTEX REDISTRIBUTION
-            EDR.readScalarInFile(fullName.str(),"use_redistribution",DislocationNetworkRemesh<DislocationNetworkType>::use_redistribution);
-            EDR.readScalarInFile(fullName.str(),"Lmin",DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
-            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
-            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*DDtimeIntegrator<0>::dxMax && "YOU MUST CHOOSE Lmin>2*dxMax.");
-            EDR.readScalarInFile(fullName.str(),"Lmax",DislocationNetworkRemesh<DislocationNetworkType>::Lmax);
-            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             
             // Cross-Slip
             EDR.readScalarInFile(fullName.str(),"use_crossSlip",DN.use_crossSlip);
@@ -338,7 +331,32 @@ namespace model
             if (DN.use_externalStress)
             {
                  DN.extStressController.init(DN);  // have to initialize it after mesh!
-            } 
+            }
+            
+            // VERTEX REDISTRIBUTION
+            EDR.readScalarInFile(fullName.str(),"remeshFrequency",DislocationNetworkRemesh<DislocationNetworkType>::remeshFrequency);
+            double Lmin=0.0;
+            EDR.readScalarInFile(fullName.str(),"Lmin",Lmin);
+            double Lmax=0.0;
+            EDR.readScalarInFile(fullName.str(),"Lmax",Lmax);
+            if(DN.use_boundary)
+            {
+                const double minMeshSize=std::min(DN.mesh.xMax(0)-DN.mesh.xMin(0),std::min(DN.mesh.xMax(1)-DN.mesh.xMin(1),DN.mesh.xMax(2)-DN.mesh.xMin(2)));
+                assert(Lmax<1.0 && "IF USING A BOUNDARY Lmax MUST BE RELATIVE TO BOX SIZE (Lmax<1)");
+                assert(Lmin<=Lmax);
+                DislocationNetworkRemesh<DislocationNetworkType>::Lmax=Lmax*minMeshSize;
+                DislocationNetworkRemesh<DislocationNetworkType>::Lmin=Lmin*minMeshSize;
+            }
+            else
+            {
+                DislocationNetworkRemesh<DislocationNetworkType>::Lmax=Lmax;
+                DislocationNetworkRemesh<DislocationNetworkType>::Lmin=Lmin;
+            }
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*DDtimeIntegrator<0>::dxMax && "YOU MUST CHOOSE Lmin>2*dxMax.");
+
+            
             
             // Verbose levels
             if(DN.maxJunctionIterations>0)
@@ -351,6 +369,8 @@ namespace model
 
             // GrainBoundary model
             EDR.readScalarInFile(fullName.str(),"grainBoundaryTransmissionModel",GrainBoundaryTransmission<DislocationNetworkType>::grainBoundaryTransmissionModel);
+
+            EDR.readScalarInFile(fullName.str(),"outputSegmentPairDistances",DN.outputSegmentPairDistances);
 
             
             
@@ -801,6 +821,36 @@ namespace model
                 
             }
             
+            if(DN.outputSegmentPairDistances)
+            {
+                const auto t0=std::chrono::system_clock::now();
+                model::SequentialOutputFile<'H',1>::set_count(runID); // Vertices_file;
+                model::SequentialOutputFile<'H',1>::set_increment(DN.outputFrequency); // Vertices_file;
+                model::SequentialOutputFile<'H',true> h_file;
+                model::cout<<"		writing to H/H_"<<h_file.sID<<".txt"<<std::flush;
+                
+                for(auto linkIter1=DN.links().begin();linkIter1!=DN.links().end();++linkIter1)
+                {
+                    for(auto linkIter2=linkIter1;linkIter2!=DN.links().end();++linkIter2)
+                    {
+                        if(   !linkIter1->second->isBoundarySegment()
+                           && !linkIter2->second->isBoundarySegment()
+                           && !linkIter1->second->hasZeroBurgers()
+                           && !linkIter2->second->hasZeroBurgers())
+                        {
+                            SegmentSegmentDistance<dim> ssi(linkIter1->second->source->get_P(),
+                                                            linkIter1->second->sink->get_P(),
+                                                            linkIter2->second->source->get_P(),
+                                                            linkIter2->second->sink->get_P());
+                        
+                            h_file<<sqrt(ssi.D1)<<" "<<sqrt(ssi.D2)<<" "<<ssi.dMin<<"\n";
+                        }
+                    }
+                }
+                
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            }
+            
             
             if (DN.use_bvp && DN.outputFEMsolution && !(DN.runningID()%DN.use_bvp))
             {
@@ -832,7 +882,6 @@ namespace model
                 {
                     q_file<<particle<<"\n";
                 }
-                
                 
             }
             
