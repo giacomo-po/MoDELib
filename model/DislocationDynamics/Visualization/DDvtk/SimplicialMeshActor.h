@@ -107,15 +107,79 @@ namespace model
             actor->GetProperty()->SetOpacity(0.15); //Make the mesh have some transparency.
 
             
+            gbColors->SetNumberOfComponents(3);
+            gbColors->SetName("Colors");
+            size_t triPtID=0;
+
+            bool showGrainColors=true;
+            if(showGrainColors)
+            {
+                std::map<int,Eigen::Matrix<int,1,3>> grainColors;
+                for(const auto& region : mesh.regions())
+                {
+                    grainColors.emplace(region.first,Eigen::Matrix<int,1,3>::Random()*255);
+                }
+                
+                for(const auto& meshTriangle : mesh.template observer<2>())
+                {
+                    if(meshTriangle.second->isBoundarySimplex())
+                    {
+                                                const int regionID=(*meshTriangle.second->parents().begin())->region->regionID;
+                        
+                        const Eigen::Matrix<double,3,3> vM(meshTriangle.second->vertexPositionMatrix());
+
+                        gbPoints->InsertNextPoint ( vM(0,0), vM(1,0), vM(2,0) );
+                        gbPoints->InsertNextPoint ( vM(0,1), vM(1,1), vM(2,1) );
+                        gbPoints->InsertNextPoint ( vM(0,2), vM(1,2), vM(2,2) );
+
+//                        if((vM.col(1)-vM.col(0)).cross(vM.col(2)-vM.col(1)).dot(meshTriangle.second->outNormal(regionID))>=0.0)
+//                        {
+//                            gbPoints->InsertNextPoint ( vM(0,0), vM(1,0), vM(2,0) );
+//                            gbPoints->InsertNextPoint ( vM(0,1), vM(1,1), vM(2,1) );
+//                            gbPoints->InsertNextPoint ( vM(0,2), vM(1,2), vM(2,2) );
+//                        
+//                        }
+//                        else
+//                        {
+//                            gbPoints->InsertNextPoint ( vM(0,1), vM(1,1), vM(2,1) );
+//                            gbPoints->InsertNextPoint ( vM(0,0), vM(1,0), vM(2,0) );
+//                            gbPoints->InsertNextPoint ( vM(0,2), vM(1,2), vM(2,2) );
+//                        }
+                        
+                        vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
+                        triangle->GetPointIds()->SetId (0,triPtID+0);
+                        triangle->GetPointIds()->SetId (1,triPtID+1);
+                        triangle->GetPointIds()->SetId (2,triPtID+2);
+                        
+
+                        const Eigen::Matrix<int,1,3>& regionClr(grainColors.at(regionID));
+                        gbColors->InsertNextTuple3(regionClr(0),regionClr(1),regionClr(2)); // use this to assig color to each vertex
+
+                        //                        gbColors->InsertNextTypedTuple(clr); // use this to assig color to each vertex
+                        //                        gbColors->InsertNextTypedTuple(clr); // use this to assig color to each vertex
+                        //                        gbColors->InsertNextTypedTuple(clr); // use this to assig color to each vertex
+                        
+                        gbTriangles->InsertNextCell ( triangle );
+                        
+                        triPtID+=3;
+                    }
+                }
+            }
+            
+            
             // grain-boundaries
-            bool showRegionBoundaries=true;
+            bool showRegionBoundaries=false;
             if(showRegionBoundaries)
             {
+             
+
+//                Eigen::MatrixXi regionColors(Eigen::MatrixXi::Random(mesh.regions().size(),3));
+                
                 unsigned char clr[3] = {0, 100, 100};
-                gbColors->SetNumberOfComponents(3);
-                gbColors->SetName("Colors");
+//                gbColors->SetNumberOfComponents(3);
+//                gbColors->SetName("Colors");
 //                gbColors->InsertNextTypedTuple(red);
-                size_t triPtID=0;
+//                size_t triPtID=0;
                 for(const auto& meshTriangle : mesh.template observer<2>())
                 {
                     if(meshTriangle.second->isRegionBoundarySimplex())
@@ -137,20 +201,12 @@ namespace model
 
                         gbTriangles->InsertNextCell ( triangle );
 
+                        gbColors->InsertNextTuple3(0,100,100); // use this to assig color to each vertex
+
+                        
                         triPtID+=3;
                     }
                 }
-                gbTrianglePolyData->SetPoints ( gbPoints );
-                gbTrianglePolyData->SetPolys ( gbTriangles );
-//                gbTrianglePolyData->GetCellData()->SetScalars(gbColors); // use this to assig color to each vertex
-
-                gbMapper->SetInputData(gbTrianglePolyData);
-                gbActor->SetMapper(gbMapper);
-                gbActor->GetProperty()->SetOpacity(0.3);
-                gbActor->GetProperty()->SetColor(0.0,0.5,0.5);
-
-
-                renderer->AddActor(gbActor);
                 
                 // to show triangle edges:
                 // http://stackoverflow.com/questions/7548966/how-to-display-only-triangle-boundaries-on-textured-surface-in-vtk
@@ -164,6 +220,22 @@ namespace model
 //                    }
 //                }
             }
+
+            gbTrianglePolyData->SetPoints ( gbPoints );
+            gbTrianglePolyData->SetPolys ( gbTriangles );
+            gbTrianglePolyData->SetPolys ( gbTriangles );
+            gbTrianglePolyData->GetCellData()->SetScalars(gbColors);
+
+            //                gbTrianglePolyData->GetCellData()->SetScalars(gbColors); // use this to assig color to each vertex
+            
+            gbMapper->SetInputData(gbTrianglePolyData);
+            gbActor->SetMapper(gbMapper);
+            gbActor->GetProperty()->SetOpacity(0.3);
+
+//            gbActor->GetProperty()->SetColor(0.0,0.5,0.5);
+            
+            
+            renderer->AddActor(gbActor);
 
 
             // Update

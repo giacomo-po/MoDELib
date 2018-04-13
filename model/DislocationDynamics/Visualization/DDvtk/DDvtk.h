@@ -100,6 +100,21 @@ namespace model
             renderWindowInteractor->SetRenderWindow(renderWindow);
             ddRenderer->SetBackground(1,1,1); // Background color white
             ddRenderer->SetViewport(0.0,0,0.5,1);
+            
+//            renderWindow->SetAlphaBitPlanes(true);
+//            // 2. Force to not pick a framebuffer with a multisample buffer
+//            // (as initial value is 8):
+//            renderWindow->SetMultiSamples(0);
+//            
+//            // 3. Choose to use depth peeling (if supported) (initial value is 0 (false)):
+//            ddRenderer->SetUseDepthPeeling(true);
+//            
+//            // 4. Set depth peeling parameters
+//            // - Set the maximum number of rendering passes (initial value is 4):
+//            ddRenderer->SetMaximumNumberOfPeels(20);
+//            // - Set the occlusion ratio (initial value is 0.0, exact image):
+//            ddRenderer->SetOcclusionRatio(0.5);
+
 
             renderWindow->AddRenderer(ddRenderer);
             renderWindowInteractor->SetInteractorStyle(style);
@@ -118,6 +133,8 @@ namespace model
             PlotActor pa(plotRenderer);
             
             renderWindow->AddRenderer(plotRenderer);
+            
+
             
             
             // Start
