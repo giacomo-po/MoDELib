@@ -1,8 +1,8 @@
 clear all
-close all
+%close all
 clc
 
-frameID=5;
+frameID=10;
 d=load(['H/H_' num2str(frameID) '.txt']);
 
 %x=d(:,3)./(d(:,1)+d(:,2));
@@ -27,7 +27,7 @@ ids1=find(diff(x1s));
 
 %%
 
-figure(1)
+figure
 clf
 hold on
 plot(xs(ids),ids/length(xs),'Linewidth',2)
@@ -38,7 +38,8 @@ grid on
 x2=d(:,1);
 x2s=sort(x2);
 ids2=find(diff(x2s));
-figure(2)
+
+figure
 clf
 hold on
 plot(x2s(ids2),ids2/length(x2s),'Linewidth',2)

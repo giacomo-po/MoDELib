@@ -1,4 +1,4 @@
-close all
+%close all
 clear all
 clc
 
@@ -10,7 +10,7 @@ data=[1 0 2.5e-05 0 1e-06
 10000 619 0.030126 621 2.48689
 100000 61291 2.0629 61412 251.439];
 
-figure(1)
+figure
 clf 
 hold on
 plot(data(:,1),data(:,3),'o-','Linewidth',2)
