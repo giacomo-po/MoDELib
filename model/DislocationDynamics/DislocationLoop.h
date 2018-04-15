@@ -79,7 +79,8 @@ namespace model
         /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
         /*      init */ nA(VectorDim::Zero()),
         /*      init */ grain(dn->poly.grain(grainID)),
-        /*      init */ _glidePlane(dn->sharedGlidePlane(dn->mesh,grain.lattice(),grain.grainID,grain.grainID,P,N)),
+//        /*      init */ _glidePlane(dn->sharedGlidePlane(dn->mesh,grain.lattice(),grain.grainID,grain.grainID,P,N)),
+        /*      init */ _glidePlane(dn->sharedGlidePlane(dn->mesh,dn->poly.grain(grainID),P,N)),
         /*      init */ glidePlane(*_glidePlane.get()),
         /*      init */ isGlissile(this->flow().dot(glidePlane.n)==0 && allowedSlipSystem(this->flow(),glidePlane.n,grain))
         {

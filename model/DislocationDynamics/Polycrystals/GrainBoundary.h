@@ -25,6 +25,7 @@
 #include <model/LatticeMath/DSCL.h>
 #include <model/DislocationDynamics/ElasticFields/StressStraight.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
+#include <model/Mesh/MeshPlane.h>
 
 
 namespace model
@@ -33,9 +34,10 @@ namespace model
     
     
     template <int dim>
-    class GrainBoundary :
-    /* base */ private std::map<int,const Grain<dim>* const>,
-    /* base */ private std::map<int,std::shared_ptr<GlidePlane<dim>>>
+    class GrainBoundary : public MeshPlane<dim>,
+    /* base            */ private std::map<int,const Grain<dim>* const>,
+    /* base            */ private std::map<int,const Eigen::Matrix<double,dim,1>>
+//    /* base */ private std::map<int,std::shared_ptr<GlidePlane<dim>>>
     {
 //        static constexpr int dim=NetworkType::dim;
         
@@ -49,6 +51,7 @@ namespace model
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef Grain<dim> GrainType;
         typedef std::map<int,const GrainType* const> GrainContainerType;
+        typedef std::map<int,const Eigen::Matrix<double,dim,1>> OutNormalContainerType;
         typedef std::map<int,std::shared_ptr<GlidePlane<dim>>> GlidePlaneContainerType;
         typedef Eigen::Matrix<double,2*dim+1,1> BGkeyType;
         typedef GlidePlane<dim> GlidePlaneType;
@@ -58,138 +61,178 @@ namespace model
 //        static_assert(false,"IN DDVTK SHOW THE MESH FOR THE GBs, and let the GP SHADE THE PLANE");
         
         
-        /**********************************************************************/
-//        template<typename NetworkType>
-        void storeLatticePlane(GlidePlaneObserver<dim>& dn,
-                               const SimplicialMesh<dim>& mesh,
-                               const Grain<dim>& grain,
-                               const VectorDimD& normal)
-        {
-            //std::cout<<"storeLatticePlane"<<std::endl;
-            //std::cout<<"normal="<<normal.transpose()<<std::endl;
-            
-            const ReciprocalLatticeDirectionType R=grain.reciprocalLatticeDirection(normal);
-            
-            model::cout<<"   GB plane normal for grain "<< grain.grainID<<":"<<defaultColor<<std::endl;
-            model::cout<<"      cartesian components="<<R.cartesian().normalized().transpose()<<defaultColor<<std::endl;
-            model::cout<<"      crystallographic components="<<grain.rationalApproximation((grain.get_C2G().transpose()*R.cartesian())).transpose()<<defaultColor<<std::endl;
-//            model::cout<<"   crystallographic components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<defaultColor<<std::endl;
-            model::cout<<"      interplanar spacing="<<1.0/R.cartesian().norm()<<defaultColor<<std::endl;
-            
-//            LatticeVectorType L0(grain.lattice());
-//            bool latticePointFound=false;
+//        /**********************************************************************/
+////        template<typename NetworkType>
+//        void storeLatticePlane(GlidePlaneObserver<dim>& dn,
+//                               const SimplicialMesh<dim>& mesh,
+//                               const Grain<dim>& grain,
+//                               const VectorDimD& normal)
+//        {
+//            //std::cout<<"storeLatticePlane"<<std::endl;
+//            //std::cout<<"normal="<<normal.transpose()<<std::endl;
 //            
-////            //std::cout<<"here 0"<<std::endl;
+//            const ReciprocalLatticeDirectionType R=grain.reciprocalLatticeDirection(normal);
 //            
-//            for(const auto& simplexPtr : regionBoundary.simplices())
-//            {
-////                            //std::cout<<"here 1"<<std::endl;
-//                for(size_t d=0;d<dim;++d)
-//                {
-//                    const VectorDimD P0=simplexPtr->vertexPositionMatrix().col(d);
-//                    L0=grain.snapToLattice(P0);
-//                    
-//                    if(fabs((L0.cartesian()-P0).dot(normal))<FLT_EPSILON) // L0 belongs to mesh plane
-//                    {
-//                        std::cout<<"GrainBonudary: using origin "<<P0.transpose()<<std::endl;
-//                        latticePointFound=true;
-//                        break; //break inner loop
-//                    }
-//                }
-//                
-//                if(latticePointFound==true) // L0 belongs to mesh plane
-//                {
-//                    break; //break outer loop
-//                }
-//            }
+//            model::cout<<"   GB plane normal for grain "<< grain.grainID<<":"<<defaultColor<<std::endl;
+//            model::cout<<"      cartesian components="<<R.cartesian().normalized().transpose()<<defaultColor<<std::endl;
+//            model::cout<<"      crystallographic components="<<grain.rationalApproximation((grain.get_C2G().transpose()*R.cartesian())).transpose()<<defaultColor<<std::endl;
+////            model::cout<<"   crystallographic components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<defaultColor<<std::endl;
+//            model::cout<<"      interplanar spacing="<<1.0/R.cartesian().norm()<<defaultColor<<std::endl;
 //            
+////            LatticeVectorType L0(grain.lattice());
+////            bool latticePointFound=false;
+////            
+//////            //std::cout<<"here 0"<<std::endl;
+////            
+////            for(const auto& simplexPtr : regionBoundary.simplices())
+////            {
+//////                            //std::cout<<"here 1"<<std::endl;
+////                for(size_t d=0;d<dim;++d)
+////                {
+////                    const VectorDimD P0=simplexPtr->vertexPositionMatrix().col(d);
+////                    L0=grain.snapToLattice(P0);
+////                    
+////                    if(fabs((L0.cartesian()-P0).dot(normal))<FLT_EPSILON) // L0 belongs to mesh plane
+////                    {
+////                        std::cout<<"GrainBonudary: using origin "<<P0.transpose()<<std::endl;
+////                        latticePointFound=true;
+////                        break; //break inner loop
+////                    }
+////                }
+////                
+////                if(latticePointFound==true) // L0 belongs to mesh plane
+////                {
+////                    break; //break outer loop
+////                }
+////            }
+////            
+////            
+////            
+////            assert(latticePointFound && "None of the GB mesh vertices, snapped to the lattice, belongs to GB plane.");
+////            
+////            LatticePlaneBase pb(R);
+////            const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
+////                                                                 std::forward_as_tuple(grain.grainID),
+////                                                                 std::forward_as_tuple(&dn,dn.mesh,grain,L0.cartesian(),pb.cartesian()));
+////            assert(temp.first->second.unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
 //            
-//            
-//            assert(latticePointFound && "None of the GB mesh vertices, snapped to the lattice, belongs to GB plane.");
-//            
-//            LatticePlaneBase pb(R);
-//            const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
-//                                                                 std::forward_as_tuple(grain.grainID),
-//                                                                 std::forward_as_tuple(&dn,dn.mesh,grain,L0.cartesian(),pb.cartesian()));
-//            assert(temp.first->second.unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
-            
-            const VectorDimD P0=(*regionBoundary.simplices().begin())->vertexPositionMatrix().col(0); // a point on the plane
+//            const VectorDimD P0=(*regionBoundary.simplices().begin())->vertexPositionMatrix().col(0); // a point on the plane
+////            const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
+////                                                               std::forward_as_tuple(grain.grainID),
+////                                                               std::forward_as_tuple(&dn,mesh,grain,P0,normal));
+////            assert(temp.first->second.unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
+//
 //            const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
 //                                                               std::forward_as_tuple(grain.grainID),
-//                                                               std::forward_as_tuple(&dn,mesh,grain,P0,normal));
-//            assert(temp.first->second.unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
-
-            const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
-                                                               std::forward_as_tuple(grain.grainID),
-                                                               std::forward_as_tuple(new GlidePlaneType(&dn,mesh,grain.lattice(),grain.grainID,grain.grainID,P0,normal)));
-
-            assert(temp.second);
-            assert(temp.first->second->unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
-            temp.first->second->addParentSharedPtr(&temp.first->second,false,-1); // add shared pointer to GlidePlane
-            
-        }
+//                                                               std::forward_as_tuple(new GlidePlaneType(&dn,mesh,grain.lattice(),grain.grainID,grain.grainID,P0,normal)));
+//
+//            assert(temp.second);
+//            assert(temp.first->second->unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
+//            temp.first->second->addParentSharedPtr(&temp.first->second,false,-1); // add shared pointer to GlidePlane
+//            
+//        }
         
         /**********************************************************************/
 //        template<typename NetworkType>
-        void createLatticePlanes(GlidePlaneObserver<dim>& dn,
-                                 const SimplicialMesh<dim>& mesh)
-        {
-            //std::cout<<"createLatticePlanes"<<std::endl;
 
-            
-            GlidePlaneContainerType::clear();
-            const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
-            for(const auto& tet : triangle.parents())
-            {
-                const size_t faceID=tet->childOrder(triangle.xID);
-                const VectorDimD outNormal=tet->nda.col(faceID);
-                const double outNorm(outNormal.norm());
-                assert(outNorm>FLT_EPSILON && "Simplex normal has zero norm.");
-                storeLatticePlane(dn,mesh,grain(tet->region->regionID),outNormal/outNorm);
-            }
-            
-            assert(glidePlanes().size()==2);
-            assert((glidePlanes().begin()->second->unitNormal+glidePlanes().rbegin()->second->unitNormal).norm()<FLT_EPSILON && "plane normals are not opposite to each other.");
-            
-            // Check that all tringle vertices are contained by both GB planes
-            for(const auto& triangle : regionBoundary)
-            {
-                const auto Ps=triangle->vertexPositionMatrix();
-                for(int j=0;j<Ps.cols();++j)
-                {
-                    for(const auto& grain : grains())
-                    {
-                        assert(glidePlane(grain.second->grainID).contains(Ps.col(j)) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
-                    }
-                }
-            }
-            
-            if(fabs(_rotationAxis.dot(glidePlanes().begin()->second->unitNormal))<FLT_EPSILON)
-            {
-                model::cout<<"TILT BOUNDARY"<<std::endl;
-                // here check mirror symm equation r=d−2(d⋅n)n to check if symm tilt or asymm tilt
-            }
-            else if(_rotationAxis.cross(glidePlanes().begin()->second->unitNormal).norm()<FLT_EPSILON)
-            {
-                model::cout<<"TWIST BOUNDARY"<<std::endl;
-
-            }
-            else
-            {
-                model::cout<<"MIXED BOUNDARY"<<std::endl;
-
-            }
-            
-            
-        }
+//        static MeshPlane<dim> getMeshPlane(const MeshRegionBoundaryType& regionBnd)
+//        {
+//            //std::cout<<"createLatticePlanes"<<std::endl;
+//            
+//            
+////            GlidePlaneContainerType::clear();
+//            const Simplex<dim,dim-1>& triangle(**regionBnd.begin());
+//            const Simplex<dim,dim>& tet(**triangle.parents().begin());
+//            const size_t faceID=tet.childOrder(triangle.xID);
+//            const VectorDimD N=tet.nda.col(faceID);
+//            const VectorDimD P=triangle.vertexPositionMatrix().col(0);
+//            
+//            MeshPlane<dim> mp(P,N);
+//
+////            for(const auto& tet : triangle.parents())
+////            {
+////                const size_t faceID=tet->childOrder(triangle.xID);
+////                const VectorDimD outNormal=tet->nda.col(faceID);
+////                const double outNorm(outNormal.norm());
+////                assert(outNorm>FLT_EPSILON && "Simplex normal has zero norm.");
+////                storeLatticePlane(dn,mesh,grain(tet->region->regionID),outNormal/outNorm);
+////            }
+////            
+////            assert(glidePlanes().size()==2);
+////            assert((glidePlanes().begin()->second->unitNormal+glidePlanes().rbegin()->second->unitNormal).norm()<FLT_EPSILON && "plane normals are not opposite to each other.");
+//            
+//            // Check that all tringle vertices are contained by both GB planes
+//            for(const auto& triangle : regionBnd)
+//            {
+//                const auto Ps=triangle->vertexPositionMatrix();
+//                for(int j=0;j<Ps.cols();++j)
+//                {
+//                                            assert(mp.contains(Ps.col(j)) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
+////                    for(const auto& grain : grains())
+////                    {
+////                        assert(glidePlane(grain.second->grainID).contains(Ps.col(j)) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
+////                    }
+//                }
+//            }
+//            
+//            return mp;
+//        }
+        
+//        void createLatticePlanes(GlidePlaneObserver<dim>& dn,
+//                                 const SimplicialMesh<dim>& mesh)
+//        {
+//            //std::cout<<"createLatticePlanes"<<std::endl;
+//
+//            
+//            GlidePlaneContainerType::clear();
+//            const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
+//            for(const auto& tet : triangle.parents())
+//            {
+//                const size_t faceID=tet->childOrder(triangle.xID);
+//                const VectorDimD outNormal=tet->nda.col(faceID);
+//                const double outNorm(outNormal.norm());
+//                assert(outNorm>FLT_EPSILON && "Simplex normal has zero norm.");
+//                storeLatticePlane(dn,mesh,grain(tet->region->regionID),outNormal/outNorm);
+//            }
+//            
+//            assert(glidePlanes().size()==2);
+//            assert((glidePlanes().begin()->second->unitNormal+glidePlanes().rbegin()->second->unitNormal).norm()<FLT_EPSILON && "plane normals are not opposite to each other.");
+//            
+//            // Check that all tringle vertices are contained by both GB planes
+//            for(const auto& triangle : regionBoundary)
+//            {
+//                const auto Ps=triangle->vertexPositionMatrix();
+//                for(int j=0;j<Ps.cols();++j)
+//                {
+//                    for(const auto& grain : grains())
+//                    {
+//                        assert(glidePlane(grain.second->grainID).contains(Ps.col(j)) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
+//                    }
+//                }
+//            }
+//            
+//            if(fabs(_rotationAxis.dot(glidePlanes().begin()->second->unitNormal))<FLT_EPSILON)
+//            {
+//                model::cout<<"TILT BOUNDARY"<<std::endl;
+//                // here check mirror symm equation r=d−2(d⋅n)n to check if symm tilt or asymm tilt
+//            }
+//            else if(_rotationAxis.cross(glidePlanes().begin()->second->unitNormal).norm()<FLT_EPSILON)
+//            {
+//                model::cout<<"TWIST BOUNDARY"<<std::endl;
+//
+//            }
+//            else
+//            {
+//                model::cout<<"MIXED BOUNDARY"<<std::endl;
+//
+//            }
+//            
+//            
+//        }
         
         /**********************************************************************/
         void computeCrystallographicRotationAxis()
         {
-            
-            //std::cout<<"computeCrystallographicRotationAxis"<<std::endl;
-
-            
             // Compute the relative rotation matrix between grains
             const MatrixDimD R(grain(grainBndID.first).get_C2G().transpose()*grain(grainBndID.second).get_C2G());
             
@@ -219,100 +262,99 @@ namespace model
             
             model::cout<<"   Rotation axis="<<_crystallographicRotationAxis.transpose()<<std::endl;
             model::cout<<"   Rotation angle="<<acos(cosTheta)*180.0/M_PI<<" deg"<<defaultColor<<std::endl;
-            
         }
         
-        /**********************************************************************/
-        void findGrainBoundaryType(const std::deque<GrainBoundaryType<dim>>& bgTypes)
-        {
-            //std::cout<<"findGrainBoundaryType"<<std::endl;
-            
-            const VectorDimD n1=(grain(grainBndID.first).get_C2G().transpose()*glidePlane(grainBndID.first).unitNormal).normalized();
-            const VectorDimD n2=(grain(grainBndID.second).get_C2G().transpose()*glidePlane(grainBndID.second).unitNormal).normalized();
-            
-            
-            for (const auto& gbt : bgTypes)
-            {
-                bool axisFound=false;
-                for(const auto& a : gbt.axisPermutations)
-                {
-                    axisFound=( (_crystallographicRotationAxis-a.normalized()).norm()<FLT_EPSILON ||
-                               (_crystallographicRotationAxis+a.normalized()).norm()<FLT_EPSILON );
-                    if(axisFound)
-                    {
-                        break;
-                    }
-                }
-                
-                bool n1Found=false;
-                for(const auto& n : gbt.n1Permutations)
-                {
-                    n1Found=( (n1-n.normalized()).norm()<FLT_EPSILON || (n1+n.normalized()).norm()<FLT_EPSILON );
-                    if(n1Found)
-                    {
-                        break;
-                    }
-                }
-                
-                bool n2Found=false;
-                for(const auto& n : gbt.n2Permutations)
-                {
-                    n2Found=( (n2-n.normalized()).norm()<FLT_EPSILON || (n2+n.normalized()).norm()<FLT_EPSILON );
-                    if(n2Found)
-                    {
-                        break;
-                    }
-                }
-                
-                if(!n1Found && ! n2Found) // search n1 in n2Permutations and viceversa
-                {
-                    for(const auto& n : gbt.n2Permutations)
-                    {
-                        n1Found=( (n1-n.normalized()).norm()<FLT_EPSILON || (n1+n.normalized()).norm()<FLT_EPSILON );
-                        if(n1Found)
-                        {
-                            break;
-                        }
-                    }
-                    
-                    for(const auto& n : gbt.n1Permutations)
-                    {
-                        n2Found=( (n2-n.normalized()).norm()<FLT_EPSILON || (n2+n.normalized()).norm()<FLT_EPSILON );
-                        if(n2Found)
-                        {
-                            break;
-                        }
-                    }
-                }
-                
-                if(axisFound && n1Found && n2Found)
-                {
-                    p_gbType=&gbt;
-                    break;
-                }
-                
-            }
-            
-            if(p_gbType!=NULL)
-            {
-                model::cout<<yellowColor<<"   GB type is "<<p_gbType->name<<defaultColor<<std::endl;
-                model::cout<<yellowColor<<"   GB energy= "<<p_gbType->energyDensity<<defaultColor<<std::endl;
-                model::cout<<yellowColor<<"   GB dislocation spacing= "<<p_gbType->dislocationSpacing<<defaultColor<<std::endl;
-                model::cout<<yellowColor<<"   Frank-Bilby dislocation spacing= "<<p_gbType->FrankBilby_dislocationSpacing<<defaultColor<<std::endl;
-                model::cout<<yellowColor<<"   Read-Shockley_energyDensity= "<<p_gbType->ReadShockley_energyDensity<<defaultColor<<std::endl;
-                
-                
-                //
-                //                const double energyDensity;
-                //                const double dislocationSpacing;
-            }
-            else
-            {
-                assert(0 && "GRAIN BONUDARY TYPE NOT FOUND.");
-            }
-            
-            
-        }
+//        /**********************************************************************/
+//        void findGrainBoundaryType(const std::deque<GrainBoundaryType<dim>>& bgTypes)
+//        {
+//            //std::cout<<"findGrainBoundaryType"<<std::endl;
+//            
+//            const VectorDimD n1=(grain(grainBndID.first).get_C2G().transpose()*glidePlane(grainBndID.first).unitNormal).normalized();
+//            const VectorDimD n2=(grain(grainBndID.second).get_C2G().transpose()*glidePlane(grainBndID.second).unitNormal).normalized();
+//            
+//            
+//            for (const auto& gbt : bgTypes)
+//            {
+//                bool axisFound=false;
+//                for(const auto& a : gbt.axisPermutations)
+//                {
+//                    axisFound=( (_crystallographicRotationAxis-a.normalized()).norm()<FLT_EPSILON ||
+//                               (_crystallographicRotationAxis+a.normalized()).norm()<FLT_EPSILON );
+//                    if(axisFound)
+//                    {
+//                        break;
+//                    }
+//                }
+//                
+//                bool n1Found=false;
+//                for(const auto& n : gbt.n1Permutations)
+//                {
+//                    n1Found=( (n1-n.normalized()).norm()<FLT_EPSILON || (n1+n.normalized()).norm()<FLT_EPSILON );
+//                    if(n1Found)
+//                    {
+//                        break;
+//                    }
+//                }
+//                
+//                bool n2Found=false;
+//                for(const auto& n : gbt.n2Permutations)
+//                {
+//                    n2Found=( (n2-n.normalized()).norm()<FLT_EPSILON || (n2+n.normalized()).norm()<FLT_EPSILON );
+//                    if(n2Found)
+//                    {
+//                        break;
+//                    }
+//                }
+//                
+//                if(!n1Found && ! n2Found) // search n1 in n2Permutations and viceversa
+//                {
+//                    for(const auto& n : gbt.n2Permutations)
+//                    {
+//                        n1Found=( (n1-n.normalized()).norm()<FLT_EPSILON || (n1+n.normalized()).norm()<FLT_EPSILON );
+//                        if(n1Found)
+//                        {
+//                            break;
+//                        }
+//                    }
+//                    
+//                    for(const auto& n : gbt.n1Permutations)
+//                    {
+//                        n2Found=( (n2-n.normalized()).norm()<FLT_EPSILON || (n2+n.normalized()).norm()<FLT_EPSILON );
+//                        if(n2Found)
+//                        {
+//                            break;
+//                        }
+//                    }
+//                }
+//                
+//                if(axisFound && n1Found && n2Found)
+//                {
+//                    p_gbType=&gbt;
+//                    break;
+//                }
+//                
+//            }
+//            
+//            if(p_gbType!=NULL)
+//            {
+//                model::cout<<yellowColor<<"   GB type is "<<p_gbType->name<<defaultColor<<std::endl;
+//                model::cout<<yellowColor<<"   GB energy= "<<p_gbType->energyDensity<<defaultColor<<std::endl;
+//                model::cout<<yellowColor<<"   GB dislocation spacing= "<<p_gbType->dislocationSpacing<<defaultColor<<std::endl;
+//                model::cout<<yellowColor<<"   Frank-Bilby dislocation spacing= "<<p_gbType->FrankBilby_dislocationSpacing<<defaultColor<<std::endl;
+//                model::cout<<yellowColor<<"   Read-Shockley_energyDensity= "<<p_gbType->ReadShockley_energyDensity<<defaultColor<<std::endl;
+//                
+//                
+//                //
+//                //                const double energyDensity;
+//                //                const double dislocationSpacing;
+//            }
+//            else
+//            {
+//                assert(0 && "GRAIN BONUDARY TYPE NOT FOUND.");
+//            }
+//            
+//            
+//        }
         
 
         
@@ -436,6 +478,8 @@ namespace model
                       Grain<dim>& grainSecond,
                       GlidePlaneObserver<dim>& dn,
                       const SimplicialMesh<dim>& mesh) :
+//        /* init */ MeshPlane<dim>(getMeshPlane(regionbnd_in)),
+        /* init */ MeshPlane<dim>(mesh,grainFirst.grainID,grainSecond.grainID),
         /* init */ _csl(grainFirst,grainSecond),
         /* init */ _dscl(grainFirst,grainSecond),
         /* init */ _crystallographicRotationAxis(VectorDimD::Zero()),
@@ -449,8 +493,24 @@ namespace model
             model::cout<<defaultColor<<"   CSL:  sigma= "<<_csl.sigma()<<std::endl;
             model::cout<<defaultColor<<"   DSCL: sigma= "<<_dscl.sigma()<<std::endl;
             
+            // Populate pointers to parent Grains
             GrainContainerType::emplace(grainFirst.grainID,&grainFirst);
             GrainContainerType::emplace(grainSecond.grainID,&grainSecond);
+
+            // Populate outNormals to grains
+            const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
+            for(const auto& tet : triangle.parents())
+            {
+                const size_t faceID=tet->childOrder(triangle.xID);
+                const VectorDimD outNormal=tet->nda.col(faceID);
+                const double outNorm(outNormal.norm());
+                const int rID=tet->region->regionID;
+                assert(outNorm>FLT_EPSILON && "Simplex normal has zero norm.");
+                assert(rID==grainFirst.grainID || rID==grainSecond.grainID);
+                OutNormalContainerType::emplace(rID,outNormal/outNorm);
+            }
+
+            // Initialize
             initializeGrainBoundary(dn,mesh);
             grainFirst.emplace(grainBndID,this);
             grainSecond.emplace(grainBndID,this);
@@ -470,16 +530,27 @@ namespace model
         }
         
         /**********************************************************************/
-        const GlidePlaneContainerType& glidePlanes() const
+        const OutNormalContainerType& outNormals() const
         {
             return *this;
         }
         
-        /**********************************************************************/
-        const GlidePlaneType& glidePlane(const int& k) const
+        const VectorDimD& outNormal(const int& k) const
         {
-            return *glidePlanes().at(k).get();
+            return outNormals().at(k);
         }
+        
+//        /**********************************************************************/
+//        const GlidePlaneContainerType& glidePlanes() const
+//        {
+//            return *this;
+//        }
+        
+//        /**********************************************************************/
+//        const GlidePlaneType& glidePlane(const int& k) const
+//        {
+//            return *glidePlanes().at(k).get();
+//        }
         
         /**********************************************************************/
 //        template<typename NetworkType>
@@ -490,7 +561,7 @@ namespace model
             _csl.update(true);
             _dscl.update(true);
             computeCrystallographicRotationAxis();
-            createLatticePlanes(dn,mesh);
+//            createLatticePlanes(dn,mesh);
 //            findGrainBoundaryType(poly.grainBoundaryTypes());
 //            populateGBdislocations(dn.poly.grainBoundaryDislocations(),dn.poly.mesh);
             

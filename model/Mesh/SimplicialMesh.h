@@ -462,6 +462,12 @@ namespace model
             return *this;
         }
         
+        /**********************************************************************/
+        const MeshRegionBoundaryType& regionBoundary(const int& i,const int& j) const
+        {
+            return regionBoundaries().at(std::make_pair(std::min(i,j),std::max(i,j)));
+        }
+        
     };
     
 }	// close namespace

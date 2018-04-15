@@ -120,6 +120,7 @@ namespace model
             // Construct GrainsBoundaries
             model::cout<<"Creating GrainsBoundaries"<<std::endl;
             grainBoundaryDislocations().clear();
+            int fileID=1;
             for(const auto& rgnBnd : mesh.regionBoundaries())
             {
                 grainBoundaries().emplace(std::piecewise_construct,
@@ -129,6 +130,16 @@ namespace model
                                                                 grain(rgnBnd.first.second),
                                                                 dn,
                                                                 mesh));
+                
+                std::ofstream myfile;
+                myfile.open ("file"+std::to_string(fileID)+".txt");
+                //myfile << "Writing this to a file.\n";
+                for(const auto& pair : grainBoundary(rgnBnd.first.first,rgnBnd.first.second).meshIntersections)
+                {
+                    myfile<<" "<<pair.second.transpose()<<"\n";
+                }
+                myfile.close();
+                fileID++;
             }
             
             

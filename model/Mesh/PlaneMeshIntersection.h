@@ -60,7 +60,7 @@ namespace model
             const PlaneMeshIntersectionContainerType mpi=planeMeshIntersection(m,P0,nn,rID);
             
 //            const auto t0=std::chrono::system_clock::now();
-//            model::cout<<"Reducing plane/mesh intersection points "<<std::flush;
+            model::cout<<"Reducing plane/mesh intersection points "<<std::flush;
 
             PlaneMeshIntersectionContainerType temp;
             
@@ -74,10 +74,12 @@ namespace model
                 
                 const double dXnorm=dX.norm();
                 const double dXnewNorm=dXnew.norm();
-                assert(dXnorm > FLT_EPSILON);
-                assert(dXnewNorm > FLT_EPSILON);
+//                assert(dXnorm > FLT_EPSILON);
+//                assert(dXnewNorm > FLT_EPSILON);
                 
-                if(dX.cross(dXnew).norm()/(dXnorm*dXnewNorm)>FLT_EPSILON )
+                if(   dXnorm > FLT_EPSILON
+                   && dXnewNorm > FLT_EPSILON
+                   && dX.cross(dXnew).norm()>FLT_EPSILON*dXnorm*dXnewNorm)
                 {// non zero angle
                     tailID=k;
                     temp.push_back(mpi[k]);
@@ -85,7 +87,9 @@ namespace model
             
             }
             
-//            model::cout<<"("<<mpi.size()<<"->"<<temp.size()<<")";
+//            assert()
+            
+            model::cout<<"("<<mpi.size()<<"->"<<temp.size()<<")";
 //            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 
             return temp;

@@ -72,8 +72,8 @@ namespace model
         //                {// boundary segments other than A->B must remain boundary
         //                    for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
         //                    {
-        //                        //                                        std::cout<<"grainBoundary neighbor "<<nA->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<gb->glidePlanes().begin()->second.contains(nB->get_P())<<std::endl;
-        //                        nAisMovable*=gb->glidePlanes().begin()->second.contains(X);
+        //                        //                                        std::cout<<"grainBoundary neighbor "<<nA->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<gb->meshPlanes().begin()->second.contains(nB->get_P())<<std::endl;
+        //                        nAisMovable*=gb->meshPlanes().begin()->second.contains(X);
         //                    }
         //                }
         //            }
@@ -211,8 +211,8 @@ namespace model
                     }
                     else if(nA->glidePlaneIntersections().size() && !nB->glidePlaneIntersections().size())
                     {// nA confined by more then one plane, nB confined by only one plane
-                        PlaneLineIntersection<dim> pli(nB->glidePlane(0).P,
-                                                       nB->glidePlane(0).unitNormal,
+                        PlaneLineIntersection<dim> pli(nB->meshPlane(0).P,
+                                                       nB->meshPlane(0).unitNormal,
                                                        nA->glidePlaneIntersections()[0].first, // origin of line
                                                        nA->glidePlaneIntersections()[0].second-nA->glidePlaneIntersections()[0].first // line direction
                                                        );
@@ -220,7 +220,7 @@ namespace model
                         if(pli.type==PlaneLineIntersection<dim>::COINCIDENT)
                         {// nothing to do, _glidePlaneIntersections remains unchanged
                             VerboseNodeContraction(1,"DislocationNodeContraction case 6a"<<std::endl;);
-                            nA->set_P(nA->snapToGlidePlaneIntersection(0.5*(nA->get_P()+nB->get_P())));
+                            nA->set_P(nA->snapToMeshPlaneIntersection(0.5*(nA->get_P()+nB->get_P())));
                             return DN.contractSecond(nA,nB);
                         }
                         else if(pli.type==PlaneLineIntersection<dim>::INCIDENT)
@@ -236,7 +236,7 @@ namespace model
                         }
                         
                         //                        BoundingLineSegments<dim> temp=nA->glidePlaneIntersections();
-                        //                        temp.updateWithGlidePlane(nB->glidePlane(0));
+                        //                        temp.updateWithGlidePlane(nB->meshPlane(0));
                         //
                         //                        if(temp.size())
                         //                        {
@@ -258,23 +258,24 @@ namespace model
                     else
                     {// both nodes confined by only one plane
                         
-                        assert(nA->glidePlanes().size()==1);
-                        assert(nB->glidePlanes().size()==1);
+                        assert(nA->meshPlanes().size()==1);
+                        assert(nB->meshPlanes().size()==1);
                         
-                        GlidePlaneObserver<dim>* const gpo(nA->glidePlane(0).glidePlaneObserver);
-                        const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&nA->glidePlane(0),&nB->glidePlane(0)));
-                        
-                        //                        std::cout<<"gpA: "<<nA->glidePlane(0).P.cartesian().transpose()<<std::endl;
-                        //                        std::cout<<"gpA: "<<nA->glidePlane(0).n.cartesian().normalized().transpose()<<std::endl;
+//                        GlidePlaneObserver<dim>* const gpo(nA->meshPlane(0).glidePlaneObserver);
+//                        const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&nA->meshPlane(0),&nB->meshPlane(0)));
+                        const PlanePlaneIntersection<dim>& ppi(DN.glidePlaneIntersection(&nA->meshPlane(0),&nB->meshPlane(0)));
+
+                        //                        std::cout<<"gpA: "<<nA->meshPlane(0).P.cartesian().transpose()<<std::endl;
+                        //                        std::cout<<"gpA: "<<nA->meshPlane(0).n.cartesian().normalized().transpose()<<std::endl;
                         //
-                        //                        std::cout<<"gpB: "<<nB->glidePlane(0).P.cartesian().transpose()<<std::endl;
-                        //                        std::cout<<"gpB: "<<nB->glidePlane(0).n.cartesian().normalized().transpose()<<std::endl;
+                        //                        std::cout<<"gpB: "<<nB->meshPlane(0).P.cartesian().transpose()<<std::endl;
+                        //                        std::cout<<"gpB: "<<nB->meshPlane(0).n.cartesian().normalized().transpose()<<std::endl;
                         
                         
                         if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                         {
                             VerboseNodeContraction(1,"DislocationNodeContraction case 8a"<<std::endl;);
-                            nA->set_P(nA->snapToGlidePlaneIntersection(0.5*(nA->get_P()+nB->get_P()))); // this snaps to the glide planes to kill numerical errors
+                            nA->set_P(nA->snapToMeshPlaneIntersection(0.5*(nA->get_P()+nB->get_P()))); // this snaps to the glide planes to kill numerical errors
                             return DN.contractSecond(nA,nB);
                         }
                         else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
@@ -284,8 +285,8 @@ namespace model
                             //                            std::cout<<"norm d="<<ppi.d.norm()<<std::endl;
                             const double u=(0.5*(nA->get_P()+nB->get_P())-ppi.P).dot(ppi.d);
                             
-//                            assert(nA->glidePlane(0).contains(ppi.P+u*ppi.d));
-//                            assert(nB->glidePlane(0).contains(ppi.P+u*ppi.d));
+//                            assert(nA->meshPlane(0).contains(ppi.P+u*ppi.d));
+//                            assert(nB->meshPlane(0).contains(ppi.P+u*ppi.d));
                             
                             const bool moved=nA->set_P(ppi.P+u*ppi.d);
                             if(moved)
@@ -339,24 +340,24 @@ namespace model
                     }
                     else
                     {// nA confined by only one plane
-                        assert(nA->glidePlanes().size()==1);
+                        assert(nA->meshPlanes().size()==1);
                         
                         bool found=false;
                         VectorDim Y(VectorDim::Zero());
 
                         for(const auto& pair : nB->neighbors())
                         {
-                            PlaneSegmentIntersection<dim> psi(nA->glidePlane(0).P,
-                                                              nA->glidePlane(0).unitNormal,
+                            PlaneSegmentIntersection<dim> psi(nA->meshPlane(0).P,
+                                                              nA->meshPlane(0).unitNormal,
                                                               std::get<1>(pair.second)->source->get_P(),
                                                               std::get<1>(pair.second)->sink->get_P()
                                                               );
 //                            std::cout<<"psi.type="<<psi.type<<std::endl;
                             Y=0.5*(psi.x0+psi.x1);
 //                            std::cout<<"movable="<<nB->isMovableTo(Y)<<std::endl;
-//                            std::cout<<"contains="<<nA->glidePlane(0).contains(Y)<<std::endl;
+//                            std::cout<<"contains="<<nA->meshPlane(0).contains(Y)<<std::endl;
 
-                            if(nB->isMovableTo(Y) && nA->glidePlane(0).contains(Y))
+                            if(nB->isMovableTo(Y) && nA->meshPlane(0).contains(Y))
                             {
                                 found=true;
                                 break;
@@ -375,7 +376,7 @@ namespace model
                             return false;
                         }
                         
-//                        if(nA->glidePlane(0).contains(nB->get_P()))
+//                        if(nA->meshPlane(0).contains(nB->get_P()))
 //                        {
 //                            VerboseNodeContraction(1,"DislocationNodeContraction case 9e"<<std::endl;);
 //                            return DN.contractSecond(nB,nA);
@@ -508,7 +509,7 @@ namespace model
 ////                    else
 ////                    {// other is confined by only one glide plane
 ////                        BoundingLineSegments<dim> temp=nA->boundingBoxSegments();
-////                        temp.updateWithGlidePlane(nB->glidePlane(0));
+////                        temp.updateWithGlidePlane(nB->meshPlane(0));
 ////                        VerboseNodeContraction(1,"temp.size="<<temp.size()<<std::endl;);
 ////                        if(temp.size())
 ////                        {

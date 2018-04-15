@@ -97,11 +97,11 @@ namespace model
             assert(primitiveVectors.first.cross(primitiveVectors.second).squaredNorm()>0);
         }
         
-        /**********************************************************************/
-        double planeSpacing() const
-        {
-            return 1.0/this->cartesian().norm();
-        }
+//        /**********************************************************************/
+//        double planeSpacing() const
+//        {
+//            return 1.0/this->cartesian().norm();
+//        }
         
         /**********************************************************************/
         LatticeVectorType snapToLattice(const Eigen::Matrix<double,3,1>& P) const

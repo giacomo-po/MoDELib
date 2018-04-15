@@ -26,23 +26,20 @@
 #include <model/Quadrature/Quadrature.h>
 #include <model/Quadrature/QuadPow.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
-//#include <model/DislocationDynamics/DislocationConsts.h>
 #include <model/Geometry/Splines/SplineSegment.h>
 #include <model/DislocationDynamics/Materials/Material.h>
-//#include <model/DislocationDynamics/DislocationSharedObjects.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
-//#include <model/Geometry/Splines/Intersection/PlanarSplineImplicitization.h>
 #include <model/Geometry/Splines/Coeff2Hermite.h>
 #include <model/DislocationDynamics/ElasticFields/DislocationParticle.h>
 #include <model/ParticleInteraction/ParticleSystem.h>
 #include <model/DislocationDynamics/DislocationLocalReference.h>
-//#include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 #include <model/IO/UniqueOutputFile.h>
 #include <model/DislocationDynamics/Polycrystals/GrainBoundary.h>
 #include <model/Geometry/LineSimplexIntersection.h>
 #include <model/DislocationDynamics/BoundingLineSegments.h>
 #include <model/DislocationDynamics/BoundingLineSegments.h>
+#include <model/Mesh/MeshPlane.h>
 
 namespace model
 {
@@ -51,7 +48,7 @@ namespace model
     /**************************************************************************/
     template <int _dim, short unsigned int _corder, typename InterpolationType>
     class DislocationSegment : public SplineSegment<DislocationSegment<_dim,_corder,InterpolationType>,_dim,_corder>,
-    /*                      */ private std::set<const GlidePlane<_dim>*>,
+    /*                      */ private std::set<const MeshPlane<_dim>*>,
     /*                      */ private std::set<const GrainBoundary<_dim>*>,
     /*                      */ private std::set<const Grain<_dim>*>,
     /*                      */ private BoundingLineSegments<_dim>
@@ -91,7 +88,8 @@ namespace model
         typedef std::set<const GrainBoundary<dim>*> GrainBoundaryContainerType;
         typedef std::set<const Grain<dim>*> GrainContainerType;
         typedef GlidePlane<dim> GlidePlaneType;
-        typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
+        typedef MeshPlane<dim> MeshPlaneType;
+        typedef std::set<const MeshPlaneType*> MeshPlaneContainerType;
         typedef typename TypeTraits<LinkType>::MeshLocation MeshLocation;
         
     private:
@@ -213,13 +211,13 @@ namespace model
         }
         
         /**********************************************************************/
-        const GlidePlaneContainerType& glidePlanes() const
+        const MeshPlaneContainerType& meshPlanes() const
         {
             return *this;
         }
         
         /**********************************************************************/
-        GlidePlaneContainerType& glidePlanes()
+        MeshPlaneContainerType& meshPlanes()
         {
             return *this;
         }
@@ -261,12 +259,11 @@ namespace model
         }
         
         /**********************************************************************/
-        bool addGlidePlane(const GlidePlaneType& gp)
+        bool addMeshPlane(const MeshPlaneType& gp)
         {
-            const bool success=glidePlanes().insert(&gp).second;
+            const bool success=meshPlanes().insert(&gp).second;
             if(success)
             {
-                
                 const bool sourceContained(gp.contains(this->source->get_P()));
                 const bool   sinkContained(gp.contains(this->  sink->get_P()));
                 if(!(sourceContained && sinkContained))
@@ -276,11 +273,9 @@ namespace model
                     model::cout<<"  sinkContained "<<sinkContained<<std::endl;
                     assert(false &&  "Glide Plane does not contain source or sink");
                 }
-                boundingBoxSegments().updateWithGlidePlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
-                grains().insert(&this->network().poly.grain(gp.grainIDs.first));    // Insert new grain in grainSet
-                grains().insert(&this->network().poly.grain(gp.grainIDs.second));   // Insert new grain in grainSet
-                //
-                //                grains().insert(&gp.grain);
+                boundingBoxSegments().updateWithMeshPlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
+                grains().insert(&this->network().poly.grain(gp.regionIDs.first));    // Insert new grain in grainSet
+                grains().insert(&this->network().poly.grain(gp.regionIDs.second));   // Insert new grain in grainSet
             }
             return success;
         }
@@ -300,8 +295,7 @@ namespace model
                 Burgers-=pL->flow().cartesian();
             }
             
-            addGlidePlane(pL->loop()->glidePlane);
-            
+            addMeshPlane(pL->loop()->glidePlane);
         }
         
         /**********************************************************************/
@@ -320,11 +314,11 @@ namespace model
             }
             
             
-            glidePlanes().clear();
+            meshPlanes().clear();
             boundingBoxSegments().clear();
             for(const auto& loopLink : this->loopLinks())
             {
-                addGlidePlane(loopLink->loop()->glidePlane);
+                addMeshPlane(loopLink->loop()->glidePlane);
             }
             
             addGrainBoundaryPlanes();
@@ -332,61 +326,20 @@ namespace model
         }
         
         /**********************************************************************/
-        size_t addGrainBoundaryPlanes() __attribute__ ((deprecated)) // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+        size_t addGrainBoundaryPlanes() //__attribute__ ((deprecated)) // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
         {
             size_t addedGp=0;
-            
-            
             for(const auto& gb : this->source->grainBoundaries())
             {
                 if(this->sink->grainBoundaries().find(gb)!=this->sink->grainBoundaries().end())
                 {
                     grainBoundaries().insert(gb);
-                    
-                    const auto& gp(gb->glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
-                    addedGp+=addGlidePlane(*gp.get());
-                    
+//                    const auto& gp(gb->glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+//                    addedGp+=addMeshPlane(*gp.get());
+                    addedGp+=addMeshPlane(*gb);
                 }
             }
-            
-            
-            //            // Check if node is on a GB
-            //            if(this->source->isGrainBoundaryNode() && this->sink->isGrainBoundaryNode())
-            //            {
-            //                for(const auto& gb : this->network().poly.grainBoundaries())
-            //                {
-            //                    const GlidePlaneType& gp(gb.second.glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
-            //                    if(gp.contains(this->source->get_P()) && gp.contains(this->sink->get_P()))
-            //                    {
-            //                        grainBoundaries().insert(&gb.second);
-            //                        addedGp+=addGlidePlane(gp);
-            //                    }
-            //
-            //                    //                for(const auto& gp : gb.second.glidePlanes())
-            //                    //                {
-            //                    //                    if(gp.second.contains(this->source->get_P()) && gp.second.contains(this->sink->get_P()))
-            //                    //                    {
-            //                    //                        grainBoundaries().insert(&gb.second);
-            //                    //                        addedGp+=addGlidePlane(gp.second);
-            //                    //                    }
-            //                    //                }
-            //                }
-            //
-            //                if(addedGp)
-            //                {
-            //                    std::cout<<"DislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<" added "<<addedGp<<" grainBoundaryPlanes"<<std::endl;
-            //                    //                _isGrainBoundarySegment=true;
-            //                    //
-            //                    //
-            //                    //                for(const auto& pair : this->neighbors())
-            //                    //                {
-            //                    //                    std::get<1>(pair.second)->addGrainBoundaryPlanes();
-            //                    //                }
-            //
-            //                    }
-            //            }
-            
-            
+
             return addedGp;
         }
         
@@ -698,23 +651,9 @@ namespace model
                 }
                 else
                 {
-                    assert(0 && "WE NEED TO INCREASE qOrder FOR THE FOLLOWING INNTEGRATION, SINCE EVEN FOR LINEAR SEGMENTS Kqq IS NOT INTEGRATED CORRECLTY FOR SMALL qOrder");
+                    assert(0 && "WE NEED TO INCREASE qOrder FOR THE FOLLOWING INTEGRATION, SINCE EVEN FOR LINEAR SEGMENTS Kqq IS NOT INTEGRATED CORRECLTY FOR SMALL qOrder");
                     QuadratureDynamicType::integrate(qOrder,this,Kqq,&LinkType::stiffness_integrand);
                 }
-                
-//                Eigen::Matrix<double,2,2> test;
-//                test<<1.0/3.0,1.0/6.0,1.0/6.0,1.0/3.0;
-//                test*=this->chord().norm();
-//                
-//                std::cout<<std::endl;
-//                std::cout<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
-//                std::cout<<"qorder="<<qOrder<<std::endl;
-//                std::cout<<Kqq<<std::endl;
-//                std::cout<<std::endl;
-//                std::cout<<Kqq/this->chord().norm()<<std::endl;
-//                std::cout<<test<<std::endl;
-//                std::cout<<std::endl;
-                
                 
                 h2posMap=this->hermite2posMap();
                 
@@ -859,15 +798,11 @@ namespace model
             return F;
         }
         
-        
-        
         /**********************************************************************/
         void addToSolidAngleJump(const VectorDim& Pf, const VectorDim& Sf, VectorDim& dispJump) const
         {
-            
             if(isBoundarySegment() && this->network().use_virtualSegments)
             {
-                
                 // first triangle is P1->P2->P3, second triangle is P2->P4->P3
                 const VectorDim P1(this->source->get_P());
                 const VectorDim P2(P1+this->source->bndNormal()*virtualSegmentDistance);
@@ -876,7 +811,6 @@ namespace model
                 
                 dispJump += Burgers*LineSimplexIntersection<dim>::lineTriangleIntersection(Pf,Sf,P1,P2,P3);
                 dispJump += Burgers*LineSimplexIntersection<dim>::lineTriangleIntersection(Pf,Sf,P2,P4,P3);
-                
             }
         }
         
@@ -889,7 +823,7 @@ namespace model
         /**********************************************************************/
         const VectorDim& glidePlaneNormal() const
         {
-            return glidePlanes().size()==1? (*glidePlanes().begin())->unitNormal : zeroVector;
+            return meshPlanes().size()==1? (*meshPlanes().begin())->unitNormal : zeroVector;
         }
         
         /**********************************************************************/
@@ -902,7 +836,7 @@ namespace model
         bool isGlissile() const
         {
             bool temp=false;
-            if(glidePlanes().size()==1)
+            if(meshPlanes().size()==1)
             {
                 temp=(*this->loopLinks().begin())->loop()->isGlissile;
             }
@@ -947,14 +881,6 @@ namespace model
             return stressGauss[qOrder/2];
         }
         
-        //        /**********************************************************************/
-        //        bool isSimpleBndSegment() const
-        //        {
-        //            return this->source->isSimpleBndNode() && this->sink->isSimpleBndNode()
-        //            /*  */ && this->source->bndNormal().cross(this->sink->bndNormal()).squaredNorm()<FLT_EPSILON
-        //            /*  */ && !hasZeroBurgers();
-        //        }
-        
         /**********************************************************************/
         bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
         {/*!\returns true if both nodes are boundary nodes, and the midpoint is
@@ -964,38 +890,6 @@ namespace model
             /*  */ this->sink->isBoundaryNode() &&
             /*  */ boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
         }
-        
-//        /**********************************************************************/
-//        bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
-//        {/*!\returns true if both nodes are boundary nodes, and the midpoint is
-//          * on the boundary.
-//          */
-//            const bool sourceOnBnd=this->source->isBoundaryNode();
-//            const bool sinkOnBnd  =this->  sink->isBoundaryNode();
-//            bool midPointOnBoundary=false;
-//            if (sourceOnBnd && sinkOnBnd && this->network().use_boundary)
-//            {
-//                
-//
-//                
-//                std::pair<bool,const Simplex<dim,dim>*> midPointSimplex=this->network().mesh.search(0.5*(this->source->get_P()+this->sink->get_P()));
-//                assert(midPointSimplex.first);
-//                midPointOnBoundary = SimplexBndNormal::get_boundaryNormal(0.5*(this->source->get_P()+this->sink->get_P()),*midPointSimplex.second,NodeType::bndTol).norm()>FLT_EPSILON;
-//                
-//                
-////                std::cout<<std::endl;
-////                std::cout<<this->source->sID<<" "<<sourceOnBnd<<std::endl;
-////                std::cout<<this->sink->sID<<" "<<sinkOnBnd<<std::endl;
-////                std::cout<<"midpoint"<<" "<<midPointOnBoundary<<std::endl;
-//
-//                
-//            }
-//            
-//            
-//            return    sourceOnBnd
-//            /*  */ && sinkOnBnd
-//            /*  */ && midPointOnBoundary;
-//        }
         
         /**********************************************************************/
         MeshLocation meshLocation() const
@@ -1057,3 +951,45 @@ namespace model
     
 } // namespace model
 #endif
+
+
+
+//        /**********************************************************************/
+//        bool isSimpleBndSegment() const
+//        {
+//            return this->source->isSimpleBndNode() && this->sink->isSimpleBndNode()
+//            /*  */ && this->source->bndNormal().cross(this->sink->bndNormal()).squaredNorm()<FLT_EPSILON
+//            /*  */ && !hasZeroBurgers();
+//        }
+
+//        /**********************************************************************/
+//        bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
+//        {/*!\returns true if both nodes are boundary nodes, and the midpoint is
+//          * on the boundary.
+//          */
+//            const bool sourceOnBnd=this->source->isBoundaryNode();
+//            const bool sinkOnBnd  =this->  sink->isBoundaryNode();
+//            bool midPointOnBoundary=false;
+//            if (sourceOnBnd && sinkOnBnd && this->network().use_boundary)
+//            {
+//
+//
+//
+//                std::pair<bool,const Simplex<dim,dim>*> midPointSimplex=this->network().mesh.search(0.5*(this->source->get_P()+this->sink->get_P()));
+//                assert(midPointSimplex.first);
+//                midPointOnBoundary = SimplexBndNormal::get_boundaryNormal(0.5*(this->source->get_P()+this->sink->get_P()),*midPointSimplex.second,NodeType::bndTol).norm()>FLT_EPSILON;
+//
+//
+////                std::cout<<std::endl;
+////                std::cout<<this->source->sID<<" "<<sourceOnBnd<<std::endl;
+////                std::cout<<this->sink->sID<<" "<<sinkOnBnd<<std::endl;
+////                std::cout<<"midpoint"<<" "<<midPointOnBoundary<<std::endl;
+//
+//
+//            }
+//
+//
+//            return    sourceOnBnd
+//            /*  */ && sinkOnBnd
+//            /*  */ && midPointOnBoundary;
+//        }

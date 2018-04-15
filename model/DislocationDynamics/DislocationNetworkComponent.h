@@ -298,7 +298,7 @@ namespace model
             Eigen::VectorXd x(Eigen::VectorXd::Zero(Ndof));
             
             // Check diagonal and force
-            for (size_t k=0;k<Kd.size();++k)
+            for (int k=0;k<Kd.size();++k)
             {
                 if(fabs(Kd(k))>FLT_EPSILON)
                 {// stiffness not zero

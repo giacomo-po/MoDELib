@@ -182,6 +182,12 @@ namespace model
         }
         
         /**********************************************************************/
+        double planeSpacing() const
+        {
+            return 1.0/cartesian().norm();
+        }
+        
+        /**********************************************************************/
         static VectorDimI d2cov(const VectorDimD& d,
                                 const LatticeType& lat)
         {

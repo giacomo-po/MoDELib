@@ -45,7 +45,7 @@ namespace model
             
             double temp=0.0;
             
-            const int q=seg.qOrder/2;
+            const size_t q=seg.qOrder/2;
             if(seg.quadratureParticleContainer.size()>q)
             {
                 const Eigen::Matrix<double,SegmentType::dim,1> pk((seg.stressAtQuadrature(q)*b2).cross(seg.chord().normalized()));
@@ -133,7 +133,7 @@ namespace model
                         {
                             std::cout<<" directTransmit "<<std::flush;
                             dG=GrainBoundaryTransmissionEnergyModel<1>::dGdirect(seg,
-                                                                                 grainBoundary.glidePlane(grain.grainID).unitNormal,
+                                                                                 grainBoundary.outNormal(grain.grainID),
                                                                                  slipSystem.s.cartesian(),
                                                                                  slipSystem.n.cartesian().normalized()
                                                                                  );
@@ -228,7 +228,9 @@ namespace model
                                 for(size_t ssID=0;ssID<grain.second->slipSystems().size();++ssID)
                                 {
                                     const auto& slipSystem(grain.second->slipSystems()[ssID]);
-                                    if(grainBoundary->glidePlane(grain.second->grainID).unitNormal.cross(slipSystem.n.cartesian().normalized()).norm()>FLT_EPSILON) // slip plane is not GB plane
+//                                    if(grainBoundary->glidePlane(grain.second->grainID).unitNormal.cross(slipSystem.n.cartesian().normalized()).norm()>FLT_EPSILON) // slip plane is not GB plane
+                                        if(grainBoundary->outNormal(grain.second->grainID).cross(slipSystem.n.cartesian().normalized()).norm()>FLT_EPSILON) // slip plane is not GB plane
+
                                     {
                                         if(fabs(slipSystem.n.cartesian().normalized().dot(unitChord))<FLT_EPSILON )
                                         {// slip plane cointains chord -> direct or indirect (offset) transmit
@@ -282,7 +284,7 @@ namespace model
                                 std::cout<<"direct transmission"<<std::endl;
                                 
                                 
-                                const VectorDim gbInNormal(-DN.poly.grainBoundary(gbID.first,gbID.second).glidePlane(grainID).unitNormal);
+                                const VectorDim gbInNormal(-DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID));
                                 const VectorDim dir=(gbInNormal-gbInNormal.dot(DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().normalized())*DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().normalized()).normalized();
                                 
                                 const VectorDim newNodeP(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P())+dir*10.0);
@@ -314,7 +316,7 @@ namespace model
                                 //                                const double planeSpacing=1.0/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().norm();
                                 
                                 PlanePlaneIntersection<dim> ppi(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
-                                                                DN.poly.grainBoundary(gbID.first,gbID.second).glidePlane(grainID).unitNormal,
+                                                                DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID),
                                                                 heightPair.second*DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian()/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().squaredNorm(),
                                                                 DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian());
                                 
@@ -336,7 +338,7 @@ namespace model
                                 //                                const double planeSpacing=1.0/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().norm();
                                 
                                 PlanePlaneIntersection<dim> ppi(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
-                                                                DN.poly.grainBoundary(gbID.first,gbID.second).glidePlane(grainID).unitNormal,
+                                                                DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID),
                                                                 heightPair.second*DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian()/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().squaredNorm(),
                                                                 DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian());
                                 

@@ -12,93 +12,184 @@
 
 #include <deque>
 #include <chrono>
+#include <memory>
 #include <map>
+#include <set>
 #include <assert.h>
-
 #include <Eigen/Core>
-
 #include <model/Utilities/StaticID.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/LatticeMath/LatticePlane.h>
 #include <model/MPI/MPIcout.h>
 #include <model/Mesh/PlaneMeshIntersection.h>
 
+#ifndef NDEBUG
+#define VerboseGlidePlane(N,x) if(verboseGlidePlane>=N){model::cout<<x;}
+#else
+#define VerboseGlidePlane(N,x)
+#endif
+
 namespace model
 {
     
-    /*************************************************************/
-    /*************************************************************/
-    template <typename NetworkType>
-    struct GlidePlane : public StaticID<GlidePlane<NetworkType> >,
+    /**************************************************************************/
+    /**************************************************************************/
+    template <int dim>
+    struct GlidePlane : public StaticID<GlidePlane<dim> >,
     /* base class    */ public LatticePlane,
-    /* base class    */ private std::map<size_t,const typename TypeTraits<NetworkType>::LoopType* const> THIS SHOULD BE set<const shared_ptr<GlidePlane<dim>*>> to avoid NetworkType template parameter
+    /* base class    */ private std::set<const std::shared_ptr<GlidePlane<dim>>*>
     {
         
-        constexpr static int dim=NetworkType::dim;
-        typedef typename TypeTraits<NetworkType>::LoopType LoopType;
-        typedef typename TypeTraits<NetworkType>::LinkType LinkType;
-        typedef GlidePlane<NetworkType> GlidePlaneType;
-        typedef GlidePlaneObserver<NetworkType> GlidePlaneObserverType;
+        typedef GlidePlane<dim> GlidePlaneType;
+        typedef GlidePlaneObserver<dim> GlidePlaneObserverType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef typename GlidePlaneObserverType::GlidePlaneKeyType GlidePlaneKeyType;
         typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
 
+        std::set<long int> glissileLoopIDs;
+        std::set<long int> sessileLoopIDs;
+        
+        static int verboseGlidePlane;
         GlidePlaneObserverType* const glidePlaneObserver;
-        const Grain<NetworkType>& grain;
+//        const Grain<dim>& grain; // REMOVED TO ALLOW CONSTRUCTION FROM A GRAINBOUNDARY
+        const std::pair<size_t,size_t> grainIDs;
         const GlidePlaneKeyType glidePlaneKey;
         const PlaneMeshIntersectionContainerType meshIntersections;
         
         /**********************************************************************/
         GlidePlane(GlidePlaneObserverType* const gpo,
                    const SimplicialMesh<dim>& mesh,
-                   const Grain<NetworkType>& grain_in,
+                   const Lattice<dim>& lattice,
+                   const int& grainID1,
+                   const int& grainID2,
                    const VectorDim& P,
                    const VectorDim& N) :
-//        /* init */ LatticePlane(grain_in.latticeVector(P),grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
-        /* init */ LatticePlane(P,grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
-//        /* init */ unitNormal(this->n.cartesian().normalized()),
+        /* init */ LatticePlane(P,lattice.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
         /* init */ glidePlaneObserver(gpo),
-        /* init */ grain(grain_in),
-        /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain_in,P,N)),
-//        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P.cartesian(),this->n.cartesian().normalized(),grain.grainID))
-        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->n.cartesian().normalized(),grain_in.grainID))
+        //        /* init */ grain(grain_in),
+        /* init */ grainIDs(grainID1,grainID2),
+        /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(lattice,grainID1,grainID2,P,N)),
+        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->n.cartesian().normalized(),grainID1)) // WARNING: CALLING meshIntersections with grainID1
         {
-//            model::cout<<"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;
+            VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;);
             glidePlaneObserver->addGlidePlane(this);
             assert(fabs(this->unitNormal.norm()-1.0)<DBL_EPSILON && "GlidePlane has non-unit normal.");
         }
         
+//        /**********************************************************************/
+//        GlidePlane(GlidePlaneObserverType* const gpo,
+//                   const SimplicialMesh<dim>& mesh,
+//                   const Grain<dim>& grain_in,
+//                   const VectorDim& P,
+//                   const VectorDim& N) :
+//        /* init */ LatticePlane(P,grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+//        /* init */ glidePlaneObserver(gpo),
+////        /* init */ grain(grain_in),
+//        /* init */ grainIDs(grain_in.grainID,grain_in.grainID),
+//        /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain_in,P,N)),
+//        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->n.cartesian().normalized(),grain_in.grainID))
+//        {
+//            VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;);
+//            glidePlaneObserver->addGlidePlane(this);
+//            assert(fabs(this->unitNormal.norm()-1.0)<DBL_EPSILON && "GlidePlane has non-unit normal.");
+//        }
+        
+//        /**********************************************************************/
+//        GlidePlane(GlidePlaneObserverType* const gpo,
+//                   const SimplicialMesh<dim>& mesh,
+//                   const GrainBoundary<dim>& gb_in,
+//                   const VectorDim& P,
+//                   const VectorDim& N) :
+//        /* init */ LatticePlane(P,grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+//        /* init */ glidePlaneObserver(gpo),
+//        /* init */ grain(grain_in),
+//        /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain_in,P,N)),
+//        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->n.cartesian().normalized(),grain_in.grainID))
+//        {
+//            static_assert(false, "ALLOW CONSTRUCTOR FROM A GRAIN BOUNDARY AS OPPOSED TO A GRAIN. THIS WILL ALLOW GB PLANES FROM CSL AND DSCL");
+//            VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;);
+//            glidePlaneObserver->addGlidePlane(this);
+//            assert(fabs(this->unitNormal.norm()-1.0)<DBL_EPSILON && "GlidePlane has non-unit normal.");
+//        }
+        
         /**********************************************************************/
-        GlidePlane(const GlidePlane<NetworkType>& other) = delete;
+        GlidePlane(const GlidePlane<dim>& other) = delete;
         
         /**********************************************************************/
         ~GlidePlane()
         {
+            VerboseGlidePlane(1,"Destroying GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;);
             glidePlaneObserver->removeGlidePlane(this);
         }
         
         /**********************************************************************/
-        const std::map<size_t,const LoopType* const>& loops() const
-        {
-            return *this;
+        std::shared_ptr<GlidePlane<dim>> sharedPlane() const
+        {/*!\returns a shared pointer to this
+          */
+            assert(this->size());
+            assert((*this->begin())->get()==this);
+            return **this->begin();
         }
         
+//        /**********************************************************************/
+//        template<typename LoopType>
+//        void addLoop(const LoopType* const pL)
+//        {/*!@\param[in] pS a row pointer to a DislocationSegment
+//          * Adds pS to *this GLidePlane
+//          */
+//            const bool success=this->insert(&pL->_glidePlane).second;
+//            assert( success && "COULD NOT INSERT LOOP POINTER IN GLIDE PLANE.");
+//        }
+//        
+//        /**********************************************************************/
+//        template<typename LoopType>
+//        void removeLoop(const LoopType* const pL)
+//        {/*!@\param[in] pS a row pointer to a DislocationSegment
+//          * Removes pS from *this GLidePlane
+//          */
+//            const int success=this->erase(&pL->_glidePlane);
+//            assert(success==1 && "COULD NOT ERASE LOOP POINTER FROM GLIDE PLANE.");
+//        }
+        
         /**********************************************************************/
-        void addLoop(const LoopType* const pL)
+        void addParentSharedPtr(const std::shared_ptr<GlidePlane<dim>>* const pL,
+                                const bool& isGlissile,
+                                const size_t& loopID)
         {/*!@\param[in] pS a row pointer to a DislocationSegment
           * Adds pS to *this GLidePlane
           */
-            const bool success=this->emplace(pL->sID,pL).second;
+            const bool success=this->insert(pL).second;
             assert( success && "COULD NOT INSERT LOOP POINTER IN GLIDE PLANE.");
+            
+            if(isGlissile)
+            {
+                glissileLoopIDs.insert(loopID);
+            }
+            else
+            {
+                sessileLoopIDs.insert(loopID);
+            }
         }
         
         /**********************************************************************/
-        void removeLoop(const LoopType* const pL)
+//        template<typename LoopType>
+        void removeParentSharedPtr(const std::shared_ptr<GlidePlane<dim>>* const pL,
+                                   const bool& isGlissile,
+                                   const size_t& loopID)
         {/*!@\param[in] pS a row pointer to a DislocationSegment
           * Removes pS from *this GLidePlane
           */
-            const int success=this->erase(pL->sID);
+            const int success=this->erase(pL);
             assert(success==1 && "COULD NOT ERASE LOOP POINTER FROM GLIDE PLANE.");
+        
+            if(isGlissile)
+            {
+                glissileLoopIDs.erase(loopID);
+            }
+            else
+            {
+                sessileLoopIDs.erase(loopID);
+            }
         }
         
         /**********************************************************************/
@@ -117,7 +208,9 @@ namespace model
         
     };
     
+    template <int dim>
+    int GlidePlane<dim>::verboseGlidePlane=0;
     
-} // namespace model
+}
 #endif
 

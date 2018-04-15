@@ -48,7 +48,7 @@ namespace model
     /*          */ public SplineNode<DislocationNode<_dim,corder,InterpolationType>,_dim,corder,InterpolationType>,
     /*          */ private std::set<const GrainBoundary<_dim>*>,
     /*          */ private std::set<const Grain<_dim>*>,
-    /*          */ private std::set<const GlidePlane<_dim>*>,
+    /*          */ private std::set<const MeshPlane<_dim>*>,
     /*          */ private BoundingLineSegments<_dim>
     {
         
@@ -70,7 +70,8 @@ namespace model
         typedef LatticeDirection<dim> LatticeDirectionType;
         typedef typename TypeTraits<NodeType>::MeshLocation MeshLocation;
         typedef GlidePlane<dim> GlidePlaneType;
-        typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
+        typedef MeshPlane<dim> MeshPlaneType;
+        typedef std::set<const MeshPlaneType*> MeshPlaneContainerType;
         typedef std::set<const Grain<dim>*> GrainContainerType;
         typedef std::set<const GrainBoundary<dim>*> GrainBoundaryContainerType;
         
@@ -82,11 +83,11 @@ namespace model
     private:
         
         /**********************************************************************/
-        void updateGlidePlaneIntersections(const GlidePlaneType& lastGlidePlane)
+        void updateMeshPlaneIntersections(const MeshPlaneType& lastGlidePlane)
         {
             BoundingLineSegments<dim> temp;
             
-            switch (glidePlanes().size())
+            switch (meshPlanes().size())
             {
                 case 0:
                 {// there must be at least one glide plane
@@ -105,8 +106,9 @@ namespace model
                     assert(_glidePlaneIntersections.size()==0 && "_glidePlaneIntersections must be empty");
                     
                     // Grab the infinite line of intersection between the two planes
-                    GlidePlaneObserver<dim>* const gpo(glidePlane(0).glidePlaneObserver);
-                    const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&glidePlane(0),&glidePlane(1)));
+                    //GlidePlaneObserver<dim>* const gpo(meshPlane(0).glidePlaneObserver);
+//                    const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&glidePlane(0),&glidePlane(1)));
+                    const PlanePlaneIntersection<dim>& ppi(this->network().glidePlaneIntersection(&meshPlane(0),&meshPlane(1)));
                     
                     if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                     {/* Two distinct glide planes can be coincident only if they belong to different grains
@@ -115,8 +117,8 @@ namespace model
                       if(boundingBoxSegments().size()!=1)
                       {
 						  model::cout<<"DislocationNode "<<this->sID<<std::endl;
-						  model::cout<<"glidePlane(0) is "<<glidePlane(0).P.transpose()<<","<<glidePlane(0).unitNormal.transpose()<<std::endl;
-						  model::cout<<"glidePlane(1) is "<<glidePlane(1).P.transpose()<<","<<glidePlane(1).unitNormal.transpose()<<std::endl;
+						  model::cout<<"glidePlane(0) is "<<meshPlane(0).P.transpose()<<","<<meshPlane(0).unitNormal.transpose()<<std::endl;
+						  model::cout<<"glidePlane(1) is "<<meshPlane(1).P.transpose()<<","<<meshPlane(1).unitNormal.transpose()<<std::endl;
 						assert(false && "There should be only one line in boundingBoxSegments()");
 						}
                         //assert(boundingBoxSegments().size()==1 && "There should be only one line in boundingBoxSegments()");
@@ -202,25 +204,23 @@ namespace model
         }
         
         /**********************************************************************/
-        bool addGlidePlane(const GlidePlaneType& gp)
+        bool addMeshPlane(const MeshPlaneType& gp)
         {
-            const bool success=glidePlanes().insert(&gp).second;
+            const bool success=meshPlanes().insert(&gp).second;
             if(success)
             {
-                VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" addGlidePlane. glidePlanes().size()="<<glidePlanes().size()<<std::endl;);
+                VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" addGlidePlane. meshPlanes().size()="<<meshPlanes().size()<<std::endl;);
                 assert(gp.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
-                boundingBoxSegments().updateWithGlidePlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
-                updateGlidePlaneIntersections(gp);
-                grains().insert(&this->network().poly.grain(gp.grainIDs.first));    // Insert new grain in grainSet
-                grains().insert(&this->network().poly.grain(gp.grainIDs.second));   // Insert new grain in grainSet
-                //                grains().insert(&(gp.grain)); // Insert new grain in grainSet
-                //                grains().insert(&(gp.grain)); // Insert new grain in grainSet
+                boundingBoxSegments().updateWithMeshPlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
+                updateMeshPlaneIntersections(gp);
+                grains().insert(&this->network().poly.grain(gp.regionIDs.first));    // Insert new grain in grainSet
+                grains().insert(&this->network().poly.grain(gp.regionIDs.second));   // Insert new grain in grainSet
             }
             return success;
         }
         
         /**********************************************************************/
-        size_t addGrainBoundaryPlanes() __attribute__ ((deprecated)) // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+        size_t addGrainBoundaryPlanes()
         {
             VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" adding GrainBoundaryPlanes"<<std::endl;);
 
@@ -229,11 +229,13 @@ namespace model
             for(const auto& gb : this->network().poly.grainBoundaries())
             {
                 
-                const auto& gp(gb.second.glidePlanes().begin()->second); // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
-                if(gp->contains(this->get_P()))
+//                const auto& gp(gb.second.glidePlanes().begin()->second); // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+                if(gb.second.contains(this->get_P()))
                 {
                     grainBoundaries().insert(&gb.second);
-                    addedGp+=addGlidePlane(*gp.get());
+                    
+                    addedGp+=addMeshPlane(gb.second);
+//                                        addedGp+=addGlidePlane(*gp.get());
                 }
                 
                 //                for(const auto& gp : gb.second.glidePlanes())
@@ -298,8 +300,8 @@ namespace model
                 {// grainBoundary segments must not become internal
                     for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
                     {
-                        pLcontained*=gb->glidePlanes().begin()->second->contains(pL);
-                        pVcontained*=gb->glidePlanes().begin()->second->contains(pV);
+                        pLcontained*=gb->contains(pL);
+                        pVcontained*=gb->contains(pV);
                         
                                             bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
                     }
@@ -338,49 +340,31 @@ namespace model
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
-            //std::cout<<"DislocationNode "<<this->sID<<" get_includingSimplex "<<std::flush;
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
             if (this->network().use_boundary)
             {
-                //std::cout<<" 1 "<<std::flush;
-                
                 if (guess==NULL)
                 {
-                    //std::cout<<" 2 "<<std::flush;
-                    
                     temp=this->network().mesh.search(this->get_P());
                 }
                 else
                 {
-                    //std::cout<<" 3 "<<std::flush;
-                    
                     if(grains().size()==1)
                     {// node only in one region
-                        //std::cout<<" 4 "<<std::flush;
-                        
                         if((*grains().begin())->grainID!=guess->region->regionID)
                         {
-                            //std::cout<<" 5 "<<std::flush;
-                            
                             temp=this->network().mesh.searchRegion((*grains().begin())->grainID,this->get_P());
                         }
                         else
                         {
-                            //std::cout<<" 6 "<<std::flush;
-                            
                             temp=this->network().mesh.searchRegionWithGuess(this->get_P(),guess);
                         }
                     }
                     else
                     {
-                        //std::cout<<" 7 "<<std::flush;
-                        
-                        //                        std::cout<<"WARNING: CHECK THAT NODE IS ON THE REGION BOUNDARY"<<std::endl;
                         temp=this->network().mesh.searchWithGuess(this->get_P(),guess);
                     }
                 }
-                //std::cout<<" 8 "<<std::flush;
-                
                 
                 if(!temp.first) // DislocationNode not found inside mesh
                 {
@@ -401,9 +385,6 @@ namespace model
                 }
             }
             
-            //std::cout<<" done"<<std::endl;
-            
-            
             return temp.second;
         }
         
@@ -414,9 +395,9 @@ namespace model
             
             Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
             VectorOfNormalsType  CN;
-            for(const auto& plane : glidePlanes())
+            for(const auto& plane : meshPlanes())
             {
-                CN.push_back(plane->n.cartesian().normalized());
+                CN.push_back(plane->unitNormal);
             }
             
             if(isBoundaryNode())
@@ -519,22 +500,22 @@ namespace model
         }
         
         /**********************************************************************/
-        const GlidePlaneContainerType& glidePlanes() const
+        const MeshPlaneContainerType& meshPlanes() const
         {
             return *this;
         }
         
         /**********************************************************************/
-        GlidePlaneContainerType& glidePlanes()
+        MeshPlaneContainerType& meshPlanes()
         {
             return *this;
         }
         
         /**********************************************************************/
-        const GlidePlaneType& glidePlane(const size_t& n) const
+        const MeshPlaneType& meshPlane(const size_t& n) const
         {
-            assert(n<glidePlanes().size());
-            auto iter=glidePlanes().begin();
+            assert(n<meshPlanes().size());
+            auto iter=meshPlanes().begin();
             std::advance(iter,n);
             return **iter;
         }
@@ -583,7 +564,7 @@ namespace model
         }
         
         /**********************************************************************/
-        VectorDim snapToGlidePlaneIntersection(const VectorDim& P)
+        VectorDim snapToMeshPlaneIntersection(const VectorDim& P)
         {
             
             switch (_glidePlaneIntersections.size())
@@ -591,8 +572,8 @@ namespace model
                 case 0:
                 {
                     //                    assert(glidePlanes().size()>0);
-                    assert(glidePlanes().size()==1);
-                    return glidePlane(0).snapToPlane(P);
+                    assert(meshPlanes().size()==1);
+                    return meshPlane(0).snapToPlane(P);
                     break;
                 }
                     
@@ -647,7 +628,7 @@ namespace model
             pL->pLink->addGrainBoundaryPlanes();
             
             // Insert new plane in _confiningPlanes. If plane already exists nothing will happen
-            const bool success = addGlidePlane(pL->loop()->glidePlane);
+            const bool success = addMeshPlane(pL->loop()->glidePlane);
             if(success)
             {
                 _isGlissile*=pL->loop()->isGlissile;
@@ -691,14 +672,14 @@ namespace model
             
             // Re-construct nodeConfinement
             _isGlissile=true;
-            glidePlanes().clear();
+            meshPlanes().clear();
             boundingBoxSegments().clear();
             _glidePlaneIntersections.clear();
             grains().clear();
             
             for(const auto& loopLink : this->loopLinks())
             {
-                const bool success = addGlidePlane(loopLink->loop()->glidePlane);
+                const bool success = addMeshPlane(loopLink->loop()->glidePlane);
                 
                 if(success)
                 {
@@ -743,9 +724,9 @@ namespace model
             
             if(_isGlissile)
             {
-                for(const auto& plane : glidePlanes())
+                for(const auto& plane : meshPlanes())
                 {
-                    temp.push_back(plane->n.cartesian().normalized());
+                    temp.push_back(plane->unitNormal);
                 }
                 temp.push_back(boundaryNormal);
                 GramSchmidt::orthoNormalize(temp);
@@ -1040,7 +1021,7 @@ namespace model
             VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" set_P"<<std::endl;);
             // make sure that node is on glide planes
             bool glidePlanesContained=true;
-            for(const auto& gp : glidePlanes())
+            for(const auto& gp : meshPlanes())
             {
                 glidePlanesContained*=gp->contains(newP);
             }
@@ -1095,7 +1076,7 @@ namespace model
                                 else
                                 {// new bounding box does not contain node
                                     VerboseDislocationNode(3,"case 6"<<std::endl;);
-                                    NodeBaseType::set_P(snapToGlidePlaneIntersection(newP)); // kill numerical errors
+                                    NodeBaseType::set_P(snapToMeshPlaneIntersection(newP)); // kill numerical errors
                                     _isOnBoundingBox=false;
                                 }
                             }
@@ -1158,12 +1139,12 @@ namespace model
         }
         
         /**********************************************************************/
-        bool isMovableTo(const VectorDim& X) const __attribute__ ((deprecated)) // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+        bool isMovableTo(const VectorDim& X) const
         {
             bool isMovable=true;
             
             
-            for(const auto& gp : glidePlanes())
+            for(const auto& gp : meshPlanes())
             {// X must be contained by all glidePlanes
                 isMovable*=gp->contains(X);
             }
@@ -1202,7 +1183,7 @@ namespace model
                         for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
                         {
                             //                                        std::cout<<"grainBoundary neighbor "<<nA->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<gb->glidePlanes().begin()->second.contains(nB->get_P())<<std::endl;
-                            isMovable*=gb->glidePlanes().begin()->second->contains(X); // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+                            isMovable*=gb->contains(X); // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
                         }
                     }
                     
@@ -1244,7 +1225,7 @@ namespace model
             {
                 
                 // Make sure that new position is at intersection of glidePlanes
-                const VectorDim newP=snapToGlidePlaneIntersection(this->get_P()+dX);
+                const VectorDim newP=snapToMeshPlaneIntersection(this->get_P()+dX);
                 
                 set_P(newP);
                 

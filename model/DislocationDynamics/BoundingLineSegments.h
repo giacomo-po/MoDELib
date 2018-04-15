@@ -16,10 +16,12 @@
 #include <deque>
 #include <map>
 #include <utility>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
+//#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
+//#include <model/Geometry/Plane.h>
 #include <model/Geometry/SegmentSegmentDistance.h>
 #include <model/Geometry/PlaneSegmentIntersection.h>
 #include <model/Geometry/LineSegment.h>
+#include <model/Mesh/MeshPlane.h>
 
 //#include <model/Geometry/SegmentSegmentIntersection.h>
 
@@ -102,7 +104,8 @@ namespace model
         
         /**********************************************************************/
 //        template <typename LoopType>
-        void updateWithGlidePlane(const GlidePlane<dim>& gp)
+        void updateWithMeshPlane(const MeshPlane<dim>& gp)
+//        void updateWithPlane(const Plane<dim>& gp)
         {
             
             

@@ -177,7 +177,7 @@ namespace model
             
             //            model::cout<<"expanding..."<<std::flush;
             
-            double cos_theta_max_crit = std::cos(M_PI-thetaDeg*M_PI/180.0);  /*critical angle */
+//            const double cos_theta_max_crit = std::cos(M_PI-thetaDeg*M_PI/180.0);  /*critical angle */
             std::set<std::pair<size_t,size_t> > toBeExpanded;
             
             // Store the segments to be expanded
