@@ -58,6 +58,7 @@ namespace model
                 const VectorDimD d(D/normD); // unit line direction
                 const double den(d.dot(n));
                 const double num((pP-pL).dot(n));
+                
                 if(fabs(den)>FLT_EPSILON)
                 {// incident
                     const double u=num/den;

@@ -107,20 +107,20 @@ namespace model
                     
                     // Grab the infinite line of intersection between the two planes
                     //GlidePlaneObserver<dim>* const gpo(meshPlane(0).glidePlaneObserver);
-//                    const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&glidePlane(0),&glidePlane(1)));
+                    //                    const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&glidePlane(0),&glidePlane(1)));
                     const PlanePlaneIntersection<dim>& ppi(this->network().glidePlaneIntersection(&meshPlane(0),&meshPlane(1)));
                     
                     if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                     {/* Two distinct glide planes can be coincident only if they belong to different grains
                       * In that case, the intersection of their bounding boxes should be one line segment
                       */
-                      if(boundingBoxSegments().size()!=1)
-                      {
-						  model::cout<<"DislocationNode "<<this->sID<<std::endl;
-						  model::cout<<"glidePlane(0) is "<<meshPlane(0).P.transpose()<<","<<meshPlane(0).unitNormal.transpose()<<std::endl;
-						  model::cout<<"glidePlane(1) is "<<meshPlane(1).P.transpose()<<","<<meshPlane(1).unitNormal.transpose()<<std::endl;
-						assert(false && "There should be only one line in boundingBoxSegments()");
-						}
+                        if(boundingBoxSegments().size()!=1)
+                        {
+                            model::cout<<"DislocationNode "<<this->sID<<std::endl;
+                            model::cout<<"glidePlane(0) is "<<meshPlane(0).P.transpose()<<","<<meshPlane(0).unitNormal.transpose()<<std::endl;
+                            model::cout<<"glidePlane(1) is "<<meshPlane(1).P.transpose()<<","<<meshPlane(1).unitNormal.transpose()<<std::endl;
+                            assert(false && "There should be only one line in boundingBoxSegments()");
+                        }
                         //assert(boundingBoxSegments().size()==1 && "There should be only one line in boundingBoxSegments()");
                         _glidePlaneIntersections.emplace_back(boundingBoxSegments()[0].first,boundingBoxSegments()[0].second);
                     }
@@ -194,6 +194,15 @@ namespace model
                     }
                     else
                     {
+                        model::cout<<"DislocationNode "<<this->sID<<std::endl;
+                        model::cout<<"MeshPlanes are:"<<std::endl;
+                        for(const auto& plane : meshPlanes())
+                        {
+                            model::cout<<std::setprecision(15)<<std::scientific<<"  P="<<plane->P.transpose()<<", n="<<plane->unitNormal.transpose()<<std::endl;
+                        }
+                        model::cout<<"MeshPlane intersection is:"<<std::endl;
+                        model::cout<<std::setprecision(15)<<std::scientific<<"  P1="<<_glidePlaneIntersections[0].first.transpose()<<", P2="<<_glidePlaneIntersections[0].second.transpose()<<std::endl;
+                        
                         assert(0 && "Intersection must be COINCIDENT or INCIDENT.");
                     }
                     
@@ -213,8 +222,8 @@ namespace model
                 assert(gp.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
                 boundingBoxSegments().updateWithMeshPlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
                 updateMeshPlaneIntersections(gp);
-                grains().insert(&this->network().poly.grain(gp.regionIDs.first));    // Insert new grain in grainSet
-                grains().insert(&this->network().poly.grain(gp.regionIDs.second));   // Insert new grain in grainSet
+                //                grains().insert(&this->network().poly.grain(gp.regionIDs.first));    // Insert new grain in grainSet
+                //                grains().insert(&this->network().poly.grain(gp.regionIDs.second));   // Insert new grain in grainSet
             }
             return success;
         }
@@ -223,30 +232,28 @@ namespace model
         size_t addGrainBoundaryPlanes()
         {
             VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" adding GrainBoundaryPlanes"<<std::endl;);
-
+            
             size_t addedGp=0;
             // Check if node is on a GB
-            for(const auto& gb : this->network().poly.grainBoundaries())
+            for(const auto& grain : grains())
             {
-                
-//                const auto& gp(gb.second.glidePlanes().begin()->second); // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
-                if(gb.second.contains(this->get_P()))
+                for(const auto& gb : grain->grainBoundaries())
                 {
-                    grainBoundaries().insert(&gb.second);
-                    
-                    addedGp+=addMeshPlane(gb.second);
-//                                        addedGp+=addGlidePlane(*gp.get());
+                    if(gb.second->contains(this->get_P()))
+                    {
+                        grainBoundaries().insert(gb.second);
+                        addedGp+=addMeshPlane(*gb.second);
+                    }
                 }
-                
-                //                for(const auto& gp : gb.second.glidePlanes())
-                //                {
-                //                    if(gp.second.contains(this->get_P()))
-                //                    {
-                //                        grainBoundaries().insert(&gb.second);
-                //                        addedGp+=addGlidePlane(gp.second);
-                //                    }
-                //                }
             }
+            //            for(const auto& gb : this->network().poly.grainBoundaries())
+            //            {
+            //                if(gb.second.contains(this->get_P()))
+            //                {
+            //                    grainBoundaries().insert(&gb.second);
+            //                    addedGp+=addMeshPlane(gb.second);
+            //                }
+            //            }
             
             if(isGrainBoundaryNode())
             {
@@ -272,8 +279,6 @@ namespace model
             const VectorDim pL=std::get<0>(boundingBoxSegments().snap(P));
             const VectorDim pV=boundingBoxSegments().snapToVertex(P).second;
             
-//            model::cout<<"pL="<<std::setprecision(15)<<std::scientific<<pL.transpose()<<std::endl;
-//            model::cout<<"pV="<<std::setprecision(15)<<std::scientific<<pV.transpose()<<std::endl;
             
             bool pLcontained=true;
             bool pVcontained=true;
@@ -303,7 +308,7 @@ namespace model
                         pLcontained*=gb->contains(pL);
                         pVcontained*=gb->contains(pV);
                         
-                                            bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
+                        bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
                     }
                 }
             }
@@ -437,7 +442,7 @@ namespace model
         bool _isOnBoundingBox;
         //        bool _isGrainBoundaryNode;
         VectorDim boundaryNormal;
-//        VectorDim C;
+        //        VectorDim C;
         
     public:
         
@@ -456,17 +461,9 @@ namespace model
         /* init list        */ velocityReductionCoeff(vrc),
         /* init list        */ _isOnBoundingBox(false),
         /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero())
-//        /* init list        */ C(Pin)
         {/*! Constructor from DOF
           */
-            
             VerboseDislocationNode(1,"Creating DislocationNode "<<this->sID<<" from position"<<std::endl;);
-            
-            addGrainBoundaryPlanes();
-            //            set_P(this->get_P()); // trigger _isOnBoundingBox and _isGrainBoundaryNode
-            std::cout<<"WARNING INITIALIZE _isOnBoundingBox"<<std::endl;
-            //            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
-//            std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
         }
         
         /**********************************************************************/
@@ -480,17 +477,9 @@ namespace model
         /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
         /* init list        */ _isOnBoundingBox(pL.isBoundarySegment()),
         /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero())
-//        /* init list        */ C(this->get_P())
         {/*! Constructor from ExpandingEdge and DOF
           */
-            
             VerboseDislocationNode(1,"Creating DislocationNode "<<this->sID<<" from expanding "<<pL.source->sID<<"->"<<pL.sink->sID<<std::endl;);
-            
-            
-            addGrainBoundaryPlanes();
-            //            std::cout<<"WARNING INITIALIZE _isGrainBoundaryNode"<<std::endl;
-//            std::cout<<"WARNING INITIALIZE C FROM INPUT FILE"<<std::endl;
-            //            set_P(this->get_P()); // trigger _isOnBoundingBox and _isGrainBoundaryNode
         }
         
         /**********************************************************************/
@@ -625,35 +614,22 @@ namespace model
             VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" addLoopLink"<<std::endl;);
             
             NodeBaseType::addLoopLink(pL); // forward to base class
-            pL->pLink->addGrainBoundaryPlanes();
             
             // Insert new plane in _confiningPlanes. If plane already exists nothing will happen
             const bool success = addMeshPlane(pL->loop()->glidePlane);
             if(success)
             {
+                grains().insert(&this->network().poly.grain(pL->loop()->grain.grainID));    // Insert new grain in grainSet
                 _isGlissile*=pL->loop()->isGlissile;
-                
-                if(boundingBoxSegments().contains(this->get_P()).first)
-                {
-                    _isOnBoundingBox=true;
-                }
-                
-                
-                //                if(boundingBoxSegments().size())
-                //                {
-                //                    const VectorDim bbP(std::get<0>(boundingBoxSegments().snap(this->get_P())));
-                //                    if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
-                //                    {
-                //                        set_P(bbP);
-                //                        _isOnBoundingBox=true;
-                //                    }
-                //                }
-                //                else
-                //                {
-                //                    _isGlissile=false;
-                //                }
             }
             
+            addGrainBoundaryPlanes();
+            pL->pLink->addGrainBoundaryPlanes();
+            
+            if(boundingBoxSegments().contains(this->get_P()).first)
+            {
+                _isOnBoundingBox=true;
+            }
         }
         
         /**********************************************************************/
@@ -665,10 +641,7 @@ namespace model
             
             VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" removeLoopLink"<<std::endl;);
             
-            
             NodeBaseType::removeLoopLink(pL); // forward to base class
-            
-            
             
             // Re-construct nodeConfinement
             _isGlissile=true;
@@ -680,40 +653,20 @@ namespace model
             for(const auto& loopLink : this->loopLinks())
             {
                 const bool success = addMeshPlane(loopLink->loop()->glidePlane);
-                
                 if(success)
                 {
+                    grains().insert(&this->network().poly.grain(loopLink->loop()->grain.grainID));    // Insert new grain in grainSet
                     _isGlissile*=loopLink->loop()->isGlissile;
                 }
             }
             
             addGrainBoundaryPlanes();
+            pL->pLink->addGrainBoundaryPlanes();
             
             if(boundingBoxSegments().contains(this->get_P()).first)
             {
-                //                    const VectorDim bbP(std::get<0>(boundingBoxSegments().snap(this->get_P())));
-                //                    if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
-                //                    {
-                //                        set_P(bbP);
                 _isOnBoundingBox=true;
-                //                    }
             }
-            
-            //            if(boundingBoxSegments().size())
-            //            {// not the last segment being removed
-            //                const VectorDim bbP(std::get<0>(boundingBoxSegments().snap(this->get_P())));
-            //                if((this->get_P()-bbP).squaredNorm()<FLT_EPSILON)
-            //                {
-            //                    set_P(bbP);
-            //                    _isOnBoundingBox=true;
-            //                }
-            //            }
-            //            else
-            //            {
-            //                _isGlissile=false;
-            //            }
-            
-            //            std::cout<<"DislocationNode "<<this->sID<<" removeLoopLink. _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
             
         }
         
@@ -755,88 +708,6 @@ namespace model
           */
             return velocity;
         }
-        
-//        /**********************************************************************/
-//        void applyVelocityFilter(double vMaxGood)
-//        {
-//            if(use_velocityFilter)
-//            {
-//                const double Rc=3.0*10.0;
-//                const double filterThreshold=0.05*vMaxGood*vMaxGood;
-//                
-//                if((this->get_P()-C).norm()<Rc)
-//                {
-//                    if(velocity.dot(vOld)<-filterThreshold)
-//                    {
-//                        velocityReductionCoeff*=velocityReductionFactor;
-//                    }
-//                }
-//                else
-//                {
-//                    if(velocity.dot(vOld)<-filterThreshold)
-//                    {
-//                        velocityReductionCoeff*=velocityReductionFactor;
-//                        C=this->get_P();
-//                    }
-//                    else if(velocity.dot(vOld)>0.0)
-//                    {
-//                        velocityReductionCoeff/=velocityReductionFactor;
-//                    }
-//                    else
-//                    {
-//                        // don't change velocityReductionCoeff
-//                    }
-//                }
-//                
-//                //                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
-//                
-//                //                const double VdotVold=
-//                //                if(velocity.dot(vOld)<-filterThreshold)
-//                //                {
-//                //                    velocityReductionCoeff*=velocityReductionFactor;
-//                //                }
-//                //                else if(velocity.dot(vOld)>filterThreshold)
-//                //                {
-//                //                    velocityReductionCoeff/=velocityReductionFactor;
-//                //                }
-//                //                else
-//                //                {
-//                //                    // don't change velocityReductionCoeff
-//                //                }
-//                if(velocityReductionCoeff>1.0)
-//                {
-//                    velocityReductionCoeff=1.0;
-//                }
-//                if(velocityReductionCoeff<0.0001)
-//                {
-//                    velocityReductionCoeff=0.0001;
-//                }
-//                
-//                
-//                
-//                if( isOscillating()
-//                   //&& velocity.norm()>vMaxGood /*velocity.norm()>0.0*/
-//                   )
-//                { // oscillating node
-//                    std::cout<<"node "<<this->sID<<" BAD, ";
-//                    //                    velocity*=(velocityReductionCoeff*vMaxGood/velocity.norm());
-//                    if(velocity.norm()>vMaxGood)
-//                    {
-//                        velocity=velocityReductionCoeff*vMaxGood*velocity.normalized();
-//                    }
-//                    //                    std::cout<<velocity.norm()<<std::endl;
-//                }
-//                else
-//                { // good node
-//                    std::cout<<"node "<<this->sID<<" GOOD, ";
-//                    velocity*=velocityReductionCoeff;
-//                }
-//                
-//                //                velocity*=velocityReductionCoeff;
-//                std::cout<<"velocityReductionCoeff="<<velocityReductionCoeff<<", vMaxGood="<<vMaxGood<<", velocity.norm()="<<velocity.norm()<<", newVelocity="<<velocity.norm()<<std::endl;
-//                
-//            }
-//        }
         
         /**********************************************************************/
         bool isOscillating() const
@@ -889,20 +760,25 @@ namespace model
         {
             return _isOnBoundingBox;
         }
-
+        
         /**********************************************************************/
         bool isBoundaryNode() const
         {
-            //return boundaryNormal.squaredNorm()>FLT_EPSILON;
-//                        return _isOnBoundingBox && !isGrainBoundaryNode();
-            return _isOnBoundingBox ;
+            bool isBndNode(_isOnBoundingBox);
+            if(isBndNode)
+            {
+                isBndNode=(boundaryNormal.squaredNorm()>FLT_EPSILON); // otherwise isGrainBoundaryNode() must be true
+                if(!isBndNode && !isGrainBoundaryNode())
+                {
+                    model::cout<<"DislocationNode "<<this->sID<<", P="<<this->get_P().transpose()<<std::endl;
+                    model::cout<<"_isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
+                    model::cout<<"isGrainBoundaryNode()="<<isGrainBoundaryNode()<<std::endl;
+                    model::cout<<"NODE ON BoundingBox MUST BE EITHER A BOUNDARY NODE OR A GB NODE"<<std::endl;
+//                    assert(0 && "NODE ON BoundingBox MUST BE EITHER A BOUNDARY NODE OR A GB NODE");
+                }
+            }
+            return isBndNode ;
         }
-        
-//        /**********************************************************************/
-//        const bool& isBoundaryNode() const
-//        {
-//            return _isOnBoundingBox;
-//        }
         
         /**********************************************************************/
         bool isGrainBoundaryNode() const
@@ -1089,12 +965,12 @@ namespace model
                     }
                     
                     p_Simplex=get_includingSimplex(p_Simplex); // update including simplex
-//                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
-//                    if(boundaryNormal.squaredNorm()<FLT_EPSILON)
-//                    {
-//                        model::cout<<"DislocationNode "<<this->sID<<", @"<<this->get_P().transpose()<<std::endl;
-//                        assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
-//                    }
+                    //                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
+                    //                    if(boundaryNormal.squaredNorm()<FLT_EPSILON)
+                    //                    {
+                    //                        model::cout<<"DislocationNode "<<this->sID<<", @"<<this->get_P().transpose()<<std::endl;
+                    //                        assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
+                    //                    }
                     
                     if(_isOnBoundingBox)
                     {
@@ -1132,9 +1008,9 @@ namespace model
                 model::cout<<"DislocationNode "<<this->sID<<std::endl;
                 assert(0 && "new position outside glide planes.");
             }
-         
+            
             VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;);
-
+            
             return (this->get_P()-newP).norm()<FLT_EPSILON;
         }
         
@@ -1226,47 +1102,7 @@ namespace model
                 
                 // Make sure that new position is at intersection of glidePlanes
                 const VectorDim newP=snapToMeshPlaneIntersection(this->get_P()+dX);
-                
                 set_P(newP);
-                
-                //                if(this->network().use_boundary)
-                //                {// using confining mesh
-                //
-                //                    if(_isOnBoundingBox
-                //                       //|| grains().size()>1
-                //                       )
-                //                    {// if the node is already on the the bounding box, keep it there
-                //                        snapToBoundingBox(newP);
-                //                    }
-                //                    else
-                //                    {// check if node is ou
-                //
-                //
-                //                        //                        std::set<const Simplex<dim,dim>*> path;
-                //                        //                        const bool searchAllRegions=false;
-                //                        std::pair<bool,const Simplex<dim,dim>*> temp(this->network().mesh.searchRegionWithGuess(newP,p_Simplex));
-                //                        THIS SEARCH SHOULD BE DONE IN set_P. IF REGIONS BEFORE AND AFTER DON'T MATHC, TRIGGER addGrainBoundaryPlanes
-                //
-                //                        if(temp.first)
-                //                        {// newP is inside box
-                //                            set_P(newP);
-                //                        }
-                //                        else
-                //                        {
-                //                            snapToBoundingBox(newP);
-                //                            addGrainBoundaryPlanes(); // bounding box changes
-                //
-                //                        }
-                //
-                //
-                //                    }
-                //
-                //
-                //                }
-                //                else
-                //                {// no confining mesh, move freely
-                //                    set_P(newP);
-                //                }
             }
             else
             {
@@ -1308,6 +1144,89 @@ namespace model
     
 }
 #endif
+
+
+//        /**********************************************************************/
+//        void applyVelocityFilter(double vMaxGood)
+//        {
+//            if(use_velocityFilter)
+//            {
+//                const double Rc=3.0*10.0;
+//                const double filterThreshold=0.05*vMaxGood*vMaxGood;
+//
+//                if((this->get_P()-C).norm()<Rc)
+//                {
+//                    if(velocity.dot(vOld)<-filterThreshold)
+//                    {
+//                        velocityReductionCoeff*=velocityReductionFactor;
+//                    }
+//                }
+//                else
+//                {
+//                    if(velocity.dot(vOld)<-filterThreshold)
+//                    {
+//                        velocityReductionCoeff*=velocityReductionFactor;
+//                        C=this->get_P();
+//                    }
+//                    else if(velocity.dot(vOld)>0.0)
+//                    {
+//                        velocityReductionCoeff/=velocityReductionFactor;
+//                    }
+//                    else
+//                    {
+//                        // don't change velocityReductionCoeff
+//                    }
+//                }
+//
+//                //                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
+//
+//                //                const double VdotVold=
+//                //                if(velocity.dot(vOld)<-filterThreshold)
+//                //                {
+//                //                    velocityReductionCoeff*=velocityReductionFactor;
+//                //                }
+//                //                else if(velocity.dot(vOld)>filterThreshold)
+//                //                {
+//                //                    velocityReductionCoeff/=velocityReductionFactor;
+//                //                }
+//                //                else
+//                //                {
+//                //                    // don't change velocityReductionCoeff
+//                //                }
+//                if(velocityReductionCoeff>1.0)
+//                {
+//                    velocityReductionCoeff=1.0;
+//                }
+//                if(velocityReductionCoeff<0.0001)
+//                {
+//                    velocityReductionCoeff=0.0001;
+//                }
+//
+//
+//
+//                if( isOscillating()
+//                   //&& velocity.norm()>vMaxGood /*velocity.norm()>0.0*/
+//                   )
+//                { // oscillating node
+//                    std::cout<<"node "<<this->sID<<" BAD, ";
+//                    //                    velocity*=(velocityReductionCoeff*vMaxGood/velocity.norm());
+//                    if(velocity.norm()>vMaxGood)
+//                    {
+//                        velocity=velocityReductionCoeff*vMaxGood*velocity.normalized();
+//                    }
+//                    //                    std::cout<<velocity.norm()<<std::endl;
+//                }
+//                else
+//                { // good node
+//                    std::cout<<"node "<<this->sID<<" GOOD, ";
+//                    velocity*=velocityReductionCoeff;
+//                }
+//
+//                //                velocity*=velocityReductionCoeff;
+//                std::cout<<"velocityReductionCoeff="<<velocityReductionCoeff<<", vMaxGood="<<vMaxGood<<", velocity.norm()="<<velocity.norm()<<", newVelocity="<<velocity.norm()<<std::endl;
+//
+//            }
+//        }
 
 //        /**********************************************************************/
 //        bool is_simple() const

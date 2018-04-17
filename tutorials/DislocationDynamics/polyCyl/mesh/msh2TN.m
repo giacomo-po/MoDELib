@@ -4,10 +4,10 @@ clc
 
 addpath('../../../../matlab');
 
-filename='n50-id1.msh';
-meshID=0;
+filename='cube50.msh';
+meshID=1;
 centerAndScale=1;
-scaleFactor=2000;
+scaleFactor=4000;
 
 fid = fopen(filename);
 tline = fgetl(fid);
