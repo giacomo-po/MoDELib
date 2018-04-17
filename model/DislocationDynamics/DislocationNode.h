@@ -1109,7 +1109,7 @@ namespace model
                                 model::cout<<std::setprecision(15)<<std::scientific<<"("<<pair.first.transpose()<<"), ("<<pair.second.transpose()<<std::endl;
                             }
                             std::cout<<"BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL"<<std::endl;
-                            assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
+                            //assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
                         }
                     }
                     else

@@ -440,17 +440,16 @@ namespace model
                         //                    unsigned char lineClr[3]={51,153,255};
                         unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
 
-                        
-                        if(meshLocation==1)
+                        if(meshLocation>=1)
                         {
                             cellsBnd->InsertNextCell(line);
                             colorsBnd->InsertNextTypedTuple(lineClr);
-
+                            
                         }
                         else
                         {
                             cells->InsertNextCell(line);
-
+                            
                             if(meshLocation==2 && blackGrainBoundarySegments)
                             {
                                 unsigned char lineClr1[3]={1,1,1};
@@ -461,6 +460,27 @@ namespace model
                                 colors->InsertNextTypedTuple(lineClr);
                             }
                         }
+                        
+//                        if(meshLocation==1)
+//                        {
+//                            cellsBnd->InsertNextCell(line);
+//                            colorsBnd->InsertNextTypedTuple(lineClr);
+//
+//                        }
+//                        else
+//                        {
+//                            cells->InsertNextCell(line);
+//
+//                            if(meshLocation==2 && blackGrainBoundarySegments)
+//                            {
+//                                unsigned char lineClr1[3]={1,1,1};
+//                                colors->InsertNextTypedTuple(lineClr1);
+//                            }
+//                            else
+//                            {
+//                                colors->InsertNextTypedTuple(lineClr);
+//                            }
+//                        }
                     }
                     else
                     {

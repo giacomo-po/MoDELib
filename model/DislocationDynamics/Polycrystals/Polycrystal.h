@@ -120,9 +120,21 @@ namespace model
             // Construct GrainsBoundaries
             model::cout<<"Creating GrainsBoundaries"<<std::endl;
             grainBoundaryDislocations().clear();
-            int fileID=1;
+//            int fileID=1;
             for(const auto& rgnBnd : mesh.regionBoundaries())
             {
+                
+//                const auto pr=rgnBnd.second.unsortedBoundary();
+//                std::ofstream myfile1;
+//                myfile1.open ("rb"+std::to_string(fileID)+".txt");
+//                //myfile << "Writing this to a file.\n";
+//                for(const auto& edge : pr)
+//                {
+//                    myfile1<<edge->child(0).P0.transpose()<<" "<<edge->child(1).P0.transpose()<<"\n";
+//                }
+//                myfile1.close();
+                
+                
                 grainBoundaries().emplace(std::piecewise_construct,
                                           std::forward_as_tuple(rgnBnd.first),
                                           std::forward_as_tuple(rgnBnd.second,
@@ -131,15 +143,15 @@ namespace model
                                                                 dn,
                                                                 mesh));
                 
-                std::ofstream myfile;
-                myfile.open ("file"+std::to_string(fileID)+".txt");
-                //myfile << "Writing this to a file.\n";
-                for(const auto& pair : grainBoundary(rgnBnd.first.first,rgnBnd.first.second).meshIntersections)
-                {
-                    myfile<<" "<<pair.second.transpose()<<"\n";
-                }
-                myfile.close();
-                fileID++;
+//                std::ofstream myfile;
+//                myfile.open ("gb"+std::to_string(fileID)+".txt");
+//                //myfile << "Writing this to a file.\n";
+//                for(const auto& pair : grainBoundary(rgnBnd.first.first,rgnBnd.first.second).meshIntersections)
+//                {
+//                    myfile<<" "<<pair.second.transpose()<<"\n";
+//                }
+//                myfile.close();
+//                fileID++;
             }
             
             

@@ -50,6 +50,9 @@ namespace model
         
         SimplicialMesh<3> mesh;
         bool dispFileIsGood;
+        static bool showGrainColors;
+        static bool showRegionBoundaries;
+
         
         /**************************************************************************/
         SimplicialMeshActor() :
@@ -111,7 +114,7 @@ namespace model
             gbColors->SetName("Colors");
             size_t triPtID=0;
 
-            bool showGrainColors=true;
+            //bool showGrainColors=true;
             if(showGrainColors)
             {
                 std::map<int,Eigen::Matrix<int,1,3>> grainColors;
@@ -168,7 +171,7 @@ namespace model
             
             
             // grain-boundaries
-            bool showRegionBoundaries=false;
+//            bool showRegionBoundaries=false;
             if(showRegionBoundaries)
             {
              
@@ -308,7 +311,9 @@ namespace model
     };
 	
     double SimplicialMeshActor::dispCorr=1.0;
-    
+    bool SimplicialMeshActor::showGrainColors=false;
+    bool SimplicialMeshActor::showRegionBoundaries=true;
+
 } // namespace model
 #endif
 

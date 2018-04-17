@@ -60,7 +60,7 @@ use_EnergyMultipole = 0;
 # Note that Lmax and Lmin are relative to box size if use_boundary =1
 remeshFrequency=1;
 Lmax=0.04;
-Lmin=0.01;
+Lmin=0.02;
 
 ######################################
 # DISLOCATION JUNCTIONS
@@ -97,7 +97,7 @@ crossSlipDeg=2.0;
 
 ######################################
 # GRAIN-BOUNDARY MODEL
-grainBoundaryTransmissionModel=1;
+grainBoundaryTransmissionModel=0;
 
 ######################################
 parametrizationExponent=0.5;
@@ -114,4 +114,4 @@ verboseRemesh=0;
 verboseNodeContraction=0;
 verboseDislocationNode=0;
 verboseCrossSlip=0;
-outputSegmentPairDistances=1;
+outputSegmentPairDistances=0;

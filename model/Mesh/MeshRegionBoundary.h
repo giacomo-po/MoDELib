@@ -59,6 +59,23 @@ namespace model
         {
             return *this;
         }
+        
+        /**********************************************************************/
+        std::set<const Simplex<_SimplexType::dim,_SimplexType::dim-2>*> unsortedBoundary() const
+        {
+            std::set<const Simplex<_SimplexType::dim,_SimplexType::dim-2>*> temp;
+            for(const auto& simplex : simplices())
+            {
+                for(const auto& child : simplex->children())
+                {
+                    if(child->regionIDs().size()>2 || child->isBoundarySimplex())
+                    {
+                        temp.insert(child.get());
+                    }
+                }
+            }
+            return temp;
+        }
 
     };
     

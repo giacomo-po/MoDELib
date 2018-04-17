@@ -44,23 +44,22 @@ namespace model
         PlaneMeshIntersection(const SimplicialMesh<dim>& m,
         const VectorDim& P0,
         const VectorDim& nn,
-        const int& rID) :
-//        /* init */ PlaneMeshIntersectionContainerType(reducedPlaneMeshIntersection(m,P0,nn,rID)),
-        /* init */ PlaneMeshIntersectionContainerType(reducedPlaneMeshIntersection(planeMeshIntersection(m,P0,nn,rID))),
+        const int& rID1,
+        const int& rID2) :
+        /* init */ PlaneMeshIntersectionContainerType(reducedPlaneMeshIntersection(m,P0,nn,rID1,rID2)),
         /* init */ mesh(m)
         {
         
         }
-
-//        /**********************************************************************/
-//        static PlaneMeshIntersectionContainerType reducedPlaneMeshIntersection(const SimplicialMesh<dim>& m,
-//                                                                               const VectorDim& P0,
-//                                                                               const VectorDim& nn,
-//                                                                               const int& rID)
-//        {
-//            const PlaneMeshIntersectionContainerType mpi=planeMeshIntersection(m,P0,nn,rID);
-        static PlaneMeshIntersectionContainerType reducedPlaneMeshIntersection(const PlaneMeshIntersectionContainerType& mpi)
+        
+        /**********************************************************************/
+        static PlaneMeshIntersectionContainerType reducedPlaneMeshIntersection(const SimplicialMesh<dim>& m,
+                                                                        const VectorDim& P0,
+                                                                        const VectorDim& nn,
+                                                                        const int& rID1,
+                                                                        const int& rID2)
         {
+            const PlaneMeshIntersectionContainerType mpi=planeMeshIntersection(m,P0,nn,rID1,rID2);
             
 //            const auto t0=std::chrono::system_clock::now();
             model::cout<<"Reducing plane/mesh intersection points "<<std::flush;
@@ -102,7 +101,8 @@ namespace model
         static PlaneMeshIntersectionContainerType planeMeshIntersection(const SimplicialMesh<dim>& m,
                                                                         const VectorDim& P0,
                                                                         const VectorDim& nn,
-                                                                        const int& rID)
+                                                                        const int& rID1,
+                                                                        const int& rID2)
         {
             //std::cout<<"Computing plane/mesh intersection "<<std::flush;
 //            const auto t0=std::chrono::system_clock::now();
@@ -118,7 +118,7 @@ namespace model
                 std::set<const EdgeSimplexType*> tested;
                 
                 // Find initial intersection
-                const std::pair<const EdgeSimplexType*,RootContainerType> pEI=getFirstPlaneEdgeIntersection(m,P0,N,rID,tested);
+                const std::pair<const EdgeSimplexType*,RootContainerType> pEI=getFirstPlaneEdgeIntersection(m,P0,N,rID1,rID2,tested);
                 
                 switch (pEI.second.size())
                 {
@@ -128,14 +128,14 @@ namespace model
                         {// intersection within edge
                             temp.emplace_back(pEI.first,pEI.second[0].first);
                                         //std::cout<<temp[temp.size()-1].second.transpose()<<std::endl;
-                            intersectionStep(P0,N,validSiblings(*pEI.first,rID,N),tested,temp,rID);
+                            intersectionStep(P0,N,validSiblings(*pEI.first,rID1,rID2,N),tested,temp,rID1,rID2);
                         }
                         else
                         {// intersection at node
                             temp.emplace_back(pEI.first,pEI.second[0].first);
                                         //std::cout<<temp[temp.size()-1].second.transpose()<<std::endl;
                             markParents(*pEI.second[0].second,tested);
-                            intersectionStep(P0,N,validUncles(*pEI.second[0].second,rID,N),tested,temp,rID);
+                            intersectionStep(P0,N,validUncles(*pEI.second[0].second,rID1,rID2,N),tested,temp,rID1,rID2);
                         }
                         
                         break;
@@ -150,7 +150,7 @@ namespace model
                         temp.emplace_back(pEI.first,pEI.second[1].first);
                                     //std::cout<<temp[temp.size()-1].second.transpose()<<std::endl;
                         markParents(*pEI.second[1].second,tested);
-                        intersectionStep(P0,N,validUncles(*pEI.second[1].second,rID,N),tested,temp,rID);
+                        intersectionStep(P0,N,validUncles(*pEI.second[1].second,rID1,rID2,N),tested,temp,rID1,rID2);
                         
                         break;
                     }
@@ -179,7 +179,8 @@ namespace model
         
         /**********************************************************************/
         static SiblingsContainerType validSiblings(const Simplex<dim,dim-2>& edge,
-                                                   const int& rID,
+                                                   const int& rID1,
+                                                   const int& rID2,
                                                    const VectorDim& N)
         {
             
@@ -187,8 +188,10 @@ namespace model
             for(const auto& parent : edge.parents())
             {
                 if(  (parent->isBoundarySimplex() || parent->isRegionBoundarySimplex())
-                   && parent->isInRegion(rID)
-                   && parent->outNormal(rID).cross(N).norm()>FLT_EPSILON
+                   && parent->isInRegion(rID1)
+                   && parent->isInRegion(rID2)
+                   && parent->outNormal(rID1).cross(N).norm()>FLT_EPSILON
+                   && parent->outNormal(rID2).cross(N).norm()>FLT_EPSILON
                    )
                 {
                     for(int c=0; c<ParentSimplexType::nFaces;++c)
@@ -205,7 +208,8 @@ namespace model
         
         /**********************************************************************/
         static SiblingsContainerType validUncles(const Simplex<dim,0>& vertex,
-                                                 const int& rID,
+                                                 const int& rID1,
+                                                 const int& rID2,
                                                  const VectorDim& N)
         {
             
@@ -224,8 +228,10 @@ namespace model
             for(const auto& grandParent : grandParents)
             {
                 if(  (grandParent->isBoundarySimplex() || grandParent->isRegionBoundarySimplex())
-                   && grandParent->isInRegion(rID)
-                   && grandParent->outNormal(rID).cross(N).norm()>FLT_EPSILON)
+                   && grandParent->isInRegion(rID1)
+                   && grandParent->isInRegion(rID2)
+                   && grandParent->outNormal(rID1).cross(N).norm()>FLT_EPSILON
+                   && grandParent->outNormal(rID2).cross(N).norm()>FLT_EPSILON)
                 {
                     for(int c=0; c<Simplex<dim,dim-1>::nFaces;++c)
                     {
@@ -243,7 +249,8 @@ namespace model
                                      const SiblingsContainerType& edgeContainer,
                                      std::set<const EdgeSimplexType*>& tested,
                                      PlaneMeshIntersectionContainerType& temp,
-                                     const int& rID)
+                                     const int& rID1,
+                                     const int& rID2)
         {
             
             std::deque<std::pair<const EdgeSimplexType*,RootType>> rootDeq;
@@ -266,8 +273,10 @@ namespace model
                             break;
                             
                         default:
+                        {
                             assert(0 && "uncles cannot have more than one root");
                             break;
+                        }
                     }
                 }
             }
@@ -290,7 +299,7 @@ namespace model
                         temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
                                     //std::cout<<temp[temp.size()-1].second.transpose()<<std::endl;
                         markParents(*rootDeq[0].second.second,tested);
-                        intersectionStep(P0,N,validUncles(*rootDeq[0].second.second,rID,N),tested,temp,rID);
+                        intersectionStep(P0,N,validUncles(*rootDeq[0].second.second,rID1,rID2,N),tested,temp,rID1,rID2);
                         
                     }
                     else
@@ -299,14 +308,14 @@ namespace model
                         {// intersection along edge
                             temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
                                         //std::cout<<temp[temp.size()-1].second.transpose()<<std::endl;
-                            intersectionStep(P0,N,validSiblings(*rootDeq[0].first,rID,N),tested,temp,rID);
+                            intersectionStep(P0,N,validSiblings(*rootDeq[0].first,rID1,rID2,N),tested,temp,rID1,rID2);
                         }
                         else
                         {// intersection at node
                             temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
                                         //std::cout<<temp[temp.size()-1].second.transpose()<<std::endl;
                             markParents(*rootDeq[0].second.second,tested);
-                            intersectionStep(P0,N,validUncles(*rootDeq[0].second.second,rID,N),tested,temp,rID);
+                            intersectionStep(P0,N,validUncles(*rootDeq[0].second.second,rID1,rID2,N),tested,temp,rID1,rID2);
                             
                         }
                         
@@ -315,19 +324,19 @@ namespace model
                 else
                 {
 //                    temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
-//                    intersectionStep(P0,N,validSiblings(*rootDeq[0].first,rID,N),tested,temp,rID);
+//                    intersectionStep(P0,N,validSiblings(*rootDeq[0].first,rID1,rID2,N),tested,temp,rID1,rID2);
                     if(rootDeq[0].second.second==nullptr)
                     {// intersection along edge
                         temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
                                     //std::cout<<temp[temp.size()-1].second.transpose()<<std::endl;
-                        intersectionStep(P0,N,validSiblings(*rootDeq[0].first,rID,N),tested,temp,rID);
+                        intersectionStep(P0,N,validSiblings(*rootDeq[0].first,rID1,rID2,N),tested,temp,rID1,rID2);
                     }
                     else
                     {// intersection at node
                         temp.emplace_back(rootDeq[0].first,rootDeq[0].second.first);
                                     //std::cout<<temp[temp.size()-1].second.transpose()<<std::endl;
                         markParents(*rootDeq[0].second.second,tested);
-                        intersectionStep(P0,N,validUncles(*rootDeq[0].second.second,rID,N),tested,temp,rID);
+                        intersectionStep(P0,N,validUncles(*rootDeq[0].second.second,rID1,rID2,N),tested,temp,rID1,rID2);
                         
                     }
                 }
@@ -341,7 +350,8 @@ namespace model
         static std::pair<const Simplex<dim,dim-2>*,RootContainerType> getFirstPlaneEdgeIntersection(const SimplicialMesh<dim>& m,
                                                                                                     const VectorDim& P0,
                                                                                                     const VectorDim& n,
-                                                                                                    const int& rID,
+                                                                                                    const int& rID1,
+                                                                                                    const int& rID2,
                                                                                                     std::set<const EdgeSimplexType*>& tested)
         {
             std::pair<const Simplex<dim,dim-2>*,RootContainerType> temp;
@@ -350,9 +360,11 @@ namespace model
             {// loop over edges
                 if(edge.second->isBoundarySimplex() || edge.second->isRegionBoundarySimplex())
                 {
-                    if(edge.second->isInRegion(rID))
+                    if(   edge.second->isInRegion(rID1)
+                       && edge.second->isInRegion(rID2))
                     {
-                        if(edge.second->outNormal(rID).cross(n).norm()>FLT_EPSILON)
+                        if(   edge.second->outNormal(rID1).cross(n).norm()>FLT_EPSILON
+                           && edge.second->outNormal(rID2).cross(n).norm()>FLT_EPSILON)
                         {
                             temp=std::make_pair(edge.second,planeEdgeIntersection(P0,n,*edge.second,tested));
                             

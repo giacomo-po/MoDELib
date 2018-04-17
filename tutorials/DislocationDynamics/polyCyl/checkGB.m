@@ -2,12 +2,36 @@ clear all
 close all
 clc
 
+
 figure(1)
 clf
 hold on
-N=42;
+N=221;
 for f=1:N
-P=load(['file' num2str(f) '.txt']);
-patch(P(:,1),P(:,2),P(:,3),'g')
+R=load(['rb' num2str(f) '.txt']);
+for r=1:size(R,1)
+plot3([R(r,1) R(r,4)],[R(r,2) R(r,5)],[R(r,3) R(r,6)],'bx-','Linewidth',2)
 end
+
+
+%try
+G=load(['gb' num2str(f) '.txt']);
+patch(G(:,1),G(:,2),G(:,3),'g')
+%end
+end
+
 axis equal
+
+%%
+%plot3(X(:,1),X(:,2),X(:,3),'ro','Linewidth',2)
+%plot3(X(1,1),X(1,2),X(1,3),'ks','Linewidth',2)
+
+%for r=1:size(X,1)
+%plot3([X(r,1) X(r,4)],[X(r,2) X(r,5)],[X(r,3) X(r,6)],'r','Linewidth',2)
+%plot3([X(r,1)],[X(r,2) X(r,5)],[X(r,3) X(r,6)],'r','Linewidth',2)
+%drawnow
+%pause(0.1)
+
+%end
+
+

@@ -164,19 +164,57 @@ namespace model
         }
         
         
+//        /**********************************************************************/
+//        static std::deque<std::pair<int,VectorDimD>> boundaryProjection(const VectorDimD& P0,
+//                                                                        const VectorDimD& P1,
+//                                                                        const VectorDimD& D,
+//                                                                        const PlaneMeshIntersectionContainerType& pp)
+//        {
+//            
+//            std::deque<std::pair<int,VectorDimD>> temp;
+//            
+//            
+//            const double dNorm(D.norm());
+//            assert(dNorm>FLT_EPSILON);
+//            const VectorDimD dir=D/dNorm;
+//            // Let a point v on the boundary be written as v=P0+u1*(P1-P0)+u2*d
+//            // then we have [P1-P0 d]*[u1 u2]^T=v-P0
+//            
+//            Eigen::Matrix<double,3,2> A;
+//            A.col(0)=P1-P0;
+//            A.col(1)=dir;
+//            const Eigen::LLT<Eigen::Matrix<double,2,2>> llt(A.transpose()*A);
+//            assert(llt.info()==Eigen::Success);
+//            
+//            
+//            for(size_t m=0;m<pp.size();++m)
+//            {
+//                const Eigen::Matrix<double,2,1> x=llt.solve(A.transpose()*(pp[m].second-P0));
+//                if(x(0)>FLT_EPSILON && x(0)<1.0-FLT_EPSILON && x(1)>FLT_EPSILON)
+//                {
+//                    temp.emplace_back(m,pp[m].second);
+//                }
+//            }
+//            
+//            return temp;
+//            
+//
+//        }
+        
         /**********************************************************************/
-        static std::deque<std::pair<int,VectorDimD>> boundaryProjection(const VectorDimD& P0,
+        static std::map<double,VectorDimD> boundaryProjection(const VectorDimD& P0,
                                                                         const VectorDimD& P1,
                                                                         const VectorDimD& D,
                                                                         const PlaneMeshIntersectionContainerType& pp)
         {
             
-            std::deque<std::pair<int,VectorDimD>> temp;
             
             
             const double dNorm(D.norm());
             assert(dNorm>FLT_EPSILON);
             const VectorDimD dir=D/dNorm;
+            // Let a point v on the boundary be written as v=P0+u1*(P1-P0)+u2*d
+            // then we have [P1-P0 d]*[u1 u2]^T=v-P0
             
             Eigen::Matrix<double,3,2> A;
             A.col(0)=P1-P0;
@@ -184,19 +222,19 @@ namespace model
             const Eigen::LLT<Eigen::Matrix<double,2,2>> llt(A.transpose()*A);
             assert(llt.info()==Eigen::Success);
             
-            
+            std::map<double,VectorDimD> temp; // keep points sorted by parameter u1
             for(size_t m=0;m<pp.size();++m)
             {
                 const Eigen::Matrix<double,2,1> x=llt.solve(A.transpose()*(pp[m].second-P0));
                 if(x(0)>FLT_EPSILON && x(0)<1.0-FLT_EPSILON && x(1)>FLT_EPSILON)
                 {
-                    temp.emplace_back(m,pp[m].second);
+                    temp.emplace(x(0),pp[m].second);
                 }
             }
             
             return temp;
             
-
+            
         }
         
         /**********************************************************************/
@@ -231,7 +269,7 @@ namespace model
                 const Eigen::Matrix<double,3,1> b=v0-P;
                 
                 const Eigen::LLT<Eigen::Matrix<double,2,2>> llt(A.transpose()*A);
-                std::cout<<"DO NOT USE LLT TO SEE IF SYSTEM HAS SOLUTION. See https://eigen.tuxfamily.org/dox/classEigen_1_1LDLT.html#a858dc77b65dd48248299bb6a6a758abf"<<std::endl;
+//                std::cout<<"DO NOT USE LLT TO SEE IF SYSTEM HAS SOLUTION. See https://eigen.tuxfamily.org/dox/classEigen_1_1LDLT.html#a858dc77b65dd48248299bb6a6a758abf"<<std::endl;
 
                 
                 if(llt.info()==Eigen::Success)
@@ -253,11 +291,13 @@ namespace model
             return temp;
         }
         
+        /**********************************************************************/
         const double& minSize()
         {
             return _minSize;
         }
         
+        /**********************************************************************/
         const double& maxSize()
         {
             return _maxSize;

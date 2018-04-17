@@ -139,10 +139,10 @@ namespace model
                     PlaneMeshIntersectionContainerType pmi30=PlaneMeshIntersection<dim>(this->mesh,P3,n2,grainID);
                     const VectorDimD P7=this->boundaryProjection(P3,d3.cartesian(),pmi30).second;
                     
-                    std::deque<std::pair<int,VectorDimD>> v54=this->boundaryProjection(P1,P0,d3.cartesian(),pmi01);
-                    std::deque<std::pair<int,VectorDimD>> v65=this->boundaryProjection(P2,P1,d3.cartesian(),pmi12);
-                    std::deque<std::pair<int,VectorDimD>> v76=this->boundaryProjection(P3,P2,d3.cartesian(),pmi23);
-                    std::deque<std::pair<int,VectorDimD>> v47=this->boundaryProjection(P0,P3,d3.cartesian(),pmi30);
+                    const auto v54=this->boundaryProjection(P1,P0,d3.cartesian(),pmi01);
+                    const auto v65=this->boundaryProjection(P2,P1,d3.cartesian(),pmi12);
+                    const auto v76=this->boundaryProjection(P3,P2,d3.cartesian(),pmi23);
+                    const auto v47=this->boundaryProjection(P0,P3,d3.cartesian(),pmi30);
                     
                     /*! Vertex file format is:
                      * ID Px Py Pz Vx Vy Vz velReducCoeff snID meshLocation grainID
@@ -178,7 +178,8 @@ namespace model
                        const int& id0,
                        const int& id1,
                        const int& id2,
-                       const std::deque<std::pair<int,VectorDimD>>& bndVtx,
+//                       const std::deque<std::pair<int,VectorDimD>>& bndVtx,
+                       const std::map<double,VectorDimD>& bndVtx,
                        const int& id3,
                        const SlipSystem& slipSystem,
                        const VectorDimD& n,

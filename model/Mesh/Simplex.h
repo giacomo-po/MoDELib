@@ -170,6 +170,12 @@ namespace model
             return this->operator[](n);
         }
         
+        const BaseArrayType& children() const
+        {
+            return *this;
+        }
+        
+        
         /**********************************************************************/
         size_t childOrder(const ChildIDType& childID) const
         {
@@ -336,6 +342,11 @@ namespace model
             }
             assert(n!=nFaces && "CHILD NOT FOUND");
             return this->operator[](n);
+        }
+        
+        const BaseArrayType& children() const
+        {
+            return *this;
         }
         
         /**********************************************************************/
