@@ -59,8 +59,8 @@ use_EnergyMultipole = 0;
 # remeshFrequency = n redistribution every n steps (recommended)
 # Note that Lmax and Lmin are relative to box size if use_boundary =1
 remeshFrequency=1;
-Lmax=0.04;
-Lmin=0.01;
+Lmax=0.08;
+Lmin=0.02;
 
 ######################################
 # DISLOCATION JUNCTIONS
@@ -114,4 +114,4 @@ verboseRemesh=0;
 verboseNodeContraction=0;
 verboseDislocationNode=0;
 verboseCrossSlip=0;
-outputSegmentPairDistances=1;
+outputSegmentPairDistances=0;

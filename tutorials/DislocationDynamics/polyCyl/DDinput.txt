@@ -75,7 +75,7 @@ collisionTol=3;
 # If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
 # T/T_meshID.txt must be present in the working directory.
 use_boundary =1;
-meshID=1;
+meshID=0;
 use_directSolver_FEM=0;
 use_meshRegions=0;
 
