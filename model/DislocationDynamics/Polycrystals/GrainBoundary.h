@@ -603,6 +603,12 @@ namespace model
         {
             return _dscl;
         }
+        
+        /**********************************************************************/
+        std::string tag() const
+        {
+            return "(" + std::to_string(grainBndID.first)+"," +std::to_string(grainBndID.second)+")";
+        }
     };
     
     template <int dim>

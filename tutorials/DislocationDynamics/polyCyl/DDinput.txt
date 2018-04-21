@@ -1,7 +1,7 @@
 ######################################
 # Number of simulation steps 
 Nsteps=20000;
-startAtTimeStep = -1;
+startAtTimeStep = 3080;
 quadPerLength=0.1;
 
 ######################################
@@ -75,7 +75,7 @@ collisionTol=3;
 # If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
 # T/T_meshID.txt must be present in the working directory.
 use_boundary =1;
-meshID=0;
+meshID=1;
 use_directSolver_FEM=0;
 use_meshRegions=0;
 
@@ -112,6 +112,6 @@ computeDDinteractions=1;
 verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;
-verboseDislocationNode=0;
+verboseDislocationNode=5;
 verboseCrossSlip=0;
 outputSegmentPairDistances=0;

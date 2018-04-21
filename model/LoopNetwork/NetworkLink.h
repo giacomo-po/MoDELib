@@ -227,10 +227,11 @@ namespace model
 //            }
         }
         
-//        std::string tag() const
-//        {
-//            return std::to_string(source->sID)
-//        }
+        /**********************************************************************/
+        std::string tag() const
+        {
+            return std::to_string(source->sID)+"->"+std::to_string(sink->sID);
+        }
         
 //        const FlowType& flow() const
 //        {

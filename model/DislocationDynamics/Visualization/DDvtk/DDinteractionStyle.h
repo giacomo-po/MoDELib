@@ -11,7 +11,7 @@
 
 #include <memory>
 #include <stdlib.h>     //for using the function sleep
-
+#include <fstream>
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
@@ -217,6 +217,51 @@ namespace model
         {
             LastPickedProperty->Delete();
         }
+
+        /*************************************************************************/
+        virtual void OnRightButtonDown()
+        {
+
+            double viewUp[3];
+            this->GetDefaultRenderer( )->GetActiveCamera( )->GetViewUp( viewUp[0], viewUp[1], viewUp[2] );
+            
+            double focalPoint[3];
+            this->GetDefaultRenderer( )->GetActiveCamera( )->GetFocalPoint( focalPoint[0], focalPoint[1], focalPoint[2] );
+            
+            double camaraPosition[3];
+            this->GetDefaultRenderer( )->GetActiveCamera( )->GetPosition( camaraPosition[0], camaraPosition[1], camaraPosition[2] );
+
+            double viewAngle= this->GetDefaultRenderer( )->GetActiveCamera( )->GetViewAngle(  );
+
+            double parallelScale=this->GetDefaultRenderer( )->GetActiveCamera( )->GetParallelScale( );
+
+            
+            std::cout<<greenBoldColor<<"writing to cameraState.txt"<<defaultColor<<std::endl;
+            std::cout<<"viewUp="<<viewUp[0]<<" "<<viewUp[1]<<" "<<viewUp[2]<<std::endl;
+            std::cout<<"focalPoint="<<focalPoint[0]<<" "<<focalPoint[1]<<" "<<focalPoint[2]<<std::endl;
+            std::cout<<"camaraPosition="<<camaraPosition[0]<<" "<<camaraPosition[1]<<" "<<camaraPosition[2]<<std::endl;
+            std::cout<<"viewAngle="<<viewAngle<<std::endl;
+            std::cout<<"parallelScale="<<parallelScale<<std::endl;
+
+            std::ofstream myfile;
+            myfile.open ("cameraState.txt");
+            myfile<<viewUp[0]<<" "<<viewUp[1]<<" "<<viewUp[2]<<std::endl;
+            myfile<<focalPoint[0]<<" "<<focalPoint[1]<<" "<<focalPoint[2]<<std::endl;
+            myfile<<camaraPosition[0]<<" "<<camaraPosition[1]<<" "<<camaraPosition[2]<<std::endl;
+            myfile<<viewAngle<<std::endl;
+            myfile<<parallelScale<<std::endl;
+            myfile.close();
+            
+//            void MyClass:resetcamera( double c[3] )
+//             {
+//                     this->GetDefaultRenderer( )->GetActiveCamera( )->SetViewUp( 0, 1, 0 );
+//                        this->GetDefaultRenderer( )->GetActiveCamera( )->SetFocalPoint( 0.0, 0.0, 0.0 );
+//                        this->GetDefaultRenderer( )->GetActiveCamera( )->SetPosition( c[0], c[1], c[2] );
+//                 }
+            
+            // Forward events
+            vtkInteractorStyleTrackballCamera::OnRightButtonDown();
+        }
         
         /*************************************************************************/
         virtual void OnLeftButtonDown()
@@ -272,6 +317,71 @@ namespace model
             {
                 std::cout << "Exiting DDvtk, goodbye!" << std::endl;
                 exit(0);
+            }
+            
+
+            
+            if(key == "c")
+            {
+
+                std::cout<<greenBoldColor<<"reading cameraState.txt"<<defaultColor<<std::endl;
+                std::ifstream ifs ( "cameraState.txt" , std::ifstream::in );
+                if (ifs.is_open())
+                {
+                    std::string line;
+
+                    std::getline(ifs, line);
+                    double viewUp[3];
+                    std::stringstream viewUpss(line);
+                    viewUpss>>viewUp[0]>>viewUp[1]>>viewUp[2];
+
+                    std::getline(ifs, line);
+                    double focalPoint[3];
+                    std::stringstream focalPointss(line);
+                    focalPointss>>focalPoint[0]>>focalPoint[1]>>focalPoint[2];
+
+                    std::getline(ifs, line);
+                    double camaraPosition[3];
+                    std::stringstream camaraPositionss(line);
+                    camaraPositionss>>camaraPosition[0]>>camaraPosition[1]>>camaraPosition[2];
+
+                    std::getline(ifs, line);
+                    double viewAngle;
+                    std::stringstream viewAngless(line);
+                    viewAngless>>viewAngle;
+                    
+                    std::getline(ifs, line);
+                    double parallelScale;
+                    std::stringstream parallelScaless(line);
+                    parallelScaless>>parallelScale;
+
+                    
+                    std::cout<<"viewUp="<<viewUp[0]<<" "<<viewUp[1]<<" "<<viewUp[2]<<std::endl;
+                    std::cout<<"focalPoint="<<focalPoint[0]<<" "<<focalPoint[1]<<" "<<focalPoint[2]<<std::endl;
+                    std::cout<<"camaraPosition="<<camaraPosition[0]<<" "<<camaraPosition[1]<<" "<<camaraPosition[2]<<std::endl;
+                    std::cout<<"viewAngle="<<viewAngle<<std::endl;
+                    std::cout<<"parallelScale="<<parallelScale<<std::endl;
+                    
+                    this->GetDefaultRenderer()->GetActiveCamera()->SetViewUp( viewUp[0], viewUp[1], viewUp[2] );
+                    this->GetDefaultRenderer()->GetActiveCamera()->SetFocalPoint( focalPoint[0], focalPoint[1], focalPoint[2] );
+                    this->GetDefaultRenderer()->GetActiveCamera()->SetPosition( camaraPosition[0], camaraPosition[1], camaraPosition[2] );
+                    this->GetDefaultRenderer( )->GetActiveCamera( )->SetViewAngle( viewAngle );
+                    this->GetDefaultRenderer( )->GetActiveCamera( )->SetParallelScale( parallelScale );
+
+                    
+                    
+//                    this->GetDefaultRenderer()->ResetCamera();
+                    this->Interactor->Render();
+
+                }
+                else
+                {
+                                std::cout<<"file not found."<<std::endl;
+                }
+                ifs.close();
+                
+                
+                
             }
             
             // Handle an arrow key

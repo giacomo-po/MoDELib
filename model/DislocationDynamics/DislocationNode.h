@@ -239,6 +239,7 @@ namespace model
             {
                 for(const auto& gb : grain->grainBoundaries())
                 {
+                    VerboseDislocationNode(4,"GB "<<gb.second->tag()<<", d="<<gb.second->distanceTo(this->get_P())<<", contained="<<gb.second->contains(this->get_P())<<std::endl;);
                     if(gb.second->contains(this->get_P()))
                     {
                         grainBoundaries().insert(gb.second);
@@ -246,6 +247,9 @@ namespace model
                     }
                 }
             }
+            VerboseDislocationNode(3,"added "<<addedGp<<" planes"<<std::endl;);
+
+            
             //            for(const auto& gb : this->network().poly.grainBoundaries())
             //            {
             //                if(gb.second.contains(this->get_P()))
@@ -275,6 +279,9 @@ namespace model
           * boundarySegments to become interior. In that case the closest boundary
           * vertex is returned.
           */
+            
+            VerboseDislocationNode(4,"snapping P="<<P.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
+
             
             const VectorDim pL=std::get<0>(boundingBoxSegments().snap(P));
             const VectorDim pV=boundingBoxSegments().snapToVertex(P).second;
@@ -324,12 +331,14 @@ namespace model
             
             if(pLcontained && parallelBndChords)
             {
+                    VerboseDislocationNode(4,"snapping to pL="<<pL.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
                 return pL;
             }
             else
             {
                 if(pVcontained)
                 {
+                    VerboseDislocationNode(4,"snapping to pV="<<pV.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
                     return pV;
                 }
                 else
@@ -894,7 +903,7 @@ namespace model
         /**********************************************************************/
         bool set_P(const VectorDim& newP)
         {
-            VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" set_P"<<std::endl;);
+            VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" current P="<< this->get_P().transpose()<<"set_P to "<<newP.transpose()<<std::endl;);
             // make sure that node is on glide planes
             bool glidePlanesContained=true;
             for(const auto& gp : meshPlanes())
@@ -958,6 +967,7 @@ namespace model
                             }
                             else
                             {// node is now on bounding box, and no GB planes were added
+                                VerboseDislocationNode(3,"case 7"<<std::endl;);
                                 _isOnBoundingBox=true;
                             }
                         }
@@ -976,7 +986,7 @@ namespace model
                     {
                         assert(boundingBoxSegments().contains(this->get_P()).first);
                         boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
-                        if(boundaryNormal.squaredNorm()<FLT_EPSILON)
+                        if(boundaryNormal.squaredNorm()<FLT_EPSILON && !isGrainBoundaryNode())
                         {
                             model::cout<<"DislocationNode "<<this->sID<<", @"<<std::setprecision(15)<<std::scientific<<this->get_P().transpose()<<std::endl;
                             model::cout<<"BoundingBox Lines:"<<std::endl;
@@ -1019,13 +1029,13 @@ namespace model
         {
             bool isMovable=true;
             
-            
+            VerboseDislocationNode(4,"checking if DislocationNode "<<this->sID<< " isMovable:"<<std::endl;);
+
             for(const auto& gp : meshPlanes())
             {// X must be contained by all glidePlanes
                 isMovable*=gp->contains(X);
             }
-            
-            //            std::cout<<"A "<<isMovable<<std::endl;
+            VerboseDislocationNode(4,"  meshPlanes contains X? "<<isMovable<<std::endl;);
             
             if(isMovable)
             {
@@ -1034,36 +1044,47 @@ namespace model
                 
                 for(const auto& pair : this->neighbors())
                 {
-                    //                            std::cout<<"neighbor "<<nA->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<temp.contains(0.5*(std::get<0>(pair.second)->get_P()+nB->get_P())).first<<std::endl;
-                    
-                    if(std::get<1>(pair.second)->isSessile())
-                    {// sessile segments cannot change direction
-                        
-                        isMovable*=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*(std::get<0>(pair.second)->get_P()-X).norm()*(std::get<0>(pair.second)->get_P()-this->get_P()).norm());
-                        
-                        //                        isMovable*=LineSegment<dim>(std::get<0>(pair.second)->get_P(),X).contains(this->get_P());
-                        //                        isMovable*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(std::get<0>(pair.second)->get_P()+X)).first;
-                    }
-                    
-                    //                                std::cout<<"B "<<isMovable<<std::endl;
-                    
                     if(std::get<1>(pair.second)->isBoundarySegment())
-                    {// boundary segments other than A->B must remain boundary
-                        isMovable*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(std::get<0>(pair.second)->get_P()+X)).first;
-                    }
-                    
-                    //                                std::cout<<"C "<<isMovable<<std::endl;
-                    
-                    if(std::get<1>(pair.second)->isGrainBoundarySegment())
-                    {// boundary segments other than A->B must remain boundary
-                        for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
+                    {// boundary segments other than must remain boundary if this node is moved
+                        const bool bndNeighborMovable=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(std::get<0>(pair.second)->get_P()+X)).first;
+                        VerboseDislocationNode(4,"  boundaryNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<bndNeighborMovable<<std::endl;);
+                        isMovable*=bndNeighborMovable;
+                        if(!isMovable)
                         {
-                            //                                        std::cout<<"grainBoundary neighbor "<<nA->sID<<" "<<pair.first<<" ("<<std::get<0>(pair.second)->sID<<") "<<gb->glidePlanes().begin()->second.contains(nB->get_P())<<std::endl;
-                            isMovable*=gb->contains(X); // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+                            break;
                         }
                     }
                     
-                    //                                std::cout<<"D "<<isMovable<<std::endl;
+                    if(std::get<1>(pair.second)->isGrainBoundarySegment())
+                    {// grain-boundary segments must remain grain-boundary if this node is moved
+                        for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
+                        {
+                            const bool gbNeighborMovable=gb->contains(X);
+                            VerboseDislocationNode(4,"  gbNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<gbNeighborMovable<<std::endl;);
+                            isMovable*=gbNeighborMovable;
+                            if(!isMovable)
+                            {
+                                break;
+                            }
+                        }
+                        if(!isMovable)
+                        {
+                            break;
+                        }
+                    }
+                    
+                    if(std::get<1>(pair.second)->isSessile())
+                    {// sessile segments cannot change direction if this node is moved
+                        const bool sessileNeighborMovable=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*(std::get<0>(pair.second)->get_P()-X).norm()*(std::get<0>(pair.second)->get_P()-this->get_P()).norm());
+                        VerboseDislocationNode(4,"  sessileNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<sessileNeighborMovable<<std::endl;);
+                        isMovable*=sessileNeighborMovable;
+                        if(!isMovable)
+                        {
+                            break;
+                        }
+                        //                        isMovable*=LineSegment<dim>(std::get<0>(pair.second)->get_P(),X).contains(this->get_P());
+                        //                        isMovable*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(std::get<0>(pair.second)->get_P()+X)).first;
+                    }
                 }
             }
             

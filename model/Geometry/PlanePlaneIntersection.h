@@ -39,7 +39,21 @@ namespace model
             const double Cp2((C-p2).norm());
             const bool Cp1OK((Cp1<tol)? true : fabs((C-p1).dot(n1))<tol*Cp1);
             const bool Cp2OK((Cp2<tol)? true : fabs((C-p2).dot(n2))<tol*Cp2);
-            return Cp1OK && Cp2OK;
+            const bool success(Cp1OK && Cp2OK);
+            if(!success)
+            {
+                model::cout<<"PlanePlaneIntersection FAILED"<<std::endl;
+                model::cout<<std::setprecision(15)<<std::scientific<<"C="<<C.transpose()<<std::endl;
+                model::cout<<std::setprecision(15)<<std::scientific<<"p1="<<p1.transpose()<<std::endl;
+                model::cout<<std::setprecision(15)<<std::scientific<<"n1="<<n1.transpose()<<std::endl;
+                model::cout<<std::setprecision(15)<<std::scientific<<"p2="<<p2.transpose()<<std::endl;
+                model::cout<<std::setprecision(15)<<std::scientific<<"n2="<<n2.transpose()<<std::endl;
+                model::cout<<std::setprecision(15)<<std::scientific<<"Cp1="<<Cp1<<std::endl;
+                model::cout<<std::setprecision(15)<<std::scientific<<"Cp2="<<Cp2<<std::endl;
+                model::cout<<std::setprecision(15)<<std::scientific<<"tol="<<tol<<std::endl;
+            }
+            
+            return success;
         }
         
         /**********************************************************************/
@@ -62,8 +76,8 @@ namespace model
             
             if(normD>tol)
             {
-                // Find the Cartesian point P which minimizes (P-p1)^2+(P-p2)^2 under
-                // the constraints (P-P1)*n1=0 and (P-P2)*n2=0
+                // Find the Cartesian point P which minimizes (C-p1)^2+(C-p2)^2 under
+                // the constraints (C-p1)*n1=0 and (C-p2)*n2=0
                 Eigen::Matrix<double,dim+2,dim+2> M(Eigen::Matrix<double,dim+2,dim+2>::Zero());
                 M.template block<dim,dim>(0,0)=2.0*Eigen::Matrix<double,dim,dim>::Identity();
                 M.template block<dim,1>(0,dim+0)=n1;
@@ -77,9 +91,8 @@ namespace model
                 b(dim+1)=p2.dot(n2);
                 
                 const VectorDimD C=M.ldlt().solve(b).template segment<dim>(0);
-                
                 assert(checkIntersection(C,p1,n1,p2,n2,tol) && "PlanePlaneIntersection FAILED.");
-                
+
                 return std::make_tuple(INCIDENT,C,D/normD);
             }
             else

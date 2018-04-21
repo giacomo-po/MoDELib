@@ -190,7 +190,8 @@ namespace model
                    //&& !linkIter.second->isSimpleSessile())
                    && !linkIter.second->isSessile()
                    && !linkIter.second->isBoundarySegment()
-//                   && !linkIter.second->isSimpleBndSegment()
+                   && !linkIter.second->isGrainBoundarySegment()
+                   //                   && !linkIter.second->isSimpleBndSegment()
                    )
                     
                 {

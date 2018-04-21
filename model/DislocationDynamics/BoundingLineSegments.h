@@ -403,6 +403,8 @@ namespace model
                 }
             }
             
+            assert(contains(snapMap.begin()->second.first).first && "BoundingLineSegments does not contains snapped point.");
+            
 //            return snapMap.begin()->second;
             return std::make_tuple(snapMap.begin()->second.first,snapMap.begin()->second.second,snapMap.begin()->first);
         }

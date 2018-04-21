@@ -150,7 +150,7 @@ namespace model
         /**********************************************************************/
         VectorDim pkIntegrand(const int& k) const
         { /*!@param[in] k the current quadrature point
-           *\returns dF_PK/du=dF_PK/dL*dL/du at quadrature point k, where 
+           *\returns dF_PK/du=dF_PK/dL*dL/du at quadrature point k, where
            * u in [0,1] is the spline parametrization
            */
             return pkGauss.col(k)*jgauss(k); // inverse mobility law
@@ -334,12 +334,12 @@ namespace model
                 if(this->sink->grainBoundaries().find(gb)!=this->sink->grainBoundaries().end())
                 {
                     grainBoundaries().insert(gb);
-//                    const auto& gp(gb->glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
-//                    addedGp+=addMeshPlane(*gp.get());
+                    //                    const auto& gp(gb->glidePlanes().begin()->second);// HERE BEGIN IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+                    //                    addedGp+=addMeshPlane(*gp.get());
                     addedGp+=addMeshPlane(*gb);
                 }
             }
-
+            
             return addedGp;
         }
         
@@ -371,12 +371,12 @@ namespace model
                     rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                     rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                     
-//                    if((this->chord()-rugauss.col(k)).squaredNorm()>FLT_EPSILON)
-//                    {
-//                        std::cout<<this->chord().transpose()<<std::endl;
-//                        std::cout<<rugauss.col(k).transpose()<<std::endl;
-//                        assert(0);
-//                    }
+                    //                    if((this->chord()-rugauss.col(k)).squaredNorm()>FLT_EPSILON)
+                    //                    {
+                    //                        std::cout<<this->chord().transpose()<<std::endl;
+                    //                        std::cout<<rugauss.col(k).transpose()<<std::endl;
+                    //                        assert(0);
+                    //                    }
                     jgauss(k)=rugauss.col(k).norm();
                     rlgauss.col(k)=rugauss.col(k)/jgauss(k);
                 }
@@ -407,12 +407,12 @@ namespace model
                             {
                                 const VectorDim& P1(this->source->get_P());
                                 const VectorDim d21=-(this->source->bndNormal()-this->source->bndNormal().dot(glidePlaneNormal())*glidePlaneNormal()).normalized();
-
+                                
                                 const VectorDim P2(P1-d21*virtualSegmentDistance);
                                 //const VectorDim d21=(P1-P2).normalized();
                                 const size_t qOrder12=QuadPowDynamicType::lowerOrder(quadPerLength*virtualSegmentDistance);
-
-//                                const VectorDim d21=(P1-P2).normalized();
+                                
+                                //                                const VectorDim d21=(P1-P2).normalized();
                                 
                                 for (unsigned int k=0;k<qOrder12;++k)
                                 {
@@ -435,7 +435,7 @@ namespace model
                             {
                                 const VectorDim& P1(this->sink->get_P());
                                 const VectorDim d12=(this->sink->bndNormal()-this->sink->bndNormal().dot(glidePlaneNormal())*glidePlaneNormal()).normalized();
-
+                                
                                 const VectorDim P2(P1+d12*virtualSegmentDistance);
                                 //const VectorDim d12=(P2-P1).normalized();
                                 const size_t qOrder12=QuadPowDynamicType::lowerOrder(quadPerLength*virtualSegmentDistance);
@@ -460,7 +460,7 @@ namespace model
                             
                         }
                     }
-
+                    
                     
                 }
                 else // boundary segment
@@ -642,11 +642,11 @@ namespace model
                 if(corder==0)
                 {
                     Kqq<<1.0/3.0,    0.0,    0.0, 1.0/6.0,    0.0,    0.0,
-                             0.0,1.0/3.0,    0.0,     0.0,1.0/6.0,    0.0,
-                             0.0,    0.0,1.0/3.0,     0.0,    0.0,1.0/6.0,
-                         1.0/6.0,    0.0,    0.0, 1.0/3.0,    0.0,    0.0,
-                             0.0,1.0/6.0,    0.0,     0.0,1.0/3.0,    0.0,
-                             0.0,    0.0,1.0/6.0,     0.0,    0.0,1.0/3.0;
+                    0.0,1.0/3.0,    0.0,     0.0,1.0/6.0,    0.0,
+                    0.0,    0.0,1.0/3.0,     0.0,    0.0,1.0/6.0,
+                    1.0/6.0,    0.0,    0.0, 1.0/3.0,    0.0,    0.0,
+                    0.0,1.0/6.0,    0.0,     0.0,1.0/3.0,    0.0,
+                    0.0,    0.0,1.0/6.0,     0.0,    0.0,1.0/3.0;
                     Kqq*=this->chord().norm();
                 }
                 else
@@ -701,7 +701,7 @@ namespace model
                                 
                                 if (std::fabs(tempKqq(localI,localJ))>FLT_EPSILON)
                                 {
-//                                    kqqT.push_back(Eigen::Triplet<double>(globalI,globalJ,tempKqq(localI,localJ)));
+                                    //                                    kqqT.push_back(Eigen::Triplet<double>(globalI,globalJ,tempKqq(localI,localJ)));
                                     kqqT.emplace_back(globalI,globalJ,tempKqq(localI,localJ));
                                 }
                                 
@@ -829,7 +829,9 @@ namespace model
         /**********************************************************************/
         bool isSessile() const
         {
-            return !isGlissile();
+            return    !isGlissile()
+            /*  */ && !isBoundarySegment()
+            /*  */ && !isGrainBoundarySegment();
         }
         
         /**********************************************************************/

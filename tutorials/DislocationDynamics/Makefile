@@ -170,6 +170,15 @@ $(straightOBJS):
 	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/straightGenerator.cpp -o straightGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
+# MAKE straightGenerator
+##########################################################
+pairOBJS = pairGenerator
+
+$(pairOBJS):
+	@echo making pairGenerator
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/pairGenerator.cpp -o pairGenerator -O3 -std=c++14 $(IDIR)
+
+##########################################################
 # MAKE DDCONVERTER
 ##########################################################
 converterOBJS = DDconverter

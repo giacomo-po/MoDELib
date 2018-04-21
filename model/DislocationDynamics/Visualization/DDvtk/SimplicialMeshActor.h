@@ -45,6 +45,9 @@
 // See this for plane interactor
 // https://www.vtk.org/Wiki/VTK/Examples/Cxx/Widgets/ImplicitPlaneWidget2
 
+// camera
+// https://www.vtk.org/pipermail/vtkusers/2014-January/082864.html
+
 namespace model
 {
     
@@ -141,9 +144,14 @@ namespace model
             mapper->SetInputData(polydata);
             
             actor->SetMapper ( mapper );
-            actor->GetProperty()->SetLineWidth(0.1);
-            actor->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh. (1,1,1) is white
-            actor->GetProperty()->SetOpacity(0.15); //Make the mesh have some transparency.
+//            actor->GetProperty()->SetLineWidth(0.1);
+            actor->GetProperty()->SetLineWidth(0.5);
+
+//            actor->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh. (1,1,1) is white
+            actor->GetProperty()->SetColor(0.0,0.0,0.0); // Give some color to the mesh. (1,1,1) is white
+
+            //            actor->GetProperty()->SetOpacity(0.15); //Make the mesh have some transparency.
+            actor->GetProperty()->SetOpacity(0.5); //Make the mesh have some transparency.
             
             
             gbColors->SetNumberOfComponents(3);
@@ -287,6 +295,7 @@ namespace model
             gbMapper->SetInputData(gbTrianglePolyData);
             gbActor->SetMapper(gbMapper);
             gbActor->GetProperty()->SetOpacity(0.05);
+//            gbActor->GetProperty()->SetOpacity(1);
             
             //            gbActor->GetProperty()->SetColor(0.0,0.5,0.5);
             

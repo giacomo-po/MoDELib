@@ -47,6 +47,12 @@ namespace model
         {
             return P0-(P0-P).dot(unitNormal)*unitNormal;
         }
+        
+        /**********************************************************************/
+        double distanceTo(const VectorDim& P0) const
+        {
+            return fabs((P0-P).dot(unitNormal));
+        }
 
         
     };

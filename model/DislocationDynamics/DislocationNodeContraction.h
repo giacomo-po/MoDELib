@@ -119,8 +119,28 @@ namespace model
                             }
                             else
                             {
-                                VerboseNodeContraction(1,"DislocationNodeContraction case 1d"<<std::endl;);
-                                return false;
+                                if(temp.size()==1 && (temp[0].first-temp[0].second).norm()<FLT_EPSILON)
+                                {// a unique intersection point of the bounding boxes exist
+                                    const VectorDim X=0.5*(temp[0].first+temp[0].second);
+                                    
+                                    if(nA->isMovableTo(X) && nB->isMovableTo(X))
+                                    {
+                                        VerboseNodeContraction(1,"DislocationNodeContraction case 1d"<<std::endl;);
+                                        nA->set_P(X);
+                                        nB->set_P(X);
+                                        return contractYoungest(nA,nB);
+                                    }
+                                    else
+                                    {
+                                        VerboseNodeContraction(1,"DislocationNodeContraction case 1e"<<std::endl;);
+                                        return false;
+                                    }
+                                }
+                                else
+                                {
+                                    VerboseNodeContraction(1,"DislocationNodeContraction case 1f"<<std::endl;);
+                                    return false;
+                                }
                             }
                         }
                         else if(nA->isOnBoundingBox() && !nB->isOnBoundingBox())
