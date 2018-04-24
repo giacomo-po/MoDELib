@@ -795,10 +795,28 @@ namespace model
             return grainBoundaries().size();
         }
         
+//        /**********************************************************************/
+//        bool isPureBoundaryNode() const
+//        {
+//            return isBoundaryNode() && isConnectedToBoundaryNodes();
+//        }
+
         /**********************************************************************/
         bool isPureBoundaryNode() const
         {
-            return isBoundaryNode() && isConnectedToBoundaryNodes();
+            bool temp=isBoundaryNode();
+            if(temp)
+            {
+                for (const auto& neighborIter : this->neighbors())
+                {
+                    temp*=std::get<1>(neighborIter.second)->isBoundarySegment();
+                    if(!temp)
+                    {
+                        break;
+                    }
+                }
+            }
+            return  temp;
         }
         
         /**********************************************************************/
@@ -808,8 +826,11 @@ namespace model
             for (const auto& neighborIter : this->neighbors())
             {
                 temp*=std::get<0>(neighborIter.second)->isBoundaryNode();
+                if(!temp)
+                {
+                    break;
+                }
             }
-            
             return temp;
         }
         

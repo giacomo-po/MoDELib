@@ -46,10 +46,14 @@ namespace model
             EigenDataReader EDR;
             double targetDensity=0.0;
             EDR.readScalarInFile("./microstructureInput.txt","targetDensity",targetDensity);
-            
+
+            double fractionSessile=0.0;
+            EDR.readScalarInFile("./microstructureInput.txt","fractionSessile",fractionSessile);
+
             
             // init counters
             double density=0.0;
+            double sessileDensity=0.0;
             size_t nodeID=0;
             size_t loopID=0;
             size_t snID=0;
@@ -65,11 +69,22 @@ namespace model
                 const int rSS=distribution(generator); // a random SlipSystem ID
                 const SlipSystem& slipSystem=this->poly.grain(grainID).slipSystems()[rSS];
                 const VectorDimD b=slipSystem.s.cartesian();    // Burgers vector
-                const VectorDimD n=slipSystem.n.cartesian().normalized(); // slip plane normal
                 
+                
+                VectorDimD n=slipSystem.n.cartesian().normalized(); // slip plane normal
                 std::uniform_real_distribution<> dis(0.0, 2.0*M_PI);
                 const double theta=dis(generator); // random angle of the dislocation line in the plane from screw orientation.
-                const VectorDimD d=Eigen::AngleAxisd(theta, n)*b.normalized();
+                VectorDimD d=Eigen::AngleAxisd(theta, n)*b.normalized();
+
+                bool isSessile=false;
+                if(sessileDensity/targetDensity<fractionSessile)
+                {
+                    n=b.normalized();
+                    isSessile=true;
+                    d=Eigen::AngleAxisd(theta, n)*n.cross(VectorDimD::Random()).normalized();
+                }
+                
+                
                 
                 // Define line AB containing dislocaiton and piercing the mesh
                 const VectorDimD A=P0+3.0*this->maxSize()*d;
@@ -144,11 +159,11 @@ namespace model
                 }
                 
                 const double lineLength=(nodePos[nodePos.size()-1]-nodePos[0]).norm();
-                nodePos.push_back(nodePos[nodePos.size()-1]+1.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
-                nodePos.push_back(nodePos[nodePos.size()-1]+2.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
+//                nodePos.push_back(nodePos[nodePos.size()-1]+1.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
+//                nodePos.push_back(nodePos[nodePos.size()-1]+2.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
                 
                 // Write files
-                if(nodePos.size()>=5)
+                if(nodePos.size()>=3)
                 {
                     // write node and edge file
                     for(int k=0;k<nodePos.size();++k)
@@ -168,7 +183,11 @@ namespace model
                     loopID+=1;
                     snID+=1;
                     density += lineLength/this->mesh.volume()/std::pow(Material<Isotropic>::b_real,2);
-                    std::cout<<"theta="<<theta*180.0/M_PI<<", density="<<density<<std::endl;
+                    if(isSessile)
+                    {
+                    sessileDensity += lineLength/this->mesh.volume()/std::pow(Material<Isotropic>::b_real,2);
+                    }
+                    std::cout<<"theta="<<theta*180.0/M_PI<<", density="<<density<<" (sessileDensity="<<sessileDensity<<")"<<std::endl;
                 }
             }
         }

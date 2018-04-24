@@ -650,23 +650,14 @@ namespace model
                 const MatrixNcoeff  SFCH(this->sfCoeffs());
                 const MatrixNcoeffDim qH(this->hermiteDofs());
                 
-                
                 // Compute geometric quantities
                 for (unsigned int k=0;k<qOrder;++k)
                 {
                     SFgauss.row(k)=QuadPowDynamicType::uPow(qOrder).row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                     rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
                     rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
-                    
-                    //                    if((this->chord()-rugauss.col(k)).squaredNorm()>FLT_EPSILON)
-                    //                    {
-                    //                        std::cout<<this->chord().transpose()<<std::endl;
-                    //                        std::cout<<rugauss.col(k).transpose()<<std::endl;
-                    //                        assert(0);
-                    //                    }
                     jgauss(k)=rugauss.col(k).norm();
                     rlgauss.col(k)=rugauss.col(k)/jgauss(k);
-                    
                     
                     pkGauss.col(k).setZero();//(dim,qOrder);
                     stressGauss.push_back(MatrixDim::Zero());
@@ -676,8 +667,8 @@ namespace model
                 
                 //! 1- Compute and store stress and PK-force at quadrature points
                 //                if(!this->network().use_bvp && isBoundarySegment())
-                if(isBoundarySegment())
-                {
+                if(isBoundarySegment() || isSessile())
+                {// skip stress computation since segment will not move anyway
                     pkGauss.setZero(dim,qOrder);
                 }
                 else
@@ -760,11 +751,11 @@ namespace model
                 if(corder==0)
                 {
                     Kqq<<1.0/3.0,    0.0,    0.0, 1.0/6.0,    0.0,    0.0,
-                    0.0,1.0/3.0,    0.0,     0.0,1.0/6.0,    0.0,
-                    0.0,    0.0,1.0/3.0,     0.0,    0.0,1.0/6.0,
-                    1.0/6.0,    0.0,    0.0, 1.0/3.0,    0.0,    0.0,
-                    0.0,1.0/6.0,    0.0,     0.0,1.0/3.0,    0.0,
-                    0.0,    0.0,1.0/6.0,     0.0,    0.0,1.0/3.0;
+                    /**/     0.0,1.0/3.0,    0.0,     0.0,1.0/6.0,    0.0,
+                    /**/     0.0,    0.0,1.0/3.0,     0.0,    0.0,1.0/6.0,
+                    /**/     1.0/6.0,0.0,    0.0, 1.0/3.0,    0.0,    0.0,
+                    /**/     0.0,1.0/6.0,    0.0,     0.0,1.0/3.0,    0.0,
+                    /**/     0.0,    0.0,1.0/6.0,     0.0,    0.0,1.0/3.0;
                     Kqq*=this->chord().norm();
                 }
                 else
