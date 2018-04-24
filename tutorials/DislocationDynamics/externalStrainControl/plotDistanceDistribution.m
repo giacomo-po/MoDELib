@@ -2,7 +2,7 @@ clear all
 %close all
 clc
 
-frameID=10;
+frameID=5;
 d=load(['H/H_' num2str(frameID) '.txt']);
 
 %x=d(:,3)./(d(:,1)+d(:,2));

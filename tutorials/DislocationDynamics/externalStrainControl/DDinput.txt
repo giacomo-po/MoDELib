@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=20000;
+Nsteps=100;
 startAtTimeStep = -1;
 quadPerLength=0.1;
 
@@ -22,16 +22,16 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=10;
 outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=1;
+outputPKforce=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
 outputPlasticDistortion=0;
-outputPlasticDistortionRate=0;
+outputPlasticDistortionRate=1;
 outputDislocationLength=0;
 outputQuadratureParticles=0;
 outputLinkingNumbers=0;

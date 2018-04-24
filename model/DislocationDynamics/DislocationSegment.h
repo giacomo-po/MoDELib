@@ -344,6 +344,32 @@ namespace model
         }
         
         /**********************************************************************/
+        void addToStressStraight(std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& straightSegmentsDeq) const
+        {
+            if(!hasZeroBurgers())
+            {
+                
+                if(this->network().use_bvp) // using FEM correction
+                {
+                    assert(0 && "FINISH HERE");
+                }
+                else
+                {// Don't add stress
+                    if(!isBoundarySegment())
+                    {
+                        straightSegmentsDeq.emplace_back(this->source->get_P(),
+                                                         this->sink->get_P(),
+                                                         burgers());
+                    }
+                    else
+                    {
+                        
+                    }
+                }
+            }
+        }
+        
+        /**********************************************************************/
         void updateQuadraturePoints(ParticleSystem<DislocationParticleType>& particleSystem)
         {/*! @param[in] particleSystem the ParticleSystem of DislocationParticle
           *  Computes all geometric properties at the k-th quadrature point
@@ -596,6 +622,176 @@ namespace model
           */
             return pkGauss;
         }
+        
+        
+        /**********************************************************************/
+        void assemble(const std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& straightSegmentsDeq)
+        {
+            
+            quadratureParticleContainer.clear();
+            qOrder=QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm());
+            quadratureParticleContainer.reserve(qOrder);
+            
+            SFgauss.setZero(qOrder,Ncoeff);
+            rgauss.setZero(dim,qOrder);
+            rugauss.setZero(dim,qOrder);
+            jgauss.setZero(qOrder);
+            rlgauss.setZero(dim,qOrder);
+            pkGauss.setZero(dim,qOrder);
+            stressGauss.clear();
+            
+            
+            Fq.setZero();
+            Kqq.setZero();
+            
+            
+            if(!hasZeroBurgers())
+            {
+                const MatrixNcoeff  SFCH(this->sfCoeffs());
+                const MatrixNcoeffDim qH(this->hermiteDofs());
+                
+                
+                // Compute geometric quantities
+                for (unsigned int k=0;k<qOrder;++k)
+                {
+                    SFgauss.row(k)=QuadPowDynamicType::uPow(qOrder).row(k)*SFCH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                    rgauss.col(k)=SFgauss.row(k)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                    rugauss.col(k)=QuadPowDynamicType::duPow(qOrder).row(k)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH; // WHY ARE WE LOOPING TO DO THIS MATRIX MULTIPLICATION???? THIS SHOULD BE STORED IN QUADRATURE PARTICLE
+                    
+                    //                    if((this->chord()-rugauss.col(k)).squaredNorm()>FLT_EPSILON)
+                    //                    {
+                    //                        std::cout<<this->chord().transpose()<<std::endl;
+                    //                        std::cout<<rugauss.col(k).transpose()<<std::endl;
+                    //                        assert(0);
+                    //                    }
+                    jgauss(k)=rugauss.col(k).norm();
+                    rlgauss.col(k)=rugauss.col(k)/jgauss(k);
+                    
+                    
+                    pkGauss.col(k).setZero();//(dim,qOrder);
+                    stressGauss.push_back(MatrixDim::Zero());
+                }
+                
+                
+                
+                //! 1- Compute and store stress and PK-force at quadrature points
+                //                if(!this->network().use_bvp && isBoundarySegment())
+                if(isBoundarySegment())
+                {
+                    pkGauss.setZero(dim,qOrder);
+                }
+                else
+                {
+                    
+                    const double L0(this->chord().norm());
+                    const VectorDim c(0.5*(this->source->get_P()+this->sink->get_P()));
+                    for(const auto& ss : straightSegmentsDeq)
+                    {
+                        SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
+                                                        this->source->get_P(),this->sink->get_P());
+                        
+                        //                        const double dr(ssd.dMin/(L0+ss.length));
+                        const double dr(ssd.dMin/(L0));
+                        
+                        if(dr<10.0)
+                        {// full interaction
+                            for (unsigned int k=0;k<qOrder;++k)
+                            {
+                                stressGauss[k]+=ss.stress(rgauss.col(k));
+                            }
+                        }
+                        else if(dr<100.0)
+                        {// 2pt interpolation
+                            const MatrixDim stressSource(ss.stress(this->source->get_P()));
+                            const MatrixDim stressSink(ss.stress(this->sink->get_P()));
+                            for (unsigned int k=0;k<qOrder;++k)
+                            {
+                                const double u(QuadratureDynamicType::abscissa(qOrder,k));
+                                stressGauss[k]+=(1.0-u)*stressSource+u*stressSink;
+                            }
+                        }
+                        else
+                        {// 1pt interpolation
+                            const MatrixDim stressC(ss.stress(c));
+                            for (unsigned int k=0;k<qOrder;++k)
+                            {
+                                stressGauss[k]+=stressC;
+                            }
+                        }
+                    }
+                    
+                    // Add other stress contributions, and compute PK force
+                    for (unsigned int k=0;k<qOrder;++k)
+                    {
+                        // Add stress of ExternalLoadController
+                        stressGauss[k]+=this->network().extStressController.externalStress();
+                        
+                        // Add BVP stress
+                        if(this->network().use_bvp)
+                        {
+                            stressGauss[k] += this->network().bvpSolver.stress(rgauss.col(k),this->source->includingSimplex());
+                        }
+                        
+                        // Add GB stress
+                        for(const auto& sStraight : this->network().poly.grainBoundaryDislocations() )
+                        {
+                            stressGauss[k] +=sStraight.stress(rgauss.col(k));
+                        }
+                        
+                        // compute PK force
+                        pkGauss.col(k)=(stressGauss[k]*Burgers).cross(rlgauss.col(k));
+                    }
+                }
+                
+                
+                /*! 2- Assemble the force vector of this segment
+                 *	\f[
+                 *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
+                 *	\f]
+                 */
+                QuadratureDynamicType::integrate(qOrder,this,Fq,&LinkType::velocityIntegrand);
+                
+                
+                /*! 3- Assembles the stiffness matrix of this segment.
+                 *	\f[
+                 *		\mathbf{K} = int_0^1 \mathbf{K}^*(u) du
+                 *	\f]
+                 */
+                if(corder==0)
+                {
+                    Kqq<<1.0/3.0,    0.0,    0.0, 1.0/6.0,    0.0,    0.0,
+                    0.0,1.0/3.0,    0.0,     0.0,1.0/6.0,    0.0,
+                    0.0,    0.0,1.0/3.0,     0.0,    0.0,1.0/6.0,
+                    1.0/6.0,    0.0,    0.0, 1.0/3.0,    0.0,    0.0,
+                    0.0,1.0/6.0,    0.0,     0.0,1.0/3.0,    0.0,
+                    0.0,    0.0,1.0/6.0,     0.0,    0.0,1.0/3.0;
+                    Kqq*=this->chord().norm();
+                }
+                else
+                {
+                    assert(0 && "WE NEED TO INCREASE qOrder FOR THE FOLLOWING INTEGRATION, SINCE EVEN FOR LINEAR SEGMENTS Kqq IS NOT INTEGRATED CORRECLTY FOR SMALL qOrder");
+                    QuadratureDynamicType::integrate(qOrder,this,Kqq,&LinkType::stiffness_integrand);
+                }
+                
+                h2posMap=this->hermite2posMap();
+                
+                Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
+                
+                size_t c=0;
+                for(const auto& pair : h2posMap)
+                {
+                    for(int r=0;r<Ncoeff;++r)
+                    {
+                        Mseg.template block<dim,dim>(r*dim,c*dim)=pair.second.first(r)*MatrixDim::Identity();
+                    }
+                    c++;
+                }
+                
+                
+            }
+            
+        }
+        
         
         /**********************************************************************/
         void assemble()

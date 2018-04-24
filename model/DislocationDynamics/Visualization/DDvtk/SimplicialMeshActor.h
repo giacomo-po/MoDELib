@@ -147,8 +147,8 @@ namespace model
 //            actor->GetProperty()->SetLineWidth(0.1);
             actor->GetProperty()->SetLineWidth(0.5);
 
-//            actor->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh. (1,1,1) is white
-            actor->GetProperty()->SetColor(0.0,0.0,0.0); // Give some color to the mesh. (1,1,1) is white
+            actor->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh. (1,1,1) is white
+//            actor->GetProperty()->SetColor(0.0,0.0,0.0); // Give some color to the mesh. (1,1,1) is white
 
             //            actor->GetProperty()->SetOpacity(0.15); //Make the mesh have some transparency.
             actor->GetProperty()->SetOpacity(0.5); //Make the mesh have some transparency.
@@ -312,7 +312,7 @@ namespace model
             
             
             renderer->AddActor(gbActor);
-            renderer->AddActor(clipActor);
+//            renderer->AddActor(clipActor);
             
             
             // Update

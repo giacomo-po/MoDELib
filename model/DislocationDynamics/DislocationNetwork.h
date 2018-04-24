@@ -65,7 +65,7 @@ namespace model
 {
     
     template <int _dim, short unsigned int corder, typename InterpolationType>
-    class DislocationNetwork : 
+    class DislocationNetwork :
     /* base                 */ public GlidePlaneObserver<_dim>,
     /* base                 */ public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType> >,
     /* base                 */ public ParticleSystem<DislocationParticle<_dim> >
@@ -99,9 +99,13 @@ namespace model
         typedef ExternalStressFieldController<dim> ExternalStressFieldControllerType;
         //        enum {NdofXnode=NodeType::NdofXnode};
         
+        typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
+        typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;
+        
+        
         int timeIntegrationMethod;
         //        bool use_analyticalStraightStress;
-//        bool use_junctions;
+        //        bool use_junctions;
         int maxJunctionIterations;
         long int runID;
         double totalTime;
@@ -307,7 +311,7 @@ namespace model
         DislocationNetwork(int& argc, char* argv[]) :
         /* init list  */ timeIntegrationMethod(0),
         //        /* init list  */ use_analyticalStraightStress(true),
-//        /* init list  */ use_junctions(false),
+        //        /* init list  */ use_junctions(false),
         maxJunctionIterations(1),
         /* init list  */ runID(0),
         /* init list  */ totalTime(0.0),
@@ -387,7 +391,6 @@ namespace model
         void assembleAndSolve()
         {/*! Performs the following operatons:
           */
-            const auto t0= std::chrono::system_clock::now();
 #ifdef _OPENMP
             const size_t nThreads = omp_get_max_threads();
 #else
@@ -395,84 +398,94 @@ namespace model
 #endif
             
             //! -1 Compute the interaction StressField between dislocation particles
-            if(computeDDinteractions)
-            {
-
+            
+            
             if(corder==0)
             {// For straight segments use analytical expression of stress field
-                model::cout<<"		Computing analytical stress field at quadrature points ("<<nThreads<<" threads) "<<std::flush;
+                const auto t0= std::chrono::system_clock::now();
+                model::cout<<"		Collecting StressStraight objects: "<<std::flush;
                 
                 std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
-                for(const auto& link : this->networkLinks())
+                
+                if(computeDDinteractions)
                 {
-                    if(!link.second->hasZeroBurgers())
+                    for(const auto& link : this->networkLinks())
                     {
-                        if(!link.second->isBoundarySegment())
-                        {
-                                straightSegmentsDeq.emplace_back(link.second->source->get_P(),
-                                                                 link.second->sink->get_P(),
-                                                                 link.second->burgers());
-                        }
-                        else
-                        {
-                            if(use_bvp) // using FEM correction
-                            {
-                                assert(0 && "FINISH HERE");
-                                if(use_virtualSegments)
-                                {
-                                    
-                                }
-                            }
-                            else
-                            {// Don't add stress
-                                
-                            }
-                        }
+                        link.second->addToStressStraight(straightSegmentsDeq);
                     }
                 }
-                
-                model::cout<< straightSegmentsDeq.size()<<" straight segments x "<<this->particleSystem().size()<<" field points "<<std::flush;
-                
-                
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-                for (unsigned int k=0; k<this->particleSystem().size();++k)
-                {
-                    if(this->particleSystem()[k].template fieldPointBase<StressField>().enabled)
-                    {
-                        this->particleSystem()[k].template fieldPointBase<StressField>() += StressField::addSourceContribution(this->particleSystem()[k],straightSegmentsDeq);
-                    }
-                }
+                model::cout<< straightSegmentsDeq.size()<<" straight segments"<<std::flush;
                 model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+                
+                const auto t1= std::chrono::system_clock::now();
+                model::cout<<"		Computing analytical stress field at quadrature points ("<<nThreads<<" threads) "<<std::flush;
+#ifdef _OPENMP
+                //                const size_t nThreads = omp_get_max_threads();
+                EqualIteratorRange<typename NetworkLinkContainerType::iterator> eir(this->links().begin(),this->links().end(),nThreads);
+#pragma omp parallel for
+                for(size_t thread=0;thread<eir.size();thread++)
+                {
+                    for (auto& linkIter=eir[thread].first;linkIter!=eir[thread].second;linkIter++)
+                    {
+                        linkIter->second->assemble(straightSegmentsDeq);
+                    }
+                }
+#else
+                assert(0 && "FINISH HERE");
+#endif
+                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
+                
+                
+                
+                
+                
+                
+                //#ifdef _OPENMP
+                //#pragma omp parallel for
+                //#endif
+                //                for (unsigned int k=0; k<this->particleSystem().size();++k)
+                //                {
+                //                    if(this->particleSystem()[k].template fieldPointBase<StressField>().enabled)
+                //                    {
+                //                        this->particleSystem()[k].template fieldPointBase<StressField>() += StressField::addSourceContribution(this->particleSystem()[k],straightSegmentsDeq);
+                //                    }
+                //                }
+                //                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             }
             else
             {// For curved segments use quandrature integration of stress field
-                model::cout<<"		Computing numerical stress field at quadrature points ("<<nThreads<<" threads)..."<<std::flush;
-                if (use_externaldislocationstressfield)
+                
+                const auto t0= std::chrono::system_clock::now();
+                
+                if(computeDDinteractions)
                 {
-                    this->template computeNeighborField<StressField>(ssdeq);
+                    model::cout<<"		Computing numerical stress field at quadrature points ("<<nThreads<<" threads)..."<<std::flush;
+                    if (use_externaldislocationstressfield)
+                    {
+                        this->template computeNeighborField<StressField>(ssdeq);
+                    }
+                    else
+                    {
+                        this->template computeNeighborField<StressField>();
+                    }
+                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
                 }
-                else
-                {
-                    this->template computeNeighborField<StressField>();
-                }
-                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+                
+                //! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
+                const auto t1= std::chrono::system_clock::now();
+                model::cout<<"		Computing segment stiffness matrices and force vectors ("<<nThreads<<" threads)..."<<std::flush;
+                typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
+                LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
+                this->parallelExecute(Lmfp);
+                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
+
+                
             }
-        }
-        
-            //! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
-            model::cout<<"		Computing segment stiffness matrices and force vectors ("<<nThreads<<" threads)..."<<std::flush;
-            const auto t2= std::chrono::system_clock::now();
-            typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
-            LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
-            this->parallelExecute(Lmfp);
-            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]."<<defaultColor<<std::endl;
             
             //! -3 Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve
+            const auto t2= std::chrono::system_clock::now();
             model::cout<<"		Assembling NetworkComponents and solving "<<std::flush;
-            const auto t3= std::chrono::system_clock::now();
-
+            
             
             
             switch (ddSolverType)
@@ -546,34 +559,37 @@ namespace model
                 }
             }
             
-//            if(DislocationNetworkComponentType::use_directSolver)
-//            {
-//                
-//
-//            }
-//            else // iterative solver
-//            {
-//
-//            }
+            //            if(DislocationNetworkComponentType::use_directSolver)
+            //            {
+            //
+            //
+            //            }
+            //            else // iterative solver
+            //            {
+            //
+            //            }
             
-            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]."<<defaultColor<<std::endl;
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]."<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/
         void updateQuadraturePoints()
         {
-            model::cout<<"		Updating quadrature points... "<<std::flush;
-            const auto t0=std::chrono::system_clock::now();
-            
-            // Clear DislocationParticles
-            this->clearParticles(); // this also destroys all cells
-            
-            // Populate DislocationParticles
-            for(auto& linkIter : this->links())
-            {
-                linkIter.second->updateQuadraturePoints(*this);
+            if(corder>0)
+            {// quadrature points only used for curved segments
+                model::cout<<"		Updating quadrature points... "<<std::flush;
+                const auto t0=std::chrono::system_clock::now();
+                
+                // Clear DislocationParticles
+                this->clearParticles(); // this also destroys all cells
+                
+                // Populate DislocationParticles
+                for(auto& linkIter : this->links())
+                {
+                    linkIter.second->updateQuadraturePoints(*this);
+                }
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
         
         
@@ -692,6 +708,9 @@ namespace model
           *
           * Note:
           */
+            
+            assert(false && "REWORK THIS FOR STRAIGHT SEGMENTS");
+            
             SingleFieldPoint<StressField> fieldPoint(P,true);
             this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoint);
             return fieldPoint.field();

@@ -1,0 +1,16 @@
+close all
+clear all
+clc
+
+frameID=10;
+
+P=load(['P/P_' num2str(frameID) '.txt']);
+P2pt=load(['P2pt/P_' num2str(frameID) '.txt']);
+
+normP=sqrt(sum((P(:,7:9).*P(:,7:9))'))';
+dP=P-P2pt;
+normdP=sqrt(sum((dP(:,7:9).*dP(:,7:9))'))';
+id=find(normP>1e-5);
+figure
+plot(normdP(id)./normP(id))
+grid on
