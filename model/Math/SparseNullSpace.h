@@ -16,13 +16,18 @@
 #include <Eigen/SparseQR>
 //#include <Eigen/SparseLU> // only for square matrics
 #include <Eigen/OrderingMethods>
-#include <model/MPI/MPIcout.h>
+//#include <model/MPI/MPIcout.h>
 
 // http://stackoverflow.com/questions/2181418/computing-the-null-space-of-a-matrix-as-fast-as-possible
 
 namespace model
 {
-
+    /*!Class template for the calculation of the null space of a sparse matrix
+     * based on the sparse QR decomposition. The input matrix C is decomposed as
+     * C=[Y Z], where Y is a full-rank matrix and Z is a ba
+     *
+     * The solution strategy for this
+     */
     template<typename SparseMatrixType>
     class SparseNullSpace
     {
@@ -34,7 +39,8 @@ namespace model
         
     public:
         
-        SparseNullSpace(const SparseMatrixType& C, const Scalar& tol=Eigen::NumTraits<Scalar>::dummy_precision())
+        SparseNullSpace(const SparseMatrixType& C,
+                        const Scalar& tol=Eigen::NumTraits<Scalar>::dummy_precision())
         {
 
 //            const auto t1= std::chrono::system_clock::now();
@@ -43,15 +49,15 @@ namespace model
 //            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<std::endl;
 
             
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"Computing QR... "<<std::flush;
+//            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"Computing QR... "<<std::flush;
 
 
             
 //            Eigen::SparseQR<SparseMatrixType,Eigen::COLAMDOrdering<int> > qr(C.transpose());
             Eigen::SparseQR<SparseMatrixType,Eigen::COLAMDOrdering<int> > qr(C.transpose());
 
-            model::cout<<"done qr... "<<std::flush;
+//            model::cout<<"done qr... "<<std::flush;
 
             
             int nnz=0; // number of non-zero diagonal elements
@@ -67,24 +73,26 @@ namespace model
                 }
             }
             
-            model::cout<<"done loop... "<<std::flush;
+            assert(nnz==qr.rank());
+            
+//            model::cout<<"done loop... "<<std::flush;
 
             
             SparseMatrixType Q;
             Q=qr.matrixQ();
             
-            model::cout<<"done Q... "<<std::flush;
+//            model::cout<<"done Q... "<<std::flush;
 
             Z=Q.rightCols(Q.cols()-nnz);
             
-            model::cout<<"done Z... "<<std::flush;
+//            model::cout<<"done Z... "<<std::flush;
 
             Y=Q.leftCols(nnz);
             
-            model::cout<<"done Y... "<<std::flush;
+//            model::cout<<"done Y... "<<std::flush;
 
             
-            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+//            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
 
         }

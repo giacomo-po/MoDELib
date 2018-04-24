@@ -135,7 +135,7 @@ namespace model
     double DDtimeIntegrator<0>::dxMax=10.0;
 
     //template <>
-    double DDtimeIntegrator<0>::shearWaveSpeedFraction=0.0001;
+    double DDtimeIntegrator<0>::shearWaveSpeedFraction=1.0e-3;
 	
 //    /**********************************************************************/
 //    /**********************************************************************/
